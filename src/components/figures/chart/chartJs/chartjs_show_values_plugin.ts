@@ -1,4 +1,5 @@
 import { ChartType, Plugin } from "chart.js";
+import { computeTextWidth } from "../../../../helpers";
 import { chartFontColor } from "../../../../helpers/figures/charts/chart_common";
 import { Color } from "../../../../types";
 
@@ -26,71 +27,138 @@ export const chartShowValuesPlugin: Plugin = {
     if (!drawData) {
       return;
     }
-    const ctx = chart.ctx;
+    const ctx = chart.ctx as CanvasRenderingContext2D;
     ctx.save();
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = chartFontColor(options.background);
-    ctx.strokeStyle = chartFontColor(ctx.fillStyle);
+    ctx.miterLimit = 1; // Avoid sharp artifacts on strokeText
 
-    chart._metasets.forEach(function (dataset) {
-      switch (dataset.type) {
-        case "doughnut":
-        case "pie": {
-          for (let i = 0; i < dataset._parsed.length; i++) {
-            const bar = dataset.data[i];
-            const { startAngle, endAngle, innerRadius, outerRadius } = bar;
-            const midAngle = (startAngle + endAngle) / 2;
-            const midRadius = (innerRadius + outerRadius) / 2;
-            const x = bar.x + midRadius * Math.cos(midAngle);
-            const y = bar.y + midRadius * Math.sin(midAngle) + 7;
-
-            ctx.fillStyle = chartFontColor(bar.options.backgroundColor);
-            ctx.strokeStyle = chartFontColor(ctx.fillStyle);
-
-            const value = options.callback(dataset._parsed[i]);
-            ctx.strokeText(value, x, y);
-            ctx.fillText(value, x, y);
-          }
-          break;
-        }
-        case "bar":
-        case "line": {
-          const yOffset = dataset.type === "bar" && !options.horizontal ? 0 : 3;
-          for (let i = 0; i < dataset._parsed.length; i++) {
-            const point = dataset.data[i];
-            const value = options.horizontal ? dataset._parsed[i].x : dataset._parsed[i].y;
-            const displayedValue = options.callback(value - 0);
-            let xPosition = 0,
-              yPosition = 0;
-            if (options.horizontal) {
-              yPosition = point.y;
-              if (value < 0) {
-                ctx.textAlign = "right";
-                xPosition = point.x - yOffset;
-              } else {
-                ctx.textAlign = "left";
-                xPosition = point.x + yOffset;
-              }
-            } else {
-              xPosition = point.x;
-              if (value < 0) {
-                ctx.textBaseline = "top";
-                yPosition = point.y + yOffset;
-              } else {
-                ctx.textBaseline = "bottom";
-                yPosition = point.y - yOffset;
-              }
-            }
-            ctx.strokeText(displayedValue, xPosition, yPosition);
-            ctx.fillText(displayedValue, xPosition, yPosition);
-          }
-          break;
-        }
-      }
-    });
+    switch (chart.config.type) {
+      case "pie":
+      case "doughnut":
+        drawPieChartValues(chart, options, ctx);
+        break;
+      case "bar":
+      case "line":
+        options.horizontal
+          ? drawHorizontalBarChartValues(chart, options, ctx)
+          : drawLineOrBarChartValues(chart, options, ctx);
+        break;
+    }
 
     ctx.restore();
   },
 };
+
+function drawTextWithBackground(text: string, x: number, y: number, ctx: CanvasRenderingContext2D) {
+  ctx.lineWidth = 3; // Stroke the text with a big lineWidth width to have some kind of background
+  ctx.strokeText(text, x, y);
+  ctx.lineWidth = 1;
+  ctx.fillText(text, x, y);
+}
+
+function drawLineOrBarChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const yMax = chart.chartArea.bottom;
+  const yMin = chart.chartArea.top;
+  const textsPositions: Record<number, number[]> = {};
+
+  for (const dataset of chart._metasets) {
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const value = dataset._parsed[i].y;
+      const point = dataset.data[i];
+
+      const xPosition = point.x;
+
+      let yPosition = 0;
+      if (chart.config.type === "line") {
+        yPosition = point.y - 10;
+      } else {
+        yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+      }
+      yPosition = Math.min(yPosition, yMax);
+      yPosition = Math.max(yPosition, yMin);
+
+      // Avoid overlapping texts with same X
+      if (!textsPositions[xPosition]) {
+        textsPositions[xPosition] = [];
+      }
+      for (const otherPosition of textsPositions[xPosition] || []) {
+        if (Math.abs(otherPosition - yPosition) < 13) {
+          yPosition = otherPosition - 13;
+        }
+      }
+      textsPositions[xPosition].push(yPosition);
+
+      ctx.fillStyle = point.options.backgroundColor;
+      ctx.strokeStyle = options.background || "#ffffff";
+      drawTextWithBackground(options.callback(value - 0), xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawHorizontalBarChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  const xMax = chart.chartArea.right;
+  const xMin = chart.chartArea.left;
+  const textsPositions: Record<number, number[]> = {};
+
+  for (const dataset of chart._metasets) {
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const value = dataset._parsed[i].x;
+      const displayValue = options.callback(value - 0);
+      const point = dataset.data[i];
+
+      const yPosition = point.y;
+      let xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
+      xPosition = Math.min(xPosition, xMax);
+      xPosition = Math.max(xPosition, xMin);
+
+      // Avoid overlapping texts with same Y
+      if (!textsPositions[yPosition]) {
+        textsPositions[yPosition] = [];
+      }
+      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: 12 }, "px");
+      for (const otherPosition of textsPositions[yPosition]) {
+        if (Math.abs(otherPosition - xPosition) < textWidth) {
+          xPosition = otherPosition + textWidth + 3;
+        }
+      }
+      textsPositions[yPosition].push(xPosition);
+
+      ctx.fillStyle = point.options.backgroundColor;
+      ctx.strokeStyle = options.background || "#ffffff";
+      drawTextWithBackground(displayValue, xPosition, yPosition, ctx);
+    }
+  }
+}
+
+function drawPieChartValues(
+  chart: any,
+  options: ChartShowValuesPluginOptions,
+  ctx: CanvasRenderingContext2D
+) {
+  for (const dataset of chart._metasets) {
+    for (let i = 0; i < dataset._parsed.length; i++) {
+      const bar = dataset.data[i];
+      const { startAngle, endAngle, innerRadius, outerRadius } = bar;
+      const midAngle = (startAngle + endAngle) / 2;
+      const midRadius = (innerRadius + outerRadius) / 2;
+      const x = bar.x + midRadius * Math.cos(midAngle);
+      const y = bar.y + midRadius * Math.sin(midAngle) + 7;
+
+      ctx.fillStyle = chartFontColor(options.background);
+      ctx.strokeStyle = options.background || "#ffffff";
+
+      const value = options.callback(dataset._parsed[i]);
+      drawTextWithBackground(value, x, y, ctx);
+    }
+  }
+}
