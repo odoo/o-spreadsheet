@@ -4,6 +4,7 @@ import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
+import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
 import {
   CHART_TYPES,
   ChartDefinition,
@@ -37,6 +38,7 @@ import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import {
   click,
   doubleClick,
+  dragElement,
   focusAndKeyDown,
   keyDown,
   setInputValueAndTrigger,
@@ -826,6 +828,80 @@ describe("charts", () => {
         (model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
       ).toBeUndefined();
     }
+  });
+
+  describe("reordering dataseries", () => {
+    beforeEach(async () => {
+      mockGetBoundingClientRect({
+        "o-selection-input": (el: HTMLElement) => ({
+          y: Array.from(el.parentElement!.children).indexOf(el) * 100,
+          height: 100,
+        }),
+        "o-selection": (el: HTMLElement) => ({
+          y: 0,
+          height: 200,
+        }),
+      });
+      await mountSpreadsheet();
+    });
+
+    test("can reorder ranges in chart panel", async () => {
+      createChart(
+        model,
+        {
+          dataSets: [
+            { dataRange: "B1:B4", label: "serie_1", backgroundColor: "#FF0000" },
+            { dataRange: "C1:C4", label: "serie_2", backgroundColor: "#00FF00" },
+          ],
+          labelRange: "A2:A4",
+          type: "line",
+        },
+        chartId
+      );
+      await openChartConfigSidePanel(model, env, chartId);
+      await dragElement(
+        fixture.querySelectorAll(".o-drag-handle")[0],
+        { x: 0, y: 150 },
+        undefined,
+        true
+      );
+      const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      expect(definition.dataSets).toMatchObject([
+        { dataRange: "C1:C4", label: "serie_2", backgroundColor: "#00FF00" },
+        { dataRange: "B1:B4", label: "serie_1", backgroundColor: "#FF0000" },
+      ]);
+    });
+
+    test("default colors are switched when reordering data series", async () => {
+      createChart(
+        model,
+        {
+          dataSets: [
+            { dataRange: "B1:B4", label: "serie_1" },
+            { dataRange: "C1:C4", label: "serie_2" },
+          ],
+          labelRange: "A2:A4",
+          type: "line",
+        },
+        chartId
+      );
+      let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      const colorsGenerator = getChartColorsGenerator(definition, 2);
+      const firstColor = colorsGenerator.next();
+      const secondColor = colorsGenerator.next();
+      await openChartConfigSidePanel(model, env, chartId);
+      await dragElement(
+        fixture.querySelectorAll(".o-drag-handle")[0],
+        { x: 0, y: 150 },
+        undefined,
+        true
+      );
+      definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      expect(definition.dataSets).toMatchObject([
+        { dataRange: "C1:C4", label: "serie_2", backgroundColor: secondColor },
+        { dataRange: "B1:B4", label: "serie_1", backgroundColor: firstColor },
+      ]);
+    });
   });
 
   test("drawing of chart will receive new data after update", async () => {

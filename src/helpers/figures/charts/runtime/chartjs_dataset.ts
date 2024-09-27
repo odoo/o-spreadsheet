@@ -366,7 +366,7 @@ function getFillingMode(index: number, stackedChart: boolean): string {
   return index === 0 ? "origin" : "-1";
 }
 
-function getChartColorsGenerator(
+export function getChartColorsGenerator(
   definition: GenericDefinition<ChartWithDataSetDefinition>,
   dataSetsSize: number
 ) {
