@@ -230,8 +230,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       isDashboard: () => this.config.mode === "dashboard",
     } as Getters;
 
-    this.uuidGenerator.setIsFastStrategy(true);
-
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
 
@@ -268,7 +266,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
-    this.uuidGenerator.setIsFastStrategy(false);
 
     // starting plugins
     this.dispatch("START");
