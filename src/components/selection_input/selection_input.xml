@@ -10,9 +10,9 @@
         t-att-style="dragAndDrop.itemsStyle[range.id]"
         t-att-class="props.class">
         <span
-          t-if="ranges.length > 1"
+          t-if="ranges.length > 1 and props.onSelectionReordered"
           title="Reorder input"
-          style="display:flex; align-items:center; margin-bottom: .5rem; cursor:pointer;">
+          class="o-drag-handle">
           <t t-call="o-spreadsheet-Icon.SHORT_THIN_DRAG_HANDLE"/>
         </span>
         <div class="position-relative w-100">

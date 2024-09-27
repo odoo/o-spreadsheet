@@ -19,6 +19,12 @@ css/* scss */ `
         right: 7px;
         top: 4px;
       }
+      .o-drag-handle {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+      }
     }
     .o-button {
       height: 28px;
@@ -136,13 +142,12 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
-    const rects = this.getDimensionElementsRects();
+    const rects = this.getRangeElementsRects();
     const draggableIds = this.ranges.map((range) => range.id);
-    const offset = 1; // column title
     const draggableItems = draggableIds.map((id, index) => ({
       id: id.toString(),
-      size: rects[index + offset].height,
-      position: rects[index + offset].y,
+      size: rects[index].height,
+      position: rects[index].y,
     }));
     this.dragAndDrop.start("vertical", {
       draggedItemId: rangeId.toString(),
@@ -165,17 +170,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  getDimensionElementsRects() {
+  getRangeElementsRects() {
     return Array.from(this.selectionRef.el!.children).map((el) => {
-      const style = getComputedStyle(el)!;
-      const rect = el.getBoundingClientRect();
-      return {
-        x: rect.x,
-        y: rect.y,
-        width: rect.width + parseInt(style.marginLeft || "0") + parseInt(style.marginRight || "0"),
-        height:
-          rect.height + parseInt(style.marginTop || "0") + parseInt(style.marginBottom || "0"),
-      };
+      return el.getBoundingClientRect();
     });
   }
 
