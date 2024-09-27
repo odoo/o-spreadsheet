@@ -266,7 +266,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
-    this.uuidGenerator.setIsFastStrategy(false);
 
     // starting plugins
     this.dispatch("START");
