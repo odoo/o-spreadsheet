@@ -1,4 +1,3 @@
-import { UuidGenerator } from "../helpers";
 import { Color, SpreadsheetChildEnv } from "../types";
 
 /*
@@ -93,7 +92,7 @@ export function createActions(menuItems: ActionSpec[]): Action[] {
   return menuItems.map(createAction).sort((a, b) => a.sequence - b.sequence);
 }
 
-const uuidGenerator = new UuidGenerator();
+let nextItemId = 1;
 
 export function createAction(item: ActionSpec): Action {
   const name = item.name;
@@ -101,8 +100,9 @@ export function createAction(item: ActionSpec): Action {
   const description = item.description;
   const icon = item.icon;
   const secondaryIcon = item.secondaryIcon;
+  const itemId = item.id || nextItemId++;
   return {
-    id: item.id || uuidGenerator.uuidv4(),
+    id: itemId.toString(),
     name: typeof name === "function" ? name : () => name,
     isVisible: item.isVisible ? item.isVisible : () => true,
     isEnabled: item.isEnabled ? item.isEnabled : () => true,
