@@ -11,9 +11,9 @@ export class GeoChartConfigPanel extends GenericChartConfigPanel {
   }
 
   onDataSeriesConfirmed() {
-    this.dataSeriesRanges = spreadRange(this.env.model.getters, this.dataSeriesRanges).slice(0, 1);
+    this.dataSets = spreadRange(this.env.model.getters, this.dataSets).slice(0, 1);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
-      dataSets: this.dataSeriesRanges,
+      dataSets: this.dataSets,
     });
   }
 

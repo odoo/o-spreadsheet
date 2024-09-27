@@ -3,6 +3,7 @@ import { ALERT_DANGER_BG } from "../../constants";
 import { Store, useLocalStore } from "../../store_engine";
 import { Color, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
+import { useDragAndDropListItems } from "../helpers/drag_and_drop_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
 
@@ -17,6 +18,9 @@ css/* scss */ `
       .error-icon {
         right: 7px;
         top: 4px;
+      }
+      .o-drag-handle {
+        cursor: move;
       }
     }
     .o-button {
@@ -39,6 +43,7 @@ interface Props {
   isInvalid?: boolean;
   class?: string;
   onSelectionChanged?: (ranges: string[]) => void;
+  onSelectionReordered?: (indexes: number[]) => void;
   onSelectionConfirmed?: () => void;
   colors?: Color[];
 }
@@ -73,13 +78,16 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     class: { type: String, optional: true },
     onSelectionChanged: { type: Function, optional: true },
     onSelectionConfirmed: { type: Function, optional: true },
+    onSelectionReordered: { type: Function, optional: true },
     colors: { type: Array, optional: true, default: [] },
   };
   private state: State = useState({
     isMissing: false,
     mode: "select-range",
   });
+  private dragAndDrop = useDragAndDropListItems();
   private focusedInput = useRef("focusedInput");
+  private selectionRef = useRef("o-selection");
   private store!: Store<SelectionInputStore>;
 
   get ranges(): SelectionRange[] {
@@ -124,6 +132,43 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
         this.store.resetWithRanges(nextProps.ranges);
       }
     });
+  }
+
+  startDragAndDrop(rangeId: number, event: MouseEvent) {
+    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
+      return;
+    }
+
+    const rects = this.getRangeElementsRects();
+    const draggableIds = this.ranges.map((range) => range.id);
+    const draggableItems = draggableIds.map((id, index) => ({
+      id: id.toString(),
+      size: rects[index].height,
+      position: rects[index].y,
+    }));
+    this.dragAndDrop.start("vertical", {
+      draggedItemId: rangeId.toString(),
+      initialMousePosition: event.clientY,
+      items: draggableItems,
+      containerEl: this.selectionRef.el!,
+      onDragEnd: (dimensionName, finalIndex) => {
+        const originalIndex = draggableIds.findIndex((id) => id === rangeId);
+        if (originalIndex === finalIndex) {
+          return;
+        }
+        const draggedItems = [...draggableIds];
+        draggedItems.splice(originalIndex, 1);
+        draggedItems.splice(finalIndex, 0, rangeId);
+        this.props.onSelectionReordered?.(
+          this.store.selectionInputs.map((range) => draggedItems.indexOf(range.id))
+        );
+        this.props.onSelectionConfirmed?.();
+      },
+    });
+  }
+
+  getRangeElementsRects() {
+    return Array.from(this.selectionRef.el!.children).map((el) => el.getBoundingClientRect());
   }
 
   getColor(range: SelectionRange) {
