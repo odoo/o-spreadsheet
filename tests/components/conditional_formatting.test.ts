@@ -1123,6 +1123,18 @@ describe("UI of conditional formats", () => {
     expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
   });
 
+  test("Hides the 'No Color' button when the color picker is opened for the color scale", async () => {
+    triggerMouseEvent(selectors.buttonAdd, "click");
+    await nextTick();
+
+    triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
+    await nextTick();
+
+    triggerMouseEvent(selectors.colorScaleEditor.minColor, "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-buttons .o-cancel")).toBeNull();
+  });
+
   describe("Icon set CF", () => {
     test("can select the Icon set tab", async () => {
       triggerMouseEvent(selectors.buttonAdd, "click");
