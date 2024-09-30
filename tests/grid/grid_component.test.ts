@@ -5,6 +5,7 @@ import { PaintFormatStore } from "../../src/components/paint_format_button/paint
 import { CellPopoverStore } from "../../src/components/popover";
 import {
   BACKGROUND_GRAY_COLOR,
+  DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GRID_ICON_EDGE_LENGTH,
@@ -40,6 +41,7 @@ import {
   selectColumn,
   selectHeader,
   selectRow,
+  setBorders,
   setCellContent,
   setCellFormat,
   setSelection,
@@ -64,6 +66,7 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   getActiveSheetFullScrollInfo,
+  getBorder,
   getCell,
   getCellContent,
   getCellText,
@@ -849,20 +852,32 @@ describe("Grid component", () => {
       highlightStore = env.getStore(HighlightStore);
     });
 
-    test("can paste format with mouse once", async () => {
+    test("can paste format and borders with mouse once", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setStyle(model, "B2", { bold: true });
+      setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
       paintFormatStore.activate({ persistent: false });
       gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "C8");
       expect(getCell(model, "C8")!.style).toEqual({ bold: true });
+      expect(getBorder(model, "C8")).toEqual({ top: DEFAULT_BORDER_DESC });
 
       gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
+    });
+
+    test("Paste format works with table style", () => {
+      createTable(model, "A1:B2", { styleId: "TableStyleLight11" });
+      selectCell(model, "A1");
+      paintFormatStore.activate({ persistent: false });
+      gridMouseEvent(model, "pointerdown", "C8");
+      gridMouseEvent(model, "pointerup", "C8");
+
+      expect(getCell(model, "C8")?.style).toMatchObject({ fillColor: "#748747" });
     });
 
     test("can keep the paint format mode persistently", async () => {

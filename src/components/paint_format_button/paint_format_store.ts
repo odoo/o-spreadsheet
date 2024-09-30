@@ -1,4 +1,7 @@
+import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import { BorderClipboardHandler } from "../../clipboard_handlers/borders_clipboard";
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
+import { TableClipboardHandler } from "../../clipboard_handlers/tables_clipboard";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { Get } from "../../store_engine";
@@ -16,7 +19,11 @@ export class PaintFormatStore extends SpreadsheetStore {
   mutators = ["activate", "cancel", "pasteFormat"] as const;
 
   protected highlightStore = this.get(HighlightStore);
-  private cellClipboardHandler = new CellClipboardHandler(this.getters, this.model.dispatch);
+  private clipboardHandlers: ClipboardHandler<any>[] = [
+    new CellClipboardHandler(this.getters, this.model.dispatch),
+    new BorderClipboardHandler(this.getters, this.model.dispatch),
+    new TableClipboardHandler(this.getters, this.model.dispatch),
+  ];
 
   private status: "inactive" | "oneOff" | "persistent" = "inactive";
   private copiedData?: ClipboardContent;
@@ -42,10 +49,12 @@ export class PaintFormatStore extends SpreadsheetStore {
   pasteFormat(target: Zone[]) {
     if (this.copiedData) {
       const sheetId = this.getters.getActiveSheetId();
-      this.cellClipboardHandler.paste({ zones: target, sheetId }, this.copiedData, {
-        isCutOperation: false,
-        pasteOption: "onlyFormat",
-      });
+      for (const handler of this.clipboardHandlers) {
+        handler.paste({ zones: target, sheetId }, this.copiedData, {
+          isCutOperation: false,
+          pasteOption: "onlyFormat",
+        });
+      }
     }
     if (this.status === "oneOff") {
       this.cancel();
@@ -60,7 +69,12 @@ export class PaintFormatStore extends SpreadsheetStore {
     const sheetId = this.getters.getActiveSheetId();
     const zones = this.getters.getSelectedZones();
 
-    return this.cellClipboardHandler.copy(getClipboardDataPositions(sheetId, zones));
+    const copiedData = {};
+    for (const handler of this.clipboardHandlers) {
+      Object.assign(copiedData, handler.copy(getClipboardDataPositions(sheetId, zones)));
+    }
+
+    return copiedData as ClipboardContent;
   }
 
   get highlights(): Highlight[] {
