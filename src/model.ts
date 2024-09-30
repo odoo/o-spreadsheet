@@ -430,7 +430,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       range: this.range,
       dispatch: this.dispatchFromCorePlugin,
       canDispatch: this.canDispatch,
-      uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
       external: this.config.external,
     };

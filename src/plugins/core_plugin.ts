@@ -1,4 +1,3 @@
-import { UuidGenerator } from "../helpers";
 import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
@@ -19,7 +18,6 @@ export interface CorePluginConfig {
   readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
-  readonly uuidGenerator: UuidGenerator;
   readonly custom: ModelConfig["custom"];
   readonly external: ModelConfig["external"];
 }
@@ -40,20 +38,11 @@ export class CorePlugin<State = any>
   implements RangeProvider
 {
   protected getters: CoreGetters;
-  protected uuidGenerator: UuidGenerator;
 
-  constructor({
-    getters,
-    stateObserver,
-    range,
-    dispatch,
-    canDispatch,
-    uuidGenerator,
-  }: CorePluginConfig) {
+  constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
     super(stateObserver, dispatch, canDispatch);
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
-    this.uuidGenerator = uuidGenerator;
   }
 
   // ---------------------------------------------------------------------------
