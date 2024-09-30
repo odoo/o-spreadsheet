@@ -2,7 +2,7 @@ import { CommandResult, Model } from "../../src";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
-import { ClipboardPasteOptions, UID } from "../../src/types";
+import { UID } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -803,17 +803,25 @@ describe("Table plugin", () => {
       expect(getCell(model, "B1")?.style?.fillColor).not.toEqual("#FF0000");
     });
 
-    test.each(["onlyFormat", "asValue"] as ClipboardPasteOptions[])(
-      "Special paste %s don't paste whole tables",
-      (pasteOption: ClipboardPasteOptions) => {
-        createTable(model, "A1:B4");
-        updateFilter(model, "A1", ["thisIsAValue"]);
+    test("Paste as value do not copy the table", () => {
+      createTable(model, "A1:B4", { styleId: "TestStyleAllRed" });
 
-        copy(model, "A1:B4");
-        paste(model, "A5", pasteOption);
-        expect(getTable(model, "A5")).toBeFalsy();
-      }
-    );
+      copy(model, "A1:B4");
+      paste(model, "A5", "asValue");
+      expect(getTable(model, "A5")).toBeFalsy();
+      expect(getCell(model, "A5")?.style).toBeUndefined();
+    });
+
+    test("Can copy/paste the whole table formatting", () => {
+      createTable(model, "A1:A2", { styleId: "TestStyleAllRed" });
+
+      copy(model, "A1:A2");
+      paste(model, "A5", "onlyFormat");
+      expect(getTable(model, "A5")).toBeFalsy();
+      expect(getCell(model, "A5")?.style).toEqual({ fillColor: "#FF0000", bold: true });
+      expect(getBorder(model, "A5")).toEqual({ top: DEFAULT_BORDER_DESC });
+      expect(getCell(model, "A6")?.style).toEqual({ fillColor: "#FF0000" });
+    });
 
     test("Pasting onlyFormat with a partial table copied paste the table style, not asValue", () => {
       createTable(model, "A1:B4");

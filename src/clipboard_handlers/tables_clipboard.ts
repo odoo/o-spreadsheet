@@ -28,6 +28,7 @@ interface CopiedTable {
 interface TableCell {
   style?: TableStyle;
   table?: CopiedTable;
+  isWholeTableCopied?: boolean;
 }
 
 interface ClipboardContent {
@@ -55,12 +56,16 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       for (let col of columnsIndexes) {
         const position = { col, row, sheetId };
         const table = this.getters.getTable(position);
-        if (!table || copiedTablesIds.has(table.id)) {
+        if (!table) {
           tableCellsInRow.push({});
           continue;
         }
+        let copiedTable: CopiedTable | undefined = undefined;
         // Copy whole table
-        if (zones.some((z) => isZoneInside(table.range.zone, z))) {
+        if (
+          !copiedTablesIds.has(table.id) &&
+          zones.some((z) => isZoneInside(table.range.zone, z))
+        ) {
           copiedTablesIds.add(table.id);
           const values: Array<string[]> = [];
           for (const col of range(table.range.zone.left, table.range.zone.right + 1)) {
@@ -68,14 +73,13 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
               this.getters.getFilterHiddenValues({ sheetId, col, row: table.range.zone.top })
             );
           }
-          tableCellsInRow.push({
-            table: { filtersValues: values, range: table.range, config: table.config },
-          });
+          copiedTable = { filtersValues: values, range: table.range, config: table.config };
         }
-        // Copy only style of cell
-        else {
-          tableCellsInRow.push({ style: this.getTableStyleToCopy(position) });
-        }
+        tableCellsInRow.push({
+          table: copiedTable,
+          style: this.getTableStyleToCopy(position),
+          isWholeTableCopied: copiedTablesIds.has(table.id),
+        });
       }
     }
 
@@ -192,8 +196,14 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     }
 
     // Do not paste table style if we're inside another table
-    if (!this.getters.getTable(position)) {
-      if (tableCell.style?.style && options?.pasteOption !== "asValue") {
+    if (this.getters.getTable(position) || options?.pasteOption === "asValue") {
+      return;
+    }
+    if (
+      (!options?.pasteOption && !tableCell.isWholeTableCopied) ||
+      options?.pasteOption === "onlyFormat"
+    ) {
+      if (tableCell.style?.style) {
         this.dispatch("UPDATE_CELL", { ...position, style: tableCell.style.style });
       }
       if (tableCell.style?.border) {
