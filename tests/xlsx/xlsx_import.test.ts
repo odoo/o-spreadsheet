@@ -802,10 +802,16 @@ describe("Import xlsx data", () => {
   });
 
   describe("Misc tests", () => {
-    test("Newlines characters in strings are removed", () => {
+    test("Newlines characters in strings are preserved", () => {
       const testSheet = getWorkbookSheet("jestMiscTest", convertedData)!;
       const textWithNewLineInXLSX = testSheet.cells["A1"]?.content;
-      expect(textWithNewLineInXLSX).toEqual("This text have a newLine"); // newline should have been removed at import
+      expect(textWithNewLineInXLSX).toEqual("This text have\n a newLine");
+    });
+
+    test("White spaces are preserved", () => {
+      const testSheet = getWorkbookSheet("jestMiscTest", convertedData)!;
+      const textWithNewLineInXLSX = testSheet.cells["B1"]?.content;
+      expect(textWithNewLineInXLSX).toEqual("      with whitespace before");
     });
 
     test("Can hide gridLines", () => {
