@@ -1,4 +1,4 @@
-import { Model, SpreadsheetChildEnv } from "../../src";
+import { Model, SortDirection, SpreadsheetChildEnv } from "../../src";
 import { PIVOT_TABLE_CONFIG } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries";
@@ -16,11 +16,16 @@ import {
   getCellContent,
   getCellText,
   getCoreTable,
+  getEvaluatedCell,
   getEvaluatedGrid,
   getTable,
 } from "../test_helpers/getters_helpers";
 import { createModelFromGrid, doAction, getNode, makeTestEnv } from "../test_helpers/helpers";
-import { addPivot, createModelWithPivot } from "../test_helpers/pivot_helpers";
+import {
+  addPivot,
+  createModelWithPivot,
+  createModelWithTestPivotDataset,
+} from "../test_helpers/pivot_helpers";
 
 const reinsertDynamicPivotPath = ["data", "reinsert_dynamic_pivot", "reinsert_dynamic_pivot_1"];
 const reinsertStaticPivotPath = ["data", "reinsert_static_pivot", "reinsert_static_pivot_1"];
@@ -604,5 +609,137 @@ describe("Pivot reinsertion menu item", () => {
       config: PIVOT_TABLE_CONFIG,
       type: "dynamic",
     });
+  });
+});
+
+describe("Pivot sorting menu item", () => {
+  let model: Model;
+  let env: SpreadsheetChildEnv;
+
+  function sortPivot(order: SortDirection | "none") {
+    const path = ["pivot_sorting"];
+    if (order === "asc") {
+      path.push("pivot_sorting_asc");
+    } else if (order === "desc") {
+      path.push("pivot_sorting_desc");
+    } else {
+      path.push("pivot_sorting_none");
+    }
+    doAction(path, env, cellMenuRegistry);
+  }
+
+  function getPivotSortedColumn() {
+    const pivotId = model.getters.getPivotIds()[0];
+    return model.getters.getPivot(pivotId).definition.sortedCol;
+  }
+
+  beforeEach(() => {
+    model = createModelWithTestPivotDataset();
+    env = makeTestEnv({ model });
+  });
+
+  test("Can sort and un-sort the pivot when clicking on a value cell", () => {
+    selectCell(model, "B23"); // Cell of "Alice" column
+    sortPivot("asc");
+    expect(getPivotSortedColumn()).toEqual({
+      measure: "measureId",
+      order: "asc",
+      domain: [{ field: "Salesperson", value: "Alice", type: "char" }],
+    });
+
+    selectCell(model, "C25"); // Cell of "Bob" column
+    sortPivot("desc");
+    expect(getPivotSortedColumn()).toEqual({
+      measure: "measureId",
+      order: "desc",
+      domain: [{ field: "Salesperson", value: "Bob", type: "char" }],
+    });
+
+    sortPivot("none");
+    expect(getPivotSortedColumn()).toBeUndefined();
+  });
+
+  test("Can sort the pivot with a measure header", () => {
+    selectCell(model, "D21"); // "Expected Revenue" measure header from the total column
+    sortPivot("asc");
+    expect(getPivotSortedColumn()).toEqual({
+      measure: "measureId",
+      order: "asc",
+      domain: [],
+    });
+  });
+
+  test("Cannot sort if the pivot is in error", () => {
+    const sortAction = getNode(["pivot_sorting"], env, cellMenuRegistry);
+    setCellContent(model, "A1", "Not Created On");
+    expect(getEvaluatedCell(model, "A20").value).toEqual("#ERROR");
+    selectCell(model, "A20");
+    expect(sortAction.isVisible(env)).toBe(false);
+  });
+
+  test("Sort menu item is only visible on pivot values and measure header", () => {
+    const sortAction = getNode(["pivot_sorting"], env, cellMenuRegistry);
+
+    selectCell(model, "A1"); // Random cell
+    expect(sortAction.isVisible(env)).toBe(false);
+
+    selectCell(model, "A20"); // Pivot header
+    expect(sortAction.isVisible(env)).toBe(false);
+
+    selectCell(model, "A21"); // Empty pivot cell
+    expect(sortAction.isVisible(env)).toBe(false);
+
+    selectCell(model, "A22"); // Pivot row header
+    expect(sortAction.isVisible(env)).toBe(false);
+
+    selectCell(model, "B20"); // Pivot col header
+    expect(sortAction.isVisible(env)).toBe(false);
+
+    selectCell(model, "B21"); // Pivot measure header
+    expect(sortAction.isVisible(env)).toBe(true);
+
+    selectCell(model, "B23"); // Pivot value cell
+    expect(sortAction.isVisible(env)).toBe(true);
+  });
+
+  test("Sort menu item is not visible on static pivot formulas", () => {
+    const sortAction = getNode(["pivot_sorting"], env, cellMenuRegistry);
+    const pivotId = model.getters.getPivotIds()[0];
+
+    setCellContent(
+      model,
+      "A1",
+      `=PIVOT.VALUE(${pivotId},"Expected Revenue:sum","Created on:month_number",2,"Salesperson","Alice")`
+    );
+    selectCell(model, "A1");
+    expect(sortAction.isVisible(env)).toBe(false);
+  });
+
+  test("Menu item corresponding to the current sorting of the pivot is active", () => {
+    function getActiveSortOrder() {
+      const activeNodes: string[] = [];
+      if (getNode(["pivot_sorting", "pivot_sorting_asc"], env, cellMenuRegistry).isActive?.(env)) {
+        activeNodes.push("pivot_sorting_asc");
+      }
+      if (getNode(["pivot_sorting", "pivot_sorting_desc"], env, cellMenuRegistry).isActive?.(env)) {
+        activeNodes.push("pivot_sorting_desc");
+      }
+      if (getNode(["pivot_sorting", "pivot_sorting_none"], env, cellMenuRegistry).isActive?.(env)) {
+        activeNodes.push("pivot_sorting_none");
+      }
+      return activeNodes;
+    }
+
+    selectCell(model, "B21"); // Pivot measure header
+    expect(getActiveSortOrder()).toEqual(["pivot_sorting_none"]);
+
+    sortPivot("asc");
+    expect(getActiveSortOrder()).toEqual(["pivot_sorting_asc"]);
+
+    sortPivot("desc");
+    expect(getActiveSortOrder()).toEqual(["pivot_sorting_desc"]);
+
+    selectCell(model, "C21"); // Other column
+    expect(getActiveSortOrder()).toEqual([]);
   });
 });

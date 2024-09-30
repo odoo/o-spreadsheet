@@ -27,7 +27,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
@@ -70,7 +70,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Alpha" },
@@ -102,7 +102,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A1:A6",
       anchor: "A1",
-      direction: "ascending",
+      direction: "asc",
     });
 
     expect(getCellsObject(model, sheetId)).toMatchObject({
@@ -139,7 +139,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "C1:C6",
       anchor: "C1",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       C1: { content: "=SUM(A1, A2)" },
@@ -179,7 +179,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A1:A11",
       anchor: "A1",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
@@ -254,7 +254,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A1:A3",
       anchor: "A2",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "11", style: myStyle },
@@ -283,7 +283,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A1:A7",
       anchor: "A2",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "-33" },
@@ -314,7 +314,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A1:A7",
       anchor: "A2",
-      direction: "ascending",
+      direction: "asc",
       sortOptions: { emptyCellAsZero: true },
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
@@ -328,7 +328,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A1:A7",
       anchor: "A2",
-      direction: "descending",
+      direction: "desc",
       sortOptions: { emptyCellAsZero: true },
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
@@ -357,7 +357,7 @@ describe("Basic Sorting", () => {
     sort(model, {
       zone: "A2:A3",
       anchor: "A2",
-      direction: "ascending",
+      direction: "asc",
       sortOptions: { emptyCellAsZero: true },
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
@@ -375,7 +375,7 @@ describe("Trigger sort generic errors", () => {
       sort(model, {
         zone: "A1:A3",
         anchor: "A6",
-        direction: "ascending",
+        direction: "asc",
       });
     }).toThrowError();
   });
@@ -417,7 +417,7 @@ describe("Sort multi adjacent columns", () => {
     sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "B2",
-      direction: "descending",
+      direction: "desc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Tango" },
@@ -439,7 +439,7 @@ describe("Sort multi adjacent columns", () => {
     sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "C2",
-      direction: "descending",
+      direction: "desc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Zulu" },
@@ -461,7 +461,7 @@ describe("Sort multi adjacent columns", () => {
     sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "D5",
-      direction: "descending",
+      direction: "desc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A2: { content: "Alpha" },
@@ -482,7 +482,7 @@ describe("Sort multi adjacent columns", () => {
     sort(model, {
       zone: "B2:C3",
       anchor: "B3",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Alpha" },
@@ -530,7 +530,7 @@ describe("Sort adjacent columns with headers", () => {
     sort(model, {
       zone: "A1:C4",
       anchor: "A1",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "=B2" },
@@ -552,7 +552,7 @@ describe("Sort adjacent columns with headers", () => {
     sort(model, {
       zone: "B1:C4",
       anchor: "B1",
-      direction: "ascending",
+      direction: "asc",
       sortOptions: { sortHeaders: true },
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
@@ -572,7 +572,7 @@ describe("Sort adjacent columns with headers", () => {
     sort(model, {
       zone: "A1:C4",
       anchor: "A1",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A2: { content: "Alpha" },
@@ -593,7 +593,7 @@ describe("Sort adjacent columns with headers", () => {
     sort(model, {
       zone: "A1:C4",
       anchor: "B1",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Tango" },
@@ -620,7 +620,7 @@ describe("Sort adjacent columns with headers", () => {
     sort(model, {
       zone: "A1:C4",
       anchor: "A1",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "Alpha" },
@@ -680,7 +680,7 @@ describe("Sort Merges", () => {
     sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "B2",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       B2: { content: "6" },
@@ -699,7 +699,7 @@ describe("Sort Merges", () => {
     sort(model, {
       zone: "B5:C10",
       anchor: "B5",
-      direction: "descending",
+      direction: "desc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       B2: { content: "20" },
@@ -723,7 +723,7 @@ describe("Sort Merges", () => {
     sort(model, {
       zone: zoneToXc(contiguousZone),
       anchor: "D2",
-      direction: "ascending",
+      direction: "asc",
     });
     expect(getCellsObject(model, sheetId)).toMatchObject({
       B2: { content: "20" },

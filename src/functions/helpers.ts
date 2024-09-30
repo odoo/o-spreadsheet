@@ -11,6 +11,7 @@ import {
   Locale,
   Matrix,
   Maybe,
+  SortDirection,
   isMatrix,
 } from "../types";
 import { CellErrorType, EvaluationError, errorTypes } from "../types/errors";
@@ -734,7 +735,7 @@ export function dichotomicSearch<T>(
   data: T,
   target: Maybe<FunctionResultObject>,
   mode: "nextGreater" | "nextSmaller" | "strict",
-  sortOrder: "asc" | "desc",
+  sortOrder: SortDirection,
   rangeLength: number,
   getValueInData: (range: T, index: number) => CellValue | undefined
 ): number {

@@ -84,5 +84,6 @@
         </div>
       </t>
     </div>
+    <PivotSortSection definition="props.definition" pivotId="props.pivotId"/>
   </t>
 </templates>

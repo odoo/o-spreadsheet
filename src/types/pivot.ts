@@ -2,7 +2,7 @@ import { NEXT_VALUE, PREVIOUS_VALUE } from "../helpers/pivot/pivot_domain_helper
 import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Locale } from "./locale";
-import { FunctionResultObject, UID, Zone } from "./misc";
+import { FunctionResultObject, SortDirection, UID, Zone } from "./misc";
 
 export type Aggregator =
   | "array_agg"
@@ -32,7 +32,7 @@ export type Granularity =
 
 export interface PivotCoreDimension {
   fieldName: string;
-  order?: "asc" | "desc";
+  order?: SortDirection;
   granularity?: Granularity | string;
 }
 
@@ -56,6 +56,13 @@ export interface CommonPivotCoreDefinition {
   rows: PivotCoreDimension[];
   measures: PivotCoreMeasure[];
   name: string;
+  sortedCol?: PivotSortedColumn;
+}
+
+export interface PivotSortedColumn {
+  order: SortDirection;
+  domain: PivotDomain;
+  measure: string;
 }
 
 export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinition {
@@ -196,6 +203,7 @@ export type PivotMeasureDisplayType =
 export interface DimensionTreeNode {
   value: CellValue;
   field: string;
+  type: string;
   children: DimensionTree;
   width: number;
 }

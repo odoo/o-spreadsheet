@@ -535,7 +535,7 @@ describe("Repeat local commands", () => {
       sheetId,
       zone: "C2:C3",
       anchor: "C2",
-      direction: "descending",
+      direction: "desc",
     });
 
     activateSheet(model, "42");

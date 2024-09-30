@@ -1,7 +1,11 @@
+import { PivotSortedColumn } from "../../src";
 import {
+  isSortedColumnValid,
   toFunctionPivotValue,
   toNormalizedPivotValue,
 } from "../../src/helpers/pivot/pivot_helpers";
+import { createModelFromGrid } from "../test_helpers/helpers";
+import { addPivot } from "../test_helpers/pivot_helpers";
 
 describe("toNormalizedPivotValue", () => {
   test("parse values of char field", () => {
@@ -217,4 +221,50 @@ describe("ToFunctionValue", () => {
     expect(toFunctionPivotValue("true", dimension)).toBe("TRUE");
     expect(toFunctionPivotValue(true, dimension)).toBe("TRUE");
   });
+});
+
+test("isSortedColumnValid", () => {
+  // prettier-ignore
+  const grid = {
+      A1: "Customer", B1: "Price", C1: "Date",
+      A2: "Alice",    B2: "10",    C2: "10/10/2020",
+      A3: "Bob",      B3: "30",    C3: "10/10/2022",
+    };
+  const model = createModelFromGrid(grid);
+  addPivot(model, "A1:C3", {
+    columns: [{ fieldName: "Date", granularity: "year" }],
+    rows: [{ fieldName: "Customer" }],
+    measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+  });
+
+  const pivotId = model.getters.getPivotIds()[0];
+
+  // Total column
+  const sortedCol: PivotSortedColumn = { measure: "Price:sum", order: "asc", domain: [] };
+  expect(isSortedColumnValid(sortedCol, model.getters.getPivot(pivotId))).toBe(true);
+
+  // Valid column
+  sortedCol.domain = [{ field: "Date:year", value: 2020, type: "char" }];
+  expect(isSortedColumnValid(sortedCol, model.getters.getPivot(pivotId))).toBe(true);
+
+  // Invalid column value
+  sortedCol.domain = [{ field: "Customer", value: "Random Person", type: "char" }];
+  expect(isSortedColumnValid(sortedCol, model.getters.getPivot(pivotId))).toBe(false);
+
+  // Invalid column field
+  sortedCol.domain = [{ field: "Random Field", value: "Alice", type: "char" }];
+  expect(isSortedColumnValid(sortedCol, model.getters.getPivot(pivotId))).toBe(false);
+
+  // Invalid column granularity
+  sortedCol.domain = [{ field: "Date:quarter", value: 2020, type: "char" }];
+  expect(isSortedColumnValid(sortedCol, model.getters.getPivot(pivotId))).toBe(false);
+
+  // Row dimension as sorted column
+  sortedCol.domain = [{ field: "Customer", value: "Alice", type: "char" }];
+  expect(isSortedColumnValid(sortedCol, model.getters.getPivot(pivotId))).toBe(false);
+
+  // Invalid measure
+  sortedCol.measure = "Random Measure";
+  sortedCol.domain = [];
+  expect(isSortedColumnValid(sortedCol, model.getters.getPivot(pivotId))).toBe(false);
 });

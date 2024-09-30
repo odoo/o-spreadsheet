@@ -7,7 +7,7 @@ import {
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
 import {
   Aggregator,
   Granularity,
@@ -27,6 +27,7 @@ import { PivotDimension } from "./pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./pivot_dimension_granularity/pivot_dimension_granularity";
 import { PivotDimensionOrder } from "./pivot_dimension_order/pivot_dimension_order";
 import { PivotMeasureEditor } from "./pivot_measure/pivot_measure";
+import { PivotSortSection } from "./pivot_sort_section/pivot_sort_section";
 
 interface Props {
   definition: PivotRuntimeDefinition;
@@ -53,6 +54,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotDimensionOrder,
     PivotDimensionGranularity,
     PivotMeasureEditor,
+    PivotSortSection,
   };
   static props = {
     definition: Object,
@@ -274,7 +276,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
-  updateOrder(updateDimension: PivotDimensionType, order?: "asc" | "desc") {
+  updateOrder(updateDimension: PivotDimensionType, order?: SortDirection) {
     const { rows, columns } = this.props.definition;
     this.props.onDimensionsUpdated({
       rows: rows.map((row) => {

@@ -106,12 +106,30 @@ cellMenuRegistry
     sequence: 150,
     separator: true,
   })
+  .add("pivot_sorting", {
+    name: _t("Sort pivot"),
+    sequence: 155,
+    icon: "o-spreadsheet-Icon.SORT_RANGE",
+    isVisible: ACTIONS_PIVOT.canSortPivot,
+  })
   .add("pivot_fix_formulas", {
     ...ACTIONS_PIVOT.FIX_FORMULAS,
-    sequence: 155,
+    sequence: 160,
   })
   .add("pivot_properties", {
     ...ACTIONS_PIVOT.pivotProperties,
-    sequence: 160,
+    sequence: 170,
     separator: true,
+  })
+  .addChild("pivot_sorting_asc", ["pivot_sorting"], {
+    ...ACTIONS_PIVOT.pivotSortingAsc,
+    sequence: 10,
+  })
+  .addChild("pivot_sorting_desc", ["pivot_sorting"], {
+    ...ACTIONS_PIVOT.pivotSortingDesc,
+    sequence: 20,
+  })
+  .addChild("pivot_sorting_none", ["pivot_sorting"], {
+    ...ACTIONS_PIVOT.noPivotSorting,
+    sequence: 30,
   });

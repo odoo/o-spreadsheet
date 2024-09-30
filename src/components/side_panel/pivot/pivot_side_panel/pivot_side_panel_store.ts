@@ -190,6 +190,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         format: measure.format,
         display: measure.display,
       })),
+      sortedCol: this.shouldRemoveSortedColumn(definition) ? definition.sortedCol : undefined,
     };
     if (!this.draft && deepEquals(coreDefinition, cleanedDefinition)) {
       return;
@@ -259,5 +260,17 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       granularitiesPerFields[field.fieldName].delete(field.granularity);
     }
     return granularitiesPerFields;
+  }
+
+  private shouldRemoveSortedColumn(newDefinition: PivotCoreDefinition) {
+    const { sortedCol } = newDefinition;
+    if (!sortedCol) {
+      return true;
+    }
+    const oldDefinition = this.getters.getPivotCoreDefinition(this.pivotId);
+    return (
+      newDefinition.measures.find((measure) => measure.id === sortedCol.measure) &&
+      deepEquals(oldDefinition.columns, newDefinition.columns)
+    );
   }
 }

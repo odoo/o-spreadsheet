@@ -17,6 +17,7 @@ import {
   HeaderIndex,
   Pixel,
   SetDecimalStep,
+  SortDirection,
   SortOptions,
   UID,
 } from "./misc";
@@ -886,8 +887,6 @@ export interface SortCommand {
   sortDirection: SortDirection;
   sortOptions?: SortOptions;
 }
-
-export type SortDirection = "ascending" | "descending";
 
 export interface ResizeViewportCommand {
   type: "RESIZE_SHEETVIEW";

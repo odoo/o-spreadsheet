@@ -7,6 +7,7 @@ import {
   PivotDimension,
   PivotFields,
   PivotMeasure,
+  PivotSortedColumn,
 } from "../../types/pivot";
 import { isDateOrDatetimeField } from "./pivot_helpers";
 
@@ -19,11 +20,13 @@ export class PivotRuntimeDefinition {
   readonly measures: PivotMeasure[];
   readonly columns: PivotDimension[];
   readonly rows: PivotDimension[];
+  readonly sortedCol?: PivotSortedColumn;
 
   constructor(definition: CommonPivotCoreDefinition, fields: PivotFields) {
     this.measures = definition.measures.map((measure) => createMeasure(fields, measure));
     this.columns = definition.columns.map((dimension) => createPivotDimension(fields, dimension));
     this.rows = definition.rows.map((dimension) => createPivotDimension(fields, dimension));
+    this.sortedCol = definition.sortedCol;
   }
 
   getDimension(nameWithGranularity: string): PivotDimension {

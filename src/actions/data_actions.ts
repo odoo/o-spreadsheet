@@ -15,7 +15,7 @@ export const sortAscending: ActionSpec = {
   execute: (env) => {
     const { anchor, zones } = env.model.getters.getSelection();
     const sheetId = env.model.getters.getActiveSheetId();
-    interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "ascending");
+    interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "asc");
   },
   icon: "o-spreadsheet-Icon.SORT_ASCENDING",
 };
@@ -47,7 +47,7 @@ export const sortDescending: ActionSpec = {
   execute: (env) => {
     const { anchor, zones } = env.model.getters.getSelection();
     const sheetId = env.model.getters.getActiveSheetId();
-    interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "descending");
+    interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "desc");
   },
   icon: "o-spreadsheet-Icon.SORT_DESCENDING",
 };
