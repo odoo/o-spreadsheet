@@ -97,7 +97,10 @@ export function addRows(
         const attributes: XMLAttributes = [["r", xc]];
 
         // style
-        const id = normalizeStyle(construct, extractStyle(data, styleId, formatId, borderId));
+        const id = normalizeStyle(
+          construct,
+          extractStyle(data, content, styleId, formatId, borderId)
+        );
         // don't add style if default
         if (id) {
           attributes.push(["s", id]);
