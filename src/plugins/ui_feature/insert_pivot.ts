@@ -1,4 +1,4 @@
-import { PIVOT_TABLE_CONFIG } from "../../constants";
+import { FORBIDDEN_IN_EXCEL_REGEX, PIVOT_TABLE_CONFIG } from "../../constants";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { getZoneArea, positionToZone } from "../../helpers/zones";
@@ -85,7 +85,7 @@ export class InsertPivotPlugin extends UIPlugin {
     const position = this.getters.getSheetIds().indexOf(activeSheetId) + 1;
     const formulaId = this.getters.getPivotFormulaId(newPivotId);
     const newPivotName = this.getters.getPivotName(newPivotId);
-    this.dispatch("CREATE_SHEET", {
+    const result = this.dispatch("CREATE_SHEET", {
       sheetId: newSheetId,
       name: this.getPivotDuplicateSheetName(
         _t("%(newPivotName)s (Pivot #%(formulaId)s)", {
@@ -95,21 +95,24 @@ export class InsertPivotPlugin extends UIPlugin {
       ),
       position,
     });
-    this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: newSheetId });
-    this.dispatch("UPDATE_CELL", {
-      sheetId: newSheetId,
-      col: 0,
-      row: 0,
-      content: `=PIVOT(${formulaId})`,
-    });
+    if (result.isSuccessful) {
+      this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: newSheetId });
+      this.dispatch("UPDATE_CELL", {
+        sheetId: newSheetId,
+        col: 0,
+        row: 0,
+        content: `=PIVOT(${formulaId})`,
+      });
+    }
   }
 
   private getPivotDuplicateSheetName(pivotName: string) {
     let i = 1;
     const names = this.getters.getSheetIds().map((id) => this.getters.getSheetName(id));
-    let name = pivotName;
+    const sanitizedName = pivotName.replace(new RegExp(FORBIDDEN_IN_EXCEL_REGEX, "g"), " ");
+    let name = sanitizedName;
     while (names.includes(name)) {
-      name = `${pivotName} (${i})`;
+      name = `${sanitizedName} (${i})`;
       i++;
     }
     return name;
