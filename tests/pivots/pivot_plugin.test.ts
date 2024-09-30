@@ -1,6 +1,7 @@
 import { CommandResult } from "../../src";
+import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
-import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
@@ -162,5 +163,41 @@ describe("Pivot plugin", () => {
     definition = model.getters.getPivotCoreDefinition("1");
     const thirdCalculatedName = model.getters.generateNewCalculatedMeasureName(definition.measures);
     expect(thirdCalculatedName).toBe("Calculated measure 1");
+  });
+
+  test("forbidden characters are removed from new sheet name when duplicating a pivot", () => {
+    const grid = {
+      A1: "Customer",
+      A2: "Alice",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A2", { name: `forbidden: ${FORBIDDEN_SHEET_CHARS}` }, "pivot1");
+    model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+      newPivotId: "pivot2",
+      newSheetId: "Sheet2",
+      pivotId: "pivot1",
+    });
+    expect(model.getters.getSheetName("Sheet2")).toEqual(
+      "forbidden:  , , , , , ,  (copy) (Pivot #2)"
+    );
+    expect(model.getters.getPivotName("pivot2")).toEqual("forbidden: ',*,?,/,\\,[,] (copy)");
+  });
+
+  test("sheet names with forbidden characters cannot conflict", () => {
+    const grid = {
+      A1: "Customer",
+      A2: "Alice",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    const name = "forbidden: /";
+    renameSheet(model, sheetId, "forbidden:   (copy) (Pivot #2)");
+    addPivot(model, "A1:A2", { name }, "pivot1");
+    model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+      newPivotId: "pivot2",
+      newSheetId: "Sheet2",
+      pivotId: "pivot1",
+    });
+    expect(model.getters.getSheetName("Sheet2")).toEqual("forbidden:   (copy) (Pivot #2) (1)");
   });
 });
