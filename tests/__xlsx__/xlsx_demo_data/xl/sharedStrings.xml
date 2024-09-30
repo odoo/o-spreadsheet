@@ -1246,4 +1246,7 @@
   <si>
     <t>wrap</t>
   </si>
+  <si>
+    <t xml:space="preserve">      with whitespace before</t>
+  </si>
 </sst>

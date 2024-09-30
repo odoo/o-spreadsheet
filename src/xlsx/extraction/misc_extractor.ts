@@ -39,15 +39,10 @@ export class XlsxMiscExtractor extends XlsxBaseExtractor {
       { parent: this.rootFile.file.xml, query: "si" },
       (ssElement): string => {
         // Shared string can either be a simple text, or a rich text (text with formatting, possibly in multiple parts)
-        if (ssElement.children[0].tagName === "t") {
-          return this.extractTextContent(ssElement) || "";
-        }
         // We don't support rich text formatting, we'll only extract the text
-        else {
-          return this.mapOnElements({ parent: ssElement, query: "t" }, (textElement): string => {
-            return this.extractTextContent(textElement) || "";
-          }).join("");
-        }
+        return this.mapOnElements({ parent: ssElement, query: "t" }, (textElement): string => {
+          return this.extractTextContent(textElement) || "";
+        }).join("");
       }
     );
   }
