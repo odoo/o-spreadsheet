@@ -724,6 +724,26 @@ describe("Test XLSX export", () => {
     });
   });
 
+  test("Multi-line cells are exported with text wrap", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "This is a\nmultiline cell");
+
+    const exportedXlsx = await exportPrettifiedXlsx(model);
+    const styleSheet = parseXML(
+      exportedXlsx.files.find((f) => f["contentType"] === "styles")!["content"]
+    );
+    const workSheet = parseXML(
+      exportedXlsx.files.find((f) => f["contentType"] === "sheet")!["content"]
+    );
+
+    const A1 = workSheet.querySelector("c[r='A1']")!;
+    expect(A1.getAttribute("s")).toBe("1");
+
+    const styles = styleSheet.querySelectorAll("xf");
+    expect(styles[1].getAttribute("applyAlignment")).toBe("1");
+    expect(styles[1].querySelector("alignment")!.getAttribute("wrapText")).toBe("1");
+  });
+
   describe("formulas", () => {
     beforeAll(() => {
       functionRegistry.add("NOW", {
