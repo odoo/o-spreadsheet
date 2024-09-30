@@ -1,4 +1,4 @@
-import { DEFAULT_FONT_SIZE } from "../../constants";
+import { DEFAULT_FONT_SIZE, NEWLINE } from "../../constants";
 import { deepEquals, splitReference, toUnboundedZone } from "../../helpers";
 import {
   ConditionalFormattingOperatorValues,
@@ -91,6 +91,7 @@ export function convertWidthFromExcel(width: number | undefined): number | undef
 
 export function extractStyle(
   data: WorkbookData,
+  content: string | undefined,
   styleId: number | undefined,
   formatId: number | undefined,
   borderId: number | undefined
@@ -116,7 +117,7 @@ export function extractStyle(
       vertical: style.verticalAlign
         ? V_ALIGNMENT_EXPORT_CONVERSION_MAP[style.verticalAlign]
         : undefined,
-      wrapText: style.wrapping === "wrap" || undefined,
+      wrapText: style.wrapping === "wrap" || content?.includes(NEWLINE) ? true : undefined,
     },
   };
 

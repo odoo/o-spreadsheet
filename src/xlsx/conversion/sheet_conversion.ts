@@ -2,6 +2,7 @@ import {
   buildSheetLink,
   largeMax,
   markdownLink,
+  replaceNewLines,
   splitReference,
   toCartesian,
   toXC,
@@ -120,9 +121,8 @@ function convertRows(
   return rows;
 }
 
-/** Remove newlines (\n) in shared strings, We do not support them */
 function convertSharedStrings(xlsxSharedStrings: string[]): string[] {
-  return xlsxSharedStrings.map((str) => str.replace(/\n/g, ""));
+  return xlsxSharedStrings.map(replaceNewLines);
 }
 
 function convertCells(
