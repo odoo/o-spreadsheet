@@ -29,6 +29,7 @@ interface CopiedTable {
 interface TableCell {
   style?: TableStyle;
   table?: CopiedTable;
+  isWholeTableCopied?: boolean;
 }
 
 interface ClipboardContent {
@@ -53,31 +54,36 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       for (let col of columnsIndexes) {
         const position = { col, row, sheetId };
         const table = this.getters.getTable(position);
-        if (!table || copiedTablesIds.has(table.id)) {
+        if (!table) {
           tableCellsInRow.push({});
           continue;
         }
         const coreTable = this.getters.getCoreTable(position);
         const tableZone = coreTable?.range.zone;
+        let copiedTable: CopiedTable | undefined = undefined;
         // Copy whole table
-        if (coreTable && tableZone && zones.some((z) => isZoneInside(tableZone, z))) {
-          copiedTablesIds.add(coreTable.id);
+        if (
+          !copiedTablesIds.has(table.id) &&
+          coreTable &&
+          tableZone &&
+          zones.some((z) => isZoneInside(tableZone, z))
+        ) {
+          copiedTablesIds.add(table.id);
           const values: Array<string[]> = [];
           for (const col of range(tableZone.left, tableZone.right + 1)) {
             values.push(this.getters.getFilterHiddenValues({ sheetId, col, row: tableZone.top }));
           }
-          tableCellsInRow.push({
-            table: {
-              range: coreTable.range.rangeData,
-              config: coreTable.config,
-              type: coreTable.type,
-            },
-          });
+          copiedTable = {
+            range: coreTable.range.rangeData,
+            config: coreTable.config,
+            type: coreTable.type,
+          };
         }
-        // Copy only style of cell
-        else if (table) {
-          tableCellsInRow.push({ style: this.getTableStyleToCopy(position) });
-        }
+        tableCellsInRow.push({
+          table: copiedTable,
+          style: this.getTableStyleToCopy(position),
+          isWholeTableCopied: copiedTablesIds.has(table.id),
+        });
       }
     }
 
@@ -183,11 +189,16 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       });
     }
 
-    // Do not paste table style if we're inside another table
     // We cannot check for dynamic tables, because at this point the paste can have changed the evaluation, and the
     // dynamic tables are not yet computed
-    if (!this.getters.getCoreTable(position)) {
-      if (tableCell.style?.style && options?.pasteOption !== "asValue") {
+    if (this.getters.getCoreTable(position) || options?.pasteOption === "asValue") {
+      return;
+    }
+    if (
+      (!options?.pasteOption && !tableCell.isWholeTableCopied) ||
+      options?.pasteOption === "onlyFormat"
+    ) {
+      if (tableCell.style?.style) {
         this.dispatch("UPDATE_CELL", { ...position, style: tableCell.style.style });
       }
       if (tableCell.style?.border) {
