@@ -1,12 +1,12 @@
-import { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import { toJsDate, toNumber } from "../../../functions/helpers";
-import { Color, Format, Getters, Locale, Range } from "../../../types";
+import { Getters, Locale, Range } from "../../../types";
 import {
   AxisType,
+  ChartJSRuntime,
   DatasetValues,
-  LabelValues,
   TrendConfiguration,
 } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
@@ -193,14 +193,7 @@ export function getTrendDatasetForLineChart(
 export function createLineOrScatterChartRuntime(
   chart: LineChart | ScatterChart,
   getters: Getters
-): {
-  chartJsConfig: ChartConfiguration;
-  background: Color;
-  dataSetsValues: DatasetValues[];
-  labelValues: LabelValues;
-  dataSetFormat: Format | undefined;
-  labelFormat: Format | undefined;
-} {
+): ChartJSRuntime {
   const axisType = getChartAxisType(chart, getters);
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
@@ -399,9 +392,5 @@ export function createLineOrScatterChartRuntime(
   return {
     chartJsConfig: config,
     background: chart.background || BACKGROUND_CHART_COLOR,
-    dataSetsValues,
-    labelValues,
-    dataSetFormat: leftAxisFormat,
-    labelFormat,
   };
 }
