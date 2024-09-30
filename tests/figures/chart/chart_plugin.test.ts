@@ -3143,10 +3143,9 @@ describe("trending line", () => {
       offset: false,
       labels: range(0, 26).map((v) => v.toString()),
     });
-    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const runtime = model.getters.getChartRuntime("1") as any;
     const step = (6 - 1) / 25;
-    //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
     for (let i = 0; i < data.lenght; i++) {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);
@@ -3163,10 +3162,9 @@ describe("trending line", () => {
       offset: false,
       labels: range(0, 26).map((v) => v.toString()),
     });
-    const runtime = model.getters.getChartRuntime("1");
+    const runtime = model.getters.getChartRuntime("1") as any;
     const step = (5 - 1) / 25;
-    //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
     for (let i = 0; i < data.lenght; i++) {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);
@@ -3182,10 +3180,9 @@ describe("trending line", () => {
       offset: false,
       labels: range(0, 26).map((v) => v.toString()),
     });
-    const runtime = model.getters.getChartRuntime("1");
+    const runtime = model.getters.getChartRuntime("1") as any;
     const step = (5 - 1) / 25;
-    //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
     for (let i = 0; i < data.lenght; i++) {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);
@@ -3212,10 +3209,9 @@ describe("trending line", () => {
       offset: false,
       labels: range(0, 51).map((v) => v.toString()),
     });
-    const runtime = model.getters.getChartRuntime("1");
+    const runtime = model.getters.getChartRuntime("1") as any;
     const step = (10 - 1) / 25;
-    //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
     for (let i = 0; i < data.lenght; i++) {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);
