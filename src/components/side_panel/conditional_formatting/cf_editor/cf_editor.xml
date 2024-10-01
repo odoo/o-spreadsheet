@@ -5,10 +5,11 @@
         <t t-set-slot="title">Apply to range</t>
         <div class="o-selection-cf">
           <SelectionInput
-            ranges="state.currentCF.ranges"
+            ranges="state.ranges"
             class="'o-range'"
             isInvalid="isRangeValid"
-            onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
+            onSelectionChanged.bind="onRangeUpdate"
+            onSelectionConfirmed.bind="onRangeConfirmed"
             required="true"
           />
         </div>
@@ -41,10 +42,8 @@
       </Section>
       <Section class="'pt-1'">
         <div class="o-sidePanelButtons">
-          <button t-on-click="props.onExitEdition" class="o-button o-cf-cancel">Cancel</button>
-          <button t-on-click="saveConditionalFormat" class="o-button primary o-cf-save">
-            Save
-          </button>
+          <button t-on-click="props.onCancel" class="o-button o-cf-cancel">Cancel</button>
+          <button t-on-click="onSave" class="o-button primary o-cf-save">Save</button>
         </div>
       </Section>
       <Section>
