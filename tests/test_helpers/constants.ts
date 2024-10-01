@@ -441,6 +441,7 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "DUPLICATE_PIVOT",
     pivotId: "1",
     newPivotId: "2",
+    duplicatedPivotName: "newName",
   },
   RENAME_PIVOT: {
     type: "RENAME_PIVOT",

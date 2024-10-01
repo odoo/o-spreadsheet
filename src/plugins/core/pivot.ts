@@ -95,7 +95,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       case "DUPLICATE_PIVOT": {
         const { pivotId, newPivotId } = cmd;
         const pivot = deepCopy(this.getPivotCore(pivotId).definition);
-        pivot.name = _t("%s (copy)", pivot.name);
+        pivot.name = cmd.duplicatedPivotName ?? pivot.name + " (copy)";
         this.addPivot(newPivotId, pivot);
         break;
       }
