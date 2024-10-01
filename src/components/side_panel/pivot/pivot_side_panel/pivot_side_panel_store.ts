@@ -18,13 +18,15 @@ import {
 export class PivotSidePanelStore extends SpreadsheetStore {
   mutators = ["reset", "deferUpdates", "applyUpdate", "discardPendingUpdate", "update"] as const;
 
-  private updatesAreDeferred: boolean = false;
+  private updatesAreDeferred: boolean;
   private draft: PivotCoreDefinition | null = null;
   private notification = this.get(NotificationStore);
   private alreadyNotified = false;
 
   constructor(get: Get, private pivotId: UID) {
     super(get);
+    this.updatesAreDeferred =
+      this.getters.getPivotCoreDefinition(this.pivotId).deferUpdates ?? false;
   }
 
   handle(cmd: Command) {
@@ -127,10 +129,13 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   }
 
   deferUpdates(shouldDefer: boolean) {
-    this.updatesAreDeferred = shouldDefer;
     if (shouldDefer === false && this.draft) {
+      this.draft.deferUpdates = false;
       this.applyUpdate();
+    } else {
+      this.update({ deferUpdates: shouldDefer });
     }
+    this.updatesAreDeferred = shouldDefer;
   }
 
   applyUpdate() {
