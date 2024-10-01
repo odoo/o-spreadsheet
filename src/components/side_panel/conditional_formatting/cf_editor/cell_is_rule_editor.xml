@@ -17,9 +17,15 @@
     <t t-set="text_color">Text Color</t>
     <div class="o-cf-cell-is-rule">
       <div class="o-section-subtitle">Format cells if...</div>
-      <select t-model="rule.operator" class="o-input o-cell-is-operator mb-3">
-        <t t-foreach="Object.keys(cellIsOperators)" t-as="op" t-key="op_index">
-          <option t-att-value="op" t-esc="cellIsOperators[op]"/>
+      <select
+        class="o-input o-cell-is-operator mb-3"
+        t-on-change="(ev) => this.editOperator(ev.target.value)">
+        <t t-foreach="cellIsOperators" t-as="op" t-key="op_index">
+          <option
+            t-att-value="op"
+            t-esc="cellIsOperators[op]"
+            t-att-selected="rule.operator === op"
+          />
         </t>
       </select>
       <t t-if="rule.operator !== 'IsEmpty' and rule.operator !== 'IsNotEmpty'">

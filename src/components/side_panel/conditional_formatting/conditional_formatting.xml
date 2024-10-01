@@ -9,7 +9,11 @@
         />
       </t>
       <t t-if="state.mode === 'edit'">
-        <ConditionalFormattingEditor editedCf="state.editedCf" onExitEdition.bind="switchToList"/>
+        <ConditionalFormattingEditor
+          editedCf="editedCF"
+          onSave.bind="switchToList"
+          onCancel.bind="cancelEdition"
+        />
       </t>
     </div>
   </t>

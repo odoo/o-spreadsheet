@@ -216,6 +216,21 @@ describe("conditional format", () => {
     ).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
+  test("Dispatch is refused if no changes are made", () => {
+    model = new Model();
+    createSheet(model, { sheetId: "42" });
+    const sheetId = model.getters.getActiveSheetId();
+    const cmd = {
+      cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
+      ranges: toRangesData(sheetId, "A1:A4"),
+      sheetId: sheetId,
+    };
+    expect(model.dispatch("ADD_CONDITIONAL_FORMAT", cmd)).toBeSuccessfullyDispatched();
+    expect(model.dispatch("ADD_CONDITIONAL_FORMAT", cmd)).toBeCancelledBecause(
+      CommandResult.NoChanges
+    );
+  });
+
   test("remove a conditional format rule", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");

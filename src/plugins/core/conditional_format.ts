@@ -1,5 +1,11 @@
 import { compile } from "../../formulas/index";
-import { isInside, recomputeZones, toUnboundedZone, zoneToDimension } from "../../helpers/index";
+import {
+  deepEquals,
+  isInside,
+  recomputeZones,
+  toUnboundedZone,
+  zoneToDimension,
+} from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -143,7 +149,12 @@ export class ConditionalFormatPlugin
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "ADD_CONDITIONAL_FORMAT":
-        return this.checkValidations(cmd, this.checkCFRule, this.checkEmptyRange);
+        return this.checkValidations(
+          cmd,
+          this.checkCFRule,
+          this.checkEmptyRange,
+          this.checkCFHasChanged
+        );
       case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
         return this.checkValidPriorityChange(cmd.cfId, cmd.delta, cmd.sheetId);
     }
@@ -433,6 +444,20 @@ export class ConditionalFormatPlugin
       }
       case "DataBarRule":
         return this.checkDataBarRangeValues(rule, cmd.ranges, cmd.sheetId);
+    }
+    return CommandResult.Success;
+  }
+
+  private checkCFHasChanged(cmd: AddConditionalFormatCommand) {
+    const newCF = this.mapToConditionalFormatInternal(cmd.sheetId, {
+      ...cmd.cf,
+      ranges: cmd.ranges.map((rangeData) =>
+        this.getters.getRangeString(this.getters.getRangeFromRangeData(rangeData), cmd.sheetId)
+      ),
+    });
+    const currentCF = this.cfRules[cmd.sheetId]?.find((cf) => cf.id === cmd.cf.id);
+    if (currentCF && deepEquals(newCF, currentCF)) {
+      return CommandResult.NoChanges;
     }
     return CommandResult.Success;
   }

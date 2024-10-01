@@ -22,14 +22,18 @@
         <select
           class="o-input me-2"
           name="valueType"
-          t-model="threshold.type"
+          t-on-change="(ev) => this.updateThresholdType(thresholdType, ev.target.value)"
           t-on-click="closeMenus"
           t-att-class="{ 'o-select-with-input': threshold?.type !== 'value' }">
-          <option value="value">Cell values</option>
-          <option value="number">Number</option>
-          <option value="percentage">Percentage</option>
-          <option value="percentile">Percentile</option>
-          <option value="formula">Formula</option>
+          <option value="value" t-att-selected="threshold.type === 'value'">Cell values</option>
+          <option value="number" t-att-selected="threshold.type === 'number'">Number</option>
+          <option value="percentage" t-att-selected="threshold.type === 'percentage'">
+            Percentage
+          </option>
+          <option value="percentile" t-att-selected="threshold.type === 'percentile'">
+            Percentile
+          </option>
+          <option value="formula" t-att-selected="threshold.type === 'formula'">Formula</option>
         </select>
       </t>
       <div class="o-threshold-value me-2" t-if="threshold and threshold.type !== 'value'">
@@ -37,7 +41,8 @@
           t-if="threshold.type !== 'formula'"
           type="text"
           class="o-input"
-          t-model="rule[thresholdType].value"
+          t-att-value="threshold.value"
+          t-on-change="(ev) => this.updateThresholdValue(thresholdType, ev.target.value)"
           t-att-class="{ 'o-invalid': isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
         />
         <StandaloneComposer t-else="" t-props="getColorScaleComposerProps(thresholdType)"/>

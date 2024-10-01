@@ -20,9 +20,12 @@ import {
   CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
+  ConditionalFormattingOperatorValues,
   DataBarRule,
   IconSetRule,
+  IconThreshold,
   SpreadsheetChildEnv,
+  ThresholdType,
 } from "../../../../types";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
@@ -127,8 +130,9 @@ css/* scss */ `
   }
 `;
 interface Props {
-  editedCf?: ConditionalFormat;
-  onExitEdition: () => void;
+  editedCf: ConditionalFormat;
+  onSave: () => void;
+  onCancel: () => void;
 }
 
 type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule" | "DataBarRule";
@@ -151,18 +155,19 @@ type CFMenu =
   | "iconSet-upperIcon";
 
 interface State {
-  currentCF: Omit<ConditionalFormat, "rule">;
   currentCFType: CFType;
   errors: CancelledReason[];
   rules: Rules;
   openedMenu?: CFMenu;
+  ranges: string[];
 }
 
 export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormattingEditor";
   static props = {
-    editedCf: { type: Object, optional: true },
-    onExitEdition: Function,
+    editedCf: Object,
+    onCancel: Function,
+    onSave: Function,
   };
   static components = {
     SelectionInput,
@@ -185,36 +190,25 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   private state!: State;
 
   setup() {
-    const cf = this.props.editedCf || {
-      id: this.env.model.uuidGenerator.uuidv4(),
-      ranges: this.env.model.getters
-        .getSelectedZones()
-        .map((zone) =>
-          this.env.model.getters.zoneToXC(this.env.model.getters.getActiveSheetId(), zone)
-        ),
-    };
-
     this.state = useState<State>({
-      currentCF: cf,
-      currentCFType: this.props.editedCf?.rule.type || "CellIsRule",
       errors: [],
+      currentCFType: this.props.editedCf.rule.type,
+      ranges: this.props.editedCf.ranges,
       rules: this.getDefaultRules(),
     });
-    if (this.props.editedCf) {
-      switch (this.props.editedCf.rule.type) {
-        case "CellIsRule":
-          this.state.rules.cellIs = this.props.editedCf.rule;
-          break;
-        case "ColorScaleRule":
-          this.state.rules.colorScale = this.props.editedCf.rule;
-          break;
-        case "IconSetRule":
-          this.state.rules.iconSet = this.props.editedCf.rule;
-          break;
-        case "DataBarRule":
-          this.state.rules.dataBar = this.props.editedCf.rule;
-          break;
-      }
+    switch (this.props.editedCf.rule.type) {
+      case "CellIsRule":
+        this.state.rules.cellIs = this.props.editedCf.rule;
+        break;
+      case "ColorScaleRule":
+        this.state.rules.colorScale = this.props.editedCf.rule;
+        break;
+      case "IconSetRule":
+        this.state.rules.iconSet = this.props.editedCf.rule;
+        break;
+      case "DataBarRule":
+        this.state.rules.dataBar = this.props.editedCf.rule;
+        break;
     }
 
     useExternalListener(window as any, "click", this.closeMenus);
@@ -237,38 +231,37 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     ];
   }
 
-  saveConditionalFormat() {
-    if (this.state.currentCF) {
-      const invalidRanges = this.state.currentCF.ranges.some((xc) => !xc.match(rangeReference));
-      if (invalidRanges) {
+  updateConditionalFormat(
+    newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }
+  ): CancelledReason[] {
+    const ranges = newCf.ranges || this.state.ranges;
+    const invalidRanges = this.state.ranges.some((xc) => !xc.match(rangeReference));
+    if (invalidRanges) {
+      if (!newCf.suppressErrors) {
         this.state.errors = [CommandResult.InvalidRange];
-        return;
       }
-      const sheetId = this.env.model.getters.getActiveSheetId();
-      const locale = this.env.model.getters.getLocale();
-      const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
-        cf: {
-          rule: canonicalizeCFRule(this.getEditorRule(), locale),
-          id: this.state.currentCF.id,
-        },
-        ranges: this.state.currentCF.ranges.map((xc) =>
-          this.env.model.getters.getRangeDataFromXc(sheetId, xc)
-        ),
-        sheetId,
-      });
-      if (!result.isSuccessful) {
-        this.state.errors = result.reasons;
-      } else {
-        this.props.onExitEdition();
-      }
+      return [CommandResult.InvalidRange];
     }
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const locale = this.env.model.getters.getLocale();
+    const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
+    const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        rule: canonicalizeCFRule(rule, locale),
+        id: this.props.editedCf.id,
+      },
+      ranges: ranges.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc)),
+      sheetId,
+    });
+    const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
+    if (!newCf.suppressErrors) {
+      this.state.errors = reasons;
+    }
+    return reasons;
   }
 
-  /**
-   * Get the rule currently edited with the editor
-   */
-  private getEditorRule(): ConditionalFormatRule {
-    switch (this.state.currentCFType) {
+  getEditedRule(ruleType: CFType): ConditionalFormatRule {
+    switch (ruleType) {
       case "CellIsRule":
         return this.state.rules.cellIs;
       case "ColorScaleRule":
@@ -277,6 +270,13 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
         return this.state.rules.iconSet;
       case "DataBarRule":
         return this.state.rules.dataBar;
+    }
+  }
+
+  onSave() {
+    const result = this.updateConditionalFormat({});
+    if (result.length === 0) {
+      this.props.onSave();
     }
   }
 
@@ -320,17 +320,20 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   changeRuleType(ruleType: CFType) {
-    if (this.state.currentCFType === ruleType || !this.state.rules) {
+    if (this.state.currentCFType === ruleType) {
       return;
     }
     this.state.errors = [];
     this.state.currentCFType = ruleType;
+    this.updateConditionalFormat({ rule: this.getEditedRule(ruleType), suppressErrors: true });
   }
 
-  onRangesChanged(ranges: string[]) {
-    if (this.state.currentCF) {
-      this.state.currentCF.ranges = ranges;
-    }
+  onRangeUpdate(ranges: string[]) {
+    this.state.ranges = ranges;
+  }
+
+  onRangeConfirmed() {
+    this.updateConditionalFormat({ ranges: this.state.ranges });
   }
 
   /*****************************************************************************
@@ -367,6 +370,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   toggleStyle(tool: string) {
     const style = this.state.rules.cellIs.style;
     style[tool] = !style[tool];
+    this.updateConditionalFormat({ rule: this.state.rules.cellIs });
     this.closeMenus();
   }
 
@@ -389,6 +393,13 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   setColor(target: string, color: Color) {
     this.state.rules.cellIs.style[target] = color;
+    this.updateConditionalFormat({ rule: this.state.rules.cellIs });
+    this.closeMenus();
+  }
+
+  editOperator(operator: ConditionalFormattingOperatorValues) {
+    this.state.rules.cellIs.operator = operator;
+    this.updateConditionalFormat({ rule: this.state.rules.cellIs, suppressErrors: true });
     this.closeMenus();
   }
 
@@ -427,6 +438,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     if (point) {
       point.color = Number.parseInt(color.slice(1), 16);
     }
+    this.updateConditionalFormat({ rule: this.state.rules.colorScale });
     this.closeMenus();
   }
 
@@ -460,6 +472,17 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
         type,
       };
     }
+    this.updateConditionalFormat({ rule, suppressErrors: true });
+  }
+
+  updateThresholdType(threshold: "minimum" | "maximum", thresholdType: ThresholdType) {
+    this.state.rules.colorScale[threshold].type = thresholdType;
+    this.updateConditionalFormat({ rule: this.state.rules.colorScale, suppressErrors: true });
+  }
+
+  updateThresholdValue(threshold: "minimum" | "midpoint" | "maximum", value: string) {
+    this.state.rules.colorScale[threshold]!.value = value;
+    this.updateConditionalFormat({ rule: this.state.rules.colorScale });
   }
 
   /*****************************************************************************
@@ -492,6 +515,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     const upper = icons.upper;
     icons.upper = icons.lower;
     icons.lower = upper;
+    this.updateConditionalFormat({ rule: this.state.rules.iconSet });
   }
 
   setIconSet(iconSet: "arrows" | "smiley" | "dots") {
@@ -499,16 +523,46 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     icons.upper = this.iconSets[iconSet].good;
     icons.middle = this.iconSets[iconSet].neutral;
     icons.lower = this.iconSets[iconSet].bad;
+    this.updateConditionalFormat({ rule: this.state.rules.iconSet });
   }
 
   setIcon(target: "upper" | "middle" | "lower", icon: string) {
     this.state.rules.iconSet.icons[target] = icon;
+    this.updateConditionalFormat({ rule: this.state.rules.iconSet });
+  }
+
+  setInflectionOperator(
+    inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
+    operator: "gt" | "ge"
+  ) {
+    this.state.rules.iconSet[inflectionPoint].operator = operator;
+    this.updateConditionalFormat({ rule: this.state.rules.iconSet });
+  }
+
+  setInflectionValue(
+    inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
+    value: string
+  ) {
+    this.state.rules.iconSet[inflectionPoint].value = value;
+    this.updateConditionalFormat({ rule: this.state.rules.iconSet });
+  }
+
+  setInflectionType(
+    inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint",
+    type: IconThreshold["type"],
+    ev
+  ) {
+    this.state.rules.iconSet[inflectionPoint].type = type;
+    this.updateConditionalFormat({ rule: this.state.rules.iconSet, suppressErrors: true });
   }
 
   getCellIsRuleComposerProps(valueIndex: 0 | 1): StandaloneComposer["props"] {
     const isInvalid = valueIndex === 0 ? this.isValue1Invalid : this.isValue2Invalid;
     return {
-      onConfirm: (str: string) => (this.state.rules.cellIs.values[valueIndex] = str),
+      onConfirm: (str: string) => {
+        this.state.rules.cellIs.values[valueIndex] = str;
+        this.updateConditionalFormat({ rule: this.state.rules.cellIs });
+      },
       composerContent: this.state.rules.cellIs.values[valueIndex],
       placeholder: _t("Value or formula"),
       invalid: isInvalid,
@@ -526,7 +580,10 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     }
     const isInvalid = this.isValueInvalid(thresholdType);
     return {
-      onConfirm: (str: string) => (threshold.value = str),
+      onConfirm: (str: string) => {
+        threshold.value = str;
+        this.updateConditionalFormat({ rule: this.state.rules.colorScale });
+      },
       composerContent: threshold.value || "",
       placeholder: _t("Formula"),
       invalid: isInvalid,
@@ -541,7 +598,10 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     const inflection = this.state.rules.iconSet[inflectionPoint];
     const isInvalid = this.isInflectionPointInvalid(inflectionPoint);
     return {
-      onConfirm: (str: string) => (inflection.value = str),
+      onConfirm: (str: string) => {
+        inflection.value = str;
+        this.updateConditionalFormat({ rule: this.state.rules.iconSet });
+      },
       composerContent: inflection.value || "",
       placeholder: _t("Formula"),
       invalid: isInvalid,
@@ -560,9 +620,14 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   updateDataBarColor(color: Color) {
     this.state.rules.dataBar.color = Number.parseInt(color.slice(1), 16);
+    this.updateConditionalFormat({ rule: this.state.rules.dataBar });
   }
 
   onDataBarRangeUpdate(ranges: string[]) {
     this.state.rules.dataBar.rangeValues = ranges[0];
+  }
+
+  onDataBarRangeChange() {
+    this.updateConditionalFormat({ rule: this.state.rules.dataBar });
   }
 }

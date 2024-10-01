@@ -47,6 +47,7 @@ function errorMessages(): string[] {
 }
 
 const selectors = {
+  listPreviewPanel: ".o-cf-preview-list",
   listPreview: ".o-cf .o-cf-preview",
   ruleEditor: {
     range: ".o-cf .o-cf-ruleEditor .o-cf-range .o-range input",
@@ -501,6 +502,57 @@ describe("UI of conditional formats", () => {
     });
   });
 
+  describe("Panel change is directly applied to the model without needing the save button", () => {
+    test("Can create and save a new CF", async () => {
+      await click(fixture, selectors.buttonAdd);
+      expect(model.getters.getConditionalFormats(sheetId)).toHaveLength(1);
+
+      setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "IsEmpty");
+      expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
+        operator: "IsEmpty",
+      });
+
+      await click(fixture, selectors.buttonSave);
+      expect(selectors.listPreviewPanel).toHaveCount(1);
+    });
+
+    test("Can create and cancel the creation of a CF", async () => {
+      await click(fixture, selectors.buttonAdd);
+      expect(model.getters.getConditionalFormats(sheetId)).toHaveLength(1);
+
+      await click(fixture, selectors.buttonCancel);
+      expect(selectors.listPreviewPanel).toHaveCount(1);
+      expect(model.getters.getConditionalFormats(sheetId)).toHaveLength(0);
+    });
+
+    test("Can edit a CF and cancel its edition", async () => {
+      await click(fixture, selectors.buttonAdd);
+      await click(fixture, selectors.buttonSave);
+
+      await click(fixture, selectors.listPreview);
+      setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "IsEmpty");
+      expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
+        operator: "IsEmpty",
+      });
+
+      click(fixture, selectors.buttonCancel);
+      expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
+        operator: "IsNotEmpty",
+      });
+    });
+
+    test("The error messages only appear when clicking save, not when changing the operator type", async () => {
+      await click(fixture, selectors.buttonAdd);
+
+      await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal");
+      expect(errorMessages()).toHaveLength(0);
+
+      await click(fixture, selectors.buttonSave);
+      expect(errorMessages()).toHaveLength(1);
+      expect(selectors.listPreviewPanel).toHaveCount(0); // We stayed on the edit CF panel
+    });
+  });
+
   test("can create a new ColorScaleRule with cell values", async () => {
     await click(fixture, selectors.buttonAdd);
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
@@ -752,13 +804,8 @@ describe("UI of conditional formats", () => {
     await setInputValueAndTrigger(selectors.colorScaleEditor.minType, "number");
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "20");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
-    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
+    await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
 
-    expect(errorMessages()).toHaveLength(0);
-
-    await click(fixture, selectors.buttonSave);
-
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Minimum must be smaller then Maximum"]);
     expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
       "o-invalid"
@@ -784,14 +831,8 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
 
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
-    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
+    await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "10");
 
-    expect(errorMessages()).toHaveLength(0);
-
-    //  click save
-    await click(fixture, selectors.buttonSave);
-
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual([
       "Minimum must be smaller then Maximum",
       "Minimum must be smaller then Midpoint",
@@ -823,12 +864,6 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "50");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
 
-    expect(errorMessages()).toHaveLength(0);
-
-    //  click save
-    await click(fixture, selectors.buttonSave);
-
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Midpoint must be smaller then Maximum"]);
     expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
       "o-invalid"
@@ -857,10 +892,6 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.minValue, invalidValue);
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
 
-      expect(errorMessages()).toHaveLength(0);
-
-      await click(fixture, selectors.buttonSave);
-      expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       expect(errorMessages()).toEqual(["The minpoint must be a number"]);
       expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
         "o-invalid"
@@ -889,10 +920,6 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.midValue, invalidValue);
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "25");
 
-      expect(errorMessages()).toHaveLength(0);
-
-      await click(fixture, selectors.buttonSave);
-      expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       expect(errorMessages()).toEqual(["The midpoint must be a number"]);
       expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
         "o-invalid"
@@ -922,10 +949,6 @@ describe("UI of conditional formats", () => {
       setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
       await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, invalidValue);
 
-      expect(errorMessages()).toHaveLength(0);
-
-      await click(fixture, selectors.buttonSave);
-      expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
       expect(errorMessages()).toEqual(["The maxpoint must be a number"]);
       expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
         "o-invalid"
@@ -951,10 +974,6 @@ describe("UI of conditional formats", () => {
     await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=hello()");
     await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=SUM(1,2)");
 
-    expect(errorMessages()).toHaveLength(0);
-
-    await click(fixture, selectors.buttonSave);
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Minpoint formula"]);
     expect(isInputInvalid(selectors.colorScaleEditor.minValueComposer)).toBe(true);
     expect(fixture.querySelector(selectors.colorScaleEditor.midValue)).toBe(null);
@@ -976,10 +995,6 @@ describe("UI of conditional formats", () => {
     editStandaloneComposer(selectors.colorScaleEditor.midValueComposer, "=hello()");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3");
 
-    expect(errorMessages()).toHaveLength(0);
-
-    await click(fixture, selectors.buttonSave);
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Midpoint formula"]);
     expect(isInputInvalid(selectors.colorScaleEditor.minValue)).toBe(false);
     expect(isInputInvalid(selectors.colorScaleEditor.midValueComposer)).toBe(true);
@@ -1033,6 +1048,25 @@ describe("UI of conditional formats", () => {
     expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(0);
   });
 
+  test("Save button is disabled if there are errors", async () => {
+    await click(fixture, selectors.buttonAdd);
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan");
+    await click(fixture, selectors.buttonSave);
+    expect(errorMessages()).toHaveLength(1);
+    expect(fixture.querySelector<HTMLButtonElement>(selectors.buttonSave)?.disabled).toBe(true);
+  });
+
+  test("Panel is not in error if dispatch is refused because there were no changes", async () => {
+    await click(fixture, selectors.buttonAdd);
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "IsNotEmpty");
+    await nextTick();
+    expect(errorMessages()).toHaveLength(0);
+
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "IsNotEmpty");
+    await nextTick();
+    expect(errorMessages()).toHaveLength(0);
+  });
+
   test("will display error if there is an invalid formula for the max", async () => {
     await click(fixture, selectors.buttonAdd);
 
@@ -1047,10 +1081,6 @@ describe("UI of conditional formats", () => {
     await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=hello()");
     await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=SUM(1,2)");
 
-    expect(errorMessages()).toHaveLength(0);
-
-    await click(fixture, selectors.buttonSave);
-    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
   });
 
@@ -1154,6 +1184,7 @@ describe("UI of conditional formats", () => {
 
     test("can change inputs", async () => {
       await click(fixture, selectors.buttonAdd);
+      const dispatch = spyModelDispatch(model);
 
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
       const rows = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.rows);
@@ -1172,12 +1203,8 @@ describe("UI of conditional formats", () => {
       await setInputValueAndTrigger(operatorinflectionUpper, "ge");
       await setInputValueAndTrigger(inputinflectionUpper, "0");
 
-      const dispatch = spyModelDispatch(model);
-      //  click save
-      await click(fixture, selectors.buttonSave);
-
       const sheetId = model.getters.getActiveSheetId();
-      expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      expect(dispatch).toHaveBeenLastCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
           id: expect.any(String),
           rule: {
@@ -1336,24 +1363,12 @@ describe("UI of conditional formats", () => {
     await click(fixture, selectors.buttonAdd);
 
     await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
-    expect(
-      (
-        document.querySelector(
-          `${selectors.ruleEditor.editor.operatorInput} option:checked`
-        ) as HTMLInputElement
-      ).value
-    ).toBe("BeginsWith");
+    expect(selectors.ruleEditor.editor.operatorInput).toHaveValue("BeginsWith");
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[0]);
-    expect(
-      (
-        document.querySelector(
-          `${selectors.ruleEditor.editor.operatorInput} option:checked`
-        ) as HTMLInputElement
-      ).value
-    ).toBe("BeginsWith");
+    expect(selectors.ruleEditor.editor.operatorInput).toHaveValue("BeginsWith");
   });
 
   test("switching to list resets the rules to their default value", async () => {
