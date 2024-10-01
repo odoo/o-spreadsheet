@@ -38,11 +38,14 @@
       </td>
       <td>When value is</td>
       <td>
-        <select class="o-input" name="valueType" t-model="inflectionPointValue.operator">
-          <option value="gt">
+        <select
+          class="o-input"
+          name="valueType"
+          t-on-change="(ev) => this.setInflectionOperator(inflectionPoint, ev.target.value)">
+          <option value="gt" t-att-selected="inflectionPointValue.operator === 'gt'">
             <span>&#62;</span>
           </option>
-          <option value="ge">
+          <option value="ge" t-att-selected="inflectionPointValue.operator === 'ge'">
             <span>&#8805;</span>
           </option>
         </select>
@@ -54,17 +57,29 @@
             t-if="inflectionPointValue.type !== 'formula'"
             class="o-input"
             t-att-class="{ 'o-invalid': isInflectionPointInvalid(inflectionPoint) }"
-            t-model="rule[inflectionPoint].value"
+            t-att-value="rule[inflectionPoint].value"
+            t-on-change="(ev) => this.setInflectionValue(inflectionPoint, ev.target.value)"
           />
           <StandaloneComposer t-else="" t-props="getColorIconSetComposerProps(inflectionPoint)"/>
         </div>
       </td>
       <td>
-        <select class="o-input" name="valueType" t-model="inflectionPointValue.type">
-          <option value="number">Number</option>
-          <option value="percentage">Percentage</option>
-          <option value="percentile">Percentile</option>
-          <option value="formula">Formula</option>
+        <select
+          class="o-input"
+          name="valueType"
+          t-on-change="(ev) => this.setInflectionType(inflectionPoint, ev.target.value, ev)">
+          <option value="number" t-att-selected="inflectionPointValue.type === 'number'">
+            Number
+          </option>
+          <option value="percentage" t-att-selected="inflectionPointValue.type === 'percentage'">
+            Percentage
+          </option>
+          <option value="percentile" t-att-selected="inflectionPointValue.type === 'percentile'">
+            Percentile
+          </option>
+          <option value="formula" t-att-selected="inflectionPointValue.type === 'formula'">
+            Formula
+          </option>
         </select>
       </td>
     </tr>

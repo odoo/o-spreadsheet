@@ -396,7 +396,7 @@ describe("Selection Input", () => {
     await simulateClick(".o-cf-add");
     await nextTick();
     let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
-    expect(input.value).toBe("B1:B100");
+    expect(input.value).toBe("B:B");
 
     await simulateClick(input);
     await selectColumnByClicking(model, "C");
