@@ -12,7 +12,8 @@
         class="'o-range'"
         isInvalid="false"
         hasSingleRange="true"
-        onSelectionChanged="(ranges) => this.onDataBarRangeUpdate(ranges)"
+        onSelectionChanged.bind="onDataBarRangeUpdate"
+        onSelectionConfirmed.bind="onDataBarRangeChange"
         required="false"
       />
     </div>
