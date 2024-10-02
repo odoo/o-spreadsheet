@@ -43,6 +43,7 @@ export class SidePanelCollapsible extends Component {
   static template = "o-spreadsheet-SidePanelCollapsible";
   static props = {
     slots: Object,
+    title: { type: String, optional: true },
     collapsedAtInit: { type: Boolean, optional: true },
     class: { type: String, optional: true },
   };

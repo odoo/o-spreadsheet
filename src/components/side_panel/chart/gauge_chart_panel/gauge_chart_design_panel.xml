@@ -5,11 +5,9 @@
       definition="props.definition"
       updateChart="props.updateChart"
     />
-    <SidePanelCollapsible collapsedAtInit="false">
-      <t t-set-slot="title">Gauge Design</t>
+    <SidePanelCollapsible collapsedAtInit="false" title.translate="Gauge Design">
       <t t-set-slot="content">
-        <Section class="'pt-0'">
-          <t t-set-slot="title">Range</t>
+        <Section class="'pt-0'" title.translate="Range">
           <div class="o-subsection-left">
             <input
               type="text"
@@ -32,8 +30,7 @@
           </div>
         </Section>
 
-        <Section>
-          <t t-set-slot="title">Thresholds</t>
+        <Section title.translate="Thresholds">
           <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
             <t t-set="sectionRule" t-value="state.sectionRule"/>
           </t>

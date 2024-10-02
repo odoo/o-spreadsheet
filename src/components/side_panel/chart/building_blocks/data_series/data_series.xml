@@ -1,7 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet.ChartDataSeries">
-    <Section class="'o-data-series'">
-      <t t-set-slot="title" t-esc="title"/>
+    <Section class="'o-data-series'" title="title">
       <SelectionInput
         ranges="ranges"
         required="true"

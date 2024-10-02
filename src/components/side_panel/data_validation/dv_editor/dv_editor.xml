@@ -1,8 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-DataValidationEditor">
     <div class="o-dv-form w-100 h-100">
-      <Section class="'o-dv-range'">
-        <t t-set-slot="title">Apply to range</t>
+      <Section class="'o-dv-range'" title.translate="Apply to range">
         <SelectionInput
           ranges="state.rule.ranges"
           onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
@@ -28,8 +27,7 @@
         </div>
       </Section>
 
-      <Section class="'o-dv-invalid-option pt-0'">
-        <t t-set-slot="title">If the data is invalid</t>
+      <Section class="'o-dv-invalid-option pt-0'" title.translate="If the data is invalid">
         <select class="o-dv-reject-input o-input" t-on-change="changeRuleIsBlocking">
           <option t-att-selected="!state.rule.isBlocking" value="false">Show a warning</option>
           <option t-att-selected="state.rule.isBlocking" value="true">Reject the input</option>

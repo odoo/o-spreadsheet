@@ -5,8 +5,7 @@
       definition="props.definition"
       updateChart="props.updateChart">
       <t t-set-slot="general-extension">
-        <Section class="'o-vertical-axis-selection'">
-          <t t-set-slot="title">Vertical axis position</t>
+        <Section class="'o-vertical-axis-selection'" title.translate="Vertical axis position">
           <RadioSelection
             choices="axisChoices"
             selectedValue="props.definition.verticalAxisPosition"
@@ -14,8 +13,7 @@
             onChange.bind="updateVerticalAxisPosition"
           />
         </Section>
-        <Section>
-          <t t-set-slot="title">Legend position</t>
+        <Section title.translate="Legend position">
           <select
             t-att-value="props.definition.legendPosition"
             class="o-input o-chart-legend-position"
@@ -27,8 +25,7 @@
             <option value="right">Right</option>
           </select>
         </Section>
-        <Section>
-          <t t-set-slot="title">Values</t>
+        <Section title.translate="Values">
           <Checkbox
             name="'showValues'"
             label.translate="Show values"
@@ -38,11 +35,9 @@
         </Section>
       </t>
     </GeneralDesignEditor>
-    <SidePanelCollapsible collapsedAtInit="true">
-      <t t-set-slot="title">Waterfall design</t>
+    <SidePanelCollapsible collapsedAtInit="true" title.translate="Waterfall design">
       <t t-set-slot="content">
-        <Section class="'pt-0'">
-          <t t-set-slot="title">Options</t>
+        <Section class="'pt-0'" title.translate="Options">
           <t t-set="firstValueAsSubtotal">Use first value as subtotal</t>
           <Checkbox
             className="'mb-2'"
@@ -67,8 +62,7 @@
             onChange.bind="onUpdateShowConnectorLines"
           />
         </Section>
-        <Section>
-          <t t-set-slot="title">Colors</t>
+        <Section title.translate="Colors">
           <div class="o-waterfall-positive-color d-flex align-items-center mb-2">
             <RoundColorPicker
               currentColor="positiveValuesColor"
@@ -93,8 +87,7 @@
         </Section>
       </t>
     </SidePanelCollapsible>
-    <SidePanelCollapsible collapsedAtInit="true">
-      <t t-set-slot="title">Axes</t>
+    <SidePanelCollapsible collapsedAtInit="true" title.translate="Axes">
       <t t-set-slot="content">
         <AxisDesignEditor
           axesList="axesList"
