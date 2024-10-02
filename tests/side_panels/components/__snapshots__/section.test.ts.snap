@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Section Can render a section with a title 1`] = `
+exports[`Section Can render a section with a title props 1`] = `
 <div>
   <div
     class="container"
@@ -12,6 +12,62 @@ exports[`Section Can render a section with a title 1`] = `
         class="o-section-title"
       >
         My title
+        
+        
+      </div>
+      
+      <div
+        class="content"
+      >
+        My content
+      </div>
+      
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Section Can render a section with a title slot 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <div
+      class="o-section my-class"
+    >
+      <div
+        class="o-section-title"
+      >
+        
+        My title
+        
+      </div>
+      
+      <div
+        class="content"
+      >
+        My content
+      </div>
+      
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Section Can render a section with both title props and slot 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <div
+      class="o-section my-class"
+    >
+      <div
+        class="o-section-title"
+      >
+        My title from props
+        My title from slot
+        
       </div>
       
       <div

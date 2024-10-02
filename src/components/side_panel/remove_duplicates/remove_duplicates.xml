@@ -14,8 +14,7 @@
         />
       </Section>
 
-      <Section class="'pt-0'">
-        <t t-set-slot="title">Columns to analyze</t>
+      <Section class="'pt-0'" title.translate="Columns to analyze">
         <div class="o-checkbox-selection overflow-auto">
           <t t-set="selectAllLabel">Select all</t>
           <Checkbox

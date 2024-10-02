@@ -1,8 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-SettingsPanel">
     <div class="o-settings-panel">
-      <Section>
-        <t t-set-slot="title">Locale</t>
+      <Section title.translate="Locale">
         <select class="o-input" t-on-change="(ev) => this.onLocaleChange(ev.target.value)">
           <option
             t-foreach="supportedLocales"

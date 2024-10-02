@@ -1,8 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-FindAndReplacePanel">
     <div class="o-find-and-replace">
-      <Section>
-        <t t-set-slot="title">Search</t>
+      <Section title.translate="Search">
         <div class="o-input-search-container">
           <input
             type="text"
@@ -77,8 +76,7 @@
           <ValidationMessages msgType="'info'" messages="searchInfo" singleBox="true"/>
         </div>
       </Section>
-      <Section class="'pt-0'" t-if="!env.model.getters.isReadonly()">
-        <t t-set-slot="title">Replace</t>
+      <Section class="'pt-0'" t-if="!env.model.getters.isReadonly()" title.translate="Replace">
         <div class="o-input-search-container">
           <input
             type="text"

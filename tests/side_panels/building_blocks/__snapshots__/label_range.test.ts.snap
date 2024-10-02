@@ -9,6 +9,8 @@ exports[`Label range Can add options to the label range component 1`] = `
       class="o-section-title"
     >
       Categories / Labels
+      
+      
     </div>
     
     <div
@@ -66,6 +68,8 @@ exports[`Label range Can render a label range component 1`] = `
       class="o-section-title"
     >
       Categories / Labels
+      
+      
     </div>
     
     <div

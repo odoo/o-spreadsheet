@@ -3,8 +3,7 @@
     <div class="d-flex flex-column h-100 justify-content-between overflow-hidden">
       <div class="h-100 position-relative overflow-x-hidden overflow-y-auto">
         <PivotTitleSection pivotId="props.pivotId" flipAxis.bind="flipAxis"/>
-        <Section>
-          <t t-set-slot="title">Range</t>
+        <Section title.translate="Range">
           <SelectionInput
             ranges="ranges"
             required="true"
