@@ -76,7 +76,14 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { mockChart, mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
+import {
+  createEqualCF,
+  mockChart,
+  mountSpreadsheet,
+  nextTick,
+  toRangesData,
+  typeInComposerGrid,
+} from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("../__mocks__/content_editable_helper")
@@ -879,6 +886,21 @@ describe("Grid component", () => {
       gridMouseEvent(model, "pointerup", "C8");
 
       expect(getCell(model, "C8")?.style).toMatchObject({ fillColor: "#748747" });
+    });
+
+    test("Paste format works with conditional format", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("1", { fillColor: "#0000FF" }, "cf2"),
+        sheetId,
+        ranges: toRangesData(sheetId, "A1"),
+      });
+      selectCell(model, "A1");
+      paintFormatStore.activate({ persistent: false });
+      gridMouseEvent(model, "pointerdown", "C8");
+      gridMouseEvent(model, "pointerup", "C8");
+
+      expect(model.getters.getConditionalFormats(sheetId)[0].ranges).toEqual(["A1", "C8"]);
     });
 
     test("can keep the paint format mode persistently", async () => {
