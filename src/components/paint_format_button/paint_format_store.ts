@@ -1,6 +1,7 @@
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { BorderClipboardHandler } from "../../clipboard_handlers/borders_clipboard";
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
+import { ConditionalFormatClipboardHandler } from "../../clipboard_handlers/conditional_format_clipboard";
 import { TableClipboardHandler } from "../../clipboard_handlers/tables_clipboard";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
@@ -23,6 +24,7 @@ export class PaintFormatStore extends SpreadsheetStore {
     new CellClipboardHandler(this.getters, this.model.dispatch),
     new BorderClipboardHandler(this.getters, this.model.dispatch),
     new TableClipboardHandler(this.getters, this.model.dispatch),
+    new ConditionalFormatClipboardHandler(this.getters, this.model.dispatch),
   ];
 
   private status: "inactive" | "oneOff" | "persistent" = "inactive";
