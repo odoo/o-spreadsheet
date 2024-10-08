@@ -55,6 +55,6 @@ pivotRegistry.add("SPREADSHEET", {
   onIterationEndEvaluation: (pivot: SpreadsheetPivot) => pivot.markAsDirtyForEvaluation(),
   dateGranularities: [...dateGranularities],
   datetimeGranularities: [...dateGranularities, "hour_number", "minute_number", "second_number"],
-  isMeasureCandidate: (field: PivotField) => !["date", "boolean"].includes(field.type),
+  isMeasureCandidate: (field: PivotField) => !["datetime", "boolean"].includes(field.type),
   isGroupable: () => true,
 });

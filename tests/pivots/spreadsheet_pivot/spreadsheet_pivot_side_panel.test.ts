@@ -314,6 +314,29 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(0);
   });
 
+  test("filter unsupported measures", async () => {
+    setCellContent(model, "A1", "integer");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "B1", "float");
+    setCellContent(model, "B2", "10.1");
+    setCellContent(model, "C1", "bool");
+    setCellContent(model, "C2", "true");
+    setCellContent(model, "D1", "date");
+    setCellContent(model, "D2", "2024/01/01");
+    setCellContent(model, "E1", "datetime");
+    setCellContent(model, "E2", "2024/01/01 08:00:00");
+    setCellContent(model, "F1", "text");
+    setCellContent(model, "F2", "hi");
+    addPivot(model, "A1:F2", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    const measures = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
+      (el) => el.textContent
+    );
+    expect(measures).toEqual(["Count", "float", "integer", "text"]);
+  });
+
   test("Measures have the correct default aggregator", async () => {
     setCellContent(model, "A1", "amount");
     setCellContent(model, "A2", "10");
