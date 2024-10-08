@@ -18,7 +18,7 @@ import {
   createComboChart,
   createSheet,
   createSheetWithName,
-  createTable,
+  createTableWithFilter,
   deleteColumns,
   deleteRows,
   deleteSheet,
@@ -2835,7 +2835,7 @@ describe("Chart evaluation", () => {
       let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
-      createTable(model, "A1:C5");
+      createTableWithFilter(model, "A1:C5");
       updateFilter(model, "B3", ["11"]);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(3);
