@@ -1,11 +1,14 @@
+import { UIPlugin } from "../../src";
 import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
 import { Model } from "../../src/model";
+import { featurePluginRegistry } from "../../src/plugins";
 import {
   ClipboardMIMEType,
   ClipboardPasteTarget,
+  Command,
   CommandResult,
   DEFAULT_LOCALE,
   DEFAULT_LOCALES,
@@ -59,6 +62,7 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
+  addTestPlugin,
   createEqualCF,
   createModelFromGrid,
   getGrid,
@@ -1895,6 +1899,28 @@ describe("clipboard", () => {
       { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
       { ranges: ["B2"], rule: { style: { fillColor: "#FF0000" } } },
     ]);
+  });
+
+  test("copy/paste a CF zone only dispatch a singled ADD_CONDITIONAL_FORMAT", () => {
+    const commands: Command[] = [];
+    class MyUIPlugin extends UIPlugin {
+      handle = (cmd: Command) => commands.push(cmd);
+    }
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+
+    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
+      ranges: toRangesData(sheetId, "A1,A2"),
+      sheetId,
+    });
+
+    copy(model, "A1:A2");
+    paste(model, "B1");
+
+    expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([{ ranges: ["A1:B2"] }]);
+    expect(commands.filter((c) => c.type === "ADD_CONDITIONAL_FORMAT")).toHaveLength(2);
   });
 
   test("can copy and paste a cell which contains a cross-sheet reference", () => {
