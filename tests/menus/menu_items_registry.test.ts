@@ -51,7 +51,6 @@ import {
 } from "../test_helpers/helpers";
 
 import { Currency, Model } from "../../src";
-import { ClipboardMIMEType } from "../../src/types";
 
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
@@ -231,11 +230,7 @@ describe("Menu Item actions", () => {
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
-      clipboardContent: {
-        [ClipboardMIMEType.PlainText]: "Copy in OS clipboard",
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
-      },
+      clipboardContent: { text: "Copy in OS clipboard" },
       target: target("A1"),
       pasteOption: "onlyFormat",
     });
@@ -279,11 +274,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
-      clipboardContent: {
-        [ClipboardMIMEType.PlainText]: text,
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
-      },
+      clipboardContent: { text },
       pasteOption: "asValue",
     });
   });
@@ -303,11 +294,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
-      clipboardContent: {
-        [ClipboardMIMEType.PlainText]: text,
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
-      },
+      clipboardContent: { text },
       pasteOption: "onlyFormat",
     });
   });

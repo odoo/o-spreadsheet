@@ -11,7 +11,6 @@ import {
   BorderData,
   ChartDefinition,
   ChartWithDataSetDefinition,
-  ClipboardContent,
   ClipboardPasteOptions,
   Color,
   CreateSheetCommand,
@@ -21,6 +20,7 @@ import {
   Direction,
   DispatchResult,
   Locale,
+  ParsedOSClipboardContent,
   SelectionStep,
   SortDirection,
   SortOptions,
@@ -365,7 +365,7 @@ export function paste(
 export function pasteFromOSClipboard(
   model: Model,
   range: string,
-  content: ClipboardContent,
+  content: ParsedOSClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ): DispatchResult {
   return model.dispatch("PASTE_FROM_OS_CLIPBOARD", {

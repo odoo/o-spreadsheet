@@ -288,7 +288,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     }
   }
 
-  convertOSClipboardData(text: string): ClipboardContent {
+  convertTextToClipboardData(text: string): ClipboardContent {
     const locale = this.getters.getLocale();
     const copiedData: any = {
       cells: [],
