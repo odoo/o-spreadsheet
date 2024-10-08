@@ -232,8 +232,6 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       clipboardContent: {
         [ClipboardMIMEType.PlainText]: "Copy in OS clipboard",
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
       },
       target: target("A1"),
       pasteOption: "onlyFormat",
@@ -280,8 +278,6 @@ describe("Menu Item actions", () => {
       target: target("A1"),
       clipboardContent: {
         [ClipboardMIMEType.PlainText]: text,
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
       },
       pasteOption: "asValue",
     });
@@ -304,8 +300,6 @@ describe("Menu Item actions", () => {
       target: target("A1"),
       clipboardContent: {
         [ClipboardMIMEType.PlainText]: text,
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
       },
       pasteOption: "onlyFormat",
     });

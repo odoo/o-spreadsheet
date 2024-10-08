@@ -1,11 +1,11 @@
 import { CURRENT_VERSION } from "../../migrations/data";
 import { _t } from "../../translation";
 import {
-  ClipboardContent,
   ClipboardMIMEType,
   ClipboardPasteOptions,
   CommandResult,
   DispatchResult,
+  ImportClipboardContent,
   SpreadsheetChildEnv,
   Zone,
 } from "../../types";
@@ -45,7 +45,7 @@ export function interactivePaste(
 export function interactivePasteFromOS(
   env: SpreadsheetChildEnv,
   target: Zone[],
-  clipboardContent: ClipboardContent,
+  clipboardContent: ImportClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ) {
   let result: DispatchResult;
@@ -59,10 +59,9 @@ export function interactivePasteFromOS(
       pasteOption,
     });
   } catch (error) {
-    const parsedSpreadsheetContent = clipboardContent[ClipboardMIMEType.OSpreadsheet]
-      ? JSON.parse(clipboardContent[ClipboardMIMEType.OSpreadsheet])
-      : {};
-    if (parsedSpreadsheetContent.version && parsedSpreadsheetContent.version !== CURRENT_VERSION) {
+    const parsedSpreadsheetContent = clipboardContent[ClipboardMIMEType.Html];
+
+    if (parsedSpreadsheetContent?.version !== CURRENT_VERSION) {
       env.raiseError(
         _t(
           "An unexpected error occurred while pasting content.\
