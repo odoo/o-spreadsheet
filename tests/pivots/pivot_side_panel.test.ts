@@ -25,6 +25,19 @@ describe("Pivot side panel", () => {
     addPivot(model, "A1:B2", {}, "2");
   });
 
+  test("readonly panel is not clickable and greyed", async () => {
+    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    await nextTick();
+    const panel = fixture.querySelector(".o-sidePanelBody > div");
+    expect(panel?.classList).not.toContain("pe-none");
+    expect(panel?.classList).not.toContain("opacity-50");
+    model.updateMode("readonly");
+    await nextTick();
+    expect(panel?.classList).toContain("pe-none");
+    expect(panel?.classList).toContain("opacity-50");
+    expect(panel?.getAttribute("inert")).toBe("1");
+  });
+
   test("It should open the pivot editor when pivotId is provided", async () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();
