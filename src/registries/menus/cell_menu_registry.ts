@@ -112,6 +112,5 @@ cellMenuRegistry
   })
   .add("pivot_properties", {
     ...ACTIONS_PIVOT.pivotProperties,
-    sequence: 160,
-    separator: true,
+    sequence: 170,
   });
