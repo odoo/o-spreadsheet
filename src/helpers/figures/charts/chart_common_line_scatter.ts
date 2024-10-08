@@ -330,7 +330,7 @@ export function createLineOrScatterChartRuntime(
     config.options.plugins!.tooltip!.callbacks!.label = (tooltipItem) => {
       const dataSetPoint = dataSetsValues[tooltipItem.datasetIndex!].data![tooltipItem.dataIndex!];
       let label: string | number = tooltipItem.label || labelValues.values[tooltipItem.dataIndex!];
-      if (isNumber(label, locale)) {
+      if (typeof label === "string" && isNumber(label, locale)) {
         label = toNumber(label, locale);
       }
       const formattedX = formatValue(label, { locale, format: labelFormat });
@@ -426,7 +426,7 @@ export function createLineOrScatterChartRuntime(
     const originalTooltipTitle = config.options.plugins!.tooltip!.callbacks!.title;
     config.options.plugins!.tooltip!.callbacks!.title = function (tooltipItems) {
       if (tooltipItems.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID)) {
-        // @ts-expect-error
+        // ADRM TODO ts-expect-error
         return originalTooltipTitle?.(tooltipItems);
       }
       return "";

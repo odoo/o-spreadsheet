@@ -1,4 +1,3 @@
-import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
 import { ComboBarChartDefinition } from "./common_bar_combo";
 
@@ -9,6 +8,6 @@ export interface BarChartDefinition extends ComboBarChartDefinition {
 }
 
 export type BarChartRuntime = {
-  chartJsConfig: ChartConfiguration;
+  chartJsConfig: any; // ADRM TODO ChartConfiguration;
   background: Color;
 };

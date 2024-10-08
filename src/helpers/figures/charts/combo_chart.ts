@@ -368,7 +368,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     const originalTooltipTitle = config.options.plugins!.tooltip!.callbacks!.title;
     config.options.plugins!.tooltip!.callbacks!.title = function (tooltipItems) {
       if (tooltipItems.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID)) {
-        // @ts-expect-error
+        // ADRM TODO ts-expect-error
         return originalTooltipTitle?.(tooltipItems);
       }
       return "";

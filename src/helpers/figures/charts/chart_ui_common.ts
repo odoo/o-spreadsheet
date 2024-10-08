@@ -1,4 +1,4 @@
-import type { BasePlatform, ChartConfiguration, ChartOptions, ChartType } from "chart.js";
+import type { BasePlatform, ChartOptions, ChartType } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
 import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, MAX_CHAR_LABEL } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
@@ -110,7 +110,8 @@ export function getDefaultChartJsRuntime(
     truncateLabels = true,
     horizontalChart,
   }: LocaleFormat & { truncateLabels?: boolean; horizontalChart?: boolean }
-): Required<ChartConfiguration> {
+): any {
+  // ADRM TODO type
   const chartTitle = chart.title.text ? chart.title : { ...chart.title, content: "" };
   const options: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html

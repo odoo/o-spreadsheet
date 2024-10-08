@@ -65,4 +65,8 @@ chartSidePanelComponentRegistry
   .add("pyramid", {
     configuration: GenericChartConfigPanel,
     design: ChartWithAxisDesignPanel,
+  })
+  .add("geo", {
+    configuration: GenericChartConfigPanel,
+    design: ChartWithAxisDesignPanel,
   });
