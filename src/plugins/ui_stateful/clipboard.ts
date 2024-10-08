@@ -6,11 +6,11 @@ import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_hel
 import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
 import { CURRENT_VERSION } from "../../migrations/data";
 import {
-  ClipboardContent,
   ClipboardData,
   ClipboardMIMEType,
   ClipboardOptions,
   ClipboardPasteTarget,
+  OSClipboardContent,
 } from "../../types/clipboard";
 import {
   ClipboardCell,
@@ -39,6 +39,11 @@ type MinimalClipboardData = {
   figureId?: UID;
   [key: string]: unknown;
 };
+
+export interface HtmlClipboardData extends MinimalClipboardData {
+  version?: number;
+  clipboardId?: string;
+}
 /**
  * Clipboard Plugin
  *
@@ -126,8 +131,10 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
-        if (cmd.clipboardContent[ClipboardMIMEType.OSpreadsheet]) {
-          this.copiedData = JSON.parse(cmd.clipboardContent[ClipboardMIMEType.OSpreadsheet]);
+
+        const htmlData = cmd.clipboardContent[ClipboardMIMEType.Html];
+        if (htmlData) {
+          this.copiedData = htmlData;
         } else {
           this.copiedData = this.convertOSClipboardData(
             cmd.clipboardContent[ClipboardMIMEType.PlainText] ?? ""
@@ -476,26 +483,25 @@ export class ClipboardPlugin extends UIPlugin {
     return this.clipboardId;
   }
 
-  getClipboardContent(): ClipboardContent {
+  getClipboardContent(): OSClipboardContent {
     return {
       [ClipboardMIMEType.PlainText]: this.getPlainTextContent(),
       [ClipboardMIMEType.Html]: this.getHTMLContent(),
-      [ClipboardMIMEType.OSpreadsheet]: this.getSerializedGridData(),
     };
   }
 
-  private getSerializedGridData(): string {
+  private getgridData(): HtmlClipboardData {
     const data = {
       version: CURRENT_VERSION,
       clipboardId: this.clipboardId,
     };
     if (this.copiedData && "figureId" in this.copiedData) {
-      return JSON.stringify(data);
+      return data;
     }
-    return JSON.stringify({
+    return {
       ...data,
       ...this.copiedData,
-    });
+    };
   }
 
   private getPlainTextContent(): string {
@@ -518,36 +524,35 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private getHTMLContent(): string {
-    if (!this.copiedData?.cells) {
-      return `<div data-clipboard-id="${this.clipboardId}">\t</div>`;
-    }
-    const cells = this.copiedData.cells;
-    if (cells.length === 1 && cells[0].length === 1) {
-      return `<div data-clipboard-id="${this.clipboardId}">${this.getters.getCellText(
-        cells[0][0].position
-      )}</div>`;
-    }
-    if (!cells[0][0]) {
+    let innerHTML: string = "";
+    const cells = this.copiedData?.cells;
+    if (!cells) {
+      innerHTML = "\t";
+    } else if (cells.length === 1 && cells[0].length === 1) {
+      innerHTML = `${this.getters.getCellText(cells[0][0].position)}`;
+    } else if (!cells[0][0]) {
       return "";
-    }
-
-    let htmlTable = `<div data-clipboard-id="${this.clipboardId}"><table border="1" style="border-collapse:collapse">`;
-    for (const row of cells) {
-      htmlTable += "<tr>";
-      for (const cell of row) {
-        if (!cell) {
-          continue;
+    } else {
+      let htmlTable = `<table border="1" style="border-collapse:collapse">`;
+      for (const row of cells) {
+        htmlTable += "<tr>";
+        for (const cell of row) {
+          if (!cell) {
+            continue;
+          }
+          const cssStyle = cssPropertiesToCss(
+            cellStyleToCss(this.getters.getCellComputedStyle(cell.position))
+          );
+          const cellText = this.getters.getCellText(cell.position);
+          htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
         }
-        const cssStyle = cssPropertiesToCss(
-          cellStyleToCss(this.getters.getCellComputedStyle(cell.position))
-        );
-        const cellText = this.getters.getCellText(cell.position);
-        htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
+        htmlTable += "</tr>";
       }
-      htmlTable += "</tr>";
+      htmlTable += "</table>";
+      innerHTML = htmlTable;
     }
-    htmlTable += "</table></div>";
-    return htmlTable;
+    const serializedData = JSON.stringify(this.getgridData());
+    return `<div data-osheet-clipboard='${serializedData}'>${innerHTML}</div>`;
   }
 
   isCutOperation(): boolean {

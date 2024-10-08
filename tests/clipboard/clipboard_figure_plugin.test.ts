@@ -1,5 +1,6 @@
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { gePastablePluginClipBoardContent } from "../../src/helpers/clipboard/clipboard_helpers";
 import { ClipboardMIMEType, UID } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart";
 import {
@@ -179,9 +180,10 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   test("Chart clipboard content is not serialized at copy", () => {
     model.dispatch("SELECT_FIGURE", { id: figureId });
     copy(model);
-    const clipboardSpreadsheetContent = JSON.parse(
-      model.getters.getClipboardContent()[ClipboardMIMEType.OSpreadsheet]!
-    );
+
+    const clipboardSpreadsheetContent = gePastablePluginClipBoardContent(
+      model.getters.getClipboardContent()
+    )[ClipboardMIMEType.Html]!;
     expect(clipboardSpreadsheetContent.figureId).toBe(undefined);
     expect(clipboardSpreadsheetContent.copiedFigure).toBe(undefined);
     expect(clipboardSpreadsheetContent.copiedChart).toBe(undefined);

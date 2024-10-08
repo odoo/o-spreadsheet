@@ -1,4 +1,11 @@
-import { ClipboardCellData, UID, Zone } from "../../types";
+import {
+  ClipboardCellData,
+  ClipboardMIMEType,
+  ImportClipboardContent,
+  OSClipboardContent,
+  UID,
+  Zone,
+} from "../../types";
 import { mergeOverlappingZones, positions } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
@@ -53,4 +60,21 @@ export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
   const width = content[0].length,
     height = content.length;
   return target.map((t) => splitZoneForPaste(t, width, height)).flat();
+}
+
+export function gePastablePluginClipBoardContent(
+  content: OSClipboardContent
+): ImportClipboardContent {
+  const htmlDocument = new DOMParser().parseFromString(
+    content[ClipboardMIMEType.Html] ?? "<div></div>",
+    "text/html"
+  );
+  const oSheetClipboardData = htmlDocument
+    .querySelector("div")
+    ?.getAttribute("data-osheet-clipboard");
+  const spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
+  return {
+    [ClipboardMIMEType.PlainText]: content[ClipboardMIMEType.PlainText],
+    [ClipboardMIMEType.Html]: spreadsheetContent,
+  };
 }

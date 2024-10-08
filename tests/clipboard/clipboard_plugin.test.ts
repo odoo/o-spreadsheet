@@ -1,9 +1,13 @@
 import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
 import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
-import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
+import {
+  gePastablePluginClipBoardContent,
+  getClipboardDataPositions,
+} from "../../src/helpers/clipboard/clipboard_helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import {
   ClipboardMIMEType,
   ClipboardPasteTarget,
@@ -63,6 +67,7 @@ import {
   createEqualCF,
   createModelFromGrid,
   getGrid,
+  getPlugin,
   target,
   toRangesData,
 } from "../test_helpers/helpers";
@@ -556,7 +561,10 @@ describe("clipboard", () => {
       setCellContent(model, "A2", "3");
       copy(model, "A1:B2");
       const htmlContent = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
-      const expectedHtmlContent = `<div data-clipboard-id="${model.getters.getClipboardId()}"><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      //@ts-ignore
+      const clipboardData = JSON.stringify(cbPlugin.getgridData());
+      const expectedHtmlContent = `<div data-osheet-clipboard='${clipboardData}'><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
       expect(htmlContent).toBe(expectedHtmlContent);
     });
 
@@ -625,8 +633,11 @@ describe("clipboard", () => {
       const model = new Model();
       setCellContent(model, "A1", "1");
       copy(model, "A1");
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      //@ts-ignore
+      const clipboardData = JSON.stringify(cbPlugin.getgridData());
       expect(model.getters.getClipboardContent()[ClipboardMIMEType.Html]).toBe(
-        `<div data-clipboard-id="${model.getters.getClipboardId()}">1</div>`
+        `<div data-osheet-clipboard='${clipboardData}'>1</div>`
       );
     });
   });
@@ -2716,7 +2727,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     expect(clipboardContent["text/plain"]).toBe("b2");
 
-    pasteFromOSClipboard(modelB, "D2", clipboardContent);
+    pasteFromOSClipboard(modelB, "D2", gePastablePluginClipBoardContent(clipboardContent));
 
     expect(getCell(modelA, "B2")?.content).toBe("b2");
     expect(getCell(modelB, "D2")?.content).toBe("b2");
@@ -2736,7 +2747,7 @@ describe("cross spreadsheet copy/paste", () => {
     copy(modelA, "B2");
     const clipboardContent = modelA.getters.getClipboardContent();
 
-    pasteFromOSClipboard(modelB, "D2", clipboardContent);
+    pasteFromOSClipboard(modelB, "D2", gePastablePluginClipBoardContent(clipboardContent));
 
     expect(getBorder(modelA, "B2")).toEqual({ top: DEFAULT_BORDER_DESC });
     expect(getBorder(modelB, "D2")).toEqual({ top: DEFAULT_BORDER_DESC });
@@ -2756,7 +2767,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "A1:A5");
     const clipboardContent = modelA.getters.getClipboardContent();
-    pasteFromOSClipboard(modelB, "D1", clipboardContent);
+    pasteFromOSClipboard(modelB, "D1", gePastablePluginClipBoardContent(clipboardContent));
 
     expect(getCell(modelB, "D1")?.content).toBe("=SUM(1,2)");
     expect(getCell(modelB, "D2")?.content).toBe("=SUM(1,2)");
@@ -2774,7 +2785,7 @@ describe("cross spreadsheet copy/paste", () => {
     setCellContent(modelA, "A1", markdownLink(urlLabel, url));
     copy(modelA, "A1");
     const clipboardContent = modelA.getters.getClipboardContent();
-    pasteFromOSClipboard(modelB, "D1", clipboardContent);
+    pasteFromOSClipboard(modelB, "D1", gePastablePluginClipBoardContent(clipboardContent));
 
     const cell = getEvaluatedCell(modelB, "D1");
     expect(cell.link?.label).toBe(urlLabel);
@@ -2796,7 +2807,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "A1:B2");
     const clipboardContent = modelA.getters.getClipboardContent();
-    pasteFromOSClipboard(modelB, "D1", clipboardContent);
+    pasteFromOSClipboard(modelB, "D1", gePastablePluginClipBoardContent(clipboardContent));
 
     const tableB = modelB.getters.getCoreTables(modelA.getters.getActiveSheetId())[0];
 
@@ -2827,16 +2838,9 @@ describe("cross spreadsheet copy/paste", () => {
     copy(modelB, "C1");
     copy(modelA, "A1");
     const clipboardContent = modelA.getters.getClipboardContent();
-
     expect(clipboardContent["text/plain"]).toBe("a1");
 
-    pasteFromOSClipboard(modelB, "B1", {
-      [ClipboardMIMEType.PlainText]: clipboardContent["text/plain"]
-        ? clipboardContent["text/plain"]
-        : "",
-      [ClipboardMIMEType.OSpreadsheet]: clipboardContent["web application/o-spreadsheet"],
-    });
-
+    pasteFromOSClipboard(modelB, "B1", gePastablePluginClipBoardContent(clipboardContent));
     expect(getCell(modelA, "A1")).toMatchObject({
       content: "a1",
     });
@@ -2856,7 +2860,11 @@ describe("cross spreadsheet copy/paste", () => {
     setCellContent(modelA, "C3", "=A3*B3");
 
     copy(modelA, "A1:C3");
-    pasteFromOSClipboard(modelB, "E1", modelA.getters.getClipboardContent());
+    pasteFromOSClipboard(
+      modelB,
+      "E1",
+      gePastablePluginClipBoardContent(modelA.getters.getClipboardContent())
+    );
 
     expect(getCell(modelB, "G1")?.content).toBe("=E1*F1");
     expect(getCell(modelB, "G2")?.content).toBe("=E2*F2");

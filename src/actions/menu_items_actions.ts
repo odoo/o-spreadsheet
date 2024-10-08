@@ -1,5 +1,6 @@
 import { CellPopoverStore } from "../components/popover";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../constants";
+import { gePastablePluginClipBoardContent } from "../helpers/clipboard/clipboard_helpers";
 import {
   getChartPositionAtCenterOfViewport,
   getSmartChartDefinition,
@@ -54,20 +55,13 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
   const osClipboard = await env.clipboard.read();
   switch (osClipboard.status) {
     case "ok":
-      const htmlDocument = new DOMParser().parseFromString(
-        osClipboard.content[ClipboardMIMEType.Html] ?? "<div></div>",
-        "text/html"
-      );
-      const osClipboardSpreadsheetContent =
-        osClipboard.content[ClipboardMIMEType.OSpreadsheet] || "{}";
-      const clipboardId =
-        JSON.parse(osClipboardSpreadsheetContent).clipboardId ??
-        htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
+      const clipboardContent = gePastablePluginClipBoardContent(osClipboard.content);
+      const clipboardId = clipboardContent[ClipboardMIMEType.Html]?.clipboardId;
 
       const target = env.model.getters.getSelectedZones();
 
       if (env.model.getters.getClipboardId() !== clipboardId) {
-        interactivePasteFromOS(env, target, osClipboard.content, pasteOption);
+        interactivePasteFromOS(env, target, clipboardContent, pasteOption);
       } else {
         interactivePaste(env, target, pasteOption);
       }

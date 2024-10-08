@@ -18,6 +18,7 @@ import {
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
@@ -75,7 +76,13 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { mockChart, mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
+import {
+  getPlugin,
+  mockChart,
+  mountSpreadsheet,
+  nextTick,
+  typeInComposerGrid,
+} from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("../__mocks__/content_editable_helper")
@@ -1430,9 +1437,12 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     const clipboardContent = clipboardData.content;
+    const cbPlugin = getPlugin(model, ClipboardPlugin);
+    //@ts-ignore
+    const clipboardHtmlData = JSON.stringify(cbPlugin.getgridData());
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
-      "text/html": `<div data-clipboard-id="${model.getters.getClipboardId()}">things</div>`,
+      "text/html": `<div data-osheet-clipboard='${clipboardHtmlData}'>things</div>`,
     });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
@@ -1445,9 +1455,12 @@ describe("Copy paste keyboard shortcut", () => {
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     const clipboardContent = clipboardData.content;
+    const cbPlugin = getPlugin(model, ClipboardPlugin);
+    //@ts-ignore
+    const clipboardHtmlData = JSON.stringify(cbPlugin.getgridData());
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
-      "text/html": `<div data-clipboard-id="${model.getters.getClipboardId()}">things</div>`,
+      "text/html": `<div data-osheet-clipboard='${clipboardHtmlData}'>things</div>`,
     });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
