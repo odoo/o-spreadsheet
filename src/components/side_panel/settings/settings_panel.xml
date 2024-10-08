@@ -14,19 +14,19 @@
         </select>
         <div class="o-locale-preview mt-4 p-3 rounded">
           <div>
-            <span class="fw-bold me-1">Number:</span>
+            <span class="o-fw-bold me-1">Number:</span>
             <span t-esc="numberFormatPreview"/>
           </div>
           <div>
-            <span class="fw-bold me-1">Date:</span>
+            <span class="o-fw-bold me-1">Date:</span>
             <span t-esc="dateFormatPreview"/>
           </div>
           <div>
-            <span class="fw-bold me-1">Date time:</span>
+            <span class="o-fw-bold me-1">Date time:</span>
             <span t-esc="dateTimeFormatPreview"/>
           </div>
           <div>
-            <span class="fw-bold me-1">First day of week:</span>
+            <span class="o-fw-bold me-1">First day of week:</span>
             <span t-esc="firstDayOfWeek"/>
           </div>
         </div>

@@ -19,10 +19,9 @@ css/* scss */ `
     user-select: none;
     color: ${TEXT_BODY};
 
-    .o-heading-3 {
+    .o-sidePanelTitle {
       line-height: 20px;
       font-size: 16px;
-      font-weight: 600;
     }
 
     .o-sidePanelHeader {
@@ -106,6 +105,10 @@ css/* scss */ `
         margin-left: -5px;
       }
     }
+  }
+
+  .o-fw-bold {
+    font-weight: 500;
   }
 `;
 

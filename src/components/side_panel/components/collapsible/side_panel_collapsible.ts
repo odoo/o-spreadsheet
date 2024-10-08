@@ -4,7 +4,6 @@ import { css } from "../../../helpers";
 css/* scss */ `
   .o_side_panel_collapsible_title {
     font-size: 16px;
-    font-weight: bold;
     cursor: pointer;
     padding: 6px 0px 6px 6px !important;
 
