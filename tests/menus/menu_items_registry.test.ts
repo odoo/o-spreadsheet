@@ -10,6 +10,7 @@ import {
   copy,
   createDynamicTable,
   createTable,
+  createTableWithFilter,
   foldHeaderGroup,
   freezeColumns,
   freezeRows,
@@ -1728,7 +1729,7 @@ describe("Menu Item actions", () => {
       });
 
       test("Filters -> Remove filter", () => {
-        createTable(model, "A1:A5");
+        createTableWithFilter(model, "A1:A5");
         setSelection(model, ["A1:A5"]);
         expect(getName(filterPath, env)).toBe("Remove selected filters");
         doAction(filterPath, env);
@@ -1772,7 +1773,7 @@ describe("Menu Item actions", () => {
         setSelection(model, ["A1:A5"]);
         expect(getName(filterPath, env)).toBe("Add filters");
 
-        createTable(model, "A1:B5");
+        createTableWithFilter(model, "A1:B5");
         expect(getName(filterPath, env)).toBe("Remove selected filters");
 
         setSelection(model, ["A1:B9"]);

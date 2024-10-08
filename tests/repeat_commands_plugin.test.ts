@@ -24,7 +24,7 @@ import {
   activateSheet,
   copy,
   createSheet,
-  createTable,
+  createTableWithFilter,
   deleteCells,
   insertCells,
   paste,
@@ -392,7 +392,7 @@ describe("Repeat local commands", () => {
       ...TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
       ranges: toRangesData(sheetId, "A1:A2"),
     });
-    createTable(model, "A1:A2");
+    createTableWithFilter(model, "A1:A2");
 
     setSelection(model, ["A1:A2"]);
     copy(model);

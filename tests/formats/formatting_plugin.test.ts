@@ -16,7 +16,7 @@ import { Model } from "../../src/model";
 import { CommandResult, Format, SetDecimalStep, UID } from "../../src/types";
 import {
   createSheet,
-  createTable,
+  createTableWithFilter,
   resizeColumns,
   resizeRows,
   selectCell,
@@ -652,7 +652,7 @@ describe("Autoresize", () => {
 
   test("Autoresize includes filter icon to compute the size", () => {
     setCellContent(model, "A1", TEXT);
-    createTable(model, "A1");
+    createTableWithFilter(model, "A1");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       sizes[0] + hPadding + ICON_EDGE_LENGTH + GRID_ICON_MARGIN
@@ -660,7 +660,7 @@ describe("Autoresize", () => {
   });
 
   test("Autoresize includes cells with only a filter icon", () => {
-    createTable(model, "A1");
+    createTableWithFilter(model, "A1");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       hPadding + ICON_EDGE_LENGTH + GRID_ICON_MARGIN

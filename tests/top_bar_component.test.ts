@@ -10,7 +10,7 @@ import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "
 import { FileStore } from "./__mocks__/mock_file_store";
 import {
   addCellToSelection,
-  createTable,
+  createTableWithFilter,
   selectCell,
   setAnchorCorner,
   setCellContent,
@@ -272,7 +272,7 @@ describe("TopBar component", () => {
     });
 
     test("Filter tool change from create filter to remove filter when a filter is selected", async () => {
-      createTable(model, "A2:B3");
+      createTableWithFilter(model, "A2:B3");
       await nextTick();
       expect(fixture.querySelectorAll(removeFilterTool).length).toEqual(0);
       expect(fixture.querySelectorAll(createFilterTool).length).toEqual(1);
