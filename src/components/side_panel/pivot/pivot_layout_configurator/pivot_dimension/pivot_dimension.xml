@@ -1,5 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-PivotDimension">
+    <t t-set="isReadonly" t-value="env.model.getters.isReadonly()"/>
     <div
       class="py-1 px-2 d-flex flex-column shadow-sm pivot-dimension"
       t-att-class="{'pivot-dimension-invalid': !props.dimension.isValid}">
@@ -20,7 +21,7 @@
           <t t-slot="upper-right-icons"/>
           <i
             class="o-button-icon fa fa-trash pe-1 ps-2"
-            t-if="props.onRemoved"
+            t-if="props.onRemoved and !isReadonly"
             t-on-click="() => props.onRemoved(props.dimension)"
           />
         </div>

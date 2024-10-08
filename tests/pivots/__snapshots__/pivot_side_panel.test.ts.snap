@@ -1,0 +1,159 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Pivot side panel readonly panel snapshot 1`] = `
+<div
+  class="o-sidePanel"
+>
+  <div
+    class="o-sidePanelHeader"
+  >
+    <div
+      class="o-sidePanelTitle o-heading-3"
+    >
+      Pivot #2
+    </div>
+    <div
+      class="o-sidePanelClose"
+    >
+      ✕
+    </div>
+  </div>
+  <div
+    class="o-sidePanelBody-container d-flex flex-grow-1 "
+  >
+    <div
+      class="o-sidePanel-handle-container"
+    >
+      <div
+        class="o-sidePanel-handle"
+      >
+        <svg
+          class="o-icon"
+          fill="currentColor"
+          viewBox="0 0 4 16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="2"
+            cy="3.5"
+            r="1"
+          />
+          <circle
+            cx="2"
+            cy="6.5"
+            r="1"
+          />
+          <circle
+            cx="2"
+            cy="9.5"
+            r="1"
+          />
+          <circle
+            cx="2"
+            cy="12.5"
+            r="1"
+          />
+        </svg>
+      </div>
+    </div>
+    <div
+      class="o-sidePanelBody"
+    >
+      <div
+        class="d-flex flex-column h-100 justify-content-between overflow-hidden"
+      >
+        <div
+          class="h-100 position-relative overflow-x-hidden overflow-y-auto"
+        >
+          <div
+            class="o-section pe-none"
+          >
+            <div
+              class="o-section-title"
+            >
+              <div
+                class="d-flex flex-row justify-content-between align-items-center"
+              >
+                 Name 
+                
+              </div>
+            </div>
+            
+            <div
+              class="w-100"
+            >
+              <input
+                class="os-input w-100 os-pivot-title"
+                type="text"
+              />
+            </div>
+            
+          </div>
+          
+          <div
+            class="o-section pe-none"
+          >
+            <div
+              class="o-section-title"
+            >
+              Range
+            </div>
+            
+            <div
+              class="o-selection"
+            >
+              <div
+                class="o-selection-input d-flex flex-row"
+              >
+                <div
+                  class="position-relative w-100"
+                >
+                  <input
+                    class="o-input mb-2 o-invalid border-danger position-relative"
+                    placeholder="e.g. A1:A2"
+                    spellcheck="false"
+                    style=""
+                    type="text"
+                  />
+                  <span
+                    class="error-icon text-danger position-absolute d-flex align-items-center"
+                    title="This range is invalid"
+                  >
+                    <div
+                      class="o-icon"
+                    >
+                      <i
+                        class="fa fa-exclamation-circle"
+                      />
+                    </div>
+                  </span>
+                  
+                </div>
+                
+              </div>
+              
+              
+              <div
+                class="d-flex flex-row w-100 o-selection-input"
+              >
+                
+                
+              </div>
+            </div>
+            <span
+              class="text-danger sp_range_error_message"
+            >
+              The pivot cannot be created because cell A1 is empty
+            </span>
+            
+          </div>
+          
+          
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+</div>
+`;
