@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-PivotLayoutConfigurator">
-    <div class="o_side_panel_section pivot-dimensions o-section" t-ref="pivot-dimensions">
+    <div class="pivot-dimensions o-section" t-ref="pivot-dimensions">
       <div
-        class="fw-bold py-1 d-flex flex-row justify-content-between align-items-center o-section-title">
+        class="o-fw-bold py-1 d-flex flex-row justify-content-between align-items-center o-section-title">
         Columns
         <AddDimensionButton
           onFieldPicked.bind="addColumnDimension"
@@ -27,7 +27,7 @@
         </div>
       </t>
       <div
-        class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
+        class="o-fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
         t-att-style="dragAndDrop.itemsStyle['__rows_title__']">
         Rows
         <AddDimensionButton
@@ -53,7 +53,7 @@
         </div>
       </t>
       <div
-        class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title o-pivot-measure">
+        class="o-fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title o-pivot-measure">
         Measures
         <AddDimensionButton onFieldPicked.bind="addMeasureDimension" fields="props.measureFields">
           <div

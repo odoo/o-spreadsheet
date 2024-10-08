@@ -1,5 +1,9 @@
 import { Component, useRef } from "@odoo/owl";
-import { FIGURE_BORDER_COLOR, HIGHLIGHT_COLOR } from "../../../../constants";
+import {
+  FIGURE_BORDER_COLOR,
+  HIGHLIGHT_COLOR,
+  SIDEPANEL_BOLD_FONT_WEIGHT,
+} from "../../../../constants";
 import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
 import { DataValidationRule, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers";
@@ -19,6 +23,7 @@ css/* scss */ `
 
       .o-dv-preview-description {
         font-size: 13px;
+        font-weight: ${SIDEPANEL_BOLD_FONT_WEIGHT};
       }
 
       &:hover {

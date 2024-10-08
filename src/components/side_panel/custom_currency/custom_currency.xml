@@ -62,7 +62,7 @@
           <table>
             <t t-foreach="getFormatExamples()" t-as="example" t-key="example_index">
               <tr>
-                <td class="pe-3 fw-bolder" t-esc="example.label"/>
+                <td class="pe-3 o-fw-bold" t-esc="example.label"/>
                 <td t-esc="example.value"/>
               </tr>
             </t>

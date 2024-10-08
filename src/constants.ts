@@ -209,6 +209,7 @@ export const DEFAULT_FONT_WEIGHT = "400";
 export const DEFAULT_FONT_SIZE = DEFAULT_STYLE.fontSize;
 export const HEADER_FONT_SIZE = 11;
 export const DEFAULT_FONT = "'Roboto', arial";
+export const SIDEPANEL_BOLD_FONT_WEIGHT = "500";
 
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = { style: "thin", color: "#000000" };
