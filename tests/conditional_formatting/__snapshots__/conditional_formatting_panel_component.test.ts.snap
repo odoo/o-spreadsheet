@@ -67,7 +67,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                 class="o-cf-preview-ruletype"
               >
                 <div
-                  class="o-cf-preview-description-rule text-truncate"
+                  class="o-cf-preview-description-rule o-fw-bold text-truncate"
                 >
                   Is equal to 2
                 </div>
@@ -154,7 +154,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
                 class="o-cf-preview-ruletype"
               >
                 <div
-                  class="o-cf-preview-description-rule text-truncate"
+                  class="o-cf-preview-description-rule o-fw-bold text-truncate"
                 >
                   Color scale
                 </div>

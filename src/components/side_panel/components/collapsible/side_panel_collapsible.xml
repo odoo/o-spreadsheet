@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-SidePanelCollapsible">
     <div class="" t-att-class="props.class">
-      <div class="o_side_panel_collapsible_title d-flex align-items-center">
+      <div class="o_side_panel_collapsible_title o-fw-bold d-flex align-items-center">
         <div
           t-att-id="'btn-collapse-'+currentId"
           t-att-class="{ 'collapsed': props.collapsedAtInit }"
