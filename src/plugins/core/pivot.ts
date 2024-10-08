@@ -2,7 +2,6 @@ import { compile } from "../../formulas";
 import { deepCopy, deepEquals } from "../../helpers";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { _t } from "../../translation";
 import {
   ApplyRangeChange,
   CellPosition,
@@ -162,7 +161,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   }
 
   getPivotName(pivotId: UID) {
-    return _t(this.getPivotCore(pivotId).definition.name);
+    return this.getPivotCore(pivotId).definition.name;
   }
 
   /**
