@@ -287,8 +287,9 @@ export class ConditionalFormatPlugin
       currentRanges = rules[replaceIndex].ranges.map(toUnboundedZone);
     }
 
-    currentRanges = currentRanges.concat(toAdd);
-    return recomputeZones(currentRanges, toRemove).map((zone) =>
+    // Remove the zones first in case the same position is in toAdd and toRemove
+    const withRemovedZones = recomputeZones(currentRanges, toRemove);
+    return recomputeZones([...toAdd, ...withRemovedZones], []).map((zone) =>
       this.getters.getRangeDataFromZone(sheetId, zone)
     );
   }
