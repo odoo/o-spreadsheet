@@ -1,6 +1,5 @@
-import { ChartConfiguration } from "chart.js";
-import { topojson } from "chartjs-chart-geo";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import { ChartConfiguration, TooltipItem } from "chart.js";
+import { BACKGROUND_CHART_COLOR, GRAY_300 } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -12,6 +11,7 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
+import { LegendPosition } from "../../../types/chart";
 import {
   ChartCreationContext,
   CustomizedDataSet,
@@ -19,21 +19,37 @@ import {
   DatasetDesign,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import { LegendPosition } from "../../../types/chart/common_chart";
 import { GeoChartDefinition, GeoChartRuntime } from "../../../types/chart/geo_chart";
 import { Validator } from "../../../types/validator";
+import { colorNumberString, getColorScale } from "../../color";
+import { formatValue } from "../../format/format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  chartFontColor,
   checkDataset,
   checkLabelRange,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  formatTickValue,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
+import {
+  aggregateDataForLabels,
+  getChartDatasetFormat,
+  getChartDatasetValues,
+  getChartLabelValues,
+  getDefaultChartJsRuntime,
+} from "./chart_ui_common";
 import { WORLD_TOPOJSON } from "./geo_chart_topojson";
+
+// ADRM TODO: test always aggregated
+// ADRM TODO: test single dataset
+// ADRM TODO: test no values/no label/wrong country name point are filtered
+// ADRM TODO: test format
+// ADRM TODO: tooltip & test
 
 export class GeoChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -82,6 +98,7 @@ export class GeoChart extends AbstractChart {
       title: context.title || { text: "" },
       type: "geo",
       labelRange: context.auxiliaryRange || undefined,
+      aggregated: context.aggregated,
     };
   }
 
@@ -167,63 +184,125 @@ export class GeoChart extends AbstractChart {
 }
 
 export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoChartRuntime {
+  // ADRM TODO DISCUSS: dev dependency: no typing unless explicitely imported (probably can be solved?)
+  // but then using it is wrong ?
   const us = WORLD_TOPOJSON as any;
 
   // const nation = (topojson.feature(us, us.objects.nation) as any).features[0];
-  const states = (topojson.feature(us, us.objects.countries) as any).features;
+  const states = (window.ChartGeo.topojson.feature(us, us.objects.countries) as any).features;
 
-  const f1 = states.find((d) => d.properties.name === "United Kingdom");
-  const f2 = states.find((d) => d.properties.name === "Brazil");
-  console.log(f1, f2);
+  // const f1 = states.find((d) => d.properties.name === "United Kingdom");
+  // const f2 = states.find((d) => d.properties.name === "Brazil");
+  // console.log(f1, f2);
 
-  const config: ChartConfiguration<"choropleth"> = {
-    type: "choropleth" as const,
-    data: {
-      labels: ["France", "Belgium"],
-      datasets: [
-        {
-          outline: states, // ... outline to compute bounds
-          showOutline: true,
-          data: [
-            {
-              value: 0.4,
-              feature: f1, // ... the feature to render
-            },
-            {
-              value: 0.3,
-              feature: f2,
-            },
-          ],
-        },
-      ],
+  const geoLegendPosition = legendPositionToGeoLegendPosition(chart.legendPosition);
+
+  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
+  let labels = labelValues.formattedValues;
+  if (chart.dataSetsHaveTitle) {
+    labels.shift();
+  }
+  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
+  ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+
+  const dataset: any = {
+    // ADRM TODO
+    outline: states,
+    showOutline: true,
+    data: [],
+  };
+  const filteredLabels: string[] = [];
+  for (let i = 0; i < dataSetsValues[0].data.length; i++) {
+    if (!labels[i] || dataSetsValues[0].data[i] === undefined) {
+      continue;
+    }
+    const feature = states.find((d) => d.properties.name === labels[i]);
+    if (feature) {
+      dataset.data.push({
+        value: dataSetsValues[0].data[i],
+        feature,
+      });
+      filteredLabels.push(labels[i]);
+    }
+  }
+  console.log(filteredLabels, dataset.data);
+  const locale = getters.getLocale();
+  const format = getChartDatasetFormat(getters, chart.dataSets);
+  const localeFormat = { locale, format };
+
+  const colorScale = getColorScale([
+    { value: 0, color: "#ff0000" },
+    { value: 1, color: "#FFFF00" },
+  ]);
+
+  const fontColor = chartFontColor(chart.background);
+  const config = getDefaultChartJsRuntime(
+    chart,
+    filteredLabels,
+    fontColor,
+    localeFormat
+  ) as ChartConfiguration<"choropleth">;
+
+  config.type = "choropleth";
+  config.data.datasets = [dataset];
+  config.options!.scales = {
+    projection: {
+      projection: "equalEarth" as const,
+      axis: "x" as const,
     },
-    options: {
-      maintainAspectRatio: false,
-      scales: {
-        projection: {
-          projection: "equalEarth" as const, // ... projection method
-          axis: "x" as const, // ADRM TODO crashes otherwise ???
-        },
-        color: {
-          axis: "x",
-          legend: {
-            position: "bottom-left",
-          },
-          // interpolate: (value: number) => {
-          //   return "#ff0000"; ADRM TODO: value is between 0 & 1, check how to color scale this
-          // },
-        },
+    color: {
+      axis: "x",
+      display: chart.legendPosition !== "none",
+      border: { color: GRAY_300 },
+      grid: { color: GRAY_300 },
+      ticks: {
+        color: fontColor,
+        callback: formatTickValue(localeFormat),
       },
-      plugins: {
-        legend: {
-          display: false,
-        },
+      legend: {
+        position: geoLegendPosition,
+        align: geoLegendPosition.includes("right") ? "left" : "right",
+      },
+      interpolate: (value: number) => {
+        return colorNumberString(colorScale(value));
+        // return "#ff0000"; ADRM TODO: value is between 0 & 1, check how to color scale this
       },
     },
   };
-
+  config.options!.plugins!.legend = {
+    display: false,
+  };
+  config.options!.plugins!.title!.padding = 0;
+  config.options!.plugins!.tooltip = {
+    callbacks: {
+      label: function (tooltipItem: TooltipItem<"choropleth">) {
+        console.log(tooltipItem);
+        const rawItem = tooltipItem.raw as any;
+        const xLabel = rawItem.feature.properties.name;
+        const yLabel = rawItem.value;
+        const toolTipFormat = !format && Math.abs(yLabel) >= 1000 ? "#,##" : format;
+        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+        return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
+      },
+    },
+  };
   console.log(config);
 
   // @ts-ignore ADRM TODO
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
+}
+
+function legendPositionToGeoLegendPosition(position: LegendPosition) {
+  switch (position) {
+    case "top":
+      return "top-left";
+    case "right":
+      return "top-right";
+    case "bottom":
+      return "bottom-right";
+    case "left":
+      return "bottom-left";
+    case "none":
+      return "bottom-left";
+  }
 }

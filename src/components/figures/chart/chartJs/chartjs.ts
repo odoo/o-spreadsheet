@@ -72,9 +72,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private createChart(chartData: ChartConfiguration) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    console.log("before create", this.canvas.el?.outerHTML);
     this.chart = new window.Chart(ctx, chartData as ChartConfiguration);
-    console.log("after create", this.canvas.el?.outerHTML);
   }
 
   private updateChartJs(chartRuntime: ChartJSRuntime) {
@@ -88,8 +86,6 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       this.chart!.data.datasets = [];
     }
     this.chart!.config.options = chartData.options;
-    console.log("before", this.canvas.el?.outerHTML);
     this.chart!.update();
-    console.log("after", this.canvas.el?.outerHTML);
   }
 }

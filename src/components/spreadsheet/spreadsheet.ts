@@ -450,6 +450,12 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);
+      const figureId = this.model.getters.getFigures(this.model.getters.getActiveSheetId())[0].id;
+      this.env.model.dispatch("SELECT_FIGURE", { id: figureId });
+      this.sidePanel.open("ChartPanel", {});
+      setTimeout(() => {
+        document.querySelector<HTMLElement>(".o-panel-design")?.click();
+      }, 50);
     });
     onWillUnmount(() => {
       this.unbindModelEvents();

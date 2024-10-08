@@ -14287,12 +14287,6 @@ export const WORLD_TOPOJSON = {
           id: "682",
           properties: { name: "Saudi Arabia" },
         },
-        {
-          type: "MultiPolygon",
-          arcs: [[[562]], [[563]], [[564]], [[565]], [[566]], [[567]], [[568]], [[569]]],
-          id: "010",
-          properties: { name: "Antarctica" },
-        },
         { type: "Polygon", arcs: [[570, 571]], properties: { name: "N. Cyprus" } },
         { type: "Polygon", arcs: [[-572, 572]], id: "196", properties: { name: "Cyprus" } },
         { type: "Polygon", arcs: [[-341, -15, 573]], id: "504", properties: { name: "Morocco" } },

@@ -6,6 +6,8 @@ import { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
 import { ComboChartDesignPanel } from "./combo_chart/combo_chart_design_panel";
 import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
+import { GeoChartConfigPanel } from "./geo_chart_panel/geo_chart_config_panel";
+import { GeoChartDesignPanel } from "./geo_chart_panel/geo_chart_design_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
 import { PieChartDesignPanel } from "./pie_chart/pie_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
@@ -67,6 +69,6 @@ chartSidePanelComponentRegistry
     design: ChartWithAxisDesignPanel,
   })
   .add("geo", {
-    configuration: GenericChartConfigPanel,
-    design: ChartWithAxisDesignPanel,
+    configuration: GeoChartConfigPanel,
+    design: GeoChartDesignPanel,
   });
