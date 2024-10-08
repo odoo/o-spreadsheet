@@ -473,6 +473,7 @@ topbarMenuRegistry
         id: `item_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
         name: env.model.getters.getPivotDisplayName(pivotId),
         sequence: sequence + index,
+        isReadonlyAllowed: true,
         execute: (env) => env.openSidePanel("PivotSidePanel", { pivotId }),
         onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
         onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),

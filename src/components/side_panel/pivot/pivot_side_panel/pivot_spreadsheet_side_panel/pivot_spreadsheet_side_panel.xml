@@ -1,6 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-PivotSpreadsheetSidePanel">
-    <div class="d-flex flex-column h-100 justify-content-between overflow-hidden">
+    <t t-set="isReadonly" t-value="env.model.getters.isReadonly()"/>
+    <div
+      class="d-flex flex-column h-100 justify-content-between overflow-hidden"
+      t-att="isReadonly ? ['inert', 1] : []"
+      t-att-class="{ 'pe-none': isReadonly, 'opacity-50': isReadonly }">
       <div class="h-100 position-relative overflow-x-hidden overflow-y-auto">
         <PivotTitleSection pivotId="props.pivotId" flipAxis.bind="flipAxis"/>
         <Section title.translate="Range">
