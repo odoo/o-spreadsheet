@@ -8,7 +8,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
     class="o-sidePanelHeader"
   >
     <div
-      class="o-sidePanelTitle o-heading-3"
+      class="o-sidePanelTitle o-fw-bold"
     >
       Pivot #1
     </div>
@@ -141,10 +141,10 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
           </div>
           
           <div
-            class="o_side_panel_section pivot-dimensions o-section"
+            class="pivot-dimensions o-section"
           >
             <div
-              class="fw-bold py-1 d-flex flex-row justify-content-between align-items-center o-section-title"
+              class="o-fw-bold py-1 d-flex flex-row justify-content-between align-items-center o-section-title"
             >
                Columns 
               <button
@@ -158,7 +158,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             
             
             <div
-              class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
+              class="o-fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
             >
                Rows 
               <button
@@ -172,7 +172,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             
             
             <div
-              class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title o-pivot-measure"
+              class="o-fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title o-pivot-measure"
             >
                Measures 
               <button
@@ -222,7 +222,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
     class="o-sidePanelHeader"
   >
     <div
-      class="o-sidePanelTitle o-heading-3"
+      class="o-sidePanelTitle o-fw-bold"
     >
       Pivot #1
     </div>

@@ -47,7 +47,6 @@ css/* scss */ `
       width: 142px;
       .o-cf-preview-description-rule {
         margin-bottom: 4px;
-        font-weight: 600;
         max-height: 2.8em;
         line-height: 1.4em;
       }

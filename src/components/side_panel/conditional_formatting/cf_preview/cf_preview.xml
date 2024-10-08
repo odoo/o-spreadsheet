@@ -29,7 +29,7 @@
         </t>
         <div class="o-cf-preview-description">
           <div class="o-cf-preview-ruletype">
-            <div class="o-cf-preview-description-rule text-truncate">
+            <div class="o-cf-preview-description-rule o-fw-bold text-truncate">
               <t t-esc="getDescription(cf)"/>
             </div>
           </div>
