@@ -1,12 +1,17 @@
+import { HtmlClipboardData } from "../plugins/ui_stateful";
 import { HeaderIndex, UID, Zone } from "./misc";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
   Html = "text/html",
-  OSpreadsheet = "web application/o-spreadsheet",
 }
 
-export type ClipboardContent = { [type in ClipboardMIMEType]?: string };
+export type OSClipboardContent = { [type in ClipboardMIMEType]?: string };
+
+export type ImportClipboardContent = {
+  text?: string;
+  data?: HtmlClipboardData;
+};
 
 export interface ClipboardOptions {
   isCutOperation: boolean;
