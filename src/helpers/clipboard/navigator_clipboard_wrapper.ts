@@ -1,11 +1,11 @@
-import { ClipboardContent, ClipboardMIMEType } from "./../../types/clipboard";
+import { ClipboardMIMEType, OSClipboardContent } from "./../../types/clipboard";
 
 export type ClipboardReadResult =
-  | { status: "ok"; content: ClipboardContent }
+  | { status: "ok"; content: OSClipboardContent }
   | { status: "permissionDenied" | "notImplemented" };
 
 export interface ClipboardInterface {
-  write(clipboardContent: ClipboardContent): Promise<void>;
+  write(clipboardContent: OSClipboardContent): Promise<void>;
   writeText(text: string): Promise<void>;
   read(): Promise<ClipboardReadResult>;
 }
@@ -18,7 +18,7 @@ class WebClipboardWrapper implements ClipboardInterface {
   // Can be undefined because navigator.clipboard doesn't exist in old browsers
   constructor(private clipboard: Clipboard | undefined) {}
 
-  async write(clipboardContent: ClipboardContent): Promise<void> {
+  async write(clipboardContent: OSClipboardContent): Promise<void> {
     if (this.clipboard?.write) {
       try {
         await this.clipboard?.write(this.getClipboardItems(clipboardContent));
@@ -60,7 +60,7 @@ class WebClipboardWrapper implements ClipboardInterface {
     if (this.clipboard?.read) {
       try {
         const clipboardItems = await this.clipboard.read();
-        const clipboardContent: ClipboardContent = {};
+        const clipboardContent: OSClipboardContent = {};
         for (const item of clipboardItems) {
           for (const type of item.types) {
             const blob = await item.getType(type);
@@ -83,22 +83,15 @@ class WebClipboardWrapper implements ClipboardInterface {
     }
   }
 
-  private getClipboardItems(content: ClipboardContent): ClipboardItems {
+  private getClipboardItems(content: OSClipboardContent): ClipboardItems {
     const clipboardItemData = {
       [ClipboardMIMEType.PlainText]: this.getBlob(content, ClipboardMIMEType.PlainText),
       [ClipboardMIMEType.Html]: this.getBlob(content, ClipboardMIMEType.Html),
     };
-    const spreadsheetData = content[ClipboardMIMEType.OSpreadsheet];
-    if (spreadsheetData) {
-      clipboardItemData[ClipboardMIMEType.OSpreadsheet] = this.getBlob(
-        content,
-        ClipboardMIMEType.OSpreadsheet
-      );
-    }
     return [new ClipboardItem(clipboardItemData)];
   }
 
-  private getBlob(clipboardContent: ClipboardContent, type: ClipboardMIMEType): Blob {
+  private getBlob(clipboardContent: OSClipboardContent, type: ClipboardMIMEType): Blob {
     return new Blob([clipboardContent[type] || ""], {
       type,
     });

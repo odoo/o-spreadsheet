@@ -22,7 +22,7 @@ import {
 } from "./misc";
 
 import { ChartDefinition } from "./chart/chart";
-import { ClipboardContent, ClipboardPasteOptions } from "./clipboard";
+import { ClipboardPasteOptions, ImportClipboardContent } from "./clipboard";
 import { FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
@@ -778,7 +778,7 @@ export interface AutoFillCellCommand {
 export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Zone[];
-  clipboardContent: ClipboardContent;
+  clipboardContent: ImportClipboardContent;
   pasteOption?: ClipboardPasteOptions;
 }
 
