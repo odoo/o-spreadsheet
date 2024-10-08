@@ -12,9 +12,9 @@
             t-if="props.onNameUpdated"
             value="props.dimension.displayName"
             onChange.bind="updateName"
-            class="'fw-bold'"
+            class="'o-fw-bold'"
           />
-          <span t-else="1" class="fw-bold" t-esc="props.dimension.displayName"/>
+          <span t-else="1" class="o-fw-bold" t-esc="props.dimension.displayName"/>
         </div>
         <div class="d-flex flex-rows">
           <t t-slot="upper-right-icons"/>
