@@ -11,7 +11,7 @@ export const TABLE_STYLE_CATEGORIES = {
 };
 
 export const DEFAULT_TABLE_CONFIG: TableConfig = {
-  hasFilters: true,
+  hasFilters: false,
   totalRow: false,
   firstColumn: false,
   lastColumn: false,

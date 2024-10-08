@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import {
   addDataValidation,
-  createTable,
+  createTableWithFilter,
   setCellContent,
   setStyle,
 } from "../test_helpers/commands_helpers";
@@ -75,7 +75,7 @@ describe("Checkbox component", () => {
   test("Icon is not displayed if there is a filter icon", async () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
-    createTable(model, "A1:A4");
+    createTableWithFilter(model, "A1:A4");
 
     const { fixture } = await mountSpreadsheet({ model });
     expect(fixture.querySelector(".o-dv-checkbox")).toBeNull();

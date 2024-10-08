@@ -86,6 +86,7 @@ describe("Table side panel", () => {
 
   test("Disabling then re-enabling the headers saves the state of the hasFilters checkbox", async () => {
     const hasFilters = fixture.querySelector<HTMLInputElement>("input[name='hasFilters']")!;
+    await click(fixture, "input[name='hasFilters']");
     expect(hasFilters.checked).toBe(true);
     await click(fixture, "input[name='headerRow']");
     expect(hasFilters.checked).toBe(false);

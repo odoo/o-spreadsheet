@@ -978,6 +978,16 @@ export function createDynamicTable(
   return createTable(model, range, config, "dynamic", sheetId);
 }
 
+export function createTableWithFilter(
+  model: Model,
+  range: string,
+  config?: Partial<TableConfig>,
+  tableType: CoreTableType = "static",
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return createTable(model, range, { hasFilters: true, ...config }, tableType, sheetId);
+}
+
 export function updateTableConfig(
   model: Model,
   range: string,

@@ -9,7 +9,7 @@ import {
 import { IsValueInListCriterion, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   addDataValidation,
-  createTable,
+  createTableWithFilter,
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
@@ -371,7 +371,7 @@ describe("Selection arrow icon in grid", () => {
       values: ["ok", "hello", "okay"],
       displayStyle: "arrow",
     });
-    createTable(model, "A1:A4");
+    createTableWithFilter(model, "A1:A4");
 
     ({ fixture } = await mountSpreadsheet({ model }));
     expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();

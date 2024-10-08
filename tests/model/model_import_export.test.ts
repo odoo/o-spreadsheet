@@ -7,6 +7,7 @@ import {
   FORBIDDEN_SHEET_CHARS,
 } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { CURRENT_VERSION } from "../../src/migrations/data";
 import {
   BorderDescr,
@@ -395,7 +396,13 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.sheets[0].tables).toEqual([{ range: "A1:C2", type: "static" }]);
+    expect(data.sheets[0].tables).toEqual([
+      {
+        range: "A1:C2",
+        type: "static",
+        config: { ...DEFAULT_TABLE_CONFIG, hasFilters: true },
+      },
+    ]);
   });
 
   test("migrate version 12.5: update border description structure", () => {
@@ -445,7 +452,13 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.sheets[0].tables).toEqual([{ range: "A1:C2", type: "static" }]);
+    expect(data.sheets[0].tables).toEqual([
+      {
+        range: "A1:C2",
+        type: "static",
+        config: { ...DEFAULT_TABLE_CONFIG, hasFilters: true },
+      },
+    ]);
   });
 
   test("migrate version 15: filterTables are renamed into tables", () => {
@@ -461,7 +474,13 @@ describe("Migrations", () => {
     expect(model.getters.getTables("1")).toMatchObject([{ range: { zone: toZone("A1:B2") } }]);
     let data = model.exportData();
     expect(data.version).toBe(CURRENT_VERSION);
-    expect(data.sheets[0].tables).toEqual([{ range: "A1:B2", type: "static" }]);
+    expect(data.sheets[0].tables).toEqual([
+      {
+        range: "A1:B2",
+        type: "static",
+        config: { ...DEFAULT_TABLE_CONFIG, hasFilters: true },
+      },
+    ]);
   });
 
   test("migrate version 21: style,format and borders by zones", () => {
@@ -532,6 +551,28 @@ describe("Migrations", () => {
         upperInflectionPoint: { type: "percentage", value: "40", operator: "<=" },
       },
     });
+  });
+
+  test("migrate version 23: tables no longer have filters by default", () => {
+    const model = new Model({
+      version: 22,
+      sheets: [
+        {
+          id: "1",
+          tables: [{ range: "A1:B2" }],
+        },
+      ],
+    });
+    expect(model.getters.getTables("1")).toMatchObject([{ range: { zone: toZone("A1:B2") } }]);
+    const data = model.exportData();
+    expect(data.version).toBe(CURRENT_VERSION);
+    expect(data.sheets[0].tables).toEqual([
+      {
+        range: "A1:B2",
+        type: "static",
+        config: { ...DEFAULT_TABLE_CONFIG, hasFilters: true },
+      },
+    ]);
   });
 });
 

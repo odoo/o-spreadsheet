@@ -126,7 +126,7 @@ describe("Dynamic tables", () => {
 
   test("Can update the filter of a dynamic table", () => {
     setCellContent(model, "A1", "=MUNIT(2)");
-    createDynamicTable(model, "A1");
+    createDynamicTable(model, "A1", { hasFilters: true });
     updateFilter(model, "A1", ["0"]);
     updateFilter(model, "B1", ["1"]);
     expect(getFilterHiddenValues(model)).toMatchObject([
