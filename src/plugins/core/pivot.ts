@@ -162,7 +162,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   }
 
   getPivotName(pivotId: UID) {
-    return _t(this.getPivotCore(pivotId).definition.name);
+    return this.getPivotCore(pivotId).definition.name;
   }
 
   /**
