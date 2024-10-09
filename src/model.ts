@@ -39,7 +39,9 @@ import {
   CommandHandler,
   CommandResult,
   CoreCommand,
+  CoreCommandTypes,
   CoreGetters,
+  CoreViewCommandTypes,
   Currency,
   DEFAULT_LOCALES,
   DispatchResult,
@@ -159,6 +161,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   readonly config: ModelConfig;
   private corePluginConfig: CorePluginConfig;
+  private coreViewPluginConfig: UIPluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
@@ -231,6 +234,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.handlers.push(this.range);
 
     this.corePluginConfig = this.setupCorePluginConfig();
+    this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
     // registering plugins
@@ -242,20 +246,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.loadInitialMessages(stateUpdateMessages);
 
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
+      const plugin = this.setupUiPlugin(Plugin, this.coreViewPluginConfig);
       this.coreViewsPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
     }
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
+      const plugin = this.setupUiPlugin(Plugin, this.uiPluginConfig);
       this.statefulUIPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
+      const plugin = this.setupUiPlugin(Plugin, this.uiPluginConfig);
       this.featurePlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
@@ -292,8 +296,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     await this.session.leave(lazy(() => this.exportData()));
   }
 
-  private setupUiPlugin(Plugin: UIPluginConstructor) {
-    const plugin = new Plugin(this.uiPluginConfig);
+  private setupUiPlugin(Plugin: UIPluginConstructor, config: UIPluginConfig): UIPlugin {
+    const plugin = new Plugin(config);
     for (let name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -421,6 +425,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     };
   }
 
+  private setupCoreViewPluginConfig(): UIPluginConfig {
+    return {
+      getters: this.getters,
+      stateObserver: this.state,
+      dispatch: this.coreViewDispatch,
+      selection: this.selection,
+      moveClient: this.session.move.bind(this.session),
+      custom: this.config.custom,
+      uiActions: this.config,
+      session: this.session,
+      defaultCurrencyFormat: this.config.defaultCurrencyFormat,
+    };
+  }
+
   private setupUiPluginConfig(): UIPluginConfig {
     return {
       getters: this.getters,
@@ -545,7 +563,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * Dispatch a command from a Core Plugin (or the History).
    * A command dispatched from this function is not added to the history.
    */
-  private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+  private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (
+    type: CoreCommandTypes,
+    payload?: any
+  ) => {
     const command = createCommand(type, payload);
     const previousStatus = this.status;
     this.status = Status.RunningCore;
@@ -553,6 +574,21 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.dispatchToHandlers(handlers, command);
     this.status = previousStatus;
     return DispatchResult.Success;
+  };
+
+  /**
+   * When replaying a command from the history, coreViewPlugins should not use the traditional UI
+   * dispatch as it creates a  new history step, which makes no sense during a replay.
+   */
+  private coreViewDispatch: CommandDispatcher["dispatch"] = (
+    type: CoreViewCommandTypes,
+    payload?: any
+  ) => {
+    if (this.isReplayingCommand) {
+      return this.dispatchFromCorePlugin(type, payload);
+    } else {
+      return this.dispatch(type, payload);
+    }
   };
 
   /**
