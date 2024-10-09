@@ -1,6 +1,6 @@
 import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
-import { colorNumberString, percentile } from "../../helpers/index";
+import { colorNumberString, getColorScale, percentile } from "../../helpers/index";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { _t } from "../../translation";
 import {
@@ -344,110 +344,23 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       return;
     }
     const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, range).zone;
-    const colorCellArgs: {
-      minValue: number;
-      minColor: number;
-      colorDiffUnit: [number, number, number];
-    }[] = [];
+    const colorThresholds = [{ value: minValue, color: rule.minimum.color }];
     if (rule.midpoint && midValue) {
-      colorCellArgs.push({
-        minValue,
-        minColor: rule.minimum.color,
-        colorDiffUnit: this.computeColorDiffUnits(
-          minValue,
-          midValue,
-          rule.minimum.color,
-          rule.midpoint.color
-        ),
-      });
-      colorCellArgs.push({
-        minValue: midValue,
-        minColor: rule.midpoint.color,
-        colorDiffUnit: this.computeColorDiffUnits(
-          midValue,
-          maxValue,
-          rule.midpoint.color,
-          rule.maximum.color
-        ),
-      });
-    } else {
-      colorCellArgs.push({
-        minValue,
-        minColor: rule.minimum.color,
-        colorDiffUnit: this.computeColorDiffUnits(
-          minValue,
-          maxValue,
-          rule.minimum.color,
-          rule.maximum.color
-        ),
-      });
+      colorThresholds.push({ value: midValue, color: rule.midpoint.color });
     }
+    colorThresholds.push({ value: maxValue, color: rule.maximum.color });
+    const colorScale = getColorScale(colorThresholds);
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
         if (cell.type === CellValueType.number) {
           const value = clip(cell.value, minValue, maxValue);
-          let color;
-          if (colorCellArgs.length === 2 && midValue) {
-            color =
-              value <= midValue
-                ? this.colorCell(
-                    value,
-                    colorCellArgs[0].minValue,
-                    colorCellArgs[0].minColor,
-                    colorCellArgs[0].colorDiffUnit
-                  )
-                : this.colorCell(
-                    value,
-                    colorCellArgs[1].minValue,
-                    colorCellArgs[1].minColor,
-                    colorCellArgs[1].colorDiffUnit
-                  );
-          } else {
-            color = this.colorCell(
-              value,
-              colorCellArgs[0].minValue,
-              colorCellArgs[0].minColor,
-              colorCellArgs[0].colorDiffUnit
-            );
-          }
           if (!computedStyle[col]) computedStyle[col] = [];
           computedStyle[col][row] = computedStyle[col]?.[row] || {};
-          computedStyle[col][row]!.fillColor = colorNumberString(color);
+          computedStyle[col][row]!.fillColor = colorScale(value);
         }
       }
     }
-  }
-
-  private computeColorDiffUnits(
-    minValue: number,
-    maxValue: number,
-    minColor: number,
-    maxColor: number
-  ): [number, number, number] {
-    const deltaValue = maxValue - minValue;
-
-    const deltaColorR = ((minColor >> 16) % 256) - ((maxColor >> 16) % 256);
-    const deltaColorG = ((minColor >> 8) % 256) - ((maxColor >> 8) % 256);
-    const deltaColorB = (minColor % 256) - (maxColor % 256);
-
-    const colorDiffUnitR = deltaColorR / deltaValue;
-    const colorDiffUnitG = deltaColorG / deltaValue;
-    const colorDiffUnitB = deltaColorB / deltaValue;
-    return [colorDiffUnitR, colorDiffUnitG, colorDiffUnitB];
-  }
-
-  private colorCell(
-    value: number,
-    minValue: number,
-    minColor: number,
-    colorDiffUnit: [number, number, number]
-  ) {
-    const [colorDiffUnitR, colorDiffUnitG, colorDiffUnitB] = colorDiffUnit;
-    const r = Math.round(((minColor >> 16) % 256) - colorDiffUnitR * (value - minValue));
-    const g = Math.round(((minColor >> 8) % 256) - colorDiffUnitG * (value - minValue));
-    const b = Math.round((minColor % 256) - colorDiffUnitB * (value - minValue));
-    return (r << 16) | (g << 8) | b;
   }
 
   /**
