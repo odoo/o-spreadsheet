@@ -21,7 +21,7 @@ import {
 } from "../../../types/chart/chart";
 import { GeoChartDefinition, GeoChartRuntime } from "../../../types/chart/geo_chart";
 import { Validator } from "../../../types/validator";
-import { colorNumberString, getColorScale } from "../../color";
+import { getColorScale } from "../../color";
 import { formatValue } from "../../format/format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
@@ -263,10 +263,7 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
         position: geoLegendPosition,
         align: geoLegendPosition.includes("right") ? "left" : "right",
       },
-      interpolate: (value: number) => {
-        return colorNumberString(colorScale(value));
-        // return "#ff0000"; ADRM TODO: value is between 0 & 1, check how to color scale this
-      },
+      interpolate: (value: number) => colorScale(value),
     },
   };
   config.options!.plugins!.legend = {
