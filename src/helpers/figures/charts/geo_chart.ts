@@ -19,7 +19,11 @@ import {
   DatasetDesign,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import { GeoChartDefinition, GeoChartRuntime } from "../../../types/chart/geo_chart";
+import {
+  GeoChartColorScale,
+  GeoChartDefinition,
+  GeoChartRuntime,
+} from "../../../types/chart/geo_chart";
 import { Validator } from "../../../types/validator";
 import { getColorScale } from "../../color";
 import { formatValue } from "../../format/format";
@@ -59,6 +63,7 @@ export class GeoChart extends AbstractChart {
   readonly type = "geo";
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
+  readonly colorScale?: GeoChartColorScale;
 
   constructor(definition: GeoChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -73,6 +78,7 @@ export class GeoChart extends AbstractChart {
     this.legendPosition = definition.legendPosition;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
+    this.colorScale = definition.colorScale;
   }
 
   static transformDefinition(
@@ -161,6 +167,7 @@ export class GeoChart extends AbstractChart {
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
+      colorScale: this.colorScale,
     };
   }
 
@@ -230,11 +237,6 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
   const format = getChartDatasetFormat(getters, chart.dataSets);
   const localeFormat = { locale, format };
 
-  const colorScale = getColorScale([
-    { value: 0, color: "#ff0000" },
-    { value: 1, color: "#FFFF00" },
-  ]);
-
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(
     chart,
@@ -263,7 +265,7 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
         position: geoLegendPosition,
         align: geoLegendPosition.includes("right") ? "left" : "right",
       },
-      interpolate: (value: number) => colorScale(value),
+      interpolate: getRuntimeColorScale(chart),
     },
   };
   config.options!.plugins!.legend = {
@@ -302,4 +304,16 @@ function legendPositionToGeoLegendPosition(position: LegendPosition) {
     case "none":
       return "bottom-left";
   }
+}
+
+function getRuntimeColorScale(chart: GeoChart) {
+  if (!chart.colorScale || typeof chart.colorScale === "string") {
+    return chart.colorScale || "blues";
+  }
+  const scaleColors = [{ value: 0, color: chart.colorScale.minColor }];
+  if (chart.colorScale.midColor) {
+    scaleColors.push({ value: 0.5, color: chart.colorScale.midColor });
+  }
+  scaleColors.push({ value: 1, color: chart.colorScale.maxColor });
+  return getColorScale(scaleColors);
 }
