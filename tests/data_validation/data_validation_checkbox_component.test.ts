@@ -5,7 +5,8 @@ import {
   setCellContent,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { getStyle } from "../test_helpers/getters_helpers";
+import { click } from "../test_helpers/dom_helper";
+import { getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 describe("Checkbox in model", () => {
@@ -35,6 +36,21 @@ describe("Checkbox in model", () => {
 });
 
 describe("Checkbox component", () => {
+  test("can check and uncheck", async () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    const { fixture } = await mountSpreadsheet({ model });
+    await nextTick();
+    const checkbox = fixture.querySelector(".o-dv-checkbox input") as HTMLInputElement;
+    expect(checkbox?.checked).toBe(false);
+    await click(checkbox);
+    expect(getCellContent(model, "A1")).toBe("TRUE");
+    expect(checkbox?.checked).toBe(true);
+    await click(checkbox);
+    expect(getCellContent(model, "A1")).toBe("FALSE");
+    expect(checkbox?.checked).toBe(false);
+  });
+
   test("Data validation checkbox on formula is disabled", async () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });

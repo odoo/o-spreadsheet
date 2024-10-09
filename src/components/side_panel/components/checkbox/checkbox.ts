@@ -19,6 +19,8 @@ interface Props {
   onChange: (value: boolean) => void;
 }
 
+export const CHECKBOX_WIDTH = 14;
+
 css/* scss */ `
   label.o-checkbox {
     input {
@@ -26,8 +28,8 @@ css/* scss */ `
       -webkit-appearance: none;
       -moz-appearance: none;
       border-radius: 0;
-      width: 14px;
-      height: 14px;
+      width: ${CHECKBOX_WIDTH}px;
+      height: ${CHECKBOX_WIDTH}px;
       vertical-align: top;
       box-sizing: border-box;
       outline: none;
