@@ -2,7 +2,7 @@ import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/helpers";
-import { featurePluginRegistry } from "../../src/plugins";
+import { coreViewsPluginRegistry, featurePluginRegistry } from "../../src/plugins";
 import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -27,6 +27,7 @@ import {
   paste,
   redo,
   selectCell,
+  setBorders,
   setCellContent,
   setStyle,
   undo,
@@ -41,6 +42,7 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
+  addTestPlugin,
   createEqualCF,
   getDataValidationRules,
   target,
@@ -1090,4 +1092,22 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
   setCellContent(alice, "A1", "hello");
   expect([alice, bob]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
   featurePluginRegistry.remove("myUIPlugin");
+});
+
+test("CoreView plugins cannot create a new revision when replaying a revision", () => {
+  class MyShittyPlugin extends UIPlugin {
+    handle(cmd: Command) {
+      if (cmd.type === "SET_BORDER") {
+        this.dispatch("UPDATE_CELL", { ...cmd, content: "ShittyPlugin" });
+      }
+    }
+  }
+  addTestPlugin(coreViewsPluginRegistry, MyShittyPlugin);
+  const transport = new MockTransportService();
+  const spy = jest.spyOn(transport, "sendMessage");
+  const { alice, bob } = setupCollaborativeEnv(transport);
+  console.log(setBorders(alice, "A1", { top: { color: "black", style: "thin" } }));
+  // Bob should not create a new revision when replaying SET_BORDER
+  expect(bob.getters.canRedo()).toBeFalsy();
+  expect(spy).toHaveBeenCalledTimes(1);
 });
