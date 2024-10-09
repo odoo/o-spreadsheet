@@ -68,6 +68,13 @@ export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
     ylOrRd: _t("Yellow-Orange-Red"),
   };
 
+  updateColorScaleType(ev: Event) {
+    const value = (ev.target as HTMLSelectElement).value;
+    value === "custom"
+      ? this.updateColorScale(DEFAULT_CUSTOM_COLOR_SCALE)
+      : this.updateColorScale(value as GeoChartColorScale);
+  }
+
   updateColorScale(colorScale: GeoChartColorScale) {
     this.props.updateChart(this.props.figureId, {
       colorScale: colorScale,
@@ -75,10 +82,9 @@ export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
   }
 
   get selectedColorScale() {
-    if (typeof this.props.definition.colorScale === "object") {
-      return _t("Custom");
-    }
-    return this.colorScalesChoices[this.props.definition.colorScale ?? "blues"];
+    return typeof this.props.definition.colorScale === "object"
+      ? "custom"
+      : this.props.definition.colorScale;
   }
 
   get customColorScale(): GeoChartCustomColorScale | undefined {

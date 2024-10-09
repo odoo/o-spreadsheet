@@ -25,13 +25,19 @@
       <t t-set-slot="content">
         <Section class="'pt-0'">
           <t t-set-slot="title">Color Scale</t>
-          <SelectMenu
-            class="'o-dv-type o-input mb-2'"
-            menuItems="getSelectMenuItems()"
-            selectedValue="selectedColorScale"
-          />
+          <select class="o-input" t-on-change="this.updateColorScaleType">
+            <option value="custom">Custom</option>
+            <hr/>
+            <t t-foreach="colorScalesChoices" t-as="colorScale" t-key="colorScale">
+              <option
+                t-att-value="colorScale"
+                t-esc="colorScale_value"
+                t-att-selected="colorScale === selectedColorScale"
+              />
+            </t>
+          </select>
           <t t-if="customColorScale">
-            <div class="o-min-color d-flex align-items-center mb-2">
+            <div class="o-min-color d-flex align-items-center mb-2 mt-4">
               <RoundColorPicker
                 currentColor="getCustomColorScaleColor('minColor')"
                 onColorPicked="(color) => this.setCustomColorScaleColor('minColor', color)"
