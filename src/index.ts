@@ -39,7 +39,6 @@ import { CogWheelMenu } from "./components/side_panel/components/cog_wheel_menu/
 import { RoundColorPicker } from "./components/side_panel/components/round_color_picker/round_color_picker";
 import { Section } from "./components/side_panel/components/section/section";
 import { FindAndReplaceStore } from "./components/side_panel/find_and_replace/find_and_replace_store";
-import { EditableName } from "./components/side_panel/pivot/editable_name/editable_name";
 import { PivotDeferUpdate } from "./components/side_panel/pivot/pivot_defer_update/pivot_defer_update";
 import { AddDimensionButton } from "./components/side_panel/pivot/pivot_layout_configurator/add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_dimension/pivot_dimension";
@@ -400,7 +399,6 @@ export const components = {
   PivotDimensionOrder,
   PivotDimension,
   PivotLayoutConfigurator,
-  EditableName,
   PivotDeferUpdate,
   PivotTitleSection,
   CogWheelMenu,
