@@ -42,6 +42,7 @@ import {
   UIOptionsPlugin,
 } from "./ui_feature";
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
+import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { TableAutofillPlugin } from "./ui_feature/table_autofill";
@@ -89,7 +90,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("history", HistoryPlugin)
   .add("data_cleanup", DataCleanupPlugin)
   .add("table_autofill", TableAutofillPlugin)
-  .add("table_ui_resize", TableResizeUI);
+  .add("table_ui_resize", TableResizeUI)
+  .add("datavalidation_insert", DataValidationInsertionPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
