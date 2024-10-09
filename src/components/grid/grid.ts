@@ -22,6 +22,7 @@ import {
   SCROLLBAR_WIDTH,
 } from "../../constants";
 import { gePastablePluginClipBoardContent } from "../../helpers/clipboard/clipboard_helpers";
+import { chartToImageBlob } from "../../helpers/figures/charts";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
@@ -609,10 +610,34 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
+
+    const figureId = this.env.model.getters.getSelectedFigureId();
+    if (figureId) {
+      const type = this.env.model.getters.getChartType(figureId);
+      const figureSheetId = this.env.model.getters.getFigureSheetId(figureId)!;
+      const figure = this.env.model.getters.getFigure(figureSheetId, figureId)!;
+      const runtime = this.env.model.getters.getChartRuntime(figureId);
+      // @ts-ignore
+      content[ClipboardMIMEType.Png] = chartToImageBlob(runtime, figure, type);
+    }
     const clipboardData = ev.clipboardData;
     for (const type in content) {
-      clipboardData?.setData(type, content[type]);
+      if (type !== ClipboardMIMEType.Png) {
+        clipboardData?.setData(type, content[type]);
+      }
     }
+
+    if (figureId) {
+      const clipboardData = ev.clipboardData;
+      const type = this.env.model.getters.getChartType(figureId);
+      const figureSheetId = this.env.model.getters.getFigureSheetId(figureId)!;
+      const figure = this.env.model.getters.getFigure(figureSheetId, figureId)!;
+      const runtime = this.env.model.getters.getChartRuntime(figureId);
+      const blob = chartToImageBlob(runtime, figure, type)!;
+      const file = new File([blob], "image/png", { type: "image/png" });
+      clipboardData!.items.add(file);
+    }
+
     ev.preventDefault();
   }
 

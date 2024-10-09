@@ -1,9 +1,10 @@
 import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
+import { chartToImageBlob } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _t } from "../translation";
-import { SpreadsheetChildEnv, UID } from "../types";
+import { ClipboardMIMEType, SpreadsheetChildEnv, UID } from "../types";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -108,7 +109,16 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
       env.model.dispatch("COPY");
-      await env.clipboard.write(env.model.getters.getClipboardContent());
+      const type = env.model.getters.getChartType(figureId);
+      const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
+      const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
+      const runtime = env.model.getters.getChartRuntime(figureId);
+      const blob = chartToImageBlob(runtime, figure, type)!;
+      const file = new File([blob], "image/png", { type: "image/png" });
+      //@ts-ignore
+      await env.clipboard.write({
+        [ClipboardMIMEType.Png]: new ClipboardItem({ [file.type]: file }),
+      });
     },
     icon: "o-spreadsheet-Icon.COPY",
   };

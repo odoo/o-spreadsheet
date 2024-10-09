@@ -11,6 +11,7 @@ import {
   ClipboardOptions,
   ClipboardPasteTarget,
   OSClipboardContent,
+  PngClipboardData,
 } from "../../types/clipboard";
 import {
   ClipboardCell,
@@ -487,7 +488,12 @@ export class ClipboardPlugin extends UIPlugin {
     return {
       [ClipboardMIMEType.PlainText]: this.getPlainTextContent(),
       [ClipboardMIMEType.Html]: this.getHTMLContent(),
+      [ClipboardMIMEType.Png]: this.getFigureContent(),
     };
+  }
+
+  private getFigureContent(): PngClipboardData {
+    return { type: "image", data: "" };
   }
 
   private getgridData(): HtmlClipboardData {

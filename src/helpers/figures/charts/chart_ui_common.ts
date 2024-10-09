@@ -343,6 +343,54 @@ export function chartToImage(
   return undefined;
 }
 
+export function chartToImageBlob(runtime: ChartRuntime, figure: Figure, type: string): Blob | null {
+  // wrap the canvas in a div with a fixed size because chart.js would
+  // fill the whole page otherwise
+  const div = document.createElement("div");
+  div.style.width = `${figure.width}px`;
+  div.style.height = `${figure.height}px`;
+  const canvas = document.createElement("canvas");
+  div.append(canvas);
+  canvas.setAttribute("width", figure.width.toString());
+  canvas.setAttribute("height", figure.height.toString());
+  let finalContent: Blob | null = null;
+  // we have to add the canvas to the DOM otherwise it won't be rendered
+  document.body.append(div);
+  if ("chartJsConfig" in runtime) {
+    const config = deepCopy(runtime.chartJsConfig);
+    config.plugins = [backgroundColorChartJSPlugin];
+    const chart = new window.Chart(canvas, config);
+    const imgContent = chart.toBase64Image() as string;
+    finalContent = base64ToBlob(imgContent, "image/png");
+    chart.destroy();
+    div.remove();
+  } else if (type === "scorecard") {
+    const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
+    drawScoreChart(design, canvas);
+    canvas.toBlob((blob) => (finalContent = blob), "image/png");
+    div.remove();
+  } else if (type === "gauge") {
+    drawGaugeChart(canvas, runtime as GaugeChartRuntime);
+    canvas.toBlob((blob) => (finalContent = blob), "image/png");
+    div.remove();
+  }
+  return finalContent;
+}
+function base64ToBlob(base64, mimeType) {
+  // Remove the data URL part if present
+  const byteCharacters = atob(base64.split(",")[1]);
+
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const byteArray = new Uint8Array(byteNumbers);
+
+  // Create a Blob object from the byteArray
+  return new Blob([byteArray], { type: mimeType });
+}
+
 /**
  * Custom chart.js plugin to set the background color of the canvas
  * https://github.com/chartjs/Chart.js/blob/8fdf76f8f02d31684d34704341a5d9217e977491/docs/configuration/canvas-background.md

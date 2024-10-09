@@ -4,9 +4,25 @@ import { HeaderIndex, UID, Zone } from "./misc";
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
   Html = "text/html",
+  Png = "image/png",
 }
 
-export type OSClipboardContent = { [type in ClipboardMIMEType]?: string };
+type ChartClipboardData = {
+  type: "chart";
+  data: Blob;
+};
+type ImageClipboardData = {
+  type: "image";
+  data: string;
+};
+
+export type PngClipboardData = ChartClipboardData | ImageClipboardData;
+
+export type OSClipboardContent = {
+  [ClipboardMIMEType.PlainText]?: string;
+  [ClipboardMIMEType.Html]?: string;
+  [ClipboardMIMEType.Png]?: PngClipboardData;
+};
 
 export type ImportClipboardContent = {
   [ClipboardMIMEType.PlainText]?: string;
