@@ -3,6 +3,7 @@ import { LineChartDefinition } from "../../src/types/chart";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
+  addDataValidation,
   copy,
   createChart,
   createSheet,
@@ -121,6 +122,23 @@ describe("Collaborative range manipulation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => (user.getters.getChartDefinition("1") as LineChartDefinition).dataSets[0],
       "D4"
+    );
+  });
+
+  test("Can copy boolean datavalidation while preserving the cell values", () => {
+    setCellContent(alice, "A1", "TRUE");
+    setCellContent(alice, "A2", "FALSE");
+    addDataValidation(alice, "A1:A2", "id", { type: "isBoolean", values: [] });
+
+    copy(alice, "A1:A2");
+    paste(alice, "B1");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B1")?.content,
+      "TRUE"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B2")?.content,
+      "FALSE"
     );
   });
 });
