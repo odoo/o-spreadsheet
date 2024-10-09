@@ -24,13 +24,13 @@ import {
   invalidateCFEvaluationCommands,
   isMatrix,
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { CoreViewPlugin } from "../core_view_plugin";
 import { CoreViewCommand } from "./../../types/commands";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
 
-export class EvaluationConditionalFormatPlugin extends UIPlugin {
+export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   static getters = ["getConditionalIcon", "getCellComputedStyle"] as const;
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
