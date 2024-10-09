@@ -3,6 +3,7 @@ import { LineChartDefinition } from "../../src/types/chart";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
+  addDataValidation,
   copy,
   createChart,
   createSheet,
@@ -121,6 +122,47 @@ describe("Collaborative range manipulation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => (user.getters.getChartDefinition("1") as LineChartDefinition).dataSets[0],
       "D4"
+    );
+  });
+
+  test("Can copy boolean datavalidation while preserving the cell values", () => {
+    setCellContent(alice, "A1", "TRUE");
+    setCellContent(alice, "A3", "not a boolean");
+    setCellContent(alice, "A4", "=TRANSPOSE(A1)");
+    setCellContent(alice, "A5", "=TEXT(5)");
+    setCellContent(alice, "A6", "=NOT(A1)");
+    setCellContent(alice, "A7", "7");
+    addDataValidation(alice, "A1:A7", "id", { type: "isBoolean", values: [] });
+
+    copy(alice, "A1:A7");
+    paste(alice, "B1");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B1")?.content,
+      "TRUE"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B2")?.content,
+      "FALSE" // A2 was empty, which is falsy
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B3")?.content,
+      "FALSE" // text is not a boolean -> falsy
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B4")?.content,
+      "=TRANSPOSE(B1)" // is truthy
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B5")?.content,
+      "FALSE" // text is not a boolean -> falsy
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B6")?.content,
+      "=NOT(B1)"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "B7")?.content,
+      "FALSE" // a number which does not represent a boolean is falsy
     );
   });
 });
