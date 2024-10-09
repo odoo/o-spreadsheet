@@ -1,5 +1,6 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { LineChart } from "../../../src/helpers/figures/charts";
+import { LineChartRuntime } from "../../../src/types/chart";
 import { isChartAxisStacked } from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
 
@@ -182,5 +183,65 @@ describe("line chart", () => {
     expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#112233");
     expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#11223366");
+  });
+
+  test("Line chart legend", () => {
+    const model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A1: { content: "1" },
+            A2: { content: "2" },
+            A3: { content: "3" },
+            A4: { content: "4" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: [
+          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+        ],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const fakeChart = {
+      ...runtime.chartJsConfig,
+      isDatasetVisible: (index) => true,
+    };
+    expect(
+      runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.(fakeChart as any)
+    ).toEqual([
+      {
+        color: "#000000",
+        fontColor: "#000000",
+        fillStyle: "#f00",
+        text: "serie_1",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "line",
+        strokeStyle: "#f00",
+      },
+      {
+        color: "#000000",
+        fontColor: "#000000",
+        fillStyle: "#00f",
+        text: "serie_2",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "line",
+        strokeStyle: "#00f",
+      },
+    ]);
   });
 });

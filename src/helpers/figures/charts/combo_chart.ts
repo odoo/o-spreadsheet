@@ -32,6 +32,7 @@ import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  INTERACTIVE_LEGEND_CONFIG,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   checkDataset,
@@ -43,6 +44,7 @@ import {
   formatTickValue,
   getChartAxisTitleRuntime,
   getChartColorsGenerator,
+  getCustomLegendLabels,
   getDefinedAxis,
   getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
@@ -256,7 +258,11 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
+    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getCustomLegendLabels(fontColor, {
+      lineWidth: 3,
+    }),
+    reverse: true,
   };
   if (chart.legendPosition === "none") {
     legend.display = false;
