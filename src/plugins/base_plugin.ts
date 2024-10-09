@@ -1,6 +1,5 @@
 import { StateObserver } from "../state_observer";
 import {
-  CommandDispatcher,
   CommandHandler,
   CommandResult,
   ExcelWorkbookData,
@@ -25,14 +24,12 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
   static getters: readonly string[] = [];
 
   protected history: WorkbookHistory<State>;
-  protected dispatch: CommandDispatcher["dispatch"];
 
-  constructor(stateObserver: StateObserver, dispatch: CommandDispatcher["dispatch"]) {
+  constructor(stateObserver: StateObserver) {
     this.history = Object.assign(Object.create(stateObserver), {
       update: stateObserver.addChange.bind(stateObserver, this),
       selectCell: () => {},
     });
-    this.dispatch = dispatch;
   }
 
   /**

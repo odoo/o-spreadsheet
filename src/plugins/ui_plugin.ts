@@ -43,11 +43,13 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   protected getters: Getters;
   protected ui: UIActions;
   protected selection: SelectionStreamProcessor;
+  protected dispatch: CommandDispatcher["dispatch"];
   constructor({ getters, stateObserver, dispatch, uiActions, selection }: UIPluginConfig) {
-    super(stateObserver, dispatch);
+    super(stateObserver);
     this.getters = getters;
     this.ui = uiActions;
     this.selection = selection;
+    this.dispatch = dispatch;
   }
 
   // ---------------------------------------------------------------------------

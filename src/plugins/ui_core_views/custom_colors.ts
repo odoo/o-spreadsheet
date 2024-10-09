@@ -11,7 +11,7 @@ import {
 } from "../../helpers";
 import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
 import { Color, CoreViewCommand, Immutable, RGBA, UID } from "../../types";
-import { UIPlugin } from "../ui_plugin";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 /**
  * https://tomekdev.com/posts/sorting-colors-in-js
@@ -69,7 +69,7 @@ interface CustomColorState {
  * This plugins aims to compute and keep to custom colors used in the
  * current spreadsheet
  */
-export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
+export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
   private readonly customColors: Immutable<Record<Color, true>> = {};
   private readonly shouldUpdateColors = false;
   static getters = ["getCustomColors"] as const;
