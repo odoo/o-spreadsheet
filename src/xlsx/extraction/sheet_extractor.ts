@@ -2,6 +2,7 @@ import {
   XLSXCell,
   XLSXColumn,
   XLSXConditionalFormat,
+  XLSXDataValidation,
   XLSXFigure,
   XLSXFileStructure,
   XLSXFormula,
@@ -25,6 +26,7 @@ import { getRelativePath } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { XlsxBaseExtractor } from "./base_extractor";
 import { XlsxCfExtractor } from "./cf_extractor";
+import { XlsxDataValidationExtractor } from "./data_validation_extractor";
 import { XlsxFigureExtractor } from "./figure_extractor";
 import { XlsxPivotExtractor } from "./pivot_extractor";
 import { XlsxTableExtractor } from "./table_extractor";
@@ -57,6 +59,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           sharedFormulas: this.extractSharedFormulas(sheetElement),
           merges: this.extractMerges(sheetElement),
           cfs: this.extractConditionalFormats(),
+          dataValidations: this.extractDataValidations(),
           figures: this.extractFigures(sheetElement),
           hyperlinks: this.extractHyperLinks(sheetElement),
           tables: this.extractTables(sheetElement),
@@ -155,6 +158,15 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
       this.warningManager,
       this.theme
     ).extractConditionalFormattings();
+  }
+
+  private extractDataValidations(): XLSXDataValidation[] {
+    return new XlsxDataValidationExtractor(
+      this.rootFile,
+      this.xlsxFileStructure,
+      this.warningManager,
+      this.theme
+    ).extractDataValidations();
   }
 
   private extractFigures(worksheet: Element): XLSXFigure[] {

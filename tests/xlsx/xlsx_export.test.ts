@@ -639,6 +639,50 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test("Data validation", async () => {
+      const model = new Model({
+        sheets: [
+          {
+            dataValidationRules: [
+              {
+                ranges: ["A1:A5"],
+                criterion: {
+                  type: "isValueInRange",
+                  values: ["A1:A5"],
+                  isBlocking: true,
+                },
+              },
+              {
+                ranges: ["B1:B5"],
+                criterion: {
+                  type: "isGreaterThan",
+                  values: ["10"],
+                  isBlocking: false,
+                },
+              },
+              {
+                ranges: ["C1:C5"],
+                criterion: {
+                  type: "dateIsNotBetween",
+                  values: ["01/01/2024", "12/31/2024"],
+                  isBlocking: true,
+                },
+              },
+              {
+                ranges: ["E1:E5"],
+                criterion: {
+                  type: "customFormula",
+                  values: ["=ISNUMBER(E1)"],
+                  isBlocking: false,
+                },
+              },
+            ],
+          },
+        ],
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
     test("does not export quarter format", async () => {
       const model = new Model();
 

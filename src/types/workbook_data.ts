@@ -45,7 +45,7 @@ export interface SheetData {
   cols: { [key: number]: HeaderData };
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];
-  dataValidationRules?: DataValidationRuleData[];
+  dataValidationRules: DataValidationRuleData[];
   tables: TableData[];
   areGridLinesVisible?: boolean;
   isVisible: boolean;
