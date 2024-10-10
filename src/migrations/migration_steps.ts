@@ -6,6 +6,7 @@ import {
 import { getItemId } from "../helpers";
 import { toXC } from "../helpers/coordinates";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
+import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registries/registry";
 import { CustomizedDataSet, DEFAULT_LOCALE, Format, WorkbookData, Zone } from "../types";
@@ -415,6 +416,20 @@ migrationStepRegistry
           }
           if (gaugeData?.sectionRule?.upperInflectionPoint) {
             gaugeData.sectionRule.upperInflectionPoint.operator = "<=";
+          }
+        }
+      }
+      return data;
+    },
+  })
+  .add("migration_22", {
+    // "tables are no longer inserted with filters by default",
+    versionFrom: "22",
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const table of sheet.tables || []) {
+          if (!table.config) {
+            table.config = { ...DEFAULT_TABLE_CONFIG, hasFilters: true };
           }
         }
       }

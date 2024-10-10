@@ -2,7 +2,7 @@ import { Model } from "../../src";
 import { UID } from "../../src/types";
 import {
   createDynamicTable,
-  createTable,
+  createTableWithFilter,
   hideRows,
   setCellContent,
   setFormat,
@@ -44,13 +44,13 @@ describe("Filter menu component", () => {
 
   describe("Filter Tests", () => {
     beforeEach(async () => {
-      createTable(model, "A1:A5");
+      createTableWithFilter(model, "A1:A5");
       setCellContent(model, "A1", "header");
       setCellContent(model, "A2", "1");
       setCellContent(model, "A3", "1");
       setCellContent(model, "A4", "2");
 
-      createTable(model, "B1:B4");
+      createTableWithFilter(model, "B1:B4");
       setCellContent(model, "B2", "B2");
       setCellContent(model, "B3", "B3");
       setCellContent(model, "B4", "B4");
@@ -289,7 +289,7 @@ describe("Filter menu component", () => {
   });
 
   test("Sort filter", async () => {
-    createTable(model, "A10:B15");
+    createTableWithFilter(model, "A10:B15");
     setCellContent(model, "A10", "header");
     setCellContent(model, "A11", "olà");
     setCellContent(model, "A12", "1");
@@ -334,7 +334,7 @@ describe("Filter menu component", () => {
   });
 
   test("cannot sort filter table in readonly mode", async () => {
-    createTable(model, "A10:B15");
+    createTableWithFilter(model, "A10:B15");
     await nextTick();
     await openFilterMenu();
     expect(
@@ -349,7 +349,7 @@ describe("Filter menu component", () => {
 
   test("cannot sort dynamic table", async () => {
     setCellContent(model, "A10", "=MUNIT(2)");
-    createDynamicTable(model, "A10");
+    createDynamicTable(model, "A10", { hasFilters: true });
     await nextTick();
     await openFilterMenu();
     expect(

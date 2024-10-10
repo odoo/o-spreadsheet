@@ -18,6 +18,7 @@ import {
   createSheet,
   createTable,
   createTableStyle,
+  createTableWithFilter,
   deleteRows,
   deleteSheet,
   groupHeaders,
@@ -749,7 +750,7 @@ describe("Multi users synchronisation", () => {
         sheetId: "Sheet1",
         sheetIdTo: "sheet2",
       });
-      createTable(charlie, "A1:B4", undefined, undefined, firstSheetId);
+      createTableWithFilter(charlie, "A1:B4", undefined, undefined, firstSheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getTables("sheet2"),

@@ -7,6 +7,7 @@ import {
   copy,
   createSheet,
   createTable,
+  createTableWithFilter,
   cut,
   deleteColumns,
   deleteContent,
@@ -141,8 +142,8 @@ describe("Table plugin", () => {
     });
 
     test("Cannot update a table with a wrong config", () => {
-      createTable(model, "A1:A5");
-      createTable(model, "B1:B5");
+      createTableWithFilter(model, "A1:A5");
+      createTableWithFilter(model, "B1:B5");
       expect(updateTableConfig(model, "A1", { numberOfHeaders: -5 })).toBeCancelledBecause(
         CommandResult.InvalidTableConfig
       );
@@ -160,10 +161,10 @@ describe("Table plugin", () => {
 
   describe("Creating and updating a table", () => {
     test("Can create a table", () => {
-      createTable(model, "A1:A5", { ...DEFAULT_TABLE_CONFIG, bandedColumns: true });
+      createTableWithFilter(model, "A1:A5", { bandedColumns: true });
       expect(getTable(model, "A1")).toMatchObject({
         range: { zone: toZone("A1:A5") },
-        config: { ...DEFAULT_TABLE_CONFIG, bandedColumns: true },
+        config: { ...DEFAULT_TABLE_CONFIG, hasFilters: true, bandedColumns: true },
       });
 
       expect(getFilter(model, "A1")).toMatchObject({
@@ -190,7 +191,7 @@ describe("Table plugin", () => {
     });
 
     test("Create new table on sheet duplication", () => {
-      createTable(model, "A1:A3");
+      createTableWithFilter(model, "A1:A3");
       updateFilter(model, "A1", ["C"]);
 
       const sheet2Id = "42";
@@ -224,7 +225,7 @@ describe("Table plugin", () => {
     });
 
     test("Updated table config is sanitized", () => {
-      createTable(model, "A1:A5");
+      createTableWithFilter(model, "A1:A5");
       expect(getTable(model, "A1")!.config).toMatchObject({
         numberOfHeaders: 1,
         hasFilters: true,
@@ -246,7 +247,7 @@ describe("Table plugin", () => {
     });
 
     test("Filtered zone is updated when the number of headers change", () => {
-      createTable(model, "A1:A5");
+      createTableWithFilter(model, "A1:A5");
       expect(getFilter(model, "A1")?.filteredRange?.zone).toEqual(toZone("A2:A5"));
       updateTableConfig(model, "A1", { numberOfHeaders: 3 });
       expect(getFilter(model, "A1")?.filteredRange?.zone).toEqual(toZone("A4:A5"));
@@ -265,7 +266,7 @@ describe("Table plugin", () => {
 
   describe("Table Zone Expansion", () => {
     test("Table zone is expanded when creating a new cell just below the table", () => {
-      createTable(model, "A1:B3");
+      createTableWithFilter(model, "A1:B3");
       updateFilter(model, "A1", ["C"]);
       setCellContent(model, "A4", "Something");
       setCellContent(model, "B5", "Something Else");
@@ -277,7 +278,7 @@ describe("Table plugin", () => {
     });
 
     test("Table zone is expanded when creating cells right of the table", () => {
-      createTable(model, "B1:B3");
+      createTableWithFilter(model, "B1:B3");
       updateFilter(model, "B1", ["C"]);
       setCellContent(model, "A1", "Something");
       setCellContent(model, "C3", "Something Else");
@@ -290,14 +291,14 @@ describe("Table plugin", () => {
 
     test("Table zone is not expended at creation", () => {
       setCellContent(model, "A4", "Something");
-      createTable(model, "A1:A3");
+      createTableWithFilter(model, "A1:A3");
       expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:A3");
       expect(getFilterHiddenValues(model)).toEqual([{ zone: "A1:A3", value: [] }]);
     });
 
     test("Table zone is not expanded when modifying existing cell", () => {
       setCellContent(model, "A4", "Something");
-      createTable(model, "A1:A3");
+      createTableWithFilter(model, "A1:A3");
       setCellContent(model, "A4", "Something Else");
       expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:A3");
       expect(getFilterHiddenValues(model)).toEqual([{ zone: "A1:A3", value: [] }]);
@@ -366,7 +367,7 @@ describe("Table plugin", () => {
     let sheetId: UID;
     beforeEach(() => {
       model = new Model();
-      createTable(model, "C3:F6");
+      createTableWithFilter(model, "C3:F6");
       updateFilter(model, "C3", ["C"]);
       updateFilter(model, "D3", ["D"]);
       updateFilter(model, "E3", ["E"]);
@@ -647,7 +648,7 @@ describe("Table plugin", () => {
 
     test("Can undo/redo deleting a table", () => {
       const model = new Model();
-      createTable(model, "A1:A4");
+      createTableWithFilter(model, "A1:A4");
       expect(getFilter(model, "A1")).toBeTruthy();
       deleteTable(model, "A1");
       expect(getFilter(model, "A1")).toBeFalsy();
@@ -688,7 +689,7 @@ describe("Table plugin", () => {
   describe("Copy/Cut/Paste tables", () => {
     test("Can copy and paste a whole table", () => {
       // Note: copying filter values is not possible since the introduction of dynamic tables
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       updateTableConfig(model, "A1", { bandedColumns: true, styleId: "TableStyleDark2" });
 
       copy(model, "A1:B4");
@@ -698,13 +699,14 @@ describe("Table plugin", () => {
       expect(copiedTable).toBeTruthy();
       expect(copiedTable!.config).toMatchObject({
         ...DEFAULT_TABLE_CONFIG,
+        hasFilters: true,
         bandedColumns: true,
         styleId: "TableStyleDark2",
       });
     });
 
     test("Can cut and paste a whole table", () => {
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       updateFilter(model, "A1", ["thisIsAValue"]);
 
       cut(model, "A1:B4");
@@ -722,7 +724,7 @@ describe("Table plugin", () => {
     });
 
     test("Can cut and paste multiple tables", () => {
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       updateFilter(model, "A1", ["thisIsAValue"]);
       createTable(model, "D5:D7");
 

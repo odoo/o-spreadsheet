@@ -11,7 +11,7 @@ import {
   activateSheet,
   addRows,
   createSheet,
-  createTable,
+  createTableWithFilter,
   deleteRows,
   deleteTable,
   hideRows,
@@ -308,7 +308,7 @@ describe("basic search", () => {
   test("Need to update search if updating or removing the filter", () => {
     setCellContent(model, "A2", "1");
     setCellContent(model, "A3", "=111");
-    createTable(model, "A1:A6");
+    createTableWithFilter(model, "A1:A6");
     updateSearch(model, "1");
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);

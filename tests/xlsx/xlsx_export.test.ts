@@ -15,7 +15,7 @@ import {
   createImage,
   createScorecardChart,
   createSheet,
-  createTable,
+  createTableWithFilter,
   foldHeaderGroup,
   groupHeaders,
   merge,
@@ -1464,7 +1464,7 @@ describe("Test XLSX export", () => {
   describe("Export data filters", () => {
     test("Table headers formula are replaced with their evaluated formatted value", () => {
       const model = new Model();
-      createTable(model, "A1:A4");
+      createTableWithFilter(model, "A1:A4");
       setCellContent(model, "A1", "=DATE(1,1,1)");
       setCellContent(model, "A2", "=DATE(1,1,1)");
       const exported = getExportedExcelData(model);
@@ -1479,7 +1479,7 @@ describe("Test XLSX export", () => {
 
     test("Table headers are replaced by unique value", () => {
       const model = new Model();
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "B1", "Hello");
       const exported = getExportedExcelData(model);
@@ -1492,7 +1492,7 @@ describe("Test XLSX export", () => {
 
     test("Table headers are replaced by unique formatted value even if table has no filters", () => {
       const model = new Model();
-      createTable(model, "A1:A4", { ...DEFAULT_TABLE_CONFIG, hasFilters: false });
+      createTableWithFilter(model, "A1:A4", { ...DEFAULT_TABLE_CONFIG, hasFilters: false });
       setCellContent(model, "A1", "=DATE(1,1,1)");
       const exported = getExportedExcelData(model);
       expect(exported.sheets[0].cells["A1"]?.content).toEqual("1/1/1901");
@@ -1500,7 +1500,7 @@ describe("Test XLSX export", () => {
 
     test("Table style is correctly exported", async () => {
       const model = new Model();
-      createTable(model, "A1:B4", {
+      createTableWithFilter(model, "A1:B4", {
         totalRow: true,
         firstColumn: true,
         lastColumn: true,
@@ -1538,7 +1538,7 @@ describe("Test XLSX export", () => {
 
     test("Filtered values are exported and rows are hidden", () => {
       const model = new Model();
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "Hello");
       setCellContent(model, "A3", "Konnichiwa");
       setCellContent(model, "A4", '=CONCAT("Bon", "jour")');
@@ -1551,7 +1551,7 @@ describe("Test XLSX export", () => {
 
     test("Empty filters aren't exported", () => {
       const model = new Model();
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "Hello");
       setCellContent(model, "B2", "Hello");
       const exported = getExportedExcelData(model);
@@ -1562,14 +1562,14 @@ describe("Test XLSX export", () => {
       const model = new Model();
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "B1", "Hello");
-      createTable(model, "A1:B1");
+      createTableWithFilter(model, "A1:B1");
       const exported = getExportedExcelData(model);
       expect(exported.sheets[0].tables).toHaveLength(0);
     });
 
     test("Filtered values are not duplicated", () => {
       const model = new Model();
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "Konnichiwa");
       setCellContent(model, "A3", "Konnichiwa");
       setCellContent(model, "A4", "5");
@@ -1580,7 +1580,7 @@ describe("Test XLSX export", () => {
 
     test("Empty cells are not added to displayedValues", () => {
       const model = new Model();
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "5");
       updateFilter(model, "A1", ["5"]);
       const exported = getExportedExcelData(model);
@@ -1589,7 +1589,7 @@ describe("Test XLSX export", () => {
 
     test("Formulas evaluated to empty string are not added to displayedValues", () => {
       const model = new Model();
-      createTable(model, "A1:B4");
+      createTableWithFilter(model, "A1:B4");
       setCellContent(model, "A2", "5");
       updateFilter(model, "A1", ["5"]);
       setCellContent(model, "A3", '=""');
@@ -1600,7 +1600,7 @@ describe("Test XLSX export", () => {
 
     test("Export data filters snapshot", async () => {
       const model = new Model();
-      createTable(model, "A1:C4");
+      createTableWithFilter(model, "A1:C4");
 
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "A2", "5");

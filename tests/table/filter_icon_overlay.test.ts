@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { createTable } from "../test_helpers/commands_helpers";
+import { createTableWithFilter } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -24,7 +24,7 @@ describe("Filter Icon Overlay component", () => {
   test("MouseEvent on filter icon bubbles and selects the underlying cell", async () => {
     jest.useFakeTimers();
     const model = new Model();
-    createTable(model, "B2:B3");
+    createTableWithFilter(model, "B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     const {} = await mountSpreadsheet({ model });
     expect(model.getters.getActivePosition()).toEqual({ sheetId, col: 0, row: 0 });

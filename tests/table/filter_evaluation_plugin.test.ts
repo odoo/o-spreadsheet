@@ -1,9 +1,10 @@
 import { Model } from "../../src";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { CommandResult, UID } from "../../src/types";
 import {
   addRows,
   createSheet,
-  createTable,
+  createTableWithFilter,
   deleteColumns,
   deleteRows,
   deleteTable,
@@ -29,25 +30,25 @@ describe("Simple filter test", () => {
   });
 
   test("Can update  a filter", () => {
-    createTable(model, "A1:A5");
+    createTableWithFilter(model, "A1:A5");
     updateFilter(model, "A1", ["2", "A"]);
     expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
   });
 
   test("Can update  a filter in readonly mode", () => {
-    createTable(model, "A1:A5");
+    createTableWithFilter(model, "A1:A5");
     model.updateMode("readonly");
     updateFilter(model, "A1", ["2", "A"]);
     expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
   });
 
   test("Update filter is correctly rejected when target is not inside a table", () => {
-    createTable(model, "A1:A10");
+    createTableWithFilter(model, "A1:A10");
     expect(updateFilter(model, "B1", [])).toBeCancelledBecause(CommandResult.FilterNotFound);
   });
 
   test("Filter is disabled if its header row is hidden by the user", () => {
-    createTable(model, "A1:A3");
+    createTableWithFilter(model, "A1:A3");
     setCellContent(model, "A2", "28");
     updateFilter(model, "A1", ["28"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
@@ -57,12 +58,12 @@ describe("Simple filter test", () => {
   });
 
   test("Filter is disabled if its header row is hidden by another filter", () => {
-    createTable(model, "A2:A3");
+    createTableWithFilter(model, "A2:A3");
     setCellContent(model, "A3", "15");
     updateFilter(model, "A2", ["15"]);
     expect(model.getters.isRowHidden(sheetId, 2)).toBe(true);
 
-    createTable(model, "B1:B2");
+    createTableWithFilter(model, "B1:B2");
     setCellContent(model, "B2", "28");
     updateFilter(model, "B1", ["28"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
@@ -74,7 +75,7 @@ describe("Simple filter test", () => {
 
     setCellContent(model, "A4", "D");
 
-    createTable(model, "A3:A4");
+    createTableWithFilter(model, "A3:A4");
     updateFilter(model, "A3", ["D"]);
     expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
     hideRows(model, [2, 3]);
@@ -83,7 +84,7 @@ describe("Simple filter test", () => {
   });
 
   test("Can delete row/columns on duplicated sheet with filters", () => {
-    createTable(model, "B1:B3");
+    createTableWithFilter(model, "B1:B3");
     updateFilter(model, "B1", ["C"]);
 
     const sheet2Id = "42";
@@ -107,14 +108,14 @@ describe("Filter Evaluation", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
 
-    createTable(model, "A1:A5");
+    createTableWithFilter(model, "A1:A5");
     setCellContent(model, "A1", "A1");
     setCellContent(model, "A2", "A2");
     setCellContent(model, "A3", "A3");
     setCellContent(model, "A4", "A4");
     setCellContent(model, "A5", "A5");
 
-    createTable(model, "B1:B5");
+    createTableWithFilter(model, "B1:B5");
     setCellContent(model, "B1", "Header");
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", "1");
@@ -141,7 +142,7 @@ describe("Filter Evaluation", () => {
 
   test("deleting a table show rows again", () => {
     const model = new Model();
-    createTable(model, "A1:A3");
+    createTableWithFilter(model, "A1:A3");
     setCellContent(model, "A2", "Hi");
     updateFilter(model, "A2", ["Hi"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
@@ -230,7 +231,19 @@ describe("Filter Evaluation", () => {
   });
 
   test("Sheet duplication after importing table don't break", () => {
-    const model = new Model({ sheets: [{ id: "sh1", tables: [{ range: "A1:A8" }] }] });
+    const model = new Model({
+      sheets: [
+        {
+          id: "sh1",
+          tables: [
+            {
+              range: "A1:A8",
+              config: { ...DEFAULT_TABLE_CONFIG, hasFilters: true },
+            },
+          ],
+        },
+      ],
+    });
     expect(model.getters.getFilter({ sheetId: "sh1", col: 0, row: 0 })).toBeTruthy();
 
     model.dispatch("DUPLICATE_SHEET", {
@@ -243,7 +256,7 @@ describe("Filter Evaluation", () => {
   test("Inserting rows above or below the table header updates the filtered rows", () => {
     const model = new Model();
 
-    createTable(model, "A1:A2");
+    createTableWithFilter(model, "A1:A2");
     setCellContent(model, "A2", "Hi");
 
     updateFilter(model, "A1", ["Hi"]);
@@ -261,7 +274,7 @@ describe("Filter Evaluation", () => {
   test("Removing rows above the table header updates the filtered rows", () => {
     const model = new Model();
 
-    createTable(model, "A4:A6");
+    createTableWithFilter(model, "A4:A6");
     setCellContent(model, "A5", "Hi");
     setCellContent(model, "A6", "Hi");
 
@@ -281,7 +294,7 @@ describe("Filter Evaluation", () => {
 
     groupHeaders(model, "ROW", 0, 3);
 
-    createTable(model, "A4:A5");
+    createTableWithFilter(model, "A4:A5");
     setCellContent(model, "A5", "Hi");
     updateFilter(model, "A4", ["Hi"]);
 
@@ -296,7 +309,7 @@ describe("Filter Evaluation", () => {
 
     groupHeaders(model, "ROW", 0, 5);
 
-    createTable(model, "A6:A8");
+    createTableWithFilter(model, "A6:A8");
     setCellContent(model, "A7", "Hi");
     setCellContent(model, "A8", "Hi");
     updateFilter(model, "A6", ["Hi"]);
@@ -313,7 +326,7 @@ describe("Filter Evaluation", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
 
-    createTable(model, "A6:A8");
+    createTableWithFilter(model, "A6:A8");
     setCellContent(model, "A7", "Hi");
     updateFilter(model, "A6", ["Hi"]);
 

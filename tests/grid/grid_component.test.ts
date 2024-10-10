@@ -28,7 +28,7 @@ import {
   copy,
   createChart,
   createSheet,
-  createTable,
+  createTableWithFilter,
   cut,
   foldHeaderGroup,
   freezeColumns,
@@ -739,7 +739,7 @@ describe("Grid component", () => {
     });
 
     test("Filter icon is correctly rendered", async () => {
-      createTable(model, "B2:C3");
+      createTableWithFilter(model, "B2:C3");
       await nextTick();
 
       const icons = fixture.querySelectorAll(".o-grid-cell-icon");
@@ -752,7 +752,7 @@ describe("Grid component", () => {
     });
 
     test("Filter icon change when filter is active", async () => {
-      createTable(model, "A1:A2");
+      createTableWithFilter(model, "A1:A2");
       await nextTick();
       const grid = fixture.querySelector(".o-grid")!;
       expect(grid.querySelectorAll(".filter-icon")).toHaveLength(1);
@@ -767,7 +767,7 @@ describe("Grid component", () => {
     });
 
     test("Filter icon changes color on high contrast background", async () => {
-      createTable(model, "A1:A2");
+      createTableWithFilter(model, "A1:A2");
       updateTableConfig(model, "A1", { styleId: "None" });
       await nextTick();
       const icon = fixture.querySelector(".o-grid .o-filter-icon");
@@ -783,7 +783,7 @@ describe("Grid component", () => {
     });
 
     test("Clicking on a filter icon correctly open context menu", async () => {
-      createTable(model, "A1:A2");
+      createTableWithFilter(model, "A1:A2");
       await nextTick();
       await simulateClick(".o-filter-icon");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
@@ -871,7 +871,7 @@ describe("Grid component", () => {
     });
 
     test("Paste format works with table style", () => {
-      createTable(model, "A1:B2", { styleId: "TableStyleLight11" });
+      createTableWithFilter(model, "A1:B2", { styleId: "TableStyleLight11" });
       selectCell(model, "A1");
       paintFormatStore.activate({ persistent: false });
       gridMouseEvent(model, "pointerdown", "C8");
@@ -1583,7 +1583,7 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("When there is a opened cell popover, hitting esc key will only close the popover and not clean the clipboard visible zones", async () => {
     setCellContent(model, "A1", "things");
-    createTable(model, "A1:A2");
+    createTableWithFilter(model, "A1:A2");
     selectCell(model, "A1");
     copy(model, "A1");
     selectCell(model, "A2");

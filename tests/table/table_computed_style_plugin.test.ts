@@ -4,6 +4,7 @@ import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { Style, UID } from "../../src/types";
 import {
   createTable,
+  createTableWithFilter,
   deleteContent,
   deleteTable,
   foldAllHeaderGroups,
@@ -242,6 +243,8 @@ describe("Table style", () => {
     });
 
     test("Table style is updated when (un)filtering headers", () => {
+      model = new Model();
+      createTableWithFilter(model, "A1:B4");
       const tableStyle = getFullTableStyle("A1:B4");
       setCellContent(model, "A2", "test");
       updateFilter(model, "A1", ["test"]);

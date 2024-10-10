@@ -14,7 +14,7 @@ import {
   addColumns,
   addRows,
   createSheet,
-  createTable,
+  createTableWithFilter,
   deleteColumns,
   deleteRows,
   foldHeaderGroup,
@@ -847,7 +847,7 @@ describe("Viewport of Simple sheet", () => {
 
   test("Viewport is updated when updating a data filter", () => {
     model = new Model();
-    createTable(model, "A1:A10");
+    createTableWithFilter(model, "A1:A10");
     setCellContent(model, "A2", "5");
     setCellContent(model, "A2", "5");
 
@@ -861,7 +861,7 @@ describe("Viewport of Simple sheet", () => {
 
   test("Viewport is updated when updating a cell that change the evaluation of filtered rows", () => {
     model = new Model();
-    createTable(model, "A1:A10");
+    createTableWithFilter(model, "A1:A10");
     setCellContent(model, "A2", "=B1");
     setCellContent(model, "A2", "=B1");
     setCellContent(model, "A3", "=B1");
@@ -1106,7 +1106,7 @@ describe("Multi Panes viewport", () => {
     setCellContent(model, "A1", "Hi");
     setCellContent(model, "A2", "Hello");
 
-    createTable(model, "A1:A3");
+    createTableWithFilter(model, "A1:A3");
 
     updateFilter(model, "A1", ["Hello"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
@@ -1130,7 +1130,7 @@ describe("Multi Panes viewport", () => {
     setCellContent(model, "A2", "2808");
     setCellContent(model, "A3", "2808");
 
-    createTable(model, "A1:A3");
+    createTableWithFilter(model, "A1:A3");
     freezeRows(model, 2, sheetId);
 
     const originalActiveMainViewport = model.getters.getActiveMainViewport();
