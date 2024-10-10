@@ -210,6 +210,60 @@ describe("Export data to xlsx then import it", () => {
     );
   });
 
+  test.each([
+    {
+      criterion: {
+        type: "isBetween",
+        values: ["1", "10"],
+      },
+      ranges: ["A1:A3"],
+      isBlocking: true,
+    },
+    {
+      criterion: {
+        type: "dateIsBefore",
+        values: ["10/10/2024"],
+        dateValue: "exactDate",
+      },
+      ranges: ["B1:B3"],
+      isBlocking: false,
+    },
+    {
+      criterion: {
+        type: "isValueInRange",
+        values: ["$C$1:$C$3"],
+        displayStyle: "arrow",
+      },
+      ranges: ["C1:C3"],
+      isBlocking: true,
+    },
+    {
+      criterion: {
+        type: "customFormula",
+        values: ["=ISNUMBER(D1)"],
+      },
+      ranges: ["D1:D3"],
+      isBlocking: false,
+    },
+  ])("Data validation rules %s", (dv: any) => {
+    const rule = {
+      id: "1",
+      criterion: dv.criterion,
+      isBlocking: dv.isBlocking,
+    };
+    model.dispatch("ADD_DATA_VALIDATION_RULE", {
+      rule,
+      ranges: toRangesData(sheetId, dv.ranges[0]),
+      sheetId,
+    });
+    const importedModel = exportToXlsxThenImport(model);
+    const sheetRules = importedModel.getters.getDataValidationRules(sheetId).map((rule) => ({
+      ...rule,
+      ranges: rule.ranges.map((rule) => importedModel.getters.getRangeString(rule, sheetId)),
+    }));
+    expect(sheetRules).toMatchObject([dv]);
+  });
+
   test("figure", () => {
     createChart(
       model,
