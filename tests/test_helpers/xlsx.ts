@@ -1,7 +1,12 @@
 import { toCartesian, toXC, toZone } from "../../src/helpers";
 import { Border, Color, ConditionalFormat, Style } from "../../src/types";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "./../../src/constants";
-import { CellData, SheetData, WorkbookData } from "./../../src/types/workbook_data";
+import {
+  CellData,
+  DataValidationRuleData,
+  SheetData,
+  WorkbookData,
+} from "./../../src/types/workbook_data";
 
 export function getWorkbookSheet(sheetName: string, data: WorkbookData): SheetData | undefined {
   return data.sheets.find((sheet) => sheet.name === sheetName);
@@ -45,6 +50,22 @@ export function getCFBeginningAt(xc: string, sheetData: SheetData): ConditionalF
     cf.ranges.some((range) => {
       const cfZone = toZone(range);
       if (cfZone.left === position.col && cfZone.top === position.row) {
+        return true;
+      }
+      return false;
+    })
+  );
+}
+
+export function getDataValidationBeginningAt(
+  xc: string,
+  sheetData: SheetData
+): DataValidationRuleData | undefined {
+  const position = toCartesian(xc);
+  return sheetData.dataValidationRules.find((dv) =>
+    dv.ranges.some((range) => {
+      const dvZone = toZone(range);
+      if (dvZone.left === position.col && dvZone.top === position.row) {
         return true;
       }
       return false;

@@ -15,6 +15,7 @@ import {
   CommandResult,
   CoreCommand,
   DataValidationRule,
+  ExcelWorkbookData,
   Range,
   Style,
   UID,
@@ -258,6 +259,23 @@ export class DataValidationPlugin
         sheet.dataValidationRules.push({
           ...rule,
           ranges: rule.ranges.map((range) => this.getters.getRangeString(range, sheet.id)),
+        });
+      }
+    }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    if (!data.sheets) {
+      return;
+    }
+    for (const sheet of data.sheets) {
+      sheet.dataValidationRules = [];
+      for (const rule of this.rules[sheet.id]) {
+        sheet.dataValidationRules.push({
+          ...rule,
+          ranges: rule.ranges.map((range) =>
+            this.getters.getRangeString(range, sheet.id, { useFixedReference: true })
+          ),
         });
       }
     }

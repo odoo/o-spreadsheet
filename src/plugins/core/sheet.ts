@@ -286,6 +286,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         formats: {},
         borders: {},
         conditionalFormats: [],
+        dataValidationRules: [],
         figures: [],
         tables: [],
         areGridLinesVisible:

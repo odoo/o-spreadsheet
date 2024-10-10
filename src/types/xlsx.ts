@@ -27,6 +27,7 @@ import { ExcelFigureSize } from "./figure";
  *  - data filter (XLSXSimpleFilter): §18.3.2.6 (filter)
  *  - data filter column (XLSXFilterColumn): §18.3.2.7 (filterColumns)
  *  - data filter zone (XLSXAutoFilter): §18.3.1.2 (autoFilter)
+ *  - data validation (XLSXDataValidation): §18.3.1.33 (dataValidations)
  *  - external workbook (XLSXExternalBook): $18.14.7 (externalBook)
  *  - fills (XLSXFill): §18.8.20 (fill)
  *  - figure (XLSXFigure): §20.5.2.35 (wsDr (Worksheet Drawing))
@@ -229,6 +230,7 @@ export interface XLSXWorksheet {
   cols: XLSXColumn[];
   rows: XLSXRow[];
   cfs: XLSXConditionalFormat[];
+  dataValidations: XLSXDataValidation[];
   sharedFormulas: string[];
   merges: string[];
   figures: XLSXFigure[];
@@ -442,6 +444,21 @@ export type XLSXCfOperatorType =
   | "notContains"
   | "notEqual";
 
+export type XLSXDataValidationOperatorType =
+  | "between"
+  | "notBetween"
+  | "equal"
+  | "notEqual"
+  | "greaterThan"
+  | "lessThan"
+  | "greaterThanOrEqual"
+  | "lessThanOrEqual";
+
+export type XLSXDataValidationDateOperatorType = Exclude<
+  XLSXDataValidationOperatorType,
+  "notEqual"
+>;
+
 export type XLSXHorizontalAlignment =
   | "general"
   | "left"
@@ -504,6 +521,22 @@ export interface XLSXCfRule {
   rank?: number;
   stdDev?: number;
   equalAverage?: boolean;
+}
+
+export interface XLSXDataValidation {
+  type: string;
+  operator: XLSXDataValidationOperatorType;
+  sqref: string[];
+  formula1: string;
+  formula2?: string;
+  errorStyle?: string;
+  showErrorMessage?: boolean;
+  errorTitle?: string;
+  error?: string;
+  showInputMessage?: boolean;
+  promptTitle?: string;
+  prompt?: string;
+  allowBlank?: boolean;
 }
 
 export interface XLSXSharedFormula {

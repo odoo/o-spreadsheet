@@ -35,6 +35,7 @@ import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import {
   getCFBeginningAt,
   getColPosition,
+  getDataValidationBeginningAt,
   getRowPosition,
   getWorkbookCell,
   getWorkbookCellBorder,
@@ -317,6 +318,82 @@ describe("Import xlsx data", () => {
     expect(cf.rule.type).toEqual("CellIsRule");
     expect((cf.rule as CellIsRule).operator).toEqual(operator);
     expect((cf.rule as CellIsRule).values).toEqual(values);
+  });
+
+  test.each([
+    ["A2"], // number
+    ["F2"], // time
+    ["G2"], // textLength
+  ])("Cannot import unsupported data validation rule types %s", (cellXc) => {
+    const testSheet = getWorkbookSheet("jestDataValidations", convertedData)!;
+    const dvRule = getDataValidationBeginningAt(cellXc, testSheet);
+    // Unsupported data validation rule
+    expect(dvRule).toBeUndefined();
+  });
+
+  test("Can import decimal data validation rule %s", () => {
+    const testSheet = getWorkbookSheet("jestDataValidations", convertedData)!;
+    const dvRule = getDataValidationBeginningAt("B2", testSheet);
+    expect(dvRule).toMatchObject({
+      criterion: {
+        type: "isBetween",
+        values: ["1", "100"],
+      },
+      ranges: ["B2:B6"],
+      isBlocking: true,
+    });
+  });
+
+  test("Can import list data validation rule %s", () => {
+    const testSheet = getWorkbookSheet("jestDataValidations", convertedData)!;
+    const rangeDVRule = getDataValidationBeginningAt("C2", testSheet);
+    const valuesDVRule = getDataValidationBeginningAt("D2", testSheet);
+    expect(rangeDVRule).toMatchObject({
+      criterion: {
+        type: "isValueInRange",
+        values: ["$C$2:$C$6"],
+      },
+      ranges: ["C2:C6"],
+      isBlocking: false,
+    });
+    expect(valuesDVRule).toMatchObject({
+      criterion: {
+        type: "isValueInList",
+        values: ["option1", "option2", "option3"],
+      },
+      ranges: ["D2:D6"],
+      isBlocking: false,
+    });
+  });
+
+  test("Can import date data validation rule %s", () => {
+    const testSheet = getWorkbookSheet("jestDataValidations", convertedData)!;
+    const notEqualDVRule = getDataValidationBeginningAt("E2", testSheet);
+    const dateIsAfterDVRule = getDataValidationBeginningAt("H2", testSheet);
+    // Unsupported 'notEqual' for date data validation
+    expect(notEqualDVRule).toBeUndefined();
+    expect(dateIsAfterDVRule).toMatchObject({
+      criterion: {
+        type: "dateIsAfter",
+        dateValue: "exactDate",
+        values: ["12/1/2023"],
+      },
+      ranges: ["H2:H6"],
+      isBlocking: false,
+    });
+  });
+
+  test("Can import custom data validation rule %s", () => {
+    const testSheet = getWorkbookSheet("jestDataValidations", convertedData)!;
+    const dvRule = getDataValidationBeginningAt("I2", testSheet);
+    expect(dvRule).toMatchObject({
+      criterion: {
+        type: "customFormula",
+        values: ["=ISNUMBER(I2)"],
+      },
+      ranges: ["I2:I6"],
+      isBlocking: false,
+    });
   });
 
   test.each([

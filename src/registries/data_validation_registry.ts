@@ -5,6 +5,7 @@ import {
   areDatesSameDay,
   formatValue,
   getCriterionValuesAsNumber,
+  getDateCriterionFormattedValues,
   getDateNumberCriterionValues,
   isDateAfter,
   isDateBefore,
@@ -191,7 +192,7 @@ dataValidationEvaluatorRegistry.add("dateIs", {
   name: _t("Date is"),
   getPreview: (criterion: DateIsCriterion, getters: Getters) => {
     return criterion.dateValue === "exactDate"
-      ? _t("Date is %s", getDateCriterionFormattedValues(criterion, getters)[0])
+      ? _t("Date is %s", getDateCriterionFormattedValues(criterion.values, getters.getLocale())[0])
       : _t("Date is %s", DVTerms.DateIs[criterion.dateValue]);
   },
 });
@@ -222,7 +223,10 @@ dataValidationEvaluatorRegistry.add("dateIsBefore", {
   name: _t("Date is before"),
   getPreview: (criterion: DateIsBeforeCriterion, getters: Getters) => {
     return criterion.dateValue === "exactDate"
-      ? _t("Date is before %s", getDateCriterionFormattedValues(criterion, getters)[0])
+      ? _t(
+          "Date is before %s",
+          getDateCriterionFormattedValues(criterion.values, getters.getLocale())[0]
+        )
       : _t("Date is before %s", DVTerms.DateIsBefore[criterion.dateValue]);
   },
 });
@@ -253,7 +257,10 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrBefore", {
   name: _t("Date is on or before"),
   getPreview: (criterion: DateIsOnOrBeforeCriterion, getters: Getters) => {
     return criterion.dateValue === "exactDate"
-      ? _t("Date is on or before %s", getDateCriterionFormattedValues(criterion, getters)[0])
+      ? _t(
+          "Date is on or before %s",
+          getDateCriterionFormattedValues(criterion.values, getters.getLocale())[0]
+        )
       : _t("Date is on or before %s", DVTerms.DateIsBefore[criterion.dateValue]);
   },
 });
@@ -284,7 +291,10 @@ dataValidationEvaluatorRegistry.add("dateIsAfter", {
   name: _t("Date is after"),
   getPreview: (criterion: DateIsAfterCriterion, getters: Getters) => {
     return criterion.dateValue === "exactDate"
-      ? _t("Date is after %s", getDateCriterionFormattedValues(criterion, getters)[0])
+      ? _t(
+          "Date is after %s",
+          getDateCriterionFormattedValues(criterion.values, getters.getLocale())[0]
+        )
       : _t("Date is after %s", DVTerms.DateIsBefore[criterion.dateValue]);
   },
 });
@@ -315,7 +325,10 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrAfter", {
   name: _t("Date is on or after"),
   getPreview: (criterion: DateIsOnOrAfterCriterion, getters: Getters) => {
     return criterion.dateValue === "exactDate"
-      ? _t("Date is on or after %s", getDateCriterionFormattedValues(criterion, getters)[0])
+      ? _t(
+          "Date is on or after %s",
+          getDateCriterionFormattedValues(criterion.values, getters.getLocale())[0]
+        )
       : _t("Date is on or after %s", DVTerms.DateIsBefore[criterion.dateValue]);
   },
 });
@@ -344,7 +357,7 @@ dataValidationEvaluatorRegistry.add("dateIsBetween", {
   numberOfValues: () => 2,
   name: _t("Date is between"),
   getPreview: (criterion: DateIsBetweenCriterion, getters: Getters) => {
-    const values = getDateCriterionFormattedValues(criterion, getters);
+    const values = getDateCriterionFormattedValues(criterion.values, getters.getLocale());
     return _t("Date is between %s and %s", values[0], values[1]);
   },
 });
@@ -378,7 +391,7 @@ dataValidationEvaluatorRegistry.add("dateIsNotBetween", {
   numberOfValues: () => 2,
   name: _t("Date is not between"),
   getPreview: (criterion: DateIsNotBetweenCriterion, getters: Getters) => {
-    const values = getDateCriterionFormattedValues(criterion, getters);
+    const values = getDateCriterionFormattedValues(criterion.values, getters.getLocale());
     return _t("Date is not between %s and %s", values[0], values[1]);
   },
 });
@@ -704,18 +717,4 @@ function checkValueIsDate(value: string): boolean {
 function checkValueIsNumber(value: string): boolean {
   const valueAsNumber = tryToNumber(value, DEFAULT_LOCALE);
   return valueAsNumber !== undefined;
-}
-
-function getDateCriterionFormattedValues(criterion: DataValidationCriterion, getters: Getters) {
-  const locale = getters.getLocale();
-  return criterion.values.map((valueStr) => {
-    if (valueStr.startsWith("=")) {
-      return valueStr;
-    }
-    const value = parseLiteral(valueStr, locale);
-    if (typeof value === "number") {
-      return formatValue(value, { format: locale.dateFormat, locale });
-    }
-    return "";
-  });
 }
