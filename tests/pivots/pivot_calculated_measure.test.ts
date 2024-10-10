@@ -500,6 +500,54 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").message).toEqual("Circular reference");
   });
 
+  test("can depend on a cell containing another header", () => {
+    const grid = {
+      A1: '=PIVOT.HEADER(1, "Customer", "Alice")', // not referenced by the computed measure
+      A10: '=PIVOT.HEADER(1, "Customer", "Alice")', // referenced by the computed measure
+      A2: "Customer",
+      A3: "Alice",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A2:A3", {
+      rows: [{ fieldName: "Customer" }],
+      measures: [
+        {
+          id: "calculated",
+          fieldName: "calculated",
+          aggregator: "sum",
+          computedBy: { formula: "=A10", sheetId },
+        },
+      ],
+    });
+    expect(getEvaluatedCell(model, "A10").value).toEqual("Alice");
+    expect(getEvaluatedCell(model, "A1").value).toEqual("Alice");
+  });
+
+  test("can depend on a cell containing another value", () => {
+    const grid = {
+      A1: '=PIVOT.VALUE(1, "Customer")', // not referenced by the computed measure
+      A10: '=PIVOT.VALUE(1, "Customer")', // referenced by the computed measure
+      A2: "Customer",
+      A3: "Alice",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A2:A3", {
+      measures: [
+        { id: "Customer", fieldName: "Customer", aggregator: "sum" },
+        {
+          id: "calculated",
+          fieldName: "calculated",
+          aggregator: "sum",
+          computedBy: { formula: "=A10", sheetId },
+        },
+      ],
+    });
+    expect(getEvaluatedCell(model, "A10").value).toEqual(0);
+    expect(getEvaluatedCell(model, "A1").value).toEqual(0);
+  });
+
   test("measures symbols are scoped to the formula", () => {
     // prettier-ignore
     const grid = {
