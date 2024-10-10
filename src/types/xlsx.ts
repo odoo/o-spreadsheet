@@ -229,6 +229,7 @@ export interface XLSXWorksheet {
   cols: XLSXColumn[];
   rows: XLSXRow[];
   cfs: XLSXConditionalFormat[];
+  dataValidations: XLSXDataValidation[];
   sharedFormulas: string[];
   merges: string[];
   figures: XLSXFigure[];
@@ -442,6 +443,21 @@ export type XLSXCfOperatorType =
   | "notContains"
   | "notEqual";
 
+export type XLSXDataValidationOperatorType =
+  | "between"
+  | "notBetween"
+  | "equal"
+  | "notEqual"
+  | "greaterThan"
+  | "lessThan"
+  | "greaterThanOrEqual"
+  | "lessThanOrEqual";
+
+export type XLSXDataValidationDateOperatorType = Exclude<
+  XLSXDataValidationOperatorType,
+  "notEqual"
+>;
+
 export type XLSXHorizontalAlignment =
   | "general"
   | "left"
@@ -504,6 +520,22 @@ export interface XLSXCfRule {
   rank?: number;
   stdDev?: number;
   equalAverage?: boolean;
+}
+
+export interface XLSXDataValidation {
+  type: string;
+  operator: XLSXDataValidationOperatorType;
+  sqref: string[];
+  formula1: string; // The first formula or value for the validation
+  formula2?: string; // The second formula or value (used for ranges)
+  errorStyle?: string; // if set to 'warning' then the data validation is not blocking
+  showErrorMessage?: boolean;
+  errorTitle?: string; // Title of the error message
+  error?: string; // Content of the error message
+  showInputMessage?: boolean; // Indicates if an input message should be shown
+  promptTitle?: string; // Title of the input message
+  prompt?: string; // Content of the input message
+  allowBlank?: boolean;
 }
 
 export interface XLSXSharedFormula {
