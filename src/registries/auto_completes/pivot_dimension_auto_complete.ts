@@ -12,7 +12,6 @@ export function createMeasureAutoComplete(
     sequence: 0,
     autoSelectFirstProposal: true,
     getProposals(tokenAtCursor) {
-      // return []
       const measureProposals = pivot.measures
         .filter((m) => m !== forComputedMeasure)
         .map((measure) => {
