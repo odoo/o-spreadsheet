@@ -2,6 +2,7 @@ import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../helpers";
 import { CHART_AXIS_CHOICES, getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
+import { ChartJSRuntime } from "../../../../types/chart";
 import {
   ChartWithAxisDefinition,
   Color,
@@ -74,6 +75,10 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
 
   getDataSeries() {
     return this.props.definition.dataSets.map((d, i) => d.label ?? `${ChartTerms.Series} ${i + 1}`);
+  }
+
+  getPolynomialDegrees(): number[] {
+    return Array.from({ length: Math.min(10, this.getMaxPolynomialDegree()) }, (_, i) => i + 1);
   }
 
   updateSerieEditor(ev) {
@@ -210,6 +215,11 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
       element.value = `${this.getTrendLineConfiguration()?.order ?? 2}`;
       return;
     }
+    const maxOrder = this.getMaxPolynomialDegree();
+    if (order > maxOrder) {
+      element.value = `${this.getTrendLineConfiguration()?.order ?? maxOrder}`;
+      return;
+    }
     this.updateTrendLineValue({ order });
   }
 
@@ -234,5 +244,10 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
       },
     };
     this.props.updateChart(this.props.figureId, { dataSets });
+  }
+
+  getMaxPolynomialDegree() {
+    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId) as ChartJSRuntime;
+    return Math.min(10, runtime.chartJsConfig.data.datasets[this.state.index].data.length - 1);
   }
 }
