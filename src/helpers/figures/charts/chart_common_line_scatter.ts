@@ -197,7 +197,6 @@ export function createLineOrScatterChartRuntime(
 ): {
   chartJsConfig: ChartConfiguration;
   background: Color;
-  dataSetsValues: DatasetValues[];
   labelValues: LabelValues;
   dataSetFormat: Format | undefined;
   labelFormat: Format | undefined;
@@ -436,7 +435,6 @@ export function createLineOrScatterChartRuntime(
   return {
     chartJsConfig: config,
     background: chart.background || BACKGROUND_CHART_COLOR,
-    dataSetsValues,
     labelValues,
     dataSetFormat,
     labelFormat,

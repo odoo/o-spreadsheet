@@ -113,16 +113,6 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        11,
-        12,
-        13,
-      ],
-      "label": "10",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -264,17 +254,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        10,
-        11,
-        12,
-        13,
-      ],
-      "label": "Series 1",
-    },
-  ],
   "labelFormat": "m/d/yyyy",
   "labelValues": {
     "formattedValues": [
@@ -411,17 +390,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        10,
-        11,
-        12,
-        13,
-      ],
-      "label": "Series 1",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -637,14 +605,6 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        30,
-      ],
-      "label": "Series 1",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -771,24 +731,6 @@ exports[`datasource tests create chart with column datasets 1`] = `
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        10,
-        11,
-        12,
-      ],
-      "label": "first column dataset",
-    },
-    {
-      "data": [
-        20,
-        19,
-        18,
-      ],
-      "label": "second column datase…",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -919,24 +861,6 @@ exports[`datasource tests create chart with column datasets with category title 
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        10,
-        11,
-        12,
-      ],
-      "label": "first column dataset",
-    },
-    {
-      "data": [
-        20,
-        19,
-        18,
-      ],
-      "label": "second column datase…",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -1068,24 +992,6 @@ exports[`datasource tests create chart with column datasets without series title
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        10,
-        11,
-        12,
-      ],
-      "label": "Series 1",
-    },
-    {
-      "data": [
-        20,
-        19,
-        18,
-      ],
-      "label": "Series 2",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -1189,7 +1095,6 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -1320,24 +1225,6 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        10,
-        11,
-        12,
-      ],
-      "label": "first column dataset",
-    },
-    {
-      "data": [
-        20,
-        19,
-        18,
-      ],
-      "label": "second column datase…",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -1468,24 +1355,6 @@ exports[`datasource tests create chart with row datasets 1`] = `
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        30,
-        31,
-        32,
-      ],
-      "label": "first row dataset",
-    },
-    {
-      "data": [
-        40,
-        41,
-        42,
-      ],
-      "label": "second row dataset",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -1616,24 +1485,6 @@ exports[`datasource tests create chart with row datasets with category title 1`]
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        30,
-        31,
-        32,
-      ],
-      "label": "first row dataset",
-    },
-    {
-      "data": [
-        40,
-        41,
-        42,
-      ],
-      "label": "second row dataset",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
@@ -1765,24 +1616,6 @@ exports[`datasource tests create chart with row datasets without series title 1`
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        30,
-        31,
-        32,
-      ],
-      "label": "Series 1",
-    },
-    {
-      "data": [
-        40,
-        41,
-        42,
-      ],
-      "label": "Series 2",
-    },
-  ],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
