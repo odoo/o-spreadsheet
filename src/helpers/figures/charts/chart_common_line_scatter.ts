@@ -1,27 +1,26 @@
-import { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import { toJsDate, toNumber } from "../../../functions/helpers";
-import { Color, Format, Getters, Locale, Range } from "../../../types";
+import { Getters, Locale, Range } from "../../../types";
 import {
   AxisType,
+  ChartJSRuntime,
   DatasetValues,
-  LabelValues,
   TrendConfiguration,
 } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format/format";
-import { deepCopy, findNextDefinedValue, range } from "../../misc";
+import { deepCopy, findNextDefinedValue, range, removeFalsyAttributes } from "../../misc";
 import { isNumber } from "../../numbers";
 import {
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   computeChartPadding,
-  formatTickValue,
-  getChartAxisTitleRuntime,
+  formatChartDatasetValue,
+  getChartAxis,
   getChartColorsGenerator,
-  getDefinedAxis,
   getFullTrendingLineDataSet,
   interpolateData,
 } from "./chart_common";
@@ -194,14 +193,7 @@ export function getTrendDatasetForLineChart(
 export function createLineOrScatterChartRuntime(
   chart: LineChart | ScatterChart,
   getters: Getters
-): {
-  chartJsConfig: ChartConfiguration;
-  background: Color;
-  dataSetsValues: DatasetValues[];
-  labelValues: LabelValues;
-  dataSetFormat: Format | undefined;
-  labelFormat: Format | undefined;
-} {
+): ChartJSRuntime {
   const axisType = getChartAxisType(chart, getters);
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
@@ -224,8 +216,10 @@ export function createLineOrScatterChartRuntime(
 
   const locale = getters.getLocale();
   const truncateLabels = axisType === "category";
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const options = { format: dataSetFormat, locale, truncateLabels };
+  const leftAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
+  const rightAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "right");
+  const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat };
+  const options = { locale, truncateLabels, axisFormats };
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
 
@@ -256,54 +250,19 @@ export function createLineOrScatterChartRuntime(
     }),
   };
 
-  const xAxis = {
-    ticks: {
-      padding: 5,
-      color: fontColor,
-    },
-    title: getChartAxisTitleRuntime(chart.axesDesign?.x),
-  };
-
+  const definition = chart.getDefinition();
+  const stacked = "stacked" in chart && chart.stacked;
   config.options.scales = {
-    x: xAxis,
+    x: getChartAxis(definition, "bottom", "labels", { locale }),
+    y: getChartAxis(definition, "left", "values", { locale, stacked, format: leftAxisFormat }),
+    y1: getChartAxis(definition, "right", "values", { locale, stacked, format: rightAxisFormat }),
   };
+  config.options.scales = removeFalsyAttributes(config.options.scales);
 
-  const yAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatTickValue(options),
-    },
-  };
-  const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
-  if (useLeftAxis) {
-    config.options.scales.y = {
-      ...yAxis,
-      position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
-    };
-  }
-  if (useRightAxis) {
-    config.options.scales.y1 = {
-      ...yAxis,
-      position: "right",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
-    };
-  }
-  if ("stacked" in chart && chart.stacked) {
-    if (useLeftAxis) {
-      // @ts-ignore chart.js type is broken
-      config.options.scales!.y!.stacked = true;
-    }
-    if (useRightAxis) {
-      // @ts-ignore chart.js type is broken
-      config.options.scales!.y1!.stacked = true;
-    }
-  }
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
-    callback: formatTickValue(options),
+    callback: formatChartDatasetValue(axisFormats, locale),
   };
 
   if (
@@ -334,7 +293,7 @@ export function createLineOrScatterChartRuntime(
         label = toNumber(label, locale);
       }
       const formattedX = formatValue(label, { locale, format: labelFormat });
-      const formattedY = formatValue(dataSetPoint, { locale, format: dataSetFormat });
+      const formattedY = formatValue(dataSetPoint, { locale, format: leftAxisFormat });
       const dataSetTitle = tooltipItem.dataset.label;
       return formattedX
         ? `${dataSetTitle}: (${formattedX}, ${formattedY})`
@@ -346,7 +305,6 @@ export function createLineOrScatterChartRuntime(
   const stackedChart = "stacked" in chart ? chart.stacked : false;
   const cumulative = "cumulative" in chart ? chart.cumulative : false;
 
-  const definition = chart.getDefinition();
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     const color = colors.next();
@@ -391,9 +349,7 @@ export function createLineOrScatterChartRuntime(
       const label = definition.dataSets[index].label;
       dataset.label = label;
     }
-    if (definition.dataSets?.[index]?.yAxisId) {
-      dataset["yAxisID"] = definition.dataSets[index].yAxisId;
-    }
+    dataset["yAxisID"] = definition.dataSets[index].yAxisId || "y";
 
     const trend = definition.dataSets?.[index].trend;
     if (!trend?.display) {
@@ -412,7 +368,7 @@ export function createLineOrScatterChartRuntime(
      * set so that the second axis points match the classical x axis
      */
     config.options.scales[TREND_LINE_XAXIS_ID] = {
-      ...xAxis,
+      ...(config.options.scales.x as any),
       type: "category",
       labels: range(0, maxLength).map((x) => x.toString()),
       offset: false,
@@ -436,9 +392,5 @@ export function createLineOrScatterChartRuntime(
   return {
     chartJsConfig: config,
     background: chart.background || BACKGROUND_CHART_COLOR,
-    dataSetsValues,
-    labelValues,
-    dataSetFormat,
-    labelFormat,
   };
 }

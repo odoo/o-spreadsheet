@@ -6,7 +6,12 @@ import {
 } from "../../../../src/constants";
 import { WaterfallChart } from "../../../../src/helpers/figures/charts";
 import { WaterfallChartRuntime } from "../../../../src/types/chart/waterfall_chart";
-import { createWaterfallChart, setCellContent, updateChart } from "../../../test_helpers";
+import {
+  createWaterfallChart,
+  setCellContent,
+  setFormat,
+  updateChart,
+} from "../../../test_helpers";
 
 let model: Model;
 
@@ -200,6 +205,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "A1", "Dataset 1");
     setCellContent(model, "B1", "Dataset 2");
     setCellContent(model, "A2", "30");
+    setFormat(model, "A2", "0[$€]");
     setCellContent(model, "B2", "-40");
     const chartId = createWaterfallChart(model, {
       dataSets: [{ dataRange: "A1:B2" }],
@@ -208,17 +214,12 @@ describe("Waterfall chart", () => {
     });
     const runtime = getWaterfallRuntime(chartId);
 
-    let tooltipItem = { raw: [0, 30], dataIndex: 0 };
-    expect(
-      // @ts-ignore
-      runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks?.label?.(tooltipItem)
-    ).toEqual("Dataset 1: 30");
+    let tooltipItem = { raw: [0, 30], dataIndex: 0, dataset: { xAxisID: "x" } };
+    const tooltipCallbacks = runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks as any;
+    expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Dataset 1: 30€");
 
-    tooltipItem = { raw: [30, -10], dataIndex: 1 };
-    expect(
-      // @ts-ignore
-      runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks?.label?.(tooltipItem)
-    ).toEqual("Dataset 2: -40");
+    tooltipItem = { raw: [30, -10], dataIndex: 1, dataset: { xAxisID: "x" } };
+    expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Dataset 2: -40€");
   });
 
   test("Waterfall legend", () => {

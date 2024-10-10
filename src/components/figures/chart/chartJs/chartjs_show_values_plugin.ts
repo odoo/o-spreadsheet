@@ -9,7 +9,7 @@ interface ChartShowValuesPluginOptions {
   showValues: boolean;
   background?: Color;
   horizontal?: boolean;
-  callback: (value: number | string) => string;
+  callback: (value: number | string, axisId?: string) => string;
 }
 
 declare module "chart.js" {
@@ -64,10 +64,14 @@ export const chartShowValuesPlugin: Plugin = {
         case "bar":
         case "line": {
           const yOffset = dataset.type === "bar" && !options.horizontal ? 0 : 3;
+
+          const horizontalChart = dataset.type === "bar" && options.horizontal;
+          const axisId = horizontalChart ? dataset.xAxisID : dataset.yAxisID;
+
           for (let i = 0; i < dataset._parsed.length; i++) {
             const point = dataset.data[i];
             const value = options.horizontal ? dataset._parsed[i].x : dataset._parsed[i].y;
-            const displayedValue = options.callback(value - 0);
+            const displayedValue = options.callback(value - 0, axisId);
             let xPosition = 0,
               yPosition = 0;
             if (options.horizontal) {

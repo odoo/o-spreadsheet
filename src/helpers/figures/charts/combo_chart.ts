@@ -29,6 +29,7 @@ import {
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { removeFalsyAttributes } from "../../misc";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -40,8 +41,8 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
-  formatTickValue,
-  getChartAxisTitleRuntime,
+  formatChartDatasetValue,
+  getChartAxis,
   getChartColorsGenerator,
   getDefinedAxis,
   getTrendDatasetForBarChart,
@@ -229,10 +230,8 @@ export class ComboChart extends AbstractChart {
 }
 
 export function createComboChartRuntime(chart: ComboChart, getters: Getters): ComboChartRuntime {
-  const mainDataSetFormat = chart.dataSets.length
-    ? getChartDatasetFormat(getters, [chart.dataSets[0]])
-    : undefined;
-  const lineDataSetsFormat = getChartDatasetFormat(getters, chart.dataSets.slice(1));
+  const mainDataSetFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
+  const lineDataSetsFormat = getChartDatasetFormat(getters, chart.dataSets, "right");
   const locale = getters.getLocale();
 
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
@@ -251,10 +250,9 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const localeFormat = { format: mainDataSetFormat, locale };
-
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const axisFormats = { y: mainDataSetFormat, y1: lineDataSetsFormat };
+  const config = getDefaultChartJsRuntime(chart, labels, fontColor, { locale, axisFormats });
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: { color: fontColor },
   };
@@ -271,53 +269,18 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     }),
   };
 
-  config.options.scales = {
-    x: {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
-    },
-  };
-
-  const leftVerticalAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatTickValue({ format: mainDataSetFormat, locale }),
-    },
-  };
-  const rightVerticalAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatTickValue({ format: lineDataSetsFormat, locale }),
-    },
-  };
   const definition = chart.getDefinition();
-  const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
-  if (useLeftAxis) {
-    config.options.scales.y = {
-      ...leftVerticalAxis,
-      position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
-    };
-  }
-  if (useRightAxis) {
-    config.options.scales.y1 = {
-      ...rightVerticalAxis,
-      position: "right",
-      grid: {
-        display: false,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
-    };
-  }
+  config.options.scales = {
+    x: getChartAxis(definition, "bottom", "labels", { locale }),
+    y: getChartAxis(definition, "left", "values", { locale, format: mainDataSetFormat }),
+    y1: getChartAxis(definition, "right", "values", { locale, format: lineDataSetsFormat }),
+  };
+  config.options.scales = removeFalsyAttributes(config.options.scales);
+
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
-    callback: formatTickValue({ format: mainDataSetFormat, locale }),
+    callback: formatChartDatasetValue(axisFormats, locale),
   };
 
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);

@@ -3,14 +3,21 @@ import { ChartTerms } from "../../../components/translations_terms";
 import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, MAX_CHAR_LABEL } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
 import { _t } from "../../../translation";
-import { CellValue, Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
+import { CellValue, Color, Figure, Format, Getters, Locale, Range } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
-import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
-import { formatValue, isDateTimeFormat } from "../../format/format";
+import {
+  ChartAxisFormats,
+  ChartRuntime,
+  DataSet,
+  DatasetValues,
+  LabelValues,
+} from "../../../types/chart/chart";
+import { isDateTimeFormat } from "../../format/format";
 import { deepCopy, range } from "../../misc";
 import { isNumber } from "../../numbers";
 import { recomputeZones } from "../../recompute_zones";
 import { AbstractChart } from "./abstract_chart";
+import { formatChartDatasetValue } from "./chart_common";
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
@@ -97,6 +104,13 @@ export function truncateLabel(label: string | undefined): string {
   return label;
 }
 
+interface GetDefaultChartJsRuntimeOptions {
+  axisFormats?: ChartAxisFormats;
+  locale: Locale;
+  truncateLabels?: boolean;
+  horizontalChart?: boolean;
+}
+
 /**
  * Get a default chart js configuration
  */
@@ -104,15 +118,10 @@ export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
   fontColor: Color,
-  {
-    format,
-    locale,
-    truncateLabels = true,
-    horizontalChart,
-  }: LocaleFormat & { truncateLabels?: boolean; horizontalChart?: boolean }
+  { axisFormats, locale, truncateLabels = true, horizontalChart }: GetDefaultChartJsRuntimeOptions
 ): Required<ChartConfiguration> {
   const chartTitle = chart.title.text ? chart.title : { ...chart.title, content: "" };
-  const options: ChartOptions = {
+  const chartOptions: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
     responsive: true, // will resize when its container is resized
     maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
@@ -160,8 +169,11 @@ export function getDefaultChartJsRuntime(
             if (!yLabel) {
               yLabel = tooltipItem.parsed;
             }
-            const toolTipFormat = !format && Math.abs(yLabel) >= 1000 ? "#,##" : format;
-            const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+
+            const axisId = horizontalChart
+              ? tooltipItem.dataset.xAxisID
+              : tooltipItem.dataset.yAxisID;
+            const yLabelStr = formatChartDatasetValue(axisFormats, locale)(yLabel, axisId);
             return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
           },
         },
@@ -170,7 +182,7 @@ export function getDefaultChartJsRuntime(
   };
   return {
     type: chart.type as ChartType,
-    options,
+    options: chartOptions,
     data: {
       labels: truncateLabels ? labels.map(truncateLabel) : labels,
       datasets: [],
@@ -237,7 +249,12 @@ export function getChartLabelValues(
  * Get the format to apply to the the dataset values. This format is defined as the first format
  * found in the dataset ranges that isn't a date format.
  */
-export function getChartDatasetFormat(getters: Getters, dataSets: DataSet[]): Format | undefined {
+export function getChartDatasetFormat(
+  getters: Getters,
+  allDataSets: DataSet[],
+  axis: "left" | "right"
+): Format | undefined {
+  const dataSets = allDataSets.filter((ds) => (axis === "right") === !!ds.rightYAxis);
   for (const ds of dataSets) {
     const formatsInDataset = getters.getRangeFormats(ds.dataRange);
     const format = formatsInDataset.find((f) => f !== undefined && !isDateTimeFormat(f));

@@ -43,22 +43,11 @@ describe("combo chart", () => {
     });
   });
 
-  test("both axis formats are based on their data set", () => {
+  test("both axis and tooltips formats are based on their data set", () => {
     const model = new Model();
-    setCellContent(model, "A1", "Alice");
-    setCellContent(model, "A2", "Bob");
 
-    // first data set
-    setCellContent(model, "B1", "1");
-    setCellContent(model, "B2", "2");
-    setCellFormat(model, "B1", "0.00%");
-    setCellFormat(model, "B2", "0.00%");
-
-    // second data set
-    setCellContent(model, "C1", "10");
-    setCellContent(model, "C2", "20");
-    setCellFormat(model, "C1", "0.00[$$]");
-    setCellFormat(model, "C2", "0.00[$$]");
+    setCellFormat(model, "B1", "0.00%"); // first data set
+    setCellFormat(model, "C1", "0.00[$$]"); // second data set
 
     createChart(
       model,
@@ -74,14 +63,16 @@ describe("combo chart", () => {
       "1"
     );
     const runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
-    const index = 0; // because chart.js types expects an index
-    const ticks = []; // because chart.js types expects the ticks
-    expect(
-      runtime.chartJsConfig.options?.scales?.y?.ticks?.callback?.apply(null, [1, index, ticks])
-    ).toBe("100.00%");
-    expect(
-      runtime.chartJsConfig.options?.scales?.y1?.ticks?.callback?.apply(null, [1, index, ticks])
-    ).toBe("1.00$");
+    const scales = runtime.chartJsConfig.options?.scales as any;
+    expect(scales?.y?.ticks?.callback?.apply(null, [1])).toBe("100.00%");
+    expect(scales?.y1?.ticks?.callback?.apply(null, [1])).toBe("1.00$");
+
+    const tooltipCallbacks = runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks as any;
+    let tooltipItem = { parsed: { y: 20 }, dataIndex: 0, dataset: { yAxisID: "y", label: "Ds 1" } };
+    expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 1: 2000.00%");
+
+    tooltipItem = { parsed: { y: 20 }, dataIndex: 1, dataset: { yAxisID: "y1", label: "Ds 2" } };
+    expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 2: 20.00$");
   });
 
   test("Can edit the type of the series", () => {

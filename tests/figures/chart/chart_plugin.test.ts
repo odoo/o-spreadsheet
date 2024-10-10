@@ -5,6 +5,7 @@ import {
   BarChartDefinition,
   BarChartRuntime,
   ChartJSRuntime,
+  ChartWithAxisDefinition,
   LineChartDefinition,
   LineChartRuntime,
   PieChartRuntime,
@@ -1932,6 +1933,38 @@ describe("Chart design configuration", () => {
       }
     );
 
+    test.each<ChartWithAxisDefinition["type"]>(["bar", "line", "scatter", "combo"])(
+      "%s chart: both Y axis can have different formats, which are applied to the ticks and tooltips",
+      (chartType) => {
+        createChart(
+          model,
+          {
+            ...defaultChart,
+            type: chartType,
+            dataSets: [
+              { dataRange: "A1:A2", yAxisId: "y" },
+              { dataRange: "B1:B2", yAxisId: "y1" },
+            ],
+          },
+          "42"
+        );
+        setCellFormat(model, "A2", "[$$]#,#");
+        setCellFormat(model, "B1", "0%");
+
+        const options = getChartConfiguration(model, "42").options;
+        const scales = options.scales;
+        expect(scales.y?.ticks.callback!(60000000)).toEqual("$60,000,000");
+        expect(scales.y1?.ticks.callback!(0.5)).toEqual("50%");
+
+        const tooltipCallbacks = options?.plugins?.tooltip?.callbacks as any;
+        let tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
+        expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 1: $20");
+
+        tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y1", label: "Ds 2" } };
+        expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 2: 2000%");
+      }
+    );
+
     test.each(["bar", "line", "scatter", "waterfall"] as const)(
       "Bar/Line chart Y axis, date format is ignored",
       (chartType) => {
@@ -2117,7 +2150,7 @@ describe("Chart design configuration", () => {
   });
 
   test.each(["line", "scatter", "bar", "combo"] as const)(
-    "%s chart correctly use right axis if set up in definition",
+    "%s chart correctly use right axis if set up in definition, and the grid lines are only displayed once",
     (chartType) => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
@@ -2139,8 +2172,14 @@ describe("Chart design configuration", () => {
       let config = getChartConfiguration(model, "43");
       expect(config.data?.datasets![0]["yAxisID"]).toEqual("y");
       expect(config.data?.datasets![1]["yAxisID"]).toEqual("y1");
-      expect(config.options?.scales?.y).toMatchObject({ position: "left" });
-      expect(config.options?.scales?.y1).toMatchObject({ position: "right" });
+      expect(config.options?.scales?.y).toMatchObject({
+        position: "left",
+        grid: { display: true },
+      });
+      expect(config.options?.scales?.y1).toMatchObject({
+        position: "right",
+        grid: { display: false },
+      });
       updateChart(model, "43", {
         dataSets: [
           { dataRange: "A1:A2", yAxisId: "y1" },
@@ -2150,8 +2189,11 @@ describe("Chart design configuration", () => {
       config = getChartConfiguration(model, "43");
       expect(config.data?.datasets![0]["yAxisID"]).toEqual("y1");
       expect(config.data?.datasets![1]["yAxisID"]).toEqual("y1");
-      expect(config.options?.scales?.y).not.toBeDefined();
-      expect(config.options?.scales?.y1).toMatchObject({ position: "right" });
+      expect(config.options?.scales?.y).toBeUndefined();
+      expect(config.options?.scales?.y1).toMatchObject({
+        position: "right",
+        grid: { display: true },
+      });
       updateChart(model, "43", {
         dataSets: [
           { dataRange: "A1:A2", yAxisId: "y" },
@@ -2161,8 +2203,11 @@ describe("Chart design configuration", () => {
       config = getChartConfiguration(model, "43");
       expect(config.data?.datasets![0]["yAxisID"]).toEqual("y");
       expect(config.data?.datasets![1]["yAxisID"]).toEqual("y");
-      expect(config.options?.scales?.y1).not.toBeDefined();
-      expect(config.options?.scales?.y).toMatchObject({ position: "left" });
+      expect(config.options?.scales?.y1).toBeUndefined();
+      expect(config.options?.scales?.y).toMatchObject({
+        position: "left",
+        grid: { display: true },
+      });
     }
   );
 
@@ -3098,10 +3143,9 @@ describe("trending line", () => {
       offset: false,
       labels: range(0, 26).map((v) => v.toString()),
     });
-    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const runtime = model.getters.getChartRuntime("1") as any;
     const step = (6 - 1) / 25;
-    //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
     for (let i = 0; i < data.lenght; i++) {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);
@@ -3118,10 +3162,9 @@ describe("trending line", () => {
       offset: false,
       labels: range(0, 26).map((v) => v.toString()),
     });
-    const runtime = model.getters.getChartRuntime("1");
+    const runtime = model.getters.getChartRuntime("1") as any;
     const step = (5 - 1) / 25;
-    //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
     for (let i = 0; i < data.lenght; i++) {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);
@@ -3137,10 +3180,9 @@ describe("trending line", () => {
       offset: false,
       labels: range(0, 26).map((v) => v.toString()),
     });
-    const runtime = model.getters.getChartRuntime("1");
+    const runtime = model.getters.getChartRuntime("1") as any;
     const step = (5 - 1) / 25;
-    //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
     for (let i = 0; i < data.lenght; i++) {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);
@@ -3167,10 +3209,9 @@ describe("trending line", () => {
       offset: false,
       labels: range(0, 51).map((v) => v.toString()),
     });
-    const runtime = model.getters.getChartRuntime("1");
+    const runtime = model.getters.getChartRuntime("1") as any;
     const step = (10 - 1) / 25;
-    //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
     for (let i = 0; i < data.lenght; i++) {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);

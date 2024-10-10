@@ -1,4 +1,4 @@
-import { Align, Color, Range } from "../../types";
+import { Align, Color, Format, Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -151,3 +151,5 @@ export interface ChartCreationContext {
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
 }
+
+export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

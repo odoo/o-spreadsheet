@@ -323,7 +323,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
 
   ({ dataSetsValues, labels } = filterNegativeValues(labels, dataSetsValues));
 
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
   const locale = getters.getLocale();
   const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));

@@ -1,4 +1,5 @@
-import { ChartDataset } from "chart.js";
+import { ChartDataset, LinearScaleOptions } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import { LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
@@ -18,6 +19,7 @@ import {
   DOMCoordinates,
   DOMDimension,
   Getters,
+  Locale,
   LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
@@ -27,6 +29,7 @@ import {
 } from "../../../types";
 import {
   AxisDesign,
+  ChartAxisFormats,
   ChartWithAxisDefinition,
   CustomizedDataSet,
   DataSet,
@@ -450,6 +453,54 @@ export function getDefinedAxis(definition: ChartWithAxisDefinition): {
   return { useLeftAxis, useRightAxis };
 }
 
+export function getChartAxis(
+  definition: ChartWithAxisDefinition,
+  position: "left" | "right" | "bottom",
+  type: "values" | "labels",
+  options: LocaleFormat & { stacked?: boolean }
+): DeepPartial<LinearScaleOptions> | undefined {
+  const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
+  if ((position === "left" && !useLeftAxis) || (position === "right" && !useRightAxis)) {
+    return undefined;
+  }
+
+  const fontColor = chartFontColor(definition.background);
+  let design: AxisDesign | undefined;
+  if (position === "bottom") {
+    design = definition.axesDesign?.x;
+  } else if (position === "left") {
+    design = definition.axesDesign?.y;
+  } else {
+    design = definition.axesDesign?.y1;
+  }
+
+  if (type === "values") {
+    const displayGridLines = position === "left" || (position === "right" && !useLeftAxis);
+    return {
+      position: position,
+      title: getChartAxisTitleRuntime(design),
+      grid: {
+        display: displayGridLines,
+      },
+      beginAtZero: true,
+      stacked: options?.stacked,
+      ticks: {
+        color: fontColor,
+        callback: formatTickValue(options),
+      },
+    };
+  } else {
+    return {
+      ticks: {
+        padding: 5,
+        color: fontColor,
+      },
+      stacked: options?.stacked,
+      title: getChartAxisTitleRuntime(design),
+    };
+  }
+}
+
 export function computeChartPadding({
   displayTitle,
   displayLegend,
@@ -563,6 +614,13 @@ export function interpolateData(
     default:
       return [];
   }
+}
+
+export function formatChartDatasetValue(axisFormats: ChartAxisFormats, locale: Locale) {
+  return (value: any, axisId: string | undefined) => {
+    const format = axisId ? axisFormats?.[axisId] : undefined;
+    return formatTickValue({ format, locale })(value);
+  };
 }
 
 export function formatTickValue(localeFormat: LocaleFormat) {

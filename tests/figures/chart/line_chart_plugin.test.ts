@@ -60,8 +60,8 @@ describe("line chart", () => {
       ],
     });
     createChart(model, { type: "line", dataSets: [{ dataRange: "Sheet1!B1:B4" }] }, "chartId");
-    expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
-    expect(isChartAxisStacked(model, "chartId", "y")).toBeUndefined();
+    expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
+    expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
 
     updateChart(model, "chartId", { stacked: true });
     const runtime = model.getters.getChartRuntime("chartId") as any;
@@ -105,8 +105,8 @@ describe("line chart", () => {
     expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
     expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#EA617566");
-    expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
-    expect(isChartAxisStacked(model, "chartId", "y")).toBeUndefined();
+    expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
+    expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
   });
 
   test("Stacked area chart", () => {
