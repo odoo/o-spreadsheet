@@ -8,6 +8,7 @@ import {
   XLSXCfValueObjectType,
   XLSXColor,
   XLSXConditionalFormat,
+  XLSXDataBar,
   XLSXFileStructure,
   XLSXIconSet,
   XLSXImportFile,
@@ -69,12 +70,6 @@ export class XlsxCfExtractor extends XlsxBaseExtractor {
           required: true,
         }).asString() as XLSXCfType;
 
-        if (cfType === "dataBar") {
-          // Databars are an extension to OpenXml and have a different format (XLSX §2.6.30). Do'nt bother
-          // extracting them as we don't support them.
-          throw new Error("Databars conditional formats are not supported.");
-        }
-
         return {
           type: cfType,
           priority: this.extractAttr(cfRuleElement, "priority", { required: true }).asNum(),
@@ -92,6 +87,7 @@ export class XlsxCfExtractor extends XlsxBaseExtractor {
           rank: this.extractAttr(cfRuleElement, "rank")?.asNum(),
           stdDev: this.extractAttr(cfRuleElement, "stdDev")?.asNum(),
           equalAverage: this.extractAttr(cfRuleElement, "equalAverage")?.asBool(),
+          dataBar: this.extractCfDataBar(cfRuleElement, theme),
         };
       }
     );
@@ -121,6 +117,19 @@ export class XlsxCfExtractor extends XlsxBaseExtractor {
         }
       ),
       cfvos: this.extractCFVos(colorScaleElement),
+    };
+  }
+
+  private extractCfDataBar(
+    cfRulesElement: Element,
+    theme: XLSXTheme | undefined
+  ): XLSXDataBar | undefined {
+    const dataBarElement = this.querySelector(cfRulesElement, "dataBar");
+    if (!dataBarElement) return undefined;
+    return {
+      color: this.extractColor(dataBarElement.querySelector("color"), theme, "EFF7FF"),
+      // TODO ATM, we only support color for dataBar, not the minimum and maximum fill percentage
+      cfvos: this.extractCFVos(dataBarElement),
     };
   }
 

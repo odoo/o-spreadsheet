@@ -34,19 +34,27 @@ export function convertConditionalFormats(
     let operator: ConditionalFormattingOperatorValues | undefined;
     const values: string[] = [];
 
-    if (rule.dxfId === undefined && !(rule.type === "colorScale" || rule.type === "iconSet"))
+    if (
+      rule.dxfId === undefined &&
+      !(rule.type === "colorScale" || rule.type === "iconSet" || rule.type === "dataBar")
+    )
       continue;
     switch (rule.type) {
       case "aboveAverage":
       case "containsErrors":
       case "notContainsErrors":
-      case "dataBar":
       case "duplicateValues":
       case "expression":
       case "top10":
       case "uniqueValues":
       case "timePeriod":
         // Not supported
+        continue;
+      case "dataBar":
+        const dataBar = convertDataBar(cfId++, cf);
+        if (dataBar) {
+          cfs.push(dataBar);
+        }
         continue;
       case "colorScale":
         const colorScale = convertColorScale(cfId++, cf);
@@ -99,6 +107,23 @@ export function convertConditionalFormats(
     }
   }
   return cfs;
+}
+
+function convertDataBar(id: number, xlsxCf: XLSXConditionalFormat): ConditionalFormat | undefined {
+  const dataBar = xlsxCf.cfRules[0].dataBar;
+  if (!dataBar) return undefined;
+
+  const color = hexaToInt(convertColor(dataBar.color) || "#FFFFFF");
+
+  return {
+    id: id.toString(),
+    stopIfTrue: xlsxCf.cfRules[0].stopIfTrue,
+    ranges: xlsxCf.sqref,
+    rule: {
+      type: "DataBarRule",
+      color,
+    },
+  };
 }
 
 function convertColorScale(

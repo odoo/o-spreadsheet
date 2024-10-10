@@ -375,6 +375,15 @@ describe("Import xlsx data", () => {
     });
   });
 
+  test("Can import Data Bars", () => {
+    const testSheet = getWorkbookSheet("jestCfs", convertedData)!;
+    const cf = getCFBeginningAt("B25", testSheet)!;
+    expect(cf.rule).toMatchObject({
+      type: "DataBarRule",
+      color: hexaToInt("#63C384"),
+    });
+  });
+
   test.each([
     ["3Arrows percent", "H11"],
     ["3ArrowsGray num", "H12"],
