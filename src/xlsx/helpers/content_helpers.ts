@@ -11,6 +11,8 @@ import {
 } from "../../types";
 import {
   ExtractedStyle,
+  XLSXDataValidationDateOperatorType,
+  XLSXDataValidationOperatorType,
   XLSXHorizontalAlignment,
   XLSXNumFormat,
   XLSXRel,
@@ -26,7 +28,12 @@ import {
   HEIGHT_FACTOR,
   WIDTH_FACTOR,
 } from "../constants";
-import { V_ALIGNMENT_EXPORT_CONVERSION_MAP, XLSX_FORMAT_MAP } from "../conversion/conversion_maps";
+import {
+  V_ALIGNMENT_EXPORT_CONVERSION_MAP,
+  XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING,
+  XLSX_DV_DECIMAL_OPERATOR_MAPPING,
+  XLSX_FORMAT_MAP,
+} from "../conversion/conversion_maps";
 
 // -------------------------------------
 //            CF HELPERS
@@ -308,4 +315,24 @@ export function getRowPosition(rowIndex: number, sheetData: XLSXWorksheet) {
     }
   }
   return position / HEIGHT_FACTOR;
+}
+
+/**
+ * Convert the o-spreadsheet data validation decimal
+ * criterion type to the corresponding excel operator.
+ */
+export function convertDecimalCriterionTypeToExcelOperator(operator: string) {
+  return Object.keys(XLSX_DV_DECIMAL_OPERATOR_MAPPING).find(
+    (key) => XLSX_DV_DECIMAL_OPERATOR_MAPPING[key] === operator
+  ) as XLSXDataValidationOperatorType;
+}
+
+/**
+ * Convert the o-spreadsheet data validation date
+ * criterion type to the corresponding excel operator.
+ */
+export function convertDateCriterionTypeToExcelOperator(operator: string) {
+  return Object.keys(XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING).find(
+    (key) => XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING[key] === operator
+  ) as XLSXDataValidationDateOperatorType;
 }

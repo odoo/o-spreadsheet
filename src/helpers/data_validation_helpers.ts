@@ -1,6 +1,8 @@
 import { tryToNumber } from "../functions/helpers";
 import { DataValidationCriterion, DateCriterionValue, Locale } from "../types";
+import { parseLiteral } from "./cells";
 import { DateTime, jsDateToNumber, valueToDateNumber } from "./dates";
+import { formatValue } from "./format/format";
 
 function toCriterionDateNumber(dateValue: Exclude<DateCriterionValue, "exactDate">): number {
   const today = DateTime.now();
@@ -35,4 +37,17 @@ export function getDateNumberCriterionValues(
 /** Convert the criterion values to numbers. Return undefined values if they cannot be converted to numbers. */
 export function getCriterionValuesAsNumber(criterion: DataValidationCriterion, locale: Locale) {
   return criterion.values.map((value) => tryToNumber(value, locale));
+}
+
+export function getDateCriterionFormattedValues(values: string[], locale: Locale) {
+  return values.map((valueStr) => {
+    if (valueStr.startsWith("=")) {
+      return valueStr;
+    }
+    const value = parseLiteral(valueStr, locale);
+    if (typeof value === "number") {
+      return formatValue(value, { format: locale.dateFormat, locale });
+    }
+    return "";
+  });
 }
