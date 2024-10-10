@@ -51,6 +51,7 @@ import { ExcelFigureSize } from "./figure";
  *  - table column (XLSXTableCol) : §18.5.1.3 (tableColumn)
  *  - table style (XLSXTableStyleInfo) : §18.5.1.5 (tableStyleInfo)
  *  - theme color : §20.1.2.3.32 (srgbClr/sysClr)
+ *  - data validation (XLSXDataValidation): §18.3.1.33 (dataValidations)
  *
  * [XLSX]: :
  * - cf rule (XLSXCfRule): §2.6.2 (CT_ConditionalFormatting)
@@ -229,6 +230,7 @@ export interface XLSXWorksheet {
   cols: XLSXColumn[];
   rows: XLSXRow[];
   cfs: XLSXConditionalFormat[];
+  dataValidations: XLSXDataValidation[];
   sharedFormulas: string[];
   merges: string[];
   figures: XLSXFigure[];
@@ -442,6 +444,40 @@ export type XLSXCfOperatorType =
   | "notContains"
   | "notEqual";
 
+export type XLSXDataValidationOperatorType =
+  | "between"
+  | "notBetween"
+  | "equal"
+  | "notEqual"
+  | "greaterThan"
+  | "lessThan"
+  | "greaterThanOrEqual"
+  | "lessThanOrEqual";
+
+export type XLSXDataValidationCompatibleDecimalCriterionType =
+  | "isBetween"
+  | "isNotBetween"
+  | "isEqual"
+  | "isNotEqual"
+  | "isGreaterThan"
+  | "isGreaterOrEqualTo"
+  | "isLessThan"
+  | "isLessOrEqualTo";
+
+export type XLSXDataValidationDateOperatorType = Exclude<
+  XLSXDataValidationOperatorType,
+  "notEqual"
+>;
+
+export type XLSXDataValidationCompatibleDateCriterionType =
+  | "dateIsBetween"
+  | "dateIsNotBetween"
+  | "dateIs"
+  | "dateIsAfter"
+  | "dateIsOnOrAfter"
+  | "dateIsBefore"
+  | "dateIsOnOrBefore";
+
 export type XLSXHorizontalAlignment =
   | "general"
   | "left"
@@ -504,6 +540,22 @@ export interface XLSXCfRule {
   rank?: number;
   stdDev?: number;
   equalAverage?: boolean;
+}
+
+export interface XLSXDataValidation {
+  type: string;
+  operator: XLSXDataValidationOperatorType;
+  sqref: string[];
+  formula1: string;
+  formula2?: string;
+  errorStyle?: string;
+  showErrorMessage?: boolean;
+  errorTitle?: string;
+  error?: string;
+  showInputMessage?: boolean;
+  promptTitle?: string;
+  prompt?: string;
+  allowBlank?: boolean;
 }
 
 export interface XLSXSharedFormula {

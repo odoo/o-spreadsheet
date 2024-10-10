@@ -16,6 +16,10 @@ export enum WarningTypes {
   CfIconSetEmptyIconNotSupported = "IconSets with empty icons",
   BadlyFormattedHyperlink = "Badly formatted hyperlink",
   NumFmtIdNotSupported = "Number format",
+  TimeDataValidationNotSupported = "Time data validation rules",
+  TextLengthDataValidationNotSupported = "Text length data validation rules",
+  WholeNumberDataValidationNotSupported = "Whole number data validation rules",
+  NotEqualDateDataValidationNotSupported = "Not equal date data validation rules",
 }
 
 export class XLSXImportWarningManager {

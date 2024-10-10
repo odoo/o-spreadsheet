@@ -35,6 +35,7 @@ import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import {
   getCFBeginningAt,
   getColPosition,
+  getDataValidationBeginningAt,
   getRowPosition,
   getWorkbookCell,
   getWorkbookCellBorder,
@@ -317,6 +318,74 @@ describe("Import xlsx data", () => {
     expect(cf.rule.type).toEqual("CellIsRule");
     expect((cf.rule as CellIsRule).operator).toEqual(operator);
     expect((cf.rule as CellIsRule).values).toEqual(values);
+  });
+
+  test.each([
+    ["number", "A1"],
+    ["decimal", "B1"],
+    ["list", "C1"],
+    ["date", "D1"],
+    ["time", "E1"],
+    ["textLength", "F1"],
+    ["date", "G1"],
+    ["custom", "H1"],
+  ])("Can import data validation rule %s", (ruleType, cellXc) => {
+    const testSheet = getWorkbookSheet("jestDataValidations", convertedData)!;
+    const dvRule = getDataValidationBeginningAt(cellXc, testSheet);
+    switch (ruleType) {
+      case "number":
+      case "time":
+      case "textLength":
+        // Unsupported data validation types
+        expect(dvRule).toBeUndefined();
+        break;
+      case "decimal":
+        expect(dvRule).toMatchObject({
+          criterion: {
+            type: "isBetween",
+            values: ["1", "100"],
+          },
+          ranges: ["B1:B5"],
+          isBlocking: true,
+        });
+        break;
+      case "list":
+        expect(dvRule).toMatchObject({
+          criterion: {
+            type: "isValueInRange",
+            values: ["$C$1:$C$5"],
+          },
+          ranges: ["C1:C5"],
+          isBlocking: false,
+        });
+        break;
+      case "date":
+        if (cellXc === "D1") {
+          // Unsupported not equal date data validation
+          expect(dvRule).toBeUndefined();
+          break;
+        }
+        expect(dvRule).toMatchObject({
+          criterion: {
+            type: "dateIsAfter",
+            dateValue: "exactDate",
+            values: ["12/1/2023"],
+          },
+          ranges: ["G1:G5"],
+          isBlocking: false,
+        });
+        break;
+      case "custom":
+        expect(dvRule).toMatchObject({
+          criterion: {
+            type: "customFormula",
+            values: ["=ISNUMBER(H1)"],
+          },
+          ranges: ["H1:H5"],
+          isBlocking: false,
+        });
+        break;
+    }
   });
 
   test.each([
