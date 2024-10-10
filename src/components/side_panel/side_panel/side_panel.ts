@@ -1,5 +1,5 @@
 import { Component, useEffect } from "@odoo/owl";
-import { GRAY_300, TEXT_BODY } from "../../../constants";
+import { GRAY_300, SIDEPANEL_BOLD_FONT_WEIGHT, TEXT_BODY } from "../../../constants";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { Store, useStore } from "../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../types";
@@ -19,10 +19,10 @@ css/* scss */ `
     user-select: none;
     color: ${TEXT_BODY};
 
-    .o-heading-3 {
+    .o-sidePanelTitle {
       line-height: 20px;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: ${SIDEPANEL_BOLD_FONT_WEIGHT};
     }
 
     .o-sidePanelHeader {
@@ -53,12 +53,12 @@ css/* scss */ `
         padding: 16px;
 
         .o-section-title {
-          font-weight: 500;
+          font-weight: ${SIDEPANEL_BOLD_FONT_WEIGHT};
           margin-bottom: 5px;
         }
 
         .o-section-subtitle {
-          font-weight: 500;
+          font-weight: ${SIDEPANEL_BOLD_FONT_WEIGHT};
           font-size: 13px;
           line-height: 14px;
           margin: 8px 0 4px 0;
@@ -106,6 +106,10 @@ css/* scss */ `
         margin-left: -5px;
       }
     }
+  }
+
+  .o-fw-bold {
+    font-weight: ${SIDEPANEL_BOLD_FONT_WEIGHT};
   }
 `;
 

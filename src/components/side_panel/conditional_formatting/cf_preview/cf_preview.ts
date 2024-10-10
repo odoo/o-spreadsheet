@@ -1,5 +1,11 @@
 import { Component, useRef } from "@odoo/owl";
-import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300, HIGHLIGHT_COLOR } from "../../../../constants";
+import {
+  CF_ICON_EDGE_LENGTH,
+  GRAY_200,
+  GRAY_300,
+  HIGHLIGHT_COLOR,
+  SIDEPANEL_BOLD_FONT_WEIGHT,
+} from "../../../../constants";
 import { colorNumberString } from "../../../../helpers";
 import { _t } from "../../../../translation";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
@@ -47,7 +53,7 @@ css/* scss */ `
       width: 142px;
       .o-cf-preview-description-rule {
         margin-bottom: 4px;
-        font-weight: 600;
+        font-weight: ${SIDEPANEL_BOLD_FONT_WEIGHT};
         max-height: 2.8em;
         line-height: 1.4em;
       }
