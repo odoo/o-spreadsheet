@@ -343,7 +343,11 @@ export function chartToImage(
   return undefined;
 }
 
-export function chartToImageBlob(runtime: ChartRuntime, figure: Figure, type: string): Blob | null {
+export async function chartToImageBlob(
+  runtime: ChartRuntime,
+  figure: Figure,
+  type: string
+): Promise<Blob | null> {
   // wrap the canvas in a div with a fixed size because chart.js would
   // fill the whole page otherwise
   const div = document.createElement("div");
@@ -367,11 +371,13 @@ export function chartToImageBlob(runtime: ChartRuntime, figure: Figure, type: st
   } else if (type === "scorecard") {
     const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
     drawScoreChart(design, canvas);
-    canvas.toBlob((blob) => (finalContent = blob), "image/png");
+    finalContent = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    //canvas.toBlob((blob) => (finalContent = blob), "image/png");
     div.remove();
   } else if (type === "gauge") {
     drawGaugeChart(canvas, runtime as GaugeChartRuntime);
-    canvas.toBlob((blob) => (finalContent = blob), "image/png");
+    // canvas.toBlob((blob) => (finalContent = blob), "image/png");
+    finalContent = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
     div.remove();
   }
   return finalContent;

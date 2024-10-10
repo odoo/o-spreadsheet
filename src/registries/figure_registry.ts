@@ -113,7 +113,7 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
       const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
       const runtime = env.model.getters.getChartRuntime(figureId);
-      const blob = chartToImageBlob(runtime, figure, type)!;
+      const blob = await chartToImageBlob(runtime, figure, type)!;
       const file = new File([blob], "image/png", { type: "image/png" });
       console.log(file.type);
       await env.clipboard.write({
