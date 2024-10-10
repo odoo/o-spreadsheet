@@ -22,8 +22,13 @@ class WebClipboardWrapper implements ClipboardInterface {
     if (this.clipboard?.write) {
       try {
         const a = this.getClipboardItems(clipboardContent);
+        // @ts-ignore
+        const val = new File([clipboardContent[ClipboardMIMEType.Png]], "image/png", {
+          type: "image/png",
+        });
+        const truc = [new ClipboardItem({ "image/png": val })] || a;
         debugger;
-        await this.clipboard?.write(a);
+        await this.clipboard?.write(a || truc);
       } catch (e) {
         /**
          * Some browsers do not support writing custom mimetypes in the clipboard.
@@ -87,19 +92,20 @@ class WebClipboardWrapper implements ClipboardInterface {
   }
 
   private getClipboardItems(content: OSClipboardContent): ClipboardItems {
-    // const clipboardItemData = {
-    // [ClipboardMIMEType.PlainText]: this.getBlob(content, ClipboardMIMEType.PlainText),
-    // [ClipboardMIMEType.Html]: this.getBlob(content, ClipboardMIMEType.Html),
-    //   [ClipboardMIMEType.Png]: content[ClipboardMIMEType.Png],
-    // };
+    const clipboardItemData = {
+      // [ClipboardMIMEType.PlainText]: this.getBlob(content, ClipboardMIMEType.PlainText),
+      // [ClipboardMIMEType.Html]: this.getBlob(content, ClipboardMIMEType.Html),
+      // @ts-ignore
+      [ClipboardMIMEType.Png]: this.getBlob(content, ClipboardMIMEType.Png),
+    };
     //@ts-ignore
-    return [content[ClipboardMIMEType.Png]];
+    return [new ClipboardItem(clipboardItemData)];
   }
 
   private getBlob(clipboardContent: OSClipboardContent, type: ClipboardMIMEType): Blob {
     if (type === ClipboardMIMEType.Png) {
       // @ts-ignore
-      return clipboardContent[type]?.data;
+      return new Blob([clipboardContent[type]], { type: "image/png" });
     }
     return new Blob([clipboardContent[type] || ""], {
       type,

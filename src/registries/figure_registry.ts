@@ -115,9 +115,10 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       const runtime = env.model.getters.getChartRuntime(figureId);
       const blob = chartToImageBlob(runtime, figure, type)!;
       const file = new File([blob], "image/png", { type: "image/png" });
-      //@ts-ignore
+      console.log(file.type);
       await env.clipboard.write({
-        [ClipboardMIMEType.Png]: new ClipboardItem({ [file.type]: file }),
+        //@ts-ignore
+        [ClipboardMIMEType.Png]: blob, //new ClipboardItem({ [file.type]: file }),
       });
     },
     icon: "o-spreadsheet-Icon.COPY",
