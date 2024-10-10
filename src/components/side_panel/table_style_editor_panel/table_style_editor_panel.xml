@@ -1,16 +1,13 @@
 <templates>
   <t t-name="o-spreadsheet-TableStyleEditorPanel">
     <div class="o-table-style-editor-panel">
-      <Section>
-        <t t-set-slot="title">Style name</t>
+      <Section title.translate="Style name">
         <input type="text" class="o-input" t-model="state.styleName"/>
       </Section>
-      <Section class="'pt-1'">
-        <t t-set-slot="title">Style color</t>
+      <Section class="'pt-1'" title.translate="Style color">
         <RoundColorPicker currentColor="state.primaryColor" onColorPicked.bind="onColorPicked"/>
       </Section>
-      <Section class="'pt-1'">
-        <t t-set-slot="title">Style template</t>
+      <Section class="'pt-1'" title.translate="Style template">
         <div class="d-flex flex-wrap">
           <t t-foreach="tableTemplates" t-as="templateName" t-key="templateName">
             <TableStylePreview

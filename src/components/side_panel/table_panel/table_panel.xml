@@ -1,8 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-TablePanel">
     <div class="o-table-panel">
-      <Section>
-        <t t-set-slot="title">Style options</t>
+      <Section title.translate="Style options">
         <div class="d-flex flex-row">
           <div class="w-50">
             <div class="d-flex align-items-center">
@@ -66,8 +65,7 @@
       <Section>
         <TableStylePicker table="props.table"/>
       </Section>
-      <Section>
-        <t t-set-slot="title">Data range</t>
+      <Section title.translate="Data range">
         <SelectionInput
           t-key="props.table.type"
           ranges="[this.state.tableXc]"

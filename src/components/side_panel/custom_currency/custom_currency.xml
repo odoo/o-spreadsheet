@@ -1,8 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-CustomCurrencyPanel">
     <div class="o-custom-currency">
-      <Section t-if="availableCurrencies.length > 1">
-        <t t-set-slot="title">Currency</t>
+      <Section t-if="availableCurrencies.length > 1" title.translate="Currency">
         <select
           class="o-input o-available-currencies"
           t-on-change="(ev) => this.updateSelectCurrency(ev)">
@@ -37,8 +36,7 @@
           />
         </div>
       </Section>
-      <Section>
-        <t t-set-slot="title">Format</t>
+      <Section title.translate="Format">
         <select
           class="o-input o-format-proposals mb-1"
           t-on-change="(ev) => this.updateSelectFormat(ev)"

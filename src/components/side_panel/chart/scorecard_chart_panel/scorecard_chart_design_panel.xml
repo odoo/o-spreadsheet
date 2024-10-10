@@ -7,8 +7,7 @@
       definition="props.definition"
       updateChart="props.updateChart">
       <t t-set-slot="general-extension">
-        <Section class="'pt-1'">
-          <t t-set-slot="title">Number formatting</t>
+        <Section class="'pt-1'" title.translate="Number formatting">
           <Checkbox
             name="'humanizeNumbers'"
             label="humanizeNumbersLabel"
@@ -18,11 +17,9 @@
         </Section>
       </t>
     </GeneralDesignEditor>
-    <SidePanelCollapsible collapsedAtInit="false">
-      <t t-set-slot="title">Baseline</t>
+    <SidePanelCollapsible collapsedAtInit="false" title.translate="Baseline">
       <t t-set-slot="content">
-        <Section class="'pt-0'">
-          <t t-set-slot="title">Baseline description</t>
+        <Section class="'pt-0'" title.translate="Baseline description">
           <input
             type="text"
             t-att-value="translate(props.definition.baselineDescr)"
@@ -31,8 +28,7 @@
             placeholder="Baseline description"
           />
         </Section>
-        <Section class="'o-chart-baseline-color'">
-          <t t-set-slot="title" t-esc="colorsSectionTitle"/>
+        <Section class="'o-chart-baseline-color'" title="colorsSectionTitle">
           <div class="d-flex align-items-center mb-2">
             <RoundColorPicker
               currentColor="props.definition.baselineColorUp"

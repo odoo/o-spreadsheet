@@ -1,7 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet.ChartLabelRange">
-    <Section class="'o-data-labels'">
-      <t t-set-slot="title" t-esc="props.title"/>
+    <Section class="'o-data-labels'" title="props.title">
       <SelectionInput
         ranges="[props.range]"
         isInvalid="props.isInvalid"

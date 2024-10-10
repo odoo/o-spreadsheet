@@ -1,8 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-ChartTypePicker">
     <t t-set="selectedChartProperties" t-value="getSelectedChartSubtypeProperties()"/>
-    <Section>
-      <t t-set-slot="title">Chart type</t>
+    <Section title.translate="Chart type">
       <div class="position-relative">
         <select
           class="o-input o-type-selector"

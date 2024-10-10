@@ -1,7 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-PivotMeasureDisplayPanel">
-    <Section>
-      <t t-set-slot="title">Show measure as:</t>
+    <Section title.translate="Show measure as:">
       <select
         class="o-pivot-measure-display-type o-input"
         t-on-change="(ev) => this.store.updateMeasureDisplayType(ev.target.value)">
@@ -19,8 +18,7 @@
       />
     </Section>
 
-    <Section t-if="store.doesDisplayNeedsField">
-      <t t-set-slot="title">Base field:</t>
+    <Section t-if="store.doesDisplayNeedsField" title.translate="Base field:">
       <div class="o-pivot-measure-display-field w-100 py-1 px-3">
         <t t-if="store.fields.length">
           <RadioSelection
@@ -38,8 +36,7 @@
     </Section>
 
     <t t-set="values" t-value="store.values"/>
-    <Section t-if="store.doesDisplayNeedsValue and values.length">
-      <t t-set-slot="title">Base item:</t>
+    <Section t-if="store.doesDisplayNeedsValue and values.length" title.translate="Base item:">
       <div class="o-pivot-measure-display-value w-100 py-1 px-3">
         <RadioSelection
           choices="values"

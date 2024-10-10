@@ -71,6 +71,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             <div
               class="o-section-title"
             >
+              
               <div
                 class="d-flex flex-row justify-content-between align-items-center"
               >
@@ -81,6 +82,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                 
                 
               </div>
+              
             </div>
             
             <div
@@ -101,6 +103,8 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
               class="o-section-title"
             >
               Range
+              
+              
             </div>
             
             <div
@@ -281,6 +285,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
             <div
               class="o-section-title"
             >
+              
               <div
                 class="d-flex flex-row justify-content-between align-items-center"
               >
@@ -291,6 +296,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                 
                 
               </div>
+              
             </div>
             
             <div
@@ -311,6 +317,8 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
               class="o-section-title"
             >
               Range
+              
+              
             </div>
             
             <div

@@ -1,11 +1,11 @@
 <templates>
   <t t-name="o-spreadsheet.ChartTitle">
     <t t-set="placeholder">Add a title</t>
-    <Section class="'o-chart-title'">
-      <t t-set-slot="title">
-        <t t-if="props.name" t-esc="props.name"/>
-        <t t-else="">Title</t>
-      </t>
+    <t t-set="title">
+      <t t-if="props.name" t-esc="props.name"/>
+      <t t-else="">Title</t>
+    </t>
+    <Section class="'o-chart-title'" title="title.toString()">
       <input
         type="text"
         class="o-input"
