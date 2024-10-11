@@ -120,9 +120,13 @@ autoCompleteProviders.add("pivot_group_fields", {
     const rowFields = rows.map((groupBy) => groupBy.nameWithGranularity);
 
     const proposals: string[] = [];
-    const previousGroupBy = ["ARG_SEPARATOR", "SPACE"].includes(tokenAtCursor.type)
+    let previousGroupBy = ["ARG_SEPARATOR", "SPACE"].includes(tokenAtCursor.type)
       ? argGroupBys.at(-1)
       : argGroupBys.at(-2);
+    const isPositionalSupported = supportedPivotPositionalFormulaRegistry.get(pivot.type);
+    if (isPositionalSupported && previousGroupBy?.startsWith("#")) {
+      previousGroupBy = previousGroupBy.slice(1);
+    }
     if (previousGroupBy === undefined) {
       proposals.push(colFields[0]);
       proposals.push(rowFields[0]);
@@ -145,7 +149,7 @@ autoCompleteProviders.add("pivot_group_fields", {
       })
       .concat(
         groupBys.map((groupBy) => {
-          if (!supportedPivotPositionalFormulaRegistry.get(pivot.type)) {
+          if (!isPositionalSupported) {
             return undefined;
           }
           const fieldName = groupBy.split(":")[0];
