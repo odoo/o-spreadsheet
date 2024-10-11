@@ -2,6 +2,7 @@ import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../t
 
 import { TableTerms } from "../../components/translations_terms";
 import { TableConfig } from "../../types/table";
+import { DEFAULT_TABLE_CONFIG } from "../table_presets";
 import { getZoneArea } from "../zones";
 
 /**
@@ -11,7 +12,7 @@ import { getZoneArea } from "../zones";
 export function interactiveCreateTable(
   env: SpreadsheetChildEnv,
   sheetId: UID,
-  tableConfig?: TableConfig
+  tableConfig: TableConfig = DEFAULT_TABLE_CONFIG
 ): DispatchResult {
   let target = env.model.getters.getSelectedZones();
   let isDynamic = env.model.getters.canCreateDynamicTableOnZones(sheetId, target);

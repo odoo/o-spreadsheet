@@ -530,7 +530,7 @@ export interface CreateImageOverCommand extends SheetDependentCommand {
 export interface CreateTableCommand extends RangesDependentCommand {
   type: "CREATE_TABLE";
   sheetId: UID;
-  config?: TableConfig;
+  config: TableConfig;
   tableType: CoreTableType;
 }
 

@@ -62,6 +62,7 @@ describe("Table plugin", () => {
           sheetId: model.getters.getActiveSheetId(),
           ranges: [{ _sheetId: sheetId, _zone: { top: -1, bottom: 0, right: 5, left: 9 } }],
           tableType: "static",
+          config: DEFAULT_TABLE_CONFIG,
         })
       ).toBeCancelledBecause(CommandResult.InvalidRange);
     });
