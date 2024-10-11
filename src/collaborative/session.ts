@@ -437,6 +437,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       case "REMOTE_REVISION":
       case "REVISION_REDONE":
       case "REVISION_UNDONE":
+      case "SNAPSHOT_CREATED":
         return this.processedRevisions.has(message.nextRevisionId);
       default:
         return false;
