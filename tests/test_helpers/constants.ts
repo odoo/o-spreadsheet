@@ -1,6 +1,7 @@
 import { SpreadsheetPivotTable } from "../../src";
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toZone } from "../../src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
 import { PivotCoreDefinition } from "../../src/types/pivot";
 import { target, toRangesData } from "./helpers";
@@ -148,6 +149,7 @@ export const TEST_COMMANDS: CommandMapping = {
     ranges: toRangesData("sheetId", "A1"),
     sheetId: "sheetId",
     tableType: "static",
+    config: DEFAULT_TABLE_CONFIG,
   },
   REMOVE_TABLE: {
     type: "REMOVE_TABLE",
