@@ -535,9 +535,8 @@ describe("figures", () => {
         const envClipBoardContent = await env.clipboard.read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          expect(envClipboardTextContent).toEqual(
-            model.getters.getClipboardContent()["text/plain"]
-          );
+          const osClipboardContent = await model.getters.getOsClipboardContentAsync();
+          expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
         }
         paste(model, "A4");
         expect(getFigureIds(model, sheetId)).toHaveLength(2);
@@ -554,9 +553,8 @@ describe("figures", () => {
         const envClipBoardContent = await env.clipboard.read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          expect(envClipboardTextContent).toEqual(
-            model.getters.getClipboardContent()["text/plain"]
-          );
+          const osClipboardContent = await model.getters.getOsClipboardContentAsync();
+          expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
         }
         paste(model, "A1");
         expect(getFigureIds(model, sheetId)).toHaveLength(1);
