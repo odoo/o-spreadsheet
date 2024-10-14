@@ -1,10 +1,10 @@
 import { ChartCreationContext, Model } from "../../../src";
-import { PieChart } from "../../../src/helpers/figures/charts";
-import { PieChartRuntime } from "../../../src/types/chart";
-import { createChart } from "../../test_helpers";
+import { RadarChart } from "../../../src/helpers/figures/charts/radar_chart";
+import { RadarChartRuntime } from "../../../src/types/chart/radar_chart";
+import { createChart } from "../../test_helpers/commands_helpers";
 
-describe("pie chart", () => {
-  test("create pie chart from creation context", () => {
+describe("radar chart", () => {
+  test("create radar chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
       title: { text: "hello there" },
@@ -23,9 +23,9 @@ describe("pie chart", () => {
       fillArea: true,
       showValues: false,
     };
-    const definition = PieChart.getDefinitionFromContextCreation(context);
+    const definition = RadarChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
-      type: "pie",
+      type: "radar",
       background: "#123456",
       title: { text: "hello there" },
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
@@ -33,12 +33,12 @@ describe("pie chart", () => {
       legendPosition: "bottom",
       dataSetsHaveTitle: true,
       aggregated: true,
-      isDoughnut: false,
-      showValues: false,
+      fillArea: true,
+      stacked: true,
     });
   });
 
-  test("Bar chart legend", () => {
+  test("Radar chart legend", () => {
     const model = new Model({
       sheets: [
         {
@@ -58,13 +58,16 @@ describe("pie chart", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "Sheet1!A1:A2" }, { dataRange: "Sheet1!A3:A4" }],
+        dataSets: [
+          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+        ],
         labelRange: "Sheet1!A2:A4",
-        type: "pie",
+        type: "bar",
       },
       "1"
     );
-    const runtime = model.getters.getChartRuntime("1") as PieChartRuntime;
+    const runtime = model.getters.getChartRuntime("1") as RadarChartRuntime;
     const fakeChart = {
       ...runtime.chartJsConfig,
       isDatasetVisible: (index) => true,
@@ -73,20 +76,24 @@ describe("pie chart", () => {
       runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.(fakeChart as any)
     ).toEqual([
       {
-        text: "3",
-        fillStyle: "#4EA7F2",
+        color: "#000000",
+        fontColor: "#000000",
+        text: "serie_1",
+        fillStyle: "#f00",
         hidden: false,
-        lineWidth: 2,
+        lineWidth: 3,
         pointStyle: "rect",
-        strokeStyle: "#4EA7F2",
+        strokeStyle: "#FFFFFF",
       },
       {
-        text: "4",
-        fillStyle: "#EA6175",
+        color: "#000000",
+        fontColor: "#000000",
+        text: "serie_2",
+        fillStyle: "#00f",
         hidden: false,
-        lineWidth: 2,
+        lineWidth: 3,
         pointStyle: "rect",
-        strokeStyle: "#EA6175",
+        strokeStyle: "#FFFFFF",
       },
     ]);
   });

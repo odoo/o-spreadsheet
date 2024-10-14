@@ -44,12 +44,6 @@ export class LineConfigPanel extends GenericChartConfigPanel {
     });
   }
 
-  onUpdateAggregated(aggregated: boolean) {
-    this.props.updateChart(this.props.figureId, {
-      aggregated,
-    });
-  }
-
   onUpdateCumulative(cumulative: boolean) {
     this.props.updateChart(this.props.figureId, {
       cumulative,

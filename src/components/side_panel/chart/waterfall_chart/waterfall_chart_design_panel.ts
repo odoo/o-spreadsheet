@@ -17,6 +17,7 @@ import {
   AxisDesignEditor,
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartLegend } from "../building_blocks/legend/legend";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
 interface Props {
@@ -36,6 +37,7 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     RoundColorPicker,
     AxisDesignEditor,
     RadioSelection,
+    ChartLegend,
   };
   static props = {
     figureId: String,
@@ -90,19 +92,9 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     );
   }
 
-  updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
-      legendPosition: ev.target.value,
-    });
-  }
-
   updateVerticalAxisPosition(value: "left" | "right") {
     this.props.updateChart(this.props.figureId, {
       verticalAxisPosition: value,
     });
-  }
-
-  updateShowValues(showValues: boolean) {
-    this.props.updateChart(this.props.figureId, { showValues });
   }
 }

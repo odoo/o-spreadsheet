@@ -65,8 +65,11 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
           "labels": {
             "color": "#FFFFFF",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -191,8 +194,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -323,8 +329,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -431,8 +440,12 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "legend": {
           "labels": {
             "color": "#000000",
+            "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -536,8 +549,11 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -659,8 +675,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -782,8 +801,11 @@ exports[`datasource tests create chart with column datasets with category title 
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -905,8 +927,11 @@ exports[`datasource tests create chart with column datasets without series title
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -999,8 +1024,11 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -1122,8 +1150,11 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -1245,8 +1276,11 @@ exports[`datasource tests create chart with row datasets 1`] = `
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -1368,8 +1402,11 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -1491,8 +1528,11 @@ exports[`datasource tests create chart with row datasets without series title 1`
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
