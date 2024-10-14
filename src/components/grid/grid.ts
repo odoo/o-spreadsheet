@@ -633,9 +633,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const figureSheetId = this.env.model.getters.getFigureSheetId(figureId)!;
       const figure = this.env.model.getters.getFigure(figureSheetId, figureId)!;
       const runtime = this.env.model.getters.getChartRuntime(figureId);
-      const blob = chartToImageBlob(runtime, figure, type)!;
-      const file = new File([blob], "image/png", { type: "image/png" });
-      clipboardData!.items.add(file);
+      const blob = await chartToImageBlob(runtime, figure, type)!;
+      if (blob) {
+        const file = new File([blob], "image/png", { type: "image/png" });
+        clipboardData!.items.add(file);
+      }
     }
 
     ev.preventDefault();

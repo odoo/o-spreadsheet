@@ -114,12 +114,14 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
       const runtime = env.model.getters.getChartRuntime(figureId);
       const blob = await chartToImageBlob(runtime, figure, type)!;
-      const file = new File([blob], "image/png", { type: "image/png" });
-      console.log(file.type);
-      await env.clipboard.write({
-        //@ts-ignore
-        [ClipboardMIMEType.Png]: blob, //new ClipboardItem({ [file.type]: file }),
-      });
+      if (blob) {
+        const file = new File([blob], "image/png", { type: "image/png" });
+        console.log(file.type);
+        await env.clipboard.write({
+          //@ts-ignore
+          [ClipboardMIMEType.Png]: blob, //new ClipboardItem({ [file.type]: file }),
+        });
+      }
     },
     icon: "o-spreadsheet-Icon.COPY",
   };
