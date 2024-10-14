@@ -29,6 +29,7 @@ import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard"
 import {
   copy,
   createChart,
+  createImage,
   createSheet,
   createTableWithFilter,
   cut,
@@ -90,6 +91,9 @@ import {
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("../__mocks__/content_editable_helper")
+);
+jest.mock("../../src/helpers/figures/images/image_provider", () =>
+  require("../__mocks__/mock_image_provider")
 );
 
 function getVerticalScroll(): number {
@@ -1028,14 +1032,14 @@ describe("Grid component", () => {
       expect(highlightStore.highlights).toEqual([]);
     });
 
-    test("paint format does not destroy clipboard content", () => {
+    test("paint format does not destroy clipboard content", async () => {
       setCellContent(model, "A1", "hello");
       setStyle(model, "A1", { bold: true });
       copy(model, "A1");
 
-      const clipboardContent = model.getters.getClipboardContent();
+      const clipboardContent = await model.getters.getOsClipboardContentAsync();
       paintFormatStore.activate({ persistent: false });
-      expect(model.getters.getClipboardContent()).toEqual(clipboardContent);
+      expect(await model.getters.getOsClipboardContentAsync()).toEqual(clipboardContent);
     });
 
     test("can paint format after a cut", async () => {
@@ -1506,10 +1510,13 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
 describe("Copy paste keyboard shortcut", () => {
   let clipboardData: MockClipboardData;
   let sheetId: string;
-
+  const fileStore = new FileStore();
   beforeEach(async () => {
+    // mockChartData = mockChart();
     clipboardData = new MockClipboardData();
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    ({ parent, model, fixture } = await mountSpreadsheet({
+      model: new Model({}, { external: { fileStore } }),
+    }));
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -1532,6 +1539,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
@@ -1550,6 +1560,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
@@ -1570,6 +1583,9 @@ describe("Copy paste keyboard shortcut", () => {
     setStyle(model, "A1", { bold: true });
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     setCellContent(model, "A1", "new content");
     setStyle(model, "A1", { bold: false });
     selectCell(model, "A2");
@@ -1585,6 +1601,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
@@ -1598,6 +1617,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    let clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     let clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "A1").formattedValue
@@ -1611,6 +1633,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "B1", "1");
     selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
@@ -1627,7 +1652,11 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", content);
     setStyle(model, "A1", { fillColor: "red", align: "right", bold: true });
     selectCell(model, "A1");
-    document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    const ev = getClipboardEvent("copy", clipboardData);
+    document.body.dispatchEvent(ev);
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     // Fake OS clipboard should have the same content
     // to make paste come from spreadsheet clipboard
     // which support paste as values
@@ -1727,11 +1756,15 @@ describe("Copy paste keyboard shortcut", () => {
     createChart(model, { type: "bar" }, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
       "text/plain": "\t",
     });
-    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await nextTick();
     expect(model.getters.getChartIds(sheetId)).toHaveLength(2);
   });
 
@@ -1740,13 +1773,86 @@ describe("Copy paste keyboard shortcut", () => {
     createChart(model, { type: "bar" }, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
       "text/plain": "\t",
     });
-    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await nextTick();
     expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
     expect(model.getters.getChartIds(sheetId)[0]).not.toEqual("chartId");
+  });
+
+  test.each<"cut" | "copy">(["copy", "cut"])(
+    "%s a chart doesn't  push it in the clipboard",
+    async (operation) => {
+      selectCell(model, "A1");
+      createChart(model, { type: "bar" }, "chartId");
+      model.dispatch("SELECT_FIGURE", { id: "chartId" });
+      document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
+      await nextTick();
+      const clipboard = await parent.env.clipboard.read!();
+      if (clipboard.status !== "ok") {
+        throw new Error("Clipboard read failed");
+      }
+      const clipboardContent = clipboard.content;
+
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      //@ts-ignore
+      const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+
+      expect(clipboardContent).toMatchObject({
+        "text/plain": "\t",
+        "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'></div>`,
+      });
+    }
+  );
+
+  test.each<"cut" | "copy">(["copy"])(
+    "%s an image pushes it in the clipboard as attachment",
+    async (operation) => {
+      selectCell(model, "A1");
+      createImage(model, { figureId: "imageId" });
+      model.dispatch("SELECT_FIGURE", { id: "imageId" });
+      document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
+      await nextTick();
+      const clipboard = await parent.env.clipboard.read!();
+      if (clipboard.status !== "ok") {
+        throw new Error("Clipboard read failed");
+      }
+      const clipboardContent = clipboard.content;
+
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      //@ts-ignore
+      const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+      //@ts-ignore
+      const imgData = (await cbPlugin.readFileAsDataURL(
+        new Blob([], { type: "image/png" })
+      )) as string;
+
+      expect(clipboardContent).toMatchObject({
+        "text/plain": "\t",
+        "text/html": `<div data-osheet-clipboard='${xmlEscape(
+          clipboardHtmlData
+        )}'><img src="${xmlEscape(imgData)}" /></div>`,
+        "image/png": expect.any(Blob),
+      });
+    }
+  );
+
+  test("Paste an image from the clipboard uploads it on the server and adds it to the sheet", async () => {
+    const image = new File(["image"], "image.png", { type: "image/png" });
+    clipboardData.setData("image/png", image);
+    selectCell(model, "A1");
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await nextTick();
+    const figures = model.getters.getFigures(sheetId);
+    expect(figures).toHaveLength(1);
+    expect(model.getters.getFigure(sheetId, figures[0].id)).toMatchObject({});
   });
 });
 

@@ -1,6 +1,6 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { Figure } from "../../../types";
-import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
+import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
 import { deepCopy } from "../../misc";
 import { drawGaugeChart } from "./gauge_chart_rendering";
@@ -25,7 +25,7 @@ export const CHART_COMMON_OPTIONS: ChartOptions = {
 export function chartToImage(
   runtime: ChartRuntime,
   figure: Figure,
-  type: string
+  type: ChartType
 ): string | undefined {
   // wrap the canvas in a div with a fixed size because chart.js would
   // fill the whole page otherwise
@@ -59,6 +59,33 @@ export function chartToImage(
     return imgContent;
   }
   return undefined;
+}
+
+export async function chartToImageFile(
+  runtime: ChartRuntime,
+  figure: Figure,
+  type: ChartType
+): Promise<File | undefined> {
+  const chartString = chartToImage(runtime, figure, type);
+  if (!chartString) {
+    return undefined;
+  }
+  return base64ToFile(chartString, "chart.png", "image/png");
+}
+
+function base64ToFile(base64: string, fileName: string, mimeType: string): File {
+  // Remove the data URL part if present
+  const byteCharacters = atob(base64.split(",")[1]);
+
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const byteArray = new Uint8Array(byteNumbers);
+
+  // Create a Blob object from the byteArray
+  return new File([byteArray], fileName, { type: mimeType });
 }
 
 /**

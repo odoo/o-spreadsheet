@@ -1,9 +1,11 @@
 import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
+import { chartToImage, chartToImageFile } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv, UID } from "../types";
+import { xmlEscape } from "../xlsx/helpers/xml_helpers";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------
@@ -58,6 +60,25 @@ function getChartMenu(
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
+    {
+      id: "copy_as_image",
+      name: _t("Copy as image"),
+      sequence: 4,
+      execute: async () => {
+        const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
+        const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
+        const chartType = env.model.getters.getChartType(figureId);
+        const runtime = env.model.getters.getChartRuntime(figureId);
+        const imageUrl = chartToImage(runtime, figure, chartType)!;
+        const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
+        const blob = await chartToImageFile(runtime, figure, chartType)!;
+
+        env.clipboard.write({
+          "text/html": innerHTML,
+          "image/png": blob,
+        });
+      },
+    },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];
   return createActions(menuItemSpecs);
@@ -108,7 +129,8 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
       env.model.dispatch("COPY");
-      await env.clipboard.write(env.model.getters.getClipboardContent());
+      const osClipboardContent = await env.model.getters.getOsClipboardContentAsync();
+      await env.clipboard.write(osClipboardContent);
     },
     icon: "o-spreadsheet-Icon.CLIPBOARD",
   };
@@ -123,7 +145,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
       env.model.dispatch("CUT");
-      await env.clipboard.write(env.model.getters.getClipboardContent());
+      await env.clipboard.write(await env.model.getters.getOsClipboardContentAsync());
     },
     icon: "o-spreadsheet-Icon.CUT",
   };

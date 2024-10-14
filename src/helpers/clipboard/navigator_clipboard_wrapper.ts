@@ -1,3 +1,4 @@
+import { AllowedImageMimeTypes } from "../../types/image";
 import { ClipboardMIMEType, OSClipboardContent } from "./../../types/clipboard";
 
 export type ClipboardReadResult =
@@ -28,6 +29,7 @@ class WebClipboardWrapper implements ClipboardInterface {
          * Therefore, we try to catch any errors and fallback on writing only standard
          * mimetypes to prevent the whole copy action from crashing.
          */
+        console.log("Failed to write on the clipboard, falling back to plain/html text.");
         try {
           await this.clipboard?.write([
             new ClipboardItem({
@@ -64,7 +66,12 @@ class WebClipboardWrapper implements ClipboardInterface {
         for (const item of clipboardItems) {
           for (const type of item.types) {
             const blob = await item.getType(type);
-            clipboardContent[type as ClipboardMIMEType] = await blob.text();
+            if (type in AllowedImageMimeTypes) {
+              clipboardContent[type] = blob;
+            } else {
+              const text = await blob.text();
+              clipboardContent[type] = text;
+            }
           }
         }
         return { status: "ok", content: clipboardContent };
@@ -83,14 +90,18 @@ class WebClipboardWrapper implements ClipboardInterface {
   }
 
   private getClipboardItems(content: OSClipboardContent): ClipboardItems {
-    const clipboardItemData = {
-      [ClipboardMIMEType.PlainText]: this.getBlob(content, ClipboardMIMEType.PlainText),
-      [ClipboardMIMEType.Html]: this.getBlob(content, ClipboardMIMEType.Html),
-    };
+    const clipboardItemData = {};
+    for (const type of Object.keys(content)) {
+      clipboardItemData[type] = this.getBlob(content, type);
+    }
     return [new ClipboardItem(clipboardItemData)];
   }
 
-  private getBlob(clipboardContent: OSClipboardContent, type: ClipboardMIMEType): Blob {
+  private getBlob(clipboardContent: OSClipboardContent, type: string): Blob {
+    const content = clipboardContent[type];
+    if (content instanceof Blob || content instanceof File) {
+      return content;
+    }
     return new Blob([clipboardContent[type] || ""], {
       type,
     });
