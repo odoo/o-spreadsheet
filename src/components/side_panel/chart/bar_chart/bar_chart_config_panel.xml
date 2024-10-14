@@ -4,7 +4,7 @@
       <Section class="'pt-0'">
         <Checkbox
           name="'stacked'"
-          label="chartTerms.StackedBarChart"
+          label="stackedLabel"
           value="props.definition.stacked"
           onChange.bind="onUpdateStacked"
         />
