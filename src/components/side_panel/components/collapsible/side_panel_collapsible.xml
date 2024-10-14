@@ -11,9 +11,7 @@
           <span class="collapsor-arrow">
             <t t-call="o-spreadsheet-Icon.ANGLE_DOWN"/>
           </span>
-          <div class="ps-2">
-            <t t-slot="title"/>
-          </div>
+          <div class="ps-2" t-esc="props.title"/>
         </div>
       </div>
       <div
