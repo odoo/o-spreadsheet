@@ -113,6 +113,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
               <div
                 class="o-selection-input d-flex flex-row"
               >
+                
                 <div
                   class="position-relative w-100"
                 >
@@ -327,6 +328,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
               <div
                 class="o-selection-input d-flex flex-row"
               >
+                
                 <div
                   class="position-relative w-100"
                 >

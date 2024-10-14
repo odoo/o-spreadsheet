@@ -119,6 +119,13 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     });
   }
 
+  onDataSeriesReordered(indexes: number[]) {
+    this.dataSeriesRanges = indexes.map((i) => this.dataSeriesRanges[i]);
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
+      dataSets: this.dataSeriesRanges,
+    });
+  }
+
   onDataSeriesConfirmed() {
     this.dataSeriesRanges = spreadRange(this.env.model.getters, this.dataSeriesRanges);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {

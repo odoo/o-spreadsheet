@@ -7,6 +7,7 @@
         hasSingleRange="props.hasSingleRange"
         onSelectionChanged="(ranges) => props.onSelectionChanged(ranges)"
         onSelectionConfirmed="() => props.onSelectionConfirmed()"
+        onSelectionReordered="(indexes) => props.onSelectionReordered(indexes)"
         colors="colors"
       />
     </Section>
