@@ -38,6 +38,7 @@ import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { HighlightStore } from "../../stores/highlight_store";
+import { AllowedImageMimeTypes } from "../../types/image";
 import {
   Align,
   CellValueType,
@@ -610,11 +611,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.dispatch("COPY");
     }
-    const content = this.env.model.getters.getClipboardContent();
-    const clipboardData = ev.clipboardData;
-    for (const type in content) {
-      clipboardData?.setData(type, content[type]);
-    }
+    const osContent = await this.env.model.getters.getClipboardTextAndImageContent();
+    await this.env.clipboard.write(osContent);
     ev.preventDefault();
   }
 
@@ -629,23 +627,30 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (!clipboardData) {
       return;
     }
-
+    const image = [...clipboardData?.files]?.find((file) =>
+      AllowedImageMimeTypes.includes(file.type as (typeof AllowedImageMimeTypes)[number])
+    );
     const osClipboard = {
       content: {
         [ClipboardMIMEType.PlainText]: clipboardData?.getData(ClipboardMIMEType.PlainText),
         [ClipboardMIMEType.Html]: clipboardData?.getData(ClipboardMIMEType.Html),
       },
     };
+    if (image) {
+      // TODO: support import of multiple images
+      osClipboard.content[image.type] = image;
+    }
 
     const target = this.env.model.getters.getSelectedZones();
     const isCutOperation = this.env.model.getters.isCutOperation();
 
-    const clipboardContent = parseOSClipboardContent(osClipboard.content);
-    const clipboardId = clipboardContent.data?.clipboardId;
-    if (this.env.model.getters.getClipboardId() === clipboardId) {
+    const clipboardId = this.env.model.getters.getClipboardId();
+    const osClipboardContent = parseOSClipboardContent(osClipboard.content, clipboardId);
+    const osClipboardId = osClipboardContent.data?.clipboardId;
+    if (clipboardId === osClipboardId) {
       interactivePaste(this.env, target);
     } else {
-      interactivePasteFromOS(this.env, target, clipboardContent);
+      await interactivePasteFromOS(this.env, target, osClipboardContent);
     }
     if (isCutOperation) {
       await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });

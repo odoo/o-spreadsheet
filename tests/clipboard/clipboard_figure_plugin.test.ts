@@ -16,7 +16,7 @@ import {
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { getFigureDefinition, getFigureIds, nextTick } from "../test_helpers/helpers";
+import { getFigureDefinition, getFigureIds, mockChart, nextTick } from "../test_helpers/helpers";
 
 describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => {
   let model: Model;
@@ -24,6 +24,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   let figureId: UID;
 
   beforeEach(async () => {
+    mockChart(); // mock chart.js with luxon time adapter installed
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     figureId = model.uuidGenerator.uuidv4();
@@ -177,15 +178,18 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     });
   });
 
-  test("Chart clipboard content is not serialized at copy", () => {
+  test("Chart clipboard content is not serialized at copy", async () => {
     model.dispatch("SELECT_FIGURE", { id: figureId });
     copy(model);
 
-    const clipboardSpreadsheetContent = parseOSClipboardContent(model.getters.getClipboardContent())
-      .data!;
-    expect(clipboardSpreadsheetContent.figureId).toBe(undefined);
-    expect(clipboardSpreadsheetContent.copiedFigure).toBe(undefined);
-    expect(clipboardSpreadsheetContent.copiedChart).toBe(undefined);
+    const clipboardSpreadsheetContent = await parseOSClipboardContent(
+      await model.getters.getClipboardTextAndImageContent(),
+      model.getters.getClipboardId()
+    );
+    const clipboardData = clipboardSpreadsheetContent.data;
+    expect(clipboardData?.figureId).toBe(undefined);
+    expect(clipboardData?.copiedFigure).toBe(undefined);
+    expect(clipboardData?.copiedChart).toBe(undefined);
   });
 
   describe("Paste command result", () => {

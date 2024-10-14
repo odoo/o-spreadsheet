@@ -60,6 +60,13 @@ beforeEach(() => {
       }
       return 0;
     });
+  jest
+    .spyOn(HTMLCanvasElement.prototype, "toBlob")
+    .mockImplementation(function (callback: BlobCallback, type?: string) {
+      const data = new Uint8Array(length);
+      const blob = new window.Blob([data], { type });
+      setTimeout(() => callback(blob), 0);
+    });
 });
 
 afterEach(() => {

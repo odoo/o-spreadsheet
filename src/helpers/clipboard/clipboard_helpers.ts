@@ -1,3 +1,4 @@
+import { SpreadsheetClipboardData } from "../../plugins/ui_stateful";
 import {
   ClipboardCellData,
   ClipboardMIMEType,
@@ -6,6 +7,7 @@ import {
   UID,
   Zone,
 } from "../../types";
+import { AllowedImageMimeTypes } from "../../types/image";
 import { mergeOverlappingZones, positions } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
@@ -62,22 +64,32 @@ export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
   return target.map((t) => splitZoneForPaste(t, width, height)).flat();
 }
 
-export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSClipboardContent {
-  if (!content[ClipboardMIMEType.Html]) {
-    return {
-      text: content[ClipboardMIMEType.PlainText],
-    };
+export function parseOSClipboardContent(
+  content: OSClipboardContent,
+  clipboardId: string
+): ParsedOSClipboardContent {
+  let spreadsheetContent: SpreadsheetClipboardData | undefined = undefined;
+  if (content[ClipboardMIMEType.Html]) {
+    const htmlDocument = new DOMParser().parseFromString(
+      content[ClipboardMIMEType.Html],
+      "text/html"
+    );
+    const oSheetClipboardData = htmlDocument
+      .querySelector("div")
+      ?.getAttribute("data-osheet-clipboard");
+    spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
   }
-  const htmlDocument = new DOMParser().parseFromString(
-    content[ClipboardMIMEType.Html],
-    "text/html"
-  );
-  const oSheetClipboardData = htmlDocument
-    .querySelector("div")
-    ?.getAttribute("data-osheet-clipboard");
-  const spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
-  return {
+  let imageBlob: Blob | undefined = undefined;
+  for (const type of AllowedImageMimeTypes) {
+    if (content[type]) {
+      imageBlob = content[type];
+      break;
+    }
+  }
+  const osClipboardContent: ParsedOSClipboardContent = {
     text: content[ClipboardMIMEType.PlainText],
     data: spreadsheetContent,
+    imageBlob,
   };
+  return osClipboardContent;
 }

@@ -5,6 +5,7 @@ import {
   CommandResult,
   DispatchResult,
   ParsedOSClipboardContent,
+  ParsedOsClipboardContentWithImageData,
   SpreadsheetChildEnv,
   Zone,
 } from "../../types";
@@ -41,10 +42,10 @@ export function interactivePaste(
   handlePasteResult(env, result);
 }
 
-export function interactivePasteFromOS(
+export async function interactivePasteFromOS(
   env: SpreadsheetChildEnv,
   target: Zone[],
-  clipboardContent: ParsedOSClipboardContent,
+  parsedClipboardContent: ParsedOSClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ) {
   let result: DispatchResult;
@@ -52,13 +53,27 @@ export function interactivePasteFromOS(
   // Therefore, to ensure reliability, we handle unexpected errors that may
   // arise from content that would not be suitable for the current version.
   try {
+    const clipboarContent: ParsedOsClipboardContentWithImageData = parsedClipboardContent;
+
+    if (parsedClipboardContent.imageBlob) {
+      try {
+        const imageData = await env.imageProvider?.uploadFile(parsedClipboardContent.imageBlob);
+        clipboarContent.imageData = imageData;
+      } catch (e) {
+        const msg = _t("An error occurred while uploading the image. %s", e.message);
+        console.error(e);
+        env.raiseError(msg);
+      }
+      delete parsedClipboardContent.imageBlob;
+    }
+
     result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       target,
-      clipboardContent,
+      clipboardContent: parsedClipboardContent,
       pasteOption,
     });
   } catch (error) {
-    const parsedSpreadsheetContent = clipboardContent.data;
+    const parsedSpreadsheetContent = parsedClipboardContent.data;
 
     if (parsedSpreadsheetContent?.version !== CURRENT_VERSION) {
       env.raiseError(
@@ -67,11 +82,19 @@ export function interactivePasteFromOS(
           This is probably due to a spreadsheet version mismatch."
         )
       );
+    } else {
+      env.raiseError(
+        _t(
+          "An unexpected error occurred while pasting content.\
+          Additional information can be found in the browser console."
+        )
+      );
+      console.error(error);
     }
     result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
       target,
       clipboardContent: {
-        text: clipboardContent.text,
+        text: parsedClipboardContent.text,
       },
       pasteOption,
     });

@@ -1,7 +1,7 @@
 import {
   ConditionalFormat,
-  DOMCoordinates,
   DataValidationRule,
+  DOMCoordinates,
   Figure,
   Format,
   Locale,
@@ -23,7 +23,7 @@ import {
 } from "./misc";
 
 import { ChartDefinition } from "./chart/chart";
-import { ClipboardPasteOptions, ParsedOSClipboardContent } from "./clipboard";
+import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
@@ -795,7 +795,7 @@ export interface AutoFillCellCommand {
 export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Zone[];
-  clipboardContent: ParsedOSClipboardContent;
+  clipboardContent: ParsedOsClipboardContentWithImageData;
   pasteOption?: ClipboardPasteOptions;
 }
 

@@ -6,6 +6,7 @@ const formData = require("express-form-data");
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
+const path = require("path"); // magic
 const expressWS = require("express-ws")(express());
 const app = expressWS.app;
 
@@ -102,12 +103,14 @@ app.post("/upload-image", function (req, res) {
     }
     const formeData = req.files;
     const readStream = formeData["image"];
+    const inputFileName = path.basename(readStream.path);
+
     // We use the number of files in the images folder to determined the next file name.
     fs.readdir(imagesDirectory, (err, files) => {
       if (err) {
         log(err);
       } else {
-        const file_name = files.length.toString();
+        const file_name = files.length.toString() + inputFileName;
         const output = imagesDirectory + "/" + file_name;
         // This opens up the writeable stream to `output`
         const writeStream = fs.createWriteStream(output);

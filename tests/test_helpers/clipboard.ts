@@ -5,15 +5,12 @@ import {
 import { ClipboardMIMEType, OSClipboardContent } from "../../src/types";
 
 export class MockClipboard implements ClipboardInterface {
-  private content: OSClipboardContent = {};
+  content: OSClipboardContent = {};
 
   async read(): Promise<ClipboardReadResult> {
     return {
       status: "ok",
-      content: {
-        [ClipboardMIMEType.PlainText]: this.content[ClipboardMIMEType.PlainText],
-        [ClipboardMIMEType.Html]: this.content[ClipboardMIMEType.Html],
-      },
+      content: { ...this.content },
     };
   }
 
@@ -23,26 +20,35 @@ export class MockClipboard implements ClipboardInterface {
   }
 
   async write(content: OSClipboardContent) {
-    this.content = {
-      [ClipboardMIMEType.PlainText]: content[ClipboardMIMEType.PlainText],
-      [ClipboardMIMEType.Html]: content[ClipboardMIMEType.Html],
-    };
+    this.content = { ...content };
+  }
+}
+
+// jsDom does not support the creation of FileList
+// https://github.com/jsdom/jsdom/blame/main/lib/jsdom/living/file-api/FileList-impl.js#L7
+class MockFileList extends Array<File> implements FileList {
+  item(index: number): File | null {
+    return this[index] || null;
   }
 }
 
 export class MockClipboardData {
   content: OSClipboardContent = {};
+  files: MockFileList = new MockFileList();
 
   setText(text: string) {
     this.content[ClipboardMIMEType.PlainText] = text;
   }
 
-  getData(type: ClipboardMIMEType) {
-    return this.content[type] || "";
+  getData<T extends keyof OSClipboardContent>(type: T): OSClipboardContent[T] {
+    return this.content[type];
   }
 
-  setData(type: ClipboardMIMEType, content: string) {
+  setData<T extends keyof OSClipboardContent>(type: T, content: OSClipboardContent[T]) {
     this.content[type] = content;
+    if (type.startsWith("image")) {
+      this.files.push(content as File);
+    }
   }
 
   get types() {

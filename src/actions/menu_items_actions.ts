@@ -55,13 +55,14 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
   const osClipboard = await env.clipboard.read();
   switch (osClipboard.status) {
     case "ok":
-      const clipboardContent = parseOSClipboardContent(osClipboard.content);
-      const clipboardId = clipboardContent.data?.clipboardId;
+      const clipboardId = env.model.getters.getClipboardId();
+      const osClipboardContent = parseOSClipboardContent(osClipboard.content, clipboardId);
+      const osClipboardId = osClipboardContent.data?.clipboardId;
 
       const target = env.model.getters.getSelectedZones();
 
-      if (env.model.getters.getClipboardId() !== clipboardId) {
-        interactivePasteFromOS(env, target, clipboardContent, pasteOption);
+      if (clipboardId !== osClipboardId) {
+        await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
       } else {
         interactivePaste(env, target, pasteOption);
       }
@@ -467,7 +468,7 @@ async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined
     return await env.imageProvider!.requestImage();
   } catch {
     env.raiseError(_t("An unexpected error occurred during the image transfer"));
-    return undefined;
+    return;
   }
 }
 
@@ -477,7 +478,7 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
     const figureId = env.model.uuidGenerator.smallUuid();
     const image = await requestImage(env);
     if (!image) {
-      throw new Error("No image provider was given to the environment");
+      return;
     }
     const size = getMaxFigureSize(env.model.getters, image.size);
     const position = centerFigurePosition(env.model.getters, size);

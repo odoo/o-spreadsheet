@@ -5,6 +5,7 @@ import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
+import { ClipboardPlugin } from "../../../src/plugins/ui_stateful";
 import {
   CHART_TYPES,
   ChartDefinition,
@@ -15,6 +16,7 @@ import {
 import { PieChartRuntime } from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
 import {
   getChartConfiguration,
   openChartConfigSidePanel,
@@ -48,6 +50,7 @@ import {
 } from "../../test_helpers/dom_helper";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import {
+  getPlugin,
   mockChart,
   mockGeoJsonService,
   mountComponentWithPortalTarget,
@@ -305,6 +308,34 @@ describe("charts", () => {
       },
     });
   });
+
+  test.each([TEST_CHART_TYPES])(
+    "Copy a chart as a figure pushes it in the clipboard as a File",
+    async (chartType) => {
+      await mountSpreadsheet();
+      createTestChart(chartType);
+      await nextTick();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-figure-menu-item");
+      await simulateClick(".o-menu div[data-name='copy_as_image']");
+      await nextTick();
+      const clipboard = await env.clipboard.read!();
+      if (clipboard.status !== "ok") {
+        throw new Error("Clipboard read failed");
+      }
+      const clipboardContent = clipboard.content;
+
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      //@ts-ignore
+      const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+      const imgData = new window.Chart("test", mockChartData).toBase64Image();
+
+      expect(clipboardContent).toMatchObject({
+        "text/html": `<img src="${xmlEscape(imgData)}" />`,
+        "image/png": expect.any(Blob),
+      });
+    }
+  );
 
   test("can edit chart title color", async () => {
     createChart(
