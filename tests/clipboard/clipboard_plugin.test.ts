@@ -1,9 +1,13 @@
 import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
 import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
 import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
-import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
+import {
+  getClipboardDataPositions,
+  parseOSClipboardContent,
+} from "../../src/helpers/clipboard/clipboard_helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import {
   ClipboardMIMEType,
   ClipboardPasteTarget,
@@ -63,6 +67,7 @@ import {
   createEqualCF,
   createModelFromGrid,
   getGrid,
+  getPlugin,
   target,
   toRangesData,
 } from "../test_helpers/helpers";
@@ -207,9 +212,9 @@ describe("clipboard", () => {
     clipboardData.setData(ClipboardMIMEType.PlainText, "Excalibur");
 
     const content = clipboardData.getData(ClipboardMIMEType.PlainText);
-    pasteFromOSClipboard(model, "C2", { [ClipboardMIMEType.PlainText]: content });
+    pasteFromOSClipboard(model, "C2", { text: content });
     expect(getCellContent(model, "C2")).toBe(content);
-    pasteFromOSClipboard(model, "C3", { [ClipboardMIMEType.PlainText]: content }, "onlyFormat");
+    pasteFromOSClipboard(model, "C3", { text: content }, "onlyFormat");
     expect(getCellContent(model, "C3")).toBe("");
   });
 
@@ -556,7 +561,11 @@ describe("clipboard", () => {
       setCellContent(model, "A2", "3");
       copy(model, "A1:B2");
       const htmlContent = model.getters.getClipboardContent()[ClipboardMIMEType.Html]!;
-      const expectedHtmlContent = `<div data-clipboard-id="${model.getters.getClipboardId()}"><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      const clipboardData = JSON.stringify(cbPlugin["getgridData"]());
+      const expectedHtmlContent = `<div data-osheet-clipboard='${xmlEscape(
+        clipboardData
+      )}'><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
       expect(htmlContent).toBe(expectedHtmlContent);
     });
 
@@ -625,8 +634,10 @@ describe("clipboard", () => {
       const model = new Model();
       setCellContent(model, "A1", "1");
       copy(model, "A1");
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      const clipboardData = JSON.stringify(cbPlugin["getgridData"]());
       expect(model.getters.getClipboardContent()[ClipboardMIMEType.Html]).toBe(
-        `<div data-clipboard-id="${model.getters.getClipboardId()}">1</div>`
+        `<div data-osheet-clipboard='${xmlEscape(clipboardData)}'>1</div>`
       );
     });
   });
@@ -670,7 +681,7 @@ describe("clipboard", () => {
 
   test("can paste multiple cells from os clipboard", () => {
     const model = new Model();
-    pasteFromOSClipboard(model, "C1", { [ClipboardMIMEType.PlainText]: "a\t1\nb\t2" });
+    pasteFromOSClipboard(model, "C1", { text: "a\t1\nb\t2" });
 
     expect(getCellContent(model, "C1")).toBe("a");
     expect(getCellContent(model, "C2")).toBe("b");
@@ -683,7 +694,7 @@ describe("clipboard", () => {
     const sheetId = model.getters.getActiveSheetId();
     merge(model, "B2:C3");
     const result = pasteFromOSClipboard(model, "B2", {
-      [ClipboardMIMEType.PlainText]: "a\t1\nb\t2",
+      text: "a\t1\nb\t2",
     });
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
     expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3"]);
@@ -692,13 +703,13 @@ describe("clipboard", () => {
   test("pasting from OS will not change the viewport", () => {
     const model = new Model();
     const viewport = model.getters.getActiveMainViewport();
-    pasteFromOSClipboard(model, "C60", { [ClipboardMIMEType.PlainText]: "a\t1\nb\t2" });
+    pasteFromOSClipboard(model, "C60", { text: "a\t1\nb\t2" });
     expect(model.getters.getActiveMainViewport()).toEqual(viewport);
   });
 
   test("pasting numbers from windows clipboard => interpreted as number", () => {
     const model = new Model();
-    pasteFromOSClipboard(model, "C1", { [ClipboardMIMEType.PlainText]: "1\r\n2\r\n3" });
+    pasteFromOSClipboard(model, "C1", { text: "1\r\n2\r\n3" });
 
     expect(getCellContent(model, "C1")).toBe("1");
     expect(getEvaluatedCell(model, "C1").value).toBe(1);
@@ -2365,7 +2376,7 @@ describe("clipboard: pasting outside of sheet", () => {
   test("can paste multiple cells from os to outside of sheet", () => {
     const model = new Model();
     createSheet(model, { activate: true, sheetId: "2", rows: 2, cols: 2 });
-    pasteFromOSClipboard(model, "B2", { [ClipboardMIMEType.PlainText]: "A\nque\tcoucou\nBOB" });
+    pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\nBOB" });
     expect(getCellContent(model, "B2")).toBe("A");
     expect(getCellContent(model, "B3")).toBe("que");
     expect(getCellContent(model, "C3")).toBe("coucou");
@@ -2377,7 +2388,7 @@ describe("clipboard: pasting outside of sheet", () => {
       rows: 2,
       cols: 2,
     });
-    pasteFromOSClipboard(model, "B2", { [ClipboardMIMEType.PlainText]: "A\nque\tcoucou\tPatrick" });
+    pasteFromOSClipboard(model, "B2", { text: "A\nque\tcoucou\tPatrick" });
     expect(getCellContent(model, "B2")).toBe("A");
     expect(getCellContent(model, "B3")).toBe("que");
     expect(getCellContent(model, "C3")).toBe("coucou");
@@ -2392,7 +2403,7 @@ describe("clipboard: pasting outside of sheet", () => {
       formulaArgSeparator: ";",
       thousandsSeparator: " ",
     });
-    pasteFromOSClipboard(model, "A1", { [ClipboardMIMEType.PlainText]: "=SUM(5 ; 3,14)" });
+    pasteFromOSClipboard(model, "A1", { text: "=SUM(5 ; 3,14)" });
     expect(getCell(model, "A1")?.content).toBe("=SUM(5 , 3.14)");
     expect(getEvaluatedCell(model, "A1").value).toBe(8.14);
   });
@@ -2716,7 +2727,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     expect(clipboardContent["text/plain"]).toBe("b2");
 
-    pasteFromOSClipboard(modelB, "D2", clipboardContent);
+    pasteFromOSClipboard(modelB, "D2", parseOSClipboardContent(clipboardContent));
 
     expect(getCell(modelA, "B2")?.content).toBe("b2");
     expect(getCell(modelB, "D2")?.content).toBe("b2");
@@ -2736,7 +2747,7 @@ describe("cross spreadsheet copy/paste", () => {
     copy(modelA, "B2");
     const clipboardContent = modelA.getters.getClipboardContent();
 
-    pasteFromOSClipboard(modelB, "D2", clipboardContent);
+    pasteFromOSClipboard(modelB, "D2", parseOSClipboardContent(clipboardContent));
 
     expect(getBorder(modelA, "B2")).toEqual({ top: DEFAULT_BORDER_DESC });
     expect(getBorder(modelB, "D2")).toEqual({ top: DEFAULT_BORDER_DESC });
@@ -2756,7 +2767,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "A1:A5");
     const clipboardContent = modelA.getters.getClipboardContent();
-    pasteFromOSClipboard(modelB, "D1", clipboardContent);
+    pasteFromOSClipboard(modelB, "D1", parseOSClipboardContent(clipboardContent));
 
     expect(getCell(modelB, "D1")?.content).toBe("=SUM(1,2)");
     expect(getCell(modelB, "D2")?.content).toBe("=SUM(1,2)");
@@ -2774,7 +2785,7 @@ describe("cross spreadsheet copy/paste", () => {
     setCellContent(modelA, "A1", markdownLink(urlLabel, url));
     copy(modelA, "A1");
     const clipboardContent = modelA.getters.getClipboardContent();
-    pasteFromOSClipboard(modelB, "D1", clipboardContent);
+    pasteFromOSClipboard(modelB, "D1", parseOSClipboardContent(clipboardContent));
 
     const cell = getEvaluatedCell(modelB, "D1");
     expect(cell.link?.label).toBe(urlLabel);
@@ -2796,7 +2807,7 @@ describe("cross spreadsheet copy/paste", () => {
 
     copy(modelA, "A1:B2");
     const clipboardContent = modelA.getters.getClipboardContent();
-    pasteFromOSClipboard(modelB, "D1", clipboardContent);
+    pasteFromOSClipboard(modelB, "D1", parseOSClipboardContent(clipboardContent));
 
     const tableB = modelB.getters.getCoreTables(modelA.getters.getActiveSheetId())[0];
 
@@ -2827,16 +2838,9 @@ describe("cross spreadsheet copy/paste", () => {
     copy(modelB, "C1");
     copy(modelA, "A1");
     const clipboardContent = modelA.getters.getClipboardContent();
-
     expect(clipboardContent["text/plain"]).toBe("a1");
 
-    pasteFromOSClipboard(modelB, "B1", {
-      [ClipboardMIMEType.PlainText]: clipboardContent["text/plain"]
-        ? clipboardContent["text/plain"]
-        : "",
-      [ClipboardMIMEType.OSpreadsheet]: clipboardContent["web application/o-spreadsheet"],
-    });
-
+    pasteFromOSClipboard(modelB, "B1", parseOSClipboardContent(clipboardContent));
     expect(getCell(modelA, "A1")).toMatchObject({
       content: "a1",
     });
@@ -2856,11 +2860,31 @@ describe("cross spreadsheet copy/paste", () => {
     setCellContent(modelA, "C3", "=A3*B3");
 
     copy(modelA, "A1:C3");
-    pasteFromOSClipboard(modelB, "E1", modelA.getters.getClipboardContent());
+    pasteFromOSClipboard(
+      modelB,
+      "E1",
+      parseOSClipboardContent(modelA.getters.getClipboardContent())
+    );
 
     expect(getCell(modelB, "G1")?.content).toBe("=E1*F1");
     expect(getCell(modelB, "G2")?.content).toBe("=E2*F2");
     expect(getCell(modelB, "G3")?.content).toBe("=E3*F3");
+  });
+
+  test("can copy/paste cells with escapable content", () => {
+    const modelA = new Model();
+    const modelB = new Model();
+
+    const escapableString = ` & " < > / \ '`;
+    setCellContent(modelA, "A1", escapableString);
+    copy(modelA, "A1");
+    const clipboardContent = modelA.getters.getClipboardContent();
+
+    expect(clipboardContent["text/plain"]).toBe(escapableString);
+
+    pasteFromOSClipboard(modelB, "D2", parseOSClipboardContent(clipboardContent));
+    expect(getCell(modelA, "A1")?.content).toBe(escapableString);
+    expect(getCell(modelB, "D2")?.content).toBe(escapableString);
   });
 });
 
