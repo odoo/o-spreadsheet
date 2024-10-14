@@ -2087,6 +2087,24 @@ describe("Change chart type", () => {
     expect(select.value).toBe("stacked_line");
   });
 
+  test("Changing chart type updates the stacked checkbox label accordingly", async () => {
+    createChart(model, { type: "line" }, chartId);
+    await mountChartSidePanel(chartId);
+
+    expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked line chart");
+
+    updateChart(model, chartId, { fillArea: true }, sheetId);
+    await nextTick();
+    expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked area chart");
+
+    await changeChartType("bar");
+    expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked bar chart");
+
+    updateChart(model, chartId, { horizontal: false }, sheetId);
+    await nextTick();
+    expect(fixture.querySelector("label.o-checkbox")!.textContent).toBe("Stacked column chart");
+  });
+
   test("Can change chart type between radar and filled radar chart", async () => {
     createChart(model, { type: "radar", fillArea: false }, chartId);
     await mountChartSidePanel(chartId);
