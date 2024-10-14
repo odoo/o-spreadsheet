@@ -37,11 +37,11 @@ export class MockClipboardData {
     this.content[ClipboardMIMEType.PlainText] = text;
   }
 
-  getData(type: ClipboardMIMEType) {
-    return this.content[type] || "";
+  getData<T extends keyof OSClipboardContent>(type: T): OSClipboardContent[T] {
+    return this.content[type];
   }
 
-  setData(type: ClipboardMIMEType, content: string) {
+  setData<T extends keyof OSClipboardContent>(type: T, content: OSClipboardContent[T]) {
     this.content[type] = content;
   }
 

@@ -177,12 +177,13 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     });
   });
 
-  test("Chart clipboard content is not serialized at copy", () => {
+  test("Chart clipboard content is not serialized at copy", async () => {
     model.dispatch("SELECT_FIGURE", { id: figureId });
     copy(model);
 
-    const clipboardSpreadsheetContent = parseOSClipboardContent(model.getters.getClipboardContent())
-      .data!;
+    const clipboardSpreadsheetContent = parseOSClipboardContent(
+      await model.getters.getOsClipboardContentAsync()
+    ).data!;
     expect(clipboardSpreadsheetContent.figureId).toBe(undefined);
     expect(clipboardSpreadsheetContent.copiedFigure).toBe(undefined);
     expect(clipboardSpreadsheetContent.copiedChart).toBe(undefined);

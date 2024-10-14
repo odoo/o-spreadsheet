@@ -63,9 +63,14 @@ class WebClipboardWrapper implements ClipboardInterface {
         const clipboardContent: OSClipboardContent = {};
         for (const item of clipboardItems) {
           for (const type of item.types) {
+            // TODORAR read should work based on the type (if starts with, text, etc)
             const blob = await item.getType(type);
-            const text = await blob.text();
-            clipboardContent[type as ClipboardMIMEType] = text;
+            if (type === ClipboardMIMEType.Png) {
+              clipboardContent[type] = blob;
+            } else {
+              const text = await blob.text();
+              clipboardContent[type] = text;
+            }
           }
         }
         return { status: "ok", content: clipboardContent };
@@ -87,11 +92,16 @@ class WebClipboardWrapper implements ClipboardInterface {
     const clipboardItemData = {
       [ClipboardMIMEType.PlainText]: this.getBlob(content, ClipboardMIMEType.PlainText),
       [ClipboardMIMEType.Html]: this.getBlob(content, ClipboardMIMEType.Html),
+      [ClipboardMIMEType.Png]: this.getBlob(content, ClipboardMIMEType.Png),
     };
     return [new ClipboardItem(clipboardItemData)];
   }
 
   private getBlob(clipboardContent: OSClipboardContent, type: ClipboardMIMEType): Blob {
+    const content = clipboardContent[type];
+    if (content instanceof Blob) {
+      return content;
+    }
     return new Blob([clipboardContent[type] || ""], {
       type,
     });

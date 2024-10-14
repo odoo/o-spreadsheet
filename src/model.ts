@@ -448,6 +448,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       session: this.session,
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],
+      external: this.config.external,
     };
   }
 

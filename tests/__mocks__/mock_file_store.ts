@@ -7,4 +7,8 @@ export class FileStore implements FileStoreInterface {
   }
 
   async delete() {}
+
+  async getFile(fileUrl) {
+    return new File([], "mock", { type: "mock" });
+  }
 }

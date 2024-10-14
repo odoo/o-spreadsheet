@@ -608,11 +608,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.dispatch("COPY");
     }
-    const content = this.env.model.getters.getClipboardContent();
-    const clipboardData = ev.clipboardData;
-    for (const type in content) {
-      clipboardData?.setData(type, content[type]);
-    }
+    const osContent = await this.env.model.getters.getOsClipboardContentAsync();
+    await this.env.clipboard.write(osContent);
     ev.preventDefault();
   }
 
@@ -627,18 +624,19 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (!clipboardData) {
       return;
     }
-
     const osClipboard = {
       content: {
         [ClipboardMIMEType.PlainText]: clipboardData?.getData(ClipboardMIMEType.PlainText),
         [ClipboardMIMEType.Html]: clipboardData?.getData(ClipboardMIMEType.Html),
+        // TODORAR add all image/* allowed types by getting their data file env.clipbardData.files//  with the correct mime type
+        [ClipboardMIMEType.Png]: clipboardData?.files?.[0],
       },
     };
 
     const target = this.env.model.getters.getSelectedZones();
     const isCutOperation = this.env.model.getters.isCutOperation();
 
-    const clipboardContent = parseOSClipboardContent(osClipboard.content);
+    const clipboardContent = await parseOSClipboardContent(this.env, osClipboard.content);
     const clipboardId = clipboardContent.data?.clipboardId;
     if (this.env.model.getters.getClipboardId() === clipboardId) {
       interactivePaste(this.env, target);

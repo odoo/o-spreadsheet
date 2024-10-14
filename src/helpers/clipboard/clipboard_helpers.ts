@@ -3,6 +3,7 @@ import {
   ClipboardMIMEType,
   ImportClipboardContent,
   OSClipboardContent,
+  SpreadsheetChildEnv,
   UID,
   Zone,
 } from "../../types";
@@ -62,7 +63,11 @@ export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
   return target.map((t) => splitZoneForPaste(t, width, height)).flat();
 }
 
-export function parseOSClipboardContent(content: OSClipboardContent): ImportClipboardContent {
+export async function parseOSClipboardContent(
+  env: SpreadsheetChildEnv,
+  content: OSClipboardContent
+): Promise<ImportClipboardContent> {
+  // TODORAR should not  upload the imge, we first need to check if it's a "same tab" copy/paste
   const htmlDocument = new DOMParser().parseFromString(
     content[ClipboardMIMEType.Html] ?? "<div></div>",
     "text/html"
@@ -71,8 +76,13 @@ export function parseOSClipboardContent(content: OSClipboardContent): ImportClip
     .querySelector("div")
     ?.getAttribute("data-osheet-clipboard");
   const spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
-  return {
+  const importContent: ImportClipboardContent = {
     text: content[ClipboardMIMEType.PlainText],
     data: spreadsheetContent,
   };
+  if (content[ClipboardMIMEType.Png]) {
+    const imageData = await env.imageProvider?.upload(content[ClipboardMIMEType.Png]);
+    importContent.imageData = imageData;
+  }
+  return importContent;
 }
