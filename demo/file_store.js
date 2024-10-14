@@ -21,4 +21,9 @@ export class FileStore {
   async delete(path) {
     console.warn("cannot delete file. Not implemented");
   }
+
+  async getFile(path) {
+    const response = await fetch(path);
+    return await response.blob();
+  }
 }

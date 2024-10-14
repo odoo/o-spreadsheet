@@ -1,10 +1,13 @@
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
+import { convertImageToPng } from "../../components/helpers/dom_helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
 import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
 import { CURRENT_VERSION } from "../../migrations/data";
+import { _t } from "../../translation";
 import {
   ClipboardData,
   ClipboardMIMEType,
@@ -12,6 +15,7 @@ import {
   ClipboardPasteTarget,
   OSClipboardContent,
 } from "../../types/clipboard";
+import { FileStore } from "../../types/files";
 import {
   ClipboardCell,
   Command,
@@ -25,7 +29,9 @@ import {
   isCoreCommand,
 } from "../../types/index";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 interface InsertDeleteCellsTargets {
   cut: Zone[];
@@ -53,7 +59,7 @@ export interface SpreadsheetClipboardData extends MinimalClipboardData {
 export class ClipboardPlugin extends UIPlugin {
   static layers = ["Clipboard"] as const;
   static getters = [
-    "getClipboardContent",
+    "getClipboardTextAndImageContent",
     "getClipboardId",
     "getClipboardTextContent",
     "isCutOperation",
@@ -64,6 +70,14 @@ export class ClipboardPlugin extends UIPlugin {
   private copiedData?: MinimalClipboardData;
   private _isCutOperation: boolean = false;
   private clipboardId = new UuidGenerator().uuidv4();
+  private fileStore?: FileStore;
+  private uuidGenerator: UuidGenerator;
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    this.fileStore = config.external.fileStore;
+    this.uuidGenerator = new UuidGenerator();
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -130,10 +144,29 @@ export class ClipboardPlugin extends UIPlugin {
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
 
-        this.copiedData =
-          cmd.clipboardContent.data ||
-          this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
+        const htmlData = cmd.clipboardContent.data;
+        // TODO: support multiple image import
+        if (cmd.clipboardContent.imageData) {
+          const sheetId = this.getters.getActiveSheetId();
+          const figureId = this.uuidGenerator.uuidv4();
+          const definition = cmd.clipboardContent.imageData;
 
+          // compute position based on current selection
+          const { x, y } = this.getters.getVisibleRectWithoutHeaders(cmd.target[0]);
+          const size = getMaxFigureSize(this.getters, definition.size);
+          this.dispatch("CREATE_IMAGE", {
+            definition,
+            size,
+            position: { x, y },
+            sheetId,
+            figureId,
+          });
+        }
+        if (htmlData) {
+          this.copiedData = htmlData;
+        } else {
+          this.copiedData = this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
+        }
         const pasteOption = cmd.pasteOption;
         this.paste(cmd.target, this.copiedData, {
           pasteOption,
@@ -141,6 +174,7 @@ export class ClipboardPlugin extends UIPlugin {
           isCutOperation: false,
         });
         this.status = "invisible";
+        this.copiedData = undefined;
         break;
       }
       case "PASTE": {
@@ -477,11 +511,17 @@ export class ClipboardPlugin extends UIPlugin {
     return this.clipboardId;
   }
 
-  getClipboardContent(): OSClipboardContent {
-    return {
+  async getClipboardTextAndImageContent(): Promise<OSClipboardContent> {
+    const file = await this.getImageContent();
+    const mime = file?.type;
+    const content: OSClipboardContent = {
       [ClipboardMIMEType.PlainText]: this.getPlainTextContent(),
-      [ClipboardMIMEType.Html]: this.getHTMLContent(),
+      [ClipboardMIMEType.Html]: await this.getHTMLContent(),
     };
+    if (mime && file) {
+      content[mime] = file;
+    }
+    return content;
   }
 
   private getSheetData(): SpreadsheetClipboardData {
@@ -517,11 +557,22 @@ export class ClipboardPlugin extends UIPlugin {
     );
   }
 
-  private getHTMLContent(): string {
+  private async getHTMLContent(): Promise<string> {
     let innerHTML: string = "";
     const cells = this.copiedData?.cells;
     if (!cells) {
-      innerHTML = "\t";
+      if (this.copiedData?.figureId) {
+        const figureId = this.copiedData.figureId;
+        const figureSheetId = this.getters.getFigureSheetId(figureId)!;
+        const figure = this.getters.getFigure(figureSheetId, figureId)!;
+        if (figure.tag == "image") {
+          innerHTML = await this.craftImageHTML(figureId);
+        } else {
+          innerHTML = "\t";
+        }
+      } else {
+        innerHTML = "\t";
+      }
     } else if (cells.length === 1 && cells[0].length === 1) {
       innerHTML = `${this.getters.getCellText(cells[0][0].position)}`;
     } else if (!cells[0][0]) {
@@ -547,6 +598,69 @@ export class ClipboardPlugin extends UIPlugin {
     }
     const serializedData = JSON.stringify(this.getSheetData());
     return `<div data-osheet-clipboard='${xmlEscape(serializedData)}'>${innerHTML}</div>`;
+  }
+
+  private readFileAsDataURL(blob: Blob) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  private async craftImageHTML(figureId: UID): Promise<string> {
+    if (!this.fileStore) {
+      return "\t";
+    }
+    const imageUrl = this.getters.getImage(figureId).path;
+    const file = (await this.fileStore?.getFile(imageUrl)) || null;
+
+    if (file) {
+      const imageUrl = (await this.readFileAsDataURL(file)) as string;
+      return `<img src="${xmlEscape(imageUrl)}" />`;
+    } else {
+      return "\t";
+    }
+  }
+
+  private async getImageContent(): Promise<File | undefined> {
+    const figureId = this.copiedData?.figureId;
+    if (!figureId) {
+      return;
+    }
+
+    const figureSheetId = this.getters.getFigureSheetId(figureId)!;
+    const figure = this.getters.getFigure(figureSheetId, figureId)!;
+    let file: File | Blob | null | undefined;
+    if (figure.tag == "image") {
+      if (!this.fileStore) {
+        return;
+      }
+      const imageUrl = this.getters.getImage(figureId).path;
+      file = await this.fileStore?.getFile(imageUrl);
+
+      // we can only write on image/png format in the clipboard
+      // So we convert the image to png if it's not already
+      if (file.type !== "image/png") {
+        if (file.size > MAX_FILE_SIZE) {
+          this.ui.notifyUI({
+            text: _t(
+              `The file you are trying to copy is too large (>%sMB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.`,
+              Math.round(MAX_FILE_SIZE / (1024 * 1024))
+            ),
+            sticky: false,
+            type: "warning",
+          });
+          return undefined;
+        }
+        file = await convertImageToPng(imageUrl);
+      }
+    }
+    if (!file) {
+      return undefined;
+    } else {
+      return file instanceof File ? file : new File([file], "image.png", { type: "image/png" });
+    }
   }
 
   isCutOperation(): boolean {

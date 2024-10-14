@@ -20,7 +20,7 @@ import {
   Direction,
   DispatchResult,
   Locale,
-  ParsedOSClipboardContent,
+  ParsedOsClipboardContentWithImageData,
   SelectionStep,
   SortDirection,
   SortOptions,
@@ -399,7 +399,7 @@ export function paste(
 export function pasteFromOSClipboard(
   model: Model,
   range: string,
-  content: ParsedOSClipboardContent,
+  content: ParsedOsClipboardContentWithImageData,
   pasteOption?: ClipboardPasteOptions
 ): DispatchResult {
   return model.dispatch("PASTE_FROM_OS_CLIPBOARD", {

@@ -1,16 +1,28 @@
 import { SpreadsheetClipboardData } from "../plugins/ui_stateful";
+import { AllowedImageMimeTypes, Image } from "./image";
 import { HeaderIndex, UID, Zone } from "./misc";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
   Html = "text/html",
+  Image = "image",
 }
 
-export type OSClipboardContent = { [type in ClipboardMIMEType]?: string };
+export type OSClipboardContent = {
+  [key in (typeof AllowedImageMimeTypes)[number]]?: Blob;
+} & {
+  [ClipboardMIMEType.PlainText]?: string;
+  [ClipboardMIMEType.Html]?: string;
+};
 
 export type ParsedOSClipboardContent = {
   text?: string;
   data?: SpreadsheetClipboardData;
+  imageBlob?: Blob;
+};
+
+export type ParsedOsClipboardContentWithImageData = ParsedOSClipboardContent & {
+  imageData?: Image;
 };
 
 export interface ClipboardOptions {
