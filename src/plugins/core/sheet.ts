@@ -249,7 +249,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
 
     for (let sheetData of data.sheets) {
-      const name = sheetData.name || _t("Sheet") + (Object.keys(this.sheets).length + 1);
+      const name = sheetData.name || "Sheet" + (Object.keys(this.sheets).length + 1);
       const { colNumber, rowNumber } = this.getImportedSheetSize(sheetData);
       const sheet: Sheet = {
         id: sheetData.id,
