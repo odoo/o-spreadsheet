@@ -87,3 +87,20 @@ export function isMacOS(): boolean {
 export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
   return isMacOS() ? ev.metaKey : ev.ctrlKey;
 }
+
+export async function convertImageToPng(imageUrl: string): Promise<Blob | null> {
+  return await new Promise((resolve, reject) => {
+    const image = new Image();
+    image.src = imageUrl;
+    image.addEventListener("load", () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(image, 0, 0);
+      canvas.toBlob(resolve, "image/png");
+    });
+    image.addEventListener("error", () => reject);
+  });
+}
