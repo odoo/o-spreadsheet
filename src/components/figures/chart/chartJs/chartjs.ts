@@ -61,14 +61,14 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private createChart(chartData: ChartConfiguration) {
+  private createChart(chartData: ChartConfiguration<any>) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    this.chart = new window.Chart(ctx, chartData as ChartConfiguration);
+    this.chart = new window.Chart(ctx, chartData);
   }
 
   private updateChartJs(chartRuntime: ChartJSRuntime) {
-    const chartData = chartRuntime.chartJsConfig;
+    const chartData = chartRuntime.chartJsConfig as ChartConfiguration;
     if (chartData.data && chartData.data.datasets) {
       this.chart!.data = chartData.data;
       if (chartData.options?.plugins?.title) {

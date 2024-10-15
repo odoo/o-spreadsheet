@@ -32,6 +32,7 @@ import { target, toRangeData, toRangesData } from "./helpers";
 
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
+import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
 import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
@@ -304,6 +305,32 @@ export function createGaugeChart(
           operator: "<=",
         },
       },
+    },
+  });
+}
+
+export function createGeoChart(
+  model: Model,
+  data: Partial<GeoChartDefinition>,
+  chartId: UID = "chartId",
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+
+  return model.dispatch("CREATE_CHART", {
+    id,
+    sheetId,
+    definition: {
+      title: data.title || { text: "test" },
+      dataSets: data.dataSets || [],
+      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
+      labelRange: data.labelRange,
+      type: "geo",
+      background: data.background,
+      legendPosition: data.legendPosition || "top",
+      colorScale: data.colorScale,
+      missingValueColor: data.missingValueColor,
+      region: data.region,
     },
   });
 }
@@ -1106,6 +1133,7 @@ export function createTableStyle(
     tableStyleName: style?.tableStyleName || tableStyleId,
   });
 }
+
 export function setFormat(
   model: Model,
   targetXc: string,

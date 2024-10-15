@@ -9,6 +9,7 @@
  */
 
 import { Chart } from "chart.js";
+import * as ChartGeo from "chartjs-chart-geo";
 
 export * from "./autofill";
 export * from "./cells";
@@ -38,5 +39,6 @@ export * from "./workbook_data";
 declare global {
   interface Window {
     Chart: typeof Chart;
+    ChartGeo: typeof ChartGeo;
   }
 }

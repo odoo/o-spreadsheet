@@ -3,6 +3,7 @@ export * from "./automatic_sum";
 export * from "./collaborative";
 export * from "./data_cleanup";
 export * from "./format";
+export * from "./geo_features";
 export * from "./header_visibility_ui";
 export * from "./insert_pivot";
 export * from "./sort";

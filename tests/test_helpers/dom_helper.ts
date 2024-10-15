@@ -104,6 +104,11 @@ export async function doubleClick(el: Element, selector: string = "") {
   await nextTick();
 }
 
+export async function pointerDown(target: DOMTarget) {
+  triggerMouseEvent(target, "pointerdown");
+  await nextTick();
+}
+
 /**
  * Simulate hovering a cell for a given amount of time.
  * Don't forget to use `jest.useFakeTimers();` when using
@@ -366,6 +371,7 @@ export class Touch {
   readonly screenY: number;
   readonly target: EventTarget;
   readonly touchType: TouchType;
+
   constructor(touchInitDict: TouchInit) {
     this.identifier = touchInitDict.identifier;
     this.target = touchInitDict.target;
