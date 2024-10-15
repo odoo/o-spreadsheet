@@ -366,7 +366,6 @@ export class Session extends EventBus<CollaborativeEvent> {
     if (this.waitingAck) {
       return;
     }
-    this.waitingAck = true;
     this.sendPendingMessage();
   }
 
@@ -403,6 +402,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       throw new Error(`Trying to send a new revision while replaying initial revision. This can lead to endless dispatches every time the spreadsheet is open.
       ${JSON.stringify(message)}`);
     }
+    this.waitingAck = true;
     this.transportService.sendMessage({
       ...message,
       serverRevisionId: this.serverRevisionId,

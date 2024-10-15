@@ -845,6 +845,26 @@ describe("Multi users synchronisation", () => {
     );
   });
 
+  test("do not send message while waiting an acknowledgement", () => {
+    const spy = jest.spyOn(network, "sendMessage");
+    network.concurrent(() => {
+      setCellContent(alice, "A1", "hello");
+      expect(spy).toHaveBeenCalledTimes(1); // send the first revision
+
+      setCellContent(alice, "A2", "hello");
+      expect(spy).toHaveBeenCalledTimes(1); // do not send the second revision because the first one is not acknowledged
+
+      // we simulate the server is sending the first message
+      // back to the client, which acknowledge it.
+      // It should send the second message to the server
+      network.notifyListeners(network["pendingMessages"][0]); // acknowledge the first message
+      expect(spy).toHaveBeenCalledTimes(2); // the second message is sent
+      setCellContent(alice, "A3", "hello");
+      expect(spy).toHaveBeenCalledTimes(2); // do not send any message because the second one is not acknowledged
+    });
+    expect(spy).toHaveBeenCalledTimes(3);
+  });
+
   describe("Table style", () => {
     test("Create a table with a style, and delete the style at the same time", () => {
       createTableStyle(alice, "MyStyle");
