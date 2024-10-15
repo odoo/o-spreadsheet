@@ -1,6 +1,7 @@
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { ClipboardMIMEType, UID } from "../../src/types";
+import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
+import { UID } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart";
 import {
   activateSheet,
@@ -176,12 +177,13 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     });
   });
 
-  test("Chart clipboard content is not serialized at copy", () => {
+  test("Chart clipboard content is not serialized at copy", async () => {
     model.dispatch("SELECT_FIGURE", { id: figureId });
     copy(model);
-    const clipboardSpreadsheetContent = JSON.parse(
-      model.getters.getClipboardContent()[ClipboardMIMEType.OSpreadsheet]!
-    );
+
+    const clipboardSpreadsheetContent = parseOSClipboardContent(
+      await model.getters.getOsClipboardContentAsync()
+    ).data!;
     expect(clipboardSpreadsheetContent.figureId).toBe(undefined);
     expect(clipboardSpreadsheetContent.copiedFigure).toBe(undefined);
     expect(clipboardSpreadsheetContent.copiedChart).toBe(undefined);

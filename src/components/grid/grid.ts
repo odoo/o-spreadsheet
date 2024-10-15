@@ -21,6 +21,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../../constants";
+import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
@@ -607,11 +608,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.dispatch("COPY");
     }
-    const content = this.env.model.getters.getClipboardContent();
-    const clipboardData = ev.clipboardData;
-    for (const type in content) {
-      clipboardData?.setData(type, content[type]);
-    }
+    const osContent = await this.env.model.getters.getOsClipboardContentAsync();
+    await this.env.clipboard.write(osContent);
     ev.preventDefault();
   }
 
@@ -626,32 +624,23 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (!clipboardData) {
       return;
     }
-    const clipboardDataTextContent = clipboardData?.getData(ClipboardMIMEType.PlainText);
-    const clipboardDataHtmlContent = clipboardData?.getData(ClipboardMIMEType.Html);
-    const htmlDocument = new DOMParser().parseFromString(
-      clipboardDataHtmlContent ?? "<div></div>",
-      "text/html"
-    );
-    const osClipboardSpreadsheetContent =
-      clipboardData.getData(ClipboardMIMEType.OSpreadsheet) || "{}";
+    const osClipboard = {
+      content: {
+        [ClipboardMIMEType.PlainText]: clipboardData?.getData(ClipboardMIMEType.PlainText),
+        [ClipboardMIMEType.Html]: clipboardData?.getData(ClipboardMIMEType.Html),
+        // TODORAR add all image/* allowed types by getting their data file env.clipbardData.files//  with the correct mime type
+        [ClipboardMIMEType.Png]: clipboardData?.files?.[0],
+      },
+    };
 
     const target = this.env.model.getters.getSelectedZones();
     const isCutOperation = this.env.model.getters.isCutOperation();
 
-    const clipboardId =
-      JSON.parse(osClipboardSpreadsheetContent).clipboardId ??
-      htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
-
+    const clipboardContent = await parseOSClipboardContent(this.env, osClipboard.content);
+    const clipboardId = clipboardContent.data?.clipboardId;
     if (this.env.model.getters.getClipboardId() === clipboardId) {
       interactivePaste(this.env, target);
     } else {
-      const clipboardContent = {
-        [ClipboardMIMEType.PlainText]: clipboardDataTextContent,
-        [ClipboardMIMEType.Html]: clipboardDataHtmlContent,
-      };
-      if (osClipboardSpreadsheetContent !== "{}") {
-        clipboardContent[ClipboardMIMEType.OSpreadsheet] = osClipboardSpreadsheetContent;
-      }
       interactivePasteFromOS(this.env, target, clipboardContent);
     }
     if (isCutOperation) {

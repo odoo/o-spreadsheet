@@ -2,10 +2,10 @@ import {
   ClipboardInterface,
   ClipboardReadResult,
 } from "../../src/helpers/clipboard/navigator_clipboard_wrapper";
-import { ClipboardContent, ClipboardMIMEType } from "../../src/types";
+import { ClipboardMIMEType, OSClipboardContent } from "../../src/types";
 
 export class MockClipboard implements ClipboardInterface {
-  private content: ClipboardContent = {};
+  private content: OSClipboardContent = {};
 
   async read(): Promise<ClipboardReadResult> {
     return {
@@ -13,7 +13,6 @@ export class MockClipboard implements ClipboardInterface {
       content: {
         [ClipboardMIMEType.PlainText]: this.content[ClipboardMIMEType.PlainText],
         [ClipboardMIMEType.Html]: this.content[ClipboardMIMEType.Html],
-        [ClipboardMIMEType.OSpreadsheet]: this.content[ClipboardMIMEType.OSpreadsheet],
       },
     };
   }
@@ -21,30 +20,28 @@ export class MockClipboard implements ClipboardInterface {
   async writeText(text: string): Promise<void> {
     this.content[ClipboardMIMEType.PlainText] = text;
     this.content[ClipboardMIMEType.Html] = "";
-    this.content[ClipboardMIMEType.OSpreadsheet] = "";
   }
 
-  async write(content: ClipboardContent) {
+  async write(content: OSClipboardContent) {
     this.content = {
       [ClipboardMIMEType.PlainText]: content[ClipboardMIMEType.PlainText],
       [ClipboardMIMEType.Html]: content[ClipboardMIMEType.Html],
-      [ClipboardMIMEType.OSpreadsheet]: content[ClipboardMIMEType.OSpreadsheet],
     };
   }
 }
 
 export class MockClipboardData {
-  content: ClipboardContent = {};
+  content: OSClipboardContent = {};
 
   setText(text: string) {
     this.content[ClipboardMIMEType.PlainText] = text;
   }
 
-  getData(type: ClipboardMIMEType) {
-    return this.content[type] || "";
+  getData<T extends keyof OSClipboardContent>(type: T): OSClipboardContent[T] {
+    return this.content[type];
   }
 
-  setData(type: ClipboardMIMEType, content: string) {
+  setData<T extends keyof OSClipboardContent>(type: T, content: OSClipboardContent[T]) {
     this.content[type] = content;
   }
 

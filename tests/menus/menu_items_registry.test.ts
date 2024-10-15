@@ -51,7 +51,6 @@ import {
 } from "../test_helpers/helpers";
 
 import { Currency, Model } from "../../src";
-import { ClipboardMIMEType } from "../../src/types";
 
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
@@ -181,24 +180,28 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("REQUEST_REDO");
   });
 
-  test("Edit -> copy", () => {
+  test("Edit -> copy", async () => {
     const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY");
-    expect(spyWriteClipboard).toHaveBeenCalledWith(model.getters.getClipboardContent());
+    expect(spyWriteClipboard).toHaveBeenCalledWith(
+      await model.getters.getOsClipboardContentAsync()
+    );
   });
 
-  test("Edit -> cut", () => {
+  test("Edit -> cut", async () => {
     const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT");
-    expect(spyWriteClipboard).toHaveBeenCalledWith(model.getters.getClipboardContent());
+    expect(spyWriteClipboard).toHaveBeenCalledWith(
+      await model.getters.getOsClipboardContentAsync()
+    );
   });
 
   test("Edit -> paste from OS clipboard if copied from outside world last", async () => {
     setCellContent(model, "A1", "a1");
     selectCell(model, "A1");
-    doAction(["edit", "copy"], env); // first copy from grid
+    await doAction(["edit", "copy"], env); // first copy from grid
     await env.clipboard!.writeText("Then copy in OS clipboard");
     selectCell(model, "C3");
     await doAction(["edit", "paste"], env);
@@ -207,7 +210,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> paste if copied from grid last", async () => {
     await env.clipboard!.writeText("First copy in OS clipboard");
-    doAction(["edit", "copy"], env); // then copy from grid
+    await doAction(["edit", "copy"], env); // then copy from grid
     await doAction(["edit", "paste"], env);
     interactivePaste(env, target("A1"));
     expect(getCellContent(model, "A1")).toEqual("");
@@ -215,7 +218,7 @@ describe("Menu Item actions", () => {
 
   test("'Edit -> paste' if copied from grid and content altered before paste", async () => {
     setCellContent(model, "A1", "a1");
-    doAction(["edit", "copy"], env); // first copy from grid
+    await doAction(["edit", "copy"], env); // first copy from grid
     setCellContent(model, "A1", "os clipboard");
     selectCell(model, "C3");
     await doAction(["edit", "paste"], env);
@@ -231,11 +234,7 @@ describe("Menu Item actions", () => {
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
-      clipboardContent: {
-        [ClipboardMIMEType.PlainText]: "Copy in OS clipboard",
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
-      },
+      clipboardContent: { text: "Copy in OS clipboard" },
       target: target("A1"),
       pasteOption: "onlyFormat",
     });
@@ -246,7 +245,7 @@ describe("Menu Item actions", () => {
     setCellContent(model, "C1", "c1");
     setStyle(model, "C1", { fillColor: "#FA0000" });
     selectCell(model, "C1");
-    doAction(["edit", "copy"], env); // first copy from grid
+    await doAction(["edit", "copy"], env); // first copy from grid
     await env.clipboard!.writeText("Then copy in OS clipboard");
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
@@ -265,7 +264,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> paste_special -> paste_special_value", async () => {
-    doAction(["edit", "copy"], env);
+    await doAction(["edit", "copy"], env);
     await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
@@ -279,17 +278,13 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
-      clipboardContent: {
-        [ClipboardMIMEType.PlainText]: text,
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
-      },
+      clipboardContent: { text },
       pasteOption: "asValue",
     });
   });
 
   test("Edit -> paste_special -> paste_special_format", async () => {
-    doAction(["edit", "copy"], env);
+    await doAction(["edit", "copy"], env);
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
@@ -303,11 +298,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
-      clipboardContent: {
-        [ClipboardMIMEType.PlainText]: text,
-        [ClipboardMIMEType.Html]: "",
-        [ClipboardMIMEType.OSpreadsheet]: "",
-      },
+      clipboardContent: { text },
       pasteOption: "onlyFormat",
     });
   });
