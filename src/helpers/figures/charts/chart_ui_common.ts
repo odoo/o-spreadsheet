@@ -166,7 +166,7 @@ export function getDefaultChartJsRuntime(
             const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
             // tooltipItem.parsed can be an object or a number for pie charts
             let yLabel = horizontalChart ? tooltipItem.parsed.x : tooltipItem.parsed.y;
-            if (!yLabel) {
+            if (yLabel === undefined || yLabel === null) {
               yLabel = tooltipItem.parsed;
             }
 
