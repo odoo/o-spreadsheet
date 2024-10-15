@@ -231,11 +231,11 @@ function getWaterfallConfiguration(
   labels: string[],
   dataSeriesLabels: (string | undefined)[],
   localeFormat: LocaleFormat
-): ChartConfiguration {
+): ChartConfiguration<"bar"> {
   const { locale, format } = localeFormat;
 
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const config = getDefaultChartJsRuntime<"bar">(chart, labels, fontColor, localeFormat);
   const negativeColor = chart.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
   const positiveColor = chart.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
   const subTotalColor = chart.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
@@ -375,7 +375,7 @@ export function createWaterfallChartRuntime(
 
   const backgroundColor: Color[] = [];
   const datasetValues: Array<[number, number]> = [];
-  const dataset: ChartDataset = {
+  const dataset: ChartDataset<"bar"> = {
     label: "",
     data: datasetValues,
     backgroundColor,

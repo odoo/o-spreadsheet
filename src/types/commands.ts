@@ -131,6 +131,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
 
 export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
   "EVALUATE_CELLS",
+  "EVALUATE_CHARTS",
   "UPDATE_CELL",
   "UNHIDE_COLUMNS_ROWS",
   "HIDE_COLUMNS_ROWS",
@@ -174,6 +175,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "SET_VIEWPORT_OFFSET",
 
   "EVALUATE_CELLS",
+  "EVALUATE_CHARTS",
 
   "SET_FORMULA_VISIBILITY",
 
@@ -806,6 +808,10 @@ export interface EvaluateCellsCommand {
   type: "EVALUATE_CELLS";
 }
 
+export interface EvaluateChartsCommand {
+  type: "EVALUATE_CHARTS";
+}
+
 export interface StartChangeHighlightCommand {
   type: "START_CHANGE_HIGHLIGHT";
   zone: Zone;
@@ -1108,6 +1114,7 @@ export type LocalCommand =
   | MoveColumnsRowsCommand
   | ActivateSheetCommand
   | EvaluateCellsCommand
+  | EvaluateChartsCommand
   | StartChangeHighlightCommand
   | StartCommand
   | AutofillCommand
@@ -1339,5 +1346,10 @@ export interface CoreCommandDispatcher {
 export type CommandTypes = Command["type"];
 export type CoreCommandTypes = CoreCommand["type"];
 
-export type CoreViewCommand = CoreCommand | EvaluateCellsCommand | UndoCommand | RedoCommand;
+export type CoreViewCommand =
+  | CoreCommand
+  | EvaluateCellsCommand
+  | EvaluateChartsCommand
+  | UndoCommand
+  | RedoCommand;
 export type CoreViewCommandTypes = CoreViewCommand["type"];

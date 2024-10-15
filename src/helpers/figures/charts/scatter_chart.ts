@@ -1,4 +1,3 @@
-import { ChartDataset } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -218,7 +217,7 @@ export function createScatterChartRuntime(
   // have less options than the line chart (it only works with linear labels)
   chartJsConfig.type = "line";
   for (const dataSet of chartJsConfig.data!.datasets!) {
-    (dataSet as ChartDataset<"line">).showLine = "showLine" in dataSet ? dataSet.showLine : false;
+    dataSet.showLine = "showLine" in dataSet ? dataSet.showLine : false;
   }
 
   return { chartJsConfig, background };

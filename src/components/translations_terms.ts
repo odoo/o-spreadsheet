@@ -1,5 +1,6 @@
 import { PasteInteractiveContent } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
+import { GeoChartColorScale, GeoChartProjection } from "../types/chart/geo_chart";
 import { CommandResult } from "../types/index";
 
 export const CfTerms = {
@@ -54,7 +55,13 @@ export const CellIsOperators = {
   NotBetween: _t("Is not between"),
 };
 
-export const ChartTerms = {
+export const ChartTerms: {
+  [key: string]: any;
+  GeoChart: {
+    ColorScales: Record<Extract<GeoChartColorScale, string>, string>;
+    Projections: Record<GeoChartProjection, string>;
+  };
+} = {
   Series: _t("Series"),
   BackgroundColor: _t("Background color"),
   StackedBarChart: _t("Stacked bar chart"),
@@ -86,6 +93,65 @@ export const ChartTerms = {
     [CommandResult.GaugeUpperInflectionPointNaN]: _t(
       "The upper inflection point value must be a number"
     ),
+  },
+  GeoChart: {
+    ColorScales: {
+      blues: _t("Blues"),
+      brBG: _t("Brown-Blue-Green"),
+      buGn: _t("Blue-Green"),
+      buPu: _t("Blue-Purple"),
+      cividis: _t("Cividis"),
+      cool: _t("Cool"),
+      cubehelixDefault: _t("Cubehelix Default"),
+      gnBu: _t("Green-Blue"),
+      greens: _t("Greens"),
+      greys: _t("Greys"),
+      inferno: _t("Inferno"),
+      magma: _t("Magma"),
+      orRd: _t("Orange-Red"),
+      oranges: _t("Oranges"),
+      pRGn: _t("Purple-Green"),
+      piYG: _t("Pink-Yellow-Green"),
+      plasma: _t("Plasma"),
+      puBu: _t("Purple-Blue"),
+      puBuGn: _t("Purple-Blue-Green"),
+      puOr: _t("Purple-Orange"),
+      puRd: _t("Purple-Red"),
+      purples: _t("Purples"),
+      rainbow: _t("Rainbow"),
+      rdBu: _t("Red-Blue"),
+      rdGy: _t("Red-Grey"),
+      rdPu: _t("Red-Purple"),
+      rdYlBu: _t("Red-Yellow-Blue"),
+      rdYlGn: _t("Red-Yellow-Green"),
+      reds: _t("Reds"),
+      sinebow: _t("Sinebow"),
+      spectral: _t("Spectral"),
+      turbo: _t("Turbo"),
+      viridis: _t("Viridis"),
+      warm: _t("Warm"),
+      ylGn: _t("Yellow-Green"),
+      ylGnBu: _t("Yellow-Green-Blue"),
+      ylOrBr: _t("Yellow-Orange-Brown"),
+      ylOrRd: _t("Yellow-Orange-Red"),
+    },
+    Projections: {
+      azimuthalEqualArea: _t("Azimuthal Equal Area"),
+      azimuthalEquidistant: _t("Azimuthal Equidistant"),
+      gnomonic: _t("Gnomonic"),
+      orthographic: _t("Orthographic"),
+      stereographic: _t("Stereographic"),
+      equalEarth: _t("Equal Earth"),
+      albers: _t("Albers"),
+      albersUsa: _t("Albers USA"),
+      conicConformal: _t("Conic Conformal"),
+      conicEqualArea: _t("Conic Equal Area"),
+      conicEquidistant: _t("Conic Equidistant"),
+      equirectangular: _t("Equi-Rectangular"),
+      mercator: _t("Mercator"),
+      transverseMercator: _t("Transverse Mercator"),
+      naturalEarth1: _t("Natural Earth"),
+    },
   },
 };
 

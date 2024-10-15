@@ -250,7 +250,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const axisFormats = chart.horizontal
     ? { x: leftAxisFormat || rightAxisFormat }
     : { y: leftAxisFormat, y1: rightAxisFormat };
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
+  const config = getDefaultChartJsRuntime<"bar">(chart, labels, fontColor, {
     locale,
     axisFormats,
     horizontalChart: chart.horizontal,

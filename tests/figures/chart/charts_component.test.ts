@@ -46,6 +46,7 @@ import {
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import {
   mockChart,
+  mockGeoJsonService,
   mountComponentWithPortalTarget,
   mountSpreadsheet as mountSpreadsheetHelper,
   nextTick,
@@ -137,7 +138,7 @@ describe("charts", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = new Model(data, { external: { geoJsonService: mockGeoJsonService } });
   });
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
