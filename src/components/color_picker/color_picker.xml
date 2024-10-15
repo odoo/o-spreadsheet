@@ -72,10 +72,12 @@
           <button class="o-add-button" t-on-click="setCustomColor">Add</button>
         </div>
       </div>
-      <div class="o-separator"/>
-      <div class="o-buttons">
-        <button t-on-click="resetColor" class="o-cancel">Reset</button>
-      </div>
+      <t t-if="!props.disableNoColor">
+        <div class="o-separator"/>
+        <div class="o-buttons">
+          <button t-on-click="resetColor" class="o-cancel">Reset</button>
+        </div>
+      </t>
     </div>
   </t>
 </templates>

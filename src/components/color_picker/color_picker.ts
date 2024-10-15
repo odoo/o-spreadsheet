@@ -195,6 +195,7 @@ export interface ColorPickerProps {
   dropdownDirection?: "left" | "right" | "center";
   onColorPicked: (color: Color) => void;
   currentColor: Color;
+  disableNoColor?: boolean;
 }
 
 interface State {
