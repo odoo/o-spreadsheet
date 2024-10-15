@@ -35,6 +35,7 @@ import {
   CollaborativePlugin,
   DataCleanupPlugin,
   FormatPlugin,
+  GeoFeaturePlugin,
   HeaderVisibilityUIPlugin,
   InsertPivotPlugin,
   SheetUIPlugin,
@@ -91,7 +92,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("data_cleanup", DataCleanupPlugin)
   .add("table_autofill", TableAutofillPlugin)
   .add("table_ui_resize", TableResizeUI)
-  .add("datavalidation_insert", DataValidationInsertionPlugin);
+  .add("datavalidation_insert", DataValidationInsertionPlugin)
+  .add("geo_features", GeoFeaturePlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()

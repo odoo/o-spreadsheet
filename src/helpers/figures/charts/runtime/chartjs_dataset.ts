@@ -18,6 +18,10 @@ import {
   WaterfallChartDefinition,
 } from "../../../../types/chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
+import {
+  GeoChartDefinition,
+  GeoChartRuntimeGenerationArgs,
+} from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import {
   ColorGenerator,
@@ -274,6 +278,52 @@ export function getRadarChartDatasets(
     datasets.push(dataset);
   }
   return datasets;
+}
+
+export function getGeoChartDatasets(
+  definition: GenericDefinition<GeoChartDefinition>,
+  args: GeoChartRuntimeGenerationArgs
+): ChartDataset[] {
+  const { availableRegions, dataSetsValues, labels } = args;
+
+  const regionName = definition.region || availableRegions[0]?.id;
+  const features = regionName ? args.getGeoJsonFeatures(regionName) : undefined;
+
+  const dataset: ChartDataset<"choropleth"> = {
+    outline: features,
+    showOutline: !!features,
+    data: [],
+  };
+
+  if (features && regionName) {
+    const labelsAndValues: { [featureId: string]: { value: number; label: string } } = {};
+    if (dataSetsValues[0]) {
+      for (let i = 0; i < dataSetsValues[0].data.length; i++) {
+        if (!labels[i] || dataSetsValues[0].data[i] === undefined) {
+          continue;
+        }
+        const featureId = args.geoFeatureNameToId(regionName, labels[i]);
+        if (featureId) {
+          labelsAndValues[featureId] = { value: dataSetsValues[0].data[i], label: labels[i] };
+        }
+      }
+    }
+
+    for (const feature of features) {
+      if (!feature.id) {
+        continue;
+      }
+      dataset.data.push({
+        feature: {
+          ...feature,
+          properties: { name: labelsAndValues[feature.id]?.label },
+        },
+        value: labelsAndValues[feature.id]?.value,
+      });
+    }
+  }
+
+  return [dataset];
 }
 
 function getTrendingLineDataSet(

@@ -1,5 +1,6 @@
 import { PasteInteractiveContent } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
+import { GeoChartColorScale } from "../types/chart/geo_chart";
 import { CommandResult } from "../types/index";
 
 export const CfTerms = {
@@ -51,7 +52,12 @@ export const CellIsOperators = {
   NotBetween: _t("Is not between"),
 };
 
-export const ChartTerms = {
+export const ChartTerms: {
+  [key: string]: any;
+  GeoChart: {
+    ColorScales: Record<Extract<GeoChartColorScale, string>, string>;
+  };
+} = {
   Series: _t("Series"),
   BackgroundColor: _t("Background color"),
   StackedBarChart: _t("Stacked bar chart"),
@@ -84,6 +90,19 @@ export const ChartTerms = {
     [CommandResult.GaugeUpperInflectionPointNaN]: _t(
       "The upper inflection point value must be a number"
     ),
+  },
+  GeoChart: {
+    ColorScales: {
+      blues: _t("Blues"),
+      cividis: _t("Cividis"),
+      greens: _t("Greens"),
+      greys: _t("Greys"),
+      oranges: _t("Oranges"),
+      purples: _t("Purples"),
+      rainbow: _t("Rainbow"),
+      reds: _t("Reds"),
+      viridis: _t("Viridis"),
+    },
   },
 };
 
