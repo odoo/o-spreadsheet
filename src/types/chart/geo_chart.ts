@@ -41,7 +41,7 @@ export type GeoChartColorScale =
   | "reds"
   | "viridis";
 
-type GeoChartProjection =
+export type GeoChartProjection =
   | "azimuthalEqualArea"
   | "azimuthalEquidistant"
   | "gnomonic"
