@@ -30,7 +30,7 @@ import {
 import {
   AxisDesign,
   ChartAxisFormats,
-  ChartWithAxisDefinition,
+  ChartWithDataSetDefinition,
   CustomizedDataSet,
   DataSet,
   ExcelChartDataset,
@@ -316,7 +316,7 @@ export function toExcelLabelRange(
  * Transform a chart definition which supports dataSets (dataSets and LabelRange)
  * with an executed command
  */
-export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWithAxisDefinition>(
+export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWithDataSetDefinition>(
   definition: T,
   executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
 ): T {
@@ -348,7 +348,7 @@ export function chartFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#FFFFFF" : "#000000";
 }
 
-export function checkDataset(definition: ChartWithAxisDefinition): CommandResult {
+export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {
   if (definition.dataSets) {
     const invalidRanges =
       definition.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
@@ -363,7 +363,7 @@ export function checkDataset(definition: ChartWithAxisDefinition): CommandResult
   return CommandResult.Success;
 }
 
-export function checkLabelRange(definition: ChartWithAxisDefinition): CommandResult {
+export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
   if (definition.labelRange) {
     const invalidLabels = !rangeReference.test(definition.labelRange || "");
     if (invalidLabels) {
@@ -433,7 +433,7 @@ export function getChartAxisTitleRuntime(design?: AxisDesign):
   return;
 }
 
-export function getDefinedAxis(definition: ChartWithAxisDefinition): {
+export function getDefinedAxis(definition: ChartWithDataSetDefinition): {
   useLeftAxis: boolean;
   useRightAxis: boolean;
 } {
@@ -454,7 +454,7 @@ export function getDefinedAxis(definition: ChartWithAxisDefinition): {
 }
 
 export function getChartAxis(
-  definition: ChartWithAxisDefinition,
+  definition: ChartWithDataSetDefinition,
   position: "left" | "right" | "bottom",
   type: "values" | "labels",
   options: LocaleFormat & { stacked?: boolean }
@@ -635,7 +635,10 @@ export function formatTickValue(localeFormat: LocaleFormat) {
   };
 }
 
-export function getChartColorsGenerator(definition: ChartWithAxisDefinition, dataSetsSize: number) {
+export function getChartColorsGenerator(
+  definition: ChartWithDataSetDefinition,
+  dataSetsSize: number
+) {
   return new ColorGenerator(
     dataSetsSize,
     definition.dataSets.map((ds) => ds.backgroundColor)

@@ -101,8 +101,4 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
       verticalAxisPosition: value,
     });
   }
-
-  updateShowValues(showValues: boolean) {
-    this.props.updateChart(this.props.figureId, { showValues });
-  }
 }
