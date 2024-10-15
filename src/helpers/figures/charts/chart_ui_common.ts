@@ -1,4 +1,4 @@
-import type { ChartOptions } from "chart.js";
+import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { Figure } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
@@ -52,7 +52,7 @@ export function chartToImage(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new window.Chart(canvas, config);
+    const chart = new window.Chart(canvas, config as ChartConfiguration);
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();

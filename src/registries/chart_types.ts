@@ -6,6 +6,7 @@ import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
 import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
+import { GeoChart, createGeoChartRuntime } from "../helpers/figures/charts/geo_chart";
 import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
 import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
 import { PyramidChart, createPyramidChartRuntime } from "../helpers/figures/charts/pyramid_chart";
@@ -42,6 +43,7 @@ import {
   ChartType,
 } from "../types/chart/chart";
 import { ComboChartDefinition } from "../types/chart/combo_chart";
+import { GeoChartDefinition } from "../types/chart/geo_chart";
 import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
 import { RadarChartDefinition } from "../types/chart/radar_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
@@ -180,6 +182,16 @@ chartRegistry.add("radar", {
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
   sequence: 80,
 });
+chartRegistry.add("geo", {
+  match: (type) => type === "geo",
+  createChart: (definition, sheetId, getters) =>
+    new GeoChart(definition as GeoChartDefinition, sheetId, getters),
+  getChartRuntime: createGeoChartRuntime,
+  validateChartDefinition: GeoChart.validateChartDefinition,
+  transformDefinition: GeoChart.transformDefinition,
+  getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
+  sequence: 90,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -192,6 +204,7 @@ chartComponentRegistry.add("scorecard", ScorecardChartComponent);
 chartComponentRegistry.add("waterfall", ChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);
 chartComponentRegistry.add("radar", ChartJsComponent);
+chartComponentRegistry.add("geo", ChartJsComponent);
 
 type ChartUICategory = keyof typeof chartCategories;
 
@@ -378,4 +391,11 @@ chartSubtypeRegistry
     subtypeDefinition: { fillArea: true },
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.FILLED_RADAR_CHART",
+  })
+  .add("geo", {
+    displayName: _t("Geo Chart"),
+    chartSubtype: "geo",
+    chartType: "geo",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.GEO_CHART",
   });

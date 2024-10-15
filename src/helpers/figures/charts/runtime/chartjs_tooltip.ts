@@ -1,4 +1,4 @@
-import { BubbleDataPoint, Point, TooltipOptions } from "chart.js";
+import { BubbleDataPoint, Point, TooltipItem, TooltipOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { toNumber } from "../../../../functions/helpers";
 import { CellValue } from "../../../../types";
@@ -11,6 +11,7 @@ import {
   PyramidChartDefinition,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { formatValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
@@ -172,6 +173,29 @@ export function getRadarChartTooltip(
         const yLabel = tooltipItem.parsed.r;
         const formattedY = formatValue(yLabel, { format: axisFormats?.r, locale });
         return xLabel ? `${xLabel}: ${formattedY}` : formattedY;
+      },
+    },
+  };
+}
+
+export function getGeoChartTooltip(
+  definition: GeoChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  const { locale, axisFormats } = args;
+  const format = axisFormats?.y || axisFormats?.y1;
+  return {
+    filter: function (tooltipItem: TooltipItem<"choropleth">) {
+      return (tooltipItem.raw as any).value !== undefined;
+    },
+    callbacks: {
+      label: function (tooltipItem: TooltipItem<"choropleth">) {
+        const rawItem = tooltipItem.raw as any;
+        const xLabel = rawItem.feature.properties.name;
+        const yLabel = rawItem.value;
+        const toolTipFormat = !format && Math.abs(yLabel) >= 1000 ? "#,##" : format;
+        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+        return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
       },
     },
   };

@@ -22,7 +22,7 @@ import {
   zoneToXc,
 } from "../../src/helpers/index";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
-import { Model } from "../../src/model";
+import { Model, ModelExternalConfig } from "../../src/model";
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
@@ -796,7 +796,30 @@ export const mockChart = () => {
 
   //@ts-ignore
   window.Chart = ChartMock;
+  //@ts-ignore
+  window.ChartGeo = {};
   return mockChartData;
+};
+
+export const mockGeoJsonService: ModelExternalConfig["geoJsonService"] = {
+  getAvailableRegions: () => [
+    { id: "world", label: "World", defaultProjection: "mercator" },
+    { id: "usa", label: "United States", defaultProjection: "albersUsa" },
+  ],
+  getTopoJson: async () => ({
+    type: "FeatureCollection",
+    features: [
+      { type: "Feature", id: "FR", properties: { name: "France" }, geometry: {} },
+      { type: "Feature", id: "DE", properties: { name: "Germany" }, geometry: {} },
+      { type: "Feature", id: "ES", properties: { name: "Spain" }, geometry: {} },
+    ],
+  }),
+  geoFeatureNameToId: (region: string, territoryName: string) => {
+    if (territoryName === "France") return "FR";
+    if (territoryName === "Germany") return "DE";
+    if (territoryName === "Spain") return "ES";
+    return "";
+  },
 };
 
 interface CellObject {
@@ -896,6 +919,7 @@ type ComposerWrapperProps = {
   focusComposer: ComposerFocusType;
   composerProps: Partial<CellComposerProps>;
 };
+
 export class ComposerWrapper extends Component<ComposerWrapperProps, SpreadsheetChildEnv> {
   static components = { Composer };
   static template = xml/*xml*/ `
@@ -904,6 +928,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
   static props = { composerProps: Object, focusComposer: String };
   state = useState({ focusComposer: <ComposerFocusType>"inactive" });
   composerStore!: Store<CellComposerStore>;
+
   setup() {
     this.state.focusComposer = this.props.focusComposer;
     this.composerStore = useStore(CellComposerStore);

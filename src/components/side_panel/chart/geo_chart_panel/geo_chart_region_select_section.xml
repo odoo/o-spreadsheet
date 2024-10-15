@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet-GeoChartRegionSelectSection">
+    <Section class="'o-geo-region'" title.translate="Region">
+      <select class="o-input" t-on-change="this.updateSelectedRegion">
+        <t t-foreach="availableRegions" t-as="region" t-key="region.id">
+          <option
+            t-att-value="region.id"
+            t-esc="region.label"
+            t-att-selected="region.id === selectedRegion"
+          />
+        </t>
+      </select>
+    </Section>
+  </t>
+</templates>

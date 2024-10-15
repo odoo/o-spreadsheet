@@ -21,6 +21,10 @@ import {
   PyramidChartDefinition,
   TrendConfiguration,
 } from "../../../../types/chart";
+import {
+  GeoChartDefinition,
+  GeoChartRuntimeGenerationArgs,
+} from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { isDateTimeFormat } from "../../../format/format";
@@ -239,6 +243,35 @@ export function getRadarChartData(
     axisFormats,
     labels,
     locale: getters.getLocale(),
+  };
+}
+
+export function getGeoChartData(
+  definition: GeoChartDefinition,
+  dataSets: DataSet[],
+  labelRange: Range | undefined,
+  getters: Getters
+): GeoChartRuntimeGenerationArgs {
+  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  let labels = labelValues.formattedValues;
+  if (definition.dataSetsHaveTitle) {
+    labels.shift();
+  }
+  let dataSetsValues = getChartDatasetValues(getters, dataSets);
+  ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+
+  const format =
+    getChartDatasetFormat(getters, dataSets, "left") ||
+    getChartDatasetFormat(getters, dataSets, "right");
+
+  return {
+    dataSetsValues,
+    axisFormats: { y: format },
+    labels,
+    locale: getters.getLocale(),
+    availableRegions: getters.getGeoChartAvailableRegions(),
+    geoFeatureNameToId: getters.geoFeatureNameToId,
+    getGeoJsonFeatures: getters.getGeoJsonFeatures,
   };
 }
 
