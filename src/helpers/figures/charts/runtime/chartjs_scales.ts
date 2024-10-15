@@ -22,6 +22,7 @@ import {
 } from "../../../../types/chart";
 import {
   GeoChartDefinition,
+  GeoChartProjection,
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
@@ -222,7 +223,8 @@ export function getGeoChartScales(
   const format = axisFormats?.y || axisFormats?.y1;
   return {
     projection: {
-      projection: region?.defaultProjection,
+      // projection: region?.defaultProjection,
+      projection: getGeoChartProjection(region?.defaultProjection || "mercator"),
       axis: "x" as const,
     },
     color: {
@@ -243,6 +245,13 @@ export function getGeoChartScales(
       missing: definition.missingValueColor || "#ffffff",
     },
   };
+}
+
+function getGeoChartProjection(projection: GeoChartProjection) {
+  if (projection === "conicConformal") {
+    return window.ChartGeo.geoConicConformal().rotate([100, 0]); // Centered on the US
+  }
+  return projection;
 }
 
 function getChartAxisTitleRuntime(design?: AxisDesign):

@@ -5,6 +5,7 @@ import { makePivotDataset } from "./pivot.js";
 import { currenciesData } from "./currencies.js";
 import { WebsocketTransport } from "./transport.js";
 import { FileStore } from "./file_store.js";
+import { geoJsonService } from "./geo_json/geo_json_service.js";
 
 const {
   xml,
@@ -253,6 +254,7 @@ class Demo extends Component {
         external: {
           loadCurrencies: async () => currenciesData,
           fileStore: this.fileStore,
+          geoJsonService: geoJsonService,
         },
         custom: {},
         transportService: this.transportService,
@@ -334,4 +336,5 @@ async function setup() {
   rootApp.addTemplates(templates);
   rootApp.mount(document.body);
 }
+
 whenReady(setup);
