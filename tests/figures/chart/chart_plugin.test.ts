@@ -1913,6 +1913,18 @@ describe("Chart design configuration", () => {
       const label = getTooltipLabel(runtime, 0, 0);
       expect(label).toEqual("6,000");
     });
+
+    test.each(["bar", "line"])(
+      "Basic chart tooltip label, zero-values are properly displayed",
+      (chartType) => {
+        setCellContent(model, "A2", "0");
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const label = getTooltipLabel(runtime, 0, 0);
+
+        expect(label).toEqual("0");
+      }
+    );
   });
 
   describe("Pie Chart tooltip", () => {
