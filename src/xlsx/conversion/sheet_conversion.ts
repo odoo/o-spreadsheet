@@ -25,6 +25,7 @@ import { convertHeightFromExcel, convertWidthFromExcel } from "../helpers/conten
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { convertConditionalFormats } from "./cf_conversion";
 import { convertColor } from "./color_conversion";
+import { convertDataValidationRules } from "./data_validation_conversion";
 import { convertFigures } from "./figure_conversion";
 import { convertFormulasContent } from "./formula_conversion";
 
@@ -52,6 +53,7 @@ export function convertSheets(
       cols: convertCols(sheet, sheetDims[0], colHeaderGroups),
       rows: convertRows(sheet, sheetDims[1], rowHeaderGroups),
       conditionalFormats: convertConditionalFormats(sheet.cfs, data.dxfs, warningManager),
+      dataValidationRules: convertDataValidationRules(sheet.dataValidations, warningManager),
       figures: convertFigures(sheet),
       isVisible: sheet.isVisible,
       panes: sheetOptions

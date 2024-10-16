@@ -14,6 +14,7 @@ import { CONTENT_TYPES, NAMESPACE, RELATIONSHIP_NSR, XLSX_RELATION_TYPE } from "
 import { IMAGE_MIMETYPE_TO_EXTENSION_MAPPING } from "./conversion";
 import { createChart } from "./functions/charts";
 import { addConditionalFormatting } from "./functions/conditional_formatting";
+import { addDataValidationRules } from "./functions/data_validation";
 import { createDrawing } from "./functions/drawings";
 import {
   addBorders,
@@ -198,6 +199,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
         ${addRows(construct, data, sheet)}
         ${addMerges(sheet.merges)}
         ${joinXmlNodes(addConditionalFormatting(construct.dxfs, sheet.conditionalFormats))}
+        ${joinXmlNodes(addDataValidationRules(sheet.dataValidationRules))}
         ${addHyperlinks(construct, data, sheetIndex)}
         ${drawingNode}
         ${tablesNode}
