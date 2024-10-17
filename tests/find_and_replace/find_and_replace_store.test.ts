@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { FindAndReplaceStore } from "../../src/components/side_panel/find_and_replace/find_and_replace_store";
 import { functionRegistry } from "../../src/functions";
-import { toZone } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers";
 import { DependencyContainer } from "../../src/store_engine";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { UID } from "../../src/types";
@@ -543,6 +543,13 @@ describe("next/previous with single match", () => {
     expect(model.getters.getSelectedZones()).toEqual([toZone("B3")]);
     updateSearch(model, "1");
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1")]);
+  });
+
+  test("Updating search with external change will not re-select the match", () => {
+    setSelection(model, ["B3"]);
+    expect(zoneToXc(model.getters.getSelectedZone())).toEqual("B3");
+    setCellContent(model, "C9", "2");
+    expect(zoneToXc(model.getters.getSelectedZone())).toEqual("B3");
   });
 
   test.each(["selectNext", "selectPrevious"] as const)(

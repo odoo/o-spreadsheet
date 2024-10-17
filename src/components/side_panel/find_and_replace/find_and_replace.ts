@@ -1,9 +1,17 @@
-import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onWillUnmount,
+  useExternalListener,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { DebouncedFunction, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
+import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
@@ -108,6 +116,19 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     onMounted(() => this.searchInput.el?.focus());
     onWillUnmount(() => this.updateSearchContent.stopDebounce());
     this.updateSearchContent = debounce(this.store.updateSearchContent, 200);
+    useExternalListener(
+      window,
+      "keydown",
+      (ev: KeyboardEvent) => {
+        const code = keyboardEventToShortcutString(ev);
+        if (code === "Ctrl+F" || code === "Ctrl+H") {
+          this.searchInput.el?.focus();
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+      },
+      { capture: true }
+    );
   }
 
   onFocusSearch() {

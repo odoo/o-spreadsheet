@@ -17,6 +17,11 @@ enum Direction {
   next = 1,
 }
 
+interface RefreshSearchOptions {
+  doNotJumpToMatchSheet?: boolean;
+  doNotSelectNextMatch?: boolean;
+}
+
 export class FindAndReplaceStore extends SpreadsheetStore implements HighlightProvider {
   mutators = [
     "updateSearchOptions",
@@ -31,10 +36,12 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private specificRangeMatches: CellPosition[] = [];
 
   private currentSearchRegex: RegExp | null = null;
-  private isSearchDirty = false;
   private initialShowFormulaState: boolean;
   private preserveSelectedMatchIndex: boolean = false;
   private irreplaceableMatchCount: number = 0;
+
+  private isSearchDirty = false;
+  private shouldFinalizeSelectNextMatch = false;
 
   private notificationStore = this.get(NotificationStore);
 
@@ -111,8 +118,11 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       case "ADD_COLUMNS_ROWS":
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
+        this.isSearchDirty = true;
+        break;
       case "ACTIVATE_SHEET":
         this.isSearchDirty = true;
+        this.shouldFinalizeSelectNextMatch = true;
         break;
       case "REPLACE_SEARCH":
         for (const match of cmd.matches) {
@@ -130,7 +140,11 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
   finalize() {
     if (this.isSearchDirty) {
-      this.refreshSearch(false);
+      this.refreshSearch({
+        doNotJumpToMatchSheet: true,
+        doNotSelectNextMatch: !this.shouldFinalizeSelectNextMatch,
+      });
+      this.shouldFinalizeSelectNextMatch = false;
       this.isSearchDirty = false;
     }
   }
@@ -168,12 +182,12 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   /**
    * refresh the matches according to the current search options
    */
-  private refreshSearch(jumpToMatchSheet = true) {
+  private refreshSearch(options: RefreshSearchOptions = {}) {
     if (!this.preserveSelectedMatchIndex) {
       this.selectedMatchIndex = null;
     }
     this.findMatches();
-    this.selectNextCell(Direction.current, jumpToMatchSheet);
+    this.selectNextCell(Direction.current, options);
   }
 
   private getSheetsInSearchOrder() {
@@ -254,7 +268,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * It is also used to keep coherence between the selected searchMatch
    * and selectedMatchIndex.
    */
-  private selectNextCell(indexChange: Direction, jumpToMatchSheet = true) {
+  private selectNextCell(indexChange: Direction, options: RefreshSearchOptions = {}) {
     const matches = this.searchMatches;
     if (!matches.length) {
       this.selectedMatchIndex = null;
@@ -280,7 +294,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     const selectedMatch = matches[nextIndex];
 
     // Switch to the sheet where the match is located
-    if (jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
+    if (
+      !options.doNotJumpToMatchSheet &&
+      this.getters.getActiveSheetId() !== selectedMatch.sheetId
+    ) {
       // We set `preserveSelectedMatchIndex` to true to avoid resetting the selected search
       // index in the `refreshSearch` function when a new sheet is activated. The reason being
       // that, when we automatically go back to previous sheet while performing a search, the
@@ -296,7 +313,9 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
     // we want grid selection to capture the selection stream
     this.model.selection.getBackToDefault();
-    this.model.selection.selectCell(selectedMatch.col, selectedMatch.row);
+    if (!options.doNotSelectNextMatch) {
+      this.model.selection.selectCell(selectedMatch.col, selectedMatch.row);
+    }
   }
 
   /**
