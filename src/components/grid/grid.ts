@@ -347,6 +347,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     },
     "Ctrl+D": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ABOVE"),
     "Ctrl+R": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_LEFT"),
+    "Ctrl+H": () => this.sidePanel.open("FindAndReplace", {}),
+    "Ctrl+F": () => this.sidePanel.open("FindAndReplace", {}),
     "Ctrl+Shift+E": () => this.setHorizontalAlign("center"),
     "Ctrl+Shift+L": () => this.setHorizontalAlign("left"),
     "Ctrl+Shift+R": () => this.setHorizontalAlign("right"),
