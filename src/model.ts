@@ -27,6 +27,7 @@ import {
 } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
+import { GeoChartRegion } from "./types/chart/geo_chart";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
 import { FileStore } from "./types/files";
 import {
@@ -113,6 +114,11 @@ export interface ModelExternalConfig {
   readonly fileStore?: FileStore;
   readonly loadCurrencies?: () => Promise<Currency[]>;
   readonly loadLocales?: () => Promise<Locale[]>;
+  readonly geoJsonService?: {
+    getAvailableRegions: () => Promise<GeoChartRegion[]>;
+    getTopoJson: (region: string) => Promise<any>;
+    geoFeatureNameToId: (region: string, territory: string) => Promise<string>;
+  };
 }
 
 const enum Status {
@@ -448,6 +454,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       session: this.session,
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],
+      external: this.config.external,
     };
   }
 

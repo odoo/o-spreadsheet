@@ -210,9 +210,9 @@ function getPieConfiguration(
   chart: PieChart,
   labels: string[],
   localeFormat: LocaleFormat
-): ChartConfiguration {
+): ChartConfiguration<"pie" | "doughnut"> {
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const config = getDefaultChartJsRuntime<"pie">(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"pie">> = {
     labels: { color: fontColor },
   };
@@ -235,7 +235,7 @@ function getPieConfiguration(
     const percentage = calculatePercentage(data, dataIndex);
 
     const xLabel = tooltipItem.label || tooltipItem.dataset.label;
-    const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
+    const yLabel = tooltipItem.parsed;
     const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
     const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
 
@@ -329,7 +329,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
   const backgroundColor = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
   for (const { label, data } of dataSetsValues) {
-    const dataset: ChartDataset = {
+    const dataset: ChartDataset<"pie"> = {
       label,
       data,
       borderColor: BACKGROUND_CHART_COLOR,

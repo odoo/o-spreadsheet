@@ -24,6 +24,6 @@ export interface WaterfallChartDefinition {
 }
 
 export type WaterfallChartRuntime = {
-  chartJsConfig: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"bar">;
   background: Color;
 };

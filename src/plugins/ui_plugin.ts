@@ -28,6 +28,7 @@ export interface UIPluginConfig {
   readonly session: Session;
   readonly defaultCurrency?: Partial<Currency>;
   readonly customColors: Color[];
+  readonly external: ModelConfig["external"];
 }
 
 export interface UIPluginConstructor {
@@ -46,6 +47,7 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   protected getters: Getters;
   protected ui: UIActions;
   protected selection: SelectionStreamProcessor;
+
   constructor({
     getters,
     stateObserver,

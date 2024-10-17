@@ -18,6 +18,6 @@ export interface PieChartDefinition {
 }
 
 export type PieChartRuntime = {
-  chartJsConfig: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"pie" | "doughnut">;
   background: Color;
 };

@@ -252,7 +252,10 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
 
   const fontColor = chartFontColor(chart.background);
   const axisFormats = { y: mainDataSetFormat, y1: lineDataSetsFormat };
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, { locale, axisFormats });
+  const config = getDefaultChartJsRuntime<"bar" | "line">(chart, labels, fontColor, {
+    locale,
+    axisFormats,
+  });
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: { color: fontColor },
   };

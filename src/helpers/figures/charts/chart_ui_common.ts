@@ -114,12 +114,12 @@ interface GetDefaultChartJsRuntimeOptions {
 /**
  * Get a default chart js configuration
  */
-export function getDefaultChartJsRuntime(
+export function getDefaultChartJsRuntime<T extends ChartType>(
   chart: AbstractChart,
   labels: string[],
   fontColor: Color,
   { axisFormats, locale, truncateLabels = true, horizontalChart }: GetDefaultChartJsRuntimeOptions
-): Required<ChartConfiguration> {
+): Required<ChartConfiguration<T>> {
   const chartTitle = chart.title.text ? chart.title : { ...chart.title, content: "" };
   const chartOptions: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
@@ -189,7 +189,7 @@ export function getDefaultChartJsRuntime(
     },
     platform: undefined as unknown as typeof BasePlatform, // This key is optional and will be set by chart.js
     plugins: [],
-  };
+  } as unknown as Required<ChartConfiguration<T>>;
 }
 
 export function getChartLabelFormat(
@@ -340,7 +340,7 @@ export function chartToImage(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new window.Chart(canvas, config);
+    const chart = new window.Chart(canvas, config as ChartConfiguration);
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();

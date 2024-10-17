@@ -4,6 +4,7 @@ import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
 import { LegendPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
+import { GeoChartDefinition, GeoChartRuntime } from "./geo_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
@@ -21,6 +22,7 @@ export const CHART_TYPES = [
   "combo",
   "waterfall",
   "pyramid",
+  "geo",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -33,7 +35,8 @@ export type ChartDefinition =
   | ScatterChartDefinition
   | ComboChartDefinition
   | WaterfallChartDefinition
-  | PyramidChartDefinition;
+  | PyramidChartDefinition
+  | GeoChartDefinition;
 
 export type ChartWithAxisDefinition = Extract<
   ChartDefinition,
@@ -47,7 +50,8 @@ export type ChartJSRuntime =
   | ComboChartRuntime
   | ScatterChartRuntime
   | WaterfallChartRuntime
-  | PyramidChartRuntime;
+  | PyramidChartRuntime
+  | GeoChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
