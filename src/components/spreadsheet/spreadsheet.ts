@@ -59,7 +59,6 @@ import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { isCtrlKey } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -353,8 +352,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private _focusGrid?: () => void;
 
-  private keyDownMapping!: { [key: string]: Function };
-
   private isViewportTooSmall: boolean = false;
   private notificationStore!: Store<NotificationStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
@@ -381,10 +378,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
-    this.keyDownMapping = {
-      "CTRL+H": () => this.sidePanel.toggle("FindAndReplace", {}),
-      "CTRL+F": () => this.sidePanel.toggle("FindAndReplace", {}),
-    };
     const fileStore = this.model.config.external.fileStore;
     useSubEnv({
       model: this.model,
@@ -510,22 +503,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       return;
     }
     this._focusGrid();
-  }
-
-  onKeydown(ev: KeyboardEvent) {
-    let keyDownString = "";
-    if (isCtrlKey(ev)) {
-      keyDownString += "CTRL+";
-    }
-    keyDownString += ev.key.toUpperCase();
-
-    let handler = this.keyDownMapping[keyDownString];
-    if (handler) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      handler();
-      return;
-    }
   }
 
   get gridHeight(): Pixel {

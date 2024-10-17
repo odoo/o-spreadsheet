@@ -231,19 +231,6 @@ describe("Simple Spreadsheet Component", () => {
     jest.useRealTimers();
   });
 
-  test("Keydown is ineffective in dashboard mode", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet());
-    const spreadsheetKeyDown = jest.spyOn(parent, "onKeydown");
-    // const spreadsheetDiv = fixture.querySelector(".o-spreadsheet")!;
-    keyDown({ key: "H", ctrlKey: true });
-    expect(spreadsheetKeyDown).toHaveBeenCalled();
-    jest.clearAllMocks();
-    model.updateMode("dashboard");
-    await nextTick();
-    keyDown({ key: "H", ctrlKey: true });
-    expect(spreadsheetKeyDown).not.toHaveBeenCalled();
-  });
-
   test("Insert a function properly sets the edition", async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet());
     const composerStore = env.getStore(CellComposerStore);
