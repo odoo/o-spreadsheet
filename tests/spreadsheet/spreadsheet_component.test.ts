@@ -137,21 +137,33 @@ describe("Simple Spreadsheet Component", () => {
     expect(composerStore.currentContent).toBe("d");
   });
 
-  test("can open/close search with ctrl+h", async () => {
+  test("can open search with ctrl+h", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
     await keyDown({ key: "H", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-    await keyDown({ key: "H", ctrlKey: true });
-    expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
   });
 
-  test("can open/close search with ctrl+f", async () => {
+  test("can open search with ctrl+f", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
     await keyDown({ key: "F", ctrlKey: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-    await nextTick();
+  });
+
+  test("A second press of ctrl+f/ctrl+h will focus the search input", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
+    await keyDown({ key: "H", ctrlKey: true });
+    expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+    expect(document.activeElement!.classList).toContain("o-search");
+
+    fixture.querySelector<HTMLElement>(".o-grid")!.focus();
+    expect(document.activeElement!.classList).not.toContain("o-search");
+    await keyDown({ key: "H", ctrlKey: true });
+    expect(document.activeElement!.classList).toContain("o-search");
+
+    fixture.querySelector<HTMLElement>(".o-grid")!.focus();
+    expect(document.activeElement!.classList).not.toContain("o-search");
     await keyDown({ key: "F", ctrlKey: true });
-    expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+    expect(document.activeElement!.classList).toContain("o-search");
   });
 
   test("Mac user use metaKey, not CtrlKey", async () => {
