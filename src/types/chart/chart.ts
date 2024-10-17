@@ -35,6 +35,8 @@ export type ChartDefinition =
   | WaterfallChartDefinition
   | PyramidChartDefinition;
 
+export type NoType<T> = Omit<T, "type">;
+
 export type ChartWithAxisDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string }
@@ -48,6 +50,15 @@ export type ChartJSRuntime =
   | ScatterChartRuntime
   | WaterfallChartRuntime
   | PyramidChartRuntime;
+
+export type CommonChartJSDefinition =
+  | LineChartDefinition
+  | PieChartDefinition
+  | BarChartDefinition
+  | ComboChartDefinition
+  | ScatterChartDefinition
+  | WaterfallChartDefinition
+  | PyramidChartDefinition;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
@@ -153,3 +164,16 @@ export interface ChartCreationContext {
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
+
+export interface ChartData {
+  datasets: {
+    format?: Format;
+    axisId?: string;
+    values: number[];
+  };
+  labels: {
+    values: string[];
+    labelFormat?: Format;
+  };
+  trendDatasets?: { data: number[] }[];
+}

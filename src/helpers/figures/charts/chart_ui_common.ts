@@ -21,6 +21,22 @@ import { formatChartDatasetValue } from "./chart_common";
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
+
+export const CHART_COMMON_OPTIONS: ChartOptions = {
+  // https://www.chartjs.org/docs/latest/general/responsive.html
+  responsive: true, // will resize when its container is resized
+  maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
+  elements: {
+    line: {
+      fill: false, // do not fill the area under line charts
+    },
+    point: {
+      hitRadius: 15, // increased hit radius to display point tooltip when hovering nearby
+    },
+  },
+  animation: false,
+};
+
 /**
  * This file contains helpers that are common to different runtime charts (mainly
  * line, bar and pie charts)
@@ -181,8 +197,8 @@ export function getDefaultChartJsRuntime(
     },
   };
   return {
-    type: chart.type as ChartType,
     options: chartOptions,
+    type: chart.type as ChartType,
     data: {
       labels: truncateLabels ? labels.map(truncateLabel) : labels,
       datasets: [],

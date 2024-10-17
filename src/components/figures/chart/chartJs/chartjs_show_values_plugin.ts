@@ -5,7 +5,7 @@ import {
 } from "../../../../helpers/figures/charts/chart_common";
 import { Color } from "../../../../types";
 
-interface ChartShowValuesPluginOptions {
+export interface ChartShowValuesPluginOptions {
   showValues: boolean;
   background?: Color;
   horizontal?: boolean;

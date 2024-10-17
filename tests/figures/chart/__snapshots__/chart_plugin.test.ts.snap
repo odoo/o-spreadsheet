@@ -430,6 +430,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "showValues": undefined,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
           },
@@ -450,6 +451,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "tooltip": {
           "callbacks": {
             "label": [Function],
+            "title": [Function],
           },
         },
       },
@@ -479,7 +481,6 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       },
     },
     "platform": undefined,
-    "plugins": [],
     "type": "bar",
   },
 }

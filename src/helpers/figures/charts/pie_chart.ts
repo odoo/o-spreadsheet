@@ -259,7 +259,7 @@ function getPieColors(colors: ColorGenerator, dataSetsValues: DatasetValues[]): 
   return pieColors;
 }
 
-function calculatePercentage(
+export function calculatePercentage(
   dataset: (number | [number, number] | Point | BubbleDataPoint | null)[],
   dataIndex: number
 ): string {
