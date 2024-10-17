@@ -34,6 +34,7 @@ import {
   CustomizedDataSet,
   DataSet,
   ExcelChartDataset,
+  PartialDefinition,
   TrendConfiguration,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
@@ -431,7 +432,7 @@ export function getChartAxisTitleRuntime(design?: AxisDesign):
   return;
 }
 
-export function getDefinedAxis(definition: ChartWithDataSetDefinition): {
+export function getDefinedAxis(definition: PartialDefinition<ChartWithDataSetDefinition>): {
   useLeftAxis: boolean;
   useRightAxis: boolean;
 } {
@@ -452,7 +453,7 @@ export function getDefinedAxis(definition: ChartWithDataSetDefinition): {
 }
 
 export function getChartAxis(
-  definition: ChartWithDataSetDefinition,
+  definition: PartialDefinition<ChartWithDataSetDefinition>,
   position: "left" | "right" | "bottom",
   type: "values" | "labels",
   options: LocaleFormat & { stacked?: boolean }
@@ -520,29 +521,6 @@ export function computeChartPadding({
   return { left: 20, right: 20, top, bottom: 10 };
 }
 
-export function getTrendDatasetForBarChart(
-  config: TrendConfiguration,
-  dataset: ChartDataset<"bar" | "line", number[]>
-) {
-  const filteredValues: number[] = [];
-  const filteredLabels: number[] = [];
-  const labels: number[] = [];
-  for (let i = 0; i < dataset.data.length; i++) {
-    if (typeof dataset.data[i] === "number") {
-      filteredValues.push(dataset.data[i]);
-      filteredLabels.push(i + 1);
-    }
-    labels.push(i + 1);
-  }
-
-  const newLabels = range(0.5, labels.length + 0.55, 0.2);
-  const newValues = interpolateData(config, filteredValues, filteredLabels, newLabels);
-  if (!newValues.length) {
-    return;
-  }
-  return getFullTrendingLineDataSet(dataset, config, newValues);
-}
-
 export function getFullTrendingLineDataSet(
   dataset: ChartDataset,
   config: TrendConfiguration,
@@ -568,6 +546,29 @@ export function getFullTrendingLineDataSet(
     fill: false,
     pointBackgroundColor: borderColor,
   };
+}
+
+export function getTrendDatasetForBarChart(
+  config: TrendConfiguration,
+  dataset: ChartDataset<"bar" | "line", number[]>
+) {
+  const filteredValues: number[] = [];
+  const filteredLabels: number[] = [];
+  const labels: number[] = [];
+  for (let i = 0; i < dataset.data.length; i++) {
+    if (typeof dataset.data[i] === "number") {
+      filteredValues.push(dataset.data[i]);
+      filteredLabels.push(i + 1);
+    }
+    labels.push(i + 1);
+  }
+
+  const newLabels = range(0.5, labels.length + 0.55, 0.2);
+  const newValues = interpolateData(config, filteredValues, filteredLabels, newLabels);
+  if (!newValues.length) {
+    return;
+  }
+  return getFullTrendingLineDataSet(dataset, config, newValues);
 }
 
 export function interpolateData(
@@ -633,12 +634,12 @@ export function formatTickValue(localeFormat: LocaleFormat) {
 }
 
 export function getChartColorsGenerator(
-  definition: ChartWithDataSetDefinition,
+  definition: PartialDefinition<ChartWithDataSetDefinition>,
   dataSetsSize: number
 ) {
   return new ColorGenerator(
     dataSetsSize,
-    definition.dataSets.map((ds) => ds.backgroundColor)
+    definition.dataSets?.map((ds) => ds.backgroundColor) || []
   );
 }
 

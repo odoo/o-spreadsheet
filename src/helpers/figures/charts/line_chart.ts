@@ -1,3 +1,4 @@
+import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -5,6 +6,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  Getters,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -12,6 +14,7 @@ import {
 import {
   AxesDesign,
   ChartCreationContext,
+  ChartJSRuntime,
   CustomizedDataSet,
   DataSet,
   DatasetDesign,
@@ -39,6 +42,17 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
+import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
+import {
+  getCommonChartShowValues,
+  getCommonChartTitle,
+  getLineChartData,
+  getLineChartDatasets,
+  getLineChartLayout,
+  getLineChartLegend,
+  getLineChartScales,
+  getLineChartTooltip,
+} from "./runtime";
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -215,4 +229,34 @@ export class LineChart extends AbstractChart {
     );
     return new LineChart(definition, sheetId, this.getters);
   }
+}
+
+export function createLineChartRuntime(chart: LineChart, getters: Getters): ChartJSRuntime {
+  const definition = chart.getDefinition();
+  const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
+
+  const config: ChartConfiguration = {
+    type: "line",
+    data: {
+      labels:
+        chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels,
+      datasets: getLineChartDatasets(definition, chartData),
+    },
+    options: {
+      ...CHART_COMMON_OPTIONS,
+      layout: getLineChartLayout(definition),
+      scales: getLineChartScales(definition, chartData),
+      plugins: {
+        title: getCommonChartTitle(definition),
+        legend: getLineChartLegend(definition, chartData),
+        tooltip: getLineChartTooltip(definition, chartData),
+        chartShowValuesPlugin: getCommonChartShowValues(definition, chartData),
+      },
+    },
+  };
+
+  return {
+    chartJsConfig: config,
+    background: chart.background || BACKGROUND_CHART_COLOR,
+  };
 }
