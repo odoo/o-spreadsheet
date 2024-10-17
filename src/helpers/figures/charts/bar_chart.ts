@@ -345,6 +345,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
 
     const originalTooltipTitle = config.options.plugins!.tooltip!.callbacks!.title;
     config.options.plugins!.tooltip!.callbacks!.title = function (tooltipItems) {
+      console.log(tooltipItems);
       if (tooltipItems.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID)) {
         // @ts-expect-error
         return originalTooltipTitle?.(tooltipItems);

@@ -35,6 +35,8 @@ export type ChartDefinition =
   | WaterfallChartDefinition
   | PyramidChartDefinition;
 
+export type NoType<T> = Omit<T, "type">;
+
 export type ChartWithAxisDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string }
