@@ -17,6 +17,11 @@ enum Direction {
   next = 1,
 }
 
+interface RefreshSearchOptions {
+  jumpToMatchSheet?: boolean;
+  updateSelection?: boolean;
+}
+
 export class FindAndReplaceStore extends SpreadsheetStore implements HighlightProvider {
   mutators = [
     "updateSearchOptions",
@@ -31,10 +36,12 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private specificRangeMatches: CellPosition[] = [];
 
   private currentSearchRegex: RegExp | null = null;
-  private isSearchDirty = false;
   private initialShowFormulaState: boolean;
   private preserveSelectedMatchIndex: boolean = false;
   private irreplaceableMatchCount: number = 0;
+
+  private isSearchDirty = false;
+  private shouldFinalizeUpdateSelection = false;
 
   private notificationStore = this.get(NotificationStore);
 
@@ -89,11 +96,14 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   }
 
   selectPreviousMatch() {
-    this.selectNextCell(Direction.previous);
+    this.selectNextCell(Direction.previous, {
+      jumpToMatchSheet: true,
+      updateSelection: true,
+    });
   }
 
   selectNextMatch() {
-    this.selectNextCell(Direction.next);
+    this.selectNextCell(Direction.next, { jumpToMatchSheet: true, updateSelection: true });
   }
 
   handle(cmd: Command) {
@@ -111,8 +121,11 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       case "ADD_COLUMNS_ROWS":
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
+        this.isSearchDirty = true;
+        break;
       case "ACTIVATE_SHEET":
         this.isSearchDirty = true;
+        this.shouldFinalizeUpdateSelection = true;
         break;
       case "REPLACE_SEARCH":
         for (const match of cmd.matches) {
@@ -130,7 +143,11 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
   finalize() {
     if (this.isSearchDirty) {
-      this.refreshSearch(false);
+      this.refreshSearch({
+        jumpToMatchSheet: false,
+        updateSelection: this.shouldFinalizeUpdateSelection,
+      });
+      this.shouldFinalizeUpdateSelection = false;
       this.isSearchDirty = false;
     }
   }
@@ -162,18 +179,18 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
     this.toSearch = toSearch;
     this.currentSearchRegex = getSearchRegex(this.toSearch, this.searchOptions);
-    this.refreshSearch();
+    this.refreshSearch({ jumpToMatchSheet: true, updateSelection: true });
   }
 
   /**
    * refresh the matches according to the current search options
    */
-  private refreshSearch(jumpToMatchSheet = true) {
+  private refreshSearch(options: RefreshSearchOptions) {
     if (!this.preserveSelectedMatchIndex) {
       this.selectedMatchIndex = null;
     }
     this.findMatches();
-    this.selectNextCell(Direction.current, jumpToMatchSheet);
+    this.selectNextCell(Direction.current, options);
   }
 
   private getSheetsInSearchOrder() {
@@ -253,7 +270,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * It is also used to keep coherence between the selected searchMatch
    * and selectedMatchIndex.
    */
-  private selectNextCell(indexChange: Direction, jumpToMatchSheet = true) {
+  private selectNextCell(indexChange: Direction, options: RefreshSearchOptions) {
     const matches = this.searchMatches;
     if (!matches.length) {
       this.selectedMatchIndex = null;
@@ -279,7 +296,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     const selectedMatch = matches[nextIndex];
 
     // Switch to the sheet where the match is located
-    if (jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
+    if (options.jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
       // We set `preserveSelectedMatchIndex` to true to avoid resetting the selected search
       // index in the `refreshSearch` function when a new sheet is activated. The reason being
       // that, when we automatically go back to previous sheet while performing a search, the
@@ -295,7 +312,9 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
     // we want grid selection to capture the selection stream
     this.model.selection.getBackToDefault();
-    this.model.selection.selectCell(selectedMatch.col, selectedMatch.row);
+    if (options.updateSelection) {
+      this.model.selection.selectCell(selectedMatch.col, selectedMatch.row);
+    }
   }
 
   /**
@@ -312,7 +331,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       matches: [this.searchMatches[this.selectedMatchIndex]],
       searchOptions: this.searchOptions,
     });
-    this.selectNextCell(Direction.next);
+    this.selectNextCell(Direction.next, { jumpToMatchSheet: true, updateSelection: true });
   }
   /**
    * Apply the replace function to all the matches one time.
