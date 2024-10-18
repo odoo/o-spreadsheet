@@ -328,13 +328,10 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
      */
     trendDatasets.forEach((x) => config.data.datasets!.push(x));
 
-    const originalTooltipTitle = config.options.plugins!.tooltip!.callbacks!.title;
     config.options.plugins!.tooltip!.callbacks!.title = function (tooltipItems) {
-      if (tooltipItems.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID)) {
-        // @ts-expect-error
-        return originalTooltipTitle?.(tooltipItems);
-      }
-      return "";
+      return tooltipItems.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID)
+        ? undefined
+        : "";
     };
   }
 

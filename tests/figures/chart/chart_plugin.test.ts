@@ -407,7 +407,7 @@ describe("datasource tests", function () {
       "1"
     );
     const title = getChartConfiguration(model, "1").options?.plugins?.tooltip?.callbacks?.title;
-    expect(title).toBeUndefined();
+    expect(title?.([{ dataset: { axisId: "y" } }])).toBeUndefined();
   });
 
   test("can delete an imported chart", () => {
