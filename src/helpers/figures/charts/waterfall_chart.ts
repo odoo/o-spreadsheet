@@ -1,12 +1,5 @@
-import type { ChartConfiguration, ChartDataset, LegendOptions, PointStyle } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
-import {
-  BACKGROUND_CHART_COLOR,
-  CHART_WATERFALL_NEGATIVE_COLOR,
-  CHART_WATERFALL_POSITIVE_COLOR,
-  CHART_WATERFALL_SUBTOTAL_COLOR,
-} from "../../../constants";
-import { _t } from "../../../translation";
+import type { ChartConfiguration } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -14,7 +7,6 @@ import {
   CommandResult,
   CoreGetters,
   Getters,
-  LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -32,30 +24,28 @@ import {
   WaterfallChartRuntime,
 } from "../../../types/chart/waterfall_chart";
 import { Validator } from "../../../types/validator";
-import { formatValue } from "../../format/format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
-  chartFontColor,
   checkDataset,
   checkLabelRange,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
-  formatTickValue,
-  getChartAxisTitleRuntime,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  aggregateDataForLabels,
-  filterEmptyDataPoints,
-  getChartDatasetFormat,
-  getChartDatasetValues,
-  getChartLabelValues,
-  getDefaultChartJsRuntime,
-  truncateLabel,
-} from "./chart_ui_common";
+  getBarChartData,
+  getChartShowValues,
+  getChartTitle,
+  getWaterfallChartLayout,
+  getWaterfallChartLegend,
+  getWaterfallChartScales,
+  getWaterfallChartTooltip,
+  getWaterfallDatasetAndLabels,
+} from "./runtime";
 
 export class WaterfallChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -226,192 +216,33 @@ export class WaterfallChart extends AbstractChart {
   }
 }
 
-function getWaterfallConfiguration(
-  chart: WaterfallChart,
-  labels: string[],
-  dataSeriesLabels: (string | undefined)[],
-  localeFormat: LocaleFormat
-): ChartConfiguration {
-  const { locale, format } = localeFormat;
-
-  const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
-  const negativeColor = chart.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
-  const positiveColor = chart.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
-  const subTotalColor = chart.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
-  const pointStyle: PointStyle = "rect";
-  const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: {
-      usePointStyle: true,
-      generateLabels: () => {
-        const legendValues = [
-          {
-            text: _t("Positive values"),
-            fontColor,
-            strokeStyle: positiveColor,
-            fillStyle: positiveColor,
-            pointStyle,
-          },
-          {
-            text: _t("Negative values"),
-            fontColor,
-            strokeStyle: negativeColor,
-            fillStyle: negativeColor,
-            pointStyle,
-          },
-        ];
-        if (chart.showSubTotals || chart.firstValueAsSubtotal) {
-          legendValues.push({
-            text: _t("Subtotals"),
-            fontColor,
-            strokeStyle: subTotalColor,
-            fillStyle: subTotalColor,
-            pointStyle,
-          });
-        }
-        return legendValues;
-      },
-    },
-  };
-
-  if (chart.legendPosition === "none") {
-    legend.display = false;
-  } else {
-    legend.position = chart.legendPosition;
-  }
-  config.options.plugins!.legend = { ...config.options.plugins?.legend, ...legend };
-  config.options.layout = {
-    padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
-  };
-
-  config.options.scales = {
-    x: {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      grid: {
-        display: false,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
-    },
-    y: {
-      position: chart.verticalAxisPosition,
-      ticks: {
-        color: fontColor,
-        callback: (value) => {
-          value = Number(value);
-          if (isNaN(value)) return value;
-          return formatValue(value, {
-            locale,
-            format: !format && Math.abs(value) > 1000 ? "#,##" : format,
-          });
-        },
-      },
-      grid: {
-        lineWidth: (context) => {
-          return context.tick.value === 0 ? 2 : 1;
-        },
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
-    },
-  };
-  config.options.plugins!.tooltip = {
-    callbacks: {
-      label: function (tooltipItem) {
-        const [lastValue, currentValue] = tooltipItem.raw as [number, number];
-        const yLabel = currentValue - lastValue;
-        const dataSeriesIndex = Math.floor(tooltipItem.dataIndex / labels.length);
-        const dataSeriesLabel = dataSeriesLabels[dataSeriesIndex];
-        const toolTipFormat = !format && Math.abs(yLabel) > 1000 ? "#,##" : format;
-        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
-        return dataSeriesLabel ? `${dataSeriesLabel}: ${yLabelStr}` : yLabelStr;
-      },
-    },
-  };
-
-  config.options.plugins!.waterfallLinesPlugin = { showConnectorLines: chart.showConnectorLines };
-  config.options.plugins!.chartShowValuesPlugin = {
-    showValues: chart.showValues,
-    background: chart.background,
-    callback: formatTickValue(localeFormat),
-  };
-
-  return config;
-}
-
 export function createWaterfallChartRuntime(
   chart: WaterfallChart,
   getters: Getters
 ): WaterfallChartRuntime {
-  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
-  let labels = labelValues.formattedValues;
-  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
-  if (
-    chart.dataSetsHaveTitle &&
-    dataSetsValues[0] &&
-    labels.length > dataSetsValues[0].data.length
-  ) {
-    labels.shift();
-  }
+  const definition = chart.getDefinition();
+  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
-  if (chart.aggregated) {
-    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
-  }
-  if (chart.showSubTotals) {
-    labels.push(_t("Subtotal"));
-  }
-
-  const dataSetFormat =
-    getChartDatasetFormat(getters, chart.dataSets, "left") ||
-    getChartDatasetFormat(getters, chart.dataSets, "right");
-  const locale = getters.getLocale();
-  const dataSeriesLabels = dataSetsValues.map((dataSet) => dataSet.label);
-  const config = getWaterfallConfiguration(chart, labels, dataSeriesLabels, {
-    format: dataSetFormat,
-    locale,
-  });
-  config.type = "bar";
-
-  const negativeColor = chart.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
-  const positiveColor = chart.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
-  const subTotalColor = chart.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
-
-  const backgroundColor: Color[] = [];
-  const datasetValues: Array<[number, number]> = [];
-  const dataset: ChartDataset = {
-    label: "",
-    data: datasetValues,
-    backgroundColor,
+  const { labels, datasets } = getWaterfallDatasetAndLabels(definition, chartData);
+  const config: ChartConfiguration = {
+    type: "bar",
+    data: {
+      labels,
+      datasets,
+    },
+    options: {
+      ...CHART_COMMON_OPTIONS,
+      layout: getWaterfallChartLayout(definition),
+      scales: getWaterfallChartScales(definition, chartData),
+      plugins: {
+        title: getChartTitle(definition),
+        legend: getWaterfallChartLegend(definition, chartData),
+        tooltip: getWaterfallChartTooltip(definition, chartData),
+        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
+      },
+    },
   };
-  const labelsWithSubTotals: string[] = [];
-  let lastValue = 0;
-  for (const dataSetsValue of dataSetsValues) {
-    for (let i = 0; i < dataSetsValue.data.length; i++) {
-      const data = dataSetsValue.data[i];
-      labelsWithSubTotals.push(labels[i]);
-      if (isNaN(Number(data))) {
-        datasetValues.push([lastValue, lastValue]);
-        backgroundColor.push("");
-        continue;
-      }
-      datasetValues.push([lastValue, data + lastValue]);
-      let color = data >= 0 ? positiveColor : negativeColor;
-      if (i === 0 && dataSetsValue === dataSetsValues[0] && chart.firstValueAsSubtotal) {
-        color = subTotalColor;
-      }
-      backgroundColor.push(color);
-      lastValue += data;
-    }
-    if (chart.showSubTotals) {
-      labelsWithSubTotals.push(_t("Subtotal"));
-      datasetValues.push([0, lastValue]);
-      backgroundColor.push(subTotalColor);
-    }
-  }
-  config.data.datasets.push(dataset);
-  config.data.labels = labelsWithSubTotals.map(truncateLabel);
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }

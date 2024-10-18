@@ -4,6 +4,7 @@ import { _t } from "../../../../translation";
 import {
   ChartWithDataSetDefinition,
   DispatchResult,
+  GenericDefinition,
   SpreadsheetChildEnv,
   UID,
 } from "../../../../types/index";
@@ -23,9 +24,12 @@ interface Props {
   definition: ChartWithDataSetDefinition;
   canUpdateChart: (
     figureID: UID,
-    definition: Partial<ChartWithDataSetDefinition>
+    definition: GenericDefinition<ChartWithDataSetDefinition>
   ) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  updateChart: (
+    figureId: UID,
+    definition: GenericDefinition<ChartWithDataSetDefinition>
+  ) => DispatchResult;
 }
 
 export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component<

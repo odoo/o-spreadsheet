@@ -1,3 +1,4 @@
+import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -10,7 +11,6 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import { BarChartDefinition } from "../../../types/chart/bar_chart";
 import {
   AxesDesign,
   ChartCreationContext,
@@ -24,7 +24,6 @@ import { PyramidChartDefinition, PyramidChartRuntime } from "../../../types/char
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
-import { BarChart, createBarChartRuntime } from "./bar_chart";
 import {
   checkDataset,
   checkLabelRange,
@@ -34,6 +33,17 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
+import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
+import {
+  getBarChartDatasets,
+  getBarChartLayout,
+  getBarChartLegend,
+  getChartShowValues,
+  getChartTitle,
+  getPyramidChartData,
+  getPyramidChartScales,
+  getPyramidChartTooltip,
+} from "./runtime";
 
 export class PyramidChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -188,30 +198,28 @@ export function createPyramidChartRuntime(
   chart: PyramidChart,
   getters: Getters
 ): PyramidChartRuntime {
-  const barDef: BarChartDefinition = { ...chart.getDefinition(), type: "bar" };
-  const barChart = new BarChart(barDef, chart.sheetId, getters);
-  const barRuntime = createBarChartRuntime(barChart, getters);
-  const config = barRuntime.chartJsConfig;
-  let datasets = config.data?.datasets;
-  if (datasets && datasets[0]) {
-    datasets[0].data = datasets[0].data.map((value: number) => (value > 0 ? value : 0));
-  }
-  if (datasets && datasets[1]) {
-    datasets[1].data = datasets[1].data.map((value: number) => (value > 0 ? -value : 0));
-  }
+  const definition = chart.getDefinition();
+  const chartData = getPyramidChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  const scales = config.options!.scales;
-  const scalesXCallback = scales!.x!.ticks!.callback as (value: number) => string;
-  scales!.x!.ticks!.callback = (value: number) => scalesXCallback(Math.abs(value));
-
-  const tooltipLabelCallback = config.options!.plugins!.tooltip!.callbacks!.label! as any;
-  config.options!.plugins!.tooltip!.callbacks!.label = (item) => {
-    const tooltipItem = { ...item, parsed: { y: item.parsed.y, x: Math.abs(item.parsed.x) } };
-    return tooltipLabelCallback(tooltipItem);
+  const config: ChartConfiguration = {
+    type: "bar",
+    data: {
+      labels: chartData.labels.map(truncateLabel),
+      datasets: getBarChartDatasets(definition, chartData),
+    },
+    options: {
+      ...CHART_COMMON_OPTIONS,
+      indexAxis: "y",
+      layout: getBarChartLayout(definition),
+      scales: getPyramidChartScales(definition, chartData),
+      plugins: {
+        title: getChartTitle(definition),
+        legend: getBarChartLegend(definition, chartData),
+        tooltip: getPyramidChartTooltip(definition, chartData),
+        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+      },
+    },
   };
-  const callback = config.options!.plugins!.chartShowValuesPlugin!.callback;
-  config.options!.plugins!.chartShowValuesPlugin!.callback = (x, axisId) =>
-    callback!(Math.abs(x as number), axisId);
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }

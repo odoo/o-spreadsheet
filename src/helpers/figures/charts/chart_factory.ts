@@ -19,8 +19,7 @@ import { Validator } from "../../../types/validator";
 import { getZoneArea, zoneToDimension, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { createDataSets } from "./chart_common";
-import { canChartParseLabels } from "./chart_common_line_scatter";
-import { getData } from "./chart_ui_common";
+import { canChartParseLabels, getData } from "./runtime";
 
 /**
  * Create a function used to create a Chart based on the definition

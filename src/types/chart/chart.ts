@@ -1,4 +1,4 @@
-import { Align, Color, Format, Range } from "../../types";
+import { Align, Color, Format, Locale, Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -158,3 +158,19 @@ export interface ChartCreationContext {
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
+
+export interface ChartRuntimeGenerationArgs {
+  dataSetsValues: DatasetValues[];
+  axisFormats: ChartAxisFormats;
+  labels: string[];
+  locale: Locale;
+  trendDataSetsValues?: ((number | null)[] | undefined)[];
+  axisType?: AxisType;
+}
+
+/** Generic definition of chart to create a runtime: omit the chart type and the dataRange of the dataSets*/
+export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
+  Omit<T, "dataSets" | "type">
+> & {
+  dataSets?: Omit<T["dataSets"][number], "dataRange">[];
+};
