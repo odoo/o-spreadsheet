@@ -735,7 +735,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "'Expected Revenue:sum'",
         description: "The revenue",
         fuzzySearchKey: "The revenue'Expected Revenue:sum'Expected Revenue",
-        htmlContent: [{ color: "#4a4e4d", value: "'Expected Revenue:sum'" }],
+        htmlContent: [{ color: "#000000", value: "'Expected Revenue:sum'" }],
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
@@ -767,7 +767,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "Stage",
         description: "Stage",
         fuzzySearchKey: "StageStageStage",
-        htmlContent: [{ color: "#4a4e4d", value: "Stage" }],
+        htmlContent: [{ color: "#000000", value: "Stage" }],
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
@@ -799,7 +799,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "Stage",
         description: "Stage",
         fuzzySearchKey: "StageStageStage",
-        htmlContent: [{ color: "#4a4e4d", value: "Stage" }],
+        htmlContent: [{ color: "#000000", value: "Stage" }],
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
@@ -832,7 +832,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "Stage",
         description: "Stage",
         fuzzySearchKey: "StageStageStage",
-        htmlContent: [{ color: "#4a4e4d", value: "Stage" }],
+        htmlContent: [{ color: "#000000", value: "Stage" }],
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
