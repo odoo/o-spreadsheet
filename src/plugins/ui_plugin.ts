@@ -28,6 +28,7 @@ export interface UIPluginConfig {
   readonly session: Session;
   readonly defaultCurrency?: Partial<Currency>;
   readonly customColors: Color[];
+  readonly external: ModelConfig["external"];
 }
 
 export interface UIPluginConstructor {

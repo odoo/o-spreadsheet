@@ -3,15 +3,17 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import { chartToImageBlob } from "../../helpers/figures/charts";
 import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
 import { CURRENT_VERSION } from "../../migrations/data";
 import {
-  ClipboardContent,
   ClipboardData,
   ClipboardMIMEType,
   ClipboardOptions,
   ClipboardPasteTarget,
+  OSClipboardContent,
 } from "../../types/clipboard";
+import { FileStore } from "../../types/files";
 import {
   ClipboardCell,
   Command,
@@ -25,7 +27,7 @@ import {
   isCoreCommand,
 } from "../../types/index";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 interface InsertDeleteCellsTargets {
   cut: Zone[];
@@ -39,6 +41,11 @@ type MinimalClipboardData = {
   figureId?: UID;
   [key: string]: unknown;
 };
+
+export interface HtmlClipboardData extends MinimalClipboardData {
+  version?: number;
+  clipboardId?: string;
+}
 /**
  * Clipboard Plugin
  *
@@ -48,7 +55,7 @@ type MinimalClipboardData = {
 export class ClipboardPlugin extends UIPlugin {
   static layers = ["Clipboard"] as const;
   static getters = [
-    "getClipboardContent",
+    "getOsClipboardContentAsync",
     "getClipboardId",
     "getClipboardTextContent",
     "isCutOperation",
@@ -59,6 +66,14 @@ export class ClipboardPlugin extends UIPlugin {
   private copiedData?: MinimalClipboardData;
   private _isCutOperation: boolean = false;
   private clipboardId = new UuidGenerator().uuidv4();
+  private fileStore?: FileStore;
+  private uuidGenerator: UuidGenerator;
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    this.fileStore = config.external.fileStore;
+    this.uuidGenerator = new UuidGenerator();
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -70,9 +85,7 @@ export class ClipboardPlugin extends UIPlugin {
         const zones = this.getters.getSelectedZones();
         return this.isCutAllowedOn(zones);
       case "PASTE_FROM_OS_CLIPBOARD": {
-        const copiedData = this.convertOSClipboardData(
-          cmd.clipboardContent[ClipboardMIMEType.PlainText] ?? ""
-        );
+        const copiedData = this.convertOSClipboardData(cmd.clipboardContent.text ?? "");
         const pasteOption = cmd.pasteOption;
         return this.isPasteAllowed(cmd.target, copiedData, { pasteOption, isCutOperation: false });
       }
@@ -126,12 +139,27 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
-        if (cmd.clipboardContent[ClipboardMIMEType.OSpreadsheet]) {
-          this.copiedData = JSON.parse(cmd.clipboardContent[ClipboardMIMEType.OSpreadsheet]);
+
+        const htmlData = cmd.clipboardContent.data;
+        if (cmd.clipboardContent.imageData) {
+          const sheetId = this.getters.getActiveSheetId();
+          const figureId = this.uuidGenerator.uuidv4();
+          const definition = cmd.clipboardContent.imageData;
+          // compute positojn based on current selection
+          // const posiition = { x: 0, y: 0 };
+
+          this.dispatch("CREATE_IMAGE", {
+            definition,
+            size: definition.size,
+            position: { x: 0, y: 0 },
+            sheetId,
+            figureId,
+          });
+        }
+        if (htmlData) {
+          this.copiedData = htmlData;
         } else {
-          this.copiedData = this.convertOSClipboardData(
-            cmd.clipboardContent[ClipboardMIMEType.PlainText] ?? ""
-          );
+          this.copiedData = this.convertOSClipboardData(cmd.clipboardContent.text ?? "");
         }
         const pasteOption = cmd.pasteOption;
         this.paste(cmd.target, this.copiedData, {
@@ -140,6 +168,7 @@ export class ClipboardPlugin extends UIPlugin {
           isCutOperation: false,
         });
         this.status = "invisible";
+        this.copiedData = undefined;
         break;
       }
       case "PASTE": {
@@ -476,26 +505,28 @@ export class ClipboardPlugin extends UIPlugin {
     return this.clipboardId;
   }
 
-  getClipboardContent(): ClipboardContent {
+  async getOsClipboardContentAsync(): Promise<OSClipboardContent> {
+    // filestore not necessary for chart values
+    const imageContent = await this.getImageContent();
     return {
       [ClipboardMIMEType.PlainText]: this.getPlainTextContent(),
       [ClipboardMIMEType.Html]: this.getHTMLContent(),
-      [ClipboardMIMEType.OSpreadsheet]: this.getSerializedGridData(),
+      [ClipboardMIMEType.Png]: imageContent,
     };
   }
 
-  private getSerializedGridData(): string {
+  private getgridData(): HtmlClipboardData {
     const data = {
       version: CURRENT_VERSION,
       clipboardId: this.clipboardId,
     };
     if (this.copiedData && "figureId" in this.copiedData) {
-      return JSON.stringify(data);
+      return data;
     }
-    return JSON.stringify({
+    return {
       ...data,
       ...this.copiedData,
-    });
+    };
   }
 
   private getPlainTextContent(): string {
@@ -518,36 +549,60 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private getHTMLContent(): string {
-    if (!this.copiedData?.cells) {
-      return `<div data-clipboard-id="${this.clipboardId}">\t</div>`;
-    }
-    const cells = this.copiedData.cells;
-    if (cells.length === 1 && cells[0].length === 1) {
-      return `<div data-clipboard-id="${this.clipboardId}">${this.getters.getCellText(
-        cells[0][0].position
-      )}</div>`;
-    }
-    if (!cells[0][0]) {
+    let innerHTML: string = "";
+    const cells = this.copiedData?.cells;
+    if (!cells) {
+      innerHTML = "\t";
+    } else if (cells.length === 1 && cells[0].length === 1) {
+      innerHTML = `${this.getters.getCellText(cells[0][0].position)}`;
+    } else if (!cells[0][0]) {
       return "";
+    } else {
+      let htmlTable = `<table border="1" style="border-collapse:collapse">`;
+      for (const row of cells) {
+        htmlTable += "<tr>";
+        for (const cell of row) {
+          if (!cell) {
+            continue;
+          }
+          const cssStyle = cssPropertiesToCss(
+            cellStyleToCss(this.getters.getCellComputedStyle(cell.position))
+          );
+          const cellText = this.getters.getCellText(cell.position);
+          htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
+        }
+        htmlTable += "</tr>";
+      }
+      htmlTable += "</table>";
+      innerHTML = htmlTable;
+    }
+    const serializedData = JSON.stringify(this.getgridData());
+    return `<div data-osheet-clipboard='${xmlEscape(serializedData)}'>${innerHTML}</div>`;
+  }
+
+  private async getImageContent(): Promise<Blob | undefined> {
+    const figureId = this.copiedData?.figureId;
+    if (!figureId) {
+      return;
     }
 
-    let htmlTable = `<div data-clipboard-id="${this.clipboardId}"><table border="1" style="border-collapse:collapse">`;
-    for (const row of cells) {
-      htmlTable += "<tr>";
-      for (const cell of row) {
-        if (!cell) {
-          continue;
-        }
-        const cssStyle = cssPropertiesToCss(
-          cellStyleToCss(this.getters.getCellComputedStyle(cell.position))
-        );
-        const cellText = this.getters.getCellText(cell.position);
-        htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
+    const figureSheetId = this.getters.getFigureSheetId(figureId)!;
+    const figure = this.getters.getFigure(figureSheetId, figureId)!;
+    let blob: Blob | null = null;
+    if (figure.tag == "chart") {
+      const chartType = this.getters.getChartType(figureId);
+      const runtime = this.getters.getChartRuntime(figureId);
+      blob = await chartToImageBlob(runtime, figure, chartType)!;
+    } else if (figure.tag == "image") {
+      if (!this.fileStore) {
+        return;
       }
-      htmlTable += "</tr>";
+      const imageUrl = this.getters.getImage(figureId).path;
+      const file = (await this.fileStore?.getFile(imageUrl)) || null;
+      blob = file && new Blob([file], { type: "image/png" });
     }
-    htmlTable += "</table></div>";
-    return htmlTable;
+
+    return blob || new Blob();
   }
 
   isCutOperation(): boolean {

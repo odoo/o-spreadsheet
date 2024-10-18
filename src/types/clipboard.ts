@@ -1,12 +1,25 @@
+import { HtmlClipboardData } from "../plugins/ui_stateful";
+import { Image } from "./image";
 import { HeaderIndex, UID, Zone } from "./misc";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
   Html = "text/html",
-  OSpreadsheet = "web application/o-spreadsheet",
+  Png = "image/png",
 }
 
-export type ClipboardContent = { [type in ClipboardMIMEType]?: string };
+export type OSClipboardContent = {
+  [ClipboardMIMEType.PlainText]?: string;
+  [ClipboardMIMEType.Html]?: string;
+  [ClipboardMIMEType.Png]?: Blob;
+  // TODORAR : should support more image/* types  see IMAGE_MIMETYPE_TO_EXTENSION_MAPPING for the supported types
+};
+
+export type ImportClipboardContent = {
+  text?: string;
+  data?: HtmlClipboardData;
+  imageData?: Image;
+};
 
 export interface ClipboardOptions {
   isCutOperation: boolean;

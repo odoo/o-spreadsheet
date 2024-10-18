@@ -18,9 +18,11 @@ import {
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
+import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
+import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
@@ -75,7 +77,13 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { mockChart, mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
+import {
+  getPlugin,
+  mockChart,
+  mountSpreadsheet,
+  nextTick,
+  typeInComposerGrid,
+} from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("../__mocks__/content_editable_helper")
@@ -940,14 +948,14 @@ describe("Grid component", () => {
       expect(highlightStore.highlights).toEqual([]);
     });
 
-    test("paint format does not destroy clipboard content", () => {
+    test("paint format does not destroy clipboard content", async () => {
       setCellContent(model, "A1", "hello");
       setStyle(model, "A1", { bold: true });
       copy(model, "A1");
 
-      const clipboardContent = model.getters.getClipboardContent();
+      const clipboardContent = await model.getters.getOsClipboardContentAsync();
       paintFormatStore.activate({ persistent: false });
-      expect(model.getters.getClipboardContent()).toEqual(clipboardContent);
+      expect(await model.getters.getOsClipboardContentAsync()).toEqual(clipboardContent);
     });
 
     test("can paint format after a cut", async () => {
@@ -1429,10 +1437,14 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    await nextTick();
     const clipboardContent = clipboardData.content;
+    const cbPlugin = getPlugin(model, ClipboardPlugin);
+    //@ts-ignore
+    const clipboardHtmlData = JSON.stringify(cbPlugin.getgridData());
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
-      "text/html": `<div data-clipboard-id="${model.getters.getClipboardId()}">things</div>`,
+      "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>things</div>`,
     });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
@@ -1444,10 +1456,14 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
     const clipboardContent = clipboardData.content;
+    const cbPlugin = getPlugin(model, ClipboardPlugin);
+    //@ts-ignore
+    const clipboardHtmlData = JSON.stringify(cbPlugin.getgridData());
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
-      "text/html": `<div data-clipboard-id="${model.getters.getClipboardId()}">things</div>`,
+      "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>things</div>`,
     });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
@@ -1461,6 +1477,7 @@ describe("Copy paste keyboard shortcut", () => {
     setStyle(model, "A1", { bold: true });
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
     setCellContent(model, "A1", "new content");
     setStyle(model, "A1", { bold: false });
     selectCell(model, "A2");
@@ -1476,6 +1493,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
     const clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
@@ -1490,6 +1508,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     let clipboardContent = clipboardData.content;
+    await nextTick();
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "A1").formattedValue
     );
@@ -1502,6 +1521,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "B1", "1");
     selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
     clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
@@ -1518,7 +1538,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", content);
     setStyle(model, "A1", { fillColor: "red", align: "right", bold: true });
     selectCell(model, "A1");
-    document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    const ev = getClipboardEvent("copy", clipboardData);
+    document.body.dispatchEvent(ev);
+    await nextTick();
     // Fake OS clipboard should have the same content
     // to make paste come from spreadsheet clipboard
     // which support paste as values
