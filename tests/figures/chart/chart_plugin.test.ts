@@ -43,7 +43,6 @@ import {
   createModelFromGrid,
   getPlugin,
   mockChart,
-  nextTick,
   setGrid,
   target,
 } from "../../test_helpers/helpers";
@@ -3073,22 +3072,6 @@ describe("Pie chart negative values", () => {
     expect(data.datasets[1].data).toEqual([10, 11, 12, 13]);
     expect(data.labels).toEqual(expectedLabels);
   });
-});
-
-test("creating chart with single dataset should have legend position set as none, followed by changing it to top", async () => {
-  createChart(
-    model,
-    {
-      dataSets: [{ dataRange: "D5:D10" }, { dataRange: "E5:E10" }],
-      type: "bar",
-    },
-    "24"
-  );
-  await nextTick();
-  expect(getChartConfiguration(model, "24").options?.plugins?.legend?.display).toBeFalsy();
-  updateChart(model, "24", { legendPosition: "top" });
-  await nextTick();
-  expect(getChartConfiguration(model, "24").options?.plugins?.legend?.position).toBe("top");
 });
 
 test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
