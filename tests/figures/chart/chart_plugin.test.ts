@@ -1869,13 +1869,10 @@ describe("Chart design configuration", () => {
   });
 
   function getTooltipLabel(chart: ChartJSRuntime, datasetIndex: number, dataIndex: number): string {
-    const point =
-      chart.chartJsConfig.type === "pie"
-        ? (chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number)
-        : {
-            x: 0,
-            y: chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number,
-          };
+    const datasetPoint = chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex];
+    const y = typeof datasetPoint === "number" ? datasetPoint : datasetPoint?.["y"];
+    const x = chart.chartJsConfig!.data.labels![dataIndex];
+    const point = chart.chartJsConfig.type === "pie" ? y : { x, y };
     const tooltipItem: TooltipItem<ChartJSType> = {
       label: "",
       // @ts-ignore chart.js type is wrong

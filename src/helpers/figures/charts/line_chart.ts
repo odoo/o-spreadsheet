@@ -1,3 +1,4 @@
+import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -13,6 +14,7 @@ import {
 import {
   AxesDesign,
   ChartCreationContext,
+  ChartJSRuntime,
   CustomizedDataSet,
   DataSet,
   DatasetDesign,
@@ -20,7 +22,7 @@ import {
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
-import { LineChartDefinition, LineChartRuntime } from "../../../types/chart/line_chart";
+import { LineChartDefinition } from "../../../types/chart/line_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
@@ -33,7 +35,6 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
-  getCustomLegendLabels,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -41,7 +42,17 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
-import { createLineOrScatterChartRuntime } from "./chart_common_line_scatter";
+import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
+import {
+  getChartShowValues,
+  getChartTitle,
+  getLineChartData,
+  getLineChartDatasets,
+  getLineChartLayout,
+  getLineChartLegend,
+  getLineChartScales,
+  getLineChartTooltip,
+} from "./runtime";
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -220,17 +231,32 @@ export class LineChart extends AbstractChart {
   }
 }
 
-export function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRuntime {
-  const { chartJsConfig, background } = createLineOrScatterChartRuntime(chart, getters);
-  const filled = chart.fillArea;
-  const pointStyle = filled ? "rect" : "line";
-  const lineWidth = filled ? 2 : 3;
-  chartJsConfig.options!.plugins!.legend!.labels = {
-    ...chartJsConfig.options?.plugins?.legend?.labels,
-    ...getCustomLegendLabels(chartFontColor(background), {
-      pointStyle,
-      lineWidth,
-    }).labels,
+export function createLineChartRuntime(chart: LineChart, getters: Getters): ChartJSRuntime {
+  const definition = chart.getDefinition();
+  const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
+
+  const config: ChartConfiguration = {
+    type: "line",
+    data: {
+      labels:
+        chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels,
+      datasets: getLineChartDatasets(definition, chartData),
+    },
+    options: {
+      ...CHART_COMMON_OPTIONS,
+      layout: getLineChartLayout(definition),
+      scales: getLineChartScales(definition, chartData),
+      plugins: {
+        title: getChartTitle(definition),
+        legend: getLineChartLegend(definition, chartData),
+        tooltip: getLineChartTooltip(definition, chartData),
+        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+      },
+    },
   };
-  return { chartJsConfig, background };
+
+  return {
+    chartJsConfig: config,
+    background: chart.background || BACKGROUND_CHART_COLOR,
+  };
 }

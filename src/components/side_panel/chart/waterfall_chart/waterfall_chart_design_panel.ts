@@ -6,7 +6,13 @@ import {
 } from "../../../../constants";
 import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
-import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
+import {
+  Color,
+  DispatchResult,
+  GenericDefinition,
+  SpreadsheetChildEnv,
+  UID,
+} from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
@@ -23,8 +29,14 @@ import { Checkbox } from "./../../components/checkbox/checkbox";
 interface Props {
   figureId: UID;
   definition: WaterfallChartDefinition;
-  canUpdateChart: (figureID: UID, definition: Partial<WaterfallChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<WaterfallChartDefinition>) => DispatchResult;
+  canUpdateChart: (
+    figureID: UID,
+    definition: GenericDefinition<WaterfallChartDefinition>
+  ) => DispatchResult;
+  updateChart: (
+    figureId: UID,
+    definition: GenericDefinition<WaterfallChartDefinition>
+  ) => DispatchResult;
 }
 
 export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {

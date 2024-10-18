@@ -1,6 +1,5 @@
-import { ChartDataset, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
-import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
+import { ChartConfiguration } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -25,35 +24,31 @@ import { RadarChartDefinition, RadarChartRuntime } from "../../../types/chart/ra
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { setColorAlpha } from "../../color";
-import { formatValue } from "../../format/format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
-  INTERACTIVE_LEGEND_CONFIG,
   chartFontColor,
   checkDataset,
   checkLabelRange,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
-  formatTickValue,
-  getChartColorsGenerator,
-  getCustomLegendLabels,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
+import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
 import {
-  aggregateDataForLabels,
-  filterEmptyDataPoints,
-  getChartDatasetFormat,
-  getChartDatasetValues,
-  getChartLabelValues,
-  getDefaultChartJsRuntime,
-} from "./chart_ui_common";
+  getBarChartLayout,
+  getChartTitle,
+  getRadarChartData,
+  getRadarChartDatasets,
+  getRadarChartLegend,
+  getRadarChartScales,
+  getRadarChartTooltip,
+} from "./runtime";
 
 export class RadarChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -218,91 +213,25 @@ export class RadarChart extends AbstractChart {
 
 export function createRadarChartRuntime(chart: RadarChart, getters: Getters): RadarChartRuntime {
   const definition = chart.getDefinition();
-  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
-  let labels = labelValues.formattedValues;
-  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
-  if (
-    chart.dataSetsHaveTitle &&
-    dataSetsValues[0] &&
-    labels.length > dataSetsValues[0].data.length
-  ) {
-    labels.shift();
-  }
+  const chartData = getRadarChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
-  if (chart.aggregated) {
-    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
-  }
-
-  const dataSetFormat =
-    getChartDatasetFormat(getters, chart.dataSets, "left") ||
-    getChartDatasetFormat(getters, chart.dataSets, "right");
-  const axisFormats = { r: dataSetFormat };
-  const locale = getters.getLocale();
-  const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
-    axisFormats,
-    locale,
-  });
-  const fill = definition.fillArea ?? false;
-  const pointStyle = fill ? "rect" : "line";
-  const lineWidth = fill ? 2 : 3;
-  const legend: DeepPartial<LegendOptions<"radar">> = {
-    ...INTERACTIVE_LEGEND_CONFIG,
-    ...getCustomLegendLabels(fontColor, {
-      pointStyle,
-      lineWidth,
-    }),
-  };
-  if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
-    legend.display = false;
-  } else {
-    legend.position = chart.legendPosition;
-  }
-  config.options.plugins!.legend = { ...config.options.plugins?.legend, ...legend };
-  config.options.plugins!.tooltip = {
-    ...config.options.plugins?.tooltip,
-    callbacks: {
-      label: function (tooltipItem) {
-        const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
-        const yLabel = tooltipItem.parsed.r;
-        const formattedY = formatValue(yLabel, { format: dataSetFormat, locale });
-        return xLabel ? `${xLabel}: ${formattedY}` : formattedY;
+  const config: ChartConfiguration = {
+    type: "radar",
+    data: {
+      labels: chartData.labels.map(truncateLabel),
+      datasets: getRadarChartDatasets(definition, chartData),
+    },
+    options: {
+      ...CHART_COMMON_OPTIONS,
+      layout: getBarChartLayout(definition),
+      scales: getRadarChartScales(definition, chartData),
+      plugins: {
+        title: getChartTitle(definition),
+        legend: getRadarChartLegend(definition, chartData),
+        tooltip: getRadarChartTooltip(definition, chartData),
       },
     },
   };
-  config.options.scales = {
-    r: {
-      ticks: {
-        callback: formatTickValue({ format: dataSetFormat, locale }),
-        backdropColor: chart.background || "#FFFFFF",
-      },
-      pointLabels: { color: fontColor },
-    },
-  };
-  config.options.layout = {
-    padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
-  };
-
-  const colorGenerator = getChartColorsGenerator(definition, dataSetsValues.length);
-  for (let i = 0; i < dataSetsValues.length; i++) {
-    let { label, data } = dataSetsValues[i];
-    if (definition.dataSets?.[i]?.label) {
-      label = definition.dataSets[i].label;
-    }
-    const borderColor = colorGenerator.next();
-    const dataset: ChartDataset = {
-      label,
-      data,
-      borderColor,
-      backgroundColor: borderColor,
-    };
-    if (fill) {
-      dataset.backgroundColor = setColorAlpha(borderColor, LINE_FILL_TRANSPARENCY);
-      dataset["fill"] = "start";
-    }
-    config.data.datasets.push(dataset);
-  }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }

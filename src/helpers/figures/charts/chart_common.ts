@@ -1,14 +1,4 @@
-import { Chart, ChartDataset, LegendItem, LinearScaleOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
-import {
-  evaluatePolynomial,
-  expM,
-  getMovingAverageValues,
-  logM,
-  polynomialRegression,
-  predictLinearValues,
-} from "../../../functions/helper_statistical";
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
@@ -28,24 +18,18 @@ import {
   Zone,
 } from "../../../types";
 import {
-  AxisDesign,
   ChartAxisFormats,
   ChartWithDataSetDefinition,
   CustomizedDataSet,
   DataSet,
+  DatasetValues,
   ExcelChartDataset,
-  TrendConfiguration,
+  GenericDefinition,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
-import {
-  ColorGenerator,
-  colorToRGBA,
-  lightenColor,
-  relativeLuminance,
-  rgbaToHex,
-} from "../../color";
+import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
-import { isDefined, range } from "../../misc";
+import { isDefined, largeMax } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
@@ -403,35 +387,7 @@ export function getChartPositionAtCenterOfViewport(
   }; // Position at the center of the scrollable viewport
 }
 
-export function getChartAxisTitleRuntime(design?: AxisDesign):
-  | {
-      display: boolean;
-      text: string;
-      color?: string;
-      font: {
-        style: "italic" | "normal";
-        weight: "bold" | "normal";
-      };
-      align: "start" | "center" | "end";
-    }
-  | undefined {
-  if (design?.title?.text) {
-    const { text, color, align, italic, bold } = design.title;
-    return {
-      display: true,
-      text,
-      color,
-      font: {
-        style: italic ? "italic" : "normal",
-        weight: bold ? "bold" : "normal",
-      },
-      align: align === "left" ? "start" : align === "right" ? "end" : "center",
-    };
-  }
-  return;
-}
-
-export function getDefinedAxis(definition: ChartWithDataSetDefinition): {
+export function getDefinedAxis(definition: GenericDefinition<ChartWithDataSetDefinition>): {
   useLeftAxis: boolean;
   useRightAxis: boolean;
 } {
@@ -449,188 +405,6 @@ export function getDefinedAxis(definition: ChartWithDataSetDefinition): {
   }
   useLeftAxis ||= !useRightAxis;
   return { useLeftAxis, useRightAxis };
-}
-
-export function getChartAxis(
-  definition: ChartWithDataSetDefinition,
-  position: "left" | "right" | "bottom",
-  type: "values" | "labels",
-  options: LocaleFormat & { stacked?: boolean }
-): DeepPartial<LinearScaleOptions> | undefined {
-  const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
-  if ((position === "left" && !useLeftAxis) || (position === "right" && !useRightAxis)) {
-    return undefined;
-  }
-
-  const fontColor = chartFontColor(definition.background);
-  let design: AxisDesign | undefined;
-  if (position === "bottom") {
-    design = definition.axesDesign?.x;
-  } else if (position === "left") {
-    design = definition.axesDesign?.y;
-  } else {
-    design = definition.axesDesign?.y1;
-  }
-
-  if (type === "values") {
-    const displayGridLines =
-      position === "left" ||
-      (position === "right" && !useLeftAxis) ||
-      (definition.type === "bar" && definition.horizontal === true);
-
-    return {
-      position: position,
-      title: getChartAxisTitleRuntime(design),
-      grid: {
-        display: displayGridLines,
-      },
-      beginAtZero: true,
-      stacked: options?.stacked,
-      ticks: {
-        color: fontColor,
-        callback: formatTickValue(options),
-      },
-    };
-  } else {
-    return {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      grid: {
-        display: definition.type === "scatter",
-      },
-      stacked: options?.stacked,
-      title: getChartAxisTitleRuntime(design),
-    };
-  }
-}
-
-export function computeChartPadding({
-  displayTitle,
-  displayLegend,
-}: {
-  displayTitle: boolean;
-  displayLegend: boolean;
-}): {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-} {
-  let top = 25;
-  if (displayTitle) {
-    top = 0;
-  } else if (displayLegend) {
-    top = 10;
-  }
-  return { left: 20, right: 20, top, bottom: 10 };
-}
-
-export function getTrendDatasetForBarChart(
-  config: TrendConfiguration,
-  dataset: ChartDataset<"bar" | "line", number[]>
-) {
-  const filteredValues: number[] = [];
-  const filteredLabels: number[] = [];
-  const labels: number[] = [];
-  for (let i = 0; i < dataset.data.length; i++) {
-    if (typeof dataset.data[i] === "number") {
-      filteredValues.push(dataset.data[i]);
-      filteredLabels.push(i + 1);
-    }
-    labels.push(i + 1);
-  }
-
-  const newLabels = range(0.5, labels.length + 0.55, 0.2);
-  const newValues = interpolateData(config, filteredValues, filteredLabels, newLabels);
-  if (!newValues.length) {
-    return;
-  }
-  return getFullTrendingLineDataSet(dataset, config, newValues);
-}
-
-export function getFullTrendingLineDataSet(
-  dataset: ChartDataset<"line" | "bar">,
-  config: TrendConfiguration,
-  data: (number | null)[]
-) {
-  const defaultBorderColor = colorToRGBA(dataset.backgroundColor as Color);
-  defaultBorderColor.a = 1;
-
-  const borderColor = config.color || lightenColor(rgbaToHex(defaultBorderColor), 0.5);
-
-  return {
-    type: "line",
-    xAxisID: config.type !== "trailingMovingAverage" ? TREND_LINE_XAXIS_ID : "x",
-    yAxisID: dataset.yAxisID,
-    label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
-    data,
-    order: -1,
-    showLine: true,
-    pointRadius: 0,
-    backgroundColor: borderColor,
-    borderColor,
-    borderDash: [5, 5],
-    borderWidth: undefined,
-    fill: false,
-    pointBackgroundColor: borderColor,
-  };
-}
-
-export function interpolateData(
-  config: TrendConfiguration,
-  values: number[],
-  labels: number[],
-  newLabels: number[]
-): (number | null)[] {
-  if (values.length < 2 || labels.length < 2 || newLabels.length === 0) {
-    return [];
-  }
-  const labelMin = Math.min(...labels);
-  const labelMax = Math.max(...labels);
-  const labelRange = labelMax - labelMin;
-  const normalizedLabels = labels.map((v) => (v - labelMin) / labelRange);
-  const normalizedNewLabels = newLabels.map((v) => (v - labelMin) / labelRange);
-  switch (config.type) {
-    case "polynomial": {
-      const order = config.order ?? 2;
-      if (order === 1) {
-        return predictLinearValues([values], [normalizedLabels], [normalizedNewLabels], true)[0];
-      }
-      const coeffs = polynomialRegression(values, normalizedLabels, order, true).flat();
-      return normalizedNewLabels.map((v) => evaluatePolynomial(coeffs, v, order));
-    }
-    case "exponential": {
-      const positiveLogValues: number[] = [];
-      const filteredLabels: number[] = [];
-      for (let i = 0; i < values.length; i++) {
-        if (values[i] > 0) {
-          positiveLogValues.push(Math.log(values[i]));
-          filteredLabels.push(normalizedLabels[i]);
-        }
-      }
-      if (!filteredLabels.length) {
-        return [];
-      }
-      return expM(
-        predictLinearValues([positiveLogValues], [filteredLabels], [normalizedNewLabels], true)
-      )[0];
-    }
-    case "logarithmic": {
-      return predictLinearValues(
-        [values],
-        logM([normalizedLabels]),
-        logM([normalizedNewLabels]),
-        true
-      )[0];
-    }
-    case "trailingMovingAverage": {
-      return getMovingAverageValues(values, config.window);
-    }
-    default:
-      return [];
-  }
 }
 
 export function formatChartDatasetValue(axisFormats: ChartAxisFormats, locale: Locale) {
@@ -652,82 +426,17 @@ export function formatTickValue(localeFormat: LocaleFormat) {
   };
 }
 
-export function getChartColorsGenerator(
-  definition: ChartWithDataSetDefinition,
-  dataSetsSize: number
-) {
-  return new ColorGenerator(
-    dataSetsSize,
-    definition.dataSets.map((ds) => ds.backgroundColor)
-  );
-}
-
 export const CHART_AXIS_CHOICES = [
   { value: "left", label: _t("Left") },
   { value: "right", label: _t("Right") },
 ];
-/* Callback used to make the legend interactive
- * These are used to make the user able to hide/show a data series by
- * clicking on the corresponding label in the legend. The onHover and
- * onLeave callbacks are used to show a pointer when hovering an item
- * of the legend so that the user knows it is clickable.
- */
-export const INTERACTIVE_LEGEND_CONFIG = {
-  onHover: (event) => {
-    const target = event.native?.target;
-    if (!target) {
-      return;
-    }
-    //@ts-ignore
-    target.style.cursor = "pointer";
-  },
-  onLeave: (event) => {
-    const target = event.native?.target;
-    if (!target) {
-      return;
-    }
-    //@ts-ignore
-    target.style.cursor = "default";
-  },
-  onClick: (event, legendItem, legend) => {
-    if (!legend.legendItems) {
-      return;
-    }
-    const index = legend.legendItems.indexOf(legendItem);
-    if (legend.chart.isDatasetVisible(index)) {
-      legend.chart.hide(index);
-    } else {
-      legend.chart.show(index);
-    }
-    event.native.preventDefault();
-    event.native.stopPropagation();
-  },
-};
 
-export function getCustomLegendLabels(
-  fontColor: Color,
-  legendLabelConfig: Partial<LegendItem>
-): {
-  labels: {
-    color: Color;
-    usePointStyle: boolean;
-    generateLabels: (chart: Chart) => LegendItem[];
-  };
-} {
-  return {
-    labels: {
-      color: fontColor,
-      usePointStyle: true,
-      generateLabels: (chart: Chart) =>
-        chart.data.datasets.map((dataset, index) => ({
-          text: dataset.label ?? "",
-          fontColor,
-          strokeStyle: dataset.borderColor as Color,
-          fillStyle: dataset.backgroundColor as Color,
-          hidden: !chart.isDatasetVisible(index),
-          pointStyle: dataset.type === "line" ? "line" : "rect",
-          ...legendLabelConfig,
-        })),
-    },
-  };
+export function getPieColors(colors: ColorGenerator, dataSetsValues: DatasetValues[]): Color[] {
+  const pieColors: Color[] = [];
+  const maxLength = largeMax(dataSetsValues.map((ds) => ds.data.length));
+  for (let i = 0; i <= maxLength; i++) {
+    pieColors.push(colors.next());
+  }
+
+  return pieColors;
 }

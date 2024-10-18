@@ -66,18 +66,6 @@ import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
-  CHART_AXIS_CHOICES,
-  INTERACTIVE_LEGEND_CONFIG,
-  TREND_LINE_XAXIS_ID,
-  chartFontColor,
-  formatTickValue,
-  getChartAxisTitleRuntime,
-  getCustomLegendLabels,
-  getDefaultChartJsRuntime,
-  getFillingMode,
-  getTrendDatasetForBarChart,
-} from "./helpers/figures/charts";
-import {
   ColorGenerator,
   UuidGenerator,
   colorToRGBA,
@@ -123,11 +111,8 @@ import { SidePanelCollapsible } from "./components/side_panel/components/collaps
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import { TextInput } from "./components/text_input/text_input";
-import { ChartTerms } from "./components/translations_terms";
-import {
-  getChartAxisType,
-  getTrendDatasetForLineChart,
-} from "./helpers/figures/charts/chart_common_line_scatter";
+import * as CHART_HELPERS from "./helpers/figures/charts";
+import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import {
   areDomainArgsFieldsValid,
   createPivotFormula,
@@ -317,14 +302,6 @@ export const helpers = {
   createEmptyWorkbookData,
   createEmptySheet,
   createEmptyExcelSheet,
-  getDefaultChartJsRuntime,
-  getCustomLegendLabels,
-  chartFontColor,
-  getChartAxisTitleRuntime,
-  getChartAxisType,
-  getTrendDatasetForBarChart,
-  getTrendDatasetForLineChart,
-  getFillingMode,
   rgbaToHex,
   colorToRGBA,
   positionToZone,
@@ -359,7 +336,6 @@ export const helpers = {
   createPivotFormula,
   areDomainArgsFieldsValid,
   splitReference,
-  formatTickValue,
 };
 
 export const links = {
@@ -453,11 +429,9 @@ export const constants = {
   DEFAULT_LOCALE,
   HIGHLIGHT_COLOR,
   PIVOT_TABLE_CONFIG,
-  TREND_LINE_XAXIS_ID,
-  CHART_AXIS_CHOICES,
-  INTERACTIVE_LEGEND_CONFIG,
-  ChartTerms,
 };
+
+export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
 export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";

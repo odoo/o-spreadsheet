@@ -59,9 +59,11 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
         "chartShowValuesPlugin": {
           "background": "#010101",
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#FFFFFF",
             "generateLabels": [Function],
@@ -120,8 +122,6 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -191,9 +191,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -259,8 +261,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -330,9 +330,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -391,8 +393,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -445,9 +445,10 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "background": undefined,
           "callback": [Function],
           "horizontal": undefined,
-          "showValues": undefined,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -472,6 +473,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "tooltip": {
           "callbacks": {
             "label": [Function],
+            "title": [Function],
           },
         },
       },
@@ -503,8 +505,6 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "bar",
   },
 }
@@ -556,9 +556,11 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -615,8 +617,6 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -686,9 +686,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -745,8 +747,6 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -816,9 +816,11 @@ exports[`datasource tests create chart with column datasets with category title 
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -875,8 +877,6 @@ exports[`datasource tests create chart with column datasets with category title 
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -946,9 +946,11 @@ exports[`datasource tests create chart with column datasets without series title
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -1005,8 +1007,6 @@ exports[`datasource tests create chart with column datasets without series title
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -1047,9 +1047,11 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -1106,8 +1108,6 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -1177,9 +1177,11 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -1236,8 +1238,6 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -1307,9 +1307,11 @@ exports[`datasource tests create chart with row datasets 1`] = `
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -1366,8 +1368,6 @@ exports[`datasource tests create chart with row datasets 1`] = `
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -1437,9 +1437,11 @@ exports[`datasource tests create chart with row datasets with category title 1`]
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -1496,8 +1498,6 @@ exports[`datasource tests create chart with row datasets with category title 1`]
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }
@@ -1567,9 +1567,11 @@ exports[`datasource tests create chart with row datasets without series title 1`
         "chartShowValuesPlugin": {
           "background": undefined,
           "callback": [Function],
-          "showValues": undefined,
+          "horizontal": false,
+          "showValues": false,
         },
         "legend": {
+          "display": true,
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
@@ -1626,8 +1628,6 @@ exports[`datasource tests create chart with row datasets without series title 1`
         },
       },
     },
-    "platform": undefined,
-    "plugins": [],
     "type": "line",
   },
 }

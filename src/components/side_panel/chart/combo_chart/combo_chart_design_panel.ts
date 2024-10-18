@@ -1,14 +1,20 @@
 import { _t } from "../../../../translation";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
-import { DispatchResult, UID } from "../../../../types/index";
+import { DispatchResult, GenericDefinition, UID } from "../../../../types/index";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 
 interface Props {
   figureId: UID;
   definition: ComboChartDefinition;
-  canUpdateChart: (figureID: UID, definition: Partial<ComboChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<ComboChartDefinition>) => DispatchResult;
+  canUpdateChart: (
+    figureID: UID,
+    definition: GenericDefinition<ComboChartDefinition>
+  ) => DispatchResult;
+  updateChart: (
+    figureId: UID,
+    definition: GenericDefinition<ComboChartDefinition>
+  ) => DispatchResult;
 }
 
 export class ComboChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
