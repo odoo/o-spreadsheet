@@ -49,12 +49,10 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
+import { SpreadsheetChartDataSource } from "./chart_data_source";
 import {
-  aggregateDataForLabels,
-  filterEmptyDataPoints,
+  aggregateDataForLabels2,
   getChartDatasetFormat,
-  getChartDatasetValues,
-  getChartLabelValues,
   getDefaultChartJsRuntime,
 } from "./chart_ui_common";
 
@@ -227,21 +225,15 @@ export class BarChart extends AbstractChart {
 }
 
 export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
-  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
-  let labels = labelValues.formattedValues;
-  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
-  if (
-    chart.dataSetsHaveTitle &&
-    dataSetsValues[0] &&
-    labels.length > dataSetsValues[0].data.length
-  ) {
-    labels.shift();
-  }
+  const dataSource = new SpreadsheetChartDataSource(chart.dataSets, chart.labelRange, getters);
+  const chartData = dataSource.getData({ dataSetsHaveTitle: chart.dataSetsHaveTitle });
+  let labels = chartData.labels.formattedValues;
+  let datasets = chartData.datasets;
 
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
   if (chart.aggregated) {
-    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+    ({ labels, datasets } = aggregateDataForLabels2(labels, datasets));
   }
+  let dataSetsValues = datasets.map((dataset) => dataset.data);
 
   const leftAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
   const rightAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "right");
@@ -297,18 +289,19 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
 
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   const trendDatasets: any[] = [];
-  for (const index in dataSetsValues) {
-    const { label, data } = dataSetsValues[index];
+  for (const index in datasets) {
+    const { label, data } = datasets[index];
     const color = colors.next();
     const dataset: ChartDataset<"bar", number[]> = {
       label,
-      data,
+      data: data as any[], // ADRM TODO
       borderColor: BORDER_CHART_COLOR,
       borderWidth: 1,
       backgroundColor: color,
     };
     config.data.datasets.push(dataset);
 
+    // ADRM TODO: put this in computed dataset
     if (definition.dataSets?.[index]?.label) {
       const label = definition.dataSets[index].label;
       dataset.label = label;

@@ -1,4 +1,4 @@
-import { Align, Color, Format, Range } from "../../types";
+import { Align, CellValue, Color, Format, Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -153,3 +153,15 @@ export interface ChartCreationContext {
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
+
+export interface ComputedDataset extends DatasetDesign {
+  readonly label: string;
+  readonly data: (CellValue | undefined)[];
+  readonly format: Format | undefined;
+}
+
+export interface ComputedLabels {
+  readonly values: string[];
+  readonly formattedValues: string[];
+  readonly format: Format | undefined;
+}

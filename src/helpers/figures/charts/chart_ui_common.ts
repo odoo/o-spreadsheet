@@ -8,6 +8,7 @@ import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import {
   ChartAxisFormats,
   ChartRuntime,
+  ComputedDataset,
   DataSet,
   DatasetValues,
   LabelValues,
@@ -30,6 +31,7 @@ import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
  * Get the data from a dataSet
  */
 export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[] {
+  // ADRM TODO: put in datasource
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
     const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
@@ -88,6 +90,36 @@ export function aggregateDataForLabels(
   return {
     labels: Array.from(labelSet),
     dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
+      ...dataset,
+      data: Array.from(labelSet).map((label) => labelMap[label][indexOfDataset]),
+    })),
+  };
+}
+
+/**
+ * Aggregates data based on labels
+ */
+export function aggregateDataForLabels2(
+  labels: string[],
+  datasets: ComputedDataset[]
+): { labels: string[]; datasets: ComputedDataset[] } {
+  const parseNumber = (value) => (typeof value === "number" ? value : 0);
+  const labelSet = new Set(labels);
+  const labelMap: { [key: string]: number[] } = {};
+  labelSet.forEach((label) => {
+    labelMap[label] = new Array(datasets.length).fill(0);
+  });
+
+  for (const indexOfLabel of range(0, labels.length)) {
+    const label = labels[indexOfLabel];
+    for (const indexOfDataset of range(0, datasets.length)) {
+      labelMap[label][indexOfDataset] += parseNumber(datasets[indexOfDataset].data[indexOfLabel]);
+    }
+  }
+
+  return {
+    labels: Array.from(labelSet),
+    datasets: datasets.map((dataset, indexOfDataset) => ({
       ...dataset,
       data: Array.from(labelSet).map((label) => labelMap[label][indexOfDataset]),
     })),

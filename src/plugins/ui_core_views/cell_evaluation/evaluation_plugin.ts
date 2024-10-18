@@ -157,6 +157,7 @@ export class EvaluationPlugin extends UIPlugin {
     "getEvaluatedCellsPositions",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
+    "getFirstFormatInRange",
     "isEmpty",
   ] as const;
 
@@ -265,6 +266,21 @@ export class EvaluationPlugin extends UIPlugin {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
     return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.format);
+  }
+
+  /**
+   * Return the first format found in the range.
+   */
+  getFirstFormatInRange(range: Range): Format | undefined {
+    const sheet = this.getters.tryGetSheet(range.sheetId);
+    if (sheet === undefined) return undefined;
+    for (const position of positions(range.zone)) {
+      const cell = this.getters.getEvaluatedCell({ sheetId: sheet.id, ...position });
+      if (cell.format) {
+        return cell.format;
+      }
+    }
+    return undefined;
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
