@@ -3,12 +3,9 @@ import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import { toJsDate, toNumber } from "../../../functions/helpers";
 import { Getters, Locale, Range } from "../../../types";
-import {
-  AxisType,
-  ChartJSRuntime,
-  DatasetValues,
-  TrendConfiguration,
-} from "../../../types/chart/chart";
+import { LineChartRuntime } from "../../../types/chart";
+import { AxisType, DatasetValues, TrendConfiguration } from "../../../types/chart/chart";
+import { ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format/format";
@@ -193,7 +190,7 @@ export function getTrendDatasetForLineChart(
 export function createLineOrScatterChartRuntime(
   chart: LineChart | ScatterChart,
   getters: Getters
-): ChartJSRuntime {
+): LineChartRuntime | ScatterChartRuntime {
   const axisType = getChartAxisType(chart, getters);
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
@@ -221,7 +218,7 @@ export function createLineOrScatterChartRuntime(
   const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat };
   const options = { locale, truncateLabels, axisFormats };
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
+  const config = getDefaultChartJsRuntime<"line">(chart, labels, fontColor, options);
 
   const legend: DeepPartial<LegendOptions<"line">> = {
     labels: {
@@ -288,7 +285,7 @@ export function createLineOrScatterChartRuntime(
     config.options.plugins!.tooltip!.callbacks!.label = (tooltipItem) => {
       const dataSetPoint = dataSetsValues[tooltipItem.datasetIndex!].data![tooltipItem.dataIndex!];
       let label: string | number = tooltipItem.label || labelValues.values[tooltipItem.dataIndex!];
-      if (isNumber(label, locale)) {
+      if (typeof label === "string" && isNumber(label, locale)) {
         label = toNumber(label, locale);
       }
       const formattedX = formatValue(label, { locale, format: labelFormat });
@@ -328,7 +325,7 @@ export function createLineOrScatterChartRuntime(
 
     const backgroundColor = rgbaToHex(backgroundRGBA);
 
-    const dataset: ChartDataset = {
+    const dataset: ChartDataset<"line"> = {
       label,
       data,
       tension: 0, // 0 -> render straight lines, which is much faster

@@ -30,6 +30,13 @@ export function colorNumberString(color: number): Color {
   return toHex(color.toString(16).padStart(6, "0"));
 }
 
+export function colorToNumber(color: Color | number): number {
+  if (typeof color === "number") {
+    return color;
+  }
+  return Number.parseInt(toHex(color).slice(1), 16);
+}
+
 /**
  * Converts any CSS color value to a standardized hex6 value.
  * Accepts: hex3, hex6, hex8, rgb[1] and rgba[1].
@@ -455,4 +462,87 @@ export class ColorGenerator {
       ? this.preferredColors[this.currentColorIndex++]!
       : getNthColor(this.currentColorIndex++, this.palette);
   }
+}
+
+type ColorScaleThreshold = {
+  min: number;
+  max: number;
+  minColor: number;
+  maxColor: number;
+  colorDiff: [number, number, number];
+};
+
+/**
+ * Returns a function that maps a value to a color using a color scale defined by the given
+ * color/threshold values pairs.
+ */
+export function getColorScale(
+  colorScalePoints: { value: number; color: number | Color }[]
+): (value: number) => Color {
+  if (colorScalePoints.length < 2) {
+    throw new Error("Color scale must have at least 2 points");
+  }
+  const sortedColorScalePoints = [...colorScalePoints.sort((a, b) => a.value - b.value)];
+  const thresholds: ColorScaleThreshold[] = [];
+  for (let i = 1; i < sortedColorScalePoints.length; i++) {
+    const minColor = colorToNumber(sortedColorScalePoints[i - 1].color);
+    const maxColor = colorToNumber(sortedColorScalePoints[i].color);
+    thresholds.push({
+      min: sortedColorScalePoints[i - 1].value,
+      max: sortedColorScalePoints[i].value,
+      minColor,
+      maxColor,
+      colorDiff: computeColorDiffUnits(
+        sortedColorScalePoints[i - 1].value,
+        sortedColorScalePoints[i].value,
+        minColor,
+        maxColor
+      ),
+    });
+  }
+
+  return (value: number) => {
+    if (value < thresholds[0].min) {
+      return colorNumberString(thresholds[0].minColor);
+    }
+    for (const threshold of thresholds) {
+      if (value >= threshold.min && value <= threshold.max) {
+        return colorNumberString(
+          colorCell(value, threshold.min, threshold.minColor, threshold.colorDiff)
+        );
+      }
+    }
+    return colorNumberString(thresholds[thresholds.length - 1].maxColor);
+  };
+}
+
+function computeColorDiffUnits(
+  minValue: number,
+  maxValue: number,
+  minColor: number,
+  maxColor: number
+): [number, number, number] {
+  const deltaValue = maxValue - minValue;
+
+  const deltaColorR = ((minColor >> 16) % 256) - ((maxColor >> 16) % 256);
+  const deltaColorG = ((minColor >> 8) % 256) - ((maxColor >> 8) % 256);
+  const deltaColorB = (minColor % 256) - (maxColor % 256);
+
+  const colorDiffUnitR = deltaColorR / deltaValue;
+  const colorDiffUnitG = deltaColorG / deltaValue;
+  const colorDiffUnitB = deltaColorB / deltaValue;
+  return [colorDiffUnitR, colorDiffUnitG, colorDiffUnitB];
+}
+
+function colorCell(
+  value: number,
+  minValue: number,
+  minColor: number,
+  colorDiffUnit: [number, number, number]
+) {
+  const [colorDiffUnitR, colorDiffUnitG, colorDiffUnitB] = colorDiffUnit;
+  const r = Math.round(((minColor >> 16) % 256) - colorDiffUnitR * (value - minValue));
+  const g = Math.round(((minColor >> 8) % 256) - colorDiffUnitG * (value - minValue));
+  const b = Math.round((minColor % 256) - colorDiffUnitB * (value - minValue));
+  return (r << 16) | (g << 8) | b;
 }

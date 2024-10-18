@@ -11,6 +11,6 @@ export interface ComboChartDefinition extends ComboBarChartDefinition {
 export type ComboChartDataSet = CustomizedDataSet & { type?: "bar" | "line" };
 
 export type ComboChartRuntime = {
-  chartJsConfig: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"bar" | "line">;
   background: Color;
 };

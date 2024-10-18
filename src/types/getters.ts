@@ -23,6 +23,7 @@ import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
+import { GeoFeaturePlugin } from "../plugins/ui_feature";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_style";
@@ -142,4 +143,5 @@ export type Getters = {
   PluginGetters<typeof CellComputedStylePlugin> &
   PluginGetters<typeof DynamicTablesPlugin> &
   PluginGetters<typeof PivotUIPlugin> &
-  PluginGetters<typeof TableComputedStylePlugin>;
+  PluginGetters<typeof TableComputedStylePlugin> &
+  PluginGetters<typeof GeoFeaturePlugin>;

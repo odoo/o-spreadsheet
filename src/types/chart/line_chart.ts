@@ -21,6 +21,6 @@ export interface LineChartDefinition {
 }
 
 export type LineChartRuntime = {
-  chartJsConfig: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"line">;
   background: Color;
 };
