@@ -18,8 +18,8 @@ export const DEFAULT_LOCALES: Locale[] = [
     code: "en_US",
     thousandsSeparator: ",",
     decimalSeparator: ".",
-    dateFormat: "m/d/yyyy",
-    timeFormat: "hh:mm:ss a",
+    dateFormat: "mm/dd/yyyy",
+    timeFormat: "hh:mm:ss",
     formulaArgSeparator: ",",
   },
   {
