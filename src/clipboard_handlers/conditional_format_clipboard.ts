@@ -26,6 +26,8 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   Maybe<ClipboardConditionalFormat>
 > {
   private readonly uuidGenerator = new UuidGenerator();
+  private queuedChanges: Record<UID, { toAdd: Zone[]; toRemove: Zone[]; cf: ConditionalFormat }[]> =
+    {};
 
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     if (!data.zones.length) {
@@ -51,6 +53,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+    this.queuedChanges = {};
     if (options.pasteOption === "asValue") {
       return;
     }
@@ -62,6 +65,8 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);
     }
+
+    this.executeQueuedChanges();
   }
 
   private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
@@ -114,30 +119,55 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
    * Add or remove cells to a given conditional formatting rule.
    */
   private adaptCFRules(sheetId: UID, cf: ConditionalFormat, toAdd: Zone[], toRemove: Zone[]) {
-    const newRangesXc = this.getters.getAdaptedCfRanges(sheetId, cf, toAdd, toRemove);
-    if (!newRangesXc) {
-      return;
+    if (!this.queuedChanges[sheetId]) {
+      this.queuedChanges[sheetId] = [];
     }
-    if (newRangesXc.length === 0) {
-      this.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id, sheetId });
-      return;
+    const queuedChange = this.queuedChanges[sheetId].find((queued) => queued.cf.id === cf.id);
+    if (!queuedChange) {
+      this.queuedChanges[sheetId].push({ toAdd, toRemove, cf });
+    } else {
+      queuedChange.toAdd.push(...toAdd);
+      queuedChange.toRemove.push(...toRemove);
     }
-    this.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: {
-        id: cf.id,
-        rule: cf.rule,
-        stopIfTrue: cf.stopIfTrue,
-      },
-      ranges: newRangesXc,
-      sheetId,
-    });
+  }
+
+  private executeQueuedChanges() {
+    for (const sheetId in this.queuedChanges) {
+      for (const { toAdd, toRemove, cf } of this.queuedChanges[sheetId]) {
+        const newRangesXc = this.getters.getAdaptedCfRanges(sheetId, cf, toAdd, toRemove);
+        if (!newRangesXc) {
+          continue;
+        }
+        if (newRangesXc.length === 0) {
+          this.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id, sheetId });
+          continue;
+        }
+        this.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            id: cf.id,
+            rule: cf.rule,
+            stopIfTrue: cf.stopIfTrue,
+          },
+          ranges: newRangesXc,
+          sheetId,
+        });
+      }
+    }
   }
 
   private getCFToCopyTo(targetSheetId: UID, originCF: ConditionalFormat): ConditionalFormat {
-    const cfInTarget = this.getters
+    let targetCF = this.getters
       .getConditionalFormats(targetSheetId)
       .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, originCF.rule));
 
-    return cfInTarget ? cfInTarget : { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
+    const queuedCfs = this.queuedChanges[targetSheetId];
+    if (!targetCF && queuedCfs) {
+      targetCF = queuedCfs.find(
+        (queued) =>
+          queued.cf.stopIfTrue === originCF.stopIfTrue && deepEquals(queued.cf.rule, originCF.rule)
+      )?.cf;
+    }
+
+    return targetCF || { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
   }
 }
