@@ -1782,14 +1782,14 @@ describe("charts", () => {
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
         let runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
-        expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#FF8080");
+        expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#FF8080");
 
         let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[2];
         await click(color_menu);
         await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
 
         runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
-        expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#EFEFEF");
+        expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#EFEFEF");
       }
     );
   });
