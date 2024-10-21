@@ -3230,4 +3230,33 @@ describe("trending line", () => {
       expect(value).toBeCloseTo(expectedValue);
     }
   });
+
+  test("Trend line dataset is correctly styled", () => {
+    let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data.datasets[1]).toMatchObject({
+      label: "Trend line for Series 1",
+      borderColor: "#A6D4F8",
+      pointBackgroundColor: "#A6D4F8",
+      fill: false,
+      pointRadius: 0,
+    });
+
+    updateChart(model, "1", {
+      dataSets: [
+        {
+          dataRange: "B1:B10",
+          trend: { display: true, type: "polynomial", order: 2, color: "#FF0000" },
+        },
+      ],
+    });
+
+    runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data.datasets[1]).toMatchObject({
+      label: "Trend line for Series 1",
+      borderColor: "#FF0000",
+      pointBackgroundColor: "#FF0000",
+      fill: false,
+      pointRadius: 0,
+    });
+  });
 });

@@ -148,7 +148,7 @@ describe("line chart", () => {
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
   });
 
-  test("trend line opacity is preserved when choosing a custom color", () => {
+  test("Trend lines have no fill color in area chart", () => {
     const model = new Model();
     setCellContent(model, "A1", "data");
     setCellContent(model, "A2", "3");
@@ -165,22 +165,6 @@ describe("line chart", () => {
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
-    expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
-    expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("origin");
-    expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#A6D4F866");
-
-    updateChart(model, "chartId", {
-      dataSets: [
-        {
-          dataRange: "A1:A3",
-          trend: { type: "polynomial", order: 1, display: true, color: "#112233" },
-        },
-      ],
-    });
-
-    runtime = model.getters.getChartRuntime("chartId") as any;
-    expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("origin");
-    expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#112233");
-    expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#11223366");
+    expect(runtime.chartJsConfig.data.datasets[1].fill).toBe(false);
   });
 });
