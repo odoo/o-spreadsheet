@@ -169,7 +169,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   const newLegendPos = dataSetZone.right === dataSetZone.left ? "none" : "top";
 
   const labelRange = labelRangeXc ? getters.getRangeFromSheetXC(sheetId, labelRangeXc) : undefined;
-  if (canChartParseLabels(labelRange, getters)) {
+  if (canChartParseLabels(labelRange, dataSetsHaveTitle, getters)) {
     return {
       title,
       dataSets,

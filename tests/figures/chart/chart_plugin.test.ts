@@ -2120,6 +2120,29 @@ describe("Linear/Time charts", () => {
     );
     expect(model.getters.getChartRuntime(chartId)).toMatchSnapshot();
   });
+
+  test("Displays date labels correctly when 'Use row X as labels' is checked", () => {
+    setCellContent(model, "A2", "2024-01-01");
+    setCellContent(model, "A3", "2024-01-02");
+    setCellContent(model, "B1", "first column dataset");
+    setCellContent(model, "B2", "10");
+    setCellContent(model, "B3", "11");
+
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B1:B3"],
+        labelRange: "A1:A3",
+        labelsAsText: false,
+        dataSetsHaveTitle: true,
+      },
+      chartId
+    );
+
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
+    expect(chart.data!.labels).toEqual(["2024-01-01", "2024-01-02"]);
+  });
 });
 
 describe("Chart evaluation", () => {

@@ -236,8 +236,14 @@ function fixEmptyLabelsForDateCharts(
   return { labels: newLabels, dataSetsValues: newDatasets };
 }
 
-export function canChartParseLabels(labelRange: Range | undefined, getters: Getters): boolean {
-  return canBeDateChart(labelRange, getters) || canBeLinearChart(labelRange, getters);
+export function canChartParseLabels(
+  labelRange: Range | undefined,
+  dataSetsHaveTitle: boolean,
+  getters: Getters
+): boolean {
+  return (
+    canBeDateChart(labelRange, dataSetsHaveTitle, getters) || canBeLinearChart(labelRange, getters)
+  );
 }
 
 function getChartAxisType(chart: LineChart, getters: Getters): AxisType {
@@ -251,21 +257,25 @@ function getChartAxisType(chart: LineChart, getters: Getters): AxisType {
 }
 
 function isDateChart(chart: LineChart, getters: Getters): boolean {
-  return !chart.labelsAsText && canBeDateChart(chart.labelRange, getters);
+  return !chart.labelsAsText && canBeDateChart(chart.labelRange, chart.dataSetsHaveTitle, getters);
 }
 
 function isLinearChart(chart: LineChart, getters: Getters): boolean {
   return !chart.labelsAsText && canBeLinearChart(chart.labelRange, getters);
 }
 
-function canBeDateChart(labelRange: Range | undefined, getters: Getters): boolean {
+function canBeDateChart(
+  labelRange: Range | undefined,
+  dataSetsHaveTitle: boolean,
+  getters: Getters
+): boolean {
   if (!labelRange || !canBeLinearChart(labelRange, getters)) {
     return false;
   }
   const labelFormat = getters.getEvaluatedCell({
     sheetId: labelRange.sheetId,
     col: labelRange.zone.left,
-    row: labelRange.zone.top,
+    row: dataSetsHaveTitle ? labelRange.zone.top + 1 : labelRange.zone.top,
   }).format;
   return Boolean(labelFormat && timeFormatLuxonCompatible.test(labelFormat));
 }
@@ -377,7 +387,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const options = { format: dataSetFormat, locale, truncateLabels };
   const config = getLineConfiguration(chart, labels, options);
-  const labelFormat = getChartLabelFormat(getters, chart.labelRange)!;
+  const labelFormat = getChartLabelFormat(getters, chart.labelRange, chart.dataSetsHaveTitle)!;
   if (axisType === "time") {
     const axis = {
       type: "time",
