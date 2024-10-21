@@ -1,7 +1,6 @@
 import { Chart, ChartDataset, LegendItem, LinearScaleOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
-import { LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
   evaluatePolynomial,
   expM,
@@ -552,7 +551,7 @@ export function getTrendDatasetForBarChart(
 }
 
 export function getFullTrendingLineDataSet(
-  dataset: ChartDataset,
+  dataset: ChartDataset<"line" | "bar">,
   config: TrendConfiguration,
   data: (number | null)[]
 ) {
@@ -560,25 +559,22 @@ export function getFullTrendingLineDataSet(
   defaultBorderColor.a = 1;
 
   const borderColor = config.color || lightenColor(rgbaToHex(defaultBorderColor), 0.5);
-  const backgroundRGBA = colorToRGBA(borderColor);
-  // @ts-expect-error
-  if (dataset?.fill) {
-    backgroundRGBA.a = LINE_FILL_TRANSPARENCY; // to support area charts
-  }
 
   return {
-    ...dataset,
     type: "line",
     xAxisID: config.type !== "trailingMovingAverage" ? TREND_LINE_XAXIS_ID : "x",
+    yAxisID: dataset.yAxisID,
     label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
     data,
     order: -1,
     showLine: true,
     pointRadius: 0,
-    backgroundColor: rgbaToHex(backgroundRGBA),
+    backgroundColor: borderColor,
     borderColor,
     borderDash: [5, 5],
     borderWidth: undefined,
+    fill: false,
+    pointBackgroundColor: borderColor,
   };
 }
 
