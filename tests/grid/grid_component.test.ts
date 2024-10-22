@@ -46,6 +46,7 @@ import {
   setCellFormat,
   setSelection,
   setStyle,
+  undo,
   updateFilter,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
@@ -961,6 +962,23 @@ describe("Grid component", () => {
       gridMouseEvent(model, "pointerdown", "D8");
       gridMouseEvent(model, "pointerup", "D8");
       expect(getCell(model, "D8")?.style).toEqual({ bold: true });
+    });
+
+    test("Paint format does a single history step", async () => {
+      selectCell(model, "B2");
+      setStyle(model, "B2", { bold: true });
+      setBorders(model, "B2", { top: DEFAULT_BORDER_DESC });
+
+      paintFormatStore.activate({ persistent: false });
+      gridMouseEvent(model, "pointerdown", "D8");
+      gridMouseEvent(model, "pointerup", "D8");
+
+      expect(getStyle(model, "D8")).toEqual({ bold: true });
+      expect(getBorder(model, "D8")).toEqual({ top: DEFAULT_BORDER_DESC });
+
+      undo(model);
+      expect(getStyle(model, "D8")).toEqual({});
+      expect(getBorder(model, "D8")).toEqual(null);
     });
   });
 

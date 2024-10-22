@@ -992,6 +992,10 @@ export interface SplitPivotFormulaCommand extends PositionDependentCommand {
   pivotId: UID;
 }
 
+export interface PaintFormat extends TargetDependentCommand {
+  type: "PAINT_FORMAT";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1139,7 +1143,8 @@ export type LocalCommand =
   | InsertNewPivotCommand
   | DuplicatePivotInNewSheetCommand
   | InsertPivotWithTableCommand
-  | SplitPivotFormulaCommand;
+  | SplitPivotFormulaCommand
+  | PaintFormat;
 
 export type Command = CoreCommand | LocalCommand;
 
