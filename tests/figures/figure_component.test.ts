@@ -160,7 +160,6 @@ describe("figures", () => {
     setCellContent(model, "A1", "content");
     selectCell(model, "A1");
     await nextTick();
-    fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
     await keyDown({ key: "Delete" });
     expect(fixture.querySelector(".o-figure")).toBeNull();
@@ -170,7 +169,6 @@ describe("figures", () => {
   test("Can delete a figure with `Backspace`", async () => {
     createFigure(model);
     await nextTick();
-    fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
     await keyDown({ key: "Backspace" });
     expect(fixture.querySelector(".o-figure")).toBeNull();
@@ -192,7 +190,6 @@ describe("figures", () => {
     let figure = model.getters.getFigure(sheetId, "someuuid");
     expect(figure).toMatchObject({ id: "someuuid", x: 1, y: 1 });
     await nextTick();
-    fixture.querySelector(".o-figure")!;
     await simulateClick(".o-figure");
     await nextTick();
     const selectedFigure = model.getters.getSelectedFigureId();

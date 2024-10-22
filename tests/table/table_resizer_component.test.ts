@@ -10,13 +10,11 @@ import { getHighlightsFromStore, mountComponent, nextTick } from "../test_helper
 describe("Table resizer component", () => {
   let model: Model;
   let sheetId: UID;
-  let fixture: HTMLElement;
   let env: SpreadsheetChildEnv;
 
   beforeEach(async () => {
-    ({ model, fixture, env } = await mountComponent(Grid, { props: { exposeFocus: () => {} } }));
+    ({ model, env } = await mountComponent(Grid, { props: { exposeFocus: () => {} } }));
     sheetId = model.getters.getActiveSheetId();
-    fixture.style ? "ok" : "ko";
   });
 
   test("Can resize a table with drag & drop", async () => {

@@ -501,10 +501,6 @@ describe("BottomBar component", () => {
       };
     });
 
-    afterEach(() => {
-      parent;
-    });
-
     test("Can scroll on the list of sheets", async () => {
       expect(sheetListEl.scrollLeft).toBe(0);
       triggerWheelEvent(sheetListEl, { deltaY: 100 });
