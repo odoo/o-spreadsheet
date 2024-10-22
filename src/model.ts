@@ -193,7 +193,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     verboseImport = false
   ) {
     const start = performance.now();
-    console.group("Model creation");
+    console.debug("##### Model creation #####");
     super();
     setDefaultTranslationMethod();
 
@@ -283,16 +283,16 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     if (config.snapshotRequested) {
       const startSnapshot = performance.now();
-      console.info("Snapshot requested");
+      console.debug("Snapshot requested");
       this.session.snapshot(this.exportData());
       this.garbageCollectExternalResources();
-      console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
+      console.debug("Snapshot taken in", performance.now() - startSnapshot, "ms");
     }
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
     markRaw(this);
-    console.info("Model created in", performance.now() - start, "ms");
-    console.groupEnd();
+    console.debug("Model created in", performance.now() - start, "ms");
+    console.debug("######");
   }
 
   joinSession() {
@@ -538,7 +538,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           this.finalize();
           const time = performance.now() - start;
           if (time > 5) {
-            console.info(type, time, "ms");
+            console.debug(type, time, "ms");
           }
         });
         this.session.save(command, commands, changes);
