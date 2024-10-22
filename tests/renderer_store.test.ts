@@ -1920,19 +1920,19 @@ describe("renderer", () => {
     expect(renderedBorders).toEqual({
       [colors.left]: {
         start: [0, 0],
-        end: [0, 0 + DEFAULT_CELL_HEIGHT],
+        end: [0, DEFAULT_CELL_HEIGHT],
       },
       [colors.top]: {
         start: [0, 0],
-        end: [0 + DEFAULT_CELL_WIDTH, 0],
+        end: [DEFAULT_CELL_WIDTH, 0],
       },
       [colors.right]: {
-        start: [0 + DEFAULT_CELL_WIDTH, 0],
-        end: [0 + DEFAULT_CELL_WIDTH, 0 + DEFAULT_CELL_HEIGHT],
+        start: [DEFAULT_CELL_WIDTH, 0],
+        end: [DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT],
       },
       [colors.bottom]: {
-        start: [0, 0 + DEFAULT_CELL_HEIGHT],
-        end: [0 + DEFAULT_CELL_WIDTH, 0 + DEFAULT_CELL_HEIGHT],
+        start: [0, DEFAULT_CELL_HEIGHT],
+        end: [DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT],
       },
     });
   });
