@@ -252,9 +252,6 @@ export class SheetViewPlugin extends UIPlugin {
       case "UNFREEZE_COLUMNS_ROWS":
         this.resetViewports(this.getters.getActiveSheetId());
         break;
-      case "DELETE_SHEET":
-        this.sheetsWithDirtyViewports.delete(cmd.sheetId);
-        break;
       case "SCROLL_TO_CELL":
         this.refreshViewport(this.getters.getActiveSheetId(), { col: cmd.col, row: cmd.row });
         break;
