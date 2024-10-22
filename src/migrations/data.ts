@@ -42,7 +42,7 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
   if (!data) {
     return createEmptyWorkbookData();
   }
-  console.group("Loading data");
+  console.debug("### Loading data ###");
   const start = performance.now();
   if (data["[Content_Types].xml"]) {
     const reader = new XlsxReader(data);
@@ -57,13 +57,13 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
   // apply migrations, if needed
   if ("version" in data) {
     if (data.version < CURRENT_VERSION) {
-      console.info("Migrating data from version", data.version);
+      console.debug("Migrating data from version", data.version);
       data = migrate(data);
     }
   }
   data = repairData(data);
-  console.info("Data loaded in", performance.now() - start, "ms");
-  console.groupEnd();
+  console.debug("Data loaded in", performance.now() - start, "ms");
+  console.debug("###");
   return data;
 }
 
@@ -84,7 +84,7 @@ function migrate(data: any): WorkbookData {
   for (let i = index; i < MIGRATIONS.length; i++) {
     data = MIGRATIONS[i].applyMigration(data);
   }
-  console.info("Data migrated in", performance.now() - start, "ms");
+  console.debug("Data migrated in", performance.now() - start, "ms");
   return data;
 }
 
