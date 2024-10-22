@@ -38,9 +38,7 @@ beforeAll(() => {
     },
   });
 
-  console.info = () => {};
-  console.group = () => {};
-  console.groupEnd = () => {};
+  console.debug = () => {};
 });
 
 beforeEach(() => {

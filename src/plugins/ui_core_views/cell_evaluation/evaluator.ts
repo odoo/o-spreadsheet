@@ -159,7 +159,7 @@ export class Evaluator {
     cellsToCompute.addMany(arrayFormulasPositions);
     cellsToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.evaluate(cellsToCompute);
-    console.info("evaluate Cells", performance.now() - start, "ms");
+    console.debug("evaluate Cells", performance.now() - start, "ms");
   }
 
   private getArrayFormulasImpactedByChangesOf(
@@ -211,7 +211,7 @@ export class Evaluator {
     const start = performance.now();
     this.evaluatedCells = new PositionMap();
     this.evaluate(this.getAllCells());
-    console.info("evaluate all cells", performance.now() - start, "ms");
+    console.debug("evaluate all cells", performance.now() - start, "ms");
   }
 
   evaluateFormulaResult(
