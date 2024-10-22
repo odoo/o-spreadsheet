@@ -5,7 +5,7 @@ import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/ind
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
-import { copy, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { copy, createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import {
   getCell,
   getCellContent,
@@ -174,7 +174,7 @@ describe("Model", () => {
 
   test("Some commands are not dispatched in readonly mode", () => {
     const model = new Model({}, { mode: "readonly" });
-    expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
+    expect(createSheet(model, {})).toBeCancelledBecause(CommandResult.Readonly);
   });
 
   test("Moving the selection is allowed in readonly mode", () => {
