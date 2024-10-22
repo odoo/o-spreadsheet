@@ -1,4 +1,4 @@
-import { isZoneInside, range, removeFalsyAttributes, zoneToDimension } from "../helpers";
+import { isZoneInside, removeFalsyAttributes, zoneToDimension } from "../helpers";
 import {
   Border,
   CellPosition,
@@ -69,10 +69,6 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
           zones.some((z) => isZoneInside(tableZone, z))
         ) {
           copiedTablesIds.add(table.id);
-          const values: Array<string[]> = [];
-          for (const col of range(tableZone.left, tableZone.right + 1)) {
-            values.push(this.getters.getFilterHiddenValues({ sheetId, col, row: tableZone.top }));
-          }
           copiedTable = {
             range: coreTable.range.rangeData,
             config: coreTable.config,
