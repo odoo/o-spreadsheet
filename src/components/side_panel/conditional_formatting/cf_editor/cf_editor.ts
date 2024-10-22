@@ -425,7 +425,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   setColorScaleColor(target: string, color: Color) {
     const point = this.state.rules.colorScale[target];
     if (point) {
-      point.color = Number.parseInt(color.substr(1), 16);
+      point.color = Number.parseInt(color.slice(1), 16);
     }
     this.closeMenus();
   }
@@ -559,7 +559,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   updateDataBarColor(color: Color) {
-    this.state.rules.dataBar.color = Number.parseInt(color.substr(1), 16);
+    this.state.rules.dataBar.color = Number.parseInt(color.slice(1), 16);
   }
 
   onDataBarRangeUpdate(ranges: string[]) {

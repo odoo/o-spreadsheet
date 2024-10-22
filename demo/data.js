@@ -2757,7 +2757,7 @@ function computeStringCells(cols, rows) {
   for (let col = 0; col < cols; col++) {
     const letter = _getColumnLetter(col);
     for (let index = 1; index < rows; index++) {
-      cells[letter + index] = { content: Math.random().toString(36).substr(2) };
+      cells[letter + index] = { content: Math.random().toString(36).slice(2) };
     }
   }
   return cells;
