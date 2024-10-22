@@ -1306,42 +1306,34 @@ describe("renderer", () => {
   );
 
   test("Cell overflowing text centered is cut correctly when there's a border", () => {
-    () => {
-      const borders = ["right"];
-      const cellContent = "This is a long text larger than a cell";
-      const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
-          sheets: [
-            { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: { content: cellContent } } },
-          ],
-        })
-      );
+    const cellContent = "This is a long text larger than a cell";
 
-      setStyle(model, "B2", { align: "center" });
+    const model = new Model();
+    resizeColumns(model, ["B"], 10);
+    setCellContent(model, "B2", cellContent);
+    setStyle(model, "B2", { align: "center" });
+    setZoneBorders(model, { position: "right" }, ["B2"]);
 
-      for (const border of borders) {
-        setZoneBorders(model, { position: border as BorderPosition }, ["B2"]);
-      }
+    const { drawGridRenderer, gridRendererStore } = setRenderer(model);
 
-      let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      drawGridRenderer(ctx);
-
-      const box = getBoxFromText(gridRendererStore, cellContent);
-      const cell = getCell(model, "B2")!;
-      const textWidth = model.getters.getTextWidth(cell.content, cell.style || {});
-      const expectedClipRect = model.getters.getVisibleRect({
-        left: 0,
-        right: 1,
-        top: 1,
-        bottom: 1,
-      });
-      const expectedCLipX = box.x + box.width / 2 - textWidth / 2;
-      expect(box.clipRect).toEqual({
-        ...expectedClipRect,
-        x: expectedCLipX,
-        width: expectedClipRect.x + expectedClipRect.width - expectedCLipX,
-      });
-    };
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    drawGridRenderer(ctx);
+    const box = getBoxFromText(gridRendererStore, cellContent);
+    const cell = getCell(model, "B2")!;
+    const textWidth =
+      model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
+    const expectedClipRect = model.getters.getVisibleRect({
+      left: 0,
+      right: 1,
+      top: 1,
+      bottom: 1,
+    });
+    const expectedCLipX = box.x + box.width / 2 - textWidth / 2;
+    expect(box.clipRect).toEqual({
+      ...expectedClipRect,
+      x: expectedCLipX,
+      width: expectedClipRect.x + expectedClipRect.width - expectedCLipX,
+    });
   });
 
   test.each([
