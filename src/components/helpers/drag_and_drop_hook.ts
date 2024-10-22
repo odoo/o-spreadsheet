@@ -268,12 +268,6 @@ class DOMDndHelper {
     if (this.edgeScrollIntervalId) return;
     this.edgeScrollIntervalId = window.setInterval(() => {
       const offset = direction * 3;
-      let newPosition = this.currentMousePosition + offset;
-      if (newPosition < Math.min(this.container.start, this.minPosition)) {
-        newPosition = Math.min(this.container.start, this.minPosition);
-      } else if (newPosition > Math.max(this.container.end, this.maxPosition)) {
-        newPosition = Math.max(this.container.end, this.maxPosition);
-      }
       this.container.scroll += offset;
     }, 5);
   }

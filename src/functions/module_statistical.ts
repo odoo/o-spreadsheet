@@ -108,10 +108,9 @@ function covariance(dataY: Arg, dataX: Arg, isSample: boolean): number {
 
 function variance(args: Arg[], isSample: boolean, textAs0: boolean, locale: Locale): number {
   let count = 0;
-  let sum = 0;
   const reduceFunction = textAs0 ? reduceNumbersTextAs0 : reduceNumbers;
 
-  sum = reduceFunction(
+  const sum = reduceFunction(
     args,
     (acc, a) => {
       count += 1;
