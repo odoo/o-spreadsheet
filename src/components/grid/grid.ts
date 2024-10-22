@@ -21,6 +21,7 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../../constants";
+import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
@@ -626,32 +627,22 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (!clipboardData) {
       return;
     }
-    const clipboardDataTextContent = clipboardData?.getData(ClipboardMIMEType.PlainText);
-    const clipboardDataHtmlContent = clipboardData?.getData(ClipboardMIMEType.Html);
-    const htmlDocument = new DOMParser().parseFromString(
-      clipboardDataHtmlContent ?? "<div></div>",
-      "text/html"
-    );
-    const osClipboardSpreadsheetContent =
-      clipboardData.getData(ClipboardMIMEType.OSpreadsheet) || "{}";
+
+    const osClipboard = {
+      content: {
+        [ClipboardMIMEType.PlainText]: clipboardData?.getData(ClipboardMIMEType.PlainText),
+        [ClipboardMIMEType.Html]: clipboardData?.getData(ClipboardMIMEType.Html),
+      },
+    };
 
     const target = this.env.model.getters.getSelectedZones();
     const isCutOperation = this.env.model.getters.isCutOperation();
 
-    const clipboardId =
-      JSON.parse(osClipboardSpreadsheetContent).clipboardId ??
-      htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
-
+    const clipboardContent = parseOSClipboardContent(osClipboard.content);
+    const clipboardId = clipboardContent.data?.clipboardId;
     if (this.env.model.getters.getClipboardId() === clipboardId) {
       interactivePaste(this.env, target);
     } else {
-      const clipboardContent = {
-        [ClipboardMIMEType.PlainText]: clipboardDataTextContent,
-        [ClipboardMIMEType.Html]: clipboardDataHtmlContent,
-      };
-      if (osClipboardSpreadsheetContent !== "{}") {
-        clipboardContent[ClipboardMIMEType.OSpreadsheet] = osClipboardSpreadsheetContent;
-      }
       interactivePasteFromOS(this.env, target, clipboardContent);
     }
     if (isCutOperation) {
