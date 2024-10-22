@@ -34,7 +34,7 @@ Core commands should be device-agnostic and include all necessary information to
 
 To declare a new `CoreCommands`, its type should be added to `coreTypes`:
 
-```js
+```ts
 import { coreTypes } from "@odoo/o-spreadsheet";
 
 coreTypes.add("MY_COMMAND_NAME");
@@ -46,7 +46,7 @@ In read-only mode, all core commands are cancelled with the `CommandResult` `Rea
 However, some locale commands still need to be executed, such as updating the active sheet.
 To allow a new local command in read-only mode, add its type to `readonlyAllowedCommands`:
 
-```js
+```ts
 import { readonlyAllowedCommands } from "@odoo/o-spreadsheet";
 
 readonlyAllowedCommands.add("MY_COMMAND_NAME");
@@ -72,7 +72,7 @@ Some commands can be repeated with CTRL+Y (redo) when the redo stack is empty. T
 
 To declare a repeatable core command, add it to the `repeatCommandTransformRegistry`
 
-```js
+```ts
 import { repeatCommandTransformRegistry, genericRepeat } from "@odoo/o-spreadsheet";
 
 repeatCommandTransformRegistry.add("MY_CORE_COMMAND", genericRepeat);
@@ -105,7 +105,7 @@ repeatCommandTransformRegistry.add("ADD_COL_ROW_COMMAND", repeatAddColumnsRowsCo
 
 Local commands can also be repeated. To declare a repeatable local command, add it to the `repeatLocalCommandTransformRegistry`:
 
-```js
+```ts
 import { repeatLocalCommandTransformRegistry, genericRepeat } from "@odoo/o-spreadsheet";
 
 repeatLocalCommandTransformRegistry.add("MY_LOCAL_COMMAND", genericRepeat);
@@ -113,7 +113,7 @@ repeatLocalCommandTransformRegistry.add("MY_LOCAL_COMMAND", genericRepeat);
 
 For local commands, the transformation function includes a third argument: the core (sub)commands dispatched during the handling of the root local command. This is useful if the result depends on the UI plugins' state, as there is no guarantee that the UI plugins' state will be the same when the command is repeated. Adapting the child core commands can be a valid way to adjust the local command, as they do not depend on any internal state.
 
-```js
+```ts
 type LocalRepeatTransform = (
   getters: Getters,
   cmd: LocalCommand,

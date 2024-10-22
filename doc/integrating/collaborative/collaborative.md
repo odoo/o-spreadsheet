@@ -119,7 +119,7 @@ To extend o-spreadsheet without breaking realtime collaborative edition, there a
 There are two types of [commands](add_command.md): `CoreCommands` and `Commands`. Only `CoreCommands` are synchronized.
 Here is the way to register a `CoreCommand` to o-spreadsheet.
 
-```js
+```ts
 const { coreTypes } = o_spreadsheet;
 
 coreTypes.add("MY_COMMAND_NAME");
@@ -133,7 +133,7 @@ A transformation function takes as arguments the already executed command, and t
 
 If a transformation is required, here is the way to declare it. The transformation check that the command is on the same sheet of the deleted sheet. If true, the command should be skipped.
 
-```js
+```ts
 const { otRegistry } = o_spreadsheet.registries;
 
 otRegistry.addTransformation("DELETE_SHEET", ["MY_COMMAND"], (myCommand, deleteSheet) => {
@@ -165,7 +165,7 @@ The inverse function is used during a selective undo to transform commands execu
 
 Here is the way to declare it.
 
-```js
+```ts
 const { inverseCommandRegistry } = o_spreadsheet.registries;
 
 inverseCommandRegistry.add("CREATE_SHEET", (cmd) => {
