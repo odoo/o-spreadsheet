@@ -159,7 +159,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       this.onMessageReceived(message);
     }
     this.isReplayingInitialRevisions = false;
-    console.info("Replayed", numberOfCommands, "commands in", performance.now() - start, "ms");
+    console.debug("Replayed", numberOfCommands, "commands in", performance.now() - start, "ms");
   }
 
   /**
