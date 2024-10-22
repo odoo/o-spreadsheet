@@ -233,7 +233,7 @@ export function buildSheetLink(sheetId: UID) {
  */
 export function parseSheetUrl(sheetLink: string) {
   if (sheetLink.startsWith(O_SPREADSHEET_LINK_PREFIX)) {
-    return sheetLink.substr(O_SPREADSHEET_LINK_PREFIX.length);
+    return sheetLink.slice(O_SPREADSHEET_LINK_PREFIX.length);
   }
   throw new Error(`${sheetLink} is not a valid sheet link`);
 }
