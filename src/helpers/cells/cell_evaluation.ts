@@ -50,7 +50,7 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
     return internalDate.value;
   }
   if (isBoolean(content)) {
-    return content.toUpperCase() === "TRUE" ? true : false;
+    return content.toUpperCase() === "TRUE";
   }
   return content;
 }

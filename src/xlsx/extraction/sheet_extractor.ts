@@ -61,7 +61,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           hyperlinks: this.extractHyperLinks(sheetElement),
           tables: this.extractTables(sheetElement),
           pivotTables: this.extractPivotTables(),
-          isVisible: sheetWorkbookInfo.state === "visible" ? true : false,
+          isVisible: sheetWorkbookInfo.state === "visible",
         };
       }
     )[0];
