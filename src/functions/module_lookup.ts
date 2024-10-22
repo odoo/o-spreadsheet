@@ -88,8 +88,8 @@ export const ADDRESS = {
     let cellReference: string;
     if (_useA1Notation) {
       const rangePart = {
-        rowFixed: [1, 2].includes(_absoluteRelativeMode) ? true : false,
-        colFixed: [1, 3].includes(_absoluteRelativeMode) ? true : false,
+        rowFixed: [1, 2].includes(_absoluteRelativeMode),
+        colFixed: [1, 3].includes(_absoluteRelativeMode),
       };
       cellReference = toXC(colNumber - 1, rowNumber - 1, rangePart);
     } else {

@@ -71,7 +71,7 @@ describe("functions", () => {
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg: Arg) {
-        return isEvaluationError(toScalar(arg)?.value) ? true : false;
+        return isEvaluationError(toScalar(arg)?.value);
       },
       args: [arg("arg (any)", "blabla")],
     });
