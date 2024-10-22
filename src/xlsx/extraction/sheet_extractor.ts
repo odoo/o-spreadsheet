@@ -164,12 +164,11 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
         const drawingId = this.extractAttr(drawingElement, "r:id", { required: true })?.asString();
         const drawingFile = this.getTargetXmlFile(this.relationships[drawingId])!;
 
-        const figures = new XlsxFigureExtractor(
+        return new XlsxFigureExtractor(
           drawingFile,
           this.xlsxFileStructure,
           this.warningManager
         ).extractFigures();
-        return figures;
       }
     )[0];
 
@@ -199,12 +198,11 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
         .filter((relationship) => relationship.type.endsWith("pivotTable"))
         .map((pivotRelationship) => {
           const pivotFile = this.getTargetXmlFile(pivotRelationship)!;
-          const pivot = new XlsxPivotExtractor(
+          return new XlsxPivotExtractor(
             pivotFile,
             this.xlsxFileStructure,
             this.warningManager
           ).getPivotTable();
-          return pivot;
         });
     } catch (e) {
       this.catchErrorOnElement(e);

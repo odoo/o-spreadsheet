@@ -699,8 +699,7 @@ export default function (PivotClass: PivotUIConstructor) {
       }
 
       const comparedValue = this._getPivotCellValueAndFormat(measure.id, comparedDomain);
-      const comparedValueNumber = this.strictMeasureValueToNumber(comparedValue);
-      return comparedValueNumber;
+      return this.strictMeasureValueToNumber(comparedValue);
     }
 
     private getPivotValueCells(measureId: string): PivotValueCell[][] {

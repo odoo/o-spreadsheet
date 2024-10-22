@@ -55,8 +55,7 @@ export class XlsxReader {
 
   convertXlsx(): WorkbookData {
     const xlsxData = this.getXlsxData();
-    const convertedData = this.convertImportedData(xlsxData);
-    return convertedData;
+    return this.convertImportedData(xlsxData);
   }
 
   // ---------------------------------------------------------------------------

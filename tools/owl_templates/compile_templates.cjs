@@ -47,8 +47,7 @@ function compileTemplates() {
   const compiledTemplates = {};
   for (const template of parsedXMl.querySelectorAll("[t-name]")) {
     const name = template.getAttribute("t-name");
-    const fn = app._compileTemplate(name, template);
-    compiledTemplates[name] = fn;
+    compiledTemplates[name] = app._compileTemplate(name, template);
   }
 
   return compiledTemplates;

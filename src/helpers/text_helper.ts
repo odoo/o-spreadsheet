@@ -68,8 +68,7 @@ export function computeCachedTextWidth(context: CanvasRenderingContext2D, text: 
     textWidthCache[font] = {};
   }
   if (textWidthCache[font][text] === undefined) {
-    const textWidth = context.measureText(text).width;
-    textWidthCache[font][text] = textWidth;
+    textWidthCache[font][text] = context.measureText(text).width;
   }
   return textWidthCache[font][text];
 }

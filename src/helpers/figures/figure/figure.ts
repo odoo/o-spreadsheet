@@ -10,11 +10,10 @@ export function centerFigurePosition(getters: Getters, size: FigureSize) {
   const scrollableViewportWidth = Math.min(rect.width, dim.width - offsetCorrectionX);
   const scrollableViewportHeight = Math.min(rect.height, dim.height - offsetCorrectionY);
 
-  const position = {
+  return {
     x: offsetCorrectionX + scrollX + Math.max(0, (scrollableViewportWidth - size.width) / 2),
     y: offsetCorrectionY + scrollY + Math.max(0, (scrollableViewportHeight - size.height) / 2),
   }; // Position at the center of the scrollable viewport
-  return position;
 }
 
 export function getMaxFigureSize(getters: Getters, figureSize: FigureSize): FigureSize {

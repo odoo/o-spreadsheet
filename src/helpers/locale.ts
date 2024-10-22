@@ -201,10 +201,9 @@ function localizeNumberLiteral(literal: string, locale: Locale): string {
   }
 
   const decimalNumberRegex = getDecimalNumberRegex(DEFAULT_LOCALE);
-  const localized = literal.replace(decimalNumberRegex, (match) => {
+  return literal.replace(decimalNumberRegex, (match) => {
     return match.replace(".", locale.decimalSeparator);
   });
-  return localized;
 }
 
 /**

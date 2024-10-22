@@ -80,10 +80,7 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
     const localeInLoadedLocales = this.loadedLocales.find((l) => l.code === currentLocale.code);
 
     if (!localeInLoadedLocales) {
-      const locales = [...this.loadedLocales, currentLocale].sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-      return locales;
+      return [...this.loadedLocales, currentLocale].sort((a, b) => a.name.localeCompare(b.name));
     } else if (!deepEquals(currentLocale, localeInLoadedLocales)) {
       const index = this.loadedLocales.indexOf(localeInLoadedLocales);
       const locales = [...this.loadedLocales];

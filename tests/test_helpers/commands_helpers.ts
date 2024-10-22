@@ -307,8 +307,7 @@ export function copy(model: Model, ...ranges: string[]): DispatchResult {
   if (ranges && ranges.length) {
     setSelection(model, ranges);
   }
-  const result = model.dispatch("COPY");
-  return result;
+  return model.dispatch("COPY");
 }
 
 /**
@@ -318,8 +317,7 @@ export function cut(model: Model, ...ranges: string[]): DispatchResult {
   if (ranges && ranges.length) {
     setSelection(model, ranges);
   }
-  const result = model.dispatch("CUT");
-  return result;
+  return model.dispatch("CUT");
 }
 
 /**
@@ -353,16 +351,14 @@ export function pasteFromOSClipboard(
  * Copy cells above a zone and paste on zone
  */
 export function copyPasteAboveCells(model: Model): DispatchResult {
-  const result = model.dispatch("COPY_PASTE_CELLS_ABOVE");
-  return result;
+  return model.dispatch("COPY_PASTE_CELLS_ABOVE");
 }
 
 /**
  * Copy cells to the left of a zone and paste on zone
  */
 export function copyPasteCellsOnLeft(model: Model): DispatchResult {
-  const result = model.dispatch("COPY_PASTE_CELLS_ON_LEFT");
-  return result;
+  return model.dispatch("COPY_PASTE_CELLS_ON_LEFT");
 }
 
 /**

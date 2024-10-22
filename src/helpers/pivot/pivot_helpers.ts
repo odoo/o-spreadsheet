@@ -94,8 +94,7 @@ export function getMaxObjectId(o: object) {
     return 0;
   }
   const nums = keys.map((id) => parseInt(id, 10));
-  const max = Math.max(...nums);
-  return max;
+  return Math.max(...nums);
 }
 
 export const ALL_PERIODS = {

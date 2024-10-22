@@ -154,8 +154,7 @@ function calculateDateIncrementBasedOnGroup(group: number[]) {
           return 0;
         }
         const previous = jsDates[index - 1];
-        const days = Math.floor(date.getTime()) - Math.floor(previous.getTime());
-        return days;
+        return Math.floor(date.getTime()) - Math.floor(previous.getTime());
       })
       .slice(1);
     const equidistantDates = timeIntervals.every((interval) => interval === timeIntervals[0]);

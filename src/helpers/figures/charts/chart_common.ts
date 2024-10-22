@@ -398,12 +398,10 @@ export function getChartPositionAtCenterOfViewport(
   const { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
   const { width, height } = getters.getVisibleRect(getters.getActiveMainViewport());
 
-  const position = {
+  return {
     x: x + scrollX + Math.max(0, (width - chartSize.width) / 2),
     y: y + scrollY + Math.max(0, (height - chartSize.height) / 2),
   }; // Position at the center of the scrollable viewport
-
-  return position;
 }
 
 export function getChartAxisTitleRuntime(design?: AxisDesign):

@@ -641,12 +641,11 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     const dimOfInterest = dimension === "cols" ? "col" : "row";
     const startingPosition = { ...currentPosition };
 
-    const nextCoord =
+    startingPosition[dimOfInterest] =
       dimension === "cols"
         ? this.getNextAvailableCol(direction, startingPosition.col, startingPosition.row)
         : this.getNextAvailableRow(direction, startingPosition.col, startingPosition.row);
 
-    startingPosition[dimOfInterest] = nextCoord;
     return { col: startingPosition.col, row: startingPosition.row };
   }
 

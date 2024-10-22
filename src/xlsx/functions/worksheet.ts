@@ -258,14 +258,13 @@ export function addSheetViews(sheet: ExcelSheetData) {
     ["workbookViewId", 0],
   ];
 
-  let sheetView = escapeXml/*xml*/ `
+  return escapeXml/*xml*/ `
       <sheetViews>
         <sheetView ${formatAttributes(sheetViewAttrs)}>
           ${splitPanes}
         </sheetView>
       </sheetViews>
     `;
-  return sheetView;
 }
 
 export function addSheetProperties(sheet: ExcelSheetData) {
@@ -273,10 +272,9 @@ export function addSheetProperties(sheet: ExcelSheetData) {
     return "";
   }
 
-  let sheetView = escapeXml/*xml*/ `
+  return escapeXml/*xml*/ `
       <sheetPr>
         <tabColor ${formatAttributes([["rgb", toXlsxHexColor(sheet.color)]])} />
       </sheetPr>
     `;
-  return sheetView;
 }

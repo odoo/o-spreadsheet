@@ -57,8 +57,7 @@ function exportToXlsxThenImport(model: Model) {
       imageSrc: file.imageSrc,
     };
   }
-  const imported = new Model(dataToImport, undefined, undefined, undefined, false);
-  return imported;
+  return new Model(dataToImport, undefined, undefined, undefined, false);
 }
 
 describe("Export data to xlsx then import it", () => {

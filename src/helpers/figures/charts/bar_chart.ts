@@ -310,8 +310,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     config.data.datasets.push(dataset);
 
     if (definition.dataSets?.[index]?.label) {
-      const label = definition.dataSets[index].label;
-      dataset.label = label;
+      dataset.label = definition.dataSets[index].label;
     }
 
     dataset.yAxisID = chart.horizontal ? "y" : definition.dataSets[index].yAxisId || "y";

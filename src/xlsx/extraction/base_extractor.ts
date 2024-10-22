@@ -110,12 +110,11 @@ export class XlsxBaseExtractor {
    * Get the list of all the XLSX files in the XLSX file structure
    */
   protected getListOfXMLFiles(): XLSXImportFile[] {
-    const XMLFiles = Object.entries(this.xlsxFileStructure)
+    return Object.entries(this.xlsxFileStructure)
       .filter(([key]) => key !== "images")
       .map(([_, value]) => value)
       .flat()
       .filter(isDefined);
-    return XMLFiles;
   }
 
   /**
@@ -330,13 +329,12 @@ export class XlsxBaseExtractor {
       rgb = this.extractAttr(colorElement, "rgb")?.asString();
       rgb = rgb === DEFAULT_SYSTEM_COLOR ? undefined : rgb;
     }
-    const color = {
+    return {
       rgb: rgb || defaultColor,
       auto: this.extractAttr(colorElement, "auto")?.asBool(),
       indexed: this.extractAttr(colorElement, "indexed")?.asNum(),
       tint: this.extractAttr(colorElement, "tint")?.asNum(),
     };
-    return color;
   }
 
   /**
