@@ -229,8 +229,8 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    expect(fixture.querySelector(".o-menu-item[data-name='move_left'")).toBeNull();
-    expect(fixture.querySelector(".o-menu-item[data-name='move_right'")).toBeNull();
+    expect(fixture.querySelector(".o-menu-item[data-name='move_left']")).toBeNull();
+    expect(fixture.querySelector(".o-menu-item[data-name='move_right']")).toBeNull();
   });
 
   describe("Rename a sheet", () => {
@@ -411,7 +411,7 @@ describe("BottomBar component", () => {
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
-    expect(fixture.querySelector(".o-menu-item[data-name='delete'")).toBeNull();
+    expect(fixture.querySelector(".o-menu-item[data-name='delete']")).toBeNull();
   });
 
   test("Can open the list of sheets", async () => {
@@ -454,7 +454,7 @@ describe("BottomBar component", () => {
     const { model } = await mountBottomBar();
     createSheet(model, { sheetId: "42", hidden: true });
     await click(fixture, ".o-list-sheets");
-    const menuItem = fixture.querySelector<HTMLElement>(".o-menu-item[data-name='42'")!;
+    const menuItem = fixture.querySelector<HTMLElement>(".o-menu-item[data-name='42']")!;
     expect(toHex(menuItem.style.color)).toEqual("#808080");
     await click(menuItem);
     expect(model.getters.getActiveSheetId()).toBe("42");
@@ -466,7 +466,7 @@ describe("BottomBar component", () => {
     createSheet(model, { sheetId: "42", hidden: true });
     model.updateMode("readonly");
     await click(fixture, ".o-list-sheets");
-    const menuItem = fixture.querySelector<HTMLElement>(".o-menu-item[data-name='42'");
+    const menuItem = fixture.querySelector<HTMLElement>(".o-menu-item[data-name='42']");
     expect(menuItem!.classList).toContain("disabled");
   });
 
