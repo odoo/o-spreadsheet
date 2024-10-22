@@ -2476,10 +2476,6 @@ describe("Linear/Time charts", () => {
     );
     let config = getChartConfiguration(model, chartId);
     expect(config.options?.scales?.x?.type).toEqual("time");
-
-    updateChart(model, chartId, { type: "bar" });
-    model.getters.getChartRuntime(chartId)!; //ANHE : this test doesn't seems to update anything ...
-    expect(config.options?.scales?.x?.type).toEqual("time");
   });
 
   test("time axis for line/bar chart with formulas w/ date format as labels", () => {
@@ -2498,10 +2494,6 @@ describe("Linear/Time charts", () => {
       chartId
     );
     let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
-    expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
-
-    updateChart(model, chartId, { type: "bar" });
-    model.getters.getChartRuntime(chartId)!;
     expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
   });
 

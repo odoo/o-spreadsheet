@@ -1112,7 +1112,6 @@ describe("edition", () => {
     expect(gridHighlights[0]).toMatchObject({ zone: toZone("A2"), color: colors[1] });
     const composerHighlights = composerStore.highlights;
     expect(composerHighlights).toHaveLength(2);
-    colors;
     expect(composerHighlights[0]).toMatchObject({ zone: toZone("A1"), color: colors[0] });
     expect(composerHighlights[1]).toMatchObject({ zone: toZone("A2"), color: colors[1] });
   });

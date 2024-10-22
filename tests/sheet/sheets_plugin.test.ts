@@ -299,8 +299,6 @@ describe("sheets", () => {
     });
 
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
-    const B2 = getCell(model, "B2", "DEF");
-    B2;
     expect(getEvaluatedCell(model, "B1").value).toBe(3);
   });
 
