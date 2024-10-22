@@ -186,7 +186,6 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
           ...sheetIds.slice(activeSheetIndex + 1),
           ...sheetIds.slice(0, activeSheetIndex),
         ];
-        break;
       case "activeSheet":
         return [this.getters.getActiveSheetId()];
       case "specificRange":
