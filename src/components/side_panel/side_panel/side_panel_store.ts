@@ -52,7 +52,7 @@ export class SidePanelStore extends SpreadsheetStore {
 
   open(componentTag: string, panelProps: SidePanelProps = {}) {
     const state = this.computeState(componentTag, panelProps);
-    if (state.isOpen === false) {
+    if (!state.isOpen) {
       return;
     }
     if (this.isOpen && componentTag !== this.componentTag) {

@@ -209,7 +209,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     if (index < 0) {
       return;
     }
-    if (this.state.waitingForMove === true) {
+    if (this.state.waitingForMove) {
       if (!this.env.model.getters.isGridSelectionActive()) {
         this._selectElement(index, false);
       } else {

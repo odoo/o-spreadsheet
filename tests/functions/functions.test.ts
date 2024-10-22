@@ -252,10 +252,7 @@ describe("functions", () => {
       functionRegistry.add("FORMULA_TROWING_ERROR", {
         description: "function trowing error",
         compute: () => {
-          if (!false) {
-            throw new EvaluationError("NOP");
-          }
-          return 42;
+          throw new EvaluationError("NOP");
         },
         args: [],
       });
@@ -271,10 +268,7 @@ describe("functions", () => {
       functionRegistry.add("FORMULA_RETURNING_RANGE_TROWING_ERROR", {
         description: "function returning range",
         compute: () => {
-          if (!false) {
-            throw new EvaluationError("NOP");
-          }
-          return [["cucumber"]];
+          throw new EvaluationError("NOP");
         },
         args: [],
       });

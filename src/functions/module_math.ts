@@ -618,7 +618,7 @@ export const DECIMAL = {
      * Remove '-?' in the next regex to catch this error.
      */
     assert(
-      () => !!DECIMAL_REPRESENTATION.test(_value),
+      () => DECIMAL_REPRESENTATION.test(_value),
       _t("The value (%s) must be a valid base %s representation.", _value, _base.toString())
     );
 
