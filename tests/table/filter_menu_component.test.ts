@@ -333,19 +333,27 @@ describe("Filter menu component", () => {
     });
   });
 
-  test("cannot sort filter table in readonly mode", async () => {
-    createTableWithFilter(model, "A10:B15");
-    await nextTick();
-    await openFilterMenu();
-    expect(
-      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
-    ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "✓(Blanks)"]);
-    model.updateMode("readonly");
-    await nextTick();
-    expect(
-      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
-    ).toEqual(["✓(Blanks)"]);
-  });
+  test.each(["readonly", "dashboard"] as const)(
+    "can sort filter table in %s mode",
+    async (mode) => {
+      createTableWithFilter(model, "A10:A13");
+      setCellContent(model, "A10", "letters");
+      setCellContent(model, "A11", "A");
+      setCellContent(model, "A12", "B");
+      setCellContent(model, "A13", "C");
+      model.updateMode(mode);
+      await nextTick();
+      await openFilterMenu();
+      await simulateClick(".o-filter-menu-item:nth-of-type(2)");
+      await nextTick();
+      expect(getCellsObject(model, sheetId)).toMatchObject({
+        A10: { content: "letters" },
+        A11: { content: "C" },
+        A12: { content: "B" },
+        A13: { content: "A" },
+      });
+    }
+  );
 
   test("cannot sort dynamic table", async () => {
     setCellContent(model, "A10", "=MUNIT(2)");
