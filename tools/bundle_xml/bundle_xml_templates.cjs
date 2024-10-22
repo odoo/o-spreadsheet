@@ -91,7 +91,6 @@ function writeToFile(filepath, data) {
   fs.writeFile(filepath, data, (err) => {
     if (err) {
       process.stdout.write(`Error while writing file ${filepath}: ${err}`);
-      return;
     }
   });
 }

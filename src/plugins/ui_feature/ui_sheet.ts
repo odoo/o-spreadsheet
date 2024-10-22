@@ -201,7 +201,6 @@ export class SheetUIPlugin extends UIPlugin {
       if (!isEqual(zone, newZone)) {
         hasExpanded = true;
         zone = newZone;
-        continue;
       }
     } while (hasExpanded);
 
