@@ -963,6 +963,7 @@ describe("move elements(s)", () => {
       position: "after",
       dimension: "COL",
     });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
 
   test("cannot move row out of bound", () => {

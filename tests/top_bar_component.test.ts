@@ -568,7 +568,7 @@ describe("TopBar component", () => {
     // Won't update the current content
     const content = composerStore.currentContent;
     expect(content).toBe("");
-    composerEl = await typeInComposerTopBar("tabouret", false);
+    await typeInComposerTopBar("tabouret", false);
     expect(composerStore.currentContent).toBe(content);
   });
 

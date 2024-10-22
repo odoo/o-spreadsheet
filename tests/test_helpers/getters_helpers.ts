@@ -206,9 +206,6 @@ export function automaticSumMulti(
   { anchor }: { anchor?: string } = {},
   sheetId?: UID
 ) {
-  if (!sheetId) {
-    sheetId = model.getters.getActiveSheetId();
-  }
   setSelection(model, xcs, { anchor });
   return model.dispatch("SUM_SELECTION");
 }
