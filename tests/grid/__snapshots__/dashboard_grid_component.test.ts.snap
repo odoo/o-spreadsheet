@@ -30,6 +30,30 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
       
     </div>
     
+    
+    <div
+      class="o-grid-composer"
+      style="z-index: -1000;"
+    >
+      <div
+        class="o-composer-container w-100 h-100"
+      >
+        <div
+          class="d-flex flex-row position-relative"
+        >
+          
+          <div
+            class="o-composer w-100 text-start text-muted"
+            contenteditable="false"
+            spellcheck="false"
+            style=""
+            tabindex="1"
+          />
+        </div>
+        
+      </div>
+    </div>
+    
     <canvas
       height="985"
       style="width:985px;height:985px;"

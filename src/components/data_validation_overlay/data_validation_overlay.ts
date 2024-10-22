@@ -20,9 +20,6 @@ export class DataValidationOverlay extends Component<{}, SpreadsheetChildEnv> {
   }
 
   get listIconsCellPositions(): CellPosition[] {
-    if (this.env.model.getters.isReadonly()) {
-      return [];
-    }
     return this.env.model.getters
       .getVisibleCellPositions()
       .filter(

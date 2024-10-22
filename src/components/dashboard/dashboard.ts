@@ -1,6 +1,7 @@
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
+import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -26,6 +27,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   static template = "o-spreadsheet-SpreadsheetDashboard";
   static props = {};
   static components = {
+    GridComposer,
     GridOverlay,
     GridPopover,
     Popover,
