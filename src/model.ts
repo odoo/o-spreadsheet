@@ -124,12 +124,7 @@ const enum Status {
 
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
-
-  private featurePlugins: UIPlugin[] = [];
-
   private statefulUIPlugins: UIPlugin[] = [];
-
-  private coreViewsPlugins: UIPlugin[] = [];
 
   private range: RangeAdapter;
 
@@ -249,7 +244,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
-      this.coreViewsPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
@@ -262,7 +256,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
-      this.featurePlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
