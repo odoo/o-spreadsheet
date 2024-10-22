@@ -216,7 +216,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "invisible";
 
         // If we add a col/row inside or before the cut area, we invalidate the clipboard
-        if (this._isCutOperation !== true || cmd.sheetId !== this.copiedData?.sheetId) {
+        if (!this._isCutOperation || cmd.sheetId !== this.copiedData?.sheetId) {
           return;
         }
         const isClipboardDirty = this.isColRowDirtyingClipboard(
@@ -232,7 +232,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "invisible";
 
         // If we remove a col/row inside or before the cut area, we invalidate the clipboard
-        if (this._isCutOperation !== true || cmd.sheetId !== this.copiedData?.sheetId) {
+        if (!this._isCutOperation || cmd.sheetId !== this.copiedData?.sheetId) {
           return;
         }
         for (let el of cmd.elements) {
@@ -254,7 +254,7 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       }
       case "DELETE_SHEET":
-        if (this._isCutOperation !== true) {
+        if (!this._isCutOperation) {
           return;
         }
         if (this.originSheetId === cmd.sheetId) {

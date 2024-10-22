@@ -73,7 +73,7 @@ export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   get isEveryColumnSelected(): boolean {
-    return Object.values(this.state.columns).every((value) => value === true);
+    return Object.values(this.state.columns).every((value) => value);
   }
 
   get errorMessages(): string[] {
