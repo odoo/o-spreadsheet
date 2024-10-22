@@ -1,4 +1,4 @@
-import { tokenColors } from "../../components/composer/composer/composer";
+import { tokenColors } from "../../components/composer/composer/abstract_composer_store";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { MONTHS, isDefined, range } from "../../helpers";
 import {

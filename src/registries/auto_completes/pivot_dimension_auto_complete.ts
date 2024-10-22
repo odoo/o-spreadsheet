@@ -1,4 +1,4 @@
-import { tokenColors } from "../../components/composer/composer/composer";
+import { tokenColors } from "../../components/composer/composer/abstract_composer_store";
 import { getCanonicalSymbolName } from "../../helpers";
 import { PivotRuntimeDefinition } from "../../helpers/pivot/pivot_runtime_definition";
 import { PivotMeasure } from "../../types";

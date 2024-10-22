@@ -1,7 +1,7 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import { clip, setColorAlpha } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -24,6 +24,7 @@ import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdow
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
+import { DEFAULT_TOKEN_COLOR } from "./abstract_composer_store";
 import { CellComposerStore } from "./cell_composer_store";
 
 const functions = functionRegistry.content;
@@ -32,6 +33,7 @@ const ASSISTANT_WIDTH = 300;
 const CLOSE_ICON_RADIUS = 9;
 
 export const selectionIndicatorClass = "selector-flag";
+const backgroundClass = "background-flag";
 const selectionIndicatorColor = "#a9a9a9";
 const selectionIndicator = "␣";
 
@@ -40,21 +42,6 @@ export type HtmlContent = {
   color?: Color;
   class?: string;
 };
-
-const functionColor = "#4a4e4d";
-const operatorColor = "#3da4ab";
-
-export const tokenColors = {
-  OPERATOR: operatorColor,
-  NUMBER: "#02c39a",
-  STRING: "#00a82d",
-  FUNCTION: functionColor,
-  DEBUGGER: operatorColor,
-  LEFT_PAREN: functionColor,
-  RIGHT_PAREN: functionColor,
-  ARG_SEPARATOR: functionColor,
-  MATCHING_PAREN: "#000000",
-} as const;
 
 css/* scss */ `
   .o-composer-container {
@@ -76,9 +63,16 @@ css/* scss */ `
 
         span {
           white-space: pre-wrap;
+
           &.${selectionIndicatorClass}:after {
             content: "${selectionIndicator}";
             color: ${selectionIndicatorColor};
+          }
+
+          &.${backgroundClass} {
+            border-radius: 5px;
+            background-color: lightgray;
+            padding: 0px 1.5px 1.5px 1.5px;
           }
         }
       }
@@ -642,57 +636,26 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   private getColoredTokens(): HtmlContent[] {
     const tokens = this.props.composerStore.currentTokens;
-    const tokenAtCursor = this.props.composerStore.tokenAtCursor;
     const result: HtmlContent[] = [];
     const { end, start } = this.props.composerStore.composerSelection;
     for (const token of tokens) {
-      switch (token.type) {
-        case "OPERATOR":
-        case "NUMBER":
-        case "ARG_SEPARATOR":
-        case "STRING":
-          result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
-          break;
-        case "REFERENCE":
-          const { xc, sheetName } = splitReference(token.value);
-          result.push({
-            value: token.value,
-            color: this.rangeColor(xc, sheetName) || "#000",
-            class:
-              tokenAtCursor === token && this.props.composerStore.editionMode === "selecting"
-                ? "text-decoration-underline"
-                : undefined,
-          });
-          break;
-        case "SYMBOL":
-          const value = token.value;
-          const upperCaseValue = value.toUpperCase();
-          if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
-            result.push({ value: token.value, color: tokenColors.NUMBER });
-          } else if (upperCaseValue in functionRegistry.content) {
-            result.push({ value: token.value, color: tokenColors.FUNCTION });
-          } else {
-            result.push({ value: token.value, color: "#000" });
-          }
-          break;
-        case "LEFT_PAREN":
-        case "RIGHT_PAREN":
-          // Compute the matching parenthesis
-          if (
-            tokenAtCursor &&
-            ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
-            tokenAtCursor.parenIndex &&
-            tokenAtCursor.parenIndex === token.parenIndex
-          ) {
-            result.push({ value: token.value, color: tokenColors.MATCHING_PAREN || "#000" });
-          } else {
-            result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
-          }
-          break;
-        default:
-          result.push({ value: token.value, color: "#000" });
-          break;
+      let color = token.color || DEFAULT_TOKEN_COLOR;
+      if (token.isBlurred) {
+        color = setColorAlpha(color, 0.6);
       }
+      result.push({ value: token.value, color });
+      if (
+        token.type === "REFERENCE" &&
+        this.props.composerStore.tokenAtCursor === token &&
+        this.props.composerStore.editionMode === "selecting"
+      ) {
+        result[result.length - 1].class = "text-decoration-underline";
+      }
+
+      if (end === start && token.isRelatedToCursorToken) {
+        result[result.length - 1].class = backgroundClass;
+      }
+
       if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
         result[result.length - 1].class = selectionIndicatorClass;
       }
@@ -741,26 +704,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   private isContentEmpty(content: HtmlContent): boolean {
     return !(content.value || content.class);
-  }
-
-  private rangeColor(xc: string, sheetName?: string): Color | undefined {
-    if (this.props.focus === "inactive") {
-      return undefined;
-    }
-    const highlights = this.props.composerStore.highlights;
-    const refSheet = sheetName
-      ? this.env.model.getters.getSheetIdByName(sheetName)
-      : this.props.composerStore.sheetId;
-
-    const highlight = highlights.find((highlight) => {
-      if (highlight.sheetId !== refSheet) return false;
-
-      const range = this.env.model.getters.getRangeFromSheetXC(refSheet, xc);
-      let zone = range.zone;
-      zone = getZoneArea(zone) === 1 ? this.env.model.getters.expandZone(refSheet, zone) : zone;
-      return isEqual(zone, highlight.zone);
-    });
-    return highlight && highlight.color ? highlight.color : undefined;
   }
 
   /**
