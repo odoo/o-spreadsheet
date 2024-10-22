@@ -294,7 +294,7 @@ export const PIVOT_TABLE_CONFIG = {
   bandedRows: true,
   bandedColumns: false,
   styleId: "TableStyleMedium5",
-  automaticAutofill: true,
+  automaticAutofill: false,
 };
 
 export const DEFAULT_CURRENCY: Currency = {

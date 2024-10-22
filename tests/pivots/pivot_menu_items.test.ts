@@ -418,7 +418,7 @@ describe("Pivot reinsertion menu item", () => {
         })
       ).toMatchObject({
         range: { zone: toZone("B8") },
-        config: { numberOfHeaders: 1, automaticAutofill: true },
+        config: { numberOfHeaders: 1, automaticAutofill: false },
         type: "dynamic",
       });
     });
@@ -494,7 +494,7 @@ describe("Pivot reinsertion menu item", () => {
         })
       ).toMatchObject({
         range: { zone: toZone("B8:C11") },
-        config: { numberOfHeaders: 1, automaticAutofill: true },
+        config: { numberOfHeaders: 1, automaticAutofill: false },
         type: "static",
       });
     });
