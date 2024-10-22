@@ -10,8 +10,7 @@ const config = require("../../package.json");
 function getParsedOwlTemplateBundle() {
   const xml = getOwlTemplatesBundle();
   const parser = new DOMParser();
-  const doc = parser.parseFromString(xml, "text/xml");
-  return doc;
+  return parser.parseFromString(xml, "text/xml");
 }
 
 /**
@@ -22,8 +21,7 @@ function getParsedOwlTemplateBundle() {
 function getOwlTemplatesBundle(removeRootTags = false) {
   const srcPath = path.join(__dirname, "../../src");
   const files = getXmlTemplatesFiles(srcPath);
-  const templateBundle = createOwlTemplateBundle(files, removeRootTags);
-  return templateBundle;
+  return createOwlTemplateBundle(files, removeRootTags);
 }
 
 function getXmlTemplatesFiles(dir) {

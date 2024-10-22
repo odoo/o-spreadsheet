@@ -99,8 +99,7 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateAxisEditor(ev) {
-    const axis = ev.target.value;
-    this.state.currentAxis = axis;
+    this.state.currentAxis = ev.target.value;
   }
 
   getAxisTitle() {

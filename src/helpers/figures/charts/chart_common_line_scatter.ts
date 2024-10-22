@@ -345,8 +345,7 @@ export function createLineOrScatterChartRuntime(
 
   for (const [index, dataset] of config.data.datasets.entries()) {
     if (definition.dataSets?.[index]?.label) {
-      const label = definition.dataSets[index].label;
-      dataset.label = label;
+      dataset.label = definition.dataSets[index].label;
     }
     dataset["yAxisID"] = definition.dataSets[index].yAxisId || "y";
 

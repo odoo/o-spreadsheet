@@ -126,8 +126,7 @@ export class CollaborativePlugin extends UIPlugin {
       }
       const color = client.color;
       /* Cell background */
-      const cellBackgroundColor = `${color}10`;
-      ctx.fillStyle = cellBackgroundColor;
+      ctx.fillStyle = `${color}10`;
       ctx.lineWidth = 4 * thinLineWidth;
       ctx.strokeStyle = color;
       ctx.globalCompositeOperation = "multiply";

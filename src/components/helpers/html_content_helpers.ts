@@ -22,7 +22,5 @@ export function getHtmlContentFromPattern(
   }
 
   pendingHtmlContent.push({ value });
-  const htmlContent = pendingHtmlContent.filter((content) => content.value);
-
-  return htmlContent;
+  return pendingHtmlContent.filter((content) => content.value);
 }

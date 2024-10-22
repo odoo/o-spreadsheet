@@ -153,11 +153,10 @@ export function cssPropertiesToCss(attributes: CSSProperties): string {
 
 export function getElementMargins(el: Element) {
   const style = window.getComputedStyle(el);
-  const margins = {
+  return {
     top: parseInt(style.marginTop, 10) || 0,
     bottom: parseInt(style.marginBottom, 10) || 0,
     left: parseInt(style.marginLeft, 10) || 0,
     right: parseInt(style.marginRight, 10) || 0,
   };
-  return margins;
 }

@@ -140,10 +140,8 @@ function getMatchingCells(
 
   const fieldCol = database[index];
   // Example continuation:: fieldCol = ["C", "j", "k", 7]
-  const matchingCells = [...matchingRows].map((x) => fieldCol[x + 1]);
   // Example continuation:: matchingCells = ["j", 7]
-
-  return matchingCells;
+  return [...matchingRows].map((x) => fieldCol[x + 1]);
 }
 
 const databaseArgs = [

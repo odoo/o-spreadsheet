@@ -158,14 +158,13 @@ autoCompleteProviders.add("pivot_group_fields", {
             return undefined;
           }
           const positionalFieldArg = `"#${groupBy}"`;
-          const positionalProposal = {
+          return {
             text: positionalFieldArg,
             description:
               _t("%s (positional)", field.string) + (field.help ? ` (${field.help})` : ""),
             htmlContent: [{ value: positionalFieldArg, color: tokenColors.STRING }],
             fuzzySearchKey: field.string + positionalFieldArg, // search on translated name and on technical name
           };
-          return positionalProposal;
         })
       )
       .filter(isDefined);

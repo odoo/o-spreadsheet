@@ -348,8 +348,7 @@ function getCellGrid(model: Model): { [xc: string]: EvaluatedCell } {
   const sheetId = model.getters.getActiveSheetId();
   for (const position of model.getters.getEvaluatedCellsPositions(sheetId)) {
     const { col, row } = position;
-    const cell = model.getters.getEvaluatedCell(position);
-    result[toXC(col, row)] = cell;
+    result[toXC(col, row)] = model.getters.getEvaluatedCell(position);
   }
   return result;
 }

@@ -199,7 +199,7 @@ abstract class PopoverPositionContext {
     const shouldRenderAtRight = this.shouldRenderAtRight(elDims.width);
 
     verticalOffset = shouldRenderAtBottom ? verticalOffset : -verticalOffset;
-    const cssProperties: CSSProperties = {
+    return {
       top:
         this.getTopCoordinate(actualHeight, shouldRenderAtBottom) -
         this.spreadsheetOffset.y -
@@ -208,8 +208,6 @@ abstract class PopoverPositionContext {
       left:
         this.getLeftCoordinate(actualWidth, shouldRenderAtRight) - this.spreadsheetOffset.x + "px",
     };
-
-    return cssProperties;
   }
 
   getCurrentPosition(elDims: DOMDimension): PopoverPosition {

@@ -356,7 +356,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private setupSession(revisionId: UID): Session {
-    const session = new Session(
+    return new Session(
       buildRevisionLog({
         initialRevisionId: revisionId,
         recordChanges: this.state.recordChanges.bind(this.state),
@@ -373,7 +373,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.config.transportService,
       revisionId
     );
-    return session;
   }
 
   private setupSessionEvents() {
@@ -475,8 +474,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private checkDispatchAllowedLocalCommand(command: LocalCommand) {
-    const results = this.uiHandlers.map((handler) => handler.allowDispatch(command));
-    return results;
+    return this.uiHandlers.map((handler) => handler.allowDispatch(command));
   }
 
   private finalize() {

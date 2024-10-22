@@ -463,8 +463,7 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   private setActiveSheet(id: UID) {
-    const sheet = this.getters.getSheet(id);
-    this.activeSheet = sheet;
+    this.activeSheet = this.getters.getSheet(id);
   }
 
   private activateNextSheet(direction: "left" | "right") {

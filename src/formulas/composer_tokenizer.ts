@@ -110,7 +110,7 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
     }
   }
 
-  const res = tokens.map((token, i) => {
+  return tokens.map((token, i) => {
     if (!["SPACE", "LEFT_PAREN"].includes(token.type)) {
       functionStarted = "";
     }
@@ -150,7 +150,6 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
     }
     return token;
   });
-  return res;
 }
 
 /**

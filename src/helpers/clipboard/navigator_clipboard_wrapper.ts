@@ -64,8 +64,7 @@ class WebClipboardWrapper implements ClipboardInterface {
         for (const item of clipboardItems) {
           for (const type of item.types) {
             const blob = await item.getType(type);
-            const text = await blob.text();
-            clipboardContent[type as ClipboardMIMEType] = text;
+            clipboardContent[type as ClipboardMIMEType] = await blob.text();
           }
         }
         return { status: "ok", content: clipboardContent };

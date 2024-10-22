@@ -114,11 +114,9 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get focus(): ComposerFocusType {
-    const focus =
-      this.composerFocusStore.activeComposer === this.composerInterface
-        ? this.composerFocusStore.focusMode
-        : "inactive";
-    return focus;
+    return this.composerFocusStore.activeComposer === this.composerInterface
+      ? this.composerFocusStore.focusMode
+      : "inactive";
   }
 
   get composerProps(): CellComposerProps {

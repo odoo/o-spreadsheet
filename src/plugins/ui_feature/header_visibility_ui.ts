@@ -100,8 +100,7 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheetData of data.sheets) {
       for (const [row, rowData] of Object.entries(sheetData.rows)) {
-        const isHidden = this.isRowHidden(sheetData.id, Number(row));
-        rowData.isHidden = isHidden;
+        rowData.isHidden = this.isRowHidden(sheetData.id, Number(row));
       }
     }
   }

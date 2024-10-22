@@ -289,7 +289,7 @@ export function createEmptySheet(sheetId: UID, name: string): SheetData {
 }
 
 export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
-  const data = {
+  return {
     version: CURRENT_VERSION,
     sheets: [createEmptySheet(INITIAL_SHEET_ID, sheetName)],
     styles: {},
@@ -302,7 +302,6 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
     pivotNextId: 1,
     customTableStyles: {},
   };
-  return data;
 }
 
 export function createEmptyExcelSheet(sheetId: UID, name: string): ExcelSheetData {

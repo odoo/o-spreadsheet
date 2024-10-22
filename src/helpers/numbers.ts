@@ -43,9 +43,7 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
 
   const pNumberExp = "^(?:(?:" + [p1, p2, p3].join(")|(?:") + "))$";
 
-  const numberRegexp = new RegExp(pNumberExp, "i");
-
-  return numberRegexp;
+  return new RegExp(pNumberExp, "i");
 });
 
 /**

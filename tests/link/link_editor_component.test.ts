@@ -34,12 +34,10 @@ describe("link editor component", () => {
   }
 
   function labelInput(): HTMLInputElement {
-    const inputs = fixture?.querySelector('input[title="Link label"]')! as HTMLInputElement;
-    return inputs;
+    return fixture?.querySelector('input[title="Link label"]')! as HTMLInputElement;
   }
   function urlInput(): HTMLInputElement {
-    const inputs = fixture?.querySelector('input[title="Link URL"]')! as HTMLInputElement;
-    return inputs;
+    return fixture?.querySelector('input[title="Link URL"]')! as HTMLInputElement;
   }
 
   beforeEach(async () => {

@@ -187,8 +187,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       .map((cell) => cell.value);
     switch (threshold.type) {
       case "value":
-        const result = functionName === "max" ? largeMax(rangeValues) : largeMin(rangeValues);
-        return result;
+        return functionName === "max" ? largeMax(rangeValues) : largeMin(rangeValues);
       case "number":
         return Number(threshold.value);
       case "percentage":
