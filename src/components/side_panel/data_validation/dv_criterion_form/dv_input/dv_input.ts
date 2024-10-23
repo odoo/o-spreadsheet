@@ -1,8 +1,10 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { compile } from "../../../../../formulas";
 import { canonicalizeContent } from "../../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../../registries/data_validation_registry";
 import { _t } from "../../../../../translation";
 import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../../types";
+import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { css } from "../../../../helpers";
 
 interface Props {
@@ -12,6 +14,11 @@ interface Props {
   onKeyDown?: (ev: KeyboardEvent) => void;
   focused: boolean;
   onBlur: () => void;
+}
+
+interface State {
+  shouldDisplayError: boolean;
+  invalidFormula: boolean;
 }
 
 css/* scss */ `
@@ -43,6 +50,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     focused: false,
     onBlur: () => {},
   };
+  static components = { StandaloneComposer: StandaloneComposer };
 
   inputRef = useRef("input");
 
@@ -57,8 +65,9 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  state = useState({
+  state = useState<State>({
     shouldDisplayError: !!this.props.value, // Don't display error if user inputted nothing yet
+    invalidFormula: false,
   });
 
   onValueChanged(ev: Event) {
@@ -76,6 +85,27 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     }
 
     return _t("Value or formula");
+  }
+
+  onChangeComposerValue(str: string) {
+    const compiledFormula = compile(str);
+    if (compiledFormula.isBadExpression) {
+      this.state.invalidFormula = true;
+    } else {
+      this.state.invalidFormula = false;
+    }
+    this.props.onValueChanged(str);
+  }
+
+  getDataValidationRuleInputComposerProps(): StandaloneComposer["props"] {
+    return {
+      onConfirm: (str: string) => this.onChangeComposerValue(str),
+      composerContent: this.props.value,
+      placeholder: this.placeholder,
+      invalid: this.state.invalidFormula,
+      class: "o-sidePanel-composer",
+      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+    };
   }
 
   get errorMessage(): string | undefined {
