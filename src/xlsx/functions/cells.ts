@@ -7,6 +7,7 @@ import {
   parse,
 } from "../../formulas/parser";
 import { functionRegistry } from "../../functions";
+import { toString } from "../../functions/helpers";
 import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
 import { ExcelCellData, Format } from "../../types";
@@ -135,4 +136,18 @@ function convertDateFormat(ast: ASTString): ASTString {
   } else {
     return { ...ast, value: ast.value.replace(/\\"/g, `""`) };
   }
+}
+
+/**
+ * Convert a date string to a serial date supported
+ * by Excel. Excel uses a serial date system where
+ * the date Jan 1, 1900 is the serial number 1.
+ */
+export function toSerialDate(dateString: string) {
+  const _dateString = toString(dateString);
+  const internalDate = parseDateTime(_dateString, DEFAULT_LOCALE);
+  if (!internalDate) {
+    return "1";
+  }
+  return toString(internalDate.value);
 }

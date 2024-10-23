@@ -16,6 +16,8 @@ import {
   XLSXCfType,
   XLSXCfValueObjectType,
   XLSXChartType,
+  XLSXDataValidationDateOperatorType,
+  XLSXDataValidationOperatorType,
   XLSXHorizontalAlignment,
 } from "../../types/xlsx";
 import { XLSXVerticalAlignment } from "./../../types/xlsx";
@@ -391,4 +393,28 @@ export const IMAGE_EXTENSION_TO_MIMETYPE_MAPPING = {
   tiff: "image/tiff",
   webp: "image/webp",
   jpg: "image/jpeg",
+};
+
+export const XLSX_DV_DECIMAL_OPERATOR_MAPPING: Record<XLSXDataValidationOperatorType, any> = {
+  between: "isBetween",
+  notBetween: "isNotBetween",
+  equal: "isEqual",
+  notEqual: "isNotEqual",
+  greaterThan: "isGreaterThan",
+  greaterThanOrEqual: "isGreaterOrEqualTo",
+  lessThan: "isLessThan",
+  lessThanOrEqual: "isLessOrEqualTo",
+};
+
+export const XLSX_DV_DATE_OPERATOR_TO_DV_TYPE_MAPPING: Record<
+  XLSXDataValidationDateOperatorType,
+  any
+> = {
+  between: "dateIsBetween",
+  notBetween: "dateIsNotBetween",
+  equal: "dateIs",
+  greaterThan: "dateIsAfter",
+  greaterThanOrEqual: "dateIsOnOrAfter",
+  lessThan: "dateIsBefore",
+  lessThanOrEqual: "dateIsOnOrBefore",
 };

@@ -282,6 +282,7 @@ export function createEmptySheet(sheetId: UID, name: string): SheetData {
     rows: {},
     merges: [],
     conditionalFormats: [],
+    dataValidationRules: [],
     figures: [],
     tables: [],
     isVisible: true,
