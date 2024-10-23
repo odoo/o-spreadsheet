@@ -51,7 +51,7 @@ describe("Edit criterion in side panel", () => {
       await click(fixture, ".o-dv-preview");
     });
 
-    test("Side panel is correctly pre-filled", () => {
+    test("Side panel is correctly pre-filled for isValueInList criterion", () => {
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
       expect(inputs).toHaveLength(3);
       expect(inputs[0].value).toBe("ok");
@@ -60,6 +60,18 @@ describe("Edit criterion in side panel", () => {
 
       const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
       expect(displayStyleInput?.value).toBe("arrow");
+    });
+
+    test("Side panel is correctly pre-filled for composer criterion", async () => {
+      addDataValidation(model, "A1", "id", {
+        type: "textContains",
+        values: ["hola"],
+      });
+      ({ fixture } = await mountDataValidationPanel(model));
+      await click(fixture, ".o-dv-preview");
+      const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-input .o-composer");
+      expect(inputs).toHaveLength(1);
+      expect(inputs[0].innerText).toBe("hola");
     });
 
     test("Can add a new value", async () => {

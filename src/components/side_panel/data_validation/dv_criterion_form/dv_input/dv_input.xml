@@ -1,20 +1,25 @@
 <templates>
   <t t-name="o-spreadsheet-DataValidationInput">
-    <div class="o-dv-input position-relative w-100">
-      <input
-        type="text"
-        t-ref="input"
-        t-on-input="onValueChanged"
-        t-att-value="props.value"
-        class="o-input"
-        t-att-class="{
-            'o-invalid border-danger position-relative': errorMessage,
-          }"
-        t-att-title="errorMessage"
-        t-att-placeholder="placeholder"
-        t-on-keydown="props.onKeyDown"
-        t-on-blur="props.onBlur"
-      />
+    <div class="o-dv-input position-relative w-100 p-1">
+      <t t-if="allowedValues === 'onlyLiterals'">
+        <input
+          type="text"
+          t-ref="input"
+          t-on-input="onInputValueChanged"
+          t-att-value="props.value"
+          class="o-input"
+          t-att-class="{
+              'o-invalid border-danger position-relative': errorMessage,
+            }"
+          t-att-title="errorMessage"
+          t-att-placeholder="placeholder"
+          t-on-keydown="props.onKeyDown"
+          t-on-blur="props.onBlur"
+        />
+      </t>
+      <t t-else="">
+        <StandaloneComposer t-props="getDataValidationRuleInputComposerProps()"/>
+      </t>
       <span
         t-if="errorMessage"
         class="error-icon text-danger position-absolute d-flex align-items-center"

@@ -82,7 +82,7 @@ describe("Data validation registry", () => {
     test("Error string", () =>
       testErrorStringEqual(criterion, 'The value must be a text that contains "test"'));
 
-    test("Valid criterion values", () => testValidTextCriterionValues(evaluator));
+    test("Valid criterion text values", () => testValidTextCriterionValues(evaluator));
   });
 
   describe("Text not contains", () => {

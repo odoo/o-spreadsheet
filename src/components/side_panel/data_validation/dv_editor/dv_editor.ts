@@ -5,6 +5,7 @@ import { canonicalizeContent } from "../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
 import {
   AddDataValidationCommand,
+  CancelledReason,
   DataValidationCriterion,
   DataValidationCriterionType,
   DataValidationRule,
@@ -12,6 +13,8 @@ import {
   SpreadsheetChildEnv,
 } from "../../../../types";
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { DVTerms } from "../../../translations_terms";
+import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
 import {
@@ -27,18 +30,19 @@ interface Props {
 
 interface State {
   rule: DataValidationRuleData;
+  errors: CancelledReason[];
 }
 
 export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationEditor";
-  static components = { SelectionInput, SelectMenu, Section };
+  static components = { SelectionInput, SelectMenu, Section, ValidationMessages };
   static props = {
     rule: { type: Object, optional: true },
     onExit: Function,
     onCloseSidePanel: { type: Function, optional: true },
   };
 
-  state = useState<State>({ rule: this.defaultDataValidationRule });
+  state = useState<State>({ rule: this.defaultDataValidationRule, errors: [] });
 
   setup() {
     if (this.props.rule) {
@@ -71,16 +75,14 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   onSave() {
-    if (!this.canSave) {
-      return;
+    if (this.state.rule) {
+      const result = this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
+      if (!result.isSuccessful) {
+        this.state.errors = result.reasons;
+      } else {
+        this.props.onExit();
+      }
     }
-    this.env.model.dispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload);
-    this.props.onExit();
-  }
-
-  get canSave(): boolean {
-    return this.env.model.canDispatch("ADD_DATA_VALIDATION_RULE", this.dispatchPayload)
-      .isSuccessful;
   }
 
   get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
@@ -129,5 +131,9 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
 
   get criterionComponent(): ComponentConstructor | undefined {
     return dataValidationPanelCriteriaRegistry.get(this.state.rule.criterion.type).component;
+  }
+
+  get errorMessages(): string[] {
+    return this.state.errors.map((error) => DVTerms.Errors[error] || DVTerms.Errors.Unexpected);
   }
 }

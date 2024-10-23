@@ -37,13 +37,11 @@
       <Section>
         <div class="o-sidePanelButtons">
           <button t-on-click="props.onExit" class="o-dv-cancel o-button">Cancel</button>
-          <button
-            t-on-click="onSave"
-            class="o-dv-save o-button primary"
-            t-att-class="{'o-disabled': !canSave }">
-            Save
-          </button>
+          <button t-on-click="onSave" class="o-dv-save o-button primary">Save</button>
         </div>
+      </Section>
+      <Section>
+        <ValidationMessages messages="errorMessages" msgType="'error'"/>
       </Section>
     </div>
   </t>

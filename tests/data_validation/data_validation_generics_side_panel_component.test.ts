@@ -5,11 +5,16 @@ import { addDataValidation, updateLocale } from "../test_helpers/commands_helper
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import {
+  editStandaloneComposer,
   getDataValidationRules,
   mountComponentWithPortalTarget,
   nextTick,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+
+jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
+  require("../__mocks__/content_editable_helper")
+);
 
 const dataValidationSelectBoundingRect = { x: 100, y: 100, width: 50, height: 50 };
 mockGetBoundingClientRect({
@@ -98,9 +103,9 @@ describe("data validation sidePanel component", () => {
 
     setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
-    const valuesInputs = fixture.querySelectorAll(".o-dv-settings input");
+    const composerElements = fixture.querySelectorAll(".o-dv-settings .o-composer");
     for (let i = 0; i < criterion.values.length; i++) {
-      await setInputValueAndTrigger(valuesInputs[i], criterion.values[i]);
+      await editStandaloneComposer(composerElements[i], criterion.values[i]);
     }
 
     await simulateClick(".o-dv-save");
@@ -136,6 +141,24 @@ describe("data validation sidePanel component", () => {
     ]);
   });
 
+  test("Invalid range", async () => {
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await changeCriterionType("dateIs");
+
+    setInputValueAndTrigger(".o-selection-input input", "A1:HOLA");
+
+    const composer = ".o-dv-settings .o-composer";
+    await editStandaloneComposer(composer, "=SUM(1,2)");
+
+    await simulateClick(".o-dv-save");
+    expect(fixture.querySelector(".o-selection-input .error-icon")).toBeTruthy();
+    expect(fixture.querySelector(".o-selection-input .o-invalid")).toBeTruthy();
+    const errorMessageEl = fixture.querySelector(".o-validation-error");
+    expect(errorMessageEl).toBeTruthy();
+    expect(errorMessageEl?.textContent).toContain("The range is invalid.");
+  });
+
   test("Invalid input values with single input", async () => {
     await simulateClick(".o-dv-add");
     await nextTick();
@@ -143,11 +166,16 @@ describe("data validation sidePanel component", () => {
 
     setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
-    const valuesInput = fixture.querySelector(".o-dv-settings input");
-    await setInputValueAndTrigger(valuesInput, "thisIsNotADate");
+    const composer = ".o-dv-settings .o-composer";
+    await editStandaloneComposer(composer, "thisIsNotADate");
 
-    expect(fixture.querySelector(".o-input.o-invalid")).toBeTruthy();
-    expect(fixture.querySelector(".o-dv-save")!.classList).toContain("o-disabled");
+    await simulateClick(".o-dv-save");
+    expect(fixture.querySelector(".o-dv-input .error-icon")).toBeTruthy();
+    const errorMessageEl = fixture.querySelector(".o-validation-error");
+    expect(errorMessageEl).toBeTruthy();
+    expect(errorMessageEl?.textContent).toContain(
+      "One or more of the provided criteria values are invalid. Please review and correct them."
+    );
   });
 
   test("Invalid input values with two inputs", async () => {
@@ -157,19 +185,25 @@ describe("data validation sidePanel component", () => {
 
     setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
-    const valuesInputs = fixture.querySelectorAll(".o-dv-settings input");
-    await setInputValueAndTrigger(valuesInputs[0], "Not a number");
-    await setInputValueAndTrigger(valuesInputs[1], "Neither is this");
+    const composerElements = fixture.querySelectorAll(".o-dv-settings .o-composer");
+    await editStandaloneComposer(composerElements[0], "Not a number");
+    await editStandaloneComposer(composerElements[1], "Neither is this");
 
-    expect(fixture.querySelectorAll(".o-input.o-invalid")).toHaveLength(2);
-    expect(fixture.querySelector(".o-dv-save")!.classList).toContain("o-disabled");
+    await simulateClick(".o-dv-save");
+    expect(fixture.querySelectorAll(".o-dv-input .error-icon")).toHaveLength(2);
+    const errorMessageEl = fixture.querySelector(".o-validation-error");
+    expect(errorMessageEl).toBeTruthy();
+    expect(errorMessageEl?.textContent).toContain(
+      "One or more of the provided criteria values are invalid. Please review and correct them."
+    );
   });
 
   test("Can make the rule blocking", async () => {
     await simulateClick(".o-dv-add");
     await nextTick();
 
-    setInputValueAndTrigger(".o-dv-settings input", "Random text");
+    const composer = ".o-dv-settings .o-composer";
+    await editStandaloneComposer(composer, "Random text");
     setInputValueAndTrigger(".o-dv-reject-input", "true");
     simulateClick(".o-dv-save");
 
@@ -212,8 +246,8 @@ describe("data validation sidePanel component", () => {
       await nextTick();
       await changeCriterionType("isEqual");
 
-      const valuesInput = fixture.querySelector(".o-dv-settings input");
-      await setInputValueAndTrigger(valuesInput, "5,5");
+      const composer = ".o-dv-settings .o-composer";
+      await editStandaloneComposer(composer, "5,5");
 
       expect(fixture.querySelector(".o-input.o-invalid")).toBeFalsy();
       expect(fixture.querySelector(".o-dv-save")!.classList).not.toContain("o-disabled");
@@ -234,8 +268,8 @@ describe("data validation sidePanel component", () => {
       await nextTick();
       await changeCriterionType("dateIs");
 
-      const valuesInput = fixture.querySelector(".o-dv-settings input");
-      await setInputValueAndTrigger(valuesInput, "30/03/2022");
+      const composer = ".o-dv-settings .o-composer";
+      await editStandaloneComposer(composer, "30/03/2022");
 
       expect(fixture.querySelector(".o-input.o-invalid")).toBeFalsy();
       expect(fixture.querySelector(".o-dv-save")!.classList).not.toContain("o-disabled");
@@ -256,9 +290,8 @@ describe("data validation sidePanel component", () => {
       await nextTick();
       await changeCriterionType("textIs");
 
-      const valuesInput = fixture.querySelector(".o-dv-settings input");
-      await setInputValueAndTrigger(valuesInput, "=SUM(5,5; 3)");
-
+      const composer = ".o-dv-settings .o-composer";
+      await editStandaloneComposer(composer, "=SUM(5,5; 3)");
       expect(fixture.querySelector(".o-input.o-invalid")).toBeFalsy();
       expect(fixture.querySelector(".o-dv-save")!.classList).not.toContain("o-disabled");
 

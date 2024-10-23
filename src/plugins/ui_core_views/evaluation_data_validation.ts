@@ -1,3 +1,4 @@
+import { DVTerms } from "../../components/translations_terms";
 import { compile } from "../../formulas";
 import { getCellPositionsInRanges, isInside, lazy } from "../../helpers";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
@@ -82,9 +83,10 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
   ): string | undefined {
     const evaluator = dataValidationEvaluatorRegistry.get(criterionType);
     if (value.startsWith("=")) {
-      return evaluator.allowedValues === "onlyLiterals"
-        ? _t("The value must not be a formula")
-        : undefined;
+      if (evaluator.allowedValues === "onlyLiterals") {
+        return _t("The value must not be a formula");
+      }
+      return this.isValidFormula(value) ? undefined : DVTerms.CriterionError.validFormula;
     } else if (evaluator.allowedValues === "onlyFormulas") {
       return _t("The value must be a formula");
     }
@@ -117,6 +119,10 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
     const error = this.getRuleErrorForCellValue(cellValue, cellPosition, rule);
 
     return error ? { error, rule, isValid: false } : VALID_RESULT;
+  }
+
+  private isValidFormula(value: string): boolean {
+    return !compile(value).isBadExpression;
   }
 
   private getValidationResultForCell(cellPosition: CellPosition): ValidationResult {

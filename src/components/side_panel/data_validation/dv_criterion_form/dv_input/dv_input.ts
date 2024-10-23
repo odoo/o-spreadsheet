@@ -3,6 +3,7 @@ import { canonicalizeContent } from "../../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../../registries/data_validation_registry";
 import { _t } from "../../../../../translation";
 import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../../types";
+import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { css } from "../../../../helpers";
 
 interface Props {
@@ -43,6 +44,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     focused: false,
     onBlur: () => {},
   };
+  static components = { StandaloneComposer: StandaloneComposer };
 
   inputRef = useRef("input");
 
@@ -61,11 +63,6 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     shouldDisplayError: !!this.props.value, // Don't display error if user inputted nothing yet
   });
 
-  onValueChanged(ev: Event) {
-    this.state.shouldDisplayError = true;
-    this.props.onValueChanged((ev.target as HTMLInputElement).value);
-  }
-
   get placeholder(): string {
     const evaluator = dataValidationEvaluatorRegistry.get(this.props.criterionType);
 
@@ -76,6 +73,31 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     }
 
     return _t("Value or formula");
+  }
+
+  get allowedValues(): string {
+    const evaluator = dataValidationEvaluatorRegistry.get(this.props.criterionType);
+    return evaluator.allowedValues ?? "any";
+  }
+
+  onInputValueChanged(ev: Event) {
+    this.state.shouldDisplayError = true;
+    this.props.onValueChanged((ev.target as HTMLInputElement).value);
+  }
+
+  onChangeComposerValue(str: string) {
+    this.state.shouldDisplayError = true;
+    this.props.onValueChanged(str);
+  }
+
+  getDataValidationRuleInputComposerProps(): StandaloneComposer["props"] {
+    return {
+      onConfirm: (str: string) => this.onChangeComposerValue(str),
+      composerContent: this.props.value,
+      placeholder: this.placeholder,
+      class: "o-sidePanel-composer",
+      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+    };
   }
 
   get errorMessage(): string | undefined {

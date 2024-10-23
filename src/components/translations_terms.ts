@@ -144,6 +144,17 @@ export const DVTerms = {
     numberValue: _t("The value must be a number"),
     dateValue: _t("The value must be a date"),
     validRange: _t("The value must be a valid range"),
+    validFormula: _t("The formula must be valid"),
+  },
+  Errors: {
+    [CommandResult.InvalidRange]: _t("The range is invalid."),
+    [CommandResult.InvalidDataValidationCriterionValue]: _t(
+      "One or more of the provided criteria values are invalid. Please review and correct them."
+    ),
+    [CommandResult.InvalidNumberOfCriterionValues]: _t(
+      "One or more of the provided criteria values are missing."
+    ),
+    Unexpected: _t("The rule is invalid for an unknown reason."),
   },
 };
 
