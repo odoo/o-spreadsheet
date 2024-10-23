@@ -1,7 +1,11 @@
-import { ChartOptions } from "chart.js";
+import { ChartOptions, LinearScaleOptions } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
+import { LocaleFormat } from "../../../../types";
 import {
+  AxisDesign,
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
+  ChartWithDataSetDefinition,
   LineChartDefinition,
   PartialDefinition,
   PyramidChartDefinition,
@@ -10,7 +14,12 @@ import {
 import { getChartTimeOptions } from "../../../chart_date";
 import { formatValue } from "../../../format/format";
 import { isDefined, range, removeFalsyAttributes } from "../../../misc";
-import { TREND_LINE_XAXIS_ID, getChartAxis } from "../chart_common";
+import {
+  TREND_LINE_XAXIS_ID,
+  chartFontColor,
+  formatTickValue,
+  getDefinedAxis,
+} from "../chart_common";
 
 type ChartScales = ChartOptions["scales"];
 
@@ -116,4 +125,80 @@ export function getPyramidChartScales(
   scales!.x!.ticks!.callback = (value: number) => scalesXCallback(Math.abs(value));
 
   return scales;
+}
+
+function getChartAxisTitleRuntime(design?: AxisDesign):
+  | {
+      display: boolean;
+      text: string;
+      color?: string;
+      font: {
+        style: "italic" | "normal";
+        weight: "bold" | "normal";
+      };
+      align: "start" | "center" | "end";
+    }
+  | undefined {
+  if (design?.title?.text) {
+    const { text, color, align, italic, bold } = design.title;
+    return {
+      display: true,
+      text,
+      color,
+      font: {
+        style: italic ? "italic" : "normal",
+        weight: bold ? "bold" : "normal",
+      },
+      align: align === "left" ? "start" : align === "right" ? "end" : "center",
+    };
+  }
+  return;
+}
+
+function getChartAxis(
+  definition: PartialDefinition<ChartWithDataSetDefinition>,
+  position: "left" | "right" | "bottom",
+  type: "values" | "labels",
+  options: LocaleFormat & { stacked?: boolean }
+): DeepPartial<LinearScaleOptions> | undefined {
+  const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
+  if ((position === "left" && !useLeftAxis) || (position === "right" && !useRightAxis)) {
+    return undefined;
+  }
+
+  const fontColor = chartFontColor(definition.background);
+  let design: AxisDesign | undefined;
+  if (position === "bottom") {
+    design = definition.axesDesign?.x;
+  } else if (position === "left") {
+    design = definition.axesDesign?.y;
+  } else {
+    design = definition.axesDesign?.y1;
+  }
+
+  if (type === "values") {
+    const displayGridLines = position === "left" || (position === "right" && !useLeftAxis);
+    return {
+      position: position,
+      title: getChartAxisTitleRuntime(design),
+      grid: {
+        display: displayGridLines,
+      },
+      beginAtZero: true,
+      stacked: options?.stacked,
+      ticks: {
+        color: fontColor,
+        callback: formatTickValue(options),
+      },
+    };
+  } else {
+    return {
+      ticks: {
+        padding: 5,
+        color: fontColor,
+      },
+      stacked: options?.stacked,
+      title: getChartAxisTitleRuntime(design),
+    };
+  }
 }

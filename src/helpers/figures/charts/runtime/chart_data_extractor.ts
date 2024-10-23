@@ -1,11 +1,21 @@
-import { toJsDate } from "../../../../functions/helpers";
-import { Getters, Locale, PartialDefinition, Range } from "../../../../types";
+import { ChartTerms } from "../../../../components/translations_terms";
+import {
+  evaluatePolynomial,
+  expM,
+  getMovingAverageValues,
+  logM,
+  polynomialRegression,
+  predictLinearValues,
+} from "../../../../functions/helper_statistical";
+import { isEvaluationError, toJsDate } from "../../../../functions/helpers";
+import { CellValue, Format, Getters, Locale, PartialDefinition, Range } from "../../../../types";
 import {
   AxisType,
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
   DataSet,
   DatasetValues,
+  LabelValues,
   LineChartDefinition,
   PieChartDefinition,
   PyramidChartDefinition,
@@ -13,17 +23,11 @@ import {
   WaterfallChartDefinition,
 } from "../../../../types/chart";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
-import { range } from "../../../misc";
-import { interpolateData } from "../chart_common";
-import { fixEmptyLabelsForDateCharts } from "../chart_common_line_scatter";
-import {
-  aggregateDataForLabels,
-  filterEmptyDataPoints,
-  getChartDatasetFormat,
-  getChartDatasetValues,
-  getChartLabelFormat,
-  getChartLabelValues,
-} from "../chart_ui_common";
+import { isDateTimeFormat } from "../../../format/format";
+import { deepCopy, findNextDefinedValue, range } from "../../../misc";
+import { isNumber } from "../../../numbers";
+import { recomputeZones } from "../../../recompute_zones";
+import { truncateLabel } from "../chart_ui_common";
 
 export function getBarChartData(
   definition: PartialDefinition<BarChartDefinition>,
@@ -294,7 +298,50 @@ export function getTrendDatasetForLineChart(
   return newValues;
 }
 
-function getChartAxisType(
+function interpolateData(
+  config: TrendConfiguration,
+  values: number[],
+  labels: number[],
+  newLabels: number[]
+): (number | null)[] {
+  if (values.length < 2 || labels.length < 2 || newLabels.length === 0) {
+    return [];
+  }
+  switch (config.type) {
+    case "polynomial": {
+      const order = config.order ?? 2;
+      if (order === 1) {
+        return predictLinearValues([values], [labels], [newLabels], true)[0];
+      }
+      const coeffs = polynomialRegression(values, labels, order, true).flat();
+      return newLabels.map((v) => evaluatePolynomial(coeffs, v, order));
+    }
+    case "exponential": {
+      const positiveLogValues: number[] = [];
+      const filteredLabels: number[] = [];
+      for (let i = 0; i < values.length; i++) {
+        if (values[i] > 0) {
+          positiveLogValues.push(Math.log(values[i]));
+          filteredLabels.push(labels[i]);
+        }
+      }
+      if (!filteredLabels.length) {
+        return [];
+      }
+      return expM(predictLinearValues([positiveLogValues], [filteredLabels], [newLabels], true))[0];
+    }
+    case "logarithmic": {
+      return predictLinearValues([values], logM([labels]), logM([newLabels]), true)[0];
+    }
+    case "trailingMovingAverage": {
+      return getMovingAverageValues(values, config.window);
+    }
+    default:
+      return [];
+  }
+}
+
+export function getChartAxisType(
   chart: PartialDefinition<LineChartDefinition>,
   labelRange: Range | undefined,
   getters: Getters
@@ -322,6 +369,10 @@ function isLinearChart(
   getters: Getters
 ): boolean {
   return !definition.labelsAsText && canBeLinearChart(labelRange, getters);
+}
+
+export function canChartParseLabels(labelRange: Range | undefined, getters: Getters): boolean {
+  return canBeDateChart(labelRange, getters) || canBeLinearChart(labelRange, getters);
 }
 
 function canBeDateChart(labelRange: Range | undefined, getters: Getters): boolean {
@@ -393,4 +444,205 @@ function filterNegativeValues(
   }));
 
   return { labels: filteredLabels, dataSetsValues: filteredDatasets };
+}
+
+function fixEmptyLabelsForDateCharts(
+  labels: string[],
+  dataSetsValues: DatasetValues[]
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  if (labels.length === 0 || labels.every((label) => !label)) {
+    return { labels, dataSetsValues };
+  }
+  const newLabels = [...labels];
+  const newDatasets = deepCopy(dataSetsValues);
+  for (let i = 0; i < newLabels.length; i++) {
+    if (!newLabels[i]) {
+      newLabels[i] = findNextDefinedValue(newLabels, i);
+      for (let ds of newDatasets) {
+        ds.data[i] = undefined;
+      }
+    }
+  }
+  return { labels: newLabels, dataSetsValues: newDatasets };
+}
+
+/**
+ * Get the data from a dataSet
+ */
+export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[] {
+  if (ds.dataRange) {
+    const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
+    const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
+    if (dataZone === undefined) {
+      return [];
+    }
+    const dataRange = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
+    return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
+  }
+  return [];
+}
+
+function filterEmptyDataPoints(
+  labels: string[],
+  datasets: DatasetValues[]
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const numberOfDataPoints = Math.max(
+    labels.length,
+    ...datasets.map((dataset) => dataset.data?.length || 0)
+  );
+  const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
+    const label = labels[dataPointIndex];
+    const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
+    return label || values.some((value) => value === 0 || Boolean(value));
+  });
+  return {
+    labels: dataPointsIndexes.map((i) => labels[i] || ""),
+    dataSetsValues: datasets.map((dataset) => ({
+      ...dataset,
+      data: dataPointsIndexes.map((i) => dataset.data[i]),
+    })),
+  };
+}
+
+/**
+ * Aggregates data based on labels
+ */
+function aggregateDataForLabels(
+  labels: string[],
+  datasets: DatasetValues[]
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const parseNumber = (value) => (typeof value === "number" ? value : 0);
+  const labelSet = new Set(labels);
+  const labelMap: { [key: string]: number[] } = {};
+  labelSet.forEach((label) => {
+    labelMap[label] = new Array(datasets.length).fill(0);
+  });
+
+  for (const indexOfLabel of range(0, labels.length)) {
+    const label = labels[indexOfLabel];
+    for (const indexOfDataset of range(0, datasets.length)) {
+      labelMap[label][indexOfDataset] += parseNumber(datasets[indexOfDataset].data[indexOfLabel]);
+    }
+  }
+
+  return {
+    labels: Array.from(labelSet),
+    dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
+      ...dataset,
+      data: Array.from(labelSet).map((label) => labelMap[label][indexOfDataset]),
+    })),
+  };
+}
+
+function getChartLabelFormat(getters: Getters, range: Range | undefined): Format | undefined {
+  if (!range) return undefined;
+  return getters.getEvaluatedCell({
+    sheetId: range.sheetId,
+    col: range.zone.left,
+    row: range.zone.top,
+  }).format;
+}
+
+function getChartLabelValues(
+  getters: Getters,
+  dataSets: DataSet[],
+  labelRange?: Range
+): LabelValues {
+  let labels: LabelValues = { values: [], formattedValues: [] };
+  if (labelRange) {
+    const { left } = labelRange.zone;
+    if (
+      !labelRange.invalidXc &&
+      !labelRange.invalidSheetName &&
+      !getters.isColHidden(labelRange.sheetId, left)
+    ) {
+      labels = {
+        formattedValues: getters.getRangeFormattedValues(labelRange),
+        values: getters.getRangeValues(labelRange).map((val) => String(val ?? "")),
+      };
+    } else if (dataSets[0]) {
+      const ranges = getData(getters, dataSets[0]);
+      labels = {
+        formattedValues: range(0, ranges.length).map((r) => r.toString()),
+        values: labels.formattedValues,
+      };
+    }
+  } else if (dataSets.length === 1) {
+    for (let i = 0; i < getData(getters, dataSets[0]).length; i++) {
+      labels.formattedValues.push("");
+      labels.values.push("");
+    }
+  } else {
+    if (dataSets[0]) {
+      const ranges = getData(getters, dataSets[0]);
+      labels = {
+        formattedValues: range(0, ranges.length).map((r) => r.toString()),
+        values: labels.formattedValues,
+      };
+    }
+  }
+  return labels;
+}
+
+/**
+ * Get the format to apply to the the dataset values. This format is defined as the first format
+ * found in the dataset ranges that isn't a date format.
+ */
+function getChartDatasetFormat(
+  getters: Getters,
+  allDataSets: DataSet[],
+  axis: "left" | "right"
+): Format | undefined {
+  const dataSets = allDataSets.filter((ds) => (axis === "right") === !!ds.rightYAxis);
+  for (const ds of dataSets) {
+    const formatsInDataset = getters.getRangeFormats(ds.dataRange);
+    const format = formatsInDataset.find((f) => f !== undefined && !isDateTimeFormat(f));
+    if (format) return format;
+  }
+  return undefined;
+}
+
+function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
+  const datasetValues: DatasetValues[] = [];
+  for (const [dsIndex, ds] of Object.entries(dataSets)) {
+    if (getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)) {
+      continue;
+    }
+    let label: string;
+    if (ds.labelCell) {
+      const labelRange = ds.labelCell;
+      const cell = labelRange
+        ? getters.getEvaluatedCell({
+            sheetId: labelRange.sheetId,
+            col: labelRange.zone.left,
+            row: labelRange.zone.top,
+          })
+        : undefined;
+      label =
+        cell && labelRange
+          ? truncateLabel(cell.formattedValue)
+          : (label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`);
+    } else {
+      label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
+    }
+    let data = ds.dataRange ? getData(getters, ds) : [];
+    if (
+      data.every((e) => typeof e === "string" && !isEvaluationError(e)) &&
+      data.some((e) => e !== "")
+    ) {
+      // In this case, we want a chart based on the string occurrences count
+      // This will be done by associating each string with a value of 1 and
+      // then using the classical aggregation method to sum the values.
+      data.fill(1);
+    } else if (
+      data.every(
+        (cell) =>
+          cell === undefined || cell === null || !isNumber(cell.toString(), getters.getLocale())
+      )
+    ) {
+      continue;
+    }
+    datasetValues.push({ data, label });
+  }
+  return datasetValues;
 }

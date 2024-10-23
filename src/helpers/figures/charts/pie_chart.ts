@@ -1,4 +1,4 @@
-import type { BubbleDataPoint, ChartConfiguration, Point } from "chart.js";
+import type { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -193,21 +193,6 @@ export class PieChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
     return new PieChart(definition, this.sheetId, this.getters);
   }
-}
-
-export function calculatePercentage(
-  dataset: (number | [number, number] | Point | BubbleDataPoint | null)[],
-  dataIndex: number
-): string {
-  const numericData: number[] = dataset.filter((value) => typeof value === "number") as number[];
-  const total = numericData.reduce((sum, value) => sum + value, 0);
-
-  if (!total) {
-    return "";
-  }
-  const percentage = ((dataset[dataIndex] as number) / total) * 100;
-
-  return percentage.toFixed(2);
 }
 
 export function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {

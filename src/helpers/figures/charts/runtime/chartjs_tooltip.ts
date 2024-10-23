@@ -1,4 +1,4 @@
-import { TooltipOptions } from "chart.js";
+import { BubbleDataPoint, Point, TooltipOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { toNumber } from "../../../../functions/helpers";
 import { CellValue } from "../../../../types";
@@ -15,7 +15,6 @@ import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { formatValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { TREND_LINE_XAXIS_ID, formatChartDatasetValue } from "../chart_common";
-import { calculatePercentage } from "../pie_chart";
 
 type ChartTooltip = _DeepPartialObject<TooltipOptions<any>>;
 
@@ -174,4 +173,19 @@ export function getRadarChartTooltip(
       },
     },
   };
+}
+
+function calculatePercentage(
+  dataset: (number | [number, number] | Point | BubbleDataPoint | null)[],
+  dataIndex: number
+): string {
+  const numericData: number[] = dataset.filter((value) => typeof value === "number") as number[];
+  const total = numericData.reduce((sum, value) => sum + value, 0);
+
+  if (!total) {
+    return "";
+  }
+  const percentage = ((dataset[dataIndex] as number) / total) * 100;
+
+  return percentage.toFixed(2);
 }

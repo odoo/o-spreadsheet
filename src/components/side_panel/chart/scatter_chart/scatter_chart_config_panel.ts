@@ -1,4 +1,4 @@
-import { canChartParseLabels } from "../../../../helpers/figures/charts/chart_common_line_scatter";
+import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime";
 import { ScatterChart } from "../../../../helpers/figures/charts/scatter_chart";
 import { LineChartDefinition } from "../../../../types/chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";

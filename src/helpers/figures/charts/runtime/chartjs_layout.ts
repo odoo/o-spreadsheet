@@ -8,7 +8,6 @@ import {
   PieChartDefinition,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
-import { computeChartPadding } from "../chart_common";
 
 type ChartLayout = ChartOptions["layout"];
 
@@ -56,4 +55,25 @@ export function getWaterfallChartLayout(definition: WaterfallChartDefinition): C
   return {
     padding: { left: 20, right: 20, top: definition.title ? 10 : 25, bottom: 10 },
   };
+}
+
+function computeChartPadding({
+  displayTitle,
+  displayLegend,
+}: {
+  displayTitle: boolean;
+  displayLegend: boolean;
+}): {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+} {
+  let top = 25;
+  if (displayTitle) {
+    top = 0;
+  } else if (displayLegend) {
+    top = 10;
+  }
+  return { left: 20, right: 20, top, bottom: 10 };
 }

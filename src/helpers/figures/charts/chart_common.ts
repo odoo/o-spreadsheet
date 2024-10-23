@@ -1,14 +1,4 @@
-import { ChartDataset, LinearScaleOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
-import {
-  evaluatePolynomial,
-  expM,
-  getMovingAverageValues,
-  logM,
-  polynomialRegression,
-  predictLinearValues,
-} from "../../../functions/helper_statistical";
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
@@ -28,25 +18,17 @@ import {
   Zone,
 } from "../../../types";
 import {
-  AxisDesign,
   ChartAxisFormats,
   ChartWithDataSetDefinition,
   CustomizedDataSet,
   DataSet,
   ExcelChartDataset,
   PartialDefinition,
-  TrendConfiguration,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
-import {
-  ColorGenerator,
-  colorToRGBA,
-  lightenColor,
-  relativeLuminance,
-  rgbaToHex,
-} from "../../color";
+import { relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
-import { isDefined, range } from "../../misc";
+import { isDefined } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
@@ -404,34 +386,6 @@ export function getChartPositionAtCenterOfViewport(
   }; // Position at the center of the scrollable viewport
 }
 
-export function getChartAxisTitleRuntime(design?: AxisDesign):
-  | {
-      display: boolean;
-      text: string;
-      color?: string;
-      font: {
-        style: "italic" | "normal";
-        weight: "bold" | "normal";
-      };
-      align: "start" | "center" | "end";
-    }
-  | undefined {
-  if (design?.title?.text) {
-    const { text, color, align, italic, bold } = design.title;
-    return {
-      display: true,
-      text,
-      color,
-      font: {
-        style: italic ? "italic" : "normal",
-        weight: bold ? "bold" : "normal",
-      },
-      align: align === "left" ? "start" : align === "right" ? "end" : "center",
-    };
-  }
-  return;
-}
-
 export function getDefinedAxis(definition: PartialDefinition<ChartWithDataSetDefinition>): {
   useLeftAxis: boolean;
   useRightAxis: boolean;
@@ -452,168 +406,6 @@ export function getDefinedAxis(definition: PartialDefinition<ChartWithDataSetDef
   return { useLeftAxis, useRightAxis };
 }
 
-export function getChartAxis(
-  definition: PartialDefinition<ChartWithDataSetDefinition>,
-  position: "left" | "right" | "bottom",
-  type: "values" | "labels",
-  options: LocaleFormat & { stacked?: boolean }
-): DeepPartial<LinearScaleOptions> | undefined {
-  const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
-  if ((position === "left" && !useLeftAxis) || (position === "right" && !useRightAxis)) {
-    return undefined;
-  }
-
-  const fontColor = chartFontColor(definition.background);
-  let design: AxisDesign | undefined;
-  if (position === "bottom") {
-    design = definition.axesDesign?.x;
-  } else if (position === "left") {
-    design = definition.axesDesign?.y;
-  } else {
-    design = definition.axesDesign?.y1;
-  }
-
-  if (type === "values") {
-    const displayGridLines = position === "left" || (position === "right" && !useLeftAxis);
-    return {
-      position: position,
-      title: getChartAxisTitleRuntime(design),
-      grid: {
-        display: displayGridLines,
-      },
-      beginAtZero: true,
-      stacked: options?.stacked,
-      ticks: {
-        color: fontColor,
-        callback: formatTickValue(options),
-      },
-    };
-  } else {
-    return {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      stacked: options?.stacked,
-      title: getChartAxisTitleRuntime(design),
-    };
-  }
-}
-
-export function computeChartPadding({
-  displayTitle,
-  displayLegend,
-}: {
-  displayTitle: boolean;
-  displayLegend: boolean;
-}): {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-} {
-  let top = 25;
-  if (displayTitle) {
-    top = 0;
-  } else if (displayLegend) {
-    top = 10;
-  }
-  return { left: 20, right: 20, top, bottom: 10 };
-}
-
-export function getFullTrendingLineDataSet(
-  dataset: ChartDataset,
-  config: TrendConfiguration,
-  data: (number | null)[]
-) {
-  const defaultBorderColor = colorToRGBA(dataset.backgroundColor as Color);
-  defaultBorderColor.a = 1;
-
-  const borderColor = config.color || lightenColor(rgbaToHex(defaultBorderColor), 0.5);
-
-  return {
-    type: "line",
-    xAxisID: config.type !== "trailingMovingAverage" ? TREND_LINE_XAXIS_ID : "x",
-    label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
-    data,
-    order: -1,
-    showLine: true,
-    pointRadius: 0,
-    backgroundColor: undefined,
-    borderColor,
-    borderDash: [5, 5],
-    borderWidth: undefined,
-    fill: false,
-    pointBackgroundColor: borderColor,
-  };
-}
-
-export function getTrendDatasetForBarChart(
-  config: TrendConfiguration,
-  dataset: ChartDataset<"bar" | "line", number[]>
-) {
-  const filteredValues: number[] = [];
-  const filteredLabels: number[] = [];
-  const labels: number[] = [];
-  for (let i = 0; i < dataset.data.length; i++) {
-    if (typeof dataset.data[i] === "number") {
-      filteredValues.push(dataset.data[i]);
-      filteredLabels.push(i + 1);
-    }
-    labels.push(i + 1);
-  }
-
-  const newLabels = range(0.5, labels.length + 0.55, 0.2);
-  const newValues = interpolateData(config, filteredValues, filteredLabels, newLabels);
-  if (!newValues.length) {
-    return;
-  }
-  return getFullTrendingLineDataSet(dataset, config, newValues);
-}
-
-export function interpolateData(
-  config: TrendConfiguration,
-  values: number[],
-  labels: number[],
-  newLabels: number[]
-): (number | null)[] {
-  if (values.length < 2 || labels.length < 2 || newLabels.length === 0) {
-    return [];
-  }
-  switch (config.type) {
-    case "polynomial": {
-      const order = config.order ?? 2;
-      if (order === 1) {
-        return predictLinearValues([values], [labels], [newLabels], true)[0];
-      }
-      const coeffs = polynomialRegression(values, labels, order, true).flat();
-      return newLabels.map((v) => evaluatePolynomial(coeffs, v, order));
-    }
-    case "exponential": {
-      const positiveLogValues: number[] = [];
-      const filteredLabels: number[] = [];
-      for (let i = 0; i < values.length; i++) {
-        if (values[i] > 0) {
-          positiveLogValues.push(Math.log(values[i]));
-          filteredLabels.push(labels[i]);
-        }
-      }
-      if (!filteredLabels.length) {
-        return [];
-      }
-      return expM(predictLinearValues([positiveLogValues], [filteredLabels], [newLabels], true))[0];
-    }
-    case "logarithmic": {
-      return predictLinearValues([values], logM([labels]), logM([newLabels]), true)[0];
-    }
-    case "trailingMovingAverage": {
-      return getMovingAverageValues(values, config.window);
-    }
-    default:
-      return [];
-  }
-}
-
 export function formatChartDatasetValue(axisFormats: ChartAxisFormats, locale: Locale) {
   return (value: any, axisId: string | undefined) => {
     const format = axisId ? axisFormats?.[axisId] : undefined;
@@ -631,16 +423,6 @@ export function formatTickValue(localeFormat: LocaleFormat) {
       format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
     });
   };
-}
-
-export function getChartColorsGenerator(
-  definition: PartialDefinition<ChartWithDataSetDefinition>,
-  dataSetsSize: number
-) {
-  return new ColorGenerator(
-    dataSetsSize,
-    definition.dataSets?.map((ds) => ds.backgroundColor) || []
-  );
 }
 
 export const CHART_AXIS_CHOICES = [

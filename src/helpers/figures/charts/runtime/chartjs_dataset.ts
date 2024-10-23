@@ -12,6 +12,7 @@ import { _t } from "../../../../translation";
 import { ChartRuntimeGenerationArgs, Color, PartialDefinition } from "../../../../types";
 import {
   BarChartDefinition,
+  ChartWithDataSetDefinition,
   DatasetValues,
   LineChartDefinition,
   PieChartDefinition,
@@ -28,8 +29,8 @@ import {
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
-import { TREND_LINE_XAXIS_ID, getChartColorsGenerator } from "../chart_common";
-import { getFillingMode, truncateLabel } from "../chart_ui_common";
+import { TREND_LINE_XAXIS_ID } from "../chart_common";
+import { truncateLabel } from "../chart_ui_common";
 
 export function getBarChartDatasets(
   definition: PartialDefinition<BarChartDefinition>,
@@ -64,7 +65,7 @@ export function getBarChartDatasets(
       continue;
     }
 
-    trendDatasets.push(getFullTrendingLineDataSet(dataset, trendConfig, trendData));
+    trendDatasets.push(getTrendingLineDataSet(dataset, trendConfig, trendData));
   }
   dataSets.push(...trendDatasets);
 
@@ -183,7 +184,7 @@ export function getLineChartDatasets(
       continue;
     }
 
-    trendDatasets.push(getFullTrendingLineDataSet(dataset, trendConfig, trendData));
+    trendDatasets.push(getTrendingLineDataSet(dataset, trendConfig, trendData));
   }
   dataSets.push(...trendDatasets);
 
@@ -260,7 +261,7 @@ export function getComboChartDatasets(
       continue;
     }
 
-    trendDatasets.push(getFullTrendingLineDataSet(dataset, trendConfig, trendData));
+    trendDatasets.push(getTrendingLineDataSet(dataset, trendConfig, trendData));
   }
   dataSets.push(...trendDatasets);
 
@@ -297,7 +298,7 @@ export function getRadarChartDatasets(
   return datasets;
 }
 
-function getFullTrendingLineDataSet(
+function getTrendingLineDataSet(
   dataset: ChartDataset,
   config: TrendConfiguration,
   data: (number | null)[]
@@ -332,4 +333,27 @@ function getPieColors(colors: ColorGenerator, dataSetsValues: DatasetValues[]): 
   }
 
   return pieColors;
+}
+
+/**
+ * If the chart is a stacked area chart, we want to fill until the next dataset.
+ * If the chart is a simple area chart, we want to fill until the origin (bottom axis).
+ *
+ * See https://www.chartjs.org/docs/latest/charts/area.html#filling-modes
+ */
+export function getFillingMode(index: number, stackedChart: boolean): string {
+  if (!stackedChart) {
+    return "origin";
+  }
+  return index === 0 ? "origin" : "-1";
+}
+
+function getChartColorsGenerator(
+  definition: PartialDefinition<ChartWithDataSetDefinition>,
+  dataSetsSize: number
+) {
+  return new ColorGenerator(
+    dataSetsSize,
+    definition.dataSets?.map((ds) => ds.backgroundColor) || []
+  );
 }
