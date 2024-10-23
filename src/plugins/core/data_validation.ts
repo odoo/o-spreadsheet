@@ -1,3 +1,4 @@
+import { compile } from "../../formulas";
 import {
   copyRangeWithNewSheetId,
   deepCopy,
@@ -80,6 +81,7 @@ export class DataValidationPlugin
           cmd,
           this.chainValidations(
             this.checkEmptyRange,
+            this.checkValidRange,
             this.checkCriterionTypeIsValid,
             this.checkCriterionHasValidNumberOfValues,
             this.checkCriterionValuesAreValid
@@ -285,18 +287,26 @@ export class DataValidationPlugin
   private checkCriterionValuesAreValid(cmd: AddDataValidationCommand): CommandResult {
     const criterion = cmd.rule.criterion;
     const evaluator = dataValidationEvaluatorRegistry.get(criterion.type);
-    if (
-      criterion.values.some((value) => {
-        if (value.startsWith("=")) {
-          return evaluator.allowedValues === "onlyLiterals";
-        } else if (evaluator.allowedValues === "onlyFormulas") {
-          return true;
-        } else {
-          return !evaluator.isCriterionValueValid(value);
-        }
-      })
-    ) {
+    const isInvalid = (value: string) => {
+      if (evaluator.allowedValues === "onlyFormulas" && !value.startsWith("=")) {
+        return true;
+      }
+      if (value.startsWith("=")) {
+        return evaluator.allowedValues === "onlyLiterals" || compile(value).isBadExpression;
+      }
+      return !evaluator.isCriterionValueValid(value);
+    };
+    if (criterion.values.some(isInvalid)) {
       return CommandResult.InvalidDataValidationCriterionValue;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkValidRange(cmd: AddDataValidationCommand): CommandResult {
+    const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
+    const stringRanges = ranges.map((range) => this.getters.getRangeString(range, cmd.sheetId));
+    if (stringRanges.some((xc) => !this.getters.isRangeValid(xc))) {
+      return CommandResult.InvalidRange;
     }
     return CommandResult.Success;
   }

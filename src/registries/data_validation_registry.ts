@@ -78,7 +78,6 @@ export type DataValidationCriterionEvaluator = {
    * The value should be in canonical form (non-localized).
    */
   isCriterionValueValid: (value: string) => boolean;
-
   /** Return the number of values that the criterion must contains. Return undefined if the criterion can have any number of values */
   numberOfValues: (criterion: DataValidationCriterion) => number | undefined;
   name: string;
