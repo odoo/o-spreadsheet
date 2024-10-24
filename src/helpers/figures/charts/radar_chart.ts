@@ -26,6 +26,7 @@ import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { setColorAlpha } from "../../color";
+import { formatValue } from "../../format/format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -36,6 +37,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  formatTickValue,
   getChartColorsGenerator,
   getCustomLegendLabels,
   shouldRemoveFirstLabel,
@@ -232,9 +234,10 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const leftAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
-  const rightAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "right");
-  const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat };
+  const dataSetFormat =
+    getChartDatasetFormat(getters, chart.dataSets, "left") ||
+    getChartDatasetFormat(getters, chart.dataSets, "right");
+  const axisFormats = { r: dataSetFormat };
   const locale = getters.getLocale();
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
@@ -263,8 +266,18 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
       label: function (tooltipItem) {
         const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
         const yLabel = tooltipItem.parsed.r;
-        return xLabel ? `${xLabel}: ${yLabel}` : yLabel.toString();
+        const formattedY = formatValue(yLabel, { format: dataSetFormat, locale });
+        return xLabel ? `${xLabel}: ${formattedY}` : formattedY;
       },
+    },
+  };
+  config.options.scales = {
+    r: {
+      ticks: {
+        callback: formatTickValue({ format: dataSetFormat, locale }),
+        backdropColor: chart.background || "#FFFFFF",
+      },
+      pointLabels: { color: fontColor },
     },
   };
   config.options.layout = {
