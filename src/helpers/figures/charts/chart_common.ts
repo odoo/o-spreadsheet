@@ -1,6 +1,5 @@
 import { ChartDataset } from "chart.js";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
-import { LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
   evaluatePolynomial,
   expM,
@@ -503,14 +502,8 @@ export function getFullTrendingLineDataSet(
   defaultBorderColor.a = 1;
 
   const borderColor = config.color || lightenColor(rgbaToHex(defaultBorderColor), 0.5);
-  const backgroundRGBA = colorToRGBA(borderColor);
-  // @ts-expect-error
-  if (dataset?.fill) {
-    backgroundRGBA.a = LINE_FILL_TRANSPARENCY; // to support area charts
-  }
 
   return {
-    ...dataset,
     type: "line",
     xAxisID: TREND_LINE_XAXIS_ID,
     label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
@@ -518,10 +511,12 @@ export function getFullTrendingLineDataSet(
     order: -1,
     showLine: true,
     pointRadius: 0,
-    backgroundColor: rgbaToHex(backgroundRGBA),
+    backgroundColor: undefined,
     borderColor,
     borderDash: [5, 5],
     borderWidth: undefined,
+    fill: false,
+    pointBackgroundColor: borderColor,
   };
 }
 
