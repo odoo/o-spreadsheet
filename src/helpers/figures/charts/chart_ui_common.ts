@@ -157,13 +157,14 @@ export function getDefaultChartJsRuntime(
 
 export function getChartLabelFormat(
   getters: Getters,
-  range: Range | undefined
+  range: Range | undefined,
+  dataSetsHaveTitle: boolean
 ): Format | undefined {
   if (!range) return undefined;
   return getters.getEvaluatedCell({
     sheetId: range.sheetId,
     col: range.zone.left,
-    row: range.zone.top,
+    row: dataSetsHaveTitle ? range.zone.top + 1 : range.zone.top,
   }).format;
 }
 
