@@ -32,6 +32,7 @@ import { target, toRangeData, toRangesData } from "./helpers";
 
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
+import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { Image } from "../../src/types/image";
@@ -203,6 +204,33 @@ export function createComboChart(
       background: data.background,
       legendPosition: data.legendPosition || "top",
       aggregated: ("aggregated" in data && data.aggregated) || false,
+    },
+  });
+}
+
+export function createRadarChart(
+  model: Model,
+  data: Partial<RadarChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
+  return model.dispatch("CREATE_CHART", {
+    id,
+    sheetId,
+    definition: {
+      title: data.title || { text: "test" },
+      dataSets: data.dataSets || [],
+      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
+      labelRange: data.labelRange,
+      type: "radar",
+      background: data.background,
+      legendPosition: data.legendPosition || "top",
+      aggregated: ("aggregated" in data && data.aggregated) || false,
+      fillArea: data.fillArea || false,
+      stacked: data.stacked || false,
     },
   });
 }
