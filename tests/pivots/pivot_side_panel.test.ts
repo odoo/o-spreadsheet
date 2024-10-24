@@ -19,6 +19,13 @@ describe("Pivot side panel", () => {
     addPivot(model, "A1:D5", {}, "2");
   });
 
+  test("readonly panel snapshot", async () => {
+    model.updateMode("readonly");
+    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    await nextTick();
+    expect(fixture.querySelector(".o-sidePanel")).toMatchSnapshot();
+  });
+
   test("It should open the pivot editor when pivotId is provided", async () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "2" });
     await nextTick();

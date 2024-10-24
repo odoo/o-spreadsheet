@@ -12,6 +12,7 @@
           t-on-click="toggleMeasureVisibility"
         />
         <i
+          t-if="!env.model.getters.isReadonly()"
           class="o-button-icon pe-1 ps-2 fa fa-cog"
           title="Show values as"
           t-on-click="openShowValuesAs"
