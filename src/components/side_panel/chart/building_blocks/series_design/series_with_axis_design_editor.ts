@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../../helpers";
-import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
+import { CHART_AXIS_CHOICES, getDefinedAxis } from "../../../../../helpers/figures/charts";
 import {
   ChartWithDataSetDefinition,
   Color,
@@ -46,23 +46,36 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
   axisChoices = CHART_AXIS_CHOICES;
 
   updateDataSeriesAxis(index: number, axis: "left" | "right") {
+    const yAxisId = axis === "left" ? "y" : "y1";
     const dataSets = [...this.props.definition.dataSets];
-    if (!dataSets?.[index]) {
-      return;
+    if (index === -1) {
+      for (let i = 0; i < dataSets.length; i++) {
+        dataSets[i] = {
+          ...dataSets[i],
+          yAxisId,
+        };
+      }
+    } else {
+      dataSets[index] = {
+        ...dataSets[index],
+        yAxisId,
+      };
     }
-    dataSets[index] = {
-      ...dataSets[index],
-      yAxisId: axis === "left" ? "y" : "y1",
-    };
     this.props.updateChart(this.props.figureId, { dataSets });
   }
 
   getDataSerieAxis(index: number) {
     const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[index]) {
-      return "left";
+    if (index === -1) {
+      const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);
+      if (useLeftAxis && useRightAxis) {
+        return "";
+      } else if (useLeftAxis) {
+        return "left";
+      }
+      return "right";
     }
-    return dataSets[index].yAxisId === "y1" ? "right" : "left";
+    return dataSets[index]?.yAxisId === "y1" ? "right" : "left";
   }
 
   get canHaveTwoVerticalAxis() {

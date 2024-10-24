@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-SeriesWithAxisDesignEditor">
-    <SeriesDesignEditor t-props="props">
+    <SeriesDesignEditor t-props="props" canChooseAxis="!props.definition.horizontal">
       <t t-set-slot="data-series-extension" t-slot-scope="scope">
         <t t-set="index" t-value="scope.index"/>
         <t t-slot="general-extension" index="index"/>
@@ -18,7 +18,7 @@
           </Section>
           <Section
             class="'pt-0 px-0 o-show-trend-line'"
-            t-if="!props.definition.horizontal"
+            t-if="!props.definition.horizontal and index !== -1"
             title.translate="Trend line">
             <t t-set="showTrendLineLabel">Show trend line</t>
             <t t-set="trend" t-value="getTrendLineConfiguration(index)"/>
