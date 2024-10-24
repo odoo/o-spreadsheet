@@ -209,12 +209,27 @@ export class PieChart extends AbstractChart {
 function getPieConfiguration(
   chart: PieChart,
   labels: string[],
-  localeFormat: LocaleFormat
+  localeFormat: LocaleFormat,
+  colors: Color[]
 ): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"pie">> = {
-    labels: { color: fontColor },
+    labels: {
+      color: fontColor,
+      usePointStyle: true,
+      //@ts-ignore
+      generateLabels: (c) =>
+        //@ts-ignore
+        c.data.labels.map((label, index) => ({
+          text: label,
+          strokeStyle: colors[index],
+          fillStyle: colors[index],
+          pointStyle: "rect",
+          hidden: false,
+          lineWidth: 2,
+        })),
+    },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
@@ -325,9 +340,14 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
 
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
   const locale = getters.getLocale();
-  const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
   const backgroundColor = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
+  const config = getPieConfiguration(
+    chart,
+    labels,
+    { format: dataSetFormat, locale },
+    backgroundColor
+  );
   for (const { label, data } of dataSetsValues) {
     const dataset: ChartDataset = {
       label,

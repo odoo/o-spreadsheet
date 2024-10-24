@@ -4,6 +4,7 @@ import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/inde
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesDesignEditor } from "../building_blocks/series_design/series_design_editor";
 
 interface Props {
@@ -20,6 +21,7 @@ export class RadarChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     SeriesDesignEditor,
     Section,
     Checkbox,
+    ChartLegend,
   };
   static props = {
     figureId: String,
@@ -27,10 +29,4 @@ export class RadarChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     canUpdateChart: Function,
     updateChart: Function,
   };
-
-  updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
-      legendPosition: ev.target.value,
-    });
-  }
 }
