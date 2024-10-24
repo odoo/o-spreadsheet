@@ -1521,31 +1521,25 @@ describe("charts", () => {
     });
   });
 
-  test("showValues checkbox updates the chart", async () => {
-    createTestChart("basicChart");
-    updateChart(model, chartId, {
-      type: "line",
-      labelRange: "C2:C4",
-      dataSets: [{ dataRange: "B2:B4" }],
-    });
-    await mountChartSidePanel();
-    await openChartDesignSidePanel(model, env, fixture, chartId);
+  test.each<ChartType>(["bar", "line", "waterfall", "radar"])(
+    "showValues checkbox updates the chart",
+    async (type: ChartType) => {
+      createTestChart(type);
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
 
-    expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).showValues
-    ).toBeFalsy();
+      expect(model.getters.getChartDefinition(chartId)["showValues"]).toBeFalsy();
 
-    let options = getChartConfiguration(model, chartId).options;
-    expect(options.plugins.chartShowValuesPlugin.showValues).toBeFalsy();
+      let options = getChartConfiguration(model, chartId).options;
+      expect(options.plugins.chartShowValuesPlugin.showValues).toBeFalsy();
 
-    await simulateClick("input[name='showValues']");
-    expect(
-      (model.getters.getChartDefinition(chartId) as LineChartDefinition).showValues
-    ).toBeTruthy();
+      await simulateClick("input[name='showValues']");
+      expect(model.getters.getChartDefinition(chartId)["showValues"]).toBeTruthy();
 
-    options = getChartConfiguration(model, chartId).options;
-    expect(options.plugins.chartShowValuesPlugin.showValues).toBeTruthy();
-  });
+      options = getChartConfiguration(model, chartId).options;
+      expect(options.plugins.chartShowValuesPlugin.showValues).toBeTruthy();
+    }
+  );
 
   describe("aggregate", () => {
     test.each(["bar", "pie", "line", "scatter", "combo"] as const)(

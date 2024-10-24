@@ -44,9 +44,10 @@ export const chartShowValuesPlugin: Plugin = {
         break;
       case "bar":
       case "line":
+      case "radar":
         options.horizontal
           ? drawHorizontalBarChartValues(chart, options, ctx)
-          : drawLineOrBarChartValues(chart, options, ctx);
+          : drawLineOrBarOrRadarChartValues(chart, options, ctx);
         break;
     }
 
@@ -61,7 +62,7 @@ function drawTextWithBackground(text: string, x: number, y: number, ctx: CanvasR
   ctx.fillText(text, x, y);
 }
 
-function drawLineOrBarChartValues(
+function drawLineOrBarOrRadarChartValues(
   chart: any,
   options: ChartShowValuesPluginOptions,
   ctx: CanvasRenderingContext2D
@@ -76,14 +77,15 @@ function drawLineOrBarChartValues(
     }
 
     for (let i = 0; i < dataset._parsed.length; i++) {
-      const value = dataset._parsed[i].y;
-      const displayValue = options.callback(value - 0, dataset.yAxisID);
-      const point = dataset.data[i];
+      const value = chart.config.type === "radar" ? dataset._parsed[i].r : dataset._parsed[i].y;
+      const axisId = chart.config.type === "radar" ? dataset.rAxisID : dataset.yAxisID;
+      const displayValue = options.callback(value - 0, axisId);
 
+      const point = dataset.data[i];
       const xPosition = point.x;
 
       let yPosition = 0;
-      if (chart.config.type === "line") {
+      if (chart.config.type === "line" || chart.config.type === "radar") {
         yPosition = point.y - 10;
       } else {
         yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;

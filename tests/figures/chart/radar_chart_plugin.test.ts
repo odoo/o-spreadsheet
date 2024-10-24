@@ -19,7 +19,7 @@ describe("radar chart", () => {
       showSubTotals: true,
       axesDesign: {},
       fillArea: true,
-      showValues: false,
+      showValues: true,
     };
     const definition = RadarChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -33,6 +33,7 @@ describe("radar chart", () => {
       aggregated: true,
       fillArea: true,
       stacked: true,
+      showValues: true,
     });
   });
 });

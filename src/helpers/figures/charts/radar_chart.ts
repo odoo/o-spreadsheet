@@ -35,6 +35,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  formatChartDatasetValue,
   getChartColorsGenerator,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -62,6 +63,7 @@ export class RadarChart extends AbstractChart {
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
   readonly fillArea?: boolean;
+  readonly showValues?: boolean;
 
   constructor(definition: RadarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -79,6 +81,7 @@ export class RadarChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
     this.fillArea = definition.fillArea;
+    this.showValues = definition.showValues;
   }
 
   static transformDefinition(
@@ -107,6 +110,7 @@ export class RadarChart extends AbstractChart {
       type: "radar",
       labelRange: context.auxiliaryRange || undefined,
       fillArea: context.fillArea ?? false,
+      showValues: context.showValues ?? false,
     };
   }
 
@@ -172,6 +176,7 @@ export class RadarChart extends AbstractChart {
       stacked: this.stacked,
       aggregated: this.aggregated,
       fillArea: this.fillArea,
+      showValues: this.showValues,
     };
   }
 
@@ -230,9 +235,10 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const leftAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
-  const rightAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "right");
-  const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat };
+  const dataSetFormat =
+    getChartDatasetFormat(getters, chart.dataSets, "left") ||
+    getChartDatasetFormat(getters, chart.dataSets, "right");
+  const axisFormats = { r: dataSetFormat };
   const locale = getters.getLocale();
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
@@ -265,6 +271,11 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
   config.options.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
+  config.options.plugins!.chartShowValuesPlugin = {
+    showValues: chart.showValues,
+    background: chart.background,
+    callback: formatChartDatasetValue(axisFormats, locale),
+  };
 
   const colorGenerator = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let i = 0; i < dataSetsValues.length; i++) {
@@ -277,6 +288,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
       label,
       data,
       borderColor,
+      pointBackgroundColor: borderColor,
     };
     if (fill) {
       dataset.backgroundColor = setColorAlpha(borderColor, 0.3);
