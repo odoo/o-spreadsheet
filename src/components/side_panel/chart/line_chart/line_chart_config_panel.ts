@@ -16,7 +16,9 @@ export class LineConfigPanel extends GenericChartConfigPanel {
 
   get stackedLabel(): string {
     const definition = this.props.definition as LineChartDefinition;
-    return definition.fillArea ? this.chartTerms.StackedAreaChart : this.chartTerms.StackedBarChart;
+    return definition.fillArea
+      ? this.chartTerms.StackedAreaChart
+      : this.chartTerms.StackedLineChart;
   }
 
   getLabelRangeOptions() {
