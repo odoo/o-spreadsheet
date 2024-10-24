@@ -6,6 +6,7 @@ import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import { CustomizedDataSet, Dimension, ExcelChartType } from "../../src/types";
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
+import { hexaToInt } from "../../src/xlsx/conversion";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 
@@ -678,6 +679,29 @@ describe("Test XLSX export", () => {
       expect(console.warn).toHaveBeenCalledWith(
         "Conditional formats with formula rules are not supported at the moment. The rule is therefore skipped."
       );
+    });
+
+    test("Conditional formatting with DataBar Rule is correctly exported", async () => {
+      const model = new Model({
+        sheets: [
+          {
+            colNumber: 2,
+            rowNumber: 5,
+            cells: {},
+            conditionalFormats: [
+              {
+                id: "1",
+                ranges: ["B1:B5"],
+                rule: {
+                  type: "DataBarRule",
+                  color: hexaToInt("EFF7FF"),
+                },
+              },
+            ],
+          },
+        ],
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
   });
 
