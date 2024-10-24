@@ -304,7 +304,10 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
       label,
       data,
       borderColor: BORDER_CHART_COLOR,
-      borderWidth: 1,
+      borderWidth: {
+        bottom: index === "0" || !chart.stacked ? 0 : 2,
+      },
+      borderSkipped: false,
       backgroundColor: color,
     };
     config.data.datasets.push(dataset);
