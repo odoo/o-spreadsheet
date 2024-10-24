@@ -280,7 +280,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     };
     if (fill) {
       dataset.backgroundColor = setColorAlpha(borderColor, 0.3);
-      dataset["fill"] = true;
+      dataset["fill"] = "start"; // fills from the start of the axes (default is to start at 0)
     }
     config.data.datasets.push(dataset);
   }
