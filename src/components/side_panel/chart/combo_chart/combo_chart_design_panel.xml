@@ -20,7 +20,7 @@
         <Section class="'pt-0'" title.translate="Values">
           <Checkbox
             name="'showValues'"
-            label="showValuesLabel"
+            label.translate="Show values"
             value="props.definition.showValues"
             onChange="showValues => props.updateChart(this.props.figureId, {showValues})"
           />
