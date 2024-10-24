@@ -44,9 +44,10 @@ export const chartShowValuesPlugin: Plugin = {
         break;
       case "bar":
       case "line":
+      case "radar":
         options.horizontal
           ? drawHorizontalBarChartValues(chart, options, ctx)
-          : drawLineOrBarChartValues(chart, options, ctx);
+          : drawLineOrBarOrRadarChartValues(chart, options, ctx);
         break;
     }
 
@@ -61,7 +62,7 @@ function drawTextWithBackground(text: string, x: number, y: number, ctx: CanvasR
   ctx.fillText(text, x, y);
 }
 
-function drawLineOrBarChartValues(
+function drawLineOrBarOrRadarChartValues(
   chart: any,
   options: ChartShowValuesPluginOptions,
   ctx: CanvasRenderingContext2D
@@ -76,14 +77,20 @@ function drawLineOrBarChartValues(
     }
 
     for (let i = 0; i < dataset._parsed.length; i++) {
-      const value = dataset._parsed[i].y;
-      const displayValue = options.callback(value - 0, dataset.yAxisID);
-      const point = dataset.data[i];
+      const parsedValue = dataset._parsed[i];
+      const value = Number(chart.config.type === "radar" ? parsedValue.r : parsedValue.y);
+      if (isNaN(value)) {
+        continue;
+      }
 
+      const axisId = chart.config.type === "radar" ? dataset.rAxisID : dataset.yAxisID;
+      const displayValue = options.callback(Number(value), axisId);
+
+      const point = dataset.data[i];
       const xPosition = point.x;
 
       let yPosition = 0;
-      if (chart.config.type === "line") {
+      if (chart.config.type === "line" || chart.config.type === "radar") {
         yPosition = point.y - 10;
       } else {
         yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
@@ -124,8 +131,11 @@ function drawHorizontalBarChartValues(
     }
 
     for (let i = 0; i < dataset._parsed.length; i++) {
-      const value = dataset._parsed[i].x;
-      const displayValue = options.callback(value - 0, dataset.xAxisID);
+      const value = Number(dataset._parsed[i].x);
+      if (isNaN(value)) {
+        continue;
+      }
+      const displayValue = options.callback(value, dataset.xAxisID);
       const point = dataset.data[i];
 
       const yPosition = point.y;

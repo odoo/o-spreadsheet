@@ -42,6 +42,7 @@ import {
 import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
 import {
   getBarChartLayout,
+  getChartShowValues,
   getChartTitle,
   getRadarChartData,
   getRadarChartDatasets,
@@ -61,6 +62,7 @@ export class RadarChart extends AbstractChart {
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
   readonly fillArea?: boolean;
+  readonly showValues?: boolean;
 
   constructor(definition: RadarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -78,6 +80,7 @@ export class RadarChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
     this.fillArea = definition.fillArea;
+    this.showValues = definition.showValues;
   }
 
   static transformDefinition(
@@ -106,6 +109,7 @@ export class RadarChart extends AbstractChart {
       type: "radar",
       labelRange: context.auxiliaryRange || undefined,
       fillArea: context.fillArea ?? false,
+      showValues: context.showValues ?? false,
     };
   }
 
@@ -171,6 +175,7 @@ export class RadarChart extends AbstractChart {
       stacked: this.stacked,
       aggregated: this.aggregated,
       fillArea: this.fillArea,
+      showValues: this.showValues,
     };
   }
 
@@ -229,6 +234,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
         title: getChartTitle(definition),
         legend: getRadarChartLegend(definition, chartData),
         tooltip: getRadarChartTooltip(definition, chartData),
+        chartShowValuesPlugin: getChartShowValues(definition, chartData),
       },
     },
   };

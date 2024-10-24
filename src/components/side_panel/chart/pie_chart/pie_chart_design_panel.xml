@@ -15,7 +15,7 @@
             name="'showValues'"
             label.translate="Show values"
             value="props.definition.showValues"
-            onChange="showValues => props.updateChart(this.props.figureId, {showValues})"
+            onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
           />
         </Section>
       </t>
