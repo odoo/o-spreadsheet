@@ -1,12 +1,20 @@
 <templates>
   <t t-name="o-spreadsheet-SelectionInput">
-    <div class="o-selection">
+    <div class="o-selection" t-ref="o-selection">
       <div
         t-foreach="ranges"
         t-as="range"
         t-key="range.id"
         class="o-selection-input d-flex flex-row"
+        t-on-pointerdown="(ev) => this.startDragAndDrop(range.id, ev)"
+        t-att-style="dragAndDrop.itemsStyle[range.id]"
         t-att-class="props.class">
+        <span
+          t-if="ranges.length > 1 and props.onSelectionReordered"
+          title="Reorder range"
+          class="o-drag-handle d-flex align-items-center mb-2 o-button-icon">
+          <t t-call="o-spreadsheet-Icon.SHORT_THIN_DRAG_HANDLE"/>
+        </span>
         <div class="position-relative w-100">
           <input
             type="text"

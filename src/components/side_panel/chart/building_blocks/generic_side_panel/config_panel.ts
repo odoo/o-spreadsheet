@@ -53,13 +53,13 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     labelsDispatchResult: undefined,
   });
 
-  private dataSeriesRanges: CustomizedDataSet[] = [];
+  private dataSets: CustomizedDataSet[] = [];
   private labelRange: string | undefined;
 
   protected chartTerms = ChartTerms;
 
   setup() {
-    this.dataSeriesRanges = this.props.definition.dataSets;
+    this.dataSets = this.props.definition.dataSets;
     this.labelRange = this.props.definition.labelRange;
   }
 
@@ -113,24 +113,31 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
    * button "confirm" is clicked
    */
   onDataSeriesRangesChanged(ranges: string[]) {
-    this.dataSeriesRanges = ranges.map((dataRange, i) => ({
-      ...this.dataSeriesRanges?.[i],
+    this.dataSets = ranges.map((dataRange, i) => ({
+      ...this.dataSets?.[i],
       dataRange,
     }));
     this.state.datasetDispatchResult = this.props.canUpdateChart(this.props.figureId, {
-      dataSets: this.dataSeriesRanges,
+      dataSets: this.dataSets,
+    });
+  }
+
+  onDataSeriesReordered(indexes: number[]) {
+    this.dataSets = indexes.map((i) => this.dataSets[i]);
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
+      dataSets: this.dataSets,
     });
   }
 
   onDataSeriesConfirmed() {
-    this.dataSeriesRanges = spreadRange(this.env.model.getters, this.dataSeriesRanges);
+    this.dataSets = spreadRange(this.env.model.getters, this.dataSets);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
-      dataSets: this.dataSeriesRanges,
+      dataSets: this.dataSets,
     });
   }
 
   getDataSeriesRanges() {
-    return this.dataSeriesRanges;
+    return this.dataSets;
   }
 
   /**
@@ -169,7 +176,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     const labelRange = createValidRange(getters, sheetId, this.labelRange);
     const dataSets = createDataSets(
       getters,
-      this.dataSeriesRanges,
+      this.dataSets,
       sheetId,
       this.props.definition.dataSetsHaveTitle
     );

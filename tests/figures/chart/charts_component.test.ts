@@ -37,6 +37,7 @@ import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import {
   click,
   doubleClick,
+  dragElement,
   focusAndKeyDown,
   keyDown,
   setInputValueAndTrigger,
@@ -790,6 +791,44 @@ describe("charts", () => {
         (model.getters.getChartDefinition(chartId) as ChartDefinition)[attrName]
       ).toBeUndefined();
     }
+  });
+
+  test("can reorder ranges in chart panel", async () => {
+    mockGetBoundingClientRect({
+      "o-selection-input": (el: HTMLElement) => ({
+        y: Array.from(el.parentElement!.children).indexOf(el) * 100,
+        height: 100,
+      }),
+      "o-selection": (el: HTMLElement) => ({
+        y: 0,
+        height: 200,
+      }),
+    });
+    createChart(
+      model,
+      {
+        dataSets: [
+          { dataRange: "B1:B4", label: "serie_1" },
+          { dataRange: "C1:C4", label: "serie_2" },
+        ],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      chartId
+    );
+    await mountSpreadsheet();
+    await openChartConfigSidePanel(model, env, chartId);
+    await dragElement(
+      fixture.querySelectorAll(".o-selection-input")[0],
+      { x: 0, y: 150 },
+      undefined,
+      true
+    );
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.dataSets).toMatchObject([
+      { dataRange: "C1:C4", label: "serie_2" },
+      { dataRange: "B1:B4", label: "serie_1" },
+    ]);
   });
 
   test("drawing of chart will receive new data after update", async () => {
