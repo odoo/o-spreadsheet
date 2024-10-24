@@ -1,5 +1,12 @@
-import { ChartCreationContext } from "../../../src";
+import { ChartCreationContext, Model } from "../../../src";
 import { RadarChart } from "../../../src/helpers/figures/charts/radar_chart";
+import { RadarChartRuntime } from "../../../src/types/chart/radar_chart";
+import {
+  createRadarChart,
+  setCellContent,
+  setFormat,
+  updateChart,
+} from "../../test_helpers/commands_helpers";
 
 describe("radar chart", () => {
   test("create radar chart from creation context", () => {
@@ -34,5 +41,33 @@ describe("radar chart", () => {
       fillArea: true,
       stacked: true,
     });
+  });
+
+  test("Radar chart ticks and tooltip values are formatted with the cells format", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "1");
+    setFormat(model, "A2", `0.0 "écu d'or"`);
+
+    createRadarChart(model, { fillArea: false, dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
+    const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
+    const tickCallback = runtime.chartJsConfig.options?.scales?.r?.ticks?.callback as any;
+    expect(tickCallback(1)).toBe("1.0 écu d'or");
+
+    const tooltipLabel = runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks?.label as any;
+    expect(tooltipLabel({ parsed: { x: "Louis", r: 14 }, dataset: { label: "Ds1" } })).toBe(
+      "Ds1: 14.0 écu d'or"
+    );
+  });
+
+  test("Radar point color depend on the chart background", () => {
+    const model = new Model();
+    createRadarChart(model, {}, "chartId");
+
+    let runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
+    expect(runtime.chartJsConfig.options?.scales?.r?.["pointLabels"]?.color).toBe("#000000");
+
+    updateChart(model, "chartId", { background: "#000000" });
+    runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
+    expect(runtime.chartJsConfig.options?.scales?.r?.["pointLabels"]?.color).toBe("#FFFFFF");
   });
 });
