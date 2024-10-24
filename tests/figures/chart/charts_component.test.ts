@@ -1734,6 +1734,7 @@ describe("charts", () => {
     );
 
     test.each(["bar", "line", "scatter", "combo"] as const)(
+<<<<<<< master
       "Can change moving average window size",
       async (type: "bar" | "line" | "scatter" | "combo") => {
         createChart(
@@ -1766,6 +1767,30 @@ describe("charts", () => {
         await nextTick();
         definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend?.window).toEqual(3);
+||||||| 4f2950a8bfaa8dac75e2071a458efa1bdb20b4d0
+=======
+      "Polynome degree choices are limited by the number of points",
+      async (type: "bar" | "line" | "scatter" | "combo") => {
+        createChart(
+          model,
+          {
+            dataSets: [
+              { dataRange: "B1:B5", trend: { type: "polynomial", order: 3, display: true } },
+            ],
+            labelRange: "A1:A5",
+            type,
+            dataSetsHaveTitle: false,
+          },
+          chartId,
+          sheetId
+        );
+        await mountChartSidePanel(chartId);
+        await openChartDesignSidePanel(model, env, fixture, chartId);
+
+        const selectElement = fixture.querySelector(".trend-order-input") as HTMLSelectElement;
+        const optionValues = [...selectElement.options].map((o) => o.value);
+        expect(optionValues).toEqual(["1", "2", "3", "4"]);
+>>>>>>> d06d5ceedbde882ba1dc659a247433001e57ab5d
       }
     );
 
