@@ -389,7 +389,10 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         {
           "backgroundColor": "#4EA7F2",
           "borderColor": "#FFFFFF",
-          "borderWidth": 1,
+          "borderSkipped": false,
+          "borderWidth": {
+            "bottom": 0,
+          },
           "data": [
             30,
           ],
