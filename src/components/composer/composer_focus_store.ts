@@ -45,7 +45,7 @@ export class ComposerFocusStore extends SpreadsheetStore {
 
   focusComposer(listener: ComposerInterface, args: Args) {
     this.activeComposer = listener;
-    if (this.getters.isReadonly()) {
+    if (!this.canEditActiveCell()) {
       return;
     }
     this._focusMode = args.focusMode || "contentFocus";
@@ -55,11 +55,8 @@ export class ComposerFocusStore extends SpreadsheetStore {
   }
 
   focusActiveComposer(args: Args) {
-    if (this.getters.isReadonly()) {
+    if (!this.canEditActiveCell()) {
       return;
-    }
-    if (!this.activeComposer) {
-      throw new Error("No composer is registered");
     }
     this._focusMode = args.focusMode || "contentFocus";
     if (this._focusMode !== "inactive") {
@@ -82,5 +79,10 @@ export class ComposerFocusStore extends SpreadsheetStore {
     } else if (content) {
       this.activeComposer.setCurrentContent(content, selection);
     }
+  }
+
+  private canEditActiveCell(): boolean {
+    const activePosition = this.getters.getActivePosition();
+    return this.getters.cellHasListDataValidationIcon(activePosition) || !this.getters.isReadonly();
   }
 }

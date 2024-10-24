@@ -354,15 +354,18 @@ describe("Selection arrow icon in grid", () => {
     expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
   });
 
-  test("Icon is not displayed in dashboard", async () => {
-    model.updateMode("dashboard");
+  test("can be used in dashboard", async () => {
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
       displayStyle: "arrow",
     });
     ({ fixture } = await mountSpreadsheet({ model }));
-    expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
+    model.updateMode("dashboard");
+    await nextTick();
+    await click(fixture, ".o-dv-list-icon");
+    await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
+    expect(getCellContent(model, "A1")).toBe("hello");
   });
 
   test("Icon is not displayed if there is a filter icon", async () => {

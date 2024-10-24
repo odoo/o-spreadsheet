@@ -41,6 +41,6 @@ export class DataValidationCheckbox extends Component<Props, SpreadsheetChildEnv
 
   get isDisabled(): boolean {
     const cell = this.env.model.getters.getCell(this.props.cellPosition);
-    return this.env.model.getters.isReadonly() || !!cell?.isFormula;
+    return !!cell?.isFormula;
   }
 }
