@@ -54,14 +54,12 @@ describe("Import xlsx data", () => {
 
   test("Can import cell content", () => {
     const testSheet = getWorkbookSheet("jestSheet", convertedData)!;
-    const cell = getWorkbookCell(0, 0, testSheet);
-    expect(cell?.content).toEqual("string");
+    expect(getWorkbookCell(0, 0, testSheet)).toEqual("string");
   });
 
   test("Can import formula", () => {
     const testSheet = getWorkbookSheet("jestSheet", convertedData)!;
-    const cell = getWorkbookCell(0, 1, testSheet);
-    expect(cell?.content).toEqual("=SUM(A1)");
+    expect(getWorkbookCell(0, 1, testSheet)).toEqual("=SUM(A1)");
   });
 
   test("Can import merge", () => {
@@ -71,12 +69,8 @@ describe("Import xlsx data", () => {
 
   test("Can import hyperlinks", () => {
     const testSheet = getWorkbookSheet("jestSheet", convertedData)!;
-    expect(testSheet.cells["D3"]?.content).toEqual(
-      markdownLink("hyperlink", "https://www.odoo.com/")
-    );
-    expect(testSheet.cells["F3"]?.content).toEqual(
-      markdownLink("sheetLink", buildSheetLink("jestSheet"))
-    );
+    expect(testSheet.cells["D3"]).toEqual(markdownLink("hyperlink", "https://www.odoo.com/"));
+    expect(testSheet.cells["F3"]).toEqual(markdownLink("sheetLink", buildSheetLink("jestSheet")));
   });
 
   test("Can import row size", () => {
@@ -106,7 +100,7 @@ describe("Import xlsx data", () => {
   test("Can import external reference", () => {
     // External references are cells that have references to another xlsx file
     const testSheet = getWorkbookSheet("jestSheet", convertedData)!;
-    expect(testSheet.cells["H2"]?.content).toEqual('="referenced string"');
+    expect(testSheet.cells["H2"]).toEqual('="referenced string"');
   });
 
   test.each([
@@ -499,7 +493,7 @@ describe("Import xlsx data", () => {
 
   test("rows filtered by a table filter are hidden", () => {
     const sheet = getWorkbookSheet("jestTable", convertedData)!;
-    expect(sheet.cells["C31"]?.content).toEqual("Hidden");
+    expect(sheet.cells["C31"]).toEqual("Hidden");
     expect(sheet.rows[30].isHidden).toBeTruthy();
   });
 
@@ -575,24 +569,24 @@ describe("Import xlsx data", () => {
     const testSheet = getWorkbookSheet("jestTable", convertedData)!;
 
     // Formula =[@Rank]+[@Age] => transformed to Col E + Col D
-    expect(testSheet.cells["F4"]?.content).toEqual("=E4+D4");
-    expect(testSheet.cells["F5"]?.content).toEqual("=E5+D5");
+    expect(testSheet.cells["F4"]).toEqual("=E4+D4");
+    expect(testSheet.cells["F5"]).toEqual("=E5+D5");
 
     // Formula =Sum([Rank]) => transformed to Sum(Col E)
-    expect(testSheet.cells["G4"]?.content).toEqual("=SUM(E4:E5)");
-    expect(testSheet.cells["G5"]?.content).toEqual("=SUM(E4:E5)");
+    expect(testSheet.cells["G4"]).toEqual("=SUM(E4:E5)");
+    expect(testSheet.cells["G5"]).toEqual("=SUM(E4:E5)");
 
     // Formula =Sum(TableName[[#All];[Rank]]) => transformed to Sum(Col E) (including totals)
-    expect(testSheet.cells["H4"]?.content).toEqual("=SUM(E4:E6)");
-    expect(testSheet.cells["H5"]?.content).toEqual("=SUM(E4:E6)");
+    expect(testSheet.cells["H4"]).toEqual("=SUM(E4:E6)");
+    expect(testSheet.cells["H5"]).toEqual("=SUM(E4:E6)");
 
     // Formula =TableName[[#Total];[Rank]] => transformed to bottom of Col E
-    expect(testSheet.cells["I4"]?.content).toEqual("=E6");
-    expect(testSheet.cells["I5"]?.content).toEqual("=E6");
+    expect(testSheet.cells["I4"]).toEqual("=E6");
+    expect(testSheet.cells["I5"]).toEqual("=E6");
 
     // Formula =TableName[[#Headers];[Rank]] => transformed to header of Col E
-    expect(testSheet.cells["J4"]?.content).toEqual("=E3");
-    expect(testSheet.cells["J5"]?.content).toEqual("=E3");
+    expect(testSheet.cells["J4"]).toEqual("=E3");
+    expect(testSheet.cells["J5"]).toEqual("=E3");
   });
 
   // We just import pivots as a Table
@@ -796,7 +790,7 @@ describe("Import xlsx data", () => {
   describe("Misc tests", () => {
     test("Newlines characters in strings are removed", () => {
       const testSheet = getWorkbookSheet("jestMiscTest", convertedData)!;
-      const textWithNewLineInXLSX = testSheet.cells["A1"]?.content;
+      const textWithNewLineInXLSX = testSheet.cells["A1"];
       expect(textWithNewLineInXLSX).toEqual("This text have a newLine"); // newline should have been removed at import
     });
 

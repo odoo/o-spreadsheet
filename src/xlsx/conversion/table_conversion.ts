@@ -70,13 +70,13 @@ function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets:
 
       for (let position of positions(toZone(table.ref))) {
         const xc = toXC(position.col, position.row);
-        const cell = sheet.cells[xc];
+        let cellContent = sheet.cells[xc];
 
-        if (cell && cell.content && cell.content.startsWith("=")) {
+        if (cellContent?.startsWith("=")) {
           let refIndex: number;
 
-          while ((refIndex = cell.content.indexOf(tabRef)) !== -1) {
-            let reference = cell.content.slice(refIndex + tabRef.length);
+          while ((refIndex = cellContent.indexOf(tabRef)) !== -1) {
+            let reference = cellContent.slice(refIndex + tabRef.length);
 
             // Expression can either be tableName[colName] or tableName[[#This Row], [colName]]
             let endIndex = reference.indexOf("]");
@@ -87,11 +87,12 @@ function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets:
             reference = reference.slice(0, endIndex);
 
             const convertedRef = convertTableReference(reference, table, xc);
-            cell.content =
-              cell.content.slice(0, refIndex) +
+            cellContent =
+              cellContent.slice(0, refIndex) +
               convertedRef +
-              cell.content.slice(tabRef.length + refIndex + endIndex + 1);
+              cellContent.slice(tabRef.length + refIndex + endIndex + 1);
           }
+          sheet.cells[xc] = cellContent;
         }
       }
     }

@@ -567,9 +567,7 @@ test.each([
     setCellContent(model, "A1", literal);
     expect(getCell(model, "A1")).toMatchObject({ content: value, format: format });
     const exportedData = model.exportData();
-    expect(exportedData.sheets[0].cells.A1).toMatchObject({
-      content: value,
-    });
+    expect(exportedData.sheets[0].cells.A1).toBe(value);
     expect(exportedData.sheets[0].formats.A1).toBe(1);
     expect(exportedData.formats["1"]).toEqual(format);
   }

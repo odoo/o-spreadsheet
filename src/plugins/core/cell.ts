@@ -23,7 +23,6 @@ import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Cell,
-  CellData,
   CellPosition,
   ClearCellCommand,
   CommandResult,
@@ -264,10 +263,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       const cellsData = new PositionMap<{ content?: string; style?: number; format?: number }>();
       // cells content
       for (const xc in sheet.cells) {
-        if (sheet.cells[xc]?.content) {
+        if (sheet.cells[xc]) {
           const { col, row } = toCartesian(xc);
           const position = { sheetId: sheet.id, col, row };
-          cellsData.set(position, { content: sheet.cells[xc]?.content });
+          cellsData.set(position, { content: sheet.cells[xc] });
         }
       }
       // cells style and format
@@ -310,7 +309,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (let _sheet of data.sheets) {
       const positionsByStyle: Record<number, CellPosition[]> = [];
       const positionsByFormat: Record<number, CellPosition[]> = [];
-      const cells: { [key: string]: CellData } = {};
+      const cells: { [key: string]: string } = {};
       const positions = Object.keys(this.cells[_sheet.id] || {})
         .map((cellId) => this.getters.getCellPosition(cellId))
         .sort((a, b) => (a.col === b.col ? a.row - b.row : a.col - b.col));
@@ -329,9 +328,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           positionsByFormat[formatId].push(position);
         }
         if (cell.content) {
-          cells[xc] = {
-            content: cell.content,
-          };
+          cells[xc] = cell.content;
         }
       }
       _sheet.styles = groupItemIdsByZones(positionsByStyle);

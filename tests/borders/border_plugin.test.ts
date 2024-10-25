@@ -713,11 +713,11 @@ test("Cells that have undefined borders don't override borders of neighboring ce
         colNumber: 26,
         rowNumber: 100,
         cells: {
-          B2: { content: "5" },
-          B1: { content: "3" },
-          A2: { content: "3" },
-          B3: { content: "3" },
-          C2: { content: "3" },
+          B2: "5",
+          B1: "3",
+          A2: "3",
+          B3: "3",
+          C2: "3",
         },
         borders: {
           B2: 1,

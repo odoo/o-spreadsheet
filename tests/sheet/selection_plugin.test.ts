@@ -44,7 +44,7 @@ import {
 } from "../test_helpers/getters_helpers";
 
 let model: Model;
-const hiddenContent = { content: "hidden content to be skipped" };
+const hiddenContent = "hidden content to be skipped";
 describe("simple selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B3"] }] });
@@ -725,15 +725,15 @@ describe("Change selection to next clusters", () => {
           rows: { 8: { isHidden: true } },
           // prettier-ignore
           cells: {
-                                     B2: { content: "content" },                                                E2: hiddenContent,                     G2: { content: "same line as merge topLeft" },
-                                                                                                                E3: hiddenContent,                     G3: { content: "line of merge but aligned with topLeft" },
-                                     B6: { content: "content on same line as empty merge topLeft" },            E6: hiddenContent,
-                                     B7: { content: "line of empty merge but aligned with topLeft" },           E7: hiddenContent,
-            A9: hiddenContent,       B9: hiddenContent,       C9: hiddenContent,       D9: hiddenContent,       E9: hiddenContent,  F9: hiddenContent, G9: hiddenContent,
-            A11: { content: "A11" }, B11: { content: "B9" },  C11: { content: "C9" },                           E11: hiddenContent,                    G11: { content: "F9" }, H11: { content: "G9" },
-            A13: { content: '=""' }, B13: { content: "B11" }, C13: { content: "C11" }, D13: { content: "D11" },
-            A14: { content: '=""' }, B14: { content: "B12" }, C14: { content: "C12" },
-            A15: { content: '=""' },                          C15: { content: "=TRANSPOSE(A13:A15)" },
+                                B2: "content" ,                                                 E2: hiddenContent,                     G2: "same line as merge topLeft",
+                                                                                                E3: hiddenContent,                     G3: "line of merge but aligned with topLeft",
+                                B6: "content on same line as empty merge topLeft",              E6: hiddenContent,
+                                B7: "line of empty merge but aligned with topLeft",             E7: hiddenContent,
+            A9: hiddenContent,  B9: hiddenContent,      C9: hiddenContent,  D9: hiddenContent,  E9: hiddenContent,  F9: hiddenContent, G9: hiddenContent,
+            A11: "A11",         B11: "B9",              C11: "C9",                              E11: hiddenContent,                    G11: "F9", H11: "G9",
+            A13: '=""',         B13: "B11",             C13: "C11",         D13: "D11",
+            A14: '=""',         B14: "B12",             C14: "C12",
+            A15: '=""',                                 C15: "=TRANSPOSE(A13:A15)",
           },
           styles: {
             F11: 1,
@@ -844,7 +844,7 @@ describe("Alter Selection with content in selection", () => {
         {
           colNumber: 9,
           rowNumber: 9,
-          cells: { C3: { content: "1" }, C4: { content: "2" }, D3: { content: "3" } },
+          cells: { C3: "1", C4: "2", D3: "3" },
         },
       ],
     });
@@ -988,12 +988,12 @@ describe("Selection loop (ctrl + a)", () => {
             rowNumber: 10,
             // prettier-ignore
             cells: {
-                        B2: { content: "a" }, C2: { content: "a" },
-                                              C3: { content: "merged" }, D3: { content: "merged" }, E3: { content: "a" },
-                                              C4: { content: "a"},
-              A6: { content : "a" },
-                                              C8: { content: '=""'},     D8: { content: '=""'},
-              A9: { content : "=TRANSPOSE(C8:D8)" },
+                        B2: "a", C2: "a",
+                                              C3: "merged", D3: "merged", E3: "a",
+                                              C4: "a",
+              A6: "a",
+                                              C8: '=""',    D8: '=""',
+              A9: "=TRANSPOSE(C8:D8)",
             },
             merges: ["C3:D3"],
             styles: { B1: 1 },
