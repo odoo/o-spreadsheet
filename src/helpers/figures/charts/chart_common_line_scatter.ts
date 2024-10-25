@@ -1,14 +1,9 @@
-import { ChartDataset, LegendOptions } from "chart.js";
+import { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
-import { toJsDate, toNumber } from "../../../functions/helpers";
-import { Getters, Locale, Range } from "../../../types";
-import {
-  AxisType,
-  ChartJSRuntime,
-  DatasetValues,
-  TrendConfiguration,
-} from "../../../types/chart/chart";
+import { toNumber } from "../../../functions/helpers";
+import { Color, Getters, Locale, Range } from "../../../types";
+import { AxisType, DatasetValues, TrendConfiguration } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format/format";
@@ -165,8 +160,8 @@ export function getTrendDatasetForLineChart(
       break;
     case "time":
       for (const point of dataset.data) {
-        const date = toJsDate({ value: point.x }, locale).getTime();
-        if (typeof point.y === "number") {
+        const date = toNumber({ value: point.x }, locale);
+        if (point.y !== null) {
           filteredValues.push(point.y);
           filteredLabels.push(date);
         }
@@ -193,7 +188,10 @@ export function getTrendDatasetForLineChart(
 export function createLineOrScatterChartRuntime(
   chart: LineChart | ScatterChart,
   getters: Getters
-): ChartJSRuntime {
+): {
+  chartJsConfig: ChartConfiguration;
+  background: Color;
+} {
   const axisType = getChartAxisType(chart, getters);
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
