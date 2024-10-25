@@ -2,13 +2,8 @@ import { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
-import { Color, Format, Getters, Locale, Range } from "../../../types";
-import {
-  AxisType,
-  DatasetValues,
-  LabelValues,
-  TrendConfiguration,
-} from "../../../types/chart/chart";
+import { Color, Getters, Locale, Range } from "../../../types";
+import { AxisType, DatasetValues, TrendConfiguration } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format/format";
@@ -197,10 +192,6 @@ export function createLineOrScatterChartRuntime(
 ): {
   chartJsConfig: ChartConfiguration;
   background: Color;
-  dataSetsValues: DatasetValues[];
-  labelValues: LabelValues;
-  dataSetFormat: Format | undefined;
-  labelFormat: Format | undefined;
 } {
   const axisType = getChartAxisType(chart, getters);
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
@@ -432,9 +423,5 @@ export function createLineOrScatterChartRuntime(
   return {
     chartJsConfig: config,
     background: chart.background || BACKGROUND_CHART_COLOR,
-    dataSetsValues,
-    labelValues,
-    dataSetFormat,
-    labelFormat,
   };
 }
