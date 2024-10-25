@@ -642,11 +642,11 @@ describe("evaluate formulas that return an array", () => {
         sheets: [
           {
             cells: {
-              A1: { content: "0" },
-              A2: { content: "1" },
-              B1: { content: "=RANGE_IDENTITY(A1:A2)" },
-              C1: { content: "=RANGE_IDENTITY(B1:B2)" },
-              D1: { content: "=RANGE_IDENTITY(C1:C2)" },
+              A1: "0",
+              A2: "1",
+              B1: "=RANGE_IDENTITY(A1:A2)",
+              C1: "=RANGE_IDENTITY(B1:B2)",
+              D1: "=RANGE_IDENTITY(C1:C2)",
             },
           },
         ],
@@ -719,13 +719,13 @@ describe("evaluate formulas that return an array", () => {
         sheets: [
           {
             name: "sheet1",
-            cells: { A1: { content: "=sheet2!A4" } },
+            cells: { A1: "=sheet2!A4" },
           },
           {
             name: "sheet2",
             cells: {
-              A1: { content: "=MFILL(1,3,42)" },
-              A4: { content: "=MEDIAN(A2:A3)" }, // depends only on spread values (not on sheet2!A1)
+              A1: "=MFILL(1,3,42)",
+              A4: "=MEDIAN(A2:A3)", // depends only on spread values (not on sheet2!A1)
             },
           },
         ],

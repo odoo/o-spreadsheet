@@ -346,7 +346,7 @@ describe("Collaborative local history", () => {
       sheets: [
         {
           id: "sheet1",
-          cells: { A1: { content: "1" }, A2: { content: "2" }, A3: { content: "3" } },
+          cells: { A1: "1", A2: "2", A3: "3" },
         },
       ],
     };
@@ -380,7 +380,7 @@ describe("Collaborative local history", () => {
       sheets: [
         {
           id: "sheet1",
-          cells: { A1: { content: "1" } },
+          cells: { A1: "1" },
         },
       ],
     };

@@ -125,10 +125,10 @@ describe("evaluateCells", () => {
       sheets: [
         {
           cells: {
-            A1: { content: "=D1" },
-            A2: { content: "=D1" },
-            A3: { content: "=D1" },
-            D1: { content: "=MY.FUNC()" },
+            A1: "=D1",
+            A2: "=D1",
+            A3: "=D1",
+            D1: "=MY.FUNC()",
           },
         },
       ],
@@ -1050,7 +1050,7 @@ describe("evaluateCells", () => {
           id: "sheet1",
           colNumber: 4,
           rowNumber: 4,
-          cells: { A1: { content: "old" }, A2: { content: "=a1" }, A3: { content: "=a2" } },
+          cells: { A1: "old", A2: "=a1", A3: "=a2" },
         },
       ],
     });

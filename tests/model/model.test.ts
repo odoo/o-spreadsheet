@@ -348,8 +348,8 @@ describe("Model", () => {
       sheets: [
         {
           cells: {
-            A1: { content: "=SUM(A3:3)" },
-            A2: { content: "=SUM(A3:A)" },
+            A1: "=SUM(A3:3)",
+            A2: "=SUM(A3:A)",
           },
         },
       ],
@@ -359,8 +359,8 @@ describe("Model", () => {
       sheets: [
         {
           cells: {
-            A1: { content: "=SUM(A3:3)" },
-            A2: { content: "=SUM(A3:A)" },
+            A1: "=SUM(A3:3)",
+            A2: "=SUM(A3:A)",
           },
         },
       ],

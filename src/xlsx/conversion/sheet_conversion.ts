@@ -6,7 +6,7 @@ import {
   toCartesian,
   toXC,
 } from "../../helpers";
-import { CellData, Dimension, HeaderData, HeaderGroup, SheetData } from "../../types";
+import { Dimension, HeaderData, HeaderGroup, SheetData } from "../../types";
 import {
   XLSXCell,
   XLSXColumn,
@@ -129,7 +129,7 @@ function convertCells(
   sheetDims: number[],
   warningManager: XLSXImportWarningManager
 ): Pick<SheetData, "cells" | "styles" | "formats" | "borders"> {
-  const cells: Record<string, CellData | undefined> = {};
+  const cells: Record<string, string | undefined> = {};
   const styles: Record<string, number> = {};
   const formats: Record<string, number> = {};
   const borders: Record<string, number> = {};
@@ -142,9 +142,7 @@ function convertCells(
 
   for (let row of sheet.rows) {
     for (let cell of row.cells) {
-      cells[cell.xc] = {
-        content: getCellValue(cell, hyperlinkMap, sharedStrings, warningManager),
-      };
+      cells[cell.xc] = getCellValue(cell, hyperlinkMap, sharedStrings, warningManager);
       if (cell.styleIndex) {
         // + 1 : our indexes for normalized values begin at 1 and not 0
         styles[cell.xc] = cell.styleIndex + 1;
@@ -158,11 +156,6 @@ function convertCells(
   for (let row of sheet.rows.filter((row) => row.styleIndex)) {
     for (let colIndex = 1; colIndex <= sheetDims[0]; colIndex++) {
       const xc = toXC(colIndex - 1, row.index - 1); // Excel indexes start at 1
-      let cell = cells[xc];
-      if (!cell) {
-        cell = {};
-        cells[xc] = cell;
-      }
       styles[xc] ??= row.styleIndex! + 1;
       borders[xc] ??= data.styles[row.styleIndex!].borderId + 1;
       formats[xc] ??= data.styles[row.styleIndex!].numFmtId + 1;
@@ -174,11 +167,6 @@ function convertCells(
     for (let colIndex = col.min; colIndex <= Math.min(col.max, sheetDims[0]); colIndex++) {
       for (let rowIndex = 1; rowIndex <= sheetDims[1]; rowIndex++) {
         const xc = toXC(colIndex - 1, rowIndex - 1); // Excel indexes start at 1
-        let cell = cells[xc];
-        if (!cell) {
-          cell = {};
-          cells[xc] = cell;
-        }
         styles[xc] ??= col.styleIndex! + 1;
         borders[xc] ??= data.styles[col.styleIndex!].borderId + 1;
         formats[xc] ??= data.styles[col.styleIndex!].numFmtId + 1;

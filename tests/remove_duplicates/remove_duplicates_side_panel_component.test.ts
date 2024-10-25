@@ -79,11 +79,11 @@ describe("remove duplicates", () => {
 
   test("do the remove duplicates", async () => {
     const cells = {
-      A1: { content: "11" },
-      A2: { content: "88" },
-      A3: { content: "11" },
-      A4: { content: "88" },
-      A5: { content: "11" },
+      A1: "11",
+      A2: "88",
+      A3: "11",
+      A4: "88",
+      A5: "11",
     };
 
     model = new Model({ sheets: [{ cells }] });
@@ -207,7 +207,7 @@ describe("remove duplicates", () => {
   });
 
   test("if no columns selected --> display error message and disable", async () => {
-    const cells = { B1: { content: "42" }, B2: { content: "42" } };
+    const cells = { B1: "42", B2: "42" };
     model = new Model({ sheets: [{ cells }] });
     ({ parent, fixture } = await mountSpreadsheet({ model }));
     setSelection(model, ["B1:B2"]);
@@ -228,7 +228,7 @@ describe("remove duplicates", () => {
 
 describe("remove duplicate action", () => {
   test("expand selection to table if only one cell is selected", async () => {
-    const cells = { B1: { content: "42" }, B2: { content: "42" } };
+    const cells = { B1: "42", B2: "42" };
     const { fixture, model } = await mountSpreadsheet({
       model: new Model({ sheets: [{ cells }] }),
     });

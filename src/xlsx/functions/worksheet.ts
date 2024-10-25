@@ -87,13 +87,13 @@ export function addRows(
     const cellNodes: XMLString[] = [];
     for (let c = 0; c < sheet.colNumber; c++) {
       const xc = toXC(c, r);
-      const cell = sheet.cells[xc];
+      const content = sheet.cells[xc];
       const value = sheet.cellValues[xc];
       const position = { sheetId: sheet.id, col: c, row: r };
       const styleId = styles.get(position);
       const formatId = formats.get(position);
       const borderId = borders.get(position);
-      if (cell || styleId || formatId || borderId || value !== undefined) {
+      if (content || styleId || formatId || borderId || value !== undefined) {
         const attributes: XMLAttributes = [["r", xc]];
 
         // style
@@ -106,21 +106,21 @@ export function addRows(
         let additionalAttrs: XMLAttributes = [];
         let cellNode = escapeXml``;
         // Either formula or static value inside the cell
-        if (cell?.content?.startsWith("=") && value !== undefined) {
-          const res = addFormula(cell?.content, value);
+        if (content?.startsWith("=") && value !== undefined) {
+          const res = addFormula(content, value);
           if (!res) {
             continue;
           }
           ({ attrs: additionalAttrs, node: cellNode } = res);
-        } else if (cell?.content && isMarkdownLink(cell.content)) {
-          const { label } = parseMarkdownLink(cell.content);
+        } else if (content && isMarkdownLink(content)) {
+          const { label } = parseMarkdownLink(content);
           ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
-        } else if (cell?.content && cell.content !== "") {
+        } else if (content && content !== "") {
           const isTableHeader = isCellTableHeader(c, r, sheet);
           const isTableTotal = isCellTableTotal(c, r, sheet);
           const isPlainText = !!(formatId && isTextFormat(data.formats[formatId]));
           ({ attrs: additionalAttrs, node: cellNode } = addContent(
-            cell.content,
+            content,
             construct.sharedStrings,
             isTableHeader || isTableTotal || isPlainText
           ));
@@ -181,7 +181,7 @@ export function addHyperlinks(
   const cells = sheet.cells;
   const linkNodes: XMLString[] = [];
   for (const xc in cells) {
-    const content = cells[xc]?.content;
+    const content = cells[xc];
     if (content && isMarkdownLink(content)) {
       const { label, url } = parseMarkdownLink(content);
       if (isSheetUrl(url)) {

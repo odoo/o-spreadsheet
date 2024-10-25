@@ -435,6 +435,21 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("migration_23", {
+    // Flatten cell content: { content: "value" } -> "value"
+    versionFrom: "23",
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const xc in sheet.cells) {
+          const cell = sheet.cells[xc] as unknown as { content: string | undefined } | undefined;
+          if (cell) {
+            sheet.cells[xc] = cell.content;
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

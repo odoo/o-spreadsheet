@@ -561,7 +561,7 @@ describe("conditional format", () => {
           {
             colNumber: 7,
             rowNumber: 4,
-            cells: { C3: { content: "42" } },
+            cells: { C3: "42" },
             conditionalFormats: [
               { id: "1", ranges: ["A1:A1"], rule },
               { id: "2", ranges: ["B2:B2"], rule },
@@ -593,7 +593,7 @@ describe("conditional format", () => {
           {
             colNumber: 4,
             rowNumber: 7,
-            cells: { C3: { content: "42" } },
+            cells: { C3: "42" },
             conditionalFormats: [
               { id: "1", ranges: ["A1:A1"], rule },
               { id: "2", ranges: ["B2:B2"], rule },
@@ -629,7 +629,7 @@ describe("conditional format", () => {
           {
             colNumber: 3,
             rowNumber: 4,
-            cells: { B4: { content: "42" } },
+            cells: { B4: "42" },
             conditionalFormats: [
               { id: "1", ranges: ["A1:C1"], rule },
               { id: "2", ranges: ["A2:B2"], rule },
@@ -656,7 +656,7 @@ describe("conditional format", () => {
           {
             colNumber: 4,
             rowNumber: 3,
-            cells: { D2: { content: "42" } },
+            cells: { D2: "42" },
             conditionalFormats: [
               { id: "1", ranges: ["A1:A3"], rule },
               { id: "2", ranges: ["B1:B2"], rule },

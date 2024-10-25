@@ -37,9 +37,9 @@ describe("Spreadsheet Pivot", () => {
       sheets: [
         {
           cells: {
-            A1: { content: "Customer" },
-            B1: { content: "Order" },
-            C1: { content: "Date" },
+            A1: "Customer",
+            B1: "Order",
+            C1: "Date",
           },
         },
       ],
@@ -54,8 +54,8 @@ describe("Spreadsheet Pivot", () => {
       sheets: [
         {
           cells: {
-            A1: { content: "Customer" },
-            B1: { content: "Customer" },
+            A1: "Customer",
+            B1: "Customer",
           },
         },
       ],
@@ -70,8 +70,8 @@ describe("Spreadsheet Pivot", () => {
       sheets: [
         {
           cells: {
-            A1: { content: "Customer" },
-            B1: { content: `="Hello"` },
+            A1: "Customer",
+            B1: `="Hello"`,
           },
         },
       ],
@@ -86,41 +86,41 @@ describe("Spreadsheet Pivot", () => {
       sheets: [
         {
           cells: {
-            A1: { content: "Date" },
-            A2: { content: "04/01/2024" },
-            A3: { content: "04/02/2024" },
-            A4: { content: "12/12/2024 12:00:00 AM" },
+            A1: "Date",
+            A2: "04/01/2024",
+            A3: "04/02/2024",
+            A4: "12/12/2024 12:00:00 AM",
 
-            B1: { content: "Boolean" },
-            B2: { content: "True" },
-            B3: { content: "False" },
+            B1: "Boolean",
+            B2: "True",
+            B3: "False",
 
-            C1: { content: "Char" },
-            C2: { content: "Jambon" },
-            C3: { content: "Tabouret" },
+            C1: "Char",
+            C2: "Jambon",
+            C3: "Tabouret",
 
-            D1: { content: "Number" },
-            D2: { content: "14" },
-            D3: { content: "12" },
+            D1: "Number",
+            D2: "14",
+            D3: "12",
 
-            E1: { content: "AllDateButOneNumber" },
-            E2: { content: "04/01/2024" },
-            E3: { content: "14" },
+            E1: "AllDateButOneNumber",
+            E2: "04/01/2024",
+            E3: "14",
 
-            F1: { content: "AllBooleanButOneString" },
-            F2: { content: "True" },
-            F3: { content: "Hello" },
+            F1: "AllBooleanButOneString",
+            F2: "True",
+            F3: "Hello",
 
-            G1: { content: "AllNumberButOneString" },
-            G2: { content: "14" },
-            G3: { content: "Tabouret" },
+            G1: "AllNumberButOneString",
+            G2: "14",
+            G3: "Tabouret",
 
-            H1: { content: "AllDateButOneNumberAndOneString" },
-            H2: { content: "14" },
-            H3: { content: "Tabouret" },
-            H4: { content: "04/01/2024" },
+            H1: "AllDateButOneNumberAndOneString",
+            H2: "14",
+            H3: "Tabouret",
+            H4: "04/01/2024",
 
-            I1: { content: "EmptyData" },
+            I1: "EmptyData",
           },
         },
       ],
@@ -147,8 +147,8 @@ describe("Spreadsheet Pivot", () => {
       sheets: [
         {
           cells: {
-            A1: { content: "Customer" },
-            B1: { content: `=1/0` },
+            A1: "Customer",
+            B1: `=1/0`,
           },
         },
       ],
@@ -1804,9 +1804,9 @@ describe("Spreadsheet Pivot", () => {
         sheets: [
           {
             cells: {
-              A1: { content: "Customer" },
-              B1: { content: "Order" },
-              C1: { content: "Date" },
+              A1: "Customer",
+              B1: "Order",
+              C1: "Date",
             },
           },
         ],

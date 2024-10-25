@@ -1,13 +1,13 @@
 import { toCartesian, toXC, toZone } from "../../src/helpers";
 import { Border, Color, ConditionalFormat, Style } from "../../src/types";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "./../../src/constants";
-import { CellData, SheetData, WorkbookData } from "./../../src/types/workbook_data";
+import { SheetData, WorkbookData } from "./../../src/types/workbook_data";
 
 export function getWorkbookSheet(sheetName: string, data: WorkbookData): SheetData | undefined {
   return data.sheets.find((sheet) => sheet.name === sheetName);
 }
 
-export function getWorkbookCell(col: number, row: number, sheet: SheetData): CellData | undefined {
+export function getWorkbookCell(col: number, row: number, sheet: SheetData): string | undefined {
   return sheet.cells[toXC(col, row)];
 }
 

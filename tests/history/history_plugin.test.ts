@@ -254,7 +254,7 @@ describe("Model history", () => {
   });
 
   test("undo when undo stack is empty does nothing", async () => {
-    const model = new Model({ sheets: [{ cells: { A1: { content: "=10" } } }] });
+    const model = new Model({ sheets: [{ cells: { A1: "=10" } }] });
 
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
@@ -263,7 +263,7 @@ describe("Model history", () => {
   });
 
   test("undo when redo stack is empty does nothing", async () => {
-    const model = new Model({ sheets: [{ cells: { A1: { content: "=10" } } }] });
+    const model = new Model({ sheets: [{ cells: { A1: "=10" } }] });
 
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
