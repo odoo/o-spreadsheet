@@ -131,7 +131,7 @@ describe("TopBar component", () => {
         {
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "b2" } },
+          cells: { B2: "b2" },
           merges: ["A1:B1"],
         },
       ],

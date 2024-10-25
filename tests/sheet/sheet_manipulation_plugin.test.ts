@@ -72,15 +72,15 @@ const fullData = {
       colNumber: 5,
       rowNumber: 4,
       cells: {
-        A1: { content: "1" },
-        A2: { content: "2" },
-        A3: { content: "3" },
-        A4: { content: "4" },
-        B1: { content: "1" },
-        B2: { content: "2" },
-        B3: { content: "3" },
-        C1: { content: "1" },
-        C3: { content: "3" },
+        A1: "1",
+        A2: "2",
+        A3: "3",
+        A4: "4",
+        B1: "1",
+        B2: "2",
+        B3: "3",
+        C1: "1",
+        C3: "3",
       },
       styles: {
         "A1:A4": 1,
@@ -113,13 +113,13 @@ describe("Clear columns", () => {
           colNumber: 3,
           rowNumber: 3,
           cells: {
-            A1: { content: "A1" },
-            A2: { content: "A2" },
-            A3: { content: "A3" },
-            B1: { content: "B1" },
-            B2: { content: "B2" },
-            C1: { content: "C1" },
-            C2: { content: "C2" },
+            A1: "A1",
+            A2: "A2",
+            A3: "A3",
+            B1: "B1",
+            B2: "B2",
+            C1: "C1",
+            C2: "C2",
           },
           styles: {
             "B1:C1": 1,
@@ -163,13 +163,13 @@ describe("Clear rows", () => {
           colNumber: 3,
           rowNumber: 3,
           cells: {
-            A1: { content: "A1" },
-            A2: { content: "A2" },
-            A3: { content: "A3" },
-            B1: { content: "B1" },
-            B2: { content: "B2" },
-            C1: { content: "C1" },
-            C2: { content: "C2" },
+            A1: "A1",
+            A2: "A2",
+            A3: "A3",
+            B1: "B1",
+            B2: "B2",
+            C1: "C1",
+            C2: "C2",
           },
           styles: {
             A2: 1,
@@ -227,8 +227,8 @@ describe("Columns", () => {
     test("On delete cols in inactive sheet", () => {
       model = new Model({
         sheets: [
-          { id: "s1", colNumber: 3, rowNumber: 3, cells: { B2: { content: "B2 in sheet1" } } },
-          { id: "s2", colNumber: 3, rowNumber: 3, cells: { B2: { content: "B2 in sheet2" } } },
+          { id: "s1", colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet1" } },
+          { id: "s2", colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet2" } },
         ],
       });
       const [sheet1Id, sheet2Id] = model.getters.getSheetIds();
@@ -548,16 +548,16 @@ describe("Columns", () => {
             colNumber: 7,
             rowNumber: 7,
             cells: {
-              A1: { content: "=B1" },
-              A2: { content: "=Sheet1!B1" },
-              A3: { content: "=Sheet2!B1" },
-              D1: { content: "=A1" },
-              D2: { content: "=B1" },
-              D3: { content: "=$E1" },
-              D4: { content: "=D3" },
-              A5: { content: "=SUM(A1:D1)" },
-              A6: { content: "=SUM(C1:D1)" },
-              A7: { content: "=SUM(B1:B2)" },
+              A1: "=B1",
+              A2: "=Sheet1!B1",
+              A3: "=Sheet2!B1",
+              D1: "=A1",
+              D2: "=B1",
+              D3: "=$E1",
+              D4: "=D3",
+              A5: "=SUM(A1:D1)",
+              A6: "=SUM(C1:D1)",
+              A7: "=SUM(B1:B2)",
             },
           },
           {
@@ -565,9 +565,9 @@ describe("Columns", () => {
             colNumber: 1,
             rowNumber: 3,
             cells: {
-              A1: { content: "=B1" },
-              A2: { content: "=Sheet1!B1" },
-              A3: { content: "=Sheet2!B1" },
+              A1: "=B1",
+              A2: "=Sheet1!B1",
+              A3: "=Sheet2!B1",
             },
           },
         ],
@@ -585,16 +585,16 @@ describe("Columns", () => {
             id: "s1",
             colNumber: 4,
             rowNumber: 7,
-            cells: { B2: { content: "=Sheet1!B3" }, C1: { content: "=Sheet2!B3" } },
+            cells: { B2: "=Sheet1!B3", C1: "=Sheet2!B3" },
           },
           {
             id: "s2",
             colNumber: 3,
             rowNumber: 3,
             cells: {
-              A2: { content: "=B2" },
-              B2: { content: "=Sheet1!B2" },
-              C2: { content: "=Sheet2!B2" },
+              A2: "=B2",
+              B2: "=Sheet1!B2",
+              C2: "=Sheet2!B2",
             },
           },
         ],
@@ -613,9 +613,7 @@ describe("Columns", () => {
     });
     test("On first col deletion", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: { content: "=SUM(A1:C1)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: "=SUM(A1:C1)" } }],
       });
       deleteColumns(model, ["A"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -624,9 +622,7 @@ describe("Columns", () => {
     });
     test("On multiple col deletion including the first one", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { C2: { content: "=SUM(A1:D1)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { C2: "=SUM(A1:D1)" } }],
       });
       deleteColumns(model, ["A", "B"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -635,9 +631,7 @@ describe("Columns", () => {
     });
     test("On last col deletion", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { A2: { content: "=SUM(A1:C1)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { A2: "=SUM(A1:C1)" } }],
       });
       deleteColumns(model, ["C"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -646,9 +640,7 @@ describe("Columns", () => {
     });
     test("delete almost all columns of a range", () => {
       model = new Model({
-        sheets: [
-          { id: "s1", colNumber: 9, rowNumber: 9, cells: { A1: { content: "=SUM(A2:E5)" } } },
-        ],
+        sheets: [{ id: "s1", colNumber: 9, rowNumber: 9, cells: { A1: "=SUM(A2:E5)" } }],
       });
       deleteColumns(model, ["B", "C", "D", "E"]);
       expect(getCellText(model, "A1", "s1")).toBe("=SUM(A2:A5)");
@@ -662,8 +654,8 @@ describe("Columns", () => {
             colNumber: 9,
             rowNumber: 9,
             cells: {
-              A1: { content: "=SUM(B2:E5)" },
-              A2: { content: "=SUM(F1:F2)" }, // single column range
+              A1: "=SUM(B2:E5)",
+              A2: "=SUM(F1:F2)", // single column range
             },
           },
         ],
@@ -682,7 +674,7 @@ describe("Columns", () => {
             id: "42",
             colNumber: 3,
             rowNumber: 9,
-            cells: { A1: { content: "=SUM(Sheet1!B1:D3)" } },
+            cells: { A1: "=SUM(Sheet1!B1:D3)" },
           },
         ],
       });
@@ -700,7 +692,7 @@ describe("Columns", () => {
             colNumber: 5,
             rowNumber: 9,
             cells: {
-              A1: { content: "=SUM(Sheet1!B1:D3)" },
+              A1: "=SUM(Sheet1!B1:D3)",
             },
           },
         ],
@@ -710,9 +702,7 @@ describe("Columns", () => {
     });
     test("On multiple col deletion including the last one", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 4, rowNumber: 4, cells: { A2: { content: "=SUM(A1:D1)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 4, rowNumber: 4, cells: { A2: "=SUM(A1:D1)" } }],
       });
       deleteColumns(model, ["C", "D"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -845,8 +835,8 @@ describe("Rows", () => {
     test("On delete row in inactive sheet", () => {
       model = new Model({
         sheets: [
-          { colNumber: 3, rowNumber: 3, cells: { B2: { content: "B2 in sheet1" } } },
-          { colNumber: 3, rowNumber: 3, cells: { B2: { content: "B2 in sheet2" } } },
+          { colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet1" } },
+          { colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet2" } },
         ],
       });
       const [sheet1Id, sheet2Id] = model.getters.getSheetIds();
@@ -863,10 +853,10 @@ describe("Rows", () => {
             colNumber: 1,
             rowNumber: 4,
             cells: {
-              A1: { content: "A1" },
-              A2: { content: "A2" },
-              A3: { content: "A3" },
-              A4: { content: "A4" },
+              A1: "A1",
+              A2: "A2",
+              A3: "A3",
+              A4: "A4",
             },
           },
         ],
@@ -884,8 +874,8 @@ describe("Rows", () => {
             colNumber: 5,
             rowNumber: 9,
             cells: {
-              A1: { content: "=SUM(A2:A5)" },
-              B1: { content: "=SUM(B6:C6)" }, // single line range
+              A1: "=SUM(A2:A5)",
+              B1: "=SUM(B6:C6)", // single line range
             },
           },
         ],
@@ -904,7 +894,7 @@ describe("Rows", () => {
             id: "42",
             colNumber: 3,
             rowNumber: 9,
-            cells: { A1: { content: "=SUM(Sheet1!A2:A3)" } },
+            cells: { A1: "=SUM(Sheet1!A2:A3)" },
           },
         ],
       });
@@ -922,7 +912,7 @@ describe("Rows", () => {
             colNumber: 5,
             rowNumber: 9,
             cells: {
-              A1: { content: "=SUM(Sheet1!A2:A3)" },
+              A1: "=SUM(Sheet1!A2:A3)",
             },
           },
         ],
@@ -1190,16 +1180,16 @@ describe("Rows", () => {
             colNumber: 7,
             rowNumber: 7,
             cells: {
-              A1: { content: "=A2" },
-              A4: { content: "=A1" },
-              B1: { content: "=Sheet1!A2" },
-              B4: { content: "=B1" },
-              C1: { content: "=Sheet2!A2" },
-              C4: { content: "=A$5" },
-              D4: { content: "=C4" },
-              E1: { content: "=SUM(A1:A4)" },
-              F1: { content: "=SUM(A3:A4)" },
-              G1: { content: "=SUM(B2:C2)" },
+              A1: "=A2",
+              A4: "=A1",
+              B1: "=Sheet1!A2",
+              B4: "=B1",
+              C1: "=Sheet2!A2",
+              C4: "=A$5",
+              D4: "=C4",
+              E1: "=SUM(A1:A4)",
+              F1: "=SUM(A3:A4)",
+              G1: "=SUM(B2:C2)",
             },
           },
           {
@@ -1207,9 +1197,9 @@ describe("Rows", () => {
             colNumber: 3,
             rowNumber: 1,
             cells: {
-              A1: { content: "=A2" },
-              B1: { content: "=Sheet1!A2" },
-              C1: { content: "=Sheet2!A2" },
+              A1: "=A2",
+              B1: "=Sheet1!A2",
+              C1: "=Sheet2!A2",
             },
           },
         ],
@@ -1228,16 +1218,16 @@ describe("Rows", () => {
             id: "s1",
             colNumber: 4,
             rowNumber: 7,
-            cells: { B2: { content: "=Sheet1!A2" }, C1: { content: "=Sheet2!A2" } },
+            cells: { B2: "=Sheet1!A2", C1: "=Sheet2!A2" },
           },
           {
             id: "s2",
             colNumber: 3,
             rowNumber: 2,
             cells: {
-              A2: { content: "=B2" },
-              B2: { content: "=Sheet1!A2" },
-              C2: { content: "=Sheet2!A2" },
+              A2: "=B2",
+              B2: "=Sheet1!A2",
+              C2: "=Sheet2!A2",
             },
           },
         ],
@@ -1249,9 +1239,7 @@ describe("Rows", () => {
     });
     test("On first row deletion", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: { content: "=SUM(A1:A3)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: "=SUM(A1:A3)" } }],
       });
       deleteRows(model, [0]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1268,8 +1256,8 @@ describe("Rows", () => {
             colNumber: 3,
             rowNumber: 3,
             cells: {
-              C2: { content: "=SUM('Sheet 1'!B2)" },
-              C3: { content: "=SUM('Sheet 1'!B2:B3)" },
+              C2: "=SUM('Sheet 1'!B2)",
+              C3: "=SUM('Sheet 1'!B2:B3)",
             },
           },
         ],
@@ -1298,9 +1286,7 @@ describe("Rows", () => {
 
     test("On multiple row deletion including the first one", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 3, rowNumber: 6, cells: { B1: { content: "=SUM(A2:A5)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 6, cells: { B1: "=SUM(A2:A5)" } }],
       });
       deleteRows(model, [1, 2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1314,7 +1300,7 @@ describe("Rows", () => {
             id: "sheet1",
             colNumber: 1,
             rowNumber: 1000,
-            cells: { A5: { content: "=SUM(A6:A255)" }, A256: { content: "=SUM(A257:A506)" } },
+            cells: { A5: "=SUM(A6:A255)", A256: "=SUM(A257:A506)" },
           },
         ],
       });
@@ -1334,9 +1320,7 @@ describe("Rows", () => {
     });
     test("On last row deletion", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B1: { content: "=SUM(A1:A3)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B1: "=SUM(A1:A3)" } }],
       });
       deleteRows(model, [2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1345,9 +1329,7 @@ describe("Rows", () => {
     });
     test("On multiple row", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 1, rowNumber: 8, cells: { A1: { content: "=SUM(A2:A5)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 8, cells: { A1: "=SUM(A2:A5)" } }],
       });
       deleteRows(model, [2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1356,9 +1338,7 @@ describe("Rows", () => {
     });
     test("On multiple rows (7)", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 1, rowNumber: 8, cells: { A1: { content: "=SUM(A2:A8)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 8, cells: { A1: "=SUM(A2:A8)" } }],
       });
       deleteRows(model, [1, 2, 3, 4, 5, 6]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1367,9 +1347,7 @@ describe("Rows", () => {
     });
     test("On multiple row deletion including the last one", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 4, rowNumber: 4, cells: { B1: { content: "=SUM(A1:A4)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 4, rowNumber: 4, cells: { B1: "=SUM(A1:A4)" } }],
       });
       deleteRows(model, [2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1378,9 +1356,7 @@ describe("Rows", () => {
     });
     test("On multiple row deletion including the last and beyond", () => {
       model = new Model({
-        sheets: [
-          { id: "sheet1", colNumber: 2, rowNumber: 8, cells: { B2: { content: "=SUM(A1:A4)" } } },
-        ],
+        sheets: [{ id: "sheet1", colNumber: 2, rowNumber: 8, cells: { B2: "=SUM(A1:A4)" } }],
       });
       deleteRows(model, [3, 4, 5, 6, 7]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({

@@ -16,12 +16,12 @@ describe("Basic Sorting", () => {
   const sheetId: UID = "sheetId";
   test("Sort Numbers then undo then redo", () => {
     const cells = {
-      A1: { content: "4" },
-      A2: { content: "23" },
-      A3: { content: "8" },
-      A4: { content: "42" },
-      A5: { content: "16" },
-      A6: { content: "15" },
+      A1: "4",
+      A2: "23",
+      A3: "8",
+      A4: "42",
+      A5: "16",
+      A6: "15",
     };
     model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
     sort(model, {
@@ -38,7 +38,14 @@ describe("Basic Sorting", () => {
       A6: { content: "42" },
     });
     undo(model);
-    expect(getCellsObject(model, sheetId)).toMatchObject(cells);
+    expect(getCellsObject(model, sheetId)).toMatchObject({
+      A1: { content: "4" },
+      A2: { content: "23" },
+      A3: { content: "8" },
+      A4: { content: "42" },
+      A5: { content: "16" },
+      A6: { content: "15" },
+    });
     redo(model);
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
@@ -57,12 +64,12 @@ describe("Basic Sorting", () => {
           colNumber: 1,
           rowNumber: 6,
           cells: {
-            A1: { content: "Mike" },
-            A2: { content: "Zulu" },
-            A3: { content: "Echo" },
-            A4: { content: "Alpha" },
-            A5: { content: "November" },
-            A6: { content: "Sierra" },
+            A1: "Mike",
+            A2: "Zulu",
+            A3: "Echo",
+            A4: "Alpha",
+            A5: "November",
+            A6: "Sierra",
           },
         },
       ],
@@ -89,15 +96,17 @@ describe("Basic Sorting", () => {
           colNumber: 1,
           rowNumber: 6,
           cells: {
-            A1: { content: "11/24/1991", format: dateFormat },
-            A2: { content: "06/06/1944", format: dateFormat },
-            A3: { content: "11/08/2016", format: dateFormat },
-            A4: { content: "09/05/1946", format: dateFormat },
-            A5: { content: "08/18/1969", format: dateFormat },
-            A6: { content: "08/15/1969", format: dateFormat },
+            A1: "11/24/1991",
+            A2: "06/06/1944",
+            A3: "11/08/2016",
+            A4: "09/05/1946",
+            A5: "08/18/1969",
+            A6: "08/15/1969",
           },
+          formats: { "A1:A6": 1 },
         },
       ],
+      formats: { 1: dateFormat },
     });
     sort(model, {
       zone: "A1:A6",
@@ -122,16 +131,16 @@ describe("Basic Sorting", () => {
           colNumber: 3,
           rowNumber: 6,
           cells: {
-            A1: { content: "4" },
-            A2: { content: "23" },
-            A3: { content: "8" },
-            A4: { content: "42" },
-            C1: { content: "=A3*10" }, // 80
-            C2: { content: "=SUM(A2, A3)" }, // 31
-            C3: { content: "=EQ(A1, 4)" }, // TRUE
-            C4: { content: '=CONCAT("ki", "kou")' },
-            C5: { content: "=BADBUNNY" }, // #BAD_EXPR
-            C6: { content: "=B1/B2" },
+            A1: "4",
+            A2: "23",
+            A3: "8",
+            A4: "42",
+            C1: "=A3*10", // 80
+            C2: "=SUM(A2, A3)", // 31
+            C3: "=EQ(A1, 4)", // TRUE
+            C4: '=CONCAT("ki", "kou")',
+            C5: "=BADBUNNY", // #BAD_EXPR
+            C6: "=B1/B2",
           },
         },
       ],
@@ -162,16 +171,16 @@ describe("Basic Sorting", () => {
           colNumber: 2,
           rowNumber: 11,
           cells: {
-            A1: { content: "23" },
-            A2: { content: "4" },
-            A3: { content: '=CONCAT("Zor", "glub")' },
-            A4: { content: "=DATE(2012, 12, 21)" },
-            A5: { content: "Machette" },
-            A7: { content: "Kills" },
-            A8: { content: "=BADBUNNY" }, // #BAD_EXPR
-            A9: { content: "=SUM(4, A1)" }, // 27
-            A10: { content: "2020/09/01" },
-            A11: { content: "=B1/B2" },
+            A1: "23",
+            A2: "4",
+            A3: '=CONCAT("Zor", "glub")',
+            A4: "=DATE(2012, 12, 21)",
+            A5: "Machette",
+            A7: "Kills",
+            A8: "=BADBUNNY", // #BAD_EXPR
+            A9: "=SUM(4, A1)", // 27
+            A10: "2020/09/01",
+            A11: "=B1/B2",
           },
         },
       ],
@@ -237,9 +246,9 @@ describe("Basic Sorting", () => {
           colNumber: 1,
           rowNumber: 8,
           cells: {
-            A1: { content: "33" },
-            A2: { content: "11" },
-            A3: { content: "22" },
+            A1: "33",
+            A2: "11",
+            A3: "22",
           },
           styles: {
             A2: 1,
@@ -271,11 +280,11 @@ describe("Basic Sorting", () => {
           colNumber: 1,
           rowNumber: 8,
           cells: {
-            A2: { content: "-33" },
-            A3: { content: "11" },
-            A4: { content: "22" },
-            A5: { content: "ab" },
-            A6: { content: "ba" },
+            A2: "-33",
+            A3: "11",
+            A4: "22",
+            A5: "ab",
+            A6: "ba",
           },
         },
       ],
@@ -302,11 +311,11 @@ describe("Basic Sorting", () => {
           colNumber: 1,
           rowNumber: 8,
           cells: {
-            A2: { content: "-33" },
-            A3: { content: "11" },
-            A4: { content: "22" },
-            A5: { content: "ab" },
-            A6: { content: "ba" },
+            A2: "-33",
+            A3: "11",
+            A4: "22",
+            A5: "ab",
+            A6: "ba",
           },
         },
       ],
@@ -348,8 +357,8 @@ describe("Basic Sorting", () => {
           colNumber: 1,
           rowNumber: 3,
           cells: {
-            A1: { content: "a" },
-            A2: { content: '=""' },
+            A1: "a",
+            A2: '=""',
           },
         },
       ],
@@ -390,16 +399,16 @@ describe("Sort multi adjacent columns", () => {
         colNumber: 4,
         rowNumber: 5,
         cells: {
-          A1: { content: "Alpha" },
-          A2: { content: "Tango" },
-          A3: { content: "Delta" },
-          A4: { content: "Zulu" },
-          B1: { content: "3" },
-          B2: { content: "4" },
-          B3: { content: "2" },
-          C2: { content: "5" },
-          C4: { content: "Charlie" },
-          D5: { content: "6" },
+          A1: "Alpha",
+          A2: "Tango",
+          A3: "Delta",
+          A4: "Zulu",
+          B1: "3",
+          B2: "4",
+          B3: "2",
+          C2: "5",
+          C4: "Charlie",
+          D5: "6",
         },
       },
     ],
@@ -509,18 +518,18 @@ describe("Sort adjacent columns with headers", () => {
           colNumber: 5,
           rowNumber: 4,
           cells: {
-            A1: { content: "=B2" }, // => HEADER
-            A2: { content: "Tango" },
-            A3: { content: "Delta" },
-            A4: { content: "Alpha" },
-            B1: { content: "Col1" }, //=> HEADER
-            B2: { content: "49" },
-            B3: { content: "2500" },
-            B4: { content: "192" },
-            C1: { content: "Col2" },
-            C2: { content: "09/13/2020" },
-            C3: { content: "09/14/2020" },
-            C4: { content: "09/15/2020" },
+            A1: "=B2", // => HEADER
+            A2: "Tango",
+            A3: "Delta",
+            A4: "Alpha",
+            B1: "Col1", //=> HEADER
+            B2: "49",
+            B3: "2500",
+            B4: "192",
+            C1: "Col2",
+            C2: "09/13/2020",
+            C3: "09/14/2020",
+            C4: "09/15/2020",
           },
         },
       ],
@@ -647,15 +656,15 @@ describe("Sort Merges", () => {
         colNumber: 6,
         rowNumber: 10,
         cells: {
-          B2: { content: "20" },
-          B5: { content: "6" },
-          B8: { content: "9" },
-          C2: { content: "Zulu" },
-          C5: { content: "Echo" },
-          C8: { content: "Golf" },
-          D2: { content: "09/20/2020" },
-          D5: { content: "08/20/2020" },
-          D8: { content: "07/20/2020" },
+          B2: "20",
+          B5: "6",
+          B8: "9",
+          C2: "Zulu",
+          C5: "Echo",
+          C8: "Golf",
+          D2: "09/20/2020",
+          D5: "08/20/2020",
+          D8: "07/20/2020",
         },
         merges: [
           "B2:B4",

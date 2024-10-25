@@ -26,10 +26,10 @@ describe("Insert pivot command", () => {
         {
           id: "Sheet1",
           cells: {
-            A1: { content: "1" },
-            A2: { content: "2" },
-            B1: { content: "3" },
-            B2: { content: "4" },
+            A1: "1",
+            A2: "2",
+            B1: "3",
+            B2: "4",
           },
         },
       ],

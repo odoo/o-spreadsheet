@@ -362,15 +362,15 @@ export class EvaluationPlugin extends UIPlugin {
         }
       }
 
-      const exportedCellData = exportedSheetData.cells[xc] ?? {};
+      const exportedCellData = exportedSheetData.cells[xc];
 
       let content: string | undefined;
       if (isExported && isFormula && formulaCell instanceof FormulaCellWithDependencies) {
         content = formulaCell.contentWithFixedReferences;
       } else {
-        content = !isExported ? newContent : exportedCellData.content;
+        content = !isExported ? newContent : exportedCellData;
       }
-      exportedSheetData.cells[xc] = { ...exportedCellData, content };
+      exportedSheetData.cells[xc] = content;
       exportedSheetData.cellValues[xc] = value;
     }
   }

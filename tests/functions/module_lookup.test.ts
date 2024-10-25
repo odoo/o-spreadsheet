@@ -1576,10 +1576,10 @@ describe("INDIRECT formula", () => {
       sheets: [
         {
           cells: {
-            A1: { content: '=INDIRECT("B1")' },
-            B1: { content: "hello" },
-            A2: { content: '=INDIRECT("B2")' },
-            B2: { content: "=1+1" },
+            A1: '=INDIRECT("B1")',
+            B1: "hello",
+            A2: '=INDIRECT("B2")',
+            B2: "=1+1",
           },
         },
       ],

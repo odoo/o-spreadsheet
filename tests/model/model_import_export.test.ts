@@ -63,7 +63,7 @@ describe("Migrations", () => {
     expect(data.version).toBe(CURRENT_VERSION);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
-    expect(data.sheets[0].cells.A1!.content).toBe("=A1");
+    expect(data.sheets[0].cells.A1).toBe("=A1");
     expect(data.sheets[0].isVisible).toBe(true);
   });
   test("migrate version 5: normalize formulas", () => {
@@ -85,11 +85,11 @@ describe("Migrations", () => {
     const cells = data.sheets[0].cells;
     expect(data.version).toBe(CURRENT_VERSION);
     // formulas are de-normalized with version 9
-    expect(cells.A1?.content).toBe("=A1");
-    expect(cells.A2?.content).toBe("=1");
-    expect(cells.A3?.content).toBe(`="hello"`);
-    expect(cells.A4?.content).toBe("=A1+A1+A2");
-    expect(cells.A5?.content).toBe(`=A1+1+"2"`);
+    expect(cells.A1).toBe("=A1");
+    expect(cells.A2).toBe("=1");
+    expect(cells.A3).toBe(`="hello"`);
+    expect(cells.A4).toBe("=A1+A1+A2");
+    expect(cells.A5).toBe(`=A1+1+"2"`);
   });
   test("migrate version 6: charts", () => {
     const model = new Model({
@@ -284,7 +284,7 @@ describe("Migrations", () => {
     expect(data.sheets[1].name).toBe("sheetName_");
 
     const cells = data.sheets[1].cells;
-    expect(cells.A1!.content).toBe("=sheetName_!A2");
+    expect(cells.A1!).toBe("=sheetName_!A2");
 
     const figures = data.sheets[1].figures;
     expect(figures[0].data?.dataSets).toEqual([
@@ -348,9 +348,8 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.sheets[0].cells.A1!.content).toBe("1");
-    expect(data.sheets[0].cells.A2!.content).toBe("=A1+A3");
-    expect("formula" in data.sheets[0].cells.A2!).toBe(false);
+    expect(data.sheets[0].cells.A1).toBe("1");
+    expect(data.sheets[0].cells.A2).toBe("=A1+A3");
   });
 
   test("migrate version 10: normalized cell formats", () => {
@@ -505,7 +504,7 @@ describe("Migrations", () => {
     expect(getBorder(model, "A1")).toEqual(border);
     const data = model.exportData();
     expect(data.version).toBe(CURRENT_VERSION);
-    expect(data.sheets[0].cells).toEqual({ A1: { content: "hi" } });
+    expect(data.sheets[0].cells).toEqual({ A1: "hi" });
     expect(data.sheets[0].formats).toEqual({ A1: 1 });
     expect(data.sheets[0].styles).toEqual({ A1: 1 });
     expect(data.sheets[0].borders).toEqual({ A1: 1 });
@@ -574,6 +573,19 @@ describe("Migrations", () => {
       },
     ]);
   });
+
+  test("migrate version 24: flatten cell object", () => {
+    const model = new Model({
+      version: 23,
+      sheets: [
+        {
+          id: "1",
+          cells: { A1: { content: "Hello" } },
+        },
+      ],
+    });
+    expect(getCellContent(model, "A1")).toBe("Hello");
+  });
 });
 
 describe("Import", () => {
@@ -641,9 +653,7 @@ describe("Export", () => {
 
   test("Can export format", () => {
     const model = new Model({
-      sheets: [
-        { colNumber: 10, rowNumber: 10, cells: { A1: { content: "145" } }, formats: { A1: 1 } },
-      ],
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: "145" }, formats: { A1: 1 } }],
       formats: { 1: "0.00%" },
     });
     const exp = model.exportData();
@@ -719,10 +729,10 @@ test("complete import, then export", () => {
           1: { size: 13 },
         },
         cells: {
-          A1: { content: "hello" },
-          B1: { content: "=A1" },
-          C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
-          D1: { content: '="This is a quote \\""' },
+          A1: "hello",
+          B1: "=A1",
+          C1: "=mqdlskjfqmslfkj(++%//@@@)",
+          D1: '="This is a quote \\""',
         },
         styles: {
           B1: 1,
@@ -754,7 +764,7 @@ test("complete import, then export", () => {
         cols: {},
         rows: {},
         cells: {
-          A1: { content: "hello" },
+          A1: "hello",
         },
         styles: {},
         formats: {},
@@ -808,7 +818,7 @@ test("can import cells outside sheet size", () => {
         cols: {},
         rows: {},
         cells: {
-          Z100: { content: "hello" },
+          Z100: "hello",
         },
       },
     ],
@@ -876,7 +886,7 @@ test("import date as string and detect the format", () => {
   const model = new Model({
     sheets: [
       {
-        cells: { A1: { content: "12/31/2020" } },
+        cells: { A1: "12/31/2020" },
       },
     ],
   });
@@ -889,7 +899,7 @@ test("import localized date as string and detect the format", () => {
   const model = new Model({
     sheets: [
       {
-        cells: { A1: { content: "31/12/2020" } },
+        cells: { A1: "31/12/2020" },
       },
     ],
     settings: { locale: FR_LOCALE },

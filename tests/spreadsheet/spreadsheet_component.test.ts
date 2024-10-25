@@ -106,7 +106,7 @@ describe("Simple Spreadsheet Component", () => {
                 colNumber: 26,
                 rowNumber: 100,
                 cells: {
-                  A1: { content: "=GETACTIVESHEET()" },
+                  A1: "=GETACTIVESHEET()",
                 },
                 conditionalFormats: [],
               },
@@ -340,7 +340,7 @@ describe("Composer / selectionInput interactions", () => {
     sheets: [
       {
         id: "sh1",
-        cells: { B2: { content: "=A1+A2" } },
+        cells: { B2: "=A1+A2" },
         conditionalFormats: [
           {
             id: "42",

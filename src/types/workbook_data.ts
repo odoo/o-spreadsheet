@@ -12,10 +12,6 @@ export interface Dependencies {
   strings: string[];
 }
 
-export interface CellData {
-  content?: string;
-}
-
 export interface HeaderData {
   size?: number;
   isHidden?: boolean;
@@ -36,7 +32,7 @@ export interface SheetData {
   name: string;
   colNumber: number;
   rowNumber: number;
-  cells: { [key: string]: CellData | undefined };
+  cells: { [key: string]: string | undefined };
   styles: { [zone: string]: number };
   formats: { [zone: string]: number };
   borders: { [zone: string]: number };

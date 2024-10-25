@@ -379,7 +379,7 @@ describe("history", () => {
 
   test("can undo and redo a cell update", () => {
     const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "1" } } }],
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: "1" } }],
     });
     const composerStore = makeTestComposerStore(model);
 
@@ -500,8 +500,8 @@ describe("history", () => {
   test("Can select a cell in another sheet", async () => {
     const model = new Model({
       sheets: [
-        { id: "1", cells: { A1: { content: "Sheet1A1" } } },
-        { id: "2", cells: { A1: { content: "Sheet2A1" } } },
+        { id: "1", cells: { A1: "Sheet1A1" } },
+        { id: "2", cells: { A1: "Sheet2A1" } },
       ],
     });
     expect(getCellContent(model, "A1", "1")).toBe("Sheet1A1");
@@ -519,9 +519,9 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "1000" },
-              A3: { content: "2000" },
-              B2: { content: "TRUE" },
+              A1: "1000",
+              A3: "2000",
+              B2: "TRUE",
             },
             formats: {
               A1: 1,
@@ -534,9 +534,9 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "21000" },
-              A3: { content: "12-31-2020" },
-              B2: { content: "TRUE" },
+              A1: "21000",
+              A3: "12-31-2020",
+              B2: "TRUE",
             },
             formats: {
               A1: 1,
@@ -587,9 +587,9 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "1000", format: "#,##0" },
-              A3: { content: "2000", format: "#,##0" },
-              B2: { content: "TRUE", format: "#,##0" },
+              A1: "1000",
+              A3: "2000",
+              B2: "TRUE",
             },
           },
           {
@@ -597,9 +597,9 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "21000", format: "#,##0" },
-              A3: { content: "12-31-2020", format: "mm/dd/yyyy" },
-              B2: { content: "TRUE", format: "#,##0" },
+              A1: "21000",
+              A3: "12-31-2020",
+              B2: "TRUE",
             },
           },
         ],

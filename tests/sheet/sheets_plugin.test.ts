@@ -276,8 +276,8 @@ describe("sheets", () => {
   test("evaluating multiple sheets", () => {
     const model = new Model({
       sheets: [
-        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: { content: "=DEF!B2" } } },
-        { name: "DEF", colNumber: 10, rowNumber: 10, cells: { B2: { content: "3" } } },
+        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: "=DEF!B2" } },
+        { name: "DEF", colNumber: 10, rowNumber: 10, cells: { B2: "3" } },
       ],
     });
 
@@ -288,12 +288,12 @@ describe("sheets", () => {
   test("evaluating multiple sheets, 2", () => {
     const model = new Model({
       sheets: [
-        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: { content: "=DEF!B2" } } },
+        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: "=DEF!B2" } },
         {
           name: "DEF",
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "=A4" }, A4: { content: "3" } },
+          cells: { B2: "=A4", A4: "3" },
         },
       ],
     });
@@ -305,12 +305,12 @@ describe("sheets", () => {
   test("evaluating multiple sheets, 3 (with range)", () => {
     const model = new Model({
       sheets: [
-        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: { content: "=DEF!B2" } } },
+        { name: "ABC", colNumber: 10, rowNumber: 10, cells: { B1: "=DEF!B2" } },
         {
           name: "DEF",
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "=SUM(A1:A5)" }, A1: { content: "2" }, A4: { content: "3" } },
+          cells: { B2: "=SUM(A1:A5)", A1: "2", A4: "3" },
         },
       ],
     });
@@ -327,16 +327,16 @@ describe("sheets", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: {
-            B1: { content: "=DEF!B2" },
-            C3: { content: "=DEF!C5 + 1" },
-            C4: { content: "40" },
+            B1: "=DEF!B2",
+            C3: "=DEF!C5 + 1",
+            C4: "40",
           },
         },
         {
           name: "DEF",
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "=ABC!B1" }, C5: { content: "=ABC!C4 + 1" } },
+          cells: { B2: "=ABC!B1", C5: "=ABC!C4 + 1" },
         },
       ],
     });
@@ -354,14 +354,14 @@ describe("sheets", () => {
           id: "smallId",
           colNumber: 2,
           rowNumber: 2,
-          cells: { A2: { content: "=big!A2" } },
+          cells: { A2: "=big!A2" },
         },
         {
           name: "big",
           id: "bigId",
           colNumber: 5,
           rowNumber: 5,
-          cells: { A1: { content: "23" }, A2: { content: "=A1" } },
+          cells: { A1: "23", A2: "=A1" },
         },
       ],
     });
@@ -701,7 +701,7 @@ describe("sheets", () => {
 
   test("Cells are correctly duplicated", () => {
     const model = new Model({
-      sheets: [{ colNumber: 5, rowNumber: 5, cells: { A1: { content: "42" } } }],
+      sheets: [{ colNumber: 5, rowNumber: 5, cells: { A1: "42" } }],
     });
     const sheet = model.getters.getActiveSheetId();
     model.dispatch("DUPLICATE_SHEET", { sheetId: sheet, sheetIdTo: model.uuidGenerator.uuidv4() });

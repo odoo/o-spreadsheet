@@ -419,8 +419,8 @@ describe("multiple sheets", () => {
         {
           name: "Sheet1",
           cells: {
-            B1: { content: "1" },
-            B2: { content: "2" },
+            B1: "1",
+            B2: "2",
           },
           figures: [
             {
@@ -444,8 +444,8 @@ describe("multiple sheets", () => {
         {
           name: "Sheet2",
           cells: {
-            A1: { content: "=Sheet1!B1*2" },
-            A2: { content: "=Sheet1!B2*2" },
+            A1: "=Sheet1!B1*2",
+            A2: "=Sheet1!B2*2",
           },
         },
       ],

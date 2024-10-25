@@ -373,7 +373,7 @@ describe("clipboard", () => {
           id: "s1",
           colNumber: 5,
           rowNumber: 5,
-          cells: { A1: { content: "merge" }, C1: { content: "a" }, D2: { content: "a" } },
+          cells: { A1: "merge", C1: "a", D2: "a" },
           merges: ["A1:B2"],
         },
       ],
@@ -406,7 +406,7 @@ describe("clipboard", () => {
   test("copy/paste a formula that has no sheet specific reference to another", () => {
     const model = new Model({
       sheets: [
-        { id: "s1", colNumber: 5, rowNumber: 5, cells: { A1: { content: "=A2" } } },
+        { id: "s1", colNumber: 5, rowNumber: 5, cells: { A1: "=A2" } },
         { id: "s2", colNumber: 5, rowNumber: 5 },
       ],
     });

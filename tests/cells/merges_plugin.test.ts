@@ -63,9 +63,7 @@ describe("merges", () => {
 
   test("can unmerge two cells", () => {
     const model = new Model({
-      sheets: [
-        { colNumber: 10, rowNumber: 10, cells: { B2: { content: "b2" } }, merges: ["B2:B3"] },
-      ],
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { B2: "b2" }, merges: ["B2:B3"] }],
     });
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
@@ -133,9 +131,7 @@ describe("merges", () => {
 
   test("editing a merge cell actually edits the top left", () => {
     const model = new Model({
-      sheets: [
-        { colNumber: 10, rowNumber: 10, cells: { B2: { content: "b2" } }, merges: ["B2:C3"] },
-      ],
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { B2: "b2" }, merges: ["B2:C3"] }],
     });
     const composerStore = makeTestComposerStore(model);
 
@@ -150,9 +146,7 @@ describe("merges", () => {
 
   test("setting a style to a merge edit all the cells", () => {
     const model = new Model({
-      sheets: [
-        { colNumber: 10, rowNumber: 10, cells: { B2: { content: "b2" } }, merges: ["B2:C3"] },
-      ],
+      sheets: [{ colNumber: 10, rowNumber: 10, cells: { B2: "b2" }, merges: ["B2:C3"] }],
     });
 
     selectCell(model, "C3");
@@ -173,7 +167,7 @@ describe("merges", () => {
           id: "s1",
           colNumber: 10,
           rowNumber: 10,
-          cells: { B2: { content: "b2" } },
+          cells: { B2: "b2" },
           merges: ["B2:C3"],
         },
       ],
@@ -195,13 +189,13 @@ describe("merges", () => {
   test("merge style is correct for inactive sheets", () => {
     const model = new Model({
       sheets: [
-        { id: "1", colNumber: 1, rowNumber: 1, cells: { A1: { content: "1" } }, styles: { A1: 1 } },
+        { id: "1", colNumber: 1, rowNumber: 1, cells: { A1: "1" }, styles: { A1: 1 } },
         {
           id: "2",
           colNumber: 3,
           rowNumber: 3,
           merges: ["A1:B1"],
-          cells: { A1: { content: "2" }, B1: { content: "" } },
+          cells: { A1: "2", B1: "" },
           styles: { "A1:B1": 2 },
         },
       ],
@@ -234,7 +228,7 @@ describe("merges", () => {
   test("properly compute if a merge is destructive or not", () => {
     const sheetId = "42";
     const model = new Model({
-      sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10, cells: { B2: { content: "b2" } } }],
+      sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10, cells: { B2: "b2" } }],
     });
     // B2 is not top left, so it is destructive
 
@@ -263,10 +257,10 @@ describe("merges", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: {
-            A1: { content: "1" },
-            A2: { content: "2" },
-            A3: { content: "3" },
-            A4: { content: "=sum(A1:A3)" },
+            A1: "1",
+            A2: "2",
+            A3: "3",
+            A4: "=sum(A1:A3)",
           },
         },
       ],
@@ -287,10 +281,10 @@ describe("merges", () => {
           colNumber: 10,
           rowNumber: 10,
           cells: {
-            A1: { content: "1" },
-            A2: { content: "2" },
-            A3: { content: "3" },
-            A4: { content: "=sum(A1:A3)" },
+            A1: "1",
+            A2: "2",
+            A3: "3",
+            A4: "=sum(A1:A3)",
           },
         },
       ],
