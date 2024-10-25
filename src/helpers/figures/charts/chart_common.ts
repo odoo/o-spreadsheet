@@ -584,14 +584,19 @@ export function interpolateData(
   if (values.length < 2 || labels.length < 2 || newLabels.length === 0) {
     return [];
   }
+  const labelMin = Math.min(...labels);
+  const labelMax = Math.max(...labels);
+  const labelRange = labelMax - labelMin;
+  const normalizedLabels = labels.map((v) => (v - labelMin) / labelRange);
+  const normalizedNewLabels = newLabels.map((v) => (v - labelMin) / labelRange);
   switch (config.type) {
     case "polynomial": {
       const order = config.order ?? 2;
       if (order === 1) {
-        return predictLinearValues([values], [labels], [newLabels], true)[0];
+        return predictLinearValues([values], [normalizedLabels], [normalizedNewLabels], true)[0];
       }
-      const coeffs = polynomialRegression(values, labels, order, true).flat();
-      return newLabels.map((v) => evaluatePolynomial(coeffs, v, order));
+      const coeffs = polynomialRegression(values, normalizedLabels, order, true).flat();
+      return normalizedNewLabels.map((v) => evaluatePolynomial(coeffs, v, order));
     }
     case "exponential": {
       const positiveLogValues: number[] = [];
@@ -599,16 +604,23 @@ export function interpolateData(
       for (let i = 0; i < values.length; i++) {
         if (values[i] > 0) {
           positiveLogValues.push(Math.log(values[i]));
-          filteredLabels.push(labels[i]);
+          filteredLabels.push(normalizedLabels[i]);
         }
       }
       if (!filteredLabels.length) {
         return [];
       }
-      return expM(predictLinearValues([positiveLogValues], [filteredLabels], [newLabels], true))[0];
+      return expM(
+        predictLinearValues([positiveLogValues], [filteredLabels], [normalizedNewLabels], true)
+      )[0];
     }
     case "logarithmic": {
-      return predictLinearValues([values], logM([labels]), logM([newLabels]), true)[0];
+      return predictLinearValues(
+        [values],
+        logM([normalizedLabels]),
+        logM([normalizedNewLabels]),
+        true
+      )[0];
     }
     case "trailingMovingAverage": {
       return getMovingAverageValues(values, config.window);
