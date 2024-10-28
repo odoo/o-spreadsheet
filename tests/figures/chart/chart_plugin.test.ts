@@ -2223,6 +2223,64 @@ describe("Chart design configuration", () => {
     }
   );
 
+  test.each(["line", "bar", "combo"] as const)(
+    "%s chart does not display vertical grid lines",
+    (chartType) => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
+          type: chartType,
+        },
+        "43"
+      );
+
+      const config = getChartConfiguration(model, "43");
+      expect(config.options?.scales?.x?.grid?.display).toBe(false);
+      expect(config.options?.scales?.y?.grid?.display).toBe(true);
+    }
+  );
+
+  test("scatter chart displays vertical grid lines", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
+        type: "scatter",
+      },
+      "44"
+    );
+
+    const config = getChartConfiguration(model, "44");
+    expect(config.options?.scales?.x?.grid?.display).toBe(true);
+    expect(config.options?.scales?.y?.grid?.display).toBe(true);
+  });
+
+  test("horizontal bar chart displays vertical but not horizontal grid lines", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
+        type: "bar",
+        horizontal: true,
+      },
+      "45"
+    );
+
+    const config = getChartConfiguration(model, "45");
+    expect(config.options?.scales?.x?.grid?.display).toBe(true);
+    expect(config.options?.scales?.y?.grid?.display).toBe(false);
+  });
+
   test.each(["line", "scatter", "combo"] as const)(
     "%s chart correctly use dataset colors set up in definition",
     (chartType) => {
