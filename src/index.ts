@@ -123,6 +123,7 @@ import { SidePanelCollapsible } from "./components/side_panel/components/collaps
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import { TextInput } from "./components/text_input/text_input";
+import { ChartTerms } from "./components/translations_terms";
 import {
   getChartAxisType,
   getTrendDatasetForLineChart,
@@ -455,6 +456,7 @@ export const constants = {
   TREND_LINE_XAXIS_ID,
   CHART_AXIS_CHOICES,
   INTERACTIVE_LEGEND_CONFIG,
+  ChartTerms,
 };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
