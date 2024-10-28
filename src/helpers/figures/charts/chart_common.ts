@@ -474,7 +474,11 @@ export function getChartAxis(
   }
 
   if (type === "values") {
-    const displayGridLines = position === "left" || (position === "right" && !useLeftAxis);
+    const displayGridLines =
+      position === "left" ||
+      (position === "right" && !useLeftAxis) ||
+      (definition.type === "bar" && definition.horizontal === true);
+
     return {
       position: position,
       title: getChartAxisTitleRuntime(design),
@@ -493,6 +497,9 @@ export function getChartAxis(
       ticks: {
         padding: 5,
         color: fontColor,
+      },
+      grid: {
+        display: definition.type === "scatter",
       },
       stacked: options?.stacked,
       title: getChartAxisTitleRuntime(design),
