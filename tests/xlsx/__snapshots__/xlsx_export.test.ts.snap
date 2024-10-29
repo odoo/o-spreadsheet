@@ -25619,9 +25619,9 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
             </c>
         </row>
         <row r="9">
-            <c r="A9" t="s">
+            <c r="A9" t="b">
                 <v>
-                    2
+                    1
                 </v>
             </c>
         </row>
@@ -26090,7 +26090,7 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="3" uniqueCount="3">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="2" uniqueCount="2">
     <si>
         <t>
             =WAIT(100)
@@ -26099,11 +26099,6 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
     <si>
         <t>
             =sum(A1,wait(100))
-        </t>
-    </si>
-    <si>
-        <t>
-            =LT(4;42)
         </t>
     </si>
 </sst>",
