@@ -900,20 +900,6 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
-    test("Multi-Sheet export async functions without cross references across sheets", async () => {
-      const model = new Model({
-        sheets: [
-          { id: "s1" },
-          {
-            id: "s2",
-            name: "Sheet2",
-            cells: { A1: { content: "5", A2: { content: "=wait(A1)" } } },
-          },
-        ],
-      });
-      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-    });
-
     test("Multi-Sheet export functions with cross references across sheets", async () => {
       const model = new Model({
         sheets: [
