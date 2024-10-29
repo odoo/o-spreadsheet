@@ -388,9 +388,8 @@ const allNonExportableFormulasData = {
   sheets: [
     {
       cells: {
-        A1: { content: "=WAIT(100)" },
         A2: { content: "=COUNTUNIQUE(1,A24,3,2,4)" },
-        A3: { content: "=sum(A1,wait(100))" },
+        A3: { content: "=sum(A1,ABS(100))" },
         A4: { content: "=ADD(42,24)" },
         A5: { content: "=DIVIDE(84,42)" },
         A6: { content: "=EQ(42,42)" },
@@ -875,7 +874,7 @@ describe("Test XLSX export", () => {
 
     test("Multi-Sheets exportable functions", async () => {
       const model = new Model({
-        sheets: [allExportableFormulasData.sheets[0], { cells: { A1: { content: "=wait(10)" } } }],
+        sheets: [allExportableFormulasData.sheets[0], { cells: { A1: { content: "=abs(10)" } } }],
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
@@ -886,12 +885,12 @@ describe("Test XLSX export", () => {
           {
             id: "s1",
             name: "Sheet1",
-            cells: { A1: { content: "=sum(Sheet2!A1)", A2: { content: "2" } } },
+            cells: { A1: { content: "=sum(Sheet2!A1)" }, A2: { content: "2" } },
           },
           {
             id: "s2",
             name: "Sheet2",
-            cells: { A1: { content: "5", A2: { content: "=wait(Sheet1!A2)" } } },
+            cells: { A1: { content: "5" }, A2: { content: "=sum(Sheet1!A2)" } },
           },
         ],
       });
