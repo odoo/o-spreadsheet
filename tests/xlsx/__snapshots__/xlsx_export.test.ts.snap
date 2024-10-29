@@ -25513,10 +25513,7 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
     </cols>
     <sheetData>
         <row r="1">
-            <c r="A1" t="s">
-                <v>
-                    0
-                </v>
+            <c r="A1">
             </c>
         </row>
         <row r="2">
@@ -25527,9 +25524,12 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
             </c>
         </row>
         <row r="3">
-            <c r="A3" t="s">
+            <c r="A3" t="n">
+                <f>
+                    SUM(A1,ABS(100))
+                </f>
                 <v>
-                    1
+                    100
                 </v>
             </c>
             <c r="B3">
@@ -25710,12 +25710,12 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
             </c>
         </row>
         <row r="22">
-            <c r="A22" t="str">
+            <c r="A22" t="n">
                 <f>
                     SUM(A3:Z3)
                 </f>
                 <v>
-                    #NAME?
+                    100
                 </v>
             </c>
         </row>
@@ -25725,7 +25725,7 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
                     SUM(A3:A100)
                 </f>
                 <v>
-                    #NAME?
+                    #CYCLE
                 </v>
             </c>
         </row>
@@ -26090,17 +26090,7 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="2" uniqueCount="2">
-    <si>
-        <t>
-            =WAIT(100)
-        </t>
-    </si>
-    <si>
-        <t>
-            =sum(A1,wait(100))
-        </t>
-    </si>
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="0" uniqueCount="0">
 </sst>",
       "contentType": "sharedStrings",
       "path": "xl/sharedStrings.xml",
@@ -26205,6 +26195,13 @@ exports[`Test XLSX export formulas Multi-Sheet export functions with cross refer
                 </v>
             </c>
         </row>
+        <row r="2">
+            <c r="A2">
+                <v>
+                    2
+                </v>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -26250,6 +26247,16 @@ exports[`Test XLSX export formulas Multi-Sheet export functions with cross refer
             <c r="A1">
                 <v>
                     5
+                </v>
+            </c>
+        </row>
+        <row r="2">
+            <c r="A2" t="n">
+                <f>
+                    SUM(Sheet1!A2)
+                </f>
+                <v>
+                    2
                 </v>
             </c>
         </row>
@@ -28453,9 +28460,12 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
     </cols>
     <sheetData>
         <row r="1">
-            <c r="A1" t="s">
+            <c r="A1" t="n">
+                <f>
+                    ABS(10)
+                </f>
                 <v>
-                    20
+                    10
                 </v>
             </c>
         </row>
@@ -28507,7 +28517,7 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="21" uniqueCount="21">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="20" uniqueCount="20">
     <si>
         <t>
             evaluation
@@ -28606,11 +28616,6 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
     <si>
         <t>
             &gt;25
-        </t>
-    </si>
-    <si>
-        <t>
-            =wait(10)
         </t>
     </si>
 </sst>",
