@@ -146,7 +146,9 @@ export const FILTER = {
     const result: Matrix<FunctionResultObject> = [];
     for (let i = 0; i < _array.length; i++) {
       const row = _array[i];
-      if (_conditions.every((c) => c[i])) {
+      if (
+        _conditions.every((c) => (typeof c[i] === "boolean" || typeof c[i] === "number") && c[i])
+      ) {
         result.push(row);
       }
     }
