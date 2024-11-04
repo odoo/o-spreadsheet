@@ -1,9 +1,12 @@
 import { CommandResult, CorePlugin } from "../../src";
+import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model, ModelConfig } from "../../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/index";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
+import { MockTransportService } from "../__mocks__/transport_service";
+import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import {
@@ -364,6 +367,23 @@ describe("Model", () => {
           },
         },
       ],
+    });
+  });
+
+  test("snapshot when importing xlsx file", async () => {
+    let transport = new MockTransportService();
+    const spy = jest.spyOn(transport, "sendMessage");
+    const xlsx_data = await getTextXlsxFiles();
+    new Model(xlsx_data, {
+      transportService: transport,
+      client: { id: "test", name: "Test" },
+    });
+    expect(spy).toHaveBeenCalledWith({
+      type: "SNAPSHOT",
+      version: MESSAGE_VERSION,
+      nextRevisionId: expect.any(String),
+      serverRevisionId: "START_REVISION",
+      data: expect.any(Object),
     });
   });
 });
