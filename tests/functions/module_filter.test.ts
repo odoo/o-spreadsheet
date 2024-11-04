@@ -109,6 +109,17 @@ describe("FILTER function", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1")).toBeTruthy();
   });
 
+  test("FILTER by string ignores the value", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Alice", B1: "yes",
+      A2: "Bob",   B2: "TRUE",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A6", "=FILTER(A1:A2, B1:B2)");
+    expect(getRangeValuesAsMatrix(model, "A6:A7")).toEqual([["Bob"], [null]]);
+  });
+
   test("FILTER accepts errors in first argument", () => {
     // prettier-ignore
     const grid = {
@@ -119,6 +130,18 @@ describe("FILTER function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "A6", "=FILTER(A1:A3, B1:B3)");
     expect(getRangeValuesAsMatrix(model, "A6:A7")).toEqual([["#BAD_EXPR"], ["John"]]);
+  });
+
+  test("FILTER accepts errors in condition arguments", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Alice",  B1: "TRUE",     C1: "TRUE",
+      A2: "Peter",  B2: "=KABOUM",  C2: "TRUE",
+      A3: "John",   B3: "TRUE",     C3: "=KABOUM",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A6", "=FILTER(A1:A3, B1:B3, C1:C3)");
+    expect(getRangeValuesAsMatrix(model, "A6:A8")).toEqual([["Alice"], [null], [null]]);
   });
 });
 
