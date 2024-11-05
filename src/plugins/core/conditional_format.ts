@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/index";
-import { isInside, recomputeZones, toUnboundedZone, zoneToDimension } from "../../helpers/index";
+import { isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -14,7 +14,6 @@ import {
   ConditionalFormatInternal,
   ConditionalFormattingOperatorValues,
   CoreCommand,
-  DataBarRule,
   ExcelWorkbookData,
   IconSetRule,
   IconThreshold,
@@ -432,8 +431,6 @@ export class ConditionalFormatPlugin
           this.chainValidations(this.checkInflectionPoints(this.checkFormulaCompilation))
         );
       }
-      case "DataBarRule":
-        return this.checkDataBarRangeValues(rule, cmd.ranges, cmd.sheetId);
     }
     return CommandResult.Success;
   }
@@ -585,21 +582,6 @@ export class ConditionalFormatPlugin
       const compiledFormula = compile(value || "");
       if (compiledFormula.isBadExpression) {
         return CommandResult.ValueCellIsInvalidFormula;
-      }
-    }
-    return CommandResult.Success;
-  }
-
-  private checkDataBarRangeValues(rule: DataBarRule, ranges: RangeData[], sheetId: UID) {
-    if (rule.rangeValues) {
-      const { numberOfCols, numberOfRows } = zoneToDimension(
-        this.getters.getRangeFromSheetXC(sheetId, rule.rangeValues).zone
-      );
-      for (const range of ranges) {
-        const dimensions = zoneToDimension(this.getters.getRangeFromRangeData(range).zone);
-        if (numberOfCols !== dimensions.numberOfCols || numberOfRows !== dimensions.numberOfRows) {
-          return CommandResult.DataBarRangeValuesMismatch;
-        }
       }
     }
     return CommandResult.Success;

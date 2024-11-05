@@ -1311,7 +1311,6 @@ export const enum CommandResult {
   ValueCellIsInvalidFormula = "ValueCellIsInvalidFormula",
   InvalidDefinition = "InvalidDefinition",
   InvalidColor = "InvalidColor",
-  DataBarRangeValuesMismatch = "DataBarRangeValuesMismatch",
 }
 
 export interface CommandHandler<T> {
