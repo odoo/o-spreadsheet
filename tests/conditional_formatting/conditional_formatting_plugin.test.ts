@@ -2345,7 +2345,7 @@ describe("conditional formats types", () => {
     expect(getStyle(model, "A1")).toEqual({});
   });
 
-  test("DataBar command is refused if the rangeValue cell has not the same size", () => {
+  test("Can add a data bar rule with rangeValue having a differnet size than the cf range", () => {
     const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: "1",
@@ -2358,7 +2358,7 @@ describe("conditional formats types", () => {
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
-    expect(result).toBeCancelledBecause(CommandResult.DataBarRangeValuesMismatch);
+    expect(result).toBeSuccessfullyDispatched;
   });
 
   test("Can add a data bar cf based on itself", () => {
@@ -2408,6 +2408,57 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "B1")?.percentage).toBe(25);
     expect(getDataBarFill(model, "B2")?.percentage).toBe(50);
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
+  });
+
+  test("Adding a data bar rule with rangeValues having smaller size than cf range should only apply rule on matching cells", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "A", B1: "2",
+        A2: "B", B2: "4",
+        A3: "C", B3: "8",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+          rangeValues: "B1:B2",
+        },
+      },
+      ranges: toRangesData(sheetId, "A1:A3"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "A1")?.percentage).toBe(50);
+    expect(getDataBarFill(model, "A2")?.percentage).toBe(100);
+    expect(getDataBarFill(model, "A3")?.percentage).toBeUndefined();
+  });
+
+  test("Adding a data bar rule with rangeValues having bigger size than cf range should only apply rule on matching cells", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "A", B1: "2",
+      A2: "B", B2: "4",
+      A3: "C", B3: "8",
+  };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+          rangeValues: "B1:B4",
+        },
+      },
+      ranges: toRangesData(sheetId, "A1:A3"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "A1")?.percentage).toBe(25);
+    expect(getDataBarFill(model, "A2")?.percentage).toBe(50);
+    expect(getDataBarFill(model, "A3")?.percentage).toBe(100);
+    expect(getDataBarFill(model, "A4")?.percentage).toBeUndefined();
   });
 
   test("Data bar CF with negative values", () => {
