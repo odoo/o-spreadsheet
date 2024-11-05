@@ -398,3 +398,13 @@ export type EditionMode =
   | "inactive";
 
 export type SortDirection = "asc" | "desc";
+
+export interface FigureViewport {
+  zone: Zone;
+  sheetId: UID;
+  areGridLinesVisible: boolean;
+  headerDimensions?: {
+    COL: Record<number, number | undefined>;
+    ROW: Record<number, number | undefined>;
+  };
+}

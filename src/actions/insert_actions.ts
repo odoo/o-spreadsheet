@@ -192,6 +192,12 @@ export const insertImage: ActionSpec = {
   icon: "o-spreadsheet-Icon.INSERT_IMAGE",
 };
 
+export const insertFigureViewport: ActionSpec = {
+  name: _t("Viewport figure"),
+  execute: ACTIONS.CREATE_VIEWPORT_FIGURE,
+  icon: "o-spreadsheet-Icon.INSERT_IMAGE",
+};
+
 export const insertTable: ActionSpec = {
   name: () => _t("Table"),
   execute: ACTIONS.INSERT_TABLE,

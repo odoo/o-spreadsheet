@@ -1,6 +1,7 @@
 import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
+import { ViewportFigure } from "../components/figures/figure_viewport/figure_viewport";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv, UID } from "../types";
@@ -38,6 +39,10 @@ figureRegistry.add("image", {
   minFigSize: 20,
   borderWidth: 0,
   menuBuilder: getImageMenuRegistry,
+});
+figureRegistry.add("viewport", {
+  Component: ViewportFigure,
+  menuBuilder: getFigureViewportMenu,
 });
 
 function getChartMenu(
@@ -93,6 +98,35 @@ function getImageMenuRegistry(
         });
       },
       icon: "o-spreadsheet-Icon.REFRESH",
+    },
+    getDeleteMenuItem(figureId, onFigureDeleted, env),
+  ];
+  return createActions(menuItemSpecs);
+}
+
+function getFigureViewportMenu(
+  figureId: UID,
+  onFigureDeleted: () => void,
+  env: SpreadsheetChildEnv
+): Action[] {
+  const menuItemSpecs: ActionSpec[] = [
+    getCopyMenuItem(figureId, env),
+    getCutMenuItem(figureId, env),
+    {
+      id: "toggle_grid_lines",
+      name: _t("Toggle grid lines"),
+      sequence: 4,
+      execute: () => {
+        const sheetId = env.model.getters.getActiveSheetId();
+        const figureViewport = env.model.getters.getFigureViewport(sheetId, figureId);
+        env.model.dispatch("UPDATE_FIGURE_VIEWPORT", {
+          sheetId,
+          zone: figureViewport.zone,
+          figureId,
+          definition: { areGridLinesVisible: !figureViewport.areGridLinesVisible },
+        });
+      },
+      icon: "o-spreadsheet-Icon.BORDERS", // ADRM
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];
