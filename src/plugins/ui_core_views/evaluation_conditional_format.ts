@@ -1,6 +1,6 @@
 import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
-import { colorNumberString, percentile } from "../../helpers/index";
+import { colorNumberString, isInside, percentile } from "../../helpers/index";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { _t } from "../../translation";
 import {
@@ -297,8 +297,14 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const cell = this.getEvaluatedCellInZone(sheetId, zone, col, row, zoneOfValues);
-        if (cell.type !== CellValueType.number || cell.value <= 0) {
+        const targetCol = col - zone.left + zoneOfValues.left;
+        const targetRow = row - zone.top + zoneOfValues.top;
+        const cell = this.getters.getEvaluatedCell({ sheetId, col: targetCol, row: targetRow });
+        if (
+          !isInside(targetCol, targetRow, zoneOfValues) ||
+          cell.type !== CellValueType.number ||
+          cell.value <= 0
+        ) {
           // values negatives or 0 are ignored
           continue;
         }
@@ -309,18 +315,6 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         };
       }
     }
-  }
-
-  private getEvaluatedCellInZone(
-    sheetId: UID,
-    zone: Zone,
-    col: HeaderIndex,
-    row: HeaderIndex,
-    targetZone: Zone
-  ) {
-    const targetCol = col - zone.left + targetZone.left;
-    const targetRow = row - zone.top + targetZone.top;
-    return this.getters.getEvaluatedCell({ sheetId, col: targetCol, row: targetRow });
   }
 
   /** Compute the color scale for the given range and CF rule, and apply in in the given computedStyle object */
