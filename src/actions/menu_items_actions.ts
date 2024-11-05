@@ -497,6 +497,19 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
   }
 };
 
+export const CREATE_VIEWPORT_FIGURE = async (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const figureId = env.model.uuidGenerator.uuidv4();
+  env.model.dispatch("CREATE_FIGURE_VIEWPORT", {
+    sheetId,
+    figureId,
+    size: { width: 300, height: 400 },
+    position: { x: 0, y: 0 },
+    zone: env.model.getters.getSelectedZone(),
+    definition: { sheetId },
+  });
+};
+
 //------------------------------------------------------------------------------
 // Style/Format
 //------------------------------------------------------------------------------

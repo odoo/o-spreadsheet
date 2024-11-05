@@ -13,6 +13,7 @@ import {
   SheetPlugin,
   TablePlugin,
 } from "./core";
+import { FigureViewportPlugin } from "./core/figure_viewport";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
@@ -71,6 +72,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
   .add("image", ImagePlugin)
+  .add("figure_viewport", FigureViewportPlugin)
   .add("pivot_core", PivotCorePlugin)
   .add("spreadsheet_pivot_core", SpreadsheetPivotCorePlugin)
   .add("tableStyle", TableStylePlugin);

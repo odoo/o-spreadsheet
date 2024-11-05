@@ -3,6 +3,7 @@ import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
+import { FigureViewportPlugin } from "../plugins/core/figure_viewport";
 import { FigurePlugin } from "../plugins/core/figures";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
@@ -111,7 +112,8 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof SettingsPlugin> &
   PluginGetters<typeof HeaderGroupingPlugin> &
   PluginGetters<typeof DataValidationPlugin> &
-  PluginGetters<typeof PivotCorePlugin>;
+  PluginGetters<typeof PivotCorePlugin> &
+  PluginGetters<typeof FigureViewportPlugin>;
 
 export type Getters = {
   isReadonly: () => boolean;

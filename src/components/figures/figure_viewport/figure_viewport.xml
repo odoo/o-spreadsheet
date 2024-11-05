@@ -1,0 +1,5 @@
+<templates>
+  <t t-name="o-spreadsheet-ViewportFigure">
+    <canvas class="o-figure-canvas w-100 h-100" t-ref="canvas"/>
+  </t>
+</templates>

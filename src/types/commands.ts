@@ -14,6 +14,7 @@ import {
   CellPosition,
   Color,
   Dimension,
+  FigureViewport,
   HeaderIndex,
   Pixel,
   SetDecimalStep,
@@ -247,6 +248,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** IMAGE */
   "CREATE_IMAGE",
+  "CREATE_FIGURE_VIEWPORT",
 
   /** HEADER GROUP */
   "GROUP_HEADERS",
@@ -521,6 +523,14 @@ export interface CreateImageOverCommand extends SheetDependentCommand {
   position: DOMCoordinates;
   size: FigureSize;
   definition: Image;
+}
+
+export interface CreateViewportFigureCommand extends ZoneDependentCommand {
+  type: "CREATE_FIGURE_VIEWPORT";
+  figureId: UID;
+  position: DOMCoordinates;
+  size: FigureSize;
+  definition: Omit<FigureViewport, "zone">;
 }
 
 //------------------------------------------------------------------------------
@@ -1060,6 +1070,7 @@ export type CoreCommand =
 
   /** IMAGE */
   | CreateImageOverCommand
+  | CreateViewportFigureCommand
 
   /** FILTERS */
   | CreateTableCommand

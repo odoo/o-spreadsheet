@@ -266,6 +266,10 @@ topbarMenuRegistry
     ...ACTION_INSERT.insertImage,
     sequence: 55,
   })
+  .addChild("insert_viewport_figure", ["insert"], {
+    ...ACTION_INSERT.insertFigureViewport,
+    sequence: 56,
+  })
   .addChild("insert_table", ["insert"], {
     ...ACTION_INSERT.insertTable,
     sequence: 57,
