@@ -197,6 +197,12 @@ export class PivotUIPlugin extends UIPlugin {
     if (!pivot.isValid()) {
       return EMPTY_PIVOT_CELL;
     }
+    if (
+      functionName === "PIVOT" &&
+      !cell.content.replaceAll(" ", "").toUpperCase().startsWith("=PIVOT")
+    ) {
+      return EMPTY_PIVOT_CELL;
+    }
     if (functionName === "PIVOT") {
       const includeTotal = args[2] === false ? false : undefined;
       const includeColumnHeaders = args[3] === false ? false : undefined;
