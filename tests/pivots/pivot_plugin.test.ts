@@ -50,6 +50,26 @@ describe("Pivot plugin", () => {
     );
   });
 
+  test("getPivotCellFromPosition cannot get the pivot cell when the table is manipulated by other functions", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: '=PIVOT.VALUE(1,"Price","5","Bob")',
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "30",
+      A4: "=TRANSPOSE(PIVOT(1))",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    selectCell(model, "C5");
+    expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toEqual(
+      EMPTY_PIVOT_CELL
+    );
+  });
+
   test("forbidden characters are removed from new sheet name when duplicating a pivot", () => {
     const grid = {
       A1: "Customer",
