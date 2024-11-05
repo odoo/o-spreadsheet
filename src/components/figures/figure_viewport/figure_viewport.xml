@@ -1,7 +1,14 @@
 <templates>
   <t t-name="o-spreadsheet-ViewportFigure">
     <div class="o-viewport-figure w-100 h-100">
-      <div class="o-handle position-absolute"/>
+      <div class="o-highlighted-border position-absolute" t-att-style="highlightedBorderStyle"/>
+      <div
+        class="o-viewport-figure-overlay position-absolute w-100 h-100"
+        t-att-style="overLayStyle"
+        t-on-pointermove="onMouseMove"
+        t-on-pointerdown="onMouseDown"
+        t-on-dblclick="onDblClick"
+      />
       <canvas class="o-figure-canvas w-100 h-100" t-ref="canvas"/>
     </div>
   </t>
