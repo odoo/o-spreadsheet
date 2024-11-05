@@ -119,4 +119,18 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
   ): CommandResult | CommandResult[] {
     return this.batchValidations(...validations)(command);
   }
+
+  cleanUpBeforeDestroy() {
+    // @ts-ignore
+    this.getters = [];
+
+    // @ts-ignore
+    delete this.history.update;
+    // @ts-ignore
+    delete this.history;
+    // @ts-ignore
+    delete this.dispatch;
+    // @ts-ignore
+    delete this.canDispatch;
+  }
 }

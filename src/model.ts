@@ -164,7 +164,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private state: StateObserver;
 
-  readonly selection: SelectionStreamProcessor;
+  selection: SelectionStreamProcessor;
 
   /**
    * Getters are the main way the rest of the UI read data from the model. Also,
@@ -181,9 +181,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   uuidGenerator: UuidGenerator;
 
-  private readonly handlers: CommandHandler<Command>[] = [];
-  private readonly uiHandlers: CommandHandler<Command>[] = [];
-  private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+  private handlers: CommandHandler<Command>[] = [];
+  private uiHandlers: CommandHandler<Command>[] = [];
+  private coreHandlers: CommandHandler<CoreCommand>[] = [];
 
   constructor(
     data: any = {},
@@ -679,6 +679,50 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (const plugin of this.corePlugins) {
       plugin.garbageCollectExternalResources();
     }
+  }
+  // @ts-ignore
+  cleanUpBeforeDestroy() {
+    for (const plugin of [
+      ...this.corePlugins,
+      ...this.coreViewsPlugins,
+      ...this.featurePlugins,
+      ...this.statefulUIPlugins,
+    ]) {
+      plugin.cleanUpBeforeDestroy();
+    }
+    this.corePlugins = [];
+    this.coreHandlers = [];
+    // @ts-ignore
+    this.coreGetters = [];
+    this.handlers = [];
+    // @ts-ignore
+    this.uiHandlers = [];
+    this.featurePlugins = [];
+    this.statefulUIPlugins = [];
+    this.coreViewsPlugins = [];
+    this.renderers = {};
+    // @ts-ignore
+    this.uiPluginConfig = {};
+    // @ts-ignore
+    this.getters = {};
+
+    this.session.clear();
+
+    // @ts-ignore
+    delete this.state;
+    // @ts-ignore
+    delete this.session;
+    // @ts-ignore
+    delete this.range;
+    // @ts-ignore
+    delete this.selection;
+
+    // @ts-ignore
+    delete this.corePluginConfig;
+    // @ts-ignore
+    delete this.uiPluginConfig;
+
+    this.clear(); // clear the bus subscriptions
   }
 }
 

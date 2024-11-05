@@ -2,6 +2,7 @@ import {
   Component,
   onMounted,
   onPatched,
+  onWillDestroy,
   onWillUnmount,
   onWillUpdateProps,
   useEffect,
@@ -461,6 +462,10 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     });
     const resizeObserver = new ResizeObserver(() => {
       this.sidePanel.changePanelSize(this.sidePanel.panelSize, this.spreadsheetRect.width);
+    });
+    onWillDestroy(() => {
+      this.model.cleanUpBeforeDestroy();
+      stores.resetStores();
     });
   }
 
