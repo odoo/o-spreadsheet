@@ -506,7 +506,7 @@ export const CREATE_VIEWPORT_FIGURE = async (env: SpreadsheetChildEnv) => {
     size: { width: 300, height: 400 },
     position: { x: 0, y: 0 },
     zone: env.model.getters.getSelectedZone(),
-    definition: { sheetId },
+    definition: { sheetId, areGridLinesVisible: true },
   });
 };
 

@@ -401,4 +401,5 @@ export type EditionMode =
 export interface FigureViewport {
   zone: Zone;
   sheetId: UID;
+  areGridLinesVisible: boolean;
 }

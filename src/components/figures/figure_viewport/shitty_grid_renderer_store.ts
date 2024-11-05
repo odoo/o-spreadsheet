@@ -18,19 +18,19 @@ import {
   range,
   union,
 } from "../../../helpers";
-import { Get } from "../../../store_engine";
-import { ModelStore } from "../../../stores";
 import {
   Align,
   Box,
   CellPosition,
   CellValueType,
+  DOMDimension,
   FigureViewport,
   Getters,
   GridRenderingContext,
   HeaderIndex,
   LayerName,
   Pixel,
+  Rect,
   UID,
   Viewport,
   Zone,
@@ -39,12 +39,14 @@ import { ImageSrc } from "../../../types/image";
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
-export class ShittyGridRenderer {
-  private getters: Getters;
+export interface ShittyRendererParams extends FigureViewport {
+  size: DOMDimension;
+  headerDimensions: { COL: Record<number, number>; ROW: Record<number, number> };
+}
 
-  constructor(get: Get, private figureViewPort: FigureViewport) {
-    this.getters = get(ModelStore).getters;
-  }
+// ADRM : why is the grid renderer even a store ?
+export class ShittyGridRenderer {
+  constructor(private getters: Getters, private options: ShittyRendererParams) {}
 
   dispose() {}
 
@@ -72,15 +74,13 @@ export class ShittyGridRenderer {
 
   private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
-    const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
+    const { width, height } = this.options.size; // ADRM
 
     // white background
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
 
-    const areGridLinesVisible =
-      !this.getters.isDashboard() &&
-      this.getters.getGridLinesVisibility(this.getters.getActiveSheetId());
+    const areGridLinesVisible = this.options.areGridLinesVisible;
     const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
 
     if (areGridLinesVisible) {
@@ -342,7 +342,7 @@ export class ShittyGridRenderer {
   }
 
   private findNextEmptyCol(base: HeaderIndex, max: HeaderIndex, row: HeaderIndex): HeaderIndex {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.options.sheetId;
     let col: HeaderIndex = base;
     while (col < max) {
       const position = { sheetId, col: col + 1, row };
@@ -365,7 +365,7 @@ export class ShittyGridRenderer {
   }
 
   private findPreviousEmptyCol(base: HeaderIndex, min: HeaderIndex, row: HeaderIndex): HeaderIndex {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.options.sheetId;
     let col: HeaderIndex = base;
     while (col > min) {
       const position = { sheetId, col: col - 1, row };
@@ -407,7 +407,7 @@ export class ShittyGridRenderer {
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getVisibleRectWithoutHeaders(zone); // ADRM
+    const { x, y, width, height } = this.getVisibleRect(zone); // ADRM
     const { verticalAlign } = this.getters.getCellStyle(position);
 
     const box: Box = {
@@ -490,9 +490,7 @@ export class ShittyGridRenderer {
       switch (align) {
         case "left": {
           const emptyZoneOnTheLeft = positionToZone({ col: nextColIndex, row });
-          const { x, y, width, height } = this.getters.getVisibleRect(
-            union(zone, emptyZoneOnTheLeft)
-          );
+          const { x, y, width, height } = this.getVisibleRect(union(zone, emptyZoneOnTheLeft));
           if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
           }
@@ -500,9 +498,7 @@ export class ShittyGridRenderer {
         }
         case "right": {
           const emptyZoneOnTheRight = positionToZone({ col: previousColIndex, row });
-          const { x, y, width, height } = this.getters.getVisibleRect(
-            union(zone, emptyZoneOnTheRight)
-          );
+          const { x, y, width, height } = this.getVisibleRect(union(zone, emptyZoneOnTheRight));
           if (width < contentWidth || fontSizePX > height || multiLineText.length > 1) {
             box.clipRect = { x, y, width, height };
           }
@@ -514,7 +510,7 @@ export class ShittyGridRenderer {
             left: previousColIndex,
             right: nextColIndex,
           };
-          const { x, y, height, width } = this.getters.getVisibleRect(emptyZone);
+          const { x, y, height, width } = this.getVisibleRect(emptyZone);
           const halfContentWidth = contentWidth / 2;
           const boxMiddle = box.x + box.width / 2;
           if (
@@ -552,7 +548,7 @@ export class ShittyGridRenderer {
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = this.options.sheetId;
 
     for (const row of visibleRows) {
       for (const col of visibleCols) {
@@ -588,17 +584,37 @@ export class ShittyGridRenderer {
 
   // ADRM TODO: New getters/helpers/whatnot
   get visibleCols() {
-    const zone = this.figureViewPort.zone;
+    const zone = this.options.zone;
     return range(zone.left, zone.right + 1).filter(
-      (col) => !this.getters.isColHidden(this.figureViewPort.sheetId, col)
+      (col) => !this.getters.isColHidden(this.options.sheetId, col)
     );
   }
 
   get visibleRows() {
-    const zone = this.figureViewPort.zone;
+    const zone = this.options.zone;
     return range(zone.top, zone.bottom + 1).filter(
-      (row) => !this.getters.isRowHidden(this.figureViewPort.sheetId, row)
+      (row) => !this.getters.isRowHidden(this.options.sheetId, row)
     );
+  }
+
+  getVisibleRect(zone: Zone): Rect {
+    let x = 0;
+    for (let i = 0; i < zone.left; i++) {
+      x += this.options.headerDimensions.COL[i] || 0;
+    }
+    let y = 0;
+    for (let i = 0; i < zone.top; i++) {
+      y += this.options.headerDimensions.ROW[i] || 0;
+    }
+    let width = 0;
+    for (let i = zone.left; i <= zone.right; i++) {
+      width += this.options.headerDimensions.COL[i] || 0;
+    }
+    let height = 0;
+    for (let i = zone.top; i <= zone.bottom; i++) {
+      height += this.options.headerDimensions.ROW[i] || 0;
+    }
+    return { x, y, width, height };
   }
 }
 

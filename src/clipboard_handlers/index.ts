@@ -6,6 +6,7 @@ import { CellClipboardHandler } from "./cell_clipboard";
 import { ChartClipboardHandler } from "./chart_clipboard";
 import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboard";
 import { DataValidationClipboardHandler } from "./data_validation_clipboard";
+import { FigureViewportClipboardHandler } from "./figure_viewport_clipboard";
 import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
 import { SheetClipboardHandler } from "./sheet_clipboard";
@@ -18,7 +19,8 @@ export const clipboardHandlersRegistries = {
 
 clipboardHandlersRegistries.figureHandlers
   .add("chart", ChartClipboardHandler)
-  .add("image", ImageClipboardHandler);
+  .add("image", ImageClipboardHandler)
+  .add("viewport_figure", FigureViewportClipboardHandler);
 
 clipboardHandlersRegistries.cellHandlers
   .add("dataValidation", DataValidationClipboardHandler)

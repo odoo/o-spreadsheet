@@ -249,6 +249,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** IMAGE */
   "CREATE_IMAGE",
   "CREATE_FIGURE_VIEWPORT",
+  "UPDATE_FIGURE_VIEWPORT",
 
   /** HEADER GROUP */
   "GROUP_HEADERS",
@@ -531,6 +532,13 @@ export interface CreateViewportFigureCommand extends ZoneDependentCommand {
   position: DOMCoordinates;
   size: FigureSize;
   definition: Omit<FigureViewport, "zone">;
+}
+
+export interface UpdateFigureViewportCommand extends ZoneDependentCommand {
+  sheetId: UID;
+  type: "UPDATE_FIGURE_VIEWPORT";
+  figureId: UID;
+  definition: Partial<Omit<FigureViewport, "zone">>;
 }
 
 //------------------------------------------------------------------------------
@@ -1071,6 +1079,7 @@ export type CoreCommand =
   /** IMAGE */
   | CreateImageOverCommand
   | CreateViewportFigureCommand
+  | UpdateFigureViewportCommand
 
   /** FILTERS */
   | CreateTableCommand
