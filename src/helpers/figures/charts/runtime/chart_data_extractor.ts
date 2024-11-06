@@ -46,7 +46,7 @@ export function getBarChartData(
     labels.shift();
   }
 
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
   if (definition.aggregated) {
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
@@ -123,7 +123,7 @@ export function getLineChartData(
     labels.shift();
   }
 
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
   if (axisType === "time") {
     ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
   }
@@ -142,7 +142,7 @@ export function getLineChartData(
     if (definition.cumulative) {
       let accumulator = 0;
       data = data.map((value) => {
-        if (!isNaN(value)) {
+        if (!isNaN(parseFloat(value))) {
           accumulator += parseFloat(value);
           return accumulator;
         }
@@ -189,13 +189,13 @@ export function getPieChartData(
     labels.shift();
   }
 
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
 
   if (definition.aggregated) {
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  ({ dataSetsValues, labels } = filterNegativeValues(labels, dataSetsValues));
+  ({ dataSetsValues, labels } = keepOnlyPositiveValues(labels, dataSetsValues));
 
   const dataSetFormat = getChartDatasetFormat(getters, dataSets, "left");
 
@@ -224,7 +224,7 @@ export function getRadarChartData(
     labels.shift();
   }
 
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
   if (definition.aggregated) {
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
@@ -456,33 +456,26 @@ function isLuxonTimeAdapterInstalled() {
   return isInstalled;
 }
 
-function filterNegativeValues(
+function keepOnlyPositiveValues(
   labels: readonly string[],
   datasets: readonly DatasetValues[]
 ): { labels: string[]; dataSetsValues: DatasetValues[] } {
-  const dataPointsIndexes = labels.reduce<number[]>((indexes, label, i) => {
-    const shouldKeep = datasets.some((dataset) => {
-      const dataPoint = dataset.data[i];
-      return typeof dataPoint !== "number" || dataPoint >= 0;
-    });
-
-    if (shouldKeep) {
-      indexes.push(i);
-    }
-
-    return indexes;
-  }, []);
-
-  const filteredLabels = dataPointsIndexes.map((i) => labels[i] || "");
-  const filteredDatasets = datasets.map((dataset) => ({
-    ...dataset,
-    data: dataPointsIndexes.map((i) => {
-      const dataPoint = dataset.data[i];
-      return typeof dataPoint !== "number" || dataPoint >= 0 ? dataPoint : 0;
-    }),
-  }));
-
-  return { labels: filteredLabels, dataSetsValues: filteredDatasets };
+  const numberOfDataPoints = Math.max(
+    labels.length,
+    ...datasets.map((dataset) => dataset.data?.length || 0)
+  );
+  const filteredIndexes = range(0, numberOfDataPoints).filter((i) =>
+    datasets.some((ds) => typeof ds.data[i] === "number" && ds.data[i] > 0)
+  );
+  return {
+    labels: filteredIndexes.map((i) => labels[i] || ""),
+    dataSetsValues: datasets.map((ds) => ({
+      ...ds,
+      data: filteredIndexes.map((i) =>
+        typeof ds.data[i] === "number" && ds.data[i] > 0 ? ds.data[i] : null
+      ),
+    })),
+  };
 }
 
 function fixEmptyLabelsForDateCharts(
@@ -521,7 +514,12 @@ export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[
   return [];
 }
 
-function filterEmptyDataPoints(
+/**
+ * Filter the data points that:
+ * - have neither a label nor a value
+ * - have no label and a non-numeric value
+ */
+function filterInvalidDataPoints(
   labels: string[],
   datasets: DatasetValues[]
 ): { labels: string[]; dataSetsValues: DatasetValues[] } {
@@ -532,13 +530,15 @@ function filterEmptyDataPoints(
   const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
-    return label || values.some((value) => value === 0 || Boolean(value));
+    return label || values.some((value) => typeof value === "number");
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),
     dataSetsValues: datasets.map((dataset) => ({
       ...dataset,
-      data: dataPointsIndexes.map((i) => dataset.data[i]),
+      data: dataPointsIndexes.map((i) =>
+        typeof dataset.data[i] === "number" ? dataset.data[i] : null
+      ),
     })),
   };
 }
