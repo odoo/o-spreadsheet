@@ -68,7 +68,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getFormulaMovedInSheet",
   ] as const;
   readonly nextId = 1;
-  public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  public cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     for (const sheet of Object.keys(this.cells)) {
@@ -751,6 +751,25 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
+  }
+
+  cleanUpBeforeDestroy() {
+    super.cleanUpBeforeDestroy();
+    for (let sheet of Object.values(this.cells)) {
+      for (let cell of Object.values(sheet)) {
+        if (cell.isFormula) {
+          cell.compiledFormula.dependencies = [];
+          cell.compiledFormula.tokens.forEach((token) => {
+            if (token instanceof RangeReferenceToken) {
+              // @ts-ignore
+              delete token.getRangeString;
+            }
+          });
+        }
+      }
+      sheet = {};
+    }
+    this.cells = {};
   }
 }
 

@@ -730,6 +730,16 @@ export default function (PivotClass: PivotUIConstructor) {
       }
       throw new Error(`Value ${result.value} is not a number`);
     }
+
+    cleanUpBeforeDestroy(): void {
+      this.cache = {};
+      this.rankAsc = {};
+      this.rankDesc = {};
+      this.runningTotal = {};
+      this.runningTotalInPercent = {};
+      // @ts-ignore
+      this.getters = [];
+    }
   }
   return PivotPresentationLayer;
 }

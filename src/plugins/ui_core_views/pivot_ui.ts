@@ -317,4 +317,12 @@ export class PivotUIPlugin extends UIPlugin {
     this.unusedPivots = [...unusedPivots];
     return this.unusedPivots;
   }
+
+  cleanUpBeforeDestroy() {
+    for (const pivot of Object.values(this.pivots)) {
+      pivot.cleanUpBeforeDestroy();
+    }
+    this.pivots = {};
+    super.cleanUpBeforeDestroy();
+  }
 }

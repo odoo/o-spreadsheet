@@ -46,7 +46,7 @@ const ERROR_CYCLE_CELL = createEvaluatedCell(new CircularDependencyError());
 const EMPTY_CELL = createEvaluatedCell({ value: null });
 
 export class Evaluator {
-  private readonly getters: Getters;
+  private getters: Getters;
   private compilationParams: CompilationParameters;
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
@@ -557,6 +557,23 @@ export class Evaluator {
       ranges.push(...zonesBySheetIds[sheetId].map((zone) => ({ sheetId, zone })));
     }
     return this.formulaDependencies().getCellsDependingOn(ranges);
+  }
+
+  cleanUpBeforeDestroy() {
+    // @ts-ignore
+    this.getters = [];
+    // @ts-ignore
+    this.compilationParams.evalContext.getters = [];
+    // @ts-ignore
+    delete this.compilationParams;
+    // @ts-ignore
+    this.evaluatedCells = [];
+    // @ts-ignore
+    delete this.formulaDependencies;
+    // @ts-ignore
+    delete this.blockedArrayFormulas;
+    // @ts-ignore
+    delete this.spreadingRelations;
   }
 }
 

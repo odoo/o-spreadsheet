@@ -401,4 +401,11 @@ export class EvaluationPlugin extends UIPlugin {
     }
     return undefined;
   }
+
+  cleanUpBeforeDestroy() {
+    super.cleanUpBeforeDestroy();
+    this.evaluator.cleanUpBeforeDestroy();
+    // @ts-ignore
+    delete this.evaluator;
+  }
 }
