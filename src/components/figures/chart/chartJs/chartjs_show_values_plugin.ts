@@ -159,6 +159,10 @@ function drawPieChartValues(
 ) {
   for (const dataset of chart._metasets) {
     for (let i = 0; i < dataset._parsed.length; i++) {
+      const value = Number(dataset._parsed[i]);
+      if (isNaN(value) || value === 0) {
+        continue;
+      }
       const bar = dataset.data[i];
       const { startAngle, endAngle, innerRadius, outerRadius } = bar;
       const midAngle = (startAngle + endAngle) / 2;
@@ -169,8 +173,8 @@ function drawPieChartValues(
       ctx.fillStyle = chartFontColor(options.background);
       ctx.strokeStyle = options.background || "#ffffff";
 
-      const value = options.callback(dataset._parsed[i]);
-      drawTextWithBackground(value, x, y, ctx);
+      const displayValue = options.callback(value);
+      drawTextWithBackground(displayValue, x, y, ctx);
     }
   }
 }
