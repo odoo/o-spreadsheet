@@ -28,7 +28,7 @@
             placeholder="Baseline description"
           />
         </Section>
-        <Section class="'o-chart-baseline-color'" title="colorsSectionTitle">
+        <Section class="'o-chart-baseline-color pt-0'" title="colorsSectionTitle">
           <div class="d-flex align-items-center mb-2">
             <RoundColorPicker
               currentColor="props.definition.baselineColorUp"

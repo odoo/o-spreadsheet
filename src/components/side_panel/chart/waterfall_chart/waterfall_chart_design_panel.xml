@@ -5,7 +5,7 @@
       definition="props.definition"
       updateChart="props.updateChart">
       <t t-set-slot="general-extension">
-        <Section class="'o-vertical-axis-selection'" title.translate="Vertical axis position">
+        <Section class="'o-vertical-axis-selection pt-0'" title.translate="Vertical axis position">
           <RadioSelection
             choices="axisChoices"
             selectedValue="props.definition.verticalAxisPosition"
@@ -55,7 +55,7 @@
             onChange.bind="onUpdateShowConnectorLines"
           />
         </Section>
-        <Section title.translate="Colors">
+        <Section class="'pt-0'" title.translate="Colors">
           <div class="o-waterfall-positive-color d-flex align-items-center mb-2">
             <RoundColorPicker
               currentColor="positiveValuesColor"
