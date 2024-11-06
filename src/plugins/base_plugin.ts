@@ -121,6 +121,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
   }
 
   cleanUpBeforeDestroy() {
+    console.info("destroying plugin", this.constructor.name);
     // @ts-ignore
     this.getters = [];
 

@@ -513,4 +513,19 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
     return dataEntries;
   }
+
+  cleanUpBeforeDestroy(): void {
+    // @ts-ignore
+    this.getters = [];
+
+    delete this.table;
+    // @ts-ignore
+    delete this.dataEntries;
+    // @ts-ignore
+    delete this.metaData;
+    // @ts-ignore
+    delete this.coreDefinition;
+    delete this._definition;
+    delete this.invalidRangeError;
+  }
 }
