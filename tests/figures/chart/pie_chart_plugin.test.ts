@@ -40,24 +40,24 @@ describe("pie chart", () => {
   });
 
   test("Pie chart legend", () => {
+    // prettier-ignore
     const model = createModelFromGrid({
-      A1: "1",
-      A2: "2",
-      A3: "3",
-      A4: "4",
+      A1: "P1",  B1: "1",  C1: "3",
+      A2: "P2",  B2: "2",  C2: "4",
     });
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "Sheet1!A1:A2" }, { dataRange: "Sheet1!A3:A4" }],
-        labelRange: "Sheet1!A2:A4",
+        dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
+        labelRange: "Sheet1!A1:A2",
+        dataSetsHaveTitle: false,
         type: "pie",
       },
       "1"
     );
     expect(getChartLegendLabels(model, "1")).toEqual([
       {
-        text: "3",
+        text: "P1",
         fillStyle: "#4EA7F2",
         hidden: false,
         lineWidth: 2,
@@ -65,7 +65,7 @@ describe("pie chart", () => {
         strokeStyle: "#4EA7F2",
       },
       {
-        text: "4",
+        text: "P2",
         fillStyle: "#EA6175",
         hidden: false,
         lineWidth: 2,

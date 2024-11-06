@@ -345,6 +345,31 @@ describe("datasource tests", function () {
     expect(chart.chartJsConfig.data!.datasets?.length).toEqual(1);
   });
 
+  test.each(["line", "bar"] as const)(
+    "%s chart filter out points with no label and an invalid value",
+    (chartType) => {
+      setCellContent(model, "G1", "not a number");
+      setCellContent(model, "F2", "label");
+      setCellContent(model, "G2", "neither is this, but this have a label");
+      setCellContent(model, "G3", "12");
+
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "G1:G3" }],
+          labelRange: "F1:F3",
+          dataSetsHaveTitle: false,
+          type: chartType,
+        },
+        "43"
+      );
+
+      const config = getChartConfiguration(model, "43");
+      // In line/bars charts we want to keep invalid data that have a label to have a discontinuous line/empty space between bars
+      expect(config.data?.datasets![0].data).toEqual([null, 12]);
+    }
+  );
+
   test("create a chart with stacked bar", () => {
     createChart(
       model,
@@ -2979,12 +3004,13 @@ describe("Chart evaluation", () => {
 
 describe("Cumulative Data line chart", () => {
   test("Chart to display cumulative data", () => {
+    setCellContent(model, "A7", "random label");
     createChart(
       model,
       {
         dataSets: [{ dataRange: "B2:B8" }],
         dataSetsHaveTitle: true,
-        labelRange: "A2",
+        labelRange: "A2:A8",
         type: "line",
         cumulative: false,
       },
@@ -2992,8 +3018,8 @@ describe("Cumulative Data line chart", () => {
     );
 
     const chartData = getChartConfiguration(model, "1").data!.datasets![0].data;
-    const initialData = [11, 12, 13, "P4", 30];
-    const expectedCumulativeData = [11, 23, 36, "P4", 66];
+    const initialData = [11, 12, 13, null, 30]; // null if for the non-number value with a label
+    const expectedCumulativeData = [11, 23, 36, null, 66];
 
     expect(chartData).toEqual(initialData);
 
@@ -3027,7 +3053,7 @@ describe("Cumulative Data line chart", () => {
   });
 });
 
-describe("Pie chart negative values", () => {
+describe("Pie chart invalid values", () => {
   test("Pie chart to exclude negative values and labels in single dataset", () => {
     setCellContent(model, "D6", "-23");
     createChart(
@@ -3039,8 +3065,8 @@ describe("Pie chart negative values", () => {
       },
       "1"
     );
-    const expectedData = ["P6", 32, 42]; // -23 is filtered out from dataset
-    const expectedLabels = ["P2", "P3", "P4"];
+    const expectedData = [32, 42]; // -23 is filtered out from dataset
+    const expectedLabels = ["P3", "P4"];
 
     const data = getChartConfiguration(model, "1").data;
 
@@ -3060,7 +3086,7 @@ describe("Pie chart negative values", () => {
       },
       "1"
     );
-    const expectedData = [0, "P6", 0, 42]; // -23 and -3 are replaced by 0
+    const expectedData = [null, null, null, 42]; // negative & non-number values are replaced by null
     const expectedLabels = ["P2", "P3", "P4", ""];
 
     const data = getChartConfiguration(model, "1").data;
@@ -3068,6 +3094,32 @@ describe("Pie chart negative values", () => {
     expect(data.datasets[0].data).toEqual(expectedData);
     expect(data.datasets[1].data).toEqual([10, 11, 12, 13]);
     expect(data.labels).toEqual(expectedLabels);
+  });
+
+  test("Zeros values are removed from the pie chart", () => {
+    setCellContent(model, "F6", "0");
+    setCellContent(model, "F8", "3");
+    createChart(model, { dataSets: [{ dataRange: "F5:F8" }], type: "pie" }, "1");
+
+    const data = getChartConfiguration(model, "1").data;
+    expect(data.datasets[0].data).toEqual([3]);
+  });
+
+  test("Non-number values are removed from the pie chart", () => {
+    setCellContent(model, "F6", "Not a number");
+    setCellContent(model, "F7", "45");
+    setCellContent(model, "G8", "Label");
+    setCellContent(model, "F8", "Not a number, but has a label");
+    createChart(
+      model,
+      { dataSets: [{ dataRange: "F5:F8" }], labelRange: "G5:G8", type: "pie" },
+      "1"
+    );
+
+    const data = getChartConfiguration(model, "1").data;
+    // In pie charts we want to remove non-number values even if they have a label, because they won't show on the pie
+    // but will pollute the legend
+    expect(data.datasets[0].data).toEqual([45]);
   });
 });
 
