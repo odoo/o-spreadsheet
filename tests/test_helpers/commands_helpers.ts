@@ -728,6 +728,7 @@ export function setSelection(
   options: {
     anchor?: string | undefined;
     strict?: boolean;
+    unbounded?: boolean;
   } = { anchor: undefined, strict: false }
 ) {
   const sheetId = model.getters.getActiveSheetId();
@@ -766,7 +767,10 @@ export function setSelection(
 
   if (zones.length !== 0) {
     const z1 = zones.splice(0, 1)[0];
-    model.selection.selectZone({ cell: { col: z1.left, row: z1.top }, zone: z1 });
+    model.selection.selectZone(
+      { cell: { col: z1.left, row: z1.top }, zone: z1 },
+      { unbounded: options.unbounded }
+    );
     for (const zone of zones) {
       model.selection.addCellToSelection(zone.left, zone.top);
       model.selection.setAnchorCorner(zone.right, zone.bottom);
@@ -774,7 +778,7 @@ export function setSelection(
     model.selection.addCellToSelection(anchor.zone.left, anchor.zone.top);
     model.selection.setAnchorCorner(anchor.zone.right, anchor.zone.bottom);
   } else {
-    model.selection.selectZone(anchor);
+    model.selection.selectZone(anchor, { scrollIntoView: true, unbounded: options.unbounded });
   }
 }
 

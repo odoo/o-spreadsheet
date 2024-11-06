@@ -95,14 +95,14 @@ export function transformDefinition(
  * - Else returns a bar chart
  */
 export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefinition {
+  const sheetId = getters.getActiveSheetId();
   let dataSetZone = zone;
   const singleColumn = zoneToDimension(zone).numberOfCols === 1;
   if (!singleColumn) {
     dataSetZone = { ...zone, left: zone.left + 1 };
   }
-  const dataRange = zoneToXc(dataSetZone);
+  const dataRange = zoneToXc(getters.getUnboundedZone(sheetId, dataSetZone));
   const dataSets = [{ dataRange, yAxisId: "y" }];
-  const sheetId = getters.getActiveSheetId();
 
   const topLeftCell = getters.getCell({ sheetId, col: zone.left, row: zone.top });
   if (getZoneArea(zone) === 1 && topLeftCell?.content) {
@@ -127,10 +127,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
 
   let labelRangeXc: string | undefined;
   if (!singleColumn) {
-    labelRangeXc = zoneToXc({
-      ...zone,
-      right: zone.left,
-    });
+    labelRangeXc = zoneToXc(getters.getUnboundedZone(sheetId, { ...zone, right: zone.left }));
   }
   // Only display legend for several datasets.
   const newLegendPos = dataSetZone.right === dataSetZone.left ? "none" : "top";

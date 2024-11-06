@@ -493,4 +493,14 @@ describe("Insert chart menu item", () => {
     };
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
+
+  test("Chart can be inserted with unbounded ranges", () => {
+    setSelection(model, ["A1:B100"], { unbounded: true });
+    insertChart();
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      dataSets: [{ dataRange: "B:B" }],
+      labelRange: "A:A",
+    });
+  });
 });
