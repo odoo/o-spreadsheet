@@ -7,7 +7,15 @@ import {
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
 import { TEST_CHART_DATA } from "../../../test_helpers/constants";
-import { mountComponentWithPortalTarget, textContentAll } from "../../../test_helpers/helpers";
+import {
+  editStandaloneComposer,
+  mountComponentWithPortalTarget,
+  textContentAll,
+} from "../../../test_helpers/helpers";
+
+jest.mock("../../../../src/components/composer/content_editable_helper", () =>
+  require("../../../__mocks__/content_editable_helper")
+);
 
 let model: Model;
 let fixture: HTMLElement;
@@ -49,6 +57,23 @@ test("Can change gauge inflection operator", async () => {
   });
 });
 
+test("Can input formulas in gauge design values", async () => {
+  await openChartDesignSidePanel(model, env, fixture, chartId);
+  await editStandaloneComposer(".o-data-range-min .o-composer", "=1+1");
+  await editStandaloneComposer(".o-data-range-max .o-composer", "=10*20");
+  await editStandaloneComposer(".lowerInflectionPoint .o-composer", "=10/2");
+  await editStandaloneComposer(".upperInflectionPoint .o-composer", "=10^2");
+
+  expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+    sectionRule: {
+      rangeMin: "=1+1",
+      rangeMax: "=10*20",
+      lowerInflectionPoint: { value: "=10/2" },
+      upperInflectionPoint: { value: "=10^2" },
+    },
+  });
+});
+
 describe("update chart with invalid section rule", () => {
   test("empty dataRange", async () => {
     await simulateClick(".o-data-series input");
@@ -59,16 +84,16 @@ describe("update chart with invalid section rule", () => {
 
   test("empty rangeMin", async () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await setInputValueAndTrigger(".o-data-range-min", "");
+    await editStandaloneComposer(".o-data-range-min .o-composer", "");
     expect(document.querySelector(".o-data-range-min")?.classList).toContain("o-invalid");
     expect(textContentAll(".o-validation-error")[0]).toEqual(
       ChartTerms.Errors[CommandResult.EmptyGaugeRangeMin].toString()
     );
   });
 
-  test("NaN rangeMin", async () => {
+  test.each(["bla bla bla", '=TRIM("  ok  ")'])("NaN rangeMin %s", async (content) => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await setInputValueAndTrigger(".o-data-range-min", "bla bla bla");
+    await editStandaloneComposer(".o-data-range-min .o-composer", content);
     expect(document.querySelector(".o-data-range-min")?.classList).toContain("o-invalid");
     expect(textContentAll(".o-validation-error")[0]).toEqual(
       ChartTerms.Errors[CommandResult.GaugeRangeMinNaN].toString()
@@ -77,39 +102,35 @@ describe("update chart with invalid section rule", () => {
 
   test("empty rangeMax", async () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await setInputValueAndTrigger(".o-data-range-max", "");
+    await editStandaloneComposer(".o-data-range-max .o-composer", "");
     expect(document.querySelector(".o-data-range-max")?.classList).toContain("o-invalid");
     expect(textContentAll(".o-validation-error")[0]).toEqual(
       ChartTerms.Errors[CommandResult.EmptyGaugeRangeMax].toString()
     );
   });
 
-  test("NaN rangeMax", async () => {
+  test.each(["bla bla bla", '="This is not a number"'])("NaN rangeMin %s", async (content) => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await setInputValueAndTrigger(".o-data-range-max", "bla bla bla");
+    await editStandaloneComposer(".o-data-range-max .o-composer", content);
     expect(document.querySelector(".o-data-range-max")?.classList).toContain("o-invalid");
     expect(textContentAll(".o-validation-error")[0]).toEqual(
       ChartTerms.Errors[CommandResult.GaugeRangeMaxNaN].toString()
     );
   });
 
-  test("NaN LowerInflectionPoint", async () => {
+  test.each(["bla bla bla", "=)))invalid formula((("])("NaN rangeMin %s", async (content) => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await setInputValueAndTrigger(".o-input-lowerInflectionPoint", "bla bla bla");
-    expect(document.querySelector(".o-input-lowerInflectionPoint")?.classList).toContain(
-      "o-invalid"
-    );
+    await editStandaloneComposer(".lowerInflectionPoint .o-composer", content);
+    expect(document.querySelector(".lowerInflectionPoint")?.classList).toContain("o-invalid");
     expect(textContentAll(".o-validation-error")[0]).toEqual(
       ChartTerms.Errors[CommandResult.GaugeLowerInflectionPointNaN].toString()
     );
   });
 
-  test("NaN UpperInflectionPoint", async () => {
+  test.each(["bla bla bla", "=#ERROR"])("NaN rangeMin %s", async (content) => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
-    await setInputValueAndTrigger(".o-input-upperInflectionPoint", "bla bla bla");
-    expect(document.querySelector(".o-input-upperInflectionPoint")?.classList).toContain(
-      "o-invalid"
-    );
+    await editStandaloneComposer(".upperInflectionPoint .o-composer", "bla bla bla");
+    expect(document.querySelector(".upperInflectionPoint")?.classList).toContain("o-invalid");
     expect(textContentAll(".o-validation-error")[0]).toEqual(
       ChartTerms.Errors[CommandResult.GaugeUpperInflectionPointNaN].toString()
     );

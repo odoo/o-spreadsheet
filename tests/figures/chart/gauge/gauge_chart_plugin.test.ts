@@ -1,4 +1,4 @@
-import { ChartCreationContext, CommandResult, Model } from "../../../../src";
+import { CellErrorType, ChartCreationContext, CommandResult, Model } from "../../../../src";
 import { deepCopy, zoneToXc } from "../../../../src/helpers";
 import { GaugeChart } from "../../../../src/helpers/figures/charts";
 import {
@@ -163,6 +163,46 @@ describe("datasource tests", function () {
     });
   });
 
+  test("Can use formulas as gauge chart values", () => {
+    setCellContent(model, "A1", "42");
+    setCellContent(model, "A2", "150");
+
+    createGaugeChart(
+      model,
+      {
+        dataRange: "A1",
+        sectionRule: {
+          rangeMin: "=0",
+          rangeMax: "=A2 - 20",
+          lowerInflectionPoint: {
+            operator: "<=",
+            value: "=SUM(10, 12)",
+            type: "number",
+          },
+          upperInflectionPoint: {
+            operator: "<=",
+            value: "=DIVIDE(100, 2)",
+            type: "percentage",
+          },
+          colors: {
+            lowerColor: "#6aa84f",
+            middleColor: "#f1c232",
+            upperColor: "#cc0000",
+          },
+        },
+      },
+      "1"
+    );
+    const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+
+    expect(runtime.minValue).toMatchObject({ value: 0, label: "0" });
+    expect(runtime.maxValue).toMatchObject({ value: 130, label: "130" });
+    expect(runtime.inflectionValues).toMatchObject([
+      { value: 22, label: "22", operator: "<=" },
+      { value: 65, label: "65", operator: "<=" }, // 50% of 130
+    ]);
+  });
+
   test("create gauge chart with invalid ranges", () => {
     const result = createGaugeChart(model, { dataRange: "this is invalid" }, "chartId");
     expect(result).toBeCancelledBecause(CommandResult.InvalidGaugeDataRange);
@@ -188,6 +228,19 @@ describe("datasource tests", function () {
       expect(result).toBeCancelledBecause(CommandResult.GaugeRangeMinNaN);
     });
 
+    test("Invalid rangeMin formula value", () => {
+      sectionRule = { ...sectionRule, rangeMin: '=CONCAT("hello", "there")' };
+      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      expect(result).toBeSuccessfullyDispatched();
+      expect(model.getters.getChartRuntime("1")).toMatchObject({
+        minValue: { value: 0, label: "" },
+        maxValue: { value: 100, label: "" },
+        gaugeValue: { value: 0, label: CellErrorType.GenericError },
+        inflectionValues: [],
+        colors: [],
+      });
+    });
+
     test("empty rangeMax", async () => {
       sectionRule = { ...sectionRule, rangeMax: "" };
       const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
@@ -200,6 +253,19 @@ describe("datasource tests", function () {
       expect(result).toBeCancelledBecause(CommandResult.GaugeRangeMaxNaN);
     });
 
+    test("Invalid rangeMin formula value", () => {
+      sectionRule = { ...sectionRule, rangeMax: "=)))(((invalid formula)))" };
+      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      expect(result).toBeSuccessfullyDispatched();
+      expect(model.getters.getChartRuntime("1")).toMatchObject({
+        minValue: { value: 0, label: "" },
+        maxValue: { value: 100, label: "" },
+        gaugeValue: { value: 0, label: CellErrorType.GenericError },
+        inflectionValues: [],
+        colors: [],
+      });
+    });
+
     test("NaN LowerInflectionPoint", async () => {
       sectionRule = {
         ...sectionRule,
@@ -207,6 +273,17 @@ describe("datasource tests", function () {
       };
       const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
       expect(result).toBeCancelledBecause(CommandResult.GaugeLowerInflectionPointNaN);
+    });
+
+    test("Invalid formula LowerInflectionPoint", () => {
+      sectionRule = {
+        ...sectionRule,
+        lowerInflectionPoint: { ...sectionRule.lowerInflectionPoint, value: '=TRIM("hello")' },
+      };
+      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      expect(result).toBeSuccessfullyDispatched();
+      const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+      expect(runtime.inflectionValues).toHaveLength(1); // only the upper inflection point is valid and kept
     });
 
     test("NaN UpperInflectionPoint", async () => {
@@ -219,6 +296,20 @@ describe("datasource tests", function () {
       };
       const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "chartId");
       expect(result).toBeCancelledBecause(CommandResult.GaugeUpperInflectionPointNaN);
+    });
+
+    test("Invalid formula UpperInflectionPoint", () => {
+      sectionRule = {
+        ...sectionRule,
+        upperInflectionPoint: {
+          ...sectionRule.upperInflectionPoint,
+          value: '=CONCAT("hello", " there")',
+        },
+      };
+      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      expect(result).toBeSuccessfullyDispatched();
+      const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+      expect(runtime.inflectionValues).toHaveLength(1); // only the lower inflection point is valid and kept
     });
   });
 

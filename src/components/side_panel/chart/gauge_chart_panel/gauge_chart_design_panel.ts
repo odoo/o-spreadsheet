@@ -1,4 +1,5 @@
 import { Component, useState } from "@odoo/owl";
+import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/index";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import {
@@ -7,7 +8,9 @@ import {
   DispatchResult,
   SpreadsheetChildEnv,
   UID,
+  isMatrix,
 } from "../../../../types/index";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
@@ -78,6 +81,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     RoundColorPicker,
     GeneralDesignEditor,
     ChartErrorSection,
+    StandaloneComposer,
   };
   static props = {
     figureId: String,
@@ -90,7 +94,9 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
 
   setup() {
     this.state = useState<PanelState>({
-      sectionRuleDispatchResult: undefined,
+      sectionRuleDispatchResult: new DispatchResult(
+        this.checkSectionRuleFormulasAreValid(this.props.definition.sectionRule)
+      ),
       sectionRule: deepCopy(this.props.definition.sectionRule),
     });
   }
@@ -102,14 +108,14 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     );
   }
 
-  isRangeMinInvalid() {
+  get isRangeMinInvalid() {
     return !!(
       this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.EmptyGaugeRangeMin) ||
       this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.GaugeRangeMinNaN)
     );
   }
 
-  isRangeMaxInvalid() {
+  get isRangeMaxInvalid() {
     return !!(
       this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.EmptyGaugeRangeMax) ||
       this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.GaugeRangeMaxNaN)
@@ -139,6 +145,12 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   updateSectionRule(sectionRule: SectionRule) {
+    const invalidValueReasons = this.checkSectionRuleFormulasAreValid(this.state.sectionRule);
+    if (invalidValueReasons.length > 0) {
+      this.state.sectionRuleDispatchResult = new DispatchResult(invalidValueReasons);
+      return;
+    }
+
     this.state.sectionRuleDispatchResult = this.props.updateChart(this.props.figureId, {
       sectionRule,
     });
@@ -147,9 +159,69 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     }
   }
 
-  canUpdateSectionRule(sectionRule: SectionRule) {
-    this.state.sectionRuleDispatchResult = this.props.canUpdateChart(this.props.figureId, {
-      sectionRule,
-    });
+  onConfirmGaugeRange(editedRange: "rangeMin" | "rangeMax", content: string) {
+    this.state.sectionRule = { ...this.state.sectionRule, [editedRange]: content };
+    this.updateSectionRule(this.state.sectionRule);
+  }
+
+  getGaugeInflectionComposerProps(
+    sectionType: "lowerColor" | "middleColor"
+  ): StandaloneComposer["props"] {
+    const inflectionPointName =
+      sectionType === "lowerColor" ? "lowerInflectionPoint" : "upperInflectionPoint";
+    const inflectionPoint = this.state.sectionRule[inflectionPointName];
+    return {
+      onConfirm: (str: string) => {
+        this.state.sectionRule = {
+          ...this.state.sectionRule,
+          [inflectionPointName]: { ...inflectionPoint, value: str },
+        };
+        this.updateSectionRule(this.state.sectionRule);
+      },
+      composerContent: inflectionPoint.value,
+      invalid:
+        sectionType === "lowerColor"
+          ? this.isLowerInflectionPointInvalid
+          : this.isUpperInflectionPointInvalid,
+      defaultRangeSheetId: this.sheetId,
+      class: inflectionPointName,
+    };
+  }
+
+  private checkSectionRuleFormulasAreValid(sectionRule: SectionRule): CommandResult[] {
+    const reasons: CommandResult[] = [];
+    if (!this.valueIsValidNumber(sectionRule.rangeMin)) {
+      reasons.push(CommandResult.GaugeRangeMinNaN);
+    }
+    if (!this.valueIsValidNumber(sectionRule.rangeMax)) {
+      reasons.push(CommandResult.GaugeRangeMaxNaN);
+    }
+    if (!this.valueIsValidNumber(sectionRule.lowerInflectionPoint.value)) {
+      reasons.push(CommandResult.GaugeLowerInflectionPointNaN);
+    }
+    if (!this.valueIsValidNumber(sectionRule.upperInflectionPoint.value)) {
+      reasons.push(CommandResult.GaugeUpperInflectionPointNaN);
+    }
+    return reasons;
+  }
+
+  private valueIsValidNumber(value: string): boolean {
+    const locale = this.env.model.getters.getLocale();
+    if (!value.startsWith("=")) {
+      return tryToNumber(value, locale) !== undefined;
+    }
+    const evaluatedValue = this.env.model.getters.evaluateFormula(this.sheetId, value);
+    if (isMatrix(evaluatedValue)) {
+      return false;
+    }
+    return tryToNumber(evaluatedValue, locale) !== undefined;
+  }
+
+  get sheetId() {
+    const chart = this.env.model.getters.getChart(this.props.figureId);
+    if (!chart) {
+      throw new Error("Chart not found with id " + this.props.figureId);
+    }
+    return chart.sheetId;
   }
 }
