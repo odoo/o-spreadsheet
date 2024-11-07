@@ -4,6 +4,7 @@ import {
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
+import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
 import { _t } from "../../../translation";
 import {
@@ -20,6 +21,7 @@ import {
   UID,
   UnboundedZone,
   Validation,
+  isMatrix,
 } from "../../../types";
 import { ChartCreationContext } from "../../../types/chart/chart";
 import {
@@ -29,6 +31,7 @@ import {
   SectionRule,
   SectionThreshold,
 } from "../../../types/chart/gauge_chart";
+import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { clip, formatValue } from "../../index";
 import { createValidRange } from "../../range";
@@ -107,7 +110,10 @@ function checkEmpty(value: string, valueName: string) {
   return CommandResult.Success;
 }
 
-function checkNaN(value: string, valueName: string) {
+function checkValueIsNumberOrFormula(value: string, valueName: string) {
+  if (value.startsWith("=")) {
+    return CommandResult.Success;
+  }
   if (isNaN(value as any)) {
     switch (valueName) {
       case "rangeMin":
@@ -145,9 +151,11 @@ export class GaugeChart extends AbstractChart {
       isDataRangeValid,
       validator.chainValidations(
         checkRangeLimits(checkEmpty, validator.batchValidations),
-        checkRangeLimits(checkNaN, validator.batchValidations)
+        checkRangeLimits(checkValueIsNumberOrFormula, validator.batchValidations)
       ),
-      validator.chainValidations(checkInflectionPointsValue(checkNaN, validator.batchValidations))
+      validator.chainValidations(
+        checkInflectionPointsValue(checkValueIsNumberOrFormula, validator.batchValidations)
+      )
     );
   }
 
@@ -200,26 +208,37 @@ export class GaugeChart extends AbstractChart {
       newSheetId,
       this.dataRange
     );
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, newSheetId);
+
+    const adaptFormula = (formula: string) =>
+      this.getters.copyFormulaStringForSheet(this.sheetId, newSheetId, formula, "moveReference");
+
+    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
+
+    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule, newSheetId);
     return new GaugeChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): GaugeChart {
-    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sheetId);
+    const adaptFormula = (formula: string) =>
+      this.getters.copyFormulaStringForSheet(this.sheetId, sheetId, formula, "keepSameReference");
+
+    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
+    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sectionRule, sheetId);
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): GaugeChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.dataRange);
+    return this.getDefinitionWithSpecificRanges(this.dataRange, this.sectionRule);
   }
 
   private getDefinitionWithSpecificRanges(
     dataRange: Range | undefined,
+    sectionRule: SectionRule,
     targetSheetId?: UID
   ): GaugeChartDefinition {
     return {
       background: this.background,
-      sectionRule: this.sectionRule,
+      sectionRule: sectionRule,
       title: this.title,
       type: "gauge",
       dataRange: dataRange
@@ -243,11 +262,12 @@ export class GaugeChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): GaugeChart {
-    const range = adaptChartRange(this.dataRange, applyChange);
-    if (this.dataRange === range) {
-      return this;
-    }
-    const definition = this.getDefinitionWithSpecificRanges(range);
+    const dataRange = adaptChartRange(this.dataRange, applyChange);
+
+    const adaptFormula = (formula: string) =>
+      this.getters.adaptFormulaStringDependencies(this.sheetId, formula, applyChange);
+    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
+    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule);
     return new GaugeChart(definition, this.sheetId, this.getters);
   }
 }
@@ -274,15 +294,31 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
     }
   }
 
-  let minValue = Number(chart.sectionRule.rangeMin);
-  let maxValue = Number(chart.sectionRule.rangeMax);
+  let minValue = getFormulaNumberValue(chart.sheetId, chart.sectionRule.rangeMin, getters);
+  let maxValue = getFormulaNumberValue(chart.sheetId, chart.sectionRule.rangeMax, getters);
+  if (minValue === undefined || maxValue === undefined) {
+    return getInvalidGaugeRuntime(chart, getters);
+  }
   if (maxValue < minValue) {
     [minValue, maxValue] = [maxValue, minValue];
   }
+
   const lowerPoint = chart.sectionRule.lowerInflectionPoint;
   const upperPoint = chart.sectionRule.upperInflectionPoint;
-  const lowerPointValue = getSectionThresholdValue(lowerPoint, minValue, maxValue);
-  const upperPointValue = getSectionThresholdValue(upperPoint, minValue, maxValue);
+  const lowerPointValue = getSectionThresholdValue(
+    chart.sheetId,
+    chart.sectionRule.lowerInflectionPoint,
+    minValue,
+    maxValue,
+    getters
+  );
+  const upperPointValue = getSectionThresholdValue(
+    chart.sheetId,
+    chart.sectionRule.upperInflectionPoint,
+    minValue,
+    maxValue,
+    getters
+  );
 
   const inflectionValues: GaugeInflectionValue[] = [];
   const colors: Color[] = [];
@@ -341,17 +377,55 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
 }
 
 function getSectionThresholdValue(
+  sheetId: UID,
   threshold: SectionThreshold,
   minValue: number,
-  maxValue: number
+  maxValue: number,
+  getters: Getters
 ): number | undefined {
-  if (threshold.value === "" || isNaN(Number(threshold.value))) {
+  const numberValue = getFormulaNumberValue(sheetId, threshold.value, getters);
+  if (numberValue === undefined) {
     return undefined;
   }
-  const numberValue = Number(threshold.value);
   const value =
     threshold.type === "number"
       ? numberValue
       : minValue + ((maxValue - minValue) * numberValue) / 100;
   return clip(value, minValue, maxValue);
+}
+
+function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) {
+  const value = getters.evaluateFormula(sheetId, formula);
+  return isMatrix(value) ? undefined : tryToNumber(value, getters.getLocale());
+}
+
+function getInvalidGaugeRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
+  return {
+    background: getters.getStyleOfSingleCellChart(chart.background, chart.dataRange).background,
+    title: chart.title ?? { text: "" },
+    minValue: { value: 0, label: "" },
+    maxValue: { value: 100, label: "" },
+    gaugeValue: { value: 0, label: CellErrorType.GenericError },
+    inflectionValues: [],
+    colors: [],
+  };
+}
+
+function adaptSectionRuleFormulas(
+  sectionRule: SectionRule,
+  adaptCallback: (formula: string) => string
+) {
+  return {
+    ...sectionRule,
+    rangeMin: adaptCallback(sectionRule.rangeMin),
+    rangeMax: adaptCallback(sectionRule.rangeMax),
+    lowerInflectionPoint: {
+      ...sectionRule.lowerInflectionPoint,
+      value: adaptCallback(sectionRule.lowerInflectionPoint.value),
+    },
+    upperInflectionPoint: {
+      ...sectionRule.upperInflectionPoint,
+      value: adaptCallback(sectionRule.upperInflectionPoint.value),
+    },
+  };
 }
