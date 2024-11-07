@@ -1236,7 +1236,6 @@ export const enum CommandResult {
   GaugeRangeMaxNaN = "GaugeRangeMaxNaN",
   GaugeLowerInflectionPointNaN = "GaugeLowerInflectionPointNaN",
   GaugeUpperInflectionPointNaN = "GaugeUpperInflectionPointNaN",
-  GaugeLowerBiggerThanUpper = "GaugeLowerBiggerThanUpper",
   InvalidAutofillSelection = "InvalidAutofillSelection",
   MinBiggerThanMax = "MinBiggerThanMax",
   LowerBiggerThanUpper = "LowerBiggerThanUpper",

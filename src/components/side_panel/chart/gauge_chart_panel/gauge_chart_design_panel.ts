@@ -121,24 +121,14 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   // ---------------------------------------------------------------------------
 
   get isLowerInflectionPointInvalid() {
-    return !!(
-      this.state.sectionRuleDispatchResult?.isCancelledBecause(
-        CommandResult.GaugeLowerInflectionPointNaN
-      ) ||
-      this.state.sectionRuleDispatchResult?.isCancelledBecause(
-        CommandResult.GaugeLowerBiggerThanUpper
-      )
+    return !!this.state.sectionRuleDispatchResult?.isCancelledBecause(
+      CommandResult.GaugeLowerInflectionPointNaN
     );
   }
 
   get isUpperInflectionPointInvalid() {
-    return !!(
-      this.state.sectionRuleDispatchResult?.isCancelledBecause(
-        CommandResult.GaugeUpperInflectionPointNaN
-      ) ||
-      this.state.sectionRuleDispatchResult?.isCancelledBecause(
-        CommandResult.GaugeLowerBiggerThanUpper
-      )
+    return !!this.state.sectionRuleDispatchResult?.isCancelledBecause(
+      CommandResult.GaugeUpperInflectionPointNaN
     );
   }
 
