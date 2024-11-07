@@ -105,20 +105,14 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   isRangeMinInvalid() {
     return !!(
       this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.EmptyGaugeRangeMin) ||
-      this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.GaugeRangeMinNaN) ||
-      this.state.sectionRuleDispatchResult?.isCancelledBecause(
-        CommandResult.GaugeRangeMinBiggerThanRangeMax
-      )
+      this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.GaugeRangeMinNaN)
     );
   }
 
   isRangeMaxInvalid() {
     return !!(
       this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.EmptyGaugeRangeMax) ||
-      this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.GaugeRangeMaxNaN) ||
-      this.state.sectionRuleDispatchResult?.isCancelledBecause(
-        CommandResult.GaugeRangeMinBiggerThanRangeMax
-      )
+      this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.GaugeRangeMaxNaN)
     );
   }
 

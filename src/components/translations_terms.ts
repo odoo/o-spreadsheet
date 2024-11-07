@@ -78,9 +78,6 @@ export const ChartTerms = {
     [CommandResult.GaugeRangeMinNaN]: _t("The minimum range limit value must be a number"),
     [CommandResult.EmptyGaugeRangeMax]: _t("A maximum range limit value is needed"),
     [CommandResult.GaugeRangeMaxNaN]: _t("The maximum range limit value must be a number"),
-    [CommandResult.GaugeRangeMinBiggerThanRangeMax]: _t(
-      "Minimum range limit must be smaller than maximum range limit"
-    ),
     [CommandResult.GaugeLowerInflectionPointNaN]: _t(
       "The lower inflection point value must be a number"
     ),

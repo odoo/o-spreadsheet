@@ -93,18 +93,6 @@ describe("update chart with invalid section rule", () => {
     );
   });
 
-  test("rangeMin > rangeMax", async () => {
-    await openChartDesignSidePanel(model, env, fixture, chartId);
-    setInputValueAndTrigger(".o-data-range-min", "100");
-
-    await setInputValueAndTrigger(".o-data-range-max", "0");
-    expect(document.querySelector(".o-data-range-min")?.classList).toContain("o-invalid");
-    expect(document.querySelector(".o-data-range-max")?.classList).toContain("o-invalid");
-    expect(textContentAll(".o-validation-error")[0]).toEqual(
-      ChartTerms.Errors[CommandResult.GaugeRangeMinBiggerThanRangeMax].toString()
-    );
-  });
-
   test("NaN LowerInflectionPoint", async () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
     await setInputValueAndTrigger(".o-input-lowerInflectionPoint", "bla bla bla");
