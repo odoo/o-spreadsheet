@@ -717,7 +717,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       style,
       dependencies,
       sheetId,
-      this.getters.getRangeString
+      this.getters.getRangeString.bind(this)
     );
   }
 
@@ -755,20 +755,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   cleanUpBeforeDestroy() {
     super.cleanUpBeforeDestroy();
-    for (let sheet of Object.values(this.cells)) {
-      for (let cell of Object.values(sheet)) {
-        if (cell.isFormula) {
-          cell.compiledFormula.dependencies = [];
-          cell.compiledFormula.tokens.forEach((token) => {
-            if (token instanceof RangeReferenceToken) {
-              // @ts-ignore
-              delete token.getRangeString;
-            }
-          });
-        }
-      }
-      sheet = {};
-    }
     this.cells = {};
   }
 }
