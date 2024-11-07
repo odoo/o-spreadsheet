@@ -24,6 +24,8 @@ class SidePanelWithComposer extends Component<any, any> {
           composerContent="props.composerContent"
           defaultRangeSheetId="props.defaultRangeSheetId"
           defaultStatic="props.defaultStatic"
+          title="props.title"
+          placeholder="props.placeholder"
         />
       </div>`;
   static props = { "*": Object };
@@ -34,16 +36,13 @@ sidePanelRegistry.add("SidePanelWithComposer", {
   Body: SidePanelWithComposer,
 });
 
-async function openSidePanelWithComposer(
-  composerContent = "",
-  defaultStatic = false,
-  defaultRangeSheetId = model.getters.getActiveSheetId()
-) {
+async function openSidePanelWithComposer(props?: Partial<StandaloneComposer["props"]>) {
   env.openSidePanel("SidePanelWithComposer", {
+    ...props,
     onConfirm,
-    composerContent,
-    defaultRangeSheetId,
-    defaultStatic,
+    composerContent: props?.composerContent || "",
+    defaultRangeSheetId: props?.defaultRangeSheetId || model.getters.getActiveSheetId(),
+    defaultStatic: props?.defaultStatic || false,
   });
   await nextTick();
   composerEl = fixture.querySelector<HTMLElement>(".o-sidePanel .o-composer")!;
@@ -58,7 +57,7 @@ describe("Spreadsheet integrations tests", () => {
   });
 
   test("Can edit a standalone composer", async () => {
-    await openSidePanelWithComposer("Hello world");
+    await openSidePanelWithComposer({ composerContent: "Hello world" });
     expect(composerEl.textContent).toBe("Hello world");
     const textNode = getTextNodes(composerEl)[0];
     const selection = document.getSelection()!;
@@ -103,7 +102,7 @@ describe("Spreadsheet integrations tests", () => {
   });
 
   test("Can select a static range with the mouse using standalone composer", async () => {
-    await openSidePanelWithComposer("", true);
+    await openSidePanelWithComposer({ defaultStatic: true });
     await editStandaloneComposer(composerSelector, "=SUM(", { confirm: false });
     await simulateClick(".o-grid-overlay", 300, 200);
     expect(composerEl.textContent).toBe("=SUM($D$9");
@@ -136,17 +135,31 @@ describe("Spreadsheet integrations tests", () => {
   test("content with references from another sheet", async () => {
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sheet2", activate: true });
-    await openSidePanelWithComposer("=A1", false, sheet1Id);
+    await openSidePanelWithComposer({
+      composerContent: "=A1",
+      defaultRangeSheetId: sheet1Id,
+      defaultStatic: false,
+    });
     expect(composerEl.textContent).toBe("=Sheet1!A1");
   });
 
   test("display the content from the props when inactive", async () => {
-    await openSidePanelWithComposer("content from props");
+    await openSidePanelWithComposer({ composerContent: "content from props" });
     await editStandaloneComposer(composerSelector, "edited", { confirm: false });
     expect(composerEl.textContent).toBe("edited");
     await keyDown({ key: "Enter" });
     // in a real world scenario, the props most likely changed
     // to the new confirmed content
     expect(composerEl.textContent).toBe("content from props");
+  });
+
+  test("Can have title and placeholder", async () => {
+    await openSidePanelWithComposer({
+      title: "MyTitle",
+      placeholder: "MyPlaceholder",
+    });
+
+    expect(composerEl).toHaveAttribute("placeholder", "MyPlaceholder");
+    expect(".o-standalone-composer").toHaveAttribute("title", "MyTitle");
   });
 });

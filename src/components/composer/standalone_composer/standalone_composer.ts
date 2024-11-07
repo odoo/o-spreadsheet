@@ -44,6 +44,7 @@ interface Props {
   defaultStatic?: boolean;
   contextualAutocomplete?: AutoCompleteProviderDefinition;
   placeholder?: string;
+  title?: string;
   class?: string;
   invalid?: boolean;
   getContextualColoredSymbolToken?: (token: Token) => Color;
@@ -58,6 +59,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
     onConfirm: Function,
     contextualAutocomplete: { type: Object, optional: true },
     placeholder: { type: String, optional: true },
+    title: { type: String, optional: true },
     class: { type: String, optional: true },
     invalid: { type: Boolean, optional: true },
     getContextualColoredSymbolToken: { type: Function, optional: true },
