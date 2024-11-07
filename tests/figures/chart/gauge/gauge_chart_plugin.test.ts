@@ -287,23 +287,6 @@ describe("datasource tests", function () {
       expect(result).toBeCancelledBecause(CommandResult.GaugeRangeMaxNaN);
     });
 
-    test("rangeMin > rangeMax", async () => {
-      sectionRule = {
-        ...sectionRule,
-        rangeMin: "100",
-        rangeMax: "0",
-      };
-      const result = createGaugeChart(
-        model,
-        {
-          dataRange: "A1",
-          sectionRule,
-        },
-        "1"
-      );
-      expect(result).toBeCancelledBecause(CommandResult.GaugeRangeMinBiggerThanRangeMax);
-    });
-
     test("NaN LowerInflectionPoint", async () => {
       sectionRule = {
         ...sectionRule,
@@ -520,6 +503,15 @@ describe("Chart design configuration", () => {
     createGaugeChart(model, defaultChart, "1");
     const gaugeValue = (model.getters.getChartRuntime("1") as GaugeChartRuntime).gaugeValue;
     expect(gaugeValue).toBe(undefined);
+  });
+
+  test("rangeMin and rangeMax are sorted in the runtime", async () => {
+    const sectionRule = { ...defaultChart.sectionRule, rangeMin: "66", rangeMax: "33" };
+
+    createGaugeChart(model, { sectionRule }, "1");
+    const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+    expect(runtime.minValue).toMatchObject({ value: 33 });
+    expect(runtime.maxValue).toMatchObject({ value: 66 });
   });
 
   test("Inflection point are sorted in the runtime", () => {

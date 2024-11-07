@@ -95,15 +95,6 @@ function checkInflectionPointsValue(
   );
 }
 
-function checkRangeMinBiggerThanRangeMax(definition: GaugeChartDefinition): CommandResult {
-  if (definition.sectionRule) {
-    if (Number(definition.sectionRule.rangeMin) >= Number(definition.sectionRule.rangeMax)) {
-      return CommandResult.GaugeRangeMinBiggerThanRangeMax;
-    }
-  }
-  return CommandResult.Success;
-}
-
 function checkEmpty(value: string, valueName: string) {
   if (value === "") {
     switch (valueName) {
@@ -154,8 +145,7 @@ export class GaugeChart extends AbstractChart {
       isDataRangeValid,
       validator.chainValidations(
         checkRangeLimits(checkEmpty, validator.batchValidations),
-        checkRangeLimits(checkNaN, validator.batchValidations),
-        checkRangeMinBiggerThanRangeMax
+        checkRangeLimits(checkNaN, validator.batchValidations)
       ),
       validator.chainValidations(checkInflectionPointsValue(checkNaN, validator.batchValidations))
     );
@@ -284,8 +274,11 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
     }
   }
 
-  const minValue = Number(chart.sectionRule.rangeMin);
-  const maxValue = Number(chart.sectionRule.rangeMax);
+  let minValue = Number(chart.sectionRule.rangeMin);
+  let maxValue = Number(chart.sectionRule.rangeMax);
+  if (maxValue < minValue) {
+    [minValue, maxValue] = [maxValue, minValue];
+  }
   const lowerPoint = chart.sectionRule.lowerInflectionPoint;
   const upperPoint = chart.sectionRule.upperInflectionPoint;
   const lowerPointValue = getSectionThresholdValue(lowerPoint, minValue, maxValue);
