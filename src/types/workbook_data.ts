@@ -81,9 +81,6 @@ export interface ExcelWorkbookData extends WorkbookData {
 export interface ExcelCellData extends CellData {
   value: CellValue;
   isFormula: Boolean;
-  format?: number;
-  style?: number;
-  border?: number;
   computedFormat?: Format;
 }
 export interface ExcelSheetData extends Omit<SheetData, "figureTables" | "cols" | "rows"> {

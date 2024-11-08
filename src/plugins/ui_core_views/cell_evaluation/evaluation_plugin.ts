@@ -337,7 +337,6 @@ export class EvaluationPlugin extends UIPlugin {
       const value = evaluatedCell.value;
       let isFormula = false;
       let newContent: string | undefined = undefined;
-      let newFormat: string | undefined = undefined;
       let isExported: boolean = true;
 
       const exportedSheetData = data.sheets.find((sheet) => sheet.id === position.sheetId)!;
@@ -347,30 +346,29 @@ export class EvaluationPlugin extends UIPlugin {
         isExported = isExportableToExcel(formulaCell.compiledFormula.tokens);
         isFormula = isExported;
 
-        if (!isExported) {
-          // If the cell contains a non-exported formula and that is evaluates to
-          // nothing* ,we don't export it.
-          // * non-falsy value are relevant and so are 0 and FALSE, which only leaves
-          // the empty string.
-          if (value !== "") {
-            newContent = (value ?? "").toString();
-            newFormat = evaluatedCell.format;
+        // If the cell contains a non-exported formula and that is evaluates to
+        // nothing* ,we don't export it.
+        // * non-falsy value are relevant and so are 0 and FALSE, which only leaves
+        // the empty string.
+        if (!isExported && value !== "") {
+          newContent = (value ?? "").toString();
+          const newFormat = evaluatedCell.format;
+          if (newFormat) {
+            const newFormatId = getItemId<Format>(newFormat, data.formats);
+            exportedSheetData.formats[xc] = newFormatId;
           }
         }
       }
 
       const exportedCellData: ExcelCellData = exportedSheetData.cells[xc] || ({} as ExcelCellData);
 
-      const format = newFormat
-        ? getItemId<Format>(newFormat, data.formats)
-        : exportedCellData.format;
       let content: string | undefined;
       if (isExported && isFormula && formulaCell instanceof FormulaCellWithDependencies) {
         content = formulaCell.contentWithFixedReferences;
       } else {
         content = !isExported ? newContent : exportedCellData.content;
       }
-      exportedSheetData.cells[xc] = { ...exportedCellData, value, isFormula, content, format };
+      exportedSheetData.cells[xc] = { ...exportedCellData, value, isFormula, content };
     }
   }
 
