@@ -2,9 +2,13 @@ import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones, toZone } from "../../helpers";
+import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
-import { getItemId, groupItemIdsByZones } from "../../helpers/data_normalization";
+import {
+  getItemId,
+  iterateItemIdsPositions,
+  groupItemIdsByZones,
+} from "../../helpers/data_normalization";
 import {
   concat,
   detectDateFormat,
@@ -272,19 +276,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         ["style", sheet.styles],
         ["format", sheet.formats],
       ] as const) {
-        for (const zoneXc in valuesByZones) {
-          const itemId = valuesByZones[zoneXc];
-          const zone = toZone(zoneXc);
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              const position = { sheetId, col, row };
-              const cellData = cellsData.get(position);
-              if (cellData) {
-                cellData[cellProperty] = itemId;
-              } else {
-                cellsData.set(position, { [cellProperty]: itemId });
-              }
-            }
+        for (const [position, itemId] of iterateItemIdsPositions(sheet.id, valuesByZones)) {
+          const cellData = cellsData.get(position);
+          if (cellData) {
+            cellData[cellProperty] = itemId;
+          } else {
+            cellsData.set(position, { [cellProperty]: itemId });
           }
         }
       }
