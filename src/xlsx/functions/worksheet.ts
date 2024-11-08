@@ -1,5 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
+  iterateItemIdsPositions,
   isInside,
   isMarkdownLink,
   isSheetUrl,
@@ -10,6 +11,7 @@ import {
   toZone,
 } from "../../helpers";
 import { withHttps } from "../../helpers/links";
+import { PositionMap } from "../../plugins/ui_core_views/cell_evaluation/position_map";
 import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types";
 import { CellErrorType } from "../../types/errors";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
@@ -79,15 +81,22 @@ export function addRows(
       rowAttrs.push(["collapsed", 1]);
     }
 
+    const styles = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.styles));
+    const borders = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.borders));
+    const formats = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.formats));
     const cellNodes: XMLString[] = [];
     for (let c = 0; c < sheet.colNumber; c++) {
       const xc = toXC(c, r);
       const cell = sheet.cells[xc];
-      if (cell) {
+      const position = { sheetId: sheet.id, col: c, row: r };
+      const styleId = styles.get(position);
+      const formatId = formats.get(position);
+      const borderId = borders.get(position);
+      if (cell || styleId || formatId || borderId) {
         const attributes: XMLAttributes = [["r", xc]];
 
         // style
-        const id = normalizeStyle(construct, extractStyle(cell, data));
+        const id = normalizeStyle(construct, extractStyle(data, styleId, formatId, borderId));
         // don't add style if default
         if (id) {
           attributes.push(["s", id]);
@@ -96,19 +105,19 @@ export function addRows(
         let additionalAttrs: XMLAttributes = [];
         let cellNode = escapeXml``;
         // Either formula or static value inside the cell
-        if (cell.isFormula) {
+        if (cell?.isFormula) {
           const res = addFormula(cell);
           if (!res) {
             continue;
           }
           ({ attrs: additionalAttrs, node: cellNode } = res);
-        } else if (cell.content && isMarkdownLink(cell.content)) {
+        } else if (cell?.content && isMarkdownLink(cell.content)) {
           const { label } = parseMarkdownLink(cell.content);
           ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
-        } else if (cell.content && cell.content !== "") {
+        } else if (cell?.content && cell.content !== "") {
           const isTableHeader = isCellTableHeader(c, r, sheet);
           const isTableTotal = isCellTableTotal(c, r, sheet);
-          const isPlainText = !!(cell.format && isTextFormat(data.formats[cell.format]));
+          const isPlainText = !!(formatId && isTextFormat(data.formats[formatId]));
           ({ attrs: additionalAttrs, node: cellNode } = addContent(
             cell.content,
             construct.sharedStrings,

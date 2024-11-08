@@ -29,7 +29,6 @@ import {
   CommandResult,
   CompiledFormula,
   CoreCommand,
-  ExcelCellData,
   ExcelWorkbookData,
   Format,
   FormulaCell,
@@ -350,38 +349,19 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   exportForExcel(data: ExcelWorkbookData) {
     this.export(data);
-    for (const sheet of data.sheets) {
-      for (const cellId in this.getters.getCells(sheet.id)) {
-        const { col, row } = this.getters.getCellPosition(cellId);
-        const xc = toXC(col, row);
-        const cell = this.getCellById(cellId);
-        sheet.cells[xc] ??= {} as ExcelCellData;
-        if (cell?.format) {
-          sheet.cells[xc]!.format = getItemId<Format>(cell.format, data.formats);
-        }
-        if (cell?.style) {
-          sheet.cells[xc] ??= {} as ExcelCellData;
-          sheet.cells[xc]!.style = getItemId<Style>(
-            this.removeDefaultStyleValues(cell.style),
-            data.styles
-          );
-        }
-      }
-    }
-    const incompatible: string[] = [];
+    const incompatibleIds: number[] = [];
     for (const formatId in data.formats || []) {
       if (!isExcelCompatible(data.formats[formatId])) {
-        incompatible.push(formatId);
+        incompatibleIds.push(Number(formatId));
         delete data.formats[formatId];
       }
     }
-    if (incompatible.length) {
+    if (incompatibleIds.length) {
       for (const sheet of data.sheets) {
-        for (const xc in sheet.cells) {
-          const cell = sheet.cells[xc];
-          const format = cell?.format;
-          if (format && incompatible.includes(format.toString())) {
-            delete cell.format;
+        for (const zoneXc in sheet.formats) {
+          const formatId = sheet.formats[zoneXc];
+          if (formatId && incompatibleIds.includes(formatId)) {
+            delete sheet.formats[zoneXc];
           }
         }
       }
