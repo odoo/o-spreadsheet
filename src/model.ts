@@ -723,8 +723,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     delete this.uiPluginConfig;
 
     this.clear(); // clear the bus subscriptions
-
-    console.info("finished destroying model");
   }
 }
 
