@@ -487,7 +487,7 @@ export const VLOOKUP = {
       : linearSearch(range, searchKey?.value, "strict", range[0].length, getValueFromRange);
 
     const value = range[_index - 1][rowIndex];
-    assertAvailable(value, searchKey);
+    assertAvailable(value, searchKey?.value);
     return value;
   },
   isExported: true,
@@ -592,7 +592,7 @@ export const XLOOKUP = {
     }
 
     const _defaultValue = defaultValue?.();
-    assertAvailable(_defaultValue, searchKey);
+    assertAvailable(_defaultValue, searchKey?.value);
     return [[_defaultValue!]];
   },
   isExported: true,
