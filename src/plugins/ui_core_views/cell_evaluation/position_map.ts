@@ -3,6 +3,12 @@ import { CellPosition, UID } from "../../../types";
 export class PositionMap<T> {
   private map: Record<UID, Record<number, Record<number, T>>> = {};
 
+  constructor(entries: Iterable<readonly [CellPosition, T]> = []) {
+    for (const [position, value] of entries) {
+      this.set(position, value);
+    }
+  }
+
   set({ sheetId, col, row }: CellPosition, value: T) {
     const map = this.map;
     if (!map[sheetId]) {

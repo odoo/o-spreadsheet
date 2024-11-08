@@ -8,7 +8,6 @@ import {
   iterateItemIdsPositions,
   range,
   recomputeZones,
-  toXC,
   toZone,
 } from "../../helpers/index";
 import {
@@ -21,7 +20,6 @@ import {
   Color,
   CommandResult,
   CoreCommand,
-  ExcelCellData,
   ExcelWorkbookData,
   HeaderIndex,
   SetBorderCommand,
@@ -614,17 +612,6 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    for (const sheet of data.sheets) {
-      for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
-        for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
-          const border = this.getCellBorder({ sheetId: sheet.id, col, row });
-          if (border) {
-            const xc = toXC(col, row);
-            sheet.cells[xc] ??= {} as ExcelCellData;
-            sheet.cells[xc]!.border = getItemId<Border>(border, data.borders);
-          }
-        }
-      }
-    }
+    this.export(data);
   }
 }

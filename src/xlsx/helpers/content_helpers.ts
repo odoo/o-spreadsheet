@@ -2,9 +2,7 @@ import { DEFAULT_FONT_SIZE } from "../../constants";
 import { deepEquals, splitReference, toUnboundedZone } from "../../helpers";
 import {
   ConditionalFormattingOperatorValues,
-  ExcelCellData,
   ExcelWorkbookData,
-  Format,
   Style,
   UID,
   WorkbookData,
@@ -84,12 +82,14 @@ export function convertWidthFromExcel(width: number | undefined): number | undef
   return Math.round((width / WIDTH_FACTOR) * 100) / 100;
 }
 
-export function extractStyle(cell: ExcelCellData, data: WorkbookData): ExtractedStyle {
-  let style: Style = {};
-  if (cell.style) {
-    style = data.styles[cell.style];
-  }
-  const format = extractFormat(cell, data);
+export function extractStyle(
+  data: WorkbookData,
+  styleId: number | undefined,
+  formatId: number | undefined,
+  borderId: number | undefined
+): ExtractedStyle {
+  const style: Style = styleId ? data.styles[styleId] : {};
+  const format = formatId ? data.formats[formatId] : undefined;
   const styles = {
     font: {
       size: style?.fontSize || DEFAULT_FONT_SIZE,
@@ -103,7 +103,7 @@ export function extractStyle(cell: ExcelCellData, data: WorkbookData): Extracted
         }
       : { reservedAttribute: "none" },
     numFmt: format ? { format: format, id: 0 /* id not used for export */ } : undefined,
-    border: cell.border || 0,
+    border: borderId || 0,
     alignment: {
       horizontal: style.align as XLSXHorizontalAlignment,
       vertical: style.verticalAlign
@@ -118,13 +118,6 @@ export function extractStyle(cell: ExcelCellData, data: WorkbookData): Extracted
   styles.font["bold"] = !!style?.bold || undefined;
   styles.font["italic"] = !!style?.italic || undefined;
   return styles;
-}
-
-function extractFormat(cell: ExcelCellData, data: WorkbookData): Format | undefined {
-  if (cell.format) {
-    return data.formats[cell.format];
-  }
-  return undefined;
 }
 
 export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle): number {

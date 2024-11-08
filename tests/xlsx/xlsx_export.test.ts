@@ -647,8 +647,7 @@ describe("Test XLSX export", () => {
       setCellFormat(model, "A2", "qqqq yyyy");
 
       const exported = getExportedExcelData(model);
-      expect(exported.sheets[0].cells.A1?.format).toBeUndefined();
-      expect(exported.sheets[0].cells.A2?.format).toBeUndefined();
+      expect(exported.sheets[0].formats).toEqual({});
       expect(exported.formats).toEqual({});
     });
 
@@ -856,7 +855,7 @@ describe("Test XLSX export", () => {
 
       expect(exported.sheets[0].cells["A1"]?.content).toEqual("43");
       expect(exported.sheets[0].cells["A2"]?.content).toEqual("43");
-      const formatId = exported.sheets[0].cells["A1"]?.format;
+      const formatId = exported.sheets[0].formats["A1"];
       expect(formatId).toEqual(1);
       expect(exported.formats[formatId!]).toEqual("0.00%");
 
@@ -888,22 +887,23 @@ describe("Test XLSX export", () => {
 
       const exported = getExportedExcelData(model);
       const cells = exported.sheets[0].cells;
+      const formats = exported.sheets[0].formats;
 
       expect(cells["A1"]?.content).toEqual("1");
       expect(cells["A2"]?.content).toEqual("2");
       expect(cells["B1"]?.content).toEqual("3");
       expect(cells["B2"]?.content).toEqual("4");
 
-      const formatId1 = cells["A1"]?.format;
+      const formatId1 = formats["A1"];
       expect(exported.formats[formatId1!]).toEqual("0.00%");
 
-      const formatId2 = cells["A2"]?.format;
+      const formatId2 = formats["A2"];
       expect(exported.formats[formatId2!]).toEqual("0");
 
-      const formatId3 = cells["B1"]?.format;
+      const formatId3 = formats["B1"];
       expect(exported.formats[formatId3!]).toEqual("0.00");
 
-      const formatId4 = cells["B2"]?.format;
+      const formatId4 = formats["B2"];
       expect(exported.formats[formatId4!]).toEqual("0%");
 
       functionRegistry.remove("NON.EXPORTABLE.ARRAY.FORMULA");
