@@ -7,7 +7,6 @@ import {
   CellValueType,
   Command,
   EvaluatedCell,
-  ExcelCellData,
   ExcelWorkbookData,
   Format,
   FormattedValue,
@@ -330,6 +329,9 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   exportForExcel(data: ExcelWorkbookData) {
+    for (const sheet of data.sheets) {
+      sheet.cellValues = {};
+    }
     for (const position of this.evaluator.getEvaluatedPositions()) {
       const evaluatedCell = this.evaluator.getEvaluatedCell(position);
 
@@ -360,7 +362,7 @@ export class EvaluationPlugin extends UIPlugin {
         }
       }
 
-      const exportedCellData: ExcelCellData = exportedSheetData.cells[xc] || ({} as ExcelCellData);
+      const exportedCellData = exportedSheetData.cells[xc] ?? {};
 
       let content: string | undefined;
       if (isExported && isFormula && formulaCell instanceof FormulaCellWithDependencies) {
@@ -368,7 +370,8 @@ export class EvaluationPlugin extends UIPlugin {
       } else {
         content = !isExported ? newContent : exportedCellData.content;
       }
-      exportedSheetData.cells[xc] = { ...exportedCellData, value, isFormula, content };
+      exportedSheetData.cells[xc] = { ...exportedCellData, content };
+      exportedSheetData.cellValues[xc] = value;
     }
   }
 

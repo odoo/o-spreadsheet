@@ -78,12 +78,8 @@ export interface ExcelWorkbookData extends WorkbookData {
   sheets: ExcelSheetData[];
 }
 
-export interface ExcelCellData extends CellData {
-  value: CellValue;
-  isFormula: Boolean;
-}
 export interface ExcelSheetData extends Omit<SheetData, "figureTables" | "cols" | "rows"> {
-  cells: { [key: string]: ExcelCellData | undefined };
+  cellValues: { [xc: string]: CellValue | undefined };
   charts: FigureData<ExcelChartDefinition>[];
   images: FigureData<Image>[];
   tables: ExcelTableData[];

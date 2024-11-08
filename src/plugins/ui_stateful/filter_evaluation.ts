@@ -200,12 +200,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
           const headerString = this.getters.getEvaluatedCell(position).formattedValue;
           const headerName = this.getUniqueColNameForExcel(i, headerString, headerNames);
           headerNames.push(headerName);
-          sheetData.cells[toXC(position.col, position.row)] = {
-            ...sheetData.cells[toXC(position.col, position.row)],
-            content: headerName,
-            value: headerName,
-            isFormula: false,
-          };
+          const xc = toXC(position.col, position.row);
+          sheetData.cells[xc] = { content: headerName };
+          sheetData.cellValues[xc] = headerName;
         }
         tableData.filters = filters;
       }

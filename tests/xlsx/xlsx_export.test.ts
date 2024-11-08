@@ -1521,12 +1521,10 @@ describe("Test XLSX export", () => {
       setCellContent(model, "A2", "=DATE(1,1,1)");
       const exported = getExportedExcelData(model);
       expect(exported.sheets[0].cells["A1"]?.content).toEqual("1/1/1901");
-      expect(exported.sheets[0].cells["A1"]?.value).toEqual("1/1/1901");
-      expect(exported.sheets[0].cells["A1"]?.isFormula).toEqual(false);
+      expect(exported.sheets[0].cellValues["A1"]).toEqual("1/1/1901");
 
       expect(exported.sheets[0].cells["A2"]?.content).toEqual("=DATE(1,1,1)");
-      expect(exported.sheets[0].cells["A2"]?.value).toEqual(367);
-      expect(exported.sheets[0].cells["A2"]?.isFormula).toEqual(true);
+      expect(exported.sheets[0].cellValues["A2"]).toEqual(367);
     });
 
     test("Table headers are replaced by unique value", () => {
@@ -1536,10 +1534,10 @@ describe("Test XLSX export", () => {
       setCellContent(model, "B1", "Hello");
       const exported = getExportedExcelData(model);
       expect(exported.sheets[0].cells["A1"]?.content).toEqual("Hello");
-      expect(exported.sheets[0].cells["A1"]?.value).toEqual("Hello");
+      expect(exported.sheets[0].cellValues["A1"]).toEqual("Hello");
 
       expect(exported.sheets[0].cells["B1"]?.content).toEqual("Hello2");
-      expect(exported.sheets[0].cells["B1"]?.value).toEqual("Hello2");
+      expect(exported.sheets[0].cellValues["B1"]).toEqual("Hello2");
     });
 
     test("Table headers are replaced by unique formatted value even if table has no filters", () => {
