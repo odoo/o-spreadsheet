@@ -1,7 +1,7 @@
-import { Position } from "../types";
+import { Position, UID } from "../types";
 import { deepEquals, largeMax } from "./misc";
 import { recomputeZones } from "./recompute_zones";
-import { positionToZone, zoneToXc } from "./zones";
+import { positionToZone, toZone, zoneToXc } from "./zones";
 
 /**
  * Get the id of the given item (its key in the given dictionary).
@@ -31,4 +31,17 @@ export function groupItemIdsByZones(positionsByItemId: { [id: number]: Position[
     }
   }
   return result;
+}
+
+export function* iterateItemIdsPositions(sheetId: UID, itemIdsByZones: Record<string, number>) {
+  for (const zoneXc in itemIdsByZones) {
+    const zone = toZone(zoneXc);
+    const itemId = itemIdsByZones[zoneXc];
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        const position = { sheetId, col, row };
+        yield [position, itemId] as const;
+      }
+    }
+  }
 }
