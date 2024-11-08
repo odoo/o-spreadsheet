@@ -5,6 +5,7 @@ import {
   groupConsecutive,
   groupItemIdsByZones,
   isDefined,
+  iterateItemIdsPositions,
   range,
   recomputeZones,
   toXC,
@@ -574,16 +575,11 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   import(data: WorkbookData) {
     // Borders
     if (Object.keys(data.borders || {}).length) {
-      for (let sheet of data.sheets) {
-        for (const zoneXc in sheet.borders) {
-          const borderId = sheet.borders[zoneXc];
+      for (const sheet of data.sheets) {
+        for (const [position, borderId] of iterateItemIdsPositions(sheet.id, sheet.borders)) {
+          const { sheetId, col, row } = position;
           const border = data.borders[borderId];
-          const zone = toZone(zoneXc);
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              this.setBorder(sheet.id, col, row, border, false);
-            }
-          }
+          this.setBorder(sheetId, col, row, border, false);
         }
       }
     }
