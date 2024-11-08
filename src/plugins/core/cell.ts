@@ -717,7 +717,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       style,
       dependencies,
       sheetId,
-      this.getters.getRangeString.bind(this)
+      this.getters.getRangeString
     );
   }
 
@@ -816,7 +816,7 @@ class RangeReferenceToken implements Token {
   constructor(
     private ranges: Range[],
     private rangeIndex: number,
-    private sheetId,
+    private sheetId: UID,
     private getRangeString: (range: Range, sheetId: UID) => string
   ) {}
 

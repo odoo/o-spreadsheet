@@ -466,7 +466,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onWillDestroy(() => {
       this.model.cleanUpBeforeDestroy();
       stores.resetStores();
-      console.info("destroying spreadsheet component");
     });
   }
 
