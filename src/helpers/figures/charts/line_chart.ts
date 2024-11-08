@@ -262,11 +262,7 @@ function canBeDateChart(labelRange: Range | undefined, getters: Getters): boolea
   if (!labelRange || !canBeLinearChart(labelRange, getters)) {
     return false;
   }
-  const labelFormat = getters.getEvaluatedCell({
-    sheetId: labelRange.sheetId,
-    col: labelRange.zone.left,
-    row: labelRange.zone.top,
-  }).format;
+  const labelFormat = getChartLabelFormat(getters, labelRange);
   return Boolean(labelFormat && timeFormatLuxonCompatible.test(labelFormat));
 }
 
