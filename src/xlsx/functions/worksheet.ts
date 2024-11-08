@@ -88,11 +88,12 @@ export function addRows(
     for (let c = 0; c < sheet.colNumber; c++) {
       const xc = toXC(c, r);
       const cell = sheet.cells[xc];
+      const value = sheet.cellValues[xc];
       const position = { sheetId: sheet.id, col: c, row: r };
       const styleId = styles.get(position);
       const formatId = formats.get(position);
       const borderId = borders.get(position);
-      if (cell || styleId || formatId || borderId) {
+      if (cell || styleId || formatId || borderId || value !== undefined) {
         const attributes: XMLAttributes = [["r", xc]];
 
         // style
@@ -105,8 +106,8 @@ export function addRows(
         let additionalAttrs: XMLAttributes = [];
         let cellNode = escapeXml``;
         // Either formula or static value inside the cell
-        if (cell?.isFormula) {
-          const res = addFormula(cell);
+        if (cell?.content?.startsWith("=") && value !== undefined) {
+          const res = addFormula(cell?.content, value);
           if (!res) {
             continue;
           }

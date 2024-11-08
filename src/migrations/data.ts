@@ -309,6 +309,7 @@ export function createEmptyExcelSheet(sheetId: UID, name: string): ExcelSheetDat
     ...(createEmptySheet(sheetId, name) as Omit<ExcelSheetData, "charts">),
     charts: [],
     images: [],
+    cellValues: {},
   };
 }
 

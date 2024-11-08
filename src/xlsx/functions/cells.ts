@@ -9,7 +9,7 @@ import {
 import { functionRegistry } from "../../functions";
 import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
-import { CellValue, ExcelCellData, Format } from "../../types";
+import { CellValue, Format } from "../../types";
 import { CellErrorType } from "../../types/errors";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
@@ -17,16 +17,18 @@ import { getCellType, pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";
 import { DEFAULT_LOCALE } from "./../../types/locale";
 
-export function addFormula(cell: ExcelCellData): {
+export function addFormula(
+  formula: string | undefined,
+  value: CellValue
+): {
   attrs: XMLAttributes;
   node: XMLString;
 } {
-  const formula = cell.content;
   if (!formula) {
     return { attrs: [], node: escapeXml`` };
   }
 
-  const type = getCellType(cell.value);
+  const type = getCellType(value);
   if (type === undefined) {
     return { attrs: [], node: escapeXml`` };
   }
@@ -34,7 +36,7 @@ export function addFormula(cell: ExcelCellData): {
   const attrs: XMLAttributes = [["t", type]];
   const XlsxFormula = adaptFormulaToExcel(formula);
 
-  const exportedValue = adaptFormulaValueToExcel(cell.value);
+  const exportedValue = adaptFormulaValueToExcel(value);
   const node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${exportedValue}</v>`;
   return { attrs, node };
 }
