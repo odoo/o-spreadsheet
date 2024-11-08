@@ -2126,6 +2126,27 @@ describe("Linear/Time charts", () => {
     );
     expect(model.getters.getChartRuntime(chartId)).toMatchSnapshot();
   });
+
+  test("Displays date labels correctly when 'Use row X as labels' is checked", () => {
+    setCellContent(model, "A2", "2024-01-01");
+    setCellContent(model, "B1", "first dataset");
+    setCellContent(model, "B2", "10");
+
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B1:B2"],
+        labelRange: "A1:A2",
+        labelsAsText: false,
+        dataSetsHaveTitle: true,
+      },
+      chartId
+    );
+
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
+    expect(chart.data!.labels).toEqual(["2024-01-01"]);
+  });
 });
 
 describe("Chart evaluation", () => {

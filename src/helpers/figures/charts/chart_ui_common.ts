@@ -164,11 +164,19 @@ export function getChartLabelFormat(
   range: Range | undefined
 ): Format | undefined {
   if (!range) return undefined;
-  return getters.getEvaluatedCell({
-    sheetId: range.sheetId,
-    col: range.zone.left,
-    row: range.zone.top,
-  }).format;
+
+  const {
+    sheetId,
+    zone: { left, top, bottom },
+  } = range;
+  for (let row = top; row <= bottom; row++) {
+    const format = getters.getEvaluatedCell({ sheetId, col: left, row }).format;
+    if (format) {
+      return format;
+    }
+  }
+
+  return undefined;
 }
 
 export function getChartLabelValues(
