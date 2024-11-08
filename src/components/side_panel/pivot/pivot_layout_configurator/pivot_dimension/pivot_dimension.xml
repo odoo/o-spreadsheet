@@ -16,7 +16,7 @@
           />
           <span t-else="1" class="o-fw-bold" t-esc="props.dimension.displayName"/>
         </div>
-        <div class="d-flex flex-rows">
+        <div class="d-flex flex-rows" t-on-pointerdown.stop="">
           <t t-slot="upper-right-icons"/>
           <i
             class="o-button-icon fa fa-trash pe-1 ps-2"

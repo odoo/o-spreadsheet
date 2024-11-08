@@ -546,4 +546,34 @@ describe("Spreadsheet pivot side panel", () => {
       { id: "amount:sum", fieldName: "amount", aggregator: "sum", isHidden: false },
     ]);
   });
+
+  test("Cannot drag a dimension when clicking its upper right icons", async () => {
+    mockGetBoundingClientRect({
+      /**
+       * 'pt-1' is the class of the main div of the pivot dimension
+       */
+      "pt-1": () => ({
+        height: 10,
+        y: 0,
+      }),
+      "o-section-title": () => ({
+        height: 10,
+        y: 10,
+      }),
+      "pivot-dimensions": () => ({
+        height: 40,
+        y: 0,
+      }),
+    });
+    await click(fixture.querySelector(".add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    await setInputValueAndTrigger(fixture.querySelector(".pivot-dimension select"), "desc");
+    expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
+      { fieldName: "Amount", order: "desc" },
+    ]);
+    await dragElement(".pivot-dimension .fa-trash", { x: 0, y: 30 }, undefined, true);
+    expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
+      { fieldName: "Amount", order: "desc" },
+    ]);
+  });
 });
