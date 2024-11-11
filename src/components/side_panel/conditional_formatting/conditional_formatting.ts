@@ -1,6 +1,6 @@
 import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
-import { colorNumberString, rangeReference } from "../../../helpers/index";
+import { colorNumberString, isColorValid, rangeReference } from "../../../helpers/index";
 import { _t } from "../../../translation";
 import {
   CancelledReason,
@@ -670,6 +670,10 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   setColorScaleColor(target: string, color: Color) {
+    if (!isColorValid(color)) {
+      return;
+    }
+
     const point = this.state.rules.colorScale[target];
     if (point) {
       point.color = Number.parseInt(color.substr(1), 16);
