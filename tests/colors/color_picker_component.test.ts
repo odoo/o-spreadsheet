@@ -33,6 +33,7 @@ async function mountColorPicker(partialProps: Partial<ColorPickerProps> = {}, mo
     currentColor: partialProps.currentColor || "#000000",
     maxHeight: partialProps.maxHeight !== undefined ? partialProps.maxHeight : 1000,
     anchorRect: partialProps.anchorRect || { x: 0, y: 0, width: 0, height: 0 },
+    disableNoColor: partialProps.disableNoColor || false,
   };
   ({ fixture } = await mountComponent(ColorPickerTestParent, { model, props }));
 }
@@ -166,6 +167,11 @@ describe("Color Picker buttons", () => {
     await mountColorPicker({ currentColor: "#45818e", maxHeight: 0 });
     const picker = fixture.querySelector<HTMLElement>(".o-color-picker")!;
     expect(picker.style["display"]).toEqual("none");
+  });
+
+  test("Hides the 'No Color' button when disableNoColor prop is set to true", async () => {
+    await mountColorPicker({ disableNoColor: true });
+    expect(fixture.querySelector(".o-buttons .o-cancel")).toBeNull();
   });
 
   test.each([

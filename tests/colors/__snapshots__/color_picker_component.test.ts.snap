@@ -531,5 +531,6 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       No Color
     </button>
   </div>
+  
 </div>
 `;
