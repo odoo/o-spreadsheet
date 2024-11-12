@@ -31,7 +31,7 @@ export const copy: ActionSpec = {
     env.model.dispatch("COPY");
     await env.clipboard.write(env.model.getters.getClipboardContent());
   },
-  icon: "o-spreadsheet-Icon.COPY",
+  icon: "o-spreadsheet-Icon.CLIPBOARD",
 };
 
 export const cut: ActionSpec = {
