@@ -63,7 +63,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
           class="o-icon"
         >
           <i
-            class="fa fa-clone"
+            class="fa fa-clipboard"
           />
         </div>
       </div>
