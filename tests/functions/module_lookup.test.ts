@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
-import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
   evaluateCell,
@@ -844,6 +844,12 @@ describe("VLOOKUP formula", () => {
     expect(evaluateCell("A3", { A3: "=VLOOKUP(A1, A1:B2, 2, true)", ...grid })).toBe("#BAD_EXPR");
     expect(evaluateCell("A3", { A3: "=VLOOKUP(A1, A1:B2, 2, false)", ...grid })).toBe("#BAD_EXPR");
   });
+
+  test("Error on key not found displays correctly", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=VLOOKUP(5, B1, 1)");
+    expect(getCellError(model, "A1")).toBe("Did not find value '5' in VLOOKUP evaluation.");
+  });
 });
 
 describe("HLOOKUP formula", () => {
@@ -1049,6 +1055,12 @@ describe("HLOOKUP formula", () => {
     };
     expect(evaluateCell("A3", { A3: "=HLOOKUP(A1, A1:B2, 2, true)", ...grid })).toBe("#BAD_EXPR");
     expect(evaluateCell("A3", { A3: "=HLOOKUP(A1, A1:B2, 2, false)", ...grid })).toBe("#BAD_EXPR");
+  });
+
+  test("Error on key not found displays correctly", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=HLOOKUP(5, B1, 1)");
+    expect(getCellError(model, "A1")).toBe("Did not find value '5' in HLOOKUP evaluation.");
   });
 });
 
@@ -1323,6 +1335,12 @@ describe("XLOOKUP formula", () => {
     });
     expect(grid.A1).toBe("#N/A");
     expect(grid.A2).toBe("#N/A");
+  });
+
+  test("Error on key not found displays correctly", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=XLOOKUP(5, B1, C1)");
+    expect(getCellError(model, "A1")).toBe("Did not find value '5' in XLOOKUP evaluation.");
   });
 });
 
