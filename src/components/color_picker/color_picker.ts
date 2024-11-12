@@ -213,6 +213,7 @@ export interface ColorPickerProps {
   maxHeight?: Pixel;
   onColorPicked: (color: Color) => void;
   currentColor: Color;
+  disableNoColor?: boolean;
 }
 
 interface State {
@@ -390,4 +391,5 @@ ColorPicker.props = {
   currentColor: { type: String, optional: true },
   maxHeight: { type: Number, optional: true },
   anchorRect: Object,
+  disableNoColor: { type: Boolean, optional: true },
 };

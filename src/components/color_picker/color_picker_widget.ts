@@ -13,6 +13,7 @@ interface Props {
   disabled?: boolean;
   dropdownMaxHeight?: Pixel;
   class?: string;
+  disableNoColor?: boolean;
 }
 
 css/* scss */ `
@@ -84,4 +85,5 @@ ColorPickerWidget.props = {
   disabled: { type: Boolean, optional: true },
   dropdownMaxHeight: { type: Number, optional: true },
   class: { type: String, optional: true },
+  disableNoColor: { type: Boolean, optional: true },
 };
