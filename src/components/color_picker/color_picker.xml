@@ -84,10 +84,12 @@
             </button>
           </div>
         </div>
-        <div class="o-separator"/>
-        <div class="o-buttons">
-          <button t-on-click="resetColor" class="o-cancel">No Color</button>
-        </div>
+        <t t-if="!props.disableNoColor">
+          <div class="o-separator"/>
+          <div class="o-buttons">
+            <button t-on-click="resetColor" class="o-cancel">No Color</button>
+          </div>
+        </t>
       </div>
     </Popover>
   </t>

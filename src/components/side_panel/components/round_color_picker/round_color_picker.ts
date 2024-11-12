@@ -14,6 +14,7 @@ interface Props {
   currentColor?: string;
   onColorPicked: (color: string) => void;
   title?: string;
+  disableNoColor?: boolean;
 }
 
 const TRANSPARENT_BACKGROUND_SVG = /*xml*/ `
@@ -40,6 +41,7 @@ export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
     currentColor: { type: String, optional: true },
     title: { type: String, optional: true },
     onColorPicked: Function,
+    disableNoColor: { type: Boolean, optional: true },
   };
 
   colorPickerButtonRef = useRef("colorPickerButton");
