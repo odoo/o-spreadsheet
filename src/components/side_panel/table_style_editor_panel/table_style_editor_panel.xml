@@ -7,7 +7,11 @@
       </Section>
       <Section class="'pt-1'">
         <t t-set-slot="title">Style color</t>
-        <RoundColorPicker currentColor="state.primaryColor" onColorPicked.bind="onColorPicked"/>
+        <RoundColorPicker
+          currentColor="state.primaryColor"
+          onColorPicked.bind="onColorPicked"
+          disableNoColor="true"
+        />
       </Section>
       <Section class="'pt-1'">
         <t t-set-slot="title">Style template</t>
