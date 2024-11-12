@@ -650,9 +650,6 @@ export function dichotomicSearch<T>(
   rangeLength: number,
   getValueInData: (range: T, index: number) => CellValue | undefined
 ): number {
-  if (target === null || target === undefined) {
-    return -1;
-  }
   const _target = normalizeValue(target);
   const targetType = typeof _target;
 
@@ -689,7 +686,8 @@ export function dichotomicSearch<T>(
     if (mode === "strict" && currentVal === _target) {
       matchVal = currentVal;
       matchValIndex = currentIndex;
-    } else if (mode === "nextSmaller" && currentVal <= _target) {
+      // } else if (mode === "nextSmaller" && currentVal <= _target) {
+    } else if (mode === "nextSmaller" && compareCellValues(_target, currentVal) >= 0) {
       if (
         matchVal === undefined ||
         matchVal === null ||
@@ -700,7 +698,7 @@ export function dichotomicSearch<T>(
         matchVal = currentVal;
         matchValIndex = currentIndex;
       }
-    } else if (mode === "nextGreater" && currentVal >= _target) {
+    } else if (mode === "nextGreater" && compareCellValues(_target, currentVal) <= 0) {
       if (
         matchVal === undefined ||
         matchVal > currentVal ||
@@ -714,8 +712,8 @@ export function dichotomicSearch<T>(
 
     // 3 - give new indexes for the Binary search
     if (
-      (sortOrder === "asc" && currentVal > _target) ||
-      (sortOrder === "desc" && currentVal <= _target)
+      (sortOrder === "asc" && compareCellValues(_target, currentVal) < 0) ||
+      (sortOrder === "desc" && compareCellValues(_target, currentVal) >= 0)
     ) {
       indexRight = currentIndex - 1;
     } else {
@@ -754,8 +752,6 @@ export function linearSearch<T>(
   getValueInData: (data: T, index: number) => CellValue | undefined,
   reverseSearch = false
 ): number {
-  if (target === null || target === undefined) return -1;
-
   const _target = normalizeValue(target);
   const getValue = reverseSearch
     ? (data: T, i: number) => getValueInData(data, numberOfValues - i - 1)
@@ -768,7 +764,9 @@ export function linearSearch<T>(
     if (value === _target) {
       return reverseSearch ? numberOfValues - i - 1 : i;
     }
-    // if (value === null || value === null) { continue; }
+    if (_target === null || value === null) {
+      continue;
+    }
     if (mode === "nextSmaller") {
       if (
         (!closestMatch && compareCellValues(_target, value) >= 0) ||
