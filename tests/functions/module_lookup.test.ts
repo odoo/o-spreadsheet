@@ -1164,6 +1164,15 @@ describe("XLOOKUP formula", () => {
       "#,##0[$$]"
     );
   });
+
+  test("Empty lookup range with reverse search mode does not crash", () => {
+    const grid = evaluateGrid({
+      A1: "=XLOOKUP(5, B1:B6, C1:C6, , , -1 )",
+      A2: "=XLOOKUP(5, B1:B6, C1:C6, , , -2 )",
+    });
+    expect(grid.A1).toBe("#N/A");
+    expect(grid.A2).toBe("#N/A");
+  });
 });
 
 describe("INDEX formula", () => {
