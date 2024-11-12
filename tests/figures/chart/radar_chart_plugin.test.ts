@@ -128,4 +128,24 @@ describe("radar chart", () => {
     runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.["pointLabels"]?.color).toBe("#FFFFFF");
   });
+
+  test("Radar scale starts at zero for positive numbers", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "1");
+    createRadarChart(model, { dataSets: [{ dataRange: "A1:A3" }] }, "chartId");
+    const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
+    expect(runtime.chartJsConfig.options?.scales?.r?.["beginAtZero"]).toBe(true);
+  });
+
+  test("Radar scale starts below the minimum for negative values", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "4");
+    setCellContent(model, "A3", "-7");
+    setCellContent(model, "A4", "-1");
+
+    createRadarChart(model, { dataSets: [{ dataRange: "A1:A4" }] }, "chartId");
+    const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
+    expect(runtime.chartJsConfig.options?.scales?.r?.suggestedMin).toBe(-8);
+  });
 });
