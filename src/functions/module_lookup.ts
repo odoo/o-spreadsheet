@@ -27,7 +27,7 @@ const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
 const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
 
-function assertAvailable(variable, searchKey) {
+function assertAvailable(variable, searchKey: CellValue | undefined) {
   if (variable === undefined) {
     throw new NotAvailableError(
       _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
@@ -487,7 +487,7 @@ export const VLOOKUP = {
       : linearSearch(range, searchKey?.value, "strict", range[0].length, getValueFromRange);
 
     const value = range[_index - 1][rowIndex];
-    assertAvailable(value, searchKey);
+    assertAvailable(value, searchKey?.value);
     return value;
   },
   isExported: true,
@@ -592,7 +592,7 @@ export const XLOOKUP = {
     }
 
     const _defaultValue = defaultValue?.();
-    assertAvailable(_defaultValue, searchKey);
+    assertAvailable(_defaultValue, searchKey?.value);
     return [[_defaultValue!]];
   },
   isExported: true,
