@@ -7,7 +7,7 @@ import {
   GRAY_200,
   GRAY_300,
 } from "../../../../constants";
-import { colorNumberString, rangeReference } from "../../../../helpers";
+import { colorNumberString, isColorValid, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import { _t } from "../../../../translation";
@@ -423,6 +423,10 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   setColorScaleColor(target: string, color: Color) {
+    if (!isColorValid(color)) {
+      return;
+    }
+
     const point = this.state.rules.colorScale[target];
     if (point) {
       point.color = Number.parseInt(color.substr(1), 16);

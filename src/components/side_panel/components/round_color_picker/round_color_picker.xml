@@ -12,6 +12,7 @@
       anchorRect="colorPickerAnchorRect"
       onColorPicked.bind="onColorPicked"
       currentColor="props.currentColor"
+      disableNoColor="props.disableNoColor"
     />
   </t>
 </templates>
