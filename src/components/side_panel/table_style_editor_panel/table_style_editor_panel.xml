@@ -5,7 +5,11 @@
         <input type="text" class="o-input" t-model="state.styleName"/>
       </Section>
       <Section class="'pt-1'" title.translate="Style color">
-        <RoundColorPicker currentColor="state.primaryColor" onColorPicked.bind="onColorPicked"/>
+        <RoundColorPicker
+          currentColor="state.primaryColor"
+          onColorPicked.bind="onColorPicked"
+          disableNoColor="true"
+        />
       </Section>
       <Section class="'pt-1'" title.translate="Style template">
         <div class="d-flex flex-wrap">
