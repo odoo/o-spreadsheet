@@ -23,7 +23,7 @@
       />
 
       <div
-        t-if="props.focus !== 'inactive' and (autoCompleteState.provider or functionDescriptionState.showDescription)"
+        t-if="props.focus !== 'inactive' and (composerStore.autoComplete.provider or functionDescriptionState.showDescription)"
         class="o-composer-assistant shadow"
         t-att-style="assistantStyle"
         t-on-wheel.stop=""
@@ -31,9 +31,9 @@
         t-on-click.prevent.stop=""
         t-on-pointerup.prevent.stop="">
         <TextValueProvider
-          t-if="autoCompleteState.provider"
-          proposals="autoCompleteState.provider.proposals"
-          selectedIndex="autoCompleteState.selectedIndex"
+          t-if="composerStore.autoComplete.provider"
+          proposals="composerStore.autoComplete.provider.proposals"
+          selectedIndex="composerStore.autoComplete.selectedIndex"
           onValueSelected.bind="this.autoComplete"
           onValueHovered.bind="this.updateAutoCompleteIndex"
         />

@@ -54,6 +54,7 @@ import {
   Zone,
 } from "../../../types";
 import { SelectionEvent } from "../../../types/event_stream";
+import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 
 export type EditionMode =
   | "editing"
@@ -89,6 +90,7 @@ export class ComposerStore extends SpreadsheetStore {
   private initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
 
+  autoComplete = this.get(AutoCompleteStore);
   private notificationStore = this.get(NotificationStore);
   private highlightStore = this.get(HighlightStore);
 
@@ -119,6 +121,7 @@ export class ComposerStore extends SpreadsheetStore {
       case "newAnchor":
         if (this.editionMode === "selecting") {
           this.insertSelectedRange(unboundedZone);
+          this.autoComplete.hide();
         }
         break;
       default:
@@ -127,6 +130,7 @@ export class ComposerStore extends SpreadsheetStore {
         } else {
           this.updateComposerRange(event.previousAnchor.zone, unboundedZone);
         }
+        this.autoComplete.hide();
         break;
     }
   }
