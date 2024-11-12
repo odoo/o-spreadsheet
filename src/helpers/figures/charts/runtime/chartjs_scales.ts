@@ -170,14 +170,19 @@ export function getRadarChartScales(
   definition: GenericDefinition<RadarChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
-  const { locale, axisFormats } = args;
+  const { locale, axisFormats, dataSetsValues } = args;
+  const minValue = Math.min(
+    ...dataSetsValues.map((ds) => Math.min(...ds.data.filter((x) => !isNaN(x))))
+  );
   return {
     r: {
+      beginAtZero: true,
       ticks: {
         callback: formatTickValue({ format: axisFormats?.r, locale }),
         backdropColor: definition.background || "#FFFFFF",
       },
       pointLabels: { color: chartFontColor(definition.background) },
+      suggestedMin: minValue < 0 ? minValue - 1 : 0,
     },
   };
 }
