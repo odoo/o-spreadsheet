@@ -563,6 +563,10 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   updateDataBarColor(color: Color) {
+    if (!isColorValid(color)) {
+      return;
+    }
+
     this.state.rules.dataBar.color = Number.parseInt(color.substr(1), 16);
   }
 
