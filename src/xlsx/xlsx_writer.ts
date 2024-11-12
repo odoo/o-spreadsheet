@@ -278,7 +278,12 @@ function createSharedStrings(strings: string[]): XLSXExportFile {
     ["uniqueCount", strings.length],
   ];
 
-  const stringNodes = strings.map((string) => escapeXml/*xml*/ `<si><t>${string}</t></si>`);
+  const stringNodes = strings.map((string) => {
+    if (string.trim() !== string) {
+      return escapeXml/*xml*/ `<si><t xml:space="preserve">${string}</t></si>`;
+    }
+    return escapeXml/*xml*/ `<si><t>${string}</t></si>`;
+  });
 
   const xml = escapeXml/*xml*/ `
     <sst ${formatAttributes(namespaces)}>

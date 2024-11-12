@@ -744,6 +744,20 @@ describe("Test XLSX export", () => {
     expect(styles[1].querySelector("alignment")!.getAttribute("wrapText")).toBe("1");
   });
 
+  test("Leading and trailing whitespace in strings are preserved", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "    Multiline with\n   leading and trailing spaces\n    ");
+
+    const exportedXlsx = await exportPrettifiedXlsx(model);
+    const sharedStrings = parseXML(
+      exportedXlsx.files.find((f) => f["contentType"] === "sharedStrings")!["content"]
+    );
+
+    const string = sharedStrings.querySelector("si t")!;
+    expect(string.getAttribute("xml:space")).toBe("preserve");
+    expect(string.textContent).toBe("    Multiline with\n   leading and trailing spaces\n    ");
+  });
+
   describe("formulas", () => {
     beforeAll(() => {
       functionRegistry.add("NOW", {
