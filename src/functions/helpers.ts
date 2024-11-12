@@ -913,7 +913,9 @@ export function linearSearch<T>(
       return reverseSearch ? numberOfValues - i - 1 : i;
     }
   }
-  return reverseSearch ? numberOfValues - closestMatchIndex - 1 : closestMatchIndex;
+  return reverseSearch && closestMatchIndex !== -1
+    ? numberOfValues - closestMatchIndex - 1
+    : closestMatchIndex;
 }
 
 /**
