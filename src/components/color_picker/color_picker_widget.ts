@@ -13,6 +13,7 @@ interface Props {
   disabled?: boolean;
   dropdownMaxHeight?: Pixel;
   class?: string;
+  disableNoColor?: boolean;
 }
 
 css/* scss */ `
@@ -62,6 +63,7 @@ export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
     disabled: { type: Boolean, optional: true },
     dropdownMaxHeight: { type: Number, optional: true },
     class: { type: String, optional: true },
+    disableNoColor: { type: Boolean, optional: true },
   };
   static components = { ColorPicker };
 
