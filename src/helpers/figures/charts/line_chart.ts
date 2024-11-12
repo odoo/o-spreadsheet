@@ -44,11 +44,11 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
 import {
+  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getLineChartData,
   getLineChartDatasets,
-  getLineChartLayout,
   getLineChartLegend,
   getLineChartScales,
   getLineChartTooltip,
@@ -244,7 +244,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getLineChartLayout(definition),
+      layout: getChartLayout(definition),
       scales: getLineChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

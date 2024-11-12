@@ -39,11 +39,11 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
 import {
+  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getPieChartData,
   getPieChartDatasets,
-  getPieChartLayout,
   getPieChartLegend,
   getPieChartTooltip,
 } from "./runtime";
@@ -207,7 +207,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getPieChartLayout(definition),
+      layout: getChartLayout(definition),
       plugins: {
         title: getChartTitle(definition),
         legend: getPieChartLegend(definition, chartData),

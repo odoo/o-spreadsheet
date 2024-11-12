@@ -45,10 +45,10 @@ import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
 import {
   getBarChartData,
   getBarChartDatasets,
-  getBarChartLayout,
   getBarChartLegend,
   getBarChartScales,
   getBarChartTooltip,
+  getChartLayout,
   getChartShowValues,
   getChartTitle,
 } from "./runtime";
@@ -234,7 +234,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     options: {
       ...CHART_COMMON_OPTIONS,
       indexAxis: chart.horizontal ? "y" : "x",
-      layout: getBarChartLayout(definition),
+      layout: getChartLayout(definition),
       scales: getBarChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

@@ -332,6 +332,13 @@ export function chartFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#FFFFFF" : "#000000";
 }
 
+export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
+  if (!backgroundColor) {
+    return "#666666";
+  }
+  return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
+}
+
 export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {
   if (definition.dataSets) {
     const invalidRanges =

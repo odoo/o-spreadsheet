@@ -36,8 +36,8 @@ import {
 import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
 import {
   getBarChartDatasets,
-  getBarChartLayout,
   getBarChartLegend,
+  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getPyramidChartData,
@@ -210,7 +210,7 @@ export function createPyramidChartRuntime(
     options: {
       ...CHART_COMMON_OPTIONS,
       indexAxis: "y",
-      layout: getBarChartLayout(definition),
+      layout: getChartLayout(definition),
       scales: getPyramidChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

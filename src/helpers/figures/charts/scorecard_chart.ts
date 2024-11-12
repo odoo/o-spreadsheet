@@ -1,6 +1,6 @@
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
-  DEFAULT_CHART_PADDING,
+  CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
@@ -295,7 +295,7 @@ export class ScorecardChart extends AbstractChart {
 export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d")!;
   canvas.width = structure.canvas.width;
-  const availableWidth = canvas.width - DEFAULT_CHART_PADDING;
+  const availableWidth = canvas.width - CHART_PADDING * 2;
   canvas.height = structure.canvas.height;
 
   ctx.fillStyle = structure.canvas.backgroundColor;

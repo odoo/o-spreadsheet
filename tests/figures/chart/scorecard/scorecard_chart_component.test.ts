@@ -4,7 +4,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
 } from "../../../../src/constants";
 import { getContextFontSize } from "../../../../src/helpers";
-import { drawScoreChart } from "../../../../src/helpers/figures/charts";
+import { chartMutedFontColor, drawScoreChart } from "../../../../src/helpers/figures/charts";
 import {
   ScorecardChartConfig,
   formatBaselineDescr,
@@ -27,6 +27,8 @@ import { toRangesData } from "../../../test_helpers/helpers";
 let model: Model;
 let chartId: string;
 let sheetId: string;
+
+const mutedFontColor = chartMutedFontColor("#fff");
 
 function updateScorecardChartSize(width: Pixel, height: Pixel) {
   model.dispatch("UPDATE_FIGURE", {
@@ -165,7 +167,7 @@ describe("Scorecard charts computation", () => {
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baseline?.text).toEqual("1");
-    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs(mutedFontColor);
   });
 
   test("Baseline description and arrow with mode 'progress' are not displayed", () => {
@@ -178,7 +180,7 @@ describe("Scorecard charts computation", () => {
 
     expect(chartDesign.baselineDescr).toBeUndefined();
     expect(chartDesign.baselineArrow).toBeUndefined();
-    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs(mutedFontColor);
     expect(chartDesign.baseline?.text).toEqual("200.0%");
   });
 
@@ -264,7 +266,7 @@ describe("Scorecard charts computation", () => {
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baselineArrow).toBeUndefined();
-    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs(mutedFontColor);
     expect(chartDesign.baseline?.text).toEqual("0");
   });
 
@@ -507,7 +509,7 @@ describe("Scorecard charts rendering", () => {
   test("Baseline with mode 'text' is plainly displayed", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B1", baselineMode: "text" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#525252");
+    expect(scorecardChartStyle.baseline.color).toBeSameColorAs(mutedFontColor);
   });
 
   test("Key < baseline display in red with down arrow", () => {
@@ -527,7 +529,7 @@ describe("Scorecard charts rendering", () => {
   test("Key = baseline display default font color with no arrow", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#525252");
+    expect(scorecardChartStyle.baseline.color).toBeSameColorAs(mutedFontColor);
   });
 
   test("Key value and baseline are displayed with the cell style", () => {
