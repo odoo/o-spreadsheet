@@ -1153,6 +1153,31 @@ describe("XLOOKUP formula", () => {
     });
   });
 
+  test("Empty lookup range", () => {
+    const grid = evaluateGrid({
+      A1: "=XLOOKUP(5, B1:B6, C1:C6)",
+      A2: `=XLOOKUP(5, B1:B6, C1:C6, "placeholder")`,
+      A3: "=XLOOKUP(5, B1:B6, C1:C6, , -1)",
+      A4: "=XLOOKUP(5, B1:B6, C1:C6, , 0)",
+      // A5: "=XLOOKUP(5, B1:B6, C1:C6, , 1)",
+      A6: "=XLOOKUP(5, B1:B6, C1:C6, , , 2 )",
+      A7: "=XLOOKUP(5, B1:B6, C1:C6, , , 1 )",
+      A8: "=XLOOKUP(5, B1:B6, C1:C6, , , -1 )",
+      A9: "=XLOOKUP(5, B1:B6, C1:C6, , , -2 )",
+      A10: "=XLOOKUP(C1, B1:B6, C1:C6)", // both C1 and B1:B6 are empty
+    });
+    expect(grid.A1).toBe("#N/A");
+    expect(grid.A2).toBe("placeholder");
+    expect(grid.A3).toBe("#N/A");
+    expect(grid.A4).toBe("#N/A");
+    // expect(grid.A5).toBe("#N/A");
+    expect(grid.A6).toBe("#N/A");
+    expect(grid.A7).toBe("#N/A");
+    expect(grid.A8).toBe("#N/A");
+    expect(grid.A9).toBe("#N/A");
+    expect(grid.A10).toBe(0);
+  });
+
   test("take format into account", () => {
     // prettier-ignore
     const grid = {

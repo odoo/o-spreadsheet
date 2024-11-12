@@ -6,7 +6,7 @@ import { _t } from "../translation";
 import { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat, isMatrix } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 
-const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
+const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined", "object"];
 
 export function assert(condition: () => boolean, message: string): void {
   if (!condition()) {
@@ -768,6 +768,7 @@ export function linearSearch<T>(
     if (value === _target) {
       return reverseSearch ? numberOfValues - i - 1 : i;
     }
+    // if (value === null || value === null) { continue; }
     if (mode === "nextSmaller") {
       if (
         (!closestMatch && compareCellValues(_target, value) >= 0) ||
