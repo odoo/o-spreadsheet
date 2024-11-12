@@ -19,6 +19,7 @@ import {
   getTarget,
   keyDown,
   setInputValueAndTrigger,
+  simulateClick,
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
@@ -1052,6 +1053,14 @@ describe("UI of conditional formats", () => {
     await click(fixture, selectors.buttonSave);
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
+  });
+
+  test("Hides the 'No Color' button when the color picker is opened for the color scale", async () => {
+    await simulateClick(selectors.buttonAdd);
+    await simulateClick(document.querySelectorAll(selectors.cfTabSelector)[1]);
+    await simulateClick(selectors.colorScaleEditor.minColor);
+
+    expect(fixture.querySelector(".o-buttons .o-cancel")).toBeNull();
   });
 
   test("If there is no midpoint in a color scale, the color picker is invisible", async () => {
