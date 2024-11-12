@@ -47,6 +47,7 @@
           currentColor="getThresholdColor(threshold)"
           onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
           title="fill_color"
+          disableNoColor="true"
         />
       </div>
     </div>
