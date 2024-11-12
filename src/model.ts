@@ -233,7 +233,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.loadInitialMessages(stateUpdateMessages);
     this.joinSession();
 
-    if (config.snapshotRequested) {
+    if (config.snapshotRequested || data["[Content_Types].xml"]) {
       this.session.snapshot(this.exportData());
     }
     // mark all models as "raw", so they will not be turned into reactive objects

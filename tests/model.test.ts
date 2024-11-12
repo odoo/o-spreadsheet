@@ -1,4 +1,5 @@
 import { CommandResult, CorePlugin } from "../src";
+import { MESSAGE_VERSION } from "../src/constants";
 import { toZone } from "../src/helpers";
 import { Model, ModelConfig } from "../src/model";
 import { corePluginRegistry, uiPluginRegistry } from "../src/plugins/index";
@@ -7,6 +8,8 @@ import { Command, CoreCommand, coreTypes, DispatchResult } from "../src/types";
 import { setupCollaborativeEnv } from "./collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
 import { getCellText } from "./test_helpers/getters_helpers";
+import { MockTransportService } from "./__mocks__/transport_service";
+import { getTextXlsxFiles } from "./__xlsx__/read_demo_xlsx";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -211,5 +214,23 @@ describe("Model", () => {
     };
     const model = new Model(modelData);
     expect(model.exportData()).toMatchSnapshot();
+  });
+
+  test("snapshot when importing xlsx file", async () => {
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+    const transport = new MockTransportService();
+    const spy = jest.spyOn(transport, "sendMessage");
+    const xlsxData = getTextXlsxFiles();
+    new Model(xlsxData, {
+      transportService: transport,
+      client: { id: "test", name: "Test" },
+    });
+    expect(spy).toHaveBeenCalledWith({
+      type: "SNAPSHOT",
+      version: MESSAGE_VERSION,
+      nextRevisionId: expect.any(String),
+      serverRevisionId: "START_REVISION",
+      data: expect.any(Object),
+    });
   });
 });
