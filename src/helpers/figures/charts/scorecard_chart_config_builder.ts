@@ -1,20 +1,15 @@
 import { Color } from "chart.js";
-import {
-  DEFAULT_CHART_PADDING,
-  SCORECARD_GAUGE_CHART_FONT_SIZE,
-  SCORECARD_GAUGE_CHART_PADDING,
-} from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
-import { relativeLuminance } from "../../color";
 import { getDefaultContextFont } from "../../text_helper";
+import { chartMutedFontColor } from "./chart_common";
 
 /* Padding at the border of the chart */
-const CHART_PADDING = SCORECARD_GAUGE_CHART_PADDING;
+const CHART_PADDING = 10;
 const BOTTOM_PADDING_RATIO = 0.05;
 
 /* Maximum font sizes of each element */
-const CHART_TITLE_FONT_SIZE = SCORECARD_GAUGE_CHART_FONT_SIZE;
+const CHART_TITLE_FONT_SIZE = 14;
 const KEY_VALUE_FONT_SIZE = 32;
 const BASELINE_MAX_FONT_SIZE = 16;
 
@@ -149,7 +144,7 @@ class ScorecardChartConfigBuilder {
       },
     };
 
-    const minimalBaselinePosition = baselineArrowSize + DEFAULT_CHART_PADDING;
+    const minimalBaselinePosition = baselineArrowSize + CHART_PADDING * 2;
     if (structure.baseline.position.x < minimalBaselinePosition) {
       structure.baseline.position.x = minimalBaselinePosition;
     }
@@ -244,7 +239,7 @@ class ScorecardChartConfigBuilder {
   }
 
   private get secondaryFontColor() {
-    return relativeLuminance(this.backgroundColor) > 0.3 ? "#525252" : "#C8C8C8";
+    return chartMutedFontColor(this.backgroundColor);
   }
 
   private getTextDimensions(text: string, font: string) {

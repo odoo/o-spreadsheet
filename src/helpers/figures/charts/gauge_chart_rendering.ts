@@ -1,11 +1,11 @@
 import {
+  CHART_PADDING,
+  CHART_PADDING_TOP,
+  CHART_TITLE_FONT_SIZE,
   DEFAULT_FONT,
-  SCORECARD_GAUGE_CHART_FONT_SIZE,
-  SCORECARD_GAUGE_CHART_PADDING,
 } from "../../../constants";
 import { Color, PixelPosition, Rect } from "../../../types";
 import { GaugeChartRuntime } from "../../../types/chart";
-import { relativeLuminance } from "../../color";
 import { clip } from "../../misc";
 import {
   computeTextDimension,
@@ -13,6 +13,7 @@ import {
   getDefaultContextFont,
   getFontSizeMatchingWidth,
 } from "../../text_helper";
+import { chartMutedFontColor } from "./chart_common";
 
 export const GAUGE_PADDING_SIDE = 30;
 export const GAUGE_PADDING_TOP = 10;
@@ -21,15 +22,9 @@ export const GAUGE_LABELS_FONT_SIZE = 12;
 export const GAUGE_DEFAULT_VALUE_FONT_SIZE = 80;
 
 const GAUGE_BACKGROUND_COLOR = "#F3F2F1";
-export const GAUGE_TEXT_COLOR = "#666666";
-export const GAUGE_TEXT_COLOR_HIGH_CONTRAST = "#C8C8C8";
-const GAUGE_INFLECTION_MARKER_COLOR = "#666666aa";
 const GAUGE_INFLECTION_LABEL_BOTTOM_MARGIN = 6;
 
 export const GAUGE_TITLE_SECTION_HEIGHT = 25;
-export const GAUGE_TITLE_FONT_SIZE = SCORECARD_GAUGE_CHART_FONT_SIZE;
-export const GAUGE_TITLE_PADDING_LEFT = SCORECARD_GAUGE_CHART_PADDING;
-export const GAUGE_TITLE_PADDING_TOP = SCORECARD_GAUGE_CHART_PADDING;
 
 interface RenderingParams {
   width: number;
@@ -144,7 +139,7 @@ function drawInflectionValues(ctx: CanvasRenderingContext2D, config: RenderingPa
     ctx.rotate(Math.PI / 2 - inflectionValue.rotation);
 
     ctx.lineWidth = 2;
-    ctx.strokeStyle = GAUGE_INFLECTION_MARKER_COLOR;
+    ctx.strokeStyle = chartMutedFontColor(config.backgroundColor) + "aa";
     ctx.beginPath();
     ctx.moveTo(0, -(height - config.gauge.arcWidth));
     ctx.lineTo(0, -height - 3);
@@ -217,7 +212,7 @@ export function getGaugeRenderingConfig(
     y: gaugeRect.y + gaugeRect.height + GAUGE_LABELS_FONT_SIZE,
   };
 
-  const textColor = getContrastedTextColor(runtime.background);
+  const textColor = chartMutedFontColor(runtime.background);
 
   const inflectionValues = getInflectionValues(runtime, gaugeRect, textColor, ctx);
 
@@ -228,20 +223,20 @@ export function getGaugeRenderingConfig(
     ({ width: titleWidth, height: titleHeight } = computeTextDimension(
       ctx,
       runtime.title.text,
-      { ...runtime.title, fontSize: GAUGE_TITLE_FONT_SIZE },
+      { ...runtime.title, fontSize: CHART_TITLE_FONT_SIZE },
       "px"
     ));
   }
   switch (runtime.title.align) {
     case "right":
-      x = boundingRect.width - titleWidth - GAUGE_TITLE_PADDING_LEFT;
+      x = boundingRect.width - titleWidth - CHART_PADDING;
       break;
     case "center":
       x = (boundingRect.width - titleWidth) / 2;
       break;
     case "left":
     default:
-      x = GAUGE_TITLE_PADDING_LEFT;
+      x = CHART_PADDING;
       break;
   }
 
@@ -250,10 +245,10 @@ export function getGaugeRenderingConfig(
     height: boundingRect.height,
     title: {
       label: runtime.title.text ?? "",
-      fontSize: GAUGE_TITLE_FONT_SIZE,
+      fontSize: CHART_TITLE_FONT_SIZE,
       textPosition: {
         x,
-        y: GAUGE_TITLE_PADDING_TOP + titleHeight / 2,
+        y: CHART_PADDING_TOP + titleHeight / 2,
       },
       color: runtime.title.color ?? textColor,
       bold: runtime.title.bold,
@@ -382,12 +377,6 @@ function getGaugeColor(runtime: GaugeChartRuntime): Color {
     }
   }
   return runtime.colors.at(-1)!;
-}
-
-function getContrastedTextColor(backgroundColor: Color) {
-  return relativeLuminance(backgroundColor) > 0.3
-    ? GAUGE_TEXT_COLOR
-    : GAUGE_TEXT_COLOR_HIGH_CONTRAST;
 }
 
 function getSegmentsOfRectangle(rectangle: UnalignedRectangle): Segment[] {

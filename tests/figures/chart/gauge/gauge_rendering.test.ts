@@ -1,10 +1,8 @@
+import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
+import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
 import {
   GAUGE_DEFAULT_VALUE_FONT_SIZE,
   GAUGE_LABELS_FONT_SIZE,
-  GAUGE_TEXT_COLOR,
-  GAUGE_TEXT_COLOR_HIGH_CONTRAST,
-  GAUGE_TITLE_FONT_SIZE,
-  GAUGE_TITLE_PADDING_LEFT,
   getGaugeRenderingConfig,
 } from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
 import { Rect } from "../../../../src/types";
@@ -57,12 +55,12 @@ describe("Gauge rendering config", () => {
   test("Chart title", () => {
     expect(getRenderingConfig(testRuntime).title).toEqual({
       label: testRuntime.title.text,
-      fontSize: GAUGE_TITLE_FONT_SIZE,
+      fontSize: CHART_TITLE_FONT_SIZE,
       textPosition: {
-        x: GAUGE_TITLE_PADDING_LEFT,
+        x: CHART_PADDING,
         y: NaN,
       },
-      color: GAUGE_TEXT_COLOR,
+      color: chartMutedFontColor(testRuntime.background),
     });
   });
 
@@ -75,7 +73,7 @@ describe("Gauge rendering config", () => {
         y: config.gauge.rect.y + config.gauge.rect.height + GAUGE_LABELS_FONT_SIZE, // below the gauge
       },
       fontSize: GAUGE_LABELS_FONT_SIZE,
-      color: GAUGE_TEXT_COLOR,
+      color: chartMutedFontColor(testRuntime.background),
     });
   });
 
@@ -88,7 +86,7 @@ describe("Gauge rendering config", () => {
         y: config.gauge.rect.y + config.gauge.rect.height + GAUGE_LABELS_FONT_SIZE, // below the gauge
       },
       fontSize: GAUGE_LABELS_FONT_SIZE,
-      color: GAUGE_TEXT_COLOR,
+      color: chartMutedFontColor(testRuntime.background),
     });
   });
 
@@ -159,14 +157,14 @@ describe("Gauge rendering config", () => {
         rotation: Math.PI * (1 - 0.25),
         label: "25",
         fontSize: GAUGE_LABELS_FONT_SIZE,
-        color: GAUGE_TEXT_COLOR,
+        color: chartMutedFontColor(testRuntime.background),
         offset: 0,
       },
       {
         rotation: Math.PI * (1 - 0.75),
         label: "75",
         fontSize: GAUGE_LABELS_FONT_SIZE,
-        color: GAUGE_TEXT_COLOR,
+        color: chartMutedFontColor(testRuntime.background),
         offset: 0,
       },
     ]);
@@ -195,7 +193,7 @@ describe("Gauge rendering config", () => {
         y: config.gauge.rect.y + config.gauge.rect.height - config.gauge.rect.height / 12,
       },
       fontSize: GAUGE_DEFAULT_VALUE_FONT_SIZE,
-      color: GAUGE_TEXT_COLOR,
+      color: chartMutedFontColor(testRuntime.background),
     });
   });
 
@@ -214,11 +212,11 @@ describe("Gauge rendering config", () => {
 
   test("Text colors are contrasted on dark backgrounds", () => {
     const config = getRenderingConfig({ ...testRuntime, background: "#000000" });
-    expect(config.title.color).toEqual(GAUGE_TEXT_COLOR_HIGH_CONTRAST);
-    expect(config.minLabel.color).toEqual(GAUGE_TEXT_COLOR_HIGH_CONTRAST);
-    expect(config.maxLabel.color).toEqual(GAUGE_TEXT_COLOR_HIGH_CONTRAST);
-    expect(config.gaugeValue.color).toEqual(GAUGE_TEXT_COLOR_HIGH_CONTRAST);
-    expect(config.inflectionValues[0].color).toEqual(GAUGE_TEXT_COLOR_HIGH_CONTRAST);
-    expect(config.inflectionValues[1].color).toEqual(GAUGE_TEXT_COLOR_HIGH_CONTRAST);
+    expect(config.title.color).toEqual(chartMutedFontColor("#000000"));
+    expect(config.minLabel.color).toEqual(chartMutedFontColor("#000000"));
+    expect(config.maxLabel.color).toEqual(chartMutedFontColor("#000000"));
+    expect(config.gaugeValue.color).toEqual(chartMutedFontColor("#000000"));
+    expect(config.inflectionValues[0].color).toEqual(chartMutedFontColor("#000000"));
+    expect(config.inflectionValues[1].color).toEqual(chartMutedFontColor("#000000"));
   });
 });

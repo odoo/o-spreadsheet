@@ -41,7 +41,7 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
 import {
-  getBarChartLayout,
+  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getRadarChartData,
@@ -228,7 +228,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getBarChartLayout(definition),
+      layout: getChartLayout(definition),
       scales: getRadarChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

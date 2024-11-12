@@ -47,9 +47,9 @@ import {
 import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
 import {
   getBarChartData,
-  getBarChartLayout,
   getBarChartScales,
   getBarChartTooltip,
+  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getComboChartDatasets,
@@ -236,7 +236,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getBarChartLayout(definition),
+      layout: getChartLayout(definition),
       scales: getBarChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
