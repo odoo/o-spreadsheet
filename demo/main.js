@@ -238,11 +238,11 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
-    // this.createModel(data || demoData);
+    this.createModel(data || demoData);
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel(makeLargeDataset(26, 10_000, ["formulas"]));
     // this.createModel(makeLargeDataset(26, 10_000, ["arrayFormulas"]));
-    this.createModel(data || {});
+    // this.createModel({});
   }
 
   createModel(data) {

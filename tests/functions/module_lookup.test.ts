@@ -379,7 +379,7 @@ describe("MATCH formula", () => {
 
     expect(dAsD.D1).toBe(6);
     expect(dAsD.D2).toBe(6);
-    expect(dAsD.D3).toBe(4);
+    expect(dAsD.D3).toBe(5);
     expect(dAsD.D4).toBe(3);
     expect(dAsD.D5).toBe(2);
     expect(dAsD.D6).toBe(2);
@@ -1153,31 +1153,53 @@ describe("XLOOKUP formula", () => {
     });
   });
 
-  test("Empty lookup range", () => {
-    const grid = evaluateGrid({
-      A1: "=XLOOKUP(5, B1:B6, C1:C6)",
-      A2: `=XLOOKUP(5, B1:B6, C1:C6, "placeholder")`,
-      A3: "=XLOOKUP(5, B1:B6, C1:C6, , -1)",
-      A4: "=XLOOKUP(5, B1:B6, C1:C6, , 0)",
-      A5: "=XLOOKUP(5, B1:B6, C1:C6, , 1)",
-      A6: "=XLOOKUP(5, B1:B6, C1:C6, , , 2 )",
-      A7: "=XLOOKUP(5, B1:B6, C1:C6, , , 1 )",
-      A8: "=XLOOKUP(5, B1:B6, C1:C6, , , -1 )",
-      A9: "=XLOOKUP(5, B1:B6, C1:C6, , , -2 )",
-      A10: "=XLOOKUP(D1, B1:B6, C1:C6)", // both C1 and B1:B6 are empty
-      A11: "=XLOOKUP(D1, B1:B6, C1:C6, , , 2)", // both C1 and B1:B6 are empty  + force dichotomic search
+  describe("empty arguments", () => {
+    test("Empty lookup range", () => {
+      const grid = evaluateGrid({
+        A1: "=XLOOKUP(5, B1:B6, C1:C6)",
+        A2: `=XLOOKUP(5, B1:B6, C1:C6, "placeholder")`,
+        A3: "=XLOOKUP(5, B1:B6, C1:C6, , -1)",
+        A4: "=XLOOKUP(5, B1:B6, C1:C6, , 0)",
+        A5: "=XLOOKUP(5, B1:B6, C1:C6, , 1)",
+        A6: "=XLOOKUP(5, B1:B6, C1:C6, , , 2 )",
+        A7: "=XLOOKUP(5, B1:B6, C1:C6, , , 1 )",
+        A8: "=XLOOKUP(5, B1:B6, C1:C6, , , -1 )",
+        A9: "=XLOOKUP(5, B1:B6, C1:C6, , , -2 )",
+      });
+      expect(grid.A1).toBe("#N/A");
+      expect(grid.A2).toBe("placeholder");
+      expect(grid.A3).toBe("#N/A");
+      expect(grid.A4).toBe("#N/A");
+      expect(grid.A5).toBe("#N/A");
+      expect(grid.A6).toBe("#N/A");
+      expect(grid.A7).toBe("#N/A");
+      expect(grid.A8).toBe("#N/A");
+      expect(grid.A9).toBe("#N/A");
     });
-    expect(grid.A1).toBe("#N/A");
-    expect(grid.A2).toBe("placeholder");
-    expect(grid.A3).toBe("#N/A");
-    expect(grid.A4).toBe("#N/A");
-    expect(grid.A5).toBe("#N/A");
-    expect(grid.A6).toBe("#N/A");
-    expect(grid.A7).toBe("#N/A");
-    expect(grid.A8).toBe("#N/A");
-    expect(grid.A9).toBe("#N/A");
-    expect(grid.A10).toBe(0);
-    expect(grid.A11).toBe(0);
+
+    test("Empty lookup range and searchKey", () => {
+      const grid = evaluateGrid({
+        ...commonGrid,
+        Z1: "=XLOOKUP(V1, W1:W6, C1:C6)",
+        Z2: `=XLOOKUP(V1, W1:W6, C1:C6, "placeholder")`,
+        Z3: "=XLOOKUP(V1, W1:W6, C1:C6, , -1)",
+        Z4: "=XLOOKUP(V1, W1:W6, C1:C6, , 0)",
+        Z5: "=XLOOKUP(V1, W1:W6, C1:C6, , 1)",
+        Z6: "=XLOOKUP(V1, W1:W6, C1:C6, , , 2 )",
+        Z7: "=XLOOKUP(V1, W1:W6, C1:C6, , , 1 )",
+        Z8: "=XLOOKUP(V1, W1:W6, C1:C6, , , -1 )",
+        Z9: "=XLOOKUP(V1, W1:W6, C1:C6, , , -2 )",
+      });
+      expect(grid.Z1).toBe("C1");
+      expect(grid.Z2).toBe("C1");
+      expect(grid.Z3).toBe("C1");
+      expect(grid.Z4).toBe("C1");
+      expect(grid.Z5).toBe("C1");
+      expect(grid.Z6).toBe("C1");
+      expect(grid.Z7).toBe("C1");
+      expect(grid.Z8).toBe("C6");
+      expect(grid.Z9).toBe("C6");
+    });
   });
 
   test("take format into account", () => {

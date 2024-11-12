@@ -677,21 +677,30 @@ export function dichotomicSearch<T>(
       currentVal = normalizeValue(getValueInData(data, currentIndex));
       currentType = typeof currentVal;
     }
-    if (currentType !== targetType || currentVal === undefined || currentVal === null) {
+    if (
+      currentVal !== _target &&
+      (currentType !== targetType || currentVal === undefined || currentVal === null)
+    ) {
       indexLeft = indexMedian + 1;
       continue;
     }
 
     // 2 - check if value match
-    if (mode === "strict" && currentVal === _target) {
+    if (currentVal === _target) {
       matchVal = currentVal;
-      matchValIndex = currentIndex;
+      if (mode === "strict") {
+        matchValIndex =
+          sortOrder === "asc"
+            ? Math.min(currentIndex, matchValIndex ?? currentIndex)
+            : Math.max(currentIndex, matchValIndex ?? currentIndex);
+      }
       // } else if (mode === "nextSmaller" && currentVal <= _target) {
     } else if (mode === "nextSmaller" && compareCellValues(_target, currentVal) >= 0) {
       if (
         matchVal === undefined ||
         matchVal === null ||
-        matchVal < currentVal ||
+        // matchVal < currentVal ||
+        compareCellValues(currentVal, matchVal) > 0 ||
         (matchVal === currentVal && sortOrder === "asc" && matchValIndex! < currentIndex) ||
         (matchVal === currentVal && sortOrder === "desc" && matchValIndex! > currentIndex)
       ) {
@@ -701,7 +710,8 @@ export function dichotomicSearch<T>(
     } else if (mode === "nextGreater" && compareCellValues(_target, currentVal) <= 0) {
       if (
         matchVal === undefined ||
-        matchVal > currentVal ||
+        // matchVal > currentVal ||
+        compareCellValues(currentVal, matchVal) < 0 ||
         (matchVal === currentVal && sortOrder === "asc" && matchValIndex! < currentIndex) ||
         (matchVal === currentVal && sortOrder === "desc" && matchValIndex! > currentIndex)
       ) {
@@ -712,8 +722,15 @@ export function dichotomicSearch<T>(
 
     // 3 - give new indexes for the Binary search
     if (
-      (sortOrder === "asc" && compareCellValues(_target, currentVal) < 0) ||
-      (sortOrder === "desc" && compareCellValues(_target, currentVal) >= 0)
+      mode === "strict" &&
+      ((sortOrder === "asc" && compareCellValues(_target, currentVal) <= 0) ||
+        (sortOrder === "desc" && compareCellValues(_target, currentVal) > 0))
+    ) {
+      indexRight = currentIndex - 1;
+    } else if (
+      mode !== "strict" &&
+      ((sortOrder === "asc" && compareCellValues(_target, currentVal) < 0) ||
+        (sortOrder === "desc" && compareCellValues(_target, currentVal) >= 0))
     ) {
       indexRight = currentIndex - 1;
     } else {
