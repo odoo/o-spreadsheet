@@ -45,6 +45,7 @@
         title="fill_color"
         icon="'o-spreadsheet-Icon.FILL_COLOR'"
         disabled="threshold === undefined"
+        disableNoColor="true"
       />
     </div>
   </t>

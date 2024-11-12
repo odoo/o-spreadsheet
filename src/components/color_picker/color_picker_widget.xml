@@ -18,6 +18,7 @@
         onColorPicked="props.onColorPicked"
         currentColor="props.currentColor"
         maxHeight="props.dropdownMaxHeight"
+        disableNoColor="props.disableNoColor"
       />
     </div>
   </t>

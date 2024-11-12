@@ -213,6 +213,7 @@ export interface ColorPickerProps {
   maxHeight?: Pixel;
   onColorPicked: (color: Color) => void;
   currentColor: Color;
+  disableNoColor?: boolean;
 }
 
 interface State {
@@ -228,6 +229,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     currentColor: { type: String, optional: true },
     maxHeight: { type: Number, optional: true },
     anchorRect: Object,
+    disableNoColor: { type: Boolean, optional: true },
   };
   static defaultProps = { currentColor: "" };
   static components = { Popover };
