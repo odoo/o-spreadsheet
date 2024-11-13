@@ -107,7 +107,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
       case "polynomial":
         config = {
           type: "polynomial",
-          order: type === "linear" ? 1 : 2,
+          order: type === "linear" ? 1 : this.getMaxPolynomialDegree(index),
         };
         break;
       case "exponential":

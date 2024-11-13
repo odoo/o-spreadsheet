@@ -339,44 +339,51 @@ function interpolateData(
   const labelRange = labelMax - labelMin;
   const normalizedLabels = labels.map((v) => (v - labelMin) / labelRange);
   const normalizedNewLabels = newLabels.map((v) => (v - labelMin) / labelRange);
-  switch (config.type) {
-    case "polynomial": {
-      const order = config.order ?? 2;
-      if (order === 1) {
-        return predictLinearValues([values], [normalizedLabels], [normalizedNewLabels], true)[0];
-      }
-      const coeffs = polynomialRegression(values, normalizedLabels, order, true).flat();
-      return normalizedNewLabels.map((v) => evaluatePolynomial(coeffs, v, order));
-    }
-    case "exponential": {
-      const positiveLogValues: number[] = [];
-      const filteredLabels: number[] = [];
-      for (let i = 0; i < values.length; i++) {
-        if (values[i] > 0) {
-          positiveLogValues.push(Math.log(values[i]));
-          filteredLabels.push(normalizedLabels[i]);
+  try {
+    switch (config.type) {
+      case "polynomial": {
+        const order = config.order;
+        if (!order) {
+          return Array.from({ length: newLabels.length }, () => NaN);
         }
+        if (order === 1) {
+          return predictLinearValues([values], [normalizedLabels], [normalizedNewLabels], true)[0];
+        }
+        const coeffs = polynomialRegression(values, normalizedLabels, order, true).flat();
+        return normalizedNewLabels.map((v) => evaluatePolynomial(coeffs, v, order));
       }
-      if (!filteredLabels.length) {
-        return [];
+      case "exponential": {
+        const positiveLogValues: number[] = [];
+        const filteredLabels: number[] = [];
+        for (let i = 0; i < values.length; i++) {
+          if (values[i] > 0) {
+            positiveLogValues.push(Math.log(values[i]));
+            filteredLabels.push(normalizedLabels[i]);
+          }
+        }
+        if (!filteredLabels.length) {
+          return Array.from({ length: newLabels.length }, () => NaN);
+        }
+        return expM(
+          predictLinearValues([positiveLogValues], [filteredLabels], [normalizedNewLabels], true)
+        )[0];
       }
-      return expM(
-        predictLinearValues([positiveLogValues], [filteredLabels], [normalizedNewLabels], true)
-      )[0];
+      case "logarithmic": {
+        return predictLinearValues(
+          [values],
+          logM([normalizedLabels]),
+          logM([normalizedNewLabels]),
+          true
+        )[0];
+      }
+      case "trailingMovingAverage": {
+        return getMovingAverageValues(values, config.window);
+      }
+      default:
+        return Array.from({ length: newLabels.length }, () => NaN);
     }
-    case "logarithmic": {
-      return predictLinearValues(
-        [values],
-        logM([normalizedLabels]),
-        logM([normalizedNewLabels]),
-        true
-      )[0];
-    }
-    case "trailingMovingAverage": {
-      return getMovingAverageValues(values, config.window);
-    }
-    default:
-      return [];
+  } catch (e) {
+    return Array.from({ length: newLabels.length }, () => NaN);
   }
 }
 
