@@ -9,7 +9,11 @@
         <t t-set-slot="title">Style color</t>
         <div class="d-flex align-items-center">
           <span class="pe-2">Primary table style color</span>
-          <RoundColorPicker currentColor="state.primaryColor" onColorPicked.bind="onColorPicked"/>
+          <RoundColorPicker
+            currentColor="state.primaryColor"
+            onColorPicked.bind="onColorPicked"
+            disableNoColor="true"
+          />
         </div>
       </Section>
       <Section class="'pt-1'">

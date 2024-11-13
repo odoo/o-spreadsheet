@@ -1,4 +1,5 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
+import { isColorValid } from "../../../helpers";
 import { TABLE_STYLES_TEMPLATES, buildTableStyle } from "../../../helpers/table_presets";
 import {
   Color,
@@ -30,6 +31,8 @@ css/* scss */ `
     }
   }
 `;
+
+const DEFAULT_TABLE_STYLE_COLOR = "#3C78D8";
 
 export interface TableStyleEditorPanelProps {
   onCloseSidePanel: () => void;
@@ -68,7 +71,7 @@ export class TableStyleEditorPanel extends Component<
       : null;
     return {
       pickerOpened: false,
-      primaryColor: editedStyle?.primaryColor || "#3C78D8",
+      primaryColor: editedStyle?.primaryColor || DEFAULT_TABLE_STYLE_COLOR,
       selectedTemplateName: editedStyle?.templateName || "lightColoredText",
       styleName: editedStyle?.displayName || this.env.model.getters.getNewCustomTableStyleName(),
     };
@@ -79,7 +82,7 @@ export class TableStyleEditorPanel extends Component<
   }
 
   onColorPicked(color: Color) {
-    this.state.primaryColor = color;
+    this.state.primaryColor = isColorValid(color) ? color : DEFAULT_TABLE_STYLE_COLOR;
     this.state.pickerOpened = false;
   }
 
