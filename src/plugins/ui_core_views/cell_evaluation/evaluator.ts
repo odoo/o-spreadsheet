@@ -195,7 +195,7 @@ export class Evaluator {
     const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(positionId);
     const cells = new JetSet<PositionId>(arrayFormulas);
     const arrayFormulaPositionId = this.getArrayFormulaSpreadingOnId(positionId);
-    if (arrayFormulaPositionId) {
+    if (arrayFormulaPositionId !== undefined) {
       // ignore the formula spreading on the position. Keep only the blocked ones
       cells.delete(arrayFormulaPositionId);
     }
@@ -221,6 +221,9 @@ export class Evaluator {
       }
       for (let i = 0; i < positionIds.length; ++i) {
         const cell = positionIds[i];
+        if (this.nextPositionsToUpdate.has(cell)) {
+          continue;
+        }
         this.setEvaluatedCell(cell, this.computeCell(cell));
       }
     }
@@ -259,7 +262,6 @@ export class Evaluator {
       return this.handleError(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
-      this.nextPositionsToUpdate.delete(positionId);
     }
   }
 
@@ -348,6 +350,7 @@ export class Evaluator {
       { sheetId, zone: rightPartZone },
       { sheetId, zone: leftColumnZone },
     ]);
+    invalidatedPositions.delete(this.encoder.encode(arrayFormulaPosition));
     this.nextPositionsToUpdate.addMany(invalidatedPositions);
   }
 
