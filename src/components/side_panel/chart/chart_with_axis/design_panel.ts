@@ -195,7 +195,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
       case "polynomial":
         config = {
           type: "polynomial",
-          order: type === "linear" ? 1 : 2,
+          order: type === "linear" ? 1 : this.getMaxPolynomialDegree(),
         };
         break;
       case "exponential":
