@@ -23,7 +23,7 @@ describe("Basic Sorting", () => {
       A5: "16",
       A6: "15",
     };
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
+    model = new Model({ sheets: [{ id: sheetId, cells: cells }] });
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
@@ -61,8 +61,6 @@ describe("Basic Sorting", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 1,
-          rowNumber: 6,
           cells: {
             A1: "Mike",
             A2: "Zulu",
@@ -93,8 +91,6 @@ describe("Basic Sorting", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 1,
-          rowNumber: 6,
           cells: {
             A1: "11/24/1991",
             A2: "06/06/1944",
@@ -128,8 +124,6 @@ describe("Basic Sorting", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 3,
-          rowNumber: 6,
           cells: {
             A1: "4",
             A2: "23",
@@ -168,8 +162,6 @@ describe("Basic Sorting", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 2,
-          rowNumber: 11,
           cells: {
             A1: "23",
             A2: "4",
@@ -243,8 +235,6 @@ describe("Basic Sorting", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 1,
-          rowNumber: 8,
           cells: {
             A1: "33",
             A2: "11",
@@ -277,8 +267,6 @@ describe("Basic Sorting", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 1,
-          rowNumber: 8,
           cells: {
             A2: "-33",
             A3: "11",
@@ -308,8 +296,6 @@ describe("Basic Sorting", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 1,
-          rowNumber: 8,
           cells: {
             A2: "-33",
             A3: "11",
@@ -354,8 +340,6 @@ describe("Basic Sorting", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 1,
-          rowNumber: 3,
           cells: {
             A1: "a",
             A2: '=""',
@@ -379,7 +363,7 @@ describe("Trigger sort generic errors", () => {
   const sheetId: UID = "sheet2";
 
   test("Sort with anchor outside of the sorting zone", () => {
-    const model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6 }] });
+    const model = new Model({ sheets: [{ id: sheetId }] });
     expect(() => {
       sort(model, {
         zone: "A1:A3",
@@ -396,8 +380,6 @@ describe("Sort multi adjacent columns", () => {
     sheets: [
       {
         id: sheetId,
-        colNumber: 4,
-        rowNumber: 5,
         cells: {
           A1: "Alpha",
           A2: "Tango",
@@ -515,8 +497,6 @@ describe("Sort adjacent columns with headers", () => {
       sheets: [
         {
           id: sheetId,
-          colNumber: 5,
-          rowNumber: 4,
           cells: {
             A1: "=B2", // => HEADER
             A2: "Tango",

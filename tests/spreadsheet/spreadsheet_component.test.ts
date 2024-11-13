@@ -52,16 +52,12 @@ afterEach(() => {
 });
 describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
-    }));
+    ({ model, parent, fixture } = await mountSpreadsheet());
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
-    ({ model, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
-    }));
+    ({ model, fixture } = await mountSpreadsheet());
     const defaultComposer = fixture.querySelector(".o-grid div.o-composer");
     expect(document.activeElement).toBe(defaultComposer);
     document.querySelector(".o-add-sheet")!.dispatchEvent(new Event("click"));
@@ -89,7 +85,7 @@ describe("Simple Spreadsheet Component", () => {
     });
 
     test("Can use  an external dependency in a function", () => {
-      const model = new Model({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
+      const model = new Model({}, { custom: { env: { myKey: [] } } });
       setCellContent(model, "A1", "=GETACTIVESHEET()");
       expect(getCellContent(model, "A1")).toBe("Sheet");
       expect(env).toMatchObject({ myKey: [] });
@@ -98,21 +94,7 @@ describe("Simple Spreadsheet Component", () => {
     test("Can use an external dependency in a function at model start", async () => {
       await mountSpreadsheet({
         model: new Model(
-          {
-            version: 2,
-            sheets: [
-              {
-                name: "Sheet1",
-                colNumber: 26,
-                rowNumber: 100,
-                cells: {
-                  A1: "=GETACTIVESHEET()",
-                },
-                conditionalFormats: [],
-              },
-            ],
-            activeSheet: "Sheet1",
-          },
+          { sheets: [{ cells: { A1: "=GETACTIVESHEET()" } }] },
           { custom: { env: { myKey: [] } } }
         ),
       });
@@ -121,9 +103,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Clipboard is in spreadsheet env", async () => {
-    ({ env } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
-    }));
+    ({ env } = await mountSpreadsheet());
     expect(env.clipboard["clipboard"]).toBe(navigator.clipboard);
   });
 
@@ -167,9 +147,7 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   test("Mac user use metaKey, not CtrlKey", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
-    }));
+    ({ model, parent, fixture } = await mountSpreadsheet());
     const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
     mockUserAgent.mockImplementation(
       () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"

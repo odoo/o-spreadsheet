@@ -1,7 +1,12 @@
 import { Model, Spreadsheet } from "../../src";
 import { toZone } from "../../src/helpers";
 import { click, merge, setCellContent, setSelection } from "../test_helpers";
-import { getRangeValuesAsMatrix, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import {
+  createModelFromGrid,
+  getRangeValuesAsMatrix,
+  mountSpreadsheet,
+  nextTick,
+} from "../test_helpers/helpers";
 
 const selectors = {
   closeSidepanel: ".o-sidePanel .o-sidePanelClose",
@@ -86,7 +91,7 @@ describe("remove duplicates", () => {
       A5: "11",
     };
 
-    model = new Model({ sheets: [{ cells }] });
+    model = createModelFromGrid(cells);
     ({ parent, fixture } = await mountSpreadsheet({ model }));
     parent.env.openSidePanel("RemoveDuplicates");
     await nextTick();
@@ -208,7 +213,7 @@ describe("remove duplicates", () => {
 
   test("if no columns selected --> display error message and disable", async () => {
     const cells = { B1: "42", B2: "42" };
-    model = new Model({ sheets: [{ cells }] });
+    model = createModelFromGrid(cells);
     ({ parent, fixture } = await mountSpreadsheet({ model }));
     setSelection(model, ["B1:B2"]);
     parent.env.openSidePanel("RemoveDuplicates");
@@ -230,7 +235,7 @@ describe("remove duplicate action", () => {
   test("expand selection to table if only one cell is selected", async () => {
     const cells = { B1: "42", B2: "42" };
     const { fixture, model } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ cells }] }),
+      model: createModelFromGrid(cells),
     });
     setSelection(model, ["B2"]);
     await nextTick();

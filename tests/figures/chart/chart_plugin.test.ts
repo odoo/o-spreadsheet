@@ -62,43 +62,33 @@ jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 let model: Model;
 
 beforeEach(() => {
-  model = new Model({
-    sheets: [
-      {
-        name: "Sheet1",
-        colNumber: 10,
-        rowNumber: 10,
-        rows: {},
-        cells: {
-          A2: "P1",
-          A3: "P2",
-          A4: "P3",
-          A5: "P4",
-          B1: "first column dataset",
-          B2: "10",
-          B3: "11",
-          B4: "12",
-          B5: "13",
-          C1: "second column dataset",
-          C2: "20",
-          C3: "19",
-          C4: "18",
-          C5: "17",
+  model = createModelFromGrid({
+    A2: "P1",
+    A3: "P2",
+    A4: "P3",
+    A5: "P4",
+    B1: "first column dataset",
+    B2: "10",
+    B3: "11",
+    B4: "12",
+    B5: "13",
+    C1: "second column dataset",
+    C2: "20",
+    C3: "19",
+    C4: "18",
+    C5: "17",
 
-          A8: "first row dataset",
-          A9: "second row dataset",
-          B7: "P4",
-          C7: "P5",
-          D7: "P6",
-          B8: "30",
-          C8: "31",
-          D8: "32",
-          B9: "40",
-          C9: "41",
-          D9: "42",
-        },
-      },
-    ],
+    A8: "first row dataset",
+    A9: "second row dataset",
+    B7: "P4",
+    C7: "P5",
+    D7: "P6",
+    B8: "30",
+    C8: "31",
+    D8: "32",
+    B9: "40",
+    C9: "41",
+    D9: "42",
   });
 });
 
@@ -850,19 +840,7 @@ describe("datasource tests", function () {
   });
   test("duplicate a sheet with and without a chart", () => {
     const model = new Model({
-      sheets: [
-        {
-          id: "1",
-          colNumber: 2,
-          rowNumber: 2,
-        },
-        {
-          id: "2",
-          colNumber: 2,
-          rowNumber: 2,
-          cells: { B1: "0", B2: "1" },
-        },
-      ],
+      sheets: [{ id: "1" }, { id: "2", cells: { B1: "0", B2: "1" } }],
     });
     createChart(
       model,
@@ -1706,26 +1684,18 @@ describe("Chart design configuration", () => {
   });
 
   test("empty data points are not displayed in the chart", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          // prettier-ignore
-          cells: {
-            // data point 1: first empty
-            A2: "", B2: "", C2: "",
-            // data point 2: only label
-            A3: "P1", B3: "", C3: "",
-            // data point 3: only first value
-            A4: "", B4: "10", C4: "",
-            // data point 4: empty in the middle of data points
-            A5: "", B5: "", C5: "",
-            // data point 5: only second value
-            A6: "", B6: "", C6: "20",
-          },
-        },
-      ],
+    // prettier-ignore
+    const model = createModelFromGrid({
+      // data point 1: first empty
+      A2: "", B2: "", C2: "",
+      // data point 2: only label
+      A3: "P1", B3: "", C3: "",
+      // data point 3: only first value
+      A4: "", B4: "10", C4: "",
+      // data point 4: empty in the middle of data points
+      A5: "", B5: "", C5: "",
+      // data point 5: only second value
+      A6: "", B6: "", C6: "20",
     });
 
     createChart(
@@ -2405,43 +2375,33 @@ describe("Chart aggregate labels", () => {
       stacked: false,
       aggregated: false,
     };
-    aggregatedModel = new Model({
-      sheets: [
-        {
-          name: "Sheet1",
-          colNumber: 10,
-          rowNumber: 10,
-          rows: {},
-          cells: {
-            A2: "P1",
-            A3: "P2",
-            A4: "P3",
-            A5: "P4",
-            A6: "P1",
-            A7: "P2",
-            A8: "P3",
-            A9: "P4",
-            B1: "first column dataset",
-            B2: "10",
-            B3: "11",
-            B4: "12",
-            B5: "13",
-            B6: "14",
-            B7: "15",
-            B8: "16",
-            B9: "17",
-            C1: "second column dataset",
-            C2: "31",
-            C3: "32",
-            C4: "33",
-            C5: "34",
-            C6: "21",
-            C7: "22",
-            C8: "23",
-            C9: "24",
-          },
-        },
-      ],
+    aggregatedModel = createModelFromGrid({
+      A2: "P1",
+      A3: "P2",
+      A4: "P3",
+      A5: "P4",
+      A6: "P1",
+      A7: "P2",
+      A8: "P3",
+      A9: "P4",
+      B1: "first column dataset",
+      B2: "10",
+      B3: "11",
+      B4: "12",
+      B5: "13",
+      B6: "14",
+      B7: "15",
+      B8: "16",
+      B9: "17",
+      C1: "second column dataset",
+      C2: "31",
+      C3: "32",
+      C4: "33",
+      C5: "34",
+      C6: "21",
+      C7: "22",
+      C8: "23",
+      C9: "24",
     });
   });
 
@@ -2824,31 +2784,21 @@ describe("Chart evaluation", () => {
 
   describe("hidden col/rows", () => {
     beforeEach(() => {
-      model = new Model({
-        sheets: [
-          {
-            name: "Sheet1",
-            colNumber: 10,
-            rowNumber: 10,
-            rows: {},
-            cells: {
-              A2: "P1",
-              A3: "P2",
-              A4: "P3",
-              A5: "P4",
-              B1: "first column dataset",
-              B2: "10",
-              B3: "11",
-              B4: "12",
-              B5: "13",
-              C1: "second column dataset",
-              C2: "15",
-              C3: "16",
-              C4: "17",
-              C5: "18",
-            },
-          },
-        ],
+      model = createModelFromGrid({
+        A2: "P1",
+        A3: "P2",
+        A4: "P3",
+        A5: "P4",
+        B1: "first column dataset",
+        B2: "10",
+        B3: "11",
+        B4: "12",
+        B5: "13",
+        C1: "second column dataset",
+        C2: "15",
+        C3: "16",
+        C4: "17",
+        C5: "18",
       });
       createChart(
         model,
@@ -2933,31 +2883,21 @@ describe("Chart evaluation", () => {
   });
 
   test("hidden labels are replaced by numbers", () => {
-    model = new Model({
-      sheets: [
-        {
-          name: "Sheet1",
-          colNumber: 10,
-          rowNumber: 10,
-          rows: {},
-          cells: {
-            A2: "P1",
-            A3: "P2",
-            A4: "P3",
-            A5: "P4",
-            B1: "first column dataset",
-            B2: "10",
-            B3: "11",
-            B4: "12",
-            B5: "13",
-            C1: "second column dataset",
-            C2: "15",
-            C3: "16",
-            C4: "17",
-            C5: "18",
-          },
-        },
-      ],
+    model = createModelFromGrid({
+      A2: "P1",
+      A3: "P2",
+      A4: "P3",
+      A5: "P4",
+      B1: "first column dataset",
+      B2: "10",
+      B3: "11",
+      B4: "12",
+      B5: "13",
+      C1: "second column dataset",
+      C2: "15",
+      C3: "16",
+      C4: "17",
+      C5: "18",
     });
     createChart(
       model,

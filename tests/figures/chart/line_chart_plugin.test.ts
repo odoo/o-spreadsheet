@@ -44,21 +44,11 @@ describe("line chart", () => {
   });
 
   test("Stacked line chart", () => {
-    const model = new Model({
-      sheets: [
-        {
-          name: "Sheet1",
-          colNumber: 10,
-          rowNumber: 10,
-          rows: {},
-          cells: {
-            B1: "first column dataset",
-            B2: "10",
-            B3: "11",
-            B4: "12",
-          },
-        },
-      ],
+    const model = createModelFromGrid({
+      B1: "first column dataset",
+      B2: "10",
+      B3: "11",
+      B4: "12",
     });
     createChart(model, { type: "line", dataSets: [{ dataRange: "Sheet1!B1:B4" }] }, "chartId");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
@@ -72,25 +62,15 @@ describe("line chart", () => {
   });
 
   test("Area chart", () => {
-    const model = new Model({
-      sheets: [
-        {
-          name: "Sheet1",
-          colNumber: 10,
-          rowNumber: 10,
-          rows: {},
-          cells: {
-            B1: "first column dataset",
-            B2: "10",
-            B3: "11",
-            B4: "12",
-            C1: "second column dataset",
-            C2: "13",
-            C3: "14",
-            C4: "15",
-          },
-        },
-      ],
+    const model = createModelFromGrid({
+      B1: "first column dataset",
+      B2: "10",
+      B3: "11",
+      B4: "12",
+      C1: "second column dataset",
+      C2: "13",
+      C3: "14",
+      C4: "15",
     });
     createChart(
       model,
@@ -111,25 +91,15 @@ describe("line chart", () => {
   });
 
   test("Stacked area chart", () => {
-    const model = new Model({
-      sheets: [
-        {
-          name: "Sheet1",
-          colNumber: 10,
-          rowNumber: 10,
-          rows: {},
-          cells: {
-            B1: "first column dataset",
-            B2: "10",
-            B3: "11",
-            B4: "12",
-            C1: "second column dataset",
-            C2: "13",
-            C3: "14",
-            C4: "15",
-          },
-        },
-      ],
+    const model = createModelFromGrid({
+      B1: "first column dataset",
+      B2: "10",
+      B3: "11",
+      B4: "12",
+      C1: "second column dataset",
+      C2: "13",
+      C3: "14",
+      C4: "15",
     });
     createChart(
       model,

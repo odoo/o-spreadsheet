@@ -734,7 +734,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Chart", async () => {
-      const model = new Model({});
+      const model = new Model();
 
       createChart(
         model,
@@ -1339,7 +1339,7 @@ describe("Test XLSX export", () => {
     });
 
     test("pie chart with only title dataset", async () => {
-      const model = new Model({});
+      const model = new Model();
       createChart(
         model,
         {

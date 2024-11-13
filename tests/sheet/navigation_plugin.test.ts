@@ -120,7 +120,7 @@ describe("navigation", () => {
   });
 
   test("move in and out of a merge", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+    const model = new Model({ sheets: [{ merges: ["B1:C2"] }] });
     expect(getActivePosition(model)).toBe("A1");
 
     // move to the right, inside the merge
@@ -137,7 +137,7 @@ describe("navigation", () => {
   });
 
   test("do nothing if moving out of merge is out of grid", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+    const model = new Model({ sheets: [{ merges: ["B1:C2"] }] });
     expect(getSelectionAnchorCellXc(model)).toEqual("A1");
 
     // put selection below merge
@@ -245,9 +245,7 @@ describe("navigation", () => {
   });
 
   test("move through hidden column", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true } } }],
-    });
+    const model = new Model({ sheets: [{ cols: { 2: { isHidden: true } } }] });
     //from the right
     selectCell(model, "D1");
     moveAnchorCell(model, "left");
@@ -275,7 +273,7 @@ describe("navigation", () => {
 
   test("move through hidden row", () => {
     const model = new Model({
-      sheets: [{ colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true } } }],
+      sheets: [{ rows: { 2: { isHidden: true } } }],
     });
     selectCell(model, "A4");
     moveAnchorCell(model, "up");
@@ -288,7 +286,7 @@ describe("navigation", () => {
 
 describe("Navigation starting from hidden cells", () => {
   test("Cannot move position horizontally from hidden row", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = new Model({ sheets: [{ rowNumber: 2 }] });
     selectCell(model, "C1");
     hideRows(model, [0]);
     const move1 = moveAnchorCell(model, "right");
@@ -298,7 +296,7 @@ describe("Navigation starting from hidden cells", () => {
   });
 
   test("Cannot move position vertically from hidden column", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = new Model({ sheets: [{ rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down");
@@ -353,7 +351,7 @@ describe("Navigation starting from hidden cells", () => {
   );
 
   test("Cannot from zero or negative steps does nothing", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = new Model({ sheets: [{ rowNumber: 2 }] });
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down", 0);

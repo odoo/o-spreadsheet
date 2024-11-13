@@ -205,9 +205,6 @@ describe("Model resizer", () => {
         sheets: [
           {
             id: sheetId,
-            name: sheetId,
-            colNumber: 10,
-            rowNumber: 10,
             rows: { 2: { size: 20 }, 3: { size: 20 } },
             cols: { 2: { size: 20 }, 3: { size: 20 } },
           },
@@ -319,9 +316,6 @@ describe("Model resizer", () => {
       model = new Model({
         sheets: [
           {
-            id: "1",
-            colNumber: 10,
-            rowNumber: 10,
             rows: { 6: { size: 40 } },
             cells: {
               A1: "A1",

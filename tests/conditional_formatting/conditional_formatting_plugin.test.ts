@@ -559,8 +559,6 @@ describe("conditional format", () => {
       model = new Model({
         sheets: [
           {
-            colNumber: 7,
-            rowNumber: 4,
             cells: { C3: "42" },
             conditionalFormats: [
               { id: "1", ranges: ["A1:A1"], rule },
@@ -591,8 +589,6 @@ describe("conditional format", () => {
       model = new Model({
         sheets: [
           {
-            colNumber: 4,
-            rowNumber: 7,
             cells: { C3: "42" },
             conditionalFormats: [
               { id: "1", ranges: ["A1:A1"], rule },
@@ -627,8 +623,6 @@ describe("conditional format", () => {
       model = new Model({
         sheets: [
           {
-            colNumber: 3,
-            rowNumber: 4,
             cells: { B4: "42" },
             conditionalFormats: [
               { id: "1", ranges: ["A1:C1"], rule },
@@ -654,8 +648,6 @@ describe("conditional format", () => {
       model = new Model({
         sheets: [
           {
-            colNumber: 4,
-            rowNumber: 3,
             cells: { D2: "42" },
             conditionalFormats: [
               { id: "1", ranges: ["A1:A3"], rule },

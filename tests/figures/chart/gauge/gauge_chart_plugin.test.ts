@@ -65,17 +65,7 @@ const randomSectionRule: SectionRule = {
 };
 
 beforeEach(() => {
-  model = new Model({
-    sheets: [
-      {
-        name: "Sheet1",
-        colNumber: 10,
-        rowNumber: 10,
-        rows: {},
-        cells: {},
-      },
-    ],
-  });
+  model = new Model();
 });
 
 describe("datasource tests", function () {

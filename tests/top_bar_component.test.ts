@@ -127,14 +127,7 @@ describe("TopBar component", () => {
 
   test("merging cell button state is correct", async () => {
     const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: "b2" },
-          merges: ["A1:B1"],
-        },
-      ],
+      sheets: [{ cells: { B2: "b2" }, merges: ["A1:B1"] }],
     });
     await mountParent(model);
     const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;

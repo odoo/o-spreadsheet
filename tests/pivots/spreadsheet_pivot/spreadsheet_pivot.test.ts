@@ -33,16 +33,10 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are correctly computed", () => {
-    const model = new Model({
-      sheets: [
-        {
-          cells: {
-            A1: "Customer",
-            B1: "Order",
-            C1: "Date",
-          },
-        },
-      ],
+    const model = createModelFromGrid({
+      A1: "Customer",
+      B1: "Order",
+      C1: "Date",
     });
     addPivot(model, "A1:C5", {});
     const fields = model.getters.getPivot("1").getFields();
@@ -50,15 +44,9 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields with same name are correctly loaded", () => {
-    const model = new Model({
-      sheets: [
-        {
-          cells: {
-            A1: "Customer",
-            B1: "Customer",
-          },
-        },
-      ],
+    const model = createModelFromGrid({
+      A1: "Customer",
+      B1: "Customer",
     });
     addPivot(model, "A1:B5", {});
     const fields = model.getters.getPivot("1").getFields();
@@ -66,15 +54,9 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are correctly loaded after evaluation", () => {
-    const model = new Model({
-      sheets: [
-        {
-          cells: {
-            A1: "Customer",
-            B1: `="Hello"`,
-          },
-        },
-      ],
+    const model = createModelFromGrid({
+      A1: "Customer",
+      B1: `="Hello"`,
     });
     addPivot(model, "A1:B5", {});
     const fields = model.getters.getPivot("1").getFields();
@@ -82,48 +64,42 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Types are correctly inferred", () => {
-    const model = new Model({
-      sheets: [
-        {
-          cells: {
-            A1: "Date",
-            A2: "04/01/2024",
-            A3: "04/02/2024",
-            A4: "12/12/2024 12:00:00 AM",
+    const model = createModelFromGrid({
+      A1: "Date",
+      A2: "04/01/2024",
+      A3: "04/02/2024",
+      A4: "12/12/2024 12:00:00 AM",
 
-            B1: "Boolean",
-            B2: "True",
-            B3: "False",
+      B1: "Boolean",
+      B2: "True",
+      B3: "False",
 
-            C1: "Char",
-            C2: "Jambon",
-            C3: "Tabouret",
+      C1: "Char",
+      C2: "Jambon",
+      C3: "Tabouret",
 
-            D1: "Number",
-            D2: "14",
-            D3: "12",
+      D1: "Number",
+      D2: "14",
+      D3: "12",
 
-            E1: "AllDateButOneNumber",
-            E2: "04/01/2024",
-            E3: "14",
+      E1: "AllDateButOneNumber",
+      E2: "04/01/2024",
+      E3: "14",
 
-            F1: "AllBooleanButOneString",
-            F2: "True",
-            F3: "Hello",
+      F1: "AllBooleanButOneString",
+      F2: "True",
+      F3: "Hello",
 
-            G1: "AllNumberButOneString",
-            G2: "14",
-            G3: "Tabouret",
+      G1: "AllNumberButOneString",
+      G2: "14",
+      G3: "Tabouret",
 
-            H1: "AllDateButOneNumberAndOneString",
-            H2: "14",
-            H3: "Tabouret",
-            H4: "04/01/2024",
+      H1: "AllDateButOneNumberAndOneString",
+      H2: "14",
+      H3: "Tabouret",
+      H4: "04/01/2024",
 
-            I1: "EmptyData",
-          },
-        },
-      ],
+      I1: "EmptyData",
     });
     addPivot(model, "A1:I4", {});
     const fields = model.getters.getPivot("1").getFields();
@@ -143,15 +119,9 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are not loaded if a cell is in error", () => {
-    const model = new Model({
-      sheets: [
-        {
-          cells: {
-            A1: "Customer",
-            B1: `=1/0`,
-          },
-        },
-      ],
+    const model = createModelFromGrid({
+      A1: "Customer",
+      B1: `=1/0`,
     });
     addPivot(model, "A1:B5", {});
     expect(model.getters.getPivot("1").isValid()).toBeFalsy();
@@ -1800,16 +1770,10 @@ describe("Spreadsheet Pivot", () => {
 
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
-      const model = new Model({
-        sheets: [
-          {
-            cells: {
-              A1: "Customer",
-              B1: "Order",
-              C1: "Date",
-            },
-          },
-        ],
+      const model = createModelFromGrid({
+        A1: "Customer",
+        B1: "Order",
+        C1: "Date",
       });
       addPivot(model, "A1:C5", {});
       setCellContent(model, "D1", `=PIVOT("1")`);

@@ -3,6 +3,7 @@ import { PIVOT_TABLE_CONFIG } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { insertPivot } from "../test_helpers/commands_helpers";
 import { getCellText, getCoreTable } from "../test_helpers/getters_helpers";
+import { createModelFromGrid } from "../test_helpers/helpers";
 
 describe("Insert pivot command", () => {
   test("Can insert a pivot in a cell", () => {
@@ -21,18 +22,11 @@ describe("Insert pivot command", () => {
   });
 
   test("Can insert a pivot from a contiguous zone", () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: "Sheet1",
-          cells: {
-            A1: "1",
-            A2: "2",
-            B1: "3",
-            B2: "4",
-          },
-        },
-      ],
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      B1: "3",
+      B2: "4",
     });
     insertPivot(model, "A1", "pivot1", "Sheet2");
     expect(model.getters.getPivotCoreDefinition("pivot1")["dataSet"].zone).toEqual(toZone("A1:B2"));

@@ -100,21 +100,11 @@ describe("bar chart", () => {
     });
 
     test("Horizontal bar chart cannot have datasets on the right", () => {
-      const model = new Model({
-        sheets: [
-          {
-            name: "Sheet1",
-            colNumber: 10,
-            rowNumber: 10,
-            rows: {},
-            cells: {
-              B1: "first column dataset",
-              B2: "10",
-              B3: "11",
-              B4: "12",
-            },
-          },
-        ],
+      const model = createModelFromGrid({
+        B1: "first column dataset",
+        B2: "10",
+        B3: "11",
+        B4: "12",
       });
       // Note: this is a chartJS limitation, it bugs when trying to display an horizontal bar chart with datasets with
       // axis on both right and left sides

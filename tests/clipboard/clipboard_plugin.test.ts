@@ -338,9 +338,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste merged content", () => {
-    const model = new Model({
-      sheets: [{ id: "s1", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
-    });
+    const model = new Model({ sheets: [{ merges: ["B1:C2"] }] });
     copy(model, "B1");
     paste(model, "B4");
     const sheetId = model.getters.getActiveSheetId();
@@ -351,9 +349,7 @@ describe("clipboard", () => {
   });
 
   test("can cut and paste merged content", () => {
-    const model = new Model({
-      sheets: [{ id: "s2", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
-    });
+    const model = new Model({ sheets: [{ id: "s2", merges: ["B1:C2"] }] });
     cut(model, "B1:C2");
     paste(model, "B4");
     expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B1") })).toBe(false);
@@ -371,8 +367,6 @@ describe("clipboard", () => {
       sheets: [
         {
           id: "s1",
-          colNumber: 5,
-          rowNumber: 5,
           cells: { A1: "merge", C1: "a", D2: "a" },
           merges: ["A1:B2"],
         },
@@ -387,12 +381,7 @@ describe("clipboard", () => {
   });
 
   test("copy/paste a merge from one page to another", () => {
-    const model = new Model({
-      sheets: [
-        { id: "s1", colNumber: 5, rowNumber: 5, merges: ["B2:C3"] },
-        { id: "s2", colNumber: 5, rowNumber: 5 },
-      ],
-    });
+    const model = new Model({ sheets: [{ id: "s1", merges: ["B2:C3"] }, { id: "s2" }] });
     const sheet2 = "s2";
     copy(model, "B2");
     activateSheet(model, sheet2);
@@ -404,12 +393,7 @@ describe("clipboard", () => {
   });
 
   test("copy/paste a formula that has no sheet specific reference to another", () => {
-    const model = new Model({
-      sheets: [
-        { id: "s1", colNumber: 5, rowNumber: 5, cells: { A1: "=A2" } },
-        { id: "s2", colNumber: 5, rowNumber: 5 },
-      ],
-    });
+    const model = new Model({ sheets: [{ id: "s1", cells: { A1: "=A2" } }, { id: "s2" }] });
 
     expect(getCellText(model, "A1", "s1")).toBe("=A2");
 
@@ -441,9 +425,7 @@ describe("clipboard", () => {
   });
 
   test("copy zones with multiple compatible merges => paste => it should paste with all merges", () => {
-    const model = new Model({
-      sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
-    });
+    const model = new Model({ sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }] });
     copy(model, "A1:C3");
     paste(model, "E1");
     const sheetId = model.getters.getActiveSheetId();
@@ -456,9 +438,7 @@ describe("clipboard", () => {
   });
 
   test("copy zones with multiple compatible merges with CTRL+CLICK => paste => it should paste with all merges", () => {
-    const model = new Model({
-      sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
-    });
+    const model = new Model({ sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }] });
     copy(model, "A1", "C1");
     paste(model, "E1");
     const sheetId = model.getters.getActiveSheetId();
@@ -1195,7 +1175,7 @@ describe("clipboard", () => {
   });
 
   test("can copy a cell with a conditional format and paste as value", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
@@ -1626,7 +1606,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste a conditional formatted cell", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
@@ -1651,7 +1631,7 @@ describe("clipboard", () => {
     expect(getStyle(model, "C2")).toEqual({});
   });
   test("can cut and paste a conditional formatted cell", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "C1", "1");
@@ -1753,7 +1733,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste a conditional formatted zone", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();
@@ -1786,7 +1766,7 @@ describe("clipboard", () => {
   });
 
   test("can cut and paste a conditional formatted zone", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const model = new Model();
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();
@@ -1812,12 +1792,7 @@ describe("clipboard", () => {
   });
 
   test("can copy and paste a conditional formatted cell to another page", () => {
-    const model = new Model({
-      sheets: [
-        { id: "s1", colNumber: 5, rowNumber: 5 },
-        { id: "s2", colNumber: 5, rowNumber: 5 },
-      ],
-    });
+    const model = new Model({ sheets: [{ id: "s1" }, { id: "s2" }] });
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     const sheetId = model.getters.getActiveSheetId();

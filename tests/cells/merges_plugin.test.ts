@@ -62,9 +62,7 @@ describe("merges", () => {
   });
 
   test("can unmerge two cells", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, cells: { B2: "b2" }, merges: ["B2:B3"] }],
-    });
+    const model = new Model({ sheets: [{ cells: { B2: "b2" }, merges: ["B2:B3"] }] });
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
       "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1 },
@@ -130,9 +128,7 @@ describe("merges", () => {
   });
 
   test("editing a merge cell actually edits the top left", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, cells: { B2: "b2" }, merges: ["B2:C3"] }],
-    });
+    const model = new Model({ sheets: [{ cells: { B2: "b2" }, merges: ["B2:C3"] }] });
     const composerStore = makeTestComposerStore(model);
 
     selectCell(model, "C3");
@@ -145,9 +141,7 @@ describe("merges", () => {
   });
 
   test("setting a style to a merge edit all the cells", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, cells: { B2: "b2" }, merges: ["B2:C3"] }],
-    });
+    const model = new Model({ sheets: [{ cells: { B2: "b2" }, merges: ["B2:C3"] }] });
 
     selectCell(model, "C3");
     expect(getSelectionAnchorCellXc(model)).toBe("C3");
@@ -161,17 +155,7 @@ describe("merges", () => {
   });
 
   test("when moving in a merge, selected cell is topleft", () => {
-    const model = new Model({
-      sheets: [
-        {
-          id: "s1",
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: "b2" },
-          merges: ["B2:C3"],
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ cells: { B2: "b2" }, merges: ["B2:C3"] }] });
     selectCell(model, "C4");
     expect(getSelectionAnchorCellXc(model)).toBe("C4");
     expect(getCell(model, "C4")).toBeUndefined(); // no active cell in C4
@@ -189,11 +173,8 @@ describe("merges", () => {
   test("merge style is correct for inactive sheets", () => {
     const model = new Model({
       sheets: [
-        { id: "1", colNumber: 1, rowNumber: 1, cells: { A1: "1" }, styles: { A1: 1 } },
+        { cells: { A1: "1" }, styles: { A1: 1 } },
         {
-          id: "2",
-          colNumber: 3,
-          rowNumber: 3,
           merges: ["A1:B1"],
           cells: { A1: "2", B1: "" },
           styles: { "A1:B1": 2 },
@@ -227,9 +208,7 @@ describe("merges", () => {
 
   test("properly compute if a merge is destructive or not", () => {
     const sheetId = "42";
-    const model = new Model({
-      sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10, cells: { B2: "b2" } }],
-    });
+    const model = new Model({ sheets: [{ id: sheetId, cells: { B2: "b2" } }] });
     // B2 is not top left, so it is destructive
 
     expect(merge(model, "A1:C4", sheetId, false)).toBeCancelledBecause(
@@ -243,7 +222,7 @@ describe("merges", () => {
   test("a merge with only style should not be considered destructive", () => {
     const sheetId = "42";
     const model = new Model({
-      sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10, styles: { B2: 1 } }],
+      sheets: [{ id: sheetId, styles: { B2: 1 } }],
       styles: { 1: {} },
     });
     expect(merge(model, "A1:C4")).toBeSuccessfullyDispatched();
@@ -254,8 +233,6 @@ describe("merges", () => {
       sheets: [
         {
           id: "Sheet1",
-          colNumber: 10,
-          rowNumber: 10,
           cells: {
             A1: "1",
             A2: "2",
@@ -278,8 +255,6 @@ describe("merges", () => {
     const model = new Model({
       sheets: [
         {
-          colNumber: 10,
-          rowNumber: 10,
           cells: {
             A1: "1",
             A2: "2",
@@ -480,7 +455,7 @@ describe("merges", () => {
   });
 
   test("selecting cell next to merge => expanding selection => merging => unmerging", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }] });
+    const model = new Model({ sheets: [{ merges: ["A1:A2"] }] });
 
     //merging
     merge(model, "A1:A3");
@@ -564,9 +539,6 @@ describe("merges", () => {
     const model = new Model({
       sheets: [
         {
-          id: "sheet1",
-          colNumber: 4,
-          rowNumber: 5,
           borders: { B4: 1 },
           styles: { B4: 1 },
           merges: ["B4:C5"],

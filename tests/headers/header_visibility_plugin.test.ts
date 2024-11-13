@@ -28,7 +28,7 @@ let model: Model;
 describe("Hide Columns", () => {
   const sheetId = "1";
   beforeEach(() => {
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 6, rowNumber: 2 }] });
+    model = new Model({ sheets: [{ id: sheetId }] });
   });
 
   test("hide single column", () => {
@@ -82,7 +82,7 @@ describe("Hide Columns", () => {
   });
 
   test("hide/unhide Column on small sheet", () => {
-    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
+    model = new Model();
     model.dispatch("RESIZE_SHEETVIEW", { width: DEFAULT_CELL_WIDTH, height: 1000 });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
@@ -153,7 +153,7 @@ describe("Hide Columns", () => {
 describe("Hide Rows", () => {
   const sheetId = "2";
   beforeEach(() => {
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 2, rowNumber: 6 }] });
+    model = new Model({ sheets: [{ id: sheetId }] });
   });
 
   test("hide single row", () => {
@@ -245,7 +245,7 @@ describe("Hide Rows", () => {
   ])(
     "delete multiple rows with alphabetical order different from natural order",
     (...deletedRows) => {
-      model = new Model({ sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10 }] });
+      model = new Model({ sheets: [{ id: sheetId }] });
       hideRows(model, [5, 8]);
       deleteRows(model, deletedRows);
       expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[4], [7]]);

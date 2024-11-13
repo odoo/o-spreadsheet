@@ -617,7 +617,7 @@ describe("Helpers", () => {
 });
 describe("full column range", () => {
   beforeEach(() => {
-    m = new Model({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
+    m = new Model({ sheets: [{ id: "s1", name: "s1" }] });
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B:C"] });
   });
   afterEach(() => {
@@ -668,7 +668,7 @@ describe("full column range", () => {
 
 describe("full row range", () => {
   beforeEach(() => {
-    m = new Model({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
+    m = new Model({ sheets: [{ id: "s1", name: "s1" }] });
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["2:3"] });
   });
   afterEach(() => {

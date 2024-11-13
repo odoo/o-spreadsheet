@@ -1045,14 +1045,7 @@ describe("evaluateCells", () => {
 
   test("evaluation follows dependencies", () => {
     const model = new Model({
-      sheets: [
-        {
-          id: "sheet1",
-          colNumber: 4,
-          rowNumber: 4,
-          cells: { A1: "old", A2: "=a1", A3: "=a2" },
-        },
-      ],
+      sheets: [{ id: "sheet1", cells: { A1: "old", A2: "=a1", A3: "=a2" } }],
     });
 
     expect(getEvaluatedCell(model, "A3").value).toBe("old");

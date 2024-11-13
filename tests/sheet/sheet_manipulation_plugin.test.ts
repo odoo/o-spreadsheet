@@ -17,6 +17,7 @@ import {
   merge,
   redo,
   selectCell,
+  setBorders,
   setCellContent,
   setSelection,
   setStyle,
@@ -69,8 +70,6 @@ function clearRows(indexes: number[]) {
 const fullData = {
   sheets: [
     {
-      colNumber: 5,
-      rowNumber: 4,
       cells: {
         A1: "1",
         A2: "2",
@@ -110,8 +109,6 @@ describe("Clear columns", () => {
     model = new Model({
       sheets: [
         {
-          colNumber: 3,
-          rowNumber: 3,
           cells: {
             A1: "A1",
             A2: "A2",
@@ -160,8 +157,6 @@ describe("Clear rows", () => {
     model = new Model({
       sheets: [
         {
-          colNumber: 3,
-          rowNumber: 3,
           cells: {
             A1: "A1",
             A2: "A2",
@@ -226,10 +221,7 @@ describe("Columns", () => {
     });
     test("On delete cols in inactive sheet", () => {
       model = new Model({
-        sheets: [
-          { id: "s1", colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet1" } },
-          { id: "s2", colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet2" } },
-        ],
+        sheets: [{ cells: { B2: "B2 in sheet1" } }, { cells: { B2: "B2 in sheet2" } }],
       });
       const [sheet1Id, sheet2Id] = model.getters.getSheetIds();
       expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
@@ -279,7 +271,7 @@ describe("Columns", () => {
   describe("Correctly update merges", () => {
     beforeEach(() => {
       model = new Model({
-        sheets: [{ colNumber: 5, rowNumber: 4, merges: ["A1:E1", "B2:E2", "C3:E3", "B4:D4"] }],
+        sheets: [{ merges: ["A1:E1", "B2:E2", "C3:E3", "B4:D4"] }],
       });
     });
 
@@ -318,17 +310,9 @@ describe("Columns", () => {
 
   describe("Correctly update borders", () => {
     test("Add columns with simple border", () => {
-      const s = { style: "thin", color: "#000" };
-      model = new Model({
-        sheets: [
-          {
-            borders: {
-              A2: 1,
-            },
-          },
-        ],
-        borders: { 1: { top: s } },
-      });
+      const s = { style: "thin", color: "#000" } as const;
+      const model = new Model();
+      setBorders(model, "A2", { top: s });
       expect(getBorder(model, "A1")).toEqual({ bottom: s });
       expect(getBorder(model, "A2")).toEqual({ top: s });
       addColumns(model, "before", "A", 1);
@@ -438,8 +422,6 @@ describe("Columns", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 4,
-            rowNumber: 4,
             borders: {
               "A2:A3": 1,
               "B2:B4": 1,
@@ -545,8 +527,6 @@ describe("Columns", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 7,
-            rowNumber: 7,
             cells: {
               A1: "=B1",
               A2: "=Sheet1!B1",
@@ -562,8 +542,6 @@ describe("Columns", () => {
           },
           {
             id: "sheet2",
-            colNumber: 1,
-            rowNumber: 3,
             cells: {
               A1: "=B1",
               A2: "=Sheet1!B1",
@@ -583,14 +561,10 @@ describe("Columns", () => {
         sheets: [
           {
             id: "s1",
-            colNumber: 4,
-            rowNumber: 7,
             cells: { B2: "=Sheet1!B3", C1: "=Sheet2!B3" },
           },
           {
             id: "s2",
-            colNumber: 3,
-            rowNumber: 3,
             cells: {
               A2: "=B2",
               B2: "=Sheet1!B2",
@@ -613,7 +587,7 @@ describe("Columns", () => {
     });
     test("On first col deletion", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: "=SUM(A1:C1)" } }],
+        sheets: [{ id: "sheet1", cells: { B2: "=SUM(A1:C1)" } }],
       });
       deleteColumns(model, ["A"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -622,7 +596,7 @@ describe("Columns", () => {
     });
     test("On multiple col deletion including the first one", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { C2: "=SUM(A1:D1)" } }],
+        sheets: [{ id: "sheet1", cells: { C2: "=SUM(A1:D1)" } }],
       });
       deleteColumns(model, ["A", "B"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -631,7 +605,7 @@ describe("Columns", () => {
     });
     test("On last col deletion", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { A2: "=SUM(A1:C1)" } }],
+        sheets: [{ id: "sheet1", cells: { A2: "=SUM(A1:C1)" } }],
       });
       deleteColumns(model, ["C"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -640,7 +614,7 @@ describe("Columns", () => {
     });
     test("delete almost all columns of a range", () => {
       model = new Model({
-        sheets: [{ id: "s1", colNumber: 9, rowNumber: 9, cells: { A1: "=SUM(A2:E5)" } }],
+        sheets: [{ id: "s1", cells: { A1: "=SUM(A2:E5)" } }],
       });
       deleteColumns(model, ["B", "C", "D", "E"]);
       expect(getCellText(model, "A1", "s1")).toBe("=SUM(A2:A5)");
@@ -651,8 +625,6 @@ describe("Columns", () => {
         sheets: [
           {
             id: "s1",
-            colNumber: 9,
-            rowNumber: 9,
             cells: {
               A1: "=SUM(B2:E5)",
               A2: "=SUM(F1:F2)", // single column range
@@ -668,12 +640,10 @@ describe("Columns", () => {
     test("update cross sheet range on column deletion", () => {
       model = new Model({
         sheets: [
-          { name: "Sheet1", colNumber: 5, rowNumber: 5 },
+          { name: "Sheet1", rowNumber: 5 },
           {
             name: "Sheet2",
             id: "42",
-            colNumber: 3,
-            rowNumber: 9,
             cells: { A1: "=SUM(Sheet1!B1:D3)" },
           },
         ],
@@ -684,13 +654,11 @@ describe("Columns", () => {
     test("update cross sheet range on column deletion in inactive sheet", () => {
       model = new Model({
         sheets: [
-          { name: "Sheet0", colNumber: 1, rowNumber: 1 }, // <-- less column than Sheet1
-          { name: "Sheet1", id: "sheet1", colNumber: 5, rowNumber: 5 },
+          { name: "Sheet0", rowNumber: 1 }, // <-- less column than Sheet1
+          { name: "Sheet1", id: "sheet1", rowNumber: 5 },
           {
             name: "Sheet2",
             id: "42",
-            colNumber: 5,
-            rowNumber: 9,
             cells: {
               A1: "=SUM(Sheet1!B1:D3)",
             },
@@ -702,7 +670,7 @@ describe("Columns", () => {
     });
     test("On multiple col deletion including the last one", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 4, rowNumber: 4, cells: { A2: "=SUM(A1:D1)" } }],
+        sheets: [{ id: "sheet1", cells: { A2: "=SUM(A1:D1)" } }],
       });
       deleteColumns(model, ["C", "D"]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -722,7 +690,7 @@ describe("Columns", () => {
 
     beforeEach(() => {
       model = new Model({
-        sheets: [{ id: sheetId, colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true } } }],
+        sheets: [{ id: sheetId, cols: { 2: { isHidden: true } } }],
       });
     });
     test("On addition before hidden col", () => {
@@ -834,10 +802,7 @@ describe("Rows", () => {
     });
     test("On delete row in inactive sheet", () => {
       model = new Model({
-        sheets: [
-          { colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet1" } },
-          { colNumber: 3, rowNumber: 3, cells: { B2: "B2 in sheet2" } },
-        ],
+        sheets: [{ cells: { B2: "B2 in sheet1" } }, { cells: { B2: "B2 in sheet2" } }],
       });
       const [sheet1Id, sheet2Id] = model.getters.getSheetIds();
       expect(sheet2Id).not.toBe(model.getters.getActiveSheetId());
@@ -850,8 +815,6 @@ describe("Rows", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 1,
-            rowNumber: 4,
             cells: {
               A1: "A1",
               A2: "A2",
@@ -871,8 +834,6 @@ describe("Rows", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 5,
-            rowNumber: 9,
             cells: {
               A1: "=SUM(A2:A5)",
               B1: "=SUM(B6:C6)", // single line range
@@ -888,12 +849,10 @@ describe("Rows", () => {
     test("update cross sheet range on row deletion", () => {
       model = new Model({
         sheets: [
-          { name: "Sheet1", colNumber: 5, rowNumber: 5 },
+          { name: "Sheet1", rowNumber: 5 },
           {
             name: "Sheet2",
             id: "42",
-            colNumber: 3,
-            rowNumber: 9,
             cells: { A1: "=SUM(Sheet1!A2:A3)" },
           },
         ],
@@ -904,13 +863,11 @@ describe("Rows", () => {
     test("update cross sheet range on row deletion in inactive sheet", () => {
       model = new Model({
         sheets: [
-          { name: "Sheet0", colNumber: 1, rowNumber: 1 }, // <-- less rows than Sheet1
-          { name: "Sheet1", id: "sheet1", colNumber: 5, rowNumber: 5 },
+          { name: "Sheet0", rowNumber: 1 }, // <-- less rows than Sheet1
+          { name: "Sheet1", id: "sheet1", rowNumber: 5 },
           {
             name: "Sheet2",
             id: "42",
-            colNumber: 5,
-            rowNumber: 9,
             cells: {
               A1: "=SUM(Sheet1!A2:A3)",
             },
@@ -1003,7 +960,7 @@ describe("Rows", () => {
   describe("Correctly update merges", () => {
     beforeEach(() => {
       model = new Model({
-        sheets: [{ colNumber: 4, rowNumber: 5, merges: ["A1:A5", "B2:B5", "C3:C5", "D2:D4"] }],
+        sheets: [{ merges: ["A1:A5", "B2:B5", "C3:C5", "D2:D4"] }],
       });
     });
     test("On deletion", () => {
@@ -1047,8 +1004,7 @@ describe("Rows", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 4,
-            rowNumber: 4,
+
             borders: {
               "B1:B2": 1,
               B4: 1,
@@ -1177,8 +1133,6 @@ describe("Rows", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 7,
-            rowNumber: 7,
             cells: {
               A1: "=A2",
               A4: "=A1",
@@ -1194,8 +1148,6 @@ describe("Rows", () => {
           },
           {
             id: "sheet2",
-            colNumber: 3,
-            rowNumber: 1,
             cells: {
               A1: "=A2",
               B1: "=Sheet1!A2",
@@ -1216,14 +1168,10 @@ describe("Rows", () => {
         sheets: [
           {
             id: "s1",
-            colNumber: 4,
-            rowNumber: 7,
             cells: { B2: "=Sheet1!A2", C1: "=Sheet2!A2" },
           },
           {
             id: "s2",
-            colNumber: 3,
-            rowNumber: 2,
             cells: {
               A2: "=B2",
               B2: "=Sheet1!A2",
@@ -1239,7 +1187,7 @@ describe("Rows", () => {
     });
     test("On first row deletion", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: "=SUM(A1:A3)" } }],
+        sheets: [{ id: "sheet1", cells: { B2: "=SUM(A1:A3)" } }],
       });
       deleteRows(model, [0]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1253,8 +1201,6 @@ describe("Rows", () => {
           {
             id: "sheet1",
             name: "Sheet 1",
-            colNumber: 3,
-            rowNumber: 3,
             cells: {
               C2: "=SUM('Sheet 1'!B2)",
               C3: "=SUM('Sheet 1'!B2:B3)",
@@ -1286,7 +1232,7 @@ describe("Rows", () => {
 
     test("On multiple row deletion including the first one", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 6, cells: { B1: "=SUM(A2:A5)" } }],
+        sheets: [{ id: "sheet1", cells: { B1: "=SUM(A2:A5)" } }],
       });
       deleteRows(model, [1, 2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1298,7 +1244,6 @@ describe("Rows", () => {
         sheets: [
           {
             id: "sheet1",
-            colNumber: 1,
             rowNumber: 1000,
             cells: { A5: "=SUM(A6:A255)", A256: "=SUM(A257:A506)" },
           },
@@ -1320,7 +1265,7 @@ describe("Rows", () => {
     });
     test("On last row deletion", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B1: "=SUM(A1:A3)" } }],
+        sheets: [{ id: "sheet1", cells: { B1: "=SUM(A1:A3)" } }],
       });
       deleteRows(model, [2]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1329,7 +1274,7 @@ describe("Rows", () => {
     });
     test("On multiple row", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 8, cells: { A1: "=SUM(A2:A5)" } }],
+        sheets: [{ id: "sheet1", cells: { A1: "=SUM(A2:A5)" } }],
       });
       deleteRows(model, [2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1338,7 +1283,7 @@ describe("Rows", () => {
     });
     test("On multiple rows (7)", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 8, cells: { A1: "=SUM(A2:A8)" } }],
+        sheets: [{ id: "sheet1", cells: { A1: "=SUM(A2:A8)" } }],
       });
       deleteRows(model, [1, 2, 3, 4, 5, 6]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1347,7 +1292,7 @@ describe("Rows", () => {
     });
     test("On multiple row deletion including the last one", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 4, rowNumber: 4, cells: { B1: "=SUM(A1:A4)" } }],
+        sheets: [{ id: "sheet1", cells: { B1: "=SUM(A1:A4)" } }],
       });
       deleteRows(model, [2, 3]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1356,7 +1301,7 @@ describe("Rows", () => {
     });
     test("On multiple row deletion including the last and beyond", () => {
       model = new Model({
-        sheets: [{ id: "sheet1", colNumber: 2, rowNumber: 8, cells: { B2: "=SUM(A1:A4)" } }],
+        sheets: [{ id: "sheet1", cells: { B2: "=SUM(A1:A4)" } }],
       });
       deleteRows(model, [3, 4, 5, 6, 7]);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1376,7 +1321,7 @@ describe("Rows", () => {
 
     beforeEach(() => {
       model = new Model({
-        sheets: [{ id: sheetId, colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true } } }],
+        sheets: [{ id: sheetId, rows: { 2: { isHidden: true } } }],
       });
     });
     test("On addition before hidden row", () => {
@@ -1465,10 +1410,9 @@ describe("Rows", () => {
     test("Can add a row in another sheet", () => {
       const model = new Model({
         sheets: [
-          { id: "1", colNumber: 3, rowNumber: 3 },
-          { id: "2", colNumber: 3, rowNumber: 3 },
+          { id: "1", rowNumber: 3 },
+          { id: "2", rowNumber: 3 },
         ],
-        activeSheet: "1",
       });
       const sheetId = "2";
       addRows(model, "after", 1, 2, sheetId);

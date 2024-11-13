@@ -878,7 +878,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             <div
               class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
               composerfocusableelement="true"
-              data-id="sh1"
+              data-id="Sheet1"
               style=""
               tabindex="-1"
               title="Sheet1"

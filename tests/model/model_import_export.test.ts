@@ -31,6 +31,7 @@ import {
   getEvaluatedCell,
   getMerges,
 } from "../test_helpers/getters_helpers";
+import { createModelFromGrid } from "../test_helpers/helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 describe("data", () => {
@@ -883,13 +884,8 @@ test("import then export (figures)", () => {
 });
 
 test("import date as string and detect the format", () => {
-  const model = new Model({
-    sheets: [
-      {
-        cells: { A1: "12/31/2020" },
-      },
-    ],
-  });
+  const model = createModelFromGrid({ A1: "12/31/2020" });
+
   expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
   expect(getCell(model, "A1")?.content).toBe("44196");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("12/31/2020");

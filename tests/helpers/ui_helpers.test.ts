@@ -65,7 +65,7 @@ describe("Interactive rename sheet", () => {
       errorTextSpy(error.toString());
       callback();
     });
-    model = new Model({});
+    model = new Model();
     env = makeTestEnv({ model, raiseError: raiseErrorSpy });
   });
 

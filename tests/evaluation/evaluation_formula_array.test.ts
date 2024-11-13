@@ -443,15 +443,7 @@ describe("evaluate formulas that return an array", () => {
   describe("result array can collides with sheet borders", () => {
     let model: Model;
     beforeEach(() => {
-      model = new Model({
-        sheets: [
-          {
-            id: "sheet1",
-            colNumber: 3,
-            rowNumber: 3,
-          },
-        ],
-      });
+      model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     });
 
     test("throw error message concerning the column encountered horizontally", () => {

@@ -283,7 +283,6 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: 1,
             cols: { 0: { size: 5 }, 2: { size: 25 } },
             colNumber: 3,
             cells: {
@@ -331,9 +330,7 @@ describe("renderer", () => {
   });
 
   test("fillstyle of cell will be rendered", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
-    );
+    const { drawGridRenderer, model } = setRenderer(new Model());
 
     setStyle(model, "A1", { fillColor: "#DC6CDF" });
 
@@ -377,9 +374,7 @@ describe("renderer", () => {
   });
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
-    );
+    const { drawGridRenderer, model } = setRenderer(new Model());
     setStyle(model, "A1", { fillColor: "#DC6CDF" });
     merge(model, "A1:A3");
 
@@ -423,9 +418,7 @@ describe("renderer", () => {
   });
 
   test("fillstyle of cell works with CF", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
-    );
+    const { drawGridRenderer, model } = setRenderer(new Model());
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#DC6CDF" }, "1"),
@@ -555,8 +548,6 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: 1,
-            colNumber: 4,
             cols: {
               0: { size: 2 + MIN_CELL_TEXT_MARGIN },
               1: { size: 2 + MIN_CELL_TEXT_MARGIN },
@@ -733,9 +724,7 @@ describe("renderer", () => {
   });
 
   test("CF on empty cell", () => {
-    const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
-    );
+    const { drawGridRenderer, model } = setRenderer(new Model());
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -784,9 +773,6 @@ describe("renderer", () => {
         new Model({
           sheets: [
             {
-              id: "sheet1",
-              colNumber: 3,
-              rowNumber: 1,
               cols: { 1: { size: 5 } },
               cells: { B1: overflowingContent },
               styles: { B1: 1 },
@@ -835,9 +821,6 @@ describe("renderer", () => {
         new Model({
           sheets: [
             {
-              id: "sheet1",
-              colNumber: 3,
-              rowNumber: 1,
               cols: { 1: { size: 5 } },
               cells: { B1: overflowingNumber },
               styles: { B1: 1 },
@@ -884,9 +867,6 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: "sheet1",
-            colNumber: 3,
-            rowNumber: 1,
             cols: { 1: { size: 5 } },
             cells: { B1: overflowingText },
             styles: { B1: 1 },
@@ -933,9 +913,7 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: "sheet1",
             colNumber: 5,
-            rowNumber: 1,
             cols: { 1: { size: colSize }, 2: { size: colSize } },
             cells: { C1: overflowingContent, A1: "left" },
             styles: { C1: 1 },
@@ -964,9 +942,6 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: "sheet1",
-            colNumber: 10,
-            rowNumber: 1,
             cols: { 2: { size: colSize }, 3: { size: colSize } },
             cells: { C1: overflowingContent, E1: "right" },
             styles: { C1: 2 },
@@ -1001,8 +976,6 @@ describe("renderer", () => {
           sheets: [
             {
               id: "sheet1",
-              colNumber: 5,
-              rowNumber: 5,
               cols: { 1: { size: 5 }, 2: { size: 5 } },
               cells: { B1: overflowingText },
               styles: { B1: 1 },
@@ -1036,9 +1009,6 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: "sheet1",
-            colNumber: 5,
-            rowNumber: 5,
             cols: { 1: { size: 5 } },
             cells: { B2: overflowingText },
             styles: { B2: 1 },
@@ -1071,8 +1041,6 @@ describe("renderer", () => {
           sheets: [
             {
               id: "sheet1",
-              colNumber: 3,
-              rowNumber: 1,
               cols: { 1: { size: 20 } },
               cells: { B1: overflowingText },
               styles: { B1: 1 },
@@ -1105,8 +1073,6 @@ describe("renderer", () => {
           sheets: [
             {
               id: "sheet1",
-              colNumber: 3,
-              rowNumber: 1,
               cols: { 1: { size: 20 } },
               cells: { B1: overflowingText },
               styles: { B1: 1 },
@@ -1137,9 +1103,7 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: "sheet1",
             colNumber: 1,
-            rowNumber: 1,
             rows: { 0: { size: Math.floor(fontSizeInPixels(fontSize) + 5) } },
             cells: { A1: overflowingText },
             styles: { A1: 1 },
@@ -1195,9 +1159,6 @@ describe("renderer", () => {
       new Model({
         sheets: [
           {
-            id: "sheet1",
-            colNumber: 1,
-            rowNumber: 1,
             cells: { A1: "10000" },
             conditionalFormats: [
               {
@@ -1298,7 +1259,6 @@ describe("renderer", () => {
         new Model({
           sheets: [
             {
-              id: "sheet1",
               colNumber: 3,
               rowNumber: 3,
               cells: { B2: cellContent },
@@ -1367,9 +1327,6 @@ describe("renderer", () => {
         new Model({
           sheets: [
             {
-              id: "sheet1",
-              colNumber: 6,
-              rowNumber: 6,
               cells: { C1: cellContent },
               cols: { 1: { size: 10 }, 2: { size: 10 }, 3: { size: 10 } },
             },

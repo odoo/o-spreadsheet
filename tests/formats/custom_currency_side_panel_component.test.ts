@@ -482,7 +482,7 @@ describe("Provided Currencies", () => {
   test("if currencies aren't provided in spreadsheet --> remove 'available currencies' section", async () => {
     const { fixture } = await mountComponent(CustomCurrencyPanel, {
       env: { loadCurrencies: undefined },
-      model: new Model({}),
+      model: new Model(),
       props: { onCloseSidePanel: () => {} },
     });
     await nextTick();

@@ -47,12 +47,12 @@ let model: Model;
 const hiddenContent = "hidden content to be skipped";
 describe("simple selection", () => {
   test("if A1 is in a merge, it is initially properly selected", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B3"] }] });
+    const model = new Model({ sheets: [{ merges: ["A1:B3"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 1, bottom: 2 });
   });
 
   test("Adding a cell of a merge in the selection adds the whole merge", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A2:B3"] }] });
+    const model = new Model({ sheets: [{ merges: ["A2:B3"] }] });
 
     expect(model.getters.getSelectedZones()).toEqual([{ left: 0, top: 0, right: 0, bottom: 0 }]);
     addCellToSelection(model, "A2");
@@ -63,7 +63,7 @@ describe("simple selection", () => {
   });
 
   test("can select selection with shift-arrow", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+    const model = new Model({ sheets: [{ merges: ["B1:C2"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     resizeAnchorZone(model, "right");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
@@ -95,14 +95,14 @@ describe("simple selection", () => {
   });
 
   test("can expand selection with mouse", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
+    const model = new Model({ sheets: [{ merges: ["B1:C2"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
     setAnchorCorner(model, "B1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
   test("move selection in and out of a merge (in opposite direction)", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["C1:D2"] }] });
+    const model = new Model({ sheets: [{ merges: ["C1:D2"] }] });
     selectCell(model, "B1");
 
     // move to the right, inside the merge
@@ -131,7 +131,7 @@ describe("simple selection", () => {
     expect(getActivePosition(model)).toBe("A1");
   });
   test("update selection in some different directions", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:C3"] }] });
+    const model = new Model({ sheets: [{ merges: ["B2:C3"] }] });
     // move sell to B4
     selectCell(model, "B4");
     expect(getSelectionAnchorCellXc(model)).toBe("B4");
@@ -147,9 +147,7 @@ describe("simple selection", () => {
   });
 
   test("expand selection when encountering a merge", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:B3", "C2:D2"] }],
-    });
+    const model = new Model({ sheets: [{ merges: ["B2:B3", "C2:D2"] }] });
     // move sell to B4
     selectCell(model, "B3");
     expect(getSelectionAnchorCellXc(model)).toBe("B3");
@@ -160,9 +158,7 @@ describe("simple selection", () => {
   });
 
   test("expand selection when starting from a merge", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:B3", "E2:G2"] }],
-    });
+    const model = new Model({ sheets: [{ merges: ["B2:B3", "E2:G2"] }] });
     selectCell(model, "B2");
     resizeAnchorZone(model, "down");
     expect(model.getters.getSelectedZone()).toEqual(toZone("B2:B4"));
@@ -198,9 +194,7 @@ describe("simple selection", () => {
 
   test("extend and reduce selection through hidden columns", () => {
     const model = new Model({
-      sheets: [
-        { colNumber: 5, rowNumber: 1, cols: { 2: { isHidden: true }, 3: { isHidden: true } } },
-      ],
+      sheets: [{ cols: { 2: { isHidden: true }, 3: { isHidden: true } } }],
     });
     selectCell(model, "B1");
     resizeAnchorZone(model, "right");
@@ -211,9 +205,7 @@ describe("simple selection", () => {
 
   test("extend and reduce selection through hidden rows", () => {
     const model = new Model({
-      sheets: [
-        { colNumber: 1, rowNumber: 5, rows: { 2: { isHidden: true }, 3: { isHidden: true } } },
-      ],
+      sheets: [{ rows: { 2: { isHidden: true }, 3: { isHidden: true } } }],
     });
     selectCell(model, "A5");
     resizeAnchorZone(model, "up");
@@ -405,7 +397,7 @@ describe("simple selection", () => {
 
   test("Select a merge when its topLeft row is hidden", () => {
     const model = new Model({
-      sheets: [{ colNumber: 2, rowNumber: 3, merges: ["A1:B2"], rows: { 0: { isHidden: true } } }],
+      sheets: [{ merges: ["A1:B2"], rows: { 0: { isHidden: true } } }],
     });
     selectCell(model, "A2");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
@@ -437,7 +429,7 @@ describe("simple selection", () => {
 
 describe("multiple selections", () => {
   test("can select a new range", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = new Model();
     selectCell(model, "C3");
     let selection = model.getters.getSelection();
     expect(selection.zones.length).toBe(1);
@@ -519,8 +511,6 @@ describe("multiple sheets", () => {
         { sheetId: "Sheet1" },
         {
           sheetId: "Sheet2",
-          colNumber: 5,
-          rowNumber: 5,
           cols: { 0: { isHidden: true }, 1: { isHidden: true } },
           rows: { 0: { isHidden: true } },
           merges: ["C2:C3"],
@@ -535,7 +525,7 @@ describe("multiple sheets", () => {
 
 describe("Alter selection starting from hidden cells", () => {
   test("Cannot change selection if the current one is completely hidden", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = new Model();
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     hideRows(model, [0]);
@@ -547,7 +537,7 @@ describe("Alter selection starting from hidden cells", () => {
   });
 
   test("Cannot move position vertically from hidden column", () => {
-    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 2 }] });
+    const model = new Model();
     selectCell(model, "C1");
     hideColumns(model, ["C"]);
     const move1 = moveAnchorCell(model, "down");
@@ -893,9 +883,7 @@ describe("Alter Selection with content in selection", () => {
 
 describe("move elements(s)", () => {
   beforeEach(() => {
-    model = new Model({
-      sheets: [{ id: "1", colNumber: 10, rowNumber: 10, merges: ["C3:D4", "G7:H8"] }],
-    });
+    model = new Model({ sheets: [{ id: "1", merges: ["C3:D4", "G7:H8"] }] });
   });
   test("can't move columns whose merges overflow from the selection", () => {
     const result = moveColumns(model, "F", ["B", "C"]);

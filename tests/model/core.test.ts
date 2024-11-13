@@ -244,7 +244,7 @@ describe("core", () => {
   });
 
   test("single cell XC conversion", () => {
-    const model = new Model({});
+    const model = new Model();
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -254,7 +254,7 @@ describe("core", () => {
   });
 
   test("multi cell zone XC conversion", () => {
-    const model = new Model({});
+    const model = new Model();
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -264,7 +264,7 @@ describe("core", () => {
   });
 
   test("xc is expanded to overlapping merges", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
+    const model = new Model({ sheets: [{ merges: ["A1:B2"] }] });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -274,9 +274,7 @@ describe("core", () => {
   });
 
   test("zone is across two merges", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2", "A4:B5"] }],
-    });
+    const model = new Model({ sheets: [{ merges: ["A1:B2", "A4:B5"] }] });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -286,7 +284,7 @@ describe("core", () => {
   });
 
   test("merge is considered as one single cell", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B2"] }] });
+    const model = new Model({ sheets: [{ merges: ["A1:B2"] }] });
     expect(
       model.getters.zoneToXC(
         model.getters.getActiveSheetId(),
@@ -378,9 +376,7 @@ describe("history", () => {
   });
 
   test("can undo and redo a cell update", () => {
-    const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: "1" } }],
-    });
+    const model = new Model({ sheets: [{ cells: { A1: "1" } }] });
     const composerStore = makeTestComposerStore(model);
 
     expect(model.getters.canUndo()).toBe(false);
@@ -516,8 +512,6 @@ describe("history", () => {
         sheets: [
           {
             id: sheet1Id,
-            colNumber: 10,
-            rowNumber: 10,
             cells: {
               A1: "1000",
               A3: "2000",
@@ -531,8 +525,6 @@ describe("history", () => {
           },
           {
             id: sheet2Id,
-            colNumber: 10,
-            rowNumber: 10,
             cells: {
               A1: "21000",
               A3: "12-31-2020",
@@ -584,8 +576,6 @@ describe("history", () => {
         sheets: [
           {
             id: sheet1Id,
-            colNumber: 10,
-            rowNumber: 10,
             cells: {
               A1: "1000",
               A3: "2000",
@@ -594,8 +584,6 @@ describe("history", () => {
           },
           {
             id: sheet2Id,
-            colNumber: 10,
-            rowNumber: 10,
             cells: {
               A1: "21000",
               A3: "12-31-2020",

@@ -23,27 +23,13 @@ function moveFormula(model: Model, formula: string, offsetX: number, offsetY: nu
 
 describe("createAdaptedRanges", () => {
   test("simple changes", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model();
     expect(moveFormula(model, "=A1", 1, 1)).toEqual("=B2");
     expect(moveFormula(model, "=A1 + B3", 1, 1)).toEqual("=B2 + C4");
   });
 
   test("can handle negative offsets", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model();
     expect(moveFormula(model, "=B2", 0, -1)).toEqual("=B1");
     expect(moveFormula(model, "=B2", -1, 0)).toEqual("=A2");
     expect(moveFormula(model, "=B2", -1, -1)).toEqual("=A1");
@@ -52,45 +38,19 @@ describe("createAdaptedRanges", () => {
   });
 
   test("can handle offsets outside the sheet", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model();
     expect(moveFormula(model, "=B2", 0, -4)).toEqual(`=${CellErrorType.InvalidReference}`);
     expect(moveFormula(model, "=B10", 0, 2)).toEqual("=B12");
     expect(moveFormula(model, "=J1", 2, 0)).toEqual("=L1");
   });
 
   test("can handle other formulas", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-      ],
-    });
+    const model = new Model();
     expect(moveFormula(model, "=AND(true, B2)", 0, 1)).toEqual("=AND(true, B3)");
   });
 
   test("can handle cross-sheet formulas", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-        },
-        {
-          name: "Sheet2",
-          colNumber: 5,
-          rowNumber: 5,
-        },
-      ],
-    });
+    const model = new Model({ sheets: [{ name: "Sheet1" }, { name: "Sheet2" }] });
     expect(moveFormula(model, "=Sheet2!B2", 0, 1)).toEqual("=Sheet2!B3");
     expect(moveFormula(model, "='Sheet2'!B2", 0, 1)).toEqual("=Sheet2!B3");
     expect(moveFormula(model, "=Sheet2!B2", 0, -2)).toEqual(`=${CellErrorType.InvalidReference}`);
