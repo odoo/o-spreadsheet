@@ -20,7 +20,7 @@ import {
   Zone,
 } from "../types";
 import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
-import { CellPosition, Dimension, HeaderIndex, Immutable } from "./../types/misc";
+import { CellPosition, Dimension, HeaderIndex } from "./../types/misc";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
 type Delta = [number, number];
@@ -39,7 +39,6 @@ type StatefulStream<Event, State> = {
  * Allows to select cells in the grid and update the selection
  */
 interface SelectionProcessor {
-  getAnchor(): Immutable<AnchorZone>;
   selectZone(anchor: AnchorZone, options?: SelectionEventOptions): DispatchResult;
   selectCell(col: number, row: number): DispatchResult;
   moveAnchorCell(direction: Direction, step: SelectionStep): DispatchResult;
@@ -123,10 +122,6 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
 
   getBackToDefault() {
     this.stream.getBackToDefault();
-  }
-
-  getAnchor() {
-    return this.anchor;
   }
 
   private modifyAnchor(
