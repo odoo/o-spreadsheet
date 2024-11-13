@@ -654,6 +654,19 @@ describe("evaluate formulas that return an array", () => {
       expect(mockCompute).toHaveBeenCalledTimes(3);
     });
 
+    test("Formula depending on array formula is reevaluated when the array formula result changes", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "=sumifs(E4:E7,H4:H7,1)");
+      setCellContent(model, "C4", "=MUNIT(4)");
+      setCellContent(model, "H4", "=C4");
+      setCellContent(model, "H6", "=E6");
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+
+      // Force a reevaluation to avoid the incremental evaluation following each update_cell
+      model.dispatch("EVALUATE_CELLS");
+      expect(getEvaluatedCell(model, "A1").value).toBe(1);
+    });
+
     test("Spreaded formulas with range deps invalidate only once the dependencies of themselves", () => {
       let c = 0;
       functionRegistry.add("INCREMENTONEVAL", {
@@ -707,9 +720,9 @@ describe("evaluate formulas that return an array", () => {
 
       setCellContent(model, "A1", "2");
 
-      expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
-      expect(getEvaluatedCell(model, "B2").value).toBe(null);
-      expect(getEvaluatedCell(model, "B3").value).toBe(0);
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
+      expect(getEvaluatedCell(model, "B3").value).toBe(42);
 
       expect(getEvaluatedCell(model, "A3").value).toBe("#SPILL!");
     });
