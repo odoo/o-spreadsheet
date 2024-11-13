@@ -5,6 +5,7 @@
       <RoundColorPicker
         currentColor="colorNumberString(rule.color)"
         onColorPicked.bind="updateDataBarColor"
+        disableNoColor="true"
       />
       <div class="o-section-subtitle">Range of values</div>
       <SelectionInput
