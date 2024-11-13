@@ -294,6 +294,9 @@ export class Evaluator {
       }
       for (let i = 0; i < positions.length; ++i) {
         const position = positions[i];
+        if (this.nextPositionsToUpdate.has(position)) {
+          continue;
+        }
         const evaluatedCell = this.computeCell(position);
         if (evaluatedCell !== EMPTY_CELL) {
           this.evaluatedCells.set(position, evaluatedCell);
@@ -339,7 +342,6 @@ export class Evaluator {
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
-      this.nextPositionsToUpdate.delete(position);
     }
   }
 
@@ -401,6 +403,7 @@ export class Evaluator {
     const invalidatedPositions = this.formulaDependencies().getCellsDependingOn(
       excludeTopLeft(resultZone).map((zone) => ({ sheetId, zone }))
     );
+    invalidatedPositions.delete({ sheetId, col: resultZone.left, row: resultZone.top });
     this.nextPositionsToUpdate.addMany(invalidatedPositions);
   }
 
