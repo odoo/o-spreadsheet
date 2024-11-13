@@ -3209,6 +3209,20 @@ describe("trending line", () => {
     }
   });
 
+  test("non-invertible matrix doesn't throw error", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "label",
+      A2: "0",
+      A3: "1",
+    });
+    updateChart(model, "1", {
+      dataSets: [{ dataRange: "A1:A3", trend: { display: true, type: "polynomial", order: 2 } }],
+    });
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data.datasets[1].data.every((x) => isNaN(Number(x)))).toBeTruthy();
+  });
+
   test("trend line works with real date values as labels", () => {
     setGrid(model, {
       B1: "1",
