@@ -25,14 +25,14 @@ import {
   invalidateCFEvaluationCommands,
   isMatrix,
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
+import { CoreViewPlugin } from "../core_view_plugin";
 import { CoreViewCommand, invalidateEvaluationCommands } from "./../../types/commands";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
 type ComputedDataBars = { [col: HeaderIndex]: (DataBarFill | undefined)[] };
 
-export class EvaluationConditionalFormatPlugin extends UIPlugin {
+export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
   static getters = [
     "getConditionalIcon",
     "getCellConditionalFormatStyle",

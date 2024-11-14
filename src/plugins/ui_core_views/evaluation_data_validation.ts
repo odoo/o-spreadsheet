@@ -15,7 +15,7 @@ import {
   isMatrix,
 } from "../../types";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
-import { UIPlugin } from "../ui_plugin";
+import { CoreViewPlugin } from "../core_view_plugin";
 import { _t } from "./../../translation";
 
 interface InvalidValidationResult {
@@ -34,7 +34,7 @@ type ValidationResult = ValidValidationResult | InvalidValidationResult;
 
 type SheetValidationResult = { [col: HeaderIndex]: Array<Lazy<ValidationResult>> };
 
-export class EvaluationDataValidationPlugin extends UIPlugin {
+export class EvaluationDataValidationPlugin extends CoreViewPlugin {
   static getters = [
     "getDataValidationInvalidCriterionValueMessage",
     "getInvalidDataValidationMessage",
@@ -56,9 +56,9 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
     }
     switch (cmd.type) {
       case "ADD_DATA_VALIDATION_RULE":
-        const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
+        // const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
         if (cmd.rule.criterion.type === "isBoolean") {
-          this.setContentToBooleanCells({ ...cmd.rule, ranges });
+          // this.setContentToBooleanCells({ ...cmd.rule, ranges });
         }
         delete this.validationResults[cmd.sheetId];
         break;
@@ -68,14 +68,15 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
     }
   }
 
-  private setContentToBooleanCells(rule: DataValidationRule) {
-    for (const position of getCellPositionsInRanges(rule.ranges)) {
-      const evaluatedCell = this.getters.getEvaluatedCell(position);
-      if (evaluatedCell.type !== CellValueType.boolean) {
-        this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
-      }
-    }
-  }
+  // private setContentToBooleanCells(rule: DataValidationRule) {
+  //   for (const position of getCellPositionsInRanges(rule.ranges)) {
+  //     const evaluatedCell = this.getters.getEvaluatedCell(position);
+  //     if (evaluatedCell.type !== CellValueType.boolean) {
+  //       // TODO, will be removed afeter forward port
+  //       this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
+  //     }
+  //   }
+  // }
 
   isDataValidationInvalid(cellPosition: CellPosition): boolean {
     return !this.getValidationResultForCell(cellPosition).isValid;

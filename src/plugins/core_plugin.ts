@@ -41,6 +41,8 @@ export class CorePlugin<State = any>
 {
   protected getters: CoreGetters;
   protected uuidGenerator: UuidGenerator;
+  protected dispatch: CoreCommandDispatcher["dispatch"];
+  protected canDispatch: CoreCommandDispatcher["dispatch"];
 
   constructor({
     getters,
@@ -50,10 +52,12 @@ export class CorePlugin<State = any>
     canDispatch,
     uuidGenerator,
   }: CorePluginConfig) {
-    super(stateObserver, dispatch, canDispatch);
+    super(stateObserver);
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;
+    this.dispatch = dispatch;
+    this.canDispatch = canDispatch;
   }
 
   // ---------------------------------------------------------------------------

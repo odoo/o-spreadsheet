@@ -19,6 +19,7 @@ import { SettingsPlugin } from "./core/settings";
 import { SpreadsheetPivotCorePlugin } from "./core/spreadsheet_pivot";
 import { TableStylePlugin } from "./core/table_style";
 import { CorePluginConstructor } from "./core_plugin";
+import { CoreViewPluginConstructor } from "./core_view_plugin";
 import {
   CustomColorsPlugin,
   EvaluationChartPlugin,
@@ -103,7 +104,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("clipboard", ClipboardPlugin);
 
 // Plugins which have a derived state from core data
-export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
+export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
   .add("evaluation", EvaluationPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
