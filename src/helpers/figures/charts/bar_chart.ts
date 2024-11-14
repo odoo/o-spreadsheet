@@ -1,6 +1,6 @@
 import type { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { BACKGROUND_CHART_COLOR, BORDER_CHART_COLOR } from "../../../constants";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -325,8 +325,8 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     const dataset: ChartDataset<"bar", number[]> = {
       label,
       data,
-      borderColor: BORDER_CHART_COLOR,
-      borderWidth: 1,
+      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderWidth: definition.stacked ? 1 : 0,
       backgroundColor: color,
     };
     config.data.datasets.push(dataset);
