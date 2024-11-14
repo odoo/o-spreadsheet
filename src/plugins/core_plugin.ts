@@ -38,11 +38,15 @@ export class CorePlugin<State = any>
   implements RangeProvider
 {
   protected getters: CoreGetters;
+  protected dispatch: CoreCommandDispatcher["dispatch"];
+  protected canDispatch: CoreCommandDispatcher["dispatch"];
 
   constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
-    super(stateObserver, dispatch, canDispatch);
+    super(stateObserver);
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
+    this.dispatch = dispatch;
+    this.canDispatch = canDispatch;
   }
 
   // ---------------------------------------------------------------------------
