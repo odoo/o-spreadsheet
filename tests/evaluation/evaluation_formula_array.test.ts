@@ -584,12 +584,14 @@ describe("evaluate formulas that return an array", () => {
     });
 
     test("formulas with cross spread dependencies depends on a cycle limit", () => {
+      const spy = jest.spyOn(console, "warn").mockImplementation(); // Avoid unwanted logs spam
       setCellContent(model, "A1", "=MFILL(2,1,D1+1)");
       setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
       expect(getEvaluatedCell(model, "A1").value).toBe(31);
       expect(getEvaluatedCell(model, "B1").value).toBe(31);
       expect(getEvaluatedCell(model, "C1").value).toBe(30);
       expect(getEvaluatedCell(model, "D1").value).toBe(30);
+      expect(spy).toHaveBeenCalledWith("Maximum iteration reached while evaluating cells");
     });
 
     test("Spreaded formulas with range deps Do not invalidate themselves on evaluation", () => {
