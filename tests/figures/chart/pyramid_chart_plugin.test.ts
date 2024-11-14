@@ -1,4 +1,4 @@
-import { ChartCreationContext, Model } from "../../../src";
+import { ChartCreationContext, ChartJSRuntime, Model } from "../../../src";
 import { PyramidChart } from "../../../src/helpers/figures/charts/pyramid_chart";
 import { PyramidChartDefinition } from "../../../src/types/chart/pyramid_chart";
 import { createChart, setCellContent, setFormat } from "../../test_helpers/commands_helpers";
@@ -100,6 +100,25 @@ describe("population pyramid chart", () => {
       const tooltipTestItem = { parsed: { x: -10, y: "label" }, label: "dataSetLabel" };
       const tooltip = runtime.chartJsConfig.options?.plugins?.tooltip as any;
       expect(tooltip?.callbacks?.label(tooltipTestItem)).toBe("dataSetLabel: 10€");
+    });
+
+    test("The negative and positive values have the same max value", () => {
+      setCellContent(model, "A1", "5");
+      setCellContent(model, "A2", "33");
+
+      createChart(
+        model,
+        {
+          type: "pyramid",
+          dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }],
+          dataSetsHaveTitle: false,
+        },
+        "id"
+      );
+      const runtime = model.getters.getChartRuntime("id") as ChartJSRuntime;
+      const options = runtime.chartJsConfig.options;
+      expect(options?.scales?.x?.suggestedMin).toBe(-33);
+      expect(options?.scales?.x?.suggestedMax).toBe(33);
     });
   });
 });
