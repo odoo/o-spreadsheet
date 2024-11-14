@@ -237,6 +237,9 @@ export class Evaluator {
         }
       }
     }
+    if (currentIteration >= MAX_ITERATION) {
+      console.warn("Maximum iteration reached while evaluating cells");
+    }
   }
 
   private computeCell(position: CellPosition): EvaluatedCell {
