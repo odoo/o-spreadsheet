@@ -159,9 +159,16 @@ export function getPyramidChartScales(
   definition: PyramidChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
+  const { dataSetsValues } = args;
   const scales = getBarChartScales(definition, args);
   const scalesXCallback = scales!.x!.ticks!.callback as (value: number) => string;
   scales!.x!.ticks!.callback = (value: number) => scalesXCallback(Math.abs(value));
+
+  const maxValue = Math.max(
+    ...dataSetsValues.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+  );
+  scales!.x!.suggestedMin = -maxValue;
+  scales!.x!.suggestedMax = maxValue;
 
   return scales;
 }
