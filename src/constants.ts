@@ -14,7 +14,6 @@ export const SELECTION_BORDER_COLOR = "#3266ca";
 export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E2E3E3";
 export const BACKGROUND_CHART_COLOR = "#FFFFFF";
-export const BORDER_CHART_COLOR = "#FFFFFF";
 export const DISABLED_TEXT_COLOR = "#CACACA";
 export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
 export const LINK_COLOR = "#017E84";

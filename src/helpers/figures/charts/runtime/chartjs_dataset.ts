@@ -1,7 +1,6 @@
 import { ChartDataset } from "chart.js";
 import {
   BACKGROUND_CHART_COLOR,
-  BORDER_CHART_COLOR,
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
@@ -48,8 +47,8 @@ export function getBarChartDatasets(
     const dataset: ChartDataset<"bar"> = {
       label,
       data,
-      borderColor: BORDER_CHART_COLOR,
-      borderWidth: 1,
+      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderWidth: definition.stacked ? 1 : 0,
       backgroundColor,
       yAxisID: definition.horizontal ? "y" : definition.dataSets?.[index].yAxisId || "y",
       xAxisID: "x",
