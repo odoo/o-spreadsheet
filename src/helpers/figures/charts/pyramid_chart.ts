@@ -200,9 +200,15 @@ export function createPyramidChartRuntime(
     datasets[1].data = datasets[1].data.map((value: number) => (value > 0 ? -value : 0));
   }
 
+  const maxValue = Math.max(
+    ...config.data?.datasets.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+  );
+
   const scales = config.options!.scales;
   const scalesXCallback = scales!.x!.ticks!.callback as (value: number) => string;
   scales!.x!.ticks!.callback = (value: number) => scalesXCallback(Math.abs(value));
+  scales!.x!.suggestedMin = -maxValue;
+  scales!.x!.suggestedMax = maxValue;
 
   const tooltipLabelCallback = config.options!.plugins!.tooltip!.callbacks!.label! as any;
   config.options!.plugins!.tooltip!.callbacks!.label = (item) => {
