@@ -227,6 +227,9 @@ export class Evaluator {
         this.setEvaluatedCell(cell, this.computeCell(cell));
       }
     }
+    if (currentIteration >= MAX_ITERATION) {
+      console.warn("Maximum iteration reached while evaluating cells");
+    }
   }
 
   private setEvaluatedCell(positionId: PositionId, evaluatedCell: EvaluatedCell) {
