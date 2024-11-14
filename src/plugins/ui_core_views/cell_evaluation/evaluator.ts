@@ -304,6 +304,9 @@ export class Evaluator {
       }
       onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
     }
+    if (currentIteration >= MAX_ITERATION) {
+      console.warn("Maximum iteration reached while evaluating cells");
+    }
   }
 
   private computeCell(position: CellPosition): EvaluatedCell {
