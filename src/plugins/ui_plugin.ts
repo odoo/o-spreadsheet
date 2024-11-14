@@ -14,7 +14,7 @@ import {
 } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
-type UIActions = Pick<ModelConfig, "notifyUI" | "raiseBlockingErrorUI">;
+export type UIActions = Pick<ModelConfig, "notifyUI" | "raiseBlockingErrorUI">;
 
 export interface UIPluginConfig {
   readonly getters: Getters;
@@ -46,6 +46,9 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   protected getters: Getters;
   protected ui: UIActions;
   protected selection: SelectionStreamProcessor;
+  protected dispatch: CommandDispatcher["dispatch"];
+  protected canDispatch: CommandDispatcher["dispatch"];
+
   constructor({
     getters,
     stateObserver,
@@ -54,10 +57,12 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
     uiActions,
     selection,
   }: UIPluginConfig) {
-    super(stateObserver, dispatch, canDispatch);
+    super(stateObserver);
     this.getters = getters;
     this.ui = uiActions;
     this.selection = selection;
+    this.dispatch = dispatch;
+    this.canDispatch = canDispatch;
   }
 
   // ---------------------------------------------------------------------------

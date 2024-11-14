@@ -10,7 +10,7 @@ import {
   toHex,
 } from "../../helpers";
 import { Color, Command, Immutable, RGBA, TableElementStyle, UID } from "../../types";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+import { CoreViewPlugin, CoreViewPluginConfig } from "../core_view_plugin";
 
 const chartColorRegex = /"(#[0-9a-fA-F]{6})"/g;
 
@@ -70,12 +70,12 @@ interface CustomColorState {
  * This plugins aims to compute and keep to custom colors used in the
  * current spreadsheet
  */
-export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
+export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
   private readonly customColors: Immutable<Record<Color, true>> = {};
   private readonly shouldUpdateColors = true;
   static getters = ["getCustomColors"] as const;
 
-  constructor(config: UIPluginConfig) {
+  constructor(config: CoreViewPluginConfig) {
     super(config);
     this.tryToAddColors(config.customColors ?? []);
   }
