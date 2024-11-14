@@ -14,6 +14,7 @@ import {
 import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
+import { CoreViewPluginConfig, CoreViewPluginConstructor } from "./plugins/core_view_plugin";
 import {
   corePluginRegistry,
   coreViewsPluginRegistry,
@@ -131,6 +132,7 @@ const enum Status {
 
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
+
   private statefulUIPlugins: UIPlugin[] = [];
 
   private range: RangeAdapter;
@@ -162,6 +164,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   readonly config: ModelConfig;
   private corePluginConfig: CorePluginConfig;
+  private coreViewPluginConfig: CoreViewPluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
@@ -239,6 +242,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.handlers.push(this.range);
 
     this.corePluginConfig = this.setupCorePluginConfig();
+    this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
     // registering plugins
@@ -250,7 +254,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.loadInitialMessages(stateUpdateMessages);
 
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
+      const plugin = this.setupCoreViewPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
@@ -319,6 +323,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         this.renderers[layer] = [];
       }
       this.renderers[layer]!.push(plugin);
+    }
+    return plugin;
+  }
+
+  private setupCoreViewPlugin(Plugin: CoreViewPluginConstructor) {
+    const plugin = new Plugin(this.coreViewPluginConfig);
+    for (let name of Plugin.getters) {
+      if (!(name in plugin)) {
+        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+      }
+      if (name in this.getters) {
+        throw new Error(`Getter "${name}" is already defined.`);
+      }
+      this.getters[name] = plugin[name].bind(plugin);
     }
     return plugin;
   }
@@ -431,6 +449,21 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       dispatch: this.dispatchFromCorePlugin,
       canDispatch: this.canDispatch,
       custom: this.config.custom,
+      external: this.config.external,
+    };
+  }
+
+  private setupCoreViewPluginConfig(): CoreViewPluginConfig {
+    return {
+      getters: this.getters,
+      stateObserver: this.state,
+      selection: this.selection,
+      moveClient: this.session.move.bind(this.session),
+      custom: this.config.custom,
+      uiActions: this.config,
+      session: this.session,
+      defaultCurrency: this.config.defaultCurrency,
+      customColors: this.config.customColors || [],
       external: this.config.external,
     };
   }
