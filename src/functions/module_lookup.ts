@@ -160,7 +160,10 @@ export const COLUMNS = {
 export const HLOOKUP = {
   description: _t("Horizontal lookup"),
   args: [
-    arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg(
+      "search_key (string, number, boolean)",
+      _t("The value to search for. For example, 42, 'Cats', or I24.")
+    ),
     arg(
       "range (range)",
       _t(
@@ -190,9 +193,6 @@ export const HLOOKUP = {
       () => 1 <= _index && _index <= range[0].length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
-    if (searchKey && isEvaluationError(searchKey.value)) {
-      return searchKey;
-    }
 
     const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
       range[index][0].value;
@@ -320,7 +320,10 @@ export const INDIRECT: AddFunctionDescription = {
 export const LOOKUP = {
   description: _t("Look up a value."),
   args: [
-    arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg(
+      "search_key (string, number, boolean)",
+      _t("The value to search for. For example, 42, 'Cats', or I24.")
+    ),
     arg(
       "search_array (range)",
       _t(
@@ -400,7 +403,10 @@ const DEFAULT_SEARCH_TYPE = 1;
 export const MATCH = {
   description: _t("Position of item in range that matches value."),
   args: [
-    arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg(
+      "search_key (string, number, boolean)",
+      _t("The value to search for. For example, 42, 'Cats', or I24.")
+    ),
     arg("range (any, range)", _t("The one-dimensional array to be searched.")),
     arg(
       `search_type (number, default=${DEFAULT_SEARCH_TYPE})`,
@@ -509,7 +515,10 @@ export const ROWS = {
 export const VLOOKUP = {
   description: _t("Vertical lookup."),
   args: [
-    arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg(
+      "search_key (string, number, boolean)",
+      _t("The value to search for. For example, 42, 'Cats', or I24.")
+    ),
     arg(
       "range (any, range)",
       _t(
@@ -540,9 +549,6 @@ export const VLOOKUP = {
       () => 1 <= _index && _index <= range.length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
-    if (searchKey && isEvaluationError(searchKey.value)) {
-      return searchKey;
-    }
 
     const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
       range[0][index].value;
@@ -577,7 +583,7 @@ export const XLOOKUP = {
     "Search a range for a match and return the corresponding item from a second range."
   ),
   args: [
-    arg("search_key (any)", _t("The value to search for.")),
+    arg("search_key (string,number,boolean)", _t("The value to search for.")),
     arg(
       "lookup_range (any, range)",
       _t("The range to consider for the search. Should be a single column or a single row.")
@@ -646,10 +652,6 @@ export const XLOOKUP = {
       _t("return_range should have the same dimensions as lookup_range.")
     );
 
-    if (searchKey && isEvaluationError(searchKey.value)) {
-      return [[searchKey]];
-    }
-
     const getElement =
       lookupDirection === "col"
         ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
@@ -688,13 +690,15 @@ export const XLOOKUP = {
 // Pivot functions
 //--------------------------------------------------------------------------
 
+// PIVOT.VALUE
+
 export const PIVOT_VALUE = {
   description: _t("Get the value from a pivot."),
   args: [
-    arg("pivot_id (string)", _t("ID of the pivot.")),
+    arg("pivot_id (number,string)", _t("ID of the pivot.")),
     arg("measure_name (string)", _t("Name of the measure.")),
     arg("domain_field_name (string,optional,repeating)", _t("Field name.")),
-    arg("domain_value (string,optional,repeating)", _t("Value.")),
+    arg("domain_value (number,string,boolean,optional,repeating)", _t("Value.")),
   ],
   compute: function (
     formulaId: Maybe<FunctionResultObject>,
@@ -735,12 +739,14 @@ export const PIVOT_VALUE = {
   },
 } satisfies AddFunctionDescription;
 
+// PIVOT.HEADER
+
 export const PIVOT_HEADER = {
   description: _t("Get the header of a pivot."),
   args: [
-    arg("pivot_id (string)", _t("ID of the pivot.")),
+    arg("pivot_id (number,string)", _t("ID of the pivot.")),
     arg("domain_field_name (string,optional,repeating)", _t("Field name.")),
-    arg("domain_value (string,optional,repeating)", _t("Value.")),
+    arg("domain_value (number,string,value,optional,repeating)", _t("Value.")),
   ],
   compute: function (
     pivotId: Maybe<FunctionResultObject>,
