@@ -86,8 +86,8 @@ const getNeutral = { number: 0, string: "", boolean: false };
 export const EQ = {
   description: _t("Equal."),
   args: [
-    arg("value1 (any)", _t("The first value.")),
-    arg("value2 (any)", _t("The value to test against value1 for equality.")),
+    arg("value1 (string, number, boolean)", _t("The first value.")),
+    arg("value2 (string, number, boolean)", _t("The value to test against value1 for equality.")),
   ],
   compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     if (isEvaluationError(value1?.value)) {
@@ -144,8 +144,8 @@ function applyRelationalOperator(
 export const GT = {
   description: _t("Strictly greater than."),
   args: [
-    arg("value1 (any)", _t("The value to test as being greater than value2.")),
-    arg("value2 (any)", _t("The second value.")),
+    arg("value1 (number, string, boolean)", _t("The value to test as being greater than value2.")),
+    arg("value2 (number, string, boolean)", _t("The second value.")),
   ],
   compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
@@ -160,8 +160,11 @@ export const GT = {
 export const GTE = {
   description: _t("Greater than or equal to."),
   args: [
-    arg("value1 (any)", _t("The value to test as being greater than or equal to value2.")),
-    arg("value2 (any)", _t("The second value.")),
+    arg(
+      "value1 (number, string, boolean)",
+      _t("The value to test as being greater than or equal to value2.")
+    ),
+    arg("value2 (number, string, boolean)", _t("The second value.")),
   ],
   compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
@@ -176,8 +179,8 @@ export const GTE = {
 export const LT = {
   description: _t("Less than."),
   args: [
-    arg("value1 (any)", _t("The value to test as being less than value2.")),
-    arg("value2 (any)", _t("The second value.")),
+    arg("value1 (number, string, boolean)", _t("The value to test as being less than value2.")),
+    arg("value2 (number, string, boolean)", _t("The second value.")),
   ],
   compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     const result = GTE.compute.bind(this)(value1, value2);
@@ -194,8 +197,11 @@ export const LT = {
 export const LTE = {
   description: _t("Less than or equal to."),
   args: [
-    arg("value1 (any)", _t("The value to test as being less than or equal to value2.")),
-    arg("value2 (any)", _t("The second value.")),
+    arg(
+      "value1 (number, string, boolean)",
+      _t("The value to test as being less than or equal to value2.")
+    ),
+    arg("value2 (number, string, boolean)", _t("The second value.")),
   ],
   compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     const result = GT.compute.bind(this)(value1, value2);
@@ -252,8 +258,8 @@ export const MULTIPLY = {
 export const NE = {
   description: _t("Not equal."),
   args: [
-    arg("value1 (any)", _t("The first value.")),
-    arg("value2 (any)", _t("The value to test against value1 for inequality.")),
+    arg("value1 (string, number, boolean)", _t("The first value.")),
+    arg("value2 (string, number, boolean)", _t("The value to test against value1 for inequality.")),
   ],
   compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     const result = EQ.compute.bind(this)(value1, value2);

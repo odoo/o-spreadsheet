@@ -147,7 +147,7 @@ export const IFS = {
     ),
     arg("value1 (any)", _t("The returned value if condition1 is TRUE.")),
     arg(
-      "condition2 (boolean, repeating)",
+      "condition2 (boolean, any, repeating)",
       _t("Additional conditions to be evaluated if the previous ones are FALSE.")
     ),
     arg(
