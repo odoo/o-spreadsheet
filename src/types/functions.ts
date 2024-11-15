@@ -21,6 +21,7 @@ export type ArgType =
 export interface ArgDefinition {
   acceptMatrix?: boolean;
   acceptMatrixOnly?: boolean;
+  acceptErrors?: boolean;
   repeating?: boolean;
   optional?: boolean;
   description: string;

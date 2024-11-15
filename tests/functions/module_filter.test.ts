@@ -709,6 +709,27 @@ describe("SORT function", () => {
     ]);
   });
 
+  test("Sorting columns specifying range with strings or errors", () => {
+    const grid = {
+      C1: "=10",
+      C2: "=0",
+      C3: "=EQ(A1, 4)", // FALSE
+      C4: '=CONCAT("ki", "kou")',
+      C5: "=BADBUNNY", // #BAD_EXPR
+      C6: "=0/0",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(C1:C6,C1:C6,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:A16")).toEqual([
+      [0],
+      [10],
+      ["#BAD_EXPR"],
+      ["#DIV/0!"],
+      ["kikou"],
+      [false],
+    ]);
+  });
+
   test("Sorting multiple columns specifying multiple ranges to base to sorting on", () => {
     //prettier-ignore
     const grid = {
@@ -1048,6 +1069,27 @@ describe("SORTN function", () => {
       [3, 4, 4],
       [2, 1, 2],
       [null, null, null],
+    ]);
+  });
+
+  test("Sorting based on strings or errors", () => {
+    const grid = {
+      C1: "=10",
+      C2: "=0",
+      C3: "=EQ(A1, 4)", // FALSE
+      C4: '=CONCAT("ki", "kou")',
+      C5: "=BADBUNNY", // #BAD_EXPR
+      C6: "=0/0",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(C1:C6,6,0,C1:C6,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:A16")).toEqual([
+      [0],
+      [10],
+      ["#BAD_EXPR"],
+      ["#DIV/0!"],
+      ["kikou"],
+      [false],
     ]);
   });
 
