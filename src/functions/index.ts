@@ -5,7 +5,6 @@ import {
   Arg,
   CellValue,
   ComputeFunction,
-  DEFAULT_LOCALE,
   EvalContext,
   FPayload,
   FunctionDescription,
@@ -13,9 +12,8 @@ import {
   isMatrix,
 } from "../types";
 import { BadExpressionError, EvaluationError } from "../types/errors";
-import { addMetaInfoFromArg, arg, validateArguments } from "./arguments";
-import { toScalar } from "./helper_matrices";
-import { isEvaluationError, matrixForEach, matrixMap, toNumber } from "./helpers";
+import { addMetaInfoFromArg, validateArguments } from "./arguments";
+import { isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
@@ -224,19 +222,3 @@ for (let category of categories) {
     functionRegistry.add(name, { isExported: false, ...addDescr });
   }
 }
-
-functionRegistry.add("MFILL", {
-  description: "Return an n*n matrix filled with n.",
-  args: [
-    arg("n (number)", "number of column of the matrix"),
-    arg("m (number)", "number of row of the matrix"),
-    arg("v (number)", "value to fill matrix"),
-  ],
-  returns: ["RANGE<NUMBER>"],
-  compute: function (n, m, v): number[][] {
-    const _n = toNumber(toScalar(n), DEFAULT_LOCALE);
-    const _m = toNumber(toScalar(m), DEFAULT_LOCALE);
-    const _v = toNumber(toScalar(v), DEFAULT_LOCALE);
-    return Array.from({ length: _n }, (_, i) => Array.from({ length: _m }, (_, j) => _v));
-  },
-});
