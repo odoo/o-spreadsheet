@@ -154,7 +154,7 @@ const databaseArgs = [
     )
   ),
   arg(
-    "field (any)",
+    "field (number, string)",
     _t("Indicates which column in database contains the values to be extracted and operated on.")
   ),
   arg(

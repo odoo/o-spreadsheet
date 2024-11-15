@@ -411,11 +411,11 @@ export const COUNT = {
   description: _t("The number of numeric values in dataset."),
   args: [
     arg(
-      "value1 (number, range<number>)",
+      "value1 (number, any, range<number>)",
       _t("The first value or range to consider when counting.")
     ),
     arg(
-      "value2 (number, range<number>, repeating)",
+      "value2 (number, any, range<number>, repeating)",
       _t("Additional values or ranges to consider when counting.")
     ),
   ],
@@ -1057,6 +1057,8 @@ export const PEARSON: AddFunctionDescription = {
   },
   isExported: true,
 };
+
+// CORREL
 // In GSheet, CORREL is just an alias to PEARSON
 export const CORREL: AddFunctionDescription = PEARSON;
 

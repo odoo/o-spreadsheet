@@ -55,6 +55,10 @@ function makeArg(str: string, description: string): ArgDefinition {
     description,
     type: types,
   };
+  const acceptErrors = types.includes("ANY") || types.includes("RANGE");
+  if (acceptErrors) {
+    result.acceptErrors = true;
+  }
   if (isOptional) {
     result.optional = true;
   }

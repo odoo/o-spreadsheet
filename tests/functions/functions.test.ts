@@ -214,15 +214,7 @@ describe("functions", () => {
         compute: (arg) => {
           return true;
         },
-        args: [
-          {
-            name: "arg1",
-            description: "",
-            type: ["RANGE"],
-            acceptMatrix: true,
-            acceptMatrixOnly: true,
-          },
-        ],
+        args: [arg("arg1 (range<any>)", "1st argument")],
       });
 
       functionRegistry.add("FORMULA_RETURNING_RANGE", {
