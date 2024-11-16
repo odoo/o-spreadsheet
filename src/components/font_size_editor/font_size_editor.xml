@@ -14,7 +14,7 @@
           t-on-keydown="onInputKeydown"
           t-on-click.stop=""
           t-on-focus.stop="onInputFocused"
-          t-att-value="currentFontSize"
+          t-att-value="props.currentFontSize"
           t-on-change="setSizeFromInput"
           t-ref="inputFontSize"
         />
@@ -22,19 +22,17 @@
           <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
       </div>
-      <div
-        class="o-dropdown-content o-text-options"
-        t-if="dropdown.isOpen"
-        t-on-click.stop=""
-        t-att-style="props.dropdownStyle">
-        <t t-foreach="fontSizes" t-as="fontSize" t-key="fontSize">
-          <div
-            t-esc="fontSize"
-            t-att-data-size="fontSize"
-            t-on-click="() => this.setSizeFromList(fontSize)"
-          />
-        </t>
-      </div>
+      <Popover t-if="dropdown.isOpen" t-props="popoverProps">
+        <div class="o-text-options bg-white" t-on-click.stop="" t-ref="fontSizeList">
+          <t t-foreach="fontSizes" t-as="fontSize" t-key="fontSize">
+            <div
+              t-esc="fontSize"
+              t-att-data-size="fontSize"
+              t-on-click="() => this.setSizeFromList(fontSize)"
+            />
+          </t>
+        </div>
+      </Popover>
     </div>
   </t>
 </templates>

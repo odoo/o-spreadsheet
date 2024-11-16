@@ -58,9 +58,10 @@
 
             <div class="o-divider"/>
             <FontSizeEditor
+              currentFontSize="currentFontSize"
+              onFontSizeChanged.bind="this.setFontSize"
               class="'o-hoverable-button'"
               onToggle.bind="this.onClick"
-              dropdownStyle="this.dropdownStyle"
             />
             <div class="o-divider"/>
 

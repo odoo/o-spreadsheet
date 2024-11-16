@@ -15,6 +15,7 @@ import {
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
   ComponentsImportance,
+  DEFAULT_FONT_SIZE,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
@@ -142,9 +143,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     onClick: Function,
     dropdownMaxHeight: Number,
   };
-  get dropdownStyle() {
-    return `max-height:${this.props.dropdownMaxHeight}px`;
-  }
   static components = {
     ColorPickerWidget,
     ColorPicker,
@@ -184,6 +182,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     return topbarComponentRegistry
       .getAllOrdered()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
+  }
+
+  get currentFontSize(): number {
+    return this.env.model.getters.getCurrentStyle().fontSize || DEFAULT_FONT_SIZE;
   }
 
   onExternalClick(ev: MouseEvent) {
@@ -271,5 +273,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   setColor(target: string, color: Color) {
     setStyle(this.env, { [target]: color });
     this.onClick();
+  }
+
+  setFontSize(fontSize: number) {
+    setStyle(this.env, { fontSize });
   }
 }

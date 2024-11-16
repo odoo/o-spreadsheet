@@ -328,7 +328,7 @@ describe("TopBar component", () => {
     const fontSizeText = fixture.querySelector("input.o-font-size")! as HTMLInputElement;
     expect(fontSizeText.value.trim()).toBe(DEFAULT_FONT_SIZE.toString());
     await click(fixture, ".o-font-size-editor");
-    await click(fixture, '.o-dropdown-content [data-size="8"]');
+    await click(fixture, '.o-text-options [data-size="8"]');
     expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
   });
@@ -585,7 +585,7 @@ describe("TopBar component", () => {
     ["Horizontal align", ".o-dropdown-content"],
     ["Vertical align", ".o-dropdown-content"],
     ["Wrapping", ".o-dropdown-content"],
-    ["Font Size", ".o-dropdown-content"],
+    ["Font Size", ".o-text-options"],
     ["More formats", ".o-menu"],
   ])(
     "Clicking a static element inside a dropdown '%s' don't close the dropdown",
