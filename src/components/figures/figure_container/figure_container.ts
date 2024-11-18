@@ -1,4 +1,4 @@
-import { Component, onMounted, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
 import { ComponentsImportance, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectIntersection, rectUnion } from "../../../helpers/rectangle";
@@ -43,6 +43,7 @@ interface DndState {
   draggedFigure?: Figure;
   horizontalSnap?: Snap<HFigureAxisType>;
   verticalSnap?: Snap<VFigureAxisType>;
+  cancelDnd: (() => void) | undefined;
 }
 
 css/*SCSS*/ `
@@ -132,6 +133,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     draggedFigure: undefined,
     horizontalSnap: undefined,
     verticalSnap: undefined,
+    cancelDnd: undefined,
   });
 
   setup() {
@@ -145,6 +147,19 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       // new rendering
       this.render();
     });
+    onWillUpdateProps(() => {
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      const draggedFigureId = this.dnd.draggedFigure?.id;
+      if (draggedFigureId && !this.env.model.getters.getFigure(sheetId, draggedFigureId)) {
+        if (this.dnd.cancelDnd) {
+          this.dnd.cancelDnd();
+        }
+        this.dnd.draggedFigure = undefined;
+        this.dnd.horizontalSnap = undefined;
+        this.dnd.verticalSnap = undefined;
+        this.dnd.cancelDnd = undefined;
+      }
+    });
   }
 
   private getVisibleFigures(): Figure[] {
@@ -153,12 +168,13 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.draggedFigure &&
       !visibleFigures.some((figure) => figure.id === this.dnd.draggedFigure?.id)
     ) {
-      visibleFigures.push(
-        this.env.model.getters.getFigure(
-          this.env.model.getters.getActiveSheetId(),
-          this.dnd.draggedFigure?.id
-        )!
+      const draggedFigure = this.env.model.getters.getFigure(
+        this.env.model.getters.getActiveSheetId(),
+        this.dnd.draggedFigure?.id
       );
+      if (draggedFigure) {
+        visibleFigures.push(draggedFigure);
+      }
     }
     return visibleFigures;
   }
@@ -311,7 +327,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.verticalSnap = undefined;
       this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
     };
-    startDnd(onMouseMove, onMouseUp);
+    this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
   /**
@@ -379,7 +395,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
     };
-    startDnd(onMouseMove, onMouseUp);
+    this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
   private getOtherFigures(figId: UID): Figure[] {
