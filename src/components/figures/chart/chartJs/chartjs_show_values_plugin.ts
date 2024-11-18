@@ -72,8 +72,8 @@ function drawLineOrBarOrRadarChartValues(
   const textsPositions: Record<number, number[]> = {};
 
   for (const dataset of chart._metasets) {
-    if (dataset.xAxisID === TREND_LINE_XAXIS_ID) {
-      return; // ignore trend lines
+    if (dataset.xAxisID === TREND_LINE_XAXIS_ID || dataset.hidden) {
+      continue;
     }
 
     for (let i = 0; i < dataset._parsed.length; i++) {
