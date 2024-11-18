@@ -1,4 +1,4 @@
-import { Component, onMounted, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
 import { MIN_FIG_SIZE } from "../../../constants";
 import { figureRegistry } from "../../../registries";
 import {
@@ -21,6 +21,7 @@ interface DndState {
   y: Pixel;
   width: Pixel;
   height: Pixel;
+  cancelDnd: (() => void) | undefined;
 }
 interface Props {
   sidePanelIsOpen: Boolean;
@@ -104,6 +105,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     y: 0,
     width: 0,
     height: 0,
+    cancelDnd: undefined,
   });
 
   setup() {
@@ -117,14 +119,28 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       // new rendering
       this.render();
     });
+    onWillUpdateProps(() => {
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      if (this.dnd.figId && !this.env.model.getters.getFigure(sheetId, this.dnd.figId)) {
+        if (this.dnd.cancelDnd) {
+          this.dnd.cancelDnd();
+        }
+        this.dnd.figId = undefined;
+        this.dnd.cancelDnd = undefined;
+      }
+    });
   }
 
   private getVisibleFigures(): Figure[] {
     const visibleFigures = this.env.model.getters.getVisibleFigures();
     if (this.dnd.figId && !visibleFigures.some((figure) => figure.id === this.dnd.figId)) {
-      visibleFigures.push(
-        this.env.model.getters.getFigure(this.env.model.getters.getActiveSheetId(), this.dnd.figId)!
+      const draggedFigure = this.env.model.getters.getFigure(
+        this.env.model.getters.getActiveSheetId(),
+        this.dnd.figId
       );
+      if (draggedFigure) {
+        visibleFigures.push(draggedFigure);
+      }
     }
     return visibleFigures;
   }
@@ -256,7 +272,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.figId = undefined;
       this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
     };
-    startDnd(onMouseMove, onMouseUp);
+    this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
   startResize(figure: Figure, dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
@@ -315,7 +331,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         ...update,
       });
     };
-    startDnd(onMouseMove, onMouseUp);
+    this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
   private getDndFigure(): Figure {
