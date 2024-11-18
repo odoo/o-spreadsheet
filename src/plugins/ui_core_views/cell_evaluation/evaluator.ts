@@ -450,6 +450,7 @@ export class Evaluator {
       this.evaluatedCells.delete(child);
       this.nextPositionsToUpdate.addMany(this.getCellsDependingOn([child]));
       this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(child));
+      this.spreadingRelations.removeNode(child);
     }
     this.spreadingRelations.removeNode(positionId);
   }
