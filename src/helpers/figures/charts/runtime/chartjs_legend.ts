@@ -17,7 +17,7 @@ import {
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { ColorGenerator } from "../../../color";
-import { chartFontColor, getPieColors } from "../chart_common";
+import { TREND_LINE_XAXIS_ID, chartFontColor, getPieColors } from "../chart_common";
 
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 
@@ -96,11 +96,12 @@ export function getScatterChartLegend(
   return {
     ...INTERACTIVE_LEGEND_CONFIG,
     ...getLegendDisplayOptions(definition, args),
-    labels: {
-      color: chartFontColor(definition.background),
-      boxHeight: 6,
-      usePointStyle: true,
-    },
+    ...getCustomLegendLabels(chartFontColor(definition.background), {
+      pointStyle: "circle",
+      // the stroke is the border around the circle, so increasing its size with the chart's color reduce the size of the circle
+      strokeStyle: definition.background || "#ffffff",
+      lineWidth: 8,
+    }),
   };
 }
 
@@ -203,10 +204,10 @@ export const INTERACTIVE_LEGEND_CONFIG = {
     target.style.cursor = "default";
   },
   onClick: (event, legendItem, legend) => {
-    if (!legend.legendItems) {
+    const index = legendItem.datasetIndex;
+    if (!legend.legendItems || index === undefined) {
       return;
     }
-    const index = legend.legendItems.indexOf(legendItem);
     if (legend.chart.isDatasetVisible(index)) {
       legend.chart.hide(index);
     } else {
@@ -232,15 +233,29 @@ function getCustomLegendLabels(
       color: fontColor,
       usePointStyle: true,
       generateLabels: (chart: Chart) =>
-        chart.data.datasets.map((dataset, index) => ({
-          text: dataset.label ?? "",
-          fontColor,
-          strokeStyle: dataset.borderColor as Color,
-          fillStyle: dataset.backgroundColor as Color,
-          hidden: !chart.isDatasetVisible(index),
-          pointStyle: dataset.type === "line" ? "line" : "rect",
-          ...legendLabelConfig,
-        })),
+        chart.data.datasets.map((dataset, index) => {
+          if (dataset["xAxisID"] === TREND_LINE_XAXIS_ID) {
+            return {
+              text: dataset.label ?? "",
+              fontColor,
+              strokeStyle: dataset.borderColor as Color,
+              hidden: !chart.isDatasetVisible(index),
+              pointStyle: "line",
+              datasetIndex: index,
+              lineWidth: 3,
+            };
+          }
+          return {
+            text: dataset.label ?? "",
+            fontColor,
+            strokeStyle: dataset.borderColor as Color,
+            fillStyle: dataset.backgroundColor as Color,
+            hidden: !chart.isDatasetVisible(index),
+            pointStyle: dataset.type === "line" ? "line" : "rect",
+            datasetIndex: index,
+            ...legendLabelConfig,
+          };
+        }),
     },
   };
 }

@@ -134,6 +134,7 @@ describe("combo chart", () => {
         pointStyle: "rect",
         strokeStyle: "#f00",
         fillStyle: "#f00",
+        datasetIndex: 0,
       },
       {
         fontColor: "#000000",
@@ -143,6 +144,7 @@ describe("combo chart", () => {
         pointStyle: "line",
         strokeStyle: "#00f",
         fillStyle: "#00f",
+        datasetIndex: 1,
       },
     ]);
   });

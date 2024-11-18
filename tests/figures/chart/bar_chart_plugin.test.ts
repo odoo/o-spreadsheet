@@ -163,6 +163,7 @@ describe("bar chart", () => {
         lineWidth: 3,
         pointStyle: "rect",
         strokeStyle: "#FFFFFF",
+        datasetIndex: 0,
       },
       {
         fontColor: "#000000",
@@ -172,6 +173,7 @@ describe("bar chart", () => {
         lineWidth: 3,
         pointStyle: "rect",
         strokeStyle: "#FFFFFF",
+        datasetIndex: 1,
       },
     ]);
   });
@@ -224,5 +226,29 @@ describe("bar chart", () => {
     updateChart(model, "chartId", { background: "#f00" });
     runtime = model.getters.getChartRuntime("chartId") as BarChartRuntime;
     expect(runtime.chartJsConfig.data.datasets[0].borderColor).toBe("#f00");
+  });
+
+  test("Bar chart trend line legend", () => {
+    const model = createModelFromGrid({ A1: "1", A2: "2" });
+    createChart(
+      model,
+      {
+        dataSets: [
+          {
+            dataRange: "Sheet1!A1:A2",
+            backgroundColor: "#f00",
+            label: "serie_1",
+            trend: { type: "polynomial", order: 1, color: "#f0f", display: true },
+          },
+        ],
+        dataSetsHaveTitle: false,
+        type: "bar",
+      },
+      "1"
+    );
+    expect(getChartLegendLabels(model, "1")).toMatchObject([
+      { text: "serie_1", fillStyle: "#f00", pointStyle: "rect" },
+      { text: "Trend line for serie_1", strokeStyle: "#f0f", pointStyle: "line" },
+    ]);
   });
 });
