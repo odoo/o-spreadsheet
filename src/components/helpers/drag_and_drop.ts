@@ -4,19 +4,26 @@ import { HeaderIndex } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 type EventFn = (ev: MouseEvent) => void;
 
+/**
+ * Start listening to pointer events and apply the given callbacks.
+ *
+ * @returns A function to remove the listeners.
+ */
 export function startDnd(
   onMouseMove: EventFn,
   onMouseUp: EventFn,
   onMouseDown: EventFn = () => {}
 ) {
-  const _onMouseUp = (ev: MouseEvent) => {
-    onMouseUp(ev);
-
+  const removeListeners = () => {
     window.removeEventListener("mousedown", onMouseDown);
     window.removeEventListener("mouseup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
     window.removeEventListener("mousemove", onMouseMove);
     window.removeEventListener("wheel", onMouseMove);
+  };
+  const _onMouseUp = (ev: MouseEvent) => {
+    onMouseUp(ev);
+    removeListeners();
   };
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
@@ -25,10 +32,18 @@ export function startDnd(
   window.addEventListener("mouseup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
   window.addEventListener("mousemove", onMouseMove);
+<<<<<<< 17.0
   // mouse wheel on window is by default a passive event.
   // preventDefault() is not allowed in passive event handler.
   // https://chromestatus.com/feature/6662647093133312
   window.addEventListener("wheel", onMouseMove, { passive: false });
+||||||| 6984990773e6865f0d76edd0e7e0052aea374fc5
+  window.addEventListener("wheel", onMouseMove);
+=======
+  window.addEventListener("wheel", onMouseMove);
+
+  return removeListeners;
+>>>>>>> 64d127b43c1fcd96e90464ea988b7fa4b7fc0831
 }
 
 /**
