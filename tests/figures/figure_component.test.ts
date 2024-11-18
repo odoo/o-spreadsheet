@@ -410,6 +410,15 @@ describe("figures", () => {
         );
       }
     );
+
+    test("Deleting a figure during drag and drop does not crash", async () => {
+      createFigure(model, { id: "someuuid", x: 200, y: 100 });
+      await nextTick();
+      await dragElement(".o-figure", { x: 150, y: 100 }, undefined, false);
+      model.dispatch("DELETE_FIGURE", { id: "someuuid", sheetId });
+      await nextTick();
+      expect(model.getters.getFigure(sheetId, "someuuid")).toEqual(undefined);
+    });
   });
 
   test("Cannot select/move figure in readonly mode", async () => {
