@@ -4,19 +4,26 @@ import { HeaderIndex } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 type EventFn = (ev: MouseEvent) => void;
 
+/**
+ * Start listening to pointer events and apply the given callbacks.
+ *
+ * @returns A function to remove the listeners.
+ */
 export function startDnd(
   onMouseMove: EventFn,
   onMouseUp: EventFn,
   onMouseDown: EventFn = () => {}
 ) {
-  const _onMouseUp = (ev: MouseEvent) => {
-    onMouseUp(ev);
-
+  const removeListeners = () => {
     window.removeEventListener("mousedown", onMouseDown);
     window.removeEventListener("mouseup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
     window.removeEventListener("mousemove", onMouseMove);
     window.removeEventListener("wheel", onMouseMove);
+  };
+  const _onMouseUp = (ev: MouseEvent) => {
+    onMouseUp(ev);
+    removeListeners();
   };
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
@@ -26,6 +33,8 @@ export function startDnd(
   window.addEventListener("dragstart", _onDragStart);
   window.addEventListener("mousemove", onMouseMove);
   window.addEventListener("wheel", onMouseMove);
+
+  return removeListeners;
 }
 
 /**
