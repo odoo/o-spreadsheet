@@ -451,6 +451,7 @@ export class Evaluator {
     }
     this.nextPositionsToUpdate.addMany(this.getCellsDependingOn(invalidated));
     this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(invalidated));
+    [...invalidated].forEach((inv) => this.spreadingRelations.removeNode(inv));
     this.spreadingRelations.removeNode(position);
   }
 

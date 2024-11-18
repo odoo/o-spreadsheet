@@ -1,6 +1,7 @@
 import { arg, functionRegistry } from "../../src/functions";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toMatrix, toNumber } from "../../src/functions/helpers";
+import { toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { DEFAULT_LOCALE, ErrorCell } from "../../src/types";
 import {
@@ -696,6 +697,21 @@ describe("evaluate formulas that return an array", () => {
       expect(c).toEqual(1);
       setCellContent(model, "A2", "2");
       expect(c).toEqual(2);
+    });
+
+    test("Cells that no longer depend on the array formula are removed from the spreading dependencies", () => {
+      setCellContent(model, "A1", "=TRANSPOSE(A3:A4)");
+      setCellContent(model, "A3", "3");
+      setCellContent(model, "A4", "4");
+      expect(getEvaluatedCell(model, "B1").value).toEqual(4);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian("B1") })).toBe(
+        model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian("A1") })
+      );
+      setCellContent(model, "A1", "=TRANSPOSE(A3)");
+      expect(
+        model.getters.getCorrespondingFormulaCell({ sheetId, ...toCartesian("B1") })
+      ).toBeUndefined();
     });
 
     test("have collision when spread size zone change", () => {
