@@ -197,6 +197,7 @@ describe("line chart", () => {
         lineWidth: 3,
         pointStyle: "line",
         strokeStyle: "#f00",
+        datasetIndex: 0,
       },
       {
         fontColor: "#000000",
@@ -206,6 +207,7 @@ describe("line chart", () => {
         lineWidth: 3,
         pointStyle: "line",
         strokeStyle: "#00f",
+        datasetIndex: 1,
       },
     ]);
   });
