@@ -1,8 +1,14 @@
 import { Model, SpreadsheetChildEnv, SpreadsheetPivotCoreDefinition } from "../../src";
-import { toZone } from "../../src/helpers";
+import { toZone, zoneToXc } from "../../src/helpers";
+import { HighlightStore } from "../../src/stores/highlight_store";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
-import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import {
+  getHighlightsFromStore,
+  mountSpreadsheet,
+  nextTick,
+  setGrid,
+} from "../test_helpers/helpers";
 import { SELECTORS, addPivot, removePivot } from "../test_helpers/pivot_helpers";
 
 describe("Pivot side panel", () => {
@@ -15,8 +21,8 @@ describe("Pivot side panel", () => {
       { model: new Model() },
       { askConfirmation: jest.fn((title, callback) => callback()) }
     ));
-    addPivot(model, "A1:D5", {}, "1");
-    addPivot(model, "A1:D5", {}, "2");
+    addPivot(model, "A1:B2", {}, "1");
+    addPivot(model, "A1:B2", {}, "2");
   });
 
   test("It should open the pivot editor when pivotId is provided", async () => {
@@ -59,5 +65,20 @@ describe("Pivot side panel", () => {
       sheetId: model.getters.getActiveSheetId(),
       zone: toZone("A1:A100"),
     });
+  });
+
+  test("Pivot cells are highlighted when the panel is open", async () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Partner", B1: "Amount",
+      A2: "Alice", B2: "10",
+      A5: "=PIVOT(1)"
+    });
+    const highlightStore = env.getStore(HighlightStore);
+    expect(highlightStore.highlights.map((h) => zoneToXc(h.zone))).toEqual([]);
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.zone))).toEqual(["A5:A7"]);
   });
 });
