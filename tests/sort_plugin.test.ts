@@ -400,6 +400,15 @@ describe("Sorting allowDispatch", () => {
       sort(model, { zone: "A1:A5", anchor: "A1", direction: "ascending" })
     ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
+
+  test("Sort with array formula", () => {
+    setCellContent(model, "A1", "8");
+    setCellContent(model, "A2", "4");
+    setCellContent(model, "A3", "=FILTER(A1:A2, A1:A2 > 1)");
+    expect(
+      sort(model, { zone: "A1:A4", anchor: "A1", direction: "ascending" })
+    ).toBeCancelledBecause(CommandResult.SortZoneWithArrayFormulas);
+  });
 });
 
 describe("Sort multi adjacent columns", () => {
