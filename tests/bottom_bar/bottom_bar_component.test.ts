@@ -478,7 +478,7 @@ describe("BottomBar component", () => {
     jest
       .spyOn(Element.prototype, "clientWidth", "get")
       .mockImplementation(function (this: HTMLDivElement) {
-        if (this.classList.contains("o-sheet-list")) return 300;
+        if (this.classList.contains("list-drag-and-drop-container")) return 300;
         return 0;
       });
 
@@ -730,7 +730,7 @@ describe("BottomBar component", () => {
           x: model.getters.getSheetIds().indexOf(el.dataset.id!) * 100,
           width: 101, // width of 101 and x is offset by only 100 because there's negative borders on sheets
         }),
-        "o-sheet-list": () => ({ x: 0, width: 500 }),
+        "list-drag-and-drop-container": () => ({ x: 0, width: 500 }),
       });
 
       jest.useFakeTimers();
@@ -844,11 +844,15 @@ describe("BottomBar component", () => {
 
     test("Swap a sheet with a sheet with a longer name : no back & forth when moving mouse", async () => {
       mockGetBoundingClientRect({
-        "o-sheet-list": () => ({ x: 0, width: 500 }),
-        "o-sheet": (el: HTMLElement) => {
-          if (el.dataset.id === "Sheet1") return { x: 0, width: 100 };
-          else if (el.dataset.id === "Sheet2") return { x: 100, width: 300 };
-          return { x: model.getters.getSheetIds().indexOf(el.dataset.id!) * 100 + 200, width: 100 };
+        "list-drag-and-drop-container": () => ({ x: 0, width: 500 }),
+        "o-ripple-container": (el: HTMLElement) => {
+          const sheetEl = el.querySelector(".o-sheet") as HTMLElement;
+          if (sheetEl.dataset.id === "Sheet1") return { x: 0, width: 100 };
+          else if (sheetEl.dataset.id === "Sheet2") return { x: 100, width: 300 };
+          return {
+            x: model.getters.getSheetIds().indexOf(sheetEl.dataset.id!) * 100 + 200,
+            width: 100,
+          };
         },
       });
 
