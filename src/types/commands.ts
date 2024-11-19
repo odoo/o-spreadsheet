@@ -1255,6 +1255,7 @@ export const enum CommandResult {
   MaxInvalidFormula = "MaxInvalidFormula",
   ValueUpperInvalidFormula = "ValueUpperInvalidFormula",
   ValueLowerInvalidFormula = "ValueLowerInvalidFormula",
+  InvalidSortAnchor = "InvalidSortAnchor",
   InvalidSortZone = "InvalidSortZone",
   WaitingSessionConfirmation = "WaitingSessionConfirmation",
   MergeOverlap = "MergeOverlap",
