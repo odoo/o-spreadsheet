@@ -23,10 +23,9 @@ import {
   Zone,
   invalidateEvaluationCommands,
 } from "../../types/index";
+import { CoreViewPlugin } from "../core_view_plugin";
 
-import { UIPlugin } from "../ui_plugin";
-
-export class DynamicTablesPlugin extends UIPlugin {
+export class DynamicTablesPlugin extends CoreViewPlugin {
   static getters = [
     "canCreateDynamicTableOnZones",
     "doesZonesContainFilter",

@@ -204,6 +204,7 @@ export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";
 export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
+export { CoreViewPlugin } from "./plugins/core_view_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";

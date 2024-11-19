@@ -10,7 +10,7 @@ import {
 } from "../../helpers";
 import { Command } from "../../types";
 import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
-import { UIPlugin } from "../ui_plugin";
+import { CoreViewPlugin } from "../core_view_plugin";
 
 interface HeaderSizeState {
   tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>>;
@@ -21,7 +21,7 @@ interface CellWithSize {
   size: Pixel;
 }
 
-export class HeaderSizeUIPlugin extends UIPlugin<HeaderSizeState> implements HeaderSizeState {
+export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implements HeaderSizeState {
   static getters = ["getRowSize", "getHeaderSize"] as const;
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
