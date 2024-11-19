@@ -1,23 +1,28 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormatPreviewList">
-    <div class="o-cf-preview-list h-100 overflow-auto" t-ref="cfList">
-      <t t-foreach="props.conditionalFormats" t-as="cf" t-key="cf.id">
+    <DragAndDropListItems
+      containerClass="'o-cf-preview-list h-100 overflow-auto'"
+      draggableItemIds="props.conditionalFormats.map(cf => cf.id)"
+      onDragEnd.bind="onDragEnd">
+      <t t-set-slot="default" t-slot-scope="dragAndDrop">
+        <t t-foreach="props.conditionalFormats" t-as="cf" t-key="cf.id">
+          <div
+            class="o-cf-preview-container d-flex position-relative"
+            t-att-style="dragAndDrop.itemsStyle[cf.id]">
+            <ConditionalFormatPreview
+              conditionalFormat="cf"
+              class="dragAndDrop.draggedItemId === cf.id ? 'o-cf-dragging' : ''"
+              onMouseDown="(ev) => dragAndDrop.start(cf.id, ev)"
+              onPreviewClick="() => props.onPreviewClick(cf)"
+            />
+          </div>
+        </t>
         <div
-          class="o-cf-preview-container d-flex position-relative"
-          t-att-style="getPreviewDivStyle(cf)">
-          <ConditionalFormatPreview
-            conditionalFormat="cf"
-            class="dragAndDrop.draggedItemId === cf.id ? 'o-cf-dragging' : ''"
-            onMouseDown="(ev) => this.onPreviewMouseDown(cf, ev)"
-            onPreviewClick="() => props.onPreviewClick(cf)"
-          />
+          class="o-button-link p-4 o-cf-add float-end"
+          t-on-click.prevent.stop="props.onAddConditionalFormat">
+          + Add another rule
         </div>
       </t>
-      <div
-        class="o-button-link p-4 o-cf-add float-end"
-        t-on-click.prevent.stop="props.onAddConditionalFormat">
-        + Add another rule
-      </div>
-    </div>
+    </DragAndDropListItems>
   </t>
 </templates>

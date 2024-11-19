@@ -8,11 +8,10 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
     class="o-cf h-100"
   >
     <div
-      class="o-cf-preview-list h-100 overflow-auto"
+      class="list-drag-and-drop-container o-cf-preview-list h-100 overflow-auto"
     >
       <div
         class="o-cf-preview-container d-flex position-relative"
-        style=""
       >
         <div
           class="o-cf-preview w-100"
@@ -99,7 +98,6 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
       </div>
       <div
         class="o-cf-preview-container d-flex position-relative"
-        style=""
       >
         <div
           class="o-cf-preview w-100"
@@ -184,7 +182,6 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
           </div>
         </div>
       </div>
-      
       
       <div
         class="o-button-link p-4 o-cf-add float-end"

@@ -24,18 +24,27 @@
           t-if="state.isSheetListScrollableLeft"
         />
         <div
-          class="o-sheet-list d-flex w-100 px-1"
+          class="o-sheet-list w-100 px-1"
           t-ref="sheetList"
           t-on-wheel="onWheel"
           t-on-scroll="onScroll">
-          <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
-            <BottomBarSheet
-              style="getSheetStyle(sheet.id)"
-              sheetId="sheet.id"
-              openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
-              onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
-            />
-          </t>
+          <DragAndDropListItems
+            direction="'horizontal'"
+            draggableItemIds="this.getVisibleSheets().map((sheet) => sheet.id)"
+            containerClass="'d-flex'"
+            onDragEnd.bind="onDragEnd"
+            canStartDrag.bind="canStartDrag">
+            <t t-set-slot="default" t-slot-scope="dragAndDrop">
+              <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
+                <BottomBarSheet
+                  style="dragAndDrop.itemsStyle[sheet.id]"
+                  sheetId="sheet.id"
+                  openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
+                  onMouseDown="(ev) => dragAndDrop.start(sheet.id, ev)"
+                />
+              </t>
+            </t>
+          </DragAndDropListItems>
         </div>
         <div
           class="o-bottom-bar-fade-out position-absolute h-100 w-100 pe-none"

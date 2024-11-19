@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet-DragAndDropListItems">
+    <div
+      class="list-drag-and-drop-container"
+      t-att-class="props.containerClass"
+      t-ref="container-ref">
+      <t
+        t-slot="default"
+        itemsStyle="dragAndDrop.itemsStyle"
+        draggedItemId="dragAndDrop.draggedItemId"
+        start.bind="startDragAndDrop"
+      />
+    </div>
+  </t>
+</templates>

@@ -107,6 +107,7 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { DragAndDropListItems } from "./components/drag_and_drop_list/drag_and_drop_list";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
@@ -357,6 +358,7 @@ export const components = {
   ChartPanel,
   ChartFigure,
   ChartJsComponent,
+  DragAndDropListItems,
   Grid,
   GridOverlay,
   ScorecardChart,

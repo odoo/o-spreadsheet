@@ -388,7 +388,7 @@ describe("Spreadsheet pivot side panel", () => {
         height: 10,
         y: 10,
       }),
-      "pivot-dimensions": () => ({
+      "list-drag-and-drop-container": () => ({
         height: 40,
         y: 0,
       }),
@@ -575,7 +575,7 @@ describe("Spreadsheet pivot side panel", () => {
         height: 10,
         y: 10,
       }),
-      "pivot-dimensions": () => ({
+      "list-drag-and-drop-container": () => ({
         height: 40,
         y: 0,
       }),

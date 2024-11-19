@@ -1,4 +1,4 @@
-import { Component, useRef } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
 import {
   AGGREGATORS,
@@ -19,8 +19,8 @@ import {
   PivotMeasure,
 } from "../../../../types/pivot";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+import { DragAndDropListItems } from "../../../drag_and_drop_list/drag_and_drop_list";
 import { css } from "../../../helpers";
-import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_hook";
 import { measureDisplayTerms } from "../../../translations_terms";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
@@ -49,6 +49,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   static template = "o-spreadsheet-PivotLayoutConfigurator";
   static components = {
     AddDimensionButton,
+    DragAndDropListItems,
     PivotDimension,
     PivotDimensionOrder,
     PivotDimensionGranularity,
@@ -65,8 +66,6 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     pivotId: String,
   };
 
-  private dimensionsRef = useRef("pivot-dimensions");
-  private dragAndDrop = useDragAndDropListItems();
   AGGREGATORS = AGGREGATORS;
   private composerFocus!: Store<ComposerFocusStore>;
 
@@ -76,59 +75,22 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     this.composerFocus = useStore(ComposerFocusStore);
   }
 
-  startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
-    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
-      return;
-    }
-
-    const rects = this.getDimensionElementsRects();
-    const definition = this.props.definition;
-    const { columns, rows } = definition;
-    const draggableIds = [
+  get draggableItemIds() {
+    const { columns, rows } = this.props.definition;
+    return [
       ...columns.map((col) => col.nameWithGranularity),
       "__rows_title__",
       ...rows.map((row) => row.nameWithGranularity),
     ];
-    const allDimensions = columns.concat(rows);
-    const offset = 1; // column title
-    const draggableItems = draggableIds.map((id, index) => ({
-      id,
-      size: rects[index + offset].height,
-      position: rects[index + offset].y,
-    }));
-    this.dragAndDrop.start("vertical", {
-      draggedItemId: dimension.nameWithGranularity,
-      initialMousePosition: event.clientY,
-      items: draggableItems,
-      containerEl: this.dimensionsRef.el!,
-      onDragEnd: (dimensionName, finalIndex) => {
-        const originalIndex = draggableIds.findIndex((id) => id === dimensionName);
-        if (originalIndex === finalIndex) {
-          return;
-        }
-        const draggedItems = [...draggableIds];
-        draggedItems.splice(originalIndex, 1);
-        draggedItems.splice(finalIndex, 0, dimensionName);
-        const columns = draggedItems.slice(0, draggedItems.indexOf("__rows_title__"));
-        const rows = draggedItems.slice(draggedItems.indexOf("__rows_title__") + 1);
-        this.props.onDimensionsUpdated({
-          columns: columns
-            .map((nameWithGranularity) =>
-              allDimensions.find(
-                (dimension) => dimension.nameWithGranularity === nameWithGranularity
-              )
-            )
-            .filter(isDefined),
-          rows: rows
-            .map((nameWithGranularity) =>
-              allDimensions.find(
-                (dimension) => dimension.nameWithGranularity === nameWithGranularity
-              )
-            )
-            .filter(isDefined),
-        });
-      },
-    });
+  }
+
+  get draggableMeasureItemIds() {
+    const { measures } = this.props.definition;
+    return ["__measure_title__", ...measures.map((m) => m.id)];
+  }
+
+  canStartDimensionDrag(event: MouseEvent) {
+    return (event.target as HTMLElement).tagName !== "SELECT";
   }
 
   getGranularitiesFor(field: PivotField) {
@@ -138,59 +100,49 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     return field.type === "date" ? this.props.dateGranularities : this.props.datetimeGranularities;
   }
 
-  startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {
+  canStartMeasureDrag(event: MouseEvent) {
     if (
-      event.button !== 0 ||
       (event.target as HTMLElement).tagName === "SELECT" ||
       (event.target as HTMLElement).tagName === "INPUT" ||
       this.composerFocus.focusMode !== "inactive"
     ) {
-      return;
+      return false;
     }
+    return true;
+  }
 
-    const rects = this.getDimensionElementsRects();
+  onDimensionDragEnd(dimensionName: string, originalIndex: number, finalIndex: number) {
+    const draggedItems = [...this.draggableItemIds];
+    draggedItems.splice(originalIndex, 1);
+    draggedItems.splice(finalIndex, 0, dimensionName);
     const definition = this.props.definition;
-    const { measures, columns, rows } = definition;
-    const draggableIds = measures.map((m) => m.id);
-    const offset = 3 + columns.length + rows.length; // column title, row title, measure title
-    const draggableItems = draggableIds.map((id, index) => ({
-      id,
-      size: rects[index + offset].height,
-      position: rects[index + offset].y,
-    }));
-    this.dragAndDrop.start("vertical", {
-      draggedItemId: measure.id,
-      initialMousePosition: event.clientY,
-      items: draggableItems,
-      containerEl: this.dimensionsRef.el!,
-      onDragEnd: (measureName, finalIndex) => {
-        const originalIndex = draggableIds.findIndex((id) => id === measureName);
-        if (originalIndex === finalIndex) {
-          return;
-        }
-        const draggedItems = [...draggableIds];
-        draggedItems.splice(originalIndex, 1);
-        draggedItems.splice(finalIndex, 0, measureName);
-        this.props.onDimensionsUpdated({
-          measures: draggedItems
-            .map((measureId) => measures.find((measure) => measure.id === measureId))
-            .filter(isDefined),
-        });
-      },
+    const { columns, rows } = definition;
+    const allDimensions = columns.concat(rows);
+    const columnIds = draggedItems.slice(0, draggedItems.indexOf("__rows_title__"));
+    const rowIds = draggedItems.slice(draggedItems.indexOf("__rows_title__") + 1);
+    this.props.onDimensionsUpdated({
+      columns: columnIds
+        .map((nameWithGranularity) =>
+          allDimensions.find((dimension) => dimension.nameWithGranularity === nameWithGranularity)
+        )
+        .filter(isDefined),
+      rows: rowIds
+        .map((nameWithGranularity) =>
+          allDimensions.find((dimension) => dimension.nameWithGranularity === nameWithGranularity)
+        )
+        .filter(isDefined),
     });
   }
 
-  getDimensionElementsRects() {
-    return Array.from(this.dimensionsRef.el!.children).map((el) => {
-      const style = getComputedStyle(el)!;
-      const rect = el.getBoundingClientRect();
-      return {
-        x: rect.x,
-        y: rect.y,
-        width: rect.width + parseInt(style.marginLeft || "0") + parseInt(style.marginRight || "0"),
-        height:
-          rect.height + parseInt(style.marginTop || "0") + parseInt(style.marginBottom || "0"),
-      };
+  onMeasureDragEnd(measureId: string, originalIndex: number, finalIndex: number) {
+    const { measures } = this.props.definition;
+    const draggedItems = [...this.draggableMeasureItemIds];
+    draggedItems.splice(originalIndex, 1);
+    draggedItems.splice(finalIndex, 0, measureId);
+    this.props.onDimensionsUpdated({
+      measures: draggedItems
+        .map((measureId) => measures.find((measure) => measure.id === measureId))
+        .filter(isDefined),
     });
   }
 
