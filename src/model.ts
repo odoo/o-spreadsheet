@@ -292,7 +292,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   async leaveSession() {
-    await this.session.leave(lazy(() => this.exportData()));
+    const snapshot = this.getters.isReadonly() ? undefined : lazy(() => this.exportData());
+    await this.session.leave(snapshot);
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
