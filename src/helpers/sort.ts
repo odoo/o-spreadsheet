@@ -3,10 +3,10 @@ import {
   CellValue,
   CellValueType,
   CommandResult,
-  DispatchResult,
   EvaluatedCell,
   Position,
   SortDirection,
+  SortOptions,
   SpreadsheetChildEnv,
   UID,
   Zone,
@@ -72,8 +72,6 @@ export function interactiveSortSelection(
   zone: Zone,
   sortDirection: SortDirection
 ) {
-  let result: DispatchResult = DispatchResult.Success;
-
   //several columns => bypass the contiguity check
   let multiColumns: boolean = zone.right > zone.left;
   if (env.model.getters.doesIntersectMerge(sheetId, zone)) {
@@ -94,53 +92,51 @@ export function interactiveSortSelection(
     }
   }
 
-  const { col, row } = anchor;
   if (multiColumns) {
-    result = env.model.dispatch("SORT_CELLS", { sheetId, col, row, zone, sortDirection });
-  } else {
-    // check contiguity
-    const contiguousZone = env.model.getters.getContiguousZone(sheetId, zone);
-    if (isEqual(contiguousZone, zone)) {
-      // merge as it is
-      result = env.model.dispatch("SORT_CELLS", {
-        sheetId,
-        col,
-        row,
-        zone,
-        sortDirection,
-      });
-    } else {
-      env.askConfirmation(
-        _t(
-          "We found data next to your selection. Since this data was not selected, it will not be sorted. Do you want to extend your selection?"
-        ),
-        () => {
-          zone = contiguousZone;
-          result = env.model.dispatch("SORT_CELLS", {
-            sheetId,
-            col,
-            row,
-            zone,
-            sortDirection,
-          });
-        },
-        () => {
-          result = env.model.dispatch("SORT_CELLS", {
-            sheetId,
-            col,
-            row,
-            zone,
-            sortDirection,
-          });
-        }
-      );
-    }
+    interactiveSort(env, sheetId, anchor, zone, sortDirection);
+    return;
   }
+
+  const contiguousZone = env.model.getters.getContiguousZone(sheetId, zone);
+  if (isEqual(contiguousZone, zone)) {
+    interactiveSort(env, sheetId, anchor, zone, sortDirection);
+  } else {
+    env.askConfirmation(
+      _t(
+        "We found data next to your selection. Since this data was not selected, it will not be sorted. Do you want to extend your selection?"
+      ),
+      () => interactiveSort(env, sheetId, anchor, contiguousZone, sortDirection),
+      () => interactiveSort(env, sheetId, anchor, zone, sortDirection)
+    );
+  }
+}
+
+export function interactiveSort(
+  env: SpreadsheetChildEnv,
+  sheetId: UID,
+  anchor: Position,
+  zone: Zone,
+  sortDirection: SortDirection,
+  sortOptions?: SortOptions
+) {
+  const result = env.model.dispatch("SORT_CELLS", {
+    sheetId,
+    col: anchor.col,
+    row: anchor.row,
+    zone,
+    sortDirection,
+    sortOptions,
+  });
   if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
     const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
     env.raiseError(
       _t("Cannot sort. To sort, select only cells or only merges that have the same size.")
     );
+  }
+  if (result.isCancelledBecause(CommandResult.SortZoneWithArrayFormulas)) {
+    const { col, row } = anchor;
+    env.model.selection.selectZone({ cell: { col, row }, zone });
+    env.raiseError(_t("Cannot sort a zone with array formulas."));
   }
 }

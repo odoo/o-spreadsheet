@@ -38,7 +38,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { makeTestEnv, target } from "../test_helpers/helpers";
+import { createModelFromGrid, makeTestEnv, target } from "../test_helpers/helpers";
 
 function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
@@ -444,6 +444,15 @@ describe("UI Helpers", () => {
         D5: { content: "6" },
       });
     });
+  });
+
+  test("Cannot sort on zone with array formulas", () => {
+    const raiseError = jest.fn();
+    model = createModelFromGrid({ A1: "9", A2: "8", A3: "=CHOOSECOLS(A1:A2, 1)" });
+    const env = makeTestEnv({ model, raiseError });
+
+    interactiveSortSelection(env, sheetId, toCartesian("A1"), toZone("A1:A4"), "ascending");
+    expect(raiseError).toHaveBeenCalledWith("Cannot sort a zone with array formulas.");
   });
 
   describe("Sort Merges", () => {

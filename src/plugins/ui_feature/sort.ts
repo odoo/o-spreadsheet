@@ -24,7 +24,12 @@ export class SortPlugin extends UIPlugin {
         if (!isInside(cmd.col, cmd.row, cmd.zone)) {
           return CommandResult.InvalidSortAnchor;
         }
-        return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
+        return this.checkValidations(
+          cmd,
+          this.checkMerge,
+          this.checkMergeSizes,
+          this.checkArrayFormulaInSortZone
+        );
     }
     return CommandResult.Success;
   }
@@ -71,6 +76,13 @@ export class SortPlugin extends UIPlugin {
       return CommandResult.InvalidSortZone;
     }
     return CommandResult.Success;
+  }
+
+  private checkArrayFormulaInSortZone({ sheetId, zone }: SortCommand): CommandResult {
+    const arrayFormulaInZone = positions(zone).some(({ col, row }) =>
+      this.getters.getArrayFormulaSpreadingOn({ sheetId, col, row })
+    );
+    return arrayFormulaInZone ? CommandResult.SortZoneWithArrayFormulas : CommandResult.Success;
   }
 
   /**

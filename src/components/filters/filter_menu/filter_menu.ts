@@ -2,6 +2,7 @@ import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { MENU_ITEM_HEIGHT } from "../../../constants";
 import { deepEquals, positions, toLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
+import { interactiveSort } from "../../../helpers/sort";
 import { Position, SortDirection, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
@@ -287,14 +288,9 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
     const contentZone = { ...tableZone, top: tableZone.top + 1 };
-    this.env.model.dispatch("SORT_CELLS", {
-      sheetId,
-      col: filterPosition.col,
-      row: contentZone.top,
-      zone: contentZone,
-      sortDirection,
-      sortOptions: { emptyCellAsZero: true, sortHeaders: true },
-    });
+    const sortAnchor = { col: filterPosition.col, row: contentZone.top };
+    const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
+    interactiveSort(this.env, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
     this.props.onClosed?.();
   }
 }

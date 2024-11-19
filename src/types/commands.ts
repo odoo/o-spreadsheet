@@ -1257,6 +1257,7 @@ export const enum CommandResult {
   ValueLowerInvalidFormula = "ValueLowerInvalidFormula",
   InvalidSortAnchor = "InvalidSortAnchor",
   InvalidSortZone = "InvalidSortZone",
+  SortZoneWithArrayFormulas = "SortZoneWithArrayFormulas",
   WaitingSessionConfirmation = "WaitingSessionConfirmation",
   MergeOverlap = "MergeOverlap",
   TooManyHiddenElements = "TooManyHiddenElements",
