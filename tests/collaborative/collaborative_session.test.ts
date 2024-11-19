@@ -105,6 +105,31 @@ describe("Collaborative session", () => {
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
   });
 
+  test("do not snapshot when leaving in read-only mode", async () => {
+    const model = new Model(
+      {},
+      {
+        mode: "readonly",
+        transportService: transport,
+        client: { id: "alice", name: "Alice" },
+      }
+    );
+    transport.sendMessage({
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      nextRevisionId: "42",
+      clientId: "client_42",
+      commands: [],
+      serverRevisionId: transport["serverRevisionId"],
+    });
+    const spy = jest.spyOn(transport, "sendMessage");
+    model.leaveSession();
+    await nextTick();
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).not.toHaveBeenCalledWith(expect.objectContaining({ type: "SNAPSHOT" }));
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
+  });
+
   test("local client leaves with other connected clients and changes", () => {
     transport.sendMessage({
       type: "CLIENT_JOINED",
