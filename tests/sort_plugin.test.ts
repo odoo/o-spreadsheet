@@ -1,9 +1,9 @@
 import { parseDateTime } from "../src/helpers/dates";
 import { toZone, zoneToXc } from "../src/helpers/index";
 import { Model } from "../src/model";
-import { CellValueType, DEFAULT_LOCALE, UID } from "../src/types";
+import { CellValueType, CommandResult, DEFAULT_LOCALE, UID } from "../src/types";
 import { CellErrorType } from "../src/types/errors";
-import { redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
+import { merge, redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
 import { getEvaluatedCell } from "./test_helpers/getters_helpers";
 import { getCellsObject } from "./test_helpers/helpers";
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
@@ -375,18 +375,30 @@ describe("Basic Sorting", () => {
   });
 });
 
-describe("Trigger sort generic errors", () => {
-  const sheetId: UID = "sheet2";
+describe("Sorting allowDispatch", () => {
+  beforeEach(() => {
+    model = new Model();
+  });
 
   test("Sort with anchor outside of the sorting zone", () => {
-    const model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6 }] });
-    expect(() => {
-      sort(model, {
-        zone: "A1:A3",
-        anchor: "A6",
-        direction: "ascending",
-      });
-    }).toThrowError();
+    expect(
+      sort(model, { zone: "A1:A3", anchor: "A6", direction: "ascending" })
+    ).toBeCancelledBecause(CommandResult.InvalidSortAnchor);
+  });
+
+  test("Sort with both merges and cells", () => {
+    merge(model, "A1:A2");
+    expect(
+      sort(model, { zone: "A1:A3", anchor: "A1", direction: "ascending" })
+    ).toBeCancelledBecause(CommandResult.InvalidSortZone);
+  });
+
+  test("Sort with merges of difference sizes", () => {
+    merge(model, "A1:A2");
+    merge(model, "A3:A5");
+    expect(
+      sort(model, { zone: "A1:A5", anchor: "A1", direction: "ascending" })
+    ).toBeCancelledBecause(CommandResult.InvalidSortZone);
   });
 });
 
