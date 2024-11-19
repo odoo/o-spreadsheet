@@ -159,8 +159,8 @@ export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Notify the server that the user client left the collaborative session
    */
-  async leave(data: Lazy<WorkbookData>) {
-    if (Object.keys(this.clients).length === 1 && this.processedRevisions.size) {
+  async leave(data?: Lazy<WorkbookData>) {
+    if (data && Object.keys(this.clients).length === 1 && this.processedRevisions.size) {
       await this.snapshot(data());
     }
     delete this.clients[this.clientId];
