@@ -1,4 +1,4 @@
-import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
+import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
 import { getCanonicalSheetName, numberToLetters, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
@@ -140,7 +140,7 @@ describe("sheets", () => {
     ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
 
-  test.each(FORBIDDEN_SHEET_CHARS)("Cannot rename a sheet with a %s in the name", (char) => {
+  test.each(FORBIDDEN_SHEETNAME_CHARS)("Cannot rename a sheet with a %s in the name", (char) => {
     const model = new Model();
     expect(
       renameSheet(model, model.getters.getActiveSheetId(), `my life ${char}`)

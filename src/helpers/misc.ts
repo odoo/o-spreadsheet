@@ -1,10 +1,12 @@
 //------------------------------------------------------------------------------
 // Miscellaneous
 //------------------------------------------------------------------------------
-import { NEWLINE } from "../constants";
+import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, NEWLINE } from "../constants";
 import { ConsecutiveIndexes, Lazy, UID } from "../types";
 import { SearchOptions } from "../types/find_and_replace";
 import { Cloneable, DebouncedFunction } from "./../types/misc";
+
+const sanitizeSheetNameRegex = new RegExp(FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX, "g");
 
 /**
  * Remove quotes from a quoted string
@@ -107,6 +109,11 @@ export function getCanonicalSheetName(sheetName: string): string {
     sheetName = `'${sheetName}'`;
   }
   return sheetName;
+}
+
+/** Replace the excel-excluded characters of a sheetName */
+export function sanitizeSheetName(sheetName: string, replacementChar: string = " "): string {
+  return sheetName.replace(sanitizeSheetNameRegex, replacementChar);
 }
 
 export function clip(val: number, min: number, max: number): number {

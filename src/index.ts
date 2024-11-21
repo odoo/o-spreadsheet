@@ -98,6 +98,7 @@ import {
   positionToZone,
   reduceZoneOnDeletion,
   rgbaToHex,
+  sanitizeSheetName,
   toCartesian,
   toUnboundedZone,
   toXC,
@@ -340,6 +341,7 @@ export const helpers = {
   createPivotFormula,
   areDomainArgsFieldsValid,
   formatTickValue,
+  sanitizeSheetName,
 };
 
 export const links = {

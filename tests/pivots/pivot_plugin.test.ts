@@ -1,4 +1,4 @@
-import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
+import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
@@ -76,7 +76,7 @@ describe("Pivot plugin", () => {
       A2: "Alice",
     };
     const model = createModelFromGrid(grid);
-    addPivot(model, "A1:A2", { name: `forbidden: ${FORBIDDEN_SHEET_CHARS}` }, "pivot1");
+    addPivot(model, "A1:A2", { name: `forbidden: ${FORBIDDEN_SHEETNAME_CHARS}` }, "pivot1");
     model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       newPivotId: "pivot2",
       newSheetId: "Sheet2",

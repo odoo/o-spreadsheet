@@ -215,8 +215,8 @@ export const DEBOUNCE_TIME = 200;
 export const MESSAGE_VERSION = 1;
 
 // Sheets
-export const FORBIDDEN_SHEET_CHARS = ["'", "*", "?", "/", "\\", "[", "]"] as const;
-export const FORBIDDEN_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
+export const FORBIDDEN_SHEETNAME_CHARS = ["'", "*", "?", "/", "\\", "[", "]"] as const;
+export const FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
 
 // Cells
 export const FORMULA_REF_IDENTIFIER = "|";
