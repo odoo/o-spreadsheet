@@ -114,6 +114,7 @@ import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/piv
 import { TextInput } from "./components/text_input/text_input";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
+import { GroupableFields } from "./helpers/pivot/groupable_fields";
 import {
   areDomainArgsFieldsValid,
   createPivotFormula,
@@ -332,6 +333,7 @@ export const helpers = {
   insertTokenAfterLeftParenthesis,
   mergeContiguousZones,
   getPivotHighlights,
+  GroupableFields,
   pivotTimeAdapter,
   UNDO_REDO_PIVOT_COMMANDS,
   createPivotFormula,
