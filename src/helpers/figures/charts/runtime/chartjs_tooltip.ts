@@ -1,4 +1,4 @@
-import { BubbleDataPoint, Point, TooltipItem, TooltipOptions } from "chart.js";
+import { BubbleDataPoint, Chart, Point, TooltipItem, TooltipModel, TooltipOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { toNumber } from "../../../../functions/helpers";
 import { CellValue } from "../../../../types";
@@ -13,17 +13,22 @@ import {
 } from "../../../../types/chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { setColorAlpha } from "../../../color";
 import { formatValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { TREND_LINE_XAXIS_ID, formatChartDatasetValue } from "../chart_common";
+import { renderToString } from "./chart_custom_tooltip";
 
 type ChartTooltip = _DeepPartialObject<TooltipOptions<any>>;
+type ChartContext = { chart: Chart; tooltip: TooltipModel<any> };
 
 export function getBarChartTooltip(
   definition: GenericDefinition<BarChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartTooltip {
   return {
+    enabled: false,
+    external: customTooltipHandler,
     callbacks: {
       title: function (tooltipItems) {
         return tooltipItems.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID)
@@ -53,7 +58,11 @@ export function getLineChartTooltip(
   const { axisType, locale, axisFormats } = args;
   const labelFormat = axisFormats?.x;
 
-  const tooltip: ChartTooltip = { callbacks: {} };
+  const tooltip: ChartTooltip = {
+    enabled: false,
+    external: customTooltipHandler,
+    callbacks: {},
+  };
 
   if (axisType === "linear") {
     tooltip.callbacks!.label = (tooltipItem) => {
@@ -102,6 +111,8 @@ export function getPieChartTooltip(
   const { locale, axisFormats } = args;
   const format = axisFormats?.y || axisFormats?.y1;
   return {
+    enabled: false,
+    external: customTooltipHandler,
     callbacks: {
       title: function (tooltipItems) {
         return tooltipItems[0].dataset.label;
@@ -132,6 +143,8 @@ export function getWaterfallChartTooltip(
   const format = axisFormats?.y || axisFormats?.y1;
   const dataSeriesLabels = dataSetsValues.map((dataSet) => dataSet.label);
   return {
+    enabled: false,
+    external: customTooltipHandler,
     callbacks: {
       label: function (tooltipItem) {
         const [lastValue, currentValue] = tooltipItem.raw as [number, number];
@@ -171,6 +184,8 @@ export function getRadarChartTooltip(
 ): ChartTooltip {
   const { locale, axisFormats } = args;
   return {
+    enabled: false,
+    external: customTooltipHandler,
     callbacks: {
       label: function (tooltipItem) {
         const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
@@ -218,4 +233,53 @@ function calculatePercentage(
   const percentage = ((dataset[dataIndex] as number) / total) * 100;
 
   return percentage.toFixed(2);
+}
+
+function customTooltipHandler({ chart, tooltip }: ChartContext) {
+  chart.canvas.parentNode!.querySelector("div.o-chart-custom-tooltip")?.remove();
+  if (tooltip.opacity === 0 || tooltip.dataPoints.length === 0) {
+    return;
+  }
+
+  const tooltipItems = tooltip.body.map((body, index) => {
+    let [label, value] = body.lines[0].split(":").map((str) => str.trim());
+    if (!value) {
+      value = label;
+      label = "";
+    }
+
+    const color = tooltip.labelColors[index].backgroundColor;
+    return {
+      label,
+      value,
+      boxColor: typeof color === "string" ? setColorAlpha(color, 1) : color,
+    };
+  });
+
+  const innerHTML = renderToString("o-spreadsheet-CustomTooltip", {
+    labelsMaxWidth: Math.floor(chart.canvas.clientWidth * 0.5) + "px",
+    valuesMaxWidth: Math.floor(chart.canvas.clientWidth * 0.25) + "px",
+    title: tooltip.title[0],
+    tooltipItems,
+  });
+  const template = Object.assign(document.createElement("template"), { innerHTML });
+  const newTooltipEl = template.content.firstChild as HTMLElement;
+
+  chart.canvas.parentNode?.appendChild(newTooltipEl);
+
+  Object.assign(newTooltipEl.style, {
+    left: getTooltipLeftPosition(chart, tooltip, newTooltipEl.clientWidth) + "px",
+    top: Math.floor(tooltip.caretY - newTooltipEl.clientHeight / 2) + "px",
+  });
+}
+
+/**
+ * Get the left position for the tooltip, making sure it doesn't go out of the chart area.
+ */
+function getTooltipLeftPosition(chart: Chart, tooltip: TooltipModel<any>, tooltipWidth: number) {
+  const x = tooltip.caretX;
+  if (x + tooltipWidth > chart.chartArea.right) {
+    return Math.max(0, x - tooltipWidth);
+  }
+  return x;
 }

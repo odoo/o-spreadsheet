@@ -3536,3 +3536,38 @@ describe("Chart labels truncation", () => {
     }
   );
 });
+
+test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
+  "Chart %s use custom tooltip instead of default ChartJS one",
+  (chartType) => {
+    createChart(model, { type: chartType }, "chartId");
+    const runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    expect(runtime.chartJsConfig.options!.plugins!.tooltip!.external).toBeDefined();
+    expect(runtime.chartJsConfig.options!.plugins!.tooltip!.enabled).toBe(false);
+  }
+);
+
+test("Custom chart tooltip is correctly filled", () => {
+  createChart(model, { type: "line" }, "chartId");
+  const runtime = model.getters.getChartRuntime("chartId") as any;
+  const mockChartParent = document.createElement("div");
+  const mockChartCtx: any = {
+    chart: {
+      canvas: { parentNode: mockChartParent },
+      chartArea: { left: 0, top: 0, right: 100, bottom: 100, width: 100, height: 100 },
+    },
+    tooltip: {
+      title: ["Marc Demo"],
+      body: [{ lines: ["dataset title: 1"] }],
+      labelColors: [{ backgroundColor: "#F00" }],
+      dataPoints: [{}],
+    },
+  };
+  runtime.chartJsConfig.options!.plugins!.tooltip!.external?.(mockChartCtx);
+  expect(mockChartParent.querySelector(".o-tooltip-title")).toHaveText("Marc Demo");
+  expect(mockChartParent.querySelector(".o-tooltip-label")).toHaveText("dataset title");
+  expect(mockChartParent.querySelector(".o-tooltip-value")).toHaveText("1");
+  expect(
+    mockChartParent.querySelector<HTMLElement>(".badge")?.style["background-color"]
+  ).toBeSameColorAs("#F00");
+});

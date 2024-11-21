@@ -271,6 +271,7 @@ export enum ComponentsImportance {
   Popover = 35,
   FigureAnchor = 1000,
   FigureSnapLine = 1001,
+  FigureTooltip = 1002,
 }
 let DEFAULT_SHEETVIEW_SIZE = 0;
 
