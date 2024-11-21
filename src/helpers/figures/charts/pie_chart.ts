@@ -37,7 +37,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
-import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartShowValues,
   getChartTitle,
@@ -202,7 +202,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const config: ChartConfiguration = {
     type: chart.isDoughnut ? "doughnut" : "pie",
     data: {
-      labels: chartData.labels.map(truncateLabel),
+      labels: chartData.labels,
       datasets: getPieChartDatasets(definition, chartData),
     },
     options: {

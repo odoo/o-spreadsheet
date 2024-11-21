@@ -27,7 +27,6 @@ import {
   setColorAlpha,
 } from "../../../color";
 import { TREND_LINE_XAXIS_ID, getPieColors } from "../chart_common";
-import { truncateLabel } from "../chart_ui_common";
 
 export function getBarChartDatasets(
   definition: GenericDefinition<BarChartDefinition>,
@@ -116,7 +115,7 @@ export function getWaterfallDatasetAndLabels(
 
   return {
     datasets: [dataset],
-    labels: labelsWithSubTotals.map(truncateLabel),
+    labels: labelsWithSubTotals,
   };
 }
 

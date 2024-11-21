@@ -39,7 +39,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
-import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartLayout,
   getChartShowValues,
@@ -223,7 +223,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
   const config: ChartConfiguration = {
     type: "radar",
     data: {
-      labels: chartData.labels.map(truncateLabel),
+      labels: chartData.labels,
       datasets: getRadarChartDatasets(definition, chartData),
     },
     options: {

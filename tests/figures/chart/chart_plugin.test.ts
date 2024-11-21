@@ -48,14 +48,17 @@ import {
 } from "../../test_helpers/helpers";
 
 import { ChartTerms } from "../../../src/components/translations_terms";
-import { FIGURE_ID_SPLITTER, MAX_CHAR_LABEL } from "../../../src/constants";
-import { range, toZone, zoneToXc } from "../../../src/helpers";
+import { FIGURE_ID_SPLITTER } from "../../../src/constants";
+import { range, zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
-import { getChartConfiguration } from "../../test_helpers/chart_helpers";
+import {
+  getCategoryAxisTickLabels,
+  getChartConfiguration,
+  getChartLegendLabels,
+} from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
-import { getCellContent } from "../../test_helpers/getters_helpers";
 
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
@@ -2669,57 +2672,6 @@ describe("Linear/Time charts", () => {
     expect(data.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
   });
 
-  test("date chart: long labels are not truncated", () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("C2")],
-      format: "m/d/yyyy hh:mm:ss a",
-    });
-    setCellContent(model, "C2", "300");
-    setCellContent(model, "B2", "10");
-    const formattedValue = getCellContent(model, "C2");
-    expect(formattedValue).toEqual("10/26/1900 12:00:00 AM");
-    expect(formattedValue.length).toBeGreaterThan(MAX_CHAR_LABEL);
-    createChart(
-      model,
-      {
-        type: "line",
-        dataSets: [{ dataRange: "B2" }],
-        labelRange: "C2",
-        labelsAsText: false,
-        dataSetsHaveTitle: false,
-      },
-      chartId
-    );
-    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
-    expect(chart.data!.labels![0]).toEqual(formattedValue);
-    expect(chart.data!.datasets![0].data![0]).toEqual({ y: 10, x: formattedValue });
-  });
-
-  test.each(["bar", "line", "pie"] as const)("long labels are truncated in %s chart", (type) => {
-    setCellContent(model, "A2", "This is a very long label that should be truncated");
-    setCellContent(model, "B1", "First dataset");
-    setCellContent(model, "B2", "10");
-
-    createChart(
-      model,
-      {
-        type,
-        dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A2",
-        labelsAsText: false,
-        dataSetsHaveTitle: true,
-      },
-      chartId
-    );
-
-    const chart = (model.getters.getChartRuntime(chartId) as BarChartRuntime).chartJsConfig;
-
-    expect(chart.data!.labels![0]).toEqual("This is a very long …");
-    expect((chart.data!.labels![0] as string).length).toBe(MAX_CHAR_LABEL + 1); // +1 for the ellipsis
-    expect(chart.data!.datasets![0].data![0]).toEqual(10);
-  });
-
   test("linear chart: label 0 isn't set to undefined", () => {
     setCellContent(model, "B2", "0");
     setCellContent(model, "B3", "1");
@@ -3508,4 +3460,66 @@ test("moving average trending line", () => {
   });
   runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
   expect(runtime.chartJsConfig.data.datasets[1].data).toEqual([null, 1.5, 2.5, 3.5, 4.5]);
+});
+
+describe("Chart labels truncation", () => {
+  test.each(["bar", "line", "combo", "radar"] as const)(
+    "chart %s labels are not truncated in the data",
+    (type) => {
+      const model = new Model();
+      const longLabel = "This is a very long label name that should not be truncated";
+      setCellContent(model, "A2", longLabel);
+      setCellContent(model, "B2", "10");
+
+      createChart(
+        model,
+        { type, dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" },
+        "chartId"
+      );
+
+      expect(getChartConfiguration(model, "chartId").data!.labels).toEqual([longLabel]);
+    }
+  );
+
+  test.each(["bar", "line", "combo", "radar"] as const)(
+    "long labels are truncated in %s chart legends",
+    (type) => {
+      const model = new Model();
+      setCellContent(model, "B1", "This is a very long dataset name that should be truncated");
+      setCellContent(model, "B2", "10");
+
+      createChart(
+        model,
+        { type, dataSets: [{ dataRange: "B1:B2" }], dataSetsHaveTitle: true },
+        "chartId"
+      );
+
+      expect(getChartLegendLabels(model, "chartId")).toMatchObject([
+        { text: "This is a very long …" },
+      ]);
+    }
+  );
+
+  test.each(["bar", "line", "combo"] as const)(
+    "long labels are truncated in %s chart X axis ticks",
+    (type) => {
+      const model = new Model();
+      const longLabel = "This is a very long label name that should not be truncated";
+      setCellContent(model, "A2", longLabel);
+      setCellContent(model, "B2", "10");
+      setCellContent(model, "A3", "shortLabel");
+      setCellContent(model, "B3", "20");
+
+      createChart(
+        model,
+        { type, dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" },
+        "chartId"
+      );
+
+      expect(getCategoryAxisTickLabels(model, "chartId")).toMatchObject([
+        "This is a very long …",
+        "shortLabel",
+      ]);
+    }
+  );
 });

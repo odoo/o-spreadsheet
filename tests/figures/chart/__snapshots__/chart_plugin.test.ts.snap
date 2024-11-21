@@ -232,6 +232,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "maxTicksLimit": 15,
             "padding": 5,
@@ -485,6 +486,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           },
           "stacked": true,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -597,6 +599,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -651,7 +654,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
             18,
           ],
           "fill": false,
-          "label": "second column datase…",
+          "label": "second column dataset",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
           "yAxisID": "y",
@@ -727,6 +730,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -781,7 +785,7 @@ exports[`datasource tests create chart with column datasets with category title 
             18,
           ],
           "fill": false,
-          "label": "second column datase…",
+          "label": "second column dataset",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
           "yAxisID": "y",
@@ -857,6 +861,7 @@ exports[`datasource tests create chart with column datasets with category title 
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -987,6 +992,7 @@ exports[`datasource tests create chart with column datasets without series title
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -1088,6 +1094,7 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -1142,7 +1149,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
             18,
           ],
           "fill": false,
-          "label": "second column datase…",
+          "label": "second column dataset",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
           "yAxisID": "y",
@@ -1218,6 +1225,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -1348,6 +1356,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -1478,6 +1487,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },
@@ -1608,6 +1618,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
           },
           "stacked": undefined,
           "ticks": {
+            "callback": [Function],
             "color": "#000000",
             "padding": 5,
           },

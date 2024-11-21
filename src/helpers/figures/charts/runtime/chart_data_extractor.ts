@@ -27,7 +27,6 @@ import { isDateTimeFormat } from "../../../format/format";
 import { deepCopy, findNextDefinedValue, range } from "../../../misc";
 import { isNumber } from "../../../numbers";
 import { recomputeZones } from "../../../recompute_zones";
-import { truncateLabel } from "../chart_ui_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -670,7 +669,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
         : undefined;
       label =
         cell && labelRange
-          ? truncateLabel(cell.formattedValue)
+          ? cell.formattedValue
           : (label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`);
     } else {
       label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;

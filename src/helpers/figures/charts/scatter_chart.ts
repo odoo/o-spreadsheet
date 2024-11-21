@@ -40,7 +40,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
-import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartShowValues,
   getChartTitle,
@@ -231,8 +231,7 @@ export function createScatterChartRuntime(
     // have less options than the line chart (it only works with linear labels)
     type: "line",
     data: {
-      labels:
-        chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels,
+      labels: chartData.labels,
       datasets: getScatterChartDatasets(definition, chartData),
     },
     options: {
