@@ -1,4 +1,4 @@
-import { FORBIDDEN_SHEET_CHARS } from "../../constants";
+import { FORBIDDEN_SHEETNAME_CHARS } from "../../constants";
 import { _t } from "../../translation";
 import { CommandResult, SpreadsheetChildEnv, UID } from "../../types";
 
@@ -20,7 +20,7 @@ export function interactiveRenameSheet(
     env.raiseError(
       _t(
         "Some used characters are not allowed in a sheet name (Forbidden characters are %s).",
-        FORBIDDEN_SHEET_CHARS.join(" ")
+        FORBIDDEN_SHEETNAME_CHARS.join(" ")
       ),
       errorCallback
     );

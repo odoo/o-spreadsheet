@@ -1,10 +1,13 @@
+import { BACKGROUND_CHART_COLOR, DEFAULT_REVISION_ID, FORMULA_REF_IDENTIFIER } from "../constants";
 import {
-  BACKGROUND_CHART_COLOR,
-  DEFAULT_REVISION_ID,
-  FORBIDDEN_IN_EXCEL_REGEX,
-  FORMULA_REF_IDENTIFIER,
-} from "../constants";
-import { UuidGenerator, getItemId, overlap, toXC, toZone, zoneToXc } from "../helpers/index";
+  UuidGenerator,
+  getItemId,
+  overlap,
+  sanitizeSheetName,
+  toXC,
+  toZone,
+  zoneToXc,
+} from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
@@ -185,13 +188,12 @@ const MIGRATIONS: Migration[] = [
     to: 8,
     applyMigration(data: any): any {
       const namesTaken: string[] = [];
-      const globalForbiddenInExcel = new RegExp(FORBIDDEN_IN_EXCEL_REGEX, "g");
       for (let sheet of data.sheets || []) {
         if (!sheet.name) {
           continue;
         }
         const oldName = sheet.name;
-        const escapedName: string = oldName.replace(globalForbiddenInExcel, "_");
+        const escapedName: string = sanitizeSheetName(oldName, "_");
         let i = 1;
         let newName = escapedName;
         while (namesTaken.includes(newName)) {

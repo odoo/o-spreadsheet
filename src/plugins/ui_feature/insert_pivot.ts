@@ -1,4 +1,5 @@
-import { FORBIDDEN_IN_EXCEL_REGEX, PIVOT_TABLE_CONFIG } from "../../constants";
+import { PIVOT_TABLE_CONFIG } from "../../constants";
+import { sanitizeSheetName } from "../../helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { getZoneArea } from "../../helpers/zones";
 import { _t } from "../../translation";
@@ -104,7 +105,7 @@ export class InsertPivotPlugin extends UIPlugin {
   private getPivotDuplicateSheetName(pivotName: string) {
     let i = 1;
     const names = this.getters.getSheetIds().map((id) => this.getters.getSheetName(id));
-    const sanitizedName = pivotName.replace(new RegExp(FORBIDDEN_IN_EXCEL_REGEX, "g"), " ");
+    const sanitizedName = sanitizeSheetName(pivotName);
     let name = sanitizedName;
     while (names.includes(name)) {
       name = `${sanitizedName} (${i})`;
