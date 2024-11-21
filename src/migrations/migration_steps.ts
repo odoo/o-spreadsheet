@@ -1,9 +1,5 @@
-import {
-  BACKGROUND_CHART_COLOR,
-  FORBIDDEN_IN_EXCEL_REGEX,
-  FORMULA_REF_IDENTIFIER,
-} from "../constants";
-import { getItemId } from "../helpers";
+import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
+import { getItemId, sanitizeSheetName } from "../helpers";
 import { toXC } from "../helpers/coordinates";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
@@ -108,13 +104,13 @@ migrationStepRegistry
     versionFrom: "7",
     migrate(data: any): any {
       const namesTaken: string[] = [];
-      const globalForbiddenInExcel = new RegExp(FORBIDDEN_IN_EXCEL_REGEX, "g");
       for (let sheet of data.sheets || []) {
         if (!sheet.name) {
           continue;
         }
         const oldName = sheet.name;
-        const escapedName: string = oldName.replace(globalForbiddenInExcel, "_");
+        sanitizeSheetName;
+        const escapedName: string = sanitizeSheetName(oldName, "_");
         let i = 1;
         let newName = escapedName;
         while (namesTaken.includes(newName)) {

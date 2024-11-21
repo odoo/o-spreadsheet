@@ -1,4 +1,4 @@
-import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
+import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
 import { getCanonicalSymbolName, numberToLetters, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
@@ -39,7 +39,7 @@ import "../test_helpers/helpers";
 import { createEqualCF, testUndoRedo, toRangesData } from "../test_helpers/helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
-
+FORBIDDEN_SHEETNAME_CHARS;
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
     const model = new Model();
@@ -141,7 +141,7 @@ describe("sheets", () => {
     ).toBeCancelledBecause(CommandResult.DuplicatedSheetName);
   });
 
-  test.each(FORBIDDEN_SHEET_CHARS)("Cannot rename a sheet with a %s in the name", (char) => {
+  test.each(FORBIDDEN_SHEETNAME_CHARS)("Cannot rename a sheet with a %s in the name", (char) => {
     const model = new Model();
     expect(
       renameSheet(model, model.getters.getActiveSheetId(), `my life ${char}`)
