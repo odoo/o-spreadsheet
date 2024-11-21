@@ -217,50 +217,54 @@ exports[`BottomBar component simple rendering 1`] = `
   >
     
     <div
-      class="o-sheet-list d-flex w-100 px-1"
+      class="o-sheet-list w-100 px-1"
     >
       <div
-        class="o-ripple-container position-relative"
+        class="list-drag-and-drop-container d-flex"
       >
         <div
-          class="position-absolute w-100 h-100"
-        >
-          
-        </div>
-        <div
-          class="position-relative"
+          class="o-ripple-container position-relative"
         >
           <div
-            class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
-            composerfocusableelement="true"
-            data-id="Sheet1"
-            style=""
-            tabindex="-1"
-            title="Sheet1"
+            class="position-absolute w-100 h-100"
           >
-            <span
-              class="o-sheet-name"
-              contenteditable="false"
-            >
-              Sheet1
-            </span>
-            <span
-              class="o-sheet-icon ms-1"
-            >
-              <div
-                class="o-icon fa-small"
-              >
-                <i
-                  class="fa fa-caret-down"
-                />
-              </div>
-            </span>
             
           </div>
+          <div
+            class="position-relative"
+          >
+            <div
+              class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
+              composerfocusableelement="true"
+              data-id="Sheet1"
+              style=""
+              tabindex="-1"
+              title="Sheet1"
+            >
+              <span
+                class="o-sheet-name"
+                contenteditable="false"
+              >
+                Sheet1
+              </span>
+              <span
+                class="o-sheet-icon ms-1"
+              >
+                <div
+                  class="o-icon fa-small"
+                >
+                  <i
+                    class="fa fa-caret-down"
+                  />
+                </div>
+              </span>
+              
+            </div>
+          </div>
         </div>
+        
+        
       </div>
-      
-      
     </div>
     
   </div>
