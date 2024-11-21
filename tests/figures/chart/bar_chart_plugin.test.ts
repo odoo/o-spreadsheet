@@ -89,7 +89,6 @@ describe("bar chart", () => {
       expect(options.scales.x.title.text).toBe("xAxis");
       expect(options.scales.x.ticks.callback(5)).toBe("5€");
       expect(options.scales.y.title.text).toBe("yAxis");
-      expect(options.scales.y.ticks.callback).toBeUndefined();
 
       const tooltipTestItem = {
         parsed: { x: 5, y: "label" },
@@ -248,7 +247,7 @@ describe("bar chart", () => {
     );
     expect(getChartLegendLabels(model, "1")).toMatchObject([
       { text: "serie_1", fillStyle: "#f00", pointStyle: "rect" },
-      { text: "Trend line for serie_1", strokeStyle: "#f0f", pointStyle: "line" },
+      { text: "Trend line for serie…", strokeStyle: "#f0f", pointStyle: "line" },
     ]);
   });
 });

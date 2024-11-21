@@ -1,5 +1,4 @@
 import type { ChartOptions } from "chart.js";
-import { MAX_CHAR_LABEL } from "../../../constants";
 import { Figure } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -22,16 +21,6 @@ export const CHART_COMMON_OPTIONS: ChartOptions = {
   },
   animation: false,
 };
-
-export function truncateLabel(label: string | undefined): string {
-  if (!label) {
-    return "";
-  }
-  if (label.length > MAX_CHAR_LABEL) {
-    return label.substring(0, MAX_CHAR_LABEL) + "…";
-  }
-  return label;
-}
 
 export function chartToImage(
   runtime: ChartRuntime,

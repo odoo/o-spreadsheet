@@ -17,7 +17,7 @@ import {
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { ColorGenerator } from "../../../color";
-import { TREND_LINE_XAXIS_ID, chartFontColor, getPieColors } from "../chart_common";
+import { TREND_LINE_XAXIS_ID, chartFontColor, getPieColors, truncateLabel } from "../chart_common";
 
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 
@@ -78,7 +78,7 @@ export function getPieChartLegend(
       generateLabels: (c) =>
         //@ts-ignore
         c.data.labels.map((label, index) => ({
-          text: label,
+          text: truncateLabel(String(label)),
           strokeStyle: colors[index],
           fillStyle: colors[index],
           pointStyle: "rect",
@@ -236,7 +236,7 @@ function getCustomLegendLabels(
         chart.data.datasets.map((dataset, index) => {
           if (dataset["xAxisID"] === TREND_LINE_XAXIS_ID) {
             return {
-              text: dataset.label ?? "",
+              text: truncateLabel(dataset.label),
               fontColor,
               strokeStyle: dataset.borderColor as Color,
               hidden: !chart.isDatasetVisible(index),
@@ -246,7 +246,7 @@ function getCustomLegendLabels(
             };
           }
           return {
-            text: dataset.label ?? "",
+            text: truncateLabel(dataset.label),
             fontColor,
             strokeStyle: dataset.borderColor as Color,
             fillStyle: dataset.backgroundColor as Color,
