@@ -1,4 +1,5 @@
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
+import { MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
@@ -426,10 +427,11 @@ export function formatTickValue(localeFormat: LocaleFormat) {
     value = Number(value);
     if (isNaN(value)) return value;
     const { locale, format } = localeFormat;
-    return formatValue(value, {
+    const formattedValue = formatValue(value, {
       locale,
       format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
     });
+    return truncateLabel(formattedValue);
   };
 }
 
@@ -446,4 +448,14 @@ export function getPieColors(colors: ColorGenerator, dataSetsValues: DatasetValu
   }
 
   return pieColors;
+}
+
+export function truncateLabel(label: string | undefined): string {
+  if (!label) {
+    return "";
+  }
+  if (label.length > MAX_CHAR_LABEL) {
+    return label.substring(0, MAX_CHAR_LABEL) + "…";
+  }
+  return label;
 }
