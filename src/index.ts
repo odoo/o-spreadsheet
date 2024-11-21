@@ -99,6 +99,7 @@ import {
   positionToZone,
   reduceZoneOnDeletion,
   rgbaToHex,
+  sanitizeSheetName,
   splitReference,
   toCartesian,
   toUnboundedZone,
@@ -357,6 +358,7 @@ export const helpers = {
   areDomainArgsFieldsValid,
   splitReference,
   formatTickValue,
+  sanitizeSheetName,
 };
 
 export const links = {
