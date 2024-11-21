@@ -105,6 +105,7 @@ exports[`expression compiler expressions with a debugger 1`] = `
 ) {
 // =?C|0|/|N0|
 debugger;
+ctx["debug"] = true;
 const _1 = ref(deps[0], false);
 const _2 = { value: this.constantValues.numbers[0] };
 return ctx['DIVIDE'](_1, _2);

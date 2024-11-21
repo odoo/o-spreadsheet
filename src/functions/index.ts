@@ -226,6 +226,9 @@ function createComputeFunction(
     this: EvalContext,
     ...args: Arg[]
   ): FunctionResultObject | Matrix<FunctionResultObject> {
+    if (this.debug) {
+      debugger;
+    }
     const result = descr.compute.apply(this, args);
 
     if (!isMatrix(result)) {

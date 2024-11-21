@@ -58,4 +58,5 @@ export type EvalContext = {
   [key: string]: any;
   updateDependencies?: (position: CellPosition) => void;
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
+  debug?: boolean;
 };
