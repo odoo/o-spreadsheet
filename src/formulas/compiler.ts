@@ -161,6 +161,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       }
       if (ast.debug) {
         code.append("debugger;");
+        code.append(`ctx["debug"] = true;`);
       }
       switch (ast.type) {
         case "BOOLEAN":
