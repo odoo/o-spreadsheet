@@ -3,6 +3,7 @@ import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
+import { css } from "../../../helpers";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
@@ -12,6 +13,19 @@ interface Props {
 
 window.Chart?.register(waterfallLinesPlugin);
 window.Chart?.register(chartShowValuesPlugin);
+
+css/* scss */ `
+  .o-spreadsheet {
+    .o-chart-custom-tooltip {
+      font-size: 12px;
+      background-color: #fff;
+      z-index: 2;
+      table td span {
+        box-sizing: border-box;
+      }
+    }
+  }
+`;
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
