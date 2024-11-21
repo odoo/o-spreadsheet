@@ -1,4 +1,4 @@
-import { FORBIDDEN_IN_EXCEL_REGEX } from "../../constants";
+import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../../constants";
 import {
   createDefaultRows,
   deepCopy,
@@ -649,7 +649,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     ) {
       return CommandResult.DuplicatedSheetName;
     }
-    if (FORBIDDEN_IN_EXCEL_REGEX.test(name!)) {
+    if (FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX.test(name!)) {
       return CommandResult.ForbiddenCharactersInSheetName;
     }
     return CommandResult.Success;

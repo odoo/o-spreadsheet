@@ -4,7 +4,7 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_REVISION_ID,
-  FORBIDDEN_SHEET_CHARS,
+  FORBIDDEN_SHEETNAME_CHARS,
 } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
@@ -212,7 +212,7 @@ describe("Migrations", () => {
       stacked: false,
     });
   });
-  test.each(FORBIDDEN_SHEET_CHARS)("migrate version 7: sheet Names", (char) => {
+  test.each(FORBIDDEN_SHEETNAME_CHARS)("migrate version 7: sheet Names", (char) => {
     const model = new Model({
       version: 7,
       sheets: [
