@@ -19,7 +19,7 @@ export interface TableStylesPopoverProps {
 
 css/* scss */ `
   .o-table-style-popover {
-    /** 7 tables preview + padding by line */
+    /* 7 tables preview + padding by line */
     width: calc((66px + 4px * 2) * 7 + 1.5rem * 2);
     background: #fff;
     font-size: 14px;

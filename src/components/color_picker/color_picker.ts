@@ -42,7 +42,7 @@ const CONTAINER_WIDTH = CONTENT_WIDTH + 2 * PICKER_PADDING;
 css/* scss */ `
   .o-color-picker {
     padding: ${PICKER_PADDING}px 0;
-    /** FIXME: this is useless, overiden by the popover container */
+    /* FIXME: this is useless, overiden by the popover container */
     box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
     background-color: white;
     line-height: 1.2;
@@ -185,7 +185,7 @@ css/* scss */ `
           margin-right: 2px;
         }
         .o-wrong-color {
-          /** FIXME bootstrap class instead? */
+          /* FIXME bootstrap class instead? */
           outline-color: red;
           border-color: red;
           &:focus {

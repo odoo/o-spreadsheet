@@ -24,7 +24,7 @@ css/* scss */ `
       flex-grow: 0;
     }
 
-    /** Make the character a bit bigger
+    /* Make the character a bit bigger
     compared to its neighbor INPUT box  */
     .o-remove-selection {
       font-size: calc(100% + 4px);

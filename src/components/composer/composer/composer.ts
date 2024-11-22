@@ -106,7 +106,7 @@ css/* scss */ `
       margin: 1px 4px;
 
       .o-semi-bold {
-        /** FIXME: to remove in favor of Bootstrap
+        /* FIXME: to remove in favor of Bootstrap
         * 'fw-semibold' when we upgrade to Bootstrap 5.2
         */
         font-weight: 600 !important;

@@ -14,7 +14,7 @@ css/* scss */ `
       border-bottom: 1px solid ${FIGURE_BORDER_COLOR};
 
       .o-dv-container {
-        min-width: 0; // otherwise flex won't shrink correctly
+        min-width: 0; /* otherwise flex won't shrink correctly */
       }
 
       .o-dv-preview-description {

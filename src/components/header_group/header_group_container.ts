@@ -28,7 +28,7 @@ css/* scss */ `
 
   .o-header-group-main-pane {
     &.o-group-rows {
-      margin-top: -2px; // Counteract o-header-group-frozen-pane-border offset
+      margin-top: -2px; /* Counteract o-header-group-frozen-pane-border offset */
     }
     &.o-group-columns {
       margin-left: -2px;
