@@ -99,7 +99,7 @@ css/* scss */ `
     *:before,
     *:after {
       box-sizing: content-box;
-      /** rtl not supported ATM */
+      /* rtl not supported ATM */
       direction: ltr;
     }
     .o-separator {

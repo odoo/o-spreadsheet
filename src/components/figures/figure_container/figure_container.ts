@@ -59,7 +59,7 @@ css/*SCSS*/ `
     }
   }
   .o-figure-container {
-    -webkit-user-select: none; // safari
+    -webkit-user-select: none; /* safari */
     user-select: none;
   }
 `;

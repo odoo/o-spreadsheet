@@ -62,7 +62,7 @@ css/* scss */ `
         .o-threshold-value {
           flex-grow: 1;
           flex-basis: 60%;
-          min-width: 0px; // input overflows in Firefox otherwise
+          min-width: 0px; /* input overflows in Firefox otherwise */
         }
         .o-threshold-value input:disabled {
           background-color: #edebed;
