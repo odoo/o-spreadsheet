@@ -272,7 +272,10 @@ describe("Simple Spreadsheet Component", () => {
     await typeInComposerGrid("=A1:B2");
     const gridComposerZIndex = getZIndex("div.o-grid-composer");
 
-    await typeInComposerTopBar("=SUM(A1,A2)");
+    const inactiveTopBarComposerZIndex = getZIndex(".o-topbar-toolbar .o-composer-container");
+    expect(inactiveTopBarComposerZIndex).toBe(0);
+
+    await simulateClick(".o-topbar-toolbar .o-composer");
     const topBarComposerZIndex = getZIndex(".o-topbar-toolbar .o-composer-container");
 
     const highlighZIndex = getZIndex(".o-highlight");
