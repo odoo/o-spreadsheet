@@ -92,10 +92,10 @@ css/* scss */ `
     }
 
     .fa-stack {
-      // reset stack size which is doubled by default
-      width: 1em;
-      height: 1em;
-      line-height: 1em;
+      /* reset stack size which is doubled by default */
+      width: ${CLOSE_ICON_RADIUS * 2}px;
+      height: ${CLOSE_ICON_RADIUS * 2}px;
+      line-height: ${CLOSE_ICON_RADIUS * 2}px;
     }
 
     .force-open-assistant {
