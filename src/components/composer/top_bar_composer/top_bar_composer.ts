@@ -25,7 +25,6 @@ css/* scss */ `
     height: fit-content;
     margin-top: -1px;
     border: 1px solid;
-    z-index: ${ComponentsImportance.TopBarComposer};
 
     .o-composer:empty:not(:focus):not(.active)::before {
       content: url("data:image/svg+xml,${encodeURIComponent(FX_SVG)}");
@@ -67,6 +66,7 @@ export class TopBarComposer extends Component<Props, SpreadsheetChildEnv> {
     }
     return cssPropertiesToCss({
       "border-color": SELECTION_BORDER_COLOR,
+      "z-index": String(ComponentsImportance.TopBarComposer),
     });
   }
 }
