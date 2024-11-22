@@ -89,7 +89,6 @@ describe("bar chart", () => {
       expect(options.scales.x.title.text).toBe("xAxis");
       expect(options.scales.x.ticks.callback(5)).toBe("5€");
       expect(options.scales.y.title.text).toBe("yAxis");
-      expect(options.scales.y.ticks.callback).toBeUndefined();
 
       const tooltipTestItem = {
         parsed: { x: 5, y: "label" },

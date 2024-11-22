@@ -21,6 +21,7 @@ import {
   chartFontColor,
   formatTickValue,
   getDefinedAxis,
+  truncateLabel,
 } from "../chart_common";
 
 type ChartScales = ChartOptions["scales"];
@@ -252,6 +253,11 @@ function getChartAxis(
       ticks: {
         padding: 5,
         color: fontColor,
+        callback: function (tickValue: number) {
+          // Category axis callback's internal tick value is the index of the label
+          // https://www.chartjs.org/docs/latest/axes/labelling.html#creating-custom-tick-formats
+          return truncateLabel(this.getLabelForValue(tickValue));
+        },
       },
       grid: {
         display: false,

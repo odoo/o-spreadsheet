@@ -41,7 +41,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
-import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
   getBarChartDatasets,
@@ -228,7 +228,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const config: ChartConfiguration = {
     type: "bar",
     data: {
-      labels: chartData.labels.map(truncateLabel),
+      labels: chartData.labels,
       datasets: getBarChartDatasets(definition, chartData),
     },
     options: {

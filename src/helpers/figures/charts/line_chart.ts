@@ -42,7 +42,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
-import { CHART_COMMON_OPTIONS, truncateLabel } from "./chart_ui_common";
+import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartShowValues,
   getChartTitle,
@@ -238,8 +238,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
   const config: ChartConfiguration = {
     type: "line",
     data: {
-      labels:
-        chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels,
+      labels: chartData.labels,
       datasets: getLineChartDatasets(definition, chartData),
     },
     options: {
