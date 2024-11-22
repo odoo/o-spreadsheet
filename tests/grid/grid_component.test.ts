@@ -268,6 +268,68 @@ describe("Grid component", () => {
     expect(mockCallback).toBeCalledTimes(2);
   });
 
+  test("Double clicking only opens composer when actually targetting grid overlay", async () => {
+    // creating a child  node
+    mockChart();
+    createChart(model, { type: "bar" }, "chartId");
+    await nextTick();
+    await simulateClick(".o-figure", 0, 0);
+    await nextTick();
+    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+    // double click on child
+    await doubleClick(fixture, ".o-figure");
+    expect(composerStore.editionMode).toBe("inactive");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+
+    // double click on grid overlay
+    await doubleClick(fixture, ".o-grid-overlay");
+    expect(composerStore.editionMode).toBe("editing");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
+  });
+
+  test("Double clicking on gridOverlay opens composer in different edition modes", async () => {
+    setCellContent(model, "A1", "things");
+    merge(model, "A1:A2", model.getters.getActiveSheetId(), true);
+    await nextTick();
+    // double click A1
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("contentFocus");
+
+    composerStore.stopEdition();
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("inactive");
+
+    // double click A2 - still in a non empty cell (in merge)
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      1.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("contentFocus");
+
+    composerStore.stopEdition();
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("inactive");
+
+    // double click B2
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      1.5 * DEFAULT_CELL_WIDTH,
+      1.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("cellFocus");
+  });
+
   describe("keybindings", () => {
     test("pressing ENTER put current cell in edit mode", async () => {
       // note: this behaviour is not like excel. Maybe someone will want to
@@ -1546,8 +1608,6 @@ describe("Copy paste keyboard shortcut", () => {
     clipboardData = new MockClipboardData();
     ({ parent, model, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
-    composerStore = parent.env.getStore(CellComposerStore);
-    composerFocusStore = parent.env.getStore(ComposerFocusStore);
   });
 
   test("Default paste is prevented when handled by the grid", async () => {
@@ -1784,68 +1844,6 @@ describe("Copy paste keyboard shortcut", () => {
     await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
     expect(model.getters.getChartIds(sheetId)[0]).not.toEqual("chartId");
-  });
-
-  test("Double clicking only opens composer when actually targetting grid overlay", async () => {
-    // creating a child  node
-    mockChart();
-    createChart(model, { type: "bar" }, "chartId");
-    await nextTick();
-    await simulateClick(".o-figure", 0, 0);
-    await nextTick();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-    // double click on child
-    await doubleClick(fixture, ".o-figure");
-    expect(composerStore.editionMode).toBe("inactive");
-    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-
-    // double click on grid overlay
-    await doubleClick(fixture, ".o-grid-overlay");
-    expect(composerStore.editionMode).toBe("editing");
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
-  });
-
-  test("Double clicking on gridOverlay opens composer in different edition modes", async () => {
-    setCellContent(model, "A1", "things");
-    merge(model, "A1:A2", model.getters.getActiveSheetId(), true);
-    await nextTick();
-    // double click A1
-    triggerMouseEvent(
-      ".o-grid-overlay",
-      "dblclick",
-      0.5 * DEFAULT_CELL_WIDTH,
-      0.5 * DEFAULT_CELL_HEIGHT
-    );
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("contentFocus");
-
-    composerStore.stopEdition();
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("inactive");
-
-    // double click A2 - still in a non empty cell (in merge)
-    triggerMouseEvent(
-      ".o-grid-overlay",
-      "dblclick",
-      0.5 * DEFAULT_CELL_WIDTH,
-      1.5 * DEFAULT_CELL_HEIGHT
-    );
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("contentFocus");
-
-    composerStore.stopEdition();
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("inactive");
-
-    // double click B2
-    triggerMouseEvent(
-      ".o-grid-overlay",
-      "dblclick",
-      1.5 * DEFAULT_CELL_WIDTH,
-      1.5 * DEFAULT_CELL_HEIGHT
-    );
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("cellFocus");
   });
 });
 
