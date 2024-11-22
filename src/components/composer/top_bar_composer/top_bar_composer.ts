@@ -28,7 +28,6 @@ css/* scss */ `
     height: fit-content;
     margin-top: -1px;
     border: 1px solid;
-    z-index: ${ComponentsImportance.TopBarComposer};
     font-family: ${DEFAULT_FONT};
 
     .o-composer:empty:not(:focus):not(.active)::before {
@@ -92,6 +91,7 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
     }
     return cssPropertiesToCss({
       "border-color": SELECTION_BORDER_COLOR,
+      "z-index": String(ComponentsImportance.TopBarComposer),
     });
   }
 
