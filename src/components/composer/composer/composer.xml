@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-Composer" owl="1">
-    <div class="o-composer-container">
+    <div class="o-composer-container" t-att-active="props.focus !== 'inactive'">
       <div
         t-att-class="{ 'o-composer': true, 'text-muted': env.model.getters.isReadonly(), 'unfocusable': env.model.getters.isReadonly() }"
         t-att-style="props.inputStyle"
