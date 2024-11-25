@@ -6,12 +6,12 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
 >
   <div>
     <div
-      class="o-filter-menu-item"
+      class="o-filter-menu-item my-2 mb-3"
     >
        Sort ascending (A ⟶ Z) 
     </div>
     <div
-      class="o-filter-menu-item"
+      class="o-filter-menu-item my-2"
     >
        Sort descending (Z ⟶ A) 
     </div>
@@ -21,15 +21,15 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
   />
   
   <div
-    class="o-filter-menu-actions"
+    class="o-filter-menu-actions d-flex"
   >
     <div
-      class="o-filter-menu-action-text"
+      class="o-button-link me-4"
     >
       Select all
     </div>
     <div
-      class="o-filter-menu-action-text"
+      class="o-button-link me-4"
     >
       Clear
     </div>
@@ -38,7 +38,7 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
     class="position-relative"
   >
     <input
-      class="w-100"
+      class="w-100 o-input my-2"
       placeholder="Search..."
       type="text"
     />
@@ -55,67 +55,61 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
     </i>
   </div>
   <div
-    class="o-filter-menu-list d-flex flex-column rounded"
+    class="o-filter-menu-list d-flex flex-column"
   >
     <div
       class="o-filter-menu-item o-filter-menu-value"
     >
-      <div>
-        <div
-          class="o-filter-menu-value-checked"
-        >
-          <span>
-            ✓
-          </span>
-        </div>
-      </div>
-      <div
-        class="o-filter-menu-value-text text-truncate"
+      <!-- toString because t-set with a body creates a LazyValue instead of a string -->
+      <label
+        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+        role="button"
       >
+        <input
+          class="me-2"
+          name="(Blanks)"
+          type="checkbox"
+        />
         (Blanks)
         
-        
-      </div>
+      </label>
+      
     </div>
     <div
       class="o-filter-menu-item o-filter-menu-value"
     >
-      <div>
-        <div
-          class="o-filter-menu-value-checked"
-        >
-          <span>
-            ✓
-          </span>
-        </div>
-      </div>
-      <div
-        class="o-filter-menu-value-text text-truncate"
+      <!-- toString because t-set with a body creates a LazyValue instead of a string -->
+      <label
+        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+        role="button"
       >
-        
+        <input
+          class="me-2"
+          name="1"
+          type="checkbox"
+        />
         1
         
-      </div>
+      </label>
+      
     </div>
     <div
       class="o-filter-menu-item o-filter-menu-value"
     >
-      <div>
-        <div
-          class="o-filter-menu-value-checked"
-        >
-          <span>
-            ✓
-          </span>
-        </div>
-      </div>
-      <div
-        class="o-filter-menu-value-text text-truncate"
+      <!-- toString because t-set with a body creates a LazyValue instead of a string -->
+      <label
+        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+        role="button"
       >
-        
+        <input
+          class="me-2"
+          name="2"
+          type="checkbox"
+        />
         2
         
-      </div>
+      </label>
+      
     </div>
     
     
