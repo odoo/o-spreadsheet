@@ -1,4 +1,4 @@
-import { tokenColors } from "../../components/composer/composer/abstract_composer_store";
+import { PIVOT_TOKEN_COLOR } from "../../constants";
 import { getCanonicalSymbolName } from "../../helpers";
 import { PivotRuntimeDefinition } from "../../helpers/pivot/pivot_runtime_definition";
 import { PivotMeasure } from "../../types";
@@ -19,7 +19,7 @@ export function createMeasureAutoComplete(
           return {
             text: text,
             description: measure.displayName,
-            htmlContent: [{ value: text, color: tokenColors.FUNCTION }],
+            htmlContent: [{ value: text, color: PIVOT_TOKEN_COLOR }],
             fuzzySearchKey: measure.displayName + text + measure.fieldName,
           };
         });
@@ -28,7 +28,7 @@ export function createMeasureAutoComplete(
         return {
           text: text,
           description: dimension.displayName,
-          htmlContent: [{ value: text, color: tokenColors.FUNCTION }],
+          htmlContent: [{ value: text, color: PIVOT_TOKEN_COLOR }],
           fuzzySearchKey: dimension.displayName + text + dimension.fieldName,
         };
       });

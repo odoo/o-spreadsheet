@@ -1,7 +1,10 @@
 import { Component } from "@odoo/owl";
+import { PIVOT_TOKEN_COLOR } from "../../../../../constants";
+import { Token } from "../../../../../formulas";
+import { unquote } from "../../../../../helpers";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
-import { PivotMeasure } from "../../../../../types";
+import { Color, PivotMeasure } from "../../../../../types";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
@@ -80,5 +83,22 @@ export class PivotMeasureEditor extends Component<Props> {
       pivotId: this.props.pivotId,
       measure: this.props.measure,
     });
+  }
+
+  getColoredSymbolToken(token: Token): Color | undefined {
+    if (token.type !== "SYMBOL") {
+      return undefined;
+    }
+    const tokenValue = unquote(token.value, "'");
+    if (
+      this.props.definition.columns.some((col) => col.nameWithGranularity === tokenValue) ||
+      this.props.definition.rows.some((row) => row.nameWithGranularity === tokenValue) ||
+      this.props.definition.measures.some(
+        (measure) => measure.id === tokenValue && measure.id !== this.props.measure.id
+      )
+    ) {
+      return PIVOT_TOKEN_COLOR;
+    }
+    return undefined;
   }
 }

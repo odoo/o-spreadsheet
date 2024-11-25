@@ -68,6 +68,8 @@ export const CHART_AXIS_TITLE_FONT_SIZE = 12;
 
 export const SCORECARD_CHART_TITLE_FONT_SIZE = 14;
 
+export const PIVOT_TOKEN_COLOR = "#F28C28";
+
 // Color picker defaults as upper case HEX to match `toHex`helper
 export const COLOR_PICKER_DEFAULTS: Color[] = [
   "#000000",

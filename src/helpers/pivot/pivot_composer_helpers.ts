@@ -7,7 +7,7 @@ import { Granularity, PivotField, PivotMeasure } from "../../types";
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 
 /**
- * Create a proposal entry for the compose autowcomplete
+ * Create a proposal entry for the composer autocomplete
  * to insert a field name string in a formula.
  */
 export function makeFieldProposal(field: PivotField, granularity?: Granularity) {

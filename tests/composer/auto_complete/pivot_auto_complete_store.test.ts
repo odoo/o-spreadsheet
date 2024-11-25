@@ -1,5 +1,6 @@
 import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
 import { StandaloneComposerStore } from "../../../src/components/composer/standalone_composer/standalone_composer_store";
+import { PIVOT_TOKEN_COLOR } from "../../../src/constants";
 import { createMeasureAutoComplete } from "../../../src/registries/auto_completes/pivot_dimension_auto_complete";
 import { createModelFromGrid } from "../../test_helpers/helpers";
 import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
@@ -735,7 +736,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "'Expected Revenue:sum'",
         description: "The revenue",
         fuzzySearchKey: "The revenue'Expected Revenue:sum'Expected Revenue",
-        htmlContent: [{ color: "#000000", value: "'Expected Revenue:sum'" }],
+        htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "'Expected Revenue:sum'" }],
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
@@ -767,7 +768,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "Stage",
         description: "Stage",
         fuzzySearchKey: "StageStageStage",
-        htmlContent: [{ color: "#000000", value: "Stage" }],
+        htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
@@ -799,7 +800,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "Stage",
         description: "Stage",
         fuzzySearchKey: "StageStageStage",
-        htmlContent: [{ color: "#000000", value: "Stage" }],
+        htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
@@ -832,7 +833,7 @@ describe("spreadsheet pivot auto complete", () => {
         text: "Stage",
         description: "Stage",
         fuzzySearchKey: "StageStageStage",
-        htmlContent: [{ color: "#000000", value: "Stage" }],
+        htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
