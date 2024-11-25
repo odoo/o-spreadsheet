@@ -1,7 +1,8 @@
-import { rangeTokenize } from "../../../formulas";
+import { Token, rangeTokenize } from "../../../formulas";
+import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { AutoCompleteProviderDefinition } from "../../../registries";
 import { Get } from "../../../store_engine";
-import { UID } from "../../../types";
+import { Color, UID } from "../../../types";
 import { AbstractComposerStore } from "../composer/abstract_composer_store";
 
 export interface StandaloneComposerArgs {
@@ -13,6 +14,7 @@ export interface StandaloneComposerArgs {
    */
   defaultRangeSheetId: UID;
   contextualAutocomplete?: AutoCompleteProviderDefinition;
+  getContextualColoredSymbolToken?: (token: Token) => Color;
 }
 
 export class StandaloneComposerStore extends AbstractComposerStore {
@@ -55,5 +57,15 @@ export class StandaloneComposerStore extends AbstractComposerStore {
 
   protected confirmEdition(content: string) {
     this.args().onConfirm(content);
+  }
+
+  protected getTokenColor(token: EnrichedToken): string {
+    if (token.type === "SYMBOL") {
+      const matchedColor = this.args().getContextualColoredSymbolToken?.(token);
+      if (matchedColor) {
+        return matchedColor;
+      }
+    }
+    return super.getTokenColor(token);
   }
 }

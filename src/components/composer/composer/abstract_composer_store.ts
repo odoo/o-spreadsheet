@@ -553,7 +553,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
   }
 
-  private getTokenColor(token: EnrichedToken): string {
+  protected getTokenColor(token: EnrichedToken): string {
     if (token.type === "REFERENCE") {
       const { xc, sheetName } = splitReference(token.value);
       return this.rangeColor(xc, sheetName) || DEFAULT_TOKEN_COLOR;

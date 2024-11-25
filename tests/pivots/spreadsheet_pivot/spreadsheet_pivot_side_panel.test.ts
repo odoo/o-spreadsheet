@@ -1,5 +1,5 @@
 import { Model, SpreadsheetChildEnv } from "../../../src";
-import { PIVOT_TABLE_CONFIG } from "../../../src/constants";
+import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "../../../src/constants";
 import { toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { NotificationStore } from "../../../src/stores/notification_store";
@@ -188,6 +188,43 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
       "=A1+Sheet2!A1"
     );
+  });
+
+  test("Calculated measure tokens are correctly colored", async () => {
+    setCellContent(model, "C1", "Amount with spaces");
+    setCellContent(model, "D1", "Date");
+    setCellContent(model, "D2", "01/05/2024");
+    setCellContent(model, "D3", "01/05/2025");
+    addPivot(
+      model,
+      "A1:D3",
+      {
+        columns: [{ fieldName: "Product" }, { fieldName: "Date", granularity: "year" }],
+        rows: [{ fieldName: "Customer" }],
+        measures: [{ id: "amount with spaces:sum", fieldName: "Amount", aggregator: "sum" }],
+      },
+      "3"
+    );
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelectorAll(".add-dimension")[2]);
+    expect(fixture.querySelector(".o-popover")).toBeDefined();
+    await click(fixture, ".add-calculated-measure");
+
+    await editStandaloneComposer(
+      ".pivot-dimension .o-composer",
+      "='amount with spaces:sum' + 5 + Product + Customer + NotAField + 'Date:year'",
+      { confirm: false }
+    );
+    await nextTick();
+
+    expect(window.mockContentHelper.colors).toMatchObject({
+      "'amount with spaces:sum'": PIVOT_TOKEN_COLOR,
+      Product: PIVOT_TOKEN_COLOR,
+      Customer: PIVOT_TOKEN_COLOR,
+      NotAField: "#000000",
+      "'Date:year'": PIVOT_TOKEN_COLOR,
+    });
   });
 
   test("it should not defer update when the dataset is updated", async () => {

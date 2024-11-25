@@ -24,6 +24,7 @@
             composerContent="measure.computedBy.formula"
             defaultRangeSheetId="measure.computedBy.sheetId"
             contextualAutocomplete="getMeasureAutocomplete()"
+            getContextualColoredSymbolToken.bind="getColoredSymbolToken"
           />
         </div>
       </div>

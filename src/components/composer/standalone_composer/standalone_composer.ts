@@ -1,8 +1,9 @@
 import { Component } from "@odoo/owl";
 import { GRAY_300, SELECTION_BORDER_COLOR } from "../../../constants";
+import { Token } from "../../../formulas";
 import { AutoCompleteProviderDefinition } from "../../../registries";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
-import { ComposerFocusType, SpreadsheetChildEnv, UID } from "../../../types/index";
+import { Color, ComposerFocusType, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { ComposerSelection } from "../composer/abstract_composer_store";
@@ -44,6 +45,7 @@ interface Props {
   placeholder?: string;
   class?: string;
   invalid?: boolean;
+  getContextualColoredSymbolToken?: (token: Token) => Color;
 }
 
 export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
@@ -56,6 +58,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
     placeholder: { type: String, optional: true },
     class: { type: String, optional: true },
     invalid: { type: Boolean, optional: true },
+    getContextualColoredSymbolToken: { type: Function, optional: true },
   };
   static components = { Composer };
   static defaultProps = {
@@ -74,6 +77,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
       content: this.props.composerContent,
       contextualAutocomplete: this.props.contextualAutocomplete,
       defaultRangeSheetId: this.props.defaultRangeSheetId,
+      getContextualColoredSymbolToken: this.props.getContextualColoredSymbolToken,
     }));
     this.standaloneComposerStore = standaloneComposerStore;
     this.composerInterface = {

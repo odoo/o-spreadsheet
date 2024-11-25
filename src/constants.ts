@@ -65,6 +65,8 @@ export const CHART_PADDING_BOTTOM = 10;
 export const CHART_PADDING_TOP = 15;
 export const CHART_TITLE_FONT_SIZE = 16;
 
+export const PIVOT_TOKEN_COLOR = "#F28C28";
+
 // Color picker defaults as upper case HEX to match `toHex`helper
 export const COLOR_PICKER_DEFAULTS: Color[] = [
   "#000000",
