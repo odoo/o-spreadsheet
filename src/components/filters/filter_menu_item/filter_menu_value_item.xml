@@ -1,20 +1,22 @@
 <templates>
   <t t-name="o-spreadsheet-FilterMenuValueItem">
     <div
-      t-on-click="this.props.onClick"
       t-on-pointermove="this.props.onMouseMove"
       class="o-filter-menu-item o-filter-menu-value"
       t-ref="menuValueItem"
       t-att-class="{'selected': this.props.isSelected}">
-      <div>
-        <div class="o-filter-menu-value-checked">
-          <span t-if="this.props.isChecked">✓</span>
-        </div>
-      </div>
-      <div class="o-filter-menu-value-text text-truncate">
-        <t t-if="this.props.value === ''">(Blanks)</t>
+      <t t-set="value">
+        <t t-debug="1" t-if="this.props.value === ''">(Blanks)</t>
         <t t-else="" t-esc="this.props.value"/>
-      </div>
+      </t>
+      <!-- toString because t-set with a body creates a LazyValue instead of a string -->
+      <Checkbox
+        name="value.toString()"
+        value="this.props.isChecked"
+        onChange="this.props.onClick"
+        className="'p-2 w-100 pe-auto text-truncate'"
+        label="value.toString()"
+      />
     </div>
   </t>
 </templates>

@@ -1,5 +1,4 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { MENU_ITEM_HEIGHT } from "../../../constants";
 import { deepEquals, positions, toLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Position, SortDirection, SpreadsheetChildEnv } from "../../../types";
@@ -19,22 +18,12 @@ const CSS = css/* scss */ `
     .o-filter-menu-item {
       display: flex;
       box-sizing: border-box;
-      height: ${MENU_ITEM_HEIGHT}px;
-      padding: 4px 4px 4px 0px;
       cursor: pointer;
       user-select: none;
 
       &.selected {
         background-color: rgba(0, 0, 0, 0.08);
       }
-    }
-
-    input {
-      box-sizing: border-box;
-      margin-bottom: 5px;
-      border: 1px solid #949494;
-      height: 24px;
-      padding-right: 28px;
     }
 
     .o-search-icon {
@@ -53,13 +42,6 @@ const CSS = css/* scss */ `
       display: flex;
       flex-direction: row;
       margin-bottom: 4px;
-
-      .o-filter-menu-action-text {
-        cursor: pointer;
-        margin-right: 10px;
-        color: blue;
-        text-decoration: underline;
-      }
     }
 
     .o-filter-menu-list {
