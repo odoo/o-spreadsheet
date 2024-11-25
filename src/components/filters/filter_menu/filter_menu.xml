@@ -3,22 +3,26 @@
     <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
       <t t-if="isSortable">
         <div>
-          <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('ascending')">
+          <div
+            class="o-filter-menu-item my-2 mb-3"
+            t-on-click="() => this.sortFilterZone('ascending')">
             Sort ascending (A ⟶ Z)
           </div>
-          <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('descending')">
+          <div class="o-filter-menu-item my-2" t-on-click="() => this.sortFilterZone('descending')">
             Sort descending (Z ⟶ A)
           </div>
         </div>
         <div class="o-separator"/>
       </t>
       <div class="o-filter-menu-actions">
-        <div class="o-filter-menu-action-text" t-on-click="selectAll">Select all</div>
-        <div class="o-filter-menu-action-text" t-on-click="clearAll">Clear</div>
+        <div class="o-button-link me-2 text-decoration-underline" t-on-click="selectAll">
+          Select all
+        </div>
+        <div class="o-button-link me-2 text-decoration-underline" t-on-click="clearAll">Clear</div>
       </div>
       <div class="position-relative">
         <input
-          class="w-100"
+          class="w-100 o-input my-2"
           t-ref="filterMenuSearchBar"
           type="text"
           t-model="state.textFilter"
@@ -30,7 +34,7 @@
         </i>
       </div>
       <div
-        class="o-filter-menu-list d-flex flex-column rounded"
+        class="o-filter-menu-list d-flex flex-column"
         t-ref="filterValueList"
         t-on-click="this.clearScrolledToValue"
         t-on-scroll="this.clearScrolledToValue">
