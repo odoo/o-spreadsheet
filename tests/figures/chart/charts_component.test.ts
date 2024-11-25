@@ -1743,6 +1743,51 @@ describe("charts", () => {
       checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
     });
+
+    test("Context creation is not shared between charts", async () => {
+      createChart(model, { type: "line" }, "chart1");
+      createTestChart("scorecard", "chart2");
+
+      await mountChartSidePanel("chart1");
+      await click(fixture, "input[name='cumulative']");
+      expect(model.getters.getChartDefinition("chart1")["cumulative"]).toBe(true);
+      await changeChartType("bar"); // save chart1 context creation the side panel store
+
+      model.dispatch("SELECT_FIGURE", { id: "chart2" });
+      await nextTick();
+      await changeChartType("line");
+      // check that chart2 cumulative option is the line chart default (undefined) and not the chart1 value
+      expect(model.getters.getChartDefinition("chart2")["cumulative"]).toBe(undefined);
+    });
+
+    test("Chart datasets are kept when switching from a bar to a chart accepting a single dataset then back to a bar chart", async () => {
+      createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }] });
+      const chartId = model.getters.getChartIds(sheetId)[0];
+      await mountChartSidePanel(chartId);
+
+      await changeChartType("gauge");
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ dataRange: "A1" });
+
+      await changeChartType("bar");
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }],
+      });
+    });
+
+    test("Chart datasets from old chart type are discarded as soon as a dataset is changed in the new type", async () => {
+      createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }, { dataRange: "B1" }] });
+      const chartId = model.getters.getChartIds(sheetId)[0];
+      await mountChartSidePanel(chartId);
+
+      await changeChartType("pie");
+      updateChart(model, chartId, { dataSets: [{ dataRange: "C1" }] });
+      await nextTick();
+
+      await changeChartType("bar");
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        dataSets: [{ dataRange: "C1" }],
+      });
+    });
   });
 
   describe("trend line", () => {

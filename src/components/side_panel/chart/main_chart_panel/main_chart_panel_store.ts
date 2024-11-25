@@ -1,3 +1,4 @@
+import { deepEquals } from "../../../../helpers";
 import { chartRegistry, chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { SpreadsheetStore } from "../../../../stores";
 import { ChartCreationContext, ChartDefinition, UID } from "../../../../types";
@@ -5,16 +6,25 @@ import { ChartCreationContext, ChartDefinition, UID } from "../../../../types";
 export class MainChartPanelStore extends SpreadsheetStore {
   mutators = ["activatePanel", "changeChartType"] as const;
   panel: "configuration" | "design" = "configuration";
-  private creationContext: ChartCreationContext = {};
+  private creationContexts: Record<UID, ChartCreationContext> = {};
 
   activatePanel(panel: "configuration" | "design") {
     this.panel = panel;
   }
 
   changeChartType(figureId: UID, newDisplayType: string) {
-    this.creationContext = {
-      ...this.creationContext,
-      ...this.getters.getContextCreationChart(figureId),
+    const currentCreationContext = this.getters.getContextCreationChart(figureId);
+    const savedCreationContext = this.creationContexts[figureId] || {};
+
+    let newRanges = currentCreationContext?.range;
+    if (newRanges?.every((range, i) => deepEquals(range, savedCreationContext.range?.[i]))) {
+      newRanges = Object.assign([], savedCreationContext.range, currentCreationContext?.range);
+    }
+
+    this.creationContexts[figureId] = {
+      ...savedCreationContext,
+      ...currentCreationContext,
+      range: newRanges,
     };
     const sheetId = this.getters.getFigureSheetId(figureId);
     if (!sheetId) {
@@ -34,12 +44,8 @@ export class MainChartPanelStore extends SpreadsheetStore {
   ): ChartDefinition {
     const newChartInfo = chartSubtypeRegistry.get(newDisplayType);
     const ChartClass = chartRegistry.get(newChartInfo.chartType);
-    const contextCreation = {
-      ...this.creationContext,
-      ...this.getters.getContextCreationChart(figureId),
-    };
     return {
-      ...ChartClass.getChartDefinitionFromContextCreation(contextCreation),
+      ...ChartClass.getChartDefinitionFromContextCreation(this.creationContexts[figureId]),
       ...newChartInfo.subtypeDefinition,
     } as ChartDefinition;
   }
