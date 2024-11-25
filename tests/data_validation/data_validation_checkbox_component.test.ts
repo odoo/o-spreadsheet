@@ -63,13 +63,16 @@ describe("Checkbox component", () => {
     expect(fixture.querySelector(".o-dv-checkbox")?.classList).toContain("pe-none");
   });
 
-  test("Data validation checkbox is disabled in readonly mode", async () => {
+  test("Data validation checkbox is enabled in readonly mode", async () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     model.updateMode("readonly");
     const { fixture } = await mountSpreadsheet({ model });
-
-    expect(fixture.querySelector(".o-dv-checkbox")?.classList).toContain("pe-none");
+    const checkbox = fixture.querySelector(".o-dv-checkbox input") as HTMLInputElement;
+    expect(fixture.querySelector(".o-dv-checkbox")?.classList).not.toContain("pe-none");
+    await click(checkbox);
+    expect(getCellContent(model, "A1")).toBe("TRUE");
+    expect(checkbox?.checked).toBe(true);
   });
 
   test("Icon is not displayed if there is a filter icon", async () => {

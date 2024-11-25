@@ -8,6 +8,10 @@
           onGridMoved.bind="moveCanvas"
           gridOverlayDimensions="gridOverlayDimensions"
         />
+        <GridComposer
+          gridDims="env.model.getters.getSheetViewDimension()"
+          onInputContextMenu="() => {}"
+        />
         <canvas t-ref="canvas"/>
         <GridPopover
           gridRect="getGridRect()"

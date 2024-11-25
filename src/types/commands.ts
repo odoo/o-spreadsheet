@@ -168,6 +168,11 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "START",
   "ACTIVATE_SHEET",
 
+  // allow to check checkboxes, select dropdowns, use filters
+  "UPDATE_CELL",
+
+  "SORT_CELLS",
+
   "COPY",
 
   "RESIZE_SHEETVIEW",
