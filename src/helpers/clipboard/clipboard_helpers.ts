@@ -91,8 +91,12 @@ export async function parseOSClipboardContent(
     for (const type of AllowedImageMimeTypes) {
       if (content[type]) {
         // TODO: support multiple import
-        const imageData = await env.imageProvider?.upload(content[type]!);
-        clipboardContent.imageData = imageData;
+        try {
+          const imageData = await env.imageProvider?.uploadFile(content[type]!);
+          clipboardContent.imageData = imageData;
+        } catch (e) {
+          env.raiseError(e.message);
+        }
         break;
       }
     }

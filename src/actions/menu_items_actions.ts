@@ -466,8 +466,8 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
 async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined> {
   try {
     return await env.imageProvider!.requestImage();
-  } catch {
-    env.raiseError(_t("An unexpected error occurred during the image transfer"));
+  } catch (e) {
+    env.raiseError(e.message || _t("An unexpected error occurred during the image transfer"));
     return undefined;
   }
 }
@@ -478,7 +478,7 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
     const figureId = env.model.uuidGenerator.uuidv4();
     const image = await requestImage(env);
     if (!image) {
-      throw new Error("No image provider was given to the environment");
+      return;
     }
     const size = getMaxFigureSize(env.model.getters, image.size);
     const position = centerFigurePosition(env.model.getters, size);

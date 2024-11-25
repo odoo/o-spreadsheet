@@ -5,6 +5,7 @@ import {
   getClipboardDataPositions,
   parseOSClipboardContent,
 } from "../../src/helpers/clipboard/clipboard_helpers";
+import { MAX_FILE_SIZE } from "../../src/helpers/figures/images/image_provider";
 import { urlRepresentation } from "../../src/helpers/links";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
@@ -17,6 +18,7 @@ import {
 } from "../../src/types/index";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
+import { FileStore as MockFileStore } from "../__mocks__/mock_file_store";
 import { MockClipboardData } from "../test_helpers/clipboard";
 import {
   activateSheet,
@@ -27,6 +29,7 @@ import {
   copy,
   copyPasteAboveCells,
   copyPasteCellsOnLeft,
+  createImage,
   createSheet,
   createSheetWithName,
   createTable,
@@ -2414,10 +2417,10 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(8.14);
   });
 
-  test("Pasted images from Os are inserted at the paste position", () => {
+  test("Pasted images from OS are inserted at the paste position with a limited size", () => {
     const model = new Model();
-    const width = 100;
-    const height = 50;
+    const width = 2000;
+    const height = 2000;
     pasteFromOSClipboard(model, "B2", {
       imageData: {
         path: "data:image/png;base64,",
@@ -2429,12 +2432,34 @@ describe("clipboard: pasting outside of sheet", () => {
     const figures = model.getters.getFigures(sheetId);
     expect(figures).toHaveLength(1);
     const { x, y } = model.getters.getVisibleRectWithoutHeaders(toZone("B2"));
+    const sheetViewDimension = model.getters.getSheetViewDimension();
     expect(figures[0]).toMatchObject({
       tag: "image",
-      width,
-      height,
+      width: sheetViewDimension.width,
+      height: sheetViewDimension.height,
       x,
       y,
+    });
+  });
+
+  test("Copying an imge too big in the clipboard notifies the user", async () => {
+    class FileStore extends MockFileStore {
+      async getFile(fileUrl) {
+        return new File(["x".repeat(MAX_FILE_SIZE + 1)], "mock", { type: "image/jpeg" });
+      }
+    }
+    const spyNotifyUI = jest.fn();
+    const model = new Model({}, { external: { fileStore: new FileStore() } });
+    model.on("notify-ui", this, spyNotifyUI);
+
+    createImage(model, { figureId: "test" });
+    model.dispatch("SELECT_FIGURE", { id: "test" });
+    model.dispatch("COPY");
+    await model.getters.getOsClipboardContentAsync();
+    expect(spyNotifyUI).toHaveBeenCalledWith({
+      sticky: false,
+      text: "The file you are trying to copy is too large (>5mB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.",
+      type: "warning",
     });
   });
 
