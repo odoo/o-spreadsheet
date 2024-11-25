@@ -29,7 +29,10 @@ class WebClipboardWrapper implements ClipboardInterface {
          * Therefore, we try to catch any errors and fallback on writing only standard
          * mimetypes to prevent the whole copy action from crashing.
          */
-        console.log("Failed to write on the clipboard, falling back to plain/html text.");
+        console.log(
+          "Failed to write on the clipboard, falling back to plain/html text. Error %s",
+          e
+        );
         try {
           await this.clipboard?.write([
             new ClipboardItem({

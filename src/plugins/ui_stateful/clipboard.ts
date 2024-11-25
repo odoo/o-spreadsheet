@@ -4,8 +4,11 @@ import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { convertImageToPng } from "../../components/helpers/dom_helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
+import { MAX_FILE_SIZE } from "../../helpers/figures/images/image_provider";
 import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
 import { CURRENT_VERSION } from "../../migrations/data";
+import { _t } from "../../translation";
 import {
   ClipboardData,
   ClipboardMIMEType,
@@ -149,10 +152,10 @@ export class ClipboardPlugin extends UIPlugin {
 
           // compute position based on current selection
           const { x, y } = this.getters.getVisibleRectWithoutHeaders(cmd.target[0]);
-
+          const size = getMaxFigureSize(this.getters, definition.size);
           this.dispatch("CREATE_IMAGE", {
             definition,
-            size: definition.size,
+            size,
             position: { x, y },
             sheetId,
             figureId,
@@ -628,9 +631,20 @@ export class ClipboardPlugin extends UIPlugin {
       }
       const imageUrl = this.getters.getImage(figureId).path;
       file = await this.fileStore?.getFile(imageUrl);
+
       // we can only write on image/png format in the clipboard
       // So we convert the image to png if it's not already
       if (file.type !== "image/png") {
+        if (file.size > MAX_FILE_SIZE) {
+          this.ui.notifyUI({
+            text: _t(
+              "The file you are trying to copy is too large (>5mB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead."
+            ),
+            sticky: false,
+            type: "warning",
+          });
+          return undefined;
+        }
         file = await convertImageToPng(imageUrl);
       }
     }
