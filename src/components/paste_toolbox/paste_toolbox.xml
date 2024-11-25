@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet-PasteToolbox">
+    <div
+      t-ref="toolboxButton"
+      class="o-paste d-flex ps-1"
+      t-att-style="style"
+      t-on-click="showMenu">
+      <t t-call="o-spreadsheet-Icon.PASTE"/>
+      <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+    </div>
+    <Menu
+      t-if="menuState.isOpen"
+      position="menuState.position"
+      menuItems="menuState.menuItems"
+      onClose.bind="onMenuClosed"
+    />
+  </t>
+</templates>
