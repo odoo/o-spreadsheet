@@ -29,9 +29,8 @@ describe("Filter menu component", () => {
     const values: { value: string; isChecked: boolean }[] = [];
     const filterValueEls = fixture.querySelectorAll(".o-filter-menu-value");
     for (const filterValue of filterValueEls) {
-      const isChecked = !!filterValue.querySelector(".o-filter-menu-value-checked span")
-        ?.textContent;
-      const value = filterValue.querySelector(".o-filter-menu-value-text")!.textContent!;
+      const isChecked = !!filterValue.querySelector("input")?.checked;
+      const value = filterValue.querySelector("label")!.textContent!;
       values.push({ value, isChecked });
     }
     return values;
@@ -154,9 +153,9 @@ describe("Filter menu component", () => {
     test("Clicking on values check and uncheck them", async () => {
       await openFilterMenu();
       expect(getFilterMenuValues()[0]).toEqual({ value: "(Blanks)", isChecked: true });
-      await simulateClick(".o-filter-menu-value");
+      await simulateClick(".o-filter-menu-value .o-checkbox");
       expect(getFilterMenuValues()[0]).toEqual({ value: "(Blanks)", isChecked: false });
-      await simulateClick(".o-filter-menu-value");
+      await simulateClick(".o-filter-menu-value .o-checkbox");
       expect(getFilterMenuValues()[0]).toEqual({ value: "(Blanks)", isChecked: true });
     });
 
@@ -164,8 +163,8 @@ describe("Filter menu component", () => {
       setFormat(model, "A4", "m/d/yyyy");
       expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([]);
       await openFilterMenu();
-      await simulateClick(".o-filter-menu-value:nth-of-type(2)");
-      await simulateClick(".o-filter-menu-value:nth-of-type(3)");
+      await simulateClick(".o-filter-menu-value:nth-of-type(2) .o-checkbox");
+      await simulateClick(".o-filter-menu-value:nth-of-type(3) .o-checkbox");
       await simulateClick(".o-filter-menu-confirm");
       expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([
         "1",
@@ -176,8 +175,8 @@ describe("Filter menu component", () => {
     test("Cancel button don't save the changes", async () => {
       expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([]);
       await openFilterMenu();
-      await simulateClick(".o-filter-menu-value:nth-of-type(1)");
-      await simulateClick(".o-filter-menu-value:nth-of-type(2)");
+      await simulateClick(".o-filter-menu-value:nth-of-type(1) .o-checkbox");
+      await simulateClick(".o-filter-menu-value:nth-of-type(2) .o-checkbox");
       await simulateClick(".o-filter-menu-cancel");
       expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([]);
     });
@@ -189,13 +188,13 @@ describe("Filter menu component", () => {
         { value: "1", isChecked: true },
         { value: "2", isChecked: true },
       ]);
-      await simulateClick(".o-filter-menu-action-text:nth-of-type(2)");
+      await simulateClick(".o-filter-menu-actions .o-button-link:nth-of-type(2)");
       expect(getFilterMenuValues()).toEqual([
         { value: "(Blanks)", isChecked: false },
         { value: "1", isChecked: false },
         { value: "2", isChecked: false },
       ]);
-      await simulateClick(".o-filter-menu-action-text:nth-of-type(1)");
+      await simulateClick(".o-filter-menu-actions .o-button-link:nth-of-type(1)");
       expect(getFilterMenuValues()).toEqual([
         { value: "(Blanks)", isChecked: true },
         { value: "1", isChecked: true },
@@ -206,7 +205,7 @@ describe("Filter menu component", () => {
     test("Clear all work on the displayed values", async () => {
       await openFilterMenu();
       await setInputValueAndTrigger(".o-filter-menu input", "1");
-      await simulateClick(".o-filter-menu-action-text:nth-of-type(2)");
+      await simulateClick(".o-filter-menu-actions .o-button-link:nth-of-type(2)");
       await setInputValueAndTrigger(".o-filter-menu input", "");
       expect(getFilterMenuValues()).toEqual([
         { value: "(Blanks)", isChecked: true },
@@ -217,9 +216,9 @@ describe("Filter menu component", () => {
 
     test("Select all work on the displayed values", async () => {
       await openFilterMenu();
-      await simulateClick(".o-filter-menu-action-text:nth-of-type(2)");
+      await simulateClick(".o-filter-menu-actions .o-button-link:nth-of-type(2)");
       await setInputValueAndTrigger(".o-filter-menu input", "1");
-      await simulateClick(".o-filter-menu-action-text:nth-of-type(1)");
+      await simulateClick(".o-filter-menu-actions .o-button-link:nth-of-type(1)");
       await setInputValueAndTrigger(".o-filter-menu input", "");
       expect(getFilterMenuValues()).toEqual([
         { value: "(Blanks)", isChecked: false },
@@ -246,7 +245,7 @@ describe("Filter menu component", () => {
         await openFilterMenu();
         const searchInput = fixture.querySelector(".o-filter-menu input");
         expect(document.activeElement).not.toBe(searchInput);
-        await simulateClick(".o-filter-menu-value");
+        await simulateClick(".o-filter-menu-value .o-checkbox");
         expect(document.activeElement).toBe(searchInput);
       });
 
@@ -339,12 +338,12 @@ describe("Filter menu component", () => {
     await openFilterMenu();
     expect(
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
-    ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "✓(Blanks)"]);
+    ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "(Blanks)"]);
     model.updateMode("readonly");
     await nextTick();
     expect(
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
-    ).toEqual(["✓(Blanks)"]);
+    ).toEqual(["(Blanks)"]);
   });
 
   test("cannot sort dynamic table", async () => {

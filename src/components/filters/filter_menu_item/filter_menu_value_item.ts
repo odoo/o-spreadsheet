@@ -1,6 +1,6 @@
 import { Component, onWillPatch, useRef } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers";
+import { Checkbox } from "../../side_panel/components/checkbox/checkbox";
 
 interface Props {
   value: string;
@@ -11,19 +11,9 @@ interface Props {
   scrolledTo: "top" | "bottom" | undefined;
 }
 
-css/*SCSS*/ `
-  .o-filter-menu-value {
-    padding: 4px;
-    line-height: 20px;
-    height: 28px;
-    .o-filter-menu-value-checked {
-      width: 20px;
-    }
-  }
-`;
-
 export class FilterMenuValueItem extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuValueItem";
+  static components = { Checkbox };
   static props = {
     value: String,
     isChecked: Boolean,
