@@ -202,3 +202,12 @@ export async function convertImageToPng(imageUrl: string): Promise<Blob | null> 
     image.addEventListener("error", () => reject);
   });
 }
+
+export function serveFile(dataUrl: string, fileName: string) {
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}

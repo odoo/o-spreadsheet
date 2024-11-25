@@ -1,6 +1,7 @@
 import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
+import { serveFile } from "../components/helpers/dom_helpers";
 import { chartToImage, chartToImageFile } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _t } from "../translation";
@@ -63,6 +64,7 @@ function getChartMenu(
     {
       id: "copy_as_image",
       name: _t("Copy as image"),
+      icon: "o-spreadsheet-Icon.COPY_AS_IMAGE",
       sequence: 4,
       execute: async () => {
         const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
@@ -77,6 +79,20 @@ function getChartMenu(
           "text/html": innerHTML,
           "image/png": blob,
         });
+      },
+    },
+    {
+      id: "download",
+      name: _t("Download"),
+      icon: "o-spreadsheet-Icon.DOWNLOAD",
+      sequence: 6,
+      execute: async () => {
+        const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
+        const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
+        const chartType = env.model.getters.getChartType(figureId);
+        const runtime = env.model.getters.getChartRuntime(figureId);
+        const url = chartToImage(runtime, figure, chartType)!;
+        serveFile(url, "chart");
       },
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
@@ -114,6 +130,17 @@ function getImageMenuRegistry(
         });
       },
       icon: "o-spreadsheet-Icon.REFRESH",
+    },
+    {
+      id: "download",
+      name: _t("Download"),
+      sequence: 6,
+      execute: async () => {
+        env.model.dispatch("SELECT_FIGURE", { id: figureId });
+        const path = env.model.getters.getImagePath(figureId);
+        serveFile(path, "image");
+      },
+      icon: "o-spreadsheet-Icon.DOWNLOAD",
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];

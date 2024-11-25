@@ -20,7 +20,7 @@ export class ImageProvider implements ImageProviderInterface {
     return this.size;
   }
 
-  async upload(file: File | Blob): Promise<Image> {
+  async uploadFile(file: File | Blob): Promise<Image> {
     return { path: this.path, size: this.size, mimetype: this.mimetype };
   }
 }
