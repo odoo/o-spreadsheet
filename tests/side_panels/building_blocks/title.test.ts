@@ -13,7 +13,8 @@ describe("Chart title", () => {
     await mountChartTitle({
       title: "My title",
       updateTitle: () => {},
-      style: {},
+      style: { fontSize: 22 },
+      onFontSizeChanged: () => {},
     });
     expect(fixture).toMatchSnapshot();
   });
@@ -21,7 +22,8 @@ describe("Chart title", () => {
   test("Can render a chart title component with default title prop if not provided", async () => {
     await mountChartTitle({
       updateTitle: () => {},
-      style: {},
+      style: { fontSize: 22 },
+      onFontSizeChanged: () => {},
     });
 
     const input = fixture.querySelector("input")!;
@@ -33,7 +35,8 @@ describe("Chart title", () => {
     await mountChartTitle({
       title: "My title",
       updateTitle,
-      style: {},
+      style: { fontSize: 22 },
+      onFontSizeChanged: () => {},
     });
     const input = fixture.querySelector("input")!;
     expect(input.value).toBe("My title");
@@ -48,8 +51,9 @@ describe("Chart title", () => {
     await mountChartTitle({
       title: "My title",
       updateTitle: () => {},
-      style: {},
+      style: { fontSize: 22 },
       updateColor,
+      onFontSizeChanged: () => {},
     });
     expect(updateColor).toHaveBeenCalledTimes(0);
     await click(fixture, ".o-color-picker-button");
@@ -64,8 +68,9 @@ describe("Chart title", () => {
       await mountChartTitle({
         title: "My title",
         updateTitle: () => {},
-        style: {},
+        style: { fontSize: 22 },
         updateAlignment,
+        onFontSizeChanged: () => {},
       });
       expect(updateAlignment).toHaveBeenCalledTimes(0);
       await click(fixture, ".o-menu-item-button[title='Horizontal alignment']");
@@ -79,8 +84,9 @@ describe("Chart title", () => {
     await mountChartTitle({
       title: "My title",
       updateTitle: () => {},
-      style: {},
+      style: { fontSize: 22 },
       toggleBold,
+      onFontSizeChanged: () => {},
     });
     expect(toggleBold).toHaveBeenCalledTimes(0);
     await click(fixture, ".o-menu-item-button[title='Bold']");
@@ -92,11 +98,28 @@ describe("Chart title", () => {
     await mountChartTitle({
       title: "My title",
       updateTitle: () => {},
-      style: {},
+      style: { fontSize: 22 },
       toggleItalic,
+      onFontSizeChanged: () => {},
     });
     expect(toggleItalic).toHaveBeenCalledTimes(0);
     await click(fixture, ".o-menu-item-button[title='Italic']");
     expect(toggleItalic).toHaveBeenCalledTimes(1);
+  });
+
+  test("OnFontSizeChanged is called when font size is changed", async () => {
+    const onFontSizeChanged = jest.fn();
+    await mountChartTitle({
+      title: "My title",
+      updateTitle: () => {},
+      style: { fontSize: 14 },
+      onFontSizeChanged,
+    });
+    const fontSizeEditor = fixture.querySelector(".o-font-size-editor")!;
+    expect(fontSizeEditor).not.toBeNull();
+    expect(onFontSizeChanged).toHaveBeenCalledTimes(0);
+    const input = fontSizeEditor.querySelector("input")!;
+    await setInputValueAndTrigger(input, "20");
+    expect(onFontSizeChanged).toHaveBeenCalledWith(20);
   });
 });

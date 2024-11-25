@@ -64,6 +64,9 @@ export const CHART_PADDING = 20;
 export const CHART_PADDING_BOTTOM = 10;
 export const CHART_PADDING_TOP = 15;
 export const CHART_TITLE_FONT_SIZE = 16;
+export const CHART_AXIS_TITLE_FONT_SIZE = 12;
+
+export const SCORECARD_CHART_TITLE_FONT_SIZE = 14;
 
 // Color picker defaults as upper case HEX to match `toHex`helper
 export const COLOR_PICKER_DEFAULTS: Color[] = [

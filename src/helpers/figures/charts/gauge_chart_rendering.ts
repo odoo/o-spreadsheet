@@ -223,7 +223,7 @@ export function getGaugeRenderingConfig(
     ({ width: titleWidth, height: titleHeight } = computeTextDimension(
       ctx,
       runtime.title.text,
-      { ...runtime.title, fontSize: CHART_TITLE_FONT_SIZE },
+      { fontSize: CHART_TITLE_FONT_SIZE, ...runtime.title },
       "px"
     ));
   }
@@ -245,7 +245,7 @@ export function getGaugeRenderingConfig(
     height: boundingRect.height,
     title: {
       label: runtime.title.text ?? "",
-      fontSize: CHART_TITLE_FONT_SIZE,
+      fontSize: runtime.title.fontSize ?? CHART_TITLE_FONT_SIZE,
       textPosition: {
         x,
         y: CHART_PADDING_TOP + titleHeight / 2,

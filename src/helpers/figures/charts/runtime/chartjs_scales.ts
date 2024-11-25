@@ -1,5 +1,6 @@
 import { ChartOptions, LinearScaleOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
+import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../constants";
 import { LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
@@ -202,6 +203,7 @@ function getChartAxisTitleRuntime(design?: AxisDesign):
       font: {
         style: "italic" | "normal";
         weight: "bold" | "normal";
+        size: number;
       };
       align: "start" | "center" | "end";
     }
@@ -215,6 +217,7 @@ function getChartAxisTitleRuntime(design?: AxisDesign):
       font: {
         style: italic ? "italic" : "normal",
         weight: bold ? "bold" : "normal",
+        size: design.title.fontSize ?? CHART_AXIS_TITLE_FONT_SIZE,
       },
       align: align === "left" ? "start" : align === "right" ? "end" : "center",
     };

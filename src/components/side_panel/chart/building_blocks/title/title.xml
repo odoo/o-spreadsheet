@@ -79,6 +79,12 @@
           </div>
         </div>
         <div class="o-divider"/>
+        <FontSizeEditor
+          currentFontSize="props.style.fontSize"
+          onFontSizeChanged.bind="this.updateFontSize"
+          class="'o-hoverable-button'"
+        />
+        <div class="o-divider"/>
         <ColorPickerWidget
           currentColor="props.style.color"
           toggleColorPicker="(ev) => this.toggleDropdownTool('fillChartColorTool', ev)"

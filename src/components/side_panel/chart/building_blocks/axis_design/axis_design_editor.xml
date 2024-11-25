@@ -17,6 +17,7 @@
       updateAlignment.bind="updateAxisTitleAlignment"
       updateColor.bind="updateAxisTitleColor"
       style="axisTitleStyle"
+      onFontSizeChanged.bind="updateAxisTitleFontSize"
     />
   </t>
 </templates>

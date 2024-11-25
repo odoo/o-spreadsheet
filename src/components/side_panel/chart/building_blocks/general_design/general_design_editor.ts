@@ -1,4 +1,5 @@
 import { Component, useState } from "@odoo/owl";
+import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
 import {
   ChartDefinition,
   Color,
@@ -20,6 +21,7 @@ interface Props {
   figureId: UID;
   definition: ChartDefinition;
   updateChart: (figureId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
+  defaultChartTitleFontSize?: number;
 }
 
 export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -34,7 +36,11 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     figureId: String,
     definition: Object,
     updateChart: Function,
+    defaultChartTitleFontSize: { type: Number, optional: true },
     slots: { type: Object, optional: true },
+  };
+  static defaultProps = {
+    defaultChartTitleFontSize: CHART_TITLE_FONT_SIZE,
   };
   private state!: GeneralDesignEditorState;
 
@@ -67,6 +73,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   get titleStyle(): TitleDesign {
     return {
       align: "left",
+      fontSize: this.props.defaultChartTitleFontSize,
       ...this.title,
     };
   }
@@ -75,6 +82,11 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     const title = { ...this.title, color };
     this.props.updateChart(this.props.figureId, { title });
     this.state.activeTool = "";
+  }
+
+  updateChartTitleFontSize(fontSize: number) {
+    const title = { ...this.title, fontSize };
+    this.props.updateChart(this.props.figureId, { title });
   }
 
   toggleBoldChartTitle() {

@@ -2,6 +2,7 @@ import { Component, useExternalListener, useState } from "@odoo/owl";
 import { GRAY_300 } from "../../../../../constants";
 import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
+import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";
 import { css } from "../../../../helpers";
 import { Section } from "../../../components/section/section";
 
@@ -47,6 +48,7 @@ interface Props {
   updateAlignment?: (string) => void;
   updateColor?: (Color) => void;
   style: TitleDesign;
+  onFontSizeChanged: (fontSize: number) => void;
 }
 
 export interface ChartTitleState {
@@ -55,7 +57,7 @@ export interface ChartTitleState {
 
 export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
-  static components = { Section, ColorPickerWidget };
+  static components = { Section, ColorPickerWidget, FontSizeEditor };
   static props = {
     title: { type: String, optional: true },
     updateTitle: Function,
@@ -64,7 +66,8 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
     toggleBold: { type: Function, optional: true },
     updateAlignment: { type: Function, optional: true },
     updateColor: { type: Function, optional: true },
-    style: { type: Object, optional: true },
+    style: Object,
+    onFontSizeChanged: Function,
   };
   static defaultProps = {
     title: "",
@@ -81,6 +84,10 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
 
   updateTitle(ev: InputEvent) {
     this.props.updateTitle((ev.target as HTMLInputElement).value);
+  }
+
+  updateFontSize(fontSize: number) {
+    this.props.onFontSizeChanged(fontSize);
   }
 
   toggleDropdownTool(tool: string, ev: MouseEvent) {

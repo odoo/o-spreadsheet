@@ -17,7 +17,7 @@ export function getChartTitle(
     align:
       chartTitle.align === "center" ? "center" : chartTitle.align === "right" ? "end" : "start",
     font: {
-      size: CHART_TITLE_FONT_SIZE,
+      size: definition.title.fontSize ?? CHART_TITLE_FONT_SIZE,
       weight: chartTitle.bold ? "bold" : "normal",
       style: chartTitle.italic ? "italic" : "normal",
     },
