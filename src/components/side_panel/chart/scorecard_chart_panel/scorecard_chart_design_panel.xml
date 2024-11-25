@@ -5,7 +5,8 @@
     <GeneralDesignEditor
       figureId="props.figureId"
       definition="props.definition"
-      updateChart="props.updateChart">
+      updateChart="props.updateChart"
+      defaultChartTitleFontSize="defaultScorecardTitleFontSize">
       <t t-set-slot="general-extension">
         <Section class="'pt-1'" title.translate="Number formatting">
           <Checkbox

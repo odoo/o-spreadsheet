@@ -1,4 +1,5 @@
 import { Color } from "chart.js";
+import { SCORECARD_CHART_TITLE_FONT_SIZE } from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { getDefaultContextFont } from "../../text_helper";
@@ -9,7 +10,6 @@ const CHART_PADDING = 10;
 const BOTTOM_PADDING_RATIO = 0.05;
 
 /* Maximum font sizes of each element */
-const CHART_TITLE_FONT_SIZE = 14;
 const KEY_VALUE_FONT_SIZE = 32;
 const BASELINE_MAX_FONT_SIZE = 16;
 
@@ -270,7 +270,7 @@ class ScorecardChartConfigBuilder {
     return {
       title: {
         font: getDefaultContextFont(
-          CHART_TITLE_FONT_SIZE,
+          this.runtime.title.fontSize ?? SCORECARD_CHART_TITLE_FONT_SIZE,
           this.runtime.title.bold,
           this.runtime.title.italic
         ),

@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { SCORECARD_CHART_TITLE_FONT_SIZE } from "../../../../constants";
 import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
@@ -41,6 +42,10 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
 
   get humanizeNumbersLabel(): string {
     return _t("Humanize numbers");
+  }
+
+  get defaultScorecardTitleFontSize(): number {
+    return SCORECARD_CHART_TITLE_FONT_SIZE;
   }
 
   updateHumanizeNumbers(humanize: boolean) {

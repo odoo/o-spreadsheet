@@ -87,6 +87,7 @@ export interface TitleDesign {
   readonly italic?: boolean;
   readonly align?: Align;
   readonly color?: Color;
+  readonly fontSize?: number;
 }
 
 export type TrendType = "polynomial" | "exponential" | "logarithmic" | "trailingMovingAverage";

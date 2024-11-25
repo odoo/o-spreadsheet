@@ -388,6 +388,41 @@ describe("charts", () => {
       bold: true,
       italic: true,
     });
+
+    const fontSize = fixture.querySelector(".o-font-size-editor input") as HTMLInputElement;
+    await setInputValueAndTrigger(fontSize, "20", "onlyChange");
+    expect(model.getters.getChartDefinition(chartId).title).toEqual({
+      text: "title",
+      fontSize: 20,
+      bold: true,
+      italic: true,
+    });
+  });
+
+  test("can edit chart axis title font size", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    const fontSize = fixture.querySelectorAll(".o-font-size-editor input")[1] as HTMLInputElement;
+    await setInputValueAndTrigger(fontSize, "20", "onlyChange");
+
+    await click(fixture, ".o-badge-selection button[data-id=y]");
+    await setInputValueAndTrigger(fontSize, "25", "onlyChange");
+
+    const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.axesDesign).toEqual({
+      x: { title: { fontSize: 20 } },
+      y: { title: { fontSize: 25 } },
+    });
   });
 
   test("can edit chart axis title color", async () => {

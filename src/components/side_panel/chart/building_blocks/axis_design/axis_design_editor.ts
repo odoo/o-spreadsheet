@@ -1,4 +1,5 @@
 import { Component, useState } from "@odoo/owl";
+import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../../constants";
 import {
   ChartWithDataSetDefinition,
   Color,
@@ -39,6 +40,7 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     return {
       color: "",
       align: "center",
+      fontSize: CHART_AXIS_TITLE_FONT_SIZE,
       ...axisDesign.title,
     };
   }
@@ -54,6 +56,18 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
       title: {
         ...(axesDesign[this.state.currentAxis]?.title ?? {}),
         color,
+      },
+    };
+    this.props.updateChart(this.props.figureId, { axesDesign });
+  }
+
+  updateAxisTitleFontSize(fontSize: number) {
+    const axesDesign = this.props.definition.axesDesign ?? {};
+    axesDesign[this.state.currentAxis] = {
+      ...axesDesign[this.state.currentAxis],
+      title: {
+        ...(axesDesign[this.state.currentAxis]?.title ?? {}),
+        fontSize,
       },
     };
     this.props.updateChart(this.props.figureId, { axesDesign });

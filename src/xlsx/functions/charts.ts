@@ -1,4 +1,4 @@
-import { CHART_TITLE_FONT_SIZE } from "../../constants";
+import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../constants";
 import { ColorGenerator, largeMax, range } from "../../helpers";
 import { chartMutedFontColor } from "../../helpers/figures/charts";
 import { Color, ExcelWorkbookData, FigureData } from "../../types";
@@ -58,9 +58,10 @@ export function createChart(
   let title = escapeXml``;
   if (chart.data.title?.text) {
     const titleColor = toXlsxHexColor(chartMutedFontColor(chart.data.backgroundColor));
+    const fontSize = chart.data.title.fontSize ?? CHART_TITLE_FONT_SIZE;
     title = escapeXml/*xml*/ `
       <c:title>
-        ${insertText(chart.data.title.text, titleColor, CHART_TITLE_FONT_SIZE, chart.data.title)}
+        ${insertText(chart.data.title.text, titleColor, fontSize, chart.data.title)}
         <c:overlay val="0" />
       </c:title>
     `;
@@ -158,7 +159,7 @@ function lineAttributes(params: LineAttributes): XMLString {
 function insertText(
   text: string,
   fontColor: XlsxHexColor = "000000",
-  fontsize: number,
+  fontsize: number = CHART_TITLE_FONT_SIZE,
   style: { bold?: boolean; italic?: boolean } = {}
 ): XMLString {
   return escapeXml/*xml*/ `
@@ -794,6 +795,7 @@ function addAx(
   // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
   // I.e. x-axis, will reference y-axis and vice-versa.
   const color = title?.color ? toXlsxHexColor(title.color) : defaultFontColor;
+  const fontSize = title?.fontSize ?? CHART_AXIS_TITLE_FONT_SIZE;
   return escapeXml/*xml*/ `
     <${axisName}>
       <c:axId val="${axId}"/>
@@ -809,7 +811,7 @@ function addAx(
       <c:minorTickMark val="none" />
       <c:numFmt formatCode="General" sourceLinked="1" />
       <c:title>
-        ${insertText(title?.text ?? "", color, 10, title)}
+        ${insertText(title?.text ?? "", color, fontSize, title)}
       </c:title>
       ${insertTextProperties(10, defaultFontColor)}
     </${axisName}>

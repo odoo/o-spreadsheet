@@ -18,6 +18,7 @@
           updateAlignment.bind="updateChartTitleAlignment"
           updateColor.bind="updateChartTitleColor"
           style="titleStyle"
+          onFontSizeChanged.bind="updateChartTitleFontSize"
         />
         <t t-slot="general-extension"/>
       </t>
