@@ -31,6 +31,15 @@
         <div class="o-topbar-toolbar d-flex flex-shrink-0">
           <!-- Toolbar -->
           <div
+            t-if="this.fingerprints.isEnabled"
+            t-on-click="() => this.fingerprints.disable()"
+            role="button"
+            title="This tool analyzes spreadsheet formulas for patterns and highlights inconsistencies. Irregularities may indicate potential errors in formula structures, references, or arguments. (Click to turn off)"
+            class="irregularity-map d-flex align-items-center text-info px-3">
+            <t t-call="o-spreadsheet-Icon.IRREGULARITY_MAP"/>
+            Irregularity map
+          </div>
+          <div
             t-if="env.model.getters.isReadonly()"
             class="o-readonly-toolbar d-flex align-items-center text-muted">
             <span>

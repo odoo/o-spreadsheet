@@ -62,4 +62,12 @@ export class PositionMap<T> {
     }
     return keys;
   }
+
+  *entries(): IterableIterator<[CellPosition, T]> {
+    const map = this.map;
+    for (const position of this.keys()) {
+      const { sheetId, col, row } = position;
+      yield [position, map[sheetId][col][row]];
+    }
+  }
 }

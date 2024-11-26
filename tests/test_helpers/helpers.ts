@@ -38,6 +38,7 @@ import {
   useStore,
 } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
+import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { RendererStore } from "../../src/stores/renderer_store";
@@ -983,6 +984,16 @@ export function getHighlightsFromStore(
     .filter((renderer) => renderer instanceof HighlightStore)
     .flatMap((store: HighlightStore) => store["providers"])
     .flatMap((getter: HighlightProvider) => getter.highlights);
+}
+
+export function getFingerprint(store: FormulaFingerprintStore, xc: string, sheetId?: UID) {
+  const { col, row } = toCartesian(xc);
+  const positions = store.map.keys();
+  if (positions.length === 0) {
+    return undefined;
+  }
+  sheetId ??= positions[0]?.sheetId;
+  return store.map.get({ sheetId, col, row });
 }
 
 export function makeTestNotificationStore(): NotificationStore {

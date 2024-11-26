@@ -68,6 +68,7 @@ exports[`TopBar component can set cell format 1`] = `
         >
           <!-- Toolbar -->
           
+          
           <div
             class="o-toolbar-tools d-flex flex-shrink-0 ms-4"
           >
@@ -1090,6 +1091,7 @@ exports[`TopBar component simple rendering 1`] = `
       class="o-topbar-toolbar d-flex flex-shrink-0"
     >
       <!-- Toolbar -->
+      
       
       <div
         class="o-toolbar-tools d-flex flex-shrink-0 ms-4"

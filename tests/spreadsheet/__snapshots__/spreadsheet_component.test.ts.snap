@@ -69,6 +69,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       >
         <!-- Toolbar -->
         
+        
         <div
           class="o-toolbar-tools d-flex flex-shrink-0 ms-4"
         >

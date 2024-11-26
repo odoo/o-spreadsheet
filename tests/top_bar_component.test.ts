@@ -194,6 +194,18 @@ describe("TopBar component", () => {
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
+  test("irregularity map tool", async () => {
+    const { parent } = await mountParent();
+    const menu = getNode(["view", "view_irregularity_map"], parent.env, topbarMenuRegistry);
+    expect(".irregularity-map").toHaveCount(0);
+    menu.execute?.(parent.env);
+    await nextTick();
+    expect(".irregularity-map").toHaveCount(1);
+    expect(".irregularity-map").toHaveText(" Irregularity map ");
+    await click(fixture, ".irregularity-map");
+    expect(".irregularity-map").toHaveCount(0);
+  });
+
   describe("Paint format tools", () => {
     test("Single click to activate paint format (once)", async () => {
       const { parent } = await mountParent();
