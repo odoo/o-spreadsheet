@@ -1,4 +1,4 @@
-import { CommandResult } from "../../src";
+import { CommandResult, Model } from "../../src";
 import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
@@ -219,5 +219,16 @@ describe("Pivot plugin", () => {
       pivotId: "pivot1",
     });
     expect(model.getters.getSheetName("Sheet2")).toEqual("forbidden:   (copy) (Pivot #2) (1)");
+  });
+
+  test("DUPLICATE_PIVOT_IN_NEW_SHEET is prevented if the pivot is in error", () => {
+    const model = new Model();
+    addPivot(model, "A1:A2", {}, "pivot1");
+    const result = model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
+      newPivotId: "pivot2",
+      newSheetId: "Sheet2",
+      pivotId: "pivot1",
+    });
+    expect(result).toBeCancelledBecause(CommandResult.PivotInError);
   });
 });
