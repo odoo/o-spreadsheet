@@ -35,9 +35,11 @@ describe("Spreadsheet pivot side panel", () => {
   let model: Model;
   let fixture: HTMLElement;
   let env: SpreadsheetChildEnv;
+  let notifyUser: jest.Mock;
 
   beforeEach(async () => {
-    ({ env, model, fixture } = await mountSpreadsheet());
+    notifyUser = jest.fn();
+    ({ env, model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Product", C1: "Amount",
@@ -270,6 +272,19 @@ describe("Spreadsheet pivot side panel", () => {
     await nextTick();
     expect((fixture.querySelector(".os-pivot-title") as HTMLInputElement).value).toEqual(name);
     expect(model.getters.getPivotName("1")).toEqual(name);
+  });
+
+  test("Cannot duplicate a pivot in error", async () => {
+    updatePivot(model, "1", { dataSet: undefined });
+    expect(model.getters.getPivot("1").isValid()).toBe(false);
+
+    await click(fixture, SELECTORS.COG_WHEEL);
+    await click(fixture, SELECTORS.DUPLICATE_PIVOT);
+    expect(notifyUser).toHaveBeenCalledWith({
+      sticky: false,
+      text: "Cannot duplicate a pivot in error.",
+      type: "danger",
+    });
   });
 
   test("Can duplicate a pivot and undo the whole action with one step backward", async () => {

@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { _t } from "../../../../translation";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { CommandResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../../components/section/section";
@@ -55,7 +55,14 @@ export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
       newPivotId,
       newSheetId,
     });
-    const text = result.isSuccessful ? _t("Pivot duplicated.") : _t("Pivot duplication failed");
+    let text: string;
+    if (result.isSuccessful) {
+      text = _t("Pivot duplicated.");
+    } else if (result.isCancelledBecause(CommandResult.PivotInError)) {
+      text = _t("Cannot duplicate a pivot in error.");
+    } else {
+      text = _t("Pivot duplication failed.");
+    }
     const type = result.isSuccessful ? "success" : "danger";
     this.env.notifyUser({
       text,
