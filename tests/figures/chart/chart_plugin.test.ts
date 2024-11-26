@@ -2128,6 +2128,25 @@ describe("Chart design configuration", () => {
     expect(label).toBe("Dataset 1: (500%, $6,000.00)");
   });
 
+  test("scatter chart trend line tooltip label", () => {
+    setGrid(model, { A1: "1", A2: "2", B1: "12", B2: "15" });
+
+    createChart(
+      model,
+      {
+        labelRange: "A1:A2",
+        dataSets: [{ dataRange: "B1:B2", trend: { type: "polynomial", order: 1, display: true } }],
+        type: "scatter",
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+    const chart = model.getters.getChartRuntime("1") as ScatterChartRuntime;
+    const label = getTooltipLabel(chart, 1, 0);
+
+    expect(label).toBe("Trend line for Series 1: 12");
+  });
+
   test.each(["line", "scatter", "bar", "combo"] as const)(
     "%s chart correctly use right axis if set up in definition",
     (chartType) => {
