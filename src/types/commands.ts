@@ -1307,6 +1307,7 @@ export const enum CommandResult {
   SheetIsHidden = "SheetIsHidden",
   InvalidTableResize = "InvalidTableResize",
   PivotIdNotFound = "PivotIdNotFound",
+  PivotInError = "PivotInError",
   EmptyName = "EmptyName",
   ValueCellIsInvalidFormula = "ValueCellIsInvalidFormula",
   InvalidDefinition = "InvalidDefinition",
