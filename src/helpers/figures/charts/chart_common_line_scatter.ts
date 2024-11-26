@@ -315,7 +315,10 @@ export function createLineOrScatterChartRuntime(
       formatValue(value, { format: labelFormat, locale });
     config.options.plugins!.tooltip!.callbacks!.label = (tooltipItem) => {
       const dataSetPoint = dataSetsValues[tooltipItem.datasetIndex!].data![tooltipItem.dataIndex!];
-      let label: string | number = tooltipItem.label || labelValues.values[tooltipItem.dataIndex!];
+      let label: string | number =
+        tooltipItem.dataset.xAxisID === TREND_LINE_XAXIS_ID
+          ? ""
+          : tooltipItem.label || labelValues.values[tooltipItem.dataIndex!];
       if (isNumber(label, locale)) {
         label = toNumber(label, locale);
       }
