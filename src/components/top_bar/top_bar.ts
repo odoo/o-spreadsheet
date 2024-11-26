@@ -11,6 +11,7 @@ import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { setStyle } from "../../actions/menu_items_actions";
 import {
+  ALERT_INFO_BORDER,
   BACKGROUND_HEADER_COLOR,
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
@@ -21,6 +22,7 @@ import {
 import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { Store, useStore } from "../../store_engine";
+import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ActionButton } from "../action_button/action_button";
 import { BorderEditorWidget } from "../border_editor/border_editor_widget";
@@ -71,6 +73,15 @@ css/* scss */ `
             color: ${BUTTON_ACTIVE_TEXT_COLOR};
           }
         }
+      }
+    }
+
+    .irregularity-map {
+      border-top: 1px solid ${SEPARATOR_COLOR};
+      height: ${TOPBAR_TOOLBAR_HEIGHT}px;
+
+      .alert-info {
+        border-left: 3px solid ${ALERT_INFO_BORDER};
       }
     }
 
@@ -172,9 +183,11 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
   composerFocusStore!: Store<ComposerFocusStore>;
+  fingerprints!: Store<FormulaFingerprintStore>;
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
+    this.fingerprints = useStore(FormulaFingerprintStore);
     useExternalListener(window, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
