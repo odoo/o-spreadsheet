@@ -49,6 +49,7 @@ import {
   Viewport,
   Zone,
 } from "../types/index";
+import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { RendererStore } from "./renderer_store";
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
@@ -59,10 +60,12 @@ export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
+  private fingerprints: Store<FormulaFingerprintStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
+    this.fingerprints = get(FormulaFingerprintStore);
     this.renderer.register(this);
   }
 
@@ -590,15 +593,22 @@ export class GridRenderer {
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getVisibleRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
-
+    let style = this.getters.getCellComputedStyle(position);
+    if (this.fingerprints.isEnabled) {
+      const fingerprintColor = this.fingerprints.colors.get(position);
+      style = { ...style, fillColor: fingerprintColor };
+    }
+    const dataBarFill = this.fingerprints.isEnabled
+      ? undefined
+      : this.getters.getConditionalDataBar(position);
     const box: Box = {
       x,
       y,
       width,
       height,
       border: this.getters.getCellComputedBorder(position) || undefined,
-      style: this.getters.getCellComputedStyle(position),
-      dataBarFill: this.getters.getConditionalDataBar(position),
+      style,
+      dataBarFill,
       verticalAlign,
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||
@@ -628,7 +638,6 @@ export class GridRenderer {
     const headerIconWidth = box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0;
 
     /** Content */
-    const style = this.getters.getCellComputedStyle(position);
     const wrapping = style.wrapping || "overflow";
     const wrapText = wrapping === "wrap" && !showFormula;
     const maxWidth = width - 2 * MIN_CELL_TEXT_MARGIN;

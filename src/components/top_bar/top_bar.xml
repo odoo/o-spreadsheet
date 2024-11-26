@@ -171,6 +171,27 @@
         </div>
         <TopBarComposer/>
       </div>
+      <div
+        t-if="this.fingerprints.isEnabled"
+        class="irregularity-map d-flex align-items-center justify-content-between">
+        <div
+          t-on-click="() => this.fingerprints.disable()"
+          role="button"
+          title="This tool analyzes spreadsheet formulas for patterns and highlights inconsistencies. Irregularities may indicate potential errors in formula structures, references, or arguments. (Click to turn off)"
+          class="h-100 d-flex align-items-center text-info px-3">
+          <t t-call="o-spreadsheet-Icon.IRREGULARITY_MAP"/>
+          Irregularity map
+        </div>
+        <div
+          class="ps-3 h-100 flex-fill d-flex justify-content-between align-items-center rounded-0 alert alert-info ps-0 py-0 my-0">
+          This tool analyzes formulas for patterns and highlights
+          inconsistencies. Irregularities may indicate potential errors in formula
+          structures, references or arguments.
+          <div class="btn btn-link align-self-end" t-on-click="() => this.fingerprints.disable()">
+            Turn off
+          </div>
+        </div>
+      </div>
     </div>
     <Menu
       t-if="state.menuState.isOpen"

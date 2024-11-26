@@ -190,6 +190,7 @@ export interface CompiledFormula {
   tokens: Token[];
   dependencies: string[];
   isBadExpression: boolean;
+  normalizedFormula: string;
 }
 
 export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencies"> {
