@@ -5,11 +5,25 @@ import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_piv
 import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { CellPosition, HeaderIndex, PivotTableCell, PivotTableData, UID, Zone } from "../../types";
-import { Command } from "../../types/commands";
+import { Command, CommandResult } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class InsertPivotPlugin extends UIPlugin {
   static getters = [] as const;
+
+  allowDispatch(cmd: Command) {
+    switch (cmd.type) {
+      case "DUPLICATE_PIVOT_IN_NEW_SHEET":
+        if (!this.getters.isExistingPivot(cmd.pivotId)) {
+          return CommandResult.PivotIdNotFound;
+        }
+        if (!this.getters.getPivot(cmd.pivotId).isValid()) {
+          return CommandResult.PivotInError;
+        }
+        break;
+    }
+    return CommandResult.Success;
+  }
 
   handle(cmd: Command) {
     switch (cmd.type) {
