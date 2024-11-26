@@ -58,7 +58,11 @@ export function getLineChartTooltip(
   if (axisType === "linear") {
     tooltip.callbacks!.label = (tooltipItem) => {
       const dataSetPoint = tooltipItem.parsed.y as CellValue;
-      let label = tooltipItem.parsed.x as CellValue;
+      let label =
+        tooltipItem.dataset.xAxisID === TREND_LINE_XAXIS_ID
+          ? ""
+          : (tooltipItem.parsed.x as CellValue);
+
       if (typeof label === "string" && isNumber(label, locale)) {
         label = toNumber(label, locale);
       }
