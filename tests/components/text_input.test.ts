@@ -1,7 +1,12 @@
 import { Component, xml } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../src";
 import { TextInput } from "../../src/components/text_input/text_input";
-import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import {
+  click,
+  keyDown,
+  setInputValueAndTrigger,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { mountComponent } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -64,9 +69,9 @@ describe("TextInput", () => {
     expect(onChange).toHaveBeenCalledWith("world");
   });
 
-  test("selects input content upon focus", async () => {
+  test("selects input content upon mouseup", async () => {
     await mountTextInput({ value: "hello", onChange: () => {} });
-    fixture.querySelector("input")!.focus();
+    triggerMouseEvent("input", "pointerup");
     expect(fixture.querySelector("input")!.selectionStart).toEqual(0);
     expect(fixture.querySelector("input")!.selectionEnd).toEqual(5);
   });
