@@ -1,4 +1,6 @@
+import { compile } from "../../formulas";
 import {
+  copyRangeWithNewSheetId,
   createAdaptedZone,
   getCanonicalSymbolName,
   groupConsecutive,
@@ -41,6 +43,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   static getters = [
+    "adaptFormulaStringDependencies",
+    "copyFormulaStringForSheet",
     "extendRange",
     "getRangeString",
     "getRangeFromSheetXC",
@@ -486,6 +490,51 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const zones = ranges.map((range) => RangeImpl.fromRange(range, this.getters).unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
+  }
+
+  adaptFormulaStringDependencies(
+    sheetId: UID,
+    formula: string,
+    applyChange: ApplyRangeChange
+  ): string {
+    if (!formula.startsWith("=")) {
+      return formula;
+    }
+
+    const compiledFormula = compile(formula);
+    const updatedDependencies = compiledFormula.dependencies.map((dep) => {
+      const range = this.getters.getRangeFromSheetXC(sheetId, dep);
+      const changedRange = applyChange(range);
+      return changedRange.changeType === "NONE" ? range : changedRange.range;
+    });
+    return this.getters.getFormulaString(sheetId, compiledFormula.tokens, updatedDependencies);
+  }
+
+  /**
+   * Copy a formula string to another sheet.
+   *
+   * @param mode
+   * `keepSameReference` will make the formula reference the exact same ranges,
+   * `moveReference` will change all the references to `sheetIdFrom` into references to `sheetIdTo`.
+   */
+  copyFormulaStringForSheet(
+    sheetIdFrom: UID,
+    sheetIdTo: UID,
+    formula: string,
+    mode: "keepSameReference" | "moveReference"
+  ): string {
+    if (!formula.startsWith("=")) {
+      return formula;
+    }
+
+    const compiledFormula = compile(formula);
+    const updatedDependencies = compiledFormula.dependencies.map((dep) => {
+      const range = this.getters.getRangeFromSheetXC(sheetIdFrom, dep);
+      return mode === "keepSameReference"
+        ? range
+        : copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, range);
+    });
+    return this.getters.getFormulaString(sheetIdTo, compiledFormula.tokens, updatedDependencies);
   }
 
   // ---------------------------------------------------------------------------

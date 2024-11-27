@@ -7,10 +7,14 @@ import {
   SectionRule,
 } from "../../../../src/types/chart/gauge_chart";
 import {
+  activateSheet,
   addColumns,
+  copy,
   createGaugeChart,
   createSheet,
   deleteSheet,
+  duplicateSheet,
+  paste,
   redo,
   setCellContent,
   setFormat,
@@ -128,11 +132,67 @@ describe("datasource tests", function () {
     });
   });
 
-  test("ranges in gauge definition change automatically", () => {
-    createGaugeChart(model, { dataRange: "Sheet1!B1:B4" }, "chartId");
-    addColumns(model, "before", "A", 2);
-    const chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
-    expect(chart.dataRange).toStrictEqual("Sheet1!D1:D4");
+  describe("Gauge ranges are adapted", () => {
+    beforeEach(() => {
+      createSheet(model, { sheetId: "Sheet2", name: "Sheet2" });
+      createGaugeChart(
+        model,
+        {
+          dataRange: "Sheet1!B1:B4",
+          sectionRule: {
+            ...randomSectionRule,
+            rangeMin: "=A1+5",
+            rangeMax: "=C8",
+            lowerInflectionPoint: { operator: "<", type: "percentage", value: "=Sheet2!A2" },
+            upperInflectionPoint: { operator: "<", type: "number", value: "=SUM(Sheet1!B1:C4)" },
+          },
+        },
+        "chartId"
+      );
+    });
+
+    test("ranges in gauge definition change automatically", () => {
+      addColumns(model, "before", "A", 2);
+      const chart = model.getters.getChartDefinition("chartId") as GaugeChartDefinition;
+      expect(chart.dataRange).toStrictEqual("Sheet1!D1:D4");
+      expect(chart.sectionRule).toMatchObject({
+        rangeMin: "=C1+5",
+        rangeMax: "=E8",
+        lowerInflectionPoint: { operator: "<", type: "percentage", value: "=Sheet2!A2" },
+        upperInflectionPoint: { operator: "<", type: "number", value: "=SUM(Sheet1!D1:E4)" },
+      });
+    });
+
+    test("copying a gauge chart in another sheet keep the ranges referencing to the same sheet", () => {
+      model.dispatch("SELECT_FIGURE", { id: "chartId" });
+      copy(model);
+
+      activateSheet(model, "Sheet2");
+      paste(model, "A1");
+
+      const copiedChartId = model.getters.getChartIds("Sheet2")[0];
+      const chart = model.getters.getChartDefinition(copiedChartId) as GaugeChartDefinition;
+      expect(chart.dataRange).toStrictEqual("Sheet1!B1:B4");
+      expect(chart.sectionRule).toMatchObject({
+        rangeMin: "=Sheet1!A1+5",
+        rangeMax: "=Sheet1!C8",
+        lowerInflectionPoint: { operator: "<", type: "percentage", value: "=Sheet2!A2" },
+        upperInflectionPoint: { operator: "<", type: "number", value: "=SUM(Sheet1!B1:C4)" },
+      });
+    });
+
+    test("gauge ranges are adapted when duplicating a sheet", () => {
+      duplicateSheet(model, "Sheet1", "Sheet3");
+      const duplicatedChartId = model.getters.getChartIds("Sheet3")[0];
+      const chart = model.getters.getChartDefinition(duplicatedChartId) as GaugeChartDefinition;
+      expect(chart.dataRange).toStrictEqual("'Copy of Sheet1'!B1:B4");
+      expect(chart.sectionRule).toMatchObject({
+        rangeMin: "=A1+5",
+        rangeMax: "=C8",
+        lowerInflectionPoint: { type: "percentage", value: "=Sheet2!A2" },
+        upperInflectionPoint: { type: "number", value: "=SUM('Copy of Sheet1'!B1:C4)" },
+      });
+    });
   });
 
   test("can delete an imported gauge chart", () => {

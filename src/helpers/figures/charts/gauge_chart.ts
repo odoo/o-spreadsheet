@@ -203,26 +203,37 @@ export class GaugeChart extends AbstractChart {
 
   copyForSheetId(sheetId: UID): GaugeChart {
     const dataRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.dataRange);
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sheetId);
+
+    const adaptFormula = (formula: string) =>
+      this.getters.copyFormulaStringForSheet(this.sheetId, sheetId, formula, "moveReference");
+
+    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
+
+    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule, sheetId);
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): GaugeChart {
-    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sheetId);
+    const adaptFormula = (formula: string) =>
+      this.getters.copyFormulaStringForSheet(this.sheetId, sheetId, formula, "keepSameReference");
+
+    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
+    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sectionRule, sheetId);
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): GaugeChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.dataRange);
+    return this.getDefinitionWithSpecificRanges(this.dataRange, this.sectionRule);
   }
 
   private getDefinitionWithSpecificRanges(
     dataRange: Range | undefined,
+    sectionRule: SectionRule,
     targetSheetId?: UID
   ): GaugeChartDefinition {
     return {
       background: this.background,
-      sectionRule: this.sectionRule,
+      sectionRule: sectionRule,
       title: this.title,
       type: "gauge",
       dataRange: dataRange
@@ -246,11 +257,12 @@ export class GaugeChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): GaugeChart {
-    const range = adaptChartRange(this.dataRange, applyChange);
-    if (this.dataRange === range) {
-      return this;
-    }
-    const definition = this.getDefinitionWithSpecificRanges(range);
+    const dataRange = adaptChartRange(this.dataRange, applyChange);
+
+    const adaptFormula = (formula: string) =>
+      this.getters.adaptFormulaStringDependencies(this.sheetId, formula, applyChange);
+    const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
+    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule);
     return new GaugeChart(definition, this.sheetId, this.getters);
   }
 }
@@ -387,5 +399,24 @@ function getInvalidGaugeRuntime(chart: GaugeChart, getters: Getters): GaugeChart
     gaugeValue: { value: 0, label: CellErrorType.GenericError },
     inflectionValues: [],
     colors: [],
+  };
+}
+
+function adaptSectionRuleFormulas(
+  sectionRule: SectionRule,
+  adaptCallback: (formula: string) => string
+) {
+  return {
+    ...sectionRule,
+    rangeMin: adaptCallback(sectionRule.rangeMin),
+    rangeMax: adaptCallback(sectionRule.rangeMax),
+    lowerInflectionPoint: {
+      ...sectionRule.lowerInflectionPoint,
+      value: adaptCallback(sectionRule.lowerInflectionPoint.value),
+    },
+    upperInflectionPoint: {
+      ...sectionRule.upperInflectionPoint,
+      value: adaptCallback(sectionRule.upperInflectionPoint.value),
+    },
   };
 }
