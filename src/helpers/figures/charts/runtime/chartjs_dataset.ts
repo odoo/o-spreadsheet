@@ -22,6 +22,7 @@ import {
   SunburstChartJSDataset,
   SunburstChartRawData,
   SunburstTreeNode,
+  TitleDesign,
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
@@ -32,12 +33,20 @@ import {
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import {
+  TreeMapChartDefaults,
+  TreeMapChartDefinition,
+  TreeMapTree,
+} from "../../../../types/chart/tree_map_chart";
+import {
   ColorGenerator,
   colorToRGBA,
   lightenColor,
+  relativeLuminance,
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
+import { formatValue } from "../../../format/format";
+import { isDefined, range } from "../../../misc";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
@@ -505,6 +514,91 @@ function pyramidizeTree(tree: SunburstTreeNode[]): SunburstTreeNode[][] {
     }
   }
   return flattened;
+}
+
+export function getTreeMapChartDatasets(
+  definition: TreeMapChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartDataset<"treemap">[] {
+  const { dataSetsValues, labels, locale, axisFormats } = args;
+  const localeFormat = { locale, format: axisFormats?.y };
+
+  if (dataSetsValues.length === 0) {
+    return [];
+  }
+
+  const tree: TreeMapTree = [];
+  const maxDatasetLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
+  for (let i = 0; i < maxDatasetLength; i++) {
+    tree[i] = {};
+    for (let j = 0; j < dataSetsValues.length; j++) {
+      // ADRM TODO
+      // Note: there can be empty child groups. Eg. a dataset with "January" detailed week by week, and "February" with only
+      // the total for the month. Leaving undefined values in the tree breaks the chart. We'll repeat the last group value.
+      // This leads to repeated labels/subtitles in the chart, but it's better than nothing.
+      // const groupBy = dataSetsValues[j].data[i]
+      //   ? String(dataSetsValues[j].data[i])
+      //   : tree[i][j - 1];
+      const groupBy = dataSetsValues[j].data[i] ? String(dataSetsValues[j].data[i]) : undefined;
+
+      tree[i][j] = groupBy;
+    }
+    tree[i].value = Number(labels[i]);
+  }
+
+  const showLabels = definition.showLabels ?? TreeMapChartDefaults.showLabels;
+  const showValues = definition.showValues ?? TreeMapChartDefaults.showValues;
+
+  const dataSets: ChartDataset<"treemap">[] = [
+    {
+      data: [],
+      tree,
+      labels: {
+        display: showLabels || showValues,
+        overflow: "hidden",
+        ...getTextStyle(definition.valuesDesign, TreeMapChartDefaults.valuesDesign),
+        formatter: (ctx) => {
+          return [
+            showLabels ? ctx.raw.g : undefined,
+            showValues ? formatValue(ctx.raw.v, localeFormat) : undefined,
+          ].filter(isDefined);
+        },
+      },
+      captions: {
+        display: definition.showHeaders ?? TreeMapChartDefaults.showHeaders,
+        padding: 6,
+        ...getTextStyle(definition.headerDesign, TreeMapChartDefaults.headerDesign),
+      },
+      key: "value",
+      groups: range(0, dataSetsValues.length).map((i) => String(i)),
+      // borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderColor: "#f00",
+      hoverBorderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderWidth: 0,
+      spacing: 1,
+      displayMode: "headerBoxes",
+    },
+  ];
+
+  return dataSets;
+}
+
+function getTextStyle(design: TitleDesign | undefined, defaultDesign: TitleDesign) {
+  const dynamicColor = (ctx: any) => {
+    const backgroundColor = ctx.element.options.backgroundColor;
+    return relativeLuminance(backgroundColor) > 0.7 ? "#666666" : "#FFFFFF";
+  };
+  return {
+    align: design?.align || defaultDesign?.align,
+    position: design?.verticalAlign || defaultDesign?.verticalAlign,
+    color: design?.color || dynamicColor,
+    hoverColor: design?.color || dynamicColor,
+    font: {
+      weight: design?.bold ?? defaultDesign?.bold ? "bold" : "normal",
+      style: design?.italic ?? defaultDesign?.italic ? "italic" : "normal",
+      size: design?.fontSize ?? defaultDesign?.fontSize,
+    },
+  } as const;
 }
 
 function getTrendingLineDataSet(

@@ -17,6 +17,8 @@ import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_cha
 import { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
 import { SunburstChartConfigPanel } from "./sunburst_chart/sunburst_chart_config_panel";
 import { SunburstChartDesignPanel } from "./sunburst_chart/sunburst_chart_design_panel";
+import { TreeMapChartConfigPanel } from "./treemap_chart/treemap_chart_config_panel";
+import { TreeMapChartDesignPanel } from "./treemap_chart/treemap_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./waterfall_chart/waterfall_chart_design_panel";
 
 export { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
@@ -87,4 +89,8 @@ chartSidePanelComponentRegistry
   .add("funnel", {
     configuration: GenericChartConfigPanel,
     design: FunnelChartDesignPanel,
+  })
+  .add("treemap", {
+    configuration: TreeMapChartConfigPanel,
+    design: TreeMapChartDesignPanel,
   });

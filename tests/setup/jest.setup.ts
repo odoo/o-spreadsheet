@@ -4,6 +4,7 @@
 import { App } from "@odoo/owl";
 import * as Chart from "chart.js";
 import { setDefaultSheetViewSize } from "../../src/constants";
+import "../../src/types/chart/chartjs_tree_map_type";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import "./canvas.mock";
 import "./jest_extend";
