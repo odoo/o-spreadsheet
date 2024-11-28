@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
-import { MIN_DELAY, lettersToNumber, scrollDelay, toZone } from "../../src/helpers";
+import { MIN_DELAY, lettersToNumber, scrollDelay, toHex, toZone } from "../../src/helpers";
 import { DOMCoordinates, Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
@@ -421,4 +421,45 @@ export function getHTMLCheckboxValue(target: DOMTarget): boolean {
 export function getHTMLRadioValue(target: DOMTarget): string {
   const radio = getTarget(target) as HTMLInputElement;
   return radio.querySelector<HTMLInputElement>("input:checked")!.value;
+}
+
+export function getRoundColorPickerValue(selector: string) {
+  const color = document
+    .querySelector<HTMLElement>(selector)!
+    .querySelector<HTMLElement>(".o-round-color-picker-button")?.style.background;
+  return toHex(color ?? "");
+}
+
+export async function changeRoundColorPickerColor(selector: string, color: string | undefined) {
+  const button = document
+    .querySelector<HTMLElement>(selector)!
+    .querySelector(".o-round-color-picker-button")!;
+  await click(button);
+  if (!color) {
+    await click(document.body, ".o-color-picker .o-cancel");
+  } else {
+    await click(document.body, `.o-color-picker-line-item[data-color='${color}'`);
+  }
+}
+
+export function getColorPickerWidgetColor(selector: string, widgetTitle: string) {
+  const el = document
+    .querySelector<HTMLElement>(selector)!
+    .querySelector<HTMLElement>(`.o-color-picker-button[title="${widgetTitle}"] span`);
+
+  const color = el?.style.borderColor;
+  return toHex(color ?? "");
+}
+
+export async function changeColorPickerWidgetColor(
+  selector: string,
+  widgetTitle: string,
+  color: string
+) {
+  const widgetButton = document
+    .querySelector<HTMLElement>(selector)!
+    .querySelector<HTMLElement>(`.o-color-picker-button[title="${widgetTitle}"]`)!;
+
+  await click(widgetButton);
+  await click(document.querySelector(`.o-color-picker-line-item[data-color="${color}"]`)!);
 }

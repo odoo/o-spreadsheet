@@ -15,6 +15,7 @@ import {
   ScorecardChart,
   createScorecardChartRuntime,
 } from "../helpers/figures/charts/scorecard_chart";
+import { TreeMapChart, createTreeMapChartRuntime } from "../helpers/figures/charts/tree_map_chart";
 import {
   WaterfallChart,
   createWaterfallChartRuntime,
@@ -45,6 +46,7 @@ import { ComboChartDefinition } from "../types/chart/combo_chart";
 import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
 import { RadarChartDefinition } from "../types/chart/radar_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
+import { TreeMapChartDefinition } from "../types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../types/chart/waterfall_chart";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
@@ -180,6 +182,16 @@ chartRegistry.add("radar", {
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
   sequence: 80,
 });
+chartRegistry.add("treemap", {
+  match: (type) => type === "treemap",
+  createChart: (definition, sheetId, getters) =>
+    new TreeMapChart(definition as TreeMapChartDefinition, sheetId, getters),
+  getChartRuntime: createTreeMapChartRuntime,
+  validateChartDefinition: TreeMapChart.validateChartDefinition,
+  transformDefinition: TreeMapChart.transformDefinition,
+  getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
+  sequence: 90,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -192,6 +204,7 @@ chartComponentRegistry.add("scorecard", ScorecardChartComponent);
 chartComponentRegistry.add("waterfall", ChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);
 chartComponentRegistry.add("radar", ChartJsComponent);
+chartComponentRegistry.add("treemap", ChartJsComponent);
 
 type ChartUICategory = keyof typeof chartCategories;
 
@@ -378,4 +391,12 @@ chartSubtypeRegistry
     subtypeDefinition: { fillArea: true },
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.FILLED_RADAR_CHART",
+  })
+  .add("treemap", {
+    matcher: (definition) => definition.type === "treemap",
+    displayName: _t("Tree Map"),
+    chartType: "treemap",
+    chartSubtype: "treemap",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.TREE_MAP_CHART",
   });
