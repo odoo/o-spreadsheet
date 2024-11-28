@@ -325,11 +325,14 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
  * Choose a font color based on a background color.
  * The font is white with a dark background.
  */
-export function chartFontColor(backgroundColor: Color | undefined): Color {
+export function chartFontColor(
+  backgroundColor: Color | undefined,
+  luminanceThreshold = 0.3
+): Color {
   if (!backgroundColor) {
     return "#000000";
   }
-  return relativeLuminance(backgroundColor) < 0.3 ? "#FFFFFF" : "#000000";
+  return relativeLuminance(backgroundColor) < luminanceThreshold ? "#FFFFFF" : "#000000";
 }
 
 export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {

@@ -1,12 +1,17 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { LineChart } from "../../../src/helpers/figures/charts";
-import { getChartLegendLabels, isChartAxisStacked } from "../../test_helpers/chart_helpers";
+import {
+  TEST_CREATION_CONTEXT,
+  getChartLegendLabels,
+  isChartAxisStacked,
+} from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
 
 describe("line chart", () => {
   test("create line chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
+      ...TEST_CREATION_CONTEXT,
       background: "#123456",
       title: { text: "hello there" },
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
@@ -17,9 +22,6 @@ describe("line chart", () => {
       dataSetsHaveTitle: true,
       aggregated: true,
       stacked: true,
-      firstValueAsSubtotal: true,
-      showConnectorLines: false,
-      showSubTotals: true,
       axesDesign: {},
       fillArea: true,
       showValues: false,

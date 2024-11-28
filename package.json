@@ -13,7 +13,7 @@
     "dist/*.xml"
   ],
   "scripts": {
-    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,demo",
+    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,demo,src/lib",
     "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
     "server": "node tools/server/main.cjs",
     "build:js": "tsc --module es6 --incremental",

@@ -1,4 +1,4 @@
-import { Model, SpreadsheetChildEnv, UID } from "../../src";
+import { ChartCreationContext, Model, SpreadsheetChildEnv, UID } from "../../src";
 import { simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
 
@@ -37,3 +37,27 @@ export async function openChartDesignSidePanel(
   }
   await simulateClick(".o-panel-element.inactive");
 }
+
+export const TEST_CREATION_CONTEXT: Required<ChartCreationContext> = {
+  background: "#123456",
+  title: { text: "hello there" },
+  range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+  auxiliaryRange: "Sheet1!A1:A4",
+  legendPosition: "bottom",
+  cumulative: true,
+  labelsAsText: true,
+  dataSetsHaveTitle: true,
+  aggregated: true,
+  stacked: true,
+  firstValueAsSubtotal: true,
+  showConnectorLines: false,
+  showSubTotals: true,
+  axesDesign: {},
+  fillArea: true,
+  showValues: false,
+  headerDesign: { bold: false },
+  showHeaders: true,
+  showLabels: false,
+  valuesDesign: { italic: true },
+  coloringOptions: { type: "solidColor", colors: [], hasGradient: true },
+};

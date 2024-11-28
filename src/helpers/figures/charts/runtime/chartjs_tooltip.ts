@@ -12,6 +12,7 @@ import {
   WaterfallChartDefinition,
 } from "../../../../types/chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { formatValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { TREND_LINE_XAXIS_ID, formatChartDatasetValue } from "../chart_common";
@@ -172,6 +173,31 @@ export function getRadarChartTooltip(
         const yLabel = tooltipItem.parsed.r;
         const formattedY = formatValue(yLabel, { format: axisFormats?.r, locale });
         return xLabel ? `${xLabel}: ${formattedY}` : formattedY;
+      },
+    },
+  };
+}
+
+export function getTreeMapChartTooltip(
+  definition: TreeMapChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  const { locale, axisFormats, dataSetsValues } = args;
+  const format = axisFormats?.y;
+  return {
+    filter: (tooltipItem: any) => {
+      const depth = tooltipItem.raw.l;
+      return depth === dataSetsValues.length - 1;
+    },
+    callbacks: {
+      title: () => "",
+      label: (tooltipItem: any) => {
+        const xLabel = tooltipItem.raw.g;
+        const yLabel = tooltipItem.raw.v;
+        const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
+        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+
+        return xLabel ? `${xLabel}: ${yLabelStr}` : `${yLabelStr} `;
       },
     },
   };

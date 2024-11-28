@@ -7,7 +7,7 @@ import {
   polynomialRegression,
   predictLinearValues,
 } from "../../../../functions/helper_statistical";
-import { isEvaluationError, toNumber } from "../../../../functions/helpers";
+import { toNumber } from "../../../../functions/helpers";
 import { CellValue, Format, GenericDefinition, Getters, Locale, Range } from "../../../../types";
 import {
   AxisType,
@@ -22,10 +22,10 @@ import {
   TrendConfiguration,
 } from "../../../../types/chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { isDateTimeFormat } from "../../../format/format";
 import { deepCopy, findNextDefinedValue, range } from "../../../misc";
-import { isNumber } from "../../../numbers";
 import { recomputeZones } from "../../../recompute_zones";
 import { truncateLabel } from "../chart_ui_common";
 
@@ -233,6 +233,35 @@ export function getRadarChartData(
     getChartDatasetFormat(getters, dataSets, "left") ||
     getChartDatasetFormat(getters, dataSets, "right");
   const axisFormats = { r: dataSetFormat };
+
+  return {
+    dataSetsValues,
+    axisFormats,
+    labels,
+    locale: getters.getLocale(),
+  };
+}
+
+export function getTreeMapChartData(
+  definition: GenericDefinition<TreeMapChartDefinition>,
+  dataSets: DataSet[],
+  labelRange: Range | undefined,
+  getters: Getters
+): ChartRuntimeGenerationArgs {
+  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  let labels = labelValues.values;
+  let dataSetsValues = getChartDatasetValues(getters, dataSets);
+  if (
+    definition.dataSetsHaveTitle &&
+    dataSetsValues[0] &&
+    labels.length > dataSetsValues[0].data.length
+  ) {
+    labels.shift();
+  }
+
+  // ADRM TODO: filter data
+
+  const axisFormats = { y: getChartLabelFormat(getters, labelRange) };
 
   return {
     dataSetsValues,
@@ -676,22 +705,23 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
       label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
     }
     let data = ds.dataRange ? getData(getters, ds) : [];
-    if (
-      data.every((e) => typeof e === "string" && !isEvaluationError(e)) &&
-      data.some((e) => e !== "")
-    ) {
-      // In this case, we want a chart based on the string occurrences count
-      // This will be done by associating each string with a value of 1 and
-      // then using the classical aggregation method to sum the values.
-      data.fill(1);
-    } else if (
-      data.every(
-        (cell) =>
-          cell === undefined || cell === null || !isNumber(cell.toString(), getters.getLocale())
-      )
-    ) {
-      continue;
-    }
+    // ADRM TODO
+    // if (
+    //   data.every((e) => typeof e === "string" && !isEvaluationError(e)) &&
+    //   data.some((e) => e !== "")
+    // ) {
+    //   // In this case, we want a chart based on the string occurrences count
+    //   // This will be done by associating each string with a value of 1 and
+    //   // then using the classical aggregation method to sum the values.
+    //   data.fill(1);
+    // } else if (
+    //   data.every(
+    //     (cell) =>
+    //       cell === undefined || cell === null || !isNumber(cell.toString(), getters.getLocale())
+    //   )
+    // ) {
+    //   continue;
+    // }
     datasetValues.push({ data, label });
   }
   return datasetValues;

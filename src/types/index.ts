@@ -35,8 +35,10 @@ export * from "./rendering";
 export * from "./table";
 export * from "./workbook_data";
 
+// import { TreemapDataPoint } from "chartjs-chart-treemap";
 declare global {
   interface Window {
     Chart: typeof Chart;
   }
+  // let v: TreemapDataPoint; // ADRM TODO: delete this and find a better way to force import of treemap
 }

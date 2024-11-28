@@ -14,18 +14,26 @@ import {
   LineChartDefinition,
   PieChartDefinition,
   ScatterChartDefinition,
+  TitleDesign,
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import {
+  TreeMapChartDefaults,
+  TreeMapChartDefinition,
+} from "../../../../types/chart/tree_map_chart";
+import {
   ColorGenerator,
   colorToRGBA,
+  getColorScale,
   lightenColor,
+  relativeLuminance,
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
+import { isDefined, range } from "../../../misc";
 import { TREND_LINE_XAXIS_ID, getPieColors } from "../chart_common";
 import { truncateLabel } from "../chart_ui_common";
 
@@ -274,6 +282,152 @@ export function getRadarChartDatasets(
     datasets.push(dataset);
   }
   return datasets;
+}
+
+export function getTreeMapChartDatasets(
+  definition: TreeMapChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartDataset<"treemap">[] {
+  const { dataSetsValues, labels } = args;
+
+  if (dataSetsValues.length === 0) {
+    return [];
+  }
+
+  const rootCategories = new Set<string>();
+  const tree: Record<string, string | number>[] = [];
+  const maxDatasetLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
+  for (let i = 0; i < maxDatasetLength; i++) {
+    tree[i] = {};
+    for (let j = 0; j < dataSetsValues.length; j++) {
+      tree[i][j] = String(dataSetsValues[j].data[i]);
+      if (j === 0) {
+        rootCategories.add(String(dataSetsValues[j].data[i]));
+      }
+    }
+    tree[i].value = Number(labels[i]) || 0;
+  }
+
+  const colorGenerator = getChartColorsGenerator(definition, dataSetsValues.length);
+  const rootCategoriesColors: Record<string, Color> = {};
+  for (const category of rootCategories) {
+    rootCategoriesColors[category] = colorGenerator.next();
+  }
+  console.log(tree, definition);
+
+  const maxDepth = dataSetsValues.length - 1;
+
+  const showLabels = definition.showLabels ?? TreeMapChartDefaults.showLabels;
+  const showValues = definition.showValues ?? TreeMapChartDefaults.showValues;
+
+  let colorScale: ((value: number) => Color) | undefined = undefined;
+  const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
+  if (coloringOption.type === "colorScale") {
+    const minValue = Math.min(...tree.map((node) => node.value as number));
+    const maxValue = Math.max(...tree.map((node) => node.value as number));
+    console.log(minValue, maxValue);
+    if (!isNaN(minValue) && !isNaN(maxValue)) {
+      const colorThresholds = [{ value: minValue, color: coloringOption.minColor }];
+      if (coloringOption.midColor) {
+        const midValue = (minValue + maxValue) / 2;
+        colorThresholds.push({ value: midValue, color: coloringOption.midColor });
+      }
+      colorThresholds.push({ value: maxValue, color: coloringOption.maxColor });
+      colorScale = getColorScale(colorThresholds);
+    }
+  }
+
+  const dataSets: ChartDataset<"treemap">[] = [
+    {
+      data: [],
+      tree,
+      labels: {
+        display: showLabels || showValues,
+        overflow: "hidden",
+        ...getTextStyle(definition.valuesDesign, TreeMapChartDefaults.valuesDesign),
+        formatter: (ctx) => {
+          return [
+            showLabels ? ctx.raw.g : undefined,
+            showValues ? String(ctx.raw.v) : undefined,
+          ].filter(isDefined);
+        },
+      },
+      captions: {
+        display: definition.showHeaders ?? TreeMapChartDefaults.showHeaders,
+        padding: 6,
+        ...getTextStyle(definition.headerDesign, TreeMapChartDefaults.headerDesign, 15),
+      },
+      key: "value",
+      groups: range(0, dataSetsValues.length).map((i) => String(i)),
+      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      hoverBorderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderWidth: 2,
+      spacing: 0,
+      backgroundColor: (ctx: any) =>
+        treeMapBackgroundColor(ctx, tree, maxDepth, rootCategoriesColors, definition, colorScale),
+    },
+  ];
+
+  return dataSets;
+}
+
+function treeMapBackgroundColor(
+  ctx: any,
+  tree: Record<string, string | number>[],
+  maxDepth: number,
+  rootCategoriesColors: Record<string, Color>,
+  definition: TreeMapChartDefinition,
+  colorScale: ((value: number) => Color) | undefined
+) {
+  if (ctx.type !== "data") {
+    return "transparent";
+  }
+  if (ctx.raw.l !== maxDepth) {
+    return definition.headerDesign?.fillColor || TreeMapChartDefaults.headerDesign?.fillColor;
+  }
+  const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
+  if (coloringOption.type === "solidColor") {
+    const rootCategory = ctx.raw._data.children[0][0];
+    const baseColor = rootCategoriesColors[rootCategory];
+    if (!baseColor) {
+      return "#FF0000";
+    }
+
+    const value = ctx.raw.v;
+    const nodes = tree.filter((node) => node[0] === rootCategory);
+    const max = nodes.reduce((acc, node) => Math.max(acc, node.value as number), 0);
+    const min = nodes.reduce((acc, node) => Math.min(acc, node.value as number), Infinity);
+    if (min === max) {
+      return baseColor;
+    }
+
+    const alpha = ((value - max) / (min - max)) * 0.5;
+    return lightenColor(baseColor, alpha);
+  } else {
+    return colorScale?.(ctx.raw.v) || "#FF0000";
+  }
+}
+
+function getTextStyle(
+  design: TitleDesign | undefined,
+  defaultDesign: TitleDesign,
+  fontSize?: number
+) {
+  const dynamicColor = (ctx: any) => {
+    const backgroundColor = ctx.element.options.backgroundColor;
+    return relativeLuminance(backgroundColor) > 0.7 ? "#666666" : "#FFFFFF";
+  };
+  return {
+    align: design?.align || defaultDesign?.align,
+    position: design?.verticalAlign || defaultDesign?.verticalAlign,
+    color: design?.color || dynamicColor,
+    hoverColor: design?.color || dynamicColor,
+    font: {
+      weight: design?.bold ?? defaultDesign?.bold ? "bold" : "normal",
+      style: design?.italic ?? defaultDesign?.italic ? "italic" : "normal",
+      size: fontSize,
+    },
+  } as const;
 }
 
 function getTrendingLineDataSet(
