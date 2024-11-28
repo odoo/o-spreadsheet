@@ -1,4 +1,4 @@
-import { ChartDataset } from "chart.js";
+import { ChartDataset, Point } from "chart.js";
 import {
   BACKGROUND_CHART_COLOR,
   CHART_WATERFALL_NEGATIVE_COLOR,
@@ -329,7 +329,7 @@ export function getGeoChartDatasets(
 function getTrendingLineDataSet(
   dataset: ChartDataset<"line" | "bar">,
   config: TrendConfiguration,
-  data: (number | null)[]
+  data: Point[]
 ): ChartDataset<"line"> {
   const defaultBorderColor = colorToRGBA(dataset.backgroundColor as Color);
   defaultBorderColor.a = 1;

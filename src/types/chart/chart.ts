@@ -1,3 +1,4 @@
+import { Point } from "chart.js";
 import { Align, Color, Format, Locale, Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
@@ -169,7 +170,7 @@ export interface ChartRuntimeGenerationArgs {
   axisFormats: ChartAxisFormats;
   labels: string[];
   locale: Locale;
-  trendDataSetsValues?: ((number | null)[] | undefined)[];
+  trendDataSetsValues?: (Point[] | undefined)[];
   axisType?: AxisType;
 }
 

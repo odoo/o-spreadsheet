@@ -106,14 +106,18 @@ export function getLineChartScales(
     /* We add a second x axis here to draw the trend lines, with the labels length being
      * set so that the second axis points match the classical x axis
      */
-    const maxLength = Math.max(...trendDatasets.map((trendDataset) => trendDataset?.length || 0));
     scales[TREND_LINE_XAXIS_ID] = {
       ...(scales.x as any),
-      type: "category",
-      labels: range(0, maxLength).map((x) => x.toString()),
-      offset: false,
       display: false,
     };
+    if (axisType === "category") {
+      /* We add a second x axis here to draw the trend lines, with the labels length being
+       * set so that the second axis points match the classical x axis
+       */
+      const maxLength = Math.max(...trendDatasets.map((trendDataset) => trendDataset?.length || 0));
+      scales[TREND_LINE_XAXIS_ID]!["labels"] = range(0, maxLength).map((x) => x.toString());
+      scales[TREND_LINE_XAXIS_ID]!["offset"] = false;
+    }
   }
 
   return scales;
