@@ -90,7 +90,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       {
         name: "aggregated",
         label: this.chartTerms.AggregatedChart,
-        value: this.props.definition.aggregated ?? false,
+        value: ("aggregated" in this.props.definition && this.props.definition.aggregated) ?? false,
         onChange: this.onUpdateAggregated.bind(this),
       },
       {

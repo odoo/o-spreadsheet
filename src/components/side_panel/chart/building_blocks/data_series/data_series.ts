@@ -9,6 +9,7 @@ interface Props {
   hasSingleRange?: boolean;
   onSelectionChanged: (ranges: string[]) => void;
   onSelectionConfirmed: () => void;
+  title?: string;
 }
 
 export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
@@ -19,6 +20,7 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     hasSingleRange: { type: Boolean, optional: true },
     onSelectionChanged: Function,
     onSelectionConfirmed: Function,
+    title: { type: String, optional: true },
   };
 
   get ranges(): string[] {
@@ -30,6 +32,9 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get title() {
+    if (this.props.title) {
+      return this.props.title;
+    }
     return this.props.hasSingleRange ? _t("Data range") : _t("Data series");
   }
 }

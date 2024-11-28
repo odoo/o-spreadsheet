@@ -12,6 +12,11 @@ import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
 import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
+import {
+  TreeMapChartDefinition,
+  TreeMapChartRuntime,
+  TreeMapColoringOptions,
+} from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
 export const CHART_TYPES = [
@@ -26,6 +31,7 @@ export const CHART_TYPES = [
   "pyramid",
   "radar",
   "geo",
+  "treemap",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -40,12 +46,15 @@ export type ChartDefinition =
   | WaterfallChartDefinition
   | PyramidChartDefinition
   | RadarChartDefinition
-  | GeoChartDefinition;
+  | GeoChartDefinition
+  | TreeMapChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string }
 >;
+
+export type ChartWithAxisDefinition = Extract<ChartDefinition, { axesDesign?: AxesDesign }>;
 
 export type ChartJSRuntime =
   | LineChartRuntime
@@ -56,7 +65,8 @@ export type ChartJSRuntime =
   | WaterfallChartRuntime
   | PyramidChartRuntime
   | RadarChartRuntime
-  | GeoChartRuntime;
+  | GeoChartRuntime
+  | TreeMapChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
@@ -149,7 +159,7 @@ export interface ExcelChartDefinition {
 export interface ChartCreationContext {
   readonly range?: CustomizedDataSet[];
   readonly title?: TitleDesign;
-  readonly background?: string;
+  readonly background?: Color;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;
   readonly stacked?: boolean;
@@ -163,6 +173,11 @@ export interface ChartCreationContext {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly showHeaders?: boolean;
+  readonly headerDesign?: TitleDesign;
+  readonly showLabels?: boolean;
+  readonly valuesDesign?: TitleDesign;
+  readonly coloringOptions?: TreeMapColoringOptions;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

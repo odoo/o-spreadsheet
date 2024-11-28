@@ -1,0 +1,25 @@
+<templates>
+  <t t-name="o-spreadsheet-TreeMapCategoryColors">
+    <div class="mt-3">
+      <div class="o-fw-bold mb-2">Category</div>
+      <t t-foreach="getTreeGroupAndColors()" t-as="group" t-key="group.group">
+        <div class="d-flex align-items-center mb-2" t-att-data-id="group.group">
+          <RoundColorPicker
+            currentColor="group.color"
+            onColorPicked="(color) => this.setGroupColor(group.group, color)"
+          />
+          <span class="ps-2">
+            <span class="" t-esc="group.group"/>
+          </span>
+        </div>
+      </t>
+      <Checkbox
+        name="'highlightBigValues'"
+        label.translate="Use value-based gradient"
+        value="coloringOptions.highlightBigValues"
+        onChange.bind="setHighlightForBigValues"
+        className="'mt-4'"
+      />
+    </div>
+  </t>
+</templates>
