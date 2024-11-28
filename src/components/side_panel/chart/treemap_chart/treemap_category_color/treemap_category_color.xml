@@ -1,0 +1,27 @@
+<templates>
+  <t t-name="o-spreadsheet-TreeMapCategoryColors">
+    <div class="mt-3">
+      <div class="o-fw-bold mb-2">Category</div>
+      <t t-foreach="getTreeGroupAndColors()" t-as="group" t-key="group_index">
+        <div class="d-flex align-items-center mb-2" t-att-data-id="group.label">
+          <RoundColorPicker
+            currentColor="group.color"
+            onColorPicked="(color) => this.onGroupColorChanged(group_index, color)"
+          />
+          <span class="ps-2">
+            <span t-esc="'(#' + (group_index +1 ) + ')'" class="o-text-bolder pe-1"/>
+            <span class="text-muted" t-esc="group.label"/>
+          </span>
+        </div>
+      </t>
+
+      <Checkbox
+        name="'useValueBasedGradient'"
+        label.translate="Use value-based gradient"
+        value="coloringOptions.useValueBasedGradient"
+        onChange.bind="useValueBasedGradient"
+        className="'mt-4'"
+      />
+    </div>
+  </t>
+</templates>

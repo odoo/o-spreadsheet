@@ -1,4 +1,4 @@
-import type { ChartConfiguration, ChartOptions } from "chart.js";
+import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -11,15 +11,19 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import { SunburstChartDefinition, SunburstChartRuntime } from "../../../types/chart";
 import {
   ChartCreationContext,
-  ChartStyle,
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
+  TitleDesign,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
+import {
+  TreeMapChartDefinition,
+  TreeMapChartRuntime,
+  TreeMapColoringOptions,
+} from "../../../types/chart/tree_map_chart";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
@@ -37,25 +41,32 @@ import {
   getChartLayout,
   getChartTitle,
   getHierarchalChartData,
-  getSunburstChartDatasets,
-  getSunburstChartLegend,
-  getSunburstChartTooltip,
-  getSunburstShowValues,
+  getTreeMapChartDatasets,
+  getTreeMapChartTooltip,
 } from "./runtime";
 
-export class SunburstChart extends AbstractChart {
+export class TreeMapChart extends AbstractChart {
+  static defaults = {
+    background: BACKGROUND_CHART_COLOR,
+    legendPosition: "top",
+    dataSetsHaveTitle: false,
+    showHeaders: true,
+    headersColor: "#000000",
+  };
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
-  readonly type = "sunburst";
+  readonly type = "treemap";
   readonly dataSetsHaveTitle: boolean;
+  readonly showHeaders?: boolean;
+  readonly headerDesign?: TitleDesign;
   readonly showValues?: boolean;
   readonly showLabels?: boolean;
-  readonly valuesDesign?: ChartStyle;
-  readonly groupColors?: (Color | undefined | null)[];
+  readonly valuesDesign?: TitleDesign;
+  readonly coloringOptions?: TreeMapColoringOptions;
 
-  constructor(definition: SunburstChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(definition: TreeMapChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -67,27 +78,29 @@ export class SunburstChart extends AbstractChart {
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
+    this.showHeaders = definition.showHeaders;
+    this.headerDesign = definition.headerDesign;
     this.showValues = definition.showValues;
     this.showLabels = definition.showLabels;
     this.valuesDesign = definition.valuesDesign;
-    this.groupColors = definition.groupColors;
+    this.coloringOptions = definition.coloringOptions;
   }
 
   static transformDefinition(
-    definition: SunburstChartDefinition,
+    definition: TreeMapChartDefinition,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): SunburstChartDefinition {
+  ): TreeMapChartDefinition {
     return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static validateChartDefinition(
     validator: Validator,
-    definition: SunburstChartDefinition
+    definition: TreeMapChartDefinition
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(definition, checkDataset, checkLabelRange);
   }
 
-  static getDefinitionFromContextCreation(context: ChartCreationContext): SunburstChartDefinition {
+  static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
     const dataSets: CustomizedDataSet[] = [];
     if (context.hierarchicalRanges?.length) {
       dataSets.push(...context.hierarchicalRanges);
@@ -100,17 +113,15 @@ export class SunburstChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
-      type: "sunburst",
+      type: "treemap",
       labelRange: context.range?.[0]?.dataRange,
       showValues: context.showValues,
+      showHeaders: context.showHeaders,
+      headerDesign: context.headerDesign,
       showLabels: context.showLabels,
       valuesDesign: context.valuesDesign,
-      groupColors: context.groupColors,
+      coloringOptions: context.treemapColoringOptions,
     };
-  }
-
-  getDefinition(): SunburstChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
   }
 
   getContextCreation(): ChartCreationContext {
@@ -127,31 +138,7 @@ export class SunburstChart extends AbstractChart {
     };
   }
 
-  private getDefinitionWithSpecificDataSets(
-    dataSets: DataSet[],
-    labelRange: Range | undefined,
-    targetSheetId?: UID
-  ): SunburstChartDefinition {
-    return {
-      type: "sunburst",
-      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
-      background: this.background,
-      dataSets: dataSets.map((ds: DataSet) => ({
-        dataRange: this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId),
-      })),
-      legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
-      title: this.title,
-      showValues: this.showValues,
-      showLabels: this.showLabels,
-      valuesDesign: this.valuesDesign,
-      groupColors: this.groupColors,
-    };
-  }
-
-  duplicateInDuplicatedSheet(newSheetId: UID): SunburstChart {
+  duplicateInDuplicatedSheet(newSheetId: UID): TreeMapChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
     const labelRange = duplicateLabelRangeInDuplicatedSheet(
       this.sheetId,
@@ -159,23 +146,53 @@ export class SunburstChart extends AbstractChart {
       this.labelRange
     );
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
-    return new SunburstChart(definition, newSheetId, this.getters);
+    return new TreeMapChart(definition, newSheetId, this.getters);
   }
 
-  copyInSheetId(sheetId: UID): SunburstChart {
+  copyInSheetId(sheetId: UID): TreeMapChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
       this.labelRange,
       sheetId
     );
-    return new SunburstChart(definition, sheetId, this.getters);
+    return new TreeMapChart(definition, sheetId, this.getters);
+  }
+  getDefinition(): TreeMapChartDefinition {
+    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+  }
+
+  private getDefinitionWithSpecificDataSets(
+    dataSets: DataSet[],
+    labelRange: Range | undefined,
+    targetSheetId?: UID
+  ): TreeMapChartDefinition {
+    const ranges: CustomizedDataSet[] = dataSets.map((dataSet) => ({
+      dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
+    }));
+    return {
+      type: "treemap",
+      dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
+      background: this.background,
+      dataSets: ranges,
+      legendPosition: this.legendPosition,
+      labelRange: labelRange
+        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+        : undefined,
+      title: this.title,
+      showValues: this.showValues,
+      showHeaders: this.showHeaders,
+      headerDesign: this.headerDesign,
+      showLabels: this.showLabels,
+      valuesDesign: this.valuesDesign,
+      coloringOptions: this.coloringOptions,
+    };
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     return undefined;
   }
 
-  updateRanges(applyChange: ApplyRangeChange): SunburstChart {
+  updateRanges(applyChange: ApplyRangeChange): TreeMapChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
@@ -186,32 +203,30 @@ export class SunburstChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new SunburstChart(definition, this.sheetId, this.getters);
+    return new TreeMapChart(definition, this.sheetId, this.getters);
   }
 }
 
-export function createSunburstChartRuntime(
-  chart: SunburstChart,
+export function createTreeMapChartRuntime(
+  chart: TreeMapChart,
   getters: Getters
-): SunburstChartRuntime {
+): TreeMapChartRuntime {
   const definition = chart.getDefinition();
   const chartData = getHierarchalChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  const config: ChartConfiguration<"doughnut"> = {
-    type: "doughnut",
+  const config: ChartConfiguration = {
+    type: "treemap",
     data: {
-      datasets: getSunburstChartDatasets(definition, chartData),
+      labels: chartData.labels,
+      datasets: getTreeMapChartDatasets(definition, chartData),
     },
     options: {
-      cutout: "25%",
-      ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
+      ...CHART_COMMON_OPTIONS,
       layout: getChartLayout(definition),
       plugins: {
         title: getChartTitle(definition),
-        legend: getSunburstChartLegend(definition, chartData),
-        tooltip: getSunburstChartTooltip(definition, chartData),
-        sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
-        sunburstHoverPlugin: { enabled: true },
+        legend: { display: false },
+        tooltip: getTreeMapChartTooltip(definition, chartData),
       },
     },
   };

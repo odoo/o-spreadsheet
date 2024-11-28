@@ -22,6 +22,7 @@ import {
   SunburstChartJSDataset,
   SunburstChartRawData,
   SunburstTreeNode,
+  TitleDesign,
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
@@ -32,12 +33,24 @@ import {
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import {
+  TreeMapCategoryColorOptions,
+  TreeMapChartDefaults,
+  TreeMapChartDefinition,
+  TreeMapColorScaleOptions,
+  TreeMapDataset,
+  TreeMapGroupColor,
+} from "../../../../types/chart/tree_map_chart";
+import {
   ColorGenerator,
   colorToRGBA,
+  getColorScale,
   lightenColor,
+  relativeLuminance,
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
+import { formatValue } from "../../../format/format";
+import { isDefined, range } from "../../../misc";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
@@ -507,6 +520,105 @@ function pyramidizeTree(tree: SunburstTreeNode[]): SunburstTreeNode[][] {
   return flattened;
 }
 
+export function getTreeMapChartDatasets(
+  definition: TreeMapChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartDataset<"treemap">[] {
+  const { dataSetsValues, labels, locale, axisFormats } = args;
+  const localeFormat = { locale, format: axisFormats?.y };
+
+  if (dataSetsValues.length === 0) {
+    return [];
+  }
+
+  const tree = getSunburstTree(dataSetsValues, labels).sort((a, b) => b.value - a.value);
+  const groupColors = getTreeMapGroupColors(definition, tree);
+
+  const datasetEntries: TreeMapDataset = [];
+  const maxDatasetLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
+  for (let i = 0; i < maxDatasetLength; i++) {
+    datasetEntries[i] = {};
+    for (let j = 0; j < dataSetsValues.length; j++) {
+      datasetEntries[i][j] = dataSetsValues[j].data[i]
+        ? String(dataSetsValues[j].data[i])
+        : undefined;
+    }
+    datasetEntries[i].value = Number(labels[i]);
+  }
+
+  const showLabels = definition.showLabels ?? TreeMapChartDefaults.showLabels;
+  const showValues = definition.showValues ?? TreeMapChartDefaults.showValues;
+
+  const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
+  let colorScale: ((value: number) => string) | undefined;
+  if (coloringOption?.type === "colorScale") {
+    colorScale = getTreeMapColorScale(tree, coloringOption);
+  }
+
+  const dataSets: ChartDataset<"treemap">[] = [
+    {
+      data: [],
+      tree: datasetEntries,
+      labels: {
+        display: showLabels || showValues,
+        overflow: "hidden",
+        ...getTextStyle(definition.valuesDesign, TreeMapChartDefaults.valuesDesign),
+        formatter: (ctx) => {
+          return [
+            showLabels ? ctx.raw.g : undefined, // group name
+            showValues ? formatValue(ctx.raw.v, localeFormat) : undefined, // formatted value
+          ].filter(isDefined);
+        },
+      },
+      captions: {
+        display: definition.showHeaders ?? TreeMapChartDefaults.showHeaders,
+        padding: 6,
+        ...getTextStyle(definition.headerDesign, TreeMapChartDefaults.headerDesign),
+      },
+      key: "value",
+      groups: range(0, dataSetsValues.length).map((i) => String(i)),
+      borderWidth: 0,
+      spacing: 1,
+      displayMode: "headerBoxes",
+      groupColors,
+      backgroundColor: (ctx) => {
+        if (ctx.type !== "data") {
+          return "transparent";
+        }
+        if (!ctx.raw.isLeaf) {
+          return definition.headerDesign?.fillColor || TreeMapChartDefaults.headerDesign?.fillColor;
+        }
+        if (coloringOption.type === "colorScale") {
+          return colorScale?.(ctx.raw.v) || "#FF0000";
+        } else if (coloringOption.type === "categoryColor") {
+          return getTreeMapElementColor(ctx, tree, coloringOption, groupColors);
+        }
+        throw new Error(`Unsupported coloring option type}`);
+      },
+    },
+  ];
+
+  return dataSets;
+}
+
+function getTextStyle(design: TitleDesign | undefined, defaultDesign: TitleDesign) {
+  const dynamicColor = (ctx: any) => {
+    const backgroundColor = ctx.element.options.backgroundColor;
+    return relativeLuminance(backgroundColor) > 0.7 ? "#666666" : "#FFFFFF";
+  };
+  return {
+    align: design?.align ?? defaultDesign?.align,
+    position: design?.verticalAlign ?? defaultDesign?.verticalAlign,
+    color: design?.color || dynamicColor,
+    hoverColor: design?.color || dynamicColor,
+    font: {
+      weight: design?.bold ?? defaultDesign?.bold ? "bold" : "normal",
+      style: design?.italic ?? defaultDesign?.italic ? "italic" : "normal",
+      size: design?.fontSize ?? defaultDesign?.fontSize,
+    },
+  } as const;
+}
+
 function getTrendingLineDataSet(
   dataset: ChartDataset<"line" | "bar">,
   config: TrendConfiguration,
@@ -559,4 +671,65 @@ export function getChartColorsGenerator(
     dataSetsSize,
     definition.dataSets?.map((ds) => ds.backgroundColor) || []
   );
+}
+
+function getTreeMapGroupColors(
+  definition: TreeMapChartDefinition,
+  tree: SunburstTreeNode[]
+): TreeMapGroupColor[] {
+  const colors =
+    definition.coloringOptions?.type === "categoryColor" ? definition.coloringOptions.colors : [];
+  const colorGenerator = new ColorGenerator(tree.length, colors);
+
+  return tree.map((node) => ({
+    label: node.label,
+    color: colorGenerator.next(),
+  }));
+}
+
+function getTreeMapColorScale(tree: SunburstTreeNode[], coloringOption: TreeMapColorScaleOptions) {
+  const treeNodesByLevel = pyramidizeTree(tree);
+  const nodes = treeNodesByLevel[treeNodesByLevel.length - 1];
+  const minValue = Math.min(...nodes.map((node) => node.value));
+  const maxValue = Math.max(...nodes.map((node) => node.value));
+  if (Number.isFinite(minValue) && Number.isFinite(maxValue)) {
+    const colorThresholds = [{ value: minValue, color: coloringOption.minColor }];
+    if (coloringOption.midColor) {
+      const midValue = (minValue + maxValue) / 2;
+      colorThresholds.push({ value: midValue, color: coloringOption.midColor });
+    }
+    colorThresholds.push({ value: maxValue, color: coloringOption.maxColor });
+    return getColorScale(colorThresholds);
+  }
+  return undefined;
+}
+
+function getTreeMapElementColor(
+  ctx: any,
+  tree: SunburstTreeNode[],
+  coloringOption: TreeMapCategoryColorOptions,
+  categoryColors: TreeMapGroupColor[]
+) {
+  const rootCategory = ctx.raw._data.children[0][0];
+  const baseColor = categoryColors.find((color) => color.label === rootCategory)?.color;
+  if (!baseColor || !coloringOption.useValueBasedGradient) {
+    return baseColor || "#FF0000";
+  }
+
+  const rootNode = tree.find((node) => node.label === rootCategory);
+  if (!rootNode) {
+    return baseColor;
+  }
+  const treeNodesByLevel = pyramidizeTree(rootNode.children);
+  const leafValues = treeNodesByLevel[treeNodesByLevel.length - 1];
+
+  const max = Math.max(...leafValues.map((node) => node.value));
+  const min = Math.min(...leafValues.map((node) => node.value));
+  if (min === max || !isFinite(min) || !isFinite(max)) {
+    return baseColor;
+  }
+
+  const value = Number(ctx.raw.v) || 0;
+  const factor = ((value - max) / (min - max)) * 0.5;
+  return lightenColor(baseColor, factor);
 }
