@@ -22,10 +22,12 @@ import {
   deleteColumns,
   deleteRows,
   deleteSheet,
+  duplicateSheet,
   foldHeaderGroup,
   groupHeaders,
   hideColumns,
   hideRows,
+  moveColumns,
   redo,
   selectCell,
   setCellContent,
@@ -1405,6 +1407,134 @@ describe("title", function () {
       });
       scales = getChartConfiguration(model, "1").options.scales;
       expect(scales.x!["title"].font.style).toEqual("italic");
+    }
+  );
+
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
+    "Title updates when it references a cell and the cell content changes",
+    (type) => {
+      setCellContent(model, "A1", "Hello");
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:B1" }],
+          labelRange: "A2:B2",
+          type,
+          title: { text: "=A1" },
+          axesDesign: {
+            x: { title: { text: "=A1" } },
+          },
+        },
+        "1"
+      );
+
+      let options = getChartConfiguration(model, "1").options;
+      expect(options!.plugins!.title!.text).toEqual("Hello");
+      expect(options!.scales!.x!.title.text).toEqual("Hello");
+
+      setCellContent(model, "A1", "World");
+
+      options = getChartConfiguration(model, "1").options;
+      expect(options!.plugins!.title!.text).toEqual("World");
+      expect(options!.scales!.x!.title.text).toEqual("World");
+    }
+  );
+
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
+    "Title updates when it references a cell, and changes are made to sheet ranges",
+    (type) => {
+      setCellContent(model, "A1", "Hello World");
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:B1" }],
+          labelRange: "A2:B2",
+          type,
+          title: { text: "=A1" },
+          axesDesign: {
+            x: { title: { text: "=A1" } },
+          },
+        },
+        "1"
+      );
+
+      let definition = model.getters.getChartDefinition("1");
+      expect(definition.title.text).toEqual("=A1");
+
+      let options = getChartConfiguration(model, "1").options;
+      expect(options!.plugins!.title!.text).toEqual("Hello World");
+      expect(options!.scales!.x!.title.text).toEqual("Hello World");
+
+      moveColumns(model, "B", ["A"]);
+
+      definition = model.getters.getChartDefinition("1");
+      expect(definition.title.text).toEqual("=B1");
+
+      options = getChartConfiguration(model, "1").options;
+      expect(options!.plugins!.title!.text).toEqual("Hello World");
+      expect(options!.scales!.x!.title.text).toEqual("Hello World");
+    }
+  );
+
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
+    "Updates chart title when duplicating a sheet with a cell-referencing chart title",
+    (type) => {
+      setCellContent(model, "A1", "Hello World");
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+          type,
+          title: { text: "=Sheet1!A1" },
+          axesDesign: {
+            x: { title: { text: "=Sheet1!A1" } },
+            y: { title: { text: "=Sheet1!A1" } },
+          },
+        },
+        "1"
+      );
+
+      duplicateSheet(model, "Sheet1", "Sheet2");
+
+      const newChartId = model.getters.getChartIds("Sheet2")[0];
+      const definition = model.getters.getChartDefinition(newChartId) as LineChartDefinition;
+      expect(definition.title).toEqual({ text: "='Copy of Sheet1'!A1" });
+      expect(definition.axesDesign).toEqual({
+        x: { title: { text: "='Copy of Sheet1'!A1" } },
+        y: { title: { text: "='Copy of Sheet1'!A1" } },
+      });
+    }
+  );
+
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
+    "Retains original sheet references when copy-pasting a chart with cell-referenced titles",
+    (type) => {
+      setCellContent(model, "A1", "Hello World");
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+          type,
+          title: { text: "=Sheet1!A1" },
+          axesDesign: {
+            x: { title: { text: "=Sheet1!A1" } },
+            y: { title: { text: "=Sheet1!A1" } },
+          },
+        },
+        "1"
+      );
+
+      duplicateSheet(model, "Sheet1", "Sheet2");
+
+      const newChartId = model.getters.getChartIds("Sheet2")[0];
+      const definition = model.getters.getChartDefinition(newChartId) as LineChartDefinition;
+      expect(definition.title).toEqual({ text: "='Copy of Sheet1'!A1" });
+      expect(definition.axesDesign).toEqual({
+        x: { title: { text: "='Copy of Sheet1'!A1" } },
+        y: { title: { text: "='Copy of Sheet1'!A1" } },
+      });
     }
   );
 });
