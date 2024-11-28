@@ -12,6 +12,8 @@ import { RadarChartDesignPanel } from "./radar_chart/radar_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
 import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
 import { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
+import { TreeMapChartConfigPanel } from "./treemap_chart/treemap_chart_config_panel";
+import { TreeMapChartDesignPanel } from "./treemap_chart/treemap_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./waterfall_chart/waterfall_chart_design_panel";
 
 export { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
@@ -70,4 +72,8 @@ chartSidePanelComponentRegistry
   .add("radar", {
     configuration: GenericChartConfigPanel,
     design: RadarChartDesignPanel,
+  })
+  .add("treemap", {
+    configuration: TreeMapChartConfigPanel,
+    design: TreeMapChartDesignPanel,
   });
