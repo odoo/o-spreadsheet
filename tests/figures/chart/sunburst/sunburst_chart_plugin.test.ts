@@ -12,6 +12,7 @@ import {
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
   createSunburstChart,
+  createTreeMapChart,
   setCellContent,
   setFormat,
 } from "../../../test_helpers/commands_helpers";
@@ -85,6 +86,20 @@ describe("Sunburst chart chart", () => {
     expect(chart.getContextCreation()).toMatchObject({
       range: [{ dataRange: "Sheet1!B1:B4" }],
       auxiliaryRange: "A1:A4",
+    });
+  });
+
+  test("Labels and datasets are not swapped from a TreeMap chart creation context", () => {
+    const model = new Model();
+    const chartId = createTreeMapChart(model, {
+      dataSets: [{ dataRange: "A1:A4" }],
+      labelRange: "B1:B4",
+    });
+    const context = model.getters.getChart(chartId)!.getContextCreation();
+    const definition = SunburstChart.getDefinitionFromContextCreation(context);
+    expect(definition).toMatchObject({
+      dataSets: [{ dataRange: "A1:A4" }],
+      labelRange: "B1:B4",
     });
   });
 
