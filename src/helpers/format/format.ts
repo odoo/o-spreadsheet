@@ -445,7 +445,7 @@ export function numberToString(number: number, decimalSeparator: string): string
 /**
  * Check if the given format is a time, date or date time format. Only check the first part of a multi-part format.
  */
-export const isDateTimeFormat = memoize(function isDateTimeFormat(format: Format) {
+export const isDateTimeFormat = function isDateTimeFormat(format: Format) {
   if (!format) {
     return false;
   }
@@ -455,7 +455,7 @@ export const isDateTimeFormat = memoize(function isDateTimeFormat(format: Format
   } catch (error) {
     return false;
   }
-});
+};
 
 function applyDateTimeFormat(value: number, internalFormat: DateInternalFormat): FormattedValue {
   const jsDate = numberToJsDate(value);

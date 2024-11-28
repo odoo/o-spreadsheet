@@ -9,7 +9,7 @@ interface StoreUpdateEvent {
  * A type-safe dependency container
  */
 export class DependencyContainer extends EventBus<StoreUpdateEvent> {
-  private dependencies: Map<StoreConstructor, any> = new Map();
+  private dependencies: WeakMap<StoreConstructor, any> = new WeakMap();
   private factory = new StoreFactory(this.get.bind(this));
 
   /**
@@ -36,10 +36,6 @@ export class DependencyContainer extends EventBus<StoreUpdateEvent> {
 
   instantiate<T>(Store: StoreConstructor<T>, ...args: StoreParams<StoreConstructor<T>>): T {
     return this.factory.build(Store, ...args);
-  }
-
-  resetStores() {
-    this.dependencies.clear();
   }
 }
 

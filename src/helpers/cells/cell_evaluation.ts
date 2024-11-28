@@ -23,7 +23,7 @@ import {
   isTextFormat,
 } from "../format/format";
 import { detectLink } from "../links";
-import { isBoolean, memoize } from "../misc";
+import { isBoolean } from "../misc";
 import { isNumber, parseNumber } from "../numbers";
 
 export function evaluateLiteral(
@@ -140,7 +140,7 @@ function numberCell(value: number, format: string | undefined, formattedValue: s
   };
 }
 
-const emptyCell = memoize(function emptyCell(format: string | undefined): EmptyCell {
+const emptyCell = function emptyCell(format: string | undefined): EmptyCell {
   return {
     value: null,
     format,
@@ -149,7 +149,7 @@ const emptyCell = memoize(function emptyCell(format: string | undefined): EmptyC
     isAutoSummable: true,
     defaultAlign: "left",
   };
-});
+};
 
 function dateTimeCell(
   value: number,
