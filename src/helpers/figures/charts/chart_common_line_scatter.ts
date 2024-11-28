@@ -174,12 +174,12 @@ export function getTrendDatasetForLineChart(
   }
   const numberOfStep = 5 * labels.length;
   const step = (xmax - xmin) / numberOfStep;
-  const newLabels = range(xmin, xmax + step / 2, step);
-  const newValues = interpolateData(config, filteredValues, filteredLabels, newLabels);
-  if (!newValues.length) {
+  const trendLabels = range(xmin, xmax + step / 2, step);
+  const trendValues = interpolateData(config, filteredValues, filteredLabels, trendLabels);
+  if (!trendValues.length) {
     return;
   }
-  return getFullTrendingLineDataSet(dataset, config, newValues);
+  return getFullTrendingLineDataSet(dataset, config, trendValues, trendLabels);
 }
 
 export function createLineOrScatterChartRuntime(
@@ -394,16 +394,19 @@ export function createLineOrScatterChartRuntime(
     }
   }
   if (trendDatasets.length) {
-    /* We add a second x axis here to draw the trend lines, with the labels length being
-     * set so that the second axis points match the classical x axis
-     */
     config.options.scales[TREND_LINE_XAXIS_ID] = {
       ...xAxis,
-      type: "category",
-      labels: range(0, maxLength).map((x) => x.toString()),
-      offset: false,
       display: false,
     };
+    if (axisType === "category") {
+      /* We add a second x axis here to draw the trend lines, with the labels length being
+       * set so that the second axis points match the classical x axis
+       */
+      config.options.scales[TREND_LINE_XAXIS_ID]["labels"] = range(0, maxLength).map((x) =>
+        x.toString()
+      );
+      config.options.scales[TREND_LINE_XAXIS_ID]["offset"] = false;
+    }
     /* These datasets must be inserted after the original datasets to ensure the way we
      * distinguish the originals and trendLine datasets after
      */

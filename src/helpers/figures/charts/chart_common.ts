@@ -490,13 +490,14 @@ export function getTrendDatasetForBarChart(
   if (!newValues.length) {
     return;
   }
-  return getFullTrendingLineDataSet(dataset, config, newValues);
+  return getFullTrendingLineDataSet(dataset, config, newValues, newLabels);
 }
 
 export function getFullTrendingLineDataSet(
   dataset: ChartDataset<"line" | "bar">,
   config: TrendConfiguration,
-  data: number[]
+  data: number[],
+  labels: number[]
 ) {
   const defaultBorderColor = colorToRGBA(dataset.backgroundColor as Color);
   defaultBorderColor.a = 1;
@@ -508,7 +509,7 @@ export function getFullTrendingLineDataSet(
     xAxisID: TREND_LINE_XAXIS_ID,
     yAxisID: dataset.yAxisID,
     label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
-    data,
+    data: data.map((v, i) => ({ x: labels[i], y: v })),
     order: -1,
     showLine: true,
     pointRadius: 0,
