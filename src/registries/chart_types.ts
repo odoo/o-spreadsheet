@@ -21,6 +21,7 @@ import {
   SunburstChart,
   createSunburstChartRuntime,
 } from "../helpers/figures/charts/sunburst_chart";
+import { TreeMapChart, createTreeMapChartRuntime } from "../helpers/figures/charts/tree_map_chart";
 import {
   WaterfallChart,
   createWaterfallChartRuntime,
@@ -54,6 +55,7 @@ import { GeoChartDefinition } from "../types/chart/geo_chart";
 import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
 import { RadarChartDefinition } from "../types/chart/radar_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
+import { TreeMapChartDefinition } from "../types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../types/chart/waterfall_chart";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
@@ -219,6 +221,16 @@ chartRegistry.add("sunburst", {
   getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
   sequence: 30,
 });
+chartRegistry.add("treemap", {
+  match: (type) => type === "treemap",
+  createChart: (definition, sheetId, getters) =>
+    new TreeMapChart(definition as TreeMapChartDefinition, sheetId, getters),
+  getChartRuntime: createTreeMapChartRuntime,
+  validateChartDefinition: TreeMapChart.validateChartDefinition,
+  transformDefinition: TreeMapChart.transformDefinition,
+  getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
+  sequence: 100,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -234,6 +246,7 @@ chartComponentRegistry.add("radar", ChartJsComponent);
 chartComponentRegistry.add("geo", ChartJsComponent);
 chartComponentRegistry.add("funnel", ChartJsComponent);
 chartComponentRegistry.add("sunburst", ChartJsComponent);
+chartComponentRegistry.add("treemap", ChartJsComponent);
 
 type ChartUICategory = keyof typeof chartCategories;
 
@@ -243,6 +256,7 @@ export const chartCategories = {
   bar: _t("Bar"),
   area: _t("Area"),
   pie: _t("Pie"),
+  hierarchical: _t("Hierarchical"),
   misc: _t("Miscellaneous"),
 };
 
@@ -440,6 +454,14 @@ chartSubtypeRegistry
     displayName: _t("Sunburst"),
     chartSubtype: "sunburst",
     chartType: "sunburst",
-    category: "misc",
+    category: "hierarchical",
     preview: "o-spreadsheet-ChartPreview.SUNBURST_CHART",
+  })
+  .add("treemap", {
+    matcher: (definition) => definition.type === "treemap",
+    displayName: _t("Tree Map"),
+    chartType: "treemap",
+    chartSubtype: "treemap",
+    category: "hierarchical",
+    preview: "o-spreadsheet-ChartPreview.TREE_MAP_CHART",
   });

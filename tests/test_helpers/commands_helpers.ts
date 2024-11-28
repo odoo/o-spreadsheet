@@ -43,6 +43,7 @@ import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
 import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
+import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { Image } from "../../src/types/image";
 import { CoreTableType, TableConfig } from "../../src/types/table";
@@ -319,6 +320,12 @@ export function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinit
 export function createSunburstChart(model: Model, def?: Partial<SunburstChartDefinition>): UID {
   createChart(model, { ...def, type: "sunburst" });
   return model.getters.getChartIds(model.getters.getActiveSheetId())[0];
+}
+
+export function createTreeMapChart(model: Model, def?: Partial<TreeMapChartDefinition>): UID {
+  createChart(model, { ...def, type: "treemap" });
+  const sheetId = model.getters.getActiveSheetId();
+  return model.getters.getChartIds(sheetId)[0];
 }
 
 export function createScorecardChart(

@@ -10,14 +10,15 @@ import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_pa
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 import { GeoChartConfigPanel } from "./geo_chart_panel/geo_chart_config_panel";
 import { GeoChartDesignPanel } from "./geo_chart_panel/geo_chart_design_panel";
+import { HierarchicalChartConfigPanel } from "./hierarchical_chart/hierarchical_chart_config_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
 import { PieChartDesignPanel } from "./pie_chart/pie_chart_design_panel";
 import { RadarChartDesignPanel } from "./radar_chart/radar_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
 import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
 import { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
-import { SunburstChartConfigPanel } from "./sunburst_chart/sunburst_chart_config_panel";
 import { SunburstChartDesignPanel } from "./sunburst_chart/sunburst_chart_design_panel";
+import { TreeMapChartDesignPanel } from "./treemap_chart/treemap_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./waterfall_chart/waterfall_chart_design_panel";
 
 export { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
@@ -78,7 +79,7 @@ chartSidePanelComponentRegistry
     design: RadarChartDesignPanel,
   })
   .add("sunburst", {
-    configuration: SunburstChartConfigPanel,
+    configuration: HierarchicalChartConfigPanel,
     design: SunburstChartDesignPanel,
   })
   .add("geo", {
@@ -88,4 +89,8 @@ chartSidePanelComponentRegistry
   .add("funnel", {
     configuration: FunnelChartConfigPanel,
     design: FunnelChartDesignPanel,
+  })
+  .add("treemap", {
+    configuration: HierarchicalChartConfigPanel,
+    design: TreeMapChartDesignPanel,
   });

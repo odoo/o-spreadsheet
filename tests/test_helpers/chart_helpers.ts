@@ -100,6 +100,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   background: "#123456",
   title: { text: "hello there" },
   range: [{ dataRange: "Sheet1!B1:B4" }],
+  hierarchicalRanges: [],
   auxiliaryRange: "Sheet1!A1:A4",
   legendPosition: "bottom",
   cumulative: true,
@@ -117,4 +118,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   showLabels: false,
   valuesDesign: {},
   groupColors: [],
+  headerDesign: { bold: false },
+  treemapColoringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
+  showHeaders: true,
 };

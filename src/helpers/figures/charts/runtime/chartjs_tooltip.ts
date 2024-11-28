@@ -15,6 +15,7 @@ import {
 } from "../../../../types/chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { setColorAlpha } from "../../../color";
 import { formatValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
@@ -258,6 +259,40 @@ export function getSunburstChartTooltip(
       label: function (tooltipItem) {
         const data = tooltipItem.raw as SunburstChartRawData;
         const yLabel = data.value;
+        const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
+        return formatValue(yLabel, { format: toolTipFormat, locale });
+      },
+    },
+  };
+}
+
+export function getTreeMapChartTooltip(
+  definition: TreeMapChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  const { locale, axisFormats } = args;
+  const format = axisFormats?.y;
+  return {
+    enabled: false,
+    external: customTooltipHandler,
+    filter: (tooltipItem: any, index: number, tooltipItems: any[]) => {
+      return index === tooltipItems.length - 1;
+    },
+    callbacks: {
+      title: () => "",
+      beforeLabel: (tooltipItem: any) => {
+        const childElement = tooltipItem.raw._data.children[0];
+        if (!childElement) {
+          return "";
+        }
+        const path: string[] = [];
+        for (let i = 0; i <= tooltipItem.raw.l; i++) {
+          path.push(childElement[i]);
+        }
+        return path.join(" / ");
+      },
+      label: (tooltipItem: any) => {
+        const yLabel = tooltipItem.raw.v;
         const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
         return formatValue(yLabel, { format: toolTipFormat, locale });
       },

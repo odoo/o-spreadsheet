@@ -283,4 +283,19 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-ChartPreview.TREE_MAP_CHART">
+    <svg viewBox="0 0 48 48" class="o-chart-preview" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#444" d="M2,4 h44 v5 h-44"/>
+      <path fill="#444" d="M2,10 h28 v5 h-28"/>
+      <path fill="#444" d="M31,10 h15 v5 h-15"/>
+      <path fill="#0074d9" d="M2,16 h28 v14 h-28"/>
+      <path fill="#c4e4ff" d="M3,17 h26 v12 h-26"/>
+      <path fill="#0074d9" d="M2,31 h15 v12 h-15"/>
+      <path fill="#c4e4ff" d="M3,32 h13 v10 h-13"/>
+      <path fill="#0074d9" d="M18,31 h12 v12 h-12"/>
+      <path fill="#c4e4ff" d="M19,32 h10 v10 h-10"/>
+      <path fill="#eb6d00" d="M31,16 h15 v27 h-15"/>
+      <path fill="#ffe1c8" d="M32,17 h13 v25 h-13"/>
+    </svg>
+  </t>
 </templates>

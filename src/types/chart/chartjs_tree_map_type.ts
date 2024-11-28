@@ -15,6 +15,7 @@ import {
   ScriptableContext,
   VisualElement,
 } from "chart.js";
+import { TreeMapGroupColor } from "./tree_map_chart";
 
 type AnyObject = Record<string, unknown>;
 
@@ -87,6 +88,9 @@ export interface TreemapControllerDatasetOptions<DType> {
   hidden?: boolean;
 
   displayMode?: "containerBoxes" | "headerBoxes";
+
+  /* Groups and their colors. Not present in original library*/
+  groupColors?: TreeMapGroupColor[];
 }
 
 export interface TreemapDataPoint {
