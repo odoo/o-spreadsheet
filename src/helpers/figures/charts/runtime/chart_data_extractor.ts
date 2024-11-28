@@ -1,3 +1,4 @@
+import { Point } from "chart.js";
 import { ChartTerms } from "../../../../components/translations_terms";
 import {
   evaluatePolynomial,
@@ -60,7 +61,7 @@ export function getBarChartData(
     ? { x: leftAxisFormat || rightAxisFormat }
     : { y: leftAxisFormat, y1: rightAxisFormat };
 
-  const trendDataSetsValues: ((number | null)[] | undefined)[] = [];
+  const trendDataSetsValues: (Point[] | undefined)[] = [];
   for (const index in dataSetsValues) {
     const { data } = dataSetsValues[index];
 
@@ -139,7 +140,7 @@ export function getLineChartData(
   const labelsFormat = getChartLabelFormat(getters, labelRange);
   const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat, x: labelsFormat };
 
-  const trendDataSetsValues: ((number | null)[] | undefined)[] = [];
+  const trendDataSetsValues: (Point[] | undefined)[] = [];
   for (const index in dataSetsValues) {
     let { data } = dataSetsValues[index];
     if (definition.cumulative) {
@@ -349,12 +350,12 @@ export function getTrendDatasetForLineChart(
   }
   const numberOfStep = 5 * trendLabels.length;
   const step = (xmax - xmin) / numberOfStep;
-  const newLabels = range(xmin, xmax + step / 2, step);
-  const newValues = interpolateData(config, filteredValues, filteredLabels, newLabels);
-  if (!newValues.length) {
+  const trendNewLabels = range(xmin, xmax + step / 2, step);
+  const trendValues = interpolateData(config, filteredValues, filteredLabels, trendNewLabels);
+  if (!trendValues.length) {
     return;
   }
-  return newValues;
+  return trendValues;
 }
 
 function interpolateData(
@@ -362,7 +363,7 @@ function interpolateData(
   values: number[],
   labels: number[],
   newLabels: number[]
-): (number | null)[] {
+): Point[] {
   if (values.length < 2 || labels.length < 2 || newLabels.length === 0) {
     return [];
   }
@@ -376,13 +377,21 @@ function interpolateData(
       case "polynomial": {
         const order = config.order;
         if (!order) {
-          return Array.from({ length: newLabels.length }, () => NaN);
+          return newLabels.map((x) => ({ x, y: NaN }));
         }
         if (order === 1) {
-          return predictLinearValues([values], [normalizedLabels], [normalizedNewLabels], true)[0];
+          return predictLinearValues(
+            [values],
+            [normalizedLabels],
+            [normalizedNewLabels],
+            true
+          )[0].map((y, i) => ({ x: newLabels[i], y }));
         }
         const coeffs = polynomialRegression(values, normalizedLabels, order, true).flat();
-        return normalizedNewLabels.map((v) => evaluatePolynomial(coeffs, v, order));
+        return normalizedNewLabels.map((x, i) => ({
+          x: newLabels[i],
+          y: evaluatePolynomial(coeffs, x, order),
+        }));
       }
       case "exponential": {
         const positiveLogValues: number[] = [];
@@ -394,11 +403,11 @@ function interpolateData(
           }
         }
         if (!filteredLabels.length) {
-          return Array.from({ length: newLabels.length }, () => NaN);
+          return newLabels.map((x) => ({ x, y: NaN }));
         }
         return expM(
           predictLinearValues([positiveLogValues], [filteredLabels], [normalizedNewLabels], true)
-        )[0];
+        )[0].map((y, i) => ({ x: newLabels[i], y }));
       }
       case "logarithmic": {
         return predictLinearValues(
@@ -406,16 +415,16 @@ function interpolateData(
           logM([normalizedLabels]),
           logM([normalizedNewLabels]),
           true
-        )[0];
+        )[0].map((y, i) => ({ x: newLabels[i], y }));
       }
       case "trailingMovingAverage": {
-        return getMovingAverageValues(values, config.window);
+        return getMovingAverageValues(values, labels, config.window);
       }
       default:
-        return Array.from({ length: newLabels.length }, () => NaN);
+        return newLabels.map((x) => ({ x, y: NaN }));
     }
   } catch (e) {
-    return Array.from({ length: newLabels.length }, () => NaN);
+    return newLabels.map((x) => ({ x, y: NaN }));
   }
 }
 
