@@ -1,7 +1,8 @@
-import { Model } from "../../src";
+import { CoreCommand, CorePlugin, Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import { urlRepresentation } from "../../src/helpers/links";
+import { corePluginRegistry } from "../../src/plugins";
 import { CellValueType, CommandResult } from "../../src/types";
 import {
   addColumns,
@@ -11,6 +12,7 @@ import {
   copy,
   createSheet,
   deleteColumns,
+  deleteContent,
   deleteRows,
   deleteSheet,
   paste,
@@ -27,6 +29,7 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
+import { addTestPlugin } from "../test_helpers/helpers";
 
 describe("getCellText", () => {
   test("Update cell with a format is correctly set", () => {
@@ -642,5 +645,23 @@ describe("Cell dependencies and tokens are updated", () => {
         ],
       },
     });
+  });
+
+  test("Do not dispatch UPDATE_CELL subcommands if the content is empty", () => {
+    let counter = 0;
+    class SubCommandCounterRange extends CorePlugin {
+      static getters = [];
+      handle(command: CoreCommand) {
+        if (command.type === "UPDATE_CELL") {
+          counter++;
+        }
+      }
+    }
+    addTestPlugin(corePluginRegistry, SubCommandCounterRange);
+    const model = new Model();
+    setStyle(model, "A1", { bold: true });
+    counter = 0;
+    deleteContent(model, ["A1"]);
+    expect(counter).toBe(0);
   });
 });
