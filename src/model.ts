@@ -226,6 +226,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.extendRange = this.range.extendRange.bind(this.range);
     this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
     this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
+    // TODO: Remove these getters once ADRM's PR has been merged
+    this.coreGetters.adaptFormulaStringDependencies =
+      this.range.adaptFormulaStringDependencies.bind(this.range);
+    this.coreGetters.copyFormulaStringForSheet = this.range.copyFormulaStringForSheet.bind(
+      this.range
+    );
 
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
