@@ -1,0 +1,182 @@
+<templates>
+  <t t-name="o-spreadsheet-TopBar">
+    <t t-set="text_color">Text Color</t>
+    <t t-set="fill_color">Fill Color</t>
+    <div
+      class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
+      t-on-click="props.onClick">
+      <div class="o-topbar-top d-flex justify-content-between">
+        <!-- Menus -->
+        <div class="o-topbar-topleft d-flex">
+          <t t-foreach="menus" t-as="menu" t-key="menu_index">
+            <div
+              t-if="menu.children.length !== 0"
+              class="o-topbar-menu o-hoverable-button rounded"
+              t-att-class="{'active': state.menuState.parentMenu and state.menuState.parentMenu.id === menu.id}"
+              t-on-click="(ev) => this.toggleContextMenu(menu, ev)"
+              t-on-mouseover="(ev) => this.onMenuMouseOver(menu, ev)"
+              t-att-data-id="menu.id">
+              <t t-esc="getMenuName(menu)"/>
+            </div>
+          </t>
+        </div>
+        <div class="o-topbar-topright d-flex justify-content-end align-items-center">
+          <div t-foreach="topbarComponents" t-as="comp" t-key="comp.id" class="px-1">
+            <t t-component="comp.component"/>
+          </div>
+        </div>
+      </div>
+      <!-- Toolbar and Cell Content -->
+      <div class="d-flex caca">
+        <div class="o-topbar-toolbar caca d-flex flex-shrink-0">
+          <!-- Toolbar -->
+          <div
+            t-if="env.model.getters.isReadonly()"
+            class="o-readonly-toolbar d-flex align-items-center text-muted">
+            <span>
+              <i class="fa fa-eye"/>
+              Readonly Access
+            </span>
+          </div>
+          <div t-else="" class="o-toolbar-tools d-flex flex-shrink-0 ms-4">
+            <ActionButton action="EDIT.undo" class="'o-hoverable-button'"/>
+            <ActionButton action="EDIT.redo" class="'o-hoverable-button'"/>
+            <PaintFormatButton class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.clearFormat" class="'o-hoverable-button'"/>
+
+            <div class="o-divider"/>
+
+            <ActionButton action="FORMAT.formatPercent" class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.decraseDecimalPlaces" class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.incraseDecimalPlaces" class="'o-hoverable-button'"/>
+            <ActionButton
+              action="formatNumberMenuItemSpec"
+              onClick="(ev) => this.toggleToolbarContextMenu(formatNumberMenuItemSpec, ev)"
+              hasTriangleDownIcon="true"
+              class="'o-hoverable-button'"
+            />
+
+            <div class="o-divider"/>
+            <FontSizeEditor
+              class="'o-hoverable-button'"
+              onToggle.bind="this.onClick"
+              dropdownStyle="this.dropdownStyle"
+            />
+            <div class="o-divider"/>
+
+            <ActionButton action="FORMAT.formatBold" class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.formatItalic" class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.formatStrikethrough" class="'o-hoverable-button'"/>
+
+            <ColorPickerWidget
+              currentColor="state.textColor"
+              toggleColorPicker="(ev) => this.toggleDropdownTool('textColorTool', ev)"
+              showColorPicker="state.activeTool === 'textColorTool'"
+              onColorPicked="(color) => this.setColor('textColor', color)"
+              title="text_color"
+              icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+              dropdownMaxHeight="this.props.dropdownMaxHeight"
+              class="'o-hoverable-button o-menu-item-button'"
+            />
+
+            <div class="o-divider"/>
+
+            <ColorPickerWidget
+              currentColor="state.fillColor"
+              toggleColorPicker="(ev) => this.toggleDropdownTool('fillColorTool', ev)"
+              showColorPicker="state.activeTool === 'fillColorTool'"
+              onColorPicked="(color) => this.setColor('fillColor', color)"
+              title="fill_color"
+              icon="'o-spreadsheet-Icon.FILL_COLOR'"
+              dropdownMaxHeight="this.props.dropdownMaxHeight"
+              class="'o-hoverable-button o-menu-item-button'"
+            />
+
+            <BorderEditorWidget
+              class="'o-hoverable-button o-menu-item-button'"
+              toggleBorderEditor="(ev) => this.toggleDropdownTool('borderTool', ev)"
+              showBorderEditor="state.activeTool === 'borderTool'"
+              dropdownMaxHeight="this.props.dropdownMaxHeight"
+            />
+            <ActionButton action="EDIT.mergeCells" class="'o-hoverable-button'"/>
+            <div class="o-divider"/>
+
+            <div class="o-dropdown">
+              <ActionButton
+                action="FORMAT.formatAlignmentHorizontal"
+                hasTriangleDownIcon="true"
+                t-on-click="(ev) => this.toggleDropdownTool('horizontalAlignTool', ev)"
+                class="'o-hoverable-button'"
+              />
+              <div
+                class="o-dropdown-content"
+                t-if="state.activeTool === 'horizontalAlignTool'"
+                t-att-style="dropdownStyle"
+                t-on-click.stop="">
+                <div class="o-dropdown-line">
+                  <ActionButton action="FORMAT.formatAlignmentLeft" class="'o-hoverable-button'"/>
+                  <ActionButton action="FORMAT.formatAlignmentCenter" class="'o-hoverable-button'"/>
+                  <ActionButton action="FORMAT.formatAlignmentRight" class="'o-hoverable-button'"/>
+                </div>
+              </div>
+            </div>
+            <div class="o-dropdown">
+              <ActionButton
+                action="FORMAT.formatAlignmentVertical"
+                hasTriangleDownIcon="true"
+                t-on-click="(ev) => this.toggleDropdownTool('verticalAlignTool', ev)"
+                class="'o-hoverable-button'"
+              />
+              <div
+                class="o-dropdown-content"
+                t-att-style="dropdownStyle"
+                t-if="state.activeTool === 'verticalAlignTool'"
+                t-on-click.stop="">
+                <div class="o-dropdown-line">
+                  <ActionButton action="FORMAT.formatAlignmentTop" class="'o-hoverable-button'"/>
+                  <ActionButton action="FORMAT.formatAlignmentMiddle" class="'o-hoverable-button'"/>
+                  <ActionButton action="FORMAT.formatAlignmentBottom" class="'o-hoverable-button'"/>
+                </div>
+              </div>
+            </div>
+            <div class="o-dropdown">
+              <ActionButton
+                action="FORMAT.formatWrapping"
+                hasTriangleDownIcon="true"
+                t-on-click="(ev) => this.toggleDropdownTool('textWrappingTool', ev)"
+                class="'o-hoverable-button'"
+              />
+              <div
+                class="o-dropdown-content"
+                t-att-style="dropdownStyle"
+                t-if="state.activeTool === 'textWrappingTool'"
+                t-on-click.stop="">
+                <div class="o-dropdown-line">
+                  <ActionButton
+                    action="FORMAT.formatWrappingOverflow"
+                    class="'o-hoverable-button'"
+                  />
+                  <ActionButton action="FORMAT.formatWrappingWrap" class="'o-hoverable-button'"/>
+                  <ActionButton action="FORMAT.formatWrappingClip" class="'o-hoverable-button'"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="o-divider"/>
+
+            <TableDropdownButton/>
+            <ActionButton action="DATA.createRemoveFilterTool" class="'o-hoverable-button'"/>
+          </div>
+        </div>
+        <TopBarComposer/>
+      </div>
+    </div>
+    <Menu
+      t-if="state.menuState.isOpen"
+      position="state.menuState.position"
+      menuItems="state.menuState.menuItems"
+      onClose="() => this.closeMenus()"
+      onMenuClicked="() => this.props.onClick()"
+    />
+  </t>
+</templates>

@@ -1,0 +1,5 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotSidePanel">
+    <t t-component="sidePanelEditor" t-props="props"/>
+  </t>
+</templates>

@@ -1,0 +1,69 @@
+<templates>
+  <t t-name="o-spreadsheet-HeaderGroupContainer">
+    <div
+      class="o-header-group-container d-flex w-100 h-100 overflow-hidden"
+      t-att-class="{
+        'flex-column': props.dimension === 'ROW',
+        'flex-row': props.dimension === 'COL',
+      }"
+      t-if="props.layers.length"
+      t-on-contextmenu.prevent="onContextMenu">
+      <div
+        class="o-header-group-frozen-pane flex-shrink-0 overflow-hidden position-relative"
+        t-att-class="{
+          'o-group-rows': props.dimension === 'ROW',
+          'o-group-columns': props.dimension === 'COL',
+        }"
+        t-if="hasFrozenPane"
+        t-att-style="frozenPaneContainerStyle">
+        <t t-foreach="props.layers" t-as="layer" t-key="layer_index">
+          <t t-foreach="layer" t-as="group" t-key="group.start + '-' + group.end">
+            <t
+              t-component="groupComponent"
+              group=" group"
+              layerOffset="getLayerOffset(layer_index)"
+              openContextMenu.bind="openContextMenu"
+            />
+          </t>
+        </t>
+      </div>
+      <div
+        class="o-header-group-frozen-pane-border"
+        t-att-class="{
+          'o-group-rows': props.dimension === 'ROW',
+          'o-group-columns': props.dimension === 'COL',
+        }"
+        t-if="hasFrozenPane"
+      />
+
+      <div
+        class="o-header-group-main-pane flex-shrink-0 position-relative h-100 w-100 overflow-hidden"
+        t-att-class="{
+          'o-group-rows': hasFrozenPane and props.dimension === 'ROW',
+          'o-group-columns': hasFrozenPane and props.dimension === 'COL',
+        }">
+        <div
+          class="o-header-group-scroll-container position-relative"
+          t-att-style="scrollContainerStyle">
+          <t t-foreach="props.layers" t-as="layer" t-key="layer_index">
+            <t t-foreach="layer" t-as="group" t-key="group.start + '-' + group.end">
+              <t
+                t-component="groupComponent"
+                group="group"
+                layerOffset="getLayerOffset(layer_index)"
+                openContextMenu.bind="openContextMenu"
+              />
+            </t>
+          </t>
+        </div>
+      </div>
+
+      <Menu
+        t-if="menu.isOpen"
+        menuItems="menu.menuItems"
+        position="menu.position"
+        onClose.bind="this.closeMenu"
+      />
+    </div>
+  </t>
+</templates>

@@ -1,0 +1,24 @@
+<templates>
+  <t t-name="o-spreadsheet-ColorPickerWidget">
+    <div class="o-color-picker-widget">
+      <span
+        class="o-color-picker-button"
+        t-ref="colorPickerButton"
+        t-on-click.stop="props.toggleColorPicker"
+        t-att-title="props.title"
+        t-att-class="props.class ? props.class : 'o-color-picker-button-style'"
+        t-att-disabled="props.disabled">
+        <span t-att-style="iconStyle">
+          <t t-call="{{props.icon}}"/>
+        </span>
+      </span>
+      <ColorPicker
+        t-if="props.showColorPicker"
+        anchorRect="colorPickerAnchorRect"
+        onColorPicked="props.onColorPicked"
+        currentColor="props.currentColor"
+        maxHeight="props.dropdownMaxHeight"
+      />
+    </div>
+  </t>
+</templates>

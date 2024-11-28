@@ -1,6 +1,6 @@
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../types";
 
-import { TableTerms } from "../../components/translations_terms";
+import { TableTerms } from "../../current_components/translations_terms";
 import { TableConfig } from "../../types/table";
 import { DEFAULT_TABLE_CONFIG } from "../table_presets";
 import { getZoneArea } from "../zones";

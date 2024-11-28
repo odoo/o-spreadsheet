@@ -1,0 +1,48 @@
+<templates>
+  <t t-name="o-spreadsheet-SplitIntoColumnsPanel">
+    <div class="o-split-to-cols-panel">
+      <Section title.translate="Separator">
+        <select class="o-input mb-3" t-on-change="(ev) => this.onSeparatorChange(ev.target.value)">
+          <option
+            t-foreach="separators"
+            t-as="separator"
+            t-key="separator.value"
+            t-att-value="separator.value"
+            t-esc="separator.name"
+            t-att-selected="state.separatorValue === separator.value"
+          />
+        </select>
+
+        <input
+          class="o-input mb-3"
+          type="text"
+          t-if="state.separatorValue === 'custom'"
+          t-att-value="state.customSeparator"
+          t-on-input="updateCustomSeparator"
+          placeholder="Add any characters or symbol"
+        />
+
+        <t t-set="addColumnsLabel">Add new columns to avoid overwriting cells</t>
+        <Checkbox
+          value="state.addNewColumns"
+          label="addColumnsLabel"
+          onChange.bind="updateAddNewColumnsCheckbox"
+        />
+      </Section>
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button
+            class="o-button primary"
+            t-att-class="{'o-disabled': isConfirmDisabled}"
+            t-on-click="confirm">
+            Confirm
+          </button>
+        </div>
+      </Section>
+      <Section t-if="errorMessages.length || warningMessages.length" class="'pb-0 pt-2'">
+        <ValidationMessages messages="errorMessages" msgType="'error'"/>
+        <ValidationMessages messages="warningMessages" msgType="'warning'"/>
+      </Section>
+    </div>
+  </t>
+</templates>

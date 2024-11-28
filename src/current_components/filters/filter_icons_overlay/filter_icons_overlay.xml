@@ -1,0 +1,12 @@
+<templates>
+  <t t-name="o-spreadsheet-FilterIconsOverlay">
+    <t
+      t-foreach="getFilterHeadersPositions()"
+      t-as="position"
+      t-key="'filter'+position.col + '_' + position.row">
+      <GridCellIcon cellPosition="position" horizontalAlign="'right'">
+        <FilterIcon cellPosition="position"/>
+      </GridCellIcon>
+    </t>
+  </t>
+</templates>

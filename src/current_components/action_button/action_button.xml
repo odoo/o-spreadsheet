@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet-ActionButton">
+    <span
+      t-if="isVisible"
+      class="o-menu-item-button"
+      t-att-title="title"
+      t-att-class="{'o-disabled': !isEnabled, active: isActive}"
+      t-attf-class="{{props.class}}"
+      t-on-click="onClick">
+      <span t-if="iconTitle" t-att-style="buttonStyle" class="d-flex">
+        <t t-call="{{iconTitle}}"/>
+      </span>
+      <t t-if="props.hasTriangleDownIcon">
+        <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+      </t>
+    </span>
+  </t>
+</templates>

@@ -1,0 +1,94 @@
+<templates>
+  <t t-name="o-spreadsheet-WaterfallChartDesignPanel">
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart">
+      <t t-set-slot="general-extension">
+        <Section class="'o-vertical-axis-selection pt-0'" title.translate="Vertical axis position">
+          <RadioSelection
+            choices="axisChoices"
+            selectedValue="props.definition.verticalAxisPosition"
+            name="'axis'"
+            onChange.bind="updateVerticalAxisPosition"
+          />
+        </Section>
+        <ChartLegend
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+        <Section class="'pt-0'" title.translate="Values">
+          <Checkbox
+            name="'showValues'"
+            label.translate="Show values"
+            value="props.definition.showValues"
+            onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
+          />
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+    <SidePanelCollapsible collapsedAtInit="true" title.translate="Waterfall design">
+      <t t-set-slot="content">
+        <Section class="'pt-0'" title.translate="Options">
+          <t t-set="firstValueAsSubtotal">Use first value as subtotal</t>
+          <Checkbox
+            className="'mb-2'"
+            name="'firstValueAsSubtotal'"
+            label="firstValueAsSubtotal"
+            value="props.definition.firstValueAsSubtotal"
+            onChange.bind="onUpdateFirstValueAsSubtotal"
+          />
+          <t t-set="showSubTotalsLabel">Show subtotals at the end of series</t>
+          <Checkbox
+            className="'mb-2'"
+            name="'showSubTotals'"
+            label="showSubTotalsLabel"
+            value="props.definition.showSubTotals"
+            onChange.bind="onUpdateShowSubTotals"
+          />
+          <t t-set="showConnectorLinesLabel">Show connector lines</t>
+          <Checkbox
+            name="'showConnectorLines'"
+            label="showConnectorLinesLabel"
+            value="props.definition.showConnectorLines"
+            onChange.bind="onUpdateShowConnectorLines"
+          />
+        </Section>
+        <Section class="'pt-0'" title.translate="Colors">
+          <div class="o-waterfall-positive-color d-flex align-items-center mb-2">
+            <RoundColorPicker
+              currentColor="positiveValuesColor"
+              onColorPicked="(color) => this.updateColor('positiveValuesColor', color)"
+            />
+            <span class="ps-2">Color of positive values</span>
+          </div>
+          <div class="o-waterfall-negative-color d-flex align-items-center mb-2">
+            <RoundColorPicker
+              currentColor="negativeValuesColor"
+              onColorPicked="(color) => this.updateColor('negativeValuesColor', color)"
+            />
+            <span class="ps-2">Color of negative values</span>
+          </div>
+          <div class="o-waterfall-subtotal-color d-flex align-items-center">
+            <RoundColorPicker
+              currentColor="subTotalValuesColor"
+              onColorPicked="(color) => this.updateColor('subTotalValuesColor', color)"
+            />
+            <span class="ps-2">Color of subtotals</span>
+          </div>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+    <SidePanelCollapsible collapsedAtInit="true" title.translate="Axes">
+      <t t-set-slot="content">
+        <AxisDesignEditor
+          axesList="axesList"
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

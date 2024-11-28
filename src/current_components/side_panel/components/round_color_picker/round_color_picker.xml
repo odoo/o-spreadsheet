@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet.RoundColorPicker">
+    <div
+      class="o-round-color-picker-button rounded-circle"
+      t-ref="colorPickerButton"
+      t-on-click.stop="togglePicker"
+      t-att-title="props.title"
+      t-att-style="buttonStyle"
+    />
+    <ColorPicker
+      t-if="state.pickerOpened"
+      anchorRect="colorPickerAnchorRect"
+      onColorPicked.bind="onColorPicked"
+      currentColor="props.currentColor"
+      disableNoColor="props.disableNoColor"
+    />
+  </t>
+</templates>

@@ -1,0 +1,19 @@
+<templates>
+  <t t-name="o-spreadsheet.Checkbox">
+    <label
+      class="o-checkbox d-flex align-items-center"
+      t-att-title="props.title"
+      t-att-class="{'text-muted': props.disabled }"
+      t-attf-class="{{props.className}}">
+      <input
+        class="me-2"
+        type="checkbox"
+        t-att-disabled="props.disabled"
+        t-att-name="props.name"
+        t-att-checked="props.value"
+        t-on-change="onChange"
+      />
+      <t t-if="props.label" t-esc="props.label"/>
+    </label>
+  </t>
+</templates>

@@ -1,4 +1,4 @@
-import { ChartTerms } from "../../../../components/translations_terms";
+import { ChartTerms } from "../../../../current_components/translations_terms";
 import {
   evaluatePolynomial,
   expM,

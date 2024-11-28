@@ -1,0 +1,51 @@
+<templates>
+  <t t-name="o-spreadsheet-RemoveDuplicatesPanel">
+    <div class="o-remove-duplicates">
+      <Section>
+        <ValidationMessages messages="[selectionStatisticalInformation]" msgType="'info'"/>
+      </Section>
+      <Section class="'pt-0'">
+        <t t-set="dataHasHeaderLabel">Data has header row</t>
+        <Checkbox
+          name="'dataHasHeader'"
+          value="state.hasHeader"
+          label="dataHasHeaderLabel"
+          onChange.bind="toggleHasHeader"
+        />
+      </Section>
+
+      <Section class="'pt-0'" title.translate="Columns to analyze">
+        <div class="o-checkbox-selection overflow-auto">
+          <t t-set="selectAllLabel">Select all</t>
+          <Checkbox
+            value="isEveryColumnSelected"
+            label="selectAllLabel"
+            onChange.bind="toggleAllColumns"
+          />
+
+          <t t-foreach="Object.keys(state.columns)" t-as="colIndex" t-key="colIndex">
+            <Checkbox
+              value="state.columns[colIndex]"
+              label="getColLabel(colIndex)"
+              onChange="() => this.toggleColumn(colIndex)"
+            />
+          </t>
+        </div>
+      </Section>
+
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button
+            class="o-button primary"
+            t-att-class="{'o-disabled': !canConfirm}"
+            t-on-click="onRemoveDuplicates">
+            Remove duplicates
+          </button>
+        </div>
+      </Section>
+      <Section t-if="errorMessages.length">
+        <ValidationMessages messages="errorMessages" msgType="'error'"/>
+      </Section>
+    </div>
+  </t>
+</templates>

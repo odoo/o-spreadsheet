@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-GaugeChartConfigPanel">
+    <div>
+      <ChartDataSeries
+        ranges="[this.getDataRange()]"
+        onSelectionChanged="(ranges) => this.onDataRangeChanged(ranges)"
+        onSelectionConfirmed="() => this.updateDataRange()"
+        hasSingleRange="true"
+      />
+
+      <ChartErrorSection
+        t-if="configurationErrorMessages.length"
+        messages="configurationErrorMessages"
+      />
+    </div>
+  </t>
+</templates>

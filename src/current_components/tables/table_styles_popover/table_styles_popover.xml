@@ -1,0 +1,41 @@
+<templates>
+  <t t-name="o-spreadsheet-TableStylesPopover">
+    <Popover t-if="props.popoverProps" t-props="props.popoverProps">
+      <div
+        class="o-table-style-popover d-flex flex-column py-3"
+        t-ref="tableStyleList"
+        t-on-contextmenu.prevent="">
+        <div class="d-flex o-notebook ps-4 mb-3">
+          <div
+            t-foreach="Object.keys(categories)"
+            t-as="category"
+            t-key="category"
+            class="o-notebook-tab d-flex align-items-center"
+            t-att-class="{ 'selected': state.selectedCategory === category }"
+            t-on-click="() => state.selectedCategory = category"
+            t-att-data-id="category"
+            t-esc="categories[category_value]"
+          />
+        </div>
+        <div class="d-flex flex-wrap px-4">
+          <t t-foreach="displayedStyles" t-as="styleId" t-key="styleId">
+            <TableStylePreview
+              class="'o-table-style-popover-preview'"
+              styleId="styleId"
+              selected="styleId === props.selectedStyleId"
+              tableConfig="props.tableConfig"
+              tableStyle="env.model.getters.getTableStyle(styleId)"
+              onClick="() => this.props.onStylePicked(styleId)"
+            />
+          </t>
+          <div
+            t-if="state.selectedCategory === 'custom'"
+            class="o-new-table-style o-table-style-list-item o-table-style-popover-preview d-flex justify-content-center align-items-center"
+            t-on-click="newTableStyle">
+            +
+          </div>
+        </div>
+      </div>
+    </Popover>
+  </t>
+</templates>

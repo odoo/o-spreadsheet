@@ -1,0 +1,78 @@
+<templates>
+  <t t-name="o-spreadsheet-BorderEditor">
+    <t t-set="border_color">Border Color</t>
+    <Popover t-props="popoverProps">
+      <div
+        class="d-flex o-border-selector"
+        t-on-click.stop=""
+        t-att-class="props.class ? props.class : ''">
+        <div class="o-border-selector-section">
+          <div
+            t-foreach="BORDER_POSITIONS"
+            t-as="borderPositionsRow"
+            t-key="borderPositionsRow"
+            class="d-flex o-dropdown-button o-dropdown-line">
+            <span
+              t-foreach="borderPositionsRow"
+              t-as="borderPosition"
+              t-key="borderPosition"
+              class="o-line-item o-hoverable-button"
+              t-att-class="{active:props.currentBorderPosition === borderPosition[0]}"
+              t-att-name="borderPosition[0]"
+              t-on-click.stop="() => this.setBorderPosition(borderPosition[0])">
+              <t t-call="{{borderPosition[1]}}"/>
+            </span>
+          </div>
+        </div>
+        <div class="o-divider"/>
+        <div class="o-border-selector-section">
+          <div
+            class="m-0 p-0 d-flex align-items-center justify-content-center o-with-color o-hoverable-button"
+            title="Border color"
+            t-on-click.stop="(ev) => this.toggleDropdownTool('borderColorTool')">
+            <ColorPickerWidget
+              currentColor="props.currentBorderColor"
+              toggleColorPicker="(ev) => this.toggleDropdownTool('borderColorTool')"
+              showColorPicker="state.activeTool === 'borderColorTool'"
+              onColorPicked="(color) => this.setBorderColor(color)"
+              title="border_color"
+              icon="props.currentBorderColor === '' ? 'o-spreadsheet-Icon.BORDER_NO_COLOR' : 'o-spreadsheet-Icon.BORDER_COLOR'"
+              dropdownMaxHeight="this.props.dropdownMaxHeight"
+              class="'o-dropdown-button o-border-picker-button'"
+            />
+            <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+          </div>
+          <div
+            class="o-border-style-tool d-flex align-items-center justify-content-center o-hoverable-button"
+            title="Line style"
+            t-ref="lineStyleButton"
+            t-on-click.stop="(ev) => this.toggleDropdownTool('borderTypeTool')">
+            <t t-call="o-spreadsheet-Icon.BORDER_TYPE"/>
+            <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+            <Popover
+              t-props="lineStylePickerPopoverProps"
+              t-if="state.activeTool === 'borderTypeTool'">
+              <div class="o-border-style-dropdown">
+                <t t-foreach="borderStyles" t-as="borderStyle" t-key="borderStyle">
+                  <div
+                    t-att-title="borderStyle"
+                    t-on-click.stop="() => this.setBorderStyle(borderStyle)">
+                    <div class="d-flex o-dropdown-border-type">
+                      <div class="o-dropdown-border-check">
+                        <t
+                          t-if="props.currentBorderStyle === borderStyle"
+                          t-call="o-spreadsheet-Icon.CHECK"
+                        />
+                      </div>
+                      <div t-attf-class="o-style-preview o-style-{{borderStyle}}"/>
+                    </div>
+                  </div>
+                </t>
+              </div>
+            </Popover>
+          </div>
+        </div>
+      </div>
+    </Popover>
+  </t>
+</templates>

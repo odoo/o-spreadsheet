@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet-Autofill">
+    <div class="o-autofill" t-att-style="style"/>
+    <div
+      class="o-autofill-handler"
+      t-att-style="handlerStyle"
+      t-on-pointerdown="onMouseDown"
+      t-on-dblclick="onDblClick"
+    />
+    <t t-set="tooltip" t-value="getTooltip()"/>
+    <div t-if="tooltip" class="o-autofill-nextvalue" t-att-style="styleNextValue">
+      <t t-component="tooltip.component" t-props="tooltip.props"/>
+    </div>
+  </t>
+</templates>

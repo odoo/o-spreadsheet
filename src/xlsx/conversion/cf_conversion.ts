@@ -1,4 +1,4 @@
-import { ICON_SETS } from "../../components/icons/icons";
+import { ICON_SETS } from "../../current_components/icons/icons";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,

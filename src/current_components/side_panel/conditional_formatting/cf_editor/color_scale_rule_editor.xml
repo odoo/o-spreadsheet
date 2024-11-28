@@ -1,0 +1,84 @@
+<templates>
+  <t t-name="o-spreadsheet-ColorScaleRuleEditorThreshold">
+    <t t-set="fill_color">Fill Color</t>
+    <div
+      t-attf-class="o-threshold o-threshold-{{thresholdType}} d-flex align-items-center flex-row">
+      <t t-if="thresholdType === 'midpoint'">
+        <t t-set="type" t-value="threshold and threshold.type"/>
+        <select
+          class="o-input me-2"
+          name="valueType"
+          t-on-change="onMidpointChange"
+          t-att-class="{ 'o-select-with-input': threshold and threshold.type !== 'value' }"
+          t-on-click="closeMenus">
+          <option value="none" t-att-selected="threshold === undefined">None</option>
+          <option value="number" t-att-selected="type === 'number'">Fixed Number</option>
+          <option value="percentage" t-att-selected="type === 'percentage'">Percentage</option>
+          <option value="percentile" t-att-selected="type === 'percentile'">Percentile</option>
+          <option value="formula" t-att-selected="type === 'formula'">Formula</option>
+        </select>
+      </t>
+      <t t-else="">
+        <select
+          class="o-input me-2"
+          name="valueType"
+          t-on-change="(ev) => this.updateThresholdType(thresholdType, ev.target.value)"
+          t-on-click="closeMenus"
+          t-att-class="{ 'o-select-with-input': threshold?.type !== 'value' }">
+          <option value="value" t-att-selected="threshold.type === 'value'">Cell values</option>
+          <option value="number" t-att-selected="threshold.type === 'number'">Number</option>
+          <option value="percentage" t-att-selected="threshold.type === 'percentage'">
+            Percentage
+          </option>
+          <option value="percentile" t-att-selected="threshold.type === 'percentile'">
+            Percentile
+          </option>
+          <option value="formula" t-att-selected="threshold.type === 'formula'">Formula</option>
+        </select>
+      </t>
+      <div class="o-threshold-value me-2" t-if="threshold and threshold.type !== 'value'">
+        <input
+          t-if="threshold.type !== 'formula'"
+          type="text"
+          class="o-input"
+          t-att-value="threshold.value"
+          t-on-change="(ev) => this.updateThresholdValue(thresholdType, ev.target.value)"
+          t-att-class="{ 'o-invalid': isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
+        />
+        <StandaloneComposer t-else="" t-props="getColorScaleComposerProps(thresholdType)"/>
+      </div>
+      <div t-attf-class="flex-shrink-0 ms-1 {{ threshold === undefined ? 'invisible' : ''}}">
+        <RoundColorPicker
+          currentColor="getThresholdColor(threshold)"
+          onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
+          title="fill_color"
+          disableNoColor="true"
+        />
+      </div>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet-ColorScaleRuleEditor">
+    <div class="o-cf-color-scale-editor">
+      <div class="o-section-subtitle">Preview</div>
+      <div class="o-cf-preview-display mb-4" t-attf-style="{{getPreviewGradient()}}">
+        Preview text
+      </div>
+      <div class="o-section-subtitle">Minpoint</div>
+      <t t-call="o-spreadsheet-ColorScaleRuleEditorThreshold">
+        <t t-set="threshold" t-value="rule.minimum"/>
+        <t t-set="thresholdType" t-value="'minimum'"/>
+      </t>
+      <div class="o-section-subtitle">MidPoint</div>
+      <t t-call="o-spreadsheet-ColorScaleRuleEditorThreshold">
+        <t t-set="threshold" t-value="rule.midpoint"/>
+        <t t-set="thresholdType" t-value="'midpoint'"/>
+      </t>
+      <div class="o-section-subtitle">MaxPoint</div>
+      <t t-call="o-spreadsheet-ColorScaleRuleEditorThreshold">
+        <t t-set="threshold" t-value="rule.maximum"/>
+        <t t-set="thresholdType" t-value="'maximum'"/>
+      </t>
+    </div>
+  </t>
+</templates>

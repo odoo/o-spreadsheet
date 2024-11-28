@@ -20,7 +20,7 @@ const MENU_MAX_HEIGHT = 250;
 css/* scss */ `
   .o-spreadsheet-bottom-bar {
     background-color: ${BACKGROUND_GRAY_COLOR};
-    padding-left: ${HEADER_WIDTH}px;
+    padding-left: ${HEADER_WIDTH / 2}px;
     font-size: 15px;
     border-top: 1px solid lightgrey;
 
@@ -86,7 +86,7 @@ interface BottomBarMenuState extends MenuState {
 }
 
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-BottomBar";
+  static template = "o-spreadsheet-mobile-BottomBar";
   static props = {
     onClick: Function,
   };

@@ -1,0 +1,9 @@
+<templates>
+  <t t-name="o-spreadsheet-DataValidationSingleInput">
+    <DataValidationInput
+      value="props.criterion.values[0]"
+      onValueChanged.bind="onValueChanged"
+      criterionType="props.criterion.type"
+    />
+  </t>
+</templates>

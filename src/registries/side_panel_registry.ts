@@ -1,4 +1,4 @@
-import { SidePanelState } from "../components/side_panel/side_panel/side_panel_store";
+import { SidePanelState } from "../current_components/side_panel/side_panel/side_panel_store";
 import { Getters, SpreadsheetChildEnv } from "../types";
 import { Registry } from "./registry";
 

@@ -1,0 +1,97 @@
+<templates>
+  <t t-name="o-spreadsheet-CellIsRuleEditorPreview">
+    <div
+      class="o-cf-preview-display"
+      t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
+                       text-decoration:{{getTextDecoration(currentStyle)}};
+                       font-style:{{currentStyle.italic?'italic':'normal'}};
+                       color:{{currentStyle.textColor || '#000'}};
+                       background-color:{{currentStyle.fillColor}};">
+      <t t-if="previewText" t-esc="previewText"/>
+      <t t-else="">Preview text</t>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet-CellIsRuleEditor">
+    <t t-set="fill_color">Fill Color</t>
+    <t t-set="text_color">Text Color</t>
+    <div class="o-cf-cell-is-rule">
+      <div class="o-section-subtitle">Format cells if...</div>
+      <select
+        class="o-input o-cell-is-operator mb-3"
+        t-on-change="(ev) => this.editOperator(ev.target.value)">
+        <t t-foreach="cellIsOperators" t-as="op" t-key="op_index">
+          <option
+            t-att-value="op"
+            t-esc="cellIsOperators[op]"
+            t-att-selected="rule.operator === op"
+          />
+        </t>
+      </select>
+      <t t-if="rule.operator !== 'IsEmpty' and rule.operator !== 'IsNotEmpty'">
+        <div class="o-cell-is-value mb-3">
+          <StandaloneComposer t-props="getCellIsRuleComposerProps(0)"/>
+        </div>
+        <t t-if="rule.operator === 'Between' || rule.operator === 'NotBetween'">
+          <div class="o-cell-is-value o-secondary-value mb-3">
+            <StandaloneComposer t-props="getCellIsRuleComposerProps(1)"/>
+          </div>
+        </t>
+      </t>
+      <div class="o-section-subtitle pt-3">Formatting style</div>
+
+      <t t-call="o-spreadsheet-CellIsRuleEditorPreview">
+        <t t-set="currentStyle" t-value="rule.style"/>
+      </t>
+      <div class="o-sidePanel-tools d-flex">
+        <div
+          class="o-hoverable-button o-menu-item-button"
+          title="Bold"
+          t-att-class="{active:rule.style.bold}"
+          t-on-click="() => this.toggleStyle('bold')">
+          <t t-call="o-spreadsheet-Icon.BOLD"/>
+        </div>
+        <div
+          class="o-hoverable-button o-menu-item-button"
+          title="Italic"
+          t-att-class="{active:rule.style.italic}"
+          t-on-click="() => this.toggleStyle('italic')">
+          <t t-call="o-spreadsheet-Icon.ITALIC"/>
+        </div>
+        <div
+          class="o-hoverable-button o-menu-item-button"
+          title="Underline"
+          t-att-class="{active:rule.style.underline}"
+          t-on-click="(ev) => this.toggleStyle('underline', ev)">
+          <t t-call="o-spreadsheet-Icon.UNDERLINE"/>
+        </div>
+        <div
+          class="o-hoverable-button o-menu-item-button"
+          title="Strikethrough"
+          t-att-class="{active:rule.style.strikethrough}"
+          t-on-click="(ev) => this.toggleStyle('strikethrough', ev)">
+          <t t-call="o-spreadsheet-Icon.STRIKE"/>
+        </div>
+        <ColorPickerWidget
+          currentColor="rule.style.textColor || '#000000'"
+          toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-textColor', ev)"
+          showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
+          onColorPicked="(color) => this.setColor('textColor', color)"
+          title="text_color"
+          icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+          class="'o-hoverable-button o-menu-item-button'"
+        />
+        <div class="o-divider"/>
+        <ColorPickerWidget
+          currentColor="rule.style.fillColor"
+          toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-fillColor', ev)"
+          showColorPicker="state.openedMenu === 'cellIsRule-fillColor'"
+          onColorPicked="(color) => this.setColor('fillColor', color)"
+          title="fill_color"
+          icon="'o-spreadsheet-Icon.FILL_COLOR'"
+          class="'o-hoverable-button o-menu-item-button'"
+        />
+      </div>
+    </div>
+  </t>
+</templates>

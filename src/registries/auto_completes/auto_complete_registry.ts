@@ -1,4 +1,4 @@
-import { HtmlContent } from "../../components/composer/composer/composer";
+import { HtmlContent } from "../../current_components/composer/composer/composer";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { CellPosition, Getters } from "../../types";
 import { Registry } from "../registry";

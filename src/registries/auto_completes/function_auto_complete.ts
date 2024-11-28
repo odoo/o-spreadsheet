@@ -1,5 +1,5 @@
-import { getHtmlContentFromPattern } from "../../components/helpers/html_content_helpers";
 import { COMPOSER_ASSISTANT_COLOR } from "../../constants";
+import { getHtmlContentFromPattern } from "../../current_components/helpers/html_content_helpers";
 import { functionRegistry } from "../../functions";
 import { autoCompleteProviders } from "./auto_complete_registry";
 

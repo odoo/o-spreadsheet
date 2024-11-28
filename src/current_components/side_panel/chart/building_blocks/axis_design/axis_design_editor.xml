@@ -1,0 +1,22 @@
+<templates>
+  <t t-name="o-spreadsheet-AxisDesignEditor">
+    <t t-set="editor_label">Axis title</t>
+    <Section class="'py-0'">
+      <BadgeSelection
+        choices="badgeAxes"
+        onChange.bind="(value) => state.currentAxis = value"
+        selectedValue="state.currentAxis"
+      />
+    </Section>
+    <ChartTitle
+      title="this.getAxisTitle()"
+      updateTitle.bind="updateAxisTitle"
+      name="editor_label"
+      toggleItalic.bind="toggleItalicAxisTitle"
+      toggleBold.bind="toggleBoldAxisTitle"
+      updateAlignment.bind="updateAxisTitleAlignment"
+      updateColor.bind="updateAxisTitleColor"
+      style="axisTitleStyle"
+    />
+  </t>
+</templates>

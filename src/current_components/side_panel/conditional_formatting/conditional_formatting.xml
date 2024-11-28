@@ -1,0 +1,20 @@
+<templates>
+  <t t-name="o-spreadsheet-ConditionalFormattingPanel">
+    <div class="o-cf h-100">
+      <t t-if="state.mode === 'list'">
+        <ConditionalFormatPreviewList
+          conditionalFormats="conditionalFormats"
+          onPreviewClick.bind="editConditionalFormat"
+          onAddConditionalFormat.bind="addConditionalFormat"
+        />
+      </t>
+      <t t-if="state.mode === 'edit'">
+        <ConditionalFormattingEditor
+          editedCf="editedCF"
+          onSave.bind="switchToList"
+          onCancel.bind="cancelEdition"
+        />
+      </t>
+    </div>
+  </t>
+</templates>

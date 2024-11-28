@@ -1,0 +1,26 @@
+<templates>
+  <t t-name="o-spreadsheet-Ripple">
+    <div
+      class="o-ripple-container position-relative"
+      t-att-class="props.class"
+      t-on-click="onClick">
+      <div class="position-absolute w-100 h-100">
+        <t t-foreach="state.ripples" t-as="ripple" t-key="ripple.id">
+          <RippleEffect t-props="getRippleEffectProps(ripple.id)"/>
+        </t>
+      </div>
+      <div class="position-relative" t-ref="childContainer">
+        <t t-slot="default"/>
+      </div>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet-RippleEffect">
+    <div
+      class="position-absolute"
+      t-att-class="{ 'overflow-hidden': !props.allowOverflow }"
+      t-att-style="props.style">
+      <div class="o-ripple position-relative pe-none" t-ref="ripple" t-att-style="rippleStyle"/>
+    </div>
+  </t>
+</templates>

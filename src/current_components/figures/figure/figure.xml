@@ -1,0 +1,82 @@
+<templates>
+  <t t-name="o-spreadsheet-FigureComponent">
+    <div class="o-figure-wrapper pe-auto" t-att-style="wrapperStyle">
+      <div
+        class="o-figure w-100 h-100"
+        t-on-pointerdown.stop="(ev) => this.onMouseDown(ev)"
+        t-on-contextmenu.prevent.stop="(ev) => !env.model.getters.isReadonly() and this.onContextMenu(ev)"
+        t-ref="figure"
+        t-att-style="props.style"
+        t-att-data-id="props.figure.id"
+        tabindex="0"
+        t-on-keydown="(ev) => this.onKeyDown(ev)"
+        t-on-keyup.stop="">
+        <t
+          t-component="figureRegistry.get(props.figure.tag).Component"
+          t-key="props.figure.id"
+          onFigureDeleted="props.onFigureDeleted"
+          figure="props.figure"
+        />
+        <div class="o-figure-menu position-absolute m-2" t-if="!env.isDashboard()">
+          <div
+            class="o-figure-menu-item"
+            t-if="!env.model.getters.isReadonly()"
+            t-on-click="showMenu"
+            t-ref="menuButton"
+            t-on-contextmenu.prevent.stop="showMenu">
+            <t t-call="o-spreadsheet-Icon.LIST"/>
+          </div>
+          <Menu
+            t-if="menuState.isOpen"
+            position="menuState.position"
+            menuItems="menuState.menuItems"
+            onClose="() => this.menuState.isOpen=false"
+          />
+        </div>
+      </div>
+      <div class="o-figure-border w-100 h-100 position-absolute pe-none" t-att-style="borderStyle"/>
+      <t t-if="isSelected">
+        <div
+          class="o-fig-anchor o-top"
+          t-att-style="this.getResizerPosition('top')"
+          t-on-pointerdown="(ev) => this.clickAnchor(0,-1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-topRight"
+          t-att-style="this.getResizerPosition('top right')"
+          t-on-pointerdown="(ev) => this.clickAnchor(1,-1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-right"
+          t-att-style="this.getResizerPosition('right')"
+          t-on-pointerdown="(ev) => this.clickAnchor(1,0, ev)"
+        />
+        <div
+          class="o-fig-anchor o-bottomRight"
+          t-att-style="this.getResizerPosition('bottom right')"
+          t-on-pointerdown="(ev) => this.clickAnchor(1,1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-bottom"
+          t-att-style="this.getResizerPosition('bottom')"
+          t-on-pointerdown="(ev) => this.clickAnchor(0,1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-bottomLeft"
+          t-att-style="this.getResizerPosition('bottom left')"
+          t-on-pointerdown="(ev) => this.clickAnchor(-1,1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-left"
+          t-att-style="this.getResizerPosition('left')"
+          t-on-pointerdown="(ev) => this.clickAnchor(-1,0, ev)"
+        />
+        <div
+          class="o-fig-anchor o-topLeft"
+          t-att-style="this.getResizerPosition('top left')"
+          t-on-pointerdown="(ev) => this.clickAnchor(-1,-1, ev)"
+        />
+      </t>
+    </div>
+  </t>
+</templates>
