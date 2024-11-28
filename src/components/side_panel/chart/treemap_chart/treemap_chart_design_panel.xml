@@ -1,0 +1,76 @@
+<templates>
+  <t t-name="o-spreadsheet-TreeMapChartDesignPanel">
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart"
+    />
+
+    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Tree map colors">
+      <t t-set-slot="content">
+        <Section class="'pt-0'">
+          <BadgeSelection
+            choices="coloringOptionChoices"
+            onChange.bind="changeColoringOption"
+            selectedValue="coloringOptions.type"
+          />
+
+          <t t-if="coloringOptions.type === 'categoryColor'">
+            <TreeMapCategoryColors t-props="props"/>
+          </t>
+          <t t-else="">
+            <TreeMapColorScale t-props="props"/>
+          </t>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+
+    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Headers and labels">
+      <t t-set-slot="content">
+        <Section title.translate="Headers" class="'pt-0 pb-0'">
+          <Checkbox
+            name="'showHeaders'"
+            label.translate="Show headers"
+            value="showHeaders"
+            onChange="(showHeaders) => props.updateChart(this.props.figureId, { showHeaders })"
+          />
+        </Section>
+        <Section class="'pt-0'" t-if="showHeaders">
+          <TextStyler
+            class="'pt-0 o-header-style'"
+            updateStyle="(headerDesign) => props.updateChart(this.props.figureId, { headerDesign })"
+            style="props.definition.headerDesign || {}"
+            defaultStyle="defaults.headerDesign"
+            hasBackgroundColor="true"
+          />
+        </Section>
+
+        <Section title.translate="Labels" class="'pt-0 pb-0'">
+          <div class="d-flex flex-row gap-4">
+            <Checkbox
+              name="'showLabels'"
+              label.translate="Show labels"
+              value="showLabels"
+              onChange="(showLabels) => props.updateChart(this.props.figureId, { showLabels })"
+            />
+            <Checkbox
+              name="'showValues'"
+              label.translate="Show values"
+              value="showValues"
+              onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
+            />
+          </div>
+        </Section>
+        <Section class="'pt-0'" t-if="showValues || showLabels">
+          <TextStyler
+            class="'pt-0 o-values-style'"
+            updateStyle="(valuesDesign) => props.updateChart(this.props.figureId, { valuesDesign })"
+            style="props.definition.valuesDesign || {}"
+            defaultStyle="defaults.valuesDesign"
+            hasVerticalAlign="true"
+          />
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>
