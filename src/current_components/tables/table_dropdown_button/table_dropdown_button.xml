@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet-TableDropdownButton">
+    <div class="o-table-widget d-flex align-item-center">
+      <ActionButton
+        action="action"
+        hasTriangleDownIcon="true"
+        t-on-click="onClick"
+        class="'o-hoverable-button'"
+      />
+    </div>
+    <TableStylesPopover
+      tableConfig="tableConfig"
+      onStylePicked.bind="onStylePicked"
+      popoverProps="state.popoverProps"
+      closePopover.bind="closePopover"
+    />
+  </t>
+</templates>

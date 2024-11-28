@@ -15,12 +15,7 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import {
-  AUTOFILL_EDGE_LENGTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  SCROLLBAR_WIDTH,
-} from "../../constants";
+import { HEADER_HEIGHT, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../../constants";
 import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
@@ -55,7 +50,6 @@ import {
   SpreadsheetChildEnv,
   Table,
 } from "../../types/index";
-import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
@@ -75,7 +69,7 @@ import { Menu, MenuState } from "../menu/menu";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
-import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";
 import { HoveredCellStore } from "./hovered_cell_store";
@@ -115,7 +109,7 @@ interface Props {
 // JS
 // -----------------------------------------------------------------------------
 export class Grid extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Grid";
+  static template = "o-spreadsheet-mobile-Grid";
   static props = {
     exposeFocus: Function,
   };
@@ -125,7 +119,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     GridPopover,
     HeadersOverlay,
     Menu,
-    Autofill,
     ClientTag,
     Highlight,
     Popover,
@@ -417,26 +410,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       throw new Error("Grid el is not defined.");
     }
     return this.gridRef.el;
-  }
-
-  getAutofillPosition() {
-    const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.env.model.getters.getVisibleRect(zone);
-    return {
-      left: rect.x + rect.width - AUTOFILL_EDGE_LENGTH / 2,
-      top: rect.y + rect.height - AUTOFILL_EDGE_LENGTH / 2,
-    };
-  }
-
-  get isAutofillVisible(): boolean {
-    const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.env.model.getters.getVisibleRect({
-      left: zone.right,
-      right: zone.right,
-      top: zone.bottom,
-      bottom: zone.bottom,
-    });
-    return !(rect.width === 0 || rect.height === 0);
   }
 
   onGridResized({ height, width }: DOMDimension) {

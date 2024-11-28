@@ -1,0 +1,14 @@
+<templates>
+  <t t-name="o-spreadsheet-Popover">
+    <t t-portal="'.o-spreadsheet'">
+      <div
+        class="o-popover"
+        t-ref="popover"
+        t-on-wheel="props.onMouseWheel"
+        t-att-style="popoverStyle"
+        t-on-click.stop="">
+        <t t-slot="default"/>
+      </div>
+    </t>
+  </t>
+</templates>

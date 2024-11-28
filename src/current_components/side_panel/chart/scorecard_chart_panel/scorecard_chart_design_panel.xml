@@ -1,0 +1,52 @@
+<templates>
+  <t t-name="o-spreadsheet-ScorecardChartDesignPanel">
+    <t t-set="color_up">Color Up</t>
+    <t t-set="color_down">Color Down</t>
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart">
+      <t t-set-slot="general-extension">
+        <Section class="'pt-1'" title.translate="Number formatting">
+          <Checkbox
+            name="'humanizeNumbers'"
+            label="humanizeNumbersLabel"
+            value="props.definition.humanize"
+            onChange.bind="updateHumanizeNumbers"
+          />
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+    <SidePanelCollapsible collapsedAtInit="false" title.translate="Baseline">
+      <t t-set-slot="content">
+        <Section class="'pt-0'" title.translate="Baseline description">
+          <input
+            type="text"
+            t-att-value="translate(props.definition.baselineDescr)"
+            t-on-change="updateBaselineDescr"
+            class="o-input"
+            placeholder="Baseline description"
+          />
+        </Section>
+        <Section class="'o-chart-baseline-color pt-0'" title="colorsSectionTitle">
+          <div class="d-flex align-items-center mb-2">
+            <RoundColorPicker
+              currentColor="props.definition.baselineColorUp"
+              onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
+              title="color_up"
+            />
+            <span class="ps-2">Color on value increase</span>
+          </div>
+          <div class="d-flex align-items-center">
+            <RoundColorPicker
+              currentColor="props.definition.baselineColorDown"
+              onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
+              title="color_down"
+            />
+            <span class="ps-2">Color on value decrease</span>
+          </div>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

@@ -1,0 +1,33 @@
+<templates>
+  <t t-name="o-spreadsheet-DataValidationListCriterionForm">
+    <t t-foreach="displayedValues" t-as="value" t-key="value_index">
+      <div class="o-dv-list-values d-flex align-items-center">
+        <DataValidationInput
+          value="props.criterion.values[value_index]"
+          onValueChanged="(v) => this.onValueChanged(v, value_index)"
+          criterionType="props.criterion.type"
+          onKeyDown="(ev) => this.onKeyDown(ev, value_index)"
+          focused="value_index === state.focusedValueIndex"
+          onBlur.bind="onBlurInput"
+        />
+        <div
+          class="o-dv-list-item-delete ms-2 o-button-icon"
+          t-on-click="() => this.removeItem(value_index)">
+          <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
+        </div>
+      </div>
+      <div class="mb-2"/>
+    </t>
+    <button class="o-dv-list-add-value o-button mb-3" t-on-click="onAddAnotherValue">
+      Add another item
+    </button>
+
+    <div class="o-section-subtitle">Display style</div>
+    <select class="o-dv-display-style o-input" t-on-change="onChangedDisplayStyle">
+      <option t-att-selected="props.criterion.displayStyle === 'arrow'" value="arrow">Arrow</option>
+      <option t-att-selected="props.criterion.displayStyle === 'plainText'" value="plainText">
+        Plain text
+      </option>
+    </select>
+  </t>
+</templates>

@@ -10,7 +10,7 @@ import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
-import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
 interface Props {}

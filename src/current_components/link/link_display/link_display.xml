@@ -1,0 +1,43 @@
+<templates>
+  <t t-name="o-spreadsheet-LinkDisplay">
+    <div class="o-link-tool d-flex align-items-center">
+      <!-- t-key to prevent owl from re-using the previous img element when the link changes.
+    The wrong/previous image would be displayed while the new one loads -->
+      <img
+        t-if="link.isExternal"
+        t-key="link.url"
+        t-attf-src="https://www.google.com/s2/favicons?sz=16&amp;domain={{link.url}}"
+      />
+      <a
+        t-if="link.isExternal"
+        class="o-link"
+        t-att-href="link.url"
+        target="_blank"
+        t-on-click.prevent="openLink"
+        t-att-title="link.url">
+        <t t-esc="getUrlRepresentation(link)"/>
+      </a>
+      <a
+        t-else=""
+        class="o-link"
+        t-on-click.prevent="openLink"
+        t-att-title="getUrlRepresentation(link)">
+        <t t-esc="getUrlRepresentation(link)"/>
+      </a>
+      <span
+        t-if="!env.model.getters.isReadonly()"
+        class="o-link-icon o-unlink"
+        t-on-click="unlink"
+        title="Remove link">
+        <t t-call="o-spreadsheet-Icon.UNLINK"/>
+      </span>
+      <span
+        t-if="!env.model.getters.isReadonly()"
+        class="o-link-icon o-edit-link"
+        t-on-click="edit"
+        title="Edit link">
+        <t t-call="o-spreadsheet-Icon.EDIT"/>
+      </span>
+    </div>
+  </t>
+</templates>

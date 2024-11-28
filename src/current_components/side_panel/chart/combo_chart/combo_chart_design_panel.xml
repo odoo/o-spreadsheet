@@ -1,0 +1,47 @@
+<templates>
+  <t t-name="o-spreadsheet-ComboChartDesignPanel">
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart">
+      <t t-set-slot="general-extension">
+        <ChartLegend
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+        <Section class="'pt-0'" title.translate="Values">
+          <Checkbox
+            name="'showValues'"
+            label.translate="Show values"
+            value="props.definition.showValues"
+            onChange="showValues => props.updateChart(this.props.figureId, {showValues})"
+          />
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+    <SeriesWithAxisDesignEditor t-props="props">
+      <t t-set-slot="general-extension" t-slot-scope="scope">
+        <t t-set="index" t-value="scope.index"/>
+        <Section class="'pt-0 o-series-type-selection'" title.translate="Serie type">
+          <RadioSelection
+            choices="seriesTypeChoices"
+            selectedValue="getDataSeriesType(index)"
+            name="'seriesType'"
+            onChange="(type) => this.updateDataSeriesType(index, type)"
+          />
+        </Section>
+      </t>
+    </SeriesWithAxisDesignEditor>
+    <SidePanelCollapsible collapsedAtInit="true" title.translate="Axes">
+      <t t-set-slot="content">
+        <AxisDesignEditor
+          axesList="axesList"
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

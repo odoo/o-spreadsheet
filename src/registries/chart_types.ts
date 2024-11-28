@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
-import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
-import { GaugeChartComponent } from "../components/figures/chart/gauge/gauge_chart_component";
-import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
+import { ChartJsComponent } from "../current_components/figures/chart/chartJs/chartjs";
+import { GaugeChartComponent } from "../current_components/figures/chart/gauge/gauge_chart_component";
+import { ScorecardChart as ScorecardChartComponent } from "../current_components/figures/chart/scorecard/chart_scorecard";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
 import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";

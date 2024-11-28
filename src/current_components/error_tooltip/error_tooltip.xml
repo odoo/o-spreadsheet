@@ -1,0 +1,14 @@
+<templates>
+  <t t-name="o-spreadsheet-ErrorToolTip">
+    <div class="o-error-tooltip">
+      <t t-foreach="props.errors" t-as="error" t-key="error_index">
+        <div class="o-error-tooltip-title fw-bold text-danger">
+          <t t-esc="error.title"/>
+        </div>
+        <div class="o-error-tooltip-message">
+          <t t-esc="error.message"/>
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>

@@ -1,0 +1,25 @@
+<templates>
+  <t t-name="o-spreadsheet-HeaderGroup">
+    <div
+      class="o-header-group position-absolute"
+      t-att-style="groupBoxStyle"
+      t-att-data-id="props.group.start + '-' + props.group.end"
+      t-on-click="toggleGroup"
+      t-on-contextmenu.stop.prevent="onContextMenu">
+      <div
+        class="o-header-group-header position-absolute d-flex align-items-center justify-content-center overflow-hidden"
+        t-att-style="groupHeaderStyle">
+        <div
+          class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
+          t-att-style="groupButtonStyle">
+          <t t-call="{{groupButtonIcon}}"/>
+        </div>
+      </div>
+      <div
+        class="o-group-border position-absolute"
+        t-if="!isGroupFolded"
+        t-att-style="groupBorderStyle"
+      />
+    </div>
+  </t>
+</templates>

@@ -1,0 +1,59 @@
+<templates>
+  <t t-name="o-spreadsheet-FilterMenu">
+    <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
+      <t t-if="isSortable">
+        <div>
+          <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('ascending')">
+            Sort ascending (A ⟶ Z)
+          </div>
+          <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('descending')">
+            Sort descending (Z ⟶ A)
+          </div>
+        </div>
+        <div class="o-separator"/>
+      </t>
+      <div class="o-filter-menu-actions">
+        <div class="o-filter-menu-action-text" t-on-click="selectAll">Select all</div>
+        <div class="o-filter-menu-action-text" t-on-click="clearAll">Clear</div>
+      </div>
+      <div class="position-relative">
+        <input
+          class="w-100"
+          t-ref="filterMenuSearchBar"
+          type="text"
+          t-model="state.textFilter"
+          placeholder="Search..."
+          t-on-keydown="onKeyDown"
+        />
+        <i class="o-search-icon position-absolute">
+          <t t-call="o-spreadsheet-Icon.SEARCH"/>
+        </i>
+      </div>
+      <div
+        class="o-filter-menu-list d-flex flex-column rounded"
+        t-ref="filterValueList"
+        t-on-click="this.clearScrolledToValue"
+        t-on-scroll="this.clearScrolledToValue">
+        <t t-foreach="displayedValues" t-as="value" t-key="value.string">
+          <FilterMenuValueItem
+            onClick="() => this.checkValue(value)"
+            onMouseMove="() => this.onMouseMove(value)"
+            value="value.string"
+            isChecked="value.checked"
+            isSelected="value.string === state.selectedValue"
+            scrolledTo="value.scrolledTo"
+          />
+        </t>
+        <div
+          t-if="displayedValues.length === 0"
+          class="o-filter-menu-no-values d-flex align-items-center justify-content-center w-100 h-100 ">
+          No results
+        </div>
+      </div>
+      <div class="o-filter-menu-buttons d-flex justify-content-end">
+        <button class="o-button o-filter-menu-cancel me-2" t-on-click="cancel">Cancel</button>
+        <button class="o-button primary o-filter-menu-confirm" t-on-click="confirm">Confirm</button>
+      </div>
+    </div>
+  </t>
+</templates>

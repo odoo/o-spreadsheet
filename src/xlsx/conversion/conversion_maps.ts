@@ -1,4 +1,4 @@
-import { IconSetType } from "../../components/icons/icons";
+import { IconSetType } from "../../current_components/icons/icons";
 import {
   Align,
   BorderStyle,

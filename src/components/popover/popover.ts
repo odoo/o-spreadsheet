@@ -3,9 +3,9 @@ import { ComponentsImportance } from "../../constants";
 import { rectIntersection } from "../../helpers/rectangle";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
+import { CSSProperties } from "../../types/misc";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
-import { CSSProperties } from "./../../types/misc";
 
 type PopoverPosition = "TopLeft" | "TopRight" | "BottomLeft" | "BottomRight";
 type DisplayValue = "none" | "block";

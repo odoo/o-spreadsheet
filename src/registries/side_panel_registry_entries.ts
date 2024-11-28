@@ -1,20 +1,20 @@
-import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
-import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
-import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
-import { DataValidationPanel } from "../components/side_panel/data_validation/data_validation_panel";
-import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
-import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
-import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
-import { PivotMeasureDisplayPanel } from "../components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
-import { PivotSidePanel } from "../components/side_panel/pivot/pivot_side_panel/pivot_side_panel";
-import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
-import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
-import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
-import { TablePanel } from "../components/side_panel/table_panel/table_panel";
+import { ChartPanel } from "../current_components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { ConditionalFormattingPanel } from "../current_components/side_panel/conditional_formatting/conditional_formatting";
+import { CustomCurrencyPanel } from "../current_components/side_panel/custom_currency/custom_currency";
+import { DataValidationPanel } from "../current_components/side_panel/data_validation/data_validation_panel";
+import { DataValidationEditor } from "../current_components/side_panel/data_validation/dv_editor/dv_editor";
+import { FindAndReplacePanel } from "../current_components/side_panel/find_and_replace/find_and_replace";
+import { MoreFormatsPanel } from "../current_components/side_panel/more_formats/more_formats";
+import { PivotMeasureDisplayPanel } from "../current_components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
+import { PivotSidePanel } from "../current_components/side_panel/pivot/pivot_side_panel/pivot_side_panel";
+import { RemoveDuplicatesPanel } from "../current_components/side_panel/remove_duplicates/remove_duplicates";
+import { SettingsPanel } from "../current_components/side_panel/settings/settings_panel";
+import { SplitIntoColumnsPanel } from "../current_components/side_panel/split_to_columns_panel/split_to_columns_panel";
+import { TablePanel } from "../current_components/side_panel/table_panel/table_panel";
 import {
   TableStyleEditorPanel,
   TableStyleEditorPanelProps,
-} from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
+} from "../current_components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
 import { Getters, SpreadsheetChildEnv, UID } from "../types";

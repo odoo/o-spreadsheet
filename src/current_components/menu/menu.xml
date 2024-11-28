@@ -1,0 +1,72 @@
+<templates>
+  <t t-name="o-spreadsheet-Menu">
+    <Popover t-if="menuItemsAndSeparators.length" t-props="popoverProps">
+      <div
+        t-ref="menu"
+        class="o-menu"
+        t-att-style="menuStyle"
+        t-on-scroll="onScroll"
+        t-on-wheel.stop=""
+        t-on-click.stop=""
+        t-on-mouseover="onMouseOverMainMenu"
+        t-on-contextmenu.prevent="">
+        <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
+          <div t-if="menuItem === 'separator'" class="o-separator"/>
+          <t t-else="">
+            <t t-set="isMenuRoot" t-value="isRoot(menuItem)"/>
+            <t t-set="isMenuEnabled" t-value="isEnabled(menuItem)"/>
+            <div
+              t-att-title="getName(menuItem)"
+              t-att-data-name="menuItem.id"
+              t-on-click="(ev) => this.onClickMenu(menuItem, ev)"
+              t-on-mouseenter="(ev) => this.onMouseEnter(menuItem, ev)"
+              t-on-mouseover="(ev) => this.onMouseOver(menuItem, ev)"
+              t-on-mouseleave="(ev) => this.onMouseLeave(menuItem)"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': isActive(menuItem)}"
+              t-att-style="getColor(menuItem)">
+              <div class="d-flex w-100">
+                <div
+                  t-if="childrenHaveIcon"
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  t-att-style="getIconColor(menuItem)">
+                  <t t-if="getIconName(menuItem)" t-call="{{getIconName(menuItem)}}"/>
+                </div>
+                <div class="o-menu-item-name align-middle text-truncate" t-esc="getName(menuItem)"/>
+                <t t-set="description" t-value="menuItem.description(env)"/>
+                <div
+                  t-if="description"
+                  class="o-menu-item-description ms-auto text-truncate"
+                  t-esc="description"
+                />
+                <t t-set="secondaryIcon" t-value="menuItem.secondaryIcon(env)"/>
+                <div
+                  t-if="isMenuRoot"
+                  class="o-menu-item-root align-middle ms-auto"
+                  t-call="o-spreadsheet-Icon.CARET_RIGHT"
+                />
+                <div
+                  t-elif="secondaryIcon"
+                  class="o-menu-item-root align-middle ms-auto"
+                  t-call="{{secondaryIcon}}"
+                />
+              </div>
+            </div>
+          </t>
+        </t>
+      </div>
+      <Menu
+        t-if="subMenu.isOpen"
+        position="subMenuPosition"
+        menuItems="subMenu.menuItems"
+        depth="props.depth + 1"
+        maxHeight="props.maxHeight"
+        onMenuClicked="props.onMenuClicked"
+        onClose.bind="close"
+        menuId="props.menuId"
+        onMouseOver.bind="onMouseOverChildMenu"
+        width="props.width"
+      />
+    </Popover>
+  </t>
+</templates>

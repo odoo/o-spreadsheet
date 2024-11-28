@@ -1,0 +1,9 @@
+<templates>
+  <t t-name="o-spreadsheet-TableResizer">
+    <div
+      class="o-table-resizer position-absolute"
+      t-att-style="containerStyle"
+      t-on-pointerdown="onMouseDown"
+    />
+  </t>
+</templates>

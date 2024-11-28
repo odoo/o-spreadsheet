@@ -34,8 +34,8 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
+import { PaintFormatButton } from "../paint_format_button/paint_format_button";
 import { TableDropdownButton } from "../tables/table_dropdown_button/table_dropdown_button";
-import { PaintFormatButton } from "./../paint_format_button/paint_format_button";
 
 interface State {
   menuState: MenuState;

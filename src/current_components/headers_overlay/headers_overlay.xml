@@ -1,0 +1,121 @@
+<templates>
+  <t t-name="o-spreadsheet-HeadersOverlay">
+    <div class="o-overlay">
+      <ColResizer onOpenContextMenu="props.onOpenContextMenu"/>
+      <RowResizer onOpenContextMenu="props.onOpenContextMenu"/>
+      <div class="all" t-on-pointerdown.self="selectAll"/>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet-RowResizer">
+    <div
+      class="o-row-resizer"
+      t-on-pointermove.self="onMouseMove"
+      t-on-mouseleave="onMouseLeave"
+      t-on-pointerdown.self.prevent="select"
+      t-ref="rowResizer"
+      t-on-pointerup.self="onMouseUp"
+      t-on-contextmenu.self="onContextMenu"
+      t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving}">
+      <div
+        t-if="state.isMoving"
+        class="dragging-row-line"
+        t-attf-style="top:{{state.draggerLinePosition}}px;"
+      />
+      <div
+        t-if="state.isMoving"
+        class="dragging-row-shadow"
+        t-attf-style="top:{{state.draggerShadowPosition}}px; height:{{state.draggerShadowThickness}}px;"
+      />
+      <t t-if="state.resizerIsActive">
+        <div
+          class="o-handle"
+          t-on-pointerdown="onMouseDown"
+          t-on-dblclick="onDblClick"
+          t-on-contextmenu.prevent=""
+          t-attf-style="top:{{state.draggerLinePosition - 2}}px;">
+          <div class="dragging-resizer" t-if="state.isResizing"/>
+        </div>
+      </t>
+      <t
+        t-foreach="env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId())"
+        t-as="hiddenItem"
+        t-key="hiddenItem_index">
+        <div
+          class="position-absolute end-0 translate-middle-y"
+          t-att-style="getUnhideButtonStyle(hiddenItem[0])">
+          <div
+            class="o-unhide rounded mb-1"
+            t-att-class="{'invisible': hiddenItem.includes(0)}"
+            t-att-data-index="hiddenItem_index"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.CARET_UP"/>
+          </div>
+          <div
+            class="o-unhide rounded"
+            t-att-class="{'invisible': hiddenItem.includes(env.model.getters.getNumberRows(env.model.getters.getActiveSheetId())-1)}"
+            t-att-data-index="hiddenItem_index"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+          </div>
+        </div>
+      </t>
+    </div>
+  </t>
+
+  <t t-name="o-spreadsheet-ColResizer">
+    <div
+      class="o-col-resizer"
+      t-on-pointermove.self="onMouseMove"
+      t-on-mouseleave="onMouseLeave"
+      t-on-pointerdown.self.prevent="select"
+      t-ref="colResizer"
+      t-on-pointerup.self="onMouseUp"
+      t-on-contextmenu.self="onContextMenu"
+      t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving, }">
+      <div
+        t-if="state.isMoving"
+        class="dragging-col-line"
+        t-attf-style="left:{{state.draggerLinePosition}}px;"
+      />
+      <div
+        t-if="state.isMoving"
+        class="dragging-col-shadow"
+        t-attf-style="left:{{state.draggerShadowPosition}}px; width:{{state.draggerShadowThickness}}px"
+      />
+      <t t-if="state.resizerIsActive">
+        <div
+          class="o-handle"
+          t-on-pointerdown="onMouseDown"
+          t-on-dblclick="onDblClick"
+          t-on-contextmenu.prevent=""
+          t-attf-style="left:{{state.draggerLinePosition - 2}}px;">
+          <div class="dragging-resizer" t-if="state.isResizing"/>
+        </div>
+      </t>
+      <t
+        t-foreach="env.model.getters.getHiddenColsGroups(env.model.getters.getActiveSheetId())"
+        t-as="hiddenItem"
+        t-key="hiddenItem_index">
+        <div
+          class="position-absolute h-100 d-flex align-items-center translate-middle-x gap-2"
+          t-att-style="getUnhideButtonStyle(hiddenItem[0])">
+          <div
+            class="o-unhide rounded"
+            t-att-class="{'invisible': hiddenItem.includes(0)}"
+            t-att-data-index="hiddenItem_index"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
+          </div>
+          <div
+            class="o-unhide rounded"
+            t-att-class="{'invisible': hiddenItem.includes(env.model.getters.getNumberCols(env.model.getters.getActiveSheetId())-1)}"
+            t-att-data-index="hiddenItem_index"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
+          </div>
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>

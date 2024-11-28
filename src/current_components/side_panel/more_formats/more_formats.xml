@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet-MoreFormatsPanel">
+    <div class="o-more-formats-panel">
+      <div
+        t-foreach="dateFormatsActions"
+        t-as="action"
+        t-key="action.name(env)"
+        t-att-data-name="action.name(env)"
+        t-on-click="() => action.execute(env)"
+        class="w-100 d-flex align-items-center border-bottom format-preview">
+        <span class="ms-3 check-icon">
+          <t t-if="action.isActive(env)" t-call="o-spreadsheet-Icon.CHECK"/>
+        </span>
+        <span t-out="action.description(env)"/>
+      </div>
+    </div>
+  </t>
+</templates>

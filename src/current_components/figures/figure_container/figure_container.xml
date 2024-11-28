@@ -1,0 +1,40 @@
+<templates>
+  <t t-name="o-spreadsheet-FiguresContainer">
+    <div class="position-absolute">
+      <t t-foreach="containers" t-as="container" t-key="container.type">
+        <div
+          class="o-figure-container position-absolute pe-none overflow-hidden"
+          t-att-style="container.style"
+          t-att-data-id="container.type + 'Container'">
+          <div
+            class="o-figure-viewport-inverse w-0 h-0 overflow-visible position-absolute"
+            t-att-style="container.inverseViewportStyle">
+            <t t-foreach="container.figures" t-as="figure" t-key="figure.id">
+              <FigureComponent
+                onFigureDeleted="this.props.onFigureDeleted"
+                figure="figure"
+                style="getFigureStyle(figure)"
+                onMouseDown="(ev) => this.startDraggingFigure(figure, ev)"
+                onClickAnchor="(dirX, dirY, ev) => this.startResize(figure, dirX, dirY, ev)"
+              />
+            </t>
+          </div>
+        </div>
+      </t>
+    </div>
+    <div
+      class="o-figure-container position-absolute pe-none overflow-hidden"
+      t-if="dnd.horizontalSnap"
+      t-att-style="dnd.horizontalSnap.containerStyle"
+      t-att-data-id="'HorizontalSnapContainer'">
+      <div class="o-figure-snap-line horizontal" t-att-style="dnd.horizontalSnap.lineStyle"/>
+    </div>
+    <div
+      class="o-figure-container position-absolute pe-none overflow-hidden"
+      t-if="dnd.verticalSnap"
+      t-att-style="dnd.verticalSnap.containerStyle"
+      t-att-data-id="'VerticalSnapContainer'">
+      <div class="o-figure-snap-line vertical" t-att-style="dnd.verticalSnap.lineStyle"/>
+    </div>
+  </t>
+</templates>

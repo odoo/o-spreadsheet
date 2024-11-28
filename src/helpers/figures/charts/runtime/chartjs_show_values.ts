@@ -1,4 +1,4 @@
-import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
+import { ChartShowValuesPluginOptions } from "../../../../current_components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartRuntimeGenerationArgs, ChartWithDataSetDefinition } from "../../../../types/chart";
 import { formatChartDatasetValue } from "../chart_common";
 

@@ -1,0 +1,30 @@
+<templates>
+  <t t-name="o-spreadsheet-Spreadsheet">
+    <div class="o-spreadsheet" t-ref="spreadsheet" t-att-style="getStyle()">
+      <t t-if="env.isDashboard()">
+        <SpreadsheetDashboard/>
+      </t>
+      <t t-else="">
+        <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
+        <div
+          class="o-grid-container"
+          t-att-class="{'o-two-columns': !sidePanel.isOpen}"
+          t-att-style="gridContainerStyle"
+          t-on-click="this.focusGrid">
+          <div class="o-top-left"/>
+          <div class="o-column-groups">
+            <HeaderGroupContainer layers="colLayers" dimension="'COL'"/>
+          </div>
+          <div class="o-row-groups">
+            <HeaderGroupContainer layers="rowLayers" dimension="'ROW'"/>
+          </div>
+          <div class="o-group-grid overflow-hidden">
+            <Grid exposeFocus="(focus) => this._focusGrid = focus"/>
+          </div>
+        </div>
+        <SidePanel/>
+        <BottomBar onClick="() => this.focusGrid()"/>
+      </t>
+    </div>
+  </t>
+</templates>

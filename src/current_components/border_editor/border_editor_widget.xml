@@ -1,0 +1,26 @@
+<templates>
+  <t t-name="o-spreadsheet-BorderEditorWidget">
+    <div class="d-flex position-relative" title="Borders">
+      <span
+        t-ref="borderEditorButton"
+        t-on-click.stop="props.toggleBorderEditor"
+        t-att-class="props.class ? props.class : ''"
+        t-att-disabled="props.disabled">
+        <span t-att-style="iconStyle">
+          <t t-call="o-spreadsheet-Icon.BORDERS"/>
+        </span>
+      </span>
+      <BorderEditor
+        t-if="props.showBorderEditor"
+        onBorderColorPicked.bind="onBorderColorPicked"
+        onBorderStylePicked.bind="onBorderStylePicked"
+        onBorderPositionPicked.bind="onBorderPositionPicked"
+        currentBorderColor="state.currentColor"
+        currentBorderStyle="state.currentStyle"
+        currentBorderPosition="state.currentPosition"
+        maxHeight="props.dropdownMaxHeight"
+        anchorRect="borderEditorAnchorRect"
+      />
+    </div>
+  </t>
+</templates>

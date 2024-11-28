@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet-PaintFormatButton">
+    <span
+      class="o-menu-item-button"
+      title="Paint Format"
+      t-att-class="{active: isActive}"
+      t-attf-class="{{props.class}}"
+      t-on-click="togglePaintFormat"
+      t-on-dblclick="onDblClick">
+      <span>
+        <t t-call="o-spreadsheet-Icon.PAINT_FORMAT"/>
+      </span>
+    </span>
+  </t>
+</templates>

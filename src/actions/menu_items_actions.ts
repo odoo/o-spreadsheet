@@ -1,5 +1,5 @@
-import { CellPopoverStore } from "../components/popover";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../constants";
+import { CellPopoverStore } from "../current_components/popover";
 import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
 import {
   getChartPositionAtCenterOfViewport,

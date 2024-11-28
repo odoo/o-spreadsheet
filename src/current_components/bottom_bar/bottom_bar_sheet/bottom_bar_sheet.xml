@@ -1,0 +1,44 @@
+<templates>
+  <t t-name="o-spreadsheet-BottomBarSheet">
+    <Ripple>
+      <div
+        class="o-sheet d-flex align-items-center user-select-none text-nowrap "
+        tabindex="-1"
+        composerFocusableElement="true"
+        t-on-pointerdown="(ev) => this.onMouseDown(ev)"
+        t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)"
+        t-ref="sheetDiv"
+        t-att-style="props.style"
+        t-att-title="sheetName"
+        t-att-data-id="props.sheetId"
+        t-att-class="{active: isSheetActive}">
+        <span
+          class="o-sheet-name"
+          t-att-class="{'o-sheet-name-editable': state.isEditing }"
+          t-ref="sheetNameSpan"
+          t-esc="sheetName"
+          t-on-click="(ev) => this.onMouseEventSheetName(ev)"
+          t-on-pointerdown="(ev) => this.onMouseEventSheetName(ev)"
+          t-on-dblclick="() => this.onDblClick()"
+          t-on-focusout="() => this.onFocusOut()"
+          t-on-keydown="(ev) => this.onKeyDown(ev)"
+          t-att-contenteditable="state.isEditing ? 'true': 'false'"
+        />
+        <span class="o-sheet-icon ms-1" t-on-click.stop="(ev) => this.onIconClick(ev)">
+          <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+        </span>
+        <div
+          t-if="sheetColorStyle"
+          class="o-sheet-color position-absolute"
+          t-att-style="sheetColorStyle"
+        />
+      </div>
+    </Ripple>
+    <ColorPicker
+      t-if="state.pickerOpened"
+      anchorRect="colorPickerAnchorRect"
+      onColorPicked.bind="onColorPicked"
+      currentColor="props.currentColor"
+    />
+  </t>
+</templates>

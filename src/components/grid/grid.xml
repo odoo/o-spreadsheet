@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-Grid">
+  <t t-name="o-spreadsheet-mobile-Grid">
     <div
       class="o-grid w-100 h-100"
       tabindex="-1"
@@ -42,9 +42,6 @@
         onMouseWheel.bind="onMouseWheel"
         onClosePopover.bind="onClosePopover"
       />
-      <t t-if="env.model.getters.isGridSelectionActive()">
-        <Autofill position="getAutofillPosition()" isVisible="isAutofillVisible"/>
-      </t>
       <t t-foreach="highlights" t-as="highlight" t-key="highlight_index">
         <t
           t-if="highlight.interactive and highlight.sheetId === env.model.getters.getActiveSheetId()">

@@ -1,5 +1,5 @@
-import { tokenColors } from "../../components/composer/composer/abstract_composer_store";
-import { CellComposerStore } from "../../components/composer/composer/cell_composer_store";
+import { tokenColors } from "../../current_components/composer/composer/abstract_composer_store";
+import { CellComposerStore } from "../../current_components/composer/composer/cell_composer_store";
 import { Token, getFunctionsFromTokens } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { Granularity, PivotField, PivotMeasure } from "../../types";

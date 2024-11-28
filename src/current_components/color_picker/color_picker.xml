@@ -1,0 +1,96 @@
+<templates>
+  <t t-name="o-spreadsheet-ColorPicker">
+    <Popover t-props="popoverProps">
+      <div class="o-color-picker" t-on-click.stop="" t-att-style="colorPickerStyle">
+        <div class="o-color-picker-section-name">Standard</div>
+        <div class="colors-grid">
+          <div
+            t-foreach="COLORS"
+            t-as="color"
+            t-key="color"
+            class="o-color-picker-line-item"
+            t-att-data-color="color"
+            t-on-click="() => this.onColorClick(color)"
+            t-attf-style="background-color:{{color}};">
+            <div
+              t-if="isSameColor(props.currentColor, color)"
+              align="center"
+              t-attf-style="color:{{checkmarkColor}}">
+              ✓
+            </div>
+          </div>
+        </div>
+        <div class="o-separator"/>
+        <div
+          class="o-color-picker-section-name o-color-picker-toggler"
+          t-on-click="toggleColorPicker">
+          <span>Custom</span>
+        </div>
+        <div class="colors-grid o-color-picker-toggler" t-on-click.stop="toggleColorPicker">
+          <div class="o-color-picker-line-item o-color-picker-toggler-button">
+            <div class="o-color-picker-toggler-sign">
+              <t t-call="o-spreadsheet-Icon.PLUS"/>
+            </div>
+          </div>
+          <div
+            t-foreach="env.model.getters.getCustomColors()"
+            t-as="color"
+            t-key="color"
+            class="o-color-picker-line-item"
+            t-att-data-color="color"
+            t-attf-style="background-color:{{color}};"
+            t-on-click="() => this.onColorClick(color)">
+            <div
+              t-if="isSameColor(props.currentColor, color)"
+              align="center"
+              t-attf-style="color:{{checkmarkColor}}">
+              ✓
+            </div>
+          </div>
+        </div>
+        <div t-if="state.showGradient" class="o-custom-selector">
+          <div
+            class="o-gradient"
+            t-on-click.stop=""
+            t-on-pointerdown="dragGradientPointer"
+            t-att-style="gradientHueStyle">
+            <div class="saturation w-100 h-100 position-absolute pe-none"/>
+            <div class="lightness w-100 h-100 position-absolute pe-none"/>
+            <div class="magnifier pe-none" t-att-style="pointerStyle"/>
+          </div>
+          <div class="o-hue-container" t-on-pointerdown="dragHuePointer">
+            <div class="o-hue-picker" t-on-click.stop=""/>
+            <div class="o-hue-slider pe-none" t-att-style="sliderStyle">
+              <t t-call="o-spreadsheet-Icon.CARET_UP"/>
+            </div>
+          </div>
+          <div class="o-custom-input-preview">
+            <input
+              type="text"
+              t-att-class="{'o-wrong-color': !isHexColorInputValid }"
+              t-on-click.stop=""
+              t-att-value="state.customHexColor"
+              t-on-input="setHexColor"
+              maxlength="7"
+            />
+            <div class="o-color-preview" t-att-style="colorPreviewStyle"/>
+          </div>
+          <div class="o-custom-input-buttons">
+            <button
+              class="o-add-button"
+              t-att-class="{'o-disabled': !state.customHexColor or !isHexColorInputValid}"
+              t-on-click.stop="addCustomColor">
+              Add
+            </button>
+          </div>
+        </div>
+        <t t-if="!props.disableNoColor">
+          <div class="o-separator"/>
+          <div class="o-buttons">
+            <button t-on-click="resetColor" class="o-cancel">No Color</button>
+          </div>
+        </t>
+      </div>
+    </Popover>
+  </t>
+</templates>

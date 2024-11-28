@@ -1,4 +1,4 @@
-import { DVTerms } from "../../components/translations_terms";
+import { DVTerms } from "../../current_components/translations_terms";
 import { compile } from "../../formulas";
 import { getCellPositionsInRanges, isInside, lazy } from "../../helpers";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";

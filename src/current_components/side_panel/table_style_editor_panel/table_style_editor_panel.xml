@@ -1,0 +1,37 @@
+<templates>
+  <t t-name="o-spreadsheet-TableStyleEditorPanel">
+    <div class="o-table-style-editor-panel">
+      <Section title.translate="Style name">
+        <input type="text" class="o-input" t-model="state.styleName"/>
+      </Section>
+      <Section class="'pt-1'" title.translate="Style color">
+        <RoundColorPicker currentColor="state.primaryColor" onColorPicked.bind="onColorPicked"/>
+      </Section>
+      <Section class="'pt-1'" title.translate="Style template">
+        <div class="d-flex flex-wrap">
+          <t t-foreach="tableTemplates" t-as="templateName" t-key="templateName">
+            <TableStylePreview
+              class="'o-table-style-edit-template-preview'"
+              selected="templateName === state.selectedTemplateName"
+              tableConfig="previewTableConfig"
+              tableStyle="computeTableStyle(templateName)"
+              onClick="() => this.onTemplatePicked(templateName)"
+            />
+          </t>
+        </div>
+      </Section>
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button
+            t-if="props.styleId"
+            t-on-click="onDelete"
+            class="o-delete o-button-danger o-button">
+            Delete
+          </button>
+          <button t-on-click="onCancel" class="o-cancel o-button">Cancel</button>
+          <button t-on-click="onConfirm" class="o-confirm o-button primary">Confirm</button>
+        </div>
+      </Section>
+    </div>
+  </t>
+</templates>

@@ -1,0 +1,7 @@
+<templates>
+  <t t-name="o-spreadsheet-ScrollBar">
+    <div class="o-scrollbar" t-on-scroll="onScroll" t-ref="scrollbar" t-att-style="positionCss">
+      <div t-att-style="sizeCss"/>
+    </div>
+  </t>
+</templates>

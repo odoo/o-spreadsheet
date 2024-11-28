@@ -1,4 +1,4 @@
-import { DVTerms } from "../components/translations_terms";
+import { DVTerms } from "../current_components/translations_terms";
 import { tryToNumber } from "../functions/helpers";
 import {
   DateTime,

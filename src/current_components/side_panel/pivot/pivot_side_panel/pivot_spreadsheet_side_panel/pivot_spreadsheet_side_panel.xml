@@ -1,0 +1,47 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotSpreadsheetSidePanel">
+    <t t-set="isReadonly" t-value="env.model.getters.isReadonly()"/>
+    <div
+      class="d-flex flex-column h-100 justify-content-between overflow-hidden"
+      t-att="isReadonly ? ['inert', 1] : []"
+      t-att-class="{ 'pe-none': isReadonly, 'opacity-50': isReadonly }">
+      <div class="h-100 position-relative overflow-x-hidden overflow-y-auto">
+        <PivotTitleSection pivotId="props.pivotId" flipAxis.bind="flipAxis"/>
+        <Section title.translate="Range">
+          <SelectionInput
+            ranges="ranges"
+            required="true"
+            isInvalid="shouldDisplayInvalidRangeError"
+            hasSingleRange="true"
+            onSelectionChanged="(ranges) => this.onSelectionChanged(ranges)"
+            onSelectionConfirmed="() => this.onSelectionConfirmed()"
+          />
+          <span
+            class="text-danger sp_range_error_message"
+            t-if="shouldDisplayInvalidRangeError"
+            t-esc="pivot.invalidRangeMessage"
+          />
+        </Section>
+
+        <PivotLayoutConfigurator
+          t-if="!pivot.isInvalidRange"
+          unusedGroupableFields="store.unusedGroupableFields"
+          measureFields="store.measureFields"
+          unusedGranularities="store.unusedGranularities"
+          dateGranularities="store.dateGranularities"
+          datetimeGranularities="store.datetimeGranularities"
+          definition="definition"
+          onDimensionsUpdated.bind="onDimensionsUpdated"
+          pivotId="props.pivotId"
+        />
+      </div>
+      <PivotDeferUpdate
+        deferUpdate="store.updatesAreDeferred"
+        toggleDeferUpdate="(value) => store.deferUpdates(value)"
+        isDirty="store.isDirty"
+        discard="store.discardPendingUpdate"
+        apply="store.applyUpdate"
+      />
+    </div>
+  </t>
+</templates>
