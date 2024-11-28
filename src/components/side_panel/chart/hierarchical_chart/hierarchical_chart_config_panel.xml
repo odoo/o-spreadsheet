@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-SunburstChartConfigPanel">
+  <t t-name="o-spreadsheet-HierarchicalChartConfigPanel">
     <div>
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"
