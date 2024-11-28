@@ -1,27 +1,23 @@
 import { ChartCreationContext, ChartJSRuntime, Model } from "../../../src";
 import { PyramidChart } from "../../../src/helpers/figures/charts/pyramid_chart";
 import { PyramidChartDefinition } from "../../../src/types/chart/pyramid_chart";
+import { TEST_CHART_CREATION_CONTEXT } from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent, setFormat } from "../../test_helpers/commands_helpers";
 
 let model: Model;
 describe("population pyramid chart", () => {
-  test("create bar chart from creation context", () => {
+  test("create pyramid chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
+      ...TEST_CHART_CREATION_CONTEXT,
       background: "#123456",
       title: { text: "hello there" },
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
-      cumulative: true,
-      labelsAsText: true,
       dataSetsHaveTitle: true,
       aggregated: true,
       stacked: false,
-      firstValueAsSubtotal: true,
-      showConnectorLines: false,
-      showSubTotals: true,
       axesDesign: {},
-      fillArea: true,
       showValues: false,
     };
     const definition = PyramidChart.getDefinitionFromContextCreation(context);

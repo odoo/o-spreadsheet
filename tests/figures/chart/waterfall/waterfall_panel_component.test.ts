@@ -2,20 +2,18 @@ import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
 import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
 import { WaterfallChartDefinition } from "../../../../src/types/chart/waterfall_chart";
 import {
+  changeRoundColorPickerColor,
   click,
   createTable,
   createWaterfallChart,
   getHTMLCheckboxValue,
   getHTMLInputValue,
   getHTMLRadioValue,
+  getRoundColorPickerValue,
   setInputValueAndTrigger,
   simulateClick,
 } from "../../../test_helpers";
-import {
-  editColorPicker,
-  getColorPickerValue,
-  openChartConfigSidePanel,
-} from "../../../test_helpers/chart_helpers";
+import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
 import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
 
 let model: Model;
@@ -98,10 +96,10 @@ describe("Waterfall chart side panel", () => {
       expect(getHTMLCheckboxValue('input[name="showConnectorLines"]')).toBe(true);
       expect(getHTMLCheckboxValue('input[name="firstValueAsSubtotal"]')).toBe(true);
 
-      expect(getColorPickerValue(fixture, ".o-chart-background-color")).toEqual("#00FF00");
-      expect(getColorPickerValue(fixture, ".o-waterfall-positive-color")).toEqual("#0000FF");
-      expect(getColorPickerValue(fixture, ".o-waterfall-negative-color")).toEqual("#FFFF00");
-      expect(getColorPickerValue(fixture, ".o-waterfall-subtotal-color")).toEqual("#FF0000");
+      expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#00FF00");
+      expect(getRoundColorPickerValue(".o-waterfall-positive-color")).toEqual("#0000FF");
+      expect(getRoundColorPickerValue(".o-waterfall-negative-color")).toEqual("#FFFF00");
+      expect(getRoundColorPickerValue(".o-waterfall-subtotal-color")).toEqual("#FF0000");
     });
 
     test("Can change basic chart options", async () => {
@@ -143,16 +141,16 @@ describe("Waterfall chart side panel", () => {
       await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 
-      await editColorPicker(fixture, ".o-chart-background-color", "#A64D79");
+      await changeRoundColorPickerColor(".o-chart-background-color", "#A64D79");
       expect(getWaterfallDefinition(chartId)?.background).toEqual("#A64D79");
 
-      await editColorPicker(fixture, ".o-waterfall-positive-color", "#BF9000");
+      await changeRoundColorPickerColor(".o-waterfall-positive-color", "#BF9000");
       expect(getWaterfallDefinition(chartId)?.positiveValuesColor).toEqual("#BF9000");
 
-      await editColorPicker(fixture, ".o-waterfall-negative-color", "#FF9900");
+      await changeRoundColorPickerColor(".o-waterfall-negative-color", "#FF9900");
       expect(getWaterfallDefinition(chartId)?.negativeValuesColor).toEqual("#FF9900");
 
-      await editColorPicker(fixture, ".o-waterfall-subtotal-color", "#0C343D");
+      await changeRoundColorPickerColor(".o-waterfall-subtotal-color", "#0C343D");
       expect(getWaterfallDefinition(chartId)?.subTotalValuesColor).toEqual("#0C343D");
     });
   });

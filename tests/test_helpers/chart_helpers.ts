@@ -1,6 +1,5 @@
-import { Model, SpreadsheetChildEnv, UID } from "../../src";
-import { toHex } from "../../src/helpers";
-import { click, simulateClick } from "./dom_helper";
+import { ChartCreationContext, Model, SpreadsheetChildEnv, UID } from "../../src";
+import { simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
 
 export function isChartAxisStacked(model: Model, chartId: UID, axis: "x" | "y"): boolean {
@@ -39,14 +38,26 @@ export async function openChartDesignSidePanel(
   await simulateClick(".o-panel-element.inactive");
 }
 
-export function getColorPickerValue(fixture: HTMLElement, selector: string) {
-  const color = fixture
-    .querySelector<HTMLElement>(selector)!
-    .querySelector<HTMLElement>(".o-round-color-picker-button")?.style.background;
-  return toHex(color ?? "");
-}
-
-export async function editColorPicker(fixture: HTMLElement, selector: string, color: string) {
-  await click(fixture.querySelector(selector + " .o-round-color-picker-button")!);
-  await click(fixture, `.o-color-picker-line-item[data-color='${color}'`);
-}
+export const TEST_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
+  background: "#123456",
+  title: { text: "hello there" },
+  range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+  auxiliaryRange: "Sheet1!A1:A4",
+  legendPosition: "bottom",
+  cumulative: true,
+  labelsAsText: true,
+  dataSetsHaveTitle: true,
+  aggregated: true,
+  stacked: true,
+  firstValueAsSubtotal: true,
+  showConnectorLines: false,
+  showSubTotals: true,
+  axesDesign: {},
+  fillArea: true,
+  showValues: false,
+  headerDesign: { bold: false },
+  showHeaders: true,
+  showLabels: false,
+  valuesDesign: { italic: true },
+  coloringOptions: { type: "categoryColor", colors: [], highlightBigValues: true },
+};
