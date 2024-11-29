@@ -3,7 +3,7 @@ import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_
 import { SpreadsheetChildEnv } from "../../../src/types";
 import { openChartDesignSidePanel } from "../../test_helpers/chart_helpers";
 import { createChart } from "../../test_helpers/commands_helpers";
-import { click } from "../../test_helpers/dom_helper";
+import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 async function mountChartSidePanel(figureId = chartId) {
@@ -53,7 +53,10 @@ describe("combo charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4", type: "bar" }],
+        dataSets: [
+          { dataRange: "B1:B4", label: "serie_1" },
+          { dataRange: "C1:C4", type: "bar" },
+        ],
         labelRange: "A2:A4",
         type: "combo",
       },
@@ -61,10 +64,12 @@ describe("combo charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
     await click(fixture, ".o-series-type-selection input[value=bar]");
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).dataSets[0]).toEqual({
       dataRange: "B1:B4",
+      label: "serie_1",
       type: "bar",
     });
 
@@ -72,6 +77,7 @@ describe("combo charts", () => {
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).dataSets[0]).toEqual({
       dataRange: "B1:B4",
+      label: "serie_1",
       type: "line",
     });
   });
