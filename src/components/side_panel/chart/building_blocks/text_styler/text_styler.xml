@@ -1,24 +1,24 @@
 <templates>
   <t t-name="o-spreadsheet.TextStyler">
     <t t-set="placeholder">Add a title</t>
-    <t t-set="title">
-      <t t-if="props.name" t-esc="props.name"/>
+    <t t-set="label">
+      <t t-if="props.label" t-esc="props.label"/>
       <t t-else="">Title</t>
     </t>
-    <Section class="'o-chart-title'" title="title.toString()">
+    <Section class="'o-chart-title'" title="label.toString()">
       <input
         type="text"
         class="o-input"
-        t-att-value="props.title"
-        t-on-change="updateTitle"
+        t-att-value="props.text"
+        t-on-change="updateText"
         t-att-placeholder="placeholder"
       />
       <div class="o-chart-title-designer position-relative d-flex align-items-center">
         <span
           class="o-menu-item-button o-hoverable-button"
           title="Bold"
-          t-att-class="{active: props.style.bold}"
-          t-on-click="(ev) => this.props.toggleBold()">
+          t-att-class="{active: bold}"
+          t-on-click="this.toggleBold">
           <span>
             <t t-call="o-spreadsheet-Icon.BOLD"/>
           </span>
@@ -26,8 +26,8 @@
         <span
           class="o-menu-item-button o-hoverable-button"
           title="Italic"
-          t-att-class="{active: props.style.italic}"
-          t-on-click="(ev) => this.props.toggleItalic()">
+          t-att-class="{active: italic}"
+          t-on-click="this.toggleItalic">
           <span>
             <t t-call="o-spreadsheet-Icon.ITALIC"/>
           </span>
@@ -38,8 +38,8 @@
           title="Horizontal alignment"
           t-on-click="(ev) => this.toggleDropdownTool('horizontalChartAlignTool', ev)">
           <span>
-            <t t-if="props.style.align === 'center'" t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
-            <t t-elif="props.style.align === 'right'" t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
+            <t t-if="align === 'center'" t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
+            <t t-elif="align === 'right'" t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
             <t t-else="" t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
           </span>
           <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
@@ -51,7 +51,7 @@
           <div class="o-dropdown-line d-flex">
             <span
               class="o-menu-item-button o-hoverable-button"
-              t-att-class="{active: props.style.align === 'left'}"
+              t-att-class="{active: align === 'left'}"
               title="Left"
               t-on-click="(ev) => this.updateAlignment('left')">
               <span>
@@ -60,7 +60,7 @@
             </span>
             <span
               class="o-menu-item-button o-hoverable-button"
-              t-att-class="{active: props.style.align === 'center'}"
+              t-att-class="{active: align === 'center'}"
               title="Center"
               t-on-click="(ev) => this.updateAlignment('center')">
               <span>
@@ -69,7 +69,7 @@
             </span>
             <span
               class="o-menu-item-button o-hoverable-button"
-              t-att-class="{active: props.style.align === 'right'}"
+              t-att-class="{active: align === 'right'}"
               title="Right"
               t-on-click="(ev) => this.updateAlignment('right')">
               <span>
@@ -80,11 +80,10 @@
         </div>
         <div class="o-divider"/>
         <ColorPickerWidget
-          currentColor="props.style.color"
+          currentColor="props.style.color ?? props.defaultStyle?.color"
           toggleColorPicker="(ev) => this.toggleDropdownTool('fillChartColorTool', ev)"
           showColorPicker="state.activeTool === 'fillChartColorTool'"
-          onColorPicked.bind="onColorPicked"
-          title="fill_color"
+          onColorPicked.bind="onTextColorChange"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
         />

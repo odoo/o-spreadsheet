@@ -11,8 +11,9 @@ async function mountChartTitle(props: TextStyler["props"]) {
 describe("Chart title", () => {
   test("Can render a chart title component", async () => {
     await mountChartTitle({
-      title: "My title",
-      updateTitle: () => {},
+      text: "My title",
+      updateText: () => {},
+      updateStyle: () => {},
       style: {},
     });
     expect(fixture).toMatchSnapshot();
@@ -20,7 +21,8 @@ describe("Chart title", () => {
 
   test("Can render a chart title component with default title prop if not provided", async () => {
     await mountChartTitle({
-      updateTitle: () => {},
+      updateText: () => {},
+      updateStyle: () => {},
       style: {},
     });
 
@@ -29,74 +31,75 @@ describe("Chart title", () => {
   });
 
   test("Update is called when title is changed, not on input", async () => {
-    const updateTitle = jest.fn();
+    const updateText = jest.fn();
     await mountChartTitle({
-      title: "My title",
-      updateTitle,
+      text: "My title",
+      updateStyle: () => {},
+      updateText,
       style: {},
     });
     const input = fixture.querySelector("input")!;
     expect(input.value).toBe("My title");
     await setInputValueAndTrigger(input, "My new title", "onlyInput");
-    expect(updateTitle).toHaveBeenCalledTimes(0);
+    expect(updateText).toHaveBeenCalledTimes(0);
     input.dispatchEvent(new Event("change"));
-    expect(updateTitle).toHaveBeenCalledTimes(1);
+    expect(updateText).toHaveBeenCalledTimes(1);
   });
 
-  test("UpdateColor is called when title color is changed", async () => {
-    const updateColor = jest.fn();
+  test("updateStyle is called when text color is changed", async () => {
+    const updateStyle = jest.fn();
     await mountChartTitle({
-      title: "My title",
-      updateTitle: () => {},
+      text: "My title",
+      updateText: () => {},
       style: {},
-      updateColor,
+      updateStyle,
     });
-    expect(updateColor).toHaveBeenCalledTimes(0);
+    expect(updateStyle).toHaveBeenCalledTimes(0);
     await click(fixture, ".o-color-picker-button");
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
-    expect(updateColor).toHaveBeenCalledWith("#EFEFEF");
+    expect(updateStyle).toHaveBeenCalledWith({ color: "#EFEFEF" });
   });
 
   test.each(["Left", "Center", "Right"])(
-    "UpdateAlignment is called when alignment is changed",
+    "updateStyle is called when alignment is changed",
     async (alignment: string) => {
-      const updateAlignment = jest.fn();
+      const updateStyle = jest.fn();
       await mountChartTitle({
-        title: "My title",
-        updateTitle: () => {},
+        text: "My title",
+        updateText: () => {},
         style: {},
-        updateAlignment,
+        updateStyle,
       });
-      expect(updateAlignment).toHaveBeenCalledTimes(0);
+      expect(updateStyle).toHaveBeenCalledTimes(0);
       await click(fixture, ".o-menu-item-button[title='Horizontal alignment']");
       await click(fixture, `.o-menu-item-button[title='${alignment}']`);
-      expect(updateAlignment).toHaveBeenCalledWith(alignment.toLowerCase());
+      expect(updateStyle).toHaveBeenCalledWith({ align: alignment.toLowerCase() });
     }
   );
 
-  test("ToggleBold is called when clicking on bold button", async () => {
-    const toggleBold = jest.fn();
+  test("updateStyle is called when clicking on bold button", async () => {
+    const updateStyle = jest.fn();
     await mountChartTitle({
-      title: "My title",
-      updateTitle: () => {},
+      text: "My title",
+      updateText: () => {},
       style: {},
-      toggleBold,
+      updateStyle,
     });
-    expect(toggleBold).toHaveBeenCalledTimes(0);
+    expect(updateStyle).toHaveBeenCalledTimes(0);
     await click(fixture, ".o-menu-item-button[title='Bold']");
-    expect(toggleBold).toHaveBeenCalledTimes(1);
+    expect(updateStyle).toHaveBeenCalledWith({ bold: true });
   });
 
-  test("ToggleItalic is called when clicking on italic button", async () => {
-    const toggleItalic = jest.fn();
+  test("updateStyle is called when clicking on italic button", async () => {
+    const updateStyle = jest.fn();
     await mountChartTitle({
-      title: "My title",
-      updateTitle: () => {},
+      text: "My title",
+      updateText: () => {},
       style: {},
-      toggleItalic,
+      updateStyle,
     });
-    expect(toggleItalic).toHaveBeenCalledTimes(0);
+    expect(updateStyle).toHaveBeenCalledTimes(0);
     await click(fixture, ".o-menu-item-button[title='Italic']");
-    expect(toggleItalic).toHaveBeenCalledTimes(1);
+    expect(updateStyle).toHaveBeenCalledWith({ italic: true });
   });
 });

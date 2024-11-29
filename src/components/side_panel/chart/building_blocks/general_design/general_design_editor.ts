@@ -64,33 +64,8 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     this.props.updateChart(this.props.figureId, { title });
   }
 
-  get titleStyle(): TitleDesign {
-    return {
-      align: "left",
-      ...this.title,
-    };
-  }
-
-  updateChartTitleColor(color: Color) {
-    const title = { ...this.title, color };
-    this.props.updateChart(this.props.figureId, { title });
-    this.state.activeTool = "";
-  }
-
-  toggleBoldChartTitle() {
-    let title = this.title;
-    title = { ...title, bold: !title.bold };
-    this.props.updateChart(this.props.figureId, { title });
-  }
-
-  toggleItalicChartTitle() {
-    let title = this.title;
-    title = { ...title, italic: !title.italic };
-    this.props.updateChart(this.props.figureId, { title });
-  }
-
-  updateChartTitleAlignment(align: "left" | "center" | "right") {
-    const title = { ...this.title, align };
+  updateChartTitleStyle(style: TitleDesign) {
+    const title = { ...this.title, ...style };
     this.props.updateChart(this.props.figureId, { title });
     this.state.activeTool = "";
   }

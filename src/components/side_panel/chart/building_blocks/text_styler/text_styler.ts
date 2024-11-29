@@ -1,6 +1,6 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { GRAY_300 } from "../../../../../constants";
-import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
+import { Align, Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { css } from "../../../../helpers";
 import { Section } from "../../../components/section/section";
@@ -39,14 +39,12 @@ css/* scss */ `
 `;
 
 interface Props {
-  title?: string;
-  updateTitle: (title: string) => void;
-  name?: string;
-  toggleItalic?: () => void;
-  toggleBold?: () => void;
-  updateAlignment?: (string) => void;
-  updateColor?: (Color) => void;
+  text?: string;
+  updateText: (title: string) => void;
+  label?: string;
   style: TitleDesign;
+  updateStyle: (style: TitleDesign) => void;
+  defaultStyle?: Partial<TitleDesign>;
 }
 
 export interface TextStylerState {
@@ -57,17 +55,12 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.TextStyler";
   static components = { Section, ColorPickerWidget };
   static props = {
-    title: { type: String, optional: true },
-    updateTitle: Function,
-    name: { type: String, optional: true },
-    toggleItalic: { type: Function, optional: true },
-    toggleBold: { type: Function, optional: true },
-    updateAlignment: { type: Function, optional: true },
-    updateColor: { type: Function, optional: true },
-    style: { type: Object, optional: true },
-  };
-  static defaultProps = {
-    title: "",
+    text: { type: String, optional: true },
+    updateText: Function,
+    label: { type: String, optional: true },
+    style: Object,
+    updateStyle: { type: Function, optional: true },
+    defaultStyle: { type: Object, optional: true },
   };
   openedEl: HTMLElement | null = null;
 
@@ -79,8 +72,8 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     activeTool: "",
   });
 
-  updateTitle(ev: InputEvent) {
-    this.props.updateTitle((ev.target as HTMLInputElement).value);
+  updateText(ev: InputEvent) {
+    this.props.updateText((ev.target as HTMLInputElement).value);
   }
 
   toggleDropdownTool(tool: string, ev: MouseEvent) {
@@ -103,18 +96,38 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     this.closeMenus();
   }
 
-  onColorPicked(color: Color) {
-    this.props.updateColor?.(color);
+  onTextColorChange(color: Color) {
+    this.props.updateStyle?.({ ...this.props.style, color });
     this.closeMenus();
   }
 
-  updateAlignment(aligment: "left" | "center" | "right") {
-    this.props.updateAlignment?.(aligment);
+  updateAlignment(align: Align) {
+    this.props.updateStyle?.({ ...this.props.style, align });
     this.closeMenus();
+  }
+
+  toggleBold() {
+    this.props.updateStyle?.({ ...this.props.style, bold: !this.bold });
+  }
+
+  toggleItalic() {
+    this.props.updateStyle?.({ ...this.props.style, italic: !this.italic });
   }
 
   closeMenus() {
     this.state.activeTool = "";
     this.openedEl = null;
+  }
+
+  get align() {
+    return this.props.style.align || this.props.defaultStyle?.align;
+  }
+
+  get bold() {
+    return this.props.style.bold || this.props.defaultStyle?.bold;
+  }
+
+  get italic() {
+    return this.props.style.italic || this.props.defaultStyle?.italic;
   }
 }
