@@ -1,12 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet.TextStyler">
     <t t-set="placeholder">Add a title</t>
-    <t t-set="label">
-      <t t-if="props.label" t-esc="props.label"/>
-      <t t-else="">Title</t>
-    </t>
-    <Section class="'o-chart-title'" title="label.toString()">
+    <Section class="'o-chart-title ' + (props.class || '')" title="props.label">
       <input
+        t-if="props.hasText"
         type="text"
         class="o-input"
         t-att-value="props.text"
@@ -36,6 +33,25 @@
             </div>
           </div>
         </div>
+        <div class="o-dropdown position-relative" t-if="props.hasVerticalAlign">
+          <ActionButton
+            action="verticalAlignButtonAction"
+            hasTriangleDownIcon="true"
+            t-on-click="(ev) => this.toggleDropdownTool('verticalAlignTool', ev)"
+            class="'o-hoverable-button'"
+          />
+          <div
+            class="o-dropdown-content position-absolute top-100 start-0 bg-white"
+            t-if="state.activeTool === 'verticalAlignTool'"
+            t-att-style="dropdownStyle"
+            t-on-click.stop="">
+            <div class="o-dropdown-line d-flex">
+              <t t-foreach="verticalAlignActions" t-as="action" t-key="action_index">
+                <ActionButton action="action" class="'o-hoverable-button'"/>
+              </t>
+            </div>
+          </div>
+        </div>
         <div class="o-divider"/>
         <FontSizeEditor
           currentFontSize="currentFontSize"
@@ -44,11 +60,22 @@
         />
         <div class="o-divider"/>
         <ColorPickerWidget
-          currentColor="props.style.color ?? props.defaultStyle?.color"
-          toggleColorPicker="(ev) => this.toggleDropdownTool('fillChartColorTool', ev)"
-          showColorPicker="state.activeTool === 'fillChartColorTool'"
+          currentColor="props.style.color || props.defaultStyle?.color"
+          toggleColorPicker="(ev) => this.toggleDropdownTool('textColorTool', ev)"
+          showColorPicker="state.activeTool === 'textColorTool'"
           onColorPicked.bind="onTextColorChange"
+          title.translate="Text color"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+          class="'o-hoverable-button o-menu-item-button'"
+        />
+        <ColorPickerWidget
+          t-if="props.hasBackgroundColor"
+          currentColor="props.style.fillColor || props.defaultStyle?.fillColor"
+          toggleColorPicker="(ev) => this.toggleDropdownTool('filcolorTool', ev)"
+          showColorPicker="state.activeTool === 'filcolorTool'"
+          onColorPicked.bind="onFillColorChange"
+          title.translate="Fill color"
+          icon="'o-spreadsheet-Icon.FILL_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
         />
       </div>
