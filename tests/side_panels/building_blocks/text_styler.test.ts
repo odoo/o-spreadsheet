@@ -4,28 +4,24 @@ import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountChartTitle(props: TextStyler["props"]) {
-  ({ fixture } = await mountComponentWithPortalTarget(TextStyler, { props }));
+async function mountChartTitle(props: Partial<TextStyler["props"]>) {
+  ({ fixture } = await mountComponentWithPortalTarget(TextStyler, {
+    props: {
+      updateStyle: () => {},
+      style: {},
+      ...props,
+    },
+  }));
 }
 
 describe("Chart title", () => {
   test("Can render a chart title component", async () => {
-    await mountChartTitle({
-      text: "My title",
-      updateText: () => {},
-      updateStyle: () => {},
-      style: {},
-    });
+    await mountChartTitle({ text: "My title", label: "Title" });
     expect(fixture).toMatchSnapshot();
   });
 
   test("Can render a chart title component with default title prop if not provided", async () => {
-    await mountChartTitle({
-      updateText: () => {},
-      updateStyle: () => {},
-      style: {},
-    });
-
+    await mountChartTitle({});
     const input = fixture.querySelector("input")!;
     expect(input.value).toBe("");
   });
@@ -34,9 +30,7 @@ describe("Chart title", () => {
     const updateText = jest.fn();
     await mountChartTitle({
       text: "My title",
-      updateStyle: () => {},
       updateText,
-      style: {},
     });
     const input = fixture.querySelector("input")!;
     expect(input.value).toBe("My title");
@@ -46,18 +40,34 @@ describe("Chart title", () => {
     expect(updateText).toHaveBeenCalledTimes(1);
   });
 
+  test("Can use the component without a text input", async () => {
+    await mountChartTitle({ hasText: false });
+    expect("input").toHaveCount(0);
+  });
+
   test("Can change text color", async () => {
     const updateStyle = jest.fn();
     await mountChartTitle({
       text: "My title",
-      updateText: () => {},
-      style: {},
       updateStyle,
     });
     expect(updateStyle).toHaveBeenCalledTimes(0);
-    await click(fixture, ".o-color-picker-button");
+    await click(fixture, ".o-color-picker-button[title='Text color']");
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
     expect(updateStyle).toHaveBeenCalledWith({ color: "#EFEFEF" });
+  });
+
+  test("Can change fill color", async () => {
+    const updateStyle = jest.fn();
+    await mountChartTitle({
+      text: "My title",
+      updateStyle,
+      hasBackgroundColor: true,
+    });
+    expect(updateStyle).toHaveBeenCalledTimes(0);
+    await click(fixture, ".o-color-picker-button[title='Fill color']");
+    await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
+    expect(updateStyle).toHaveBeenCalledWith({ fillColor: "#EFEFEF" });
   });
 
   test.each(["Left", "Center", "Right"])(
@@ -66,8 +76,6 @@ describe("Chart title", () => {
       const updateStyle = jest.fn();
       await mountChartTitle({
         text: "My title",
-        updateText: () => {},
-        style: {},
         updateStyle,
       });
       expect(updateStyle).toHaveBeenCalledTimes(0);
@@ -77,12 +85,23 @@ describe("Chart title", () => {
     }
   );
 
+  test("Can change vertical alignment", async () => {
+    const updateStyle = jest.fn();
+    await mountChartTitle({
+      text: "My title",
+      updateStyle,
+      hasVerticalAlign: true,
+    });
+    expect(updateStyle).toHaveBeenCalledTimes(0);
+    await click(fixture, ".o-menu-item-button[title='Vertical alignment']");
+    await click(fixture, `.o-menu-item-button[title='Middle']`);
+    expect(updateStyle).toHaveBeenCalledWith({ verticalAlign: "middle" });
+  });
+
   test("Can make text bold", async () => {
     const updateStyle = jest.fn();
     await mountChartTitle({
       text: "My title",
-      updateText: () => {},
-      style: {},
       updateStyle,
     });
     expect(updateStyle).toHaveBeenCalledTimes(0);
@@ -94,8 +113,6 @@ describe("Chart title", () => {
     const updateStyle = jest.fn();
     await mountChartTitle({
       text: "My title",
-      updateText: () => {},
-      style: {},
       updateStyle,
     });
     expect(updateStyle).toHaveBeenCalledTimes(0);

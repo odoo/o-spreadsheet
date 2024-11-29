@@ -103,6 +103,7 @@ exports[`Chart title Can render a chart title component 1`] = `
           
           
         </div>
+        
         <div
           class="o-divider"
         />
@@ -111,6 +112,7 @@ exports[`Chart title Can render a chart title component 1`] = `
         >
           <span
             class="o-color-picker-button o-hoverable-button o-menu-item-button"
+            title="Text color"
           >
             <span
               style="border-bottom-style: hidden"
@@ -128,6 +130,7 @@ exports[`Chart title Can render a chart title component 1`] = `
           </span>
           
         </div>
+        
         
       </div>
       
