@@ -1,13 +1,17 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
+import { ActionSpec } from "../../../../../actions/action";
 import { GRAY_300 } from "../../../../../constants";
+import { _t } from "../../../../../translation";
 import { Align, Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
+import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { css } from "../../../../helpers";
 import { Section } from "../../../components/section/section";
 
 css/* scss */ `
   .o-chart-title-designer {
-    > span {
+    > span,
+    .o-dropdown > span {
       height: 30px;
     }
 
@@ -53,7 +57,7 @@ export interface TextStylerState {
 
 export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.TextStyler";
-  static components = { Section, ColorPickerWidget };
+  static components = { Section, ColorPickerWidget, ActionButton };
   static props = {
     text: { type: String, optional: true },
     updateText: Function,
@@ -129,5 +133,38 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
 
   get italic() {
     return this.props.style.italic || this.props.defaultStyle?.italic;
+  }
+
+  get horizontalAlignButtonAction(): ActionSpec {
+    let icon = "o-spreadsheet-Icon.ALIGN_LEFT";
+    if (this.align === "center") {
+      icon = "o-spreadsheet-Icon.ALIGN_CENTER";
+    } else if (this.align === "right") {
+      icon = "o-spreadsheet-Icon.ALIGN_RIGHT";
+    }
+    return { name: _t("Horizontal alignment"), icon };
+  }
+
+  get horizontalAlignActions(): ActionSpec[] {
+    return [
+      {
+        name: _t("Left"),
+        execute: () => this.updateAlignment("left"),
+        isActive: () => this.align === "left",
+        icon: "o-spreadsheet-Icon.ALIGN_LEFT",
+      },
+      {
+        name: _t("Center"),
+        execute: () => this.updateAlignment("center"),
+        isActive: () => this.align === "center",
+        icon: "o-spreadsheet-Icon.ALIGN_CENTER",
+      },
+      {
+        name: _t("Right"),
+        execute: () => this.updateAlignment("right"),
+        isActive: () => this.align === "right",
+        icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
+      },
+    ];
   }
 }

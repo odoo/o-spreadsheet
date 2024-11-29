@@ -33,49 +33,23 @@
           </span>
         </span>
         <div class="o-divider"/>
-        <span
-          class="o-menu-item-button o-hoverable-button"
-          title="Horizontal alignment"
-          t-on-click="(ev) => this.toggleDropdownTool('horizontalChartAlignTool', ev)">
-          <span>
-            <t t-if="align === 'center'" t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
-            <t t-elif="align === 'right'" t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
-            <t t-else="" t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
-          </span>
-          <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
-        </span>
-        <div
-          class="o-dropdown-content position-absolute top-100 start-0 bg-white"
-          t-if="state.activeTool === 'horizontalChartAlignTool'"
-          t-on-click.stop="">
-          <div class="o-dropdown-line d-flex">
-            <span
-              class="o-menu-item-button o-hoverable-button"
-              t-att-class="{active: align === 'left'}"
-              title="Left"
-              t-on-click="(ev) => this.updateAlignment('left')">
-              <span>
-                <t t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
-              </span>
-            </span>
-            <span
-              class="o-menu-item-button o-hoverable-button"
-              t-att-class="{active: align === 'center'}"
-              title="Center"
-              t-on-click="(ev) => this.updateAlignment('center')">
-              <span>
-                <t t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
-              </span>
-            </span>
-            <span
-              class="o-menu-item-button o-hoverable-button"
-              t-att-class="{active: align === 'right'}"
-              title="Right"
-              t-on-click="(ev) => this.updateAlignment('right')">
-              <span>
-                <t t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
-              </span>
-            </span>
+        <div class="o-dropdown position-relative">
+          <ActionButton
+            action="horizontalAlignButtonAction"
+            hasTriangleDownIcon="true"
+            t-on-click="(ev) => this.toggleDropdownTool('horizontalAlignTool', ev)"
+            class="'o-hoverable-button'"
+          />
+          <div
+            class="o-dropdown-content position-absolute top-100 start-0 bg-white"
+            t-if="state.activeTool === 'horizontalAlignTool'"
+            t-att-style="dropdownStyle"
+            t-on-click.stop="">
+            <div class="o-dropdown-line d-flex">
+              <t t-foreach="horizontalAlignActions" t-as="action" t-key="action_index">
+                <ActionButton action="action" class="'o-hoverable-button'"/>
+              </t>
+            </div>
           </div>
         </div>
         <div class="o-divider"/>

@@ -46,7 +46,7 @@ describe("Chart title", () => {
     expect(updateText).toHaveBeenCalledTimes(1);
   });
 
-  test("updateStyle is called when text color is changed", async () => {
+  test("Can change text color", async () => {
     const updateStyle = jest.fn();
     await mountChartTitle({
       text: "My title",
@@ -61,7 +61,7 @@ describe("Chart title", () => {
   });
 
   test.each(["Left", "Center", "Right"])(
-    "updateStyle is called when alignment is changed",
+    "Can change alignment to %s",
     async (alignment: string) => {
       const updateStyle = jest.fn();
       await mountChartTitle({
@@ -77,7 +77,7 @@ describe("Chart title", () => {
     }
   );
 
-  test("updateStyle is called when clicking on bold button", async () => {
+  test("Can make text bold", async () => {
     const updateStyle = jest.fn();
     await mountChartTitle({
       text: "My title",
@@ -90,7 +90,7 @@ describe("Chart title", () => {
     expect(updateStyle).toHaveBeenCalledWith({ bold: true });
   });
 
-  test("updateStyle is called when clicking on italic button", async () => {
+  test("Can make text italic", async () => {
     const updateStyle = jest.fn();
     await mountChartTitle({
       text: "My title",
