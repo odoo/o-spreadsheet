@@ -8,7 +8,7 @@
         selectedValue="state.currentAxis"
       />
     </Section>
-    <ChartTitle
+    <TextStyler
       title="this.getAxisTitle()"
       updateTitle.bind="updateAxisTitle"
       name="editor_label"
