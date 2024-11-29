@@ -1,0 +1,75 @@
+<templates>
+  <t t-name="o-spreadsheet.TextStyler">
+    <div
+      class="o-chart-title-designer position-relative d-flex align-items-center"
+      t-att-class="props.class">
+      <ActionButton action="boldButtonAction" class="'o-hoverable-button'"/>
+      <ActionButton action="italicButtonAction" class="'o-hoverable-button'"/>
+      <div class="o-divider" t-if="props.hasHorizontalAlign || props.hasVerticalAlign"/>
+      <div class="o-dropdown position-relative" t-if="props.hasHorizontalAlign">
+        <ActionButton
+          action="horizontalAlignButtonAction"
+          hasTriangleDownIcon="true"
+          t-on-click="(ev) => this.toggleDropdownTool('horizontalAlignTool', ev)"
+          class="'o-hoverable-button'"
+        />
+        <div
+          class="o-dropdown-content position-absolute top-100 start-0 bg-white"
+          t-if="state.activeTool === 'horizontalAlignTool'"
+          t-att-style="dropdownStyle"
+          t-on-click.stop="">
+          <div class="o-dropdown-line d-flex">
+            <t t-foreach="horizontalAlignActions" t-as="action" t-key="action_index">
+              <ActionButton action="action" class="'o-hoverable-button'"/>
+            </t>
+          </div>
+        </div>
+      </div>
+      <div class="o-dropdown position-relative" t-if="props.hasVerticalAlign">
+        <ActionButton
+          action="verticalAlignButtonAction"
+          hasTriangleDownIcon="true"
+          t-on-click="(ev) => this.toggleDropdownTool('verticalAlignTool', ev)"
+          class="'o-hoverable-button'"
+        />
+        <div
+          class="o-dropdown-content position-absolute top-100 start-0 bg-white"
+          t-if="state.activeTool === 'verticalAlignTool'"
+          t-att-style="dropdownStyle"
+          t-on-click.stop="">
+          <div class="o-dropdown-line d-flex">
+            <t t-foreach="verticalAlignActions" t-as="action" t-key="action_index">
+              <ActionButton action="action" class="'o-hoverable-button'"/>
+            </t>
+          </div>
+        </div>
+      </div>
+      <div class="o-divider"/>
+      <FontSizeEditor
+        currentFontSize="currentFontSize"
+        onFontSizeChanged.bind="this.updateFontSize"
+        class="'o-hoverable-button'"
+      />
+      <div class="o-divider"/>
+      <ColorPickerWidget
+        currentColor="props.style.color ?? props.defaultStyle?.color"
+        toggleColorPicker="(ev) => this.toggleDropdownTool('fillChartColorTool', ev)"
+        showColorPicker="state.activeTool === 'fillChartColorTool'"
+        onColorPicked.bind="onTextColorChange"
+        title.translate="Text color"
+        icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+        class="'o-hoverable-button o-menu-item-button'"
+      />
+      <ColorPickerWidget
+        t-if="props.hasBackgroundColor"
+        currentColor="props.style.fillColor || props.defaultStyle?.fillColor"
+        toggleColorPicker="(ev) => this.toggleDropdownTool('fillcolorTool', ev)"
+        showColorPicker="state.activeTool === 'fillcolorTool'"
+        onColorPicked.bind="onFillColorChange"
+        title.translate="Fill color"
+        icon="'o-spreadsheet-Icon.FILL_COLOR'"
+        class="'o-hoverable-button o-menu-item-button'"
+      />
+    </div>
+  </t>
+</templates>

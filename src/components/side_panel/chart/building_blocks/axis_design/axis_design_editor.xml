@@ -11,13 +11,10 @@
     <ChartTitle
       title="this.getAxisTitle()"
       updateTitle.bind="updateAxisTitle"
+      updateStyle.bind="updateAxisTitleStyle"
       name="editor_label"
-      toggleItalic.bind="toggleItalicAxisTitle"
-      toggleBold.bind="toggleBoldAxisTitle"
-      updateAlignment.bind="updateAxisTitleAlignment"
-      updateColor.bind="updateAxisTitleColor"
       style="axisTitleStyle"
-      onFontSizeChanged.bind="updateAxisTitleFontSize"
+      defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
     />
   </t>
 </templates>
