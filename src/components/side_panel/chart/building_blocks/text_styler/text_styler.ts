@@ -2,7 +2,13 @@ import { Component, useExternalListener, useState } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
 import { GRAY_300 } from "../../../../../constants";
 import { _t } from "../../../../../translation";
-import { Align, Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
+import {
+  Align,
+  Color,
+  SpreadsheetChildEnv,
+  TitleDesign,
+  VerticalAlign,
+} from "../../../../../types";
 import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";
@@ -47,11 +53,15 @@ css/* scss */ `
 
 interface Props {
   text?: string;
-  updateText: (title: string) => void;
+  updateText?: (title: string) => void;
   label?: string;
+  class?: string;
   style: TitleDesign;
   updateStyle: (style: TitleDesign) => void;
   defaultStyle?: Partial<TitleDesign>;
+  hasText?: boolean;
+  hasVerticalAlign?: boolean;
+  hasBackgroundColor?: boolean;
 }
 
 export interface TextStylerState {
@@ -63,11 +73,18 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
   static components = { Section, ColorPickerWidget, ActionButton, FontSizeEditor };
   static props = {
     text: { type: String, optional: true },
-    updateText: Function,
+    updateText: { type: Function, optional: true },
     label: { type: String, optional: true },
+    class: { type: String, optional: true },
     style: Object,
     updateStyle: { type: Function, optional: true },
     defaultStyle: { type: Object, optional: true },
+    hasText: { type: Boolean, optional: true },
+    hasVerticalAlign: { type: Boolean, optional: true },
+    hasBackgroundColor: { type: Boolean, optional: true },
+  };
+  static defaultProps = {
+    hasText: true,
   };
   openedEl: HTMLElement | null = null;
 
@@ -80,7 +97,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
   });
 
   updateText(ev: InputEvent) {
-    this.props.updateText((ev.target as HTMLInputElement).value);
+    this.props.updateText?.((ev.target as HTMLInputElement).value);
   }
 
   updateFontSize(fontSize: number) {
@@ -112,8 +129,18 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     this.closeMenus();
   }
 
+  onFillColorChange(color: Color) {
+    this.props.updateStyle?.({ ...this.props.style, fillColor: color });
+    this.closeMenus();
+  }
+
   updateAlignment(align: Align) {
     this.props.updateStyle?.({ ...this.props.style, align });
+    this.closeMenus();
+  }
+
+  updateVerticalAlignment(verticalAlign: VerticalAlign) {
+    this.props.updateStyle?.({ ...this.props.style, verticalAlign });
     this.closeMenus();
   }
 
@@ -132,6 +159,10 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
 
   get align() {
     return this.props.style.align ?? this.props.defaultStyle?.align;
+  }
+
+  get verticalAlign() {
+    return this.props.style.verticalAlign || this.props.defaultStyle?.verticalAlign;
   }
 
   get bold() {
@@ -193,6 +224,39 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
         execute: () => this.updateAlignment("right"),
         isActive: () => this.align === "right",
         icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
+      },
+    ];
+  }
+
+  get verticalAlignButtonAction(): ActionSpec {
+    let icon = "o-spreadsheet-Icon.ALIGN_MIDDLE";
+    if (this.verticalAlign === "top") {
+      icon = "o-spreadsheet-Icon.ALIGN_TOP";
+    } else if (this.verticalAlign === "bottom") {
+      icon = "o-spreadsheet-Icon.ALIGN_BOTTOM";
+    }
+    return { name: _t("Vertical alignment"), icon };
+  }
+
+  get verticalAlignActions(): ActionSpec[] {
+    return [
+      {
+        name: _t("Top"),
+        execute: () => this.updateVerticalAlignment("top"),
+        isActive: () => this.verticalAlign === "top",
+        icon: "o-spreadsheet-Icon.ALIGN_TOP",
+      },
+      {
+        name: _t("Middle"),
+        execute: () => this.updateVerticalAlignment("middle"),
+        isActive: () => this.verticalAlign === "middle",
+        icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
+      },
+      {
+        name: _t("Bottom"),
+        execute: () => this.updateVerticalAlignment("bottom"),
+        isActive: () => this.verticalAlign === "bottom",
+        icon: "o-spreadsheet-Icon.ALIGN_BOTTOM",
       },
     ];
   }
