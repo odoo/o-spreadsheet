@@ -1,11 +1,11 @@
-import { ChartTitle } from "../../../src/components/side_panel/chart/building_blocks/title/title";
+import { TextStyler } from "../../../src/components/side_panel/chart/building_blocks/text_styler/text_styler";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountChartTitle(props: ChartTitle["props"]) {
-  ({ fixture } = await mountComponentWithPortalTarget(ChartTitle, { props }));
+async function mountChartTitle(props: TextStyler["props"]) {
+  ({ fixture } = await mountComponentWithPortalTarget(TextStyler, { props }));
 }
 
 describe("Chart title", () => {
