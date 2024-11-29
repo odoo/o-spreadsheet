@@ -10,14 +10,12 @@
           />
         </Section>
         <TextStyler
-          title="title.text"
-          updateTitle.bind="updateTitle"
-          name="chart_title"
-          toggleItalic.bind="toggleItalicChartTitle"
-          toggleBold.bind="toggleBoldChartTitle"
-          updateAlignment.bind="updateChartTitleAlignment"
-          updateColor.bind="updateChartTitleColor"
-          style="titleStyle"
+          text="title.text"
+          updateText.bind="updateTitle"
+          label="chart_title"
+          updateStyle.bind="updateChartTitleStyle"
+          style="title"
+          defaultStyle="{align: 'left'}"
         />
         <t t-slot="general-extension"/>
       </t>
