@@ -9,15 +9,12 @@
       />
     </Section>
     <TextStyler
-      title="this.getAxisTitle()"
-      updateTitle.bind="updateAxisTitle"
-      name="editor_label"
-      toggleItalic.bind="toggleItalicAxisTitle"
-      toggleBold.bind="toggleBoldAxisTitle"
-      updateAlignment.bind="updateAxisTitleAlignment"
-      updateColor.bind="updateAxisTitleColor"
+      text="this.getAxisTitle()"
+      updateText.bind="updateAxisTitle"
+      updateStyle.bind="updateAxisTitleStyle"
+      label="editor_label"
       style="axisTitleStyle"
-      onFontSizeChanged.bind="updateAxisTitleFontSize"
+      defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
     />
   </t>
 </templates>

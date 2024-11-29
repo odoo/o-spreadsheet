@@ -1,6 +1,9 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
+import { ActionSpec } from "../../../../../actions/action";
 import { GRAY_300 } from "../../../../../constants";
-import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
+import { _t } from "../../../../../translation";
+import { Align, Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
+import { ActionButton } from "../../../../action_button/action_button";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";
 import { css } from "../../../../helpers";
@@ -8,8 +11,11 @@ import { Section } from "../../../components/section/section";
 
 css/* scss */ `
   .o-chart-title-designer {
-    > span {
+    .o-hoverable-button {
       height: 30px;
+    }
+    .o-dropdown-content .o-hoverable-button {
+      height: fit-content;
     }
 
     .o-divider {
@@ -40,15 +46,12 @@ css/* scss */ `
 `;
 
 interface Props {
-  title?: string;
-  updateTitle: (title: string) => void;
-  name?: string;
-  toggleItalic?: () => void;
-  toggleBold?: () => void;
-  updateAlignment?: (string) => void;
-  updateColor?: (Color) => void;
+  text?: string;
+  updateText: (title: string) => void;
+  label?: string;
   style: TitleDesign;
-  onFontSizeChanged: (fontSize: number) => void;
+  updateStyle: (style: TitleDesign) => void;
+  defaultStyle?: Partial<TitleDesign>;
 }
 
 export interface TextStylerState {
@@ -57,20 +60,14 @@ export interface TextStylerState {
 
 export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.TextStyler";
-  static components = { Section, ColorPickerWidget, FontSizeEditor };
+  static components = { Section, ColorPickerWidget, ActionButton, FontSizeEditor };
   static props = {
-    title: { type: String, optional: true },
-    updateTitle: Function,
-    name: { type: String, optional: true },
-    toggleItalic: { type: Function, optional: true },
-    toggleBold: { type: Function, optional: true },
-    updateAlignment: { type: Function, optional: true },
-    updateColor: { type: Function, optional: true },
+    text: { type: String, optional: true },
+    updateText: Function,
+    label: { type: String, optional: true },
     style: Object,
-    onFontSizeChanged: Function,
-  };
-  static defaultProps = {
-    title: "",
+    updateStyle: { type: Function, optional: true },
+    defaultStyle: { type: Object, optional: true },
   };
   openedEl: HTMLElement | null = null;
 
@@ -82,12 +79,12 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     activeTool: "",
   });
 
-  updateTitle(ev: InputEvent) {
-    this.props.updateTitle((ev.target as HTMLInputElement).value);
+  updateText(ev: InputEvent) {
+    this.props.updateText((ev.target as HTMLInputElement).value);
   }
 
   updateFontSize(fontSize: number) {
-    this.props.onFontSizeChanged(fontSize);
+    this.props.updateStyle?.({ ...this.props.style, fontSize });
   }
 
   toggleDropdownTool(tool: string, ev: MouseEvent) {
@@ -110,18 +107,93 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     this.closeMenus();
   }
 
-  onColorPicked(color: Color) {
-    this.props.updateColor?.(color);
+  onTextColorChange(color: Color) {
+    this.props.updateStyle?.({ ...this.props.style, color });
     this.closeMenus();
   }
 
-  updateAlignment(aligment: "left" | "center" | "right") {
-    this.props.updateAlignment?.(aligment);
+  updateAlignment(align: Align) {
+    this.props.updateStyle?.({ ...this.props.style, align });
     this.closeMenus();
+  }
+
+  toggleBold() {
+    this.props.updateStyle?.({ ...this.props.style, bold: !this.bold });
+  }
+
+  toggleItalic() {
+    this.props.updateStyle?.({ ...this.props.style, italic: !this.italic });
   }
 
   closeMenus() {
     this.state.activeTool = "";
     this.openedEl = null;
+  }
+
+  get align() {
+    return this.props.style.align ?? this.props.defaultStyle?.align;
+  }
+
+  get bold() {
+    return this.props.style.bold ?? this.props.defaultStyle?.bold;
+  }
+
+  get italic() {
+    return this.props.style.italic ?? this.props.defaultStyle?.italic;
+  }
+
+  get currentFontSize() {
+    return this.props.style.fontSize ?? this.props.defaultStyle?.fontSize;
+  }
+
+  get boldButtonAction(): ActionSpec {
+    return {
+      name: _t("Bold"),
+      execute: () => this.toggleBold(),
+      isActive: () => this.bold || false,
+      icon: "o-spreadsheet-Icon.BOLD",
+    };
+  }
+
+  get italicButtonAction(): ActionSpec {
+    return {
+      name: _t("Italic"),
+      execute: () => this.toggleItalic(),
+      isActive: () => this.italic || false,
+      icon: "o-spreadsheet-Icon.ITALIC",
+    };
+  }
+
+  get horizontalAlignButtonAction(): ActionSpec {
+    let icon = "o-spreadsheet-Icon.ALIGN_LEFT";
+    if (this.align === "center") {
+      icon = "o-spreadsheet-Icon.ALIGN_CENTER";
+    } else if (this.align === "right") {
+      icon = "o-spreadsheet-Icon.ALIGN_RIGHT";
+    }
+    return { name: _t("Horizontal alignment"), icon };
+  }
+
+  get horizontalAlignActions(): ActionSpec[] {
+    return [
+      {
+        name: _t("Left"),
+        execute: () => this.updateAlignment("left"),
+        isActive: () => this.align === "left",
+        icon: "o-spreadsheet-Icon.ALIGN_LEFT",
+      },
+      {
+        name: _t("Center"),
+        execute: () => this.updateAlignment("center"),
+        isActive: () => this.align === "center",
+        icon: "o-spreadsheet-Icon.ALIGN_CENTER",
+      },
+      {
+        name: _t("Right"),
+        execute: () => this.updateAlignment("right"),
+        isActive: () => this.align === "right",
+        icon: "o-spreadsheet-Icon.ALIGN_RIGHT",
+      },
+    ];
   }
 }
