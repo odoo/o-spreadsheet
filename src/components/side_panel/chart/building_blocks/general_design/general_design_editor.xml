@@ -9,7 +9,7 @@
             onColorPicked.bind="updateBackgroundColor"
           />
         </Section>
-        <ChartTitle
+        <TextStyler
           title="title.text"
           updateTitle.bind="updateTitle"
           name="chart_title"
