@@ -12,7 +12,7 @@
         <TextStyler
           text="title.text"
           updateText.bind="updateTitle"
-          label="chart_title"
+          label="Math.floor(Math.random() * 1000).toString()"
           updateStyle.bind="updateChartTitleStyle"
           style="title"
           defaultStyle="{align: 'left'}"

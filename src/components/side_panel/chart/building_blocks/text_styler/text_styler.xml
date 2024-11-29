@@ -14,24 +14,8 @@
         t-att-placeholder="placeholder"
       />
       <div class="o-chart-title-designer position-relative d-flex align-items-center">
-        <span
-          class="o-menu-item-button o-hoverable-button"
-          title="Bold"
-          t-att-class="{active: bold}"
-          t-on-click="this.toggleBold">
-          <span>
-            <t t-call="o-spreadsheet-Icon.BOLD"/>
-          </span>
-        </span>
-        <span
-          class="o-menu-item-button o-hoverable-button"
-          title="Italic"
-          t-att-class="{active: italic}"
-          t-on-click="this.toggleItalic">
-          <span>
-            <t t-call="o-spreadsheet-Icon.ITALIC"/>
-          </span>
-        </span>
+        <ActionButton action="getBoldButtonAction()" class="'o-hoverable-button'"/>
+        <ActionButton action="getItalicButtonAction()" class="'o-hoverable-button'"/>
         <div class="o-divider"/>
         <div class="o-dropdown position-relative">
           <ActionButton

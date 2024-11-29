@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { ActionSpec } from "../../../../../actions/action";
 import { GRAY_300 } from "../../../../../constants";
 import { _t } from "../../../../../translation";
@@ -70,6 +70,9 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick);
+    onWillUpdateProps((nextProps) => {
+      console.log("nextProps", nextProps);
+    });
   }
 
   state = useState({
@@ -111,10 +114,12 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleBold() {
+    console.log("toggleBold", this.props);
     this.props.updateStyle?.({ ...this.props.style, bold: !this.bold });
   }
 
   toggleItalic() {
+    console.log("#### toggleItalic", this.props);
     this.props.updateStyle?.({ ...this.props.style, italic: !this.italic });
   }
 
@@ -133,6 +138,27 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
 
   get italic() {
     return this.props.style.italic || this.props.defaultStyle?.italic;
+  }
+
+  getBoldButtonAction(): ActionSpec {
+    return {
+      name: _t("Bold"),
+      execute: () => this.toggleBold(),
+      isActive: () => this.bold || false,
+      icon: "o-spreadsheet-Icon.BOLD",
+    };
+  }
+
+  getItalicButtonAction(): ActionSpec {
+    console.log("getItalicButtonAction", this.props);
+    return {
+      name: _t("Italic"),
+      execute: () => this.toggleItalic(),
+      isActive: () => this.italic || false,
+      icon: "o-spreadsheet-Icon.ITALIC",
+      // @ts-ignore
+      ntm: Math.random(),
+    };
   }
 
   get horizontalAlignButtonAction(): ActionSpec {

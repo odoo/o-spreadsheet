@@ -8,13 +8,13 @@
         selectedValue="state.currentAxis"
       />
     </Section>
-    <TextStyler
+    <!-- <TextStyler
       text="this.getAxisTitle()"
       updateText.bind="updateAxisTitle"
       updateStyle.bind="updateAxisTitleStyle"
       label="editor_label"
       style="axisTitleStyle"
       defaultStyle="{align: 'center', color: ''}"
-    />
+    /> -->
   </t>
 </templates>
