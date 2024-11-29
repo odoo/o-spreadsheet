@@ -1,4 +1,4 @@
-import { Align, Color, Format, Locale, Range } from "../../types";
+import { Align, Color, Format, Locale, Range, VerticalAlign } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -86,8 +86,10 @@ export interface TitleDesign {
   readonly bold?: boolean;
   readonly italic?: boolean;
   readonly align?: Align;
+  readonly verticalAlign?: VerticalAlign;
   readonly color?: Color;
   readonly fontSize?: number;
+  readonly fillColor?: Color;
 }
 
 export type TrendType = "polynomial" | "exponential" | "logarithmic" | "trailingMovingAverage";
