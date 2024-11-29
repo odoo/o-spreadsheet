@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.ChartTitle">
+  <t t-name="o-spreadsheet.TextStyler">
     <t t-set="placeholder">Add a title</t>
     <t t-set="title">
       <t t-if="props.name" t-esc="props.name"/>

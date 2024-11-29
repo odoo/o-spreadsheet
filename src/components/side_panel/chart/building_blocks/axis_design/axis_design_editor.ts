@@ -10,7 +10,7 @@ import {
 import { WaterfallChartDefinition } from "../../../../../types/chart/waterfall_chart";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Section } from "../../../components/section/section";
-import { ChartTitle } from "../title/title";
+import { TextStyler } from "../text_styler/text_styler";
 
 export interface AxisDefinition {
   id: string;
@@ -29,7 +29,7 @@ interface Props {
 
 export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AxisDesignEditor";
-  static components = { Section, ChartTitle, BadgeSelection };
+  static components = { Section, TextStyler, BadgeSelection };
   static props = { figureId: String, definition: Object, updateChart: Function, axesList: Array };
 
   state = useState({ currentAxis: "x" });

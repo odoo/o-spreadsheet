@@ -30,7 +30,7 @@ import {
 import { ChartDataSeries } from "./components/side_panel/chart/building_blocks/data_series/data_series";
 import { ChartErrorSection } from "./components/side_panel/chart/building_blocks/error_section/error_section";
 import { ChartLabelRange } from "./components/side_panel/chart/building_blocks/label_range/label_range";
-import { ChartTitle } from "./components/side_panel/chart/building_blocks/title/title";
+import { TextStyler } from "./components/side_panel/chart/building_blocks/text_styler/text_styler";
 import { ChartTypePicker } from "./components/side_panel/chart/chart_type_picker/chart_type_picker";
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { PieChartDesignPanel } from "./components/side_panel/chart/pie_chart/pie_chart_design_panel";
@@ -357,7 +357,7 @@ export const components = {
   ChartDataSeries,
   ChartErrorSection,
   ChartLabelRange,
-  ChartTitle,
+  TextStyler,
   ChartPanel,
   ChartFigure,
   ChartJsComponent,

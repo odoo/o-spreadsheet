@@ -10,7 +10,7 @@ import {
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
-import { ChartTitle } from "../title/title";
+import { TextStyler } from "../text_styler/text_styler";
 
 interface GeneralDesignEditorState {
   activeTool: string;
@@ -26,7 +26,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GeneralDesignEditor";
   static components = {
     RoundColorPicker,
-    ChartTitle,
+    TextStyler,
     Section,
     SidePanelCollapsible,
   };
