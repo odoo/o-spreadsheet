@@ -1,5 +1,5 @@
 import { Point } from "chart.js";
-import { Align, Color, Format, Locale, Range } from "../../types";
+import { Align, Color, Format, Locale, Range, VerticalAlign } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -91,13 +91,18 @@ export interface AxesDesign {
   readonly y1?: AxisDesign;
 }
 
-export interface TitleDesign {
-  readonly text?: string;
+export interface ChartStyle {
   readonly bold?: boolean;
   readonly italic?: boolean;
   readonly align?: Align;
+  readonly verticalAlign?: VerticalAlign;
   readonly color?: Color;
   readonly fontSize?: number;
+  readonly fillColor?: Color;
+}
+
+export interface TitleDesign extends ChartStyle {
+  readonly text?: string;
 }
 
 export type TrendType = "polynomial" | "exponential" | "logarithmic" | "trailingMovingAverage";
