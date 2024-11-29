@@ -15,22 +15,18 @@ You can interact with the model by two means:
 **commands** can update the spreadsheet state
 
 ```javascript
-const col = 0;
-const row = 0;
-const sheetId = "1";
-
 const model = new Model();
 
 // Update A1's content by dispatching a command
 model.dispatch("UPDATE_CELL", {
-  col,
-  row,
-  sheetId,
+  col: 0,
+  row: 0,
+  sheetId: "1",
   content: "Hello world",
 });
 ```
 
-All existing commands are available [https://github.com/odoo/o-spreadsheet/blob/16.0/src/types/commands.ts#L906](here)
+All existing commands are available in the file [https://github.com/odoo/o-spreadsheet/blob/18.0/src/types/commands.ts](src/types/commands.ts)
 
 ### Getters
 
@@ -39,7 +35,7 @@ All existing commands are available [https://github.com/odoo/o-spreadsheet/blob/
 ```javascript
 // Read the cell content
 const cell = model.getters.getCell(sheetId, col, row);
-console.log(cell.content); // Will display "Hello world"
+console.log(cell.content); // logs "Hello world"
 ```
 
 Commands are handled internally by **plugins**.
@@ -52,15 +48,16 @@ A plugin can:
 - introduce new getters to make parts of its state available for other plugins or the user interface.
 - react to any dispatched command
 
-Plugins are decomposed in two parts: core and UI.
+Plugins are decomposed in two categories: core and UI.
 
-Core plugins are responsible to manage the data persistence and all associated business rules (cell content, user-defined style, chart definitions, ...). Each plugin is responsible of one data structure.
+_Core plugins_ are responsible to manage data which is persisted (preserved when the user reloads the spreadsheet) such as cell content, user-defined style, chart definitions, etc. They also implement all associated business rules. Each plugin is responsible of one data structure.
 
-UI plugins are separated in three different categories, with the following responsibility:
+_UI plugins_ are separated in three different sub-categories, with the following responsibility:
 
-- Manage the ui state (active sheet, current selection, ...)
-- Manage the derived state from the core part (cell evaluation, computed style, ...)
-- Handle high-level features that could be described with lower-level features (Sort a zone can be described with different cell updates)
+- _stateful UI plugins_ manage the ui state (active sheet, current selection, ...) (grep `statefulUIPluginRegistry`)
+- _core view plugins_ use data from core plugins to derive another state. Example of such plugin is the evaluation plugins which reads the formulas in
+  each cell and compute the result. (grep `coreViewsPluginRegistry`)
+- _feature plugins_ handle high-level features that could be described with lower-level features (Sorting a zone can be described with different cell updates) (grep `featurePluginRegistry`). Those plugins typically don't have any state. They only dispatch sub-commands.
 
 Each UI plugin is responsible of one feature.
 
@@ -70,4 +67,4 @@ More details about plugins here: [Adding a new feature](./business_feature.md)
 
 The grid itself is rendered on an HTML canvas.
 All other elements are rendered with the [owl](https://github.com/odoo/owl) UI framework.
-The UI is rendered after each command dispatched on the model with the help of the getters.
+The UI is rendered after each command dispatched.

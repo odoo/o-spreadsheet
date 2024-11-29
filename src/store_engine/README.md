@@ -27,7 +27,8 @@ They can also be used for individual components to decouple their UI and their b
 To illustrate how stores work, let's consider a scenario where you want to display notifications from multiple components in the application. To achieve this, you can define a simple store called `NotificationStore`, which holds the notification state and provides methods to show and hide notifications.
 
 ```ts
-class NotificationStore extends ReactiveStore {
+class NotificationStore {
+  mutators = ["show", "hide"] as const;
   notificationMessage: string = "";
   type: "info" | "warning" | "error" = "info";
 
@@ -44,7 +45,12 @@ class NotificationStore extends ReactiveStore {
 
 That's it ! You don't need to do anything else.
 
-> [!NOTE] > `ReactiveStore` is required for OWL to react to state changes in the store. In the o-spreadsheet application, you probably want to use `SpreadsheetStore` instead of `ReactiveStore`. `SpreadsheetStore` is described [below](#spreadsheet-store-for-reacting-to-commands).
+> [!NOTE]
+> You have to declare the `mutators` with `mutators = [...] as const`. They are the public methods which are mutating the store state. It's used by OWL to know when the state changes and when it needs to re-render components using the store.
+
+> [!TIP]
+> In the o-spreadsheet application, you probably want to extend
+> `SpreadsheetStore`. `SpreadsheetStore` is described [below](#spreadsheet-store-for-reacting-to-commands).
 
 ## Using a store in a component
 
@@ -87,11 +93,12 @@ You may have multiple stores that need to interact with each other. Stores allow
 For example, let's consider two stores: `MyStoreA` and `MyStoreB`. If `MyStoreB` needs to interact with `MyStoreA`, it can do so by accessing the instance of `MyStoreA` using the `get` method.
 
 ```ts
-class MyStoreA extends ReactiveStore {
+class MyStoreA {
   // ...
 }
 
-class MyStoreB extends ReactiveStore {
+class MyStoreB {
+  mutators = ["doSomething"] as const;
   private storeA = this.get(MyStoreA);
 
   doSomething() {
@@ -214,8 +221,6 @@ For features impacting only the UI, both **stores** and **UI plugins** are viabl
 ### Why not plugins for UI?
 
 Several disadvantages are associated with plugins if you locate state and business logic of a component in a plugin:
-
-- Excessive (deep) rendering occurs at every command dispatch, even if only a single component has actually changed.
 
 - Plugins need boilerplate for getters and commands. It's also usually not worth the noise in getters and commands, all for the sake of a single component.
 

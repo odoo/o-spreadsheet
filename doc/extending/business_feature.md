@@ -19,7 +19,7 @@ wether the party mode is active, and a new `UIPlugin` that will be responsible
 to draw the `PARTY` text.
 
 ```typescript
-const { CorePlugin, UIPlugin } = o_spreadsheet;
+import { CorePlugin, UIPlugin } from "@odoo/o-spreadsheet";
 
 class PartyPlugin extends CorePlugin {}
 
@@ -43,7 +43,9 @@ class PartyPlugin extends CorePlugin {
 ```
 
 The state must be updated with `this.history.update` function for the changes to be recorded in the history system (undo/redo). It cannot be changed in any other way!
-A good practice is to declare the state readonly.
+
+> [!TIP]
+> A good practice is to declare the state readonly.
 
 Data should be persisted via the `import`/`export` functions.
 
