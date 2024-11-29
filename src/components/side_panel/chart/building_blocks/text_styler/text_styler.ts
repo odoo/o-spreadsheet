@@ -49,12 +49,12 @@ interface Props {
   style: TitleDesign;
 }
 
-export interface ChartTitleState {
+export interface TextStylerState {
   activeTool: string;
 }
 
-export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ChartTitle";
+export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet.TextStyler";
   static components = { Section, ColorPickerWidget };
   static props = {
     title: { type: String, optional: true },
