@@ -20,7 +20,7 @@ const MENU_MAX_HEIGHT = 250;
 css/* scss */ `
   .o-spreadsheet-bottom-bar {
     background-color: ${BACKGROUND_GRAY_COLOR};
-    padding-left: ${HEADER_WIDTH / 2}px;
+    // padding-left: ${HEADER_WIDTH / 2}px;
     font-size: 15px;
     border-top: 1px solid lightgrey;
 
@@ -31,16 +31,23 @@ css/* scss */ `
       }
     }
 
+    .o-add-sheet,
+    .o-list-sheets {
+      flex: 0 0 auto;
+    }
+
+    .o-bottom-bar-fade-out {
+      // background-image: linear-gradient(-90deg, #cfcfcf, transparent 1%);
+      box-shadow: 0px 0px 10px 3px #aaaaaa;
+      border-left: 1px solid #c1c1c1;
+    }
+
+    .o-bottom-bar-fade-in {
+      // background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
+      box-shadow: 0px 0px 10px 3px #aaaaaa;
+      border-left: 1px solid #c1c1c1;
+    }
     .o-all-sheets {
-      max-width: 70%;
-      .o-bottom-bar-fade-out {
-        background-image: linear-gradient(-90deg, #cfcfcf, transparent 1%);
-      }
-
-      .o-bottom-bar-fade-in {
-        background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
-      }
-
       .o-sheet-list {
         overflow-y: hidden;
         overflow-x: auto;

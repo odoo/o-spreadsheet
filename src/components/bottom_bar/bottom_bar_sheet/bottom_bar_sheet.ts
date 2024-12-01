@@ -74,7 +74,7 @@ interface State {
 }
 
 export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-BottomBarSheet";
+  static template = "o-spreadsheet-mobile-BottomBarSheet";
   static props = {
     sheetId: String,
     openContextMenu: Function,

@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-TopBar">
+  <t t-name="o-spreadsheet-mobile-TopBar">
     <t t-set="text_color">Text Color</t>
     <t t-set="fill_color">Fill Color</t>
     <div
@@ -11,7 +11,7 @@
           <t t-foreach="menus" t-as="menu" t-key="menu_index">
             <div
               t-if="menu.children.length !== 0"
-              class="o-topbar-menu o-hoverable-button rounded"
+              class="o-topbar-menu text-nowrap o-hoverable-button rounded"
               t-att-class="{'active': state.menuState.parentMenu and state.menuState.parentMenu.id === menu.id}"
               t-on-click="(ev) => this.toggleContextMenu(menu, ev)"
               t-on-mouseover="(ev) => this.onMenuMouseOver(menu, ev)"

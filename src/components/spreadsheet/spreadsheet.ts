@@ -78,6 +78,8 @@ css/* scss */ `
     position: relative;
     display: grid;
     font-size: 14px;
+    width: inherit !important;
+    height: inherit !important;
 
     .text-muted {
       color: ${TEXT_BODY_MUTED} !important;
@@ -324,7 +326,7 @@ export interface SpreadsheetProps extends Partial<NotificationStoreMethods> {
 }
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Spreadsheet";
+  static template = "o-spreadsheet-mobile-Spreadsheet";
   static props = {
     model: Object,
     notifyUser: { type: Function, optional: true },
@@ -361,7 +363,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     } else {
       properties["grid-template-rows"] = `min-content auto min-content`;
     }
-    properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
+    if (this.sidePanel.isOpen) {
+      properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
+    }
 
     return cssPropertiesToCss(properties);
   }
