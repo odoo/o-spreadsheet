@@ -60,10 +60,14 @@ css/* scss */ `
     font-size: 13px;
     font-weight: 500;
     background-color: #fff;
+    width: inherit;
+    overflow: clip;
 
     .o-topbar-top {
       border-bottom: 1px solid ${SEPARATOR_COLOR};
       padding: 2px 10px;
+      /* TODORAR: this hides the emnu items that crop themselves upon another but might beuseless in mobile */
+      overflow: hidden;
 
       /* Menus */
       .o-topbar-topleft {
@@ -143,7 +147,7 @@ css/* scss */ `
 `;
 
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-TopBar";
+  static template = "o-spreadsheet-mobile-TopBar";
   static props = {
     onClick: Function,
     dropdownMaxHeight: Number,
