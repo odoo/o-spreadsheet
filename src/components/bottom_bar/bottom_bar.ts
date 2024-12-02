@@ -116,6 +116,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     menuId: undefined,
     position: null,
     menuItems: [],
+    menuTitle: _t("Sheets"),
   });
 
   sheetList = this.getVisibleSheets();
