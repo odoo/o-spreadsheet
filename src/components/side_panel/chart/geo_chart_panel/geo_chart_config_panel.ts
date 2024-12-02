@@ -4,7 +4,10 @@ import { GeoChartRegionSelectSection } from "./geo_chart_region_select_section";
 
 export class GeoChartConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-GeoChartConfigPanel";
-  static components = { ...GenericChartConfigPanel.components, GeoChartRegionSelectSection };
+  static components = {
+    ...GenericChartConfigPanel.components,
+    GeoChartRegionSelectSection,
+  };
 
   get dataRanges() {
     return this.getDataSeriesRanges().slice(0, 1);
