@@ -1672,6 +1672,113 @@ describe("charts", () => {
     });
   });
 
+  test.each([
+    {
+      labelRange: "B2:B3",
+      dataSets: [{ dataRange: "C2:C3" }, { dataRange: "D2:D3" }, { dataRange: "F2:F3" }],
+    },
+    {
+      labelRange: "B2:B4",
+      dataSets: [{ dataRange: "C2:C4" }, { dataRange: "D3:D4" }, { dataRange: "E2:E4" }],
+    },
+    {
+      labelRange: "B2:B5",
+      dataSets: [{ dataRange: "C2:C4" }, { dataRange: "D2:D4" }, { dataRange: "E2:E4" }],
+    },
+    {
+      labelRange: "B2:B3",
+      dataSets: [
+        { dataRange: "Sheet1!C2:C3" },
+        { dataRange: "Sheet2!D2:D3" },
+        { dataRange: "Sheet1!E2:E3" },
+      ],
+    },
+  ])("Cannot flip non-contigous zone", async (definition: Partial<LineChartDefinition>) => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      type: "line",
+      ...definition,
+    });
+    await mountChartSidePanel();
+    expect(document.querySelector(".o-split-by-columns")).toBeFalsy();
+    expect(document.querySelector(".o-split-by-rows")).toBeFalsy();
+  });
+
+  test("Flipping datasetOrientation updates the chart", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      type: "line",
+      labelRange: "B2:B3",
+      dataSets: [
+        { dataRange: "C2:C3" },
+        { dataRange: "D2:D3" },
+        { dataRange: "E2:E3" },
+        { dataRange: "F2:F3" },
+      ],
+    });
+    await mountChartSidePanel();
+
+    const initialDefinition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+
+    await simulateClick(".o-split-by-rows");
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.labelRange).toBe("B2:F2");
+    expect(definition.dataSets).toEqual([{ dataRange: "B3:F3" }]);
+    await simulateClick(".o-split-by-columns");
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition).toEqual(initialDefinition);
+  });
+
+  test("Transposed dataset with only one series empties the chart label and keep the series", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      type: "line",
+      labelRange: "",
+      dataSets: [{ dataRange: "C2:C3" }],
+    });
+    await mountChartSidePanel();
+
+    await simulateClick(".o-split-by-rows");
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.labelRange).toBe("C2");
+    expect(definition.dataSets).toEqual([{ dataRange: "C3" }]);
+    await simulateClick(".o-split-by-columns");
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.labelRange).toBeUndefined();
+    expect(definition.dataSets).toEqual([{ dataRange: "C2:C3" }]);
+  });
+
+  test("Can add multiple series in transposed dataset and keep the current orientation", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      type: "line",
+      labelRange: "",
+      dataSets: [{ dataRange: "B1:C4" }],
+    });
+    await mountChartSidePanel();
+
+    await simulateClick(".o-split-by-rows");
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.dataSets).toEqual([
+      { dataRange: "B2:C2" },
+      { dataRange: "B3:C3" },
+      { dataRange: "B4:C4" },
+    ]);
+    await simulateClick(".o-data-series .o-add-selection");
+    const element = document.querySelectorAll(".o-data-series input")[3];
+    await setInputValueAndTrigger(element, "D2:E4");
+    await simulateClick(".o-data-series .o-selection-ok");
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.dataSets).toEqual([
+      { dataRange: "B2:C2" },
+      { dataRange: "B3:C3" },
+      { dataRange: "B4:C4" },
+      { dataRange: "D2:E2" },
+      { dataRange: "D3:E3" },
+      { dataRange: "D4:E4" },
+    ]);
+  });
+
   test.each<ChartType>(["bar", "line", "waterfall", "radar"])(
     "showValues checkbox updates the chart",
     async (type: ChartType) => {

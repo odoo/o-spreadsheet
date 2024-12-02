@@ -207,7 +207,7 @@ export function getLineChartDatasets(
 export function getScatterChartDatasets(
   definition: GenericDefinition<ScatterChartDefinition>,
   args: ChartRuntimeGenerationArgs
-): ChartDataset[] {
+): ChartDataset<"line">[] {
   const dataSets: ChartDataset<"line">[] = getLineChartDatasets(definition, args);
   for (const dataSet of dataSets) {
     if (!isTrendLineAxis(dataSet.xAxisID as string)) {

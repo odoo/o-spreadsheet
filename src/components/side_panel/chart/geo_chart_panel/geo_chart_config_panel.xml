@@ -14,6 +14,9 @@
         onSelectionReordered.bind="onDataSeriesReordered"
         onSelectionRemoved.bind="onDataSeriesRemoved"
         maxNumberOfUsedRanges="maxNumberOfUsedRanges"
+        canChangeDatasetOrientation="canChangeDatasetOrientation"
+        datasetOrientation="datasetOrientation"
+        onFlipAxis.bind="setDatasetOrientation"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
