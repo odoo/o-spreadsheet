@@ -1,11 +1,11 @@
 <templates>
-  <t t-name="o-spreadsheet-GridOverlay">
+  <t t-name="o-spreadsheet-mobile-GridOverlay">
     <div
       t-ref="gridOverlay"
       class="o-grid-overlay overflow-hidden"
       t-att-class="{'o-paint-format-cursor': isPaintingFormat}"
       t-att-style="style"
-      t-on-pointerdown="onMouseDown"
+      t-on-click="onMouseDown"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>

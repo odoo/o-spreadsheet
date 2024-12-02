@@ -8,7 +8,7 @@
       t-on-keydown="onKeydown"
       t-on-wheel.prevent="onMouseWheel"
       t-ref="grid">
-      <GridOverlay
+      <MobileGridOverlay
         onCellClicked.bind="onCellClicked"
         onCellDoubleClicked.bind="onCellDoubleClicked"
         onCellRightClicked.bind="onCellRightClicked"
@@ -42,6 +42,7 @@
         onMouseWheel.bind="onMouseWheel"
         onClosePopover.bind="onClosePopover"
       />
+      <Selection t-if="composerFocusStore.activeComposer.editionMode === 'inactive'"/>
       <t t-foreach="highlights" t-as="highlight" t-key="highlight_index">
         <t
           t-if="highlight.interactive and highlight.sheetId === env.model.getters.getActiveSheetId()">

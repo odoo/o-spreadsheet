@@ -32,6 +32,7 @@ import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
+import { DrawSelectionStore } from "../../stores/draw_selection_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import {
   Align,
@@ -42,7 +43,6 @@ import {
   DOMDimension,
   Dimension,
   Direction,
-  GridClickModifiers,
   HeaderIndex,
   Pixel,
   Rect,
@@ -54,12 +54,11 @@ import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag"
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
-import { GridOverlay } from "../grid_overlay/grid_overlay";
+import { MobileGridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
 import { keyboardEventToShortcutString } from "../helpers/dom_helpers";
-import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
@@ -70,6 +69,7 @@ import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar";
+import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";
 import { HoveredCellStore } from "./hovered_cell_store";
@@ -115,7 +115,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = {
     GridComposer,
-    GridOverlay,
+    MobileGridOverlay,
     GridPopover,
     HeadersOverlay,
     Menu,
@@ -125,6 +125,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     VerticalScrollBar,
     HorizontalScrollBar,
     TableResizer,
+    Selection,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
@@ -156,6 +157,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.sidePanel = useStore(SidePanelStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     useStore(ArrayFormulaHighlight);
+    useStore(DrawSelectionStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -171,7 +173,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.hoveredCell.clear();
     });
     this.cellPopovers = useStore(CellPopoverStore);
-
+    console.log("coucou", this.composerFocusStore.activeComposer.editionMode === "inactive");
     useEffect(
       () => {
         if (!this.sidePanel.isOpen) {
@@ -445,37 +447,43 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
-  onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) {
+  onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: any) {
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
-    if (modifiers.expandZone) {
-      this.env.model.selection.setAnchorCorner(col, row);
-    } else if (modifiers.addZone) {
-      this.env.model.selection.addCellToSelection(col, row);
+    if (isInside(col, row, this.env.model.getters.getSelectedZone())) {
+      alert("should display a samll copy/paste popover at the click position");
     } else {
       this.env.model.selection.selectCell(col, row);
     }
-    let prevCol = col;
-    let prevRow = row;
 
-    const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
-      // When selecting cells during the edition, we don't want to avoid the default
-      // browser behaviour that will select the text inside the composer
-      // (see related commit msg for more information)
-      ev.preventDefault();
-      if ((col !== prevCol && col != -1) || (row !== prevRow && row != -1)) {
-        prevCol = col === -1 ? prevCol : col;
-        prevRow = row === -1 ? prevRow : row;
-        this.env.model.selection.setAnchorCorner(prevCol, prevRow);
-      }
-    };
-    const onMouseUp = () => {
-      if (this.paintFormatStore.isActive) {
-        this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
-      }
-    };
-    dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
+    // if (modifiers.expandZone) {
+    //   this.env.model.selection.setAnchorCorner(col, row);
+    // } else if (modifiers.addZone) {
+    //   this.env.model.selection.addCellToSelection(col, row);
+    // } else {
+    //   this.env.model.selection.selectCell(col, row);
+    // }
+    // let prevCol = col;
+    // let prevRow = row;
+
+    // const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
+    //   // When selecting cells during the edition, we don't want to avoid the default
+    //   // browser behaviour that will select the text inside the composer
+    //   // (see related commit msg for more information)
+    //   ev.preventDefault();
+    //   if ((col !== prevCol && col != -1) || (row !== prevRow && row != -1)) {
+    //     prevCol = col === -1 ? prevCol : col;
+    //     prevRow = row === -1 ? prevRow : row;
+    //     this.env.model.selection.setAnchorCorner(prevCol, prevRow);
+    //   }
+    // };
+    // const onMouseUp = () => {
+    //   if (this.paintFormatStore.isActive) {
+    //     this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
+    //   }
+    // };
+    // dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {
