@@ -34,6 +34,7 @@ css/* scss */ `
       box-sizing: border-box;
       outline: none;
       border: 1px solid ${GRAY_300};
+      cursor: pointer;
 
       &:hover {
         border-color: ${ACTION_COLOR};
