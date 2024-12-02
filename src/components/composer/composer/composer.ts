@@ -1,4 +1,4 @@
-import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
 import { clip, setColorAlpha } from "../../../helpers/index";
@@ -256,7 +256,12 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       }
       this.contentHelper.updateEl(el);
     });
-
+    this.env.model.selection.observe(this, {
+      handleEvent: () => this.autoCompleteState.hide(),
+    });
+    onWillUnmount(() => {
+      this.env.model.selection.detachObserver(this);
+    });
     useEffect(() => {
       this.processContent();
       if (
