@@ -108,6 +108,12 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     });
   }
 
+  onInvertAxesToggled(invertAxes: boolean) {
+    this.props.updateChart(this.props.figureId, {
+      invertAxes,
+    });
+  }
+
   /**
    * Change the local dataSeriesRanges. The model should be updated when the
    * button "confirm" is clicked

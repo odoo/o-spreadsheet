@@ -58,6 +58,7 @@ export class PieChart extends AbstractChart {
   readonly dataSetsHaveTitle: boolean;
   readonly isDoughnut?: boolean;
   readonly showValues?: boolean;
+  readonly invertAxes?: boolean;
 
   constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -74,6 +75,7 @@ export class PieChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.isDoughnut = definition.isDoughnut;
     this.showValues = definition.showValues;
+    this.invertAxes = definition.invertAxes;
   }
 
   static transformDefinition(
@@ -102,6 +104,7 @@ export class PieChart extends AbstractChart {
       aggregated: context.aggregated ?? false,
       isDoughnut: false,
       showValues: context.showValues,
+      invertAxes: context.invertAxes,
     };
   }
 
@@ -141,6 +144,7 @@ export class PieChart extends AbstractChart {
       aggregated: this.aggregated,
       isDoughnut: this.isDoughnut,
       showValues: this.showValues,
+      invertAxes: this.invertAxes,
     };
   }
 

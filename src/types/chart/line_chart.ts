@@ -18,6 +18,7 @@ export interface LineChartDefinition {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly invertAxes?: boolean;
 }
 
 export type LineChartRuntime = {

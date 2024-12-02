@@ -21,6 +21,15 @@
         onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
         onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
       />
+      <Section class="'pt-0'">
+        <Checkbox
+          name="'invertAxes'"
+          label="chartTerms.InvertAxes"
+          value="props.definition.invertAxes"
+          onChange.bind="onInvertAxesToggled"
+          className="'pt-0'"
+        />
+      </Section>
       <ChartLabelRange
         range="this.getLabelRange()"
         isInvalid="isLabelInvalid"

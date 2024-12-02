@@ -40,7 +40,7 @@ export type ChartDefinition =
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
-  { dataSets: CustomizedDataSet[]; labelRange?: string }
+  { dataSets: CustomizedDataSet[]; labelRange?: string; invertAxes?: boolean }
 >;
 
 export type ChartJSRuntime =
@@ -155,6 +155,7 @@ export interface ChartCreationContext {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly invertAxes?: boolean;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

@@ -12,4 +12,5 @@ export interface ComboBarChartDefinition {
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  readonly invertAxes?: boolean;
 }
