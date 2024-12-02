@@ -195,6 +195,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
           
           <label
             class="o-checkbox d-flex align-items-center"
+            role="button"
             title="Changing the pivot definition requires to reload the data. It may take some time."
           >
             <input
@@ -395,6 +396,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
           
           <label
             class="o-checkbox d-flex align-items-center"
+            role="button"
             title="Changing the pivot definition requires to reload the data. It may take some time."
           >
             <input
