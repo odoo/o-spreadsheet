@@ -13,6 +13,15 @@
         onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
         hasSingleRange="true"
       />
+      <Section class="'pt-0'">
+        <Checkbox
+          name="'switchAxes'"
+          label="chartTerms.switchAxes"
+          value="props.definition.switchAxes"
+          onChange.bind="onswitchAxesToggled"
+          className="'pt-0'"
+        />
+      </Section>
       <ChartLabelRange
         range="this.getLabelRange()"
         isInvalid="isLabelInvalid"

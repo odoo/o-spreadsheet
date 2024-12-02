@@ -15,6 +15,7 @@ export interface PieChartDefinition {
   readonly axesDesign?: AxesDesign;
   readonly isDoughnut?: boolean;
   readonly showValues?: boolean;
+  readonly switchAxes?: boolean;
 }
 
 export type PieChartRuntime = {
