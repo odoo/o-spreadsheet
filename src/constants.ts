@@ -257,6 +257,7 @@ export const LOADING = "Loading...";
 export enum ComponentsImportance {
   Grid = 0,
   Highlight = 5,
+  Selection = 5,
   HeaderGroupingButton = 6,
   Figure = 10,
   ScrollBar = 15,

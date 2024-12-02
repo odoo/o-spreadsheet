@@ -172,8 +172,8 @@ interface Props {
   onFigureDeleted: () => void;
 }
 
-export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-GridOverlay";
+export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-mobile-GridOverlay";
   static props = {
     onCellHovered: { type: Function, optional: true },
     onCellDoubleClicked: { type: Function, optional: true },
