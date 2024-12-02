@@ -31,6 +31,7 @@ type StatefulStream<Event, State> = {
   resetDefaultAnchor: (owner: unknown, state: State) => void;
   resetAnchor: (owner: unknown, state: State) => void;
   observe: (owner: unknown, callbacks: StreamCallbacks<Event>) => void;
+  detachObserver: (owner: unknown) => void;
   release: (owner: unknown) => void;
   getBackToDefault(): void;
 };
@@ -111,6 +112,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
 
   observe(owner: unknown, callbacks: StreamCallbacks<SelectionEvent>) {
     this.stream.observe(owner, callbacks);
+  }
+
+  detachObserver(owner: unknown) {
+    this.stream.detachObserver(owner);
   }
 
   release(owner: unknown) {
