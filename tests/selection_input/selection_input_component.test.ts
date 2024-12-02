@@ -209,7 +209,7 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(1);
   });
 
-  test("hitting enter key acts the same as clicking confirm button", async () => {
+  test("hitting enter key acts the same as clicking confirm button for valid dataset", async () => {
     let isConfirmed = false;
     const onConfirmed = jest.fn(() => {
       isConfirmed = true;
@@ -221,6 +221,16 @@ describe("Selection Input", () => {
     expect(fixture.querySelector(".o-focused")).toBeFalsy();
     expect(onConfirmed).toHaveBeenCalled();
     expect(isConfirmed).toBeTruthy();
+  });
+
+  test("hitting enter key does nothing for an invalid dataset", async () => {
+    const onConfirmed = jest.fn();
+    await createSelectionInput({ onConfirmed });
+    await writeInput(0, "Kaboom");
+    expect(fixture.querySelector(".o-focused")).toBeTruthy();
+    await keyDown({ key: "Enter" });
+    expect(fixture.querySelector(".o-focused")).toBeTruthy();
+    expect(onConfirmed).not.toHaveBeenCalled();
   });
 
   test("input is filled when new cells are selected", async () => {

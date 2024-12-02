@@ -306,6 +306,9 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   resetWithRanges(ranges: string[]) {
+    if (ranges.length && ranges.every((r) => this.getters.isRangeValid(r))) {
+      this.initialRanges = ranges;
+    }
     this.ranges = [];
     this.insertNewRange(0, ranges);
     if (this.ranges.length === 0) {

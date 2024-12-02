@@ -223,7 +223,9 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     } else if (ev.key === "Enter") {
       const target = ev.target as HTMLInputElement;
       target.blur();
-      this.confirm();
+      if (this.isConfirmable) {
+        this.confirm();
+      }
     }
   }
 
