@@ -7,6 +7,8 @@
         onSelectionConfirmed.bind="onDataSeriesConfirmed"
         onSelectionReordered.bind="onDataSeriesReordered"
         onSelectionRemoved.bind="onDataSeriesRemoved"
+        dataStructure="dataStructure"
+        onFlipAxis.bind="setDatasetStructure"
       />
       <ChartLabelRange
         range="this.getLabelRange()"

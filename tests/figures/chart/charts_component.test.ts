@@ -1516,6 +1516,31 @@ describe("charts", () => {
     });
   });
 
+  test("Flipping dataStructure updates the chart", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      type: "line",
+      labelRange: "Sheet1!B2:B3",
+      dataSets: [
+        { dataRange: "C2:C3" },
+        { dataRange: "D2:D3" },
+        { dataRange: "E2:E3" },
+        { dataRange: "F2:F3" },
+      ],
+    });
+    await mountChartSidePanel();
+
+    const initialDefinition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+
+    await simulateClick(".o-split-by-rows");
+    let definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition.labelRange).toBe("Sheet1!B2:F2");
+    expect(definition.dataSets).toEqual([{ dataRange: "B3:F3" }]);
+    await simulateClick(".o-split-by-columns");
+    definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(definition).toEqual(initialDefinition);
+  });
+
   test.each<ChartType>(["bar", "line", "waterfall", "radar"])(
     "showValues checkbox updates the chart",
     async (type: ChartType) => {

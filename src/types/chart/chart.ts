@@ -112,6 +112,8 @@ export type CustomizedDataSet = {
 
 export type AxisType = "category" | "linear" | "time";
 
+export type DataStructure = "asRows" | "asColumns";
+
 export interface DataSet {
   readonly labelCell?: Range; // range of the label
   readonly dataRange: Range; // range of the data

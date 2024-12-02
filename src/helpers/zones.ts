@@ -140,6 +140,14 @@ export function isXcValid(xc: string): boolean {
   return isZoneValid(zone);
 }
 
+export function isXcRepresentation(xc: string): boolean {
+  try {
+    return isXcValid(xc);
+  } catch (e) {
+    return false;
+  }
+}
+
 /**
  * Check that the zone has valid coordinates and in
  * the correct order.

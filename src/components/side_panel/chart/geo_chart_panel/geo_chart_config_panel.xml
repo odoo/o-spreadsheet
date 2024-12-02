@@ -12,6 +12,8 @@
         onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
         onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
         hasSingleRange="true"
+        dataStructure="dataStructure"
+        onFlipAxis.bind="setDatasetStructure"
       />
       <ChartLabelRange
         range="this.getLabelRange()"

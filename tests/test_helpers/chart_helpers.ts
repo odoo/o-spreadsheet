@@ -1,4 +1,4 @@
-import { Model, SpreadsheetChildEnv, UID } from "../../src";
+import { ChartCreationContext, Model, SpreadsheetChildEnv, UID } from "../../src";
 import { range, toHex } from "../../src/helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -64,3 +64,22 @@ export async function editColorPicker(fixture: HTMLElement, selector: string, co
   await click(fixture.querySelector(selector + " .o-round-color-picker-button")!);
   await click(fixture, `.o-color-picker-line-item[data-color='${color}'`);
 }
+
+export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
+  background: "#123456",
+  title: { text: "hello there" },
+  range: [{ dataRange: "Sheet1!B1:B4" }],
+  auxiliaryRange: "Sheet1!A1:A4",
+  legendPosition: "bottom",
+  cumulative: true,
+  labelsAsText: true,
+  dataSetsHaveTitle: true,
+  aggregated: true,
+  stacked: true,
+  firstValueAsSubtotal: true,
+  showConnectorLines: false,
+  showSubTotals: true,
+  axesDesign: {},
+  fillArea: true,
+  showValues: false,
+};
