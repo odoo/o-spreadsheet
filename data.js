@@ -6,7 +6,7 @@
  */
 
 export const demoData = {
-  version: 17,
+  version: 19,
   sheets: [
     {
       id: "sh1",
@@ -243,8 +243,6 @@ export const demoData = {
           width: 465,
           tag: "chart",
           data: {
-            baselineColorDown: "#E06666",
-            baselineColorUp: "#6AA84F",
             baselineMode: "absolute",
             title: { text: "Scorecard" },
             type: "scorecard",
@@ -509,6 +507,7 @@ export const demoData = {
       colNumber: 26,
       rowNumber: 224,
       rows: {},
+      color: "#6AA84F",
       cols: {},
       merges: [],
       cells: {
@@ -2223,6 +2222,7 @@ export const demoData = {
       colNumber: 26,
       rowNumber: 100,
       rows: {},
+      color: "#FF9900",
       cols: {
         0: { size: 127 },
         1: { size: 191 },
@@ -2401,6 +2401,11 @@ export const demoData = {
         I20: { content: "FALSE" },
         I21: { content: "FALSE" },
         I22: { content: "FALSE" },
+        K1: { style: 11, content: "Commissions" },
+        K2: { content: "Alice" },
+        K3: { content: "Bob" },
+        L2: { content: "0.01", format: 1 },
+        L3: { content: "0.02", format: 1 },
       },
       conditionalFormats: [],
       figures: [],
@@ -2434,6 +2439,66 @@ export const demoData = {
           },
         },
       ],
+      areGridLinesVisible: true,
+      isVisible: true,
+      headerGroups: { ROW: [], COL: [] },
+      dataValidationRules: [],
+    },
+    {
+      id: "cf",
+      name: "Conditional Formats",
+      colNumber: 26,
+      rowNumber: 100,
+      rows: {},
+      cols: {},
+      merges: [],
+      cells: {
+        A1: { content: "Data Bar" },
+        A3: { content: "100" },
+        A4: { content: "90" },
+        A5: { content: "80" },
+        A6: { content: "70" },
+        A7: { content: "60" },
+        A8: { content: "50" },
+        A9: { content: "40" },
+        A10: { content: "30" },
+        A11: { content: "20" },
+        A12: { content: "10" },
+        A13: { content: "0" },
+        B1: { content: "Data Bar based on range A3:A13" },
+        B3: { content: "Lorem" },
+        B4: { content: "ipsmum" },
+        B5: { content: "dolor" },
+        B6: { content: "sit" },
+        B7: { content: "amet" },
+        B8: { content: "consectetur" },
+        B9: { content: "adipiscing" },
+        B10: { content: "elit" },
+        B11: { content: "Suspendisse" },
+        B12: { content: "vitae" },
+        B13: { content: "placerat" },
+      },
+      conditionalFormats: [
+        {
+          id: "1",
+          ranges: ["A3:A13"],
+          rule: {
+            type: "DataBarRule",
+            color: "#CFE2F3",
+          },
+        },
+        {
+          id: "2",
+          ranges: ["B3:B13"],
+          rule: {
+            type: "DataBarRule",
+            color: "#FCE5CD",
+            rangeValues: "A3:A13",
+          },
+        },
+      ],
+      figures: [],
+      tables: [],
       areGridLinesVisible: true,
       isVisible: true,
       headerGroups: { ROW: [], COL: [] },
@@ -2552,9 +2617,25 @@ export const demoData = {
   pivots: {
     1: {
       type: "SPREADSHEET",
-      columns: [{ name: "Stage" }],
-      rows: [{ name: "Created on", granularity: "month_number", order: "asc" }],
-      measures: [{ name: "Expected Revenue", aggregator: "count" }],
+      columns: [{ fieldName: "Stage" }],
+      rows: [{ fieldName: "Salesperson", order: "asc" }],
+      measures: [
+        {
+          id: "Expected Revenue:sum",
+          fieldName: "Expected Revenue",
+          aggregator: "sum",
+        },
+        {
+          id: "Commission",
+          fieldName: "Commission",
+          aggregator: "sum",
+          userDefinedName: "Commission",
+          computedBy: {
+            sheetId: "pivot",
+            formula: "='Expected Revenue:sum'*VLOOKUP(Salesperson,K2:L3,2,0)",
+          },
+        },
+      ],
       name: "My pivot",
       dataSet: { sheetId: "pivot", zone: { top: 0, bottom: 21, left: 0, right: 8 } },
       formulaId: "1",
@@ -2582,6 +2663,45 @@ function computeFormulaCells(cols, rows) {
         content: `=${prev}${row}+1`,
       };
     }
+  }
+  const letter = _getColumnLetter(cols);
+  const nextLetter = _getColumnLetter(cols + 1);
+  for (let i = 3; i < cols; i++) {
+    cells[nextLetter + i] = {
+      content: `=SUM(A${i}:${letter}${i})`,
+    };
+  }
+  return cells;
+}
+
+function computeArrayFormulaCells(cols, rows) {
+  const cells = {};
+  const initRow = 4;
+  for (let row = initRow; row <= rows; row++) {
+    cells[`A${row}`] = { content: row.toString() };
+  }
+  for (let col = 1; col < cols; col++) {
+    const colLetter = _getColumnLetter(col);
+    const prev = _getColumnLetter(col - 1);
+    cells[colLetter + initRow] = {
+      content: `=transpose(transpose(${prev}${initRow}:${prev}${rows}))`,
+    };
+  }
+  return cells;
+}
+
+function computeVectorizedFormulaCells(cols, rows) {
+  const cells = {};
+  const initRow = 4;
+  for (let row = initRow; row <= rows; row++) {
+    cells[`A${row}`] = { content: row.toString() };
+  }
+  for (let col = 1; col < cols; col++) {
+    const colLetter = _getColumnLetter(col);
+    const prev = _getColumnLetter(col - 1);
+    cells[colLetter + initRow] = {
+      content: `=${prev}${initRow}:${prev}${rows}+1`,
+    };
   }
   const letter = _getColumnLetter(cols);
   const nextLetter = _getColumnLetter(cols + 1);
@@ -2639,6 +2759,12 @@ export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
     switch (sheetsInfo[index]) {
       case "formulas":
         cells = computeFormulaCells(cols, rows);
+        break;
+      case "arrayFormulas":
+        cells = computeArrayFormulaCells(cols, rows);
+        break;
+      case "vectorizedFormulas":
+        cells = computeVectorizedFormulaCells(cols, rows);
         break;
       case "numbers":
       case "floats":
