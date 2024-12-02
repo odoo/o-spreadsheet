@@ -6,7 +6,7 @@ import {
   resizeTable,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { getCell } from "../test_helpers/getters_helpers";
+import { getActivePosition, getCell } from "../test_helpers/getters_helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -57,5 +57,13 @@ describe("Table resize", () => {
     setCellContent(model, "A5", "=B5");
     resizeTable(model, "A1", "A1:A6");
     expect(getCell(model, "A6")?.content).toBe("=B6");
+  });
+
+  test("Resize a table change selection to bottom right corner", () => {
+    createTable(model, "A1:B4");
+    resizeTable(model, "A1", "A1:C6");
+    expect(getActivePosition(model)).toBe("C6");
+    resizeTable(model, "A1", "A1:B2");
+    expect(getActivePosition(model)).toBe("B2");
   });
 });
