@@ -8,8 +8,13 @@ exports[`Data Series Can render a data series component 1`] = `
     <div
       class="o-section-title"
     >
-      Data series
       
+      <div
+        class="d-flex flex-row justify-content-between"
+      >
+        Data series
+        
+      </div>
       
     </div>
     
