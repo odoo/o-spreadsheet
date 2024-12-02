@@ -1,4 +1,4 @@
-import { ChartCreationContext, CommandResult, Model } from "../../../../src";
+import { CommandResult, Model } from "../../../../src";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -10,6 +10,7 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../../src/types/chart/scorecard_chart";
+import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import {
   addColumns,
   createScorecardChart,
@@ -80,26 +81,9 @@ describe("datasource tests", function () {
   });
 
   test("create scorecard from creation context", () => {
-    const context: Required<ChartCreationContext> = {
-      background: "#123456",
-      title: { text: "hello there" },
-      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      auxiliaryRange: "Sheet1!A1:A4",
-      legendPosition: "bottom",
-      cumulative: true,
-      labelsAsText: true,
-      dataSetsHaveTitle: true,
-      aggregated: true,
-      stacked: true,
-      firstValueAsSubtotal: true,
-      showConnectorLines: false,
-      showSubTotals: true,
-      axesDesign: {},
-      fillArea: true,
-      showValues: false,
-      funnelColors: [],
-    };
-    const definition = ScorecardChart.getDefinitionFromContextCreation(context);
+    const definition = ScorecardChart.getDefinitionFromContextCreation(
+      GENERAL_CHART_CREATION_CONTEXT
+    );
     expect(definition).toEqual({
       type: "scorecard",
       background: "#123456",
