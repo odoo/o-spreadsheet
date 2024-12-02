@@ -106,9 +106,55 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         const elements = [...cmd.elements].sort((a, b) => b - a);
         for (const group of groupConsecutive(elements)) {
           if (cmd.dimension === "COL") {
-            this.shiftBordersHorizontally(cmd.sheetId, group[group.length - 1] + 1, -group.length);
+            if (group[0] >= this.getters.getNumberCols(cmd.sheetId)) {
+              for (let row: HeaderIndex = 0; row < this.getters.getNumberRows(cmd.sheetId); row++) {
+                this.history.update(
+                  "borders",
+                  cmd.sheetId,
+                  group[0] + 1,
+                  row,
+                  "vertical",
+                  undefined
+                );
+              }
+            }
+            if (group[group.length - 1] === 0) {
+              for (let row: HeaderIndex = 0; row < this.getters.getNumberRows(cmd.sheetId); row++) {
+                this.history.update("borders", cmd.sheetId, 0, row, "vertical", undefined);
+              }
+            }
+            const zone = this.getters.getColsZone(
+              cmd.sheetId,
+              group[group.length - 1] + 1,
+              group[0]
+            );
+            this.clearInsideBorders(cmd.sheetId, [zone]);
+            this.shiftBordersHorizontally(cmd.sheetId, group[0] + 1, -group.length);
           } else {
-            this.shiftBordersVertically(cmd.sheetId, group[group.length - 1] + 1, -group.length);
+            if (group[0] >= this.getters.getNumberRows(cmd.sheetId)) {
+              for (let col = 0; col < this.getters.getNumberCols(cmd.sheetId); col++) {
+                this.history.update(
+                  "borders",
+                  cmd.sheetId,
+                  col,
+                  group[0] + 1,
+                  "horizontal",
+                  undefined
+                );
+              }
+            }
+            if (group[group.length - 1] === 0) {
+              for (let col = 0; col < this.getters.getNumberCols(cmd.sheetId); col++) {
+                this.history.update("borders", cmd.sheetId, col, 0, "horizontal", undefined);
+              }
+            }
+            const zone = this.getters.getRowsZone(
+              cmd.sheetId,
+              group[group.length - 1] + 1,
+              group[0]
+            );
+            this.clearInsideBorders(cmd.sheetId, [zone]);
+            this.shiftBordersVertically(cmd.sheetId, group[0] + 1, -group.length);
           }
         }
         break;
@@ -466,6 +512,19 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       }
       for (let col = zone.left; col <= zone.right; col++) {
         this.history.update("borders", sheetId, col, zone.bottom + 1, "horizontal", undefined);
+      }
+    }
+  }
+
+  /**
+   * Remove the borders inside of a zone
+   */
+  private clearInsideBorders(sheetId: UID, zones: Zone[]) {
+    for (let zone of zones) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.history.update("borders", sheetId, col, row, undefined);
+        }
       }
     }
   }
