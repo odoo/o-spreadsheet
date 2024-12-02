@@ -11,6 +11,7 @@ import {
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
   DISABLED_TEXT_COLOR,
+  GRAY_300,
   ICONS_COLOR,
   MENU_ITEM_HEIGHT,
   MENU_ITEM_PADDING_HORIZONTAL,
@@ -36,6 +37,14 @@ css/* scss */ `
     width: ${MENU_WIDTH}px;
     box-sizing: border-box !important;
     user-select: none;
+
+    .o-menu-header {
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid ${GRAY_300};
+    }
 
     .o-menu-item {
       box-sizing: border-box;
@@ -92,6 +101,7 @@ interface Props {
   menuId?: UID;
   onMouseOver?: () => void;
   width?: number;
+  menuTitle?: string;
 }
 
 export interface MenuState {
@@ -101,10 +111,11 @@ export interface MenuState {
   scrollOffset?: Pixel;
   menuItems: Action[];
   isHoveringChild?: boolean;
+  menuTitle?: string;
 }
 
 export class Menu extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Menu";
+  static template = "o-spreadsheet-mobile-Menu";
   static props = {
     position: Object,
     menuItems: Array,
@@ -115,6 +126,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     menuId: { type: String, optional: true },
     onMouseOver: { type: Function, optional: true },
     width: { type: Number, optional: true },
+    menuTitle: { type: String, optional: true },
   };
 
   static components = { Menu, Popover };
@@ -339,6 +351,14 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get menuStyle() {
-    return this.props.width ? cssPropertiesToCss({ width: this.props.width + "px" }) : "";
+    return cssPropertiesToCss({
+      // "max-height": "30vh",
+      // overfloY: "auto",
+      width: "100%",
+      height: "100%",
+      overflow: "auto",
+      // position: "relative",
+    });
+    // return this.props.width ? cssPropertiesToCss({ width: this.props.width + "px" }) : "";
   }
 }

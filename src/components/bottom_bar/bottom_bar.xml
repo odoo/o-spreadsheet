@@ -40,6 +40,7 @@
         maxHeight="menuMaxHeight"
         onClose="() => this.closeMenu()"
         menuId="menuState.menuId"
+        menuTitle="menuState.menuTitle"
       />
     </div>
   </t>

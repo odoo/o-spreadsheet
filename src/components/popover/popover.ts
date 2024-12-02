@@ -41,7 +41,8 @@ css/* scss */ `
     overflow: auto;
     box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
     width: fit-content;
-    height: fit-content;
+    height: 30%;
+    bottom: 0;
   }
 `;
 
@@ -70,7 +71,9 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   };
 
   private popoverRef = useRef("popover");
+  // TODORAR uselss
   private currentPosition: PopoverPosition | undefined = undefined;
+  // TODORAR uselss ??
   private currentDisplayValue: DisplayValue | undefined = undefined;
 
   private spreadsheetRect = useSpreadsheetRect();
@@ -108,19 +111,27 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
           ? new BottomLeftPopoverContext(anchor, this.containerRect, propsMaxSize, spreadsheetRect)
           : new TopRightPopoverContext(anchor, this.containerRect, propsMaxSize, spreadsheetRect);
 
-      el.style["max-height"] = popoverPositionHelper.getMaxHeight(elDims.height) + "px";
-      el.style["max-width"] = popoverPositionHelper.getMaxWidth(elDims.width) + "px";
+      // el.style["max-height"] = popoverPositionHelper.getMaxHeight(elDims.height) + "px";
+      // el.style["max-width"] = popoverPositionHelper.getMaxWidth(elDims.width) + "px";
       // Re-compute the dimensions after setting the max-width and max-height
       elDims = {
         width: el.getBoundingClientRect().width,
         height: el.getBoundingClientRect().height,
       };
 
-      let style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
-      for (const property of Object.keys(style)) {
-        el.style[property] = style[property];
-      }
+      // let style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
+      // debugger
+      // for (const property of Object.keys(style)) {
+      //   el.style[property] = style[property];
+      // }
 
+      el.style["width"] = spreadsheetRect.width + "px";
+      // TODORAR 40% of screen height and not spreadsheet height?
+      el.style["max-height"] = 0.4 * spreadsheetRect.height + "px";
+      el.style["bottom"] = 0 + "px";
+      el.style["left"] = 0 + "px";
+      el.style["height"] = "fit-content";
+      el.style["position"] = "absolute";
       const newPosition = popoverPositionHelper.getCurrentPosition(elDims);
       if (this.currentPosition && newPosition !== this.currentPosition) {
         this.props.onPopoverMoved?.();

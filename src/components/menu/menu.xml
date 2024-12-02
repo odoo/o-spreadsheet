@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-Menu">
+  <t t-name="o-spreadsheet-mobile-Menu">
     <Popover t-if="menuItemsAndSeparators.length" t-props="popoverProps">
       <div
         t-ref="menu"
@@ -10,6 +10,9 @@
         t-on-click.stop=""
         t-on-mouseover="onMouseOverMainMenu"
         t-on-contextmenu.prevent="">
+        <div class="o-menu-header" t-if="this.props.menuTitle">
+          <t t-esc="this.props.menuTitle"/>
+        </div>
         <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
           <div t-if="menuItem === 'separator'" class="o-separator"/>
           <t t-else="">
@@ -26,8 +29,11 @@
               t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': isActive(menuItem)}"
               t-att-style="getColor(menuItem)">
               <div class="d-flex w-100">
+                <!-- TODORAR not sure about this but feels less empty overall               -->
+                <t t-set="showIcons" t-value="childrenHaveIcon"/>
+                <!-- <t t-set="showIcons" t-value="!!getIconName(menuItem)"/> -->
                 <div
-                  t-if="childrenHaveIcon"
+                  t-if="showIcons"
                   class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
                   t-att-style="getIconColor(menuItem)">
                   <t t-if="getIconName(menuItem)" t-call="{{getIconName(menuItem)}}"/>
