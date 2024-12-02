@@ -563,3 +563,15 @@ export const TEXT = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// VALUE
+// -----------------------------------------------------------------------------
+export const VALUE = {
+  description: _t("Converts a string to a numeric value."),
+  args: [arg("value (number)", _t("the string to be converted"))],
+  compute: function (value: Maybe<FunctionResultObject>): number {
+    return toNumber(value, this.locale);
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
