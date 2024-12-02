@@ -785,3 +785,15 @@ test("TEXT formula", () => {
   expect(evaluateCell("A1", { A1: '=TEXT(.05, "000%")' })).toBe("005%");
   expect(evaluateCell("A1", { A1: "=TEXT(5, 0)" })).toBe("5");
 });
+
+test("VALUE formula", () => {
+  expect(evaluateCell("A1", { A1: "=VALUE(5)" })).toBe(5);
+  expect(evaluateCell("A1", { A1: '=VALUE("")' })).toBe(0);
+  expect(evaluateCell("A1", { A1: '=VALUE("$10")' })).toBe(10);
+  expect(evaluateCell("A1", { A1: '=VALUE("12:00")' })).toBe(0.5);
+  expect(evaluateCell("A1", { A1: '=VALUE("01/19/1900")' })).toBe(20);
+  expect(evaluateCell("A1", { A1: '=VALUE("ABC")' })).toBe("#ERROR");
+  expect(evaluateCell("A1", { A1: "=VALUE(1/0)" })).toBe("#DIV/0!");
+  expect(evaluateCell("A1", { A1: "=VALUE(A2)", A2: "12.5" })).toBe(12.5);
+  expect(evaluateCell("A1", { A1: "=VALUE(A2)" })).toBe(0);
+});
