@@ -129,6 +129,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     menuTitle: { type: String, optional: true },
   };
 
+  // TODORAR se débarasser de popover (on veut juste etre un portal un peu bien foutu on a pas besoir de brol autour. Surtout que les popovers risquent d'être utiles  pur faire du copy/paste en fait).
   static components = { Menu, Popover };
   static defaultProps = {
     depth: 1,
