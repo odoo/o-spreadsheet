@@ -42,6 +42,7 @@ const AGGREGATORS_BY_FIELD_TYPE = {
   integer: NUMBER_CHAR_AGGREGATORS,
   char: NUMBER_CHAR_AGGREGATORS,
   boolean: ["count_distinct", "count", "bool_and", "bool_or"],
+  datetime: ["max", "min", "count_distinct", "count"],
 };
 
 export const AGGREGATORS = {};
