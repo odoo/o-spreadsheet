@@ -146,9 +146,12 @@ function useTouchMove(
     // We only want this behavior if the grid is already at the top.
     // Otherwise we only want to move the canvas up, without triggering any refresh.
     if (canMoveUp()) {
-      ev.preventDefault();
+      if (ev.cancelable) {
+        ev.preventDefault();
+      }
       ev.stopPropagation();
     }
+    console.log(ev.defaultPrevented);
     const currentX = ev.touches[0].clientX;
     const currentY = ev.touches[0].clientY;
     handler(x! - currentX, y! - currentY);

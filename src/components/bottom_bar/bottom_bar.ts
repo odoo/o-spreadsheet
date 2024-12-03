@@ -3,10 +3,9 @@ import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH } from "../../constants";
 import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
-import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import { MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
-import { useDragAndDropListItems } from "../helpers/drag_and_drop_hook";
 import { Menu, MenuState } from "../menu/menu";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
@@ -102,7 +101,6 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   private bottomBarRef = useRef("bottomBar");
   private sheetListRef = useRef("sheetList");
 
-  private dragAndDrop = useDragAndDropListItems();
   private targetScroll: number | undefined = undefined;
   private state = useState({
     isSheetListScrollableLeft: false,
@@ -127,7 +125,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       const visibleSheets = this.getVisibleSheets();
       // Cancel sheet dragging when there is a change in the sheets
       if (!deepEquals(this.sheetList, visibleSheets)) {
-        this.dragAndDrop.cancel();
+        // this.dragAndDrop.cancel();
       }
       this.sheetList = visibleSheets;
     });
@@ -251,48 +249,49 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     if (event.button !== 0 || this.env.model.getters.isReadonly()) return;
     this.closeMenu();
 
-    const visibleSheets = this.getVisibleSheets();
-    const sheetRects = this.getSheetItemRects();
+    // const visibleSheets = this.getVisibleSheets();
+    // const sheetRects = this.getSheetItemRects();
 
-    const sheets = visibleSheets.map((sheet, index) => ({
-      id: sheet.id,
-      size: sheetRects[index].width,
-      position: sheetRects[index].x,
-    }));
-    this.dragAndDrop.start("horizontal", {
-      draggedItemId: sheetId,
-      initialMousePosition: event.clientX,
-      items: sheets,
-      containerEl: this.sheetListRef.el!,
-      onDragEnd: (sheetId: UID, finalIndex: number) => this.onDragEnd(sheetId, finalIndex),
-    });
+    // const sheets = visibleSheets.map((sheet, index) => ({
+    //   id: sheet.id,
+    //   size: sheetRects[index].width,
+    //   position: sheetRects[index].x,
+    // }));
+    // this.dragAndDrop.start("horizontal", {
+    //   draggedItemId: sheetId,
+    //   initialMousePosition: event.clientX,
+    //   items: sheets,
+    //   containerEl: this.sheetListRef.el!,
+    //   onDragEnd: (sheetId: UID, finalIndex: number) => this.onDragEnd(sheetId, finalIndex),
+    // });
   }
 
-  private onDragEnd(sheetId: UID, finalIndex: number) {
-    const originalIndex = this.getVisibleSheets().findIndex((sheet) => sheet.id === sheetId);
-    const delta = finalIndex - originalIndex;
-    if (sheetId && delta !== 0) {
-      this.env.model.dispatch("MOVE_SHEET", {
-        sheetId: sheetId,
-        delta: delta,
-      });
-    }
-  }
+  // private onDragEnd(sheetId: UID, finalIndex: number) {
+  //   const originalIndex = this.getVisibleSheets().findIndex((sheet) => sheet.id === sheetId);
+  //   const delta = finalIndex - originalIndex;
+  //   if (sheetId && delta !== 0) {
+  //     this.env.model.dispatch("MOVE_SHEET", {
+  //       sheetId: sheetId,
+  //       delta: delta,
+  //     });
+  //   }
+  // }
 
   getSheetStyle(sheetId: UID): string {
-    return this.dragAndDrop.itemsStyle[sheetId] || "";
+    return "";
+    // return this.dragAndDrop.itemsStyle[sheetId] || "";
   }
 
-  private getSheetItemRects(): Rect[] {
-    return Array.from(this.bottomBarRef.el!.querySelectorAll<HTMLElement>(`.o-sheet`))
-      .map((sheetEl) => sheetEl.getBoundingClientRect())
-      .map((rect) => ({
-        x: rect.x,
-        width: rect.width - 1, // -1 to compensate negative margin
-        y: rect.y,
-        height: rect.height,
-      }));
-  }
+  // private getSheetItemRects(): Rect[] {
+  //   return Array.from(this.bottomBarRef.el!.querySelectorAll<HTMLElement>(`.o-sheet`))
+  //     .map((sheetEl) => sheetEl.getBoundingClientRect())
+  //     .map((rect) => ({
+  //       x: rect.x,
+  //       width: rect.width - 1, // -1 to compensate negative margin
+  //       y: rect.y,
+  //       height: rect.height,
+  //     }));
+  // }
 
   get sheetListCurrentScroll() {
     if (!this.sheetListRef.el) return 0;

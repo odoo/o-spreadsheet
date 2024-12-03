@@ -9,6 +9,7 @@ css/* scss */ `
     height: 6px;
     width: 6px;
     border: 1px solid white;
+    border-radius: 4px;
   }
   .o-corner-nw,
   .o-corner-se {

@@ -753,11 +753,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onComposerCellFocused(content?: string, selection?: ComposerSelection) {
-    this.composerFocusStore.focusActiveComposer({ content, selection, focusMode: "cellFocus" });
+    // this.composerFocusStore.focusActiveComposer({ content, selection, focusMode: "cellFocus" });
   }
 
   onComposerContentFocused() {
-    this.composerFocusStore.focusActiveComposer({ focusMode: "contentFocus" });
+    // this.composerFocusStore.focusActiveComposer({ focusMode: "contentFocus" });
   }
 
   get staticTables(): Table[] {
