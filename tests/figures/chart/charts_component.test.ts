@@ -1057,7 +1057,42 @@ describe("charts", () => {
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
     await simulateClick(remove);
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      { dataRange: "B1:B4", yAxisId: "y" },
+      { dataRange: "B1:B4", yAxisId: "y", backgroundColor: "#4EA7F2" }, // The color is added to keep colors consistent
+    ]);
+  });
+
+  test("Custom design is kept when removing a data series", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      dataSets: [
+        { dataRange: "B1:B4", backgroundColor: "#FF0000", label: "serie_01" },
+        { dataRange: "C1:C4", backgroundColor: "#00FF00", label: "serie_02" },
+      ],
+    });
+
+    await mountChartSidePanel();
+    const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[0];
+    await simulateClick(remove);
+    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
+      { dataRange: "C1:C4", backgroundColor: "#00FF00", label: "serie_02" },
+    ]);
+  });
+
+  test("Defaults colors are correctly kept when removing data series", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
+    });
+    let definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    const colorsGenerator = getChartColorsGenerator(definition, 2);
+    colorsGenerator.next(); // Skip the first color as it should be removed
+    const secondColor = colorsGenerator.next();
+
+    await mountChartSidePanel();
+    const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[0];
+    await simulateClick(remove);
+    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
+      { dataRange: "C1:C4", backgroundColor: secondColor },
     ]);
   });
 

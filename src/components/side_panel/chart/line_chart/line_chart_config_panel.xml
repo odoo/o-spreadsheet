@@ -21,6 +21,7 @@
         onSelectionChanged.bind="onDataSeriesRangesChanged"
         onSelectionConfirmed.bind="onDataSeriesConfirmed"
         onSelectionReordered.bind="onDataSeriesReordered"
+        onSelectionRemoved.bind="onDataSeriesRemoved"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
