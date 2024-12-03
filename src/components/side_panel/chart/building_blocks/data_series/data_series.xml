@@ -8,6 +8,7 @@
         onSelectionChanged="props.onSelectionChanged"
         onSelectionConfirmed="props.onSelectionConfirmed"
         onSelectionReordered="props.onSelectionReordered"
+        onSelectionRemoved="props.onSelectionRemoved"
         colors="colors"
       />
     </Section>

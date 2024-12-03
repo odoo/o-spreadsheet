@@ -44,6 +44,7 @@ interface Props {
   class?: string;
   onSelectionChanged?: (ranges: string[]) => void;
   onSelectionReordered?: (indexes: number[]) => void;
+  onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed?: () => void;
   colors?: Color[];
 }
@@ -79,6 +80,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     onSelectionChanged: { type: Function, optional: true },
     onSelectionConfirmed: { type: Function, optional: true },
     onSelectionReordered: { type: Function, optional: true },
+    onSelectionRemoved: { type: Function, optional: true },
     colors: { type: Array, optional: true, default: [] },
   };
   private state: State = useState({
@@ -216,8 +218,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   removeInput(rangeId: number) {
-    this.store.removeRange(rangeId);
-    this.triggerChange();
+    const index = this.store.selectionInputs.findIndex((range) => range.id === rangeId);
+    this.props.onSelectionRemoved?.(index);
     this.props.onSelectionConfirmed?.();
   }
 
