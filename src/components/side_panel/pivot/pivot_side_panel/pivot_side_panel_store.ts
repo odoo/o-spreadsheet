@@ -263,11 +263,14 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     fields: PivotFields,
     definition: PivotCoreDefinition
   ): Record<string, Set<string>> {
-    const { columns, rows } = definition;
-    const dateFields = columns.concat(rows).filter((dimension) => {
-      const fieldType = fields[dimension.fieldName]?.type;
-      return fieldType === "date" || fieldType === "datetime";
-    });
+    const { columns, rows, measures } = definition;
+    const dateFields = columns
+      .concat(rows)
+      .concat(measures)
+      .filter((dimension) => {
+        const fieldType = fields[dimension.fieldName]?.type;
+        return fieldType === "date" || fieldType === "datetime";
+      });
     const granularitiesPerFields = {};
     for (const field of dateFields) {
       granularitiesPerFields[field.fieldName] = new Set(
