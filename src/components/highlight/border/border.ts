@@ -5,6 +5,7 @@ import { css, cssPropertiesToCss } from "../../helpers/css";
 css/* scss */ `
   .o-border {
     position: absolute;
+    border-radius: 2px;
     &:hover {
       cursor: grab;
     }
