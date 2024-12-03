@@ -2,6 +2,7 @@ import {
   buildSheetLink,
   largeMax,
   markdownLink,
+  replaceSpecialSpaces,
   splitReference,
   toCartesian,
   toXC,
@@ -80,9 +81,8 @@ function convertRows(sheet: XLSXWorksheet, numberOfRows: number): Record<number,
   return rows;
 }
 
-/** Remove newlines (\n) in shared strings, We do not support them */
 function convertSharedStrings(xlsxSharedStrings: string[]): string[] {
-  return xlsxSharedStrings.map((str) => str.replace(/\n/g, ""));
+  return xlsxSharedStrings.map(replaceSpecialSpaces);
 }
 
 function convertCells(
