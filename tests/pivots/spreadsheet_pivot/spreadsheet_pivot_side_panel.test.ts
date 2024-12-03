@@ -334,7 +334,7 @@ describe("Spreadsheet pivot side panel", () => {
     const measures = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
       (el) => el.textContent
     );
-    expect(measures).toEqual(["Count", "float", "integer", "text"]);
+    expect(measures).toEqual(["Count", "date", "datetime", "float", "integer", "text"]);
   });
 
   test("defer update option is persistent", async () => {
@@ -372,6 +372,21 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "amount:sum", fieldName: "amount", aggregator: "sum" },
       { id: "person:count", fieldName: "person", aggregator: "count" },
+    ]);
+  });
+
+  test("can add a datetime measure", async () => {
+    setCellContent(model, "A1", "name");
+    setCellContent(model, "A2", "Alice");
+    setCellContent(model, "B1", "birthdate");
+    setCellContent(model, "B2", "1995/12/15");
+    addPivot(model, "A1:B2", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "birthdate:count", fieldName: "birthdate", aggregator: "count" },
     ]);
   });
 
