@@ -138,6 +138,23 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     });
   }
 
+  onDataSeriesRemoved(index: number) {
+    const colorGenerator = getChartColorsGenerator(
+      { dataSets: this.dataSets },
+      this.dataSets.length
+    );
+    const colors = this.dataSets.map((ds) => colorGenerator.next());
+    this.dataSets = this.dataSets
+      .map((ds, i) => ({
+        backgroundColor: colors[i],
+        ...ds,
+      }))
+      .filter((_, i) => i !== index);
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
+      dataSets: this.dataSets,
+    });
+  }
+
   onDataSeriesConfirmed() {
     this.dataSets = spreadRange(this.env.model.getters, this.dataSets);
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
