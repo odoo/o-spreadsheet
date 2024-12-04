@@ -1,5 +1,5 @@
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
-import { MAX_CHAR_LABEL } from "../../../constants";
+import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
@@ -25,9 +25,11 @@ import {
   DataSet,
   DatasetValues,
   ExcelChartDataset,
+  ExcelChartTrendConfiguration,
   GenericDefinition,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
+import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
@@ -37,6 +39,12 @@ import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } fr
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
+export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
+  exponential: "exp",
+  logarithmic: "log",
+  polynomial: "poly",
+  trailingMovingAverage: "movingAvg",
+} as const;
 
 /**
  * This file contains helpers that are common to different charts (mainly
@@ -194,6 +202,7 @@ export function createDataSets(
           backgroundColor: dataSet.backgroundColor,
           rightYAxis: dataSet.yAxisId === "y1",
           customLabel: dataSet.label,
+          trend: dataSet.trend,
         });
       }
     } else {
@@ -215,6 +224,7 @@ export function createDataSets(
         backgroundColor: dataSet.backgroundColor,
         rightYAxis: dataSet.yAxisId === "y1",
         customLabel: dataSet.label,
+        trend: dataSet.trend,
       });
     }
   }
@@ -274,11 +284,24 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
     };
   }
 
+  let trend: ExcelChartTrendConfiguration | undefined;
+  if (ds.trend?.type) {
+    trend = {
+      type:
+        ds.trend.type === "polynomial" && ds.trend.order === 1
+          ? "linear"
+          : SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING[ds.trend.type],
+      color: ds.trend.color,
+      order: ds.trend.order ? Math.min(ds.trend.order, MAX_XLSX_POLYNOMIAL_DEGREE) : undefined,
+      window: ds.trend.window || DEFAULT_WINDOW_SIZE,
+    };
+  }
   return {
     label,
     range: getters.getRangeString(dataRange, "forceSheetReference", { useBoundedReference: true }),
     backgroundColor: ds.backgroundColor,
     rightYAxis: ds.rightYAxis,
+    trend,
   };
 }
 
