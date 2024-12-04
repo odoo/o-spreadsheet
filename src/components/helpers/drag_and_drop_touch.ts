@@ -19,7 +19,7 @@ export function startDndTouch(
     window.removeEventListener("touchend", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
     window.removeEventListener("touchmove", onMouseMove);
-    window.removeEventListener("wheel", onMouseMove);
+    // window.removeEventListener("wheel", onMouseMove);
   };
   const _onMouseUp = (ev: TouchEvent) => {
     onMouseUp(ev);
@@ -35,7 +35,7 @@ export function startDndTouch(
   // mouse wheel on window is by default a passive event.
   // preventDefault() is not allowed in passive event handler.
   // https://chromestatus.com/feature/6662647093133312
-  window.addEventListener("wheel", onMouseMove, { passive: false });
+  // window.addEventListener("wheel", onMouseMove, { passive: false });
 
   return removeListeners;
 }

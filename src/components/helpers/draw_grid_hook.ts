@@ -23,11 +23,11 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
       thinLineWidth,
     };
     const { width, height } = canvasSize();
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+    canvas.style.width = `${Math.round(width)}px`;
+    canvas.style.height = `${Math.round(height)}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    canvas.setAttribute("style", `width:${Math.round(width)}px;height:${Math.round(height)}px;`);
     // Imagine each pixel as a large square. The whole-number coordinates (0, 1, 2…)
     // are the edges of the squares. If you draw a one-unit-wide line between whole-number
     // coordinates, it will overlap opposite sides of the pixel square, and the resulting

@@ -15,7 +15,7 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import { HEADER_HEIGHT, HEADER_WIDTH, SCROLLBAR_WIDTH } from "../../constants";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
@@ -68,6 +68,7 @@ import { Menu, MenuState } from "../menu/menu";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
+import { ScrollMask } from "../scroll_mask/scroll_mask";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar";
 import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -126,6 +127,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     HorizontalScrollBar,
     TableResizer,
     Selection,
+    ScrollMask,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
@@ -196,8 +198,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return cssPropertiesToCss({
       top: `${HEADER_HEIGHT}px`,
       left: `${HEADER_WIDTH}px`,
-      height: `calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px)`,
-      width: `calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px)`,
+      // height: `calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px)`,
+      height: `calc(100% - ${HEADER_HEIGHT}px)`,
+      // width: `calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px)`,
+      width: `calc(100% - ${HEADER_WIDTH}px)`,
     });
   }
 
@@ -484,6 +488,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     //   }
     // };
     // dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
+  }
+
+  get maskStyle() {
+    const { width, height } = this.env.model.getters.getMainViewportRect();
+    return cssPropertiesToCss({
+      height: `${height}px`,
+      width: `${width}px`,
+    });
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {

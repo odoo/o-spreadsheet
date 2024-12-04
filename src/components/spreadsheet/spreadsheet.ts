@@ -220,6 +220,7 @@ css/* scss */ `
 // GRID STYLE
 // -----------------------------------------------------------------------------
 
+// TODORAR move this style to grid.ts
 css/* scss */ `
   .o-grid {
     position: relative;
@@ -230,7 +231,8 @@ css/* scss */ `
     }
 
     > canvas {
-      border-bottom: 1px solid #e2e3e3;
+      /* border-bottom: 1px solid #e2e3e3; */
+      position: absolute;
     }
     .o-scrollbar {
       &.corner {
@@ -248,6 +250,7 @@ css/* scss */ `
       outline: none;
     }
   }
+  /* all of the above should be in gridts */
 
   .o-button {
     border: 1px solid;
