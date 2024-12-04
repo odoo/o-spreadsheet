@@ -16,6 +16,36 @@
         onSelectionConfirmed.bind="onDataBarRangeChange"
         required="false"
       />
+      <div class="o-section-subtitle">Filling range</div>
+
+      <tr>
+        <td>Min percentage:</td>
+        <td>
+          <input
+            type="number"
+            class="o-input"
+            placeholder="10"
+            t-att-class="{ 'o-invalid': isDataBarFillingPercentageInvalid('min') }"
+            t-att-value="rule.minimum_filling"
+            t-on-change="(ev) => this.onDataBarFillingPercentageChange('min', ev.target.valueAsNumber)"
+            required="false"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td>Max percentage:</td>
+        <td>
+          <input
+            type="number"
+            class="o-input"
+            placeholder="90"
+            t-att-class="{ 'o-invalid': isDataBarFillingPercentageInvalid('max') }"
+            t-att-value="rule.maximum_filling"
+            t-on-change="(ev) => this.onDataBarFillingPercentageChange('max', ev.target.valueAsNumber)"
+            required="false"
+          />
+        </td>
+      </tr>
     </div>
   </t>
 </templates>

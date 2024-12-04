@@ -14,6 +14,7 @@ import {
   ConditionalFormatInternal,
   ConditionalFormattingOperatorValues,
   CoreCommand,
+  DataBarRule,
   ExcelWorkbookData,
   IconSetRule,
   IconThreshold,
@@ -436,6 +437,16 @@ export class ConditionalFormatPlugin
           this.chainValidations(this.checkInflectionPoints(this.checkFormulaCompilation))
         );
       }
+      case "DataBarRule": {
+        return this.checkValidations(
+          rule,
+          this.chainValidations(
+            this.checkBarMinMax,
+            this.checkBarMinPercent,
+            this.checkBarMaxPercent
+          )
+        );
+      }
     }
     return CommandResult.Success;
   }
@@ -591,6 +602,31 @@ export class ConditionalFormatPlugin
       stringToNumber(minValue) >= stringToNumber(midValue)
     ) {
       return CommandResult.MinBiggerThanMid;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkBarMinPercent(rule: DataBarRule): CommandResult {
+    const min = rule?.minimum_filling === 0 ? 0 : rule?.minimum_filling || 10;
+    if (min < 0) {
+      return CommandResult.MinNotPercent;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkBarMaxPercent(rule: DataBarRule): CommandResult {
+    const max = rule.maximum_filling || 90;
+    if (max > 100) {
+      return CommandResult.MaxNotPercent;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkBarMinMax(rule: DataBarRule): CommandResult {
+    const min = rule?.minimum_filling === 0 ? 0 : rule?.minimum_filling || 10;
+    const max = rule.maximum_filling || 90;
+    if (min > max) {
+      return CommandResult.MinBiggerThanMax;
     }
     return CommandResult.Success;
   }

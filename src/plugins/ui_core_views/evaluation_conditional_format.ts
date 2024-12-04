@@ -286,32 +286,29 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       .getEvaluatedCellsInZone(sheetId, rangeValues.zone)
       .filter((cell): cell is NumberCell => cell.type === CellValueType.number)
       .map((cell) => cell.value);
-    const max = largeMax(allValues);
-    if (max <= 0) {
-      // no need to apply the data bar if all values are negative or 0
-      return;
-    }
+    const min = largeMin(allValues);
+    const delta = largeMax(allValues) - min;
     const color = rule.color;
     const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, range).zone;
     const zoneOfValues: Zone = rangeValues.zone;
+    const min_filling = rule?.minimum_filling === 0 ? 0 : rule?.minimum_filling || 10;
+    const max_filling = rule?.maximum_filling || 90;
+    const delta_filling = max_filling - min_filling;
 
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
         const targetCol = col - zone.left + zoneOfValues.left;
         const targetRow = row - zone.top + zoneOfValues.top;
         const cell = this.getters.getEvaluatedCell({ sheetId, col: targetCol, row: targetRow });
-        if (
-          !isInside(targetCol, targetRow, zoneOfValues) ||
-          cell.type !== CellValueType.number ||
-          cell.value <= 0
-        ) {
-          // values negatives or 0 are ignored
+        if (!isInside(targetCol, targetRow, zoneOfValues) || cell.type !== CellValueType.number) {
           continue;
         }
         if (!computedDataBars[col]) computedDataBars[col] = [];
         computedDataBars[col][row] = {
           color: colorNumberString(color),
-          percentage: (cell.value * 100) / max,
+          percentage: delta
+            ? min_filling + (delta_filling * (cell.value - min)) / delta
+            : (min_filling + max_filling) / 2,
         };
       }
     }

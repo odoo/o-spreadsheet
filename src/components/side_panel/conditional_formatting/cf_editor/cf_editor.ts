@@ -635,4 +635,27 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   onDataBarRangeChange() {
     this.updateConditionalFormat({ rule: this.state.rules.dataBar });
   }
+
+  onDataBarFillingPercentageChange(target: "min" | "max", percentage: number) {
+    if (target == "min") {
+      this.state.rules.dataBar.minimum_filling = percentage;
+    } else {
+      this.state.rules.dataBar.maximum_filling = percentage;
+    }
+    this.updateConditionalFormat({ rule: this.state.rules.dataBar });
+  }
+
+  isDataBarFillingPercentageInvalid(target: "min" | "max") {
+    if (target == "min") {
+      return (
+        this.state.errors.includes(CommandResult.MinNotPercent) ||
+        this.state.errors.includes(CommandResult.MinBiggerThanMax)
+      );
+    } else {
+      return (
+        this.state.errors.includes(CommandResult.MaxNotPercent) ||
+        this.state.errors.includes(CommandResult.MinBiggerThanMax)
+      );
+    }
+  }
 }
