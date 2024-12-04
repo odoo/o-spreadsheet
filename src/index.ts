@@ -37,6 +37,7 @@ import { arg, functionRegistry } from "./functions/index";
 import {
   ChartColors,
   chartFontColor,
+  getChartDatasetFormat,
   getDefaultChartJsRuntime,
   getFillingMode,
 } from "./helpers/figures/charts";
@@ -214,6 +215,7 @@ export const helpers = {
   EvaluationError,
   CellErrorLevel,
   getFillingMode,
+  getChartDatasetFormat,
   rgbaToHex,
   colorToRGBA,
   positionToZone,
