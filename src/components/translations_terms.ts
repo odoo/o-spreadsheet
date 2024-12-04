@@ -27,6 +27,8 @@ export const CfTerms = {
     [CommandResult.ValueCellIsInvalidFormula]: _t(
       "At least one of the provided values is an invalid formula"
     ),
+    [CommandResult.MinNotPercent]: _t("The minimum value must be between 0 and 100"),
+    [CommandResult.MaxNotPercent]: _t("The maximum value must be between 0 and 100"),
     Unexpected: _t("The rule is invalid for an unknown reason"),
   },
   ColorScale: _t("Color scale"),

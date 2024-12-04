@@ -1255,6 +1255,8 @@ export const enum CommandResult {
   MaxInvalidFormula = "MaxInvalidFormula",
   ValueUpperInvalidFormula = "ValueUpperInvalidFormula",
   ValueLowerInvalidFormula = "ValueLowerInvalidFormula",
+  MinNotPercent = "MinNotPercent",
+  MaxNotPercent = "MaxNotPercent",
   InvalidSortAnchor = "InvalidSortAnchor",
   InvalidSortZone = "InvalidSortZone",
   SortZoneWithArrayFormulas = "SortZoneWithArrayFormulas",
