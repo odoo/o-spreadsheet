@@ -25,9 +25,11 @@ import {
   DataSet,
   DatasetValues,
   ExcelChartDataset,
+  ExcelChartTrendConfiguration,
   GenericDefinition,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
+import { CHART_TRENDLINE_TYPE_CONVERSION_MAP_REVERSE } from "../../../xlsx/conversion";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
@@ -36,6 +38,9 @@ import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
+// The maximum degree of the polynomial trendline that can be displayed in an Excel chart is 6
+// https://www.officetooltips.com/excel_365/tips/polynomial_trend_equation_and_forecast#:~:text=The%20maximum%20degree%20of%20the%20polynomial%20trendline%20that%20can%20be%20displayed%20in%20an%20Excel%20chart%20is%206%3A
+export const MAX_EXCEL_POLYNOMIAL_DEGREE = 6;
 
 /**
  * This file contains helpers that are common to different charts (mainly
@@ -193,6 +198,7 @@ export function createDataSets(
           backgroundColor: dataSet.backgroundColor,
           rightYAxis: dataSet.yAxisId === "y1",
           customLabel: dataSet.label,
+          trend: dataSet.trend,
         });
       }
     } else {
@@ -214,6 +220,7 @@ export function createDataSets(
         backgroundColor: dataSet.backgroundColor,
         rightYAxis: dataSet.yAxisId === "y1",
         customLabel: dataSet.label,
+        trend: dataSet.trend,
       });
     }
   }
@@ -273,6 +280,49 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
     };
   }
 
+  let trend: ExcelChartTrendConfiguration | undefined = undefined;
+  if (ds?.trend?.type) {
+    trend = {
+      type: CHART_TRENDLINE_TYPE_CONVERSION_MAP_REVERSE[ds.trend.type],
+    };
+    if (ds.trend.color) {
+      trend = {
+        ...trend,
+        color: ds.trend.color,
+      };
+    }
+    if (ds.trend.type === "polynomial" && ds.trend.order) {
+      if (ds.trend.order === 1) {
+        trend = {
+          ...trend,
+          type: "linear",
+        };
+      } else {
+        trend = {
+          ...trend,
+          order:
+            ds.trend.order > MAX_EXCEL_POLYNOMIAL_DEGREE
+              ? MAX_EXCEL_POLYNOMIAL_DEGREE
+              : ds.trend.order,
+        };
+      }
+    }
+    if (ds.trend.type === "trailingMovingAverage" && ds.trend.window) {
+      trend = {
+        ...trend,
+        window: ds.trend.window,
+      };
+    }
+  }
+  if (trend) {
+    return {
+      label,
+      range: getters.getRangeString(dataRange, "forceSheetReference", { useFixedReference: true }),
+      backgroundColor: ds.backgroundColor,
+      rightYAxis: ds.rightYAxis,
+      trend,
+    };
+  }
   return {
     label,
     range: getters.getRangeString(dataRange, "forceSheetReference", { useBoundedReference: true }),
