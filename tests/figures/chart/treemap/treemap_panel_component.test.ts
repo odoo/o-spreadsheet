@@ -1,5 +1,6 @@
 import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
 import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
+import { ColorGenerator } from "../../../../src/helpers";
 import { TreeMapChartDefinition } from "../../../../src/types/chart/tree_map_chart";
 import {
   changeColorPickerWidgetColor,
@@ -18,7 +19,7 @@ import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
-import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import { mountComponentWithPortalTarget, setGrid } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -72,13 +73,28 @@ describe("TreeMap chart side panel", () => {
 
   describe("Design panel", () => {
     test("TreeMap design panel is correctly initialized", async () => {
+      setGrid(model, {
+        A1: "Category",
+        A2: "Category1",
+        A3: "Category2",
+        B1: "Value",
+        B2: "10",
+        B3: "20",
+      });
       const chartId = createTreeMapChart(model, {
+        dataSets: [{ dataRange: "A1:A3" }],
+        labelRange: "B1:B3",
         title: { text: "My TreeMap chart" },
         background: "#00FF00",
         showHeaders: true,
         headerDesign: { fillColor: "#0000FF", italic: true },
         showLabels: false,
         valuesDesign: { bold: false, color: "#FF0000" },
+        coloringOptions: {
+          type: "categoryColor",
+          colors: [{ group: "Category1", color: "#FFFFFF" }],
+          highlightBigValues: true,
+        },
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
@@ -92,6 +108,11 @@ describe("TreeMap chart side panel", () => {
       expect(getHTMLCheckboxValue('input[name="showLabels"]')).toBe(false);
       expect(getColorPickerWidgetColor(".o-values-style", "Text color")).toEqual("#FF0000");
       expect(".o-values-style [title=Bold]").not.toHaveClass("active");
+
+      const chartColorGenerator = new ColorGenerator(2);
+      expect(getRoundColorPickerColor("[data-id=Category1]")).toEqual("#FFFFFF");
+      chartColorGenerator.next(); // Skip the first color which would have been used for Category1
+      expect(getRoundColorPickerColor("[data-id=Category2]")).toEqual(chartColorGenerator.next());
     });
 
     test("Can change headers style", async () => {
@@ -131,6 +152,55 @@ describe("TreeMap chart side panel", () => {
       expect(getTreeMapChartDefinition(chartId)?.showValues).toBe(false);
       expect(getTreeMapChartDefinition(chartId)?.showLabels).toBe(false);
       expect(".o-values-style").toHaveCount(0);
+    });
+
+    test("Can change categories colors", async () => {
+      setGrid(model, {
+        A1: "Category",
+        A2: "Category1",
+        A3: "Category2",
+        B1: "Value",
+        B2: "10",
+        B3: "20",
+      });
+      const chartId = createTreeMapChart(model, {
+        dataSets: [{ dataRange: "A1:A3" }],
+        labelRange: "B1:B3",
+      });
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      await changeRoundColorPickerColor("[data-id=Category1]", "#000000");
+      expect(getTreeMapChartDefinition(chartId)?.coloringOptions).toMatchObject({
+        colors: [{ group: "Category1", color: "#000000" }],
+      });
+
+      await changeRoundColorPickerColor("[data-id=Category2]", "#FFFFFF");
+      expect(getTreeMapChartDefinition(chartId)?.coloringOptions).toMatchObject({
+        colors: [
+          { group: "Category1", color: "#000000" },
+          { group: "Category2", color: "#FFFFFF" },
+        ],
+      });
+
+      await changeRoundColorPickerColor("[data-id=Category1]", undefined);
+      expect(getTreeMapChartDefinition(chartId)?.coloringOptions?.["colors"]).toEqual([
+        { group: "Category2", color: "#FFFFFF" },
+      ]);
+    });
+
+    test("Can highlight bigger values", async () => {
+      setGrid(model, { A1: "Category", A2: "Category1", B1: "Value", B3: "20" });
+      const chartId = createTreeMapChart(model, {
+        dataSets: [{ dataRange: "A1:A2" }],
+        labelRange: "B1:B2",
+        coloringOptions: { type: "categoryColor", highlightBigValues: false, colors: [] },
+      });
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      await click(fixture, "input[name='highlightBigValues']");
+      expect(getTreeMapChartDefinition(chartId)?.coloringOptions).toMatchObject({
+        highlightBigValues: true,
+      });
     });
 
     test("Can change color scale colors", async () => {

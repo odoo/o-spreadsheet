@@ -19,10 +19,10 @@ export interface TreeMapChartDefinition extends ComboBarChartDefinition {
   readonly valuesDesign?: TitleDesign;
   readonly coloringOptions?: TreeMapColoringOptions;
 }
-export type TreeMapSolidColorOptions = {
-  type: "solidColor";
-  colors: { group: string; color: Color }[];
-  hasGradient: boolean;
+export type TreeMapCategoryColorOptions = {
+  type: "categoryColor";
+  colors: TreeMapGroupColor[];
+  highlightBigValues: boolean;
 };
 
 export type TreeMapColorScaleOptions = {
@@ -32,10 +32,17 @@ export type TreeMapColorScaleOptions = {
   maxColor: Color;
 };
 
-export type TreeMapColoringOptions = TreeMapSolidColorOptions | TreeMapColorScaleOptions;
+export interface TreeMapGroupColor {
+  group: string;
+  color: Color;
+}
+
+export type TreeMapTree = Record<string, string | number>[];
+
+export type TreeMapColoringOptions = TreeMapCategoryColorOptions | TreeMapColorScaleOptions;
 
 export type TreeMapChartRuntime = {
-  chartJsConfig: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"treemap">;
   background: Color;
 };
 
@@ -53,8 +60,8 @@ export const TreeMapChartDefaults = {
     verticalAlign: "bottom",
   } as TitleDesign,
   coloringOptions: {
-    type: "solidColor",
+    type: "categoryColor",
     colors: [],
-    hasGradient: true,
-  } as TreeMapSolidColorOptions,
+    highlightBigValues: true,
+  } as TreeMapCategoryColorOptions,
 };

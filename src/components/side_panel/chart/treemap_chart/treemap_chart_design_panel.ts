@@ -1,9 +1,13 @@
 import { Component } from "@odoo/owl";
+import { deepCopy, removeIndexesFromArray } from "../../../../helpers";
+import { getTreeMapGroupColors } from "../../../../helpers/figures/charts/runtime";
 import {
+  TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
   TreeMapChartDefinition,
+  TreeMapChartRuntime,
   TreeMapColorScaleOptions,
-  TreeMapSolidColorOptions,
+  TreeMapTree,
 } from "../../../../types/chart/tree_map_chart";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
@@ -28,10 +32,10 @@ const DEFAULT_COLOR_SCALE: TreeMapColorScaleOptions = {
   maxColor: "#7F2704",
 };
 
-const DEFAULT_SOLID_COLOR: TreeMapSolidColorOptions = {
-  type: "solidColor",
+const DEFAULT_SOLID_COLOR: TreeMapCategoryColorOptions = {
+  type: "categoryColor",
   colors: [],
-  hasGradient: true,
+  highlightBigValues: true,
 };
 
 export class TreeMapChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -70,8 +74,8 @@ export class TreeMapChartDesignPanel extends Component<Props, SpreadsheetChildEn
     return this.props.definition.coloringOptions ?? TreeMapChartDefaults.coloringOptions;
   }
 
-  changeColoringOption(option: "solidColor" | "colorScale") {
-    if (option === "solidColor") {
+  changeColoringOption(option: "categoryColor" | "colorScale") {
+    if (option === "categoryColor") {
       this.props.updateChart(this.props.figureId, { coloringOptions: DEFAULT_SOLID_COLOR });
     } else {
       this.props.updateChart(this.props.figureId, { coloringOptions: DEFAULT_COLOR_SCALE });
@@ -94,13 +98,48 @@ export class TreeMapChartDesignPanel extends Component<Props, SpreadsheetChildEn
     });
   }
 
-  get currentColorOption() {
-    return this.coloringOptions.type;
+  getTreeGroupAndColors() {
+    if (this.coloringOptions.type !== "categoryColor") {
+      throw new Error("Coloring options is not solid color");
+    }
+    const runtime = this.env.model.getters.getChartRuntime(
+      this.props.figureId
+    ) as TreeMapChartRuntime;
+    const tree = runtime.chartJsConfig.data.datasets[0]?.tree as TreeMapTree;
+    const groupsAndColors = getTreeMapGroupColors(this.props.definition, tree);
+    return groupsAndColors;
+  }
+
+  setGroupColor(group: string, color: string) {
+    if (this.coloringOptions.type !== "categoryColor") {
+      throw new Error("Coloring options is not solid color");
+    }
+    const coloringOptions = deepCopy(this.coloringOptions);
+    const index = coloringOptions.colors.findIndex((c) => c.group === group);
+    if (color === "") {
+      coloringOptions.colors = removeIndexesFromArray(coloringOptions.colors, [index]);
+    } else if (index === -1) {
+      coloringOptions.colors.push({ group, color });
+    } else {
+      coloringOptions.colors[index].color = color;
+    }
+    this.props.updateChart(this.props.figureId, {
+      coloringOptions,
+    });
+  }
+
+  setHighlightBigValues(highlightBigValues: boolean) {
+    if (this.coloringOptions.type !== "categoryColor") {
+      throw new Error("Coloring options is not solid color");
+    }
+    this.props.updateChart(this.props.figureId, {
+      coloringOptions: { ...this.coloringOptions, highlightBigValues },
+    });
   }
 
   get coloringOptionChoices() {
     return [
-      { label: "Solid color", value: "solidColor" },
+      { label: "Category color", value: "categoryColor" },
       { label: "Color scale", value: "colorScale" },
     ];
   }

@@ -12,10 +12,13 @@
           <BadgeSelection
             choices="coloringOptionChoices"
             onChange.bind="changeColoringOption"
-            selectedValue="currentColorOption"
+            selectedValue="coloringOptions.type"
           />
 
-          <t t-if="currentColorOption === 'solidColor'">"coucou"</t>
+          <t
+            t-if="coloringOptions.type === 'categoryColor'"
+            t-call="o-spreadsheet-CategoryColorList"
+          />
           <t t-else="" t-call="o-spreadsheet-SimpleColorScale"/>
         </Section>
       </t>
@@ -43,7 +46,7 @@
         </t>
 
         <Section title.translate="Labels" class="'pt-0 pb-0'">
-          <div class="d-flex flex-column gap-1">
+          <div class="d-flex flex-row gap-4">
             <Checkbox
               name="'showLabels'"
               label.translate="Show labels"
@@ -70,6 +73,30 @@
         </t>
       </t>
     </SidePanelCollapsible>
+  </t>
+
+  <t t-name="o-spreadsheet-CategoryColorList">
+    <div class="mt-3">
+      <div class="o-fw-bold mb-2">Category</div>
+      <t t-foreach="getTreeGroupAndColors()" t-as="group" t-key="group.group">
+        <div class="d-flex align-items-center mb-2" t-att-data-id="group.group">
+          <RoundColorPicker
+            currentColor="group.color"
+            onColorPicked="(color) => this.setGroupColor(group.group, color)"
+          />
+          <span class="ps-2">
+            <span class="" t-esc="group.group"/>
+          </span>
+        </div>
+      </t>
+      <Checkbox
+        name="'highlightBigValues'"
+        label.translate="Highlight bigger values"
+        value="coloringOptions.highlightBigValues"
+        onChange.bind="setHighlightBigValues"
+        className="'mt-4'"
+      />
+    </div>
   </t>
 
   <t t-name="o-spreadsheet-SimpleColorScale">

@@ -23,6 +23,8 @@ import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import {
   TreeMapChartDefaults,
   TreeMapChartDefinition,
+  TreeMapGroupColor,
+  TreeMapTree,
 } from "../../../../types/chart/tree_map_chart";
 import {
   ColorGenerator,
@@ -295,7 +297,7 @@ export function getTreeMapChartDatasets(
   }
 
   const rootCategories = new Set<string>();
-  const tree: Record<string, string | number>[] = [];
+  const tree: TreeMapTree = [];
   const maxDatasetLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
   for (let i = 0; i < maxDatasetLength; i++) {
     tree[i] = {};
@@ -313,7 +315,6 @@ export function getTreeMapChartDatasets(
   for (const category of rootCategories) {
     rootCategoriesColors[category] = colorGenerator.next();
   }
-  console.log(tree, definition);
 
   const maxDepth = dataSetsValues.length - 1;
 
@@ -336,6 +337,8 @@ export function getTreeMapChartDatasets(
       colorScale = getColorScale(colorThresholds);
     }
   }
+  const categoryColors =
+    coloringOption.type === "categoryColor" ? getTreeMapGroupColors(definition, tree) : [];
 
   const dataSets: ChartDataset<"treemap">[] = [
     {
@@ -364,7 +367,15 @@ export function getTreeMapChartDatasets(
       borderWidth: 2,
       spacing: 0,
       backgroundColor: (ctx: any) =>
-        treeMapBackgroundColor(ctx, tree, maxDepth, rootCategoriesColors, definition, colorScale),
+        treeMapBackgroundColor(
+          ctx,
+          tree,
+          maxDepth,
+          rootCategoriesColors,
+          definition,
+          colorScale,
+          categoryColors
+        ),
     },
   ];
 
@@ -377,7 +388,8 @@ function treeMapBackgroundColor(
   maxDepth: number,
   rootCategoriesColors: Record<string, Color>,
   definition: TreeMapChartDefinition,
-  colorScale: ((value: number) => Color) | undefined
+  colorScale: ((value: number) => Color) | undefined,
+  colors: TreeMapGroupColor[]
 ) {
   if (ctx.type !== "data") {
     return "transparent";
@@ -386,11 +398,12 @@ function treeMapBackgroundColor(
     return definition.headerDesign?.fillColor || TreeMapChartDefaults.headerDesign?.fillColor;
   }
   const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
-  if (coloringOption.type === "solidColor") {
+  if (coloringOption.type === "categoryColor") {
     const rootCategory = ctx.raw._data.children[0][0];
-    const baseColor = rootCategoriesColors[rootCategory];
-    if (!baseColor) {
-      return "#FF0000";
+    const baseColor = colors.find((color) => color.group === rootCategory)?.color;
+    if (!baseColor || !coloringOption.highlightBigValues) {
+      console.log("baseColor", baseColor);
+      return baseColor || "#FF0000";
     }
 
     const value = ctx.raw.v;
@@ -479,4 +492,31 @@ function getChartColorsGenerator(
     dataSetsSize,
     definition.dataSets?.map((ds) => ds.backgroundColor) || []
   );
+}
+
+export function getTreeMapGroupColors(
+  definition: TreeMapChartDefinition,
+  tree: TreeMapTree
+): TreeMapGroupColor[] {
+  const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
+  if (coloringOption?.type !== "categoryColor") {
+    throw new Error("Coloring options is not solid color");
+  }
+  const groups = new Set(tree.map((node) => String(node[0])));
+  const colorOptions = coloringOption.colors;
+
+  const colorGenerator = getChartColorsGenerator(definition, groups.size);
+
+  const colors: TreeMapGroupColor[] = [];
+  for (const groupName of groups) {
+    const nextColor = colorGenerator.next();
+    const option = colorOptions.find((color) => color.group === groupName);
+    if (option) {
+      colors.push(option);
+    } else {
+      colors.push({ group: groupName, color: nextColor });
+    }
+  }
+
+  return colors;
 }

@@ -221,6 +221,7 @@ export function createTreeMapChartRuntime(
 
   console.log("chartData", chartData);
   const config: any = {
+    // ADRM TODO: Fix this type
     type: "treemap",
     data: {
       labels: chartData.labels.map(truncateLabel),

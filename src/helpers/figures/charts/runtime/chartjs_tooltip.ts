@@ -190,7 +190,13 @@ export function getTreeMapChartTooltip(
       return depth === dataSetsValues.length - 1;
     },
     callbacks: {
-      title: () => "",
+      title: (tooltipItems: any[]) => {
+        if (!tooltipItems.length) {
+          return "";
+        }
+        const path = tooltipItems[0].raw._data.path.split(".");
+        return path.slice(0, path.length - 1).join(" > ");
+      },
       label: (tooltipItem: any) => {
         const xLabel = tooltipItem.raw.g;
         const yLabel = tooltipItem.raw.v;

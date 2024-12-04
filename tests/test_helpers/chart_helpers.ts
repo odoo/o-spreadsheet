@@ -59,5 +59,5 @@ export const TEST_CREATION_CONTEXT: Required<ChartCreationContext> = {
   showHeaders: true,
   showLabels: false,
   valuesDesign: { italic: true },
-  coloringOptions: { type: "solidColor", colors: [], hasGradient: true },
+  coloringOptions: { type: "categoryColor", colors: [], highlightBigValues: true },
 };

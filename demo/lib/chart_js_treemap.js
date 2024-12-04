@@ -334,13 +334,11 @@
     if (!options || options.display === false) {
       return false;
     }
-    // PATCH: Always display captions (the category header)
-    return true;
-    // const { w, h } = rect;
-    // const font = helpers.toFont(options.font);
-    // const min = font.lineHeight;
-    // const padding = limit(helpers.valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
-    // return w - padding > min && h - padding > min;
+    const { w, h } = rect;
+    const font = helpers.toFont(options.font);
+    const min = font.lineHeight;
+    const padding = limit(helpers.valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
+    return w - padding > min && h - padding > min;
   }
 
   function drawText(ctx, rect, options, item, levels) {
@@ -352,7 +350,8 @@
     const isLeaf = item && (!helpers.defined(item.l) || item.l === levels);
     if (isLeaf && labels.display) {
       drawLabel(ctx, rect, options);
-    } else if (!isLeaf && shouldDrawCaption(rect, captions)) {
+      // PATCH: always draw caption label in header
+    } else if (!isLeaf /* && shouldDrawCaption(rect, captions)*/) {
       drawCaption(ctx, rect, options, item);
     }
     ctx.restore();

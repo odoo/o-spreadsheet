@@ -430,12 +430,16 @@ export function getRoundColorPickerColor(selector: string) {
   return toHex(color ?? "");
 }
 
-export async function changeRoundColorPickerColor(selector: string, color: string) {
+export async function changeRoundColorPickerColor(selector: string, color: string | undefined) {
   const button = document
     .querySelector<HTMLElement>(selector)!
     .querySelector(".o-round-color-picker-button")!;
   await click(button);
-  await click(document.body, `.o-color-picker-line-item[data-color='${color}'`);
+  if (!color) {
+    await click(document.body, ".o-color-picker .o-cancel");
+  } else {
+    await click(document.body, `.o-color-picker-line-item[data-color='${color}'`);
+  }
 }
 
 export function getColorPickerWidgetColor(selector: string, widgetTitle: string) {
