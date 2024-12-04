@@ -1,3 +1,4 @@
+import { CoreCommand, CorePlugin } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import {
   numberToLetters,
@@ -8,6 +9,7 @@ import {
   zoneToXc,
 } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { corePluginRegistry } from "../../src/plugins";
 import { CommandResult, Direction } from "../../src/types";
 import {
   activateSheet,
@@ -42,6 +44,7 @@ import {
   getCellContent,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
+import { addTestPlugin } from "../test_helpers/helpers";
 
 let model: Model;
 const hiddenContent = "hidden content to be skipped";
@@ -925,6 +928,39 @@ describe("move elements(s)", () => {
     expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
   });
 
+  test("Move resized columns preserves their sizes", () => {
+    let cmds: CoreCommand[] = [];
+    class CommandSpy extends CorePlugin {
+      static getters = [];
+      handle(command: CoreCommand) {
+        if (command.type === "RESIZE_COLUMNS_ROWS") {
+          cmds.push(command);
+        }
+      }
+    }
+    addTestPlugin(corePluginRegistry, CommandSpy);
+
+    const model = new Model();
+    resizeColumns(model, ["A", "B"], 10);
+    resizeColumns(model, ["C", "D"], 20);
+
+    moveColumns(model, "A", ["C", "D"]);
+
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getColSize(sheetId, 0)).toEqual(20);
+    expect(model.getters.getColSize(sheetId, 1)).toEqual(20);
+    expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
+    expect(model.getters.getColSize(sheetId, 3)).toEqual(10);
+
+    expect(cmds[2]).toStrictEqual({
+      type: "RESIZE_COLUMNS_ROWS",
+      dimension: "COL",
+      sheetId,
+      elements: [0, 1],
+      size: 20,
+    });
+  });
+
   test("Move a resized row preserves its size", () => {
     const model = new Model();
     resizeRows(model, [0], 10);
@@ -934,6 +970,40 @@ describe("move elements(s)", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(10);
+  });
+
+  test("Move resized rows preserves their sizes", () => {
+    let cmds: CoreCommand[] = [];
+    class CommandSpy extends CorePlugin {
+      static getters = [];
+      handle(command: CoreCommand) {
+        if (command.type === "RESIZE_COLUMNS_ROWS") {
+          cmds.push(command);
+        }
+      }
+    }
+    addTestPlugin(corePluginRegistry, CommandSpy);
+
+    const model = new Model();
+
+    resizeRows(model, [1, 2], 10);
+    resizeRows(model, [3, 4], 20);
+
+    moveRows(model, 1, [3, 4]);
+
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(20);
+    expect(model.getters.getRowSize(sheetId, 3)).toEqual(10);
+    expect(model.getters.getRowSize(sheetId, 4)).toEqual(10);
+
+    expect(cmds[2]).toStrictEqual({
+      type: "RESIZE_COLUMNS_ROWS",
+      dimension: "ROW",
+      sheetId,
+      elements: [1, 2],
+      size: 20,
+    });
   });
 
   test("Can move a column to the end of the sheet", () => {
