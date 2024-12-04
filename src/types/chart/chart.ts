@@ -118,7 +118,17 @@ export interface ExcelChartDataset {
   readonly range: string;
   readonly backgroundColor?: Color;
   readonly rightYAxis?: boolean;
+  readonly trend?: ExcelChartTrendConfiguration;
 }
+
+export interface ExcelChartTrendConfiguration {
+  readonly type?: ExcelTrendlineType;
+  readonly order?: number;
+  readonly color?: Color;
+  readonly window?: number;
+}
+
+export type ExcelTrendlineType = "poly" | "exp" | "log" | "movingAvg" | "linear";
 
 export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar";
 
