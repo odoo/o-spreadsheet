@@ -25,9 +25,12 @@ import {
   DataSet,
   DatasetValues,
   ExcelChartDataset,
+  ExcelChartTrendConfiguration,
   GenericDefinition,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
+import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
+import { SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING } from "../../../xlsx/conversion";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
@@ -194,6 +197,7 @@ export function createDataSets(
           backgroundColor: dataSet.backgroundColor,
           rightYAxis: dataSet.yAxisId === "y1",
           customLabel: dataSet.label,
+          trend: dataSet.trend,
         });
       }
     } else {
@@ -215,6 +219,7 @@ export function createDataSets(
         backgroundColor: dataSet.backgroundColor,
         rightYAxis: dataSet.yAxisId === "y1",
         customLabel: dataSet.label,
+        trend: dataSet.trend,
       });
     }
   }
@@ -274,11 +279,24 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
     };
   }
 
+  let trend: ExcelChartTrendConfiguration | undefined;
+  if (ds.trend?.type) {
+    trend = {
+      type:
+        ds.trend.type === "polynomial" && ds.trend.order === 1
+          ? "linear"
+          : SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING[ds.trend.type],
+      color: ds.trend.color,
+      order: ds.trend.order ? Math.min(ds.trend.order, MAX_XLSX_POLYNOMIAL_DEGREE) : undefined,
+      window: ds.trend.window,
+    };
+  }
   return {
     label,
     range: getters.getRangeString(dataRange, "forceSheetReference", { useBoundedReference: true }),
     backgroundColor: ds.backgroundColor,
     rightYAxis: ds.rightYAxis,
+    trend,
   };
 }
 
