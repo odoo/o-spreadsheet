@@ -1,5 +1,10 @@
 import { toHex } from "../../helpers";
-import { ExcelChartDataset, ExcelChartDefinition } from "../../types";
+import {
+  ExcelChartDataset,
+  ExcelChartDefinition,
+  ExcelChartTrendConfiguration,
+  ExcelTrendlineType,
+} from "../../types";
 import { XLSXChartType, XLSX_CHART_TYPES } from "../../types/xlsx";
 import { CHART_TYPE_CONVERSION_MAP, DRAWING_LEGEND_POSITION_CONVERSION_MAP } from "../conversion";
 import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
@@ -119,6 +124,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
   ): ExcelChartDataset[] {
     return Array.from(chartElements)
       .map((element) => {
+        let colorElements: NodeListOf<Element>;
         if (chartType === "scatterChart") {
           return this.extractScatterChartDatasets(element);
         }
@@ -135,17 +141,18 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
                 label = { text };
               }
             }
-            const color = this.extractChildAttr(
-              chartDataElement,
-              "c:spPr a:solidFill a:srgbClr",
-              "val"
-            );
+            colorElements = this.querySelectorAll(chartDataElement, "c:spPr a:solidFill");
+            const datasetColorElement = colorElements.length
+              ? this.querySelector(colorElements[0], "a:srgbClr")
+              : undefined;
+            const color = datasetColorElement ? datasetColorElement.getAttribute("val") : undefined;
             return {
               label,
               range: this.extractChildTextContent(chartDataElement, "c:val c:f", {
                 required: true,
               })!,
-              backgroundColor: color ? `${toHex(color.asString())}` : undefined,
+              backgroundColor: color ? `${toHex(color.toString())}` : undefined,
+              trend: this.extractChartTrendline(chartDataElement),
             };
           }
         );
@@ -153,11 +160,50 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       .flat();
   }
 
+  private extractChartTrendline(
+    chartDataElement: Element
+  ): ExcelChartTrendConfiguration | undefined {
+    const trendlineElement = this.querySelector(chartDataElement, "c:trendline");
+    if (!trendlineElement) {
+      return undefined;
+    }
+    const trendlineType = this.extractChildAttr(trendlineElement, "c:trendlineType", "val");
+    const trendlineColor = this.extractChildAttr(trendlineElement, "a:solidFill a:srgbClr", "val");
+    let trendlineConfig: ExcelChartTrendConfiguration = {
+      type: trendlineType ? (trendlineType.asString() as ExcelTrendlineType) : undefined,
+      color: trendlineColor ? `${toHex(trendlineColor.asString())}` : undefined,
+    };
+    if (trendlineConfig.type === "poly") {
+      const trendlineOrder = this.extractChildAttr(trendlineElement, "c:order", "val");
+      if (trendlineOrder) {
+        trendlineConfig = {
+          ...trendlineConfig,
+          order: trendlineOrder.asNum(),
+        };
+      }
+    }
+    if (trendlineConfig.type === "movingAvg") {
+      const trendlineWindow = this.extractChildAttr(trendlineElement, "c:period", "val");
+      if (trendlineWindow) {
+        trendlineConfig = {
+          ...trendlineConfig,
+          window: trendlineWindow.asNum(),
+        };
+      }
+    }
+    return trendlineConfig;
+  }
+
   private extractScatterChartDatasets(chartElement: Element): ExcelChartDataset[] {
     return this.mapOnElements(
       { parent: chartElement, query: "c:ser" },
       (chartDataElement): ExcelChartDataset => {
         let label = {};
+        const colorElements = this.querySelectorAll(
+          chartDataElement,
+          "c:spPr a:solidFill a:srgbClr"
+        );
+        const color = colorElements.length ? colorElements[0].getAttribute("val") : undefined;
         const reference = this.extractChildTextContent(chartDataElement, "c:tx c:f");
         if (reference) {
           label = { reference };
@@ -170,6 +216,8 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         return {
           label,
           range: this.extractChildTextContent(chartDataElement, "c:yVal c:f", { required: true })!,
+          trend: this.extractChartTrendline(chartDataElement),
+          backgroundColor: color ? `${toHex(color.toString())}` : undefined,
         };
       }
     );

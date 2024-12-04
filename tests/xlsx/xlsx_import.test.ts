@@ -739,18 +739,75 @@ describe("Import xlsx data", () => {
     [
       "line",
       [
-        { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
+        {
+          dataRange: "Sheet1!B26:B35",
+          backgroundColor: "#7030A0",
+        },
         { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
       ],
     ],
     [
       "bar",
       [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#7030A0" },
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#7030A0",
+        },
         { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
       ],
     ],
   ])("Can import charts %s with dataset colors", (chartType, chartDatasets) => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.data.type === chartType);
+    const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
+    expect(chartData.dataSets).toMatchObject(chartDatasets);
+  });
+
+  test.each([
+    [
+      "line",
+      [
+        {
+          dataRange: "Sheet1!B26:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "polynomial", order: 2, display: true, color: "#ED7D31" },
+        },
+        { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
+      ],
+    ],
+    [
+      "bar",
+      [
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "exponential", display: true, color: "#FFC000" },
+        },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
+      ],
+    ],
+    [
+      "scatter",
+      [
+        {
+          dataRange: "Sheet1!C27:C35",
+          backgroundColor: "#A9D08E",
+          trend: { type: "logarithmic", display: true, color: "#C65911" },
+        },
+      ],
+    ],
+    [
+      "combo",
+      [
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#1F77B4",
+          trend: { type: "trailingMovingAverage", window: 3, display: true, color: "#C65911" },
+        },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E" },
+      ],
+    ],
+  ])("Can import %s charts with dataset trendlines", (chartType, chartDatasets) => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     const figure = testSheet.figures.find((figure) => figure.data.type === chartType);
     const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
@@ -763,7 +820,10 @@ describe("Import xlsx data", () => {
       "bar",
       "#fff",
       [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#7030A0" },
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#7030A0",
+        },
         { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
       ],
     ],
@@ -772,7 +832,10 @@ describe("Import xlsx data", () => {
       "combo",
       "#fff",
       [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#1F77B4" },
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#1F77B4",
+        },
         { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E" },
       ],
     ],
@@ -796,7 +859,7 @@ describe("Import xlsx data", () => {
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
       expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
-      expect(chartData.dataSets).toEqual(chartDatasets);
+      expect(chartData.dataSets).toMatchObject(chartDatasets);
       expect(chartData.dataSetsHaveTitle).toBeFalsy();
     }
   );
@@ -807,7 +870,10 @@ describe("Import xlsx data", () => {
       "line",
       "#CECECE",
       [
-        { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
+        {
+          dataRange: "Sheet1!B26:B35",
+          backgroundColor: "#7030A0",
+        },
         { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
       ],
     ],
@@ -832,7 +898,7 @@ describe("Import xlsx data", () => {
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
       expect(chartData.labelRange).toEqual("Sheet1!A26:A35");
-      expect(chartData.dataSets).toEqual(chartDatasets);
+      expect(chartData.dataSets).toMatchObject(chartDatasets);
       expect(chartData.dataSetsHaveTitle).toBeTruthy();
     }
   );
@@ -844,7 +910,7 @@ describe("Import xlsx data", () => {
     expect(chartData.title.text).toEqual("scatter chart");
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
-    expect(chartData.dataSets).toEqual([{ dataRange: "Sheet1!C27:C35" }]);
+    expect(chartData.dataSets).toMatchObject([{ dataRange: "Sheet1!C27:C35" }]);
     expect(chartData.labelRange).toEqual("Sheet1!B27:B35");
     expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
