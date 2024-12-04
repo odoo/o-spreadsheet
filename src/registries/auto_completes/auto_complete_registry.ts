@@ -17,6 +17,7 @@ export interface AutoCompleteProposal {
    * Key to use for fuzzy search.
    */
   fuzzySearchKey?: string;
+  alwaysExpanded?: boolean;
 }
 
 export interface AutoCompleteProvider {

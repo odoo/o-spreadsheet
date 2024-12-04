@@ -24,7 +24,7 @@
           <div
             class="o-autocomplete-description text-truncate"
             t-esc="proposal.description"
-            t-if="props.selectedIndex === proposal_index"
+            t-if="props.selectedIndex === proposal_index || proposal.alwaysExpanded"
           />
         </div>
       </t>

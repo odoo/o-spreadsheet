@@ -41,6 +41,7 @@ autoCompleteProviders.add("pivot_ids", {
           description: definition.name,
           htmlContent: [{ value: str, color: tokenColors.NUMBER }],
           fuzzySearchKey: str + definition.name,
+          alwaysExpanded: true,
         };
       })
       .filter(isDefined);

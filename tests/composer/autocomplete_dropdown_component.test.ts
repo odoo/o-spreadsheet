@@ -354,6 +354,25 @@ describe("Functions autocomplete", () => {
       await keyDown({ key: "Enter" });
       expect(composerStore.currentContent).toBe("=SUM(");
     });
+
+    test("autocomplete proposal can be automatically expanded", async () => {
+      registries.autoCompleteProviders.add("test", {
+        getProposals() {
+          return [
+            { text: "option 1", description: " descr1", alwaysExpanded: true },
+            { text: "option 2", description: " descr1", alwaysExpanded: true },
+            { text: "option 3", description: " descr1", alwaysExpanded: false },
+          ];
+        },
+        selectProposal() {},
+      });
+      registerCleanup(() => registries.autoCompleteProviders.remove("test"));
+      await typeInComposer("=SUM(");
+      const proposals = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
+        (el) => el.parentElement?.textContent
+      );
+      expect(proposals).toEqual(["option 1 descr1", "option 2 descr1", "option 3"]);
+    });
   });
 
   describe("autocomplete functions SUM IF", () => {

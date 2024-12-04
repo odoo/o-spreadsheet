@@ -34,12 +34,14 @@ describe("spreadsheet pivot auto complete", () => {
           fuzzySearchKey: "1My pivot",
           htmlContent: [{ color: "#02c39a", value: "1" }],
           text: "1",
+          alwaysExpanded: true,
         },
         {
           description: "My pivot 2",
           fuzzySearchKey: "2My pivot 2",
           htmlContent: [{ color: "#02c39a", value: "2" }],
           text: "2",
+          alwaysExpanded: true,
         },
       ]);
       autoComplete?.selectProposal(autoComplete?.proposals[0].text);
