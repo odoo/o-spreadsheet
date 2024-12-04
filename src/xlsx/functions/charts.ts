@@ -211,6 +211,63 @@ function insertTextProperties(
   `;
 }
 
+function extractTrendline(trend: ExcelChartDataset["trend"]) {
+  if (!trend) {
+    return "";
+  }
+  if (trend.type === "poly" && trend.order) {
+    if (trend.order > 1) {
+      return escapeXml/*xml*/ `
+        <c:trendline>
+            ${extractTrendlineCommonAttributes(trend)}
+            <c:trendlineType val="poly" />
+            <c:order val="${trend.order}" />
+        </c:trendline>
+      `;
+    }
+    return escapeXml/*xml*/ `
+    <c:trendline>
+        ${extractTrendlineCommonAttributes(trend)}
+        <c:trendlineType val="linear" />
+    </c:trendline>
+  `;
+  }
+  if (trend.type === "movingAvg") {
+    return escapeXml/*xml*/ `
+      <c:trendline>
+          ${extractTrendlineCommonAttributes(trend)}
+          <c:trendlineType val="movingAvg" />
+          <c:period val="${trend.window}" />
+      </c:trendline>
+    `;
+  }
+  return escapeXml/*xml*/ `
+    <c:trendline>
+        ${extractTrendlineCommonAttributes(trend)}
+        <c:trendlineType val="${trend.type}" />
+    </c:trendline>
+  `;
+}
+
+function extractTrendlineCommonAttributes(trend: ExcelChartDataset["trend"]) {
+  if (!trend) {
+    return "";
+  }
+  return escapeXml/*xml*/ `
+    <c:spPr>
+      <a:ln w="19050" cap="rnd">
+          <a:solidFill>
+              <a:srgbClr val="${trend.color ? toXlsxHexColor(trend.color) : "000000"}" />
+          </a:solidFill>
+          <a:prstDash val="sysDot" />
+      </a:ln>
+      <a:effectLst />
+    </c:spPr>
+    <c:dispRSqr val="0" />
+    <c:dispEq val="0" />
+  `;
+}
+
 function extractDataSetLabel(label: ExcelChartDataset["label"]): XMLString {
   if (!label) {
     return escapeXml/*xml*/ ``;
@@ -252,6 +309,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
+        ${extractTrendline(dataset.trend)}
         ${extractDataSetLabel(dataset.label)}
         ${dataShapeProperty}
         ${
@@ -344,6 +402,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
     <c:ser>
       <c:idx val="0"/>
       <c:order val="0"/>
+      ${extractTrendline(dataSet.trend)}
       ${extractDataSetLabel(dataSet.label)}
       ${shapeProperty({
         backgroundColor: firstColor,
@@ -500,6 +559,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
           <c:size val="5"/>
           ${shapeProperty({ backgroundColor: color, line: { color } })}
         </c:marker>
+        ${extractTrendline(dataset.trend)}
         ${extractDataSetLabel(dataset.label)}
         ${dataShapeProperty}
         ${
@@ -594,6 +654,7 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
           <c:size val="5"/>
           ${shapeProperty({ backgroundColor: color, line: { color } })}
         </c:marker>
+        ${extractTrendline(dataset.trend)}
         ${extractDataSetLabel(dataset.label)}
         ${
           chart.labelRange
