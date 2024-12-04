@@ -82,6 +82,9 @@ export const EXCEL_DEFAULT_ROW_HEIGHT = 12.75;
 export const EXCEL_IMPORT_DEFAULT_NUMBER_OF_COLS = 30;
 export const EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS = 100;
 
+/** The possible values for the XLSX polynomial trendline order are defined by the ST_Order simple type (§21.2.3.29) */
+export const MAX_XLSX_POLYNOMIAL_DEGREE = 6;
+
 export const FIRST_NUMFMT_ID = 164;
 
 interface functionDefaultArg {

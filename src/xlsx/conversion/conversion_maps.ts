@@ -210,6 +210,13 @@ export const CHART_TYPE_CONVERSION_MAP: Record<XLSXChartType, ExcelChartType | u
   comboChart: "combo",
 };
 
+export const EXCEL_TO_SPREADSHEET_TRENDLINE_TYPE_MAPPING = {
+  exp: "exponential",
+  log: "logarithmic",
+  poly: "polynomial",
+  movingAvg: "trailingMovingAverage",
+} as const;
+
 /** Conversion map for the SUBTOTAL(index, formula) function in xlsx, index <=> actual function*/
 export const SUBTOTAL_FUNCTION_CONVERSION_MAP: Record<number, string> = {
   "1": "AVERAGE",

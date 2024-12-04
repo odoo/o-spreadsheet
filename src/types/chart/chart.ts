@@ -144,13 +144,24 @@ export interface DataSet {
   readonly rightYAxis?: boolean; // if the dataset should be on the right Y axis
   readonly backgroundColor?: Color;
   readonly customLabel?: string;
+  readonly trend?: TrendConfiguration;
 }
 export interface ExcelChartDataset {
   readonly label?: { text?: string } | { reference?: string };
   readonly range: string;
   readonly backgroundColor?: Color;
   readonly rightYAxis?: boolean;
+  readonly trend?: ExcelChartTrendConfiguration;
 }
+
+export interface ExcelChartTrendConfiguration {
+  readonly type?: ExcelTrendlineType;
+  readonly order?: number;
+  readonly color?: Color;
+  readonly window?: number;
+}
+
+export type ExcelTrendlineType = "poly" | "exp" | "log" | "movingAvg" | "linear";
 
 export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar";
 

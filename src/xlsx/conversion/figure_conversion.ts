@@ -1,3 +1,4 @@
+import { DEFAULT_WINDOW_SIZE } from "../../constants";
 import {
   getFullReference,
   isDefined,
@@ -10,9 +11,11 @@ import {
   ChartCreationContext,
   ChartDefinition,
   ExcelChartDefinition,
+  ExcelChartTrendConfiguration,
   FigureData,
   HeaderIndex,
   PixelPosition,
+  TrendConfiguration,
 } from "../../types";
 import { AnchorOffset } from "../../types/figure";
 import { ExcelImage } from "../../types/image";
@@ -20,6 +23,7 @@ import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
 import { XLSXFigureAnchor } from "./../../types/xlsx";
 import { convertColor } from "./color_conversion";
+import { EXCEL_TO_SPREADSHEET_TRENDLINE_TYPE_MAPPING } from "./conversion_maps";
 
 export function convertFigures(sheetData: XLSXWorksheet): FigureData<any>[] {
   let id = 1;
@@ -96,6 +100,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
       dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
       label,
       backgroundColor: data.backgroundColor,
+      trend: convertExcelTrendline(data.trend),
     };
   });
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
@@ -136,6 +141,24 @@ function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): 
   }
   const dataXC = zoneToXc(zone);
   return getFullReference(sheetName, dataXC);
+}
+
+function convertExcelTrendline(
+  trend: ExcelChartTrendConfiguration | undefined
+): TrendConfiguration | undefined {
+  if (!trend || !trend.type) {
+    return undefined;
+  }
+  return {
+    type:
+      trend.type === "linear"
+        ? "polynomial"
+        : EXCEL_TO_SPREADSHEET_TRENDLINE_TYPE_MAPPING[trend.type],
+    order: trend.type === "linear" ? 1 : trend.order,
+    color: trend.color,
+    window: trend.window || DEFAULT_WINDOW_SIZE,
+    display: true,
+  };
 }
 
 function convertAnchor(XLSXanchor: XLSXFigureAnchor): AnchorOffset {

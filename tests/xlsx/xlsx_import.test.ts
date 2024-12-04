@@ -750,7 +750,32 @@ describe("Import xlsx data", () => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     const figure = testSheet.figures.find((figure) => figure.data.type === chartType);
     const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
-    expect(chartData.dataSets).toEqual(chartDatasets);
+    expect(chartData.dataSets).toMatchObject(chartDatasets);
+  });
+
+  test.each([
+    [
+      "line chart",
+      [{ trend: { type: "polynomial", order: 2, display: true, color: "#4472C4" } }, {}],
+    ],
+    ["bar chart", [{ trend: { type: "exponential", display: true, color: "#ED7D31" } }, {}]],
+    ["scatter chart", [{ trend: { type: "logarithmic", display: true, color: "#A5A5A5" } }]],
+    [
+      "scatter chart with textual labels",
+      [{ trend: { type: "polynomial", order: 1, display: true, color: "#FFC000" } }],
+    ],
+    [
+      "combo chart",
+      [
+        { trend: { type: "trailingMovingAverage", window: 3, display: true, color: "#70AD47" } },
+        {},
+      ],
+    ],
+  ])("Can import %s charts with dataset trendlines", (chartTitle, chartDatasets) => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.data.title.text === chartTitle);
+    const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
+    expect(chartData.dataSets).toMatchObject(chartDatasets);
   });
 
   test.each([
@@ -842,7 +867,7 @@ describe("Import xlsx data", () => {
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
       expect(chartData.labelRange).toEqual("Sheet1!A26:A35");
-      expect(chartData.dataSets).toEqual(chartDatasets);
+      expect(chartData.dataSets).toMatchObject(chartDatasets);
       expect(chartData.dataSetsHaveTitle).toBeTruthy();
     }
   );
@@ -854,7 +879,7 @@ describe("Import xlsx data", () => {
     expect(chartData.title.text).toEqual("scatter chart");
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
-    expect(chartData.dataSets).toEqual([{ dataRange: "Sheet1!C27:C35" }]);
+    expect(chartData.dataSets).toMatchObject([{ dataRange: "Sheet1!C27:C35" }]);
     expect(chartData.labelRange).toEqual("Sheet1!B27:B35");
     expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
@@ -868,7 +893,7 @@ describe("Import xlsx data", () => {
     expect(chartData.title.text).toEqual("scatter chart with textual labels");
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
-    expect(chartData.dataSets).toEqual([{ dataRange: "Sheet1!C27:C35" }]);
+    expect(chartData.dataSets).toMatchObject([{ dataRange: "Sheet1!C27:C35" }]);
     expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
     expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
