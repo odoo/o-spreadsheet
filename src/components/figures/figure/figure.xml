@@ -1,9 +1,10 @@
 <templates>
-  <t t-name="o-spreadsheet-FigureComponent">
+  <t t-name="o-spreadsheet-mobile-FigureComponent">
     <div class="o-figure-wrapper pe-auto" t-att-style="wrapperStyle">
       <div
         class="o-figure w-100 h-100"
         t-on-pointerdown.stop="(ev) => this.onMouseDown(ev)"
+        t-on-click.stop=""
         t-on-contextmenu.prevent.stop="(ev) => !env.model.getters.isReadonly() and this.onContextMenu(ev)"
         t-ref="figure"
         t-att-style="props.style"

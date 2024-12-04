@@ -23,11 +23,11 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
       thinLineWidth,
     };
     const { width, height } = canvasSize();
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+    canvas.style.width = `${Math.round(width)}px`;
+    canvas.style.height = `${Math.round(height)}px`;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
-    canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    canvas.setAttribute("style", `width:${Math.round(width)}px;height:${Math.round(height)}px;`);
     if (width === 0 || height === 0) {
       return;
     }

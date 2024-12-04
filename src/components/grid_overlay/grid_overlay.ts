@@ -121,7 +121,7 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-function useTouchMove(
+export function useTouchMove(
   gridRef: Ref<HTMLElement>,
   handler: (deltaX: Pixel, deltaY: Pixel) => void,
   canMoveUp: () => boolean
@@ -213,8 +213,8 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
       this.props.onGridResized({
         x: boundingRect.left,
         y: boundingRect.top,
-        height: this.gridOverlayEl.clientHeight,
-        width: this.gridOverlayEl.clientWidth,
+        height: Math.floor(boundingRect.height),
+        width: Math.floor(boundingRect.width),
       });
     });
     onMounted(() => {
@@ -223,10 +223,10 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       resizeObserver.disconnect();
     });
-    useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
-    });
+    // useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
+    //   const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+    //   return scrollY > 0;
+    // });
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
   }
