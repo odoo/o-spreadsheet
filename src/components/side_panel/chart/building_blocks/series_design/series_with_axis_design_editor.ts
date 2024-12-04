@@ -112,8 +112,13 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
         break;
       case "exponential":
       case "logarithmic":
-      case "trailingMovingAverage":
         config = { type };
+        break;
+      case "trailingMovingAverage":
+        config = {
+          type,
+          window: this.defaultWindowSize,
+        };
         break;
       default:
         return;
