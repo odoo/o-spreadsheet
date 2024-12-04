@@ -5,12 +5,20 @@ import {
   toUnboundedZone,
   zoneToXc,
 } from "../../helpers";
-import { ChartDefinition, ExcelChartDefinition, FigureData } from "../../types";
+import {
+  ChartDefinition,
+  ExcelChartDefinition,
+  ExcelChartTrendConfiguration,
+  ExcelTrendlineType,
+  FigureData,
+  TrendConfiguration,
+} from "../../types";
 import { ExcelImage } from "../../types/image";
 import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
 import { XLSXFigureAnchor } from "./../../types/xlsx";
 import { convertColor } from "./color_conversion";
+import { CHART_TRENDLINE_TYPE_CONVERSION_MAP } from "./conversion_maps";
 
 export function convertFigures(sheetData: XLSXWorksheet): FigureData<any>[] {
   let id = 1;
@@ -84,6 +92,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
       dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
       label,
       backgroundColor: data.backgroundColor,
+      trend: convertExcelTrendline(data.trend),
     };
   });
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
@@ -119,6 +128,30 @@ function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): 
   }
   const dataXC = zoneToXc(zone);
   return getFullReference(sheetName, dataXC);
+}
+
+function convertExcelTrendline(
+  trend: ExcelChartTrendConfiguration | undefined
+): TrendConfiguration | undefined {
+  if (!trend) {
+    return undefined;
+  }
+  if (trend.type === "linear") {
+    return {
+      type: "polynomial",
+      order: 1,
+      color: trend.color,
+      window: trend.window,
+      display: true,
+    };
+  }
+  return {
+    type: CHART_TRENDLINE_TYPE_CONVERSION_MAP[trend.type as ExcelTrendlineType],
+    order: trend.order,
+    color: trend.color,
+    window: trend.window,
+    display: true,
+  };
 }
 
 function getPositionFromAnchor(
