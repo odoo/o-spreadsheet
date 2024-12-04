@@ -274,6 +274,24 @@ describe("Export data to xlsx then import it", () => {
       },
       "1"
     );
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C4:4" }],
+        labelRange: "Sheet1!B2:B4",
+        type: "bar",
+      },
+      "2"
+    );
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!C2:C4" }],
+        labelRange: "Sheet1!C2:C4",
+        type: "scatter",
+      },
+      "4"
+    );
     const figure = model.getters.getFigures(sheetId)[0];
     const importedModel = exportToXlsxThenImport(model);
     const importedFigure = importedModel.getters.getFigures(sheetId)[0];
@@ -287,7 +305,10 @@ describe("Export data to xlsx then import it", () => {
   test.each([
     {
       title: { text: "demo chart" },
-      dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+      dataSets: [
+        { dataRange: "Sheet1!B26:B35", trend: { type: "polynomial", order: 2, display: true } },
+        { dataRange: "Sheet1!C26:C35", trend: { type: "polynomial", order: 1, display: true } },
+      ],
       labelRange: "Sheet1!A27:A35",
       type: "line" as const,
       dataSetsHaveTitle: false,
@@ -298,7 +319,10 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "demo chart 2" },
-      dataSets: [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
+      dataSets: [
+        { dataRange: "Sheet1!B27:B35", trend: { type: "exponential", display: true } },
+        { dataRange: "Sheet1!C27:C35", trend: { type: "logarithmic", display: true } },
+      ],
       labelRange: "Sheet1!A27:A35",
       type: "bar" as const,
       dataSetsHaveTitle: false,
@@ -329,7 +353,13 @@ describe("Export data to xlsx then import it", () => {
     },
     {
       title: { text: "demo chart 5" },
-      dataSets: [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
+      dataSets: [
+        {
+          dataRange: "Sheet1!B27:B35",
+          trend: { type: "trailingMovingAverage", window: 3, display: true },
+        },
+        { dataRange: "Sheet1!C27:C35" },
+      ],
       labelRange: "Sheet1!A27:A35",
       type: "combo" as const,
       dataSetsHaveTitle: false,
