@@ -28,7 +28,7 @@ puisqu'on a des nouveaux, je met le "wall-of-fame according to VSC":
 - Mehdi (MERA) and Florian (FLDA) join us
 - Alexis (LAA): vectorization of formulas, THE recompute zones
 - Lucas (LUL): rainbow errors detection, so many performance improvements, the calculated measures in pivot <3
-- Alexis (LAA), Antony (ANHE), Mehdi (MERA): POC about AI: use it to create pivots automatically based on the models/fields of Odoo --> AI is not ready for us
+- Alexis (LAA), Anthony (ANHE), Mehdi (MERA): POC about AI: use it to create pivots automatically based on the models/fields of Odoo --> AI is not ready for us
 - Pierre (PRO): spreadsheet native pivots
 - Adrien (ADRM): rework side-panel styles, chart selection menu (the classiest menu in spreadsheet), data-tables, the show as values in pivot <3
 - Remy (RAR): comments (discuss integration), so many bugfixes, POC of migrations --> migrations is not ready for us
