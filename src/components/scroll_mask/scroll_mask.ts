@@ -72,9 +72,11 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
 
   get maskStyle() {
     const { width, height } = this.env.model.getters.getMainViewportRect();
+    // const sheetId = this.env.model.getters.getActiveSheetId();
+    // const { x, y } = this.env.model.getters.getMainViewportCoordinates();
     return cssPropertiesToCss({
-      height: `${height}px`,
       width: `${width}px`,
+      height: `${height}px`,
       position: "absolute",
       "z-index": "-4",
     });
