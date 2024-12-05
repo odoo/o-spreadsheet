@@ -1615,6 +1615,29 @@ describe("Spreadsheet Pivot", () => {
     );
   });
 
+  test("Pivot with date and datetime measures", () => {
+    const model = createModelFromGrid({
+      A1: "Date",
+      B1: "Datetime",
+      A2: "2024/02/03",
+      B2: "2024/02/03 12:34:56",
+      A3: "2022/04/14",
+      B3: "2022/04/14 01:02:03",
+    });
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [],
+      measures: [
+        { id: "Date:max", fieldName: "Date", aggregator: "max" },
+        { id: "Datetime:max", fieldName: "Datetime", aggregator: "max" },
+      ],
+    });
+    setCellContent(model, "A26", '=PIVOT.VALUE(1,"Date:max")');
+    setCellContent(model, "B26", '=PIVOT.VALUE(1,"Datetime:max")');
+    expect(getEvaluatedCell(model, "A26").formattedValue).toBe("2024/02/03");
+    expect(getEvaluatedCell(model, "B26").formattedValue).toBe("2024/02/03 12:34:56");
+  });
+
   test("Pivot with measure AVG on text values does not crash", () => {
     const model = createModelFromGrid({ A1: "Customer", A2: "Jean", A3: "Marc" });
     addPivot(model, "A1:A3", {
