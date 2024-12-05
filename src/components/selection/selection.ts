@@ -32,6 +32,10 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
     shiftingMode: "none",
   });
 
+  get directions() {
+    return ["nw", "se"];
+  }
+
   onResizeHighlight(isLeft: boolean, isTop: boolean) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     this.selectionState.shiftingMode = "isResizing";
