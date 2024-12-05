@@ -11,6 +11,7 @@ import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { setStyle } from "../../actions/menu_items_actions";
 import {
+  ALERT_INFO_BORDER,
   BACKGROUND_HEADER_COLOR,
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
@@ -75,7 +76,12 @@ css/* scss */ `
         }
       }
     }
-
+    .irregularity-map {
+      border-right: 1px solid ${ALERT_INFO_BORDER};
+      &:hover {
+        background-color: ${BUTTON_HOVER_BG};
+      }
+    }
     .my-banner {
       border-top: 1px solid ${SEPARATOR_COLOR};
       height: ${TOPBAR_TOOLBAR_HEIGHT}px;
@@ -93,13 +99,6 @@ css/* scss */ `
         background-color: ${BACKGROUND_HEADER_COLOR};
         padding-left: 18px;
         padding-right: 18px;
-      }
-
-      .irregularity-map {
-        border-right: 1px solid ${SEPARATOR_COLOR};
-        &:hover {
-          background-color: ${BUTTON_HOVER_BG};
-        }
       }
 
       /* Toolbar */
