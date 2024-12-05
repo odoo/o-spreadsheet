@@ -76,6 +76,11 @@ css/* scss */ `
       }
     }
 
+    .my-banner {
+      border-top: 1px solid ${SEPARATOR_COLOR};
+      height: ${TOPBAR_TOOLBAR_HEIGHT}px;
+    }
+
     .o-topbar-composer {
       flex-grow: 1;
     }
