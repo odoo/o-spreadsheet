@@ -60,7 +60,6 @@ import {
   MIN_ROW_HEIGHT,
   PIVOT_TABLE_CONFIG,
   SCROLLBAR_WIDTH,
-  TOPBAR_HEIGHT,
 } from "./constants";
 import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
@@ -238,7 +237,6 @@ export const SPREADSHEET_DIMENSIONS = {
   MIN_COL_WIDTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  TOPBAR_HEIGHT,
   BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_CELL_HEIGHT,
