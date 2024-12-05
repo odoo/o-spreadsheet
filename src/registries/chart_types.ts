@@ -398,5 +398,5 @@ chartSubtypeRegistry
     chartType: "treemap",
     chartSubtype: "treemap",
     category: "misc",
-    preview: "o-spreadsheet-ChartPreview.FILLED_RADAR_CHART",
+    preview: "o-spreadsheet-ChartPreview.TREE_MAP_CHART",
   });
