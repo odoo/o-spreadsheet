@@ -12,6 +12,7 @@ import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
+import { serveFile } from "../../src/components/helpers/dom_helpers";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import {
   activateSheet,
@@ -47,6 +48,13 @@ import {
   nextTick,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+
+jest.mock("../../src/components/helpers/dom_helpers", () => {
+  return {
+    ...jest.requireActual("../../src/components/helpers/dom_helpers"),
+    serveFile: jest.fn(),
+  };
+});
 
 const cellHeight = DEFAULT_CELL_HEIGHT;
 const cellWidth = DEFAULT_CELL_WIDTH;
@@ -526,9 +534,8 @@ describe("figures", () => {
         const envClipBoardContent = await env.clipboard.read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          expect(envClipboardTextContent).toEqual(
-            model.getters.getClipboardContent()["text/plain"]
-          );
+          const osClipboardContent = await model.getters.getOsClipboardContentAsync();
+          expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
         }
         paste(model, "A4");
         expect(getFigureIds(model, sheetId)).toHaveLength(2);
@@ -545,9 +552,8 @@ describe("figures", () => {
         const envClipBoardContent = await env.clipboard.read();
         if (envClipBoardContent.status === "ok") {
           const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
-          expect(envClipboardTextContent).toEqual(
-            model.getters.getClipboardContent()["text/plain"]
-          );
+          const osClipboardContent = await model.getters.getOsClipboardContentAsync();
+          expect(envClipboardTextContent).toEqual(osClipboardContent[ClipboardMIMEType.PlainText]);
         }
         paste(model, "A1");
         expect(getFigureIds(model, sheetId)).toHaveLength(1);
@@ -651,6 +657,13 @@ describe("figures", () => {
         expect(model.getters.getSelectedFigureId()).toBe(figureId);
         keyUp({ key: "Control" });
         expect(model.getters.getSelectedFigureId()).toBe(figureId);
+      });
+
+      test("Can download the image", async () => {
+        await simulateClick(".o-figure");
+        await simulateClick(".o-figure-menu-item");
+        await simulateClick(".o-menu div[data-name='download']");
+        expect(serveFile).toHaveBeenCalled();
       });
     }
   );
