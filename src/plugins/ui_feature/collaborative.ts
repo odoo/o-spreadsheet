@@ -1,26 +1,8 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
+import { AlternatingColorGenerator } from "../../helpers";
 import { Client, ClientPosition, Color, GridRenderingContext, UID } from "../../types";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
-
-function randomChoice(arr: string[]): string {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-const colors = [
-  "#ff851b",
-  "#0074d9",
-  "#7fdbff",
-  "#b10dc9",
-  "#39cccc",
-  "#f012be",
-  "#3d9970",
-  "#111111",
-  "#ff4136",
-  "#aaaaaa",
-  "#85144b",
-  "#001f3f",
-];
 
 interface ClientToDisplay extends Required<Client> {
   color: Color;
@@ -34,7 +16,7 @@ export class CollaborativePlugin extends UIPlugin {
     "isFullySynchronized",
   ] as const;
   static layers = ["Selection"] as const;
-  private availableColors = new Set(colors);
+  private availableColors = new AlternatingColorGenerator(12);
   private colors: Record<UID, Color> = {};
   private session: UIPluginConfig["session"];
 
@@ -48,15 +30,6 @@ export class CollaborativePlugin extends UIPlugin {
       position.row < this.getters.getNumberRows(position.sheetId) &&
       position.col < this.getters.getNumberCols(position.sheetId)
     );
-  }
-
-  private chooseNewColor(): Color {
-    if (this.availableColors.size === 0) {
-      this.availableColors = new Set(colors);
-    }
-    const color = randomChoice([...this.availableColors.values()]);
-    this.availableColors.delete(color);
-    return color;
   }
 
   getClient() {
@@ -96,7 +69,7 @@ export class CollaborativePlugin extends UIPlugin {
       ) {
         const position = client.position;
         if (!this.colors[client.id]) {
-          this.colors[client.id] = this.chooseNewColor();
+          this.colors[client.id] = this.availableColors.next();
         }
         const color = this.colors[client.id];
         clients.push({ ...client, position, color });
