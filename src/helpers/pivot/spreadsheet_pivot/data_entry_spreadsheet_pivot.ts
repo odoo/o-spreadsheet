@@ -52,7 +52,7 @@ export function dataEntriesToSpreadsheetPivotTable(
  * Create the rows from the data entries. This function is called recursively
  * for each level of rows dimensions.
  */
-function dataEntriesToRows(
+export function dataEntriesToRows(
   dataEntries: DataEntries,
   index: number,
   rows: PivotDimension[],

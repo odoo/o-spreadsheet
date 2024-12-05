@@ -35,6 +35,7 @@ import {
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
+import { formatValue } from "../../../format/format";
 import { isDefined, range } from "../../../misc";
 import { TREND_LINE_XAXIS_ID, getPieColors } from "../chart_common";
 import { truncateLabel } from "../chart_ui_common";
@@ -290,7 +291,8 @@ export function getTreeMapChartDatasets(
   definition: TreeMapChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartDataset<"treemap">[] {
-  const { dataSetsValues, labels } = args;
+  const { dataSetsValues, labels, locale, axisFormats } = args;
+  const localeFormat = { locale, format: axisFormats?.["y"] };
 
   if (dataSetsValues.length === 0) {
     return [];
@@ -298,17 +300,39 @@ export function getTreeMapChartDatasets(
 
   const rootCategories = new Set<string>();
   const tree: TreeMapTree = [];
+  // const dataEntries: DataEntries = [];
   const maxDatasetLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
+  const groupByValues = new Map<string, number>();
   for (let i = 0; i < maxDatasetLength; i++) {
     tree[i] = {};
+    // let groupBys: string[] = [];
+    // dataEntries[i] = {};
     for (let j = 0; j < dataSetsValues.length; j++) {
-      tree[i][j] = String(dataSetsValues[j].data[i]);
+      const groupBy = String(dataSetsValues[j].data[i]);
+      tree[i][j] = groupBy;
+      // groupByKey += "." + groupBy;
+      // dataEntries[i][j] = { value: dataSetsValues[j].data[i], formattedValue: "", type: "text" };
       if (j === 0) {
         rootCategories.add(String(dataSetsValues[j].data[i]));
       }
     }
-    tree[i].value = Number(labels[i]) || 0;
+    // dataEntries[i].value = {
+    //   value: Number(labels[i]) || 0,
+    //   formattedValue: "",
+    //   type: CellValueType.number,
+    // };
+    const value = Number(labels[i]) || 0;
+    tree[i].value = value;
+    // groupByValues.set(groupByKey, (groupByValues.get(groupByKey) || 0) + value);
   }
+  console.log(groupByValues);
+
+  // const rows: PivotDimension[] = [
+  //   { fieldName: "0", isValid: true, displayName: "0", nameWithGranularity: "0", type: "text" },
+  //   { fieldName: "1", isValid: true, displayName: "1", nameWithGranularity: "1", type: "text" },
+  // ];
+  // const r2 = dataEntriesToRows(dataEntries, 0, rows, [], []);
+  // console.log(r2);
 
   const colorGenerator = getChartColorsGenerator(definition, dataSetsValues.length);
   const rootCategoriesColors: Record<string, Color> = {};
@@ -351,7 +375,7 @@ export function getTreeMapChartDatasets(
         formatter: (ctx) => {
           return [
             showLabels ? ctx.raw.g : undefined,
-            showValues ? String(ctx.raw.v) : undefined,
+            showValues ? formatValue(ctx.raw.v, localeFormat) : undefined,
           ].filter(isDefined);
         },
       },
@@ -366,9 +390,10 @@ export function getTreeMapChartDatasets(
       hoverBorderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderWidth: 2,
       spacing: 0,
-      backgroundColor: (ctx: any) =>
+      backgroundColor: (ctx: any, chart) =>
         treeMapBackgroundColor(
           ctx,
+          chart,
           tree,
           maxDepth,
           rootCategoriesColors,
@@ -378,12 +403,32 @@ export function getTreeMapChartDatasets(
         ),
     },
   ];
+  // const data = window.buildData(tree, dataSets[0], ["value"], { x: 0, y: 0, w: 100, h: 100 });
+  // console.log(data);
 
   return dataSets;
 }
 
+// function groupByTree(tree: TreeMapTree, maxDepth: number) {
+//   const a = Object.groupBy(tree, (node) => node?.[0] as string);
+// }
+
+// function groupBy(g: Partial<Record<string, TreeMapTree>>, maxDepth: number, depth: number) {
+//   if (depth === maxDepth) {
+//     return g;
+//   }
+//   const result: Partial<Record<string, TreeMapTree>> = {};
+//   for (const key in g) {
+//     const group = g[key];
+//     const nextGroup = Object.groupBy(group, (node) => node?.[depth] as string);
+//     result[key] = groupBy(nextGroup, maxDepth, depth + 1);
+//   }
+//   return result;
+// }
+
 function treeMapBackgroundColor(
   ctx: any,
+  chart: any,
   tree: Record<string, string | number>[],
   maxDepth: number,
   rootCategoriesColors: Record<string, Color>,
@@ -407,14 +452,26 @@ function treeMapBackgroundColor(
     }
 
     const value = ctx.raw.v;
-    const nodes = tree.filter((node) => node[0] === rootCategory);
-    const max = nodes.reduce((acc, node) => Math.max(acc, node.value as number), 0);
-    const min = nodes.reduce((acc, node) => Math.min(acc, node.value as number), Infinity);
+    // const nodes = tree.filter((node) => node[0] === rootCategory);
+    // const groupBy = Object.values(Object.groupBy(nodes, (node) => node?.[1]))?.map((group) =>
+    //   group?.reduce((acc, node) => acc + (node.value as number), 0)
+    // );
+
+    // console.log("groupBy", groupBy);
+    const max = 0;
+    const min = 0;
+    // const max = nodes.reduce((acc, node) => Math.max(acc, node.value as number), 0);
+    // const min = nodes.reduce((acc, node) => Math.min(acc, node.value as number), Infinity);
     if (min === max) {
       return baseColor;
     }
 
-    const alpha = ((value - max) / (min - max)) * 0.5;
+    let alpha = ((value - max) / (min - max)) * 0.5;
+    if (alpha < 0) {
+      // debugger;
+      alpha = 0; // ADRM TODO
+      console.log("alpha < 0", alpha);
+    }
     return lightenColor(baseColor, alpha);
   } else {
     return colorScale?.(ctx.raw.v) || "#FF0000";
@@ -484,7 +541,7 @@ function getFillingMode(index: number, stackedChart: boolean): string {
   return index === 0 ? "origin" : "-1";
 }
 
-function getChartColorsGenerator(
+export function getChartColorsGenerator(
   definition: GenericDefinition<ChartWithDataSetDefinition>,
   dataSetsSize: number
 ) {

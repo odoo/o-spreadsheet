@@ -5,6 +5,7 @@ import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
+import { treeMapColorsPlugin } from "./tree_map_colors_plugin";
 
 interface Props {
   figure: Figure;
@@ -12,6 +13,7 @@ interface Props {
 
 window.Chart?.register(waterfallLinesPlugin);
 window.Chart?.register(chartShowValuesPlugin);
+window.Chart?.register(treeMapColorsPlugin);
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";

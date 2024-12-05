@@ -235,6 +235,7 @@ export function createTreeMapChartRuntime(
         legend: { display: false },
         tooltip: getTreeMapChartTooltip(definition, chartData),
         // chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        treeMapColorsPlugin: { definition, chartData },
       },
     },
   };

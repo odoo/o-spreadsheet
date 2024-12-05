@@ -511,6 +511,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         }
       }
     }
+
     return dataEntries;
   }
 }
