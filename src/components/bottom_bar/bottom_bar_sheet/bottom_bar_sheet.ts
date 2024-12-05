@@ -1,4 +1,4 @@
-import { Component, onMounted, onPatched, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import { ACTION_COLOR, BOTTOMBAR_HEIGHT } from "../../../constants";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../../registries";
@@ -97,11 +97,14 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   setup() {
-    onMounted(() => {
-      if (this.isSheetActive) {
-        this.scrollToSheet();
-      }
-    });
+    useEffect(
+      (sheetId) => {
+        if (this.props.sheetId === sheetId) {
+          this.scrollToSheet();
+        }
+      },
+      () => [this.env.model.getters.getActiveSheetId()]
+    );
     onPatched(() => {
       if (this.sheetNameRef.el && this.state.isEditing && this.editionState === "initializing") {
         this.editionState = "editing";
