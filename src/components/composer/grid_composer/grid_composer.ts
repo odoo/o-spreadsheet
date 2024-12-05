@@ -153,7 +153,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const style = this.env.model.getters.getCellComputedStyle(position);
 
     // position style
-    const { x: left, y: top, width, height } = this.rect;
 
     // color style
     const background = (!isFormula && style.fillColor) || "#ffffff";
@@ -172,9 +171,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       textAlign = style.align || cell.defaultAlign;
     }
 
-    const maxHeight = this.props.gridDims.height - this.rect.y;
-    const maxWidth = this.props.gridDims.width - this.rect.x;
-
     /**
      * min-size is on the container, not the composer element, because we want to have the same size as the cell by default,
      * including all the paddings/margins of the composer
@@ -182,14 +178,16 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
      * The +-1 are there to include cell borders in the composer sizing/positioning
      */
     return cssPropertiesToCss({
-      left: `${left - 1}px`,
-      top: `${top}px`,
+      // left: `${left - 1}px`,
+      // top: `${top}px`,
 
-      "min-width": `${width + 1}px`,
-      "min-height": `${height + 1}px`,
-      "max-width": `${maxWidth}px`,
-      "max-height": `${maxHeight}px`,
-
+      // "min-width": `${width + 1}px`,
+      // "min-height": `${height + 1}px`,
+      // "max-width": `${maxWidth}px`,
+      // "max-height": `${maxHeight}px`,
+      "margin-top": `auto`,
+      width: "100%",
+      height: "fit-content",
       background,
       color,
       "font-size": `${fontSizeInPixels(fontSize)}px`,
@@ -197,6 +195,8 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       "font-style": fontStyle,
       "text-decoration": textDecoration,
       "text-align": textAlign,
+      bottom: "0",
+      position: "absolute",
     });
   }
 

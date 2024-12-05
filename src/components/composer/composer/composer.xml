@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-Composer">
+  <t t-name="o-spreadsheet-mobile-Composer">
     <div class="o-composer-container w-100 h-100">
       <t
         t-set="assistantIsAvailable"
@@ -38,7 +38,6 @@
           t-on-compositionend="onCompositionEnd"
           t-on-dblclick="onDblClick"
           t-on-contextmenu="onContextMenu"
-          t-on-blur="onBlur"
         />
       </div>
       <div
