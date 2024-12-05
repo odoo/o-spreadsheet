@@ -558,7 +558,7 @@ export class RowResizer extends AbstractResizer {
   static props = {
     onOpenContextMenu: Function,
   };
-  static template = "o-spreadsheet-RowResizer";
+  static template = "o-spreadsheet-mobile-RowResizer";
 
   setup() {
     super.setup();
@@ -572,6 +572,12 @@ export class RowResizer extends AbstractResizer {
 
   _getEvOffset(ev: MouseEvent): Pixel {
     return ev.offsetY;
+  }
+
+  get style() {
+    return cssPropertiesToCss({
+      height: `calc(100% - ${HEADER_HEIGHT}px)`,
+    });
   }
 
   _getViewportOffset(): Pixel {

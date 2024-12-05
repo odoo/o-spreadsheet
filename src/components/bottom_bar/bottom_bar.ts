@@ -18,6 +18,8 @@ const MENU_MAX_HEIGHT = 250;
 
 css/* scss */ `
   .o-spreadsheet-bottom-bar {
+    // position: sticky;
+    // bottom: 0;
     background-color: ${BACKGROUND_GRAY_COLOR};
     // padding-left: ${HEADER_WIDTH / 2}px;
     font-size: 15px;

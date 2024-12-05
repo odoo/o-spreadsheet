@@ -17,7 +17,7 @@ import {
 import { canUngroupHeaders } from "../../actions/view_actions";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
-import { isInside } from "../../helpers/index";
+import { getZoneArea, isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
@@ -455,7 +455,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
-    if (isInside(col, row, this.env.model.getters.getSelectedZone())) {
+    const selectedZone = this.env.model.getters.getSelectedZone();
+    if (isInside(col, row, selectedZone) && getZoneArea(selectedZone) !== 1) {
       alert("should display a samll copy/paste popover at the click position");
     } else {
       this.env.model.selection.selectCell(col, row);

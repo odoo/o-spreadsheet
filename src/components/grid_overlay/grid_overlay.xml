@@ -8,14 +8,14 @@
       t-on-click.self="onMouseDown"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
-      <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
+      <!-- <FiguresContainer onFigureDeleted="props.onFigureDeleted"/> -->
       <DataValidationOverlay/>
       <FilterIconsOverlay/>
-      <GridAddRowsFooter
+      <!-- <GridAddRowsFooter
         t-if="!env.model.getters.isReadonly()"
         t-key="env.model.getters.getActiveSheetId()"
         focusGrid="props.onFigureDeleted"
-      />
+      /> -->
     </div>
   </t>
 </templates>
