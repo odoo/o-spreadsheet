@@ -48,12 +48,12 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     canUpdateChart: Function,
   };
 
-  private state: ChartPanelState = useState({
+  protected state: ChartPanelState = useState({
     datasetDispatchResult: undefined,
     labelsDispatchResult: undefined,
   });
 
-  private dataSeriesRanges: CustomizedDataSet[] = [];
+  protected dataSeriesRanges: CustomizedDataSet[] = [];
   private labelRange: string | undefined;
 
   protected chartTerms = ChartTerms;

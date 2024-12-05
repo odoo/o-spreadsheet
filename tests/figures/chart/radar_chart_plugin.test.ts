@@ -110,7 +110,7 @@ describe("radar chart", () => {
 
     createRadarChart(model, { fillArea: false, dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
-    const tickCallback = runtime.chartJsConfig.options?.scales?.r?.ticks?.callback as any;
+    const tickCallback = runtime.chartJsConfig.options?.scales?.r?.["ticks"]?.callback as any;
     expect(tickCallback(1)).toBe("1.0 écu d'or");
 
     const tooltipLabel = runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks?.label as any;
