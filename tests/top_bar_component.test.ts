@@ -21,6 +21,7 @@ import {
   click,
   doubleClick,
   getElComputedStyle,
+  setInputValueAndTrigger,
   simulateClick,
   triggerMouseEvent,
 } from "./test_helpers/dom_helper";
@@ -331,13 +332,29 @@ describe("TopBar component", () => {
   });
 
   test("can set font size", async () => {
+    jest.useFakeTimers();
     const { model } = await mountParent();
     const fontSizeText = fixture.querySelector("input.o-font-size")! as HTMLInputElement;
     expect(fontSizeText.value.trim()).toBe(DEFAULT_FONT_SIZE.toString());
     await click(fixture, ".o-font-size-editor");
     await click(fixture, '.o-dropdown-content [data-size="8"]');
+    jest.advanceTimersByTime(100);
+    await nextTick();
     expect(fontSizeText.value.trim()).toBe("8");
     expect(getStyle(model, "A1").fontSize).toBe(8);
+    jest.useRealTimers();
+  });
+
+  test("Font size selection from the dropdown overrides input value while editing", async () => {
+    jest.useFakeTimers();
+    const { model } = await mountParent();
+    await click(fixture, ".o-font-size-editor");
+    setInputValueAndTrigger(".o-font-size-editor input", "80", "onlyInput");
+    await click(fixture, '.o-dropdown-content [data-size="8"]');
+    jest.advanceTimersByTime(100);
+    await nextTick();
+    expect(getStyle(model, "A1").fontSize).toBe(8);
+    jest.useRealTimers();
   });
 
   describe("horizontal align", () => {
