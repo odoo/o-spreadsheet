@@ -1,7 +1,7 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { setStyle } from "../../actions/menu_items_actions";
-import { DEFAULT_FONT_SIZE, FONT_SIZES, SELECTION_BORDER_COLOR } from "../../constants";
-import { clip } from "../../helpers/index";
+import { DEFAULT_FONT_SIZE, FONT_SIZES } from "../../constants";
+import { clip, debounce } from "../../helpers/index";
 import { SpreadsheetChildEnv } from "../../types/index";
 import { css } from "../helpers/css";
 import { isChildEvent } from "../helpers/dom_helpers";
@@ -20,7 +20,7 @@ css/* scss */ `
   .o-font-size-editor {
     height: calc(100% - 4px);
     input.o-font-size {
-      outline-color: ${SELECTION_BORDER_COLOR};
+      outline: none;
       height: 20px;
       width: 23px;
     }
@@ -51,6 +51,11 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
 
   private inputRef = useRef("inputFontSize");
   private rootEditorRef = useRef("FontSizeEditor");
+
+  // Debouncing ensures that when both onChange and onClick (dropdown selection)
+  // events occur close together, such as when a user changes the input and then clicks a menu item,
+  // only the final intended font size is applied.
+  private debouncedSetSize = debounce(this.setSize.bind(this), 100);
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
@@ -87,11 +92,11 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setSizeFromInput(ev: InputEvent) {
-    this.setSize((ev.target as HTMLInputElement).value);
+    this.debouncedSetSize((ev.target as HTMLInputElement).value);
   }
 
   setSizeFromList(fontSizeStr: string) {
-    this.setSize(fontSizeStr);
+    this.debouncedSetSize(fontSizeStr);
   }
 
   onInputFocused(ev: InputEvent) {
