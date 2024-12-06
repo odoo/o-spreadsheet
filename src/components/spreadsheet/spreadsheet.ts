@@ -448,14 +448,14 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       if (figureId) {
         this.env.model.dispatch("SELECT_FIGURE", { id: figureId });
         this.sidePanel.open("ChartPanel");
-        // setTimeout(() => {
-        //   document.querySelector<HTMLElement>(".o-panel-design")?.click();
-        // }, 50);
         setTimeout(() => {
-          document
-            .querySelector<HTMLElement>(".o-type-selector")
-            ?.dispatchEvent(new MouseEvent("pointerdown"));
+          document.querySelector<HTMLElement>(".o-panel-design")?.click();
         }, 50);
+        // setTimeout(() => {
+        //   document
+        //     .querySelector<HTMLElement>(".o-type-selector")
+        //     ?.dispatchEvent(new MouseEvent("pointerdown"));
+        // }, 50);
       }
     });
     onWillUnmount(() => {

@@ -7,7 +7,7 @@
  * This library is slightly patched to allow to render a tree map with parent groups that looks more like a header
  * rather than an enclosing box (see "PATCH" comments).
  *
- * This is a quick & ugly fix, that works very well for our use case, but that make charts ugly if
+ * This is a quick fix, that works very well for our use case, but that make charts ugly if
  * we deviate from it (for example if dataset.spacing is not 0.)
  */
 (function (global, factory) {
@@ -334,11 +334,18 @@
     if (!options || options.display === false) {
       return false;
     }
-    const { w, h } = rect;
-    const font = helpers.toFont(options.font);
-    const min = font.lineHeight;
-    const padding = limit(helpers.valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
-    return w - padding > min && h - padding > min;
+    return true;
+    // PATCH: always draw group header if they are enabled. Whether the text is displayed or not is handled in drawCaption
+    // const { w, h } = rect;
+    // const font = helpers.toFont(options.font);
+    // const min = font.lineHeight;
+    // const padding = limit(helpers.valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
+    // return w - padding > min && h - padding > min;
+  }
+
+  function getCaptionHeight(rect, font, padding) {
+    let captionHeight = font.lineHeight + padding * 2;
+    return rect.h < 2 * captionHeight ? rect.h / 3 : captionHeight;
   }
 
   function drawText(ctx, rect, options, item, levels) {
@@ -350,8 +357,8 @@
     const isLeaf = item && (!helpers.defined(item.l) || item.l === levels);
     if (isLeaf && labels.display) {
       drawLabel(ctx, rect, options);
-      // PATCH: always draw caption label in header
-    } else if (!isLeaf /* && shouldDrawCaption(rect, captions)*/) {
+      // PATCH: always try to draw caption label in header. We'll try to fit it in the available space in the draw function
+    } else if (!isLeaf /* && shouldDrawCaption(rect, captions) */) {
       drawCaption(ctx, rect, options, item);
     }
     ctx.restore();
@@ -359,18 +366,56 @@
 
   function drawCaption(ctx, rect, options, item) {
     const { captions, spacing, rtl } = options;
-    const { color, hoverColor, font, hoverFont, padding, align, formatter } = captions;
-    const oColor = (rect.active ? hoverColor : color) || color;
-    const oAlign = align || (rtl ? "right" : "left");
+    let { color, hoverColor, font, hoverFont, padding, align, formatter } = captions;
     const optFont = (rect.active ? hoverFont : font) || font;
     const oFont = helpers.toFont(optFont);
+    const fonts = [oFont];
+    // PATCH: do not draw caption if there is not enough vertical space
+    const captionHeight = getCaptionHeight(rect, oFont, padding);
+    if (oFont.lineHeight + padding * 2 > captionHeight) {
+      return;
+    }
+    // PATCH: slice text to fit the available space
+    let text = formatter || item.g;
+    const captionSize = measureLabelSize(ctx, [formatter], fonts);
+    if (captionSize.width + 2 * padding > rect.w) {
+      text = sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts);
+    }
+    const oColor = (rect.active ? hoverColor : color) || color;
+    const oAlign = align || (rtl ? "right" : "left");
     const lh = oFont.lineHeight / 2;
     const x = calculateX(rect, oAlign, padding);
     ctx.fillStyle = oColor;
     ctx.font = oFont.string;
     ctx.textAlign = oAlign;
     ctx.textBaseline = "middle";
-    ctx.fillText(formatter || item.g, x, rect.y + padding + spacing + lh);
+    ctx.fillText(text, x, rect.y + padding + spacing + lh);
+  }
+
+  function sliceTextToFitWidth(ctx, text, width, fonts) {
+    const ellipsis = "…";
+    const ellipsisWidth = measureLabelSize(ctx, [ellipsis], fonts).width;
+    if (ellipsisWidth >= width) {
+      return "";
+    }
+
+    let lowerBoundLen = 1;
+    let upperBoundLen = text.length;
+    let currentWidth = undefined;
+
+    while (lowerBoundLen <= upperBoundLen) {
+      const currentLen = Math.floor((lowerBoundLen + upperBoundLen) / 2);
+      const currentText = text.slice(0, currentLen);
+      currentWidth = measureLabelSize(ctx, [currentText], fonts).width;
+      if (currentWidth + ellipsisWidth > width) {
+        upperBoundLen = currentLen - 1;
+      } else {
+        lowerBoundLen = currentLen + 1;
+      }
+    }
+
+    const slicedText = text.slice(0, Math.max(0, lowerBoundLen - 1));
+    return slicedText ? slicedText + ellipsis : "";
   }
 
   function measureLabelSize(ctx, lines, fonts) {
@@ -987,8 +1032,10 @@
             h: sq.h - 2 * sp - bw.t - bw.b,
           };
           if (shouldDrawCaption(subRect, captions)) {
-            subRect.y += font.lineHeight + padding * 2;
-            subRect.h -= font.lineHeight + padding * 2;
+            // PATCH: reduce header height if there is no space
+            const captionHeight = getCaptionHeight(subRect, font, padding);
+            subRect.y += captionHeight;
+            subRect.h -= captionHeight;
           }
           gdata.forEach((gEl) => {
             ret.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));

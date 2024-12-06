@@ -19,7 +19,13 @@ declare module "chart.js" {
     treeMapColorsPlugin?: TreeMapColorsPluginOptions;
   }
 }
-
+/**
+ * This plugin is used to define the background color of the TreeMap chart items.
+ *
+ * This is done here instead of at the definition of the dataset because we need the groupBy computed by the chart, which
+ * are not available at the time of computing the runtime. They are accessible here through the `chart.config.data`
+ * property which is a proxy to the generated chart config.
+ */
 export const treeMapColorsPlugin: Plugin = {
   id: "treeMapColorsPlugin",
   beforeUpdate(chart: any, args, options: TreeMapColorsPluginOptions) {
@@ -27,39 +33,19 @@ export const treeMapColorsPlugin: Plugin = {
       return;
     }
     const definition = options.definition;
-    console.log("beforeLayout", chart, args, options);
     const dataSet = chart.config.data.datasets?.[0];
-    console.log("data", dataSet);
-    const drawData = chart._metasets?.[0]?.data;
-    // for (const d of drawData) {
-    //   d.options.backgroundColor = "#000";
-    // }
+    console.log("dataSet", dataSet);
     const tree = dataSet.tree;
+    if (!tree || !tree.length) {
+      return;
+    }
 
-    const maxDepth = Object.keys(dataSet.tree?.[0]).length - 2;
-    console.log("maxDepth", maxDepth);
+    const maxDepth = Object.keys(tree[0]).length - 2;
 
     let colorScale: ((value: number) => Color) | undefined = undefined;
-    const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
-    if (coloringOption.type === "colorScale") {
-      const minValue = Math.min(...tree.map((node) => node.value as number));
-      const maxValue = Math.max(...tree.map((node) => node.value as number));
-      console.log(minValue, maxValue);
-      if (!isNaN(minValue) && !isNaN(maxValue)) {
-        const colorThresholds = [{ value: minValue, color: coloringOption.minColor }];
-        if (coloringOption.midColor) {
-          const midValue = (minValue + maxValue) / 2;
-          colorThresholds.push({ value: midValue, color: coloringOption.midColor });
-        }
-        colorThresholds.push({ value: maxValue, color: coloringOption.maxColor });
-        colorScale = getColorScale(colorThresholds);
-      }
-    }
-    const categoryColors =
-      coloringOption.type === "categoryColor" ? getTreeMapGroupColors(definition, tree) : [];
+    const categoryColors = getTreeMapGroupColors(definition, tree);
 
     for (const dataset of chart.config.data.datasets) {
-      console.log("dataset", dataset);
       dataset.backgroundColor = (ctx: any) => {
         if (ctx.type !== "data") {
           return "transparent";
@@ -68,46 +54,44 @@ export const treeMapColorsPlugin: Plugin = {
           return definition.headerDesign?.fillColor || TreeMapChartDefaults.headerDesign?.fillColor;
         }
         const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
-        if (coloringOption.type === "categoryColor") {
+        if (coloringOption.type === "colorScale") {
+          if (!colorScale) {
+            const nodes = dataSet.data.filter((node) => node.l === maxDepth);
+            const minValue = Math.min(...nodes.map((node) => Number(node.v) || 0));
+            const maxValue = Math.max(...nodes.map((node) => Number(node.v) || 0));
+            if (isFinite(minValue) && isFinite(maxValue)) {
+              const colorThresholds = [{ value: minValue, color: coloringOption.minColor }];
+              if (coloringOption.midColor) {
+                const midValue = (minValue + maxValue) / 2;
+                colorThresholds.push({ value: midValue, color: coloringOption.midColor });
+              }
+              colorThresholds.push({ value: maxValue, color: coloringOption.maxColor });
+              colorScale = getColorScale(colorThresholds);
+            }
+          }
+          return colorScale?.(ctx.raw.v) || "#FF0000";
+        } else {
           const rootCategory = ctx.raw._data.children[0][0];
           const baseColor = categoryColors.find((color) => color.group === rootCategory)?.color;
           if (!baseColor || !coloringOption.highlightBigValues) {
-            console.log("baseColor", baseColor);
             return baseColor || "#FF0000";
           }
 
-          const value = ctx.raw.v;
           const nodes = dataSet.data.filter(
-            (node) => node._data[0] === rootCategory && node.l === maxDepth
+            (node) => node._data.path.startsWith(rootCategory) && node.l === maxDepth
           );
-          console.log("nodes", nodes);
-          // const groupBy = Object.values(Object.groupBy(nodes, (node) => node?.[1]))?.map((group) =>
-          //   group?.reduce((acc, node) => acc + (node.value as number), 0)
-          // );
-
-          // console.log("groupBy", groupBy);
           const max = Math.max(...nodes.map((node) => Number(node.v) || 0));
           const min = Math.min(...nodes.map((node) => Number(node.v) || 0));
-          console.log(rootCategory, min, max);
-          // const max = nodes.reduce((acc, node) => Math.max(acc, node.value as number), 0);
-          // const min = nodes.reduce((acc, node) => Math.min(acc, node.value as number), Infinity);
-          if (min === max) {
+          if (min === max || !isFinite(min) || !isFinite(max)) {
             return baseColor;
           }
 
+          const value = Number(ctx.raw.v) || 0;
           let alpha = ((value - max) / (min - max)) * 0.5;
-          if (alpha < 0) {
-            // debugger;
-            alpha = 0; // ADRM TODO
-            console.log("alpha < 0", alpha);
-          }
           return lightenColor(baseColor, alpha);
-        } else {
-          return colorScale?.(ctx.raw.v) || "#FF0000";
         }
       };
     }
-    console.log("drawData", drawData);
   },
 };
 
@@ -117,7 +101,7 @@ function getTreeMapGroupColors(
 ): TreeMapGroupColor[] {
   const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
   if (coloringOption?.type !== "categoryColor") {
-    throw new Error("Coloring options is not solid color");
+    return [];
   }
   const groups = new Set(tree.map((node) => String(node[0])));
   const colorOptions = coloringOption.colors;
