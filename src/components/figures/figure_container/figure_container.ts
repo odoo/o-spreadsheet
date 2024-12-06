@@ -1,7 +1,15 @@
+<<<<<<< 17.0
 import { Component, onMounted, useState } from "@odoo/owl";
 import { ComponentsImportance, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectIntersection, rectUnion } from "../../../helpers/rectangle";
+||||||| 6984990773e6865f0d76edd0e7e0052aea374fc5
+import { Component, onMounted, useState } from "@odoo/owl";
+import { MIN_FIG_SIZE } from "../../../constants";
+=======
+import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
+import { MIN_FIG_SIZE } from "../../../constants";
+>>>>>>> 64d127b43c1fcd96e90464ea988b7fa4b7fc0831
 import { figureRegistry } from "../../../registries";
 import { Figure, Rect, ResizeDirection, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers";
@@ -22,6 +30,25 @@ import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
 
+<<<<<<< 17.0
+||||||| 6984990773e6865f0d76edd0e7e0052aea374fc5
+interface DndState {
+  figId: string | undefined;
+  x: Pixel;
+  y: Pixel;
+  width: Pixel;
+  height: Pixel;
+}
+=======
+interface DndState {
+  figId: string | undefined;
+  x: Pixel;
+  y: Pixel;
+  width: Pixel;
+  height: Pixel;
+  cancelDnd: (() => void) | undefined;
+}
+>>>>>>> 64d127b43c1fcd96e90464ea988b7fa4b7fc0831
 interface Props {
   onFigureDeleted: () => void;
 }
@@ -129,9 +156,24 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static components = { FigureComponent };
 
   dnd = useState<DndState>({
+<<<<<<< 17.0
     draggedFigure: undefined,
     horizontalSnap: undefined,
     verticalSnap: undefined,
+||||||| 6984990773e6865f0d76edd0e7e0052aea374fc5
+    figId: undefined,
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+=======
+    figId: undefined,
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    cancelDnd: undefined,
+>>>>>>> 64d127b43c1fcd96e90464ea988b7fa4b7fc0831
   });
 
   setup() {
@@ -145,10 +187,21 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       // new rendering
       this.render();
     });
+    onWillUpdateProps(() => {
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      if (this.dnd.figId && !this.env.model.getters.getFigure(sheetId, this.dnd.figId)) {
+        if (this.dnd.cancelDnd) {
+          this.dnd.cancelDnd();
+        }
+        this.dnd.figId = undefined;
+        this.dnd.cancelDnd = undefined;
+      }
+    });
   }
 
   private getVisibleFigures(): Figure[] {
     const visibleFigures = this.env.model.getters.getVisibleFigures();
+<<<<<<< 17.0
     if (
       this.dnd.draggedFigure &&
       !visibleFigures.some((figure) => figure.id === this.dnd.draggedFigure?.id)
@@ -158,7 +211,20 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
           this.env.model.getters.getActiveSheetId(),
           this.dnd.draggedFigure?.id
         )!
+||||||| 6984990773e6865f0d76edd0e7e0052aea374fc5
+    if (this.dnd.figId && !visibleFigures.some((figure) => figure.id === this.dnd.figId)) {
+      visibleFigures.push(
+        this.env.model.getters.getFigure(this.env.model.getters.getActiveSheetId(), this.dnd.figId)!
+=======
+    if (this.dnd.figId && !visibleFigures.some((figure) => figure.id === this.dnd.figId)) {
+      const draggedFigure = this.env.model.getters.getFigure(
+        this.env.model.getters.getActiveSheetId(),
+        this.dnd.figId
+>>>>>>> 64d127b43c1fcd96e90464ea988b7fa4b7fc0831
       );
+      if (draggedFigure) {
+        visibleFigures.push(draggedFigure);
+      }
     }
     return visibleFigures;
   }
@@ -311,7 +377,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.verticalSnap = undefined;
       this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
     };
-    startDnd(onMouseMove, onMouseUp);
+    this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
   /**
@@ -379,7 +445,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
     };
-    startDnd(onMouseMove, onMouseUp);
+    this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
   }
 
   private getOtherFigures(figId: UID): Figure[] {
