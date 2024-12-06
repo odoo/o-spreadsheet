@@ -69,6 +69,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
         return error;
       },
       isBadExpression: true,
+      normalizedFormula: tokens.map((t) => t.value).join(""),
     };
   }
 }
@@ -217,6 +218,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
     symbols,
     tokens,
     isBadExpression: false,
+    normalizedFormula: cacheKey,
   };
   return compiledFormula;
 }

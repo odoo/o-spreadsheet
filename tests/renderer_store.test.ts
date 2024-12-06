@@ -14,6 +14,7 @@ import {
 } from "../src/constants";
 import { fontSizeInPixels, toHex, toZone } from "../src/helpers";
 import { Mode } from "../src/model";
+import { FormulaFingerprintStore } from "../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../src/stores/grid_renderer_store";
 import { RendererStore } from "../src/stores/renderer_store";
 import {
@@ -42,7 +43,7 @@ import {
   setZoneBorders,
 } from "./test_helpers/commands_helpers";
 import { getCell } from "./test_helpers/getters_helpers";
-import { createEqualCF, target, toRangesData } from "./test_helpers/helpers";
+import { createEqualCF, getFingerprint, target, toRangesData } from "./test_helpers/helpers";
 import { watchClipboardOutline } from "./test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "./test_helpers/stores";
 
@@ -72,7 +73,7 @@ function setRenderer(model: Model = new Model()) {
       rendererManager.drawLayer(ctx, layer);
     }
   };
-  return { model, gridRendererStore, drawGridRenderer };
+  return { model, gridRendererStore, drawGridRenderer, container };
 }
 
 class MockGridRenderingContext implements GridRenderingContext {
@@ -496,6 +497,41 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23 * 3, w: 96, x: 0, y: 0 }]);
+  });
+
+  test("formula fingerprints", () => {
+    const { drawGridRenderer, model, gridRendererStore, container } = setRenderer(
+      new Model({ sheets: [{ colNumber: 1, rowNumber: 6 }] })
+    );
+    const fingerprints = container.get(FormulaFingerprintStore);
+    fingerprints.enable();
+
+    // a colored cell but no fingerprint (it's a string)
+    setStyle(model, "A2", { fillColor: "#DC6CDF" });
+    setCellContent(model, "A2", "Hi");
+
+    // a cell with a formula
+    setCellContent(model, "A3", '="hello"');
+
+    // a formula within a merge
+    merge(model, "A4:A5");
+    setCellContent(model, "A4", '="merge"');
+
+    const renderingCtx = new MockGridRenderingContext(model, 1000, 1000, {});
+    drawGridRenderer(renderingCtx);
+
+    expect(getBoxFromText(gridRendererStore, "Hi")).toMatchObject({
+      ...model.getters.getVisibleRect(toZone("A2")),
+      style: { fillColor: undefined },
+    });
+    expect(getBoxFromText(gridRendererStore, "hello")).toMatchObject({
+      ...model.getters.getVisibleRect(toZone("A3")),
+      style: { fillColor: getFingerprint(fingerprints, "A3") },
+    });
+    expect(getBoxFromText(gridRendererStore, "merge")).toMatchObject({
+      ...model.getters.getVisibleRect(toZone("A4:A5")),
+      style: { fillColor: getFingerprint(fingerprints, "A4") },
+    });
   });
 
   test("formulas in a merge, evaluating to a string are properly aligned", () => {

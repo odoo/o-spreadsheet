@@ -370,6 +370,11 @@
       <path fill="currentColor" d="M4 14v2h10v-2H4m0-8v2h10V6H4m-2 6h14v-2H2v2M2 2v2h14V2H2"/>
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.IRREGULARITY_MAP">
+    <div class="o-icon">
+      <i class="fa fa-align-center fa-rotate-270"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.ALIGN_RIGHT">
     <svg class="o-icon align-right">
       <path fill="currentColor" d="M6 16h10v-2H6v2m-4-4h14v-2H2v2M2 2v2h14V2H2m4 6h10V6H6v2"/>

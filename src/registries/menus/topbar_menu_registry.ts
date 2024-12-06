@@ -202,6 +202,11 @@ topbarMenuRegistry
     ...ACTION_VIEW.viewFormulas,
     sequence: 10,
   })
+  .addChild("view_irregularity_map", ["view"], {
+    ...ACTION_VIEW.irregularityMap,
+    sequence: 40,
+    separator: true,
+  })
 
   // ---------------------------------------------------------------------
   // INSERT MENU ITEMS

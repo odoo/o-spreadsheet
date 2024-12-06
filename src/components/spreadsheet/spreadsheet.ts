@@ -37,7 +37,6 @@ import {
   SEPARATOR_COLOR,
   TEXT_BODY,
   TEXT_BODY_MUTED,
-  TOPBAR_HEIGHT,
 } from "../../constants";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
@@ -365,7 +364,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     if (this.env.isDashboard()) {
       properties["grid-template-rows"] = `auto`;
     } else {
-      properties["grid-template-rows"] = `${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
+      properties["grid-template-rows"] = `max-content auto ${BOTTOMBAR_HEIGHT + 1}px`;
     }
     properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
 

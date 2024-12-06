@@ -397,9 +397,9 @@ const COLORS_XL = [
   "#056BD9", // Blue #3
   "#155193", // Blue #4
   "#A76DBC", // Violet #1
-  "#7F4295", // Violet #1
-  "#6D2387", // Violet #1
-  "#4F1565", // Violet #1
+  "#7F4295", // Violet #2
+  "#6D2387", // Violet #3
+  "#4F1565", // Violet #4
   "#EA6175", // Red #1
   "#CE4257", // Red #2
   "#982738", // Red #3
@@ -426,6 +426,83 @@ const COLORS_XL = [
   "#936A12", // Yellow #4
 ];
 
+// Same as above but with alternating colors
+
+const ALTERNATING_COLORS_MD = [
+  "#4EA7F2", // Blue    #1
+  "#43C5B1", // Teal    #1
+  "#EA6175", // Red     #1
+  "#F4A261", // Orange  #1
+  "#8481DD", // Purple  #1
+  "#FFD86D", // Yellow  #1
+  "#3188E6", // Blue    #2
+  "#00A78D", // Teal    #2
+  "#CE4257", // Red     #2
+  "#F48935", // Orange  #2
+  "#5752D1", // Purple  #2
+  "#FFBC2C", // Yellow  #2
+];
+const ALTERNATING_COLORS_LG = [
+  "#4EA7F2", // Blue    #1
+  "#A76DBC", // Violet  #1
+  "#EA6175", // Red     #1
+  "#43C5B1", // Teal    #1
+  "#F4A261", // Orange  #1
+  "#8481DD", // Purple  #1
+  "#A4A8B6", // Gray    #1
+  "#FFD86D", // Yellow  #1
+  "#3188E6", // Blue    #2
+  "#7F4295", // Violet  #2
+  "#CE4257", // Red     #2
+  "#00A78D", // Teal    #2
+  "#F48935", // Orange  #2
+  "#5752D1", // Purple  #2
+  "#7E8290", // Gray    #2
+  "#FFBC2C", // Yellow  #2
+  "#056BD9", // Blue    #3
+  "#6D2387", // Violet  #3
+  "#982738", // Red     #3
+  "#0E8270", // Teal    #3
+  "#BE5D10", // Orange  #3
+  "#3A3580", // Purple  #3
+  "#545B70", // Gray    #3
+  "#C08A16", // Yellow  #3
+];
+const ALTERNATING_COLORS_XL = [
+  "#4EA7F2", // Blue    #1
+  "#A76DBC", // Violet  #1
+  "#EA6175", // Red     #1
+  "#43C5B1", // Teal    #1
+  "#F4A261", // Orange  #1
+  "#8481DD", // Purple  #1
+  "#A4A8B6", // Grey    #1
+  "#FFD86D", // Yellow  #1
+  "#3188E6", // Blue    #2
+  "#7F4295", // Violet  #2
+  "#CE4257", // Red     #2
+  "#00A78D", // Teal    #2
+  "#F48935", // Orange  #2
+  "#5752D1", // Purple  #2
+  "#7E8290", // Grey    #2
+  "#FFBC2C", // Yellow  #2
+  "#056BD9", // Blue    #3
+  "#6D2387", // Violet  #3
+  "#982738", // Red     #3
+  "#0E8270", // Teal    #3
+  "#BE5D10", // Orange  #3
+  "#3A3580", // Purple  #3
+  "#545B70", // Grey    #3
+  "#C08A16", // Yellow  #3
+  "#155193", // Blue    #4
+  "#4F1565", // Violet  #4
+  "#791B29", // Red     #4
+  "#105F53", // Teal    #4
+  "#7D380D", // Orange  #4
+  "#26235F", // Purple  #4
+  "#3F4250", // Grey    #4
+  "#936A12", // Yellow  #4
+];
+
 export function getNthColor(index: number, palette: Color[]): Color {
   return palette[index % palette.length];
 }
@@ -442,9 +519,21 @@ export function getColorsPalette(quantity: number) {
   }
 }
 
+export function getAlternatingColorsPalette(quantity: number) {
+  if (quantity <= 6) {
+    return COLORS_SM;
+  } else if (quantity <= 12) {
+    return ALTERNATING_COLORS_MD;
+  } else if (quantity <= 24) {
+    return ALTERNATING_COLORS_LG;
+  } else {
+    return ALTERNATING_COLORS_XL;
+  }
+}
+
 export class ColorGenerator {
   private currentColorIndex = 0;
-  private palette: Color[];
+  protected palette: Color[];
 
   constructor(paletteSize: number, private preferredColors: (string | undefined)[] = []) {
     this.palette = getColorsPalette(paletteSize).filter((c) => !preferredColors.includes(c));
@@ -454,5 +543,14 @@ export class ColorGenerator {
     return this.preferredColors?.[this.currentColorIndex]
       ? this.preferredColors[this.currentColorIndex++]!
       : getNthColor(this.currentColorIndex++, this.palette);
+  }
+}
+
+export class AlternatingColorGenerator extends ColorGenerator {
+  constructor(paletteSize: number, preferredColors: (string | undefined)[] = []) {
+    super(paletteSize, preferredColors);
+    this.palette = getAlternatingColorsPalette(paletteSize).filter(
+      (c) => !preferredColors.includes(c)
+    );
   }
 }
