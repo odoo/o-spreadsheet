@@ -1,7 +1,7 @@
 import { Component, useState, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../constants";
 import { clip } from "../../helpers";
-import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import { DOMCoordinates, HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 
@@ -41,16 +41,11 @@ css/* scss */ `
 
 interface Props {
   isVisible: boolean;
-  position: Position;
-}
-
-interface Position {
-  top: HeaderIndex;
-  left: HeaderIndex;
+  position: DOMCoordinates;
 }
 
 interface State {
-  position: Position;
+  position: DOMCoordinates;
   handler: boolean;
 }
 
@@ -61,31 +56,31 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     isVisible: Boolean,
   };
   state: State = useState({
-    position: { left: 0, top: 0 },
+    position: { x: 0, y: 0 },
     handler: false,
   });
 
   get style() {
-    const { left, top } = this.props.position;
+    const { x, y } = this.props.position;
     return cssPropertiesToCss({
-      top: `${top}px`,
-      left: `${left}px`,
+      top: `${y}px`,
+      left: `${x}px`,
       visibility: this.props.isVisible ? "visible" : "hidden",
     });
   }
   get handlerStyle() {
-    const { left, top } = this.state.handler ? this.state.position : this.props.position;
+    const { x, y } = this.state.handler ? this.state.position : this.props.position;
     return cssPropertiesToCss({
-      top: `${top}px`,
-      left: `${left}px`,
+      top: `${y}px`,
+      left: `${x}px`,
     });
   }
 
   get styleNextValue() {
-    const { left, top } = this.state.position;
+    const { x, y } = this.state.position;
     return cssPropertiesToCss({
-      top: `${top + 5}px`,
-      left: `${left + 15}px`,
+      top: `${y + 5}px`,
+      left: `${x + 15}px`,
     });
   }
 
@@ -103,8 +98,8 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     let lastCol: HeaderIndex | undefined;
     let lastRow: HeaderIndex | undefined;
     const start = {
-      left: ev.clientX - this.props.position.left,
-      top: ev.clientY - this.props.position.top,
+      left: ev.clientX - this.props.position.x,
+      top: ev.clientY - this.props.position.y,
     };
     const onMouseUp = () => {
       this.state.handler = false;
@@ -114,8 +109,8 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
 
     const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
       this.state.position = {
-        left: ev.clientX - start.left,
-        top: ev.clientY - start.top,
+        x: ev.clientX - start.left,
+        y: ev.clientY - start.top,
       };
       if (lastCol !== col || lastRow !== row) {
         const activeSheetId = this.env.model.getters.getActiveSheetId();

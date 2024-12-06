@@ -762,8 +762,12 @@ export interface RepeatPasteCommand {
   pasteOption?: ClipboardPasteOptions;
 }
 
-export interface CleanClipBoardHighlightCommand {
-  type: "CLEAN_CLIPBOARD_HIGHLIGHT";
+export interface ClearClipBoardHighlightCommand {
+  type: "CLEAR_CLIPBOARD_HIGHLIGHT";
+}
+
+export interface ClearPasteHander {
+  type: "CLEAR_PASTE_HANDLER";
 }
 
 export interface AutoFillCellCommand {
@@ -1103,7 +1107,7 @@ export type LocalCommand =
   | CopyPasteCellsAboveCommand
   | CopyPasteCellsOnLeftCommand
   | RepeatPasteCommand
-  | CleanClipBoardHighlightCommand
+  | ClearClipBoardHighlightCommand
   | AutoFillCellCommand
   | PasteFromOSClipboardCommand
   | AutoresizeColumnsCommand
@@ -1143,7 +1147,8 @@ export type LocalCommand =
   | DuplicatePivotInNewSheetCommand
   | InsertPivotWithTableCommand
   | SplitPivotFormulaCommand
-  | PaintFormat;
+  | PaintFormat
+  | ClearPasteHander;
 
 export type Command = CoreCommand | LocalCommand;
 

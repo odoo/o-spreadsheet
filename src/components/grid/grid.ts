@@ -73,6 +73,7 @@ import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
+import { PasteToolbox } from "../paste_toolbox/paste_toolbox";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
@@ -126,6 +127,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     HeadersOverlay,
     Menu,
     Autofill,
+    PasteToolbox,
     ClientTag,
     Highlight,
     Popover,
@@ -251,7 +253,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       } else if (this.paintFormatStore.isActive) {
         this.paintFormatStore.cancel();
       } else {
-        this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+        this.env.model.dispatch("CLEAR_CLIPBOARD_HIGHLIGHT");
       }
     },
     "Ctrl+A": () => this.env.model.selection.loopSelection(),
@@ -419,12 +421,20 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return this.gridRef.el;
   }
 
-  getAutofillPosition() {
+  getBottomSelectionPosition(): DOMCoordinates {
     const zone = this.env.model.getters.getSelectedZone();
     const rect = this.env.model.getters.getVisibleRect(zone);
     return {
-      left: rect.x + rect.width - AUTOFILL_EDGE_LENGTH / 2,
-      top: rect.y + rect.height - AUTOFILL_EDGE_LENGTH / 2,
+      x: rect.x + rect.width,
+      y: rect.y + rect.height,
+    };
+  }
+
+  getAutofillPosition(): DOMCoordinates {
+    const { x, y } = this.getBottomSelectionPosition();
+    return {
+      x: x - AUTOFILL_EDGE_LENGTH / 2,
+      y: y - AUTOFILL_EDGE_LENGTH / 2,
     };
   }
 
@@ -437,6 +447,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       bottom: zone.bottom,
     });
     return !(rect.width === 0 || rect.height === 0);
+  }
+
+  get isPasteToolboxVisible(): boolean {
+    return this.env.model.getters.canModifyPaste();
   }
 
   onGridResized({ height, width }: DOMDimension) {
