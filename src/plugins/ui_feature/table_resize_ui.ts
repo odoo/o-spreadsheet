@@ -26,10 +26,11 @@ export class TableResizeUI extends UIPlugin {
         const table = this.getters.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
         this.dispatch("UPDATE_TABLE", { ...cmd });
 
-        if (!table || !table.config.automaticAutofill) return;
-
-        const oldTableZone = table.range.zone;
+        if (!table) return;
         const newTableZone = this.getters.getRangeFromRangeData(cmd.newTableRange).zone;
+        this.selection.selectCell(newTableZone.right, newTableZone.bottom);
+        if (!table.config.automaticAutofill) return;
+        const oldTableZone = table.range.zone;
 
         if (newTableZone.bottom >= oldTableZone.bottom) {
           for (let col = newTableZone.left; col <= newTableZone.right; col++) {
