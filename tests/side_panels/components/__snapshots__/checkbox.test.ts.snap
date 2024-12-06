@@ -4,6 +4,7 @@ exports[`Checkbox Can render a checkbox 1`] = `
 <div>
   <label
     class="o-checkbox d-flex align-items-center"
+    role="button"
   >
     <input
       class="me-2"

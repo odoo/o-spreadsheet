@@ -44,6 +44,7 @@ exports[`Label range Can add options to the label range component 1`] = `
     </div>
     <label
       class="o-checkbox d-flex align-items-center mt-2"
+      role="button"
     >
       <input
         class="me-2"
