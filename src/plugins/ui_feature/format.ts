@@ -11,6 +11,8 @@ import {
   CellValueType,
   Command,
   Format,
+  PivotTableCell,
+  PivotValueCell,
   Position,
   SetDecimalStep,
   UID,
@@ -43,7 +45,7 @@ export class FormatPlugin extends UIPlugin {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const position = { sheetId, col, row };
           const pivotCell = this.getters.getPivotCellFromPosition(position);
-          if (pivotCell.type === "VALUE") {
+          if (this.isSpilledPivotValueFormula(position, pivotCell)) {
             measurePositions.push(position);
             const pivotId = this.getters.getPivotIdFromPosition(position) || "";
             measuresByPivotId[pivotId] ??= new Set();
@@ -81,6 +83,13 @@ export class FormatPlugin extends UIPlugin {
     });
   }
 
+  private isSpilledPivotValueFormula(
+    position: CellPosition,
+    pivotCell: PivotTableCell
+  ): pivotCell is PivotValueCell {
+    const cell = this.getters.getCell(position);
+    return pivotCell.type === "VALUE" && !cell?.isFormula;
+  }
   /**
    * This function allows to adjust the quantity of decimal places after a decimal
    * point on cells containing number value. It does this by changing the cells
