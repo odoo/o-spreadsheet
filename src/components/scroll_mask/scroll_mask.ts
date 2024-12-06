@@ -37,6 +37,8 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
     useEffect(
       () => {
         const { scrollX, scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+        //  TODORAR support frozen panes
+        // TODORAR wrap in a dedicated class
         if (this.maskRef.el?.scrollLeft !== scrollX || this.maskRef.el?.scrollTop !== scrollY) {
           this.maskRef.el!.scrollLeft = scrollX;
           this.maskRef.el!.scrollTop = scrollY;
@@ -72,8 +74,7 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
 
   get maskStyle() {
     const { width, height } = this.env.model.getters.getMainViewportRect();
-    // const sheetId = this.env.model.getters.getActiveSheetId();
-    // const { x, y } = this.env.model.getters.getMainViewportCoordinates();
+
     return cssPropertiesToCss({
       width: `${width}px`,
       height: `${height}px`,
@@ -89,16 +90,6 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
     return yRatio < 1;
   }
 
-  //   get position() {
-  //     const { y } = this.env.model.getters.getMainViewportRect();
-  //     return {
-  //       top: `${this.props.topOffset + y}px`,
-  //       right: "0px",
-  //       width: `${SCROLLBAR_WIDTH}px`,
-  //       bottom: `0px`,
-  //     };
-  //   }
-
   onScroll() {
     if (!this.maskRef.el) return;
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
@@ -109,18 +100,3 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
 }
 
 // TODORAR wrap in a dedicated cla
-// export class ScrollBar {
-//   el: HTMLElement;
-//   constructor(el: HTMLElement | null) {
-//     this.el = el!;
-//   }
-
-//   get scroll(): { x: Pixel; y: Pixel } {
-//     return { x: this.el.scrollLeft, y: this.el.scrollTop };
-//   }
-
-//   set scroll({ x, y }: { x: Pixel; y: Pixel }) {
-//     this.el.scrollLeft = x;
-//     this.el.scrollTop = y;
-//   }
-// }

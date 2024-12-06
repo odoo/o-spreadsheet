@@ -52,6 +52,7 @@ import {
 } from "../../types/index";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
+import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { MobileGridOverlay } from "../grid_overlay/grid_overlay";
@@ -138,6 +139,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+  private composerStore!: Store<CellComposerStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -151,6 +153,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       position: null,
       menuItems: [],
     });
+    this.composerStore = useStore(CellComposerStore);
     this.gridRef = useRef("grid");
     this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
     this.hoveredCell = useStore(HoveredCellStore);
@@ -460,6 +463,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       alert("should display a samll copy/paste popover at the click position");
     } else {
       this.env.model.selection.selectCell(col, row);
+      this.composerStore.startEdition();
     }
 
     // if (modifiers.expandZone) {
