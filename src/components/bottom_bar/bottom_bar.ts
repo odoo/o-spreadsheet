@@ -2,14 +2,16 @@ import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH } from "../../constants";
 import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
+import { Store, useStore } from "../../store_engine";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
+import { CellComposerStore } from "../composer/composer/cell_composer_store";
+import { CellComposerProps, Composer } from "../composer/composer/composer";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
-
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
@@ -18,12 +20,14 @@ const MENU_MAX_HEIGHT = 250;
 
 css/* scss */ `
   .o-spreadsheet-bottom-bar {
-    // position: sticky;
-    // bottom: 0;
+    position: sticky;
+    bottom: 0;
     background-color: ${BACKGROUND_GRAY_COLOR};
-    // padding-left: ${HEADER_WIDTH / 2}px;
+    /* padding-left: ${HEADER_WIDTH / 2}px;*/
     font-size: 15px;
     border-top: 1px solid lightgrey;
+    overflow: hidden;
+    width: 100%;
 
     .o-sheet-item {
       cursor: pointer;
@@ -38,13 +42,11 @@ css/* scss */ `
     }
 
     .o-bottom-bar-fade-out {
-      // background-image: linear-gradient(-90deg, #cfcfcf, transparent 1%);
       box-shadow: 0px 0px 10px 3px #aaaaaa;
       border-left: 1px solid #c1c1c1;
     }
 
     .o-bottom-bar-fade-in {
-      // background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
       box-shadow: 0px 0px 10px 3px #aaaaaa;
       border-left: 1px solid #c1c1c1;
     }
@@ -98,10 +100,11 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     onClick: Function,
   };
-  static components = { Menu, Ripple, BottomBarSheet, BottomBarStatistic };
+  static components = { Menu, Ripple, BottomBarSheet, BottomBarStatistic, Composer };
 
   private bottomBarRef = useRef("bottomBar");
   private sheetListRef = useRef("sheetList");
+  private composerStore!: Store<CellComposerStore>;
 
   private targetScroll: number | undefined = undefined;
   private state = useState({
@@ -122,6 +125,8 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   sheetList = this.getVisibleSheets();
 
   setup() {
+    this.composerStore = useStore(CellComposerStore);
+
     onWillUpdateProps(() => {
       this.updateScrollState();
       const visibleSheets = this.getVisibleSheets();
@@ -148,6 +153,14 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       const sheet = this.env.model.getters.getSheet(sheetId);
       return { id: sheet.id, name: sheet.name };
     });
+  }
+
+  get composerProps(): CellComposerProps {
+    return {
+      focus: "contentFocus",
+      composerStore: this.composerStore,
+      onComposerContentFocused: () => this.composerStore.startEdition(),
+    };
   }
 
   clickListSheets(ev: MouseEvent) {
