@@ -31,7 +31,7 @@ import {
   getEvaluatedCell,
   getEvaluatedGrid,
 } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, target } from "../test_helpers/helpers";
+import { createModelFromGrid, getNode, makeTestEnv, target } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 function setDecimal(model: Model, targetXc: string, step: SetDecimalStep) {
@@ -386,6 +386,24 @@ describe("pivot contextual formatting", () => {
     setContextualFormat(model, "C1", "[$$]#,##0.00");
     expect(model.getters.getPivotCoreDefinition("1")?.measures[0].format).toBeUndefined();
     expect(getCell(model, "C1")?.format).toBe("[$$]#,##0.00");
+  });
+
+  test("topbar menu correctly indicates the format of the selected pivot cell", () => {
+    const env = makeTestEnv();
+    const { model } = env;
+
+    setCellContent(model, "A1", "Price");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "B1", "=PIVOT(1)");
+
+    addPivot(model, "A1:A2", {
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+    });
+    setContextualFormat(model, "C3", "[$$]#,##0.00");
+    selectCell(model, "C3");
+
+    const action = getNode(["format", "format_number", "format_number_currency"], env);
+    expect(action.isActive?.(env)).toBe(true);
   });
 });
 
