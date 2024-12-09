@@ -580,15 +580,26 @@ export class GridSelectionPlugin extends UIPlugin {
 
     const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
     let currentIndex = cmd.base;
+
+    const resizingGroups: Record<number, number[]> = {};
+
     for (const element of toRemove) {
       const size = this.getters.getHeaderSize(cmd.sheetId, cmd.dimension, element);
+      const currentSize = this.getters.getHeaderSize(cmd.sheetId, cmd.dimension, currentIndex);
+      if (size != currentSize) {
+        resizingGroups[size] ??= [];
+        resizingGroups[size].push(currentIndex);
+        currentIndex += 1;
+      }
+    }
+
+    for (const size in resizingGroups) {
       this.dispatch("RESIZE_COLUMNS_ROWS", {
         dimension: cmd.dimension,
         sheetId: cmd.sheetId,
-        size,
-        elements: [currentIndex],
+        size: parseInt(size, 10),
+        elements: resizingGroups[size],
       });
-      currentIndex += 1;
     }
 
     this.dispatch("REMOVE_COLUMNS_ROWS", {
