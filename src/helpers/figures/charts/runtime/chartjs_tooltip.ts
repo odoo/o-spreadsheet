@@ -1,6 +1,7 @@
 import { BubbleDataPoint, Point, TooltipOptions } from "chart.js";
 import { _DeepPartialObject } from "chart.js/dist/types/utils";
 import { toNumber } from "../../../../functions/helpers";
+import { _t } from "../../../../translation";
 import { CellValue } from "../../../../types";
 import {
   BarChartDefinition,
@@ -12,6 +13,7 @@ import {
   WaterfallChartDefinition,
 } from "../../../../types/chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { formatValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { TREND_LINE_XAXIS_ID, formatChartDatasetValue } from "../chart_common";
@@ -172,6 +174,41 @@ export function getRadarChartTooltip(
         const yLabel = tooltipItem.parsed.r;
         const formattedY = formatValue(yLabel, { format: axisFormats?.r, locale });
         return xLabel ? `${xLabel}: ${formattedY}` : formattedY;
+      },
+    },
+  };
+}
+
+export function getTreeMapChartTooltip(
+  definition: TreeMapChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  const { locale, axisFormats, dataSetsValues } = args;
+  const maxDepth = dataSetsValues.length - 1;
+  const format = axisFormats?.y;
+  return {
+    filter: (tooltipItem: any, index: number, tooltipItems: any[]) => {
+      return index === tooltipItems.length - 1;
+    },
+    callbacks: {
+      title: (tooltipItems: any[]) => {
+        if (!tooltipItems.length) {
+          return "";
+        }
+        let path = tooltipItems[0].raw._data.path.split(".");
+        if (tooltipItems[0].raw.l === maxDepth) {
+          path = path.slice(0, path.length - 1);
+        }
+        return path.join(" / ");
+      },
+      label: (tooltipItem: any) => {
+        const isLeaf = tooltipItem.raw.l === maxDepth;
+        const xLabel = isLeaf ? tooltipItem.raw.g : _t("Total");
+        const yLabel = tooltipItem.raw.v;
+        const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
+        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+
+        return xLabel ? `${xLabel}: ${yLabelStr}` : `${yLabelStr} `;
       },
     },
   };

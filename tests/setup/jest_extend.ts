@@ -30,6 +30,7 @@ declare global {
       toHaveValue(value: string | boolean): R;
       toHaveText(text: string): R;
       toHaveCount(count: number): R;
+      toHaveClass(className: string): R;
     }
   }
 }
@@ -214,6 +215,25 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       };
     }
     return { pass: true, message: () => "" };
+  },
+  toHaveClass(target: DOMTarget, expectedClass: string) {
+    const element = getTarget(target);
+    if (!(element instanceof HTMLElement)) {
+      const message = element ? "Target is not an HTML element" : "Target not found";
+      return { pass: false, message: () => message };
+    }
+    const pass = element.classList.contains(expectedClass);
+    const message = () =>
+      pass
+        ? ""
+        : `expect(target).toHaveClass(expected);\n\n${this.utils.printDiffOrStringify(
+            expectedClass,
+            element.className,
+            "Expected class",
+            "Received class",
+            false
+          )}`;
+    return { pass, message };
   },
 });
 
