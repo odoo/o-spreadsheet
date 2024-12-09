@@ -371,6 +371,22 @@ describe("pivot contextual formatting", () => {
       ["Total",      "$1.00"],
     ]);
   });
+
+  test("format is not applied on the measure with fixed pivot values", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: '=PIVOT.VALUE(1, "Price")',
+      A2: "Alice",    B2: "10",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B2", {
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "count" }],
+    });
+    setContextualFormat(model, "C1", "[$$]#,##0.00");
+    expect(model.getters.getPivotCoreDefinition("1")?.measures[0].format).toBeUndefined();
+    expect(getCell(model, "C1")?.format).toBe("[$$]#,##0.00");
+  });
 });
 
 describe("formatting values (when change decimal)", () => {
