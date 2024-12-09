@@ -7,8 +7,9 @@ import {
   UID,
   WorkbookData,
 } from "../../types/index";
+import { HeaderIndex } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
-import { DEFAULT_CELL_HEIGHT } from "./../../constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "./../../constants";
 
 interface FigureState {
   readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };
@@ -64,24 +65,59 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       case "DELETE_FIGURE":
         this.removeFigure(cmd.id, cmd.sheetId);
         break;
+      case "RESIZE_COLUMNS_ROWS":
+        cmd.dimension === "ROW"
+          ? this.onRowResize(cmd.sheetId, cmd.elements, cmd.size)
+          : this.onColResize(cmd.sheetId, cmd.elements, cmd.size);
+        break;
+      case "HIDE_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":
-        this.onRowColDelete(cmd.sheetId, cmd.dimension);
+        cmd.dimension === "ROW"
+          ? this.onRowRemove(cmd.sheetId, cmd.elements)
+          : this.onColRemove(cmd.sheetId, cmd.elements);
+        break;
+      case "UNHIDE_COLUMNS_ROWS":
+        cmd.dimension === "ROW"
+          ? this.onRowUnhide(cmd.sheetId, cmd.elements)
+          : this.onColUnhide(cmd.sheetId, cmd.elements);
+        break;
+      case "ADD_COLUMNS_ROWS":
+        cmd.dimension === "ROW"
+          ? this.onRowAdd(cmd.sheetId, cmd.base, cmd.quantity)
+          : this.onColAdd(cmd.sheetId, cmd.base, cmd.quantity);
+        break;
     }
   }
 
-  private onRowColDelete(sheetId: string, dimension: string) {
-    dimension === "ROW" ? this.onRowDeletion(sheetId) : this.onColDeletion(sheetId);
-  }
-
-  private onRowDeletion(sheetId: string) {
+  private verticalShift(sheetId: UID, newSizes: Record<HeaderIndex, number>) {
+    const figures = this.getters.getFigures(sheetId).sort((a, b) => a.y - b.y);
+    if (!figures) {
+      return;
+    }
+    let figureIndex = 0;
     const numHeader = this.getters.getNumberRows(sheetId);
     let gridHeight = 0;
+    let addHeight = 0;
     for (let i = 0; i < numHeader; i++) {
       // TODO : since the row size is an UI value now, this doesn't work anymore. Using the default cell height is
       // a temporary solution at best, but is broken.
-      gridHeight += this.getters.getUserRowSize(sheetId, i) || DEFAULT_CELL_HEIGHT;
+      let rowSize = this.getters.getUserRowSize(sheetId, i) || DEFAULT_CELL_HEIGHT;
+      if (i in newSizes) {
+        addHeight += newSizes[i] - rowSize;
+        rowSize = newSizes[i];
+      }
+      while (figureIndex < figures.length && figures[figureIndex].y < gridHeight) {
+        if (addHeight) {
+          this.dispatch("UPDATE_FIGURE", {
+            sheetId,
+            id: figures[figureIndex].id,
+            y: figures[figureIndex].y + addHeight,
+          });
+        }
+        figureIndex++;
+      }
+      gridHeight += rowSize;
     }
-    const figures = this.getters.getFigures(sheetId);
     for (const figure of figures) {
       const newY = Math.min(figure.y, gridHeight - figure.height);
       if (newY !== figure.y) {
@@ -90,19 +126,85 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     }
   }
 
-  private onColDeletion(sheetId: string) {
-    const numHeader = this.getters.getNumberCols(sheetId);
-    let gridWidth = 0;
-    for (let i = 0; i < numHeader; i++) {
-      gridWidth += this.getters.getColSize(sheetId, i);
+  private horizontalShift(sheetId: UID, newSizes: Record<HeaderIndex, number>) {
+    const figures = this.getters.getFigures(sheetId).sort((a, b) => a.x - b.x);
+    if (!figures) {
+      return;
     }
-    const figures = this.getters.getFigures(sheetId);
+    let figureIndex = 0;
+    const numHeader = this.getters.getNumberRows(sheetId);
+    let gridWidth = 0;
+    let addWidth = 0;
+    for (let i = 0; i < numHeader; i++) {
+      let colSize = this.getters.getColSize(sheetId, i);
+      if (i in newSizes) {
+        addWidth += newSizes[i] - colSize;
+        colSize = newSizes[i];
+      }
+      while (figureIndex < figures.length && figures[figureIndex].x < gridWidth) {
+        if (addWidth) {
+          this.dispatch("UPDATE_FIGURE", {
+            sheetId,
+            id: figures[figureIndex].id,
+            x: figures[figureIndex].x + addWidth,
+          });
+        }
+        figureIndex++;
+      }
+      gridWidth += colSize;
+    }
     for (const figure of figures) {
       const newX = Math.min(figure.x, gridWidth - figure.width);
       if (newX !== figure.x) {
         this.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x: newX });
       }
     }
+  }
+
+  private onRowResize(sheetId: UID, indexes: HeaderIndex[], size: number | null) {
+    const newSize = size == null ? DEFAULT_CELL_HEIGHT : size;
+    this.verticalShift(sheetId, Object.fromEntries(indexes.map((i) => [i, newSize])));
+  }
+
+  private onColResize(sheetId: UID, indexes: HeaderIndex[], size: number | null) {
+    const newSize = size == null ? DEFAULT_CELL_WIDTH : size;
+    this.horizontalShift(sheetId, Object.fromEntries(indexes.map((i) => [i, newSize])));
+  }
+
+  private onRowRemove(sheetId: UID, indexes: HeaderIndex[]) {
+    this.verticalShift(sheetId, Object.fromEntries(indexes.map((i) => [i, 0])));
+  }
+
+  private onColRemove(sheetId: UID, indexes: HeaderIndex[]) {
+    this.horizontalShift(sheetId, Object.fromEntries(indexes.map((i) => [i, 0])));
+  }
+
+  private onRowAdd(sheetId: UID, base: HeaderIndex, amount: number) {
+    const change: Record<HeaderIndex, number> = {};
+    change[base] = amount * DEFAULT_CELL_HEIGHT;
+    this.verticalShift(sheetId, change);
+  }
+
+  private onColAdd(sheetId: UID, base: HeaderIndex, amount: number) {
+    const change: Record<HeaderIndex, number> = {};
+    change[base] = amount * DEFAULT_CELL_WIDTH;
+    this.horizontalShift(sheetId, change);
+  }
+
+  private onRowUnhide(sheetId: UID, indexes: HeaderIndex[]) {
+    this.verticalShift(
+      sheetId,
+      Object.fromEntries(
+        indexes.map((i) => [i, this.getters.getUserRowSize(sheetId, i) || DEFAULT_CELL_HEIGHT])
+      )
+    );
+  }
+
+  private onColUnhide(sheetId: UID, indexes: HeaderIndex[]) {
+    this.horizontalShift(
+      sheetId,
+      Object.fromEntries(indexes.map((i) => [i, this.getters.getColSize(sheetId, i)]))
+    );
   }
 
   private updateFigure(sheetId: string, figure: Partial<Figure>) {
