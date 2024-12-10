@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { GRAY_300, SELECTION_BORDER_COLOR } from "../../../constants";
+import { ACTION_COLOR, GRAY_300 } from "../../../constants";
 import { Token } from "../../../formulas";
 import { AutoCompleteProviderDefinition } from "../../../registries";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -21,7 +21,7 @@ css/* scss */ `
       border-color: ${GRAY_300};
 
       &.active {
-        border-color: ${SELECTION_BORDER_COLOR};
+        border-color: ${ACTION_COLOR};
       }
 
       &.o-invalid {
