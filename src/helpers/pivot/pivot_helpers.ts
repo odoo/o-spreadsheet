@@ -12,7 +12,7 @@ import {
   Matrix,
   Pivot,
 } from "../../types";
-import { EvaluationError } from "../../types/errors";
+import { CellErrorType, EvaluationError } from "../../types/errors";
 import {
   Granularity,
   PivotCoreDimension,
@@ -195,16 +195,18 @@ export function toNormalizedPivotValue(
   dimension: Pick<PivotDimension, "type" | "displayName" | "granularity">,
   groupValue
 ) {
-  if (groupValue === null || groupValue === "null") {
+  if (
+    groupValue === null ||
+    groupValue?.value === null ||
+    groupValue === CellErrorType.NotAvailable ||
+    groupValue?.value === CellErrorType.NotAvailable
+  ) {
     return null;
   }
   const groupValueString =
     typeof groupValue === "boolean"
       ? toString(groupValue).toLocaleLowerCase()
       : toString(groupValue);
-  if (groupValueString === "null") {
-    return null;
-  }
   if (!pivotNormalizationValueRegistry.contains(dimension.type)) {
     throw new EvaluationError(
       _t("Field %(field)s is not supported because of its type (%(type)s)", {
@@ -233,7 +235,7 @@ export function toFunctionPivotValue(
   dimension: Pick<PivotDimension, "type" | "granularity">
 ) {
   if (value === null) {
-    return `"null"`;
+    return "NA()";
   }
   if (!pivotToFunctionValueRegistry.contains(dimension.type)) {
     return `"${value}"`;

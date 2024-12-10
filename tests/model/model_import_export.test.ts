@@ -586,6 +586,19 @@ describe("Migrations", () => {
     });
     expect(getCellContent(model, "A1")).toBe("Hello");
   });
+
+  test("migrate version 25: flatten cell object", () => {
+    const model = new Model({
+      version: 24,
+      sheets: [
+        {
+          id: "1",
+          cells: { A1: '=PIVOT.VALUE(1, "revenue", "customer", "null")' },
+        },
+      ],
+    });
+    expect(getCell(model, "A1")?.content).toBe('=PIVOT.VALUE(1, "revenue", "customer", NA())');
+  });
 });
 
 describe("Import", () => {
