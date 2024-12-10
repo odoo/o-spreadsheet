@@ -805,6 +805,29 @@ export const demoData = {
             aggregated: false,
           },
         },
+        {
+          id: "13",
+          x: 550,
+          y: 1800,
+          height: 400,
+          width: 900,
+          tag: "chart",
+          data: {
+            type: "treemap",
+            dataSetsHaveTitle: true,
+            dataSets: [
+              {
+                dataRange: "V1:V23",
+              },
+              {
+                dataRange: "W1:W23",
+              },
+            ],
+            legendPosition: "top",
+            labelRange: "X1:X23",
+            title: { text: "Movie Revenue by Genre" },
+          },
+        },
       ],
       tables: [
         {
