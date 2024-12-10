@@ -1,4 +1,6 @@
+import { compile } from "../../formulas";
 import {
+  copyRangeWithNewSheetId,
   createAdaptedZone,
   getCanonicalSymbolName,
   groupConsecutive,
@@ -41,6 +43,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   static getters = [
+    "adaptFormulaStringDependencies",
+    "copyFormulaStringForSheet",
     "extendRange",
     "getRangeString",
     "getRangeFromSheetXC",
@@ -428,6 +432,27 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     return { _sheetId: sheetId, _zone: zone };
   }
 
+  // TODO: Remove this getter once ADRM's PR has been merged
+  copyFormulaStringForSheet(
+    sheetIdFrom: UID,
+    sheetIdTo: UID,
+    formula: string | undefined,
+    mode: "keepSameReference" | "moveReference"
+  ): string | undefined {
+    if (!formula || !formula.startsWith("=")) {
+      return formula;
+    }
+
+    const compiledFormula = compile(formula);
+    const updatedDependencies = compiledFormula.dependencies.map((dep) => {
+      const range = this.getters.getRangeFromSheetXC(sheetIdFrom, dep);
+      return mode === "keepSameReference"
+        ? range
+        : copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, range);
+    });
+    return this.getters.getFormulaString(sheetIdTo, compiledFormula.tokens, updatedDependencies);
+  }
+
   getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): Range {
     return new RangeImpl(
       {
@@ -486,6 +511,25 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const zones = ranges.map((range) => RangeImpl.fromRange(range, this.getters).unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
+  }
+
+  // TODO: Remove this getter once ADRM's PR has been merged
+  adaptFormulaStringDependencies(
+    sheetId: UID,
+    formula: string,
+    applyChange: ApplyRangeChange
+  ): string {
+    if (!formula.startsWith("=")) {
+      return formula;
+    }
+
+    const compiledFormula = compile(formula);
+    const updatedDependencies = compiledFormula.dependencies.map((dep) => {
+      const range = this.getters.getRangeFromSheetXC(sheetId, dep);
+      const changedRange = applyChange(range);
+      return changedRange.changeType === "NONE" ? range : changedRange.range;
+    });
+    return this.getters.getFormulaString(sheetId, compiledFormula.tokens, updatedDependencies);
   }
 
   // ---------------------------------------------------------------------------

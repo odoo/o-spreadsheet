@@ -13,7 +13,15 @@ import {
   simulateClick,
 } from "../../../test_helpers";
 import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
-import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
+import {
+  editStandaloneComposer,
+  mountComponentWithPortalTarget,
+  textContent,
+} from "../../../test_helpers/helpers";
+
+jest.mock("../../../../src/components/composer/content_editable_helper.ts", () =>
+  require("../../../__mocks__/content_editable_helper")
+);
 
 let model: Model;
 let fixture: HTMLElement;
@@ -103,7 +111,7 @@ describe("Waterfall chart side panel", () => {
       await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 
-      expect(getHTMLInputValue(".o-chart-title input")).toEqual("My Waterfall chart");
+      expect(textContent(".o-chart-title .o-composer")).toEqual("My Waterfall chart");
       expect(getHTMLRadioValue(".o-vertical-axis-selection")).toEqual("right");
       expect(getHTMLInputValue(".o-chart-legend-position")).toEqual("bottom");
       expect(getHTMLCheckboxValue('input[name="showSubTotals"]')).toBe(true);
@@ -121,7 +129,7 @@ describe("Waterfall chart side panel", () => {
       await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 
-      await setInputValueAndTrigger(".o-chart-title input", "My Waterfall chart");
+      await editStandaloneComposer(".o-chart-title .o-composer", "My Waterfall chart");
       await click(fixture, ".o-vertical-axis-selection input[value=right]");
       await setInputValueAndTrigger(".o-chart-legend-position", "bottom");
 

@@ -5,6 +5,7 @@ import {
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
 import { BasePlugin } from "../../../plugins/base_plugin";
+import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -20,7 +21,7 @@ import {
   UnboundedZone,
   Validation,
 } from "../../../types";
-import { ChartCreationContext } from "../../../types/chart/chart";
+import { ChartCreationContext, TitleDesign } from "../../../types/chart/chart";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -34,7 +35,13 @@ import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, copyLabelRangeWithNewSheetId } from "./chart_common";
+import {
+  adaptChartRange,
+  adaptChartTitle,
+  copyChartTitleWithNewSheetId,
+  copyLabelRangeWithNewSheetId,
+  getEvaluatedChartTitle,
+} from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
@@ -205,27 +212,50 @@ export class GaugeChart extends AbstractChart {
 
   copyForSheetId(sheetId: UID): GaugeChart {
     const dataRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.dataRange);
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataRange,
+      updatedChartTitle,
+      sheetId
+    );
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): GaugeChart {
-    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      this.dataRange,
+      updatedChartTitle,
+      sheetId
+    );
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): GaugeChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.dataRange);
+    return this.getDefinitionWithSpecifiedProperties(this.dataRange, this.title);
   }
 
-  private getDefinitionWithSpecificRanges(
+  private getDefinitionWithSpecifiedProperties(
     dataRange: Range | undefined,
+    title: TitleDesign,
     targetSheetId?: UID
   ): GaugeChartDefinition {
     return {
       background: this.background,
       sectionRule: this.sectionRule,
-      title: this.title,
+      title,
       type: "gauge",
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
@@ -249,10 +279,11 @@ export class GaugeChart extends AbstractChart {
 
   updateRanges(applyChange: ApplyRangeChange): GaugeChart {
     const range = adaptChartRange(this.dataRange, applyChange);
-    if (this.dataRange === range) {
+    const chartTitle = adaptChartTitle(this.getters, this.sheetId, this.title, applyChange);
+    if (this.dataRange === range && this.title === chartTitle) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificRanges(range);
+    const definition = this.getDefinitionWithSpecifiedProperties(range, chartTitle);
     return new GaugeChart(definition, this.sheetId, this.getters);
   }
 }
@@ -317,10 +348,13 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   }
 
   colors.push(chartColors.upperColor);
-
+  const chartTitle = getEvaluatedChartTitle(getters, chart.title);
   return {
     background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
-    title: chart.title ?? { text: "" },
+    title: {
+      ...chartTitle,
+      text: chartTitle.text ? _t(chartTitle.text) : "",
+    },
     minValue: {
       value: minValue,
       label: formatValue(minValue, { locale, format }),
