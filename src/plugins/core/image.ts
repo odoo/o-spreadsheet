@@ -5,11 +5,12 @@ import { Image } from "../../types/image";
 import {
   CommandResult,
   CoreCommand,
-  DOMCoordinates,
+  DOMDimension,
   ExcelWorkbookData,
-  Figure,
   FigureData,
   FigureSize,
+  HeaderIndex,
+  PixelPosition,
   UID,
   WorkbookData,
 } from "../../types/index";
@@ -52,7 +53,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_IMAGE":
-        this.addImage(cmd.figureId, cmd.sheetId, cmd.position, cmd.size);
+        this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
         this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
         this.syncedImages.add(cmd.definition.path);
         break;
@@ -68,7 +69,9 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
               this.dispatch("CREATE_IMAGE", {
                 sheetId: cmd.sheetIdTo,
                 figureId: duplicatedFigureId,
-                position: { x: fig.x, y: fig.y },
+                offset: fig.offset,
+                col: fig.col,
+                row: fig.row,
                 size,
                 definition: deepCopy(image),
               });
@@ -78,7 +81,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
         break;
       }
       case "DELETE_FIGURE":
-        this.history.update("images", cmd.sheetId, cmd.id, undefined);
+        this.history.update("images", cmd.sheetId, cmd.figureId, undefined);
         break;
       case "DELETE_SHEET":
         this.history.update("images", cmd.sheetId, undefined);
@@ -123,16 +126,15 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   // Private
   // ---------------------------------------------------------------------------
 
-  private addImage(id: UID, sheetId: UID, position: DOMCoordinates, size: FigureSize) {
-    const figure: Figure = {
-      id,
-      x: position.x,
-      y: position.y,
-      width: size.width,
-      height: size.height,
-      tag: "image",
-    };
-    this.dispatch("CREATE_FIGURE", { sheetId, figure });
+  private addFigure(
+    figureId: UID,
+    sheetId: UID,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    offset: PixelPosition,
+    size: DOMDimension
+  ) {
+    this.dispatch("CREATE_FIGURE", { sheetId, figureId, col, row, offset, size, tag: "image" });
   }
 
   import(data: WorkbookData) {
