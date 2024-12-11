@@ -402,10 +402,18 @@ function interpolateData(
         )[0];
       }
       case "logarithmic": {
+        const positiveLogValues: number[] = [];
+        const filteredLabels: number[] = [];
+        for (let i = 0; i < values.length; i++) {
+          if (normalizedLabels[i] > 0) {
+            positiveLogValues.push(values[i]);
+            filteredLabels.push(Math.log(normalizedLabels[i]));
+          }
+        }
         return predictLinearValues(
-          [values],
-          logM([normalizedLabels]),
-          logM([normalizedNewLabels]),
+          [positiveLogValues],
+          [filteredLabels],
+          logM([normalizedNewLabels.slice(1)]), // We remove the first element to avoid log(0)
           true
         )[0];
       }
