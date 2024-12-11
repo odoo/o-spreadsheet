@@ -56,33 +56,25 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     }
     const { zones, figureId } = target;
     const sheetId = target.sheetId;
-    const numCols = this.getters.getNumberCols(sheetId);
-    const numRows = this.getters.getNumberRows(sheetId);
-    const targetX = this.getters.getColDimensions(sheetId, zones[0].left).start;
-    const targetY = this.getters.getRowDimensions(sheetId, zones[0].top).start;
-    const maxX = this.getters.getColDimensions(sheetId, numCols - 1).end;
-    const maxY = this.getters.getRowDimensions(sheetId, numRows - 1).end;
     const { width, height } = clippedContent.copiedFigure;
-    const position = {
-      x: maxX < width ? 0 : Math.min(targetX, maxX - width),
-      y: maxY < height ? 0 : Math.min(targetY, maxY - height),
-    };
     const copy = clippedContent.copiedChart.copyInSheetId(sheetId);
     this.dispatch("CREATE_CHART", {
-      id: figureId,
+      figureId,
       sheetId,
-      position,
-      size: { height, width },
       definition: copy.getDefinition(),
+      col: zones[0].left,
+      row: zones[0].top,
+      offset: { x: 0, y: 0 },
+      size: { height, width },
     });
 
     if (options.isCutOperation) {
       this.dispatch("DELETE_FIGURE", {
         sheetId: clippedContent.copiedChart.sheetId,
-        id: clippedContent.copiedFigure.id,
+        figureId: clippedContent.copiedFigure.id,
       });
     }
-    this.dispatch("SELECT_FIGURE", { id: figureId });
+    this.dispatch("SELECT_FIGURE", { figureId });
   }
 
   isPasteAllowed(sheetId: UID, target: Zone[], content: any, option?: ClipboardOptions) {
