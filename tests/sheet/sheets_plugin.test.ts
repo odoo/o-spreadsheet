@@ -1,5 +1,10 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
-import { getCanonicalSymbolName, numberToLetters, toZone } from "../../src/helpers";
+import {
+  getCanonicalSymbolName,
+  numberToLetters,
+  toUnboundedZone,
+  toZone,
+} from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -1076,6 +1081,16 @@ describe("sheets", () => {
     const zone = toZone("A1:J1");
     expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, right: undefined });
   });
+
+  test.each<string>(["A1:Z", "A2:Z", "B2:26", "B1:26", "A:A", "A:A3"])(
+    "GetUnboundedZone : Unbounded range '%s' is unaffected",
+    (xc) => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      const zone = toUnboundedZone(xc);
+      expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual(zone);
+    }
+  );
 
   describe("Sheet color", () => {
     test("Can change a sheet color", () => {
