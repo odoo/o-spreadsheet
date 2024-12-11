@@ -5,7 +5,14 @@ import {
   toUnboundedZone,
   zoneToXc,
 } from "../../helpers";
-import { ChartDefinition, ExcelChartDefinition, FigureData } from "../../types";
+import {
+  ChartDefinition,
+  ExcelChartDefinition,
+  FigureData,
+  PixelPosition,
+  Position,
+} from "../../types";
+import { AnchorOffset } from "../../types/figure";
 import { ExcelImage } from "../../types/image";
 import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
@@ -24,20 +31,22 @@ function convertFigure(
   id: string,
   sheetData: XLSXWorksheet
 ): FigureData<any> | undefined {
-  let x1: number, y1: number;
+  let anchor: Position;
+  let offset: PixelPosition;
   let height: number, width: number;
   if (figure.anchors.length === 1) {
     // one cell anchor
-    ({ x: x1, y: y1 } = getPositionFromAnchor(figure.anchors[0], sheetData));
+    ({ anchor, offset } = convertAnchor(figure.anchors[0]));
     width = convertEMUToDotValue(figure.figureSize!.cx);
     height = convertEMUToDotValue(figure.figureSize!.cy);
   } else {
-    ({ x: x1, y: y1 } = getPositionFromAnchor(figure.anchors[0], sheetData));
+    ({ anchor, offset } = convertAnchor(figure.anchors[0]));
+    const { x: x1, y: y1 } = getPositionFromAnchor(figure.anchors[0], sheetData);
     const { x: x2, y: y2 } = getPositionFromAnchor(figure.anchors[1], sheetData);
     width = x2 - x1;
     height = y2 - y1;
   }
-  const figureData = { id, x: x1, y: y1 };
+  const figureData = { id, anchor, offset };
 
   if (isChartData(figure.data)) {
     return {
@@ -119,6 +128,15 @@ function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): 
   }
   const dataXC = zoneToXc(zone);
   return getFullReference(sheetName, dataXC);
+}
+
+function convertAnchor(XLSXanchor: XLSXFigureAnchor): AnchorOffset {
+  const anchor = { col: XLSXanchor.col, row: XLSXanchor.row };
+  const offset = {
+    x: convertEMUToDotValue(XLSXanchor.colOffset),
+    y: convertEMUToDotValue(XLSXanchor.rowOffset),
+  };
+  return { anchor, offset };
 }
 
 function getPositionFromAnchor(

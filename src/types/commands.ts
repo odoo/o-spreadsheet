@@ -1,6 +1,5 @@
 import {
   ConditionalFormat,
-  DOMCoordinates,
   DataValidationRule,
   Figure,
   Format,
@@ -16,6 +15,8 @@ import {
   Dimension,
   HeaderIndex,
   Pixel,
+  PixelPosition,
+  Position,
   SetDecimalStep,
   SortDirection,
   SortOptions,
@@ -498,31 +499,35 @@ export interface CreateFigureCommand extends SheetDependentCommand {
   figure: Figure;
 }
 
-export interface UpdateFigureCommand extends Partial<Figure>, SheetDependentCommand {
+export interface UpdateFigureCommand extends Omit<Partial<Figure>, "id">, SheetDependentCommand {
   type: "UPDATE_FIGURE";
-  id: UID;
+  figureId: UID;
 }
 
 export interface DeleteFigureCommand extends SheetDependentCommand {
   type: "DELETE_FIGURE";
-  id: UID;
+  figureId: UID;
+}
+
+interface BaseFigureCommand extends SheetDependentCommand {
+  figureId: UID;
+  anchor: Position;
+  offset: PixelPosition;
+  size?: FigureSize;
 }
 
 //------------------------------------------------------------------------------
 // Chart
 //------------------------------------------------------------------------------
 
-export interface CreateChartCommand extends SheetDependentCommand {
+export interface CreateChartCommand extends SheetDependentCommand, BaseFigureCommand {
   type: "CREATE_CHART";
-  id: UID;
-  position?: DOMCoordinates;
-  size?: FigureSize;
   definition: ChartDefinition;
 }
 
 export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
-  id: UID;
+  figureId: UID;
   definition: ChartDefinition;
 }
 
@@ -530,10 +535,8 @@ export interface UpdateChartCommand extends SheetDependentCommand {
 // Image
 //------------------------------------------------------------------------------
 
-export interface CreateImageOverCommand extends SheetDependentCommand {
+export interface CreateImageOverCommand extends SheetDependentCommand, BaseFigureCommand {
   type: "CREATE_IMAGE";
-  figureId: UID;
-  position: DOMCoordinates;
   size: FigureSize;
   definition: Image;
 }
@@ -887,7 +890,7 @@ export interface AutofillAutoCommand {
 
 export interface SelectFigureCommand {
   type: "SELECT_FIGURE";
-  id: UID | null;
+  figureId: UID | null;
 }
 
 export interface ReplaceSearchCommand {

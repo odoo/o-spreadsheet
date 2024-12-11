@@ -1,10 +1,7 @@
 import { CellPopoverStore } from "../components/popover";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../constants";
 import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
-import {
-  getChartPositionAtCenterOfViewport,
-  getSmartChartDefinition,
-} from "../helpers/figures/charts";
+import { getSmartChartDefinition } from "../helpers/figures/charts";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
 import {
   areZonesContinuous,
@@ -381,7 +378,7 @@ export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
 
 export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
-  const id = env.model.uuidGenerator.smallUuid();
+  const figureId = env.model.uuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
 
   if (getZoneArea(env.model.getters.getSelectedZone()) === 1) {
@@ -389,17 +386,18 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   }
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
-  const position = getChartPositionAtCenterOfViewport(getters, size);
+  const { anchor, offset } = centerFigurePosition(getters, size);
 
   const result = env.model.dispatch("CREATE_CHART", {
     sheetId,
-    id,
-    position,
+    figureId,
+    anchor,
+    offset,
     size,
     definition: getSmartChartDefinition(env.model.getters.getSelectedZone(), env.model.getters),
   });
   if (result.isSuccessful) {
-    env.model.dispatch("SELECT_FIGURE", { id });
+    env.model.dispatch("SELECT_FIGURE", { figureId });
     env.openSidePanel("ChartPanel");
   }
 };
@@ -474,17 +472,18 @@ async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined
 export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
   if (env.imageProvider) {
     const sheetId = env.model.getters.getActiveSheetId();
-    const figureId = env.model.uuidGenerator.smallUuid();
+    const id = env.model.uuidGenerator.smallUuid();
     const image = await requestImage(env);
     if (!image) {
       throw new Error("No image provider was given to the environment");
     }
     const size = getMaxFigureSize(env.model.getters, image.size);
-    const position = centerFigurePosition(env.model.getters, size);
+    const { anchor, offset } = centerFigurePosition(env.model.getters, size);
     env.model.dispatch("CREATE_IMAGE", {
       sheetId,
-      figureId,
-      position,
+      figureId: id,
+      anchor,
+      offset,
       size,
       definition: image,
     });

@@ -1,5 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import { CHART_TITLE_FONT_SIZE } from "../../../../../constants";
+import { _t } from "../../../../../translation";
 import {
   ChartDefinition,
   Color,
@@ -9,6 +10,7 @@ import {
   UID,
 } from "../../../../../types";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
+import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 import { ChartTitle } from "../title/title";
@@ -31,6 +33,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     ChartTitle,
     Section,
     SidePanelCollapsible,
+    RadioSelection,
   };
   static props = {
     figureId: String,
@@ -43,6 +46,11 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     defaultChartTitleFontSize: CHART_TITLE_FONT_SIZE,
   };
   private state!: GeneralDesignEditorState;
+
+  fixedSelection = [
+    { value: "fixed", label: _t("Don't move") },
+    { value: "anchor", label: _t("Move with cell") },
+  ];
 
   setup() {
     this.state = useState<GeneralDesignEditorState>({

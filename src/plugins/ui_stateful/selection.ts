@@ -144,7 +144,7 @@ export class GridSelectionPlugin extends UIPlugin {
         this.selectedFigureId = null;
         break;
       case "DELETE_FIGURE":
-        if (this.selectedFigureId === cmd.id) {
+        if (this.selectedFigureId === cmd.figureId) {
           this.selectedFigureId = null;
         }
         break;
@@ -201,7 +201,7 @@ export class GridSelectionPlugin extends UIPlugin {
         }
         break;
       case "SELECT_FIGURE":
-        this.selectedFigureId = cmd.id;
+        this.selectedFigureId = cmd.figureId;
         break;
       case "ACTIVATE_NEXT_SHEET":
         this.activateNextSheet("right");

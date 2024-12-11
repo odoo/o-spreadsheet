@@ -8,10 +8,11 @@ import {
   CommandResult,
   CoreCommand,
   CreateChartCommand,
-  DOMCoordinates,
   DOMDimension,
   Figure,
   FigureData,
+  PixelPosition,
+  Position,
   UID,
   UpdateChartCommand,
   WorkbookData,
@@ -74,11 +75,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_CHART":
-        this.addFigure(cmd.id, cmd.sheetId, cmd.position, cmd.size);
-        this.addChart(cmd.id, cmd.definition);
+        this.addFigure(cmd.figureId, cmd.sheetId, cmd.anchor, cmd.offset, cmd.size);
+        this.addChart(cmd.figureId, cmd.definition);
         break;
       case "UPDATE_CHART": {
-        this.addChart(cmd.id, cmd.definition);
+        this.addChart(cmd.figureId, cmd.definition);
         break;
       }
       case "DUPLICATE_SHEET": {
@@ -90,8 +91,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             const chart = this.charts[fig.id]?.duplicateInDuplicatedSheet(cmd.sheetIdTo);
             if (chart) {
               this.dispatch("CREATE_CHART", {
-                id: duplicatedFigureId,
-                position: { x: fig.x, y: fig.y },
+                figureId: duplicatedFigureId,
+                anchor: fig.anchor,
+                offset: fig.offset,
                 size: { width: fig.width, height: fig.height },
                 definition: chart.getDefinition(),
                 sheetId: cmd.sheetIdTo,
@@ -102,7 +104,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         break;
       }
       case "DELETE_FIGURE":
-        this.history.update("charts", cmd.id, undefined);
+        this.history.update("charts", cmd.figureId, undefined);
         break;
       case "DELETE_SHEET":
         for (let id of this.getChartIds(cmd.sheetId)) {
@@ -202,7 +204,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private addFigure(
     id: UID,
     sheetId: UID,
-    position: DOMCoordinates = { x: 0, y: 0 },
+    anchor: Position = {
+      col: 0,
+      row: 0,
+    },
+    offset: PixelPosition = {
+      x: 0,
+      y: 0,
+    },
     size: DOMDimension = {
       width: DEFAULT_FIGURE_WIDTH,
       height: DEFAULT_FIGURE_HEIGHT,
@@ -212,9 +221,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       return;
     }
     const figure: Figure = {
-      id,
-      x: position.x,
-      y: position.y,
+      id: id,
+      anchor,
+      offset,
       width: size.width,
       height: size.height,
       tag: "chart",
@@ -234,13 +243,13 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   }
 
   private checkChartDuplicate(cmd: CreateChartCommand): CommandResult {
-    return this.getters.getFigureSheetId(cmd.id)
+    return this.getters.getFigureSheetId(cmd.figureId)
       ? CommandResult.DuplicatedChartId
       : CommandResult.Success;
   }
 
   private checkChartExists(cmd: UpdateChartCommand): CommandResult {
-    return this.getters.getFigureSheetId(cmd.id)
+    return this.getters.getFigureSheetId(cmd.figureId)
       ? CommandResult.Success
       : CommandResult.ChartDoesNotExist;
   }

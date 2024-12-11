@@ -19,7 +19,7 @@ import { migrationStepRegistry } from "./migration_steps";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 25;
+export const CURRENT_VERSION = 26;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -236,20 +236,20 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
         let command = cmd;
         switch (cmd.type) {
           case "CREATE_CHART":
-            map[cmd.id] = cmd.definition;
+            map[cmd.figureId] = cmd.definition;
             break;
           case "UPDATE_CHART":
-            if (!map[cmd.id]) {
+            if (!map[cmd.figureId]) {
               /** the chart does not exist on the map, it might have been created after a duplicate sheet.
                * We don't have access to the definition, so we skip the command.
                */
-              console.log(`Fix chart definition: chart with id ${cmd.id} not found.`);
+              console.log(`Fix chart definition: chart with id ${cmd.figureId} not found.`);
               continue;
             }
-            const definition = map[cmd.id];
+            const definition = map[cmd.figureId];
             const newDefinition = { ...definition, ...cmd.definition };
             command = { ...cmd, definition: newDefinition };
-            map[cmd.id] = newDefinition;
+            map[cmd.figureId] = newDefinition;
             break;
         }
         commands.push(command);

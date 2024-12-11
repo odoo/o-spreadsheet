@@ -29,7 +29,7 @@ export function repeatCreateChartCommand(
 ): CreateChartCommand {
   return {
     ...repeatSheetDependantCommand(getters, cmd),
-    id: uuidGenerator.smallUuid(),
+    figureId: uuidGenerator.smallUuid(),
   };
 }
 

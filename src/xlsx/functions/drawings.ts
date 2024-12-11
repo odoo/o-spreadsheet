@@ -1,12 +1,12 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
-import { HeaderData, SheetData } from "../../types";
+import { HeaderIndex, SheetData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
 import { Image } from "./../../types/image";
-import { FigureData } from "./../../types/workbook_data";
+import { FigureData, HeaderData } from "./../../types/workbook_data";
 
 type FigurePosition = {
   to: {
@@ -69,14 +69,26 @@ function convertFigureData(
   figure: FigureData<ExcelChartDefinition | Image>,
   sheet: SheetData
 ): FigurePosition {
-  const { x, y, height, width } = figure;
+  const { anchor, offset, width, height } = figure;
+
+  const { col: colIndex, row: rowIndex } = anchor;
+  const { x: offsetCol, y: offsetRow } = offset;
+
+  const rows = Object.values(sheet.rows);
+  const { index: rowFrom, offset: offsetRowFrom } = figureCoordinates(rows, rowIndex, offsetRow);
+  const { index: rowTo, offset: offsetRowTo } = figureCoordinates(
+    rows,
+    rowIndex,
+    offsetRow + height
+  );
 
   const cols = Object.values(sheet.cols);
-  const rows = Object.values(sheet.rows);
-  const { index: colFrom, offset: offsetColFrom } = figureCoordinates(cols, x);
-  const { index: colTo, offset: offsetColTo } = figureCoordinates(cols, x + width);
-  const { index: rowFrom, offset: offsetRowFrom } = figureCoordinates(rows, y);
-  const { index: rowTo, offset: offsetRowTo } = figureCoordinates(rows, y + height);
+  const { index: colFrom, offset: offsetColFrom } = figureCoordinates(cols, colIndex, offsetCol);
+  const { index: colTo, offset: offsetColTo } = figureCoordinates(
+    cols,
+    colIndex,
+    offsetCol + width
+  );
 
   return {
     from: {
@@ -99,14 +111,15 @@ function convertFigureData(
  */
 function figureCoordinates(
   headers: HeaderData[],
-  position: number
+  anchor: HeaderIndex,
+  offset: number
 ): { index: number; offset: number } {
   let currentPosition = 0;
-  for (const [headerIndex, header] of headers.entries()) {
-    if (currentPosition <= position && position < currentPosition + header.size!) {
+  for (const [headerIndex, header] of headers.slice(anchor).entries()) {
+    if (currentPosition <= offset && offset < currentPosition + header.size!) {
       return {
         index: headerIndex,
-        offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
+        offset: convertDotValueToEMU(offset - currentPosition + FIGURE_BORDER_WIDTH),
       };
     } else if (headerIndex < headers.length - 1) {
       currentPosition += header.size!;
@@ -114,7 +127,7 @@ function figureCoordinates(
   }
   return {
     index: headers.length - 1,
-    offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
+    offset: convertDotValueToEMU(offset - currentPosition + FIGURE_BORDER_WIDTH),
   };
 }
 

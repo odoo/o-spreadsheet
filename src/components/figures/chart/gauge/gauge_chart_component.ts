@@ -1,10 +1,10 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
-import { Figure, SpreadsheetChildEnv } from "../../../../types";
+import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { GaugeChartRuntime } from "../../../../types/chart";
 
 interface Props {
-  figure: Figure;
+  figureUI: FigureUI;
 }
 
 export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
@@ -12,7 +12,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
   private canvas = useRef("chartContainer");
 
   get runtime(): GaugeChartRuntime {
-    return this.env.model.getters.getChartRuntime(this.props.figure.id) as GaugeChartRuntime;
+    return this.env.model.getters.getChartRuntime(this.props.figureUI.id) as GaugeChartRuntime;
   }
 
   setup() {
@@ -28,5 +28,5 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
 }
 
 GaugeChartComponent.props = {
-  figure: Object,
+  figureUI: Object,
 };
