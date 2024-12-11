@@ -148,7 +148,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
     }
     const { col, row } = this.getters.getActivePosition();
-    this.model.dispatch("SELECT_FIGURE", { id: null });
+    this.model.dispatch("SELECT_FIGURE", { figureId: null });
     this.model.dispatch("SCROLL_TO_CELL", { col, row });
 
     if (this.editionMode !== "inactive" && text) {
@@ -184,7 +184,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "SELECT_FIGURE":
-        if (cmd.id) {
+        if (cmd.figureId) {
           this.cancelEditionAndActivateSheet();
           this.resetContent();
         }

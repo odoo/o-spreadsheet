@@ -165,7 +165,7 @@ function updateChartFigure(
   toTransform: UpdateFigureCommand | UpdateChartCommand,
   executed: DeleteFigureCommand
 ): UpdateFigureCommand | UpdateChartCommand | undefined {
-  if (toTransform.id === executed.id) {
+  if (toTransform.figureId === executed.figureId) {
     return undefined;
   }
   return toTransform;
