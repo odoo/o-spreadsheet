@@ -10,6 +10,9 @@ css/*SCSS*/ `
   .o-highlight {
     z-index: ${ComponentsImportance.Selection};
   }
+  .o-corner {
+    z-index: 1000;
+  }
 `;
 
 interface Props {

@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-Corner">
+  <t t-name="o-spreadsheet-mobile-Corner">
     <div
       class="o-corner"
       t-on-pointerdown.prevent="onMouseDown"
