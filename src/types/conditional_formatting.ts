@@ -90,6 +90,8 @@ export interface DataBarRule {
   type: "DataBarRule";
   color: number;
   rangeValues?: string;
+  minimum_filling?: number;
+  maximum_filling?: number;
 }
 
 export interface DataBarRuleInternal extends Omit<DataBarRule, "rangeValues"> {
