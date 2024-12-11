@@ -4,11 +4,13 @@ import {
   CoreCommand,
   ExcelWorkbookData,
   Figure,
+  HeaderIndex,
+  PixelPosition,
+  Position,
   UID,
   WorkbookData,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
-import { DEFAULT_CELL_HEIGHT } from "./../../constants";
 
 interface FigureState {
   readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };
@@ -64,43 +66,83 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       case "DELETE_FIGURE":
         this.removeFigure(cmd.id, cmd.sheetId);
         break;
+      case "ADD_COLUMNS_ROWS":
+        let baseIdx = cmd.base;
+        if (cmd.position === "before") {
+          baseIdx--;
+        }
+        if (cmd.dimension === "COL") {
+          this.onColAdd(cmd.sheetId, baseIdx, cmd.quantity);
+        } else {
+          this.onRowAdd(cmd.sheetId, baseIdx, cmd.quantity);
+        }
+        break;
       case "REMOVE_COLUMNS_ROWS":
-        this.onRowColDelete(cmd.sheetId, cmd.dimension);
+        if (cmd.dimension === "COL") {
+          this.onColRemove(cmd.sheetId, cmd.elements);
+        } else {
+          this.onRowRemove(cmd.sheetId, cmd.elements);
+        }
+        break;
     }
   }
 
-  private onRowColDelete(sheetId: string, dimension: string) {
-    dimension === "ROW" ? this.onRowDeletion(sheetId) : this.onColDeletion(sheetId);
-  }
-
-  private onRowDeletion(sheetId: string) {
-    const numHeader = this.getters.getNumberRows(sheetId);
-    let gridHeight = 0;
-    for (let i = 0; i < numHeader; i++) {
-      // TODO : since the row size is an UI value now, this doesn't work anymore. Using the default cell height is
-      // a temporary solution at best, but is broken.
-      gridHeight += this.getters.getUserRowSize(sheetId, i) || DEFAULT_CELL_HEIGHT;
-    }
-    const figures = this.getters.getFigures(sheetId);
-    for (const figure of figures) {
-      const newY = Math.min(figure.y, gridHeight - figure.height);
-      if (newY !== figure.y) {
-        this.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, y: newY });
+  private onColAdd(sheetId: string, index: HeaderIndex, quantity: number) {
+    for (const figure of this.getFigures(sheetId)) {
+      if (figure.anchor.col > index) {
+        this.history.update("figures", sheetId, figure.id!, "anchor", {
+          row: figure.anchor.row,
+          col: figure.anchor.col + quantity,
+        } as Position);
       }
     }
   }
 
-  private onColDeletion(sheetId: string) {
-    const numHeader = this.getters.getNumberCols(sheetId);
-    let gridWidth = 0;
-    for (let i = 0; i < numHeader; i++) {
-      gridWidth += this.getters.getColSize(sheetId, i);
+  private onRowAdd(sheetId: string, index: HeaderIndex, quantity: number) {
+    for (const figure of this.getFigures(sheetId)) {
+      if (figure.anchor.row > index) {
+        this.history.update("figures", sheetId, figure.id!, "anchor", {
+          row: figure.anchor.row + quantity,
+          col: figure.anchor.col,
+        } as Position);
+      }
     }
-    const figures = this.getters.getFigures(sheetId);
-    for (const figure of figures) {
-      const newX = Math.min(figure.x, gridWidth - figure.width);
-      if (newX !== figure.x) {
-        this.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x: newX });
+  }
+
+  private onColRemove(sheetId: string, elements: number[]) {
+    const figures = this.getFigures(sheetId).sort((a, b) => a.anchor.col - b.anchor.col);
+    elements.sort((a, b) => a - b);
+
+    let elements_index = 0;
+    for (const fig in figures) {
+      const figure = figures[fig];
+      while (elements_index < elements.length && elements[elements_index] <= figure.anchor.col) {
+        elements_index++;
+      }
+      if (elements_index) {
+        this.history.update("figures", sheetId, figure.id!, "anchor", {
+          row: figure.anchor.row,
+          col: figure.anchor.col - elements_index,
+        } as Position);
+      }
+    }
+  }
+
+  private onRowRemove(sheetId: string, elements: number[]) {
+    const figures = this.getFigures(sheetId).sort((a, b) => a.anchor.row - b.anchor.row);
+    elements.sort((a, b) => a - b);
+
+    let elements_index = 0;
+    for (const fig in figures) {
+      const figure = figures[fig];
+      while (elements_index < elements.length && elements[elements_index] <= figure.anchor.row) {
+        elements_index++;
+      }
+      if (elements_index) {
+        this.history.update("figures", sheetId, figure.id!, "anchor", {
+          row: figure.anchor.row - elements_index,
+          col: figure.anchor.col,
+        } as Position);
       }
     }
   }
@@ -111,11 +153,12 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     }
     for (const [key, value] of Object.entries(figure)) {
       switch (key) {
-        case "x":
-        case "y":
-          if (value !== undefined) {
-            this.history.update("figures", sheetId, figure.id!, key, Math.max(value as number, 0));
-          }
+        case "offset":
+          // Todo ensure that final position > 0 for x/y
+          this.history.update("figures", sheetId, figure.id!, key, value as PixelPosition);
+          break;
+        case "anchor":
+          this.history.update("figures", sheetId, figure.id!, key, value as Position);
           break;
         case "width":
         case "height":

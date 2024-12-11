@@ -1,25 +1,25 @@
 import { clip } from "../../helpers";
-import { Figure, PixelPosition, SheetScrollInfo } from "../../types";
+import { FigureUI, PixelPosition, SheetScrollInfo } from "../../types";
 
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,
   { x: mouseInitialX, y: mouseInitialY }: PixelPosition,
-  initialFigure: Figure,
+  initialFigure: FigureUI,
   { x: viewportX, y: viewportY }: PixelPosition,
   { maxX, maxY }: { maxX: number; maxY: number },
   { scrollX, scrollY }: SheetScrollInfo
-): Figure {
+): FigureUI {
   const minX = viewportX ? 0 : -scrollX;
   const minY = viewportY ? 0 : -scrollY;
   const deltaX = mouseX - mouseInitialX;
-  const newX = clip(initialFigure.x + deltaX, minX, maxX - initialFigure.width - scrollX);
+  const newX = clip(initialFigure.x + deltaX, minX, maxX - initialFigure.figure.width - scrollX);
   const deltaY = mouseY - mouseInitialY;
-  const newY = clip(initialFigure.y + deltaY, minY, maxY - initialFigure.height - scrollY);
+  const newY = clip(initialFigure.y + deltaY, minY, maxY - initialFigure.figure.height - scrollY);
   return { ...initialFigure, x: newX, y: newY };
 }
 
 export function dragFigureForResize(
-  initialFigure: Figure,
+  initialFigure: FigureUI,
   dirX: -1 | 0 | 1,
   dirY: -1 | 0 | 1,
   { x: mouseX, y: mouseY }: PixelPosition,
@@ -27,32 +27,33 @@ export function dragFigureForResize(
   keepRatio: boolean,
   minFigSize: number,
   { scrollX, scrollY }: SheetScrollInfo
-): Figure {
-  let { x, y, width, height } = initialFigure;
+): FigureUI {
+  let { x, y, figure } = initialFigure;
+  let { width, height } = figure;
 
   if (keepRatio && dirX != 0 && dirY != 0) {
-    const deltaX = Math.min(dirX * (mouseInitialX - mouseX), initialFigure.width - minFigSize);
-    const deltaY = Math.min(dirY * (mouseInitialY - mouseY), initialFigure.height - minFigSize);
-    const fraction = Math.min(deltaX / initialFigure.width, deltaY / initialFigure.height);
-    width = initialFigure.width * (1 - fraction);
-    height = initialFigure.height * (1 - fraction);
+    const deltaX = Math.min(dirX * (mouseInitialX - mouseX), width - minFigSize);
+    const deltaY = Math.min(dirY * (mouseInitialY - mouseY), height - minFigSize);
+    const fraction = Math.min(deltaX / width, deltaY / height);
+    width = width * (1 - fraction);
+    height = height * (1 - fraction);
     if (dirX < 0) {
-      x = initialFigure.x + initialFigure.width * fraction;
+      x = x + width * fraction;
     }
     if (dirY < 0) {
-      y = initialFigure.y + initialFigure.height * fraction;
+      y = y + height * fraction;
     }
   } else {
-    const deltaX = Math.max(dirX * (mouseX - mouseInitialX), minFigSize - initialFigure.width);
-    const deltaY = Math.max(dirY * (mouseY - mouseInitialY), minFigSize - initialFigure.height);
-    width = initialFigure.width + deltaX;
-    height = initialFigure.height + deltaY;
+    const deltaX = Math.max(dirX * (mouseX - mouseInitialX), minFigSize - width);
+    const deltaY = Math.max(dirY * (mouseY - mouseInitialY), minFigSize - height);
+    width = width + deltaX;
+    height = height + deltaY;
 
     if (dirX < 0) {
-      x = initialFigure.x - deltaX;
+      x = x - deltaX;
     }
     if (dirY < 0) {
-      y = initialFigure.y - deltaY;
+      y = y - deltaY;
     }
   }
 
@@ -66,5 +67,5 @@ export function dragFigureForResize(
     y = -scrollY;
   }
 
-  return { ...initialFigure, x, y, width, height };
+  return { x, y, figure: { ...figure, width, height } };
 }

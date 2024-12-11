@@ -4,6 +4,7 @@ import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { SelectionEvent } from "../../types/event_stream";
 import {
+  AnchorOffset,
   CellPosition,
   Command,
   CommandResult,
@@ -12,6 +13,7 @@ import {
   Dimension,
   EdgeScrollInfo,
   Figure,
+  FigureUI,
   HeaderIndex,
   LocalCommand,
   Pixel,
@@ -104,6 +106,8 @@ export class SheetViewPlugin extends UIPlugin {
     "isPositionVisible",
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
+    "getFigureUI",
+    "getAnchorOffset",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -804,33 +808,64 @@ export class SheetViewPlugin extends UIPlugin {
     }
   }
 
-  getVisibleFigures(): Figure[] {
+  getVisibleFigures(): FigureUI[] {
     const sheetId = this.getters.getActiveSheetId();
-    const result: Figure[] = [];
+    const result: FigureUI[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { scrollX, scrollY } = this.getActiveSheetScrollInfo();
-    const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      this.getters.getMainViewportCoordinates();
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
+    const { x: offsetCorrectionX, y: offsetCorrectionY } = this.getMainViewportCoordinates();
 
     for (const figure of figures) {
-      if (
-        figure.x >= offsetCorrectionX &&
-        (figure.x + figure.width <= offsetCorrectionX + scrollX ||
-          figure.x >= width + scrollX + offsetCorrectionX)
-      ) {
+      const figureUI = this.getFigureUI(sheetId, figure);
+      const { x, y } = figureUI;
+      if (x + figure.width < offsetCorrectionX || x > width) {
         continue;
       }
-      if (
-        figure.y >= offsetCorrectionY &&
-        (figure.y + figure.height <= offsetCorrectionY + scrollY ||
-          figure.y >= height + scrollY + offsetCorrectionY)
-      ) {
+      if (y + figure.height < offsetCorrectionY || y > height) {
         continue;
       }
-      result.push(figure);
+      result.push(figureUI);
     }
     return result;
+  }
+
+  private absoluteToViewport(position: PixelPosition): DOMCoordinates {
+    const { scrollX, scrollY } = this.getActiveSheetScrollInfo();
+    const { x: offsetCorrectionX, y: offsetCorrectionY } = this.getMainViewportCoordinates();
+    return {
+      x: position.x < offsetCorrectionX ? position.x : position.x - scrollX,
+      y: position.y < offsetCorrectionY ? position.y : position.y - scrollY,
+    };
+  }
+
+  private viewportToAbsolute(coord: DOMCoordinates): PixelPosition {
+    const { scrollX, scrollY } = this.getActiveSheetScrollInfo();
+    const { x: offsetCorrectionX, y: offsetCorrectionY } = this.getMainViewportCoordinates();
+    return {
+      x: coord.x < offsetCorrectionX ? coord.x : coord.x + scrollX,
+      y: coord.y < offsetCorrectionY ? coord.y : coord.y + scrollY,
+    };
+  }
+
+  getFigureUI(sheetId: string, figure: Figure): FigureUI {
+    const absolute_x =
+      figure.offset.x + this.getters.getColDimensions(sheetId, figure.anchor.col)["start"];
+    const absolute_y =
+      figure.offset.y + this.getters.getRowDimensions(sheetId, figure.anchor.row)["start"];
+    const { x, y } = this.absoluteToViewport({ x: absolute_x, y: absolute_y });
+    return { x, y, figure };
+  }
+
+  getAnchorOffset(sheetId: string, figureUI: FigureUI): AnchorOffset {
+    const position = this.viewportToAbsolute(figureUI);
+    if (figureUI.figure.fixed_position) {
+      return { anchor: { col: 0, row: 0 }, offset: { x: position.x, y: position.y } };
+    }
+    const anchor_col = this.getColIndex(figureUI.x);
+    const offset_x = position.x - this.getters.getColDimensions(sheetId, anchor_col)["start"];
+    const anchor_row = this.getRowIndex(figureUI.y);
+    const offset_y = position.y - this.getters.getRowDimensions(sheetId, anchor_row)["start"];
+    return { anchor: { col: anchor_col, row: anchor_row }, offset: { x: offset_x, y: offset_y } };
   }
 
   isPositionVisible(position: PixelPosition): boolean {

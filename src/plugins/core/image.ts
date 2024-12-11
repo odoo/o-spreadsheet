@@ -5,11 +5,12 @@ import { Image } from "../../types/image";
 import {
   CommandResult,
   CoreCommand,
-  DOMCoordinates,
   ExcelWorkbookData,
   Figure,
   FigureData,
   FigureSize,
+  PixelPosition,
+  Position,
   UID,
   WorkbookData,
 } from "../../types/index";
@@ -40,7 +41,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_IMAGE":
-        if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+        if (this.getters.getFigure(cmd.sheetId, cmd.id)) {
           return CommandResult.InvalidFigureId;
         }
         return CommandResult.Success;
@@ -52,8 +53,8 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_IMAGE":
-        this.addImage(cmd.figureId, cmd.sheetId, cmd.position, cmd.size);
-        this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
+        this.addFigure(cmd.id, cmd.sheetId, cmd.anchor, cmd.offset, cmd.fixed_position, cmd.size);
+        this.history.update("images", cmd.sheetId, cmd.id, cmd.definition);
         this.syncedImages.add(cmd.definition.path);
         break;
       case "DUPLICATE_SHEET": {
@@ -67,8 +68,10 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
               const size = { width: fig.width, height: fig.height };
               this.dispatch("CREATE_IMAGE", {
                 sheetId: cmd.sheetIdTo,
-                figureId: duplicatedFigureId,
-                position: { x: fig.x, y: fig.y },
+                id: duplicatedFigureId,
+                offset: fig.offset,
+                anchor: fig.anchor,
+                fixed_position: fig.fixed_position,
                 size,
                 definition: deepCopy(image),
               });
@@ -123,11 +126,29 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   // Private
   // ---------------------------------------------------------------------------
 
-  private addImage(id: UID, sheetId: UID, position: DOMCoordinates, size: FigureSize) {
+  private addFigure(
+    id: UID,
+    sheetId: UID,
+    anchor: Position | undefined,
+    offset: PixelPosition = {
+      x: 0,
+      y: 0,
+    },
+    fixed_position: boolean = true,
+    size: FigureSize
+  ) {
+    if (this.getters.getFigure(sheetId, id)) {
+      return;
+    }
+    if (!anchor) {
+      anchor = { col: 0, row: 0 };
+      fixed_position = true;
+    }
     const figure: Figure = {
       id,
-      x: position.x,
-      y: position.y,
+      anchor,
+      offset,
+      fixed_position,
       width: size.width,
       height: size.height,
       tag: "image",

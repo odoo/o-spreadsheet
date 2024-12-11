@@ -3,13 +3,16 @@ import { ComponentsImportance, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectIntersection, rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries";
-import { Figure, Rect, ResizeDirection, SpreadsheetChildEnv, UID } from "../../../types/index";
+import {
+  Figure,
+  FigureUI,
+  Rect,
+  ResizeDirection,
+  SpreadsheetChildEnv,
+  UID,
+} from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
-import {
-  internalFigureToScreen,
-  screenFigureToInternal,
-} from "../../helpers/figure_container_helper";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
   HFigureAxisType,
@@ -28,7 +31,7 @@ interface Props {
 
 interface Container {
   type: ContainerType;
-  figures: Figure[];
+  figures: FigureUI[];
   style: string;
   inverseViewportStyle: string;
 }
@@ -40,7 +43,7 @@ interface Snap<T extends HFigureAxisType | VFigureAxisType> {
 }
 
 interface DndState {
-  draggedFigure?: Figure;
+  draggedFigure?: FigureUI;
   horizontalSnap?: Snap<HFigureAxisType>;
   verticalSnap?: Snap<VFigureAxisType>;
 }
@@ -150,17 +153,18 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private getVisibleFigures(): Figure[] {
+  private getVisibleFigures(): FigureUI[] {
     const visibleFigures = this.env.model.getters.getVisibleFigures();
     if (
       this.dnd.draggedFigure &&
-      !visibleFigures.some((figure) => figure.id === this.dnd.draggedFigure?.id)
+      !visibleFigures.some((figureUI) => figureUI.figure.id === this.dnd.draggedFigure?.figure.id)
     ) {
+      const sheetId = this.env.model.getters.getActiveSheetId();
       visibleFigures.push(
-        this.env.model.getters.getFigure(
-          this.env.model.getters.getActiveSheetId(),
-          this.dnd.draggedFigure?.id
-        )!
+        this.env.model.getters.getFigureUI(
+          sheetId,
+          this.env.model.getters.getFigure(sheetId, this.dnd.draggedFigure?.figure.id)!
+        )
       );
     }
     return visibleFigures;
@@ -240,27 +244,27 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private getFigureContainer(figure: Figure): ContainerType {
+  private getFigureContainer(figureUI: FigureUI): ContainerType {
     const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
-    if (figure.id === this.dnd.draggedFigure?.id) {
+    if (figureUI.figure.id === this.dnd.draggedFigure?.figure.id) {
       return "dnd";
-    } else if (figure.x < viewportX && figure.y < viewportY) {
+    } else if (figureUI.x < viewportX && figureUI.y < viewportY) {
       return "topLeft";
-    } else if (figure.x < viewportX) {
+    } else if (figureUI.x < viewportX) {
       return "bottomLeft";
-    } else if (figure.y < viewportY) {
+    } else if (figureUI.y < viewportY) {
       return "topRight";
     } else {
       return "bottomRight";
     }
   }
 
-  startDraggingFigure(figure: Figure, ev: MouseEvent) {
+  startDraggingFigure(figureUI: FigureUI, ev: MouseEvent) {
     if (ev.button > 0 || this.env.model.getters.isReadonly()) {
       // not main button, probably a context menu and no d&d in readonly mode
       return;
     }
-    const selectResult = this.env.model.dispatch("SELECT_FIGURE", { id: figure.id });
+    const selectResult = this.env.model.dispatch("SELECT_FIGURE", { id: figureUI.figure.id });
     if (!selectResult.isSuccessful) {
       return;
     }
@@ -280,27 +284,22 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       ).end,
     };
 
-    const { x, y } = internalFigureToScreen(this.env.model.getters, figure);
-
-    const initialFig = { ...figure, x, y };
-
     const onMouseMove = (ev: MouseEvent) => {
       const getters = this.env.model.getters;
       const currentMousePosition = { x: ev.clientX, y: ev.clientY };
       const draggedFigure = dragFigureForMove(
         currentMousePosition,
         initialMousePosition,
-        initialFig,
+        figureUI,
         this.env.model.getters.getMainViewportCoordinates(),
         maxDimensions,
         getters.getActiveSheetScrollInfo()
       );
 
-      const otherFigures = this.getOtherFigures(figure.id);
-      const internalDragged = screenFigureToInternal(getters, draggedFigure);
-      const snapResult = snapForMove(getters, internalDragged, otherFigures);
+      const otherFigures = this.getOtherFigures(figureUI.figure.id);
+      const snapResult = snapForMove(getters, draggedFigure, otherFigures);
 
-      this.dnd.draggedFigure = internalFigureToScreen(getters, snapResult.snappedFigure);
+      this.dnd.draggedFigure = snapResult.snappedFigure;
       this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
       this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
     };
@@ -308,11 +307,14 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       if (!this.dnd.draggedFigure) {
         return;
       }
-      let { x, y } = screenFigureToInternal(this.env.model.getters, this.dnd.draggedFigure);
+      const { anchor, offset } = this.env.model.getters.getAnchorOffset(
+        sheetId,
+        this.dnd.draggedFigure
+      );
       this.dnd.draggedFigure = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
-      this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x, y });
+      this.env.model.dispatch("UPDATE_FIGURE", { sheetId, id: figureUI.figure.id, offset, anchor });
     };
     startDnd(onMouseMove, onMouseUp);
   }
@@ -326,20 +328,17 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
    * resize from the bottom border of the figure
    * @param ev Mouse Event
    */
-  startResize(figure: Figure, dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
+  startResize(figureUI: FigureUI, dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
     ev.stopPropagation();
     const initialMousePosition = { x: ev.clientX, y: ev.clientY };
 
-    const { x, y } = internalFigureToScreen(this.env.model.getters, figure);
-
-    const initialFig = { ...figure, x, y };
-    const keepRatio = figureRegistry.get(figure.tag).keepRatio || false;
-    const minFigSize = figureRegistry.get(figure.tag).minFigSize || MIN_FIG_SIZE;
+    const keepRatio = figureRegistry.get(figureUI.figure.tag).keepRatio || false;
+    const minFigSize = figureRegistry.get(figureUI.figure.tag).minFigSize || MIN_FIG_SIZE;
 
     const onMouseMove = (ev: MouseEvent) => {
       const currentMousePosition = { x: ev.clientX, y: ev.clientY };
       const draggedFigure = dragFigureForResize(
-        initialFig,
+        figureUI,
         dirX,
         dirY,
         currentMousePosition,
@@ -349,7 +348,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         this.env.model.getters.getActiveSheetScrollInfo()
       );
 
-      const otherFigures = this.getOtherFigures(figure.id);
+      const otherFigures = this.getOtherFigures(figureUI.figure.id);
       const snapResult = snapForResize(
         this.env.model.getters,
         dirX,
@@ -365,17 +364,21 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       if (!this.dnd.draggedFigure) {
         return;
       }
-      let { x, y } = screenFigureToInternal(this.env.model.getters, this.dnd.draggedFigure);
-      const update: Partial<Figure> = { x, y };
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      const { anchor, offset } = this.env.model.getters.getAnchorOffset(
+        sheetId,
+        this.dnd.draggedFigure
+      );
+      const update: Partial<Figure> = { anchor, offset };
       if (dirX) {
-        update.width = this.dnd.draggedFigure.width;
+        update.width = this.dnd.draggedFigure.figure.width;
       }
       if (dirY) {
-        update.height = this.dnd.draggedFigure.height;
+        update.height = this.dnd.draggedFigure.figure.height;
       }
       this.env.model.dispatch("UPDATE_FIGURE", {
         sheetId: this.env.model.getters.getActiveSheetId(),
-        id: figure.id,
+        id: figureUI.figure.id,
         ...update,
       });
       this.dnd.draggedFigure = undefined;
@@ -385,12 +388,14 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     startDnd(onMouseMove, onMouseUp);
   }
 
-  private getOtherFigures(figId: UID): Figure[] {
-    return this.getVisibleFigures().filter((f) => f.id !== figId);
+  private getOtherFigures(figId: UID): FigureUI[] {
+    return this.getVisibleFigures().filter((f) => f.figure.id !== figId);
   }
 
-  private getDndFigure(): Figure {
-    const figure = this.getVisibleFigures().find((fig) => fig.id === this.dnd.draggedFigure?.id);
+  private getDndFigure(): FigureUI {
+    const figure = this.getVisibleFigures().find(
+      (fig) => fig.figure.id === this.dnd.draggedFigure?.figure.id
+    );
     if (!figure) throw new Error("Dnd figure not found");
     return {
       ...figure,
@@ -398,8 +403,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  getFigureStyle(figure: Figure): string {
-    if (figure.id !== this.dnd.draggedFigure?.id) return "";
+  getFigureStyle(figureUI: FigureUI): string {
+    if (figureUI.figure.id !== this.dnd.draggedFigure?.figure.id) return "";
     return cssPropertiesToCss({
       opacity: "0.9",
       cursor: "grabbing",
@@ -412,16 +417,21 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     if (!snapLine || !this.dnd.draggedFigure) return undefined;
 
     const figureVisibleRects = snapLine.matchedFigIds
-      .map((id) => this.getVisibleFigures().find((fig) => fig.id === id))
+      .map((id) => this.getVisibleFigures().find((figureUI) => figureUI.figure.id === id))
       .filter(isDefined)
-      .map((fig) => {
-        const figOnSCreen = internalFigureToScreen(this.env.model.getters, fig);
-        const container = this.getFigureContainer(fig);
-        return rectIntersection(figOnSCreen, this.getContainerRect(container));
+      .map((figureUI) => {
+        const container = this.getFigureContainer(figureUI);
+        return rectIntersection(
+          { ...figureUI, ...figureUI.figure },
+          this.getContainerRect(container)
+        );
       })
       .filter(isDefined);
-
-    const containerRect = rectUnion(this.dnd.draggedFigure, ...figureVisibleRects);
+    // TODO maybe cleaner ?
+    const containerRect = rectUnion(
+      { ...this.dnd.draggedFigure, ...this.dnd.draggedFigure.figure },
+      ...figureVisibleRects
+    );
 
     return {
       line: snapLine,
