@@ -12,6 +12,7 @@ export interface LineChartDefinition {
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
+  readonly fixed_position?: boolean;
   readonly stacked: boolean;
   readonly aggregated?: boolean;
   readonly cumulative: boolean;

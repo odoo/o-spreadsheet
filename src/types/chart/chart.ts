@@ -156,6 +156,7 @@ export interface ChartCreationContext {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly fixed_position?: boolean;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

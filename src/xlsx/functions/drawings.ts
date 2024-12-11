@@ -1,5 +1,4 @@
-import { FIGURE_BORDER_WIDTH } from "../../constants";
-import { HeaderData, SheetData } from "../../types";
+import { SheetData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
@@ -69,27 +68,27 @@ function convertFigureData(
   figure: FigureData<ExcelChartDefinition | Image>,
   sheet: SheetData
 ): FigurePosition {
-  const { x, y, height, width } = figure;
+  const { anchor, offset } = figure;
 
-  const cols = Object.values(sheet.cols);
-  const rows = Object.values(sheet.rows);
-  const { index: colFrom, offset: offsetColFrom } = figureCoordinates(cols, x);
-  const { index: colTo, offset: offsetColTo } = figureCoordinates(cols, x + width);
-  const { index: rowFrom, offset: offsetRowFrom } = figureCoordinates(rows, y);
-  const { index: rowTo, offset: offsetRowTo } = figureCoordinates(rows, y + height);
-
+  // const cols = Object.values(sheet.cols);
+  // const rows = Object.values(sheet.rows);
+  // const { index: colFrom, offset: offsetColFrom } = figureCoordinates(cols, x);
+  // const { index: colTo, offset: offsetColTo } = figureCoordinates(cols, x + width);
+  // const { index: rowFrom, offset: offsetRowFrom } = figureCoordinates(rows, y);
+  // const { index: rowTo, offset: offsetRowTo } = figureCoordinates(rows, y + height);
+  // TODO
   return {
     from: {
-      col: colFrom,
-      colOff: offsetColFrom,
-      row: rowFrom,
-      rowOff: offsetRowFrom,
+      col: anchor.col,
+      colOff: offset.x,
+      row: anchor.row,
+      rowOff: offset.y,
     },
     to: {
-      col: colTo,
-      colOff: offsetColTo,
-      row: rowTo,
-      rowOff: offsetRowTo,
+      col: anchor.col + 1,
+      colOff: offset.x,
+      row: anchor.row + 1,
+      rowOff: offset.y,
     },
   };
 }
@@ -97,26 +96,26 @@ function convertFigureData(
 /** Returns figure coordinates in EMU for a specific header dimension
  *  See https://docs.microsoft.com/en-us/windows/win32/vml/msdn-online-vml-units#other-units-of-measurement
  */
-function figureCoordinates(
-  headers: HeaderData[],
-  position: number
-): { index: number; offset: number } {
-  let currentPosition = 0;
-  for (const [headerIndex, header] of headers.entries()) {
-    if (currentPosition <= position && position < currentPosition + header.size!) {
-      return {
-        index: headerIndex,
-        offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
-      };
-    } else if (headerIndex < headers.length - 1) {
-      currentPosition += header.size!;
-    }
-  }
-  return {
-    index: headers.length - 1,
-    offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
-  };
-}
+// function figureCoordinates(
+//   headers: HeaderData[],
+//   position: number
+// ): { index: number; offset: number } {
+//   let currentPosition = 0;
+//   for (const [headerIndex, header] of headers.entries()) {
+//     if (currentPosition <= position && position < currentPosition + header.size!) {
+//       return {
+//         index: headerIndex,
+//         offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
+//       };
+//     } else if (headerIndex < headers.length - 1) {
+//       currentPosition += header.size!;
+//     }
+//   }
+//   return {
+//     index: headers.length - 1,
+//     offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
+//   };
+// }
 
 function createChartDrawing(
   figure: FigureData<ExcelChartDefinition>,

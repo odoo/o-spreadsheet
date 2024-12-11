@@ -8,6 +8,7 @@ export interface RadarChartDefinition {
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;
+  readonly fixed_position?: boolean;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;

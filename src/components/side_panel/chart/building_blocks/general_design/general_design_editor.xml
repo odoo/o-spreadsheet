@@ -20,6 +20,14 @@
           style="titleStyle"
           onFontSizeChanged.bind="updateChartTitleFontSize"
         />
+        <Section title.translate="Position">
+          <RadioSelection
+            choices="fixedSelection"
+            selectedValue="getSelectedPositioning(index)"
+            onChange="(value) => this.updateChartPositioning(index, value)"
+            name="'positioning'"
+          />
+        </Section>
         <t t-slot="general-extension"/>
       </t>
     </SidePanelCollapsible>

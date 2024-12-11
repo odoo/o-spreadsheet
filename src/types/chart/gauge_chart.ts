@@ -5,6 +5,7 @@ import { TitleDesign } from "./chart";
 export interface GaugeChartDefinition {
   readonly type: "gauge";
   readonly title: TitleDesign;
+  readonly fixed_position?: boolean;
   readonly dataRange?: string;
   readonly sectionRule: SectionRule;
   readonly background?: Color;

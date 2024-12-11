@@ -11,6 +11,7 @@ export interface PieChartDefinition {
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
+  readonly fixed_position?: boolean;
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
   readonly isDoughnut?: boolean;

@@ -8,10 +8,11 @@ import {
   CommandResult,
   CoreCommand,
   CreateChartCommand,
-  DOMCoordinates,
   DOMDimension,
   Figure,
   FigureData,
+  PixelPosition,
+  Position,
   UID,
   UpdateChartCommand,
   WorkbookData,
@@ -74,7 +75,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_CHART":
-        this.addFigure(cmd.id, cmd.sheetId, cmd.position, cmd.size);
+        this.addFigure(cmd.id, cmd.sheetId, cmd.anchor, cmd.offset, cmd.fixed_position, cmd.size);
         this.addChart(cmd.id, cmd.definition);
         break;
       case "UPDATE_CHART": {
@@ -91,7 +92,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             if (chart) {
               this.dispatch("CREATE_CHART", {
                 id: duplicatedFigureId,
-                position: { x: fig.x, y: fig.y },
+                anchor: fig.anchor,
+                offset: fig.offset,
+                fixed_position: fig.fixed_position,
                 size: { width: fig.width, height: fig.height },
                 definition: chart.getDefinition(),
                 sheetId: cmd.sheetIdTo,
@@ -202,7 +205,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private addFigure(
     id: UID,
     sheetId: UID,
-    position: DOMCoordinates = { x: 0, y: 0 },
+    anchor: Position | undefined,
+    offset: PixelPosition = {
+      x: 0,
+      y: 0,
+    },
+    fixed_position: boolean = true,
     size: DOMDimension = {
       width: DEFAULT_FIGURE_WIDTH,
       height: DEFAULT_FIGURE_HEIGHT,
@@ -211,10 +219,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     if (this.getters.getFigure(sheetId, id)) {
       return;
     }
+    if (!anchor) {
+      anchor = { col: 0, row: 0 };
+      fixed_position = true;
+    }
     const figure: Figure = {
       id,
-      x: position.x,
-      y: position.y,
+      anchor,
+      offset,
+      fixed_position,
       width: size.width,
       height: size.height,
       tag: "chart",
@@ -230,6 +243,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     const sheetId = this.getters.getFigureSheetId(id);
     if (sheetId) {
       this.history.update("charts", id, this.createChart(id, definition, sheetId));
+      this.dispatch("UPDATE_FIGURE", { sheetId, id, fixed_position: definition.fixed_position });
     }
   }
 

@@ -100,6 +100,7 @@ export class PyramidChart extends AbstractChart {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "pyramid",
+      fixed_position: false,
       labelRange: context.auxiliaryRange || undefined,
       axesDesign: context.axesDesign,
       horizontal: true,
@@ -159,6 +160,7 @@ export class PyramidChart extends AbstractChart {
     }
     return {
       type: "pyramid",
+      fixed_position: false,
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
       dataSets: ranges,

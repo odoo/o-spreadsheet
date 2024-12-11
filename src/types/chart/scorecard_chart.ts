@@ -4,6 +4,7 @@ import { TitleDesign } from "./chart";
 export interface ScorecardChartDefinition {
   readonly type: "scorecard";
   readonly title: TitleDesign;
+  readonly fixed_position?: boolean;
   readonly keyValue?: string;
   readonly baseline?: string;
   readonly baselineMode: BaselineMode;

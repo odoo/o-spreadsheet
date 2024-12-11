@@ -5,6 +5,7 @@ import { LegendPosition } from "./common_chart";
 export interface ComboBarChartDefinition {
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
+  readonly fixed_position?: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;
   readonly background?: Color;

@@ -1,6 +1,5 @@
-import { Figure, Getters, Pixel, PixelPosition, UID } from "../../types";
+import { FigureUI, Getters, Pixel, PixelPosition, UID } from "../../types";
 import { FIGURE_BORDER_WIDTH } from "./../../constants";
-import { internalFigureToScreen } from "./figure_container_helper";
 
 const SNAP_MARGIN: Pixel = 5;
 
@@ -20,7 +19,7 @@ export interface SnapLine<T extends HFigureAxisType | VFigureAxisType> {
 }
 
 interface SnapReturn {
-  snappedFigure: Figure;
+  snappedFigure: FigureUI;
   verticalSnapLine?: SnapLine<VFigureAxisType>;
   horizontalSnapLine?: SnapLine<HFigureAxisType>;
 }
@@ -31,8 +30,8 @@ interface SnapReturn {
  */
 export function snapForMove(
   getters: Getters,
-  figureToSnap: Figure,
-  otherFigures: Figure[]
+  figureToSnap: FigureUI,
+  otherFigures: FigureUI[]
 ): SnapReturn {
   const snappedFigure = { ...figureToSnap };
 
@@ -87,8 +86,8 @@ export function snapForResize(
   getters: Getters,
   resizeDirX: -1 | 0 | 1,
   resizeDirY: -1 | 0 | 1,
-  figureToSnap: Figure,
-  otherFigures: Figure[]
+  figureToSnap: FigureUI,
+  otherFigures: FigureUI[]
 ): SnapReturn {
   const snappedFigure = { ...figureToSnap };
 
@@ -102,10 +101,10 @@ export function snapForResize(
   );
   if (verticalSnapLine) {
     if (resizeDirX === 1) {
-      snappedFigure.width -= verticalSnapLine.snapOffset;
+      snappedFigure.figure.width -= verticalSnapLine.snapOffset;
     } else if (resizeDirX === -1) {
       snappedFigure.x -= verticalSnapLine.snapOffset;
-      snappedFigure.width += verticalSnapLine.snapOffset;
+      snappedFigure.figure.width += verticalSnapLine.snapOffset;
     }
   }
 
@@ -119,17 +118,17 @@ export function snapForResize(
   );
   if (horizontalSnapLine) {
     if (resizeDirY === 1) {
-      snappedFigure.height -= horizontalSnapLine.snapOffset;
+      snappedFigure.figure.height -= horizontalSnapLine.snapOffset;
     } else if (resizeDirY === -1) {
       snappedFigure.y -= horizontalSnapLine.snapOffset;
-      snappedFigure.height += horizontalSnapLine.snapOffset;
+      snappedFigure.figure.height += horizontalSnapLine.snapOffset;
     }
   }
 
   snappedFigure.x = Math.round(snappedFigure.x);
   snappedFigure.y = Math.round(snappedFigure.y);
-  snappedFigure.height = Math.round(snappedFigure.height);
-  snappedFigure.width = Math.round(snappedFigure.width);
+  snappedFigure.figure.height = Math.round(snappedFigure.figure.height);
+  snappedFigure.figure.width = Math.round(snappedFigure.figure.width);
 
   return { snappedFigure, verticalSnapLine, horizontalSnapLine };
 }
@@ -142,7 +141,7 @@ export function snapForResize(
  */
 function getVisibleAxes<T extends HFigureAxisType | VFigureAxisType>(
   getters: Getters,
-  figure: Figure,
+  figure: FigureUI,
   axesTypes: T[]
 ): FigureAxis<T>[] {
   const axes = axesTypes.map((axisType) => getAxis(figure, axisType));
@@ -160,16 +159,15 @@ function getVisibleAxes<T extends HFigureAxisType | VFigureAxisType>(
  */
 function getAxisScreenPosition<T extends HFigureAxisType | VFigureAxisType>(
   getters: Getters,
-  figure: Figure,
+  figure: FigureUI,
   figureAxis: FigureAxis<T>
 ): FigureAxis<T> {
-  const screenFigure = internalFigureToScreen(getters, figure);
-  return getAxis(screenFigure, figureAxis.axisType);
+  return getAxis(figure, figureAxis.axisType);
 }
 
 function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
   getters: Getters,
-  figure: Figure,
+  figureUI: FigureUI,
   axis: FigureAxis<T>
 ): boolean {
   const { x: mainViewportX, y: mainViewportY } = getters.getMainViewportCoordinates();
@@ -179,16 +177,16 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
     case "top":
     case "bottom":
     case "vCenter":
-      if (figure.y < mainViewportY) return true;
-      axisStartEndPositions.push({ x: figure.x, y: axis.position });
-      axisStartEndPositions.push({ x: figure.x + figure.width, y: axis.position });
+      if (figureUI.y < mainViewportY) return true;
+      axisStartEndPositions.push({ x: figureUI.x, y: axis.position });
+      axisStartEndPositions.push({ x: figureUI.x + figureUI.figure.width, y: axis.position });
       break;
     case "left":
     case "right":
     case "hCenter":
-      if (figure.x < mainViewportX) return true;
-      axisStartEndPositions.push({ x: axis.position, y: figure.y });
-      axisStartEndPositions.push({ x: axis.position, y: figure.y + figure.height });
+      if (figureUI.x < mainViewportX) return true;
+      axisStartEndPositions.push({ x: axis.position, y: figureUI.y });
+      axisStartEndPositions.push({ x: axis.position, y: figureUI.y + figureUI.figure.height });
       break;
   }
 
@@ -206,9 +204,9 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
 
 function getSnapLine<T extends HFigureAxisType[] | VFigureAxisType[]>(
   getters: Getters,
-  figureToSnap: Figure,
+  figureToSnap: FigureUI,
   figAxesTypes: T,
-  otherFigures: Figure[],
+  otherFigures: FigureUI[],
   otherAxesTypes: T
 ): SnapLine<T[number]> | undefined {
   const axesOfFigure = getVisibleAxes(getters, figureToSnap, figAxesTypes);
@@ -225,10 +223,10 @@ function getSnapLine<T extends HFigureAxisType[] | VFigureAxisType[]>(
         const snapOffset = axisOfFigure.position - axisOfOtherFig.position;
 
         if (closestMatch && snapOffset === closestMatch.snapOffset) {
-          closestMatch.matchedFigIds.push(otherFigure.id);
+          closestMatch.matchedFigIds.push(otherFigure.figure.id);
         } else if (!closestMatch || Math.abs(snapOffset) <= Math.abs(closestMatch.snapOffset)) {
           closestMatch = {
-            matchedFigIds: [otherFigure.id],
+            matchedFigIds: [otherFigure.figure.id],
             snapOffset,
             snappedAxisType: axisOfFigure.axisType,
             position: axisOfOtherFig.position,
@@ -246,28 +244,28 @@ function canSnap(axisPosition1: Pixel, axisPosition2: Pixel) {
 }
 
 function getAxis<T extends HFigureAxisType | VFigureAxisType>(
-  fig: Figure,
+  figureUI: FigureUI,
   axisType: T
 ): FigureAxis<T> {
   let position = 0;
   switch (axisType) {
     case "top":
-      position = fig.y;
+      position = figureUI.y;
       break;
     case "bottom":
-      position = fig.y + fig.height - FIGURE_BORDER_WIDTH;
+      position = figureUI.y + figureUI.figure.height - FIGURE_BORDER_WIDTH;
       break;
     case "vCenter":
-      position = fig.y + Math.floor(fig.height / 2) - FIGURE_BORDER_WIDTH;
+      position = figureUI.y + Math.floor(figureUI.figure.height / 2) - FIGURE_BORDER_WIDTH;
       break;
     case "left":
-      position = fig.x;
+      position = figureUI.x;
       break;
     case "right":
-      position = fig.x + fig.width - FIGURE_BORDER_WIDTH;
+      position = figureUI.x + figureUI.figure.width - FIGURE_BORDER_WIDTH;
       break;
     case "hCenter":
-      position = fig.x + Math.floor(fig.width / 2) - FIGURE_BORDER_WIDTH;
+      position = figureUI.x + Math.floor(figureUI.figure.width / 2) - FIGURE_BORDER_WIDTH;
       break;
   }
 

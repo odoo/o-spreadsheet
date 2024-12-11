@@ -107,6 +107,7 @@ export class BarChart extends AbstractChart {
       dataSets: context.range ?? [],
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       stacked: context.stacked ?? false,
+      fixed_position: context.fixed_position ?? false,
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
@@ -175,6 +176,7 @@ export class BarChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
+      fixed_position: this.fixed_position,
       title: this.title,
       stacked: this.stacked,
       aggregated: this.aggregated,

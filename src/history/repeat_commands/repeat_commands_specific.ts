@@ -39,7 +39,7 @@ export function repeatCreateImageCommand(
 ): CreateImageOverCommand {
   return {
     ...repeatSheetDependantCommand(getters, cmd),
-    figureId: uuidGenerator.uuidv4(),
+    id: uuidGenerator.uuidv4(),
   };
 }
 
