@@ -216,7 +216,7 @@ describe("Pivot fix formula menu item", () => {
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     expect(getEvaluatedGrid(model, "C3:D4")).toEqual([
       [`=PIVOT.HEADER(1,"Customer","Alice")`, `=PIVOT.VALUE(1,"Amount:sum","Customer","Alice")`],
-      [`=PIVOT.HEADER(1,"Customer","null")`, `=PIVOT.VALUE(1,"Amount:sum","Customer","null")`],
+      [`=PIVOT.HEADER(1,"Customer",NA())`, `=PIVOT.VALUE(1,"Amount:sum","Customer",NA())`],
     ]);
   });
 

@@ -1,4 +1,5 @@
 import { CellValue, EvaluatedCell } from "../../../types";
+import { CellErrorType } from "../../../types/errors";
 import {
   DimensionTree,
   PivotDimension,
@@ -220,7 +221,7 @@ export function groupPivotDataEntriesBy(dataEntries: DataEntries, dimension: Piv
 function keySelector(dimension: PivotDimension): (item: DataEntry, index: number) => string {
   const name = dimension.nameWithGranularity;
   return (item) => {
-    return `${item[name]?.value ?? null}`;
+    return `${item[name]?.value ?? CellErrorType.NotAvailable}`;
   };
 }
 
@@ -245,10 +246,10 @@ export function orderDataEntriesKeys(
  * Used to order two values
  */
 function compareDimensionValues(dimension: PivotDimension, a: string, b: string): number {
-  if (a === "null") {
+  if (a === CellErrorType.NotAvailable) {
     return dimension.order === "asc" ? 1 : -1;
   }
-  if (b === "null") {
+  if (b === CellErrorType.NotAvailable) {
     return dimension.order === "asc" ? -1 : 1;
   }
   if (dimension.type === "integer" || dimension.type === "datetime") {

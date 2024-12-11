@@ -446,6 +446,25 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("migration_24", {
+    // convert "null" in pivot formulas to NA()
+    versionFrom: "24",
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const xc in sheet.cells || []) {
+          const cellLowerCased = sheet.cells[xc]?.toLowerCase();
+          if (
+            cellLowerCased?.startsWith("=") &&
+            cellLowerCased.includes("pivot") &&
+            cellLowerCased.includes('"null"')
+          ) {
+            sheet.cells[xc] = sheet.cells[xc]?.replace(/"null"/g, "NA()");
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

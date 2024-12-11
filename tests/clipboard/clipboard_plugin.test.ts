@@ -2114,7 +2114,7 @@ describe("clipboard", () => {
       ["",                                      "=PIVOT.HEADER(1)"],
       ["",                                      '=PIVOT.HEADER(1,"measure","Price:sum")'],
       ['=PIVOT.HEADER(1,"Customer","Alice")',   '=PIVOT.VALUE(1,"Price:sum","Customer","Alice")'],
-      ['=PIVOT.HEADER(1,"Customer","null")',    '=PIVOT.VALUE(1,"Price:sum","Customer","null")'],
+      ['=PIVOT.HEADER(1,"Customer",NA())',    '=PIVOT.VALUE(1,"Price:sum","Customer",NA())'],
     ]);
   });
 
