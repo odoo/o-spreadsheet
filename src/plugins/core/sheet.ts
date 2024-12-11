@@ -456,6 +456,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getUnboundedZone(sheetId: UID, zone: Zone | UnboundedZone): UnboundedZone {
+    if (zone.bottom === undefined || zone.right === undefined) {
+      return zone;
+    }
     const isFullRow = zone.left === 0 && zone.right === this.getNumberCols(sheetId) - 1;
     const isFullCol = zone.top === 0 && zone.bottom === this.getNumberRows(sheetId) - 1;
     return {
