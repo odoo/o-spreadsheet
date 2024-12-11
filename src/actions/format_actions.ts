@@ -396,13 +396,21 @@ function fontSizeMenuBuilder(): ActionSpec[] {
 }
 
 function isAutomaticFormatSelected(env: SpreadsheetChildEnv): boolean {
-  const activeCell = env.model.getters.getCell(env.model.getters.getActivePosition());
-  return !activeCell || !activeCell.format;
+  const activePosition = env.model.getters.getActivePosition();
+  const pivotCell = env.model.getters.getPivotCellFromPosition(activePosition);
+  if (pivotCell.type === "VALUE") {
+    return !env.model.getters.getEvaluatedCell(activePosition).format;
+  }
+  return !env.model.getters.getCell(activePosition)?.format;
 }
 
 function isFormatSelected(env: SpreadsheetChildEnv, format: string): boolean {
-  const activeCell = env.model.getters.getCell(env.model.getters.getActivePosition());
-  return activeCell?.format === format;
+  const activePosition = env.model.getters.getActivePosition();
+  const pivotCell = env.model.getters.getPivotCellFromPosition(activePosition);
+  if (pivotCell.type === "VALUE") {
+    return env.model.getters.getEvaluatedCell(activePosition).format === format;
+  }
+  return env.model.getters.getCell(activePosition)?.format === format;
 }
 
 function isFontSizeSelected(env: SpreadsheetChildEnv, fontSize: number): boolean {
