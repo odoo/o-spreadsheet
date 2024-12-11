@@ -91,7 +91,7 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
         break;
       case "UPDATE_CHART":
       case "CREATE_CHART":
-        this.tryToAddColors(this.getChartColors(cmd.id));
+        this.tryToAddColors(this.getChartColors(cmd.figureId));
         break;
       case "UPDATE_CELL":
       case "ADD_CONDITIONAL_FORMAT":

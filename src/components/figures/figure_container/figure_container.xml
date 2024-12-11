@@ -9,13 +9,13 @@
           <div
             class="o-figure-viewport-inverse w-0 h-0 overflow-visible position-absolute"
             t-att-style="container.inverseViewportStyle">
-            <t t-foreach="container.figures" t-as="figure" t-key="figure.id">
+            <t t-foreach="container.figures" t-as="figureUI" t-key="figureUI.id">
               <FigureComponent
                 onFigureDeleted="this.props.onFigureDeleted"
-                figure="figure"
-                style="getFigureStyle(figure)"
-                onMouseDown="(ev) => this.startDraggingFigure(figure, ev)"
-                onClickAnchor="(dirX, dirY, ev) => this.startResize(figure, dirX, dirY, ev)"
+                figureUI="figureUI"
+                style="getFigureStyle(figureUI)"
+                onMouseDown="(ev) => this.startDraggingFigure(figureUI, ev)"
+                onClickAnchor="(dirX, dirY, ev) => this.startResize(figureUI, dirX, dirY, ev)"
               />
             </t>
           </div>

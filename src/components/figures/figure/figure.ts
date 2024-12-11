@@ -6,8 +6,9 @@ import {
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
 import {
+  AnchorOffset,
   CSSProperties,
-  Figure,
+  FigureUI,
   Pixel,
   Rect,
   ResizeDirection,
@@ -110,7 +111,7 @@ css/*SCSS*/ `
 `;
 
 interface Props {
-  figure: Figure;
+  figureUI: FigureUI;
   style: string;
   onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
@@ -120,7 +121,7 @@ interface Props {
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
   static props = {
-    figure: Object,
+    figureUI: Object,
     style: { type: String, optional: true },
     onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
@@ -142,7 +143,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   private borderWidth!: number;
 
   get isSelected(): boolean {
-    return this.env.model.getters.getSelectedFigureId() === this.props.figure.id;
+    return this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id;
   }
 
   get figureRegistry() {
@@ -161,7 +162,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get wrapperStyle() {
-    const { x, y, width, height } = this.props.figure;
+    const { x, y, width, height } = this.props.figureUI;
     return cssPropertiesToCss({
       left: `${x}px`,
       top: `${y}px`,
@@ -193,7 +194,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    const borderWidth = figureRegistry.get(this.props.figure.tag).borderWidth;
+    const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useEffect(
       (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
@@ -209,7 +210,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           el?.focus({ preventScroll: true });
         }
       },
-      () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
+      () => [
+        this.env.model.getters.getSelectedFigureId(),
+        this.props.figureUI.id,
+        this.figureRef.el,
+      ]
     );
 
     onWillUnmount(() => {
@@ -226,7 +231,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeyDown(ev: KeyboardEvent) {
-    const figure = this.props.figure;
     const keyDownShortcut = keyboardEventToShortcutString(ev);
 
     switch (keyDownShortcut) {
@@ -234,7 +238,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "Backspace":
         this.env.model.dispatch("DELETE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          id: figure.id,
+          figureId: this.props.figureUI.id,
         });
         this.props.onFigureDeleted();
         ev.preventDefault();
@@ -244,18 +248,13 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "ArrowLeft":
       case "ArrowRight":
       case "ArrowUp":
-        const deltaMap = {
-          ArrowDown: [0, 1],
-          ArrowLeft: [-1, 0],
-          ArrowRight: [1, 0],
-          ArrowUp: [0, -1],
-        };
-        const delta = deltaMap[ev.key];
+        let { col, row, offset } = this.postionInBoundary(this.props.figureUI, ev.key);
         this.env.model.dispatch("UPDATE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          id: figure.id,
-          x: figure.x + delta[0],
-          y: figure.y + delta[1],
+          figureId: this.props.figureUI.id,
+          offset,
+          col,
+          row,
         });
         ev.preventDefault();
         ev.stopPropagation();
@@ -278,6 +277,46 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
+  private postionInBoundary(position: AnchorOffset, key: string): AnchorOffset {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    let { col, row, offset } = position;
+    offset = { ...offset };
+    switch (key) {
+      case "ArrowUp":
+        if (offset.y === 0) {
+          row--;
+          offset.y = this.env.model.getters.getRowSize(sheetId, row) - 1;
+        } else {
+          offset.y--;
+        }
+        break;
+      case "ArrowLeft":
+        if (offset.x === 0) {
+          col--;
+          offset.x = this.env.model.getters.getColSize(sheetId, col) - 1;
+        } else {
+          offset.x--;
+        }
+        break;
+      case "ArrowDown":
+        if (offset.y === this.env.model.getters.getRowSize(sheetId, row)) {
+          row++;
+          offset.y = 0;
+        } else {
+          offset.y++;
+        }
+        break;
+      case "ArrowRight":
+        if (offset.x === this.env.model.getters.getColSize(sheetId, row)) {
+          col++;
+          offset.x = 0;
+        } else {
+          offset.x++;
+        }
+    }
+    return { col, row, offset };
+  }
+
   onContextMenu(ev: MouseEvent) {
     if (this.env.isDashboard()) return;
     this.openContextMenu({ x: ev.clientX, y: ev.clientY, width: 0, height: 0 });
@@ -291,7 +330,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
-      .get(this.props.figure.tag)
-      .menuBuilder(this.props.figure.id, this.props.onFigureDeleted, this.env);
+      .get(this.props.figureUI.tag)
+      .menuBuilder(this.props.figureUI.id, this.props.onFigureDeleted, this.env);
   }
 }

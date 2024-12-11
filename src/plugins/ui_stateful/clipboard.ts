@@ -151,13 +151,13 @@ export class ClipboardPlugin extends UIPlugin {
           const figureId = this.uuidGenerator.uuidv4();
           const definition = cmd.clipboardContent.imageData;
 
-          // compute position based on current selection
-          const { x, y } = this.getters.getVisibleRectWithoutHeaders(cmd.target[0]);
           const size = getMaxFigureSize(this.getters, definition.size);
           this.dispatch("CREATE_IMAGE", {
             definition,
             size,
-            position: { x, y },
+            col: cmd.target[0].left,
+            row: cmd.target[0].top,
+            offset: { x: 0, y: 0 },
             sheetId,
             figureId,
           });

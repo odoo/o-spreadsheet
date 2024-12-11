@@ -9,6 +9,7 @@ import {
   UID,
 } from "../../../../../types";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
+import { RadioSelection } from "../../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 import { ChartTitle } from "../chart_title/chart_title";
@@ -31,6 +32,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     ChartTitle,
     Section,
     SidePanelCollapsible,
+    RadioSelection,
   };
   static props = {
     figureId: String,

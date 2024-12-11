@@ -2,7 +2,18 @@ import { CellValue, DataValidationRule, Format, Locale } from ".";
 import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
-import { Border, Color, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
+import {
+  Border,
+  Color,
+  Dimension,
+  HeaderGroup,
+  HeaderIndex,
+  PaneDivision,
+  Pixel,
+  PixelPosition,
+  Style,
+  UID,
+} from "./misc";
 import { PivotCoreDefinition } from "./pivot";
 import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
 
@@ -19,8 +30,9 @@ export interface HeaderData {
 
 export interface FigureData<T> {
   id: UID;
-  x: Pixel;
-  y: Pixel;
+  col: HeaderIndex;
+  row: HeaderIndex;
+  offset: PixelPosition;
   width: Pixel;
   height: Pixel;
   tag: string;

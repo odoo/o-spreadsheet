@@ -1,7 +1,6 @@
 import {
   ConditionalFormat,
   DataValidationRule,
-  DOMCoordinates,
   Figure,
   Format,
   Locale,
@@ -16,6 +15,7 @@ import {
   Dimension,
   HeaderIndex,
   Pixel,
+  PixelPosition,
   SetDecimalStep,
   SortDirection,
   SortOptions,
@@ -502,36 +502,42 @@ export interface MoveConditionalFormatCommand extends SheetDependentCommand {
 // Figures
 //------------------------------------------------------------------------------
 
-export interface CreateFigureCommand extends SheetDependentCommand {
+export interface CreateFigureCommand extends BaseFigureCommand {
   type: "CREATE_FIGURE";
-  figure: Figure;
+  tag: string;
 }
 
-export interface UpdateFigureCommand extends Partial<Figure>, SheetDependentCommand {
+export interface UpdateFigureCommand
+  extends Omit<Partial<Figure>, "id" | "col" | "row">,
+    SheetDependentCommand,
+    PositionDependentCommand {
   type: "UPDATE_FIGURE";
-  id: UID;
+  figureId: UID;
 }
 
 export interface DeleteFigureCommand extends SheetDependentCommand {
   type: "DELETE_FIGURE";
-  id: UID;
+  figureId: UID;
+}
+
+interface BaseFigureCommand extends PositionDependentCommand {
+  figureId: UID;
+  offset: PixelPosition;
+  size: FigureSize;
 }
 
 //------------------------------------------------------------------------------
 // Chart
 //------------------------------------------------------------------------------
 
-export interface CreateChartCommand extends SheetDependentCommand {
+export interface CreateChartCommand extends BaseFigureCommand {
   type: "CREATE_CHART";
-  id: UID;
-  position?: DOMCoordinates;
-  size?: FigureSize;
   definition: ChartDefinition;
 }
 
 export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
-  id: UID;
+  figureId: UID;
   definition: ChartDefinition;
 }
 
@@ -539,11 +545,8 @@ export interface UpdateChartCommand extends SheetDependentCommand {
 // Image
 //------------------------------------------------------------------------------
 
-export interface CreateImageOverCommand extends SheetDependentCommand {
+export interface CreateImageOverCommand extends BaseFigureCommand {
   type: "CREATE_IMAGE";
-  figureId: UID;
-  position: DOMCoordinates;
-  size: FigureSize;
   definition: Image;
 }
 
@@ -901,7 +904,7 @@ export interface AutofillAutoCommand {
 
 export interface SelectFigureCommand {
   type: "SELECT_FIGURE";
-  id: UID | null;
+  figureId: UID | null;
 }
 
 export interface ReplaceSearchCommand {

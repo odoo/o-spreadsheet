@@ -54,7 +54,7 @@ function getChartMenu(
       name: _t("Edit"),
       sequence: 1,
       execute: () => {
-        env.model.dispatch("SELECT_FIGURE", { id: figureId });
+        env.model.dispatch("SELECT_FIGURE", { figureId });
         env.openSidePanel("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
@@ -113,6 +113,11 @@ function getImageMenuRegistry(
       name: _t("Reset size"),
       sequence: 4,
       execute: async () => {
+        const sheetId = env.model.getters.getActiveSheetId();
+        const figure = env.model.getters.getFigure(sheetId, figureId);
+        if (!figure) {
+          return;
+        }
         const imagePath = env.model.getters.getImagePath(figureId);
         const size =
           env.model.getters.getImageSize(figureId) ??
@@ -121,12 +126,15 @@ function getImageMenuRegistry(
           const image = env.model.getters.getImage(figureId);
           image.size = size;
         }
+        const { col, row } = figure;
         const { height, width } = getMaxFigureSize(env.model.getters, size);
         env.model.dispatch("UPDATE_FIGURE", {
-          sheetId: env.model.getters.getActiveSheetId(),
-          id: figureId,
+          sheetId,
+          figureId,
           height,
           width,
+          col,
+          row,
         });
       },
       icon: "o-spreadsheet-Icon.REFRESH",
@@ -136,7 +144,7 @@ function getImageMenuRegistry(
       name: _t("Download"),
       sequence: 6,
       execute: async () => {
-        env.model.dispatch("SELECT_FIGURE", { id: figureId });
+        env.model.dispatch("SELECT_FIGURE", { figureId });
         const path = env.model.getters.getImagePath(figureId);
         downloadFile(path, "image");
       },
@@ -154,7 +162,7 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     sequence: 2,
     description: "Ctrl+C",
     execute: async () => {
-      env.model.dispatch("SELECT_FIGURE", { id: figureId });
+      env.model.dispatch("SELECT_FIGURE", { figureId });
       env.model.dispatch("COPY");
       const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
@@ -170,7 +178,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     sequence: 3,
     description: "Ctrl+X",
     execute: async () => {
-      env.model.dispatch("SELECT_FIGURE", { id: figureId });
+      env.model.dispatch("SELECT_FIGURE", { figureId });
       env.model.dispatch("CUT");
       await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
     },
@@ -190,7 +198,7 @@ function getDeleteMenuItem(
     execute: () => {
       env.model.dispatch("DELETE_FIGURE", {
         sheetId: env.model.getters.getActiveSheetId(),
-        id: figureId,
+        figureId,
       });
       onFigureDeleted();
     },
