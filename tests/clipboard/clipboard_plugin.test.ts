@@ -2448,14 +2448,13 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getCellContent(model, "B2")).toBe("");
     const figures = model.getters.getFigures(sheetId);
     expect(figures).toHaveLength(1);
-    const { x, y } = model.getters.getVisibleRectWithoutHeaders(toZone("B2"));
     const sheetViewDimension = model.getters.getSheetViewDimension();
     expect(figures[0]).toMatchObject({
       tag: "image",
       width: sheetViewDimension.width,
       height: sheetViewDimension.height,
-      x,
-      y,
+      col: 1,
+      row: 1,
     });
   });
 
@@ -2470,7 +2469,7 @@ describe("clipboard: pasting outside of sheet", () => {
     model.on("notify-ui", this, spyNotifyUI);
 
     createImage(model, { figureId: "test" });
-    model.dispatch("SELECT_FIGURE", { id: "test" });
+    model.dispatch("SELECT_FIGURE", { figureId: "test" });
     model.dispatch("COPY");
     await model.getters.getClipboardTextAndImageContent();
     expect(spyNotifyUI).toHaveBeenCalledWith({

@@ -1,5 +1,4 @@
 import { Model } from "../../src";
-import { FIGURE_BORDER_WIDTH } from "../../src/constants";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import {
   Align,
@@ -279,9 +278,10 @@ describe("Export data to xlsx then import it", () => {
     const importedFigure = importedModel.getters.getFigures(sheetId)[0];
     expect(importedFigure.height).toEqual(figure.height);
     expect(importedFigure.width).toBeBetween(figure.width - 1, figure.width + 1);
-    // See explanation at the top of the file for +FIGURE_BORDER_WIDTH
-    expect(importedFigure.x).toEqual(figure.x + FIGURE_BORDER_WIDTH);
-    expect(importedFigure.y).toEqual(figure.y + FIGURE_BORDER_WIDTH);
+    expect(importedFigure.offset).toEqual({
+      x: figure.offset.x,
+      y: figure.offset.y,
+    });
   });
 
   test.each([

@@ -16,6 +16,7 @@ import {
   addCellToSelection,
   addColumns,
   addRows,
+  createFigure,
   createSheet,
   deleteColumns,
   deleteRows,
@@ -423,19 +424,20 @@ describe("simple selection", () => {
 
   test("Selecting figure and undo cleanup selectedFigureId in selection plugin", () => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
+      id: "someuuid",
+      offset: {
         x: 10,
         y: 10,
-        tag: "hey",
-        width: 100,
-        height: 100,
       },
+      col: 0,
+      row: 0,
+      width: 100,
+      height: 100,
     });
     expect(model.getters.getSelectedFigureId()).toBe(null);
-    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
     undo(model);
     expect(model.getters.getSelectedFigureId()).toBe(null);

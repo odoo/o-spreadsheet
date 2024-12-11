@@ -55,22 +55,25 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     }
     const { zones, figureId } = target;
     const sheetId = this.getters.getActiveSheetId();
-    const numCols = this.getters.getNumberCols(sheetId);
-    const numRows = this.getters.getNumberRows(sheetId);
-    const targetX = this.getters.getColDimensions(sheetId, zones[0].left).start;
-    const targetY = this.getters.getRowDimensions(sheetId, zones[0].top).start;
-    const maxX = this.getters.getColDimensions(sheetId, numCols - 1).end;
-    const maxY = this.getters.getRowDimensions(sheetId, numRows - 1).end;
     const { width, height } = clippedContent.copiedFigure;
-    const position = {
-      x: maxX < width ? 0 : Math.min(targetX, maxX - width),
-      y: maxY < height ? 0 : Math.min(targetY, maxY - height),
-    };
     const copy = deepCopy(clippedContent.copiedImage);
+    const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
+    let { left: col, top: row } = zones[0];
+    let offset = { x: 0, y: 0 };
+    if (col > maxPosition.col) {
+      col = maxPosition.col;
+      offset.x = maxPosition.offset.x;
+    }
+    if (row > maxPosition.row) {
+      row = maxPosition.row;
+      offset.y = maxPosition.offset.y;
+    }
     this.dispatch("CREATE_IMAGE", {
       figureId,
       sheetId,
-      position,
+      col,
+      row,
+      offset,
       size: { height, width },
       definition: copy,
     });
@@ -78,10 +81,10 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     if (options.isCutOperation) {
       this.dispatch("DELETE_FIGURE", {
         sheetId: clippedContent.sheetId,
-        id: clippedContent.copiedFigure.id,
+        figureId: clippedContent.copiedFigure.id,
       });
     }
-    this.dispatch("SELECT_FIGURE", { id: figureId });
+    this.dispatch("SELECT_FIGURE", { figureId });
   }
 
   isPasteAllowed(

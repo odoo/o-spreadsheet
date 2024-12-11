@@ -716,14 +716,10 @@ describe("Import xlsx data", () => {
 
     // Don't test exact positions, because excel does some esoteric magic for units and sizes (+our conversion is wonky, hello hardcoded DPI)
     // We'll only test that the figure corners are located in the correct cells
-    expect(figure.x).toBeBetween(
-      getColPosition(figZone.left, testSheet),
-      getColPosition(figZone.left + 1, testSheet)
-    );
-    expect(figure.y).toBeBetween(
-      getRowPosition(figZone.top, testSheet),
-      getRowPosition(figZone.top + 1, testSheet)
-    );
+    expect(figure).toMatchObject({
+      col: figZone.left,
+      row: figZone.top,
+    });
     expect(figure.width).toBeBetween(
       getColPosition(figZone.right, testSheet) - getColPosition(figZone.left, testSheet),
       getColPosition(figZone.right + 1, testSheet) - getColPosition(figZone.left, testSheet)
@@ -884,14 +880,10 @@ describe("Import xlsx data", () => {
     const testSheet = getWorkbookSheet("jestOneCellAnchor", convertedData)!;
     const figZone = toZone(figureZone);
     const figure = testSheet.figures.find((figure) => figure.tag === figureType)!;
-    expect(figure.x).toBeBetween(
-      getColPosition(figZone.left, testSheet),
-      getColPosition(figZone.left + 1, testSheet)
-    );
-    expect(figure.y).toBeBetween(
-      getRowPosition(figZone.top, testSheet),
-      getRowPosition(figZone.top + 1, testSheet)
-    );
+    expect(figure).toMatchObject({
+      col: figZone.left,
+      row: figZone.top,
+    });
     expect(figure.width).toBeBetween(
       getColPosition(figZone.right, testSheet) - getColPosition(figZone.left, testSheet),
       getColPosition(figZone.right + 1, testSheet) - getColPosition(figZone.left, testSheet)

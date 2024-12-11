@@ -8,7 +8,7 @@ import {
   range,
   removeIndexesFromArray,
 } from "../../helpers";
-import { Command } from "../../types";
+import { AnchorOffset, Command } from "../../types";
 import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
@@ -22,7 +22,7 @@ interface CellWithSize {
 }
 
 export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implements HeaderSizeState {
-  static getters = ["getRowSize", "getHeaderSize"] as const;
+  static getters = ["getRowSize", "getHeaderSize", "getMaxAnchorOffset"] as const;
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
 
@@ -112,6 +112,23 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
         this.tallestCellInRow[sheetId][row]?.size ??
         DEFAULT_CELL_HEIGHT
     );
+  }
+
+  getMaxAnchorOffset(sheetId: UID, height: Pixel, width: Pixel): AnchorOffset {
+    let { numberOfRows: row, numberOfCols: col } = this.getters.getSheetSize(sheetId);
+    let availableHeight = 0;
+    for (; availableHeight < height && row > 0; row--) {
+      availableHeight += this.getRowSize(sheetId, row - 1);
+    }
+    let availableWidth = 0;
+    for (; availableWidth < width && col > 0; col--) {
+      availableWidth += this.getters.getColSize(sheetId, col - 1);
+    }
+    return {
+      col,
+      row,
+      offset: { x: availableWidth - width, y: availableHeight - height },
+    };
   }
 
   getHeaderSize(sheetId: UID, dimension: Dimension, index: HeaderIndex): Pixel {

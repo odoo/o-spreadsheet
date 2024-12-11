@@ -1,9 +1,10 @@
 import { getDefaultSheetViewSize } from "../../constants";
-import { clip, findCellInNewZone, isDefined, range } from "../../helpers";
+import { clip, findCellInNewZone, isDefined, positionToZone, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { SelectionEvent } from "../../types/event_stream";
 import {
+  AnchorOffset,
   CellPosition,
   Command,
   CommandResult,
@@ -12,6 +13,7 @@ import {
   Dimension,
   EdgeScrollInfo,
   Figure,
+  FigureUI,
   HeaderIndex,
   LocalCommand,
   Pixel,
@@ -104,6 +106,8 @@ export class SheetViewPlugin extends UIPlugin {
     "getRowDimensionsInViewport",
     "getAllActiveViewportsZonesAndRect",
     "getRect",
+    "getFigureUI",
+    "getPositionAnchorOffset",
   ] as const;
 
   private viewports: Record<UID, SheetViewports | undefined> = {};
@@ -282,6 +286,7 @@ export class SheetViewPlugin extends UIPlugin {
       }
     }
   }
+
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
@@ -530,6 +535,15 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const rect = this.mapViewportsToRect(sheetId, (viewport) => viewport.getFullRect(zone));
     return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
+  }
+
+  /**
+   * Computes the actual size and position (:Rect) of the zone on the canvas
+   * regardless of the viewport dimensions.
+   */
+  getRectWithoutHeaders(zone: Zone): Rect {
+    const sheetId = this.getters.getActiveSheetId();
+    return this.mapViewportsToRect(sheetId, (viewport) => viewport.getFullRect(zone));
   }
 
   /**
@@ -817,33 +831,89 @@ export class SheetViewPlugin extends UIPlugin {
     }
   }
 
-  getVisibleFigures(): Figure[] {
+  /**
+   * Return the index of a col given a negative offset x, based on the main viewport top
+   * visible cell of the main viewport.
+   * It returns -1 if no col is found.
+   */
+  private getColIndexLeftOfMainViewport(x: Pixel): HeaderIndex {
+    if (x >= 0) return -1;
     const sheetId = this.getters.getActiveSheetId();
-    const result: Figure[] = [];
+    let col = this.getActiveMainViewport().left;
+    let colStart =
+      -this.getActiveSheetScrollInfo().scrollX - this.getters.getColRowOffset("COL", col, 0);
+    for (; x < colStart; col--) {
+      colStart -= this.getters.getColSize(sheetId, col - 1);
+    }
+    return Math.max(col, 0);
+  }
+
+  /**
+   * Return the index of a row given a negative offset y, based on the main viewport top
+   * visible cell of the main viewport.
+   * It returns -1 if no row is found.
+   */
+  private getRowIndexTopOfMainViewport(y: Pixel): HeaderIndex {
+    if (y >= 0) return -1;
+    const sheetId = this.getters.getActiveSheetId();
+    let row = this.getActiveMainViewport().top;
+    let rowStart =
+      -this.getActiveSheetScrollInfo().scrollY - this.getters.getColRowOffset("ROW", row, 0);
+    for (; y < rowStart; row--) {
+      rowStart -= this.getters.getRowSize(sheetId, row - 1);
+    }
+    return Math.max(row, 0);
+  }
+
+  getVisibleFigures(): FigureUI[] {
+    const sheetId = this.getters.getActiveSheetId();
+    const result: FigureUI[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { scrollX, scrollY } = this.getActiveSheetScrollInfo();
-    const { x: offsetCorrectionX, y: offsetCorrectionY } =
-      this.getters.getMainViewportCoordinates();
+    const { scrollX, scrollY } = this.getters.getActiveSheetScrollInfo();
+    const { x: offsetCorrectionX, y: offsetCorrectionY } = this.getMainViewportCoordinates();
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
 
     for (const figure of figures) {
+      const figureUI = this.getFigureUI(sheetId, figure);
+      const { x, y } = figureUI;
       if (
-        figure.x >= offsetCorrectionX &&
-        (figure.x + figure.width <= offsetCorrectionX + scrollX ||
-          figure.x >= width + scrollX + offsetCorrectionX)
+        x > offsetCorrectionX &&
+        (x + figure.width < scrollX + offsetCorrectionX || x > width + scrollX + offsetCorrectionX)
+      ) {
+        continue;
+      } else if (
+        y > offsetCorrectionY &&
+        (y + figure.height < scrollY + offsetCorrectionY ||
+          y > height + scrollY + offsetCorrectionY)
       ) {
         continue;
       }
-      if (
-        figure.y >= offsetCorrectionY &&
-        (figure.y + figure.height <= offsetCorrectionY + scrollY ||
-          figure.y >= height + scrollY + offsetCorrectionY)
-      ) {
-        continue;
-      }
-      result.push(figure);
+      result.push(figureUI);
     }
     return result;
+  }
+
+  getFigureUI(sheetId: UID, figure: Figure): FigureUI {
+    const x = figure.offset.x + this.getters.getColDimensions(sheetId, figure.col).start;
+    const y = figure.offset.y + this.getters.getRowDimensions(sheetId, figure.row).start;
+    return { ...figure, x, y };
+  }
+
+  getPositionAnchorOffset(position: PixelPosition): AnchorOffset {
+    const { scrollX, scrollY } = this.getters.getActiveSheetScrollInfo();
+    const x = position.x - scrollX;
+    const y = position.y - scrollY;
+    const col = x >= 0 ? this.getColIndex(x) : this.getColIndexLeftOfMainViewport(x);
+    const row = y >= 0 ? this.getRowIndex(y) : this.getRowIndexTopOfMainViewport(y);
+    const { x: colX, y: rowY } = this.getRect(positionToZone({ col, row }));
+    return {
+      col,
+      row,
+      offset: {
+        x: Math.max(x - colX + this.gridOffsetX, 0),
+        y: Math.max(y - rowY + this.gridOffsetY, 0),
+      },
+    };
   }
 
   isPixelPositionVisible(position: PixelPosition): boolean {

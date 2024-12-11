@@ -735,19 +735,42 @@ describe("sheets", () => {
     createChart(
       model,
       { type: "bar", dataSets: [{ dataRange: "Sheet1!B1:B4" }], labelRange: "Sheet1!A2:A4" },
-      chartId
+      chartId,
+      undefined,
+      { size: { height: 335, width: 536 } }
     );
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });
     model.dispatch("UPDATE_FIGURE", {
       sheetId: sheetId,
-      id: chartId,
-      x: 40,
+      figureId: chartId,
+      offset: { x: 40, y: 0 },
+      col: 0,
+      row: 0,
     });
 
     const figure1 = model.getters.getFigures(sheetId);
     const figure2 = model.getters.getFigures("42");
-    expect(figure1).toEqual([{ height: 335, id: chartId, tag: "chart", width: 536, x: 40, y: 0 }]);
-    expect(figure2).toMatchObject([{ height: 335, tag: "chart", width: 536, x: 0, y: 0 }]);
+    expect(figure1).toEqual([
+      {
+        height: 335,
+        id: chartId,
+        tag: "chart",
+        width: 536,
+        col: 0,
+        row: 0,
+        offset: { x: 40, y: 0 },
+      },
+    ]);
+    expect(figure2).toMatchObject([
+      {
+        height: 335,
+        tag: "chart",
+        width: 536,
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+      },
+    ]);
   });
 
   test("Cols and Rows are correctly duplicated", () => {
