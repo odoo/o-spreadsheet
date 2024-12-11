@@ -152,6 +152,17 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
         textColor: sheet.isVisible ? undefined : "grey",
         execute: (env) => {
           env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
+
+          // Scrolls the sheet list to ensure the specified sheet is visible.
+          const sheetEl = this.bottomBarRef.el!.querySelector<HTMLElement>(
+            `.o-sheet[data-id="${sheetId}"]`
+          );
+          if (sheetEl) {
+            sheetEl.scrollIntoView({
+              behavior: "smooth",
+              inline: "nearest",
+            });
+          }
         },
       });
       i++;
