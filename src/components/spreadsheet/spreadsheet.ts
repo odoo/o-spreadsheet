@@ -208,7 +208,7 @@ css/* scss */ `
   }
 
   .o-two-columns {
-    // grid-column: 1 / 3;
+    grid-column: 1 / 3;
   }
 
   .o-text-icon {

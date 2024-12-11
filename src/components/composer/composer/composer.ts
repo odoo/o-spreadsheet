@@ -455,7 +455,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
    * */
   onInput(ev: InputEvent) {
     // @ts-ignore
-    // ev.target?.scrollIntoView();
+    ev.target?.scrollIntoView();
     if (!this.shouldProcessInputEvents) {
       return;
     }
