@@ -8,10 +8,10 @@
       t-on-keydown="onKeydown"
       t-ref="grid">
       <canvas t-ref="canvas"/>
-      <!-- <GridComposer
+      <GridComposer
         gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="onInputContextMenu"
-      /> -->
+      />
       <ScrollMask>
         <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
         <MobileGridOverlay
@@ -24,8 +24,8 @@
           gridOverlayDimensions="gridOverlayDimensions"
           onFigureDeleted.bind="focusDefaultElement"
         />
+        <Selection t-if="composerFocusStore.activeComposer.editionMode === 'inactive'"/>
       </ScrollMask>
-      <Selection t-if="composerFocusStore.activeComposer.editionMode === 'inactive'"/>
       <!-- 
 
 
