@@ -6,8 +6,8 @@ import { css, cssPropertiesToCss } from "../../helpers/css";
 css/* scss */ `
   .o-corner {
     position: absolute;
-    height: 6px;
-    width: 6px;
+    height: 12px;
+    width: 12px;
     border: 1px solid white;
     border-radius: 4px;
   }
@@ -39,7 +39,7 @@ interface Props {
 }
 
 export class Corner extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Corner";
+  static template = "o-spreadsheet-mobile-Corner";
   static props = {
     zone: Object,
     color: String,
