@@ -440,6 +440,22 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("18.3.1", {
+    // Ensure fixed position, anchor and offset for existing figures based on current position
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          const figureData = figure as any;
+          figure.offset = { x: figureData.x || 0, y: figureData.y || 0 };
+          figure.col = 0;
+          figure.row = 0;
+          delete figure["x"];
+          delete figure["y"];
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

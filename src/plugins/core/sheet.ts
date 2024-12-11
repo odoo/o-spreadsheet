@@ -522,7 +522,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         ...cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData).zone)
       );
     }
-    if ("col" in cmd && "row" in cmd) {
+    if ("col" in cmd && cmd.col !== undefined && "row" in cmd && cmd.row !== undefined) {
       zones.push({ top: cmd.row, left: cmd.col, bottom: cmd.row, right: cmd.col });
     }
     return zones;

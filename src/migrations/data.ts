@@ -210,6 +210,7 @@ export function repairInitialMessages(
   initialMessages = dropCommands(initialMessages, "SORT_CELLS");
   initialMessages = dropCommands(initialMessages, "SET_DECIMAL");
   initialMessages = fixChartDefinitions(data, initialMessages);
+  initialMessages = fixFigureOffset(data, initialMessages);
   return initialMessages;
 }
 
@@ -283,20 +284,20 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
         let command = cmd;
         switch (cmd.type) {
           case "CREATE_CHART":
-            map[cmd.id] = cmd.definition;
+            map[cmd.figureId] = cmd.definition;
             break;
           case "UPDATE_CHART":
-            if (!map[cmd.id]) {
+            if (!map[cmd.figureId]) {
               /** the chart does not exist on the map, it might have been created after a duplicate sheet.
                * We don't have access to the definition, so we skip the command.
                */
-              console.log(`Fix chart definition: chart with id ${cmd.id} not found.`);
+              console.log(`Fix chart definition: chart with id ${cmd.figureId} not found.`);
               continue;
             }
-            const definition = map[cmd.id];
+            const definition = map[cmd.figureId];
             const newDefinition = { ...definition, ...cmd.definition };
             command = { ...cmd, definition: newDefinition };
-            map[cmd.id] = newDefinition;
+            map[cmd.figureId] = newDefinition;
             break;
         }
         commands.push(command);
@@ -312,6 +313,43 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
   return messages;
 }
 
+function fixFigureOffset(
+  data: Partial<WorkbookData>,
+  messages: StateUpdateMessage[]
+): StateUpdateMessage[] {
+  const offset = {};
+  for (const sheet of data.sheets || []) {
+    sheet.figures?.forEach((figure) => {
+      offset[figure.id] = figure.offset;
+    });
+  }
+
+  for (const message of messages) {
+    if (message.type === "REMOTE_REVISION") {
+      for (const cmd of message.commands) {
+        switch (cmd.type) {
+          case "UPDATE_FIGURE":
+            if (cmd.offset) {
+              if (cmd.offset.x === undefined) {
+                cmd.offset.x = offset[cmd.figureId] || 0;
+              }
+              if (cmd.offset.y === undefined) {
+                cmd.offset.y = offset[cmd.figureId] || 0;
+              }
+              offset[cmd.figureId] = offset;
+            }
+            break;
+          case "CREATE_IMAGE":
+          case "CREATE_CHART":
+          case "CREATE_FIGURE":
+            offset[cmd.figureId] = cmd.offset;
+            break;
+        }
+      }
+    }
+  }
+  return messages;
+}
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
