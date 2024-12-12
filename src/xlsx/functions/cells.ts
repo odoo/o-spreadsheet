@@ -19,7 +19,8 @@ import { DEFAULT_LOCALE } from "./../../types/locale";
 
 export function addFormula(
   formula: string | undefined,
-  value: CellValue
+  value: CellValue,
+  arrayFormulaRange: string
 ): {
   attrs: XMLAttributes;
   node: XMLString;
@@ -33,11 +34,13 @@ export function addFormula(
     return { attrs: [], node: escapeXml`` };
   }
 
-  const attrs: XMLAttributes = [["t", type]];
+  const attrs: XMLAttributes = [["cm", "1"]];
   const XlsxFormula = adaptFormulaToExcel(formula);
-
   const exportedValue = adaptFormulaValueToExcel(value);
-  const node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${exportedValue}</v>`;
+  // We treat all formulas as array formulas (a simple formula
+  // is an array formula that spills on only one cell) to avoid
+  // trying to detect spilling sub-formulas which is not a trivial task.
+  const node = escapeXml/*xml*/ `<f t="array" ref="${arrayFormulaRange}">${XlsxFormula}</f><v>${exportedValue}</v>`;
   return { attrs, node };
 }
 
