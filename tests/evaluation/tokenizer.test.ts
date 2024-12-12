@@ -60,7 +60,7 @@ describe("tokenizer", () => {
 
   test("spaces", () => {
     expect(tokenize("  ")).toEqual([{ type: "SPACE", value: " ".repeat(2) }]);
-    expect(tokenize(" \t\v\f")).toEqual([{ type: "SPACE", value: " ".repeat(4) }]);
+    expect(tokenize(" \t\v\f")).toEqual([{ type: "SPACE", value: " \t\v\f" }]);
     expect(tokenize("= 50 %")).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "SPACE", value: " " },

@@ -9,7 +9,7 @@ import {
   getItemId,
   isInside,
   range,
-  replaceSpecialSpaces,
+  replaceNewLines,
   toCartesian,
   toXC,
 } from "../../helpers/index";
@@ -483,7 +483,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasContent = "content" in after || "formula" in after;
 
     // Compute the new cell properties
-    const afterContent = hasContent ? replaceSpecialSpaces(after?.content) : before?.content || "";
+    const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
     let style: Style | undefined;
     if (after.style !== undefined) {
       style = after.style || undefined;
