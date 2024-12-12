@@ -33,6 +33,7 @@ export const CONTENT_TYPES = {
   macroEnabledTemplateWorkbook: "application/vnd.ms-excel.template.macroEnabled.main+xml",
   excelAddInWorkbook: "application/vnd.ms-excel.addin.macroEnabled.main+xml",
   sheet: "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml",
+  metadata: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml",
   sharedStrings: "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml",
   styles: "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml",
   drawing: "application/vnd.openxmlformats-officedocument.drawing+xml",
@@ -46,6 +47,7 @@ export const CONTENT_TYPES = {
 export const XLSX_RELATION_TYPE = {
   document: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
   sheet: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+  metadata: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata",
   sharedStrings:
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
   styles: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
