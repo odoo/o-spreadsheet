@@ -253,4 +253,8 @@ describe("tokenizer", () => {
       { type: "NUMBER", value: "4" },
     ]);
   });
+
+  test("Space characters", () => {
+    expect(tokenize(" \u00A0 \u00A0")).toEqual([{ type: "SPACE", value: " \u00A0 \u00A0" }]);
+  });
 });

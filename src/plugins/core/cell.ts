@@ -34,8 +34,6 @@ import {
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
-const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
-
 const LINK_STYLE = { textColor: LINK_COLOR };
 
 interface CoreState {
@@ -452,9 +450,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const hasContent = "content" in after || "formula" in after;
 
     // Compute the new cell properties
-    const afterContent = hasContent
-      ? after.content?.replace(nbspRegexp, "") || ""
-      : before?.content || "";
+    const afterContent = (hasContent ? after.content : before?.content) || "";
     let style: Style | undefined;
     if (after.style !== undefined) {
       style = after.style || undefined;
