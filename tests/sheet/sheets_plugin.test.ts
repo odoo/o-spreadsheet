@@ -1,5 +1,11 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
+<<<<<<< 18.0
 import { getCanonicalSymbolName, numberToLetters, toZone } from "../../src/helpers";
+||||||| 5be76971863765e56a4be1452440ecfc0a50821c
+import { getCanonicalSheetName, numberToLetters, toZone } from "../../src/helpers";
+=======
+import { getCanonicalSheetName, numberToLetters, toUnboundedZone, toZone } from "../../src/helpers";
+>>>>>>> 79bf4d91bc074f24a3d117e09228f8a092be96e7
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -1077,6 +1083,7 @@ describe("sheets", () => {
     expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, right: undefined });
   });
 
+<<<<<<< 18.0
   describe("Sheet color", () => {
     test("Can change a sheet color", () => {
       const model = new Model();
@@ -1113,4 +1120,16 @@ describe("sheets", () => {
       expect(newModel.getters.getSheet(sheetId).color).toBe("#FF0000");
     });
   });
+||||||| 5be76971863765e56a4be1452440ecfc0a50821c
+=======
+  test.each<string>(["A1:Z", "A2:Z", "B2:26", "B1:26", "A:A", "A:A3"])(
+    "GetUnboundedZone : Unbounded range '%s' is unaffected",
+    (xc) => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      const zone = toUnboundedZone(xc);
+      expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual(zone);
+    }
+  );
+>>>>>>> 79bf4d91bc074f24a3d117e09228f8a092be96e7
 });
