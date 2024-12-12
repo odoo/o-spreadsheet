@@ -1,5 +1,10 @@
 import { INCORRECT_RANGE_STRING, NEWLINE } from "../constants";
-import { getFormulaNumberRegex, rangeReference, replaceSpecialSpaces } from "../helpers/index";
+import {
+  getFormulaNumberRegex,
+  rangeReference,
+  replaceNewLines,
+  whiteSpaceRegexp,
+} from "../helpers/index";
 import { DEFAULT_LOCALE, Locale } from "../types";
 
 /**
@@ -42,7 +47,7 @@ export interface Token {
 }
 
 export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
-  str = replaceSpecialSpaces(str);
+  str = replaceNewLines(str);
   const chars = new TokenizingChars(str);
   const result: Token[] = [];
 
@@ -208,13 +213,13 @@ function tokenizeSpace(chars: TokenizingChars): Token | null {
     return { type: "SPACE", value: NEWLINE.repeat(length) };
   }
 
-  while (chars.current === " ") {
-    length++;
-    chars.shift();
+  let spaces = "";
+  while (chars.current && chars.current.match(whiteSpaceRegexp)) {
+    spaces += chars.shift();
   }
 
-  if (length) {
-    return { type: "SPACE", value: " ".repeat(length) };
+  if (spaces) {
+    return { type: "SPACE", value: spaces };
   }
   return null;
 }
