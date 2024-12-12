@@ -243,6 +243,12 @@ describe("getCellText", () => {
     setCellContent(model, "A1", '="hello \\"world\\""');
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe('hello "world"');
   });
+
+  test("Non breaking spaces are kept on cell insertion", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello\u00A0world");
+    expect(getCellText(model, "A1")).toBe("hello\u00A0world");
+  });
 });
 
 describe("link cell", () => {
@@ -549,7 +555,6 @@ test.each([
   ["Line\nLine2", "Line\nLine2"],
   ["Line\rLine2", "Line\nLine2"],
   ["Line\r\nLine2", "Line\nLine2"],
-  ["Word\xa0Word2", "Word Word2"], // \xa0 => non-breaking space
 ])(
   "Content string given to update cell are properly sanitized %s",
   (originalString: string, sanitizedString: string) => {
