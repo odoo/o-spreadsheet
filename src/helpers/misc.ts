@@ -463,6 +463,7 @@ export function removeFalsyAttributes<T extends Object | undefined | null>(obj: 
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes
  */
 const whiteSpaceSpecialCharacters = [
+  " ",
   "\t",
   "\f",
   "\v",
@@ -477,16 +478,15 @@ const whiteSpaceSpecialCharacters = [
   String.fromCharCode(parseInt("3000", 16)),
   String.fromCharCode(parseInt("feff", 16)),
 ];
-const whiteSpaceRegexp = new RegExp(whiteSpaceSpecialCharacters.join("|") + "|(\r\n|\r|\n)", "g");
+export const whiteSpaceRegexp = new RegExp(whiteSpaceSpecialCharacters.join("|"), "g");
+const newLineRegexp = /(\r\n|\r)/g;
 
 /**
- * Replace all the special spaces in a string (non-breaking, tabs, ...) by normal spaces, and all the
- * different newlines types by \n.
+ * Replace all different newlines characters by \n
  */
-export function replaceSpecialSpaces(text: string | undefined): string {
+export function replaceNewLines(text: string | undefined): string {
   if (!text) return "";
-  if (!whiteSpaceRegexp.test(text)) return text;
-  return text.replace(whiteSpaceRegexp, (match, newLine) => (newLine ? NEWLINE : " "));
+  return text.replace(newLineRegexp, NEWLINE);
 }
 
 /**
