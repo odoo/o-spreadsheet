@@ -199,14 +199,13 @@ function tokenizeSymbol(chars: string[]): Token | null {
 const whiteSpaceRegexp = /\s/;
 
 function tokenizeSpace(chars: string[]): Token | null {
-  let length = 0;
+  let spaces = "";
   while (chars[0] && chars[0].match(whiteSpaceRegexp)) {
-    length++;
-    chars.shift();
+    spaces += chars.shift();
   }
 
-  if (length) {
-    return { type: "SPACE", value: " ".repeat(length) };
+  if (spaces) {
+    return { type: "SPACE", value: spaces };
   }
   return null;
 }

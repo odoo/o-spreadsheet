@@ -189,6 +189,12 @@ describe("getCellText", () => {
     setCellContent(model, "A1", '="hello \\"world\\""');
     expect(getCell(model, "A1")?.formattedValue).toBe('hello "world"');
   });
+
+  test("Non breaking spaces are kept on cell insertion", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello\u00A0world");
+    expect(getCellText(model, "A1")).toBe("hello\u00A0world");
+  });
 });
 
 describe("link cell", () => {
