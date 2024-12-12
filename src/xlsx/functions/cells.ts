@@ -19,7 +19,8 @@ import { DEFAULT_LOCALE } from "./../../types/locale";
 
 export function addFormula(
   formula: string | undefined,
-  value: CellValue
+  value: CellValue,
+  arrayFormulaRange: string | undefined
 ): {
   attrs: XMLAttributes;
   node: XMLString;
@@ -37,7 +38,12 @@ export function addFormula(
   const XlsxFormula = adaptFormulaToExcel(formula);
 
   const exportedValue = adaptFormulaValueToExcel(value);
-  const node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${exportedValue}</v>`;
+  let node: XMLString;
+  if (arrayFormulaRange) {
+    node = escapeXml/*xml*/ `<f t="array" ref="${arrayFormulaRange}">${XlsxFormula}</f><v>${exportedValue}</v>`;
+  } else {
+    node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${exportedValue}</v>`;
+  }
   return { attrs, node };
 }
 

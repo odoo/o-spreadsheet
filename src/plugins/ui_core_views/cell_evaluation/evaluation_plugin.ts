@@ -331,9 +331,11 @@ export class EvaluationPlugin extends UIPlugin {
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
       sheet.cellValues = {};
+      sheet.arrayFormulaCells = {};
     }
     for (const position of this.evaluator.getEvaluatedPositions()) {
       const evaluatedCell = this.evaluator.getEvaluatedCell(position);
+      const cell = this.getters.getCell(position);
 
       const xc = toXC(position.col, position.row);
       const value = evaluatedCell.value;
@@ -362,16 +364,28 @@ export class EvaluationPlugin extends UIPlugin {
         }
       }
 
-      const exportedCellData = exportedSheetData.cells[xc];
-
+      // const exportedCellData = exportedSheetData.cells[xc];
+      console.log(newContent);
       let content: string | undefined;
-      if (isExported && isFormula && formulaCell instanceof FormulaCellWithDependencies) {
+      if (isExported && isFormula && formulaCell instanceof FormulaCellWithDependencies && cell) {
         content = formulaCell.contentWithFixedReferences;
       } else {
-        content = !isExported ? newContent : exportedCellData;
+        content = evaluatedCell.value?.toString();
       }
       exportedSheetData.cells[xc] = content;
       exportedSheetData.cellValues[xc] = value;
+      const spillZone = this.getSpreadZone(position);
+      if (
+        cell &&
+        this.getters.getArrayFormulaSpreadingOn(position) &&
+        cell.content === formulaCell?.content &&
+        spillZone
+      ) {
+        exportedSheetData.arrayFormulaCells[xc] = this.getters.getRangeString(
+          this.getters.getRangeFromZone(this.getters.getActiveSheetId(), spillZone),
+          this.getters.getActiveSheetId()
+        );
+      }
     }
   }
 
