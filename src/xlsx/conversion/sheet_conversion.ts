@@ -2,7 +2,7 @@ import {
   buildSheetLink,
   largeMax,
   markdownLink,
-  replaceSpecialSpaces,
+  replaceNewLines,
   splitReference,
   toCartesian,
   toXC,
@@ -118,7 +118,7 @@ function convertRows(
 }
 
 function convertSharedStrings(xlsxSharedStrings: string[]): string[] {
-  return xlsxSharedStrings.map(replaceSpecialSpaces);
+  return xlsxSharedStrings.map(replaceNewLines);
 }
 
 function convertCells(
