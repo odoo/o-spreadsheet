@@ -325,6 +325,9 @@ export class Session extends EventBus<CollaborativeEvent> {
       }
     }
     this.acknowledge(message);
+    if (message.type === "REMOTE_REVISION" && message.clientId === this.clientId) {
+      return;
+    }
     this.trigger("collaborative-event-received");
   }
 
