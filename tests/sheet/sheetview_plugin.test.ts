@@ -2,12 +2,15 @@ import { CommandResult } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  DEFAULT_REVISION_ID,
+  MESSAGE_VERSION,
   getDefaultSheetViewSize,
 } from "../../src/constants";
 import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
 import { Zone } from "../../src/types";
+import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
 import {
   activateSheet,
   addColumns,
@@ -925,6 +928,25 @@ describe("Viewport of Simple sheet", () => {
       width: 3.5 * DEFAULT_CELL_WIDTH,
       height: 4.5 * DEFAULT_CELL_HEIGHT,
     });
+  });
+
+  test("Loading a model with initial revisions in sheet that is deleted doesn't crash", () => {
+    const initialMessages: StateUpdateMessage[] = [
+      {
+        type: "REMOTE_REVISION",
+        serverRevisionId: DEFAULT_REVISION_ID,
+        nextRevisionId: "1",
+        version: MESSAGE_VERSION,
+        clientId: "bob",
+        commands: [
+          { type: "CREATE_SHEET", position: 1, sheetId: "newSheetId" },
+          { type: "UPDATE_CELL", sheetId: "newSheetId", col: 0, row: 0, content: "1" },
+          { type: "DELETE_SHEET", sheetId: "newSheetId" },
+        ],
+      },
+    ];
+
+    expect(() => new Model({}, {}, initialMessages)).not.toThrow();
   });
 });
 
