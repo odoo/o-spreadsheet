@@ -2,11 +2,12 @@ import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../src";
 import { ComposerStore } from "../src/components/composer/composer/composer_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
-import { DEFAULT_FONT_SIZE } from "../src/constants";
+import { DEBOUNCE_TIME, DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
 import { topbarComponentRegistry, topbarMenuRegistry } from "../src/registries";
 import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "../src/types";
 import { FileStore } from "./__mocks__/mock_file_store";
+import { MockTransportService } from "./__mocks__/transport_service";
 import {
   addCellToSelection,
   createTable,
@@ -909,4 +910,22 @@ describe("Topbar svg icon", () => {
     const icon = fixture.querySelector(`.o-menu-item-button[title="${buttonTitle}"] svg`);
     expect(icon?.classList.contains(iconClass)).toBeTruthy();
   });
+});
+
+test("Clicking on a topbar button only trigger a single render", async () => {
+  jest.useFakeTimers();
+  const transportService = new MockTransportService();
+
+  const model = new Model({}, { transportService });
+  const { fixture, env } = await mountSpreadsheet({ model });
+  jest.advanceTimersByTime(DEBOUNCE_TIME + 10); // wait for the debounce of session.move
+  jest.useRealTimers();
+
+  const triggerRender = jest.fn();
+  model.on("update", {}, triggerRender);
+  env["__spreadsheet_stores__"].on("store-updated", null, triggerRender);
+
+  await click(fixture, ".o-spreadsheet-topbar [title='Bold (Ctrl+B)']");
+
+  expect(triggerRender).toHaveBeenCalledTimes(1);
 });
