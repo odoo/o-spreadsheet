@@ -241,6 +241,7 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "DELETE_SHEET":
         this.cleanViewports();
+        this.sheetsWithDirtyViewports.delete(cmd.sheetId);
         break;
       case "ACTIVATE_SHEET":
         this.sheetsWithDirtyViewports.add(cmd.sheetIdTo);
