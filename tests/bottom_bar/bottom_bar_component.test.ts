@@ -355,14 +355,20 @@ describe("BottomBar component", () => {
     test.each(["Enter", "Escape"])(
       "Pressing %s ends the edition and yields back the DOM focus",
       async (key) => {
+        const focusElement = jest.fn();
+        const focusableElementStore = env.getStore(DOMFocusableElementStore);
+        const defaultFocusElement = document.createElement("div");
+        defaultFocusElement.focus = focusElement;
+        focusableElementStore.setFocusableElement(defaultFocusElement);
+
         const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
         // will give focus back to the component main node
         triggerMouseEvent(sheetName, "dblclick");
         await nextTick();
         sheetName.textContent = "New name";
+        expect(focusElement).not.toHaveBeenCalled();
         await keyDown({ key });
-        const focusableElementStore = env.getStore(DOMFocusableElementStore);
-        expect(focusableElementStore.focus).toHaveBeenCalled();
+        expect(focusElement).toHaveBeenCalled();
       }
     );
   });

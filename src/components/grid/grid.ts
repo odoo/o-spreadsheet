@@ -182,7 +182,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useEffect(
       () => {
         if (!this.sidePanel.isOpen) {
-          this.DOMFocusableElementStore.focus();
+          this.DOMFocusableElementStore.focusableElement?.focus();
         }
       },
       () => [this.sidePanel.isOpen]
@@ -406,7 +406,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       !this.env.model.getters.getSelectedFigureId() &&
       this.composerFocusStore.activeComposer.editionMode === "inactive"
     ) {
-      this.DOMFocusableElementStore.focus();
+      this.DOMFocusableElementStore.focusableElement?.focus();
     }
   }
 
