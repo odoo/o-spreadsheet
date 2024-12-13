@@ -57,11 +57,11 @@
           onChange.bind="toggleAccountingFormat"
         />
         <div class="o-format-examples mt-4" t-if="selectedFormat">
-          <table>
+          <table class="w-100">
             <t t-foreach="getFormatExamples()" t-as="example" t-key="example_index">
               <tr>
-                <td class="pe-3 o-fw-bold" t-esc="example.label"/>
-                <td t-esc="example.value"/>
+                <td class="w-25 pe-3 o-fw-bold" t-esc="example.label"/>
+                <td class="w-75 text-truncate" t-esc="example.value"/>
               </tr>
             </t>
           </table>
