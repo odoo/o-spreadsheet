@@ -157,11 +157,11 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     if (ev.key === "Enter") {
       ev.preventDefault();
       this.stopEdition();
-      this.DOMFocusableElementStore.focus();
+      this.DOMFocusableElementStore.focusableElement?.focus();
     }
     if (ev.key === "Escape") {
       this.cancelEdition();
-      this.DOMFocusableElementStore.focus();
+      this.DOMFocusableElementStore.focusableElement?.focus();
     }
   }
 

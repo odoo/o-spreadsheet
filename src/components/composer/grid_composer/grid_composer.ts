@@ -182,7 +182,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       this.isEditing = isEditing;
       if (!isEditing) {
         this.rect = this.defaultRect;
-        this.DOMFocusableElementStore.focus();
+        this.DOMFocusableElementStore.focusableElement?.focus();
         return;
       }
       const position = this.env.model.getters.getActivePosition();
