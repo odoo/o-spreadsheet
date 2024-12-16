@@ -75,9 +75,11 @@ import {
   expandZoneOnInsertion,
   formatValue,
   getUniqueText,
+  isDateTime,
   isDefined,
   isInside,
   isMarkdownLink,
+  isNumber,
   lazy,
   lettersToNumber,
   markdownLink,
@@ -343,6 +345,8 @@ export const helpers = {
   splitReference,
   sanitizeSheetName,
   getUniqueText,
+  isNumber,
+  isDateTime,
 };
 
 export const links = {
