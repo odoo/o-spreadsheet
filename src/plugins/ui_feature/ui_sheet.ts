@@ -10,6 +10,10 @@ import {
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
+import {
+  GridCellIconProvider,
+  gridCellIconRegistry,
+} from "../../registries/grid_cell_icon_registry";
 import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
 import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
 import { ImageSrc } from "../../types/image";
@@ -18,7 +22,7 @@ import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
   static getters = [
-    "doesCellHaveGridIcon",
+    "getGridCellIcon",
     "getCellWidth",
     "getCellIconSrc",
     "getTextWidth",
@@ -87,7 +91,7 @@ export class SheetUIPlugin extends UIPlugin {
       contentWidth += computeIconWidth(style);
     }
 
-    if (this.getters.doesCellHaveGridIcon(position)) {
+    if (this.getters.getGridCellIcon(position)) {
       contentWidth += ICON_EDGE_LENGTH + GRID_ICON_MARGIN;
     }
 
@@ -161,11 +165,15 @@ export class SheetUIPlugin extends UIPlugin {
     return splitTextToWidth(this.ctx, text, style, args.wrapText ? args.maxWidth : undefined);
   }
 
-  doesCellHaveGridIcon(position: CellPosition): boolean {
-    const isFilterHeader = this.getters.isFilterHeader(position);
-    const hasListIcon =
-      !this.getters.isReadonly() && this.getters.cellHasListDataValidationIcon(position);
-    return isFilterHeader || hasListIcon;
+  getGridCellIcon(position: CellPosition): GridCellIconProvider | undefined {
+    const iconMatchers = gridCellIconRegistry.getAll();
+
+    for (const iconMatcher of iconMatchers) {
+      if (iconMatcher.hasIcon(this.getters, position)) {
+        return iconMatcher;
+      }
+    }
+    return undefined;
   }
 
   /**
