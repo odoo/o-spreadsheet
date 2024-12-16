@@ -164,6 +164,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
+    //TODORAR demander au peuple demain parce qiue là je comprends pas du tout ce qui se passe :D
+    // makes the world go round so ... yeah no clue, really fun stuff tbh
+    useExternalListener(document.body, "touchmove", (ev) => {}, { capture: false, passive: false });
     useExternalListener(document.body, "paste", this.paste);
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
