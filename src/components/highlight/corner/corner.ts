@@ -1,13 +1,12 @@
 import { Component } from "@odoo/owl";
-import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { Color, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 
 css/* scss */ `
   .o-corner {
     position: absolute;
-    height: 12px;
-    width: 12px;
+    height: 20px;
+    width: 20px;
     border: 1px solid white;
     border-radius: 4px;
   }
@@ -71,13 +70,17 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
     const topValue = this.isTop ? rect.y : rect.y + rect.height;
 
     return cssPropertiesToCss({
-      left: `${leftValue - AUTOFILL_EDGE_LENGTH / 2}px`,
-      top: `${topValue - AUTOFILL_EDGE_LENGTH / 2}px`,
+      left: `${leftValue - 20 / 2}px`,
+      top: `${topValue - 20 / 2}px`,
       "background-color": this.props.color,
     });
   }
 
   onMouseDown(ev: MouseEvent) {
+    if (ev.cancelable) {
+      ev.preventDefault();
+    }
+    ev.stopPropagation();
     this.props.onResizeHighlight(this.isLeft, this.isTop);
   }
 }

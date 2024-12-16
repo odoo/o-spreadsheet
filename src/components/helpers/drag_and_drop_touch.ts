@@ -31,7 +31,7 @@ export function startDndTouch(
   window.addEventListener("touchstart", onMouseDown);
   window.addEventListener("touchend", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
-  window.addEventListener("touchmove", onMouseMove);
+  window.addEventListener("touchmove", onMouseMove, { capture: false, passive: false });
   // mouse wheel on window is by default a passive event.
   // preventDefault() is not allowed in passive event handler.
   // https://chromestatus.com/feature/6662647093133312
@@ -73,7 +73,9 @@ export function dragAndDropBeyondTheViewportTouch(
     startingY = startingEv.touches[0].clientY - position.top;
   };
   const onMouseMove = (ev: TouchEvent) => {
-    ev.preventDefault();
+    if (ev.cancelable) {
+      ev.preventDefault();
+    }
     ev.stopPropagation();
     currentEv = ev;
     if (timeOutId) {
