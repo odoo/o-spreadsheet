@@ -68,9 +68,11 @@ import {
   deepEquals,
   expandZoneOnInsertion,
   formatValue,
+  isDateTime,
   isDefined,
   isInside,
   isMarkdownLink,
+  isNumber,
   lazy,
   lettersToNumber,
   markdownLink,
@@ -270,6 +272,8 @@ export const helpers = {
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
   unquote,
+  isNumber,
+  isDateTime,
 };
 
 export const links = {
