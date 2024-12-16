@@ -73,6 +73,8 @@ export function dragAndDropBeyondTheViewportTouch(
     startingY = startingEv.touches[0].clientY - position.top;
   };
   const onMouseMove = (ev: TouchEvent) => {
+    ev.preventDefault();
+    ev.stopPropagation();
     currentEv = ev;
     if (timeOutId) {
       return;
