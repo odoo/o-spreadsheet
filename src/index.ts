@@ -47,8 +47,10 @@ import {
   createCurrencyFormat,
   deepEquals,
   formatValue,
+  isDateTime,
   isDefined,
   isMarkdownLink,
+  isNumber,
   lazy,
   lettersToNumber,
   markdownLink,
@@ -225,6 +227,8 @@ export const helpers = {
   createActions,
   transformRangeData,
   deepEquals,
+  isNumber,
+  isDateTime,
 };
 
 export const links = {
