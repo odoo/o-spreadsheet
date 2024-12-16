@@ -85,9 +85,11 @@ import {
   deepEquals,
   expandZoneOnInsertion,
   formatValue,
+  isDateTime,
   isDefined,
   isInside,
   isMarkdownLink,
+  isNumber,
   lazy,
   lettersToNumber,
   markdownLink,
@@ -342,6 +344,8 @@ export const helpers = {
   areDomainArgsFieldsValid,
   formatTickValue,
   sanitizeSheetName,
+  isNumber,
+  isDateTime,
 };
 
 export const links = {
