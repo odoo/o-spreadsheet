@@ -1,4 +1,5 @@
 import { Model } from "../src";
+import { AutoresizeStore } from "../src/components/headers_overlay/autoresize_store";
 import { DEFAULT_CELL_HEIGHT } from "../src/constants";
 import { toZone } from "../src/helpers";
 import {
@@ -45,6 +46,7 @@ import {
   getStyle,
 } from "./test_helpers/getters_helpers";
 import { makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
+import { makeStore } from "./test_helpers/stores";
 
 let model: Model;
 let sheetId: UID;
@@ -495,6 +497,7 @@ describe("Repeat local commands", () => {
   });
 
   test("Repeat autoresize rows", () => {
+    const { model } = makeStore(AutoresizeStore);
     resizeRows(model, [0, 2, 3], 100);
     model.dispatch("AUTORESIZE_ROWS", {
       sheetId,
@@ -509,6 +512,7 @@ describe("Repeat local commands", () => {
   });
 
   test("Repeat autoresize columns", () => {
+    const { model } = makeStore(AutoresizeStore);
     setCellContent(model, "A1", "A1");
     setCellContent(model, "C1", "C1");
     setCellContent(model, "D1", "D1");

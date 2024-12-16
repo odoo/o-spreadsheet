@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotSortIcon">
+    <div
+      class="o-pivot-sort-icon d-flex align-items-center"
+      t-att-class="highContrastClass"
+      t-on-click="onClick">
+      <t t-set="sorting" t-value="sortDirection"/>
+      <div t-if="sorting === 'asc'" class="o-icon">
+        <i class="fa fa-angle-down"/>
+      </div>
+      <div t-elif="sorting === 'desc'" class="o-icon">
+        <i class="fa fa-angle-up"/>
+      </div>
+      <div t-else="" class="o-icon o-dash-icon user-select-none text-center">-</div>
+    </div>
+  </t>
+</templates>

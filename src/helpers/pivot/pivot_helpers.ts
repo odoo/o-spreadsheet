@@ -5,12 +5,15 @@ import { inferFormat, toBoolean, toNumber, toString } from "../../functions/help
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import {
+  CellPosition,
   CellValue,
   DEFAULT_LOCALE,
   FunctionResultObject,
   Locale,
   Matrix,
   Pivot,
+  SortDirection,
+  SpreadsheetChildEnv,
 } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import {
@@ -323,4 +326,37 @@ export function isSortedColumnValid(sortedColumn: PivotSortedColumn, pivot: Pivo
   } catch (e) {
     return false;
   }
+}
+
+export function sortPivotAtPosition(
+  env: SpreadsheetChildEnv,
+  position: CellPosition,
+  order: SortDirection | "none"
+) {
+  const pivotId = env.model.getters.getPivotIdFromPosition(position);
+  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
+  if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
+    return;
+  }
+
+  if (order === "none") {
+    env.model.dispatch("UPDATE_PIVOT", {
+      pivotId: pivotId,
+      pivot: {
+        ...env.model.getters.getPivotCoreDefinition(pivotId),
+        sortedColumn: undefined,
+      },
+    });
+    return;
+  }
+
+  const pivot = env.model.getters.getPivot(pivotId);
+  const colDomain = domainToColRowDomain(pivot, pivotCell.domain).colDomain;
+  env.model.dispatch("UPDATE_PIVOT", {
+    pivotId: pivotId,
+    pivot: {
+      ...env.model.getters.getPivotCoreDefinition(pivotId),
+      sortedColumn: { domain: colDomain, order, measure: pivotCell.measure },
+    },
+  });
 }

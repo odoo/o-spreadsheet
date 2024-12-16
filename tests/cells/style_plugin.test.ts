@@ -1,9 +1,4 @@
-import {
-  DEFAULT_FONT_SIZE,
-  DEFAULT_STYLE,
-  PADDING_AUTORESIZE_HORIZONTAL,
-} from "../../src/constants";
-import { fontSizeInPixels, toCartesian } from "../../src/helpers";
+import { DEFAULT_STYLE } from "../../src/constants";
 import { Model } from "../../src/model";
 import {
   createSheet,
@@ -14,7 +9,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
+import { target } from "../test_helpers/helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
@@ -128,26 +123,5 @@ describe("styles", () => {
     setStyle(model, "A1", { fillColor: "red" }, "42");
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A1", "42")!.style).toBeDefined();
-  });
-
-  test("getCellWidth use computed style", () => {
-    const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    setCellContent(model, "A1", "H");
-    setCellContent(model, "A2", "H");
-    const fontSize = 36;
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("H", { fontSize }, "1"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
-    const A1 = toCartesian("A1");
-    const A2 = toCartesian("A2");
-    expect(model.getters.getCellWidth({ sheetId, col: A1.col, row: A1.row })).toBe(
-      fontSizeInPixels(fontSize) + 2 * PADDING_AUTORESIZE_HORIZONTAL
-    );
-    expect(model.getters.getCellWidth({ sheetId, col: A2.col, row: A2.row })).toBe(
-      fontSizeInPixels(DEFAULT_FONT_SIZE) + 2 * PADDING_AUTORESIZE_HORIZONTAL
-    );
   });
 });

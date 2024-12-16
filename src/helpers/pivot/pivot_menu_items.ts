@@ -4,6 +4,7 @@ import { _t } from "../../translation";
 import { CellValueType } from "../../types";
 import { deepEquals } from "../misc";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
+import { sortPivotAtPosition } from "./pivot_helpers";
 
 export const pivotProperties: ActionSpec = {
   name: _t("See pivot properties"),
@@ -98,32 +99,7 @@ export function canSortPivot(env: SpreadsheetChildEnv): boolean {
 
 function sortPivot(env: SpreadsheetChildEnv, order: SortDirection | "none") {
   const position = env.model.getters.getActivePosition();
-  const pivotId = env.model.getters.getPivotIdFromPosition(position);
-  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
-  if (pivotCell.type === "EMPTY" || pivotCell.type === "HEADER" || !pivotId) {
-    return;
-  }
-
-  if (order === "none") {
-    env.model.dispatch("UPDATE_PIVOT", {
-      pivotId: pivotId,
-      pivot: {
-        ...env.model.getters.getPivotCoreDefinition(pivotId),
-        sortedColumn: undefined,
-      },
-    });
-    return;
-  }
-
-  const pivot = env.model.getters.getPivot(pivotId);
-  const colDomain = domainToColRowDomain(pivot, pivotCell.domain).colDomain;
-  env.model.dispatch("UPDATE_PIVOT", {
-    pivotId: pivotId,
-    pivot: {
-      ...env.model.getters.getPivotCoreDefinition(pivotId),
-      sortedColumn: { domain: colDomain, order, measure: pivotCell.measure },
-    },
-  });
+  sortPivotAtPosition(env, position, order);
 }
 
 function isPivotSortMenuItemActive(

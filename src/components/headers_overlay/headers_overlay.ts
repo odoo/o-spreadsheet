@@ -24,6 +24,7 @@ import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
+import { AutoresizeStore } from "./autoresize_store";
 
 // -----------------------------------------------------------------------------
 // Resizer component
@@ -112,6 +113,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   setup(): void {
     this.composerFocusStore = useStore(ComposerFocusStore);
+    useStore(AutoresizeStore);
   }
 
   _computeHandleDisplay(ev: MouseEvent) {

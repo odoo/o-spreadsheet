@@ -21,9 +21,6 @@ exports[`Grid component simple rendering snapshot 1`] = `
     
     
     
-    
-    
-    
     <div
       class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
       style="top:2300px; "

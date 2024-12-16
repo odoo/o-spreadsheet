@@ -585,6 +585,10 @@ export function positionToZone(position: Position): Zone {
   return { left: position.col, right: position.col, top: position.row, bottom: position.row };
 }
 
+export function positionToXc(position: Position): string {
+  return toXC(position.col, position.row);
+}
+
 /** Transform a zone into a zone with only its top-left position */
 export function zoneToTopLeft(zone: Zone): Zone {
   return { ...zone, right: zone.left, bottom: zone.top };
