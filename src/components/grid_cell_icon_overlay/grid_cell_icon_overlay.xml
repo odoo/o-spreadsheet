@@ -1,0 +1,9 @@
+<templates>
+  <t t-name="o-spreadsheet-GridCellIconOverlay">
+    <t t-foreach="icons" t-as="icon" t-key="icon_index">
+      <GridCellIcon cellPosition="icon.position" horizontalAlign="icon.horizontalAlign">
+        <t t-component="icon.component" cellPosition="icon.position"/>
+      </GridCellIcon>
+    </t>
+  </t>
+</templates>

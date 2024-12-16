@@ -1,3 +1,6 @@
+import { GridCellIcon } from "../../src/components/grid_cell_icon/grid_cell_icon";
+import { GridCellIconStore } from "../../src/components/grid_cell_icon_overlay/grid_cell_icon_overlay_store";
+import { AutoresizeStore } from "../../src/components/headers_overlay/autoresize_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_FONT,
@@ -13,10 +16,10 @@ import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { Store } from "../../src/store_engine";
 import { CommandResult, Format, SetDecimalStep, UID } from "../../src/types";
 import {
   createSheet,
-  createTableWithFilter,
   resizeColumns,
   resizeRows,
   selectCell,
@@ -31,8 +34,9 @@ import {
   getEvaluatedCell,
   getEvaluatedGrid,
 } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, target } from "../test_helpers/helpers";
+import { createEqualCF, createModelFromGrid, target, toRangesData } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
+import { makeStore } from "../test_helpers/stores";
 
 function setDecimal(model: Model, targetXc: string, step: SetDecimalStep) {
   model.dispatch("SET_DECIMAL", {
@@ -583,6 +587,7 @@ describe("formatting values (when change decimal)", () => {
 describe("Autoresize", () => {
   let model: Model;
   let sheetId: UID;
+  let gridCellIconStore: GridCellIconStore;
   const TEXT = "text";
   const LONG_TEXT = "longText";
   let sizes: number[];
@@ -590,7 +595,9 @@ describe("Autoresize", () => {
   const vPadding = 2 * PADDING_AUTORESIZE_VERTICAL;
 
   beforeEach(() => {
-    model = new Model();
+    let store: Store<any>;
+    ({ model, store } = makeStore(AutoresizeStore));
+    gridCellIconStore = store["gridCellIconStore"] as GridCellIconStore;
     sheetId = model.getters.getActiveSheetId();
     const ctx = document.createElement("canvas").getContext("2d")!;
     ctx.font = `${fontSizeInPixels(DEFAULT_FONT_SIZE)}px ${DEFAULT_FONT}`;
@@ -666,17 +673,25 @@ describe("Autoresize", () => {
     expect(model.getters.getColSize(sheetId, 2)).toBe(sizes[1] + hPadding);
   });
 
-  test("Autoresize includes filter icon to compute the size", () => {
+  test("Autoresize includes icon to compute the size", () => {
+    gridCellIconStore.addIconProvider({
+      component: GridCellIcon,
+      type: "rightIcon",
+      hasIcon: (getters, position) => position.col === 0 && position.row === 0,
+    });
     setCellContent(model, "A1", TEXT);
-    createTableWithFilter(model, "A1");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       sizes[0] + hPadding + ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
   });
 
-  test("Autoresize includes cells with only a filter icon", () => {
-    createTableWithFilter(model, "A1");
+  test("Autoresize includes cells with only an icon", () => {
+    gridCellIconStore.addIconProvider({
+      component: GridCellIcon,
+      type: "rightIcon",
+      hasIcon: (getters, position) => position.col === 0 && position.row === 0,
+    });
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
       hPadding + ICON_EDGE_LENGTH + GRID_ICON_MARGIN
@@ -728,6 +743,22 @@ describe("Autoresize", () => {
     setCellContent(model, "A1", '=""');
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(initialSize);
+  });
+
+  test("Autoresizing uses computed style", () => {
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "H");
+    setCellContent(model, "A2", "H");
+    const fontSize = 36;
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("H", { fontSize }, "1"),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
+    expect(model.getters.getColSize(sheetId, 0)).toBe(
+      fontSizeInPixels(fontSize) + 2 * PADDING_AUTORESIZE_HORIZONTAL
+    );
   });
 
   test("row height does not take into account line breaks in the formula", async () => {

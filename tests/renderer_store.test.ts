@@ -1,4 +1,5 @@
 import { Model } from "../src";
+import { GridCellIcon } from "../src/components/grid_cell_icon/grid_cell_icon";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
@@ -2191,9 +2192,10 @@ describe("renderer", () => {
     let ctx: MockGridRenderingContext;
     let model: Model;
     let drawGridRenderer: (ctx: GridRenderingContext) => void;
+    let gridRendererStore: GridRenderer;
 
     beforeEach(() => {
-      ({ drawGridRenderer, model } = setRenderer());
+      ({ drawGridRenderer, model, gridRendererStore } = setRenderer());
       renderedTexts = [];
       ctx = new MockGridRenderingContext(model, 1000, 1000, {
         onFunctionCall: (fn, args) => {
@@ -2204,8 +2206,12 @@ describe("renderer", () => {
       });
     });
 
-    test("Valid checkbox value is not rendered", () => {
-      addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
+    test("Text is not rendered for cell with exclusive icon", () => {
+      gridRendererStore["gridCellIconStore"].addIconProvider({
+        component: GridCellIcon,
+        type: "exclusiveIcon",
+        hasIcon: (getters, position) => position.col === 1 && position.row === 1,
+      });
       setCellContent(model, "B2", "TRUE");
       drawGridRenderer(ctx);
       expect(renderedTexts).not.toContain("TRUE");

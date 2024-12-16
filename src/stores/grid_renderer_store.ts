@@ -1,4 +1,5 @@
 import { ModelStore } from ".";
+import { GridCellIconStore } from "../components/grid_cell_icon_overlay/grid_cell_icon_overlay_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -29,6 +30,7 @@ import {
   memoize,
   numberToLetters,
   overlap,
+  positionToXc,
   positionToZone,
   union,
 } from "../helpers/index";
@@ -51,9 +53,6 @@ import {
 } from "../types/index";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { RendererStore } from "./renderer_store";
-// -----------------------------------------------------------------------------
-// Constants, types, helpers, ...
-// -----------------------------------------------------------------------------
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
@@ -61,12 +60,14 @@ export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
+  private gridCellIconStore: Store<GridCellIconStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
     this.renderer.register(this);
+    this.gridCellIconStore = get(GridCellIconStore);
   }
 
   get renderingLayers() {
@@ -532,14 +533,13 @@ export class GridRenderer {
       const position = { sheetId, col: col + 1, row };
       const nextCell = this.getters.getEvaluatedCell(position);
       const nextCellBorder = this.getters.getCellComputedBorder(position);
-      const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
-      const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
+      const xc = positionToXc(position);
+      const cellHasIcon = this.gridCellIconStore.icons[xc]?.type === "rightIcon";
       if (
         nextCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
         nextCellBorder?.left ||
-        cellHasIcon ||
-        cellHasCheckbox
+        cellHasIcon
       ) {
         return col;
       }
@@ -555,14 +555,13 @@ export class GridRenderer {
       const position = { sheetId, col: col - 1, row };
       const previousCell = this.getters.getEvaluatedCell(position);
       const previousCellBorder = this.getters.getCellComputedBorder(position);
-      const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
-      const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
+      const xc = positionToXc(position);
+      const cellHasIcon = this.gridCellIconStore.icons[xc]?.type === "rightIcon";
       if (
         previousCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
         previousCellBorder?.right ||
-        cellHasIcon ||
-        cellHasCheckbox
+        cellHasIcon
       ) {
         return col;
       }
@@ -629,13 +628,15 @@ export class GridRenderer {
       };
     }
 
-    if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
+    const xc = positionToXc(position);
+    const icon = this.gridCellIconStore.icons[xc];
+    if (cell.type === CellValueType.empty || icon?.type === "exclusiveIcon") {
       return box;
     }
 
     /** Filter Header or data validation icon */
-    box.hasIcon = this.getters.doesCellHaveGridIcon(position);
-    const headerIconWidth = box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0;
+    box.hasIcon = !!icon;
+    const iconWidth = box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN * 2 : 0;
 
     /** Content */
     const wrapping = style.wrapping || "overflow";
@@ -646,7 +647,7 @@ export class GridRenderer {
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
     );
 
-    const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
+    const contentWidth = iconBoxWidth + textWidth + iconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);
     box.content = {
       textLines: multiLineText,
@@ -660,7 +661,7 @@ export class GridRenderer {
       box.clipRect = {
         x: box.x + iconBoxWidth,
         y: box.y,
-        width: Math.max(0, width - iconBoxWidth - headerIconWidth),
+        width: Math.max(0, width - iconBoxWidth - iconWidth),
         height,
       };
     } else if (isOverflowing && wrapping === "overflow") {
