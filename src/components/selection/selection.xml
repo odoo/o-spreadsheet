@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-mobile-Selection">
-    <div class="o-highlight" t-ref="highlight">
+    <div class="o-highlight" t-ref="highlight" t-on-scroll.stop.prevent="">
       <t t-foreach="directions" t-as="orientation" t-key="orientation">
         <Corner
           onResizeHighlight="(isLeft, isTop) => this.onResizeHighlight(isLeft, isTop)"
