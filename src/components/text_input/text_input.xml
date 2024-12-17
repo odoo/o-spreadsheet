@@ -9,9 +9,9 @@
       t-att-placeholder="props.placeholder"
       t-att-value="props.value"
       t-on-change="save"
-      t-on-focus="focusInputAndSelectContent"
       t-on-blur="save"
-      t-on-mouseup.prevent.stop=""
+      t-on-pointerdown="onMouseDown"
+      t-on-pointerup="onMouseUp"
       t-on-keydown="onKeyDown"
     />
   </div>
