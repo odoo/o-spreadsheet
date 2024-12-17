@@ -96,15 +96,18 @@ class Demo extends Component {
           for (let i = 0; i < contents.length; i++) {
             inputFiles[files[i]] = contents[i];
           }
-          this.leaveCollaborativeSession();
-          await fetch("http://localhost:9090/clear");
+
           for (let i = 0; i < images.length; i++) {
             const blob = inputFiles[images[i]];
             const file = new File([blob], images[i].split("/").at(-1));
             const imageSrc = await this.fileStore.upload(file);
             inputFiles[images[i]] = { imageSrc };
           }
-          await this.initiateConnection(inputFiles);
+          // await this.initiateConnection(inputFiles);
+          this.model = new Model(inputFiles, {
+            evalContext: { env: this.env },
+            mode: "normal",
+          });
           this.state.key = this.state.key + 1;
 
           // note : the onchange won't be called if we cancel the dialog w/o selecting a file, so this won't be called.
