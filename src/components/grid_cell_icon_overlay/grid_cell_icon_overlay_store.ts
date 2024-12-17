@@ -25,10 +25,10 @@ export class GridCellIconStore extends SpreadsheetStore {
     this.iconProviders = this.iconProviders.filter((provider) => provider !== iconProvider);
   }
 
-  private getIcon(position: CellPosition): GridCellIconParams | undefined {
-    const iconMatchers = [...this.iconProviders, ...gridCellIconRegistry.getAll()];
+  getIcon(position: CellPosition): GridCellIconParams | undefined {
+    const iconProviders = [...this.iconProviders, ...gridCellIconRegistry.getAll()];
 
-    for (const iconMatcher of iconMatchers) {
+    for (const iconMatcher of iconProviders) {
       if (iconMatcher.hasIcon(this.getters, position)) {
         return {
           position,
