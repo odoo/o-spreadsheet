@@ -11,6 +11,7 @@ import { Store, useStore } from "../../../store_engine";
 import { ComposerFocusType, DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { Popover, PopoverProps } from "../../popover";
 import { CellComposerStore } from "../composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
@@ -52,12 +53,12 @@ interface Props {
  * It also applies the style of the cell to the composer input.
  */
 export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-GridComposer";
+  static template = "o-spreadsheet-mobile-GridComposer";
   static props = {
     gridDims: Object,
     onInputContextMenu: Function,
   };
-  static components = { Composer };
+  static components = { Composer, Popover };
 
   private rect: Rect = this.defaultRect;
   private isEditing: boolean = false;
@@ -117,6 +118,14 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     return this.composerFocusStore.activeComposer === this.composerInterface
       ? this.composerFocusStore.focusMode
       : "inactive";
+  }
+
+  get popoverProps(): PopoverProps {
+    return {
+      anchorRect: this.rect,
+      positioning: "TopRight",
+      verticalOffset: 0,
+    };
   }
 
   get composerProps(): CellComposerProps {

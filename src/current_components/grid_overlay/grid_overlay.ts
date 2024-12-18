@@ -121,7 +121,8 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-function useTouchMove(
+// TODORAR je pense que ça sert a rien
+export function useTouchMove(
   gridRef: Ref<HTMLElement>,
   handler: (deltaX: Pixel, deltaY: Pixel) => void,
   canMoveUp: () => boolean
@@ -158,7 +159,7 @@ function useTouchMove(
 
   useRefListener(gridRef, "touchstart", onTouchStart);
   useRefListener(gridRef, "touchend", onTouchEnd);
-  useRefListener(gridRef, "touchmove", onTouchMove);
+  useRefListener(gridRef, "touchmove", onTouchMove, { passive: false });
 }
 
 interface Props {
@@ -220,10 +221,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       resizeObserver.disconnect();
     });
-    useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
-      return scrollY > 0;
-    });
+    // useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
+    //   const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+    //   return scrollY > 0;
+    // });
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
   }
