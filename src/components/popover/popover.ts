@@ -87,7 +87,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     useEffect(() => {
       if (!this.containerRect) throw new Error("Popover container is not defined");
       const el = this.popoverRef.el!;
-
+      debugger;
       const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
       const newDisplay: DisplayValue = anchor ? "block" : "none";
       if (this.currentDisplayValue !== "none" && newDisplay === "none") {
