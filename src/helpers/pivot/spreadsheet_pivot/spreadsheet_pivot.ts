@@ -269,6 +269,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   }
 
   getPivotCellValueAndFormat(measureId: string, domain: PivotDomain): FunctionResultObject {
+    debugger;
     const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     if (dataEntries.length === 0) {
       return { value: "" };
