@@ -116,6 +116,7 @@ export interface DataSet {
   readonly rightYAxis?: boolean; // if the dataset should be on the right Y axis
   readonly backgroundColor?: Color;
   readonly customLabel?: string;
+  readonly trend?: TrendConfiguration;
 }
 export interface ExcelChartDataset {
   readonly label?: { text?: string } | { reference?: string };

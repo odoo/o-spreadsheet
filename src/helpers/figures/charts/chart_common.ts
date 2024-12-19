@@ -194,6 +194,7 @@ export function createDataSets(
           backgroundColor: dataSet.backgroundColor,
           rightYAxis: dataSet.yAxisId === "y1",
           customLabel: dataSet.label,
+          trend: dataSet.trend,
         });
       }
     } else {
@@ -215,6 +216,7 @@ export function createDataSets(
         backgroundColor: dataSet.backgroundColor,
         rightYAxis: dataSet.yAxisId === "y1",
         customLabel: dataSet.label,
+        trend: dataSet.trend,
       });
     }
   }
@@ -248,11 +250,7 @@ function createDataSet(
 /**
  * Transform a dataSet to a ExcelDataSet
  */
-export function toExcelDataset(
-  getters: CoreGetters,
-  ds: DataSet,
-  customDs?: CustomizedDataSet
-): ExcelChartDataset {
+export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDataset {
   const labelZone = ds.labelCell?.zone;
   let dataZone = ds.dataRange.zone;
   if (labelZone) {
@@ -279,12 +277,12 @@ export function toExcelDataset(
   }
 
   let trend: ExcelChartTrendConfiguration | undefined = undefined;
-  if (customDs?.trend?.type) {
+  if (ds?.trend?.type) {
     trend = {
-      type: CHART_TRENDLINE_TYPE_CONVERSION_MAP_REVERSE[customDs.trend.type],
-      order: customDs?.trend?.order,
-      color: customDs?.trend?.color,
-      window: customDs?.trend?.window,
+      type: CHART_TRENDLINE_TYPE_CONVERSION_MAP_REVERSE[ds.trend.type],
+      order: ds?.trend?.order,
+      color: ds?.trend?.color,
+      window: ds?.trend?.window,
     };
   }
   if (trend) {

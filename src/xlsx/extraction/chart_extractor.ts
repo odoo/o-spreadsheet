@@ -165,7 +165,8 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
     const trendlineWindow = this.extractChildAttr(trendlineElement, "c:period", "val");
     return {
       type: trendlineType ? (trendlineType.asString() as ExcelTrendlineType) : undefined,
-      order: trendlineOrder ? trendlineOrder.asNum() : undefined,
+      // TODO: handle polynomial trendline & add warning
+      order: trendlineOrder ? trendlineOrder.asNum() : undefined, // max polynomial in excel order is 6
       window: trendlineWindow ? trendlineWindow.asNum() : undefined,
       color: trendlineColor ? `${toHex(trendlineColor.asString())}` : undefined,
     };
