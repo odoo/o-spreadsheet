@@ -160,6 +160,7 @@ export function getWaterfallChartLegend(
         return legendValues;
       },
     },
+    onClick: () => {}, // Disables click interaction with the waterfall chart legend items
   };
 }
 
