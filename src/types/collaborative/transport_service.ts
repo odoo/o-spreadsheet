@@ -59,7 +59,7 @@ interface SnapshotMessage extends AbstractMessage {
  * Notify all clients that the server has a new snapshot of the
  * spreadsheet and that the previous history may be lost.
  */
-interface SnapshotCreatedMessage extends AbstractMessage {
+export interface SnapshotCreatedMessage extends AbstractMessage {
   type: "SNAPSHOT_CREATED";
   serverRevisionId: UID;
   nextRevisionId: UID;
