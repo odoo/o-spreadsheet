@@ -287,7 +287,7 @@ export class CellComposerStore extends AbstractComposerStore {
       return true;
     }
 
-    const validationResult = this.getters.getValidationResultForCellValue(cellValue, cellPosition);
+    const validationResult = thisf.getters.getValidationResultForCellValue(cellValue, cellPosition);
     if (!validationResult.isValid && validationResult.rule.isBlocking) {
       return false;
     }

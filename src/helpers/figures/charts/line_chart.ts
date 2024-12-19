@@ -196,7 +196,7 @@ export class LineChart extends AbstractChart {
     // Excel does not support aggregating labels
     if (this.aggregated) return undefined;
     const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
+      .map((ds: DataSet, i: number) => toExcelDataset(this.getters, ds))
       .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
     const labelRange = toExcelLabelRange(
       this.getters,

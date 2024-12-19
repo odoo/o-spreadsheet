@@ -24,9 +24,11 @@ import {
   DataSet,
   DatasetValues,
   ExcelChartDataset,
+  ExcelChartTrendConfiguration,
   GenericDefinition,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
+import { CHART_TRENDLINE_TYPE_CONVERSION_MAP_REVERSE } from "../../../xlsx/conversion";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
@@ -213,6 +215,7 @@ export function createDataSets(
         backgroundColor: dataSet.backgroundColor,
         rightYAxis: dataSet.yAxisId === "y1",
         customLabel: dataSet.label,
+        trend: dataSet.trend,
       });
     }
   }
@@ -272,6 +275,24 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
     };
   }
 
+  let trend: ExcelChartTrendConfiguration | undefined = undefined;
+  if (ds?.trend?.type) {
+    trend = {
+      type: CHART_TRENDLINE_TYPE_CONVERSION_MAP_REVERSE[ds.trend.type],
+      order: ds?.trend?.order,
+      color: ds?.trend?.color,
+      window: ds?.trend?.window,
+    };
+  }
+  if (trend) {
+    return {
+      label,
+      range: getters.getRangeString(dataRange, "forceSheetReference", { useFixedReference: true }),
+      backgroundColor: ds.backgroundColor,
+      rightYAxis: ds.rightYAxis,
+      trend,
+    };
+  }
   return {
     label,
     range: getters.getRangeString(dataRange, "forceSheetReference", { useFixedReference: true }),
