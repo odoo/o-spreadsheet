@@ -17,6 +17,7 @@ import {
   ChartJSRuntime,
   CustomizedDataSet,
   DataSet,
+  DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
@@ -64,7 +65,7 @@ export class LineChart extends AbstractChart {
   readonly type = "line";
   readonly dataSetsHaveTitle: boolean;
   readonly cumulative: boolean;
-  readonly customDatasets?: CustomizedDataSet[];
+  readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
@@ -85,7 +86,7 @@ export class LineChart extends AbstractChart {
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.cumulative = definition.cumulative;
-    this.customDatasets = definition.dataSets;
+    this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.fillArea = definition.fillArea;
     this.showValues = definition.showValues;
@@ -136,7 +137,7 @@ export class LineChart extends AbstractChart {
     const ranges: CustomizedDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
-        ...this.customDatasets?.[i],
+        ...this.dataSetDesign?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
@@ -164,7 +165,7 @@ export class LineChart extends AbstractChart {
     const range: CustomizedDataSet[] = [];
     for (const [i, dataSet] of this.dataSets.entries()) {
       range.push({
-        ...this.customDatasets?.[i],
+        ...this.dataSetDesign?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
       });
     }
@@ -195,7 +196,7 @@ export class LineChart extends AbstractChart {
     // Excel does not support aggregating labels
     if (this.aggregated) return undefined;
     const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet, i: number) => toExcelDataset(this.getters, ds, this.customDatasets?.[i]))
+      .map((ds: DataSet, i: number) => toExcelDataset(this.getters, ds))
       .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
     const labelRange = toExcelLabelRange(
       this.getters,

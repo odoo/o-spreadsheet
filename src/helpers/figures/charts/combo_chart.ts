@@ -156,7 +156,7 @@ export class ComboChart extends AbstractChart {
       return undefined;
     }
     const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet, i: number) => toExcelDataset(this.getters, ds, this.dataSetDesign?.[i]))
+      .map((ds: DataSet, i: number) => toExcelDataset(this.getters, ds))
       .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
     const labelRange = toExcelLabelRange(
       this.getters,
