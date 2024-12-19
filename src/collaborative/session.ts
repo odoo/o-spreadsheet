@@ -16,6 +16,9 @@ import {
   ClientMovedMessage,
   CollaborationMessage,
   RemoteRevisionMessage,
+  RevisionRedoneMessage,
+  RevisionUndoneMessage,
+  SnapshotCreatedMessage,
   StateUpdateMessage,
   TransportService,
 } from "../types/collaborative/transport_service";
@@ -47,6 +50,12 @@ export class Session extends EventBus<CollaborativeEvent> {
   private isReplayingInitialRevisions = false;
 
   private processedRevisions: Set<UID> = new Set();
+  private lastRevisionMessage:
+    | RevisionUndoneMessage
+    | RevisionRedoneMessage
+    | RemoteRevisionMessage
+    | SnapshotCreatedMessage
+    | undefined = undefined;
 
   private uuidGenerator = new UuidGenerator();
   private lastLocalOperation: Revision | undefined;
@@ -166,7 +175,12 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Notify the server that the user client left the collaborative session
    */
   async leave(data?: Lazy<WorkbookData>) {
-    if (data && Object.keys(this.clients).length === 1 && this.processedRevisions.size) {
+    if (
+      data &&
+      Object.keys(this.clients).length === 1 &&
+      this.lastRevisionMessage &&
+      this.lastRevisionMessage?.type !== "SNAPSHOT_CREATED"
+    ) {
       await this.snapshot(data());
     }
     delete this.clients[this.clientId];
@@ -424,6 +438,7 @@ export class Session extends EventBus<CollaborativeEvent> {
         );
         this.serverRevisionId = message.nextRevisionId;
         this.processedRevisions.add(message.nextRevisionId);
+        this.lastRevisionMessage = message;
         this.sendPendingMessage();
         break;
     }
