@@ -5,6 +5,7 @@ import {
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
 import { BasePlugin } from "../../../plugins/base_plugin";
+import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -316,7 +317,13 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
 
   return {
     background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
+<<<<<<< saas-17.4
     title: chart.title ?? { text: "" },
+||||||| 9a9ae3134cc6ab9750b05a0b1e394a035214ce44
+    title: chart.title,
+=======
+    title: _t(chart.title),
+>>>>>>> ad50a44c414f292dd829fec5882af8db32d976ba
     minValue: {
       value: minValue,
       label: formatValue(minValue, { locale, format }),
