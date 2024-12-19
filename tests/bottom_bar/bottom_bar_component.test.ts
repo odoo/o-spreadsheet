@@ -450,6 +450,8 @@ describe("BottomBar component", () => {
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
 
+    HTMLElement.prototype.scrollIntoView = jest.fn();
+
     await click(fixture, ".o-list-sheets");
     await click(fixture, ".o-menu-item[data-name='42'");
     expect(dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
@@ -603,6 +605,23 @@ describe("BottomBar component", () => {
       simulateClick(".o-bottom-bar-arrow-left");
       simulateClick(".o-bottom-bar-arrow-left");
       expect(scrollTo).toBe(200);
+    });
+
+    test("Selecting a sheet from the context menu scrolls to that sheet", async () => {
+      const mockScrollIntoView = jest.fn();
+      HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+      expect(model.getters.getActiveSheetId()).toBe("Sheet1");
+
+      await click(fixture, ".o-list-sheets");
+      await click(fixture, ".o-menu-item[data-name='Sheet6']");
+
+      expect(model.getters.getActiveSheetId()).toBe("Sheet6");
+
+      const sheet6Element = fixture.querySelector(".o-sheet[data-id='Sheet6']");
+      expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", inline: "nearest" });
+      expect(mockScrollIntoView).toHaveBeenCalledTimes(1);
+      expect(mockScrollIntoView.mock.instances[0]).toBe(sheet6Element);
     });
   });
 
