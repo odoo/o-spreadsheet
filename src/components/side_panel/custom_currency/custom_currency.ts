@@ -26,6 +26,10 @@ css/* scss */ `
       border: 1px solid #d8dadd;
       color: #374151;
     }
+
+    table {
+      table-layout: fixed;
+    }
   }
 `;
 
