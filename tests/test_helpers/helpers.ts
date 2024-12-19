@@ -730,6 +730,14 @@ export function textContentAll(cssSelector: string): string[] {
 }
 
 /**
+ * Return the text of the first node matching the selector
+ */
+export function textContent(cssSelector: string): string {
+  const node = document.querySelector(cssSelector);
+  return node && node.textContent ? node.textContent : "";
+}
+
+/**
  * Return XLSX export with prettified XML files.
  */
 export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
