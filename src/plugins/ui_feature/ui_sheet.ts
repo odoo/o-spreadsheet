@@ -1,25 +1,23 @@
-import { GRID_ICON_MARGIN, ICON_EDGE_LENGTH, PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
 import {
-  computeIconWidth,
   computeTextWidth,
   formatValue,
   isEqual,
-  largeMax,
-  positions,
   range,
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
+import {
+  GridCellIconProvider,
+  gridCellIconRegistry,
+} from "../../registries/grid_cell_icon_registry";
 import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
 import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
 import { ImageSrc } from "../../types/image";
-import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
+import { CellPosition, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
   static getters = [
-    "doesCellHaveGridIcon",
-    "getCellWidth",
     "getCellIconSrc",
     "getTextWidth",
     "getCellText",
@@ -37,72 +35,9 @@ export class SheetUIPlugin extends UIPlugin {
     return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
   }
 
-  handle(cmd: Command) {
-    switch (cmd.type) {
-      case "AUTORESIZE_COLUMNS":
-        for (let col of cmd.cols) {
-          const size = this.getColMaxWidth(cmd.sheetId, col);
-          if (size !== 0) {
-            this.dispatch("RESIZE_COLUMNS_ROWS", {
-              elements: [col],
-              dimension: "COL",
-              size,
-              sheetId: cmd.sheetId,
-            });
-          }
-        }
-        break;
-      case "AUTORESIZE_ROWS":
-        for (let row of cmd.rows) {
-          this.dispatch("RESIZE_COLUMNS_ROWS", {
-            elements: [row],
-            dimension: "ROW",
-            size: null,
-            sheetId: cmd.sheetId,
-          });
-        }
-        break;
-    }
-  }
-
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
-
-  getCellWidth(position: CellPosition): number {
-    const style = this.getters.getCellComputedStyle(position);
-
-    let contentWidth = 0;
-
-    const content = this.getters.getEvaluatedCell(position).formattedValue;
-    if (content) {
-      const multiLineText = splitTextToWidth(this.ctx, content, style, undefined);
-      contentWidth += Math.max(
-        ...multiLineText.map((line) => computeTextWidth(this.ctx, line, style))
-      );
-    }
-
-    const icon = this.getters.getCellIconSrc(position);
-    if (icon) {
-      contentWidth += computeIconWidth(style);
-    }
-
-    if (this.getters.doesCellHaveGridIcon(position)) {
-      contentWidth += ICON_EDGE_LENGTH + GRID_ICON_MARGIN;
-    }
-
-    if (contentWidth === 0) {
-      return 0;
-    }
-
-    contentWidth += 2 * PADDING_AUTORESIZE_HORIZONTAL;
-    if (style.wrapping === "wrap") {
-      const colWidth = this.getters.getColSize(this.getters.getActiveSheetId(), position.col);
-      return Math.min(colWidth, contentWidth);
-    }
-
-    return contentWidth;
-  }
 
   getCellIconSrc(position: CellPosition): ImageSrc | undefined {
     const callbacks = iconsOnCellRegistry.getAll();
@@ -161,11 +96,15 @@ export class SheetUIPlugin extends UIPlugin {
     return splitTextToWidth(this.ctx, text, style, args.wrapText ? args.maxWidth : undefined);
   }
 
-  doesCellHaveGridIcon(position: CellPosition): boolean {
-    const isFilterHeader = this.getters.isFilterHeader(position);
-    const hasListIcon =
-      !this.getters.isReadonly() && this.getters.cellHasListDataValidationIcon(position);
-    return isFilterHeader || hasListIcon;
+  getGridCellIcon(position: CellPosition): GridCellIconProvider | undefined {
+    const iconMatchers = gridCellIconRegistry.getAll();
+
+    for (const iconMatcher of iconMatchers) {
+      if (iconMatcher.hasIcon(this.getters, position)) {
+        return iconMatcher;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -214,12 +153,6 @@ export class SheetUIPlugin extends UIPlugin {
   private isCellEmpty(position: CellPosition): boolean {
     const mainPosition = this.getters.getMainCellPosition(position);
     return this.getters.getEvaluatedCell(mainPosition).type === CellValueType.empty;
-  }
-
-  private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
-    const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
-    const sizes = cellsPositions.map((position) => this.getCellWidth({ sheetId, ...position }));
-    return Math.max(0, largeMax(sizes));
   }
 
   /**

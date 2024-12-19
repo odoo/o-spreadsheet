@@ -126,4 +126,31 @@ describe("Pivot side panel", () => {
     expect(definition.measures[1].id).toBe("renamed:sum");
     expect(definition.sortedColumn?.measure).toBe("renamed:sum");
   });
+
+  test("Renaming the computed measure the pivot is sorted on keep the sorting", async () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Partner", B1: "Amount",
+      A2: "Alice", B2: "10",
+      A5: "=PIVOT(1)"
+    });
+
+    const sheetId = model.getters.getActiveSheetId();
+    updatePivot(model, "1", {
+      measures: [
+        { id: "Price", fieldName: "Amount", aggregator: "sum" },
+        {
+          id: "Amount times 2",
+          fieldName: "Amount times 2",
+          aggregator: "sum",
+          computedBy: { formula: "=Amount*2", sheetId },
+        },
+      ],
+      sortedColumn: { domain: [], order: "asc", measure: "Amount times 2" },
+    });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    console.log(fixture.querySelector(".o-grid")?.outerHTML);
+  });
 });

@@ -1,5 +1,9 @@
 import { ModelStore } from ".";
 import {
+  GridCellIconParams,
+  GridCellIconStore,
+} from "../components/grid_cell_icon_overlay/grid_cell_icon_overlay_store";
+import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
@@ -51,9 +55,8 @@ import {
 } from "../types/index";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { RendererStore } from "./renderer_store";
-// -----------------------------------------------------------------------------
-// Constants, types, helpers, ...
-// -----------------------------------------------------------------------------
+
+type GridCellIconMap = Record<number, Record<number, GridCellIconParams>>;
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
@@ -61,12 +64,14 @@ export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
+  private gridCellIconStore: Store<GridCellIconStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
     this.renderer.register(this);
+    this.gridCellIconStore = get(GridCellIconStore);
   }
 
   get renderingLayers() {
@@ -525,21 +530,24 @@ export class GridRenderer {
     ctx.stroke();
   }
 
-  private findNextEmptyCol(base: HeaderIndex, max: HeaderIndex, row: HeaderIndex): HeaderIndex {
+  private findNextEmptyCol(
+    base: HeaderIndex,
+    max: HeaderIndex,
+    row: HeaderIndex,
+    icons: GridCellIconMap
+  ): HeaderIndex {
     const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = base;
     while (col < max) {
       const position = { sheetId, col: col + 1, row };
       const nextCell = this.getters.getEvaluatedCell(position);
       const nextCellBorder = this.getters.getCellComputedBorder(position);
-      const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
-      const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
+      const cellHasIcon = icons[position.col]?.[position.row]?.type === "rightIcon";
       if (
         nextCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
         nextCellBorder?.left ||
-        cellHasIcon ||
-        cellHasCheckbox
+        cellHasIcon
       ) {
         return col;
       }
@@ -548,21 +556,24 @@ export class GridRenderer {
     return col;
   }
 
-  private findPreviousEmptyCol(base: HeaderIndex, min: HeaderIndex, row: HeaderIndex): HeaderIndex {
+  private findPreviousEmptyCol(
+    base: HeaderIndex,
+    min: HeaderIndex,
+    row: HeaderIndex,
+    icons: GridCellIconMap
+  ): HeaderIndex {
     const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = base;
     while (col > min) {
       const position = { sheetId, col: col - 1, row };
       const previousCell = this.getters.getEvaluatedCell(position);
       const previousCellBorder = this.getters.getCellComputedBorder(position);
-      const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
-      const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
+      const cellHasIcon = icons[position.col]?.[position.row]?.type === "rightIcon";
       if (
         previousCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
         previousCellBorder?.right ||
-        cellHasIcon ||
-        cellHasCheckbox
+        cellHasIcon
       ) {
         return col;
       }
@@ -584,7 +595,7 @@ export class GridRenderer {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport, icons: GridCellIconMap): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
@@ -629,13 +640,14 @@ export class GridRenderer {
       };
     }
 
-    if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
+    const icon = icons[position.col]?.[position.row];
+    if (cell.type === CellValueType.empty || icon?.type === "exclusiveIcon") {
       return box;
     }
 
     /** Filter Header or data validation icon */
-    box.hasIcon = this.getters.doesCellHaveGridIcon(position);
-    const headerIconWidth = box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0;
+    box.hasIcon = !!icon;
+    const iconWidth = box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN * 2 : 0;
 
     /** Content */
     const wrapping = style.wrapping || "overflow";
@@ -646,7 +658,7 @@ export class GridRenderer {
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
     );
 
-    const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
+    const contentWidth = iconBoxWidth + textWidth + iconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);
     box.content = {
       textLines: multiLineText,
@@ -660,7 +672,7 @@ export class GridRenderer {
       box.clipRect = {
         x: box.x + iconBoxWidth,
         y: box.y,
-        width: Math.max(0, width - iconBoxWidth - headerIconWidth),
+        width: Math.max(0, width - iconBoxWidth - iconWidth),
         height,
       };
     } else if (isOverflowing && wrapping === "overflow") {
@@ -672,8 +684,8 @@ export class GridRenderer {
         nextColIndex = this.getters.getMerge(position)!.right;
         previousColIndex = col;
       } else {
-        nextColIndex = this.findNextEmptyCol(col, right, row);
-        previousColIndex = this.findPreviousEmptyCol(col, left, row);
+        nextColIndex = this.findNextEmptyCol(col, right, row, icons);
+        previousColIndex = this.findPreviousEmptyCol(col, left, row, icons);
         box.isOverflow = true;
       }
 
@@ -732,7 +744,20 @@ export class GridRenderer {
     return box;
   }
 
+  private computeGridIconMapping(): GridCellIconMap {
+    const icons = this.gridCellIconStore.icons;
+    const iconMapping: GridCellIconMap = {};
+    for (const icon of icons) {
+      if (!iconMapping[icon.position.col]) {
+        iconMapping[icon.position.col] = {};
+      }
+      iconMapping[icon.position.col][icon.position.row] = icon;
+    }
+    return iconMapping;
+  }
+
   private getGridBoxes(): Box[] {
+    const icons = this.computeGridIconMapping();
     const boxes: Box[] = [];
 
     const visibleCols = this.getters.getSheetViewVisibleCols();
@@ -750,7 +775,7 @@ export class GridRenderer {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport, icons));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -758,7 +783,7 @@ export class GridRenderer {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport);
+        const box = this.createZoneBox(sheetId, merge, viewport, icons);
         const borderBottomRight = this.getters.getCellComputedBorder({
           sheetId,
           col: merge.right,
