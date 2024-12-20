@@ -783,7 +783,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+          dataSets: [
+            { dataRange: "Sheet1!B2:B", trend: { type: "polynomial", order: 2, display: true } },
+            { dataRange: "Sheet1!C4:4", trend: { type: "polynomial", order: 1, display: true } },
+          ],
           labelRange: "Sheet1!A2:A",
           type: "line",
         },
@@ -792,7 +795,10 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+          dataSets: [
+            { dataRange: "Sheet1!B2:B", trend: { type: "exponential", display: true } },
+            { dataRange: "Sheet1!C4:4", trend: { type: "logarithmic", display: true } },
+          ],
           labelRange: "Sheet1!A2:A",
           type: "bar",
         },
@@ -811,7 +817,13 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+          dataSets: [
+            {
+              dataRange: "Sheet1!B2:B",
+              trend: { type: "trailingMovingAverage", window: 3, display: true },
+            },
+            { dataRange: "Sheet1!C4:4" },
+          ],
           labelRange: "Sheet1!A2:A",
           type: "scatter",
         },
