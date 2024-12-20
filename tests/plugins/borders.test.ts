@@ -533,6 +533,48 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "C96")).toEqual({ bottom: b });
     expect(getBorder(model, "D96")).toEqual({ right: b, bottom: b });
   });
+
+  test("Removing multiple rows removes internal borders", () => {
+    setBorder(model, "hv", "B42:E45");
+    deleteRows(model, [41, 42, 43, 44]);
+    expect(model.exportData().borders).toEqual({});
+  });
+
+  test("Removing multiple columns removes internal borders", () => {
+    setBorder(model, "hv", "B42:E45");
+    deleteColumns(model, ["B", "C", "D", "E"]);
+    expect(model.exportData().borders).toEqual({});
+  });
+
+  test("Removing top row removes top border", () => {
+    setBorder(model, "top", "A1:J1");
+    deleteRows(model, [0]);
+    expect(model.exportData().borders).toEqual({});
+  });
+
+  test("Removing bottom row removes bottom border", () => {
+    setBorder(model, "bottom", "A100:J100");
+    deleteRows(model, [99]);
+    expect(model.exportData().borders).toEqual({});
+  });
+
+  test("Removing left-most cost removes left-most border", () => {
+    setBorder(model, "left", "A1:A6");
+    deleteColumns(model, ["A"]);
+    expect(model.exportData().borders).toEqual({});
+  });
+
+  test("Removing right-most row removes right-most border", () => {
+    setBorder(model, "right", "Z1:Z6");
+    deleteColumns(model, ["Z"]);
+    expect(model.exportData().borders).toEqual({});
+  });
+
+  test("Removing bottom two row removes bottom border", () => {
+    setBorder(model, "bottom", "A100:J100");
+    deleteRows(model, [98, 99]);
+    expect(model.exportData().borders).toEqual({});
+  });
 });
 
 test("Cells that have undefined borders don't override borders of neighboring cells at import", () => {
