@@ -1,26 +1,42 @@
 import { SELECTION_BORDER_COLOR } from "../constants";
 import { positionToZone } from "../helpers";
 import { Get } from "../store_engine";
-import { GridRenderingContext, Highlight, LayerName, Zone } from "../types";
+import { GridRenderingContext, Highlight, Zone } from "../types";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export interface HighlightProvider {
   highlights: Highlight[];
 }
 
-export class DrawSelectionStore extends SpreadsheetStore {
-  // mutators = ["register", "unRegister"] as const;
+export class SelectionStore extends SpreadsheetStore {
+  mutators = ["disable", "enable"] as const;
+
+  private state: "disabled" | "enabled" = "disabled";
 
   constructor(get: Get) {
     super(get);
+    this.model.selection.observe(this, {
+      handleEvent: () => (this.state = "enabled"),
+    });
+  }
+
+  disable() {
+    this.state = "disabled";
+  }
+  enable() {
+    this.state = "enabled";
+  }
+
+  get isActive() {
+    return this.state === "enabled";
   }
 
   get renderingLayers() {
     return ["Selection"] as const;
   }
 
-  drawLayer(renderingContext: GridRenderingContext, layer: LayerName): void {
-    if (this.getters.isDashboard()) {
+  drawLayer(renderingContext: GridRenderingContext): void {
+    if (this.getters.isDashboard() || this.state === "disabled") {
       return;
     }
     const { ctx, thinLineWidth } = renderingContext;

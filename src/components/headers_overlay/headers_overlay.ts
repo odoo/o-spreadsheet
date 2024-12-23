@@ -575,6 +575,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   get style() {
+    // ce truc doit bouger dans le css directement et pas un tattstyle
     return cssPropertiesToCss({
       height: `calc(100% - ${HEADER_HEIGHT}px)`,
     });

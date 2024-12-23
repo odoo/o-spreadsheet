@@ -25,7 +25,8 @@
           onFigureDeleted.bind="focusDefaultElement"
         />
       </ScrollMask>
-      <Selection t-if="composerFocusStore.activeComposer.editionMode === 'inactive'"/>
+      <!-- TODORAR changer cette regle -->
+      <Selection t-if="selectionStore.isActive"/>
       <!-- 
 
 
