@@ -1,6 +1,8 @@
-import { Component, useState } from "@odoo/owl";
+import { Component, useExternalListener, useState } from "@odoo/owl";
 import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../constants";
 import { clip, isEqual } from "../../helpers";
+import { Store, useStore } from "../../store_engine";
+import { SelectionStore } from "../../stores/draw_selection_store";
 import { Color, HeaderIndex, SpreadsheetChildEnv, Zone } from "../../types";
 import { css } from "../helpers/css";
 import { dragAndDropBeyondTheViewportTouch } from "../helpers/drag_and_drop_touch";
@@ -39,7 +41,24 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
     return ["nw", "se"];
   }
 
-  onResizeHighlight(isLeft: boolean, isTop: boolean) {
+  private selectionStore!: Store<SelectionStore>;
+  setup() {
+    this.selectionStore = useStore(SelectionStore);
+    useExternalListener(
+      window,
+      "beforeunload",
+      (ev) => {
+        if (this.selectionStore.isActive) {
+          this.selectionStore.disable();
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+      },
+      { capture: true }
+    );
+  }
+
+  onResizeSelection(isLeft: boolean, isTop: boolean) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     this.selectionState.shiftingMode = "isResizing";
 

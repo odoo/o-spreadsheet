@@ -165,7 +165,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get popoverProps(): PopoverProps {
     return {
-      // TODO: make sure that we use this.rect when we are actually editing ...
+      // TODO: make sure that we use this.rect when we are actually editing ... or something similar
       anchorRect: { x: 0, y: 0, width: 10000, height: 10000 },
       // this.composerStore.editionMode !== "inactive"
       //   ? { x: 0, y: 0, width: 10000, height: 10000 }
@@ -184,6 +184,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
         height,
       },
       focus: this.focus,
+      // if Mobile, False, else true
       isDefaultFocus: false,
       onComposerContentFocused: () =>
         this.composerFocusStore.focusComposer(this.composerInterface, {

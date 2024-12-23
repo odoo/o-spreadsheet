@@ -166,8 +166,16 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
-    // TODORAR probably deserves an external listeenr here ?
+
+    /** Dans le cas mobile, on a pas de default composeur comme ça donc faut faire attention - ca a du sense de mettre le grid comme default a ce moment-là
+     * il faudrait voir a quel point on peut réconcilier les deux comportements avec un setFocusableElement qui change en fonction de mobile/desktop
+     * et faudra voir si le mode change en fonctionde la visibilité ou bien du mode "mobile" ou "desktop" du navigateur (userAgent)
+     * en fait on peut garder un comportement sans grid comme default ?
+     */
+    // onMounted(() => this.DOMFocusableElementStore.setFocusableElement(this.gridEl));
+
     onMounted(() => this.focusDefaultElement());
+
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing("canvas", this.env.model, () =>
       this.env.model.getters.getSheetViewDimensionWithHeaders()
@@ -453,7 +461,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: any) {
-    console.log(document.activeElement);
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
