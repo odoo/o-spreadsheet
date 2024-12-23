@@ -37,6 +37,7 @@ export interface PopoverProps {
 css/* scss */ `
   .o-popover {
     position: absolute;
+
     z-index: ${ComponentsImportance.Popover};
     overflow: auto;
     box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
@@ -87,15 +88,17 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     useEffect(() => {
       if (!this.containerRect) throw new Error("Popover container is not defined");
       const el = this.popoverRef.el!;
-      debugger;
       const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
-      const newDisplay: DisplayValue = anchor ? "block" : "none";
+      const newDisplay: DisplayValue = 1 === 1 ? "block" : "none"; // anchor ? "block" : "none";
       if (this.currentDisplayValue !== "none" && newDisplay === "none") {
         this.props.onPopoverHidden?.();
       }
       el.style.display = newDisplay;
       this.currentDisplayValue = newDisplay;
 
+      el.style.zIndex = anchor
+        ? (this.props.zIndex || ComponentsImportance.Popover).toString()
+        : "-1000";
       if (!anchor) return;
       el.style.top = "";
       el.style.left = "";
@@ -124,7 +127,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       };
 
       // let style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
-      // debugger
       // for (const property of Object.keys(style)) {
       //   el.style[property] = style[property];
       // }

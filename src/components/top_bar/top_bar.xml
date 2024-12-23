@@ -169,7 +169,7 @@
             <ActionButton action="DATA.createRemoveFilterTool" class="'o-hoverable-button'"/>
           </div>
         </div>
-        <TopBarComposer/>
+        <!-- <TopBarComposer/> -->
       </div>
       <div
         t-if="this.fingerprints.isEnabled"

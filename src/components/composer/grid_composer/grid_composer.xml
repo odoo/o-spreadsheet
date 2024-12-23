@@ -5,13 +5,33 @@
       t-if="shouldDisplayCellReference"
       t-att-style="cellReferenceStyle"
       t-esc="cellReference"
-    />
-    <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
+    /> -->
+    <!-- <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
       <Composer t-props="composerProps"/>
     </div> -->
-    <Popover t-props="popoverProps">
-      <div class="fougere">
-        <Composer t-props="composerProps"/>
+    <!-- critere devrait etre qu'on peut editer en mode mobile -->
+    <!-- t-if="composerStore.editionMode !== 'inactive'" -->
+    <Popover t-if="selectionStore.isActive" t-props="popoverProps">
+      <div class="mobile-edition px-2">
+        <div class="mobile-composer px-2 pt-2" t-if="isComposerVisible" t-ref="gridComposer">
+          <Composer t-props="composerProps"/>
+        </div>
+        <div class="o-toolbar-tools d-flex flex-shrink-0 pb-4 pt-2 mx-4">
+          <ActionButton action="FORMAT.formatBold" class="'o-hoverable-button'"/>
+          <ActionButton action="FORMAT.formatItalic" class="'o-hoverable-button'"/>
+          <ActionButton action="FORMAT.formatStrikethrough" class="'o-hoverable-button'"/>
+          <ActionButton action="FORMAT.clearFormat" class="'o-hoverable-button'"/>
+          <div class="o-divider"/>
+          <ColorPickerWidget
+            currentColor="state.fillColor"
+            toggleColorPicker="() => this.state.activeTool = 'fillColorTool'"
+            showColorPicker="state.activeTool === 'fillColorTool'"
+            onColorPicked="(color) => this.setColor('fillColor', color)"
+            title="fill_color"
+            icon="'o-spreadsheet-Icon.FILL_COLOR'"
+            class="'o-hoverable-button o-menu-item-button'"
+          />
+        </div>
       </div>
     </Popover>
   </t>

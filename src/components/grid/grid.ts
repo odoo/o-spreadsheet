@@ -32,7 +32,7 @@ import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
-import { DrawSelectionStore } from "../../stores/draw_selection_store";
+import { SelectionStore } from "../../stores/draw_selection_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import {
   Align,
@@ -138,6 +138,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+  selectionStore!: Store<SelectionStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -159,12 +160,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.sidePanel = useStore(SidePanelStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     useStore(ArrayFormulaHighlight);
-    useStore(DrawSelectionStore);
+    this.selectionStore = useStore(SelectionStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
+    // TODORAR probably deserves an external listeenr here ?
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing("canvas", this.env.model, () =>
@@ -175,7 +177,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.hoveredCell.clear();
     });
     this.cellPopovers = useStore(CellPopoverStore);
-    console.log("coucou", this.composerFocusStore.activeComposer.editionMode === "inactive");
     useEffect(
       () => {
         if (!this.sidePanel.isOpen) {
@@ -444,7 +445,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getGridRect(): Rect {
-    debugger;
     return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
   }
 
@@ -453,6 +453,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: any) {
+    console.log(document.activeElement);
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
@@ -461,6 +462,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       alert("should display a samll copy/paste popover at the click position");
     } else {
       this.env.model.selection.selectCell(col, row);
+      this.selectionStore.enable();
+      // this.composerFocusStore.activeComposer.startEdition();
+      // this.composerFocusStore.focusActiveComposer({ focusMode: "contentFocus" });
+
+      // this.DOMFocusableElementStore.focus();
     }
 
     // if (modifiers.expandZone) {
