@@ -249,6 +249,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.autoCompleteState = useLocalStore(AutoCompleteStore);
+
     onMounted(() => {
       const el = this.composerRef.el!;
       if (this.props.isDefaultFocus) {
