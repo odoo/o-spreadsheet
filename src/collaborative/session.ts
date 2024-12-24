@@ -423,7 +423,11 @@ export class Session extends EventBus<CollaborativeEvent> {
           (msg) => msg.nextRevisionId !== message.nextRevisionId
         );
         this.serverRevisionId = message.nextRevisionId;
-        this.processedRevisions.add(message.nextRevisionId);
+        if (message.type === "SNAPSHOT_CREATED") {
+          this.processedRevisions.clear();
+        } else {
+          this.processedRevisions.add(message.nextRevisionId);
+        }
         this.sendPendingMessage();
         break;
     }

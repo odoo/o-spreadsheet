@@ -130,6 +130,33 @@ describe("Collaborative session", () => {
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
   });
 
+  test("do not snapshot when leaving if there are no revisions since the last snapshot", async () => {
+    const model = new Model(
+      {},
+      { transportService: transport, client: { id: "alice", name: "Alice" } }
+    );
+    transport.sendMessage({
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      nextRevisionId: "42",
+      clientId: "client_42",
+      commands: [],
+      serverRevisionId: transport["serverRevisionId"],
+    });
+    transport.sendMessage({
+      type: "SNAPSHOT_CREATED",
+      version: MESSAGE_VERSION,
+      nextRevisionId: "43",
+      serverRevisionId: transport["serverRevisionId"],
+    });
+    const spy = jest.spyOn(transport, "sendMessage");
+    model.leaveSession();
+    await nextTick();
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).not.toHaveBeenCalledWith(expect.objectContaining({ type: "SNAPSHOT" }));
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
+  });
+
   test("local client leaves with other connected clients and changes", () => {
     transport.sendMessage({
       type: "CLIENT_JOINED",
