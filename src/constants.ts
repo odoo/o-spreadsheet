@@ -159,7 +159,11 @@ export const MIN_ROW_HEIGHT = 10;
 export const MIN_COL_WIDTH = 5;
 export const HEADER_HEIGHT = 26;
 export const HEADER_WIDTH = 48;
-export const TOPBAR_TOOLBAR_HEIGHT = 34;
+
+// TODORAR not used anymore in o-spreadsheet
+export const TOPBAR_HEIGHT = 63;
+// TODORAR changed from 34 to 44 as it's the regarded height for buttons in mobile mode > changed for the time being in mobile view
+export const TOPBAR_TOOLBAR_HEIGHT = 44;
 export const BOTTOMBAR_HEIGHT = 36;
 export const DEFAULT_CELL_WIDTH = 96;
 export const DEFAULT_CELL_HEIGHT = 23;

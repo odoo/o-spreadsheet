@@ -3,7 +3,7 @@
     <div class="o-highlight" t-ref="highlight" t-on-scroll.stop.prevent="">
       <t t-foreach="directions" t-as="orientation" t-key="orientation">
         <Corner
-          onResizeHighlight="(isLeft, isTop) => this.onResizeSelection(isLeft, isTop)"
+          onResizeHighlight="(isLeft, isTop,target) => this.onResizeSelection(isLeft, isTop,target)"
           isResizing='selectionState.shiftingMode === "isResizing"'
           orientation="orientation"
           zone="env.model.getters.getSelectedZone()"

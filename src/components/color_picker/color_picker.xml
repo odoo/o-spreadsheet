@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-ColorPicker">
+  <t t-name="o-spreadsheet-mobile-ColorPicker">
     <Popover t-props="popoverProps">
       <div class="o-color-picker" t-on-click.stop="" t-att-style="colorPickerStyle">
         <div class="o-color-picker-section-name">Standard</div>
@@ -8,15 +8,16 @@
             t-foreach="COLORS"
             t-as="color"
             t-key="color"
-            class="o-color-picker-line-item"
+            class="o-color-picker-line-item-wrap d-flex justify-content-center align-items-center"
             t-att-data-color="color"
-            t-on-click="() => this.onColorClick(color)"
-            t-attf-style="background-color:{{color}};">
-            <div
-              t-if="isSameColor(props.currentColor, color)"
-              align="center"
-              t-attf-style="color:{{checkmarkColor}}">
-              ✓
+            t-on-click="() => this.onColorClick(color)">
+            <div class="o-color-picker-line-item" t-attf-style="background-color:{{color}};">
+              <div
+                t-if="isSameColor(props.currentColor, color)"
+                align="center"
+                t-attf-style="color:{{checkmarkColor}}">
+                ✓
+              </div>
             </div>
           </div>
         </div>

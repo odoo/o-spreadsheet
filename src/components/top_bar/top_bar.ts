@@ -24,6 +24,7 @@ import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registr
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
+import { SelectionStore } from "../../stores/draw_selection_store";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ActionButton } from "../action_button/action_button";
 import { BorderEditorWidget } from "../border_editor/border_editor_widget";
@@ -35,6 +36,7 @@ import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
 import { PaintFormatButton } from "../paint_format_button/paint_format_button";
+import { SelectionButton } from "../selection/selection_button";
 import { TableDropdownButton } from "../tables/table_dropdown_button/table_dropdown_button";
 
 interface State {
@@ -174,6 +176,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     PaintFormatButton,
     BorderEditorWidget,
     TableDropdownButton,
+    SelectionButton,
   };
 
   state: State = useState({
@@ -192,10 +195,12 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   isntToolbarMenu = false;
   composerFocusStore!: Store<ComposerFocusStore>;
   fingerprints!: Store<FormulaFingerprintStore>;
+  selectionStore!: Store<SelectionStore>;
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
+    this.selectionStore = useStore(SelectionStore);
     useExternalListener(window, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
@@ -300,5 +305,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   setFontSize(fontSize: number) {
     setStyle(this.env, { fontSize });
+  };
+
+  get isSelectionActive() {
+    return this.selectionStore.isActive;
   }
 }
