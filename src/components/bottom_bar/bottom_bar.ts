@@ -41,12 +41,14 @@ css/* scss */ `
       // background-image: linear-gradient(-90deg, #cfcfcf, transparent 1%);
       box-shadow: 0px 0px 10px 3px #aaaaaa;
       border-left: 1px solid #c1c1c1;
+      z-index: 1;
     }
 
     .o-bottom-bar-fade-in {
       // background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
       box-shadow: 0px 0px 10px 3px #aaaaaa;
       border-left: 1px solid #c1c1c1;
+      z-index: 1;
     }
     .o-all-sheets {
       .o-sheet-list {

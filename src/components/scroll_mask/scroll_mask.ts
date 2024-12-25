@@ -1,5 +1,6 @@
 import { Component, useEffect, useRef, xml } from "@odoo/owl";
 // import { SCROLLBAR_WIDTH } from "../../constants";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { Rect, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers";
 
@@ -15,6 +16,8 @@ css/* scss */ `
     position: absolute;
     overflow: auto;
     z-index: 4;
+    // left: ${HEADER_WIDTH}px;
+    // top: ${HEADER_HEIGHT}px;
     // pointer-events: none;
   }
 `;
@@ -24,12 +27,13 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
     slots: { type: Object, optional: true },
   };
   static template = xml/*xml*/ `
-    <div class="mask" t-ref="mask" t-on-scroll="onScroll" >
+    <div class="mask" t-ref="mask" t-on-scroll.stop="onScroll" >
         <div t-att-style="maskStyle" />
-          <div t-att-style="slotStyle" >
-            <t t-slot="default"/>
-          </div>
-    </div>`;
+        <div t-att-style="slotStyle" >
+          <t t-slot="default"/>
+        </div>
+    </div>
+    `;
 
   private maskRef = useRef("mask");
 
@@ -61,24 +65,24 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get slotStyle() {
+    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
     return cssPropertiesToCss({
       position: "relative",
-      top: this.maskRef.el?.scrollTop + "px",
-      left: this.maskRef.el?.scrollLeft + "px",
+      top: scrollY + "px",
+      left: scrollX + "px",
       width: "100%",
       height: "100%",
     });
   }
 
   get maskStyle() {
-    const { width, height } = this.env.model.getters.getMainViewportRect();
+    const { x, y, width, height } = this.env.model.getters.getMainViewportRect();
     // const sheetId = this.env.model.getters.getActiveSheetId();
-    // const { x, y } = this.env.model.getters.getMainViewportCoordinates();
     return cssPropertiesToCss({
-      width: `${width}px`,
-      height: `${height}px`,
+      width: `${x + width}px`,
+      height: `${y + height}px`,
       position: "absolute",
-      "z-index": "-4",
+      "z-index": "-1",
     });
   }
 
@@ -88,6 +92,8 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
     );
     return yRatio < 1;
   }
+
+  // TODO jeudi ratjouter un autre masque qui a les scrolls pas cachés et qui a la bonne dimension et qui est proprement positionné MAIS qui n'a aucun listener donc pointer-events: none
 
   //   get position() {
   //     const { y } = this.env.model.getters.getMainViewportRect();
@@ -105,6 +111,10 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
       offsetX: this.maskRef.el.scrollLeft, // offsetX is the same
       offsetY: this.maskRef.el.scrollTop,
     });
+  }
+
+  touchmove(ev: TouchEvent) {
+    console.log("touchmove de mask");
   }
 }
 

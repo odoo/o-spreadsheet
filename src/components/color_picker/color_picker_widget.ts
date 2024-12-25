@@ -20,7 +20,7 @@ css/* scss */ `
     display: flex;
     position: relative;
     align-items: center;
-    height: 30px;
+    // height: 30px;
 
     .o-color-picker-button-style {
       display: flex;

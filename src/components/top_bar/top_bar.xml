@@ -39,6 +39,11 @@
             </span>
           </div>
           <div t-else="" class="o-toolbar-tools d-flex flex-shrink-0 ms-4">
+            <!-- TODORAR addition of "validate truc"-->
+            <t t-if="isSelectionActive">
+              <SelectionButton/>
+              <div class="o-divider"/>
+            </t>
             <ActionButton action="EDIT.undo" class="'o-hoverable-button'"/>
             <ActionButton action="EDIT.redo" class="'o-hoverable-button'"/>
             <PaintFormatButton class="'o-hoverable-button'"/>

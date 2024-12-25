@@ -223,7 +223,7 @@ interface State {
 }
 
 export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-ColorPicker";
+  static template = "o-spreadsheet-mobile-ColorPicker";
   static props = {
     onColorPicked: Function,
     currentColor: { type: String, optional: true },

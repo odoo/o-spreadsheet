@@ -44,6 +44,7 @@ css/* scss */ `
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid ${GRAY_300};
+      margin-bottom: 3px;
     }
 
     .o-menu-item {

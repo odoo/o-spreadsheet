@@ -12,7 +12,7 @@
       class="o-row-resizer"
       t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
-      t-on-pointerdown.self.prevent="select"
+      t-on-click.self.prevent="select"
       t-ref="rowResizer"
       t-on-pointerup.self="onMouseUp"
       t-on-contextmenu.self="onContextMenu"

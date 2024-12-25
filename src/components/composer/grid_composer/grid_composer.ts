@@ -172,6 +172,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       //   : { x: -1, y: -1, width: -1, height: -1 },
       positioning: "TopRight",
       verticalOffset: 0,
+      zIndex: 17,
     };
   }
 

@@ -265,6 +265,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
+    // TODORAR on fait pas de move en mobile
+    return;
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     const initialMousePosition = { x: ev.clientX, y: ev.clientY };
