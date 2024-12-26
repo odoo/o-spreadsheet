@@ -696,6 +696,29 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
+  test("null string can be used as a value", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "status", B1: "value", C1: "=PIVOT(1)",
+      A2: "null",   B2: "10",
+      A3: "",       B3: "20",
+      A4: "won",    B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      rows: [{ fieldName: "status" }],
+      measures: [{ id: "value:sum", fieldName: "value", aggregator: "sum" }],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D5")).toEqual([
+      ["(#1) Pivot", "Total"],
+      ["",           "value"],
+      ["null",       "10"],
+      ["(Undefined)","20"],
+      ["won",        "30"],
+    ]);
+  });
+
   test("PIVOT row headers are indented relative to the groupBy depth.", () => {
     // prettier-ignore
     const grid = {
