@@ -38,7 +38,7 @@ topbarMenuRegistry.addChild("clear", ["file"], {
   name: "Clear & reload",
   sequence: 10,
   execute: async (env) => {
-    await fetch("http://localhost:9090/clear");
+    await fetch(`http://${window.location.hostname}:9090/clear`);
     document.location.reload();
   },
   icon: "o-spreadsheet-Icon.CLEAR_AND_RELOAD",
@@ -308,7 +308,7 @@ class Demo extends Component {
    * @returns {Promise}
    */
   async fetchHistory() {
-    const result = await fetch("http://localhost:9090");
+    const result = await fetch(`http://${window.location.hostname}:9090`);
     return result.json();
   }
 }
