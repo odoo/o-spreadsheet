@@ -446,6 +446,13 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("migration_24", {
+    // Empty migration to allow odoo migrate pivot custom sorting.
+    versionFrom: "24",
+    migrate(data: WorkbookData): any {
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {
