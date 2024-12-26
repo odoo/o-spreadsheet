@@ -8,6 +8,7 @@ import {
   VerticalAlign,
 } from "../../types";
 import { LegendPosition } from "../../types/chart/common_chart";
+import { AllowedImageMimeTypes } from "../../types/image";
 import {
   ExcelIconSet,
   XLSXBorderStyle,
@@ -372,7 +373,11 @@ export const XLSX_INDEXED_COLORS = {
   65: "FFFFFF", // system background
 };
 
-export const IMAGE_MIMETYPE_TO_EXTENSION_MAPPING = {
+type MimeExtensionMap = {
+  [key in (typeof AllowedImageMimeTypes)[number]]: string;
+};
+
+export const IMAGE_MIMETYPE_TO_EXTENSION_MAPPING: MimeExtensionMap = {
   "image/avif": "avif",
   "image/bmp": "bmp",
   "image/gif": "gif",
@@ -381,9 +386,11 @@ export const IMAGE_MIMETYPE_TO_EXTENSION_MAPPING = {
   "image/png": "png",
   "image/tiff": "tiff",
   "image/webp": "webp",
-};
+} as const;
 
-export const IMAGE_EXTENSION_TO_MIMETYPE_MAPPING = {
+export const IMAGE_EXTENSION_TO_MIMETYPE_MAPPING: {
+  [K in keyof MimeExtensionMap as MimeExtensionMap[K]]: K;
+} = {
   avif: "image/avif",
   bmp: "image/bmp",
   gif: "image/gif",

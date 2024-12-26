@@ -1,11 +1,14 @@
+import { SpreadsheetClipboardData } from "../../plugins/ui_stateful";
 import {
   ClipboardCellData,
   ClipboardMIMEType,
   OSClipboardContent,
   ParsedOSClipboardContent,
+  SpreadsheetChildEnv,
   UID,
   Zone,
 } from "../../types";
+import { AllowedImageMimeTypes } from "../../types/image";
 import { mergeOverlappingZones, positions } from "../zones";
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
@@ -62,22 +65,46 @@ export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
   return target.map((t) => splitZoneForPaste(t, width, height)).flat();
 }
 
-export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSClipboardContent {
-  if (!content[ClipboardMIMEType.Html]) {
+export async function parseOSClipboardContent(
+  env: SpreadsheetChildEnv,
+  content: OSClipboardContent,
+  clipboardId: string
+): Promise<ParsedOSClipboardContent> {
+  let contentClipboardId: string | undefined;
+  let spreadsheetContent: SpreadsheetClipboardData | undefined = undefined;
+  if (content[ClipboardMIMEType.Html]) {
+    const htmlDocument = new DOMParser().parseFromString(
+      content[ClipboardMIMEType.Html],
+      "text/html"
+    );
+    const oSheetClipboardData = htmlDocument
+      .querySelector("div")
+      ?.getAttribute("data-osheet-clipboard");
+    spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
+    contentClipboardId = spreadsheetContent?.clipboardId;
+  }
+  if (contentClipboardId !== clipboardId) {
+    const clipboardContent: ParsedOSClipboardContent = {
+      text: content[ClipboardMIMEType.PlainText],
+      data: spreadsheetContent,
+    };
+    for (const type of AllowedImageMimeTypes) {
+      if (content[type]) {
+        // TODO: support multiple import
+        try {
+          const imageData = await env.imageProvider?.uploadFile(content[type]!);
+          clipboardContent.imageData = imageData;
+        } catch (e) {
+          env.raiseError(e.message);
+        }
+        break;
+      }
+    }
+    return clipboardContent;
+  } else {
     return {
       text: content[ClipboardMIMEType.PlainText],
+      data: spreadsheetContent,
     };
   }
-  const htmlDocument = new DOMParser().parseFromString(
-    content[ClipboardMIMEType.Html],
-    "text/html"
-  );
-  const oSheetClipboardData = htmlDocument
-    .querySelector("div")
-    ?.getAttribute("data-osheet-clipboard");
-  const spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
-  return {
-    text: content[ClipboardMIMEType.PlainText],
-    data: spreadsheetContent,
-  };
 }

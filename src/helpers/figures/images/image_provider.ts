@@ -1,6 +1,11 @@
+import { _t } from "../../../translation";
 import { FigureSize } from "../../../types";
 import { FileStore, ImageProviderInterface } from "../../../types/files";
 import { Image } from "../../../types/image";
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 mb
+
+export class ImageImportError extends Error {}
 
 export class ImageProvider implements ImageProviderInterface {
   private fileStore: FileStore;
@@ -10,13 +15,25 @@ export class ImageProvider implements ImageProviderInterface {
   }
 
   async requestImage(): Promise<Image> {
-    const file = await this.getImageFromUser();
+    const file = await this.userImageUpload();
+    if (file.size > MAX_FILE_SIZE) {
+      throw new ImageImportError(_t("The file you are trying to upload is too large (> 5 mB)"));
+    }
     const path = await this.fileStore.upload(file);
     const size = await this.getImageOriginalSize(path);
     return { path, size, mimetype: file.type };
   }
 
-  private getImageFromUser(): Promise<File> {
+  async uploadFile(file: File): Promise<Image> {
+    if (file.size > MAX_FILE_SIZE) {
+      throw new ImageImportError(_t("The file you are trying to upload is too large (> 5 mB)"));
+    }
+    const path = await this.fileStore.upload(file);
+    const size = await this.getImageOriginalSize(path);
+    return { path, size, mimetype: file.type };
+  }
+
+  private userImageUpload(): Promise<File> {
     return new Promise((resolve, reject) => {
       const input = document.createElement("input");
       input.setAttribute("type", "file");

@@ -19,4 +19,8 @@ export class ImageProvider implements ImageProviderInterface {
   async getImageOriginalSize(path: string): Promise<FigureSize> {
     return this.size;
   }
+
+  async uploadFile(file: File | Blob): Promise<Image> {
+    return { path: this.path, size: this.size, mimetype: this.mimetype };
+  }
 }
