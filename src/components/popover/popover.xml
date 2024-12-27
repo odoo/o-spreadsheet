@@ -1,6 +1,6 @@
 <templates>
-  <t t-name="o-spreadsheet-mobile-Popover">
-    <t t-portal="'.bottomWrapper'">
+  <t t-name="o-spreadsheet-Popover">
+    <t t-portal="'.o-spreadsheet'">
       <div
         class="o-popover"
         t-ref="popover"

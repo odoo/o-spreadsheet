@@ -17,15 +17,9 @@ import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic"
 const MENU_MAX_HEIGHT = 250;
 
 css/* scss */ `
-  .bottomWrapper {
+  .o-spreadsheet-bottom-bar {
     position: sticky;
     bottom: 0;
-    flex-direction: row-reverse;
-    display: flex;
-    overflow: hidden;
-  }
-  .o-spreadsheet-bottom-bar {
-    position: relative;
     background-color: ${BACKGROUND_GRAY_COLOR};
     // padding-left: ${HEADER_WIDTH / 2}px;
     font-size: 15px;
