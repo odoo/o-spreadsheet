@@ -4,12 +4,7 @@ import * as EDIT_ACTION from "../../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../../actions/format_actions";
 import * as INSERT_ACTION from "../../../actions/insert_actions";
 import { setStyle } from "../../../actions/menu_items_actions";
-import {
-  ComponentsImportance,
-  DEFAULT_FONT,
-  GRAY_300,
-  SELECTION_BORDER_COLOR,
-} from "../../../constants";
+import { ComponentsImportance, DEFAULT_FONT, SELECTION_BORDER_COLOR } from "../../../constants";
 import {
   deepEquals,
   fontSizeInPixels,
@@ -59,28 +54,6 @@ css/* scss */ `
 
   .mobile-edition {
     background-color: white;
-  }
-
-  .mobile-composer {
-    border: lightgrey solid 1px;
-    border-radius: 5px;
-    line-height: 24px;
-    display: flex;
-
-    .o-icon {
-      width: 24px;
-      height: 24px;
-    }
-  }
-
-  /*  shoult be more global and not copied from top bar */
-  .o-divider {
-    border-right: 1px solid ${GRAY_300};
-    margin: 0 6px;
-  }
-
-  .o-color-picker {
-    width: 100% !important;
   }
 `;
 

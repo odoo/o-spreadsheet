@@ -1,10 +1,13 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH } from "../../constants";
+import { BACKGROUND_GRAY_COLOR, GRAY_300, HEADER_WIDTH } from "../../constants";
 import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
+import { Store, useStore } from "../../store_engine";
+import { SelectionStore } from "../../stores/draw_selection_store";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
+import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
@@ -77,7 +80,28 @@ css/* scss */ `
           width: 18px;
           font-size: 18px;
         }
+        .mobile-composer {
+        }
       }
+      border: lightgrey solid 1px;
+      border-radius: 5px;
+      line-height: 24px;
+      display: flex;
+
+      .o-icon {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    /*  shoult be more global and not copied from top bar */
+    .o-divider {
+      border-right: 1px solid ${GRAY_300};
+      margin: 0 6px;
+    }
+
+    .o-color-picker {
+      width: 100% !important;
     }
   }
 `;
@@ -122,8 +146,13 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   });
 
   sheetList = this.getVisibleSheets();
+  private composerStore!: Store<CellComposerStore>;
+
+  selectionStore!: Store<SelectionStore>;
 
   setup() {
+    this.selectionStore = useStore(SelectionStore);
+    this.composerStore = useStore(CellComposerStore);
     onWillUpdateProps(() => {
       this.updateScrollState();
       const visibleSheets = this.getVisibleSheets();
