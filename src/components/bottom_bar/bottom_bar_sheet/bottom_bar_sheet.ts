@@ -1,4 +1,4 @@
-import { Component, onMounted, onPatched, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import { ACTION_COLOR, BOTTOMBAR_HEIGHT } from "../../../constants";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../../registries";
@@ -97,11 +97,6 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   setup() {
-    onMounted(() => {
-      if (this.isSheetActive) {
-        this.scrollToSheet();
-      }
-    });
     onPatched(() => {
       if (this.sheetNameRef.el && this.state.isEditing && this.editionState === "initializing") {
         this.editionState = "editing";
@@ -110,6 +105,15 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     });
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     useExternalListener(window, "click", () => (this.state.pickerOpened = false));
+
+    useEffect(
+      (sheetId) => {
+        if (this.props.sheetId === sheetId) {
+          this.scrollToSheet();
+        }
+      },
+      () => [this.env.model.getters.getActiveSheetId()]
+    );
   }
 
   private focusInputAndSelectContent() {
@@ -128,7 +132,10 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private scrollToSheet() {
-    this.sheetDivRef.el?.scrollIntoView?.();
+    this.sheetDivRef.el?.scrollIntoView?.({
+      behavior: "smooth",
+      inline: "nearest",
+    });
   }
 
   onFocusOut() {
