@@ -8,7 +8,7 @@ import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { Store, useStore } from "../../store_engine";
 import { SelectionStore } from "../../stores/draw_selection_store";
 import { _t } from "../../translation";
-import { MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
+import { ComposerFocusType, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { ActionButton } from "../action_button/action_button";
 import { Ripple } from "../animation/ripple";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
@@ -388,17 +388,19 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
 
   get composerProps(): CellComposerProps {
     return {
-      focus: "contentFocus",
+      focus: this.focus,
       composerStore: this.composerStore,
-      onComposerContentFocused: () => this.startEdition(),
+      onComposerContentFocused: () =>
+        this.composerFocusStore.focusComposer(this.composerInterface, {
+          focusMode: "contentFocus",
+        }),
       isDefaultFocus: false,
     };
   }
 
-  startEdition() {
-    // TODORAR; compute the position relatively to the viewport and scroll such t hat it is visible
-    const { col, row } = this.env.model.getters.getActivePosition();
-    this.env.model.selection.selectCell(col, row);
-    this.composerStore.startEdition();
+  get focus(): ComposerFocusType {
+    return this.composerFocusStore.activeComposer === this.composerInterface
+      ? this.composerFocusStore.focusMode
+      : "inactive";
   }
 }

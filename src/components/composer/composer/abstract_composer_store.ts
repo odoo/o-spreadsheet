@@ -22,6 +22,7 @@ import {
 } from "../../../registries/auto_completes/auto_complete_registry";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
+import { SelectionStore } from "../../../stores/draw_selection_store";
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
 import { _t } from "../../../translation";
@@ -97,6 +98,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
   protected abstract confirmEdition(content: string): void;
   protected abstract getComposerContent(position: CellPosition): string;
+  private selectionStore = this.get(SelectionStore);
 
   abstract stopEdition(direction?: Direction): void;
 
@@ -156,6 +158,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       this.setContent(text, selection);
     } else {
       this._startEdition(text, selection);
+      this.selectionStore.markSelectionToDisplay();
     }
     this.updateTokenColor();
     this.computeFormulaCursorContext();
