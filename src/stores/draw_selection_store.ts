@@ -9,10 +9,10 @@ export interface HighlightProvider {
 }
 
 export class SelectionStore extends SpreadsheetStore {
-  mutators = ["disable", "enable"] as const;
+  mutators = ["disable", "enable", "markSelectionToDisplay", "forgetSelectionToDisplay"] as const;
 
   private state: "disabled" | "enabled" = "disabled";
-
+  scrollSelectionIntoView: boolean = false;
   constructor(get: Get) {
     super(get);
     this.model.selection.observe(this, {
@@ -25,6 +25,17 @@ export class SelectionStore extends SpreadsheetStore {
   }
   enable() {
     this.state = "enabled";
+  }
+
+  // TODORAR  wth am I doing here? I want to be able to show the selection but on a very specific situation, the resize the grid
+  // implied by the activation of the virtual keyboard on mobile. The current condition is false
+  // roght now it'"ss horrible because we eiuter have to passw a 2 callbacks (get and set) or we have to use the store and trigger renders every time
+  markSelectionToDisplay() {
+    this.scrollSelectionIntoView = true;
+  }
+
+  forgetSelectionToDisplay() {
+    this.scrollSelectionIntoView = false;
   }
 
   get isActive() {

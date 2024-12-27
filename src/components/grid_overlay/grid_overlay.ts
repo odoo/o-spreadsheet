@@ -1,5 +1,6 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
+import { SelectionStore } from "../../stores/draw_selection_store";
 import {
   DOMCoordinates,
   GridClickModifiers,
@@ -205,9 +206,11 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private gridOverlayRect = useAbsoluteBoundingRect(this.gridOverlay);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+  private selectionStore!: Store<SelectionStore>;
 
   setup() {
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
+    this.selectionStore = useStore(SelectionStore);
     const resizeObserver = new ResizeObserver(() => {
       const boundingRect = this.gridOverlayEl.getBoundingClientRect();
       this.props.onGridResized({
@@ -216,6 +219,11 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
         height: Math.floor(boundingRect.height),
         width: Math.floor(boundingRect.width),
       });
+      if (this.selectionStore.scrollSelectionIntoView) {
+        const { col, row } = this.env.model.getters.getActivePosition();
+        this.env.model.dispatch("SCROLL_TO_CELL", { col, row });
+        this.selectionStore.forgetSelectionToDisplay();
+      }
     });
     onMounted(() => {
       resizeObserver.observe(this.gridOverlayEl);
