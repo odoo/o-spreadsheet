@@ -131,7 +131,10 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private scrollToSheet() {
-    this.sheetDivRef.el?.scrollIntoView?.();
+    this.sheetDivRef.el?.scrollIntoView?.({
+      behavior: "smooth",
+      inline: "nearest",
+    });
   }
 
   onFocusOut() {

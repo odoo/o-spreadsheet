@@ -1,15 +1,23 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import * as EDIT_ACTION from "../../actions/edit_actions";
+import * as ACTION_FORMAT from "../../actions/format_actions";
+import * as INSERT_ACTION from "../../actions/insert_actions";
 import { BACKGROUND_GRAY_COLOR, GRAY_300, HEADER_WIDTH } from "../../constants";
-import { deepEquals } from "../../helpers";
+import { deepEquals, getZoneArea } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { Store, useStore } from "../../store_engine";
 import { SelectionStore } from "../../stores/draw_selection_store";
 import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
+import { ActionButton } from "../action_button/action_button";
 import { Ripple } from "../animation/ripple";
+import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { CellComposerStore } from "../composer/composer/cell_composer_store";
+import { CellComposerProps, Composer } from "../composer/composer/composer";
+import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
+import { SelectionButton } from "../selection/selection_button";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
 
@@ -80,14 +88,18 @@ css/* scss */ `
           width: 18px;
           font-size: 18px;
         }
-        .mobile-composer {
-        }
       }
+    }
+
+    .mobile-edition {
+      width: 100%;
+    }
+
+    .mobile-composer {
       border: lightgrey solid 1px;
       border-radius: 5px;
       line-height: 24px;
       display: flex;
-
       .o-icon {
         width: 24px;
         height: 24px;
@@ -124,7 +136,20 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     onClick: Function,
   };
-  static components = { Menu, Ripple, BottomBarSheet, BottomBarStatistic };
+  static components = {
+    Menu,
+    Ripple,
+    BottomBarSheet,
+    BottomBarStatistic,
+    Composer,
+    SelectionButton,
+    ActionButton,
+    ColorPickerWidget,
+  };
+
+  FORMAT = ACTION_FORMAT;
+  INSERT = INSERT_ACTION;
+  EDIT = EDIT_ACTION;
 
   private bottomBarRef = useRef("bottomBar");
   private sheetListRef = useRef("sheetList");
@@ -147,12 +172,25 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
 
   sheetList = this.getVisibleSheets();
   private composerStore!: Store<CellComposerStore>;
-
+  private composerFocusStore!: Store<ComposerFocusStore>;
+  private composerInterface!: ComposerInterface;
   selectionStore!: Store<SelectionStore>;
 
   setup() {
+    const composerStore = useStore(CellComposerStore);
     this.selectionStore = useStore(SelectionStore);
-    this.composerStore = useStore(CellComposerStore);
+    this.composerStore = composerStore;
+    this.composerFocusStore = useStore(ComposerFocusStore);
+    this.composerInterface = {
+      id: "gridComposer",
+      get editionMode() {
+        return composerStore.editionMode;
+      },
+      startEdition: this.composerStore.startEdition,
+      setCurrentContent: this.composerStore.setCurrentContent,
+      stopEdition: this.composerStore.stopEdition,
+    };
+    this.composerFocusStore.focusComposer(this.composerInterface, { focusMode: "inactive" });
     onWillUpdateProps(() => {
       this.updateScrollState();
       const visibleSheets = this.getVisibleSheets();
@@ -339,5 +377,20 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   get sheetListMaxScroll() {
     if (!this.sheetListRef.el) return 0;
     return this.sheetListRef.el.scrollWidth - this.sheetListRef.el.clientWidth;
+  }
+
+  get isComposerVisible(): boolean {
+    return (
+      this.env.model.getters.getSelectedZones().length === 1 &&
+      getZoneArea(this.env.model.getters.getSelectedZone()) === 1
+    );
+  }
+
+  get composerProps(): CellComposerProps {
+    return {
+      focus: "contentFocus",
+      composerStore: this.composerStore,
+      onComposerContentFocused: () => this.composerStore.startEdition(),
+    };
   }
 }

@@ -8,10 +8,10 @@
       t-on-keydown="onKeydown"
       t-ref="grid">
       <canvas t-ref="canvas"/>
-      <GridComposer
+      <!-- <GridComposer
         gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="onInputContextMenu"
-      />
+      /> -->
       <ScrollMask positionOffset="maskPositionOffset">
         <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
         <MobileGridOverlay
