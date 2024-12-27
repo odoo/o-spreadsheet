@@ -27,13 +27,14 @@ css/* scss */ `
   }
 `;
 
-type Orientation = "nw" | "ne" | "sw" | "se";
+type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
 
 interface Props {
   zone: Zone;
   color: Color;
   orientation: Orientation;
   isResizing: boolean;
+  // TODORAR rename this on reSizeZone?
   onResizeHighlight: (isLeft: boolean, isRight: boolean, ev: TouchEvent) => void;
 }
 
@@ -42,12 +43,15 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     zone: Object,
     color: String,
-    orientation: String,
+    orientation: {
+      type: String,
+      validate: (value: string) => ["nw", "ne", "sw", "se", "n", "s", "e", "w"].includes(value),
+    },
     isResizing: Boolean,
     onResizeHighlight: Function,
   };
-  private isTop = this.props.orientation[0] === "n";
-  private isLeft = this.props.orientation[1] === "w";
+  private isTop = this.props.orientation.includes("n");
+  private isLeft = this.props.orientation.includes("w");
 
   get style() {
     const z = this.props.zone;
@@ -77,11 +81,6 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseDown(ev: TouchEvent) {
-    // if (ev.cancelable) {
-    //   ev.preventDefault();
-    // }
-    // ev.stopPropagation();
-    // console.log("corner mouse down")
     this.props.onResizeHighlight(this.isLeft, this.isTop, ev);
   }
 }
