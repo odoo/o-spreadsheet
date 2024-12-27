@@ -36,7 +36,7 @@ export interface PopoverProps {
 
 css/* scss */ `
   .o-popover {
-    position: absolute;
+    position: relative;
 
     z-index: ${ComponentsImportance.Popover};
     overflow: auto;
@@ -48,7 +48,7 @@ css/* scss */ `
 `;
 
 export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Popover";
+  static template = "o-spreadsheet-mobile-Popover";
   static props = {
     anchorRect: Object,
     containerRect: { type: Object, optional: true },
@@ -133,7 +133,9 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       el.style["bottom"] = 0 + "px";
       el.style["left"] = 0 + "px";
       el.style["height"] = "fit-content";
-      el.style["position"] = "absolute";
+      el.style["position"] = "relative";
+      el.style["flex"] = "0 0 auto";
+      // el.style["top"] = "-38";
       const newPosition = popoverPositionHelper.getCurrentPosition(elDims);
       if (this.currentPosition && newPosition !== this.currentPosition) {
         this.props.onPopoverMoved?.();
