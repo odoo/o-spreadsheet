@@ -418,12 +418,25 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     );
 
     useExternalListener((window as any).visualViewport, "resize", () => this.render(true));
+
+    useExternalListener((window as any).visualViewport, "resize", () =>
+      this.env.notifyUser({
+        text:
+          document.querySelector(".o-grid-overlay")?.getBoundingClientRect().height.toString() ||
+          "nada",
+        sticky: true,
+        type: "info",
+      })
+    );
+
     // useExternalListener(window as any, "resize", () => this.env.notifyUser({ text: "resize viewport",sticky: true,
     //   type:'info' }));
 
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
+    // TODORAR: we probably shipped something that would stop the propagation / default behaviour which in turn did not allow the event to reach the grid
+    // witnessed the same thing while working on mobile with the "touchmove" event which in fact did not
     useExternalListener(document.body, "wheel", () => {});
 
     this.bindModelEvents();

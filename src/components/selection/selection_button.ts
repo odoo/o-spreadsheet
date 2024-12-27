@@ -25,9 +25,10 @@ interface Props {
 
 export class SelectionButton extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionButton";
-  static props = {};
+  static props = { onClick: { type: Function, optional: true } };
 
-  onClick() {
+  onClick(ev: MouseEvent) {
     this.env.getStore(SelectionStore).disable();
+    this.props.onClick?.(ev);
   }
 }

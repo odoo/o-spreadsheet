@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-mobile-Corner">
     <div
       class="o-corner"
-      t-on-touchstart.prevent="onMouseDown"
+      t-on-pointerdown.prevent.stop="onMouseDown"
       t-att-style="style"
       t-att-class="{
           'o-resizing': props.isResizing,
