@@ -8,7 +8,7 @@ import { css, cssPropertiesToCss } from "../helpers/css";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 
 type PopoverPosition = "TopLeft" | "TopRight" | "BottomLeft" | "BottomRight";
-type DisplayValue = "none" | "block";
+type DisplayValue = "none" | "grid";
 
 export interface PopoverProps {
   /**
@@ -89,7 +89,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       if (!this.containerRect) throw new Error("Popover container is not defined");
       const el = this.popoverRef.el!;
       const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
-      const newDisplay: DisplayValue = 1 === 1 ? "block" : "none"; // anchor ? "block" : "none";
+      const newDisplay: DisplayValue = 1 === 1 ? "grid" : "none"; // anchor ? "block" : "none";
       if (this.currentDisplayValue !== "none" && newDisplay === "none") {
         this.props.onPopoverHidden?.();
       }

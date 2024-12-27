@@ -12,7 +12,7 @@
         gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="onInputContextMenu"
       />
-      <ScrollMask>
+      <ScrollMask positionOffset="maskPositionOffset">
         <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
         <MobileGridOverlay
           onCellClicked.bind="onCellClicked"

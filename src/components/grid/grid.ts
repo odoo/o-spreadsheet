@@ -515,6 +515,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  get maskPositionOffset() {
+    // return { offsetX: 0, offsetY: 0 };
+    return { offsetX: HEADER_WIDTH, offsetY: HEADER_HEIGHT };
+  }
+
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {
     const sheetId = this.env.model.getters.getActiveSheetId();
     ({ col, row } = this.env.model.getters.getMainCellPosition({ sheetId, col, row }));

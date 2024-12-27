@@ -460,7 +460,8 @@ export class SheetViewPlugin extends UIPlugin {
     const { x: offsetCorrectionX } = this.getMainViewportCoordinates();
     const currentOffsetX = this.getActiveSheetScrollInfo().scrollX;
 
-    if (x > width) {
+    // in mobile, we consider x-split > -10 to allow the users to scroll on the outer (right) part of the screen (no scrollbar ATM)
+    if (x - width > -10) {
       // 3 & 5
       canEdgeScroll = true;
       delay = scrollDelay(x - width);

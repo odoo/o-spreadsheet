@@ -1,6 +1,8 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { Color } from "chart.js";
+import * as EDIT_ACTION from "../../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../../actions/format_actions";
+import * as INSERT_ACTION from "../../../actions/insert_actions";
 import { setStyle } from "../../../actions/menu_items_actions";
 import {
   ComponentsImportance,
@@ -24,6 +26,7 @@ import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { Popover, PopoverProps } from "../../popover";
+import { SelectionButton } from "../../selection/selection_button";
 import { CellComposerStore } from "../composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
@@ -58,6 +61,18 @@ css/* scss */ `
     background-color: white;
   }
 
+  .mobile-composer {
+    border: lightgrey solid 1px;
+    border-radius: 5px;
+    line-height: 24px;
+    display: flex;
+
+    .o-icon {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
   /*  shoult be more global and not copied from top bar */
   .o-divider {
     border-right: 1px solid ${GRAY_300};
@@ -84,8 +99,10 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     gridDims: Object,
     onInputContextMenu: Function,
   };
-  static components = { Composer, Popover, ActionButton, ColorPickerWidget };
+  static components = { Composer, Popover, ActionButton, ColorPickerWidget, SelectionButton };
   FORMAT = ACTION_FORMAT;
+  INSERT = INSERT_ACTION;
+  EDIT = EDIT_ACTION;
 
   private rect: Rect = this.defaultRect;
   private isEditing: boolean = false;
@@ -200,16 +217,16 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       composerStore: this.composerStore,
     };
 
-    if (true) {
-      // if is mobile
-      Object.assign(props, {
-        inputStyle: cssPropertiesToCss({
-          border: `lightgrey solid 1px`,
-          "border-radius": "5px",
-          "line-height": "24px",
-        }),
-      });
-    }
+    // if (true) {
+    //   // if is mobile
+    //   Object.assign(props, {
+    //     inputStyle: cssPropertiesToCss({
+    //       border: `lightgrey solid 1px`,
+    //       "border-radius": "5px",
+    //       "line-height": "24px",
+    //     }),
+    //   });
+    // }
 
     return props;
   }
