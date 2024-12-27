@@ -1,47 +1,49 @@
 <templates>
   <t t-name="o-spreadsheet-mobile-BottomBar">
-    <div
-      class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center justify-content-between overflow-hidden"
-      t-on-click="props.onClick"
-      t-ref="bottomBar"
-      t-on-contextmenu.prevent="">
-      <div class="o-sheet-item o-list-sheets me-2 p-1 ms-4" t-on-click="clickListSheets">
-        <t t-call="o-spreadsheet-Icon.LIST"/>
-      </div>
-      <div class="o-all-sheets position-relative d-flex h-100 me-auto flex-fill overflow-hidden">
-        <div class="o-bottom-bar-fade-in h-100 pe-none" t-if="state.isSheetListScrollableLeft"/>
-        <div
-          class="o-sheet-list d-flex w-100 px-1"
-          t-ref="sheetList"
-          t-on-wheel="onWheel"
-          t-on-scroll="onScroll">
-          <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
-            <BottomBarSheet
-              style="getSheetStyle(sheet.id)"
-              sheetId="sheet.id"
-              openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
-              onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
-            />
-          </t>
-        </div>
-        <div t-if="state.isSheetListScrollableRight" class="o-bottom-bar-fade-out h-100 pe-none"/>
-      </div>
+    <div class="bottomWrapper o-two-columns">
       <div
-        class="o-sheet-item o-add-sheet me-2 ms-2 p-1"
-        t-if="!env.model.getters.isReadonly()"
-        t-on-click="clickAddSheet">
-        <t t-call="o-spreadsheet-Icon.PLUS"/>
-      </div>
+        class="o-spreadsheet-bottom-bar d-flex align-items-center justify-content-between overflow-hidden"
+        t-on-click="props.onClick"
+        t-ref="bottomBar"
+        t-on-contextmenu.prevent="">
+        <div class="o-sheet-item o-list-sheets me-2 p-1 ms-4" t-on-click="clickListSheets">
+          <t t-call="o-spreadsheet-Icon.LIST"/>
+        </div>
+        <div class="o-all-sheets position-relative d-flex h-100 me-auto flex-fill overflow-hidden">
+          <div class="o-bottom-bar-fade-in h-100 pe-none" t-if="state.isSheetListScrollableLeft"/>
+          <div
+            class="o-sheet-list d-flex w-100 px-1"
+            t-ref="sheetList"
+            t-on-wheel="onWheel"
+            t-on-scroll="onScroll">
+            <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
+              <BottomBarSheet
+                style="getSheetStyle(sheet.id)"
+                sheetId="sheet.id"
+                openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
+                onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
+              />
+            </t>
+          </div>
+          <div t-if="state.isSheetListScrollableRight" class="o-bottom-bar-fade-out h-100 pe-none"/>
+        </div>
+        <div
+          class="o-sheet-item o-add-sheet me-2 ms-2 p-1"
+          t-if="!env.model.getters.isReadonly()"
+          t-on-click="clickAddSheet">
+          <t t-call="o-spreadsheet-Icon.PLUS"/>
+        </div>
 
-      <Menu
-        t-if="menuState.isOpen"
-        position="menuState.position"
-        menuItems="menuState.menuItems"
-        maxHeight="menuMaxHeight"
-        onClose="() => this.closeMenu()"
-        menuId="menuState.menuId"
-        menuTitle="menuState.menuTitle"
-      />
+        <Menu
+          t-if="menuState.isOpen"
+          position="menuState.position"
+          menuItems="menuState.menuItems"
+          maxHeight="menuMaxHeight"
+          onClose="() => this.closeMenu()"
+          menuId="menuState.menuId"
+          menuTitle="menuState.menuTitle"
+        />
+      </div>
     </div>
   </t>
 </templates>
