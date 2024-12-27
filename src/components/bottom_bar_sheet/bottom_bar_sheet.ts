@@ -1,4 +1,4 @@
-import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
+import { Component, onPatched, useEffect, useRef, useState } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT } from "../../constants";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../registries";
@@ -76,17 +76,21 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   private editionState: "initializing" | "editing" = "initializing";
 
   setup() {
-    onMounted(() => {
-      if (this.isSheetActive) {
-        this.scrollToSheet();
-      }
-    });
     onPatched(() => {
       if (this.sheetNameRef.el && this.state.isEditing && this.editionState === "initializing") {
         this.editionState = "editing";
         this.focusInputAndSelectContent();
       }
     });
+
+    useEffect(
+      (sheetId) => {
+        if (this.props.sheetId === sheetId) {
+          this.scrollToSheet();
+        }
+      },
+      () => [this.env.model.getters.getActiveSheetId()]
+    );
   }
 
   private focusInputAndSelectContent() {
@@ -105,7 +109,10 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private scrollToSheet() {
-    this.sheetDivRef.el?.scrollIntoView?.();
+    this.sheetDivRef.el?.scrollIntoView?.({
+      behavior: "smooth",
+      inline: "nearest",
+    });
   }
 
   onFocusOut() {
