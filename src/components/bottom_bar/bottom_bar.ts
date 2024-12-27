@@ -390,7 +390,15 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     return {
       focus: "contentFocus",
       composerStore: this.composerStore,
-      onComposerContentFocused: () => this.composerStore.startEdition(),
+      onComposerContentFocused: () => this.startEdition(),
+      isDefaultFocus: false,
     };
+  }
+
+  startEdition() {
+    // TODORAR; compute the position relatively to the viewport and scroll such t hat it is visible
+    const { col, row } = this.env.model.getters.getActivePosition();
+    this.env.model.selection.selectCell(col, row);
+    this.composerStore.startEdition();
   }
 }
