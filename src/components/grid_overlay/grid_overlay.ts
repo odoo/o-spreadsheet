@@ -152,7 +152,7 @@ export function useTouchMove(
       }
       ev.stopPropagation();
     }
-    console.log(ev.defaultPrevented);
+    // console.log(ev.defaultPrevented);
     const currentX = ev.touches[0].clientX;
     const currentY = ev.touches[0].clientY;
     handler(x! - currentX, y! - currentY);

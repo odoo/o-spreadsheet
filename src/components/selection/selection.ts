@@ -1,9 +1,7 @@
 import { Component, useState } from "@odoo/owl";
 import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../constants";
 import { clip, isEqual } from "../../helpers";
-import { Store } from "../../store_engine";
-import { SelectionStore } from "../../stores/draw_selection_store";
-import { Color, HeaderIndex, SpreadsheetChildEnv, Zone } from "../../types";
+import { Color, HeaderIndex, ResizeDirection, SpreadsheetChildEnv, Zone } from "../../types";
 import { css } from "../helpers/css";
 import { dragAndDropBeyondTheViewportTouch } from "../helpers/drag_and_drop_touch";
 import { Corner } from "../highlight/corner/corner";
@@ -38,28 +36,24 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
   });
 
   get directions() {
-    return ["nw", "se"];
+    const hasActiveCols = this.env.model.getters.getActiveCols().size > 0;
+    const hasActiveRows = this.env.model.getters.getActiveRows().size > 0;
+
+    if (hasActiveCols && !hasActiveRows) {
+      return ["w", "e"];
+    } else if (hasActiveRows && !hasActiveCols) {
+      return ["n", "s"];
+    } else {
+      return ["nw", "se"];
+    }
   }
 
-  private selectionStore!: Store<SelectionStore>;
-  setup() {
-    console.log(this.selectionStore);
-    // this.selectionStore = useStore(SelectionStore);
-    // useExternalListener(
-    //   window,
-    //   "beforeunload",
-    //   (ev) => {
-    //     if (this.selectionStore.isActive) {
-    //       this.selectionStore.disable();
-    //       ev.preventDefault();
-    //       ev.stopPropagation();
-    //     }
-    //   },
-    //   { capture: true }
-    // );
+  get zone(): Zone {
+    return this.env.model.getters.getSelectedZone();
   }
 
-  onResizeSelection(isLeft: boolean, isTop: boolean, ev: TouchEvent) {
+  onResizeSelection(dirX: ResizeDirection, dirY: ResizeDirection) {
+    // onResizeSelection(isLeft: boolean, isTop: boolean) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     this.selectionState.shiftingMode = "isResizing";
 
@@ -67,10 +61,18 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
     const z = this.env.model.getters.getSelectedZone();
     const anchor = this.env.model.getters.getActivePosition();
 
-    const pivotCol = isLeft ? z.right : z.left;
-    const pivotRow = isTop ? z.bottom : z.top;
-    let lastCol = isLeft ? z.left : z.right;
-    let lastRow = isTop ? z.top : z.bottom;
+    // const pivotCol = isLeft ? z.right : z.left;
+    // const pivotRow = isTop ? z.bottom : z.top;
+
+    // let lastCol = isLeft ? z.left : z.right;
+    // let lastRow = isTop ? z.top : z.bottom;
+
+    const pivotCol = dirX === 1 ? z.left : z.right;
+    const pivotRow = dirY === 1 ? z.top : z.bottom;
+
+    let lastCol = dirX === 1 ? z.right : z.left;
+    let lastRow = dirY === 1 ? z.bottom : z.top;
+
     let currentZone = z;
 
     const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
@@ -87,10 +89,10 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
         );
 
         let newZone: Zone = {
-          left: Math.min(pivotCol, lastCol),
-          top: Math.min(pivotRow, lastRow),
-          right: Math.max(pivotCol, lastCol),
-          bottom: Math.max(pivotRow, lastRow),
+          left: dirX !== 0 ? Math.min(pivotCol, lastCol) : currentZone.left,
+          right: dirX !== 0 ? Math.max(pivotCol, lastCol) : currentZone.right,
+          top: dirY !== 0 ? Math.min(pivotRow, lastRow) : currentZone.top,
+          bottom: dirY !== 0 ? Math.max(pivotRow, lastRow) : currentZone.bottom,
         };
 
         if (!isEqual(newZone, currentZone)) {
@@ -109,7 +111,7 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
     const mouseUp = () => {
       this.selectionState.shiftingMode = "none";
     };
-
-    dragAndDropBeyondTheViewportTouch(ev, this.env, mouseMove, mouseUp);
+    const only = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : false;
+    dragAndDropBeyondTheViewportTouch(this.env, mouseMove, mouseUp, only);
   }
 }

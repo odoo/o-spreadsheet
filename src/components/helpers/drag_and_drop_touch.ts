@@ -50,7 +50,6 @@ export function startDndTouch(
  * performed during the pointerup event.
  */
 export function dragAndDropBeyondTheViewportTouch(
-  target: TouchEvent,
   env: SpreadsheetChildEnv,
   cbMouseMove: (col: HeaderIndex, row: HeaderIndex, ev: TouchEvent) => void,
   cbMouseUp: () => void,

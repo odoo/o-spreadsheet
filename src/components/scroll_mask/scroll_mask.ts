@@ -177,10 +177,6 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
       offsetY: this.maskRef.el.scrollTop,
     });
   }
-
-  touchmove(ev: TouchEvent) {
-    console.log("touchmove de mask");
-  }
 }
 
 // TODORAR wrap in a dedicated cla
