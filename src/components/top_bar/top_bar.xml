@@ -41,7 +41,7 @@
           <div t-else="" class="o-toolbar-tools d-flex flex-shrink-0 ms-4">
             <!-- TODORAR addition of "validate truc"-->
             <t t-if="isSelectionActive">
-              <SelectionButton/>
+              <SelectionButton composerStore="composerFocusStore.activeComposer"/>
               <div class="o-divider"/>
             </t>
             <ActionButton action="EDIT.undo" class="'o-hoverable-button'"/>

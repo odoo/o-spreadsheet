@@ -35,16 +35,19 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
     shiftingMode: "none",
   });
 
-  get directions() {
+  // TODORAR direction est pas orientation faut rester juste consistant
+  orientations!: Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w">;
+
+  setup() {
     const hasActiveCols = this.env.model.getters.getActiveCols().size > 0;
     const hasActiveRows = this.env.model.getters.getActiveRows().size > 0;
 
     if (hasActiveCols && !hasActiveRows) {
-      return ["w", "e"];
+      this.orientations = ["w", "e"];
     } else if (hasActiveRows && !hasActiveCols) {
-      return ["n", "s"];
+      this.orientations = ["n", "s"];
     } else {
-      return ["nw", "se"];
+      this.orientations = ["nw", "se"];
     }
   }
 
@@ -59,7 +62,7 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
 
     this.env.model.selection.getBackToDefault();
     const z = this.env.model.getters.getSelectedZone();
-    const anchor = this.env.model.getters.getActivePosition();
+    // const anchor = this.env.model.getters.getActivePosition();
 
     // const pivotCol = isLeft ? z.right : z.left;
     // const pivotRow = isTop ? z.bottom : z.top;
@@ -98,7 +101,7 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
         if (!isEqual(newZone, currentZone)) {
           this.env.model.selection.selectZone(
             {
-              cell: anchor,
+              cell: { col: newZone.left, row: newZone.top },
               zone: newZone,
             },
             { unbounded: true }

@@ -10,7 +10,7 @@
         <div class="mobile-edition px-2">
           <div class="mobile-composer px-2 mt-2" t-if="isComposerVisible" t-ref="gridComposer">
             <Composer t-props="composerProps"/>
-            <SelectionButton onClick="() => composerStore.stopEdition()"/>
+            <SelectionButton composerStore="composerStore"/>
           </div>
           <div class="o-toolbar-tools d-flex flex-shrink-0 pb-4 pt-2 mx-4">
             <ActionButton action="FORMAT.formatBold" class="'o-hoverable-button'"/>
