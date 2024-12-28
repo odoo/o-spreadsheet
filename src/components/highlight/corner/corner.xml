@@ -6,10 +6,6 @@
       t-att-style="style"
       t-att-class="{
           'o-resizing': props.isResizing,
-          'o-corner-nw': props.orientation === 'nw',
-          'o-corner-ne': props.orientation === 'ne',
-          'o-corner-sw': props.orientation === 'sw',
-          'o-corner-se': props.orientation === 'se',
         }"
     />
   </t>
