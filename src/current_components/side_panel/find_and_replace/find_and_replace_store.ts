@@ -1,6 +1,6 @@
-import { getSearchRegex, isInside, positionToZone } from "../../../helpers";
+import { getSearchRegex, isInside } from "../../../helpers";
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
-import { CellPosition, Color, Command, Highlight } from "../../../types";
+import { CellPosition, Command, Highlight } from "../../../types";
 
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { Get } from "../../../store_engine";
@@ -8,8 +8,6 @@ import { SpreadsheetStore } from "../../../stores";
 import { NotificationStore } from "../../../stores/notification_store";
 import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
-
-const FIND_AND_REPLACE_HIGHLIGHT_COLOR: Color = "#8B008B";
 
 enum Direction {
   previous = -1,
@@ -408,42 +406,6 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
   get highlights(): Highlight[] {
     const highlights: Highlight[] = [];
-    const sheetId = this.getters.getActiveSheetId();
-
-    for (const [index, match] of this.searchMatches.entries()) {
-      if (match.sheetId !== sheetId) {
-        continue; // Skip drawing matches from other sheets
-      }
-
-      const zone = positionToZone(match);
-      const zoneWithMerge = this.getters.expandZone(sheetId, zone);
-
-      const { width, height } = this.getters.getVisibleRect(zoneWithMerge);
-      if (width > 0 && height > 0) {
-        highlights.push({
-          sheetId,
-          zone: zoneWithMerge,
-          color: FIND_AND_REPLACE_HIGHLIGHT_COLOR,
-          noBorder: index !== this.selectedMatchIndex,
-          thinLine: true,
-          fillAlpha: 0.2,
-        });
-      }
-    }
-
-    if (this.searchOptions.searchScope === "specificRange") {
-      const range = this.searchOptions.specificRange;
-      if (range && range.sheetId === sheetId) {
-        highlights.push({
-          sheetId,
-          zone: range.zone,
-          color: FIND_AND_REPLACE_HIGHLIGHT_COLOR,
-          noFill: true,
-          thinLine: true,
-        });
-      }
-    }
-
     return highlights;
   }
 }

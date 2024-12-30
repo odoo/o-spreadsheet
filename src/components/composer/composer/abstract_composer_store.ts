@@ -9,8 +9,8 @@ import {
   isEqual,
   isNumber,
   positionToZone,
+  RangeImpl,
   splitReference,
-  zoneToDimension,
 } from "../../../helpers/index";
 import { canonicalizeNumberContent, localizeFormula } from "../../../helpers/locale";
 import { createPivotFormula } from "../../../helpers/pivot/pivot_helpers";
@@ -587,7 +587,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
       let zone = range.zone;
       zone = getZoneArea(zone) === 1 ? this.model.getters.expandZone(refSheet, zone) : zone;
-      return isEqual(zone, highlight.zone);
+      return isEqual(zone, highlight.range.zone);
     });
     return highlight && highlight.color ? highlight.color : undefined;
   }
@@ -715,13 +715,13 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const highlights: Highlight[] = [];
     for (const range of this.getReferencedRanges()) {
       const rangeString = this.getters.getRangeString(range, editionSheetId);
-      const { numberOfRows, numberOfCols } = zoneToDimension(range.zone);
-      const zone =
-        numberOfRows * numberOfCols === 1
-          ? this.getters.expandZone(range.sheetId, range.zone)
-          : range.zone;
+      // const { numberOfRows, numberOfCols } = zoneToDimension(range.zone);
+      // const zone =
+      //   numberOfRows * numberOfCols === 1
+      //     ? this.getters.expandZone(range.sheetId, range.zone)
+      //     : range.zone;
       highlights.push({
-        zone,
+        range,
         color: rangeColor(rangeString),
         sheetId: range.sheetId,
         interactive: true,
@@ -730,11 +730,12 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const activeSheetId = this.getters.getActiveSheetId();
     const selectionZone = this.model.selection.getAnchor().zone;
     const isSelectionHightlighted = highlights.find(
-      (highlight) => highlight.sheetId === activeSheetId && isEqual(highlight.zone, selectionZone)
+      (highlight) =>
+        highlight.sheetId === activeSheetId && isEqual(highlight.range.zone, selectionZone)
     );
     if (this.editionMode === "selecting" && !isSelectionHightlighted) {
       highlights.push({
-        zone: selectionZone,
+        range: this.model.getters.getRangeFromZone(activeSheetId, selectionZone),
         color: "#445566",
         sheetId: activeSheetId,
         dashed: true,
@@ -749,7 +750,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   /**
    * Return ranges currently referenced in the composer
    */
-  private getReferencedRanges(): Range[] {
+  private getReferencedRanges(): RangeImpl[] {
     const editionSheetId = this.sheetId;
     const referenceRanges = this.currentTokens
       .filter((token) => token.type === "REFERENCE")

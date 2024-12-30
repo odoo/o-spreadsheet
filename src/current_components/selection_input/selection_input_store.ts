@@ -349,18 +349,7 @@ export class SelectionInputStore extends SpreadsheetStore {
    * are ignored.
    */
   private inputToHighlights({ xc, color }: Pick<RangeInputValue, "xc" | "color">): Highlight[] {
-    const XCs = this.cleanInputs([xc])
-      .filter((range) => this.getters.isRangeValid(range))
-      .filter((reference) => this.shouldBeHighlighted(this.inputSheetId, reference));
-    return XCs.map((xc) => {
-      const { sheetName } = splitReference(xc);
-      return {
-        zone: this.getters.getRangeFromSheetXC(this.inputSheetId, xc).zone,
-        sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId,
-        color,
-        interactive: true,
-      };
-    });
+    return [];
   }
 
   private cleanInputs(ranges: string[]): string[] {
@@ -371,23 +360,6 @@ export class SelectionInputStore extends SpreadsheetStore {
       .filter((xc) => xc !== "");
   }
 
-  /**
-   * Check if a cell or range reference should be highlighted.
-   * It should be highlighted if it references the current active sheet.
-   * Note that if no sheet name is given in the reference ("A1"), it refers to the
-   * active sheet when the selection input was enabled which might be different from
-   * the current active sheet.
-   */
-  private shouldBeHighlighted(inputSheetId: UID, reference: string): boolean {
-    const { sheetName } = splitReference(reference);
-    const sheetId = this.getters.getSheetIdByName(sheetName);
-    const activeSheetId = this.getters.getActiveSheet().id;
-    const valid = this.getters.isRangeValid(reference);
-    return (
-      valid &&
-      (sheetId === activeSheetId || (sheetId === undefined && activeSheetId === inputSheetId))
-    );
-  }
   /**
    * Return the index of a range given its id
    * or `null` if the range is not found.

@@ -1,5 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
-import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300, HIGHLIGHT_COLOR } from "../../../../constants";
+import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300 } from "../../../../constants";
 import { colorNumberString } from "../../../../helpers";
 import { _t } from "../../../../translation";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
@@ -149,13 +149,7 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
   }
 
   get highlights(): Highlight[] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.props.conditionalFormat.ranges.map((range) => ({
-      sheetId,
-      zone: this.env.model.getters.getRangeFromSheetXC(sheetId, range).zone,
-      color: HIGHLIGHT_COLOR,
-      fillAlpha: 0.06,
-    }));
+    return [];
   }
 }
 

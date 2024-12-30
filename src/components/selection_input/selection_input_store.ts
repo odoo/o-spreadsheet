@@ -355,7 +355,7 @@ export class SelectionInputStore extends SpreadsheetStore {
     return XCs.map((xc) => {
       const { sheetName } = splitReference(xc);
       return {
-        zone: this.getters.getRangeFromSheetXC(this.inputSheetId, xc).zone,
+        range: this.getters.getRangeFromSheetXC(this.inputSheetId, xc),
         sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId,
         color,
         interactive: true,

@@ -82,7 +82,10 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
     if (!this.state.highlightZone) return [];
     return [
       {
-        zone: this.state.highlightZone,
+        range: this.env.model.getters.getRangeFromZone(
+          this.props.table.range.sheetId,
+          this.state.highlightZone
+        ),
         sheetId: this.props.table.range.sheetId,
         color: COLOR,
         noFill: true,

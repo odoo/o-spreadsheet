@@ -2,15 +2,12 @@ import { composerTokenize, EnrichedToken } from "../../../formulas/composer_toke
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
 import {
-  colors,
   concat,
   fuzzyLookup,
-  getZoneArea,
   isEqual,
   isNumber,
   positionToZone,
   splitReference,
-  zoneToDimension,
 } from "../../../helpers/index";
 import { canonicalizeNumberContent, localizeFormula } from "../../../helpers/locale";
 import { createPivotFormula } from "../../../helpers/pivot/pivot_helpers";
@@ -576,17 +573,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   private rangeColor(xc: string, sheetName?: string): Color | undefined {
-    const refSheet = sheetName ? this.model.getters.getSheetIdByName(sheetName) : this.sheetId;
-
-    const highlight = this.highlights.find((highlight) => {
-      if (highlight.sheetId !== refSheet) return false;
-
-      const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
-      let zone = range.zone;
-      zone = getZoneArea(zone) === 1 ? this.model.getters.expandZone(refSheet, zone) : zone;
-      return isEqual(zone, highlight.zone);
-    });
-    return highlight && highlight.color ? highlight.color : undefined;
+    return undefined;
   }
 
   /**
@@ -704,42 +691,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     if (!this.currentContent.startsWith("=") || this.editionMode === "inactive") {
       return [];
     }
-    const editionSheetId = this.sheetId;
-    const rangeColor = (rangeString: string) => {
-      const colorIndex = this.colorIndexByRange[rangeString];
-      return colors[colorIndex % colors.length];
-    };
     const highlights: Highlight[] = [];
-    for (const range of this.getReferencedRanges()) {
-      const rangeString = this.getters.getRangeString(range, editionSheetId);
-      const { numberOfRows, numberOfCols } = zoneToDimension(range.zone);
-      const zone =
-        numberOfRows * numberOfCols === 1
-          ? this.getters.expandZone(range.sheetId, range.zone)
-          : range.zone;
-      highlights.push({
-        zone,
-        color: rangeColor(rangeString),
-        sheetId: range.sheetId,
-        interactive: true,
-      });
-    }
-    const activeSheetId = this.getters.getActiveSheetId();
-    const selectionZone = this.model.selection.getAnchor().zone;
-    const isSelectionHightlighted = highlights.find(
-      (highlight) => highlight.sheetId === activeSheetId && isEqual(highlight.zone, selectionZone)
-    );
-    if (this.editionMode === "selecting" && !isSelectionHightlighted) {
-      highlights.push({
-        zone: selectionZone,
-        color: "#445566",
-        sheetId: activeSheetId,
-        dashed: true,
-        interactive: false,
-        noFill: true,
-        thinLine: true,
-      });
-    }
     return highlights;
   }
 
