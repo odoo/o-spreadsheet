@@ -108,7 +108,7 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
 
     // Don't show if not visible in the viewport
     if (rect.width * rect.height === 0) {
-      return `display:none`;
+      return `display: none !important;`;
     }
 
     const leftValue = rect.x + rect.width / 2 + (this.dirX * rect.width) / 2;

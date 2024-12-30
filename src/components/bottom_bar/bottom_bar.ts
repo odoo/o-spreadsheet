@@ -1,7 +1,9 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Color } from "chart.js";
 import * as EDIT_ACTION from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as INSERT_ACTION from "../../actions/insert_actions";
+import { setStyle } from "../../actions/menu_items_actions";
 import { BACKGROUND_GRAY_COLOR, GRAY_300, HEADER_WIDTH } from "../../constants";
 import { deepEquals, getZoneArea } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
@@ -158,6 +160,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   private state = useState({
     isSheetListScrollableLeft: false,
     isSheetListScrollableRight: false,
+    activeTool: "",
   });
 
   menuMaxHeight = MENU_MAX_HEIGHT;
@@ -402,5 +405,11 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     return this.composerFocusStore.activeComposer === this.composerInterface
       ? this.composerFocusStore.focusMode
       : "inactive";
+  }
+
+  setColor(target: string, color: Color) {
+    setStyle(this.env, { [target]: color });
+    this.state.activeTool = "";
+    // this.onClick();
   }
 }

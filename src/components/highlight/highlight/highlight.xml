@@ -1,17 +1,18 @@
 <templates>
-  <t t-name="o-spreadsheet-Highlight">
+  <t t-name="o-spreadsheet-mobile-Highlight">
     <div class="o-highlight" t-ref="highlight">
-      <t t-foreach="['n', 's', 'w', 'e']" t-as="orientation" t-key="orientation">
+      <!-- // remettre quand on aura le env.isMobile -->
+      <!-- <t t-foreach="['n', 's', 'w', 'e']" t-as="orientation" t-key="orientation">
         <Border
           onMoveHighlight="(x, y) => this.onMoveHighlight(x,y)"
           isMoving='highlightState.shiftingMode === "isMoving"'
           orientation="orientation"
           zone="props.zone"
         />
-      </t>
-      <t t-foreach="['nw', 'ne', 'sw', 'se']" t-as="orientation" t-key="orientation">
+      </t> -->
+      <t t-foreach="cornerOrientations" t-as="orientation" t-key="orientation">
         <Corner
-          onResizeHighlight="(isLeft, isTop) => this.onResizeHighlight(isLeft, isTop)"
+          onResizeHighlight="(dirX, dirY) => this.onResizeHighlight(dirX, dirY)"
           isResizing='highlightState.shiftingMode === "isResizing"'
           orientation="orientation"
           zone="props.zone"
