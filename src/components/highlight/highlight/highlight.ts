@@ -1,6 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import { ComponentsImportance } from "../../../constants";
-import { clip, isEqual } from "../../../helpers";
+import { RangeImpl, clip, isEqual } from "../../../helpers";
 import {
   Color,
   HeaderIndex,
@@ -23,7 +23,7 @@ css/*SCSS*/ `
 `;
 
 interface Props {
-  zone: Zone;
+  range: RangeImpl;
   color: Color;
 }
 
@@ -33,7 +33,7 @@ interface HighlightState {
 export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-mobile-Highlight";
   static props = {
-    zone: Object,
+    range: Object,
     color: String,
   };
   static components = {
@@ -46,7 +46,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   });
 
   get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
-    const z = this.props.zone;
+    const z = this.props.range.unboundedZone;
     //TODORAR get the string instead of zone or the range? maybe range
     if (z.bottom === undefined) {
       return ["w", "e"];
@@ -60,7 +60,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   onResizeHighlight(dirX: ResizeDirection, dirY: ResizeDirection) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     this.highlightState.shiftingMode = "isResizing";
-    const z = this.props.zone;
+    const z = this.props.range.zone;
 
     const pivotCol = dirX === 1 ? z.left : z.right;
     const pivotRow = dirY === 1 ? z.top : z.bottom;
@@ -85,10 +85,10 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
         );
 
         let newZone: Zone = {
-          left: Math.min(pivotCol, lastCol),
-          top: Math.min(pivotRow, lastRow),
-          right: Math.max(pivotCol, lastCol),
-          bottom: Math.max(pivotRow, lastRow),
+          left: dirX !== 0 ? Math.min(pivotCol, lastCol) : currentZone.left,
+          right: dirX !== 0 ? Math.max(pivotCol, lastCol) : currentZone.right,
+          top: dirY !== 0 ? Math.min(pivotRow, lastRow) : currentZone.top,
+          bottom: dirY !== 0 ? Math.max(pivotRow, lastRow) : currentZone.bottom,
         };
 
         if (!isEqual(newZone, currentZone)) {
@@ -113,7 +113,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
 
   onMoveHighlight(clientX: Pixel, clientY: Pixel) {
     this.highlightState.shiftingMode = "isMoving";
-    const z = this.props.zone;
+    const z = this.props.range.zone;
 
     const position = gridOverlayPosition();
     const activeSheetId = this.env.model.getters.getActiveSheetId();

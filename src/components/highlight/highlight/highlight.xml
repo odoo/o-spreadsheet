@@ -15,7 +15,7 @@
           onResizeHighlight="(dirX, dirY) => this.onResizeHighlight(dirX, dirY)"
           isResizing='highlightState.shiftingMode === "isResizing"'
           orientation="orientation"
-          zone="props.zone"
+          zone="props.range.zone"
           color="props.color"
         />
       </t>

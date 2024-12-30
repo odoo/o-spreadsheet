@@ -9,8 +9,8 @@ import {
   isEqual,
   isNumber,
   positionToZone,
+  RangeImpl,
   splitReference,
-  zoneToDimension,
 } from "../../../helpers/index";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { cycleFixedReference } from "../../../helpers/reference_type";
@@ -560,7 +560,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
       let zone = range.zone;
       zone = getZoneArea(zone) === 1 ? this.model.getters.expandZone(refSheet, zone) : zone;
-      return isEqual(zone, highlight.zone);
+      return isEqual(zone, highlight.range.zone);
     });
     return highlight && highlight.color ? highlight.color : undefined;
   }
@@ -687,14 +687,14 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     };
     return this.getReferencedRanges().map((range) => {
       const rangeString = this.getters.getRangeString(range, editionSheetId);
-      const { numberOfRows, numberOfCols } = zoneToDimension(range.zone);
-      const zone =
-        numberOfRows * numberOfCols === 1
-          ? this.getters.expandZone(range.sheetId, range.zone)
-          : range.zone;
+      // const { numberOfRows, numberOfCols } = zoneToDimension(range.zone);
+      // const zone =
+      //   numberOfRows * numberOfCols === 1
+      //     ? this.getters.expandZone(range.sheetId, range.zone)
+      //     : range.zone;
 
       return {
-        zone,
+        range,
         color: rangeColor(rangeString),
         sheetId: range.sheetId,
         interactive: true,
@@ -705,7 +705,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   /**
    * Return ranges currently referenced in the composer
    */
-  private getReferencedRanges(): Range[] {
+  private getReferencedRanges(): RangeImpl[] {
     const editionSheetId = this.sheetId;
     const referenceRanges = this.currentTokens
       .filter((token) => token.type === "REFERENCE")

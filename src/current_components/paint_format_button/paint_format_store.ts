@@ -3,7 +3,6 @@ import { BorderClipboardHandler } from "../../clipboard_handlers/borders_clipboa
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import { ConditionalFormatClipboardHandler } from "../../clipboard_handlers/conditional_format_clipboard";
 import { TableClipboardHandler } from "../../clipboard_handlers/tables_clipboard";
-import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
@@ -95,14 +94,6 @@ export class PaintFormatStore extends SpreadsheetStore {
     if (!data) {
       return [];
     }
-    return data.zones.map((zone) => ({
-      zone,
-      color: SELECTION_BORDER_COLOR,
-      dashed: true,
-      sheetId: data.sheetId,
-      noFill: true,
-      thinLine: true,
-      interactive: false,
-    }));
+    return [];
   }
 }

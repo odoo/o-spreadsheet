@@ -442,7 +442,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     return { _sheetId: sheetId, _zone: zone };
   }
 
-  getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): Range {
+  getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): RangeImpl {
     return new RangeImpl(
       {
         sheetId,

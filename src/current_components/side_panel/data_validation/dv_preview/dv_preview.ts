@@ -1,5 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
-import { FIGURE_BORDER_COLOR, HIGHLIGHT_COLOR } from "../../../../constants";
+import { FIGURE_BORDER_COLOR } from "../../../../constants";
 import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
 import { DataValidationRule, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers";
@@ -55,12 +55,7 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
   }
 
   get highlights(): Highlight[] {
-    return this.props.rule.ranges.map((range) => ({
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      zone: range.zone,
-      color: HIGHLIGHT_COLOR,
-      fillAlpha: 0.06,
-    }));
+    return [];
   }
 
   get rangesString(): string {
