@@ -174,7 +174,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
      * et faudra voir si le mode change en fonctionde la visibilité ou bien du mode "mobile" ou "desktop" du navigateur (userAgent)
      * en fait on peut garder un comportement sans grid comme default ?
      */
-    // onMounted(() => this.DOMFocusa bleElementStore.setFocusableElement(this.gridEl));
+    onMounted(() => this.DOMFocusableElementStore.setFocusableElement(this.gridEl));
 
     onMounted(() => this.focusDefaultElement());
 
