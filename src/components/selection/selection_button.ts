@@ -32,7 +32,7 @@ export class SelectionButton extends Component<Props, SpreadsheetChildEnv> {
   onClick(ev: MouseEvent) {
     // TODORAR ordering seems important here  should not be the case
     this.props.composerStore.stopEdition();
-    this.env.model.selection.selectCell(0, 0);
+    // this.env.model.selection.selectCell(0, 0);
     this.env.getStore(SelectionStore).disable();
   }
 }
