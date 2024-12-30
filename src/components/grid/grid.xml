@@ -33,6 +33,12 @@
       />
       <!-- TODORAR changer cette regle -->
       <Selection t-if="selectionStore.isActive"/>
+      <t t-foreach="highlights" t-as="highlight" t-key="highlight_index">
+        <t
+          t-if="highlight.interactive and highlight.sheetId === env.model.getters.getActiveSheetId()">
+          <Highlight zone="highlight.zone" color="highlight.color"/>
+        </t>
+      </t>
       <!-- 
 
 
@@ -55,12 +61,7 @@
           onClosePopover.bind="onClosePopover"
         /> -->
       <!-- <Selection t-if="composerFocusStore.activeComposer.editionMode === 'inactive'"/> -->
-      <!-- <t t-foreach="highlights" t-as="highlight" t-key="highlight_index">
-        <t
-          t-if="highlight.interactive and highlight.sheetId === env.model.getters.getActiveSheetId()">
-          <Highlight zone="highlight.zone" color="highlight.color"/>
-        </t>
-      </t>
+      <!-- 
       <Menu
         t-if="menuState.isOpen"
         menuItems="menuState.menuItems"

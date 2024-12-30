@@ -1,10 +1,18 @@
 import { Component, useState } from "@odoo/owl";
 import { ComponentsImportance } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
-import { Color, HeaderIndex, Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
+import {
+  Color,
+  HeaderIndex,
+  Pixel,
+  ResizeDirection,
+  SpreadsheetChildEnv,
+  Zone,
+} from "../../../types";
 import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
+import { dragAndDropBeyondTheViewportTouch } from "../../helpers/drag_and_drop_touch";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
 
@@ -23,7 +31,7 @@ interface HighlightState {
   shiftingMode: "isMoving" | "isResizing" | "none";
 }
 export class Highlight extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Highlight";
+  static template = "o-spreadsheet-mobile-Highlight";
   static props = {
     zone: Object,
     color: String,
@@ -37,17 +45,30 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     shiftingMode: "none",
   });
 
-  onResizeHighlight(isLeft: boolean, isTop: boolean) {
+  get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
+    const z = this.props.zone;
+    //TODORAR get the string instead of zone or the range? maybe range
+    if (z.bottom === undefined) {
+      return ["w", "e"];
+    } else if (z.right === undefined) {
+      return ["n", "s"];
+    } else {
+      return ["nw", "se"];
+    }
+  }
+
+  onResizeHighlight(dirX: ResizeDirection, dirY: ResizeDirection) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.zone;
 
-    const pivotCol = isLeft ? z.right : z.left;
-    const pivotRow = isTop ? z.bottom : z.top;
-    let lastCol = isLeft ? z.left : z.right;
-    let lastRow = isTop ? z.top : z.bottom;
-    let currentZone = z;
+    const pivotCol = dirX === 1 ? z.left : z.right;
+    const pivotRow = dirY === 1 ? z.top : z.bottom;
 
+    let lastCol = dirX === 1 ? z.right : z.left;
+    let lastRow = dirY === 1 ? z.bottom : z.top;
+    let currentZone = z;
+    const only = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : false;
     this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
@@ -87,7 +108,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
       this.highlightState.shiftingMode = "none";
     };
 
-    dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
+    dragAndDropBeyondTheViewportTouch(this.env, mouseMove, mouseUp, only);
   }
 
   onMoveHighlight(clientX: Pixel, clientY: Pixel) {

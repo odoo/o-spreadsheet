@@ -37,7 +37,7 @@ const CONTENT_WIDTH =
 const INNER_GRADIENT_WIDTH = CONTENT_WIDTH - 2 * ITEM_BORDER_WIDTH;
 const INNER_GRADIENT_HEIGHT = CONTENT_WIDTH - 30 - 2 * ITEM_BORDER_WIDTH;
 
-const CONTAINER_WIDTH = CONTENT_WIDTH + 2 * PICKER_PADDING;
+// const CONTAINER_WIDTH = CONTENT_WIDTH + 2 * PICKER_PADDING;
 
 css/* scss */ `
   .o-color-picker {
@@ -48,7 +48,7 @@ css/* scss */ `
     line-height: 1.2;
     overflow-y: auto;
     overflow-x: hidden;
-    width: ${CONTAINER_WIDTH}px;
+    width: ${100}%;
 
     .o-color-picker-section-name {
       margin: 0px ${ITEM_BORDER_WIDTH}px;
