@@ -36,20 +36,31 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
   });
 
   // TODORAR direction est pas orientation faut rester juste consistant
-  orientations!: Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w">;
-
-  setup() {
-    const hasActiveCols = this.env.model.getters.getActiveCols().size > 0;
-    const hasActiveRows = this.env.model.getters.getActiveRows().size > 0;
-
-    if (hasActiveCols && !hasActiveRows) {
-      this.orientations = ["w", "e"];
-    } else if (hasActiveRows && !hasActiveCols) {
-      this.orientations = ["n", "s"];
+  get orientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
+    const getters = this.env.model.getters;
+    const z = getters.getSelectecUnboundedZone();
+    if (z.bottom === undefined) {
+      return ["w", "e"];
+    } else if (z.right === undefined) {
+      return ["n", "s"];
     } else {
-      this.orientations = ["nw", "se"];
+      return ["nw", "se"];
     }
   }
+
+  // setup() {
+  //   // const hasActiveCols = this.env.model.getters.getActiveCols().size > 0;
+  //   // const hasActiveRows = this.env.model.getters.getActiveRows().size > 0;
+  //   const getters = this.env.model.getters;
+  //   const z = getters.getUnboundedZone(getters.getActiveSheetId(), getters.getSelectedZone());
+  //   if (z.bottom === undefined) {
+  //     this._orientations = ["w", "e"];
+  //   } else if (z.right === undefined) {
+  //     this._orientations = ["n", "s"];
+  //   } else {
+  //     this._orientations = ["nw", "se"];
+  //   }
+  // }
 
   get zone(): Zone {
     return this.env.model.getters.getSelectedZone();
@@ -77,7 +88,7 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
     let lastRow = dirY === 1 ? z.bottom : z.top;
 
     let currentZone = z;
-
+    const only = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : false;
     const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
       if (lastCol !== col || lastRow !== row) {
         lastCol = clip(
@@ -104,7 +115,7 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
               cell: { col: newZone.left, row: newZone.top },
               zone: newZone,
             },
-            { unbounded: true }
+            { unbounded: only ? true : false }
           );
           currentZone = newZone;
         }
@@ -114,7 +125,7 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
     const mouseUp = () => {
       this.selectionState.shiftingMode = "none";
     };
-    const only = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : false;
+
     dragAndDropBeyondTheViewportTouch(this.env, mouseMove, mouseUp, only);
   }
 }

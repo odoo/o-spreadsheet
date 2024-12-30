@@ -456,10 +456,10 @@ export class ColResizer extends AbstractResizer {
   }
 
   _selectElement(index: HeaderIndex, addDistinctHeader: boolean): void {
-    ca devrait envoyer un sgnal a un  store qui peut savoir sur quel genre de zone on va travailler
-    MAIS le soucis c'est que ce "reset" doit aussi fonctionner (plus tard) avec les highlights ...
-    donc d'abord on fix les highlights (qui doivent s'adapter au nouveau border (facile))
-    et puis il faut réussir a dire que quand ca change de valeur qq part on reset tout
+    // ca devrait envoyer un sgnal a un  store qui peut savoir sur quel genre de zone on va travailler
+    // MAIS le soucis c'est que ce "reset" doit aussi fonctionner (plus tard) avec les highlights ...
+    // donc d'abord on fix les highlights (qui doivent s'adapter au nouveau border (facile))
+    // et puis il faut réussir a dire que quand ca change de valeur qq part on reset tout
     this.env.model.selection.selectColumn(
       index,
       addDistinctHeader ? "newAnchor" : "overrideSelection"

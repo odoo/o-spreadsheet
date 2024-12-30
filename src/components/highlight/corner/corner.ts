@@ -7,9 +7,15 @@ css/* scss */ `
     position: absolute;
     height: 20px;
     width: 20px;
+  }
+
+  .o-corner-button {
     border: 1px solid white;
     border-radius: 4px;
+    height: 5px;
+    width: 5px;
   }
+
   .o-corner-nw,
   .o-corner-se {
     &:hover {
@@ -87,7 +93,7 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
     this.dirY = dirY;
   }
 
-  get style() {
+  get handlerStyle() {
     const z = this.props.zone;
     // const col = this.isLeft ? z.left : z.right;
     // const row = this.isTop ? z.top : z.bottom;
@@ -105,20 +111,19 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
       return `display:none`;
     }
 
-    // const leftValue = this.isLeft ? rect.x : rect.x + rect.width;
-    // const topValue = this.isTop ? rect.y : rect.y + rect.height;
-
-    // const leftValue = (rect.x + this.dirX) * rect.width / 2;
-    // const topValue = (rect.y + this.dirY) * rect.height / 2;
-
     const leftValue = rect.x + rect.width / 2 + (this.dirX * rect.width) / 2;
     const topValue = rect.y + rect.height / 2 + (this.dirY * rect.height) / 2;
 
     return cssPropertiesToCss({
       left: `${leftValue - 20 / 2}px`,
       top: `${topValue - 20 / 2}px`,
+    });
+  }
+
+  get buttonLook() {
+    return cssPropertiesToCss({
       "background-color": this.props.color,
-      cursor: `$this.props.orientation}-resize`,
+      cursor: `${this.props.orientation}-resize`,
     });
   }
 
