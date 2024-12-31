@@ -74,6 +74,7 @@ import {
   deepEquals,
   expandZoneOnInsertion,
   formatValue,
+  getUniqueText,
   isDefined,
   isInside,
   isMarkdownLink,
@@ -340,6 +341,7 @@ export const helpers = {
   areDomainArgsFieldsValid,
   splitReference,
   sanitizeSheetName,
+  getUniqueText,
 };
 
 export const links = {

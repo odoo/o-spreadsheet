@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { escapeRegExp, toZone, zoneToDimension } from "../helpers";
+import { escapeRegExp, getUniqueText, toZone, zoneToDimension } from "../helpers";
 import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   XLSXExport,
@@ -376,14 +376,13 @@ function createRelRoot(): XLSXExportFile {
  */
 export function fixLengthySheetNames(data: ExcelWorkbookData): ExcelWorkbookData {
   const nameMapping: Record<string, string> = {};
-  const newNames = new Set<string>();
+  const newNames: string[] = [];
   for (const sheet of data.sheets) {
     let newName = sheet.name.slice(0, 31);
-    let i = 1;
-    while (newNames.has(newName)) {
-      newName = newName.slice(0, 31 - String(i).length) + i++;
-    }
-    newNames.add(newName);
+    newName = getUniqueText(newName, newNames, {
+      compute: (name, i) => name.slice(0, 31 - String(i).length) + i,
+    });
+    newNames.push(newName);
     if (newName !== sheet.name) {
       nameMapping[sheet.name] = newName;
       sheet.name = newName;

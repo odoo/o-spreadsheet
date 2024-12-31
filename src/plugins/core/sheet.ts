@@ -2,6 +2,7 @@ import { FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX } from "../../constants";
 import {
   createDefaultRows,
   deepCopy,
+  getUniqueText,
   getUnquotedSheetName,
   groupConsecutive,
   includesAll,
@@ -429,14 +430,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   getNextSheetName(baseName = "Sheet"): string {
-    let i = 1;
     const names = this.orderedSheetIds.map(this.getSheetName.bind(this));
-    let name = `${baseName}${i}`;
-    while (names.includes(name)) {
-      name = `${baseName}${i}`;
-      i++;
-    }
-    return name;
+    return getUniqueText(baseName, names, {
+      compute: (name, i) => `${name}${i}`,
+      computeFirstOne: true,
+    });
   }
 
   getSheetSize(sheetId: UID): ZoneDimension {
@@ -760,15 +758,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private getDuplicateSheetName(sheetName: string) {
-    let i = 1;
     const names = this.orderedSheetIds.map(this.getSheetName.bind(this));
     const baseName = _t("Copy of %s", sheetName);
-    let name = baseName.toString();
-    while (names.includes(name)) {
-      name = `${baseName} (${i})`;
-      i++;
-    }
-    return name;
+    return getUniqueText(baseName.toString(), names);
   }
 
   private deleteSheet(sheet: Sheet) {

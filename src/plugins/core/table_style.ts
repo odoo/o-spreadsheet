@@ -1,4 +1,4 @@
-import { toHex } from "../../helpers";
+import { getUniqueText, toHex } from "../../helpers";
 import {
   DEFAULT_TABLE_CONFIG,
   TABLE_PRESETS,
@@ -88,15 +88,8 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
 
   getNewCustomTableStyleName(): string {
     let name = _t("Custom Table Style");
-    const styleNames = new Set(Object.values(this.styles).map((style) => style.displayName));
-    if (!styleNames.has(name)) {
-      return name;
-    }
-    let i = 2;
-    while (styleNames.has(`${name} ${i}`)) {
-      i++;
-    }
-    return `${name} ${i}`;
+    const styleNames = Object.values(this.styles).map((style) => style.displayName);
+    return getUniqueText(name, styleNames, { compute: (name, i) => `${name} ${i}`, start: 2 });
   }
 
   isTableStyleEditable(styleId: string): boolean {
