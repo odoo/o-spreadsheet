@@ -653,3 +653,22 @@ export function transpose2dPOJO<T>(
   }
   return result;
 }
+
+export function getUniqueText(
+  text: string,
+  texts: string[],
+  options: {
+    compute?: (text: string, increment: number) => string;
+    start?: number;
+    computeFirstOne?: boolean;
+  } = {}
+): string {
+  const compute = options.compute ?? ((text, i) => `${text} (${i})`);
+  const computeFirstOne = options.computeFirstOne ?? false;
+  let i = options.start ?? 1;
+  let newText = computeFirstOne ? compute(text, i) : text;
+  while (texts.includes(newText)) {
+    newText = compute(text, i++);
+  }
+  return newText;
+}

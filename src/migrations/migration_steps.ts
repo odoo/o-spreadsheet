@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR, FORMULA_REF_IDENTIFIER } from "../constants";
-import { getItemId, sanitizeSheetName } from "../helpers";
+import { getItemId, getUniqueText, sanitizeSheetName } from "../helpers";
 import { toXC } from "../helpers/coordinates";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
@@ -112,12 +112,9 @@ migrationStepRegistry
         const oldName = sheet.name;
         sanitizeSheetName;
         const escapedName: string = sanitizeSheetName(oldName, "_");
-        let i = 1;
-        let newName = escapedName;
-        while (namesTaken.includes(newName)) {
-          newName = `${escapedName}${i}`;
-          i++;
-        }
+        const newName = getUniqueText(escapedName, namesTaken, {
+          compute: (name, i) => `${name}${i}`,
+        });
         sheet.name = newName;
         namesTaken.push(newName);
 

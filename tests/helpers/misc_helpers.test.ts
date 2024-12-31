@@ -2,6 +2,7 @@ import {
   DateTime,
   deepCopy,
   deepEquals,
+  getUniqueText,
   groupConsecutive,
   isConsecutive,
   lazy,
@@ -273,5 +274,27 @@ describe("Memoize", () => {
 
   test("Memoized function name", () => {
     expect(memoizedFn.name).toEqual("smile (memoized)");
+  });
+});
+
+describe("getUniqueText", () => {
+  test("with no existing text", () => {
+    expect(getUniqueText("a", [])).toEqual("a");
+  });
+
+  test("with existing text", () => {
+    expect(getUniqueText("a", ["a", "a (1)"])).toEqual("a (2)");
+  });
+
+  test("with custom compute", () => {
+    expect(getUniqueText("a", ["a", "a 1"], { compute: (t, i) => `${t} ${i}` })).toEqual("a 2");
+  });
+
+  test("with computeFirstOne", () => {
+    expect(getUniqueText("a", [], { computeFirstOne: true })).toEqual("a (1)");
+  });
+
+  test("with start", () => {
+    expect(getUniqueText("a", ["a"], { start: 2 })).toEqual("a (2)");
   });
 });

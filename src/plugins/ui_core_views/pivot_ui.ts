@@ -2,6 +2,7 @@ import { Token } from "../../formulas";
 import { astToFormula } from "../../formulas/parser";
 import { toScalar } from "../../functions/helper_matrices";
 import { toBoolean } from "../../functions/helpers";
+import { getUniqueText } from "../../helpers";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
@@ -265,13 +266,9 @@ export class PivotUIPlugin extends UIPlugin {
 
   generateNewCalculatedMeasureName(measures: PivotCoreMeasure[]) {
     const existingMeasures = measures.map((m) => m.fieldName);
-    let i = 1;
-    let name = _t("Calculated measure %s", i);
-    while (existingMeasures.includes(name)) {
-      i++;
-      name = _t("Calculated measure %s", i);
-    }
-    return name;
+    return getUniqueText(_t("Calculated measure 1"), existingMeasures, {
+      compute: (name, i) => _t("Calculated measure %s", i),
+    });
   }
 
   getPivot(pivotId: UID) {

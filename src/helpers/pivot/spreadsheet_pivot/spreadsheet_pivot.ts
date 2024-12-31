@@ -26,7 +26,7 @@ import {
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
-import { deepEquals, isDefined } from "../../misc";
+import { deepEquals, getUniqueText, isDefined } from "../../misc";
 import {
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,
@@ -457,12 +457,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    * Take cares of double names
    */
   private findName(name: string, fields: PivotFields) {
-    let increment = 1;
-    const initialName = name;
-    while (name in fields) {
-      name = `${initialName}${++increment}`;
-    }
-    return name;
+    return getUniqueText(name, Object.keys(fields), {
+      compute: (name, i) => `${name}${i}`,
+      start: 2,
+    });
   }
 
   private extractDataEntriesFromRange(range: Range): DataEntries {

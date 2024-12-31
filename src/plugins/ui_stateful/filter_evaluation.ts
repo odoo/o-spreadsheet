@@ -1,5 +1,6 @@
 import {
   deepCopy,
+  getUniqueText,
   positions,
   range,
   toLowerCase,
@@ -221,12 +222,9 @@ export class FilterEvaluationPlugin extends UIPlugin {
     if (!colName) {
       colName = `Column${colIndex}`;
     }
-    let currentColName = colName;
-    let i = 2;
-    while (usedColNames.includes(currentColName)) {
-      currentColName = colName + String(i);
-      i++;
-    }
-    return currentColName;
+    return getUniqueText(colName, usedColNames, {
+      compute: (name, i) => colName + String(i),
+      start: 2,
+    });
   }
 }
