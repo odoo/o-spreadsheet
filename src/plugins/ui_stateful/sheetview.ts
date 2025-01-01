@@ -437,10 +437,17 @@ export class SheetViewPlugin extends UIPlugin {
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
     }
     const viewport = this.getMainInternalViewport(sheetId);
+    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+
     if (dimension === "ROW") {
-      offset -= viewport.offsetScrollbarY - viewport.offsetY;
+      // les frozen pane rendent ca vraiment intéressant. je pense que c'estcde la merde comme condition :D
+      if (index >= ySplit) {
+        offset -= viewport.offsetScrollbarY - viewport.offsetY;
+      }
     } else {
-      offset -= viewport.offsetScrollbarX - viewport.offsetX;
+      if (index >= xSplit) {
+        offset -= viewport.offsetScrollbarX - viewport.offsetX;
+      }
     }
     return offset;
   }
