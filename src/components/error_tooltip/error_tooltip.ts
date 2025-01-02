@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { positionToZone } from "../../helpers";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
@@ -47,9 +48,18 @@ export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
     const cell = getters.getEvaluatedCell(position);
     const errors: ErrorToolTipMessage[] = [];
     if (cell.type === CellValueType.error && !!cell.message) {
+      let message = cell.message;
+      if (cell.originalPosition) {
+        const sheetId = cell.originalPosition?.sheetId;
+        const originPosition = getters.getRangeString(
+          getters.getRangeFromZone(sheetId, positionToZone(cell.originalPosition)),
+          sheetId
+        );
+        message += "\n The error is coming from " + originPosition;
+      }
       errors.push({
         title: _t("Error"),
-        message: cell.message,
+        message,
       });
     }
 

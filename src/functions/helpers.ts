@@ -243,7 +243,7 @@ function toValue(data: FunctionResultObject | CellValue | undefined): CellValue 
     return data.value;
   }
   if (isEvaluationError(data)) {
-    throw new EvaluationError("", data as string);
+    throw new EvaluationError("", data);
   }
   return data;
 }

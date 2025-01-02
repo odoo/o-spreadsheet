@@ -366,11 +366,13 @@ export class Evaluator {
     );
 
     if (!isMatrix(formulaReturn)) {
-      return createEvaluatedCell(
+      const evaluatedCell = createEvaluatedCell(
         nullValueToZeroValue(formulaReturn),
         this.getters.getLocale(),
         cellData
       );
+      evaluatedCell.originalPosition = formulaReturn.originalPosition ?? formulaPosition;
+      return evaluatedCell;
     }
 
     this.assertSheetHasEnoughSpaceToSpreadFormulaResult(formulaPosition, formulaReturn);

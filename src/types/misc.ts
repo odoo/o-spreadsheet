@@ -198,7 +198,12 @@ export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencie
 }
 
 export type Matrix<T = unknown> = T[][];
-export type FunctionResultObject = { value: CellValue; format?: Format; message?: string };
+export type FunctionResultObject = {
+  value: CellValue;
+  format?: Format;
+  originalPosition?: CellPosition;
+  message?: string;
+};
 export type FunctionResultNumber = { value: number; format?: string };
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
