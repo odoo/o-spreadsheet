@@ -3354,4 +3354,40 @@ describe("trending line", () => {
       pointRadius: 0,
     });
   });
+
+  test("logarithmic trending line", () => {
+    // prettier-ignore
+    setGrid(model, {
+        B1: "12", C1: "34",
+        B2: "45", C2: "23",
+        B3: "32", C3: "31",
+        B4: "29", C4: "54",
+        B5: "16", C5: "11",
+        B6: "19", C6: "89",
+        B7: "23", C7: "43",
+        B8: "64", C8: "42",
+      });
+    createChart(
+      model,
+      {
+        type: "scatter",
+        dataSets: [{ dataRange: "C1:C8", trend: { display: true, type: "logarithmic" } }],
+        labelRange: "B1:B8",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+    function roundToFourDecimals(value) {
+      return Math.round(value * 10000) / 10000;
+    }
+    let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    // We round up to 4 decimals to avoid floating point errors
+    expect(runtime.chartJsConfig.data.datasets[1].data.map(roundToFourDecimals)).toEqual([
+      48.0254, 46.2824, 45.2628, 44.5393, 43.9782, 43.5197, 43.1321, 42.7963, 42.5001, 42.2351,
+      41.9954, 41.7766, 41.5754, 41.389, 41.2155, 41.0532, 40.9007, 40.757, 40.621, 40.4921,
+      40.3694, 40.2524, 40.1406, 40.0336, 39.9309, 39.8323, 39.7374, 39.6459, 39.5577, 39.4724,
+      39.39, 39.3101, 39.2328, 39.1577, 39.0848, 39.014, 38.945, 38.878, 38.8127, 38.749,
+    ]);
+  });
 });
