@@ -531,11 +531,7 @@ export function interpolateData(
   if (values.length < 2 || labels.length < 2 || newLabels.length === 0) {
     return [];
   }
-  const labelMin = Math.min(...labels);
-  const labelMax = Math.max(...labels);
-  const labelRange = labelMax - labelMin;
-  const normalizedLabels = labels.map((v) => (v - labelMin) / labelRange);
-  const normalizedNewLabels = newLabels.map((v) => (v - labelMin) / labelRange);
+  const { normalizedLabels, normalizedNewLabels } = normalizeLabels(labels, newLabels, config);
   try {
     switch (config.type) {
       case "polynomial": {
@@ -579,6 +575,34 @@ export function interpolateData(
   } catch (e) {
     return Array.from({ length: newLabels.length }, () => NaN);
   }
+}
+
+function normalizeLabels(
+  labels: number[],
+  newLabels: number[],
+  config: TrendConfiguration
+): { normalizedLabels: number[]; normalizedNewLabels: number[] } {
+  let normalizedLabels: number[] = [];
+  let normalizedNewLabels: number[] = [];
+  if (config.type === "logarithmic") {
+    // Logarithmic trends in charts are used to visualize proportional growth or
+    // relative changes. Therefore, we change the normalization technique for
+    // logarithmic trend lines for a better fit. The method used here is Max Absolute
+    // Scaling. This Technique is ideal for data spanning several orders of magnitude,
+    // as it balances differences between small and large values by compressing larger
+    // values while preserving proportionality and ensuring all values are scaled relative
+    // to the largest magnitude.
+    const labelMax = Math.max(...labels.map(Math.abs));
+    normalizedLabels = labels.map((l) => l / labelMax);
+    normalizedNewLabels = newLabels.map((l) => l / labelMax);
+  } else {
+    const labelMax = Math.max(...labels);
+    const labelMin = Math.min(...labels);
+    const labelRange = labelMax - labelMin;
+    normalizedLabels = labels.map((l) => (l - labelMax) / labelRange);
+    normalizedNewLabels = newLabels.map((l) => (l - labelMax) / labelRange);
+  }
+  return { normalizedLabels, normalizedNewLabels };
 }
 
 export function formatTickValue(localeFormat: LocaleFormat) {
