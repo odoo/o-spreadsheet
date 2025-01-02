@@ -138,7 +138,11 @@ export class GridRenderer {
       let style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
+        if (box.clipRect) {
+          ctx.fillRect(box.clipRect.x, box.clipRect.y, box.clipRect.width, box.clipRect.height);
+        } else {
+          ctx.fillRect(box.x, box.y, box.width, box.height);
+        }
       }
       if (box.dataBarFill) {
         ctx.fillStyle = box.dataBarFill.color;
@@ -153,6 +157,11 @@ export class GridRenderer {
         ctx.lineTo(box.x + box.width, box.y);
         ctx.lineTo(box.x + box.width, box.y + 5);
         ctx.fill();
+      }
+      if (box.clipRect) {
+        // ctx.beginPath();
+        // ctx.rect(box.clipRect.x, box.clipRect.y, box.clipRect.width, box.clipRect.height);
+        // ctx.clip();
       }
     }
   }
@@ -189,7 +198,12 @@ export class GridRenderer {
     for (let box of boxes) {
       const border = box.border;
       if (border) {
-        const { x, y, width, height } = box;
+        let x: Pixel, y: Pixel, width: Pixel, height: Pixel;
+        if (box.clipRect) {
+          ({ x, y, width, height } = box.clipRect);
+        } else {
+          ({ x, y, width, height } = box);
+        }
         if (border.left) {
           drawBorder(border.left, x, y, x, y + height);
         }
@@ -306,7 +320,9 @@ export class GridRenderer {
         if (box.clipRect) {
           ctx.save();
           ctx.beginPath();
-          const { x, y, width, height } = box.clipRect;
+          const { x, y, width: rectWidth, height } = box.clipRect;
+          // we want to clip on the left but not on the right ><
+          const width = Math.max(rectWidth, box.content.width);
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
@@ -405,6 +421,7 @@ export class GridRenderer {
     ctx.lineWidth = thinLineWidth;
     ctx.strokeStyle = "#333";
 
+    // FIX the headers to account for the scrolloffset
     // Columns headers background
     for (let col = left; col <= right; col++) {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
@@ -471,6 +488,10 @@ export class GridRenderer {
     }
 
     ctx.stroke();
+
+    // cut that with the top left corner
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, HEADER_WIDTH, HEADER_HEIGHT);
   }
 
   private drawFrozenPanesHeaders(renderingContext: GridRenderingContext) {
@@ -591,7 +612,8 @@ export class GridRenderer {
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { x, y, width, height, originalX, originalHeight, originalWidth, originalY } =
+      this.getters.getRenderingRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
     let style = this.getters.getCellComputedStyle(position);
     if (this.fingerprints.isEnabled) {
@@ -602,10 +624,10 @@ export class GridRenderer {
       ? undefined
       : this.getters.getConditionalDataBar(position);
     const box: Box = {
-      x,
-      y,
-      width,
-      height,
+      x: originalX,
+      y: originalY,
+      width: originalWidth,
+      height: originalHeight,
       border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
@@ -628,8 +650,14 @@ export class GridRenderer {
         image: imageHtmlElement,
       };
     }
-
+    if (box.style.fillColor === "#000000") debugger;
     if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
+      box.clipRect = {
+        x: Math.max(x, box.clipRect?.x || 0),
+        y: Math.max(y, box.clipRect?.y || 0),
+        width: box.clipRect?.width || width,
+        height: box.clipRect?.height || height,
+      };
       return box;
     }
 
@@ -658,8 +686,8 @@ export class GridRenderer {
     const isOverflowing = contentWidth > width || fontSizePX > height;
     if (iconSrc || box.hasIcon) {
       box.clipRect = {
-        x: box.x + iconBoxWidth,
-        y: box.y,
+        x: x + iconBoxWidth,
+        y: y,
         width: Math.max(0, width - iconBoxWidth - headerIconWidth),
         height,
       };
@@ -722,13 +750,19 @@ export class GridRenderer {
       }
     } else if (wrapping === "clip" || wrapping === "wrap" || multiLineText.length > 1) {
       box.clipRect = {
-        x: box.x,
-        y: box.y,
+        x: x,
+        y: y,
         width,
         height,
       };
     }
 
+    box.clipRect = {
+      x: Math.max(x, box.clipRect?.x || 0),
+      y: Math.max(y, box.clipRect?.y || 0),
+      width: box.clipRect?.width || width,
+      height: box.clipRect?.height || height,
+    };
     return box;
   }
 
@@ -743,9 +777,10 @@ export class GridRenderer {
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
     const sheetId = this.getters.getActiveSheetId();
+    // TODO frozen pane don't work
 
-    for (const row of visibleRows) {
-      for (const col of visibleCols) {
+    for (const row of visibleRows.reverse()) {
+      for (const col of visibleCols.reverse()) {
         const position = { sheetId, col, row };
         if (this.getters.isInMerge(position)) {
           continue;

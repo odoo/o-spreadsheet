@@ -12,6 +12,7 @@ import {
   Dimension,
   EdgeScrollInfo,
   Figure,
+  FullRect,
   HeaderIndex,
   LocalCommand,
   Pixel,
@@ -104,6 +105,7 @@ export class SheetViewPlugin extends UIPlugin {
     "isPositionVisible",
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
+    "getRenderingRect",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -331,6 +333,7 @@ export class SheetViewPlugin extends UIPlugin {
    * the grid left/top side, snapped to the columns/rows.
    */
   getActiveSheetScrollInfo(): SheetScrollInfo {
+    return this.getActiveSheetDOMScrollInfo();
     const sheetId = this.getters.getActiveSheetId();
     const viewport = this.getMainInternalViewport(sheetId);
     return {
@@ -420,12 +423,12 @@ export class SheetViewPlugin extends UIPlugin {
     referenceIndex: HeaderIndex,
     index: HeaderIndex
   ): Pixel {
-    const sheetId = this.getters.getActiveSheetId();
-    const visibleCols = this.getters.getSheetViewVisibleCols();
-    const visibleRows = this.getters.getSheetViewVisibleRows();
     if (index < referenceIndex) {
       return -this.getColRowOffsetInViewport(dimension, index, referenceIndex);
     }
+    const sheetId = this.getters.getActiveSheetId();
+    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleRows = this.getters.getSheetViewVisibleRows();
     let offset = 0;
     const visibleIndexes = dimension === "COL" ? visibleCols : visibleRows;
     for (let i = referenceIndex; i < index; i++) {
@@ -433,6 +436,20 @@ export class SheetViewPlugin extends UIPlugin {
         continue;
       }
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
+    }
+    const viewport = this.getMainInternalViewport(sheetId);
+    const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
+
+    if (dimension === "ROW") {
+      // les frozen pane rendent ca rend vraiment intéressant. je pense que c'est de la merde comme condition :D
+      // reste a savoir pourquoi le dessin sous frozen pane fait nawak, genre la taille des box de clip??-> enf ait oui, ca clip juste pas pour l'instant...
+      if (index >= ySplit) {
+        offset -= viewport.offsetScrollbarY - viewport.offsetY;
+      }
+    } else {
+      if (index >= xSplit) {
+        offset -= viewport.offsetScrollbarX - viewport.offsetX;
+      }
     }
     return offset;
   }
@@ -514,6 +531,46 @@ export class SheetViewPlugin extends UIPlugin {
       direction = "reset";
     }
     return { canEdgeScroll, direction, delay };
+  }
+
+  getRenderingRect(zone: Zone): FullRect {
+    const sheetId = this.getters.getActiveSheetId();
+    const viewportRects = this.getSubViewports(sheetId)
+      .map((viewport) => viewport.getRenderingRect(zone))
+      .filter(isDefined);
+    if (viewportRects.length === 0) {
+      return {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+        originalHeight: 0,
+        originalWidth: 0,
+        originalX: 0,
+        originalY: 0,
+      };
+    }
+    // waht a shitshow :D
+    const x = Math.min(...viewportRects.map((rect) => rect.x));
+    const y = Math.min(...viewportRects.map((rect) => rect.y));
+    const width = Math.max(...viewportRects.map((rect) => rect.x + rect.width)) - x;
+    const height = Math.max(...viewportRects.map((rect) => rect.y + rect.height)) - y;
+    const originalX = Math.min(...viewportRects.map((rect) => rect.originalX));
+    const originalY = Math.min(...viewportRects.map((rect) => rect.originalY));
+    const originalWidth =
+      Math.max(...viewportRects.map((rect) => rect.originalX + rect.originalWidth)) - originalX;
+    const originalHeight =
+      Math.max(...viewportRects.map((rect) => rect.originalY + rect.originalHeight)) - originalY;
+    return {
+      x: x + this.gridOffsetX,
+      y: y + this.gridOffsetY,
+      width,
+      height,
+      originalX: originalX + this.gridOffsetX,
+      originalY: originalY + this.gridOffsetY,
+      originalWidth,
+      originalHeight,
+    };
   }
 
   /**
@@ -809,7 +866,7 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const result: Figure[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { scrollX, scrollY } = this.getActiveSheetScrollInfo();
+    const { scrollX, scrollY } = this.getActiveSheetDOMScrollInfo();
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.getters.getMainViewportCoordinates();
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
