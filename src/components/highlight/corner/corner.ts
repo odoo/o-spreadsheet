@@ -2,11 +2,14 @@ import { Component } from "@odoo/owl";
 import { Color, ResizeDirection, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 
+const LARGEUR = 40;
+
 css/* scss */ `
   .o-corner {
     position: absolute;
-    height: 20px;
-    width: 20px;
+    height: ${LARGEUR}px;
+    width: ${LARGEUR}px;
+    background: red;
   }
 
   .o-corner-button {
@@ -115,8 +118,8 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
     const topValue = rect.y + rect.height / 2 + (this.dirY * rect.height) / 2;
 
     return cssPropertiesToCss({
-      left: `${leftValue - 20 / 2}px`,
-      top: `${topValue - 20 / 2}px`,
+      left: `${leftValue - LARGEUR / 2}px`,
+      top: `${topValue - LARGEUR / 2}px`,
     });
   }
 
