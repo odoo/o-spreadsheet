@@ -333,6 +333,7 @@ export class SheetViewPlugin extends UIPlugin {
    * the grid left/top side, snapped to the columns/rows.
    */
   getActiveSheetScrollInfo(): SheetScrollInfo {
+    return this.getActiveSheetDOMScrollInfo();
     const sheetId = this.getters.getActiveSheetId();
     const viewport = this.getMainInternalViewport(sheetId);
     return {
@@ -865,7 +866,7 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const result: Figure[] = [];
     const figures = this.getters.getFigures(sheetId);
-    const { scrollX, scrollY } = this.getActiveSheetScrollInfo();
+    const { scrollX, scrollY } = this.getActiveSheetDOMScrollInfo();
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.getters.getMainViewportCoordinates();
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();

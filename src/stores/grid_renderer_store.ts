@@ -321,6 +321,7 @@ export class GridRenderer {
           ctx.save();
           ctx.beginPath();
           const { x, y, width: rectWidth, height } = box.clipRect;
+          // we want to clip on the left but not on the right ><
           const width = Math.max(rectWidth, box.content.width);
           ctx.rect(x, y, width, height);
           ctx.clip();
