@@ -138,7 +138,11 @@ export class GridRenderer {
       let style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
+        if (box.clipRect) {
+          ctx.fillRect(box.clipRect.x, box.clipRect.y, box.clipRect.width, box.clipRect.height);
+        } else {
+          ctx.fillRect(box.x, box.y, box.width, box.height);
+        }
       }
       if (box.dataBarFill) {
         ctx.fillStyle = box.dataBarFill.color;
@@ -153,6 +157,11 @@ export class GridRenderer {
         ctx.lineTo(box.x + box.width, box.y);
         ctx.lineTo(box.x + box.width, box.y + 5);
         ctx.fill();
+      }
+      if (box.clipRect) {
+        // ctx.beginPath();
+        // ctx.rect(box.clipRect.x, box.clipRect.y, box.clipRect.width, box.clipRect.height);
+        // ctx.clip();
       }
     }
   }
@@ -189,7 +198,12 @@ export class GridRenderer {
     for (let box of boxes) {
       const border = box.border;
       if (border) {
-        const { x, y, width, height } = box;
+        let x: Pixel, y: Pixel, width: Pixel, height: Pixel;
+        if (box.clipRect) {
+          ({ x, y, width, height } = box.clipRect);
+        } else {
+          ({ x, y, width, height } = box);
+        }
         if (border.left) {
           drawBorder(border.left, x, y, x, y + height);
         }
@@ -634,8 +648,14 @@ export class GridRenderer {
         image: imageHtmlElement,
       };
     }
-
+    if (box.style.fillColor === "#000000") debugger;
     if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
+      box.clipRect = {
+        x: Math.max(x, box.clipRect?.x || 0),
+        y: Math.max(y, box.clipRect?.y || 0),
+        width: box.clipRect?.width || Math.max(width, box.content?.width || 0),
+        height: box.clipRect?.height || Math.max(height, 0),
+      };
       return box;
     }
 
@@ -735,6 +755,12 @@ export class GridRenderer {
       };
     }
 
+    box.clipRect = {
+      x: Math.max(x, box.clipRect?.x || 0),
+      y: Math.max(y, box.clipRect?.y || 0),
+      width: box.clipRect?.width || Math.max(width, box.content?.width || 0),
+      height: box.clipRect?.height || Math.max(height, 0),
+    };
     return box;
   }
 
@@ -751,8 +777,8 @@ export class GridRenderer {
     const sheetId = this.getters.getActiveSheetId();
     // TODO frozen pane don't work
 
-    for (const row of visibleRows) {
-      for (const col of visibleCols) {
+    for (const row of visibleRows.reverse()) {
+      for (const col of visibleCols.reverse()) {
         const position = { sheetId, col, row };
         if (this.getters.isInMerge(position)) {
           continue;

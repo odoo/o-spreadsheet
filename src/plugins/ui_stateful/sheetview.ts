@@ -440,7 +440,8 @@ export class SheetViewPlugin extends UIPlugin {
     const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
 
     if (dimension === "ROW") {
-      // les frozen pane rendent ca vraiment intéressant. je pense que c'estcde la merde comme condition :D
+      // les frozen pane rendent ca rend vraiment intéressant. je pense que c'est de la merde comme condition :D
+      // reste a savoir pourquoi le dessin sous frozen pane fait nawak, genre la taille des box de clip??-> enf ait oui, ca clip juste pas pour l'instant...
       if (index >= ySplit) {
         offset -= viewport.offsetScrollbarY - viewport.offsetY;
       }
@@ -559,7 +560,6 @@ export class SheetViewPlugin extends UIPlugin {
       Math.max(...viewportRects.map((rect) => rect.originalX + rect.originalWidth)) - originalX;
     const originalHeight =
       Math.max(...viewportRects.map((rect) => rect.originalY + rect.originalHeight)) - originalY;
-    if (zone.left === 0 && zone.top === 0) console.log(viewportRects[0], y);
     return {
       x: x + this.gridOffsetX,
       y: y + this.gridOffsetY,
