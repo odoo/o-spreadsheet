@@ -1,6 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-ErrorToolTip">
     <div class="o-error-tooltip">
+      <t t-if="evaluationError">
+        <div class="o-error-tooltip-title fw-bold text-danger">Error</div>
+        <div class="o-error-tooltip-message">
+          <t t-esc="evaluationError.message"/>
+          <div class="fst-italic" t-if="errorOriginPositionString">
+            Caused by
+            <span
+              t-esc="errorOriginPositionString"
+              class="o-button-link"
+              t-on-click="selectCell"
+              title="Click to select the cell"
+            />
+          </div>
+        </div>
+      </t>
       <t t-foreach="props.errors" t-as="error" t-key="error_index">
         <div class="o-error-tooltip-title fw-bold text-danger">
           <t t-esc="error.title"/>

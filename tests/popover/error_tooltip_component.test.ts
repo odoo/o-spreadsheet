@@ -1,17 +1,16 @@
-import { Model } from "../../src";
-import {
-  ErrorToolTip,
-  ErrorToolTipMessage,
-} from "../../src/components/error_tooltip/error_tooltip";
+import { Model, PropsOf } from "../../src";
+import { ErrorToolTip } from "../../src/components/error_tooltip/error_tooltip";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import {
   addDataValidation,
   createChart,
+  createSheet,
   merge,
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
+  click,
   clickCell,
   gridMouseEvent,
   hoverCell,
@@ -24,6 +23,7 @@ import {
   mountComponent,
   mountSpreadsheet,
   nextTick,
+  toCellPosition,
 } from "../test_helpers/helpers";
 
 mockChart();
@@ -31,21 +31,30 @@ mockChart();
 describe("Error tooltip component", () => {
   let fixture: HTMLElement;
 
-  async function mountErrorTooltip(errors: ErrorToolTipMessage[]) {
-    ({ fixture } = await mountComponent(ErrorToolTip, { props: { errors } }));
+  async function mountErrorTooltip(model: Model, props: PropsOf<typeof ErrorToolTip>) {
+    ({ fixture } = await mountComponent(ErrorToolTip, {
+      props,
+      model,
+    }));
   }
 
   test("Can display an error message", async () => {
-    await mountErrorTooltip([{ message: "This is an error", title: "Error" }]);
+    await mountErrorTooltip(new Model(), {
+      errors: [{ message: "This is an error", title: "Error" }],
+      cellPosition: toCellPosition("sheet1", "A1"),
+    });
     expect(fixture.querySelector(".o-error-tooltip-title")?.textContent).toBe("Error");
     expect(fixture.querySelector(".o-error-tooltip-message")?.textContent).toBe("This is an error");
   });
 
   test("Can display multiple error messages", async () => {
-    await mountErrorTooltip([
-      { message: "This is an error", title: "Error" },
-      { message: "Invalid data", title: "Invalid" },
-    ]);
+    await mountErrorTooltip(new Model(), {
+      errors: [
+        { message: "This is an error", title: "Error" },
+        { message: "Invalid data", title: "Invalid" },
+      ],
+      cellPosition: toCellPosition("sheet1", "A1"),
+    });
     const titles = fixture.querySelectorAll(".o-error-tooltip-title");
     const messages = fixture.querySelectorAll(".o-error-tooltip-message");
     expect(titles).toHaveLength(2);
@@ -56,6 +65,56 @@ describe("Error tooltip component", () => {
 
     expect(titles[1].textContent).toBe("Invalid");
     expect(messages[1].textContent).toBe("Invalid data");
+  });
+
+  test("can display error origin position", async () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "=1/0");
+    setCellContent(model, "A2", "=A1");
+    await mountErrorTooltip(model, {
+      errors: [],
+      cellPosition: toCellPosition(sheetId, "A2"),
+    });
+    expect(".fst-italic").toHaveText(" Caused by A1");
+  });
+
+  test("can display error position from another sheet", async () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sheet2" });
+    setCellContent(model, "A1", "=1/0", "sheet2");
+    setCellContent(model, "A2", "=Sheet2!A1");
+    await mountErrorTooltip(model, {
+      errors: [],
+      cellPosition: toCellPosition(sheetId, "A2"),
+    });
+    expect(".fst-italic").toHaveText(" Caused by Sheet2!A1");
+  });
+
+  test("clicking on error position selects the position", async () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sheet2" });
+    setCellContent(model, "J10", "=1/0", "sheet2");
+    setCellContent(model, "A2", "=Sheet2!J10");
+    await mountErrorTooltip(model, {
+      errors: [],
+      cellPosition: toCellPosition(sheetId, "A2"),
+    });
+    click(fixture, ".o-button-link");
+    expect(model.getters.getActivePosition()).toEqual(toCellPosition("sheet2", "J10"));
+  });
+
+  test("does not display error origin position if it is the same cell", async () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "=1/0");
+    await mountErrorTooltip(model, {
+      errors: [],
+      cellPosition: toCellPosition(sheetId, "A1"),
+    });
+    expect(".fst-italic").toHaveCount(0);
   });
 });
 
