@@ -320,7 +320,8 @@ export class GridRenderer {
         if (box.clipRect) {
           ctx.save();
           ctx.beginPath();
-          const { x, y, width, height } = box.clipRect;
+          const { x, y, width: rectWidth, height } = box.clipRect;
+          const width = Math.max(rectWidth, box.content.width);
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
@@ -653,8 +654,8 @@ export class GridRenderer {
       box.clipRect = {
         x: Math.max(x, box.clipRect?.x || 0),
         y: Math.max(y, box.clipRect?.y || 0),
-        width: box.clipRect?.width || Math.max(width, box.content?.width || 0),
-        height: box.clipRect?.height || Math.max(height, 0),
+        width: box.clipRect?.width || width,
+        height: box.clipRect?.height || height,
       };
       return box;
     }
@@ -758,8 +759,8 @@ export class GridRenderer {
     box.clipRect = {
       x: Math.max(x, box.clipRect?.x || 0),
       y: Math.max(y, box.clipRect?.y || 0),
-      width: box.clipRect?.width || Math.max(width, box.content?.width || 0),
-      height: box.clipRect?.height || Math.max(height, 0),
+      width: box.clipRect?.width || width,
+      height: box.clipRect?.height || height,
     };
     return box;
   }
