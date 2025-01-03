@@ -533,8 +533,8 @@ export function interpolateData(
   const labelMin = Math.min(...labels);
   const labelMax = Math.max(...labels);
   const labelRange = labelMax - labelMin;
-  const normalizedLabels = labels.map((v) => (v - labelMin) / labelRange);
-  const normalizedNewLabels = newLabels.map((v) => (v - labelMin) / labelRange);
+  const normalizedLabels = labels.map((v) => 0.25 + (v - labelMin) / labelRange);
+  const normalizedNewLabels = newLabels.map((v) => 0.25 + (v - labelMin) / labelRange);
   try {
     switch (config.type) {
       case "polynomial": {
@@ -565,9 +565,15 @@ export function interpolateData(
         )[0];
       }
       case "logarithmic": {
+        const logValues: number[] = [];
+        const filteredLabels: number[] = [];
+        for (let i = 0; i < values.length; i++) {
+          logValues.push(values[i]);
+          filteredLabels.push(normalizedLabels[i]);
+        }
         return predictLinearValues(
           [values],
-          logM([normalizedLabels]),
+          logM([filteredLabels]),
           logM([normalizedNewLabels]),
           true
         )[0];
