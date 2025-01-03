@@ -229,14 +229,14 @@ describe("Repeat command transform specifics", () => {
     const command: CreateImageOverCommand = {
       ...TEST_COMMANDS.CREATE_IMAGE,
       sheetId,
-      figureId: "figureId",
+      id: "figureId",
     };
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
-      figureId: expect.not.stringMatching("figureId"),
+      id: expect.not.stringMatching("figureId"),
       sheetId: "42",
     });
   });

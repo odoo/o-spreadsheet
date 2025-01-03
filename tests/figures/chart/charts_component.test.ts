@@ -162,8 +162,11 @@ describe("charts", () => {
         height: 335,
         tag: "chart",
         width: 536,
-        x: 0,
-        y: 0,
+        anchor: { col: 0, row: 0 },
+        offset: {
+          x: 0,
+          y: 0,
+        },
       },
     ]);
   });
@@ -1947,8 +1950,12 @@ describe("charts with multiple sheets", () => {
               tag: "chart",
               width: 400,
               height: 300,
-              x: 100,
-              y: 100,
+              fixed_position: true,
+              anchor: { col: 0, row: 0 },
+              offset: {
+                x: 100,
+                y: 100,
+              },
               data: {
                 type: "line",
                 title: { text: "demo chart" },
@@ -1963,8 +1970,12 @@ describe("charts with multiple sheets", () => {
               tag: "chart",
               width: 400,
               height: 300,
-              x: 500,
-              y: 300,
+              fixed_position: true,
+              anchor: { col: 0, row: 0 },
+              offset: {
+                x: 500,
+                y: 300,
+              },
               data: {
                 type: "scorecard",
                 title: { text: "demo scorecard" },

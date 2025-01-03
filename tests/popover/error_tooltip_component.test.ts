@@ -138,8 +138,12 @@ describe("Grid integration", () => {
     createChart(model, { ...TEST_CHART_DATA.basicChart }, "figureId");
     model.dispatch("UPDATE_FIGURE", {
       id: "figureId",
-      y: 200,
-      x: 200,
+      fixed_position: true,
+      offset: {
+        y: 200,
+        x: 200,
+      },
+      anchor: { col: 0, row: 0 },
       width: 200,
       height: 200,
       sheetId: model.getters.getActiveSheetId(),

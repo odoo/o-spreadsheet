@@ -423,8 +423,12 @@ describe("simple selection", () => {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
         id: "someuuid",
-        x: 10,
-        y: 10,
+        offset: {
+          x: 10,
+          y: 10,
+        },
+        anchor: { col: 0, row: 0 },
+        fixed_position: true,
         tag: "hey",
         width: 100,
         height: 100,

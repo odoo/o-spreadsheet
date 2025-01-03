@@ -110,10 +110,13 @@ describe("Single cell chart background color", () => {
     model.dispatch("UPDATE_FIGURE", {
       sheetId,
       id: firstSheetFigures[0].id,
-      x: 0,
-      y: 0,
+      offset: {
+        x: 0,
+        y: 0,
+      },
       width: 123,
       height: 321,
+      fixed_position: true,
     });
     model.dispatch("DUPLICATE_SHEET", {
       sheetIdTo: secondSheetId,

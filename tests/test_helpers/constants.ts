@@ -239,8 +239,12 @@ export const TEST_COMMANDS: CommandMapping = {
     figure: {
       id: "figureId",
       tag: "tag",
-      x: 0,
-      y: 0,
+      offset: {
+        x: 0,
+        y: 0,
+      },
+      anchor: { col: 0, row: 0 },
+      fixed_position: true,
       width: 100,
       height: 100,
     },
@@ -259,7 +263,7 @@ export const TEST_COMMANDS: CommandMapping = {
   CREATE_CHART: {
     type: "CREATE_CHART",
     definition: TEST_CHART_DATA.basicChart,
-    position: { x: 0, y: 0 },
+    offset: { x: 0, y: 0 },
     size: { width: 200, height: 200 },
     id: "figureId",
     sheetId: "sheetId",
@@ -272,11 +276,13 @@ export const TEST_COMMANDS: CommandMapping = {
   },
   CREATE_IMAGE: {
     type: "CREATE_IMAGE",
-    position: { x: 0, y: 0 },
+    offset: { x: 0, y: 0 },
+    anchor: { col: 0, row: 0 },
+    fixed_position: false,
     size: { width: 200, height: 200 },
     definition: { path: "/image/1", size: { width: 200, height: 200 } },
     sheetId: "sheetId",
-    figureId: "figureId",
+    id: "figureId",
   },
   RESIZE_COLUMNS_ROWS: {
     type: "RESIZE_COLUMNS_ROWS",

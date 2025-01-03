@@ -34,8 +34,10 @@ function updateScorecardChartSize(width: Pixel, height: Pixel) {
   model.dispatch("UPDATE_FIGURE", {
     sheetId,
     id: chartId,
-    x: 0,
-    y: 0,
+    offset: {
+      x: 0,
+      y: 0,
+    },
     width,
     height,
   });

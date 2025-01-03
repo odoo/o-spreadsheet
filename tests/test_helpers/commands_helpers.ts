@@ -21,6 +21,8 @@ import {
   DispatchResult,
   Locale,
   ParsedOSClipboardContent,
+  PixelPosition,
+  Position,
   SelectionStep,
   SortDirection,
   SortOptions,
@@ -119,16 +121,20 @@ export function createImage(
   model: Model,
   partialParam: {
     sheetId?: UID;
-    figureId?: UID;
-    position?: { x: number; y: number };
+    id?: UID;
+    offset?: PixelPosition;
+    anchor?: Position;
+    fixed_position?: boolean;
     definition?: Partial<Image>;
     size?: FigureSize;
   }
 ) {
   const param = {
     sheetId: model.getters.getActiveSheetId(),
-    figureId: model.uuidGenerator.uuidv4(),
-    position: { x: 0, y: 0 },
+    id: model.uuidGenerator.uuidv4(),
+    offset: { x: 0, y: 0 },
+    anchor: { col: 0, row: 0 },
+    fixed_position: true,
     ...partialParam,
     definition: {
       path: "image path",
@@ -139,8 +145,10 @@ export function createImage(
   const size = partialParam.size ?? { width: 380, height: 380 };
   return model.dispatch("CREATE_IMAGE", {
     sheetId: param.sheetId,
-    figureId: param.figureId,
-    position: param.position,
+    id: param.id,
+    anchor: param.anchor,
+    offset: param.offset,
+    fixed_position: param.fixed_position,
     size,
     definition: { size, ...param.definition },
   });

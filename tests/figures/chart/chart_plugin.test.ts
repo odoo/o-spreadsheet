@@ -916,9 +916,12 @@ describe("datasource tests", function () {
       sheetIdTo: "SheetWithFigure",
     });
     activateSheet(model, "2");
-    const { x, y, height, width, tag } = model.getters.getVisibleFigures()[0];
+    const { x, y, figure } = model.getters.getVisibleFigures()[0];
+    const { height, width, tag } = figure;
     activateSheet(model, "SheetWithFigure");
-    expect(model.getters.getVisibleFigures()).toMatchObject([{ x, y, height, width, tag }]);
+    expect(model.getters.getVisibleFigures()).toMatchObject([
+      { x, y, figure: { height, width, tag } },
+    ]);
   });
   test("extend data source to new values manually", () => {
     createChart(
