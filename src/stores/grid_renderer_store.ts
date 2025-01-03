@@ -92,13 +92,23 @@ export class GridRenderer {
   drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
     switch (layer) {
       case "Background":
-        const boxes = this.getGridBoxes();
-        this.drawBackground(renderingContext, boxes);
-        this.drawOverflowingCellBackground(renderingContext, boxes);
-        this.drawCellBackground(renderingContext, boxes);
-        this.drawBorders(renderingContext, boxes);
-        this.drawTexts(renderingContext, boxes);
-        this.drawIcon(renderingContext, boxes);
+        this.drawGlobalBackground(renderingContext);
+        for (const zone of this.getters.getAllActiveViewportsZones()) {
+          const { ctx } = renderingContext;
+          ctx.save();
+          ctx.beginPath();
+          const rect = this.getters.getVisibleRect(zone);
+          ctx.rect(rect.x, rect.y, rect.width, rect.height);
+          ctx.clip();
+          const boxes = this.getGridBoxes(zone);
+          this.drawBackground(renderingContext, boxes);
+          this.drawOverflowingCellBackground(renderingContext, boxes);
+          this.drawCellBackground(renderingContext, boxes);
+          this.drawBorders(renderingContext, boxes);
+          this.drawTexts(renderingContext, boxes);
+          this.drawIcon(renderingContext, boxes);
+          ctx.restore();
+        }
         this.drawFrozenPanes(renderingContext);
         break;
       case "Headers":
@@ -110,13 +120,17 @@ export class GridRenderer {
     }
   }
 
-  private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
-    const { ctx, thinLineWidth } = renderingContext;
+  private drawGlobalBackground(renderingContext: GridRenderingContext) {
+    const { ctx } = renderingContext;
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
 
     // white background
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
+  }
+
+  private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
+    const { ctx, thinLineWidth } = renderingContext;
 
     const areGridLinesVisible =
       !this.getters.isDashboard() &&
@@ -591,7 +605,7 @@ export class GridRenderer {
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { x, y, width, height } = this.getters.getRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
     let style = this.getters.getCellComputedStyle(position);
     if (this.fingerprints.isEnabled) {
@@ -732,13 +746,17 @@ export class GridRenderer {
     return box;
   }
 
-  private getGridBoxes(): Box[] {
+  private getGridBoxes(zone: Zone): Box[] {
     const boxes: Box[] = [];
 
-    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleCols = this.getters
+      .getSheetViewVisibleCols()
+      .filter((col) => col >= zone.left && col <= zone.right);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    const visibleRows = this.getters
+      .getSheetViewVisibleRows()
+      .filter((row) => row >= zone.top && row <= zone.bottom);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
