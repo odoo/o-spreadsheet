@@ -34,6 +34,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   getDefinedAxis,
+  invertAxesForDatasetsAndLabels,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -229,15 +230,20 @@ export function createScatterChartRuntime(
 ): ScatterChartRuntime {
   const definition = chart.getDefinition();
   const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
+  let labels =
+    chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels;
+  let datasets = getScatterChartDatasets(definition, chartData);
+  if (chart.invertAxes) {
+    ({ labels, datasets } = invertAxesForDatasetsAndLabels<"line">(datasets, labels));
+  }
 
   const config: ChartConfiguration = {
     // use chartJS line chart and disable the lines instead of chartJS scatter chart. This is because the scatter chart
     // have less options than the line chart (it only works with linear labels)
     type: "line",
     data: {
-      labels:
-        chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels,
-      datasets: getScatterChartDatasets(definition, chartData),
+      labels,
+      datasets,
     },
     options: {
       ...CHART_COMMON_OPTIONS,

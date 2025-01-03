@@ -31,6 +31,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  invertAxesForDatasetsAndLabels,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -202,12 +203,17 @@ export class PieChart extends AbstractChart {
 export function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
   const definition = chart.getDefinition();
   const chartData = getPieChartData(definition, chart.dataSets, chart.labelRange, getters);
+  let labels = chartData.labels.map(truncateLabel);
+  let datasets = getPieChartDatasets(definition, chartData);
+  if (chart.invertAxes) {
+    ({ labels, datasets } = invertAxesForDatasetsAndLabels<"pie">(datasets, labels));
+  }
 
   const config: ChartConfiguration = {
     type: chart.isDoughnut ? "doughnut" : "pie",
     data: {
-      labels: chartData.labels.map(truncateLabel),
-      datasets: getPieChartDatasets(definition, chartData),
+      labels,
+      datasets,
     },
     options: {
       ...CHART_COMMON_OPTIONS,

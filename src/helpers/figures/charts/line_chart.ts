@@ -36,6 +36,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   getDefinedAxis,
+  invertAxesForDatasetsAndLabels,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -238,13 +239,18 @@ export class LineChart extends AbstractChart {
 export function createLineChartRuntime(chart: LineChart, getters: Getters): ChartJSRuntime {
   const definition = chart.getDefinition();
   const chartData = getLineChartData(definition, chart.dataSets, chart.labelRange, getters);
+  let labels =
+    chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels;
+  let datasets = getLineChartDatasets(definition, chartData);
+  if (chart.invertAxes) {
+    ({ labels, datasets } = invertAxesForDatasetsAndLabels<"line">(datasets, labels));
+  }
 
   const config: ChartConfiguration = {
     type: "line",
     data: {
-      labels:
-        chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels,
-      datasets: getLineChartDatasets(definition, chartData),
+      labels,
+      datasets,
     },
     options: {
       ...CHART_COMMON_OPTIONS,

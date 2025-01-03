@@ -1,5 +1,12 @@
 import { Component, useState } from "@odoo/owl";
-import { createValidRange, spreadRange } from "../../../../../helpers";
+import {
+  createValidRange,
+  mergeContiguousZones,
+  splitReference,
+  spreadRange,
+  toZone,
+  zoneToXc,
+} from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
 import { _t } from "../../../../../translation";
 import {
@@ -109,9 +116,53 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   }
 
   onInvertAxesToggled(invertAxes: boolean) {
+    const dataSets = this.props.definition.dataSets;
+    const dataRanges = dataSets.map((d) => d.dataRange);
+    const newDataSets = this.transposeDataSet(dataRanges);
+
     this.props.updateChart(this.props.figureId, {
       invertAxes,
+      dataSets: newDataSets,
     });
+  }
+
+  transposeDataSet(dataRanges): any[] {
+    const zonesBySheetName = {};
+    const transposedDatasets: any[] = [];
+    for (const dataRange of dataRanges) {
+      let { sheetName, xc } = splitReference(dataRange);
+      sheetName = sheetName ?? "";
+      if (!zonesBySheetName[sheetName]) {
+        zonesBySheetName[sheetName] = [];
+      }
+      zonesBySheetName[sheetName].push(toZone(xc));
+    }
+    for (const sheetName in zonesBySheetName) {
+      const zones = zonesBySheetName[sheetName];
+      const contiguousZones = mergeContiguousZones(zones);
+      if (this.props.definition.invertAxes) {
+        for (const zone of contiguousZones) {
+          for (let col = zone.left; col <= zone.right; col++) {
+            let newRange = zoneToXc({ top: zone.top, bottom: zone.bottom, left: col, right: col });
+            if (sheetName) {
+              newRange = `${sheetName}!${newRange}`;
+            }
+            transposedDatasets.push({ dataRange: newRange });
+          }
+        }
+      } else {
+        for (const zone of contiguousZones) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            let newRange = zoneToXc({ top: row, bottom: row, left: zone.left, right: zone.right });
+            if (sheetName) {
+              newRange = `${sheetName}!${newRange}`;
+            }
+            transposedDatasets.push({ dataRange: newRange });
+          }
+        }
+      }
+    }
+    return transposedDatasets;
   }
 
   /**

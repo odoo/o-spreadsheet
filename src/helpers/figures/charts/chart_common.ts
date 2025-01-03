@@ -1,3 +1,4 @@
+import { ChartDataset } from "chart.js";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import { _t } from "../../../translation";
 import {
@@ -29,7 +30,7 @@ import {
 import { CellErrorType } from "../../../types/errors";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
-import { isDefined, largeMax } from "../../misc";
+import { isDefined, largeMax, range } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
@@ -439,4 +440,24 @@ export function getPieColors(colors: ColorGenerator, dataSetsValues: DatasetValu
   }
 
   return pieColors;
+}
+
+export function invertAxesForDatasetsAndLabels<T extends "line" | "bar" | "pie">(
+  _datasets: ChartDataset<T>[],
+  _labels: string[]
+) {
+  const dataSetLabels = _datasets.map((dataset) => dataset.label);
+  const datasets = _datasets.map((dataset, i) => ({
+    ...dataset,
+    label: _labels[i],
+  }));
+  let dataLength = 0;
+  for (const ds of datasets) {
+    const _dataLength = ds.data.filter((v) => v !== null && v !== undefined).length;
+    if (_dataLength > dataLength) {
+      dataLength = _dataLength;
+    }
+  }
+  const labels = range(0, dataLength).map((i) => dataSetLabels[i] ?? `${i}`);
+  return { labels, datasets };
 }

@@ -35,6 +35,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   getDefinedAxis,
+  invertAxesForDatasetsAndLabels,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -229,11 +230,18 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const definition = chart.getDefinition();
   const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
 
+  let labels =
+    chartData.axisType !== "time" ? chartData.labels.map(truncateLabel) : chartData.labels;
+  let datasets = getBarChartDatasets(definition, chartData);
+  if (chart.invertAxes) {
+    ({ labels, datasets } = invertAxesForDatasetsAndLabels<"bar" | "line">(datasets, labels));
+  }
+
   const config: ChartConfiguration = {
     type: "bar",
     data: {
-      labels: chartData.labels.map(truncateLabel),
-      datasets: getBarChartDatasets(definition, chartData),
+      labels,
+      datasets,
     },
     options: {
       ...CHART_COMMON_OPTIONS,
