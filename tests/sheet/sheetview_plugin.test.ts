@@ -916,17 +916,95 @@ describe("Viewport of Simple sheet", () => {
     });
   });
 
-  test("getVisibleRect with freezed panes returns the actual visible part of a zone", () => {
+  test("getVisibleRect with frozen panes returns the actual visible part of a zone", () => {
     freezeColumns(model, 1);
     freezeRows(model, 1);
     const width = 4.5 * DEFAULT_CELL_WIDTH;
     const height = 5.5 * DEFAULT_CELL_HEIGHT;
     model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
-    expect(model.getters.getVisibleRect(model.getters.getActiveMainViewport())).toEqual({
+    const zone = model.getters.getActiveMainViewport();
+    expect(model.getters.getVisibleRect(zone)).toEqual({
       x: DEFAULT_CELL_WIDTH,
       y: DEFAULT_CELL_HEIGHT,
       width: 3.5 * DEFAULT_CELL_WIDTH,
       height: 4.5 * DEFAULT_CELL_HEIGHT,
+    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getVisibleRect(zone)).toEqual({
+      x: DEFAULT_CELL_WIDTH,
+      y: DEFAULT_CELL_HEIGHT,
+      width: 3 * DEFAULT_CELL_WIDTH,
+      height: 4 * DEFAULT_CELL_HEIGHT,
+    });
+  });
+
+  test("getVisibleRect takes the scroll into account", () => {
+    merge(model, "A1:B2");
+    const zone = toZone("A1:B2");
+    expect(model.getters.getVisibleRect(zone)).toEqual({
+      x: 0,
+      y: 0,
+      width: DEFAULT_CELL_WIDTH * 2,
+      height: DEFAULT_CELL_HEIGHT * 2,
+    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getVisibleRect(zone)).toEqual({
+      x: 0,
+      y: 0,
+      width: DEFAULT_CELL_WIDTH,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+  });
+
+  test("getRect returns the full zone dimensions regardless of the viewport size", () => {
+    const width = 4.5 * DEFAULT_CELL_WIDTH;
+    const height = 5.5 * DEFAULT_CELL_HEIGHT;
+    model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
+    expect(model.getters.getRect(model.getters.getActiveMainViewport())).toEqual({
+      x: 0,
+      y: 0,
+      width: 5 * DEFAULT_CELL_WIDTH,
+      height: 6 * DEFAULT_CELL_HEIGHT,
+    });
+  });
+
+  test("getRect with frozen panes returns the full part of a zone", () => {
+    freezeColumns(model, 1);
+    freezeRows(model, 1);
+    const width = 4.5 * DEFAULT_CELL_WIDTH;
+    const height = 5.5 * DEFAULT_CELL_HEIGHT;
+    model.dispatch("RESIZE_SHEETVIEW", { gridOffsetX: 0, gridOffsetY: 0, width, height });
+    const zone = model.getters.getActiveMainViewport();
+    expect(model.getters.getRect(zone)).toEqual({
+      x: DEFAULT_CELL_WIDTH,
+      y: DEFAULT_CELL_HEIGHT,
+      width: 4 * DEFAULT_CELL_WIDTH,
+      height: 5 * DEFAULT_CELL_HEIGHT,
+    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRect(zone)).toEqual({
+      x: 0,
+      y: 0,
+      width: 4 * DEFAULT_CELL_WIDTH,
+      height: 5 * DEFAULT_CELL_HEIGHT,
+    });
+  });
+
+  test("getRect takes the scroll into account", () => {
+    merge(model, "A1:B2");
+    const zone = toZone("A1:B2");
+    expect(model.getters.getRect(zone)).toEqual({
+      x: 0,
+      y: 0,
+      width: DEFAULT_CELL_WIDTH * 2,
+      height: DEFAULT_CELL_HEIGHT * 2,
+    });
+    setViewportOffset(model, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRect(zone)).toEqual({
+      x: -DEFAULT_CELL_WIDTH,
+      y: -DEFAULT_CELL_HEIGHT,
+      width: DEFAULT_CELL_WIDTH * 2,
+      height: DEFAULT_CELL_HEIGHT * 2,
     });
   });
 

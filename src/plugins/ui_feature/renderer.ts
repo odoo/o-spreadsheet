@@ -119,13 +119,34 @@ export class RendererPlugin extends UIPlugin {
   drawGrid(renderingContext: GridRenderingContext, layer: LAYERS) {
     switch (layer) {
       case LAYERS.Background:
-        this.boxes = this.getGridBoxes();
         this.drawBackground(renderingContext);
+<<<<<<< 17.0:src/plugins/ui_feature/renderer.ts
         this.drawOverflowingCellBackground(renderingContext);
         this.drawCellBackground(renderingContext);
         this.drawBorders(renderingContext);
         this.drawTexts(renderingContext);
         this.drawIcon(renderingContext);
+||||||| 9d0e3350ba39dc2a01a999be97c2bd14df16d228:src/plugins/ui/renderer.ts
+        this.drawCellBackground(renderingContext);
+        this.drawBorders(renderingContext);
+        this.drawTexts(renderingContext);
+        this.drawIcon(renderingContext);
+=======
+        for (const zone of this.getters.getAllActiveViewportsZones()) {
+          const { ctx } = renderingContext;
+          ctx.save();
+          ctx.beginPath();
+          const rect = this.getters.getVisibleRect(zone);
+          ctx.rect(rect.x, rect.y, rect.width, rect.height);
+          ctx.clip();
+          this.boxes = this.getGridBoxes(zone);
+          this.drawCellBackground(renderingContext);
+          this.drawBorders(renderingContext);
+          this.drawTexts(renderingContext);
+          this.drawIcon(renderingContext);
+          ctx.restore();
+        }
+>>>>>>> 399c63e02c69012c6178776b4cb8385c7a8168ed:src/plugins/ui/renderer.ts
         this.drawFrozenPanes(renderingContext);
         break;
       case LAYERS.Headers:
@@ -618,8 +639,14 @@ export class RendererPlugin extends UIPlugin {
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
+<<<<<<< 17.0:src/plugins/ui_feature/renderer.ts
     const { x, y, width, height } = this.getters.getVisibleRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
+||||||| 9d0e3350ba39dc2a01a999be97c2bd14df16d228:src/plugins/ui/renderer.ts
+    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+=======
+    const { x, y, width, height } = this.getters.getRect(zone);
+>>>>>>> 399c63e02c69012c6178776b4cb8385c7a8168ed:src/plugins/ui/renderer.ts
 
     const box: Box = {
       x,
@@ -751,13 +778,17 @@ export class RendererPlugin extends UIPlugin {
     return box;
   }
 
-  private getGridBoxes(): Box[] {
+  private getGridBoxes(zone: Zone): Box[] {
     const boxes: Box[] = [];
 
-    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleCols = this.getters
+      .getSheetViewVisibleCols()
+      .filter((col) => col >= zone.left && col <= zone.right);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    const visibleRows = this.getters
+      .getSheetViewVisibleRows()
+      .filter((row) => row >= zone.top && row <= zone.bottom);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
