@@ -76,6 +76,7 @@ export interface ExcelWorkbookData extends WorkbookData {
 
 export interface ExcelSheetData extends Omit<SheetData, "figureTables" | "cols" | "rows"> {
   cellValues: { [xc: string]: CellValue | undefined };
+  arrayFormulaCells: { [xc: string]: string };
   charts: FigureData<ExcelChartDefinition>[];
   images: FigureData<Image>[];
   tables: ExcelTableData[];

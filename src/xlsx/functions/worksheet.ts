@@ -107,7 +107,7 @@ export function addRows(
         let cellNode = escapeXml``;
         // Either formula or static value inside the cell
         if (content?.startsWith("=") && value !== undefined) {
-          const res = addFormula(content, value);
+          const res = addFormula(content, value, sheet.arrayFormulaCells[xc]);
           if (!res) {
             continue;
           }
