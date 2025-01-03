@@ -219,10 +219,10 @@ export class InternalViewport {
 
   /**
    *
-   * @param zone
-   * @returns Computes the absolute coordinate of a given zone inside the viewport
+   * Computes the visible coordinates & dimensions of a given zone inside the viewport
+   *
    */
-  getRect(zone: Zone): Rect | undefined {
+  getVisibleRect(zone: Zone): Rect | undefined {
     const targetZone = intersection(zone, this);
     if (targetZone) {
       const x =
@@ -239,12 +239,25 @@ export class InternalViewport {
         this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1),
         this.viewportHeight
       );
-      return {
-        x,
-        y,
-        width,
-        height,
-      };
+      return { x, y, width, height };
+    }
+    return undefined;
+  }
+
+  /**
+   *
+   * @returns Computes the absolute coordinates & dimensions of a given zone inside the viewport
+   *
+   */
+  getFullRect(zone: Zone): Rect | undefined {
+    const targetZone = intersection(zone, this);
+    if (targetZone) {
+      const x = this.getters.getColRowOffset("COL", this.left, zone.left) + this.offsetCorrectionX;
+      const y = this.getters.getColRowOffset("ROW", this.top, zone.top) + this.offsetCorrectionY;
+      const width = this.getters.getColRowOffset("COL", zone.left, zone.right + 1);
+
+      const height = this.getters.getColRowOffset("ROW", zone.top, zone.bottom + 1);
+      return { x, y, width, height };
     }
     return undefined;
   }
