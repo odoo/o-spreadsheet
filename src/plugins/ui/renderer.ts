@@ -115,12 +115,21 @@ export class RendererPlugin extends UIPlugin {
   drawGrid(renderingContext: GridRenderingContext, layer: LAYERS) {
     switch (layer) {
       case LAYERS.Background:
-        this.boxes = this.getGridBoxes();
         this.drawBackground(renderingContext);
-        this.drawCellBackground(renderingContext);
-        this.drawBorders(renderingContext);
-        this.drawTexts(renderingContext);
-        this.drawIcon(renderingContext);
+        for (const zone of this.getters.getAllActiveViewportsZones()) {
+          const { ctx } = renderingContext;
+          ctx.save();
+          ctx.beginPath();
+          const rect = this.getters.getVisibleRect(zone);
+          ctx.rect(rect.x, rect.y, rect.width, rect.height);
+          ctx.clip();
+          this.boxes = this.getGridBoxes(zone);
+          this.drawCellBackground(renderingContext);
+          this.drawBorders(renderingContext);
+          this.drawTexts(renderingContext);
+          this.drawIcon(renderingContext);
+          ctx.restore();
+        }
         this.drawFrozenPanes(renderingContext);
         break;
       case LAYERS.Headers:
@@ -532,7 +541,7 @@ export class RendererPlugin extends UIPlugin {
     const row: HeaderIndex = zone.top;
     const cell = this.getters.getCell(sheetId, col, row);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { x, y, width, height } = this.getters.getRect(zone);
 
     const box: Box = {
       x,
@@ -659,13 +668,17 @@ export class RendererPlugin extends UIPlugin {
     return box;
   }
 
-  private getGridBoxes(): Box[] {
+  private getGridBoxes(zone: Zone): Box[] {
     const boxes: Box[] = [];
 
-    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleCols = this.getters
+      .getSheetViewVisibleCols()
+      .filter((col) => col >= zone.left && col <= zone.right);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    const visibleRows = this.getters
+      .getSheetViewVisibleRows()
+      .filter((row) => row >= zone.top && row <= zone.bottom);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
