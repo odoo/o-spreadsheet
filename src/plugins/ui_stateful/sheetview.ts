@@ -104,6 +104,8 @@ export class SheetViewPlugin extends UIPlugin {
     "isPositionVisible",
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
+    "getAllActiveViewportsZones",
+    "getRect",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -533,17 +535,30 @@ export class SheetViewPlugin extends UIPlugin {
   getVisibleRectWithoutHeaders(zone: Zone): Rect {
     const sheetId = this.getters.getActiveSheetId();
     const viewportRects = this.getSubViewports(sheetId)
-      .map((viewport) => viewport.getRect(zone))
+      .map((viewport) => viewport.getVisibleRect(zone))
       .filter(isDefined);
 
     if (viewportRects.length === 0) {
       return { x: 0, y: 0, width: 0, height: 0 };
     }
-    const x = Math.min(...viewportRects.map((rect) => rect.x));
-    const y = Math.min(...viewportRects.map((rect) => rect.y));
-    const width = Math.max(...viewportRects.map((rect) => rect.x + rect.width)) - x;
-    const height = Math.max(...viewportRects.map((rect) => rect.y + rect.height)) - y;
-    return { x, y, width, height };
+    return this.recomposeRect(viewportRects);
+  }
+
+  /**
+   * Computes the actual size and position (:Rect) of the zone on the canvas
+   * regardless of the viewport dimensions.
+   */
+  getRect(zone: Zone): Rect {
+    const sheetId = this.getters.getActiveSheetId();
+    const viewportRects = this.getSubViewports(sheetId)
+      .map((viewport) => viewport.getFullRect(zone))
+      .filter(isDefined);
+
+    if (viewportRects.length === 0) {
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
+    const rect = this.recomposeRect(viewportRects);
+    return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
   }
 
   /**
@@ -591,11 +606,16 @@ export class SheetViewPlugin extends UIPlugin {
     };
   }
 
+  getAllActiveViewportsZones(): Zone[] {
+    const sheetId = this.getters.getActiveSheetId();
+    return this.getSubViewports(sheetId);
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
 
-  private ensureMainViewportExist(sheetId) {
+  private ensureMainViewportExist(sheetId: UID) {
     if (!this.viewports[sheetId]) {
       this.resetViewports(sheetId);
     }
@@ -865,5 +885,13 @@ export class SheetViewPlugin extends UIPlugin {
     const width = this.sheetViewWidth + this.gridOffsetX;
     const height = this.sheetViewHeight + this.gridOffsetY;
     return { xRatio: offsetCorrectionX / width, yRatio: offsetCorrectionY / height };
+  }
+
+  private recomposeRect(viewportRects: Rect[]): Rect {
+    const x = Math.min(...viewportRects.map((rect) => rect.x));
+    const y = Math.min(...viewportRects.map((rect) => rect.y));
+    const width = Math.max(...viewportRects.map((rect) => rect.x + rect.width)) - x;
+    const height = Math.max(...viewportRects.map((rect) => rect.y + rect.height)) - y;
+    return { x, y, width, height };
   }
 }

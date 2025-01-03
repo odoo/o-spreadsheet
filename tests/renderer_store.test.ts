@@ -31,6 +31,8 @@ import {
   addDataValidation,
   copy,
   deleteColumns,
+  freezeColumns,
+  freezeRows,
   merge,
   paste,
   resizeColumns,
@@ -52,7 +54,14 @@ MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
-  return (gridRenderer["getGridBoxes"]()! as Box[]).find(
+  const sheetId = gridRenderer["getters"].getActiveSheetId();
+  const zone = {
+    left: 0,
+    right: gridRenderer["getters"].getNumberCols(sheetId) - 1,
+    top: 0,
+    bottom: gridRenderer["getters"].getNumberRows(sheetId) - 1,
+  };
+  return (gridRenderer["getGridBoxes"](zone)! as Box[]).find(
     (b) => (b.content?.textLines || []).join(" ") === text
   )!;
 }
@@ -2147,8 +2156,7 @@ describe("renderer", () => {
     const { drawGridRenderer, gridRendererStore } = setRenderer(model);
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
-    //@ts-expect-error
-    const boxes = gridRendererStore.getGridBoxes();
+    const boxes = gridRendererStore["getGridBoxes"](toZone("A1:B2"));
     const boxesText = boxes.map((box) => box.content?.textLines.join(""));
     expect(boxesText).toEqual(["=MUNIT(2)", "", "", ""]);
   });
@@ -2195,13 +2203,58 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    let box = gridRendererStore["getGridBoxes"]().filter((box) => box.content)[0];
+    let box = gridRendererStore["getGridBoxes"](toZone("A1:A100")).filter((box) => box.content)[0];
     const expectedSpaces = 20 - 2 * MIN_CELL_TEXT_MARGIN;
     expect(box.content?.textLines).toEqual(["1".padStart(expectedSpaces)]);
 
     setFormat(model, "A1", "0*c");
     drawGridRenderer(ctx);
-    box = gridRendererStore["getGridBoxes"]().filter((box) => box.content)[0];
+    box = gridRendererStore["getGridBoxes"](toZone("A1:A100")).filter((box) => box.content)[0];
     expect(box.content?.textLines).toEqual(["1".padEnd(expectedSpaces, "c")]);
+  });
+
+  test("Each frozen pane is clipped in the grid", () => {
+    const { drawGridRenderer, model } = setRenderer();
+    setCellContent(model, "A1", "1");
+    freezeColumns(model, 2);
+    freezeRows(model, 1);
+    const spyFn = jest.fn();
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (key, args) => {
+        if (["rect", "clip"].includes(key)) {
+          spyFn(key, args);
+        }
+      },
+    });
+    drawGridRenderer(ctx);
+    expect(spyFn).toHaveBeenCalledTimes(8);
+    expect(spyFn).toHaveBeenNthCalledWith(1, "rect", [
+      0,
+      0,
+      DEFAULT_CELL_WIDTH * 2,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+    expect(spyFn).toHaveBeenNthCalledWith(2, "clip", []);
+    expect(spyFn).toHaveBeenNthCalledWith(3, "rect", [
+      DEFAULT_CELL_WIDTH * 2,
+      0,
+      760,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+    expect(spyFn).toHaveBeenNthCalledWith(4, "clip", []);
+    expect(spyFn).toHaveBeenNthCalledWith(5, "rect", [
+      0,
+      DEFAULT_CELL_HEIGHT,
+      DEFAULT_CELL_WIDTH * 2,
+      951,
+    ]);
+    expect(spyFn).toHaveBeenNthCalledWith(6, "clip", []);
+    expect(spyFn).toHaveBeenNthCalledWith(7, "rect", [
+      DEFAULT_CELL_WIDTH * 2,
+      DEFAULT_CELL_HEIGHT,
+      760,
+      951,
+    ]);
+    expect(spyFn).toHaveBeenNthCalledWith(8, "clip", []);
   });
 });
