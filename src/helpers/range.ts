@@ -188,10 +188,14 @@ export class RangeImpl implements Range {
 }
 
 /**
- * Copy a range. If the range is on the sheetIdFrom, the range will target
+ * Duplicate a range. If the range is on the sheetIdFrom, the range will target
  * sheetIdTo.
  */
-export function copyRangeWithNewSheetId(sheetIdFrom: UID, sheetIdTo: UID, range: Range): Range {
+export function duplicateRangeInDuplicatedSheet(
+  sheetIdFrom: UID,
+  sheetIdTo: UID,
+  range: Range
+): Range {
   const sheetId = range.sheetId === sheetIdFrom ? sheetIdTo : range.sheetId;
   return range.clone({ sheetId });
 }

@@ -1,7 +1,7 @@
 import { compile } from "../../formulas";
 import {
-  copyRangeWithNewSheetId,
   deepCopy,
+  duplicateRangeInDuplicatedSheet,
   getCellPositionsInRanges,
   isInside,
   recomputeZones,
@@ -106,7 +106,7 @@ export class DataValidationPlugin
         const rules = deepCopy(this.rules[cmd.sheetId]).map((rule) => ({
           ...rule,
           ranges: rule.ranges.map((range) =>
-            copyRangeWithNewSheetId(cmd.sheetId, cmd.sheetIdTo, range)
+            duplicateRangeInDuplicatedSheet(cmd.sheetId, cmd.sheetIdTo, range)
           ),
         }));
         this.history.update("rules", cmd.sheetIdTo, rules);

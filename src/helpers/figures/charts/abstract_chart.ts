@@ -78,10 +78,10 @@ export abstract class AbstractChart {
   abstract updateRanges(applyChange: ApplyRangeChange): AbstractChart;
 
   /**
-   * Get a copy a the chart adapted to the given sheetId.
-   * The ranges that are in the same sheet as the chart will be adapted to the given sheetId.
+   * Duplicate the chart when a sheet is duplicated.
+   * The ranges that are in the same sheet as the chart are adapted to the new sheetId.
    */
-  abstract copyForSheetId(sheetId: UID): AbstractChart;
+  abstract duplicateInDuplicatedSheet(newSheetId: UID): AbstractChart;
 
   /**
    * Get a copy a the chart in the given sheetId.

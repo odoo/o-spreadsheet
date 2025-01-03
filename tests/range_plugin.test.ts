@@ -1,5 +1,5 @@
 import { CorePlugin, coreTypes, Model } from "../src";
-import { copyRangeWithNewSheetId } from "../src/helpers";
+import { duplicateRangeInDuplicatedSheet } from "../src/helpers";
 import { corePluginRegistry } from "../src/plugins";
 import { ApplyRangeChange, Command, Range, UID } from "../src/types";
 import { CellErrorType } from "../src/types/errors";
@@ -603,7 +603,7 @@ describe("Helpers", () => {
     ["A1:B1", "s1", "s2", "s2"],
     ["Sheet1!A1:B1", "s1", "s2", "s2"],
     ["Sheet2!A1:B1", "s1", "s2", "s2"],
-  ])("copyRangeWithNewSheetId", (xc, sheetIdFrom, sheetIdTo, result) => {
+  ])("duplicateRangeInDuplicatedSheet", (xc, sheetIdFrom, sheetIdTo, result) => {
     const model = new Model({
       sheets: [
         { id: "s1", name: "Sheet1" },
@@ -611,7 +611,7 @@ describe("Helpers", () => {
       ],
     });
     const range = model.getters.getRangeFromSheetXC(sheetIdFrom, xc);
-    const updated = copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, range);
+    const updated = duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range);
     expect(updated.sheetId).toBe(result);
   });
 });
