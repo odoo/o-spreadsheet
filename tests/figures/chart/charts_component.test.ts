@@ -165,8 +165,11 @@ describe("charts", () => {
         height: 335,
         tag: "chart",
         width: 536,
-        x: 0,
-        y: 0,
+        anchor: { col: 0, row: 0 },
+        offset: {
+          x: 0,
+          y: 0,
+        },
       },
     ]);
   });
@@ -278,7 +281,7 @@ describe("charts", () => {
       case "basicChart":
         await click(fixture.querySelector("input[name=dataSetsHaveTitle]")!);
         expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-          id: chartId,
+          figureId: chartId,
           sheetId,
           definition: {
             ...model.getters.getChartDefinition(chartId),
@@ -297,7 +300,7 @@ describe("charts", () => {
     await simulateClick(".o-panel .inactive");
     setInputValueAndTrigger(".o-chart-title input", "hello");
     expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-      id: chartId,
+      figureId: chartId,
       sheetId,
       definition: {
         ...model.getters.getChartDefinition(chartId),
@@ -780,7 +783,7 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
+        figureId: chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -959,7 +962,7 @@ describe("charts", () => {
     const sheetId = model.getters.getActiveSheetId();
     await mountChartSidePanel(figureId1);
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
-    model.dispatch("DELETE_FIGURE", { id: figureId2, sheetId }); // could be deleted by another user
+    model.dispatch("DELETE_FIGURE", { figureId: figureId2, sheetId }); // could be deleted by another user
     await nextTick();
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
   });
@@ -1021,7 +1024,7 @@ describe("charts", () => {
       if (selectMethod === "click") {
         await simulateClick(figures[1]);
       } else {
-        model.dispatch("SELECT_FIGURE", { id: "secondChartId" });
+        model.dispatch("SELECT_FIGURE", { figureId: "secondChartId" });
       }
 
       await nextTick();
@@ -1336,7 +1339,7 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
+        figureId: chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -1359,7 +1362,7 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
+        figureId: chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -1601,7 +1604,7 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition("chart1")["cumulative"]).toBe(true);
       await changeChartType("bar"); // save chart1 context creation the side panel store
 
-      model.dispatch("SELECT_FIGURE", { id: "chart2" });
+      model.dispatch("SELECT_FIGURE", { figureId: "chart2" });
       await nextTick();
       await changeChartType("line");
       // check that chart2 cumulative option is the line chart default (undefined) and not the chart1 value
@@ -1882,7 +1885,7 @@ describe("charts", () => {
     setCellContent(model, "D6", "HELLO");
     createTestChart("gauge");
     await nextTick();
-    env.model.dispatch("SELECT_FIGURE", { id: chartId });
+    env.model.dispatch("SELECT_FIGURE", { figureId: chartId });
     await nextTick();
 
     copy(model);
@@ -1958,8 +1961,11 @@ describe("charts with multiple sheets", () => {
               tag: "chart",
               width: 400,
               height: 300,
-              x: 100,
-              y: 100,
+              anchor: { col: 0, row: 0 },
+              offset: {
+                x: 100,
+                y: 100,
+              },
               data: {
                 type: "line",
                 title: { text: "demo chart" },
@@ -1974,8 +1980,11 @@ describe("charts with multiple sheets", () => {
               tag: "chart",
               width: 400,
               height: 300,
-              x: 500,
-              y: 300,
+              anchor: { col: 0, row: 0 },
+              offset: {
+                x: 500,
+                y: 300,
+              },
               data: {
                 type: "scorecard",
                 title: { text: "demo scorecard" },
@@ -2032,7 +2041,7 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId);
   await nextTick();
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
-  model.dispatch("DELETE_FIGURE", { id: chartId, sheetId: model.getters.getActiveSheetId() });
+  model.dispatch("DELETE_FIGURE", { figureId: chartId, sheetId: model.getters.getActiveSheetId() });
   await nextTick();
   expect(spyDelete).toHaveBeenCalled();
 });

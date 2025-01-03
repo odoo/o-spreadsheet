@@ -170,6 +170,7 @@ describe("Migrations", () => {
         },
       ],
     });
+
     const data = model.exportData();
     expect(data.sheets[0].figures[0].data).toEqual({
       type: "line",
@@ -692,7 +693,7 @@ describe("Export", () => {
         },
       ],
     });
-    model.dispatch("DELETE_FIGURE", { id: "otheruuid", sheetId: "someuuid" });
+    model.dispatch("DELETE_FIGURE", { figureId: "otheruuid", sheetId: "someuuid" });
     expect(model.exportData()).toMatchObject({
       sheets: [
         {
@@ -862,7 +863,15 @@ test("import then export (figures)", () => {
         name: "My sheet",
         conditionalFormats: [],
         dataValidationRules: [],
-        figures: [{ id: "otheruuid", x: 100, y: 100, width: 100, height: 100 }],
+        figures: [
+          {
+            id: "otheruuid",
+            offset: { x: 10, y: 10 },
+            anchor: { col: 1, row: 1 },
+            width: 100,
+            height: 100,
+          },
+        ],
         tables: [],
         areGridLinesVisible: true,
         isVisible: true,

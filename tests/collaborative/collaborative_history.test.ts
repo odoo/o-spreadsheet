@@ -428,15 +428,15 @@ describe("Collaborative local history", () => {
         commands: [
           {
             type: "UPDATE_CHART",
-            id: "fig1",
+            figureId: "fig1",
             //@ts-ignore the old command would handle a partial definition
             definition: { dataSets: [{ dataRange: "A1:A3" }] },
           },
           {
             type: "CREATE_CHART",
             sheetId: "sheet1",
-            id: "fig2",
-            position: {
+            figureId: "fig2",
+            offset: {
               x: 0,
               y: 0,
             },
@@ -455,7 +455,7 @@ describe("Collaborative local history", () => {
           },
           {
             type: "UPDATE_CHART",
-            id: "fig2",
+            figureId: "fig2",
             //@ts-ignore the old command would handle a partial definition
             definition: { dataSets: [{ dataRange: "B1:B3" }] },
           },

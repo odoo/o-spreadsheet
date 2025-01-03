@@ -891,10 +891,10 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
     <xdr:twoCellAnchor>
         <xdr:from>
             <xdr:col>
-                24
+                0
             </xdr:col>
             <xdr:colOff>
-                971550
+                390525
             </xdr:colOff>
             <xdr:row>
                 0
@@ -908,7 +908,7 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                 24
             </xdr:col>
             <xdr:colOff>
-                6076950
+                9525
             </xdr:colOff>
             <xdr:row>
                 14
