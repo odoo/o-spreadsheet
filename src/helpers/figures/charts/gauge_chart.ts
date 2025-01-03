@@ -35,7 +35,7 @@ import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, copyLabelRangeWithNewSheetId } from "./chart_common";
+import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
@@ -204,10 +204,14 @@ export class GaugeChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: UID): GaugeChart {
-    const dataRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.dataRange);
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sheetId);
-    return new GaugeChart(definition, sheetId, this.getters);
+  duplicateInDuplicatedSheet(newSheetId: UID): GaugeChart {
+    const dataRange = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.dataRange
+    );
+    const definition = this.getDefinitionWithSpecificRanges(dataRange, newSheetId);
+    return new GaugeChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): GaugeChart {

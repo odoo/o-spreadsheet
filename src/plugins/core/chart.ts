@@ -87,7 +87,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           if (fig.tag === "chart") {
             const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
             const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-            const chart = this.charts[fig.id]?.copyForSheetId(cmd.sheetIdTo);
+            const chart = this.charts[fig.id]?.duplicateInDuplicatedSheet(cmd.sheetIdTo);
             if (chart) {
               this.dispatch("CREATE_CHART", {
                 id: duplicatedFigureId,

@@ -32,9 +32,9 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyDataSetsWithNewSheetId,
-  copyLabelRangeWithNewSheetId,
   createDataSets,
+  duplicateDataSetsInDuplicatedSheet,
+  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -214,11 +214,15 @@ export class LineChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: UID): LineChart {
-    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
-    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
-    return new LineChart(definition, sheetId, this.getters);
+  duplicateInDuplicatedSheet(newSheetId: UID): LineChart {
+    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
+    const labelRange = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.labelRange
+    );
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    return new LineChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): LineChart {

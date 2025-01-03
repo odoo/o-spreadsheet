@@ -37,7 +37,7 @@ import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, copyLabelRangeWithNewSheetId } from "./chart_common";
+import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getBaselineText(
@@ -225,11 +225,11 @@ export class ScorecardChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: UID): ScorecardChart {
-    const baseline = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.baseline);
-    const keyValue = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.keyValue);
-    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue, sheetId);
-    return new ScorecardChart(definition, sheetId, this.getters);
+  duplicateInDuplicatedSheet(newSheetId: UID): ScorecardChart {
+    const baseline = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.baseline);
+    const keyValue = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.keyValue);
+    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue, newSheetId);
+    return new ScorecardChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): ScorecardChart {
