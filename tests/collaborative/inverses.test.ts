@@ -304,7 +304,9 @@ describe("Inverses commands", () => {
     const updateFigure: UpdateFigureCommand = {
       type: "UPDATE_FIGURE",
       sheetId: "42",
-      id: "1",
+      figureId: "1",
+      col: 0,
+      row: 0,
     };
     const setZoneBorders: SetZoneBordersCommand = {
       type: "SET_ZONE_BORDERS",
@@ -328,7 +330,7 @@ describe("Inverses commands", () => {
       type: "UPDATE_CHART",
       sheetId: "42",
       definition: {} as LineChartDefinition,
-      id: "1",
+      figureId: "1",
     };
     test.each([
       updateCell,

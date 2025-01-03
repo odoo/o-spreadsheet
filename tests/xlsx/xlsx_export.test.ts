@@ -1497,8 +1497,10 @@ describe("Test XLSX export", () => {
       ).end;
       model.dispatch("UPDATE_FIGURE", {
         sheetId: "Sheet1",
-        id: "1",
-        x: end + 5,
+        figureId: "1",
+        offset: { x: end + 5, y: 0 },
+        col: 0,
+        row: 0,
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
@@ -1524,7 +1526,7 @@ describe("Test XLSX export", () => {
     test("multiple images in the same sheet", async () => {
       const model = new Model(getModelData());
       createImage(model, {});
-      createImage(model, { position: { x: 2, y: 2 } });
+      createImage(model, { offset: { x: 2, y: 2 } });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
@@ -1548,8 +1550,10 @@ describe("Test XLSX export", () => {
       ).end;
       model.dispatch("UPDATE_FIGURE", {
         sheetId,
-        id: "1",
-        x: end + 5,
+        figureId: "1",
+        offset: { x: end + 5, y: 0 },
+        col: 0,
+        row: 0,
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });

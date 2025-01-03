@@ -169,6 +169,7 @@ describe("Migrations", () => {
         },
       ],
     });
+
     const data = model.exportData();
     expect(data.sheets[0].figures[0].data).toEqual({
       type: "line",
@@ -451,7 +452,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     expect(data.version).toEqual(getCurrentVersion());
-    expect(Number(getCurrentVersion())).toBeGreaterThanOrEqual(14.5);
+    expect(getCurrentVersion().localeCompare("14.5")).toBeGreaterThanOrEqual(0);
     expect(data.sheets[0].tables).toEqual([
       {
         range: "A1:C2",
@@ -734,7 +735,7 @@ describe("Export", () => {
         },
       ],
     });
-    model.dispatch("DELETE_FIGURE", { id: "otheruuid", sheetId: "someuuid" });
+    model.dispatch("DELETE_FIGURE", { figureId: "otheruuid", sheetId: "someuuid" });
     expect(model.exportData()).toMatchObject({
       sheets: [
         {
@@ -904,7 +905,16 @@ test("import then export (figures)", () => {
         name: "My sheet",
         conditionalFormats: [],
         dataValidationRules: [],
-        figures: [{ id: "otheruuid", x: 100, y: 100, width: 100, height: 100 }],
+        figures: [
+          {
+            id: "otheruuid",
+            offset: { x: 10, y: 10 },
+            col: 1,
+            row: 1,
+            width: 100,
+            height: 100,
+          },
+        ],
         tables: [],
         areGridLinesVisible: true,
         isVisible: true,
