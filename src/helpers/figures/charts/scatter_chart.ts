@@ -30,9 +30,9 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyDataSetsWithNewSheetId,
-  copyLabelRangeWithNewSheetId,
   createDataSets,
+  duplicateDataSetsInDuplicatedSheet,
+  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -202,11 +202,15 @@ export class ScatterChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: UID): ScatterChart {
-    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
-    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
-    return new ScatterChart(definition, sheetId, this.getters);
+  duplicateInDuplicatedSheet(newSheetId: UID): ScatterChart {
+    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
+    const labelRange = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.labelRange
+    );
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    return new ScatterChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): ScatterChart {

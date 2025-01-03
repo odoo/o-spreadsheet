@@ -30,7 +30,7 @@ import { CellErrorType } from "../../../types/errors";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
-import { copyRangeWithNewSheetId } from "../../range";
+import { duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
@@ -95,34 +95,34 @@ export function updateChartRangesWithDataSets(
 }
 
 /**
- * Copy the dataSets given. All the ranges which are on sheetIdFrom will target
+ * Duplicate the dataSets. All ranges on sheetIdFrom are adapted to target
  * sheetIdTo.
  */
-export function copyDataSetsWithNewSheetId(
+export function duplicateDataSetsInDuplicatedSheet(
   sheetIdFrom: UID,
   sheetIdTo: UID,
   dataSets: DataSet[]
 ): DataSet[] {
   return dataSets.map((ds) => {
     return {
-      dataRange: copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, ds.dataRange),
+      dataRange: duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.dataRange),
       labelCell: ds.labelCell
-        ? copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, ds.labelCell)
+        ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, ds.labelCell)
         : undefined,
     };
   });
 }
 
 /**
- * Copy a range. If the range is on the sheetIdFrom, the range will target
+ * Duplicate a range. If the range is on the sheetIdFrom, the range will target
  * sheetIdTo.
  */
-export function copyLabelRangeWithNewSheetId(
+export function duplicateLabelRangeInDuplicatedSheet(
   sheetIdFrom: UID,
   sheetIdTo: UID,
   range?: Range
 ): Range | undefined {
-  return range ? copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, range) : undefined;
+  return range ? duplicateRangeInDuplicatedSheet(sheetIdFrom, sheetIdTo, range) : undefined;
 }
 
 /**

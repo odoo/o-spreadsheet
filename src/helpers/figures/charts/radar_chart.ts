@@ -30,9 +30,9 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyDataSetsWithNewSheetId,
-  copyLabelRangeWithNewSheetId,
   createDataSets,
+  duplicateDataSetsInDuplicatedSheet,
+  duplicateLabelRangeInDuplicatedSheet,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -130,11 +130,15 @@ export class RadarChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: UID): RadarChart {
-    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
-    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
-    return new RadarChart(definition, sheetId, this.getters);
+  duplicateInDuplicatedSheet(newSheetId: UID): RadarChart {
+    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
+    const labelRange = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.labelRange
+    );
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    return new RadarChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): RadarChart {

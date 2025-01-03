@@ -27,9 +27,9 @@ import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
-  copyDataSetsWithNewSheetId,
-  copyLabelRangeWithNewSheetId,
   createDataSets,
+  duplicateDataSetsInDuplicatedSheet,
+  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -125,11 +125,15 @@ export class PyramidChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: UID): PyramidChart {
-    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
-    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
-    return new PyramidChart(definition, sheetId, this.getters);
+  duplicateInDuplicatedSheet(newSheetId: UID): PyramidChart {
+    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
+    const labelRange = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.labelRange
+    );
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    return new PyramidChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): PyramidChart {

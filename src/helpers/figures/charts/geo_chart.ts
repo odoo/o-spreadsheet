@@ -30,9 +30,9 @@ import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
-  copyDataSetsWithNewSheetId,
-  copyLabelRangeWithNewSheetId,
   createDataSets,
+  duplicateDataSetsInDuplicatedSheet,
+  duplicateLabelRangeInDuplicatedSheet,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -120,11 +120,15 @@ export class GeoChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: UID): GeoChart {
-    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
-    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
-    return new GeoChart(definition, sheetId, this.getters);
+  duplicateInDuplicatedSheet(newSheetId: UID): GeoChart {
+    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
+    const labelRange = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.labelRange
+    );
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    return new GeoChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): GeoChart {

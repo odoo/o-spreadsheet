@@ -31,9 +31,9 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
-  copyDataSetsWithNewSheetId,
-  copyLabelRangeWithNewSheetId,
   createDataSets,
+  duplicateDataSetsInDuplicatedSheet,
+  duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -134,11 +134,15 @@ export class BarChart extends AbstractChart {
     };
   }
 
-  copyForSheetId(sheetId: UID): BarChart {
-    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
-    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
-    return new BarChart(definition, sheetId, this.getters);
+  duplicateInDuplicatedSheet(newSheetId: UID): BarChart {
+    const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
+    const labelRange = duplicateLabelRangeInDuplicatedSheet(
+      this.sheetId,
+      newSheetId,
+      this.labelRange
+    );
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    return new BarChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): BarChart {
