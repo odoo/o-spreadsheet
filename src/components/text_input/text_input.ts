@@ -88,15 +88,21 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
     this.inputRef.el?.blur();
   }
 
-  focusInputAndSelectContent() {
-    const inputEl = this.inputRef.el;
-    if (!inputEl) return;
+  onMouseDown(ev: MouseEvent) {
+    // Stop the event if the input is not focused, we handle everything in onMouseUp
+    if (ev.target !== document.activeElement) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+  }
 
-    // The onFocus event selects all text in the input.
-    // The subsequent mouseup event can deselect this text,
-    // so t-on-mouseup.prevent.stop is used to prevent this
-    // default behavior and preserve the selection.
-    inputEl.focus();
-    inputEl.select();
+  onMouseUp(ev: MouseEvent) {
+    const target = ev.target as HTMLInputElement;
+    if (target !== document.activeElement) {
+      target.focus();
+      target.select();
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
   }
 }
