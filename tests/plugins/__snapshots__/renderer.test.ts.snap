@@ -5,6 +5,8 @@ Array [
   "context.save()",
   "context.fillStyle=\\"#ffffff\\";",
   "context.fillRect(0, 0, 952.5, 974.5)",
+  "context.fillStyle=\\"#ffffff\\";",
+  "context.fillRect(0, 0, 952, 974)",
   "context.lineWidth=0.8;",
   "context.strokeStyle=\\"#E2E3E3\\";",
   "context.beginPath()",

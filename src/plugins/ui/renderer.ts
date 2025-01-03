@@ -115,12 +115,15 @@ export class RendererPlugin extends UIPlugin {
   drawGrid(renderingContext: GridRenderingContext, layer: LAYERS) {
     switch (layer) {
       case LAYERS.Background:
-        this.boxes = this.getGridBoxes();
         this.drawBackground(renderingContext);
-        this.drawCellBackground(renderingContext);
-        this.drawBorders(renderingContext);
-        this.drawTexts(renderingContext);
-        this.drawIcon(renderingContext);
+        for (const zone of this.getters.getAllActiveViewportsZones().reverse()) {
+          this.drawBackgroundGrid(renderingContext, zone);
+          this.boxes = this.getGridBoxes(zone);
+          this.drawCellBackground(renderingContext);
+          this.drawBorders(renderingContext);
+          this.drawTexts(renderingContext);
+          this.drawIcon(renderingContext);
+        }
         this.drawFrozenPanes(renderingContext);
         break;
       case LAYERS.Headers:
@@ -133,20 +136,35 @@ export class RendererPlugin extends UIPlugin {
   }
 
   private drawBackground(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
-    const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
-    const sheetId = this.getters.getActiveSheetId();
+    const { ctx } = renderingContext;
 
+    const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
     // white background
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
+  }
+
+  private drawBackgroundGrid(renderingContext: GridRenderingContext, zone: Zone) {
+    const { ctx, thinLineWidth } = renderingContext;
+
+    // const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
+    const sheetId = this.getters.getActiveSheetId();
+    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+
+    // white background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x, y, width, height);
 
     // background grid
-    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleCols = this.getters
+      .getSheetViewVisibleCols()
+      .filter((col) => col >= zone.left && col <= zone.right);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
 
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    const visibleRows = this.getters
+      .getSheetViewVisibleRows()
+      .filter((row) => row >= zone.top && row <= zone.bottom);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
 
@@ -160,21 +178,21 @@ export class RendererPlugin extends UIPlugin {
     // vertical lines
     for (const i of visibleCols) {
       const zone = { top, bottom, left: i, right: i };
-      const { x, width: colWidth, height: colHeight } = this.getters.getVisibleRect(zone);
-      ctx.moveTo(x + colWidth, 0);
+      const { x, y, width: colWidth, height: colHeight } = this.getters.getVisibleRect(zone);
+      ctx.moveTo(x + colWidth, y);
       ctx.lineTo(
         x + colWidth,
-        Math.min(height, colHeight + (this.getters.isDashboard() ? 0 : HEADER_HEIGHT))
+        y + Math.min(height, colHeight + (this.getters.isDashboard() ? 0 : HEADER_HEIGHT))
       );
     }
 
     // horizontal lines
     for (const i of visibleRows) {
       const zone = { left, right, top: i, bottom: i };
-      const { y, width: rowWidth, height: rowHeight } = this.getters.getVisibleRect(zone);
-      ctx.moveTo(0, y + rowHeight);
+      const { x, y, width: rowWidth, height: rowHeight } = this.getters.getVisibleRect(zone);
+      ctx.moveTo(x, y + rowHeight);
       ctx.lineTo(
-        Math.min(width, rowWidth + (this.getters.isDashboard() ? 0 : HEADER_WIDTH)),
+        x + Math.min(width, rowWidth + (this.getters.isDashboard() ? 0 : HEADER_WIDTH)),
         y + rowHeight
       );
     }
@@ -532,7 +550,7 @@ export class RendererPlugin extends UIPlugin {
     const row: HeaderIndex = zone.top;
     const cell = this.getters.getCell(sheetId, col, row);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { x, y, width, height } = this.getters.getRenderingRect(zone);
 
     const box: Box = {
       x,
@@ -659,13 +677,17 @@ export class RendererPlugin extends UIPlugin {
     return box;
   }
 
-  private getGridBoxes(): Box[] {
+  private getGridBoxes(zone: Zone): Box[] {
     const boxes: Box[] = [];
 
-    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleCols = this.getters
+      .getSheetViewVisibleCols()
+      .filter((col) => col >= zone.left && col <= zone.right);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    const visibleRows = this.getters
+      .getSheetViewVisibleRows()
+      .filter((row) => row >= zone.top && row <= zone.bottom);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
