@@ -9,23 +9,21 @@
       <t t-set-slot="content">
         <Section class="'pt-0'" title.translate="Range">
           <div class="o-subsection-left">
-            <input
-              type="text"
-              t-model="state.sectionRule.rangeMin"
-              t-on-change="() => this.updateSectionRule(state.sectionRule)"
-              t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
-              class="o-input o-data-range-min"
-              t-att-class="{ 'o-invalid': isRangeMinInvalid() }"
+            <StandaloneComposer
+              class="'o-data-range-min'"
+              invalid="isRangeMinInvalid"
+              composerContent="state.sectionRule.rangeMin"
+              defaultRangeSheetId="sheetId"
+              onConfirm="(str) => this.onConfirmGaugeRange('rangeMin', str)"
             />
           </div>
           <div class="o-subsection-right">
-            <input
-              type="text"
-              t-model="state.sectionRule.rangeMax"
-              t-on-change="() => this.updateSectionRule(state.sectionRule)"
-              t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
-              class="o-input o-data-range-max"
-              t-att-class="{ 'o-invalid': isRangeMaxInvalid() }"
+            <StandaloneComposer
+              class="'o-data-range-max'"
+              invalid="isRangeMaxInvalid"
+              composerContent="state.sectionRule.rangeMax"
+              defaultRangeSheetId="sheetId"
+              onConfirm="(str) => this.onConfirmGaugeRange('rangeMax', str)"
             />
           </div>
         </Section>
@@ -107,15 +105,7 @@
         </select>
       </td>
       <td class="pe-2">
-        <input
-          type="text"
-          class="o-input"
-          t-model="inflectionPoint.value"
-          t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
-          t-on-change="() => this.updateSectionRule(state.sectionRule)"
-          t-attf-class="o-input-{{inflectionPointName}}"
-          t-att-class="{ 'o-invalid': isInvalid }"
-        />
+        <StandaloneComposer t-props="getGaugeInflectionComposerProps(sectionType)"/>
       </td>
       <td>
         <select
