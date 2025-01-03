@@ -11,7 +11,9 @@ import {
   ChartDefinition,
   ChartType,
   ChartWithDataSetDefinition,
+  CreateFigureCommand,
   SpreadsheetChildEnv,
+  UID,
 } from "../../../src/types";
 import { PieChartRuntime } from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
@@ -28,6 +30,7 @@ import {
   createGaugeChart,
   createScorecardChart,
   createSheet,
+  deleteSheet,
   paste,
   selectCell,
   setCellContent,
@@ -69,19 +72,29 @@ mockGetBoundingClientRect({
 });
 type AllChartType = ChartType | "basicChart";
 
-function createTestChart(type: AllChartType, newChartId = chartId) {
+function createTestChart(
+  type: AllChartType,
+  newChartId: UID = chartId,
+  partialFigure: Partial<CreateFigureCommand> = {}
+) {
   switch (type) {
     case "scorecard":
-      createScorecardChart(model, TEST_CHART_DATA.scorecard, newChartId);
+      createScorecardChart(model, TEST_CHART_DATA.scorecard, newChartId, undefined, partialFigure);
       break;
     case "gauge":
-      createGaugeChart(model, TEST_CHART_DATA.gauge, newChartId);
+      createGaugeChart(model, TEST_CHART_DATA.gauge, newChartId, undefined, partialFigure);
       break;
     case "basicChart":
-      createChart(model, TEST_CHART_DATA.basicChart, newChartId);
+      createChart(model, TEST_CHART_DATA.basicChart, newChartId, undefined, partialFigure);
       break;
     default:
-      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, chartId);
+      createChart(
+        model,
+        { ...TEST_CHART_DATA.basicChart, type },
+        chartId,
+        undefined,
+        partialFigure
+      );
       break;
   }
 }
@@ -155,7 +168,7 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("can export a chart %s", (chartType) => {
-    createTestChart(chartType);
+    createTestChart(chartType, undefined, { size: { height: 335, width: 536 } });
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
     const sheet = data.sheets.find((s) => s.id === activeSheetId)!;
@@ -168,8 +181,12 @@ describe("charts", () => {
         height: 335,
         tag: "chart",
         width: 536,
-        x: 0,
-        y: 0,
+        col: 0,
+        row: 0,
+        offset: {
+          x: 0,
+          y: 0,
+        },
       },
     ]);
   });
@@ -281,7 +298,7 @@ describe("charts", () => {
       case "basicChart":
         await click(fixture.querySelector("input[name=dataSetsHaveTitle]")!);
         expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-          id: chartId,
+          figureId: chartId,
           sheetId,
           definition: {
             ...model.getters.getChartDefinition(chartId),
@@ -300,7 +317,7 @@ describe("charts", () => {
     await simulateClick(".o-panel .inactive");
     setInputValueAndTrigger(".o-chart-title input", "hello");
     expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-      id: chartId,
+      figureId: chartId,
       sheetId,
       definition: {
         ...model.getters.getChartDefinition(chartId),
@@ -811,7 +828,7 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
+        figureId: chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -1021,7 +1038,7 @@ describe("charts", () => {
     const sheetId = model.getters.getActiveSheetId();
     await mountChartSidePanel(figureId1);
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
-    model.dispatch("DELETE_FIGURE", { id: figureId2, sheetId }); // could be deleted by another user
+    model.dispatch("DELETE_FIGURE", { figureId: figureId2, sheetId }); // could be deleted by another user
     await nextTick();
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
   });
@@ -1083,7 +1100,7 @@ describe("charts", () => {
       if (selectMethod === "click") {
         await simulateClick(figures[1]);
       } else {
-        model.dispatch("SELECT_FIGURE", { id: "secondChartId" });
+        model.dispatch("SELECT_FIGURE", { figureId: "secondChartId" });
       }
 
       await nextTick();
@@ -1420,7 +1437,7 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
+        figureId: chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -1443,7 +1460,7 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
+        figureId: chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -1685,7 +1702,7 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition("chart1")["cumulative"]).toBe(true);
       await changeChartType("bar"); // save chart1 context creation the side panel store
 
-      model.dispatch("SELECT_FIGURE", { id: "chart2" });
+      model.dispatch("SELECT_FIGURE", { figureId: "chart2" });
       await nextTick();
       await changeChartType("line");
       // check that chart2 cumulative option is the line chart default (undefined) and not the chart1 value
@@ -1966,7 +1983,7 @@ describe("charts", () => {
     setCellContent(model, "D6", "HELLO");
     createTestChart("gauge");
     await nextTick();
-    env.model.dispatch("SELECT_FIGURE", { id: chartId });
+    env.model.dispatch("SELECT_FIGURE", { figureId: chartId });
     await nextTick();
 
     copy(model);
@@ -2042,8 +2059,12 @@ describe("charts with multiple sheets", () => {
               tag: "chart",
               width: 400,
               height: 300,
-              x: 100,
-              y: 100,
+              col: 0,
+              row: 0,
+              offset: {
+                x: 100,
+                y: 100,
+              },
               data: {
                 type: "line",
                 title: { text: "demo chart" },
@@ -2058,8 +2079,12 @@ describe("charts with multiple sheets", () => {
               tag: "chart",
               width: 400,
               height: 300,
-              x: 500,
-              y: 300,
+              col: 0,
+              row: 0,
+              offset: {
+                x: 500,
+                y: 300,
+              },
               data: {
                 type: "scorecard",
                 title: { text: "demo scorecard" },
@@ -2077,7 +2102,7 @@ describe("charts with multiple sheets", () => {
 
   test("delete sheet containing chart data does not crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
-    model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() });
+    deleteSheet(model, model.getters.getActiveSheetId());
     const runtimeChart = model.getters.getChartRuntime(chartId);
     expect(runtimeChart).toBeDefined();
     await nextTick();
@@ -2116,7 +2141,7 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId);
   await nextTick();
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
-  model.dispatch("DELETE_FIGURE", { id: chartId, sheetId: model.getters.getActiveSheetId() });
+  model.dispatch("DELETE_FIGURE", { figureId: chartId, sheetId: model.getters.getActiveSheetId() });
   await nextTick();
   expect(spyDelete).toHaveBeenCalled();
 });
