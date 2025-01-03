@@ -198,7 +198,7 @@ describe("sheets", () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet2");
     createSheet(model, { sheetId: "43", activate: true });
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet3");
-    model.dispatch("DELETE_SHEET", { sheetId: "42" });
+    deleteSheet(model, "42");
     expect(model.getters.getSheetIds().map(model.getters.getSheetName)[0]).toBe("Sheet1");
     expect(model.getters.getSheetIds().map(model.getters.getSheetName)[1]).toBe("Sheet3");
     createSheet(model, { sheetId: "44", activate: true });
@@ -744,14 +744,31 @@ describe("sheets", () => {
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });
     model.dispatch("UPDATE_FIGURE", {
       sheetId: sheetId,
-      id: chartId,
-      x: 40,
+      figureId: chartId,
+      offset: { x: 40, y: 0 },
     });
 
     const figure1 = model.getters.getFigures(sheetId);
     const figure2 = model.getters.getFigures("42");
-    expect(figure1).toEqual([{ height: 335, id: chartId, tag: "chart", width: 536, x: 40, y: 0 }]);
-    expect(figure2).toMatchObject([{ height: 335, tag: "chart", width: 536, x: 0, y: 0 }]);
+    expect(figure1).toEqual([
+      {
+        height: 335,
+        id: chartId,
+        tag: "chart",
+        width: 536,
+        anchor: { col: 0, row: 0 },
+        offset: { x: 40, y: 0 },
+      },
+    ]);
+    expect(figure2).toMatchObject([
+      {
+        height: 335,
+        tag: "chart",
+        width: 536,
+        anchor: { col: 0, row: 0 },
+        offset: { x: 0, y: 0 },
+      },
+    ]);
   });
 
   test("Cols and Rows are correctly duplicated", () => {
@@ -796,7 +813,7 @@ describe("sheets", () => {
     const sheet1 = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     const sheet2 = model.getters.getActiveSheetId();
-    model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
+    deleteSheet(model, sheet2);
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getSheetIds()[0]).toEqual(sheet1);
     expect(model.getters.getActiveSheetId()).toEqual(sheet1);
@@ -814,7 +831,7 @@ describe("sheets", () => {
     const sheet2 = "Sheet2";
     createSheet(model, { sheetId: sheet2 });
     setCellContent(model, "A1", "Hello in Sheet2", sheet2);
-    model.dispatch("DELETE_SHEET", { sheetId: sheet1 });
+    deleteSheet(model, sheet1);
     expect(model.getters.getActiveSheetId()).toBe(sheet2);
     expect(getCellContent(model, "A1")).toBe("Hello in Sheet2");
   });
@@ -824,7 +841,7 @@ describe("sheets", () => {
     const sheet1 = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     const sheet2 = model.getters.getSheetIds()[1];
-    model.dispatch("DELETE_SHEET", { sheetId: sheet1 });
+    deleteSheet(model, sheet1);
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getSheetIds()[0]).toEqual(sheet2);
     expect(model.getters.getActiveSheetId()).toEqual(sheet2);
@@ -876,7 +893,7 @@ describe("sheets", () => {
     createSheetWithName(model, { sheetId: "42", activate: true }, name);
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
-    model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
+    deleteSheet(model, sheet2);
     expect(getCellText(model, "A1")).toBe("=#REF");
     expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
     undo(model);

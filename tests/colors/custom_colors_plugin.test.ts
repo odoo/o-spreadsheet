@@ -108,7 +108,7 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
     model.dispatch("UPDATE_CHART", {
       sheetId,
-      id: "1",
+      figureId: "1",
       definition: {
         title: { text: "a title" },
         dataSets: [],
@@ -123,7 +123,7 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
     model.dispatch("DELETE_FIGURE", {
       sheetId,
-      id: "1",
+      figureId: "1",
     });
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
   });
@@ -132,7 +132,9 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual([]);
     model.dispatch("CREATE_CHART", {
       sheetId,
-      id: "1",
+      figureId: "1",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 0, y: 0 },
       definition: {
         title: { text: "a title" },
         type: "gauge",

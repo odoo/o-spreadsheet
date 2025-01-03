@@ -428,15 +428,16 @@ describe("Collaborative local history", () => {
         commands: [
           {
             type: "UPDATE_CHART",
-            id: "fig1",
+            figureId: "fig1",
             //@ts-ignore the old command would handle a partial definition
             definition: { dataSets: [{ dataRange: "A1:A3" }] },
           },
           {
             type: "CREATE_CHART",
             sheetId: "sheet1",
-            id: "fig2",
-            position: {
+            figureId: "fig2",
+            anchor: { col: 0, row: 0 },
+            offset: {
               x: 0,
               y: 0,
             },
@@ -455,7 +456,7 @@ describe("Collaborative local history", () => {
           },
           {
             type: "UPDATE_CHART",
-            id: "fig2",
+            figureId: "fig2",
             //@ts-ignore the old command would handle a partial definition
             definition: { dataSets: [{ dataRange: "B1:B3" }] },
           },
@@ -564,7 +565,7 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
     setCellContent(alice, "A1", "hello", sheetId);
     undo(alice);
-    bob.dispatch("DELETE_SHEET", { sheetId });
+    deleteSheet(bob, sheetId);
     redo(alice);
     expect(all).toHaveSynchronizedExportedData();
   });
@@ -1046,7 +1047,7 @@ describe("Collaborative local history", () => {
 
       // DELETE_SHEET is initially accepted (there's 2 sheets) but later
       // rejected because there's only one sheet left when DUPLICATE_SHEET is undone
-      bob.dispatch("DELETE_SHEET", { sheetId: "Sheet1" });
+      deleteSheet(bob, "Sheet1");
     });
     network.concurrent(() => {
       undo(bob);

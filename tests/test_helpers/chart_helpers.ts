@@ -36,7 +36,7 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
 }
 
 export async function openChartConfigSidePanel(model: Model, env: SpreadsheetChildEnv, id: UID) {
-  model.dispatch("SELECT_FIGURE", { id });
+  model.dispatch("SELECT_FIGURE", { figureId: id });
   env.openSidePanel("ChartPanel");
   await nextTick();
 }

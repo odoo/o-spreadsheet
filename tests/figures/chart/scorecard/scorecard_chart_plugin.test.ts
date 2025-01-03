@@ -140,7 +140,10 @@ describe("datasource tests", function () {
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
+    newModel.dispatch("DELETE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figureId: "1",
+    });
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
@@ -201,7 +204,7 @@ describe("datasource tests", function () {
       "2"
     );
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
-    model.dispatch("DELETE_SHEET", { sheetId: "2" });
+    deleteSheet(model, "2");
     expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 

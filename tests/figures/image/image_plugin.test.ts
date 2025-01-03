@@ -1,6 +1,6 @@
 import { Model } from "../../../src";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
-import { createImage, paste, redo, undo } from "../../test_helpers/commands_helpers";
+import { createImage, deleteSheet, paste, redo, undo } from "../../test_helpers/commands_helpers";
 import { getFigureIds } from "../../test_helpers/helpers";
 
 describe("image plugin", function () {
@@ -23,7 +23,7 @@ describe("image plugin", function () {
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
-    model.dispatch("DELETE_FIGURE", { sheetId, id: imageId });
+    model.dispatch("DELETE_FIGURE", { sheetId, figureId: imageId });
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(0);
   });
@@ -39,7 +39,7 @@ describe("image plugin", function () {
       mimetype: "image/jpeg",
     };
     createImage(model, { figureId: imageId, definition });
-    model.dispatch("SELECT_FIGURE", { id: imageId });
+    model.dispatch("SELECT_FIGURE", { figureId: imageId });
     model.dispatch("COPY");
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
@@ -60,7 +60,7 @@ describe("image plugin", function () {
       mimetype: "image/jpeg",
     };
     createImage(model, { figureId: imageId, definition });
-    model.dispatch("SELECT_FIGURE", { id: imageId });
+    model.dispatch("SELECT_FIGURE", { figureId: imageId });
     model.dispatch("CUT");
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
@@ -91,7 +91,7 @@ describe("test image in sheet", function () {
     const newSheetId = "Sheet2";
     model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 2 });
     createImage(model, { sheetId: newSheetId, figureId: imageId });
-    model.dispatch("DELETE_SHEET", { sheetId: newSheetId });
+    deleteSheet(model, newSheetId);
     const images = getFigureIds(model, newSheetId);
     expect(images).toHaveLength(0);
   });
@@ -148,8 +148,14 @@ describe("test image import & export", function () {
         tag: "image",
         height: 380,
         width: 380,
-        x: 0,
-        y: 0,
+        offset: {
+          x: 0,
+          y: 0,
+        },
+        anchor: {
+          col: 0,
+          row: 0,
+        },
         data: model.getters.getImage(imageId),
       },
     ]);
@@ -185,7 +191,7 @@ describe("test image undo/redo", () => {
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });
     const before = model.exportData();
-    model.dispatch("DELETE_FIGURE", { sheetId, id: imageId });
+    model.dispatch("DELETE_FIGURE", { sheetId, figureId: imageId });
     const after = model.exportData();
     undo(model);
     expect(model).toExport(before);
@@ -198,7 +204,7 @@ describe("test image undo/redo", () => {
     const imageId = "Image1";
     createImage(model, { figureId: imageId });
     const before = model.exportData();
-    model.dispatch("SELECT_FIGURE", { id: imageId });
+    model.dispatch("SELECT_FIGURE", { figureId: imageId });
     model.dispatch("CUT");
     paste(model, "D4");
     const after = model.exportData();

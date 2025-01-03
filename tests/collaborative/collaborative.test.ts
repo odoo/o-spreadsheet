@@ -497,7 +497,7 @@ describe("Multi users synchronisation", () => {
     duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
     network.concurrent(() => {
       undo(alice);
-      charlie.dispatch("DELETE_FIGURE", { id: "figureId", sheetId: "Sheet1" });
+      charlie.dispatch("DELETE_FIGURE", { figureId: "figureId", sheetId: "Sheet1" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
@@ -523,8 +523,8 @@ describe("Multi users synchronisation", () => {
       tag: "hey",
       width: 100,
       height: 100,
-      x: 100,
-      y: 100,
+      anchor: { col: 5, row: 6 },
+      offset: { x: 7, y: 8 },
     };
     alice.dispatch("CREATE_FIGURE", {
       sheetId,
@@ -535,8 +535,8 @@ describe("Multi users synchronisation", () => {
       [figure]
     );
     network.concurrent(() => {
-      alice.dispatch("DELETE_FIGURE", { id: "someuuid", sheetId });
-      bob.dispatch("DELETE_FIGURE", { id: "someuuid", sheetId });
+      alice.dispatch("DELETE_FIGURE", { figureId: "someuuid", sheetId });
+      bob.dispatch("DELETE_FIGURE", { figureId: "someuuid", sheetId });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getFigures(sheetId),
@@ -573,10 +573,17 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Selected figure Id is not modified if the create sheet comes from someone else", () => {
-    const figure = { id: "42", x: 0, y: 0, width: 100, height: 100, tag: "text" };
+    const figure = {
+      id: "42",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 0, y: 0 },
+      width: 100,
+      height: 100,
+      tag: "text",
+    };
     const sheetId = alice.getters.getActiveSheetId();
     alice.dispatch("CREATE_FIGURE", { sheetId, figure });
-    alice.dispatch("SELECT_FIGURE", { id: "42" });
+    alice.dispatch("SELECT_FIGURE", { figureId: "42" });
     expect(alice.getters.getSelectedFigureId()).toBe("42");
     expect(bob.getters.getSelectedFigureId()).toBeNull();
   });
@@ -828,7 +835,7 @@ describe("Multi users synchronisation", () => {
         sheetId: firstSheetId,
         sheetIdTo: "sheet2",
       });
-      charlie.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
+      deleteSheet(charlie, firstSheetId);
     });
     const colSize = alice.getters.getColSize("sheet2", 0);
     const ctx = document.createElement("canvas").getContext("2d")!;

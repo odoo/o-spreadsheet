@@ -109,9 +109,11 @@ describe("Single cell chart background color", () => {
     expect(firstSheetFigures.length).toBe(1);
     model.dispatch("UPDATE_FIGURE", {
       sheetId,
-      id: firstSheetFigures[0].id,
-      x: 0,
-      y: 0,
+      figureId: firstSheetFigures[0].id,
+      offset: {
+        x: 0,
+        y: 0,
+      },
       width: 123,
       height: 321,
     });
