@@ -207,6 +207,7 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private selectionStore!: Store<SelectionStore>;
+  private tapTimeout: number | undefined;
 
   setup() {
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
@@ -262,7 +263,7 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
     if (ev.target === this.gridOverlay.el && this.cellPopovers.isOpen) {
       this.cellPopovers.close();
     }
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(ev.clientX, ev.clientY);
     this.props.onCellClicked(col, row, {
       expandZone: ev.shiftKey,
       addZone: isCtrlKey(ev),
@@ -270,18 +271,37 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onDoubleClick(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(ev.clientX, ev.clientY);
     this.props.onCellDoubleClicked(col, row);
   }
 
   onContextMenu(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(ev.clientX, ev.clientY);
     this.props.onCellRightClicked(col, row, { x: ev.clientX, y: ev.clientY });
   }
 
-  private getCartesianCoordinates(ev: MouseEvent): [HeaderIndex, HeaderIndex] {
-    const x = ev.clientX - this.gridOverlayRect.x;
-    const y = ev.clientY - this.gridOverlayRect.y;
+  onTap(ev: TouchEvent) {
+    this.tapTimeout = setTimeout(() => {
+      const [col, row] = this.getCartesianCoordinates(ev.touches[0].clientX, ev.touches[0].clientY);
+      this.props.onCellRightClicked(col, row, {
+        x: ev.touches[0].clientX,
+        y: ev.touches[0].clientY,
+      });
+      this.tapTimeout = undefined;
+      ev.preventDefault();
+      ev.stopPropagation();
+    }, 500) as unknown as number;
+  }
+
+  onTapEnd() {
+    if (this.tapTimeout) {
+      clearTimeout(this.tapTimeout);
+    }
+  }
+
+  private getCartesianCoordinates(clientX: Pixel, clientY: Pixel): [HeaderIndex, HeaderIndex] {
+    const x = clientX - this.gridOverlayRect.x;
+    const y = clientY - this.gridOverlayRect.y;
 
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);

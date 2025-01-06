@@ -10,11 +10,12 @@ css/* scss */ `
     height: ${LARGEUR}px;
     width: ${LARGEUR}px;
     background: red;
+    border-radius: ${LARGEUR / 2}px;
   }
 
   .o-corner-button {
     border: 1px solid white;
-    border-radius: 4px;
+    border-radius: 3px; /* Math.ceil(height value) technically */
     height: 5px;
     width: 5px;
   }
