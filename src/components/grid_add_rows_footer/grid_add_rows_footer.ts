@@ -88,7 +88,7 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
     this.props.focusGrid();
 
     // After adding new rows, scroll down to the new last row
-    const { scrollX } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+    const { scrollX } = this.env.model.getters.getActiveSheetScrollInfo();
     const { end } = this.env.model.getters.getRowDimensions(
       activeSheetId,
       rowNumber + quantity - 1

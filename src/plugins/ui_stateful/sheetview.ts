@@ -1,5 +1,5 @@
 import { getDefaultSheetViewSize } from "../../constants";
-import { clip, findCellInNewZone, isDefined, largeMin, range } from "../../helpers";
+import { clip, findCellInNewZone, isDefined, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { SelectionEvent } from "../../types/event_stream";
@@ -21,7 +21,6 @@ import {
   ScrollDirection,
   SetViewportOffsetCommand,
   SheetDOMScrollInfo,
-  SheetScrollInfo,
   UID,
   Viewport,
   Zone,
@@ -97,7 +96,6 @@ export class SheetViewPlugin extends UIPlugin {
     "getColRowOffsetInViewport",
     "getMainViewportCoordinates",
     "getActiveSheetScrollInfo",
-    "getActiveSheetDOMScrollInfo",
     "getSheetViewVisibleCols",
     "getSheetViewVisibleRows",
     "getFrozenSheetViewRatio",
@@ -329,28 +327,15 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   /**
-   * Return the scroll info of the active sheet, ie. the offset between the viewport left/top side and
-   * the grid left/top side, snapped to the columns/rows.
+   * Return the DOM scroll info of the active sheet, ie. the offset between the viewport left/top side and
+   * the grid left/top side, corresponding to the scroll of the scrollbars and not snapped to the grid.
    */
-  getActiveSheetScrollInfo(): SheetScrollInfo {
+  getActiveSheetScrollInfo(): SheetDOMScrollInfo {
     const sheetId = this.getters.getActiveSheetId();
     const viewport = this.getMainInternalViewport(sheetId);
     return {
       scrollX: viewport.offsetX,
       scrollY: viewport.offsetY,
-    };
-  }
-
-  /**
-   * Return the DOM scroll info of the active sheet, ie. the offset between the viewport left/top side and
-   * the grid left/top side, corresponding to the scroll of the scrollbars and not snapped to the grid.
-   */
-  getActiveSheetDOMScrollInfo(): SheetDOMScrollInfo {
-    const sheetId = this.getters.getActiveSheetId();
-    const viewport = this.getMainInternalViewport(sheetId);
-    return {
-      scrollX: viewport.offsetScrollbarX,
-      scrollY: viewport.offsetScrollbarY,
     };
   }
 
@@ -564,15 +549,15 @@ export class SheetViewPlugin extends UIPlugin {
    * column of the current viewport
    */
   getColDimensionsInViewport(sheetId: UID, col: HeaderIndex): HeaderDimensions {
-    const left = largeMin(this.getters.getSheetViewVisibleCols());
-    const start = this.getters.getColRowOffsetInViewport("COL", left, col);
-    const size = this.getters.getColSize(sheetId, col);
-    const isColHidden = this.getters.isColHidden(sheetId, col);
-    return {
-      start,
-      size: size,
-      end: start + (isColHidden ? 0 : size),
+    const zone = {
+      left: col,
+      right: col,
+      top: 0,
+      bottom: this.getters.getNumberRows(sheetId) - 1,
     };
+    const { x, width } = this.getVisibleRect(zone);
+    const start = x - this.gridOffsetX;
+    return { start, size: width, end: start + width };
   }
 
   /**
@@ -580,15 +565,15 @@ export class SheetViewPlugin extends UIPlugin {
    * of the current viewport
    */
   getRowDimensionsInViewport(sheetId: UID, row: HeaderIndex): HeaderDimensions {
-    const top = largeMin(this.getters.getSheetViewVisibleRows());
-    const start = this.getters.getColRowOffsetInViewport("ROW", top, row);
-    const size = this.getters.getRowSize(sheetId, row);
-    const isRowHidden = this.getters.isRowHidden(sheetId, row);
-    return {
-      start,
-      size: size,
-      end: start + (isRowHidden ? 0 : size),
+    const zone = {
+      left: 0,
+      right: this.getters.getNumberCols(sheetId) - 1,
+      top: row,
+      bottom: row,
     };
+    const { y, height } = this.getVisibleRect(zone);
+    const start = y - this.gridOffsetY;
+    return { start, size: height, end: start + height };
   }
 
   getAllActiveViewportsZonesAndRect(): { zone: Zone; rect: Rect }[] {
@@ -722,8 +707,8 @@ export class SheetViewPlugin extends UIPlugin {
 
   private getViewportOffset(sheetId: UID) {
     return {
-      x: this.viewports[sheetId]?.bottomRight.offsetScrollbarX || 0,
-      y: this.viewports[sheetId]?.bottomRight.offsetScrollbarY || 0,
+      x: this.viewports[sheetId]?.bottomRight.offsetX || 0,
+      y: this.viewports[sheetId]?.bottomRight.offsetY || 0,
     };
   }
 

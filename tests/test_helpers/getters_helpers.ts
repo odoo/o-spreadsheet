@@ -243,12 +243,3 @@ export function getClipboardVisibleZones(model: Model): Zone[] {
     ? clipboardPlugin["copiedData"]?.["zones"] ?? []
     : [];
 }
-
-export function getActiveSheetFullScrollInfo(model: Model) {
-  const scrollBarScroll = model.getters.getActiveSheetDOMScrollInfo();
-  return {
-    ...model.getters.getActiveSheetScrollInfo(),
-    scrollbarScrollX: scrollBarScroll.scrollX,
-    scrollbarScrollY: scrollBarScroll.scrollY,
-  };
-}

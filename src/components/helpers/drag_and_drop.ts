@@ -80,7 +80,7 @@ export function dragAndDropBeyondTheViewport(
 
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
     let { top, left, bottom, right } = getters.getActiveMainViewport();
-    let { scrollX, scrollY } = getters.getActiveSheetDOMScrollInfo();
+    let { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
     const { xSplit, ySplit } = getters.getPaneDivisions(sheetId);
     let canEdgeScroll = false;
     let timeoutDelay = MAX_DELAY;

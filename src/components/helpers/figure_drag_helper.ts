@@ -1,5 +1,5 @@
 import { clip } from "../../helpers";
-import { Figure, PixelPosition, SheetScrollInfo } from "../../types";
+import { Figure, PixelPosition, SheetDOMScrollInfo } from "../../types";
 
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,
@@ -7,7 +7,7 @@ export function dragFigureForMove(
   initialFigure: Figure,
   { x: viewportX, y: viewportY }: PixelPosition,
   { maxX, maxY }: { maxX: number; maxY: number },
-  { scrollX, scrollY }: SheetScrollInfo
+  { scrollX, scrollY }: SheetDOMScrollInfo
 ): Figure {
   const minX = viewportX ? 0 : -scrollX;
   const minY = viewportY ? 0 : -scrollY;
@@ -26,7 +26,7 @@ export function dragFigureForResize(
   { x: mouseInitialX, y: mouseInitialY }: PixelPosition,
   keepRatio: boolean,
   minFigSize: number,
-  { scrollX, scrollY }: SheetScrollInfo
+  { scrollX, scrollY }: SheetDOMScrollInfo
 ): Figure {
   let { x, y, width, height } = initialFigure;
 

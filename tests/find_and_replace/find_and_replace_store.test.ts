@@ -334,7 +334,7 @@ describe("basic search", () => {
     expect(store.activeSheetMatchesCount).toBe(1);
     expect(store.allSheetMatchesCount).toBe(3);
     expect(store.specificRangeMatchesCount).toBe(0);
-    expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("Q58:Z100"));
+    expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("P57:Z100"));
   });
 
   test("Search results and range are highlighted", () => {

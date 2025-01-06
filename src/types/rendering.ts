@@ -49,29 +49,14 @@ export interface Image {
 
 export type Viewport = Zone & Alias;
 
-export interface SheetScrollInfo {
-  /**
-   * The offset in the X coordinate between the viewport left side and
-   * the grid left side (left of column "A").
-   */
-  scrollX: Pixel;
-  /**
-   * The offset in the Y coordinate between the viewport top side and
-   * the grid top side (top of row "1").
-   */
-  scrollY: Pixel;
-}
-
 export interface SheetDOMScrollInfo {
   /**
-   * The scrollBar offset in the X coordinate, which can differ from offsetX as
-   * the former is "smooth" and the latter will "snap" from one cell coordinate to the other
+   * The scrollBar offset in the X coordinate
    */
   scrollX: Pixel;
 
   /**
-   * The scrollBar offset in the Y coordinate, which can differ from offsetX as
-   * the former is "smooth" and the latter will "snap" from one cell coordinate to the other
+   * The scrollBar offset in the Y coordinate
    */
   scrollY: Pixel;
 }
