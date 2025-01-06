@@ -516,7 +516,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get maskPositionOffset() {
-    // return { offsetX: 0, offsetY: 0 };
     return { offsetX: HEADER_WIDTH, offsetY: HEADER_HEIGHT };
   }
 
@@ -600,6 +599,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     }
     this.toggleContextMenu(type, x, y);
+    this.selectionStore.markSelectionToDisplay();
   }
 
   toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
