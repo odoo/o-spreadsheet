@@ -170,6 +170,11 @@ describe("navigation", () => {
 
     selectCell(model, "G1");
     viewport = model.getters.getActiveMainViewport();
+    expect(viewport.left).toBe(0);
+    expect(viewport.right).toBe(6);
+
+    selectCell(model, "H1");
+    viewport = model.getters.getActiveMainViewport();
     expect(viewport.left).toBe(1);
     expect(viewport.right).toBe(7);
   });
@@ -203,6 +208,11 @@ describe("navigation", () => {
     expect(viewport.bottom).toBe(13);
 
     selectCell(model, "A14");
+    viewport = model.getters.getActiveMainViewport();
+    expect(viewport.top).toBe(0);
+    expect(viewport.bottom).toBe(13);
+
+    selectCell(model, "A15");
     viewport = model.getters.getActiveMainViewport();
     expect(viewport.top).toBe(1);
     expect(viewport.bottom).toBe(14);

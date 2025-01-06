@@ -2236,13 +2236,13 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    let box = gridRendererStore["getGridBoxes"](toZone("A1:A100")).filter((box) => box.content)[0];
+    let box = gridRendererStore["getGridBoxes"](toZone("A1")).filter((box) => box.content)[0];
     const expectedSpaces = 20 - 2 * MIN_CELL_TEXT_MARGIN;
     expect(box.content?.textLines).toEqual(["1".padStart(expectedSpaces)]);
 
     setFormat(model, "A1", "0*c");
     drawGridRenderer(ctx);
-    box = gridRendererStore["getGridBoxes"](toZone("A1:A100")).filter((box) => box.content)[0];
+    box = gridRendererStore["getGridBoxes"](toZone("A1")).filter((box) => box.content)[0];
     expect(box.content?.textLines).toEqual(["1".padEnd(expectedSpaces, "c")]);
   });
 
@@ -2252,6 +2252,8 @@ describe("renderer", () => {
     setCellContent(model, "A1", "1");
     freezeColumns(model, 2);
     freezeRows(model, 1);
+    // Don't account for headers for the grid
+    model.updateMode("dashboard");
     const spyFn = jest.fn();
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
       onFunctionCall: (key, args) => {

@@ -111,7 +111,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   }
 
   private moveCanvas(deltaX: Pixel, deltaY: Pixel) {
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
     this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX + deltaX,
       offsetY: scrollY + deltaY,

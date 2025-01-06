@@ -48,6 +48,7 @@ import {
   setCellFormat,
   setSelection,
   setStyle,
+  setViewportOffset,
   undo,
   updateFilter,
   updateTableConfig,
@@ -68,7 +69,6 @@ import {
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
-  getActiveSheetFullScrollInfo,
   getBorder,
   getCell,
   getCellContent,
@@ -140,6 +140,72 @@ describe("Grid component", () => {
     setCellContent(model, "B3", "b3");
     await clickCell(model, "C8");
     expect(getSelectionAnchorCellXc(model)).toBe("C8");
+  });
+
+  test("can click on a partially vertically scrolled cell to select it", async () => {
+    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT / 2);
+    await nextTick();
+    expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH,
+      height: DEFAULT_CELL_HEIGHT / 2,
+    });
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "pointerdown",
+      DEFAULT_CELL_WIDTH / 2,
+      DEFAULT_CELL_HEIGHT * 0.75 // after row 1
+    );
+    await nextTick();
+    expect(getSelectionAnchorCellXc(model)).toBe("A2");
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "pointerdown",
+      DEFAULT_CELL_WIDTH / 2,
+      DEFAULT_CELL_HEIGHT * 0.25 // in row 1
+    );
+    await nextTick();
+    expect(getSelectionAnchorCellXc(model)).toBe("A1");
+    expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+  });
+
+  test("can click on a partially horizontally scrolled cell to select it", async () => {
+    setViewportOffset(model, DEFAULT_CELL_WIDTH / 2, 0);
+    await nextTick();
+    expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH / 2,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "pointerdown",
+      DEFAULT_CELL_WIDTH * 0.75, // after col A
+      DEFAULT_CELL_HEIGHT / 2
+    );
+    await nextTick();
+    expect(getSelectionAnchorCellXc(model)).toBe("B1");
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "pointerdown",
+      DEFAULT_CELL_WIDTH * 0.25, // in col A
+      DEFAULT_CELL_HEIGHT / 2
+    );
+    await nextTick();
+    expect(getSelectionAnchorCellXc(model)).toBe("A1");
+    expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH,
+      height: DEFAULT_CELL_HEIGHT,
+    });
   });
 
   test("can click on resizer, then move selection with keyboard", async () => {
@@ -1128,11 +1194,9 @@ describe("Events on Grid update viewport correctly", () => {
       left: 0,
       right: 10,
     });
-    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
       scrollX: 0,
-      scrollbarScrollX: 0,
-      scrollY: 1196,
-      scrollbarScrollY: 1200,
+      scrollY: 1200,
     });
   });
   test("Horizontal scroll", async () => {
@@ -1144,11 +1208,9 @@ describe("Events on Grid update viewport correctly", () => {
       left: 2,
       right: 12,
     });
-    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
-      scrollX: 192,
-      scrollbarScrollX: 200,
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
+      scrollX: 200,
       scrollY: 0,
-      scrollbarScrollY: 0,
     });
   });
   test("Move selection with keyboard", async () => {
@@ -1162,12 +1224,12 @@ describe("Events on Grid update viewport correctly", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("K1");
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       ...viewport,
-      left: 1,
-      right: 11,
+      left: 0,
+      right: 10,
     });
-    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
-      scrollX: 96,
-      scrollbarScrollX: 96,
+    const sheetDim = model.getters.getSheetViewDimension();
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
+      scrollX: 11 * DEFAULT_CELL_WIDTH - sheetDim.width,
     });
   });
   test("Move selection horizontally (left to right) through pane division resets the scroll", async () => {
@@ -1242,12 +1304,11 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("I1:K1"));
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       ...viewport,
-      left: 1,
-      right: 11,
+      left: 0,
+      right: 10,
     });
-    expect(getActiveSheetFullScrollInfo(model)).toMatchObject({
-      scrollX: 96,
-      scrollbarScrollX: 96,
+    expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
+      scrollX: 71,
     });
   });
 
@@ -1355,6 +1416,45 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     await clickCell(model, "Y1", { shiftKey: true });
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
+  });
+
+  test("Partially scrolled (horizontally) cell becomes fully visible when selected with the keyboard", async () => {
+    setViewportOffset(model, DEFAULT_CELL_WIDTH / 2, 0);
+    await clickCell(model, "B1");
+    await nextTick();
+    expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH / 2,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+    await keyDown({ key: "ArrowLeft" });
+    expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH,
+      height: DEFAULT_CELL_HEIGHT,
+    });
+  });
+
+  test("Partially scrolled (vertically) cell becomes fully visible when selected with the keyboard", async () => {
+    const offset = Math.round(DEFAULT_CELL_HEIGHT / 2);
+    setViewportOffset(model, 0, offset);
+    await nextTick();
+    await clickCell(model, "A2"); //++ cassé
+    expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH,
+      height: DEFAULT_CELL_HEIGHT - offset,
+    });
+    await keyDown({ key: "ArrowUp" });
+    expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
+      x: HEADER_WIDTH,
+      y: HEADER_HEIGHT,
+      width: DEFAULT_CELL_WIDTH,
+      height: DEFAULT_CELL_HEIGHT,
+    });
   });
 });
 

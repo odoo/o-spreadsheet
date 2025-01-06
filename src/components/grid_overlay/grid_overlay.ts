@@ -221,7 +221,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       resizeObserver.disconnect();
     });
     useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
       return scrollY > 0;
     });
     this.cellPopovers = useStore(CellPopoverStore);

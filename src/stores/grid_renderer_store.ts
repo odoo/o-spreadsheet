@@ -39,7 +39,6 @@ import {
   Box,
   CellPosition,
   CellValueType,
-  Dimension,
   Getters,
   GridRenderingContext,
   HeaderIndex,
@@ -71,18 +70,6 @@ export class GridRenderer {
 
   get renderingLayers() {
     return ["Background", "Headers"] as const;
-  }
-
-  /**
-   * Get the offset of a header (see getColRowOffsetInViewport), adjusted with the header
-   * size (HEADER_HEIGHT and HEADER_WIDTH)
-   */
-  private getHeaderOffset(dimension: Dimension, start: HeaderIndex, index: HeaderIndex): number {
-    let size = this.getters.getColRowOffsetInViewport(dimension, start, index);
-    if (!this.getters.isDashboard()) {
-      size += dimension === "ROW" ? HEADER_HEIGHT : HEADER_WIDTH;
-    }
-    return size;
   }
 
   // ---------------------------------------------------------------------------
@@ -458,30 +445,42 @@ export class GridRenderer {
     ctx.strokeStyle = HEADER_BORDER_COLOR;
     ctx.stroke();
 
-    ctx.beginPath();
-
     // column text + separator
     for (const col of visibleCols) {
-      const colSize = this.getters.getColSize(sheetId, col);
       const colName = numberToLetters(col);
       ctx.fillStyle = activeCols.has(col) ? "#fff" : TEXT_HEADER_COLOR;
-      let colStart = this.getHeaderOffset("COL", left, col);
+      const zone = { left: col, right: col, top: top, bottom: top };
+      const { x: colStart, width: colSize } = this.getters.getRect(zone);
+      const { x, width } = this.getters.getVisibleRect(zone);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, 0, width, HEADER_HEIGHT);
+      ctx.clip();
       ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
+      ctx.restore();
+      ctx.beginPath();
       ctx.moveTo(colStart + colSize, 0);
       ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
+      ctx.stroke();
     }
+
     // row text + separator
     for (const row of visibleRows) {
-      const rowSize = this.getters.getRowSize(sheetId, row);
       ctx.fillStyle = activeRows.has(row) ? "#fff" : TEXT_HEADER_COLOR;
-
-      let rowStart = this.getHeaderOffset("ROW", top, row);
+      const zone = { top: row, bottom: row, left: left, right: left };
+      const { y: rowStart, height: rowSize } = this.getters.getRect(zone);
+      const { y, height } = this.getters.getVisibleRect(zone);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, y, HEADER_WIDTH, height);
+      ctx.clip();
       ctx.fillText(String(row + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
+      ctx.restore();
+      ctx.beginPath();
       ctx.moveTo(0, rowStart + rowSize);
       ctx.lineTo(HEADER_WIDTH, rowStart + rowSize);
+      ctx.stroke();
     }
-
-    ctx.stroke();
   }
 
   private drawFrozenPanesHeaders(renderingContext: GridRenderingContext) {

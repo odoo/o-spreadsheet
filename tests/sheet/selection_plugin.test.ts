@@ -246,7 +246,8 @@ describe("simple selection", () => {
 
     expect(model.getters.getSelectedZone()).toEqual(toZone(toXC(lastVisibleCol + 3, 0)));
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({
-      scrollX: DEFAULT_CELL_WIDTH * 2,
+      scrollX:
+        (lastVisibleCol + 2) * DEFAULT_CELL_WIDTH - model.getters.getSheetViewDimension().width,
       scrollY: 0,
     });
   });
@@ -273,7 +274,8 @@ describe("simple selection", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone(toXC(0, lastVisibleRow + 3)));
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({
       scrollX: 0,
-      scrollY: DEFAULT_CELL_HEIGHT * 2,
+      scrollY:
+        (lastVisibleRow + 2) * DEFAULT_CELL_HEIGHT - model.getters.getSheetViewDimension().height,
     });
   });
 
