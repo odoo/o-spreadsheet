@@ -12,7 +12,6 @@ import {
 import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
-import { dragAndDropBeyondTheViewportTouch } from "../../helpers/drag_and_drop_touch";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
 
@@ -46,8 +45,8 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   });
 
   get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
+    // of not mobile ,return ['nw', 'ne', 'sw', 'se']
     const z = this.props.range.unboundedZone;
-    //TODORAR get the string instead of zone or the range? maybe range
     if (z.bottom === undefined) {
       return ["w", "e"];
     } else if (z.right === undefined) {
@@ -108,7 +107,7 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
       this.highlightState.shiftingMode = "none";
     };
 
-    dragAndDropBeyondTheViewportTouch(this.env, mouseMove, mouseUp, only);
+    dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp, only);
   }
 
   onMoveHighlight(clientX: Pixel, clientY: Pixel) {
