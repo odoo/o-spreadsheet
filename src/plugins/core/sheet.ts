@@ -425,7 +425,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.getSheet(sheetId).rows.length;
   }
 
-  getNumberHeaders(sheetId: UID, dimension: Dimension) {
+  getNumberHeaders(sheetId: UID, dimension: Dimension): HeaderIndex {
     return dimension === "COL" ? this.getNumberCols(sheetId) : this.getNumberRows(sheetId);
   }
 

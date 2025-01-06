@@ -333,6 +333,7 @@ export class SheetViewPlugin extends UIPlugin {
    * the grid left/top side, snapped to the columns/rows.
    */
   getActiveSheetScrollInfo(): SheetScrollInfo {
+    return this.getActiveSheetDOMScrollInfo();
     const sheetId = this.getters.getActiveSheetId();
     const viewport = this.getMainInternalViewport(sheetId);
     return {

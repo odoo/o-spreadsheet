@@ -112,7 +112,7 @@ export class GridRenderer {
         this.drawFrozenPanes(renderingContext);
         break;
       case "Headers":
-        if (!this.getters.isDashboard()) {
+        {
           this.drawHeaders(renderingContext);
           this.drawFrozenPanesHeaders(renderingContext);
         }
@@ -131,11 +131,6 @@ export class GridRenderer {
 
   private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
-    // const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
-
-    // // white background
-    // ctx.fillStyle = "#ffffff";
-    // ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
 
     const areGridLinesVisible =
       !this.getters.isDashboard() &&
@@ -470,26 +465,41 @@ export class GridRenderer {
 
     // column text + separator
     for (const i of visibleCols) {
-      const colSize = this.getters.getColSize(sheetId, i);
       const colName = numberToLetters(i);
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
-      let colStart = this.getHeaderOffset("COL", left, i);
+      const zone = { left: i, right: i, top: top, bottom: top };
+      const { x: colStart, width: colSize } = this.getters.getRenderingRect(zone);
+      const { x, width } = this.getters.getVisibleRect(zone);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, 0, width, HEADER_HEIGHT);
+      ctx.clip();
       ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
+      ctx.restore();
+      ctx.beginPath();
       ctx.moveTo(colStart + colSize, 0);
       ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
+      ctx.stroke();
     }
-    // row text + separator
-    for (const i of visibleRows) {
-      const rowSize = this.getters.getRowSize(sheetId, i);
-      ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
-      let rowStart = this.getHeaderOffset("ROW", top, i);
+    // row text + separator
+    // should ge the large zone to get the size right ? or just
+    for (const i of visibleRows) {
+      ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
+      const zone = { top: i, bottom: i, left: left, right: left };
+      const { y: rowStart, height: rowSize } = this.getters.getRenderingRect(zone);
+      const { y, height } = this.getters.getVisibleRect(zone);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, y, HEADER_WIDTH, height);
+      ctx.clip();
       ctx.fillText(String(i + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
+      ctx.restore();
+      ctx.beginPath();
       ctx.moveTo(0, rowStart + rowSize);
       ctx.lineTo(HEADER_WIDTH, rowStart + rowSize);
+      ctx.stroke();
     }
-
-    ctx.stroke();
   }
 
   private drawFrozenPanesHeaders(renderingContext: GridRenderingContext) {
@@ -528,6 +538,7 @@ export class GridRenderer {
     const viewport = { left, right, top, bottom };
 
     const rect = this.getters.getVisibleRect(viewport);
+    console.log(rect);
     const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
     const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
