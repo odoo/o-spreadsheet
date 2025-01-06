@@ -1,5 +1,10 @@
 import { toHex } from "../../helpers";
-import { ExcelChartDataset, ExcelChartDefinition } from "../../types";
+import {
+  ExcelChartDataset,
+  ExcelChartDefinition,
+  ExcelChartTrendConfiguration,
+  ExcelTrendlineType,
+} from "../../types";
 import { XLSXChartType, XLSX_CHART_TYPES } from "../../types/xlsx";
 import { CHART_TYPE_CONVERSION_MAP, DRAWING_LEGEND_POSITION_CONVERSION_MAP } from "../conversion";
 import { removeTagEscapedNamespaces } from "../helpers/xml_helpers";
@@ -139,11 +144,46 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
                 required: true,
               })!,
               backgroundColor: color ? `${toHex(color.asString())}` : undefined,
+              trend: this.extractChartTrendline(chartDataElement),
             };
           }
         );
       })
       .flat();
+  }
+
+  private extractChartTrendline(
+    chartDataElement: Element
+  ): ExcelChartTrendConfiguration | undefined {
+    const trendlineElement = this.querySelector(chartDataElement, "c:trendline");
+    if (!trendlineElement) {
+      return undefined;
+    }
+    const trendlineType = this.extractChildAttr(trendlineElement, "c:trendlineType", "val");
+    const trendlineColor = this.extractChildAttr(trendlineElement, "a:solidFill a:srgbClr", "val");
+    let trendlineConfig: ExcelChartTrendConfiguration = {
+      type: trendlineType ? (trendlineType.asString() as ExcelTrendlineType) : undefined,
+      color: trendlineColor ? `${toHex(trendlineColor.asString())}` : undefined,
+    };
+    if (trendlineConfig.type === "poly") {
+      const trendlineOrder = this.extractChildAttr(trendlineElement, "c:order", "val");
+      if (trendlineOrder) {
+        trendlineConfig = {
+          ...trendlineConfig,
+          order: trendlineOrder.asNum(),
+        };
+      }
+    }
+    if (trendlineConfig.type === "movingAvg") {
+      const trendlineWindow = this.extractChildAttr(trendlineElement, "c:period", "val");
+      if (trendlineWindow) {
+        trendlineConfig = {
+          ...trendlineConfig,
+          window: trendlineWindow.asNum(),
+        };
+      }
+    }
+    return trendlineConfig;
   }
 
   private extractScatterChartDatasets(chartElement: Element): ExcelChartDataset[] {

@@ -721,14 +721,22 @@ describe("Import xlsx data", () => {
     [
       "line",
       [
-        { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
+        {
+          dataRange: "Sheet1!B26:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "polynomial", order: 2, display: true },
+        },
         { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
       ],
     ],
     [
       "bar",
       [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#7030A0" },
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "exponential", display: true },
+        },
         { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
       ],
     ],
@@ -741,11 +749,67 @@ describe("Import xlsx data", () => {
 
   test.each([
     [
+      "line",
+      [
+        {
+          dataRange: "Sheet1!B26:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "polynomial", order: 2, display: true },
+        },
+        { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
+      ],
+    ],
+    [
+      "bar",
+      [
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "exponential", display: true },
+        },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
+      ],
+    ],
+    [
+      "bar",
+      [
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "exponential", display: true },
+        },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
+      ],
+    ],
+    [
+      "combo",
+      [
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#1F77B4",
+          trend: { type: "trailingMovingAverage", window: 3, display: true },
+        },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E" },
+      ],
+    ],
+  ])("Can import charts %s with dataset trendlines", (chartType, chartDatasets) => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.data.type === chartType);
+    const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
+    expect(chartData.dataSets).toEqual(chartDatasets);
+  });
+
+  test.each([
+    [
       "bar chart",
       "bar",
       "#fff",
       [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#7030A0" },
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "exponential", display: true },
+        },
         { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
       ],
     ],
@@ -754,7 +818,11 @@ describe("Import xlsx data", () => {
       "combo",
       "#fff",
       [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#1F77B4" },
+        {
+          dataRange: "Sheet1!B27:B35",
+          backgroundColor: "#1F77B4",
+          trend: { type: "trailingMovingAverage", window: 3, display: true },
+        },
         { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E" },
       ],
     ],
@@ -789,7 +857,11 @@ describe("Import xlsx data", () => {
       "line",
       "#CECECE",
       [
-        { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
+        {
+          dataRange: "Sheet1!B26:B35",
+          backgroundColor: "#7030A0",
+          trend: { type: "polynomial", order: 2, display: true },
+        },
         { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
       ],
     ],
