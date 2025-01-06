@@ -12,7 +12,7 @@ import {
   isMatrix,
 } from "../types";
 import { BadExpressionError, EvaluationError, NotAvailableError } from "../types/errors";
-import { addMetaInfoFromArg, validateArguments } from "./arguments";
+import { addMetaInfoFromArg, argTargeting, validateArguments } from "./arguments";
 import { generateMatrix, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
@@ -84,7 +84,7 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
       );
     }
     const descr = addMetaInfoFromArg(addDescr);
-    validateArguments(descr.args);
+    validateArguments(descr.args, descr.nbrArgOptional, descr.nbrArgRepeating);
     this.mapping[name] = createComputeFunction(descr, name);
     super.add(name, descr);
     return this;
@@ -128,9 +128,11 @@ function createComputeFunction(
 
     let vectorArgsType: VectorArgType[] | undefined = undefined;
 
+    const getArgToFocus = argTargeting(descr, args.length);
     //#region Compute vectorisation limits
     for (let i = 0; i < args.length; i++) {
-      const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
+      const argIndex = getArgToFocus(i) ?? -1;
+      const argDefinition = descr.args[argIndex];
       const arg = args[i];
 
       if (isMatrix(arg) && !argDefinition.acceptMatrix) {
@@ -217,7 +219,8 @@ function createComputeFunction(
   ): Matrix<FunctionResultObject> | FunctionResultObject {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
+      const getArgToFocus = argTargeting(descr, args.length);
+      const argDefinition = descr.args[getArgToFocus(i) || i];
 
       // Early exit if the argument is an error and the function does not accept errors
       // We only check scalar arguments, not matrix arguments for performance reasons.

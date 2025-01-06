@@ -42,7 +42,7 @@ css/* scss */ `
 interface Props {
   functionName: string;
   functionDescription: FunctionDescription;
-  argToFocus: number;
+  argsToFocus: number[];
 }
 
 export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChildEnv> {
@@ -50,7 +50,7 @@ export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChi
   static props = {
     functionName: String,
     functionDescription: Object,
-    argToFocus: Number,
+    argsToFocus: Array<Number>,
   };
 
   getContext(): Props {

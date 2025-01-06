@@ -4,6 +4,7 @@ import { functionRegistry } from "../../../functions/index";
 import { clip, setColorAlpha } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { argTargeting } from "../../../functions/arguments";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
@@ -137,7 +138,7 @@ interface FunctionDescriptionState {
   showDescription: boolean;
   functionName: string;
   functionDescription: FunctionDescription;
-  argToFocus: number;
+  argsToFocus: number[];
 }
 
 export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> {
@@ -179,7 +180,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     showDescription: false,
     functionName: "",
     functionDescription: {} as FunctionDescription,
-    argToFocus: 0,
+    argsToFocus: [],
   });
   assistant = useState({
     forcedClosed: false,
@@ -712,7 +713,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
    * the autocomplete engine otherwise we initialize the formula assistant.
    */
   private processTokenAtCursor(): void {
-    let content = this.props.composerStore.currentContent;
+    const composerStore = this.props.composerStore;
+    let content = composerStore.currentContent;
     if (this.autoCompleteState.provider) {
       this.autoCompleteState.hide();
     }
@@ -735,13 +737,76 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         // initialize Formula Assistant
         const description = functions[parentFunction];
         const argPosition = tokenContext.argPosition;
+        const nbrArgSupplied = tokenContext.args.length;
 
         this.functionDescriptionState.functionName = parentFunction;
         this.functionDescriptionState.functionDescription = description;
-        this.functionDescriptionState.argToFocus = description.getArgToFocus(argPosition + 1) - 1;
+
+        const isParenthesisClosed = !!this.props.composerStore.currentTokens.find(
+          (t) => t.type === "RIGHT_PAREN" && t.parenthesesCode === token.parenthesesCode
+        );
+
+        this.functionDescriptionState.argsToFocus = this.getArgsToFocus(
+          isParenthesisClosed,
+          description,
+          nbrArgSupplied,
+          argPosition
+        );
+
         this.functionDescriptionState.showDescription = true;
       }
     }
+  }
+
+  /**
+   * Compute the argument to focus depending on the current value position.
+   *
+   * This function is useful to indicate in the functionDescriptionState which argument should be focused.
+   * Normally, 'argTargeting' is used to compute the argument to focus, but in the composer,
+   * we don't yet know how many arguments the user will supply.
+   *
+   * This function will compute all the possible arguments to focus for different numbers of arguments supplied.
+   */
+  private getArgsToFocus(
+    isParenthesisClosed: boolean,
+    description: FunctionDescription,
+    nbrArgSupplied: number,
+    argPosition: number
+  ): number[] {
+    // When the parenthesis is closed, we consider the user is done with the function,
+    // so we know exactly the number of arguments supplied.
+
+    if (isParenthesisClosed) {
+      const focusedArg = argTargeting(
+        description,
+        Math.max(Math.min(description.maxArgPossible, nbrArgSupplied), description.minArgRequired)
+      )(argPosition);
+      return focusedArg !== undefined ? [focusedArg] : [];
+    }
+
+    // Otherwise, the user is still typing the formula, so we don't know yet how many arguments the user will supply.
+    // Consequently, we need to compute not only the argument to focus for the current number of arguments supplied
+    // but also for all the possible numbers of arguments supplied.
+
+    const minArgsNumberPossibility = Math.max(nbrArgSupplied, description.minArgRequired);
+    const maxArgsNumberPossibility = description.nbrArgRepeating
+      ? description.minArgRequired +
+        Math.ceil(
+          (minArgsNumberPossibility - description.minArgRequired) / description.nbrArgRepeating
+        ) *
+          description.nbrArgRepeating +
+        description.nbrArgOptional
+      : description.maxArgPossible;
+
+    const argsToFocus: number[] = [];
+    for (let i = minArgsNumberPossibility; i <= maxArgsNumberPossibility; i++) {
+      const focusedArg = argTargeting(description, i)(argPosition);
+      if (focusedArg !== undefined) {
+        argsToFocus.push(focusedArg);
+      }
+    }
+
+    return [...new Set(argsToFocus)];
   }
 
   private autoComplete(value: string) {
