@@ -1,4 +1,3 @@
-import { _t } from "../translation";
 import { AddFunctionDescription, ArgDefinition, ArgType, FunctionDescription } from "../types";
 
 //------------------------------------------------------------------------------
@@ -84,10 +83,14 @@ function makeArg(str: string, description: string): ArgDefinition {
  *
  * This information is useful during compilation.
  */
-export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDescription {
+export function addMetaInfoFromArg(
+  name: string,
+  addDescr: AddFunctionDescription
+): FunctionDescription {
   let countArg = 0;
   let minArg = 0;
   let repeatingArg = 0;
+  let optionalArg = 0;
   for (let arg of addDescr.args) {
     countArg++;
     if (!arg.optional && !arg.repeating && !arg.default) {
@@ -96,56 +99,166 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
     if (arg.repeating) {
       repeatingArg++;
     }
+    if (arg.optional || arg.default) {
+      optionalArg++;
+    }
   }
   const descr = addDescr as FunctionDescription;
   descr.minArgRequired = minArg;
   descr.maxArgPossible = repeatingArg ? Infinity : countArg;
   descr.nbrArgRepeating = repeatingArg;
-  descr.getArgToFocus = argTargeting(countArg, repeatingArg);
+  descr.nbrArgOptional = optionalArg;
   descr.hidden = addDescr.hidden || false;
+  descr.name = name;
 
   return descr;
 }
 
+type ArgToFocus = (argPosition: number) => number | undefined;
+const cacheArgTargeting: Record<string, Record<number, ArgToFocus>> = {};
+
 /**
- * Returns a function allowing finding which argument corresponds a position
- * in a function. This is particularly useful for functions with repeatable
- * arguments.
+ * Returns a function that maps the position of a value in a function to its corresponding argument index.
  *
- * Indeed the function makes it possible to etablish corespondance between
- * arguments when the number of arguments supplied is greater than the number of
- * arguments defined by the function.
+ * In most cases, the task is straightforward:
  *
- * Ex:
+ * In the formula "=SUM(11, 55, 66)" which is defined like this "SUM(value1, [value2, ...])":
+ * - 11 corresponds to the value1 argument => position will be 0
+ * - 55 and 66 correspond to the [value2, ...] argument => position will be 1
  *
- * in the formula "=SUM(11, 55, 66)" which is defined like this "SUM(value1, [value2, ...])"
- * - 11 corresponds to the value1 argument => position will be 1
- * - 55 corresponds to the [value2, ...] argument => position will be 2
- * - 66 corresponds to the [value2, ...] argument => position will be 2
+ * In other cases, optional arguments could be defined after repeatable arguments,
+ * or even optional and required arguments could be mixed in unconventional ways.
  *
- * in the formula "=AVERAGE.WEIGHTED(1, 2, 3, 4, 5, 6)" which is defined like this
- * "AVERAGE.WEIGHTED(values, weights, [additional_values, ...], [additional_weights, ...])"
- * - 1 corresponds to the values argument => position will be 1
- * - 2 corresponds to the weights argument => position will be 2
- * - 3 corresponds to the [additional_values, ...] argument => position will be 3
- * - 4 corresponds to the [additional_weights, ...] argument => position will be 4
- * - 5 corresponds to the [additional_values, ...] argument => position will be 3
- * - 6 corresponds to the [additional_weights, ...] argument => position will be 4
+ * The next function has been designed to handle all possible configurations.
+ * The only restriction is if repeatable arguments are present in the function definition:
+ * - they must be defined consecutively
+ * - they must be in a quantity greater than the optional arguments.
+ *
+ * The markdown tables below illustrate how values are mapped to positions based on the number of values supplied.
+ * Each table represents a different function configuration, with columns representing the number of values supplied as arguments
+ * and rows representing the correspondence with the argument index.
+ *
+ * The tables are built based on the following conventions:
+ * - `m`: Mandatory argument
+ * - `o`: Optional argument
+ * - `r`: Repeating argument
+ *
+ *
+ * Configuration 1: (m, o) like the CEILING function
+ *
+ * |   | 1 | 2 |
+ * |---|---|---|
+ * | m | 0 | 0 |
+ * | o |   | 1 |
+ *
+ *
+ * Configuration 2: (m, m, m, r, r) like the SUMIFS function
+ *
+ * |   | 3 | 5 | 7    | 3 + 2n     |
+ * |---|---|---|------|------------|
+ * | m | 0 | 0 | 0    | 0          |
+ * | m | 1 | 1 | 1    | 1          |
+ * | m | 2 | 2 | 2    | 2          |
+ * | r |   | 3 | 3, 5 | 3 + 2n     |
+ * | r |   | 4 | 4, 6 | 3 + 2n + 1 |
+ *
+ *
+ * Configuration 3: (m, m, m, r, r, o) like the SWITCH function
+ *
+ * |   | 3 | 4 | 5 | 6 | 7    | 8    | 3 + 2n     | 3 + 2n + 1     |
+ * |---|---|---|---|---|------|------|------------|----------------|
+ * | m | 0 | 0 | 0 | 0 | 0    | 0    | 0          | 0              |
+ * | m | 1 | 1 | 1 | 1 | 1    | 1    | 1          | 1              |
+ * | m | 2 | 2 | 2 | 2 | 2    | 2    | 2          | 2              |
+ * | r |   |   | 3 | 3 | 3, 5 | 3, 5 | 3 + 2n     | 3 + 2n         |
+ * | r |   |   | 4 | 4 | 4, 6 | 4, 6 | 3 + 2n + 1 | 3 + 2n + 1     |
+ * | o |   | 3 |   | 5 |      | 7    |            | 3 + 2N + 2     |
+ *
+ *
+ * Configuration 4: (m, o, m, o, r, r, r, m) a complex case to understand subtleties
+ *
+ * |   | 3 | 4 | 5 | 6 | 7 | 8 | 9    | 10   | 11   | ... |
+ * |---|---|---|---|---|---|---|------|------|------|-----|
+ * | m | 0 | 0 | 0 | 0 | 0 | 0 | 0    | 0    | 0    | ... |
+ * | o |   | 1 | 1 |   | 1 | 1 |      | 1    | 1    | ... |
+ * | m | 1 | 2 | 2 | 1 | 2 | 2 | 1    | 2    | 2    | ... |
+ * | o |   |   | 3 |   |   | 3 |      |      | 3    | ... |
+ * | r |   |   |   | 2 | 3 | 4 | 2, 5 | 3, 6 | 4, 7 | ... |
+ * | r |   |   |   | 3 | 4 | 5 | 3, 6 | 4, 7 | 5, 8 | ... |
+ * | r |   |   |   | 4 | 5 | 6 | 4, 7 | 5, 8 | 6, 9 | ... |
+ * | m | 2 | 3 | 4 | 5 | 6 | 7 | 8    | 9    | 10   | ... |
+ *
  */
-function argTargeting(countArg, repeatingArg): (argPosition: number) => number {
-  if (!repeatingArg) {
-    return (argPosition) => argPosition;
+export function argTargeting(
+  functionDescription: FunctionDescription,
+  nbrArgSupplied: number
+): ArgToFocus {
+  const functionName = functionDescription.name;
+  const result = cacheArgTargeting[functionName]?.[nbrArgSupplied];
+  if (result) {
+    return result;
   }
-  if (repeatingArg === 1) {
-    return (argPosition) => Math.min(argPosition, countArg);
+  if (!cacheArgTargeting[functionName]) {
+    cacheArgTargeting[functionName] = {};
   }
-  const argBeforeRepeat = countArg - repeatingArg;
-  return (argPosition) => {
-    if (argPosition <= argBeforeRepeat) {
-      return argPosition;
+  if (!cacheArgTargeting[functionName][nbrArgSupplied]) {
+    cacheArgTargeting[functionName][nbrArgSupplied] = _argTargeting(
+      functionDescription,
+      nbrArgSupplied
+    );
+  }
+  return cacheArgTargeting[functionName][nbrArgSupplied];
+}
+
+export function _argTargeting(
+  functionDescription: FunctionDescription,
+  nbrArgSupplied: number
+): ArgToFocus {
+  const valueIndexToArgPosition: Record<number, number> = {};
+  const groupsOfRepeatingValues = functionDescription.nbrArgRepeating
+    ? Math.floor(
+        (nbrArgSupplied - functionDescription.minArgRequired) / functionDescription.nbrArgRepeating
+      )
+    : 0;
+  const nbrValueRepeating = functionDescription.nbrArgRepeating * groupsOfRepeatingValues;
+  const nbrValueOptional = nbrArgSupplied - functionDescription.minArgRequired - nbrValueRepeating;
+
+  let countValueSupplied = 0;
+  let countValueOptional = 0;
+
+  for (let i = 0; i < functionDescription.args.length; i++) {
+    const arg = functionDescription.args[i];
+
+    if (arg.optional || arg.default) {
+      if (countValueOptional < nbrValueOptional) {
+        valueIndexToArgPosition[countValueSupplied] = i;
+        countValueSupplied++;
+      }
+      countValueOptional++;
+      continue;
     }
-    const argAfterRepeat = (argPosition - argBeforeRepeat) % repeatingArg || repeatingArg;
-    return argBeforeRepeat + argAfterRepeat;
+
+    if (arg.repeating) {
+      // As we know all repeating arguments are consecutive,
+      // --> we will treat all repeating arguments in one go
+      // --> the index i will be incremented by the number of repeating values at the end of the loop
+      for (let j = 0; j < groupsOfRepeatingValues; j++) {
+        for (let k = 0; k < functionDescription.nbrArgRepeating; k++) {
+          valueIndexToArgPosition[countValueSupplied] = i + k;
+          countValueSupplied++;
+        }
+      }
+      i += functionDescription.nbrArgRepeating - 1;
+      continue;
+    }
+
+    // End case: it's a required argument
+    valueIndexToArgPosition[countValueSupplied] = i;
+    countValueSupplied++;
+  }
+
+  return (argPosition: number) => {
+    return valueIndexToArgPosition[argPosition];
   };
 }
 
@@ -153,37 +266,30 @@ function argTargeting(countArg, repeatingArg): (argPosition: number) => number {
 // Argument validation
 //------------------------------------------------------------------------------
 
-export function validateArguments(args: ArgDefinition[]) {
-  let previousArgRepeating: boolean | undefined = false;
-  let previousArgOptional: boolean | undefined = false;
-  let previousArgDefault: boolean | undefined = false;
-  for (let current of args) {
+export function validateArguments(descr: FunctionDescription) {
+  if (descr.nbrArgRepeating && descr.nbrArgOptional >= descr.nbrArgRepeating) {
+    throw new Error(`Function ${descr.name} has more optional arguments than repeatable ones.`);
+  }
+
+  let foundRepeating = false;
+  let consecutiveRepeating = false;
+  for (let current of descr.args) {
     if (current.type.includes("META") && current.type.length > 1) {
       throw new Error(
-        _t(
-          "Function ${name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone."
-        )
+        `Function ${descr.name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone.`
       );
     }
 
-    if (previousArgRepeating && !current.repeating) {
-      throw new Error(
-        _t(
-          "Function ${name} has no-repeatable arguments declared after repeatable ones. All repeatable arguments must be declared last."
-        )
-      );
+    if (current.repeating) {
+      if (!consecutiveRepeating && foundRepeating) {
+        throw new Error(
+          `Function ${descr.name} has non-consecutive repeating arguments. All repeating arguments must be declared consecutively.`
+        );
+      }
+      foundRepeating = true;
+      consecutiveRepeating = true;
+    } else {
+      consecutiveRepeating = false;
     }
-    const previousIsOptional = previousArgOptional || previousArgRepeating || previousArgDefault;
-    const currentIsntOptional = !(current.optional || current.repeating || current.default);
-    if (previousIsOptional && currentIsntOptional) {
-      throw new Error(
-        _t(
-          "Function ${name} has at mandatory arguments declared after optional ones. All optional arguments must be after all mandatory arguments."
-        )
-      );
-    }
-    previousArgRepeating = current.repeating;
-    previousArgOptional = current.optional;
-    previousArgDefault = current.default;
   }
 }

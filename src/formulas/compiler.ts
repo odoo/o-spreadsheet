@@ -1,4 +1,5 @@
 import { Token } from ".";
+import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/index";
 import { parseNumber, removeStringQuotes, unquote } from "../helpers";
 import { _t } from "../translation";
@@ -125,9 +126,10 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
 
       const compiledArgs: FunctionCode[] = [];
 
+      const argToFocus = argTargeting(functionDefinition, args.length);
+
       for (let i = 0; i < args.length; i++) {
-        const argToFocus = functionDefinition.getArgToFocus(i + 1) - 1;
-        const argDefinition = functionDefinition.args[argToFocus];
+        const argDefinition = functionDefinition.args[argToFocus(i) ?? -1];
         const currentArg = args[i];
         const argTypes = argDefinition.type || [];
 
@@ -316,43 +318,53 @@ function formulaArguments(tokens: Token[]) {
  * Check if arguments are supplied in the correct quantities
  */
 function assertEnoughArgs(ast: ASTFuncall) {
-  const nbrArg = ast.args.length;
+  const nbrArgSupplied = ast.args.length;
   const functionName = ast.value.toUpperCase();
   const functionDefinition = functions[functionName];
+  const { nbrArgRepeating, minArgRequired } = functionDefinition;
 
-  if (nbrArg < functionDefinition.minArgRequired) {
+  if (nbrArgSupplied < minArgRequired) {
     throw new BadExpressionError(
       _t(
-        "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
-        functionName,
-        functionDefinition.minArgRequired.toString(),
-        nbrArg.toString()
+        "Invalid number of arguments for the %(functionName)s function. Expected %(minArgRequired)s minimum, but got %(nbrArgSupplied)s instead.",
+        {
+          functionName,
+          minArgRequired,
+          nbrArgSupplied,
+        }
       )
     );
   }
 
-  if (nbrArg > functionDefinition.maxArgPossible) {
+  if (nbrArgSupplied > functionDefinition.maxArgPossible) {
     throw new BadExpressionError(
       _t(
-        "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
-        functionName,
-        functionDefinition.maxArgPossible.toString(),
-        nbrArg.toString()
+        "Invalid number of arguments for the %(functionName)s function. Expected %(maxArgPossible)s maximum, but got %(nbrArgSupplied)s instead.",
+        {
+          functionName,
+          maxArgPossible: functionDefinition.maxArgPossible,
+          nbrArgSupplied,
+        }
       )
     );
   }
 
-  const repeatableArgs = functionDefinition.nbrArgRepeating;
-  if (repeatableArgs > 1) {
-    const unrepeatableArgs = functionDefinition.args.length - repeatableArgs;
-    const repeatingArgs = nbrArg - unrepeatableArgs;
-    if (repeatingArgs % repeatableArgs !== 0) {
+  if (nbrArgRepeating > 1) {
+    const nbrValueRepeating =
+      nbrArgRepeating * Math.floor((nbrArgSupplied - minArgRequired) / nbrArgRepeating);
+    const nbrValueRemaining =
+      nbrArgSupplied - minArgRequired - nbrValueRepeating - functionDefinition.nbrArgOptional;
+
+    if (nbrValueRemaining > 0) {
       throw new BadExpressionError(
         _t(
-          "Invalid number of arguments for the %s function. Expected all arguments after position %s to be supplied by groups of %s arguments",
-          functionName,
-          unrepeatableArgs.toString(),
-          repeatableArgs.toString()
+          "Invalid number of arguments for the %(functionName)s function. Repeatable arguments should be supplied in groups of %(nbrArgRepeating)s, with up to %(nbrArgOptional)s optional. Got %(nbrValueRemaining)s too many.",
+          {
+            functionName,
+            nbrArgRepeating,
+            nbrArgOptional: functionDefinition.nbrArgOptional,
+            nbrValueRemaining,
+          }
         )
       );
     }

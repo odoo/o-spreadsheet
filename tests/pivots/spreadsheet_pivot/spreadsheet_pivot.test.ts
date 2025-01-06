@@ -1275,7 +1275,7 @@ describe("Spreadsheet Pivot", () => {
     // missing header value
     setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date:month_number")');
     expect(getEvaluatedCell(model, "A31").message).toBe(
-      "Invalid number of arguments for the PIVOT.HEADER function. Expected all arguments after position 1 to be supplied by groups of 2 arguments"
+      "Invalid number of arguments for the PIVOT.HEADER function. Repeatable arguments should be supplied in groups of 2, with up to 0 optional. Got 1 too many."
     );
 
     // without granularity
