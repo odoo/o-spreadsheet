@@ -45,10 +45,11 @@ export interface AddFunctionDescription {
 }
 
 export type FunctionDescription = AddFunctionDescription & {
+  name: string;
   minArgRequired: number;
   maxArgPossible: number;
   nbrArgRepeating: number;
-  getArgToFocus: (argPosition: number) => number;
+  nbrArgOptional: number;
 };
 
 export type EvalContext = {

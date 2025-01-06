@@ -1,4 +1,9 @@
-import { addMetaInfoFromArg, arg, validateArguments } from "../../src/functions/arguments";
+import {
+  addMetaInfoFromArg,
+  arg,
+  argTargeting,
+  validateArguments,
+} from "../../src/functions/arguments";
 import { AddFunctionDescription } from "../../src/types";
 
 describe("args", () => {
@@ -121,59 +126,63 @@ describe("args", () => {
 });
 
 describe("arguments validation", () => {
+  const aRandomFunction: Omit<AddFunctionDescription, "args"> = {
+    description: "a random function",
+    compute: () => 0,
+  };
+
+  function validateArgsDefinition(definitions: string[]) {
+    const args = definitions.map((def) => arg(def));
+    const descr = addMetaInfoFromArg("functionName", { ...aRandomFunction, args });
+    return validateArguments(descr);
+  }
+
   test("'META' type can only be declared alone", () => {
-    expect(() => validateArguments([arg("metaArg (meta)")])).not.toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, optional)")])).not.toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, repeating)")])).not.toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta)"])).not.toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, optional)"])).not.toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, repeating)"])).not.toThrow();
 
-    expect(() => validateArguments([arg("metaArg (meta, any)")])).toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, range)")])).toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, number)")])).toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, string)")])).toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, boolean)")])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, any)"])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, range)"])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, number)"])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, string)"])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, boolean)"])).toThrow();
   });
 
-  test("All repeatable arguments must be declared last", () => {
+  test("All repeatable arguments must be declared consecutively", () => {
+    expect(() => validateArgsDefinition(["arg1 (any)", "arg2 (any, repeating)"])).not.toThrow();
     expect(() =>
-      validateArguments([arg("arg1 (any)"), arg("arg2 (any, repeating)")])
+      validateArgsDefinition(["arg1 (any)", "arg2 (any, repeating)", "arg3 (any, repeating)"])
     ).not.toThrow();
     expect(() =>
-      validateArguments([
-        arg("arg1 (any)"),
-        arg("arg2 (any, repeating)"),
-        arg("arg3 (any, repeating)"),
+      validateArgsDefinition(["arg1 (any)", "arg2 (any, repeating)", "arg3 (any)"])
+    ).not.toThrow();
+    expect(() =>
+      validateArgsDefinition([
+        "arg1 (any)",
+        "arg2 (any, repeating)",
+        "arg3 (any, optional)",
+        "arg4 (any, repeating)",
       ])
-    ).not.toThrow();
-    expect(() =>
-      validateArguments([arg("arg1 (any)"), arg("arg2 (any, repeating)"), arg("arg3 (any)")])
     ).toThrow();
     expect(() =>
-      validateArguments([
-        arg("arg1 (any)"),
-        arg("arg2 (any, repeating)"),
-        arg("arg3 (any, optional)"),
-      ])
+      validateArgsDefinition(["arg1 (any, repeating)", "arg2 (any)", "arg3 (any, repeating)"])
     ).toThrow();
   });
 
-  test("All optional arguments must be after all mandatory arguments", () => {
+  test("If repeatable arguments --> The number of repeatable arguments must be greater than the number of optional arguments", () => {
+    expect(() => validateArgsDefinition(["arg1 (any)", "arg2 (any, optional)"])).not.toThrow();
     expect(() =>
-      validateArguments([
-        arg("arg1 (any)"),
-        arg("arg2 (any, optional)"),
-        arg("arg3 (any, optional)"),
-      ])
-    ).not.toThrow();
-    expect(() =>
-      validateArguments([
-        arg("arg1 (any)"),
-        arg("arg2 (any, optional)"),
-        arg("arg3 (any, repeating)"),
-      ])
-    ).not.toThrow();
-    expect(() =>
-      validateArguments([arg("arg1 (any)"), arg("arg2 (any, optional)"), arg("arg3 (any)")])
+      validateArgsDefinition(["arg1 (any)", "arg2 (any, optional)", "arg3 (any, repeating)"])
     ).toThrow();
+    expect(() =>
+      validateArgsDefinition([
+        "arg1 (any)",
+        "arg2 (any, optional)",
+        "arg3 (any, repeating)",
+        "arg4 (any, repeating)",
+      ])
+    ).not.toThrow();
   });
 });
 
@@ -190,16 +199,15 @@ describe("function addMetaInfoFromArg", () => {
       ],
     } as AddFunctionDescription;
 
-    const descr = addMetaInfoFromArg(basicFunction);
+    const descr = addMetaInfoFromArg("basicFunction", basicFunction);
     expect(descr.minArgRequired).toBe(2);
     expect(descr.maxArgPossible).toBe(2);
     expect(descr.nbrArgRepeating).toBe(0);
+    expect(descr.nbrArgOptional).toBe(0);
 
-    const getArgToFocus = descr.getArgToFocus!;
-    expect(getArgToFocus(-1)).toBe(-1);
+    const getArgToFocus = argTargeting(descr, 2);
+    expect(getArgToFocus(0)).toBe(0);
     expect(getArgToFocus(1)).toBe(1);
-    expect(getArgToFocus(2)).toBe(2);
-    expect(getArgToFocus(42)).toBe(42);
   });
 
   test("with optional arguments", () => {
@@ -214,16 +222,18 @@ describe("function addMetaInfoFromArg", () => {
       ],
     } as AddFunctionDescription;
 
-    const descr = addMetaInfoFromArg(useOptional);
+    const descr = addMetaInfoFromArg("useOptional", useOptional);
     expect(descr.minArgRequired).toBe(1);
     expect(descr.maxArgPossible).toBe(2);
     expect(descr.nbrArgRepeating).toBe(0);
+    expect(descr.nbrArgOptional).toBe(1);
 
-    const getArgToFocus = descr.getArgToFocus!;
-    expect(getArgToFocus(-1)).toBe(-1);
-    expect(getArgToFocus(1)).toBe(1);
-    expect(getArgToFocus(2)).toBe(2);
-    expect(getArgToFocus(42)).toBe(42);
+    const getArgToFocusOnOneArg = argTargeting(descr, 1);
+    expect(getArgToFocusOnOneArg(0)).toBe(0);
+
+    const getArgToFocusOnTwoArgs = argTargeting(descr, 2);
+    expect(getArgToFocusOnTwoArgs(0)).toBe(0);
+    expect(getArgToFocusOnTwoArgs(1)).toBe(1);
   });
 
   test("with repeatable argument", () => {
@@ -238,16 +248,20 @@ describe("function addMetaInfoFromArg", () => {
       ],
     } as AddFunctionDescription;
 
-    const descr = addMetaInfoFromArg(useRepeatable);
+    const descr = addMetaInfoFromArg("useRepeatable", useRepeatable);
     expect(descr.minArgRequired).toBe(1);
     expect(descr.maxArgPossible).toBe(Infinity);
     expect(descr.nbrArgRepeating).toBe(1);
+    expect(descr.nbrArgOptional).toBe(0);
 
-    const getArgToFocus = descr.getArgToFocus!;
-    expect(getArgToFocus(-1)).toBe(-1);
-    expect(getArgToFocus(1)).toBe(1);
-    expect(getArgToFocus(2)).toBe(2);
-    expect(getArgToFocus(42)).toBe(2);
+    const getArgToFocusOnOneArg = argTargeting(descr, 1);
+    expect(getArgToFocusOnOneArg(0)).toBe(0);
+
+    const getArgToFocusOnSeveralArgs = argTargeting(descr, 42);
+    expect(getArgToFocusOnSeveralArgs(0)).toBe(0);
+    expect(getArgToFocusOnSeveralArgs(1)).toBe(1);
+    expect(getArgToFocusOnSeveralArgs(20)).toBe(1);
+    expect(getArgToFocusOnSeveralArgs(41)).toBe(1);
   });
 
   test("with more than one repeatable argument", () => {
@@ -263,17 +277,244 @@ describe("function addMetaInfoFromArg", () => {
       ],
     } as AddFunctionDescription;
 
-    const descr = addMetaInfoFromArg(useRepeatables);
+    const descr = addMetaInfoFromArg("useRepeatables1", useRepeatables);
     expect(descr.minArgRequired).toBe(1);
     expect(descr.maxArgPossible).toBe(Infinity);
     expect(descr.nbrArgRepeating).toBe(2);
+    expect(descr.nbrArgOptional).toBe(0);
 
-    const getArgToFocus = descr.getArgToFocus!;
-    expect(getArgToFocus(-1)).toBe(-1);
+    const getArgToFocus = argTargeting(descr, 42);
+    expect(getArgToFocus(0)).toBe(0);
     expect(getArgToFocus(1)).toBe(1);
     expect(getArgToFocus(2)).toBe(2);
-    expect(getArgToFocus(3)).toBe(3);
-    expect(getArgToFocus(5)).toBe(3);
-    expect(getArgToFocus(8)).toBe(2);
+    expect(getArgToFocus(4)).toBe(2);
+    expect(getArgToFocus(7)).toBe(1);
+  });
+
+  test("with optional arg after repeatable argument", () => {
+    // like the SWITCH function
+    const useRepeatables = {
+      description: "function with many repeatable argument",
+      compute: (arg) => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"] },
+        { name: "arg2", description: "", type: ["ANY"], repeating: true },
+        { name: "arg3", description: "", type: ["ANY"], repeating: true },
+        { name: "arg4", description: "", type: ["ANY"], optional: true },
+      ],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg("useRepeatables2", useRepeatables);
+    expect(descr.minArgRequired).toBe(1);
+    expect(descr.maxArgPossible).toBe(Infinity);
+    expect(descr.nbrArgRepeating).toBe(2);
+    expect(descr.nbrArgOptional).toBe(1);
+
+    const getArgToFocus_1 = argTargeting(descr, 1);
+    expect(getArgToFocus_1(0)).toBe(0);
+
+    const getArgToFocus_3 = argTargeting(descr, 3);
+    expect(getArgToFocus_3(0)).toBe(0);
+    expect(getArgToFocus_3(1)).toBe(1);
+    expect(getArgToFocus_3(2)).toBe(2);
+
+    const getArgToFocus_4 = argTargeting(descr, 4);
+    expect(getArgToFocus_4(0)).toBe(0);
+    expect(getArgToFocus_4(1)).toBe(1);
+    expect(getArgToFocus_4(2)).toBe(2);
+    expect(getArgToFocus_4(3)).toBe(3);
+
+    const getArgToFocus_5 = argTargeting(descr, 5);
+    expect(getArgToFocus_5(0)).toBe(0);
+    expect(getArgToFocus_5(1)).toBe(1);
+    expect(getArgToFocus_5(2)).toBe(2);
+    expect(getArgToFocus_5(3)).toBe(1);
+    expect(getArgToFocus_5(4)).toBe(2);
+  });
+
+  test("with 2 optionals arg after 3 repeatable arguments", () => {
+    // like the SWITCH function
+    const useRepeatables = {
+      description: "function with many repeatable argument",
+      compute: (arg) => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"] },
+        { name: "arg2", description: "", type: ["ANY"], repeating: true },
+        { name: "arg3", description: "", type: ["ANY"], repeating: true },
+        { name: "arg4", description: "", type: ["ANY"], repeating: true },
+        { name: "arg5", description: "", type: ["ANY"], optional: true },
+        { name: "arg6", description: "", type: ["ANY"], optional: true },
+      ],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg("useRepeatables3", useRepeatables);
+    expect(descr.minArgRequired).toBe(1);
+    expect(descr.maxArgPossible).toBe(Infinity);
+    expect(descr.nbrArgRepeating).toBe(3);
+    expect(descr.nbrArgOptional).toBe(2);
+
+    const getArgToFocus_1 = argTargeting(descr, 1);
+    expect(getArgToFocus_1(0)).toBe(0);
+
+    const getArgToFocus_5 = argTargeting(descr, 5);
+    expect(getArgToFocus_5(0)).toBe(0);
+    expect(getArgToFocus_5(1)).toBe(1);
+    expect(getArgToFocus_5(2)).toBe(2);
+    expect(getArgToFocus_5(3)).toBe(3);
+    expect(getArgToFocus_5(4)).toBe(4);
+
+    const getArgToFocus_8 = argTargeting(descr, 8);
+    expect(getArgToFocus_8(0)).toBe(0);
+    expect(getArgToFocus_8(1)).toBe(1);
+    expect(getArgToFocus_8(2)).toBe(2);
+    expect(getArgToFocus_8(3)).toBe(3);
+    expect(getArgToFocus_8(4)).toBe(1);
+    expect(getArgToFocus_8(5)).toBe(2);
+    expect(getArgToFocus_8(6)).toBe(3);
+    expect(getArgToFocus_8(7)).toBe(4);
+  });
+
+  test("with required arg after repeatable argument", () => {
+    // like the SWITCH function
+    const useRepeatables = {
+      description: "function with many repeatable argument",
+      compute: (arg) => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"] },
+        { name: "arg2", description: "", type: ["ANY"], repeating: true },
+        { name: "arg3", description: "", type: ["ANY"], repeating: true },
+        { name: "arg4", description: "", type: ["ANY"] },
+      ],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg("useRepeatables4", useRepeatables);
+    expect(descr.minArgRequired).toBe(2);
+    expect(descr.maxArgPossible).toBe(Infinity);
+    expect(descr.nbrArgRepeating).toBe(2);
+    expect(descr.nbrArgOptional).toBe(0);
+
+    const getArgToFocus_2 = argTargeting(descr, 2);
+    expect(getArgToFocus_2(0)).toBe(0);
+    expect(getArgToFocus_2(1)).toBe(3);
+
+    const getArgToFocus_4 = argTargeting(descr, 4);
+    expect(getArgToFocus_4(0)).toBe(0);
+    expect(getArgToFocus_4(1)).toBe(1);
+    expect(getArgToFocus_4(2)).toBe(2);
+    expect(getArgToFocus_4(3)).toBe(3);
+
+    const getArgToFocus_6 = argTargeting(descr, 6);
+    expect(getArgToFocus_6(0)).toBe(0);
+    expect(getArgToFocus_6(1)).toBe(1);
+    expect(getArgToFocus_6(2)).toBe(2);
+    expect(getArgToFocus_6(3)).toBe(1);
+    expect(getArgToFocus_6(4)).toBe(2);
+    expect(getArgToFocus_6(5)).toBe(3);
+  });
+
+  test("with required arg after optional argument", () => {
+    // like the SWITCH function
+    const useRepeatables = {
+      description: "function with many repeatable argument",
+      compute: (arg) => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"] },
+        { name: "arg2", description: "", type: ["ANY"], optional: true },
+        { name: "arg3", description: "", type: ["ANY"], optional: true },
+        { name: "arg4", description: "", type: ["ANY"] },
+      ],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg("useRepeatables5", useRepeatables);
+    expect(descr.minArgRequired).toBe(2);
+    expect(descr.maxArgPossible).toBe(4);
+    expect(descr.nbrArgRepeating).toBe(0);
+    expect(descr.nbrArgOptional).toBe(2);
+
+    const getArgToFocus_2 = argTargeting(descr, 2);
+    expect(getArgToFocus_2(0)).toBe(0);
+    expect(getArgToFocus_2(1)).toBe(3);
+
+    const getArgToFocus_3 = argTargeting(descr, 3);
+    expect(getArgToFocus_3(0)).toBe(0);
+    expect(getArgToFocus_3(1)).toBe(1);
+    expect(getArgToFocus_3(2)).toBe(3);
+
+    const getArgToFocus_4 = argTargeting(descr, 4);
+    expect(getArgToFocus_4(0)).toBe(0);
+    expect(getArgToFocus_4(1)).toBe(1);
+    expect(getArgToFocus_4(2)).toBe(2);
+    expect(getArgToFocus_4(3)).toBe(3);
+  });
+
+  test("a random case", () => {
+    // like the SWITCH function
+    const useRepeatables = {
+      description: "function with many repeatable argument",
+      compute: (arg) => {
+        return true;
+      },
+      args: [
+        { name: "arg1", description: "", type: ["ANY"], optional: true },
+        { name: "arg2", description: "", type: ["ANY"] },
+        { name: "arg3", description: "", type: ["ANY"], optional: true },
+        { name: "arg4", description: "", type: ["ANY"] },
+        { name: "arg5", description: "", type: ["ANY"], repeating: true },
+        { name: "arg6", description: "", type: ["ANY"], repeating: true },
+        { name: "arg7", description: "", type: ["ANY"], repeating: true },
+        { name: "arg8", description: "", type: ["ANY"], repeating: true },
+        { name: "arg9", description: "", type: ["ANY"], optional: true },
+        { name: "arg10", description: "", type: ["ANY"] },
+      ],
+    } as AddFunctionDescription;
+
+    const descr = addMetaInfoFromArg("useRepeatables6", useRepeatables);
+    expect(descr.minArgRequired).toBe(3);
+    expect(descr.maxArgPossible).toBe(Infinity);
+    expect(descr.nbrArgRepeating).toBe(4);
+    expect(descr.nbrArgOptional).toBe(3);
+
+    const getArgToFocus_3 = argTargeting(descr, 3);
+    expect(getArgToFocus_3(0)).toBe(1);
+    expect(getArgToFocus_3(1)).toBe(3);
+    expect(getArgToFocus_3(2)).toBe(9);
+
+    const getArgToFocus_4 = argTargeting(descr, 4);
+    expect(getArgToFocus_4(0)).toBe(0);
+    expect(getArgToFocus_4(1)).toBe(1);
+    expect(getArgToFocus_4(2)).toBe(3);
+    expect(getArgToFocus_4(3)).toBe(9);
+
+    const getArgToFocus_5 = argTargeting(descr, 5);
+    expect(getArgToFocus_5(0)).toBe(0);
+    expect(getArgToFocus_5(1)).toBe(1);
+    expect(getArgToFocus_5(2)).toBe(2);
+    expect(getArgToFocus_5(3)).toBe(3);
+    expect(getArgToFocus_5(4)).toBe(9);
+
+    const getArgToFocus_6 = argTargeting(descr, 6);
+    expect(getArgToFocus_6(0)).toBe(0);
+    expect(getArgToFocus_6(1)).toBe(1);
+    expect(getArgToFocus_6(2)).toBe(2);
+    expect(getArgToFocus_6(3)).toBe(3);
+    expect(getArgToFocus_6(4)).toBe(8);
+    expect(getArgToFocus_6(5)).toBe(9);
+
+    const getArgToFocus_7 = argTargeting(descr, 7);
+    expect(getArgToFocus_7(0)).toBe(1);
+    expect(getArgToFocus_7(1)).toBe(3);
+    expect(getArgToFocus_7(2)).toBe(4);
+    expect(getArgToFocus_7(3)).toBe(5);
+    expect(getArgToFocus_7(4)).toBe(6);
+    expect(getArgToFocus_7(5)).toBe(7);
+    expect(getArgToFocus_7(6)).toBe(9);
   });
 });
