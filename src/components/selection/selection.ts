@@ -3,7 +3,7 @@ import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../constants";
 import { clip, isEqual } from "../../helpers";
 import { Color, HeaderIndex, ResizeDirection, SpreadsheetChildEnv, Zone } from "../../types";
 import { css } from "../helpers/css";
-import { dragAndDropBeyondTheViewportTouch } from "../helpers/drag_and_drop_touch";
+import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { Corner } from "../highlight/corner/corner";
 
 css/*SCSS*/ `
@@ -126,6 +126,6 @@ export class Selection extends Component<Props, SpreadsheetChildEnv> {
       this.selectionState.shiftingMode = "none";
     };
 
-    dragAndDropBeyondTheViewportTouch(this.env, mouseMove, mouseUp, only);
+    dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp, only);
   }
 }
