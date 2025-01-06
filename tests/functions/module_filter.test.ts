@@ -852,26 +852,18 @@ describe("SORTN function", () => {
     ]);
   });
 
-  test("Full sorting with multiple columns using default parameters", () => {
-    //prettier-ignore
+  test("Accept at least two arguments", () => {
+    // @compatibility: Google Sheets requires at least one argument only.
+    // Here, depending on the implementation, they couldn't have more (or equal) optional arguments than repeatable arguments.
     const grid = {
-       A1: "1",  B1: "1",  C1: "1",
-       A2: "2",  B2: "1",  C2: "2",
-       A3: "3",  B3: "2",  C3: "1",
-       A4: "1",  B4: "3",  C4: "3",
-       A5: "2",  B5: "3",  C5: "1",
-       A6: "4",  B6: "2",  C6: "1",
-       A7: "3",  B7: "4",  C7: "4",
-       A8: "2",  B8: "1",  C8: "1",
-       A9: "4",  B9: "1",  C9: "2",
-      A10: "2", B10: "1", C10: "1",
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "1",
+      A5: "2",
+      A6: "2",
     };
-    const model = createModelFromGrid(grid);
-    setCellContent(model, "A11", "=SORTN(A1:C10)");
-    expect(getRangeValuesAsMatrix(model, "A11:C12")).toEqual([
-      [1, 1, 1],
-      [null, null, null],
-    ]);
+    expect(evaluateCell("A7", { A7: "=SORTN(A1:A6)", ...grid })).toBe("#BAD_EXPR");
   });
 
   test("Full sorting with different display ties modes", () => {
@@ -916,6 +908,32 @@ describe("SORTN function", () => {
       [2, 3, 1],
       [2, 3, 1],
       [null, null, null],
+    ]);
+  });
+
+  test("When 4 values supplied, the 3th value and 4th value correspond to the 4th and 5th arguments", () => {
+    // see 'argTargeting' to understand how the arguments are targeted
+    //prettier-ignore
+    const grid = {
+      A1: "1",  B1: "1",  C1: "1",
+      A2: "2",  B2: "1",  C2: "2",
+      A3: "3",  B3: "2",  C3: "1",
+      A4: "1",  B4: "3",  C4: "3",
+      A5: "2",  B5: "3",  C5: "1",
+      A6: "2",  B6: "3",  C6: "1",
+      A7: "3",  B7: "4",  C7: "4",
+      A8: "2",  B8: "1",  C8: "1",
+      A9: "4",  B9: "1",  C9: "2",
+     A10: "2", B10: "1", C10: "1",
+   };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C10, 5, 2, true)");
+    expect(getRangeValuesAsMatrix(model, "A11:C15")).toEqual([
+      [1, 1, 1],
+      [2, 1, 2],
+      [2, 1, 1],
+      [4, 1, 2],
+      [2, 1, 1],
     ]);
   });
 

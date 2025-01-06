@@ -163,11 +163,11 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
         pushTokenToFunctionContext(token);
         break;
       case "ARG_SEPARATOR":
-        pushTokenToFunctionContext(token);
         if (stack.length) {
           // increment position on current function
           stack[stack.length - 1].argPosition++;
         }
+        pushTokenToFunctionContext(token);
         break;
       default:
         pushTokenToFunctionContext(token);
@@ -208,8 +208,8 @@ function addArgsAST(tokens: EnrichedToken[]): EnrichedToken[] {
       }
       for (const argTokens of argsTokens) {
         let tokens = argTokens;
-        if (tokens.at(-1)?.type === "ARG_SEPARATOR") {
-          tokens = tokens.slice(0, -1);
+        if (tokens.at(0)?.type === "ARG_SEPARATOR") {
+          tokens = tokens.slice(1);
         }
         try {
           args.push(parseTokens(tokens));
