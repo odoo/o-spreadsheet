@@ -39,7 +39,6 @@ import {
   Box,
   CellPosition,
   CellValueType,
-  Dimension,
   Getters,
   GridRenderingContext,
   HeaderIndex,
@@ -71,18 +70,6 @@ export class GridRenderer {
 
   get renderingLayers() {
     return ["Background", "Headers"] as const;
-  }
-
-  /**
-   * Get the offset of a header (see getColRowOffsetInViewport), adjusted with the header
-   * size (HEADER_HEIGHT and HEADER_WIDTH)
-   */
-  private getHeaderOffset(dimension: Dimension, start: HeaderIndex, index: HeaderIndex): number {
-    let size = this.getters.getColRowOffsetInViewport(dimension, start, index);
-    if (!this.getters.isDashboard()) {
-      size += dimension === "ROW" ? HEADER_HEIGHT : HEADER_WIDTH;
-    }
-    return size;
   }
 
   // ---------------------------------------------------------------------------
@@ -538,7 +525,6 @@ export class GridRenderer {
     const viewport = { left, right, top, bottom };
 
     const rect = this.getters.getVisibleRect(viewport);
-    console.log(rect);
     const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
     const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
