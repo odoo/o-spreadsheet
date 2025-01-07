@@ -23,6 +23,7 @@ describe("pie chart", () => {
       axesDesign: {},
       fillArea: true,
       showValues: false,
+      funnelColors: [],
     };
     const definition = PieChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

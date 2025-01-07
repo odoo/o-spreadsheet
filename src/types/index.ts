@@ -8,7 +8,7 @@
  * - interface GridState: the internal type of the state managed by the model
  */
 
-import { Chart } from "chart.js";
+import Chart from "chart.js";
 import * as ChartGeo from "chartjs-chart-geo";
 
 export * from "./autofill";
@@ -38,7 +38,7 @@ export * from "./workbook_data";
 
 declare global {
   interface Window {
-    Chart: typeof Chart;
+    Chart: typeof Chart & typeof Chart.Chart;
     ChartGeo: typeof ChartGeo;
   }
 }

@@ -5,6 +5,7 @@ import { deepCopy } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
+import { FunnelChartController, FunnelChartElement } from "./chartjs_funnel_chart";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
@@ -14,6 +15,7 @@ interface Props {
 
 window.Chart?.register(waterfallLinesPlugin);
 window.Chart?.register(chartShowValuesPlugin);
+window.Chart?.register(FunnelChartController, FunnelChartElement);
 
 css/* scss */ `
   .o-spreadsheet {

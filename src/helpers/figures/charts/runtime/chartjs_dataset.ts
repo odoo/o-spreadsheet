@@ -11,6 +11,8 @@ import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../.
 import {
   BarChartDefinition,
   ChartWithDataSetDefinition,
+  FunnelChartColors,
+  FunnelChartDefinition,
   LineChartDefinition,
   PieChartDefinition,
   ScatterChartDefinition,
@@ -331,6 +333,39 @@ export function getGeoChartDatasets(
   }
 
   return [dataset];
+}
+
+export function getFunnelChartDatasets(
+  definition: FunnelChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartDataset<"bar">[] {
+  const dataSetsValues = args.dataSetsValues[0];
+  const labels = args.labels;
+  if (!dataSetsValues) {
+    return [];
+  }
+
+  let { label: datasetLabel, data } = dataSetsValues;
+  datasetLabel = definition.dataSets?.[0].label || datasetLabel;
+
+  const dataset: ChartDataset<"bar"> = {
+    label: datasetLabel,
+    data: data.map((value) => (value <= 0 ? [0, 0] : [-value, value])),
+    backgroundColor: getFunnelLabelColors(labels, definition.funnelColors),
+    yAxisID: "y",
+    xAxisID: "x",
+    barPercentage: 1,
+    categoryPercentage: 1,
+    borderColor: definition.background || BACKGROUND_CHART_COLOR,
+    borderWidth: 3,
+  };
+
+  return [dataset];
+}
+
+export function getFunnelLabelColors(labels: string[], colors?: FunnelChartColors): Color[] {
+  const colorGenerator = new ColorGenerator(labels.length, colors);
+  return labels.map(() => colorGenerator.next());
 }
 
 function getTrendingLineDataSet(
