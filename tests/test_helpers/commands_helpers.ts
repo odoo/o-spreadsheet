@@ -31,6 +31,7 @@ import {
 import { target, toRangeData, toRangesData } from "./helpers";
 
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
+import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
 import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
@@ -238,6 +239,12 @@ export function createRadarChart(
 
 export function createWaterfallChart(model: Model, def?: Partial<WaterfallChartDefinition>): UID {
   createChart(model, { ...def, type: "waterfall" });
+  const sheetId = model.getters.getActiveSheetId();
+  return model.getters.getChartIds(sheetId)[0];
+}
+
+export function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinition>): UID {
+  createChart(model, { ...def, type: "funnel" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
 }

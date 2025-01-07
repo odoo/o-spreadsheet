@@ -97,6 +97,7 @@ describe("datasource tests", function () {
       axesDesign: {},
       fillArea: true,
       showValues: false,
+      funnelColors: [],
     };
     const definition = ScorecardChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

@@ -5,6 +5,7 @@ import { ScorecardChart as ScorecardChartComponent } from "../components/figures
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
 import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
+import { FunnelChart, createFunnelChartRuntime } from "../helpers/figures/charts/funnel_chart";
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
 import { GeoChart, createGeoChartRuntime } from "../helpers/figures/charts/geo_chart";
 import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
@@ -43,6 +44,7 @@ import {
   ChartType,
 } from "../types/chart/chart";
 import { ComboChartDefinition } from "../types/chart/combo_chart";
+import { FunnelChartDefinition } from "../types/chart/funnel_chart";
 import { GeoChartDefinition } from "../types/chart/geo_chart";
 import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
 import { RadarChartDefinition } from "../types/chart/radar_chart";
@@ -192,6 +194,16 @@ chartRegistry.add("geo", {
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
   sequence: 90,
 });
+chartRegistry.add("funnel", {
+  match: (type) => type === "funnel",
+  createChart: (definition, sheetId, getters) =>
+    new FunnelChart(definition as FunnelChartDefinition, sheetId, getters),
+  getChartRuntime: createFunnelChartRuntime,
+  validateChartDefinition: FunnelChart.validateChartDefinition,
+  transformDefinition: FunnelChart.transformDefinition,
+  getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
+  sequence: 100,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -205,6 +217,7 @@ chartComponentRegistry.add("waterfall", ChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);
 chartComponentRegistry.add("radar", ChartJsComponent);
 chartComponentRegistry.add("geo", ChartJsComponent);
+chartComponentRegistry.add("funnel", ChartJsComponent);
 
 type ChartUICategory = keyof typeof chartCategories;
 
@@ -398,4 +411,11 @@ chartSubtypeRegistry
     chartType: "geo",
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.GEO_CHART",
+  })
+  .add("funnel", {
+    displayName: _t("Funnel"),
+    chartSubtype: "funnel",
+    chartType: "funnel",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.FUNNEL_CHART",
   });

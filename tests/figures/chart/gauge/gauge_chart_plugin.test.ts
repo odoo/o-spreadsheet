@@ -133,6 +133,7 @@ describe("datasource tests", function () {
       axesDesign: {},
       fillArea: true,
       showValues: false,
+      funnelColors: [],
     };
     const definition = GaugeChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
