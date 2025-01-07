@@ -21,7 +21,6 @@ exports[`Grid integration can display error tooltip 1`] = `
     </div>
     
     
-    
   </div>
 </div>
 `;

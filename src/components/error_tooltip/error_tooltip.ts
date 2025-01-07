@@ -1,7 +1,6 @@
 import { Component } from "@odoo/owl";
 import { deepEquals, positionToZone } from "../../helpers";
-import { _t } from "../../translation";
-import { CellPosition, CellValueType, EvaluatedCell, SpreadsheetChildEnv } from "../../types";
+import { CellPosition, CellValueType, SpreadsheetChildEnv } from "../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 import { css } from "../helpers/css";
 
@@ -24,14 +23,8 @@ css/* scss */ `
   }
 `;
 
-export interface ErrorToolTipMessage {
-  title: string;
-  message: string;
-}
-
 interface ErrorToolTipProps {
   cellPosition: CellPosition;
-  errors: ErrorToolTipMessage[];
   onClosed?: () => void;
 }
 
@@ -40,9 +33,12 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
   static template = "o-spreadsheet-ErrorToolTip";
   static props = {
     cellPosition: Object,
-    errors: Array,
     onClosed: { type: Function, optional: true },
   };
+
+  get dataValidationErrorMessage() {
+    return this.env.model.getters.getInvalidDataValidationMessage(this.props.cellPosition);
+  }
 
   get evaluationError() {
     const cell = this.env.model.getters.getEvaluatedCell(this.props.cellPosition);
@@ -84,32 +80,19 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
 export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {
     const cell = getters.getEvaluatedCell(position);
-    const errors: ErrorToolTipMessage[] = [];
-    let evaluationError: EvaluatedCell | undefined;
-    if (cell.type === CellValueType.error && !!cell.message) {
-      evaluationError = cell;
+    if (
+      (cell.type === CellValueType.error && !!cell.message) ||
+      getters.getInvalidDataValidationMessage(position)
+    ) {
+      return {
+        isOpen: true,
+        props: {
+          cellPosition: position,
+        },
+        Component: ErrorToolTip,
+        cellCorner: "TopRight",
+      };
     }
-
-    const validationErrorMessage = getters.getInvalidDataValidationMessage(position);
-    if (validationErrorMessage) {
-      errors.push({
-        title: _t("Invalid"),
-        message: validationErrorMessage,
-      });
-    }
-
-    if (!errors.length && !evaluationError) {
-      return { isOpen: false };
-    }
-
-    return {
-      isOpen: true,
-      props: {
-        cellPosition: position,
-        errors,
-      },
-      Component: ErrorToolTip,
-      cellCorner: "TopRight",
-    };
+    return { isOpen: false };
   },
 };
