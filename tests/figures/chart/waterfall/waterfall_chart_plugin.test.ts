@@ -314,6 +314,7 @@ describe("Waterfall chart", () => {
       axesDesign: {},
       fillArea: true,
       showValues: false,
+      funnelColors: [],
     };
     const definition = WaterfallChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

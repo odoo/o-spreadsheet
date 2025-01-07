@@ -216,6 +216,27 @@ export function getGeoChartTooltip(
   };
 }
 
+export function getFunnelChartTooltip(
+  definition: GenericDefinition<BarChartDefinition>,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  return {
+    enabled: false,
+    external: customTooltipHandler,
+    position: "funnelTooltipPositioner",
+    callbacks: {
+      title: () => "",
+      beforeLabel: (tooltipItem) => tooltipItem.label,
+      label: function (tooltipItem) {
+        const yLabel = tooltipItem.parsed.x;
+        const axisId = tooltipItem.dataset.xAxisID;
+        const yLabelStr = formatChartDatasetValue(args.axisFormats, args.locale)(yLabel, axisId);
+        return yLabelStr;
+      },
+    },
+  };
+}
+
 function calculatePercentage(
   dataset: (number | [number, number] | Point | BubbleDataPoint | null)[],
   dataIndex: number

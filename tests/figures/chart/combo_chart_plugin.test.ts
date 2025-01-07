@@ -29,6 +29,7 @@ describe("combo chart", () => {
       axesDesign: {},
       fillArea: true,
       showValues: false,
+      funnelColors: [],
     };
     const definition = ComboChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

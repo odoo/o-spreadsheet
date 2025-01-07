@@ -30,6 +30,7 @@ describe("radar chart", () => {
       axesDesign: {},
       fillArea: true,
       showValues: true,
+      funnelColors: [],
     };
     const definition = RadarChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
