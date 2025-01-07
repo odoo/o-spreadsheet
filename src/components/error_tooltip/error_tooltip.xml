@@ -16,12 +16,10 @@
           </div>
         </div>
       </t>
-      <t t-foreach="props.errors" t-as="error" t-key="error_index">
-        <div class="o-error-tooltip-title fw-bold text-danger">
-          <t t-esc="error.title"/>
-        </div>
+      <t t-if="dataValidationErrorMessage">
+        <div class="o-error-tooltip-title fw-bold text-danger">Invalid</div>
         <div class="o-error-tooltip-message">
-          <t t-esc="error.message"/>
+          <t t-esc="dataValidationErrorMessage"/>
         </div>
       </t>
     </div>
