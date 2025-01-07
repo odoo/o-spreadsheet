@@ -8,3 +8,4 @@ export * from "./pyramid_chart";
 export * from "./scatter_chart";
 export * from "./scorecard_chart";
 export * from "./waterfall_chart";
+export * from "./yolo_funnel_chart";

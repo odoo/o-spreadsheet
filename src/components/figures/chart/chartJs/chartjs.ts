@@ -2,6 +2,7 @@ import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/ow
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
+import { FunnelChartController } from "../../../../types/chart";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
@@ -12,6 +13,7 @@ interface Props {
 
 window.Chart?.register(waterfallLinesPlugin);
 window.Chart?.register(chartShowValuesPlugin);
+window.Chart?.register(FunnelChartController);
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";

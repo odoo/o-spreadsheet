@@ -3,6 +3,7 @@ import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
 import { LegendPosition } from "./common_chart";
+import { FunnelChartDefinition, FunnelChartRuntime } from "./funnel_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { GeoChartDefinition, GeoChartRuntime } from "./geo_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
@@ -25,6 +26,7 @@ export const CHART_TYPES = [
   "pyramid",
   "radar",
   "geo",
+  "funnel",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -39,7 +41,8 @@ export type ChartDefinition =
   | WaterfallChartDefinition
   | PyramidChartDefinition
   | RadarChartDefinition
-  | GeoChartDefinition;
+  | GeoChartDefinition
+  | FunnelChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
@@ -55,7 +58,8 @@ export type ChartJSRuntime =
   | WaterfallChartRuntime
   | PyramidChartRuntime
   | RadarChartRuntime
-  | GeoChartRuntime;
+  | GeoChartRuntime
+  | FunnelChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 

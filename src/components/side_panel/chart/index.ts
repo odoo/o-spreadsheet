@@ -76,4 +76,8 @@ chartSidePanelComponentRegistry
   .add("geo", {
     configuration: GeoChartConfigPanel,
     design: GeoChartDesignPanel,
+  })
+  .add("funnel", {
+    configuration: GenericChartConfigPanel,
+    design: ChartWithAxisDesignPanel,
   });
