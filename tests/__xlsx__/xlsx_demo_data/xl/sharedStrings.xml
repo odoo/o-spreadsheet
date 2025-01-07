@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="457" uniqueCount="409">
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="464" uniqueCount="414">
   <si>
     <t>CF =42</t>
   </si>
@@ -1227,5 +1227,20 @@
   </si>
   <si>
     <t>NotHidden</t>
+  </si>
+  <si>
+    <t>Total table</t>
+  </si>
+  <si>
+    <t>Column of table of other sheet</t>
+  </si>
+  <si>
+    <t>Multiple columns total</t>
+  </si>
+  <si>
+    <t>Multiple Columns</t>
+  </si>
+  <si>
+    <t>Multiple keywords</t>
   </si>
 </sst>
