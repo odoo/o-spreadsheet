@@ -110,11 +110,12 @@ export function getLineChartScales(
       ...(scales.x as any),
       display: false,
     };
-    if (axisType === "category") {
+    if (axisType === "category" || axisType === "time") {
       /* We add a second x axis here to draw the trend lines, with the labels length being
        * set so that the second axis points match the classical x axis
        */
       const maxLength = Math.max(...trendDatasets.map((trendDataset) => trendDataset?.length || 0));
+      scales[TREND_LINE_XAXIS_ID]!["type"] = "category";
       scales[TREND_LINE_XAXIS_ID]!["labels"] = range(0, maxLength).map((x) => x.toString());
       scales[TREND_LINE_XAXIS_ID]!["offset"] = false;
     }
