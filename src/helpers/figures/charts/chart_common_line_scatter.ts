@@ -405,10 +405,11 @@ export function createLineOrScatterChartRuntime(
       ...xAxis,
       display: false,
     };
-    if (axisType === "category") {
+    if (axisType === "category" || axisType === "time") {
       /* We add a second x axis here to draw the trend lines, with the labels length being
        * set so that the second axis points match the classical x axis
        */
+      config.options.scales[TREND_LINE_XAXIS_ID]["type"] = "category";
       config.options.scales[TREND_LINE_XAXIS_ID]["labels"] = range(0, maxLength).map((x) =>
         x.toString()
       );
