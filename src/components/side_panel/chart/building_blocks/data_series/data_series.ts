@@ -29,7 +29,7 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     return this.props.ranges.map((r) => r.dataRange);
   }
 
-  get colors(): (Color | undefined)[] {
+  getColors(): (Color | undefined)[] {
     return this.props.ranges.map((r) => r.backgroundColor);
   }
 

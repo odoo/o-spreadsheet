@@ -46,7 +46,7 @@ interface Props {
   onSelectionReordered?: (indexes: number[]) => void;
   onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed?: () => void;
-  colors?: Color[];
+  colors?: () => Color[];
 }
 
 type SelectionRangeEditMode = "select-range" | "text-edit";
@@ -81,7 +81,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     onSelectionConfirmed: { type: Function, optional: true },
     onSelectionReordered: { type: Function, optional: true },
     onSelectionRemoved: { type: Function, optional: true },
-    colors: { type: Array, optional: true, default: [] },
+    colors: { type: Function, optional: true },
   };
   private state: State = useState({
     isMissing: false,
@@ -121,7 +121,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       SelectionInputStore,
       this.props.ranges,
       this.props.hasSingleRange || false,
-      this.props.colors
+      this.props.colors || (() => [])
     );
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
@@ -165,6 +165,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
           this.store.selectionInputs.map((range) => draggedItems.indexOf(range.id))
         );
         this.props.onSelectionConfirmed?.();
+        this.store.confirm();
       },
     });
   }

@@ -9,7 +9,7 @@
         onSelectionConfirmed="props.onSelectionConfirmed"
         onSelectionReordered="props.onSelectionReordered"
         onSelectionRemoved="props.onSelectionRemoved"
-        colors="colors"
+        colors.bind="getColors"
       />
     </Section>
   </t>
