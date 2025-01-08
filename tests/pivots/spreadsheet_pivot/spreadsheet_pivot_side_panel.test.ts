@@ -528,6 +528,12 @@ describe("Spreadsheet pivot side panel", () => {
     setViewportOffset(model, 0, 1000);
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+    expect(mockNotify).toHaveBeenCalledTimes(0);
+
+    // add a static pivot in the viewport
+    setCellContent(model, "A50", "=PIVOT.VALUE(1)");
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
     expect(mockNotify).toHaveBeenCalledWith({
       text: "Pivot updates only work with dynamic pivot tables. Use =PIVOT(1) or re-insert the static pivot from the Data menu.",
       sticky: false,
