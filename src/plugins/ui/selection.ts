@@ -645,7 +645,7 @@ export class GridSelectionPlugin extends UIPlugin {
     state.paste(pasteTarget, { selectTarget: true });
 
     const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
-    let currentIndex = cmd.base;
+    let currentIndex = isBasedBefore ? cmd.base : cmd.base + 1;
     for (const element of toRemove) {
       const size =
         cmd.dimension === "COL"
