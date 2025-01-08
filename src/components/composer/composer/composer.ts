@@ -17,7 +17,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { isCtrlKey, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
@@ -534,7 +534,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     this.contentHelper.removeSelection();
   }
 
-  onClick() {
+  onClick(ev: MouseEvent) {
     if (this.env.model.getters.isReadonly()) {
       return;
     }
@@ -545,6 +545,28 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
     this.props.composerStore.changeComposerCursorSelection(newSelection.start, newSelection.end);
     this.processTokenAtCursor();
+    const target = ev.target as HTMLElement;
+    const tokenAtCursor = this.props.composerStore.tokenAtCursor;
+    if (isCtrlKey(ev) && tokenAtCursor?.type === "REFERENCE") {
+      console.log("Ctrl + Click", target.innerText);
+      const range = this.env.model.getters.getRangeFromSheetXC(
+        this.props.composerStore.sheetId,
+        tokenAtCursor.value
+      );
+      const activeSheetId = this.env.model.getters.getActiveSheetId();
+      if (range.sheetId !== activeSheetId) {
+        this.env.model.dispatch("ACTIVATE_SHEET", {
+          sheetIdFrom: activeSheetId,
+          sheetIdTo: range.sheetId,
+        });
+      }
+      this.props.composerStore.stopComposerRangeSelection();
+      const zone = range.zone;
+      this.env.model.selection.selectZone({
+        cell: { row: zone.top, col: zone.left },
+        zone,
+      });
+    }
   }
 
   onDblClick() {
