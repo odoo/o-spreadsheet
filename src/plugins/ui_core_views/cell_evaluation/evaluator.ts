@@ -366,11 +366,15 @@ export class Evaluator {
     );
 
     if (!isMatrix(formulaReturn)) {
-      return createEvaluatedCell(
+      const evaluatedCell = createEvaluatedCell(
         nullValueToZeroValue(formulaReturn),
         this.getters.getLocale(),
         cellData
       );
+      if (evaluatedCell.type === CellValueType.error) {
+        evaluatedCell.errorOriginPosition = formulaReturn.errorOriginPosition ?? formulaPosition;
+      }
+      return evaluatedCell;
     }
 
     this.assertSheetHasEnoughSpaceToSpreadFormulaResult(formulaPosition, formulaReturn);
@@ -494,6 +498,9 @@ export class Evaluator {
         this.getters.getLocale(),
         cell
       );
+      if (evaluatedCell.type === CellValueType.error) {
+        evaluatedCell.errorOriginPosition = matrixResult[i][j].errorOriginPosition ?? position;
+      }
       this.evaluatedCells.set(position, evaluatedCell);
     };
     return spreadValues;

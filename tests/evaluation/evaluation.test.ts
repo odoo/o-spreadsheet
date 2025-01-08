@@ -22,7 +22,12 @@ import {
   getCellError,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import { evaluateCell, evaluateGrid, restoreDefaultFunctions } from "../test_helpers/helpers";
+import {
+  evaluateCell,
+  evaluateGrid,
+  restoreDefaultFunctions,
+  toCellPosition,
+} from "../test_helpers/helpers";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -1086,8 +1091,51 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "C1")).toBe("Invalid expression");
   });
 
-  // TO DO: add tests for exp format (ex: 4E10)
-  // RO DO: add tests for DATE string format (ex match: "28 02 2020")
+  test("error original position from the cell itself", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "=0/0");
+    expect(getEvaluatedCell(model, "A1").errorOriginPosition).toEqual(
+      toCellPosition(sheetId, "A1")
+    );
+  });
+
+  test("error original position from simple references", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "=0/0");
+    setCellContent(model, "A2", "=A1");
+    setCellContent(model, "A3", "=A2");
+    const A1 = toCellPosition(sheetId, "A1");
+    expect(getEvaluatedCell(model, "A2").errorOriginPosition).toEqual(A1);
+    expect(getEvaluatedCell(model, "A3").errorOriginPosition).toEqual(A1);
+  });
+
+  test("error original position from a range reference", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=0/0");
+    setCellContent(model, "A3", "=MAX(A1:A2)");
+    expect(getEvaluatedCell(model, "A3").errorOriginPosition).toEqual(
+      toCellPosition(sheetId, "A2")
+    );
+  });
+
+  test("error original position in a spilled result", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "=0/0");
+    setCellContent(model, "A3", "=TRANSPOSE(A1:A2)");
+    setCellContent(model, "A4", "=TRANSPOSE(A3:B3)");
+    expect(getEvaluatedCell(model, "B3").errorOriginPosition).toEqual(
+      toCellPosition(sheetId, "A2")
+    );
+    expect(getEvaluatedCell(model, "A5").errorOriginPosition).toEqual(
+      toCellPosition(sheetId, "A2")
+    );
+  });
 });
 
 describe("evaluate formula getter", () => {
