@@ -584,7 +584,7 @@ export class GridSelectionPlugin extends UIPlugin {
     this.setSelectionMixin({ zone: selection, cell: { col, row } }, [selection]);
 
     const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
-    let currentIndex = cmd.base;
+    let currentIndex = isBasedBefore ? cmd.base : cmd.base + 1;
 
     const resizingGroups: Record<number, number[]> = {};
 
