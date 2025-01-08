@@ -1,4 +1,5 @@
 import { deepCopy, deepEquals } from "../../../../helpers";
+import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
 import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
 import { Get } from "../../../../store_engine";
@@ -140,7 +141,11 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         pivot: this.draft,
       });
       this.draft = null;
-      if (!this.alreadyNotified && !this.isDynamicPivotInViewport()) {
+      if (
+        !this.alreadyNotified &&
+        !this.isDynamicPivotInViewport() &&
+        this.isStaticPivotInViewport()
+      ) {
         const formulaId = this.getters.getPivotFormulaId(this.pivotId);
         const pivotExample = `=PIVOT(${formulaId})`;
         this.alreadyNotified = true;
@@ -210,6 +215,19 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       for (const row of this.getters.getSheetViewVisibleRows()) {
         const isDynamicPivot = this.getters.isSpillPivotFormula({ sheetId, col, row });
         if (isDynamicPivot) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private isStaticPivotInViewport() {
+    for (const position of this.getters.getVisibleCellPositions()) {
+      const cell = this.getters.getCell(position);
+      if (cell?.isFormula) {
+        const pivotFunction = getFirstPivotFunction(cell.compiledFormula.tokens);
+        if (pivotFunction && pivotFunction.functionName !== "PIVOT") {
           return true;
         }
       }
