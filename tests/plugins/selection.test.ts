@@ -1072,22 +1072,30 @@ describe("move elements(s)", () => {
     const model = new Model();
     resizeColumns(model, ["A"], 10);
     resizeColumns(model, ["C"], 20);
-    moveColumns(model, "D", ["A"]);
+    moveColumns(model, "C", ["A"], "after");
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getColSize(sheetId, 0)).toEqual(DEFAULT_CELL_WIDTH);
     expect(model.getters.getColSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
+    moveColumns(model, "A", ["C"], "before");
+    expect(model.getters.getColSize(sheetId, 0)).toEqual(10);
+    expect(model.getters.getColSize(sheetId, 1)).toEqual(DEFAULT_CELL_WIDTH);
+    expect(model.getters.getColSize(sheetId, 2)).toEqual(20);
   });
 
   test("Move a resized row preserves its size", () => {
     const model = new Model();
     resizeRows(model, [0], 10);
     resizeRows(model, [2], 20);
-    moveRows(model, 3, [0]);
+    moveRows(model, 2, [0], "after");
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(10);
+    moveRows(model, 0, [2], "before");
+    expect(model.getters.getRowSize(sheetId, 0)).toEqual(10);
+    expect(model.getters.getRowSize(sheetId, 1)).toEqual(DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(20);
   });
 
   test("Can move a column to the end of the sheet", () => {
