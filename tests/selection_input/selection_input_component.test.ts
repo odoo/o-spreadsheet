@@ -228,6 +228,28 @@ describe("Selection Input", () => {
     );
   });
 
+  test("update of colors are taken into account", async () => {
+    // This test aims to check if the colors are updated when the colors function is updated.
+    // This kind of update can comes when removing a range from the selectionInput for the
+    // data series of a chart, as the color of the removed range won't be passed anymore to
+    // the colors function in the chart's side panel's props.
+    let colors = ["#FF0000", "#00FF00"];
+    await createSelectionInput({
+      initialRanges: ["A1", "B1"],
+      colors: colors,
+    });
+    simulateClick(fixture.querySelectorAll("input")[0]);
+    await nextTick();
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color:#FF0000; ");
+    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color:#00FF00; ");
+    colors[0] = "#0000FF";
+    colors[1] = "#FF00FF";
+    simulateClick(fixture.querySelectorAll("input")[1]);
+    await nextTick();
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color:#0000FF; ");
+    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color:#FF00FF; ");
+  });
+
   test("can select full column as unbounded zone by clicking on header", async () => {
     const { model } = await createSelectionInput();
     model.selection.selectColumn(3, "overrideSelection");

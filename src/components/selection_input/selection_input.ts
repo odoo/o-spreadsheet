@@ -133,6 +133,12 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       ) {
         this.store.resetWithRanges(nextProps.ranges);
       }
+      if (
+        nextProps.colors?.join() !== this.props.colors?.join() &&
+        nextProps.colors?.join() !== this.store.colors.join()
+      ) {
+        this.store.updateColors(nextProps.colors || []);
+      }
     });
   }
 
@@ -165,6 +171,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
           this.store.selectionInputs.map((range) => draggedItems.indexOf(range.id))
         );
         this.props.onSelectionConfirmed?.();
+        this.store.confirm();
       },
     });
   }
