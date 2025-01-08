@@ -63,7 +63,7 @@ function convertFigure(
 }
 
 function isChartData(data: ExcelChartDefinition | ExcelImage): data is ExcelChartDefinition {
-  return "dataSets" in data;
+  return "dataSets" in data && data.dataSets.length > 0;
 }
 
 function isImageData(data: ExcelChartDefinition | ExcelImage): data is ExcelImage {
