@@ -65,23 +65,17 @@ export class ClickableCellsStore extends SpreadsheetStore {
     const cells: ClickableCell[] = [];
     const getters = this.getters;
     const sheetId = getters.getActiveSheetId();
-    for (const col of getters.getSheetViewVisibleCols()) {
-      for (const row of getters.getSheetViewVisibleRows()) {
-        const position = { sheetId, col, row };
-        if (!getters.isMainCellPosition(position)) {
-          continue;
-        }
-        const action = this.getClickableAction(position);
-        if (!action) {
-          continue;
-        }
-        const zone = getters.expandZone(sheetId, positionToZone(position));
-        cells.push({
-          coordinates: getters.getVisibleRect(zone),
-          position,
-          action,
-        });
+    for (const position of this.getters.getVisibleCellPositions()) {
+      const action = this.getClickableAction(position);
+      if (!action) {
+        continue;
       }
+      const zone = getters.expandZone(sheetId, positionToZone(position));
+      cells.push({
+        coordinates: getters.getVisibleRect(zone),
+        position,
+        action,
+      });
     }
     return cells;
   }
