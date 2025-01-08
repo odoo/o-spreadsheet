@@ -47,6 +47,9 @@ function convertFigure(
 }
 
 function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | undefined {
+  if (chartData.dataSets.length === 0) {
+    return undefined;
+  }
   const labelRange = chartData.dataSets[0].label?.replace(/\$/g, "");
   let dataSets = chartData.dataSets.map((data) => data.range.replace(/\$/g, ""));
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
