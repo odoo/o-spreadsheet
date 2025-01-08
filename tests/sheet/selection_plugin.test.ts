@@ -1045,6 +1045,20 @@ describe("move elements(s)", () => {
     result = moveRows(model, -1, [0]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
+
+  test("Selection stays on the moved column", () => {
+    const model = new Model();
+    selectColumn(model, 1, "overrideSelection");
+    moveColumns(model, "D", ["B"]);
+    expect(model.getters.getSelectedZone()).toEqual(toZone("D1:D100"));
+  });
+
+  test("Selection stays on the moved row", () => {
+    const model = new Model();
+    selectRow(model, 1, "overrideSelection");
+    moveRows(model, 3, [1]);
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A4:Z4"));
+  });
 });
 
 describe("Selection loop (ctrl + a)", () => {
