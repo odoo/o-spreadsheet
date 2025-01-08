@@ -683,6 +683,11 @@ export class GridSelectionPlugin extends UIPlugin {
     ];
     handler.paste({ zones: pasteTarget }, data, { isCutOperation: true });
 
+    const selection = pasteTarget[0];
+    const col = selection.left;
+    const row = selection.top;
+    this.setSelectionMixin({ zone: selection, cell: { col, row } }, [selection]);
+
     const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
     let currentIndex = cmd.base;
     for (const element of toRemove) {
