@@ -211,13 +211,10 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   }
 
   private isDynamicPivotInViewport() {
-    const sheetId = this.getters.getActiveSheetId();
-    for (const col of this.getters.getSheetViewVisibleCols()) {
-      for (const row of this.getters.getSheetViewVisibleRows()) {
-        const isDynamicPivot = this.getters.isSpillPivotFormula({ sheetId, col, row });
-        if (isDynamicPivot) {
-          return true;
-        }
+    for (const position of this.getters.getVisibleCellPositions()) {
+      const isDynamicPivot = this.getters.isSpillPivotFormula(position);
+      if (isDynamicPivot) {
+        return true;
       }
     }
     return false;
