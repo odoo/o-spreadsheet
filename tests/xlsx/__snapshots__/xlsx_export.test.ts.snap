@@ -23612,64 +23612,46 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                     2
                 </v>
             </c>
-            <c r="K2" s="3">
-            </c>
         </row>
         <row r="3">
-            <c r="F3" s="4" t="s">
+            <c r="F3" s="3" t="s">
                 <v>
                     3
                 </v>
             </c>
-            <c r="J3" s="5">
-            </c>
-            <c r="K3" s="6">
-            </c>
-            <c r="L3" s="7">
+            <c r="K3" s="4">
             </c>
         </row>
         <row r="4">
-            <c r="B4" s="8" t="s">
+            <c r="B4" s="5" t="s">
                 <v>
                     4
                 </v>
             </c>
-            <c r="F4" s="9" t="s">
+            <c r="F4" s="6" t="s">
                 <v>
                     5
                 </v>
             </c>
-            <c r="J4" s="5">
-            </c>
-            <c r="K4" s="10">
-            </c>
-            <c r="L4" s="7">
+            <c r="K4" s="7">
             </c>
         </row>
         <row r="5">
-            <c r="F5" s="11" t="s">
+            <c r="F5" s="8" t="s">
                 <v>
                     6
                 </v>
             </c>
-            <c r="J5" s="5">
-            </c>
-            <c r="K5" s="10">
-            </c>
-            <c r="L5" s="7">
+            <c r="K5" s="7">
             </c>
         </row>
         <row r="6">
-            <c r="F6" s="12" t="s">
+            <c r="F6" s="9" t="s">
                 <v>
                     7
                 </v>
             </c>
-            <c r="J6" s="5">
-            </c>
-            <c r="K6" s="10">
-            </c>
-            <c r="L6" s="7">
+            <c r="K6" s="7">
             </c>
         </row>
         <row r="7">
@@ -23678,20 +23660,14 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                     8
                 </v>
             </c>
-            <c r="J7" s="5">
-            </c>
-            <c r="K7" s="10">
-            </c>
-            <c r="L7" s="7">
+            <c r="K7" s="7">
             </c>
         </row>
         <row r="8">
-            <c r="F8" s="13" t="s">
+            <c r="F8" s="10" t="s">
                 <v>
                     9
                 </v>
-            </c>
-            <c r="K8" s="14">
             </c>
         </row>
         <row r="9">
@@ -23700,11 +23676,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                     10
                 </v>
             </c>
-            <c r="J9" s="15">
-            </c>
-            <c r="K9" s="16">
-            </c>
-            <c r="L9" s="17">
+            <c r="K9" s="11">
             </c>
         </row>
         <row r="10">
@@ -23712,8 +23684,6 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                 <v>
                     11
                 </v>
-            </c>
-            <c r="K10" s="18">
             </c>
         </row>
         <row r="12">
@@ -23723,33 +23693,21 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                 </v>
             </c>
         </row>
-        <row r="19">
-            <c r="E19" s="3">
-            </c>
-            <c r="G19" s="3">
-            </c>
-        </row>
         <row r="20">
-            <c r="B20" s="5">
-            </c>
-            <c r="C20" s="7" t="s">
+            <c r="C20" s="12" t="s">
                 <v>
                     13
                 </v>
             </c>
-            <c r="E20" s="19" t="s">
+            <c r="E20" s="13" t="s">
                 <v>
                     14
                 </v>
             </c>
-            <c r="F20" s="5">
-            </c>
-            <c r="G20" s="20" t="s">
+            <c r="G20" s="14" t="s">
                 <v>
                     15
                 </v>
-            </c>
-            <c r="H20" s="7">
             </c>
         </row>
         <row r="21">
@@ -23758,25 +23716,23 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                     16
                 </v>
             </c>
-            <c r="G21" s="19">
-            </c>
         </row>
         <row r="23">
-            <c r="C23" s="21">
+            <c r="C23" s="15">
                 <v>
                     0.43
                 </v>
             </c>
         </row>
         <row r="24">
-            <c r="C24" s="22">
+            <c r="C24" s="16">
                 <v>
                     10
                 </v>
             </c>
         </row>
         <row r="25">
-            <c r="C25" s="22">
+            <c r="C25" s="16">
                 <v>
                     10.123
                 </v>
@@ -24004,24 +23960,11 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </patternFill>
         </fill>
     </fills>
-    <borders count="13">
+    <borders count="7">
         <border>
             <left>
             </left>
             <right>
-            </right>
-            <top>
-            </top>
-            <bottom>
-            </bottom>
-            <diagonal>
-            </diagonal>
-        </border>
-        <border>
-            <left>
-            </left>
-            <right style="thin">
-                <color rgb="000000"/>
             </right>
             <top>
             </top>
@@ -24039,19 +23982,6 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             <top>
             </top>
             <bottom>
-            </bottom>
-            <diagonal>
-            </diagonal>
-        </border>
-        <border>
-            <left>
-            </left>
-            <right>
-            </right>
-            <top>
-            </top>
-            <bottom style="thin">
-                <color rgb="000000"/>
             </bottom>
             <diagonal>
             </diagonal>
@@ -24086,19 +24016,6 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </diagonal>
         </border>
         <border>
-            <left>
-            </left>
-            <right style="medium">
-                <color rgb="888888"/>
-            </right>
-            <top>
-            </top>
-            <bottom>
-            </bottom>
-            <diagonal>
-            </diagonal>
-        </border>
-        <border>
             <left style="thin">
                 <color rgb="000000"/>
             </left>
@@ -24123,19 +24040,6 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             <top>
             </top>
             <bottom>
-            </bottom>
-            <diagonal>
-            </diagonal>
-        </border>
-        <border>
-            <left>
-            </left>
-            <right>
-            </right>
-            <top>
-            </top>
-            <bottom style="dashed">
-                <color rgb="0000FF"/>
             </bottom>
             <diagonal>
             </diagonal>
@@ -24156,45 +24060,16 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             <diagonal>
             </diagonal>
         </border>
-        <border>
-            <left>
-            </left>
-            <right>
-            </right>
-            <top style="dotted">
-                <color rgb="00FF00"/>
-            </top>
-            <bottom>
-            </bottom>
-            <diagonal>
-            </diagonal>
-        </border>
-        <border>
-            <left style="thick">
-                <color rgb="FF0000"/>
-            </left>
-            <right>
-            </right>
-            <top>
-            </top>
-            <bottom>
-            </bottom>
-            <diagonal>
-            </diagonal>
-        </border>
     </borders>
-    <cellXfs count="23">
+    <cellXfs count="17">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="2" borderId="0"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="3"/>
         <xf numFmtId="0" fillId="0" fontId="3" borderId="0"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="1"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="7"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="2"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="4"/>
         <xf numFmtId="0" fillId="2" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="4" borderId="0"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="8"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="5"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
             <alignment vertical="top"/>
         </xf>
@@ -24204,13 +24079,10 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
             <alignment wrapText="1"/>
         </xf>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="9"/>
         <xf numFmtId="0" fillId="0" fontId="0" borderId="6"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="10"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="12"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="11"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="4"/>
-        <xf numFmtId="0" fillId="0" fontId="0" borderId="5"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="1"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="2"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="3"/>
         <xf numFmtId="10" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="4" fillId="0" fontId="0" borderId="0"/>
     </cellXfs>

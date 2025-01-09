@@ -329,19 +329,19 @@ describe("Columns", () => {
         ],
         borders: { 1: { top: s } },
       });
-      expect(getBorder(model, "A1")).toEqual({ bottom: s });
+      expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toEqual({ top: s });
       addColumns(model, "before", "A", 1);
       expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toBeNull();
-      expect(getBorder(model, "B1")).toEqual({ bottom: s });
+      expect(getBorder(model, "B1")).toBeNull();
       expect(getBorder(model, "B2")).toEqual({ top: s });
       expect(getBorder(model, "C1")).toBeNull();
       expect(getBorder(model, "C2")).toBeNull();
       addColumns(model, "after", "B", 1);
       expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toBeNull();
-      expect(getBorder(model, "B1")).toEqual({ bottom: s });
+      expect(getBorder(model, "B1")).toBeNull();
       expect(getBorder(model, "B2")).toEqual({ top: s });
       expect(getBorder(model, "C1")).toBeNull();
       expect(getBorder(model, "C2")).toBeNull();
@@ -362,32 +362,32 @@ describe("Columns", () => {
         ],
         borders: { 1: { top: s }, 2: { left: s } },
       });
-      expect(getBorder(model, "A1")).toEqual({ bottom: s });
+      expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toEqual({ top: s });
-      expect(getBorder(model, "B1")).toEqual({ bottom: s });
+      expect(getBorder(model, "B1")).toBeNull();
       expect(getBorder(model, "B2")).toEqual({ top: s });
-      expect(getBorder(model, "A4")).toEqual({ left: s, right: s });
-      expect(getBorder(model, "B4")).toEqual({ left: s, right: s });
+      expect(getBorder(model, "A4")).toEqual({ left: s });
+      expect(getBorder(model, "B4")).toEqual({ left: s });
       expect(getBorder(model, "C4")).toEqual({ left: s });
       addColumns(model, "before", "A", 1);
       expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toBeNull();
-      expect(getBorder(model, "B1")).toEqual({ bottom: s });
+      expect(getBorder(model, "B1")).toBeNull();
       expect(getBorder(model, "B2")).toEqual({ top: s });
-      expect(getBorder(model, "C1")).toEqual({ bottom: s });
+      expect(getBorder(model, "C1")).toBeNull();
       expect(getBorder(model, "C2")).toEqual({ top: s });
-      expect(getBorder(model, "A4")).toEqual({ right: s });
-      expect(getBorder(model, "B4")).toEqual({ left: s, right: s });
-      expect(getBorder(model, "C4")).toEqual({ left: s, right: s });
-      expect(getBorder(model, "C4")).toEqual({ left: s, right: s });
+      expect(getBorder(model, "A4")).toBeNull();
+      expect(getBorder(model, "B4")).toEqual({ left: s });
+      expect(getBorder(model, "C4")).toEqual({ left: s });
+      expect(getBorder(model, "D4")).toEqual({ left: s });
       addColumns(model, "after", "B", 1);
       expect(getBorder(model, "A1")).toBeNull();
       expect(getBorder(model, "A2")).toBeNull();
-      expect(getBorder(model, "B1")).toEqual({ bottom: s });
+      expect(getBorder(model, "B1")).toBeNull();
       expect(getBorder(model, "B2")).toEqual({ top: s });
-      expect(getBorder(model, "C1")).toEqual({ bottom: s });
+      expect(getBorder(model, "C1")).toBeNull();
       expect(getBorder(model, "C2")).toEqual({ top: s });
-      expect(getBorder(model, "D1")).toEqual({ bottom: s });
+      expect(getBorder(model, "D1")).toBeNull();
       expect(getBorder(model, "D2")).toEqual({ top: s });
     });
 
@@ -401,7 +401,6 @@ describe("Columns", () => {
         left: DEFAULT_BORDER_DESC,
         right: DEFAULT_BORDER_DESC,
       });
-      expect(getBorder(model, "C2")).toEqual({ left: DEFAULT_BORDER_DESC });
     });
 
     test("insert column before cell with external border", () => {
@@ -414,7 +413,6 @@ describe("Columns", () => {
         left: DEFAULT_BORDER_DESC,
         right: DEFAULT_BORDER_DESC,
       });
-      expect(getBorder(model, "B2")).toEqual({ right: DEFAULT_BORDER_DESC });
     });
 
     test("delete column after cell with external border", () => {
@@ -478,24 +476,24 @@ describe("Columns", () => {
         C1: { style },
         C3: { style },
       });
-      expect(getBorder(model, "A2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "A2")).toEqual({ top: s });
       expect(getBorder(model, "A3")).toEqual({ top: s });
       expect(getBorder(model, "B4")).toEqual({ top: s });
-      expect(getBorder(model, "C2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "C2")).toEqual({ top: s });
       expect(getBorder(model, "C3")).toEqual({ top: s });
     });
     test("On addition", () => {
       const s = { style: "thin", color: "#000000" };
       const style = { textColor: "#fe0000" };
-      expect(getBorder(model, "A1")).toEqual({ bottom: s });
-      expect(getBorder(model, "A2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "A1")).toBeNull();
+      expect(getBorder(model, "A2")).toEqual({ top: s });
       expect(getBorder(model, "A3")).toEqual({ top: s });
-      expect(getBorder(model, "B1")).toEqual({ bottom: s });
-      expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });
-      expect(getBorder(model, "B3")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "B1")).toBeNull();
+      expect(getBorder(model, "B2")).toEqual({ top: s });
+      expect(getBorder(model, "B3")).toEqual({ top: s });
       expect(getBorder(model, "B4")).toEqual({ top: s });
-      expect(getBorder(model, "D1")).toEqual({ bottom: s });
-      expect(getBorder(model, "D2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "D1")).toBeNull();
+      expect(getBorder(model, "D2")).toEqual({ top: s });
       expect(getBorder(model, "D3")).toEqual({ top: s });
       addColumns(model, "before", "B", 1);
       addColumns(model, "after", "C", 2);
@@ -510,27 +508,27 @@ describe("Columns", () => {
         C4: { style },
         E1: { style },
       });
-      expect(getBorder(model, "A2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "A2")).toEqual({ top: s });
       expect(getBorder(model, "A3")).toEqual({ top: s });
-      expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "B2")).toEqual({ top: s });
       expect(getBorder(model, "B3")).toEqual({ top: s });
       expect(getBorder(model, "B4")).toBeNull();
-      expect(getBorder(model, "C2")).toEqual({ top: s, bottom: s });
-      expect(getBorder(model, "C3")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "C2")).toEqual({ top: s });
+      expect(getBorder(model, "C3")).toEqual({ top: s });
       expect(getBorder(model, "C4")).toEqual({ top: s });
       expect(getBorder(model, "D1")).toBeNull();
       expect(getBorder(model, "D2")).toBeNull();
-      expect(getBorder(model, "D3")).toEqual({ bottom: s });
+      expect(getBorder(model, "D3")).toBeNull();
       expect(getBorder(model, "D4")).toEqual({ top: s });
       expect(getBorder(model, "E1")).toBeNull();
       expect(getBorder(model, "E2")).toBeNull();
-      expect(getBorder(model, "E3")).toEqual({ bottom: s });
+      expect(getBorder(model, "E3")).toBeNull();
       expect(getBorder(model, "E4")).toEqual({ top: s });
       expect(getBorder(model, "F2")).toBeNull();
-      expect(getBorder(model, "F3")).toEqual({ bottom: s });
+      expect(getBorder(model, "F3")).toBeNull();
       expect(getBorder(model, "F4")).toEqual({ top: s });
-      expect(getBorder(model, "G1")).toEqual({ bottom: s });
-      expect(getBorder(model, "G2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "G1")).toBeNull();
+      expect(getBorder(model, "G2")).toEqual({ top: s });
       expect(getBorder(model, "G3")).toEqual({ top: s });
       expect(Object.values(getMerges(model))[0]).toMatchObject({
         left: 2,
@@ -1086,31 +1084,31 @@ describe("Rows", () => {
       expect(Object.values(model.getters.getCells(sheetId))).toHaveLength(5); // 4 NumberCells +1 emptyCell with no merge, but with style
       expect(getCell(model, "A1")).toMatchObject({ style });
       expect(getCell(model, "A3")).toMatchObject({ style });
-      expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
-      expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "B1")).toEqual({ top: s });
+      expect(getBorder(model, "B2")).toBeNull();
       expect(getBorder(model, "B3")).toEqual({ top: s });
       expect(getCell(model, "C1")).toMatchObject({ style });
       expect(getCell(model, "C3")).toMatchObject({ style });
       expect(getCell(model, "D2")).toMatchObject({ style });
-      expect(getBorder(model, "C1")).toEqual({ top: s, bottom: s });
-      expect(getBorder(model, "C2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "C1")).toEqual({ top: s });
+      expect(getBorder(model, "C2")).toBeNull();
       expect(getBorder(model, "C3")).toEqual({ top: s });
-      expect(getBorder(model, "D2")).toEqual({ top: s });
+      expect(getBorder(model, "D2")).toBeNull();
     });
 
     test("On addition", () => {
       const s = { style: "thin", color: "#000000" };
       addRows(model, "before", 1, 1);
       const style = { textColor: "#fe0000" };
-      expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
-      expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "B1")).toEqual({ top: s });
+      expect(getBorder(model, "B2")).toEqual({ top: s });
       expect(getBorder(model, "B3")).toEqual({ top: s });
-      expect(getBorder(model, "B4")).toEqual({ bottom: s });
+      expect(getBorder(model, "B4")).toBeNull();
       expect(getBorder(model, "B5")).toEqual({ top: s });
-      expect(getBorder(model, "C1")).toEqual({ top: s, bottom: s });
-      expect(getBorder(model, "C2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "C1")).toEqual({ top: s });
+      expect(getBorder(model, "C2")).toEqual({ top: s });
       expect(getBorder(model, "C3")).toEqual({ top: s });
-      expect(getBorder(model, "C4")).toEqual({ bottom: s });
+      expect(getBorder(model, "C4")).toBeNull();
       expect(getBorder(model, "C5")).toEqual({ top: s });
       addRows(model, "after", 2, 2);
       expect(getCellsObject(model, "sheet1")).toMatchObject({
@@ -1124,19 +1122,19 @@ describe("Rows", () => {
         D3: { style },
         A5: { style },
       });
-      expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
-      expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "B1")).toEqual({ top: s });
+      expect(getBorder(model, "B2")).toEqual({ top: s });
       expect(getBorder(model, "B3")).toEqual({ top: s });
       expect(getBorder(model, "B4")).toBeNull();
       expect(getBorder(model, "B5")).toBeNull();
-      expect(getBorder(model, "B6")).toEqual({ bottom: s });
+      expect(getBorder(model, "B6")).toBeNull();
       expect(getBorder(model, "B7")).toEqual({ top: s });
-      expect(getBorder(model, "C1")).toEqual({ top: s, bottom: s });
-      expect(getBorder(model, "C2")).toEqual({ top: s, bottom: s });
+      expect(getBorder(model, "C1")).toEqual({ top: s });
+      expect(getBorder(model, "C2")).toEqual({ top: s });
       expect(getBorder(model, "C3")).toEqual({ top: s });
       expect(getBorder(model, "C4")).toBeNull();
       expect(getBorder(model, "C5")).toBeNull();
-      expect(getBorder(model, "C6")).toEqual({ bottom: s });
+      expect(getBorder(model, "C6")).toBeNull();
       expect(getBorder(model, "C7")).toEqual({ top: s });
       expect(Object.values(getMerges(model))[0]).toMatchObject({
         top: 2,
@@ -1150,7 +1148,6 @@ describe("Rows", () => {
       setZoneBorders(model, { position: "external" }, ["B2"]);
       addRows(model, "after", 1, 1);
       expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
-      expect(getBorder(model, "B3")).toEqual({ top: s });
     });
 
     test("insert row before cell with external border", () => {
@@ -1158,7 +1155,7 @@ describe("Rows", () => {
       const s = DEFAULT_BORDER_DESC;
       setZoneBorders(model, { position: "external" }, ["B2"]);
       addRows(model, "before", 1, 1);
-      expect(getBorder(model, "B2")).toEqual({ bottom: s });
+      expect(getBorder(model, "B2")).toBeNull();
       expect(getBorder(model, "B3")).toEqual({ top: s, bottom: s, left: s, right: s });
     });
 

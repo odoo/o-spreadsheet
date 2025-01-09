@@ -686,8 +686,8 @@ export class GridRenderer {
         nextColIndex = this.getters.getMerge(position)!.right;
         previousColIndex = col;
       } else {
-        nextColIndex = this.findNextEmptyCol(col, right, row);
-        previousColIndex = this.findPreviousEmptyCol(col, left, row);
+        nextColIndex = box.border?.right ? zone.right : this.findNextEmptyCol(col, right, row);
+        previousColIndex = box.border?.left ? zone.left : this.findPreviousEmptyCol(col, left, row);
         box.isOverflow = true;
       }
 
