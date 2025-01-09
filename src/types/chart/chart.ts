@@ -144,7 +144,7 @@ export interface ExcelChartDataset {
   readonly rightYAxis?: boolean;
 }
 
-export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar";
+export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar" | "pyramid";
 
 export interface ExcelChartDefinition {
   readonly title?: TitleDesign;
@@ -161,6 +161,8 @@ export interface ExcelChartDefinition {
     useRightAxis?: boolean;
   };
   readonly axesDesign?: AxesDesign;
+  readonly isDoughnut?: boolean;
+  readonly horizontal?: boolean;
 }
 
 export interface ChartCreationContext {
