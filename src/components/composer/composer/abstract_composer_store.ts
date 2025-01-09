@@ -373,6 +373,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: this.sheetId,
       });
+      this.model.selection.selectCell(this.col, this.row);
     }
   }
 
