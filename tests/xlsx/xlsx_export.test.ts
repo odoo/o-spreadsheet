@@ -855,7 +855,27 @@ describe("Test XLSX export", () => {
         {
           dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
           labelRange: "Sheet1!A2:A",
+          type: "bar",
+          horizontal: true,
+        },
+        "2"
+      );
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+          labelRange: "Sheet1!A2:A",
           type: "pie",
+        },
+        "3"
+      );
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+          labelRange: "Sheet1!A2:A",
+          type: "pie",
+          isDoughnut: true,
         },
         "3"
       );
