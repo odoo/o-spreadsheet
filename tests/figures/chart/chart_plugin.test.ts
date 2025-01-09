@@ -346,6 +346,43 @@ describe("datasource tests", function () {
     expect(chart.chartJsConfig.data!.datasets?.length).toEqual(1);
   });
 
+  test("empty datasets are filtered in different locales", () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            B1: { content: "first column dataset" },
+            B2: { content: "10.1" },
+            C1: { content: "second dataset" },
+            C2: { content: "" },
+          },
+        },
+      ],
+      settings: {
+        locale: FR_LOCALE,
+      },
+    });
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
+        labelRange: "Sheet1!A2",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    const chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+    expect(chart.chartJsConfig.data!.datasets?.length).toEqual(1);
+  });
+
   test("create a chart with stacked bar", () => {
     createChart(
       model,

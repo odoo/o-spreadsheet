@@ -3,7 +3,16 @@ import { ChartTerms } from "../../../components/translations_terms";
 import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, MAX_CHAR_LABEL } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
 import { _t } from "../../../translation";
-import { CellValue, Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
+import {
+  CellValue,
+  Color,
+  DEFAULT_LOCALE,
+  Figure,
+  Format,
+  Getters,
+  LocaleFormat,
+  Range,
+} from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format/format";
@@ -288,8 +297,7 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
       data.fill(1);
     } else if (
       data.every(
-        (cell) =>
-          cell === undefined || cell === null || !isNumber(cell.toString(), getters.getLocale())
+        (cell) => cell === undefined || cell === null || !isNumber(cell.toString(), DEFAULT_LOCALE)
       )
     ) {
       continue;
