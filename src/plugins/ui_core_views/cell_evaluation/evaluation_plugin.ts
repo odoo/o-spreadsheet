@@ -331,10 +331,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
       sheet.cellValues = {};
+      sheet.arrayFormulaCells = {};
     }
     for (const position of this.evaluator.getEvaluatedPositions()) {
       const evaluatedCell = this.evaluator.getEvaluatedCell(position);
-
       const xc = toXC(position.col, position.row);
       const value = evaluatedCell.value;
       let isFormula = false;
@@ -361,7 +361,6 @@ export class EvaluationPlugin extends CoreViewPlugin {
           }
         }
       }
-
       const exportedCellData = exportedSheetData.cells[xc];
 
       let content: string | undefined;
@@ -372,6 +371,23 @@ export class EvaluationPlugin extends CoreViewPlugin {
       }
       exportedSheetData.cells[xc] = content;
       exportedSheetData.cellValues[xc] = value;
+      const spillZone = this.getSpreadZone(position);
+      if (spillZone) {
+        exportedSheetData.arrayFormulaCells[xc] = this.getters.getRangeString(
+          this.getters.getRangeFromZone(this.getters.getActiveSheetId(), spillZone),
+          this.getters.getActiveSheetId()
+        );
+      } else {
+        exportedSheetData.arrayFormulaCells[xc] = this.getters.getRangeString(
+          this.getters.getRangeFromZone(this.getters.getActiveSheetId(), {
+            top: position.row,
+            left: position.col,
+            bottom: position.row,
+            right: position.col,
+          }),
+          this.getters.getActiveSheetId()
+        );
+      }
     }
   }
 
