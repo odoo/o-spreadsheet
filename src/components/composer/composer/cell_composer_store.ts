@@ -177,7 +177,7 @@ export class CellComposerStore extends AbstractComposerStore {
 
   protected confirmEdition(content: string) {
     if (content) {
-      const sheetId = this.getters.getActiveSheetId();
+      const sheetId = this.sheetId;
       const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
       if (cell.link && !content.startsWith("=")) {
         content = markdownLink(content, cell.link.url);

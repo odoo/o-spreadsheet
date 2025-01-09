@@ -112,8 +112,8 @@ describe("edition", () => {
     expect(composerStore.editionMode).toBe("selecting");
     expect(composerStore.currentEditedCell.sheetId).toBe(sheet1);
     composerStore.stopEdition();
-    expect(model.getters.getActiveSheetId()).toBe(sheet1);
-    expect(getCellText(model, "A1")).toBe("=");
+    expect(model.getters.getActiveSheetId()).toBe("42");
+    expect(getCellText(model, "A1", sheet1)).toBe("=");
     activateSheet(model, "42");
     expect(getCell(model, "A1")).toBeUndefined();
   });

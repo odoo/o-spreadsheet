@@ -475,6 +475,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) {
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
+      return;
     }
     if (modifiers.expandZone) {
       this.env.model.selection.setAnchorCorner(col, row);
