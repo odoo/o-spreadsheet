@@ -274,8 +274,6 @@ export type BorderPosition =
   | "bottom"
   | "clear";
 
-export type BorderDescription = { vertical?: BorderDescr; horizontal?: BorderDescr } | undefined;
-
 export const enum DIRECTION {
   UP = "up",
   DOWN = "down",

@@ -1250,16 +1250,15 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     setCellContent(model, "C3", "c3");
-    selectCell(model, "C3");
-    setZoneBorders(model, { position: "bottom" });
+    setZoneBorders(model, { position: "bottom" }, ["C3"]);
     expect(getBorder(model, "C3")).toEqual({ bottom: DEFAULT_BORDER_DESC });
-    expect(getBorder(model, "C4")).toEqual({ top: DEFAULT_BORDER_DESC });
-
+    expect(getBorder(model, "C4")).toBeNull();
     copy(model, "B2");
     paste(model, "C3", "asValue");
 
     expect(getCellContent(model, "C3")).toBe("b2");
     expect(getBorder(model, "C3")).toEqual({ bottom: DEFAULT_BORDER_DESC });
+    expect(getBorder(model, "C4")).toBeNull();
   });
 
   test("paste as value does not remove number format", () => {
