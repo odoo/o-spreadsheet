@@ -2,7 +2,7 @@ import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { serveFile } from "../components/helpers/dom_helpers";
-import { chartToImage, chartToImageFile } from "../helpers/figures/charts";
+import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv, UID } from "../types";
@@ -71,7 +71,7 @@ function getChartMenu(
         const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
         const chartType = env.model.getters.getChartType(figureId);
         const runtime = env.model.getters.getChartRuntime(figureId);
-        const imageUrl = chartToImage(runtime, figure, chartType)!;
+        const imageUrl = chartToImageUrl(runtime, figure, chartType)!;
         const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
         const blob = await chartToImageFile(runtime, figure, chartType)!;
 
@@ -91,7 +91,7 @@ function getChartMenu(
         const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
         const chartType = env.model.getters.getChartType(figureId);
         const runtime = env.model.getters.getChartRuntime(figureId);
-        const url = chartToImage(runtime, figure, chartType)!;
+        const url = chartToImageUrl(runtime, figure, chartType)!;
         serveFile(url, "chart");
       },
     },

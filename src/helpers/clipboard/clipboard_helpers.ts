@@ -84,7 +84,7 @@ export async function parseOSClipboardContent(
     contentClipboardId = spreadsheetContent?.clipboardId;
   }
   if (contentClipboardId !== clipboardId) {
-    const clipboardContent: ParsedOSClipboardContent = {
+    const osClipboardContent: ParsedOSClipboardContent = {
       text: content[ClipboardMIMEType.PlainText],
       data: spreadsheetContent,
     };
@@ -93,14 +93,14 @@ export async function parseOSClipboardContent(
         // TODO: support multiple import
         try {
           const imageData = await env.imageProvider?.uploadFile(content[type]!);
-          clipboardContent.imageData = imageData;
+          osClipboardContent.imageData = imageData;
         } catch (e) {
           env.raiseError(e.message);
         }
         break;
       }
     }
-    return clipboardContent;
+    return osClipboardContent;
   } else {
     return {
       text: content[ClipboardMIMEType.PlainText],

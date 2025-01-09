@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { chartFontColor, chartRuntimeFactory, chartToImage } from "../../helpers/figures/charts";
+import { chartFontColor, chartRuntimeFactory, chartToImageUrl } from "../../helpers/figures/charts";
 import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
@@ -115,7 +115,7 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
           }
           const type = this.getters.getChartType(figureId);
           const runtime = this.getters.getChartRuntime(figureId);
-          const img = chartToImage(runtime, figure, type);
+          const img = chartToImageUrl(runtime, figure, type);
           if (img) {
             sheet.images.push({
               ...figure,

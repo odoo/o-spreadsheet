@@ -89,7 +89,7 @@ export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
 }
 
 export async function convertImageToPng(imageUrl: string): Promise<Blob | null> {
-  return await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const image = new Image();
     image.src = imageUrl;
     image.addEventListener("load", () => {
@@ -101,7 +101,7 @@ export async function convertImageToPng(imageUrl: string): Promise<Blob | null> 
       ctx?.drawImage(image, 0, 0);
       canvas.toBlob(resolve, "image/png");
     });
-    image.addEventListener("error", () => reject);
+    image.addEventListener("error", reject);
   });
 }
 

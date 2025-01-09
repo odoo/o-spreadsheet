@@ -56,13 +56,17 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
   switch (osClipboard.status) {
     case "ok":
       const clipboardId = env.model.getters.getClipboardId();
-      const clipboardContent = await parseOSClipboardContent(env, osClipboard.content, clipboardId);
-      const contentClipboardId = clipboardContent.data?.clipboardId;
+      const osClipboardContent = await parseOSClipboardContent(
+        env,
+        osClipboard.content,
+        clipboardId
+      );
+      const osClipboardId = osClipboardContent.data?.clipboardId;
 
       const target = env.model.getters.getSelectedZones();
 
-      if (clipboardId !== contentClipboardId) {
-        interactivePasteFromOS(env, target, clipboardContent, pasteOption);
+      if (clipboardId !== osClipboardId) {
+        interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
       } else {
         interactivePaste(env, target, pasteOption);
       }
