@@ -102,6 +102,8 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     aggregated: false,
     cumulative: chartData.cumulative || false,
     labelsAsText: false,
+    horizontal: chartData.horizontal,
+    isDoughnut: chartData.isDoughnut,
   };
 }
 
