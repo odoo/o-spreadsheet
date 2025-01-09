@@ -12,7 +12,7 @@ import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
-import { serveFile } from "../../src/components/helpers/dom_helpers";
+import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import {
   activateSheet,
@@ -52,7 +52,7 @@ import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 jest.mock("../../src/components/helpers/dom_helpers", () => {
   return {
     ...jest.requireActual("../../src/components/helpers/dom_helpers"),
-    serveFile: jest.fn(),
+    downloadFile: jest.fn(),
   };
 });
 
@@ -672,7 +672,7 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='download']");
-        expect(serveFile).toHaveBeenCalled();
+        expect(downloadFile).toHaveBeenCalled();
       });
     }
   );

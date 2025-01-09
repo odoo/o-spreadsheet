@@ -1,7 +1,7 @@
 import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
-import { serveFile } from "../components/helpers/dom_helpers";
+import { downloadFile } from "../components/helpers/dom_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _t } from "../translation";
@@ -92,7 +92,7 @@ function getChartMenu(
         const chartType = env.model.getters.getChartType(figureId);
         const runtime = env.model.getters.getChartRuntime(figureId);
         const url = chartToImageUrl(runtime, figure, chartType)!;
-        serveFile(url, "chart");
+        downloadFile(url, "chart");
       },
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
@@ -138,7 +138,7 @@ function getImageMenuRegistry(
       execute: async () => {
         env.model.dispatch("SELECT_FIGURE", { id: figureId });
         const path = env.model.getters.getImagePath(figureId);
-        serveFile(path, "image");
+        downloadFile(path, "image");
       },
       icon: "o-spreadsheet-Icon.DOWNLOAD",
     },

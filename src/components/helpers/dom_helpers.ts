@@ -105,7 +105,7 @@ export async function convertImageToPng(imageUrl: string): Promise<Blob | null> 
   });
 }
 
-export function serveFile(dataUrl: string, fileName: string) {
+export function downloadFile(dataUrl: string, fileName: string) {
   const a = document.createElement("a");
   a.href = dataUrl;
   a.download = fileName;
