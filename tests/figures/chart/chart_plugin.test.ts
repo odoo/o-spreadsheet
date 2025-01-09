@@ -379,6 +379,43 @@ describe("datasource tests", function () {
     }
   );
 
+  test("empty datasets are filtered in different locales", () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: "P1",
+            A3: "P2",
+            A4: "P3",
+            B1: "first column dataset",
+            B2: "10.1",
+            C1: "second dataset",
+            C2: "",
+          },
+        },
+      ],
+      settings: {
+        locale: FR_LOCALE,
+      },
+    });
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
+        labelRange: "Sheet1!A2",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    const chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+    expect(chart.chartJsConfig.data!.datasets?.length).toEqual(1);
+  });
+
   test("create a chart with stacked bar", () => {
     createChart(
       model,
