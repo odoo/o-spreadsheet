@@ -123,7 +123,7 @@ export class SheetViewPlugin extends UIPlugin {
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldAdjustViewports: boolean = false;
-  private mode: InternalViewport["mode"] = "smooth";
+  private mode: InternalViewport["mode"] = "snapped";
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -334,7 +334,9 @@ export class SheetViewPlugin extends UIPlugin {
    * the grid left/top side, snapped to the columns/rows.
    */
   getActiveSheetScrollInfo(): SheetScrollInfo {
-    return this.getActiveSheetDOMScrollInfo();
+    if (this.mode === "smooth") {
+      return this.getActiveSheetDOMScrollInfo();
+    }
     const sheetId = this.getters.getActiveSheetId();
     const viewport = this.getMainInternalViewport(sheetId);
     return {

@@ -53,7 +53,7 @@ MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
-  return (gridRenderer["getGridBoxes"]()! as Box[]).find(
+  return (gridRenderer["getGridBoxes"](toZone("A1:Z100"))! as Box[]).find(
     (b) => (b.content?.textLines || []).join(" ") === text
   )!;
 }
@@ -2180,8 +2180,7 @@ describe("renderer", () => {
     const { drawGridRenderer, gridRendererStore } = setRenderer(model);
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
-    //@ts-expect-error
-    const boxes = gridRendererStore.getGridBoxes();
+    const boxes = gridRendererStore["getGridBoxes"](toZone("A1:B2"));
     const boxesText = boxes.map((box) => box.content?.textLines.join(""));
     expect(boxesText).toEqual(["=MUNIT(2)", "", "", ""]);
   });
@@ -2228,13 +2227,13 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    let box = gridRendererStore["getGridBoxes"]().filter((box) => box.content)[0];
+    let box = gridRendererStore["getGridBoxes"](toZone("A1")).filter((box) => box.content)[0];
     const expectedSpaces = 20 - 2 * MIN_CELL_TEXT_MARGIN;
     expect(box.content?.textLines).toEqual(["1".padStart(expectedSpaces)]);
 
     setFormat(model, "A1", "0*c");
     drawGridRenderer(ctx);
-    box = gridRendererStore["getGridBoxes"]().filter((box) => box.content)[0];
+    box = gridRendererStore["getGridBoxes"](toZone("A1")).filter((box) => box.content)[0];
     expect(box.content?.textLines).toEqual(["1".padEnd(expectedSpaces, "c")]);
   });
 });
