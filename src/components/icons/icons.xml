@@ -668,7 +668,13 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.SMALL_DOT_RIGHT_ALIGN">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
+    <svg
+      class="o-icon"
+      style="color: currentcolor;"
+      width="10"
+      height="10"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 18">
       <circle fill="currentColor" cx="14" cy="9" r="4"/>
     </svg>
   </t>
