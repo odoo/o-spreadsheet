@@ -9,7 +9,15 @@ import {
   predictLinearValues,
 } from "../../../../functions/helper_statistical";
 import { isEvaluationError, toNumber } from "../../../../functions/helpers";
-import { CellValue, Format, GenericDefinition, Getters, Locale, Range } from "../../../../types";
+import {
+  CellValue,
+  DEFAULT_LOCALE,
+  Format,
+  GenericDefinition,
+  Getters,
+  Locale,
+  Range,
+} from "../../../../types";
 import {
   AxisType,
   BarChartDefinition,
@@ -735,8 +743,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
       data.fill(1);
     } else if (
       data.every(
-        (cell) =>
-          cell === undefined || cell === null || !isNumber(cell.toString(), getters.getLocale())
+        (cell) => cell === undefined || cell === null || !isNumber(cell.toString(), DEFAULT_LOCALE)
       )
     ) {
       continue;
