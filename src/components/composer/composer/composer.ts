@@ -554,18 +554,19 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         tokenAtCursor.value
       );
       const activeSheetId = this.env.model.getters.getActiveSheetId();
+      // this.props.composerStore.cancelEdition();
       if (range.sheetId !== activeSheetId) {
         this.env.model.dispatch("ACTIVATE_SHEET", {
           sheetIdFrom: activeSheetId,
           sheetIdTo: range.sheetId,
         });
       }
-      this.props.composerStore.stopComposerRangeSelection();
       const zone = range.zone;
-      this.env.model.selection.selectZone({
-        cell: { row: zone.top, col: zone.left },
-        zone,
-      });
+      this.env.model.dispatch("SCROLL_TO_CELL", { row: zone.top, col: zone.left });
+      // this.env.model.selection.selectZone({
+      //   cell: { row: zone.top, col: zone.left },
+      //   zone,
+      // });
     }
   }
 
