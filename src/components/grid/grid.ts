@@ -611,7 +611,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.dispatch("COPY");
     }
-    const osContent = await this.env.model.getters.getOsClipboardContentAsync();
+    const osContent = await this.env.model.getters.getClipboardTextAndImageContent();
     await this.env.clipboard.write(osContent);
     ev.preventDefault();
   }
@@ -645,16 +645,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const isCutOperation = this.env.model.getters.isCutOperation();
 
     const clipboardId = this.env.model.getters.getClipboardId();
-    const clipboardContent = await parseOSClipboardContent(
-      this.env,
-      osClipboard.content,
-      clipboardId
-    );
-    const contentClipboardId = clipboardContent.data?.clipboardId;
-    if (clipboardId === contentClipboardId) {
+    const osClipboardContent = await parseOSClipboardContent(osClipboard.content, clipboardId);
+    const osClipboardId = osClipboardContent.data?.clipboardId;
+    if (clipboardId === osClipboardId) {
       interactivePaste(this.env, target);
     } else {
-      interactivePasteFromOS(this.env, target, clipboardContent);
+      await interactivePasteFromOS(this.env, target, osClipboardContent);
     }
     if (isCutOperation) {
       await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });

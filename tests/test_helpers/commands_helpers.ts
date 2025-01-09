@@ -20,13 +20,13 @@ import {
   Direction,
   DispatchResult,
   Locale,
-  ParsedOSClipboardContent,
   SelectionStep,
   SortDirection,
   SortOptions,
   SplitTextIntoColumnsCommand,
   Style,
   UID,
+  parsedOsClipboardContentWithImageData,
 } from "../../src/types";
 import { target, toRangeData, toRangesData } from "./helpers";
 
@@ -392,7 +392,7 @@ export function paste(
 export function pasteFromOSClipboard(
   model: Model,
   range: string,
-  content: ParsedOSClipboardContent,
+  content: parsedOsClipboardContentWithImageData,
   pasteOption?: ClipboardPasteOptions
 ): DispatchResult {
   return model.dispatch("PASTE_FROM_OS_CLIPBOARD", {

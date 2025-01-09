@@ -65,19 +65,19 @@ class WebClipboardWrapper implements ClipboardInterface {
     if (this.clipboard?.read) {
       try {
         const clipboardItems = await this.clipboard.read();
-        const clipboardContent: OSClipboardContent = {};
+        const osClipboardContent: OSClipboardContent = {};
         for (const item of clipboardItems) {
           for (const type of item.types) {
             const blob = await item.getType(type);
             if (type in AllowedImageMimeTypes) {
-              clipboardContent[type] = blob;
+              osClipboardContent[type] = blob;
             } else {
               const text = await blob.text();
-              clipboardContent[type] = text;
+              osClipboardContent[type] = text;
             }
           }
         }
-        return { status: "ok", content: clipboardContent };
+        return { status: "ok", content: osClipboardContent };
       } catch (e) {
         const status = permissionResult?.state === "denied" ? "permissionDenied" : "notImplemented";
         return { status };

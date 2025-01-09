@@ -4,7 +4,6 @@ import {
   ClipboardMIMEType,
   OSClipboardContent,
   ParsedOSClipboardContent,
-  SpreadsheetChildEnv,
   UID,
   Zone,
 } from "../../types";
@@ -66,7 +65,6 @@ export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
 }
 
 export async function parseOSClipboardContent(
-  env: SpreadsheetChildEnv,
   content: OSClipboardContent,
   clipboardId: string
 ): Promise<ParsedOSClipboardContent> {
@@ -84,23 +82,19 @@ export async function parseOSClipboardContent(
     contentClipboardId = spreadsheetContent?.clipboardId;
   }
   if (contentClipboardId !== clipboardId) {
-    const clipboardContent: ParsedOSClipboardContent = {
-      text: content[ClipboardMIMEType.PlainText],
-      data: spreadsheetContent,
-    };
+    let imageBlob: Blob | undefined = undefined;
     for (const type of AllowedImageMimeTypes) {
       if (content[type]) {
-        // TODO: support multiple import
-        try {
-          const imageData = await env.imageProvider?.uploadFile(content[type]!);
-          clipboardContent.imageData = imageData;
-        } catch (e) {
-          env.raiseError(e.message);
-        }
+        imageBlob = content[type];
         break;
       }
     }
-    return clipboardContent;
+    const osClipboardContent: ParsedOSClipboardContent = {
+      text: content[ClipboardMIMEType.PlainText],
+      data: spreadsheetContent,
+      imageBlob,
+    };
+    return osClipboardContent;
   } else {
     return {
       text: content[ClipboardMIMEType.PlainText],

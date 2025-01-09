@@ -1,8 +1,8 @@
 import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
-import { serveFile } from "../components/helpers/dom_helpers";
-import { chartToImage, chartToImageFile } from "../helpers/figures/charts";
+import { downloadFile } from "../components/helpers/dom_helpers";
+import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv, UID } from "../types";
@@ -71,7 +71,7 @@ function getChartMenu(
         const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
         const chartType = env.model.getters.getChartType(figureId);
         const runtime = env.model.getters.getChartRuntime(figureId);
-        const imageUrl = chartToImage(runtime, figure, chartType)!;
+        const imageUrl = chartToImageUrl(runtime, figure, chartType)!;
         const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
         const blob = await chartToImageFile(runtime, figure, chartType)!;
 
@@ -91,8 +91,8 @@ function getChartMenu(
         const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
         const chartType = env.model.getters.getChartType(figureId);
         const runtime = env.model.getters.getChartRuntime(figureId);
-        const url = chartToImage(runtime, figure, chartType)!;
-        serveFile(url, "chart");
+        const url = chartToImageUrl(runtime, figure, chartType)!;
+        downloadFile(url, "chart");
       },
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
@@ -138,7 +138,7 @@ function getImageMenuRegistry(
       execute: async () => {
         env.model.dispatch("SELECT_FIGURE", { id: figureId });
         const path = env.model.getters.getImagePath(figureId);
-        serveFile(path, "image");
+        downloadFile(path, "image");
       },
       icon: "o-spreadsheet-Icon.DOWNLOAD",
     },
@@ -156,7 +156,7 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
       env.model.dispatch("COPY");
-      const osClipboardContent = await env.model.getters.getOsClipboardContentAsync();
+      const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
     },
     icon: "o-spreadsheet-Icon.CLIPBOARD",
@@ -172,7 +172,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
       env.model.dispatch("CUT");
-      await env.clipboard.write(await env.model.getters.getOsClipboardContentAsync());
+      await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
     },
     icon: "o-spreadsheet-Icon.CUT",
   };

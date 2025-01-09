@@ -22,7 +22,7 @@ export const CHART_COMMON_OPTIONS: ChartOptions = {
   animation: false,
 };
 
-export function chartToImage(
+export function chartToImageUrl(
   runtime: ChartRuntime,
   figure: Figure,
   type: ChartType
@@ -66,7 +66,7 @@ export async function chartToImageFile(
   figure: Figure,
   type: ChartType
 ): Promise<File | undefined> {
-  const chartString = chartToImage(runtime, figure, type);
+  const chartString = chartToImageUrl(runtime, figure, type);
   if (!chartString) {
     return undefined;
   }

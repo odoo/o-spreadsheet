@@ -5,7 +5,6 @@ import { convertImageToPng } from "../../components/helpers/dom_helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
-import { MAX_FILE_SIZE } from "../../helpers/figures/images/image_provider";
 import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
 import { CURRENT_VERSION } from "../../migrations/data";
 import { _t } from "../../translation";
@@ -31,6 +30,8 @@ import {
 } from "../../types/index";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 mb
 
 interface InsertDeleteCellsTargets {
   cut: Zone[];
@@ -58,7 +59,7 @@ export interface SpreadsheetClipboardData extends MinimalClipboardData {
 export class ClipboardPlugin extends UIPlugin {
   static layers = ["Clipboard"] as const;
   static getters = [
-    "getOsClipboardContentAsync",
+    "getClipboardTextAndImageContent",
     "getClipboardId",
     "getClipboardTextContent",
     "isCutOperation",
@@ -510,7 +511,7 @@ export class ClipboardPlugin extends UIPlugin {
     return this.clipboardId;
   }
 
-  async getOsClipboardContentAsync(): Promise<OSClipboardContent> {
+  async getClipboardTextAndImageContent(): Promise<OSClipboardContent> {
     const file = await this.getImageContent();
     const mime = file?.type;
     const content: OSClipboardContent = {
@@ -565,18 +566,9 @@ export class ClipboardPlugin extends UIPlugin {
         const figureSheetId = this.getters.getFigureSheetId(figureId)!;
         const figure = this.getters.getFigure(figureSheetId, figureId)!;
         if (figure.tag == "image") {
-          if (!this.fileStore) {
-            return "\t";
-          }
-          const imageUrl = this.getters.getImage(figureId).path;
-          const file = (await this.fileStore?.getFile(imageUrl)) || null;
-
-          if (file) {
-            const imageUrl = (await this.readFileAsDataURL(file)) as string;
-            innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
-          } else {
-            innerHTML = "\t";
-          }
+          innerHTML = await this.craftImageHTML(figureId);
+        } else {
+          innerHTML = "\t";
         }
       } else {
         innerHTML = "\t";
@@ -614,6 +606,21 @@ export class ClipboardPlugin extends UIPlugin {
       reader.onload = () => resolve(reader.result);
       reader.readAsDataURL(blob);
     });
+  }
+
+  private async craftImageHTML(figureId: UID): Promise<string> {
+    if (!this.fileStore) {
+      return "\t";
+    }
+    const imageUrl = this.getters.getImage(figureId).path;
+    const file = (await this.fileStore?.getFile(imageUrl)) || null;
+
+    if (file) {
+      const imageUrl = (await this.readFileAsDataURL(file)) as string;
+      return `<img src="${xmlEscape(imageUrl)}" />`;
+    } else {
+      return "\t";
+    }
   }
 
   private async getImageContent(): Promise<File | undefined> {

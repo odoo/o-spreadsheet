@@ -1035,9 +1035,9 @@ describe("Grid component", () => {
       setStyle(model, "A1", { bold: true });
       copy(model, "A1");
 
-      const clipboardContent = await model.getters.getOsClipboardContentAsync();
+      const clipboardContent = await model.getters.getClipboardTextAndImageContent();
       paintFormatStore.activate({ persistent: false });
-      expect(await model.getters.getOsClipboardContentAsync()).toEqual(clipboardContent);
+      expect(await model.getters.getClipboardTextAndImageContent()).toEqual(clipboardContent);
     });
 
     test("can paint format after a cut", async () => {
@@ -1805,7 +1805,7 @@ describe("Copy paste keyboard shortcut", () => {
 
       expect(clipboardContent).toMatchObject({
         "text/plain": "\t",
-        "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'></div>`,
+        "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>\t</div>`,
       });
     }
   );
@@ -1850,6 +1850,9 @@ describe("Copy paste keyboard shortcut", () => {
     await nextTick();
     const figures = model.getters.getFigures(sheetId);
     expect(figures).toHaveLength(1);
+    // const spy = spyDispatch(parent)
+    // spy on dispatch and check payload
+
     expect(model.getters.getFigure(sheetId, figures[0].id)).toMatchObject({});
   });
 });

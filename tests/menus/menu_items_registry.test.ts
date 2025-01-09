@@ -185,7 +185,7 @@ describe("Menu Item actions", () => {
     doAction(["edit", "copy"], env);
     expect(dispatch).toHaveBeenCalledWith("COPY");
     expect(spyWriteClipboard).toHaveBeenCalledWith(
-      await model.getters.getOsClipboardContentAsync()
+      await model.getters.getClipboardTextAndImageContent()
     );
   });
 
@@ -194,7 +194,7 @@ describe("Menu Item actions", () => {
     doAction(["edit", "cut"], env);
     expect(dispatch).toHaveBeenCalledWith("CUT");
     expect(spyWriteClipboard).toHaveBeenCalledWith(
-      await model.getters.getOsClipboardContentAsync()
+      await model.getters.getClipboardTextAndImageContent()
     );
   });
 

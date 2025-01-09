@@ -16,13 +16,7 @@ import {
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import {
-  getFigureDefinition,
-  getFigureIds,
-  makeTestEnv,
-  mockChart,
-  nextTick,
-} from "../test_helpers/helpers";
+import { getFigureDefinition, getFigureIds, mockChart, nextTick } from "../test_helpers/helpers";
 
 describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => {
   let model: Model;
@@ -189,8 +183,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     copy(model);
 
     const clipboardSpreadsheetContent = await parseOSClipboardContent(
-      makeTestEnv({ model }),
-      await model.getters.getOsClipboardContentAsync(),
+      await model.getters.getClipboardTextAndImageContent(),
       model.getters.getClipboardId()
     );
     const clipboardData = clipboardSpreadsheetContent.data;

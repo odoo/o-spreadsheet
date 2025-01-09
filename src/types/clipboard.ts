@@ -18,6 +18,10 @@ export type OSClipboardContent = {
 export type ParsedOSClipboardContent = {
   text?: string;
   data?: SpreadsheetClipboardData;
+  imageBlob?: Blob;
+};
+
+export type parsedOsClipboardContentWithImageData = ParsedOSClipboardContent & {
   imageData?: Image;
 };
 

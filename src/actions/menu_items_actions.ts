@@ -56,13 +56,13 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
   switch (osClipboard.status) {
     case "ok":
       const clipboardId = env.model.getters.getClipboardId();
-      const clipboardContent = await parseOSClipboardContent(env, osClipboard.content, clipboardId);
-      const contentClipboardId = clipboardContent.data?.clipboardId;
+      const osClipboardContent = await parseOSClipboardContent(osClipboard.content, clipboardId);
+      const osClipboardId = osClipboardContent.data?.clipboardId;
 
       const target = env.model.getters.getSelectedZones();
 
-      if (clipboardId !== contentClipboardId) {
-        interactivePasteFromOS(env, target, clipboardContent, pasteOption);
+      if (clipboardId !== osClipboardId) {
+        await interactivePasteFromOS(env, target, osClipboardContent, pasteOption);
       } else {
         interactivePaste(env, target, pasteOption);
       }
@@ -466,9 +466,9 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
 async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined> {
   try {
     return await env.imageProvider!.requestImage();
-  } catch (e) {
-    env.raiseError(e.message || _t("An unexpected error occurred during the image transfer"));
-    return undefined;
+  } catch {
+    env.raiseError(_t("An unexpected error occurred during the image transfer"));
+    return;
   }
 }
 
