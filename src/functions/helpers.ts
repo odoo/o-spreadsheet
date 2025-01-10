@@ -40,6 +40,13 @@ export function isEvaluationError(error: Maybe<CellValue>): error is ErrorValue 
   return typeof error === "string" && errorTypes.has(error);
 }
 
+export function valueNotAvailable(searchKey: Maybe<FunctionResultObject>): FunctionResultObject {
+  return {
+    value: CellErrorType.NotAvailable,
+    message: _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey)),
+  };
+}
+
 // -----------------------------------------------------------------------------
 // FORMAT FUNCTIONS
 // -----------------------------------------------------------------------------
