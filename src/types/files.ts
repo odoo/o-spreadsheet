@@ -16,6 +16,11 @@ export interface FileStore {
    * Delete a file from the server
    */
   delete(filePath: FilePath): Promise<void>;
+
+  /**
+   * get File from the server
+   */
+  getFile(filePath: FilePath): Promise<File | Blob>;
 }
 
 /**
@@ -26,5 +31,6 @@ export interface ImageProviderInterface {
    * RequestImage ask the user to input an image file. Then send it to a server trough an FileStore. Finally it return the path and the size of the image in the server.
    */
   requestImage(): Promise<Image>;
+  uploadFile(file: File | Blob): Promise<Image>;
   getImageOriginalSize(path: string): Promise<FigureSize>;
 }
