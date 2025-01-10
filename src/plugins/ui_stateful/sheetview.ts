@@ -106,6 +106,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getRowDimensionsInViewport",
     "getAllActiveViewportsZones",
     "getRenderingRect",
+    "getScrollMode",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -123,7 +124,7 @@ export class SheetViewPlugin extends UIPlugin {
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldAdjustViewports: boolean = false;
-  private mode: InternalViewport["mode"] = "snapped";
+  private mode: InternalViewport["mode"] = "smooth";
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -258,6 +259,10 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "SCROLL_TO_CELL":
         this.refreshViewport(this.getters.getActiveSheetId(), { col: cmd.col, row: cmd.row });
+        break;
+      case "SET_SCROLL_MODE":
+        this.mode = cmd.mode;
+        this.recomputeViewports();
         break;
     }
   }
@@ -618,6 +623,10 @@ export class SheetViewPlugin extends UIPlugin {
   getAllActiveViewportsZones(): Zone[] {
     const sheetId = this.getters.getActiveSheetId();
     return this.getSubViewports(sheetId);
+  }
+
+  getScrollMode(): InternalViewport["mode"] {
+    return this.mode;
   }
 
   // ---------------------------------------------------------------------------
