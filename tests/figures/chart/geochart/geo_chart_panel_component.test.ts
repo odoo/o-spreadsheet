@@ -19,6 +19,10 @@ import {
   mountComponentWithPortalTarget,
 } from "../../../test_helpers/helpers";
 
+jest.mock("../../../../src/components/composer/content_editable_helper.ts", () =>
+  require("../../../__mocks__/content_editable_helper")
+);
+
 let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
@@ -95,7 +99,7 @@ describe("Geo chart side panel", () => {
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect(getColorPickerValue(fixture, ".o-chart-background-color")).toEqual("#000000");
-      expect(".o-chart-title input").toHaveValue("Title");
+      expect(".o-chart-title .o-composer").toHaveText("Title");
       expect(".o-chart-legend-position").toHaveValue("right");
       expect("span[title=Bold]").toHaveClass("active");
       expect(".o-color-scale select").toHaveValue("purples");

@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { ACTION_COLOR, GRAY_300 } from "../../../constants";
+import { ACTION_COLOR, ComponentsImportance, GRAY_300 } from "../../../constants";
 import { Token } from "../../../formulas";
 import { AutoCompleteProviderDefinition } from "../../../registries";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -16,6 +16,7 @@ css/* scss */ `
     .o-standalone-composer {
       min-height: 24px;
       box-sizing: border-box;
+      z-index: ${ComponentsImportance.StandaloneComposer};
 
       border-bottom: 1px solid;
       border-color: ${GRAY_300};
