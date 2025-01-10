@@ -1544,3 +1544,7 @@ describe("shift viewport up/down", () => {
     expect(model.getters.isVisibleInViewport({ sheetId, col, row })).toBeTruthy();
   });
 });
+
+describe("smooth mode", () => {
+  describe("simple sheet viewport", () => {});
+});
