@@ -9,6 +9,7 @@
       />
     </Section>
     <ChartTitle
+      t-key="state.currentAxis"
       title="this.getAxisTitle()"
       updateTitle.bind="updateAxisTitle"
       name="editor_label"

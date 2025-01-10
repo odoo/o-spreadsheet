@@ -19,6 +19,7 @@ import {
   CustomizedDataSet,
   ExcelChartDataset,
   LegendPosition,
+  TitleDesign,
 } from "../../../types/chart";
 import {
   ComboChartDataSet,
@@ -34,6 +35,8 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleWithNewSheetId,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -118,12 +121,19 @@ export class ComboChart extends AbstractChart {
   }
 
   getDefinition(): ComboChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecifiedProperties(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
-  getDefinitionWithSpecificDataSets(
+  getDefinitionWithSpecifiedProperties(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: TitleDesign,
+    axesDesign?: AxesDesign,
     targetSheetId?: UID
   ): ComboChartDefinition {
     const ranges: ComboChartDataSet[] = [];
@@ -143,9 +153,9 @@ export class ComboChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title,
       aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
+      axesDesign,
       showValues: this.showValues,
     };
   }
@@ -175,16 +185,24 @@ export class ComboChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): ComboChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, chartTitle, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign
+    );
     return new ComboChart(definition, this.sheetId, this.getters);
   }
 
@@ -214,14 +232,50 @@ export class ComboChart extends AbstractChart {
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const updatedAxesDesign = copyAxesDesignWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.axesDesign,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      updatedChartTitle,
+      updatedAxesDesign,
+      newSheetId
+    );
     return new ComboChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): ComboChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const updatedAxesDesign = copyAxesDesignWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.axesDesign,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
       this.dataSets,
       this.labelRange,
+      updatedChartTitle,
+      updatedAxesDesign,
       sheetId
     );
     return new ComboChart(definition, sheetId, this.getters);
@@ -243,7 +297,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       layout: getChartLayout(definition),
       scales: getBarChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, chartData),
         legend: getComboChartLegend(definition, chartData),
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
