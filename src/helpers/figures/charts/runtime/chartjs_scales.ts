@@ -9,6 +9,7 @@ import {
 } from "../../../../constants";
 import { LocaleFormat } from "../../../../types";
 import {
+  AxesDesign,
   AxisDesign,
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
@@ -48,17 +49,20 @@ export function getBarChartScales(
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
   let scales: ChartScales = {};
-  const { trendDataSetsValues: trendDatasets, locale, axisFormats } = args;
+  const { trendDataSetsValues: trendDatasets, locale, axisFormats, evaluatedAxesDesign } = args;
   const options = { stacked: definition.stacked, locale: locale };
   if (definition.horizontal) {
-    scales.x = getChartAxis(definition, "bottom", "values", { ...options, format: axisFormats?.x });
-    scales.y = getChartAxis(definition, "left", "labels", options);
+    scales.x = getChartAxis(definition, evaluatedAxesDesign, "bottom", "values", {
+      ...options,
+      format: axisFormats?.x,
+    });
+    scales.y = getChartAxis(definition, evaluatedAxesDesign, "left", "labels", options);
   } else {
-    scales.x = getChartAxis(definition, "bottom", "labels", options);
+    scales.x = getChartAxis(definition, evaluatedAxesDesign, "bottom", "labels", options);
     const leftAxisOptions = { ...options, format: axisFormats?.y };
-    scales.y = getChartAxis(definition, "left", "values", leftAxisOptions);
+    scales.y = getChartAxis(definition, evaluatedAxesDesign, "left", "values", leftAxisOptions);
     const rightAxisOptions = { ...options, format: axisFormats?.y1 };
-    scales.y1 = getChartAxis(definition, "right", "values", rightAxisOptions);
+    scales.y1 = getChartAxis(definition, evaluatedAxesDesign, "right", "values", rightAxisOptions);
   }
   scales = removeFalsyAttributes(scales);
 
@@ -87,14 +91,29 @@ export function getLineChartScales(
   definition: GenericDefinition<LineChartDefinition>,
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
-  const { locale, axisType, trendDataSetsValues: trendDatasets, labels, axisFormats } = args;
+  const {
+    locale,
+    axisType,
+    trendDataSetsValues: trendDatasets,
+    labels,
+    axisFormats,
+    evaluatedAxesDesign,
+  } = args;
   const labelFormat = axisFormats?.x;
   const stacked = definition.stacked;
 
   let scales: ChartScales = {
-    x: getChartAxis(definition, "bottom", "labels", { locale }),
-    y: getChartAxis(definition, "left", "values", { locale, stacked, format: axisFormats?.y }),
-    y1: getChartAxis(definition, "right", "values", { locale, stacked, format: axisFormats?.y1 }),
+    x: getChartAxis(definition, evaluatedAxesDesign, "bottom", "labels", { locale }),
+    y: getChartAxis(definition, evaluatedAxesDesign, "left", "values", {
+      locale,
+      stacked,
+      format: axisFormats?.y,
+    }),
+    y1: getChartAxis(definition, evaluatedAxesDesign, "right", "values", {
+      locale,
+      stacked,
+      format: axisFormats?.y1,
+    }),
   };
   scales = removeFalsyAttributes(scales);
 
@@ -156,12 +175,12 @@ export function getWaterfallChartScales(
   definition: WaterfallChartDefinition,
   args: ChartRuntimeGenerationArgs
 ): ChartScales {
-  const { locale, axisFormats } = args;
+  const { locale, axisFormats, evaluatedAxesDesign } = args;
   const format = axisFormats?.y || axisFormats?.y1;
   definition.dataSets;
   const scales: ChartScales = {
     x: {
-      ...getChartAxis(definition, "bottom", "labels", { locale }),
+      ...getChartAxis(definition, evaluatedAxesDesign, "bottom", "labels", { locale }),
       grid: { display: false },
     },
     y: {
@@ -177,7 +196,7 @@ export function getWaterfallChartScales(
       grid: {
         lineWidth: (context) => (context.tick.value === 0 ? 2 : 1),
       },
-      title: getChartAxisTitleRuntime(definition.axesDesign?.y),
+      title: getChartAxisTitleRuntime(evaluatedAxesDesign?.y),
     },
   };
 
@@ -344,6 +363,7 @@ function getChartAxisTitleRuntime(design?: AxisDesign):
 
 function getChartAxis(
   definition: GenericDefinition<ChartWithAxisDefinition>,
+  evaluatedAxesDesign: AxesDesign | undefined,
   position: "left" | "right" | "bottom",
   type: "values" | "labels",
   options: LocaleFormat & { stacked?: boolean }
@@ -356,11 +376,11 @@ function getChartAxis(
   const fontColor = chartFontColor(definition.background);
   let design: AxisDesign | undefined;
   if (position === "bottom") {
-    design = definition.axesDesign?.x;
+    design = evaluatedAxesDesign?.x;
   } else if (position === "left") {
-    design = definition.axesDesign?.y;
+    design = evaluatedAxesDesign?.y;
   } else {
-    design = definition.axesDesign?.y1;
+    design = evaluatedAxesDesign?.y1;
   }
 
   if (type === "values") {
