@@ -5,9 +5,11 @@
         ranges="ranges"
         required="true"
         hasSingleRange="props.hasSingleRange"
-        onSelectionChanged="(ranges) => props.onSelectionChanged(ranges)"
-        onSelectionConfirmed="() => props.onSelectionConfirmed()"
-        colors="colors"
+        onSelectionChanged="props.onSelectionChanged"
+        onSelectionConfirmed="props.onSelectionConfirmed"
+        onSelectionReordered="props.onSelectionReordered"
+        onSelectionRemoved="props.onSelectionRemoved"
+        colors.bind="getColors"
       />
     </Section>
   </t>

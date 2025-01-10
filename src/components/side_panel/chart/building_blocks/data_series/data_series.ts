@@ -8,6 +8,8 @@ interface Props {
   ranges: CustomizedDataSet[];
   hasSingleRange?: boolean;
   onSelectionChanged: (ranges: string[]) => void;
+  onSelectionReordered?: (indexes: number[]) => void;
+  onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed: () => void;
 }
 
@@ -18,6 +20,8 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     ranges: Array,
     hasSingleRange: { type: Boolean, optional: true },
     onSelectionChanged: Function,
+    onSelectionReordered: { type: Function, optional: true },
+    onSelectionRemoved: { type: Function, optional: true },
     onSelectionConfirmed: Function,
   };
 
@@ -25,7 +29,7 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     return this.props.ranges.map((r) => r.dataRange);
   }
 
-  get colors(): (Color | undefined)[] {
+  getColors(): (Color | undefined)[] {
     return this.props.ranges.map((r) => r.backgroundColor);
   }
 
