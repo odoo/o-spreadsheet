@@ -100,8 +100,10 @@ export class GridRenderer {
         break;
       case "Headers":
         {
-          this.drawHeaders(renderingContext);
-          this.drawFrozenPanesHeaders(renderingContext);
+          if (!this.getters.isDashboard()) {
+            this.drawHeaders(renderingContext);
+            this.drawFrozenPanesHeaders(renderingContext);
+          }
         }
         break;
     }
