@@ -264,6 +264,7 @@ export enum ComponentsImportance {
   Figure = 10,
   ScrollBar = 15,
   GridPopover = 19,
+  StandaloneComposer = 20,
   GridComposer = 20,
   Dropdown = 21,
   IconPicker = 25,

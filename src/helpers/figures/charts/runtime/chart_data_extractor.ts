@@ -32,6 +32,7 @@ import { isDateTimeFormat } from "../../../format/format";
 import { deepCopy, findNextDefinedValue, range } from "../../../misc";
 import { isNumber } from "../../../numbers";
 import { recomputeZones } from "../../../recompute_zones";
+import { getEvaluatedAxesDesign, getEvaluatedChartTitle } from "../chart_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -75,10 +76,15 @@ export function getBarChartData(
     trendDataSetsValues.push(trendDataset);
   }
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+  const evaluatedAxesDesign = getEvaluatedAxesDesign(getters, definition.axesDesign);
+
   return {
     dataSetsValues,
     trendDataSetsValues,
     axisFormats,
+    evaluatedChartTitle,
+    evaluatedAxesDesign,
     labels,
     locale: getters.getLocale(),
   };
@@ -166,9 +172,14 @@ export function getLineChartData(
     );
   }
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+  const evaluatedAxesDesign = getEvaluatedAxesDesign(getters, definition.axesDesign);
+
   return {
     dataSetsValues,
     axisFormats,
+    evaluatedChartTitle,
+    evaluatedAxesDesign,
     labels,
     locale: getters.getLocale(),
     trendDataSetsValues,
@@ -203,8 +214,11 @@ export function getPieChartData(
 
   const dataSetFormat = getChartDatasetFormat(getters, dataSets, "left");
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+
   return {
     dataSetsValues,
+    evaluatedChartTitle,
     axisFormats: { y: dataSetFormat },
     labels,
     locale: getters.getLocale(),
@@ -238,9 +252,12 @@ export function getRadarChartData(
     getChartDatasetFormat(getters, dataSets, "right");
   const axisFormats = { r: dataSetFormat };
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+
   return {
     dataSetsValues,
     axisFormats,
+    evaluatedChartTitle,
     labels,
     locale: getters.getLocale(),
   };
@@ -264,6 +281,8 @@ export function getGeoChartData(
     getChartDatasetFormat(getters, dataSets, "left") ||
     getChartDatasetFormat(getters, dataSets, "right");
 
+  const evaluatedChartTitle = getEvaluatedChartTitle(getters, definition.title);
+
   return {
     dataSetsValues,
     axisFormats: { y: format },
@@ -272,6 +291,7 @@ export function getGeoChartData(
     availableRegions: getters.getGeoChartAvailableRegions(),
     geoFeatureNameToId: getters.geoFeatureNameToId,
     getGeoJsonFeatures: getters.getGeoJsonFeatures,
+    evaluatedChartTitle,
   };
 }
 
