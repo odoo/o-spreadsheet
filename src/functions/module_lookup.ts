@@ -25,19 +25,13 @@ import {
   toMatrix,
   toNumber,
   toString,
+  valueNotAvailable,
 } from "./helpers";
 
 const DEFAULT_IS_SORTED = true;
 const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
 const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
-
-function valueNotAvailable(searchKey: Maybe<FunctionResultObject>): FunctionResultObject {
-  return {
-    value: CellErrorType.NotAvailable,
-    message: _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey)),
-  };
-}
 
 // -----------------------------------------------------------------------------
 // ADDRESS

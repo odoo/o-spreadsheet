@@ -3,7 +3,13 @@ import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../typ
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { boolAnd, boolOr } from "./helper_logical";
-import { assert, conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
+import {
+  assert,
+  conditionalVisitBoolean,
+  isEvaluationError,
+  toBoolean,
+  valueNotAvailable,
+} from "./helpers";
 
 // -----------------------------------------------------------------------------
 // AND
@@ -217,6 +223,53 @@ export const OR = {
     const { result, foundBoolean } = boolOr(logicalExpressions);
     assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
     return result;
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// SWITCH
+// -----------------------------------------------------------------------------
+
+export const SWITCH = {
+  description: _t("Returns a value by comparing cases to an expression."),
+  args: [
+    arg("expression (number, boolean, string)", _t("The value to be checked.")),
+    arg("case1 (number, boolean, string)", _t("The first case to be checked against expression.")),
+    arg("value1 (any)", _t("The corresponding value to be returned if case1 matches expression.")),
+    arg(
+      "case2 (any, repeating)",
+      _t("Additional cases to try if the previous ones don't match expression.")
+    ),
+    arg(
+      "value2 (any, repeating)",
+      _t("Additional values to be returned if their corresponding cases match expression.")
+    ),
+    arg(
+      `default (any, default="empty")`,
+      _t("An optional default value to be returned if none of the cases match expression.")
+    ),
+  ],
+  compute: function (
+    expression: Maybe<FunctionResultObject>,
+    ...casesAndValues: Maybe<FunctionResultObject>[]
+  ): FunctionResultObject {
+    const defaultValue =
+      casesAndValues.length % 2 === 0 ? valueNotAvailable(expression) : casesAndValues.pop();
+
+    for (let i = 0; i < casesAndValues.length; i += 2) {
+      const iCase = casesAndValues[i];
+
+      if (iCase && isEvaluationError(iCase.value)) {
+        return iCase;
+      }
+
+      if (expression?.value === iCase?.value) {
+        return casesAndValues[i + 1] || { value: 0 };
+      }
+    }
+
+    return defaultValue || { value: 0 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
