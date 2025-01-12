@@ -1546,5 +1546,15 @@ describe("shift viewport up/down", () => {
 });
 
 describe("smooth mode", () => {
-  describe("simple sheet viewport", () => {});
+  describe("simple sheet viewport", () => {
+    test("scroll of half a cell height/width");
+
+    test("scroll of half a cell width");
+
+    test("getRect of a cell partially visible");
+
+    test("getRect of a cell partially visible after scrolling");
+
+    test("changing mode resnaps the viewport");
+  });
 });

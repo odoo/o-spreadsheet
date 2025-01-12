@@ -417,9 +417,14 @@ export class InternalViewport {
     if (this.mode === "snapped") {
       return { x: 0, y: 0 };
     }
+
     return {
-      x: this.offsetScrollbarX - this.offsetX || 0,
-      y: this.offsetScrollbarY - this.offsetY || 0,
+      x:
+        this.offsetScrollbarX -
+        this.getters.getColRowOffset("COL", this.boundaries.left, Math.max(0, this.left)),
+      y:
+        this.offsetScrollbarY -
+        this.getters.getColRowOffset("ROW", this.boundaries.top, Math.max(0, this.top)),
     };
   }
 }
