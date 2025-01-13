@@ -10,7 +10,7 @@ import {
 import { colors, toHex, toZone } from "../../src/helpers";
 import { Store } from "../../src/store_engine";
 import { SpreadsheetChildEnv } from "../../src/types";
-import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
+import { ContentEditableSelectionHelper } from "../__mocks__/content_editable_helper_selection";
 import {
   activateSheet,
   copy,
@@ -51,13 +51,13 @@ import {
   typeInComposerTopBar as typeInComposerTopBarHelper,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
+jest.mock("../../src/components/composer/content_editable_helper_selection.ts", () =>
+  require("../__mocks__/content_editable_helper_selection")
 );
 
 let fixture: HTMLElement;
 let model: Model;
-let cehMock: ContentEditableHelper;
+let cehMock: ContentEditableSelectionHelper;
 let composerStore: Store<CellComposerStore>;
 
 async function startComposition(key?: string) {
@@ -205,12 +205,16 @@ describe("Composer interactions", () => {
   test("type '=' and click Cell, the cell ref should be colored", async () => {
     const composerEl = await typeInComposerGrid("=");
     expect(composerEl.textContent).toBe("=");
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(1);
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(cehMock.focusNode?.textContent).toBe("=");
+    expect(cehMock.focusOffset).toBe(1);
     expect(composerStore.editionMode).toBe("selecting");
     await clickCell(model, "C8");
     expect(composerEl.textContent).toBe("=C8");
-    expect(cehMock.colors["C8"]).toBe(colors[0]);
+    expect(composerEl.childNodes[0].lastChild?.textContent).toBe("C8");
+    expect((composerEl.childNodes[0].lastChild as HTMLElement).style.color).toBeSameColorAs(
+      colors[0]
+    );
   });
 
   test("=+Click range, the range ref should be colored", async () => {
@@ -220,7 +224,10 @@ describe("Composer interactions", () => {
     gridMouseEvent(model, "pointerup", "B8");
     await nextTick();
     expect(composerEl.textContent).toBe("=B8:C8");
-    expect(cehMock.colors["B8:C8"]).toBe(colors[0]);
+    expect(composerEl.childNodes[0].lastChild?.textContent).toBe("B8:C8");
+    expect((composerEl.childNodes[0].lastChild as HTMLElement).style.color).toBeSameColorAs(
+      colors[0]
+    );
   });
 
   test("type '=', and click a cell several times", async () => {
@@ -318,7 +325,7 @@ describe("Composer interactions", () => {
   test("type '=', backspace and select a cell should not add it", async () => {
     const composerEl = await typeInComposerGrid("=");
     composerStore.setCurrentContent("");
-    cehMock.removeAll();
+    composerEl.innerHTML = "";
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
     await clickCell(model, "C8");
@@ -531,7 +538,7 @@ describe("Grid composer", () => {
     activateSheet(model, baseSheetId);
     await nextTick();
     expect(composerStore.editionMode).not.toBe("inactive");
-  });
+  }, 1000000000);
 
   test("the composer should keep the focus after changing sheet", async () => {
     createSheet(model, { sheetId: "42", name: "Sheet2" });

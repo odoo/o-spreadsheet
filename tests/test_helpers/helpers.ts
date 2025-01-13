@@ -675,6 +675,7 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
     // focusNode.textContent = fullText;
     cehMock.setSelection(
       focusNode,
+      // This looks louche
       cehMock.anchorOffset + text.length,
       focusNode,
       cehMock.focusOffset + text.length
