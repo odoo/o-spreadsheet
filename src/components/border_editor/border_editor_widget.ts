@@ -1,10 +1,10 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
 import { BorderPosition, BorderStyle, Color, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
 import { BorderEditor } from "./border_editor";
 
 interface Props {
-  toggleBorderEditor: () => void;
+  toggleBorderEditor: (ev: MouseEvent) => void;
   showBorderEditor: boolean;
   disabled?: boolean;
   dropdownMaxHeight?: Pixel;
@@ -34,6 +34,14 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
     currentStyle: DEFAULT_BORDER_DESC.style,
     currentPosition: undefined,
   });
+
+  setup() {
+    onWillUpdateProps((newProps: Props) => {
+      if (!newProps.showBorderEditor) {
+        this.state.currentPosition = undefined;
+      }
+    });
+  }
 
   get borderEditorAnchorRect(): Rect {
     const button = this.borderEditorButtonRef.el!;
