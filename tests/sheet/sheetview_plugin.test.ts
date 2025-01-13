@@ -1547,7 +1547,12 @@ describe("shift viewport up/down", () => {
 
 describe("smooth mode", () => {
   describe("simple sheet viewport", () => {
-    test("scroll of half a cell height/width");
+    beforeEach(() => {
+      model = new Model();
+    });
+    test("scroll of half a cell height/width", () => {
+      setViewportOffset(model, DEFAULT_CELL_WIDTH / 2, DEFAULT_CELL_HEIGHT / 2);
+    });
 
     test("scroll of half a cell width");
 
