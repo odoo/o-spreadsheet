@@ -3,7 +3,7 @@ import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {
   getProposals(tokenAtCursor, content) {
-    if (content.startsWith("=")) {
+    if (content.startsWith("=") || content.startsWith("+")) {
       return [];
     }
     if (!this.composer.currentEditedCell) {

@@ -611,7 +611,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     style: Style | undefined,
     sheetId: UID
   ): Cell {
-    if (!content.startsWith("=")) {
+    if (!content.startsWith("=") && !content.startsWith("+")) {
       return this.createLiteralCell(id, content, format, style);
     }
     return this.createFormulaCell(id, content, format, style, sheetId);
@@ -651,13 +651,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     style: Style | undefined,
     sheetId: UID
   ): FormulaCell {
-    const compiledFormula = compile(content);
+    const newContent = content.startsWith("+") ? "=" + content.slice(1) : content;
+    const compiledFormula = compile(newContent);
     if (compiledFormula.dependencies.length) {
       return this.createFormulaCellWithDependencies(id, compiledFormula, format, style, sheetId);
     }
     return {
       id,
-      content,
+      content: newContent,
       style,
       format,
       isFormula: true,

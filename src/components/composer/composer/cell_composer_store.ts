@@ -241,7 +241,7 @@ export class CellComposerStore extends AbstractComposerStore {
 
   /** Add headers at the end of the sheet so the formula in the composer has enough space to spread */
   private addHeadersForSpreadingFormula(content: string) {
-    if (!content.startsWith("=")) {
+    if (!content.startsWith("=") && !content.includes("+")) {
       return;
     }
 

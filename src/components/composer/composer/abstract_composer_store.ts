@@ -345,7 +345,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         return;
       }
       if (content) {
-        if (content.startsWith("=")) {
+        if (content.startsWith("=") || content.startsWith("+")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
           const missing = left - right;
@@ -404,7 +404,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
     if (isNewCurrentContent || this.editionMode !== "inactive") {
       const locale = this.getters.getLocale();
-      this.currentTokens = text.startsWith("=") ? composerTokenize(text, locale) : [];
+      this.currentTokens =
+        text.startsWith("=") || text.startsWith("+") ? composerTokenize(text, locale) : [];
       if (this.currentTokens.length > 100) {
         if (raise) {
           this.notificationStore.raiseError(
@@ -712,9 +713,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   get autocompleteProvider(): AutoCompleteProvider | undefined {
     const content = this.currentContent;
-    const tokenAtCursor = content.startsWith("=")
-      ? this.tokenAtCursor
-      : { type: "STRING", value: content };
+    const tokenAtCursor =
+      content.startsWith("=") || content.startsWith("+")
+        ? this.tokenAtCursor
+        : { type: "STRING", value: content };
     if (
       this.editionMode === "inactive" ||
       !tokenAtCursor ||

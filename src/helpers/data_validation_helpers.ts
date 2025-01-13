@@ -41,8 +41,9 @@ export function getCriterionValuesAsNumber(criterion: DataValidationCriterion, l
 
 export function getDateCriterionFormattedValues(values: string[], locale: Locale) {
   return values.map((valueStr) => {
-    if (valueStr.startsWith("=")) {
-      return valueStr;
+    if (valueStr.startsWith("=") || valueStr.startsWith("+")) {
+      const value = valueStr.startsWith("+") ? "=" + valueStr.slice(1) : valueStr;
+      return value;
     }
     const value = parseLiteral(valueStr, locale);
     if (typeof value === "number") {

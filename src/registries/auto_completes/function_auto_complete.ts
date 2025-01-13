@@ -12,7 +12,10 @@ autoCompleteProviders.add("functions", {
       return [];
     }
     const searchTerm = tokenAtCursor.value;
-    if (!this.composer.currentContent.startsWith("=")) {
+    if (
+      !this.composer.currentContent.startsWith("=") &&
+      !this.composer.currentContent.startsWith("+")
+    ) {
       return [];
     }
     const values = Object.entries(functionRegistry.content)

@@ -18,8 +18,11 @@ export class DataValidationInsertionPlugin extends UIPlugin {
               // not yet evaluated. This can occur after a paste operation.
             } else if (cell?.content && evaluatedCell.type === CellValueType.empty) {
               let value: string | undefined;
-              if (cell.content.startsWith("=")) {
-                const result = this.getters.evaluateFormula(position.sheetId, cell.content);
+              if (cell.content.startsWith("=") || cell.content.startsWith("+")) {
+                const content = cell.content.startsWith("+")
+                  ? "=" + cell.content.slice(1)
+                  : cell.content;
+                const result = this.getters.evaluateFormula(position.sheetId, content);
                 value = (isMatrix(result) ? result[0][0] : result)?.toString();
               } else {
                 value = cell.content;
