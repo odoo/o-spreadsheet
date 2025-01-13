@@ -4,7 +4,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
-import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
+import { ContentEditableSelectionHelper } from "../__mocks__/content_editable_helper_selection";
 import { registerCleanup } from "../setup/jest.setup";
 import { selectCell } from "../test_helpers/commands_helpers";
 import {
@@ -24,14 +24,14 @@ import {
   typeInComposerHelper,
 } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
+jest.mock("../../src/components/composer/content_editable_helper_selection.ts", () =>
+  require("../__mocks__/content_editable_helper_selection")
 );
 
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let cehMock: ContentEditableHelper;
+let cehMock: ContentEditableSelectionHelper;
 let parent: ComposerWrapper;
 let composerStore: Store<CellComposerStore>;
 
@@ -115,16 +115,18 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=S");
       await keyDown({ key: "Tab" });
       expect(composerEl.textContent).toBe("=SUM(");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(5);
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(cehMock.focusNode?.textContent).toBe("(");
+      expect(cehMock.focusOffset).toBe(1);
     });
 
     test("=S+ENTER complete the function --> =SUM(␣", async () => {
       await typeInComposer("=S");
       await keyDown({ key: "Enter" });
       expect(composerEl.textContent).toBe("=SUM(");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(5);
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(cehMock.focusNode?.textContent).toBe("(");
+      expect(cehMock.focusOffset).toBe(1);
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -198,8 +200,9 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=S");
       await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
       expect(composerEl.textContent).toBe("=SZZ(");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(5);
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(cehMock.focusNode?.textContent).toBe("(");
+      expect(cehMock.focusOffset).toBe(1);
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
@@ -455,8 +458,9 @@ describe("Autocomplete parenthesis", () => {
     // select the SUM function
     await click(fixture.querySelector(".o-autocomplete-value")!);
     expect(composerEl.textContent).toBe("=SUM(");
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(5);
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(cehMock.focusNode?.textContent).toBe("(");
+    expect(cehMock.focusOffset).toBe(1);
     expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
   });
 

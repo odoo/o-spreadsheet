@@ -106,39 +106,7 @@ export class ContentEditableHelper {
   private attachEventHandlers() {
     if (this.el === null) return;
     this.el.addEventListener("keydown", (ev: KeyboardEvent) => this.onKeyDown(this.el!, ev));
-    this.el.addEventListener("focus", (ev: FocusEvent) => (window.mockContentHelper = this));
-  }
-
-  /**
-   * Mock default keydown events
-   */
-  private onKeyDown(el: HTMLElement, ev: KeyboardEvent) {
-    if (ev.defaultPrevented) {
-      return;
-    }
-    switch (ev.key) {
-      case "Home":
-        this.currentState.cursorStart = 0;
-        this.currentState.cursorEnd = 0;
-        break;
-      case "End":
-        const end = el.textContent ? el.textContent.length : 0;
-        this.currentState.cursorStart = end;
-        this.currentState.cursorEnd = end;
-        break;
-      case "ArrowRight":
-        this.currentState.cursorEnd += 1;
-        this.currentState.cursorStart = ev.shiftKey
-          ? this.currentState.cursorStart
-          : this.currentState.cursorEnd;
-        break;
-      case "ArrowLeft":
-        this.currentState.cursorEnd -= 1;
-        this.currentState.cursorStart = ev.shiftKey
-          ? this.currentState.cursorStart
-          : this.currentState.cursorEnd;
-        break;
-    }
+    // this.el.addEventListener("focus", (ev: FocusEvent) => (window.mockContentHelper = this));
   }
 
   scrollSelectionIntoView() {}

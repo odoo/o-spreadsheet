@@ -2,36 +2,38 @@ import { deepEquals, toHex } from "../../helpers";
 import { iterateChildren } from "../helpers/dom_helpers";
 import { NEWLINE } from "./../../constants";
 import { HtmlContent } from "./composer/composer";
+import { ContentEditableSelectionHelper } from "./content_editable_helper_selection";
 
 export class ContentEditableHelper {
   // todo make el private and expose dedicated methods
   el: HTMLElement;
+  private selection: ContentEditableSelectionHelper;
+
   constructor(el: HTMLElement) {
     this.el = el;
+    this.selection = new ContentEditableSelectionHelper(el);
   }
 
   updateEl(el: HTMLElement) {
     this.el = el;
+    this.selection.updateEl(el);
   }
 
   /**
    * select the text at position start to end, no matter the children
    */
   selectRange(start: number, end: number) {
-    let selection = window.getSelection()!;
     const { start: currentStart, end: currentEnd } = this.getCurrentSelection();
 
     if (currentStart === start && currentEnd === end) {
       return;
     }
-    const currentRange = selection.getRangeAt(0);
+    const currentRange = this.selection.getRange();
     let range: Range;
     if (this.el.contains(currentRange.startContainer)) {
       range = currentRange;
     } else {
-      range = document.createRange();
-      selection.removeAllRanges();
-      selection.addRange(range);
+      range = this.selection.setEmptyRange();
     }
     if (start === end && start === 0) {
       range.setStart(this.el, 0);
@@ -187,18 +189,14 @@ export class ContentEditableHelper {
   }
 
   scrollSelectionIntoView() {
-    const focusedNode = document.getSelection()?.focusNode;
-    if (!focusedNode || !this.el.contains(focusedNode)) return;
-    const element = focusedNode instanceof HTMLElement ? focusedNode : focusedNode.parentElement;
-    element?.scrollIntoView({ block: "nearest" });
+    this.selection.scrollSelectionIntoView();
   }
 
   /**
    * remove the current selection of the user
    * */
   removeSelection() {
-    let selection = window.getSelection()!;
-    selection.removeAllRanges();
+    this.selection.removeSelection();
   }
 
   private removeAll() {
@@ -214,7 +212,7 @@ export class ContentEditableHelper {
    * */
   getCurrentSelection() {
     let { startElement, endElement, startSelectionOffset, endSelectionOffset } =
-      this.getStartAndEndSelection();
+      this.selection.getStartAndEndSelection();
     let startSizeBefore = this.findSelectionIndex(startElement!, startSelectionOffset);
     let endSizeBefore = this.findSelectionIndex(endElement!, endSelectionOffset);
 
@@ -299,17 +297,6 @@ export class ContentEditableHelper {
       usedCharacters++;
     }
     return usedCharacters;
-  }
-
-  private getStartAndEndSelection() {
-    const selection = document.getSelection()!;
-
-    return {
-      startElement: selection.anchorNode || this.el,
-      startSelectionOffset: selection.anchorOffset,
-      endElement: selection.focusNode || this.el,
-      endSelectionOffset: selection.focusOffset,
-    };
   }
 
   getText(): string {

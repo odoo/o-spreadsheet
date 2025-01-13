@@ -655,7 +655,38 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   const cehMock = window.mockContentHelper;
   composerEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "" }));
   await nextTick();
-  cehMock.insertText(text);
+  const focusNode = cehMock.focusNode;
+  const anchorNode = cehMock.anchorNode;
+  if (!focusNode || !anchorNode) {
+    const p = document.createElement("p");
+    const span = document.createElement("span");
+    span.textContent = text;
+    p.appendChild(span);
+    composerEl.appendChild(p);
+    cehMock.setSelection(span, text.length, span, text.length);
+  } else {
+    const focusText = focusNode.textContent ?? "";
+    const anchorText = anchorNode.textContent ?? "";
+    const fullText =
+      anchorText.slice(0, cehMock.anchorOffset) + text + focusText.slice(cehMock.focusOffset);
+    anchorNode.textContent = "";
+    focusNode.textContent = fullText;
+    // remove end of anchor text
+    // focusNode.textContent = fullText;
+    cehMock.setSelection(
+      focusNode,
+      cehMock.anchorOffset + text.length,
+      focusNode,
+      cehMock.focusOffset + text.length
+    );
+  }
+  // const p = document.createElement("p");
+  // // pas correct!
+  // p.textContent = fullText;
+  // composerEl.innerHTML = "";
+  // composerEl.appendChild(p);
+  // @ts-ignore
+  // composerEl.textContent = text;
   composerEl.dispatchEvent(new InputEvent("input", { data: text, bubbles: true }));
   await nextTick();
   composerEl.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "" }));
