@@ -37,6 +37,7 @@ export function evaluateLiteral(
 
 export function parseLiteral(content: string, locale: Locale): CellValue {
   if (content.startsWith("=")) {
+    // if (content.startsWith("=") || content.startsWith("+")) {
     throw new Error(`Cannot parse "${content}" because it's not a literal value. It's a formula`);
   }
   if (content === "") {

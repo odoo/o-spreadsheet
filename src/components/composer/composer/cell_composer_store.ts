@@ -82,7 +82,7 @@ export class CellComposerStore extends AbstractComposerStore {
         }
         break;
       case "ACTIVATE_SHEET":
-        if (!this._currentContent.startsWith("=")) {
+        if (!this._currentContent.startsWith("=") && !this._currentContent.startsWith("+")) {
           this._cancelEdition();
           this.resetContent();
         }
@@ -179,7 +179,7 @@ export class CellComposerStore extends AbstractComposerStore {
     if (content) {
       const sheetId = this.getters.getActiveSheetId();
       const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
-      if (cell.link && !content.startsWith("=")) {
+      if (cell.link && !content.startsWith("=") && !content.startsWith("+")) {
         content = markdownLink(content, cell.link.url);
       }
       this.addHeadersForSpreadingFormula(content);
@@ -241,7 +241,7 @@ export class CellComposerStore extends AbstractComposerStore {
 
   /** Add headers at the end of the sheet so the formula in the composer has enough space to spread */
   private addHeadersForSpreadingFormula(content: string) {
-    if (!content.startsWith("=")) {
+    if (!content.startsWith("=") && !content.includes("+")) {
       return;
     }
 

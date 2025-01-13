@@ -61,7 +61,7 @@ export function isValidLocale(locale: any): locale is Locale {
  * canonicalizeNumberContent("02/12/2012", FR_LOCALE) // "02/12/2012"
  */
 export function canonicalizeNumberContent(content: string, locale: Locale) {
-  return content.startsWith("=")
+  return content.startsWith("=") || content.startsWith("+")
     ? canonicalizeFormula(content, locale)
     : canonicalizeNumberLiteral(content, locale);
 }
@@ -77,7 +77,7 @@ export function canonicalizeNumberContent(content: string, locale: Locale) {
  * canonicalizeContent("02-12-2012", FR_LOCALE) // "12/02/2012"
  */
 export function canonicalizeContent(content: string, locale: Locale) {
-  return content.startsWith("=")
+  return content.startsWith("=") || content.startsWith("+")
     ? canonicalizeFormula(content, locale)
     : canonicalizeLiteral(content, locale);
 }
@@ -93,7 +93,7 @@ export function canonicalizeContent(content: string, locale: Locale) {
  * localizeNumberContent("02-12-2012", FR_LOCALE) // "12/02/2012"
  */
 export function localizeNumberContent(content: string, locale: Locale) {
-  return content.startsWith("=")
+  return content.startsWith("=") || content.startsWith("+")
     ? localizeFormula(content, locale)
     : localizeNumberLiteral(content, locale);
 }
@@ -107,7 +107,7 @@ export function localizeNumberContent(content: string, locale: Locale) {
  * localizeContent("12/02/2012", FR_LOCALE) // "02/12/2012"
  */
 export function localizeContent(content: string, locale: Locale) {
-  return content.startsWith("=")
+  return content.startsWith("=") || content.startsWith("+")
     ? localizeFormula(content, locale)
     : localizeLiteral(content, locale);
 }

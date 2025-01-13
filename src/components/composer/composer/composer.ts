@@ -303,7 +303,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     if (
       this.props.focus === "cellFocus" &&
       !this.autoCompleteState.provider &&
-      !content.startsWith("=")
+      !content.startsWith("=") &&
+      !content.startsWith("+")
     ) {
       this.props.composerStore.stopEdition();
       return;
@@ -552,7 +553,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       return;
     }
     const composerContent = this.props.composerStore.currentContent;
-    const isValidFormula = composerContent.startsWith("=");
+    const isValidFormula = composerContent.startsWith("=") || composerContent.startsWith("+");
 
     if (isValidFormula) {
       const tokens = this.props.composerStore.currentTokens;
@@ -624,7 +625,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
    */
   private getContentLines(): HtmlContent[][] {
     let value = this.props.composerStore.currentContent;
-    const isValidFormula = value.startsWith("=");
+    const isValidFormula = value.startsWith("=") || value.startsWith("+");
 
     if (value === "") {
       return [];
@@ -723,7 +724,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     }
     const token = this.props.composerStore.tokenAtCursor;
 
-    if (content.startsWith("=") && token && token.type !== "SYMBOL") {
+    if ((content.startsWith("=") || content.startsWith("+")) && token && token.type !== "SYMBOL") {
       const tokenContext = token.functionContext;
       const parentFunction = tokenContext?.parent.toUpperCase();
       if (

@@ -82,7 +82,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     value: string
   ): string | undefined {
     const evaluator = dataValidationEvaluatorRegistry.get(criterionType);
-    if (value.startsWith("=")) {
+    if (value.startsWith("=") || value.startsWith("+")) {
       if (evaluator.allowedValues === "onlyLiterals") {
         return _t("The value must not be a formula");
       }
@@ -122,7 +122,8 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
   }
 
   private isValidFormula(value: string): boolean {
-    return !compile(value).isBadExpression;
+    const newValue = value.startsWith("+") ? "=" + value.slice(1) : value;
+    return !compile(newValue).isBadExpression;
   }
 
   private getValidationResultForCell(cellPosition: CellPosition): ValidationResult {
@@ -192,7 +193,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     criterion: DataValidationCriterion
   ): string[] {
     return criterion.values.map((value) => {
-      if (!value.startsWith("=")) {
+      if (!value.startsWith("=") && !value.startsWith("+")) {
         return value;
       }
 

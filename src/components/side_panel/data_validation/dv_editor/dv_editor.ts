@@ -97,7 +97,8 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
       .slice(0, criterionEvaluator.numberOfValues(criterion))
       .map((value) => value?.trim())
       .filter((value) => value !== "" && value !== undefined)
-      .map((value) => canonicalizeContent(value, locale));
+      .map((value) => canonicalizeContent(value, locale))
+      .map((value) => (value.startsWith("+") ? "=" + value.slice(1) : value));
     rule.criterion = { ...criterion, values };
     return {
       sheetId,
