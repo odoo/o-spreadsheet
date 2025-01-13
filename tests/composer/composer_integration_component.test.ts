@@ -533,6 +533,7 @@ describe("Grid composer", () => {
     expect(composerStore.editionMode).toBe("inactive");
 
     // Editing formula
+    console.log("start");
     await typeInComposerGrid("=");
     expect(composerStore.editionMode).not.toBe("inactive");
     activateSheet(model, baseSheetId);
@@ -729,9 +730,15 @@ describe("TopBar composer", () => {
     ({ model, fixture } = await mountSpreadsheet());
     const composerEl = await typeInComposerTopBar("=\nS");
     await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
-    expect(composerEl.textContent).toBe("=\nSIN(");
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(6);
+    const lines = composerEl.querySelectorAll("p");
+    expect(lines).toHaveLength(2);
+    expect(lines[0].textContent).toBe("=");
+    expect(lines[1].textContent).toBe("SIN(");
+    // expect(composerEl.textContent).toBe("=\nSIN(");
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    // expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+    expect(cehMock.focusNode?.textContent).toBe("(");
+    expect(cehMock.focusOffset).toBe(1);
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
   });

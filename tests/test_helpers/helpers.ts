@@ -649,8 +649,8 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   let composerEl: Element = document.querySelector(selector)!;
   if (fromScratch) {
     composerEl = await startGridComposition();
+    window.mockContentHelper.setEmptyRange();
   }
-
   (composerEl as HTMLElement).focus();
   const cehMock = window.mockContentHelper;
   composerEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "" }));
@@ -667,6 +667,7 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   } else {
     const focusText = focusNode.textContent ?? "";
     const anchorText = anchorNode.textContent ?? "";
+    console.log(anchorText, focusText);
     const fullText =
       anchorText.slice(0, cehMock.anchorOffset) + text + focusText.slice(cehMock.focusOffset);
     anchorNode.textContent = "";

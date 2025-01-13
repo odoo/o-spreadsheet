@@ -601,6 +601,10 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       return;
     }
     this.shouldProcessInputEvents = false;
+    console.log(this.props.composerStore.currentContent);
+    if (this.props.composerStore.currentContent === "=") {
+      debugger;
+    }
     if (this.props.focus !== "inactive" && document.activeElement !== this.contentHelper.el) {
       this.contentHelper.el.focus();
     }

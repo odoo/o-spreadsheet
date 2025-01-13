@@ -205,6 +205,7 @@ export class ContentEditableHelper {
         this.el.removeChild(this.el.firstChild);
       }
     }
+    // this.removeSelection();
   }
 
   /**
