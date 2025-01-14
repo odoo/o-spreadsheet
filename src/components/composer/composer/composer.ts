@@ -454,10 +454,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
    * Triggered automatically by the content-editable between the keydown and key up
    * */
   onInput(ev: InputEvent) {
-    console.log(this.contentHelper.getText());
-    if (this.contentHelper.getText() === "=,=") {
-      debugger;
-    }
     if (!this.shouldProcessInputEvents) {
       return;
     }
@@ -471,6 +467,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     if (this.props.focus === "inactive") {
       return this.props.onComposerCellFocused?.(content);
     }
+
     let selection = this.contentHelper.getCurrentSelection();
     this.props.composerStore.stopComposerRangeSelection();
     this.props.composerStore.setCurrentContent(content, selection);
@@ -604,9 +601,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       return;
     }
     this.shouldProcessInputEvents = false;
-    if (this.props.composerStore.currentContent === "=") {
-      // debugger;
-    }
     if (this.props.focus !== "inactive" && document.activeElement !== this.contentHelper.el) {
       this.contentHelper.el.focus();
     }
