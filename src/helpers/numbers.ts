@@ -34,11 +34,10 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
     ")" +
     pScientificFormat +
     pPercentFormat;
-  const pPlus = "(?:\\s*\\+)?"; // pattern that match positive symbol between zero and one time
   const pMinus = "(?:\\s*-)?"; // pattern that match negative symbol between zero and one time
   const pCurrencyFormat = "(?:\\s*[\\$€])?";
 
-  const p1 = pPlus + pMinus + pCurrencyFormat + pNumber;
+  const p1 = pMinus + pCurrencyFormat + pNumber;
   const p2 = pMinus + pNumber + pCurrencyFormat;
   const p3 = pCurrencyFormat + pMinus + pNumber;
 

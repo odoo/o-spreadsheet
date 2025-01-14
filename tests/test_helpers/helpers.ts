@@ -653,6 +653,9 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   }
   (composerEl as HTMLElement).focus();
   const cehMock = window.mockContentHelper;
+  if (!composerEl.contains(cehMock.focusNode)) {
+    throw new Error("Focus node is not in the composer");
+  }
   composerEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "" }));
   await nextTick();
   const focusNode = cehMock.focusNode;
@@ -680,9 +683,9 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
       focusNode,
       cehMock.focusOffset + text.length
     );
-    if (!composerEl.contains(focusNode)) {
-      throw new Error("Focus node is not in the composer");
-    }
+    // if (!composerEl.contains(focusNode)) {
+    //   throw new Error("Focus node is not in the composer");
+    // }
   }
   // const p = document.createElement("p");
   // // pas correct!
