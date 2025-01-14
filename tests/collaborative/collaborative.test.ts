@@ -144,6 +144,13 @@ describe("Multi users synchronisation", () => {
     expect(called).toBe(false);
   });
 
+  test("The server response to our own message is signaled", () => {
+    let notif = jest.fn();
+    alice["session"].on("collaborative-event-received", alice, notif);
+    setCellContent(alice, "A1", "salut");
+    expect(notif).toHaveBeenCalled();
+  });
+
   test("Can export data after leaving the session", () => {
     alice.leaveSession();
     alice.exportData();
