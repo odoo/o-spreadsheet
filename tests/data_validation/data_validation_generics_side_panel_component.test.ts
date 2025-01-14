@@ -12,10 +12,6 @@ import {
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
-
 const dataValidationSelectBoundingRect = { x: 100, y: 100, width: 50, height: 50 };
 mockGetBoundingClientRect({
   "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),

@@ -1,0 +1,217 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Composer string is correctly translated to DOM Multi-line formula 1`] = `
+<div
+  class="o-composer w-100 text-start active"
+  contenteditable="true"
+  spellcheck="false"
+  style=""
+  tabindex="1"
+>
+  <p>
+    <span
+      style="color: rgb(61, 164, 171);"
+    >
+      =
+    </span>
+  </p>
+  <p>
+    <span
+      style="color: rgb(235, 109, 0);"
+    >
+      A1: 
+    </span>
+  </p>
+  <p>
+    <span
+      style="color: rgb(235, 109, 0);"
+    >
+      A2
+    </span>
+  </p>
+  <p>
+    <span>
+      <br />
+    </span>
+  </p>
+  <p>
+    <span
+      style="color: rgb(61, 164, 171);"
+    >
+      +
+    </span>
+    <span
+      style="color: rgb(0, 0, 0);"
+    >
+      SUM
+    </span>
+    <span
+      class="background-flag"
+      style="color: rgb(0, 0, 0);"
+    >
+      (
+    </span>
+  </p>
+  <p>
+    <span
+      style="color: rgb(2, 195, 154);"
+    >
+      5
+    </span>
+    <span
+      class="background-flag"
+      style="color: rgb(0, 0, 0);"
+    >
+      )
+    </span>
+  </p>
+</div>
+`;
+
+exports[`Composer string is correctly translated to DOM Multi-line string 1`] = `
+<div
+  class="o-composer w-100 text-start active"
+  contenteditable="true"
+  spellcheck="false"
+  style=""
+  tabindex="1"
+>
+  <p>
+    <span>
+      <br />
+    </span>
+  </p>
+  <p>
+    <span>
+      I'm
+    </span>
+  </p>
+  <p>
+    <span>
+      multi
+    </span>
+  </p>
+  <p>
+    <span>
+      <br />
+    </span>
+  </p>
+  <p>
+    <span>
+      line
+    </span>
+  </p>
+  <p>
+    <span>
+      <br />
+    </span>
+  </p>
+</div>
+`;
+
+exports[`Composer string is correctly translated to DOM Selection indicator in multi-line formula 1`] = `
+<div
+  class="o-composer w-100 text-start active"
+  contenteditable="true"
+  spellcheck="false"
+  style=""
+  tabindex="1"
+>
+  <p>
+    <span
+      style="color: rgb(61, 164, 171);"
+    >
+      =
+    </span>
+  </p>
+  <p>
+    <span>
+      <br />
+    </span>
+  </p>
+  <p>
+    <span
+      class="selector-flag"
+      style="color: rgb(0, 0, 0);"
+    />
+  </p>
+</div>
+`;
+
+exports[`Composer string is correctly translated to DOM Selection indicator in simple formula 1`] = `
+<div
+  class="o-composer w-100 text-start active"
+  contenteditable="true"
+  spellcheck="false"
+  style=""
+  tabindex="1"
+>
+  <p>
+    <span
+      class="selector-flag"
+      style="color: rgb(61, 164, 171);"
+    >
+      =
+    </span>
+  </p>
+</div>
+`;
+
+exports[`Composer string is correctly translated to DOM Simple formula 1`] = `
+<div
+  class="o-composer w-100 text-start active"
+  contenteditable="true"
+  spellcheck="false"
+  style=""
+  tabindex="1"
+>
+  <p>
+    <span
+      style="color: rgb(61, 164, 171);"
+    >
+      =
+    </span>
+    <span
+      style="color: rgb(2, 195, 154);"
+    >
+      1
+    </span>
+    <span
+      style="color: rgb(0, 0, 0);"
+    >
+       
+    </span>
+    <span
+      style="color: rgb(61, 164, 171);"
+    >
+      +
+    </span>
+    <span
+      style="color: rgb(0, 0, 0);"
+    >
+       
+    </span>
+    <span
+      style="color: rgb(235, 109, 0);"
+    >
+      A1
+    </span>
+  </p>
+</div>
+`;
+
+exports[`Composer string is correctly translated to DOM Simple string 1`] = `
+<div
+  class="o-composer w-100 text-start active"
+  contenteditable="true"
+  spellcheck="false"
+  style=""
+  tabindex="1"
+>
+  <p>
+    <span>
+      I'm a simple content
+    </span>
+  </p>
+</div>
+`;

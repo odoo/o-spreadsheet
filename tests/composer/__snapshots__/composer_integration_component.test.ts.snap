@@ -19,7 +19,11 @@ exports[`Grid composer grid composer basic style Grid composer snapshot 1`] = `
         style=""
         tabindex="1"
       >
-        A
+        <p>
+          <span>
+            A
+          </span>
+        </p>
       </div>
     </div>
     

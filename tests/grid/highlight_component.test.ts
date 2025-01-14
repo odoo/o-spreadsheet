@@ -18,9 +18,6 @@ import {
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
 // As we test an isolated component, grid and gridOverlay won't exist
 jest.mock("../../src/components/helpers/dom_helpers", () => {
   return {

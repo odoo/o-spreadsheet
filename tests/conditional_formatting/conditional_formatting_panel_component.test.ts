@@ -39,10 +39,6 @@ import {
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
-
 function errorMessages(): string[] {
   return textContentAll(selectors.error);
 }

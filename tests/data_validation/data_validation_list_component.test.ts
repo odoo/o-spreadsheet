@@ -25,9 +25,6 @@ import {
   typeInComposerHelper,
 } from "../test_helpers/helpers";
 import { mountDataValidationPanel } from "./data_validation_generics_side_panel_component.test";
-jest.mock("../../src/components/composer/content_editable_helper", () =>
-  require("../__mocks__/content_editable_helper")
-);
 
 let model: Model;
 let fixture: HTMLElement;

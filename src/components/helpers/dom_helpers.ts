@@ -118,8 +118,6 @@ function findSelectionIndex(el: HTMLElement, nodeToFind: Node, nodeOffset: numbe
      * In this case, we return 0 because we don't know the size of the text before the selection.
      *
      * A known occurrence is triggered since the introduction of commit d4663158 (PR #2038).
-     *
-     * FIXME: find a way to test even though the selection API is not available in jsDOM.
      */
     return 0;
   } else {
