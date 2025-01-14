@@ -1,6 +1,7 @@
-import { Model } from "../../src";
+import { Color, Model } from "../../src";
+import { iterateChildren } from "../../src/components/helpers/dom_helpers";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
-import { MIN_DELAY, lettersToNumber, scrollDelay, toZone } from "../../src/helpers";
+import { MIN_DELAY, lettersToNumber, scrollDelay, toHex, toZone } from "../../src/helpers";
 import { DOMCoordinates, Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
@@ -346,6 +347,22 @@ export async function scrollGrid(args: { deltaY?: number; shiftKey?: boolean }) 
  */
 export function edgeScrollDelay(scrollDistance: Pixel, iterations: number) {
   return scrollDelay(Math.abs(Math.round(scrollDistance))) * (iterations + 1) - MIN_DELAY / 2;
+}
+
+export function getComposerColors(composerEl: Element) {
+  const colors: Record<string, Color> = {};
+  for (const el of iterateChildren(composerEl)) {
+    const _el = el as HTMLElement;
+    if (_el.tagName === "SPAN") {
+      const color = getElComputedStyle(_el, "color");
+      colors[_el.textContent!] = toHex(color);
+    }
+  }
+  return colors;
+}
+
+export function getTextNodes(el: Element): Text[] {
+  return [...iterateChildren(el)].filter((node) => node.nodeType === Node.TEXT_NODE) as Text[];
 }
 
 /**

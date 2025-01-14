@@ -24,6 +24,10 @@ export class ContentEditableHelper {
     if (currentStart === start && currentEnd === end) {
       return;
     }
+    if (selection.rangeCount === 0) {
+      const range = document.createRange();
+      selection.addRange(range);
+    }
     const currentRange = selection.getRangeAt(0);
     let range: Range;
     if (this.el.contains(currentRange.startContainer)) {
@@ -190,7 +194,7 @@ export class ContentEditableHelper {
     const focusedNode = document.getSelection()?.focusNode;
     if (!focusedNode || !this.el.contains(focusedNode)) return;
     const element = focusedNode instanceof HTMLElement ? focusedNode : focusedNode.parentElement;
-    element?.scrollIntoView({ block: "nearest" });
+    element?.scrollIntoView?.({ block: "nearest" });
   }
 
   /**

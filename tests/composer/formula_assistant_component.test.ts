@@ -6,18 +6,16 @@ import { _t } from "../../src/translation";
 import { DEFAULT_LOCALE } from "../../src/types";
 import { registerCleanup } from "../setup/jest.setup";
 import { updateLocale } from "../test_helpers/commands_helpers";
-import { click, keyDown, keyUp } from "../test_helpers/dom_helper";
+import { click, getTextNodes, keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
   ComposerWrapper,
   clearFunctions,
+  getInputSelection,
   mountComposerWrapper,
   nextTick,
   restoreDefaultFunctions,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
 
 let composerEl: Element;
 let fixture: HTMLElement;
@@ -429,10 +427,29 @@ describe("formula assistant", () => {
           fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
             .textContent
         ).toBe("f4Arg3");
+        expect(getInputSelection()).toEqual({
+          anchorNodeText: "3",
+          anchorOffset: 1,
+          focusNodeText: "3",
+          focusOffset: 1,
+        });
         await keyDown({ key: "ArrowLeft" });
         await keyDown({ key: "ArrowLeft" });
         await keyDown({ key: "ArrowLeft" });
+        const selection = document.getSelection()!;
+        const range = selection.getRangeAt(0);
+        const textNodes = getTextNodes(composerEl);
+        const textNode = textNodes.at(-4)!;
+        expect(textNode.textContent).toBe("2");
+        range.setStart(textNode, 1);
+        range.setEnd(textNode, 1);
         await keyUp({ key: "ArrowLeft" });
+        expect(getInputSelection()).toEqual({
+          anchorNodeText: "2",
+          anchorOffset: 1,
+          focusNodeText: "2",
+          focusOffset: 1,
+        });
         expect(
           fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
             .textContent

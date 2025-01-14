@@ -14,6 +14,7 @@ import {
 import {
   click,
   dragElement,
+  getComposerColors,
   keyDown,
   setInputValueAndTrigger,
 } from "../../test_helpers/dom_helper";
@@ -26,10 +27,6 @@ import {
 } from "../../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
-
-jest.mock("../../../src/components/composer/content_editable_helper.ts", () =>
-  require("../../__mocks__/content_editable_helper")
-);
 
 describe("Spreadsheet pivot side panel", () => {
   let model: Model;
@@ -224,13 +221,15 @@ describe("Spreadsheet pivot side panel", () => {
     );
     await nextTick();
 
-    expect(window.mockContentHelper.colors).toMatchObject({
-      "'amount with spaces:sum'": PIVOT_TOKEN_COLOR,
-      Product: PIVOT_TOKEN_COLOR,
-      Customer: PIVOT_TOKEN_COLOR,
-      NotAField: "#000000",
-      "'Date:year'": PIVOT_TOKEN_COLOR,
-    });
+    expect(getComposerColors(fixture.querySelector(".pivot-dimension .o-composer")!)).toMatchObject(
+      {
+        "'amount with spaces:sum'": PIVOT_TOKEN_COLOR,
+        Product: PIVOT_TOKEN_COLOR,
+        Customer: PIVOT_TOKEN_COLOR,
+        NotAField: "#000000",
+        "'Date:year'": PIVOT_TOKEN_COLOR,
+      }
+    );
   });
 
   test("it should not defer update when the dataset is updated", async () => {
