@@ -47,6 +47,15 @@ export class ContentEditableSelectionHelper {
   }
 
   getStartAndEndSelection() {
+    // in case the DOM has changed when patching the composer content
+    if (this.anchorNode && !this.el.contains(this.anchorNode)) {
+      this.anchorNode = null;
+      this.anchorOffset = 0;
+    }
+    if (this.focusNode && !this.el.contains(this.focusNode)) {
+      this.focusNode = null;
+      this.focusOffset = 0;
+    }
     return {
       startElement: this.anchorNode || this.el,
       startSelectionOffset: this.anchorOffset,

@@ -613,6 +613,10 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         const { start, end } = this.props.composerStore.composerSelection;
         console.log("fixed");
         this.contentHelper.selectRange(start, end);
+        // @ts-ignore
+        if (!this.contentHelper.el.contains(this.contentHelper.selection.focusNode)) {
+          console.log("fixed...but not");
+        }
       }
       this.contentHelper.scrollSelectionIntoView();
     }

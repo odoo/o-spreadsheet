@@ -135,6 +135,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   stopComposerRangeSelection() {
     if (this.isSelectingRange) {
+      console.trace("stopComposerRangeSelection", "editing");
       this.editionMode = "editing";
     }
   }
@@ -309,6 +310,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       });
     }
     this.editionMode = "selecting";
+    console.log(this.editionMode);
   }
 
   /**
@@ -393,6 +395,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   protected setContent(text: string, selection?: ComposerSelection, raise?: boolean) {
+    if (text === "=,=") {
+      debugger;
+    }
     const isNewCurrentContent = this._currentContent !== text;
     this._currentContent = text;
 

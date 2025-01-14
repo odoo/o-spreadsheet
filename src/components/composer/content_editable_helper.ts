@@ -153,6 +153,7 @@ export class ContentEditableHelper {
           span.classList.add(content.class);
         }
         if (child) {
+          debugger;
           p.replaceChild(span, child);
         } else {
           p.appendChild(span);
@@ -175,6 +176,7 @@ export class ContentEditableHelper {
       // replace p if necessary
       if (newChild) {
         if (childElement) {
+          debugger;
           this.el.replaceChild(p, childElement);
         } else {
           this.el.appendChild(p);
