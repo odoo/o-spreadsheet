@@ -618,10 +618,6 @@ describe("composer", () => {
       test.each(matchingValues.concat([")"]))(
         "a matching value & located before matching value --> activate waitingForRangeSelection mode",
         async (matchingValue) => {
-          if (matchingValue === "=") {
-            console.log(formula, "======");
-            debugger;
-          }
           composerEl = await startComposition();
           await typeInComposer(matchingValue);
           await moveToStart();
@@ -630,6 +626,10 @@ describe("composer", () => {
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + "," + matchingValue);
           expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+          if (cehMock.focusNode?.textContent === "=") {
+            console.log(formula, "======");
+            debugger;
+          }
           expect(cehMock.focusNode?.textContent).toBe(",");
           expect(cehMock.focusOffset).toBe(1);
           if (matchingValue === "=") {

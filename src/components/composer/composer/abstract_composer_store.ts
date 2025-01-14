@@ -135,7 +135,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   stopComposerRangeSelection() {
     if (this.isSelectingRange) {
-      console.trace("stopComposerRangeSelection", "editing");
+      // console.trace("stopComposerRangeSelection", "editing");
       this.editionMode = "editing";
     }
   }

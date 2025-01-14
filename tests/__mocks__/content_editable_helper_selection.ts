@@ -17,6 +17,36 @@ export class ContentEditableSelectionHelper {
   }
 
   updateEl(el: HTMLElement) {
+    const mutationObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.addedNodes.length === mutation.removedNodes.length) {
+          for (let i = 0; i < mutation.addedNodes.length; i++) {
+            const addedNode = mutation.addedNodes[i];
+            const removedNode = mutation.removedNodes[i];
+            if (
+              removedNode.contains(this.anchorNode) &&
+              addedNode.textContent === removedNode.textContent
+            ) {
+              // @ts-ignore
+              console.log("replacing", removedNode.outerHTML, addedNode.outerHTML);
+              // console.log(mutation.removedNodes.length);
+              this.anchorNode = addedNode;
+            }
+            if (
+              removedNode.contains(this.focusNode) &&
+              addedNode.textContent === removedNode.textContent
+            ) {
+              this.focusNode = addedNode;
+            }
+          }
+        }
+      }
+    });
+    // disconnect please
+    mutationObserver.observe(el, {
+      subtree: true,
+      childList: true,
+    });
     this.el = el;
     this.currentState = {
       cursorStart: 0,
@@ -48,14 +78,14 @@ export class ContentEditableSelectionHelper {
 
   getStartAndEndSelection() {
     // in case the DOM has changed when patching the composer content
-    if (this.anchorNode && !this.el.contains(this.anchorNode)) {
-      this.anchorNode = null;
-      this.anchorOffset = 0;
-    }
-    if (this.focusNode && !this.el.contains(this.focusNode)) {
-      this.focusNode = null;
-      this.focusOffset = 0;
-    }
+    // if (this.anchorNode && !this.el.contains(this.anchorNode)) {
+    //   this.anchorNode = null;
+    //   this.anchorOffset = 0;
+    // }
+    // if (this.focusNode && !this.el.contains(this.focusNode)) {
+    //   this.focusNode = null;
+    //   this.focusOffset = 0;
+    // }
     return {
       startElement: this.anchorNode || this.el,
       startSelectionOffset: this.anchorOffset,
