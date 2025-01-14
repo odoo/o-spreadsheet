@@ -1,3 +1,5 @@
+import { iterateChildren } from "../../src/components/helpers/dom_helpers";
+
 export class ContentEditableSelectionHelper {
   private el: HTMLElement;
   currentState = {
@@ -27,10 +29,17 @@ export class ContentEditableSelectionHelper {
   getRange() {
     return {
       setStart: (node: Node, offset: number) => {
+        if (!this.el.contains(node)) {
+          throw new Error("sqdfqsdf");
+        }
+
         this.anchorNode = node;
         this.anchorOffset = offset;
       },
       setEnd: (node: Node, offset: number) => {
+        if (!this.el.contains(node)) {
+          throw new Error("sqdfqsdf");
+        }
         this.focusNode = node;
         this.focusOffset = offset;
       },
@@ -66,6 +75,9 @@ export class ContentEditableSelectionHelper {
   scrollSelectionIntoView() {}
 
   setSelection(anchorNode: Node, anchorOffset: number, focusNode: Node, focusOffset: number) {
+    if (!this.el.contains(focusNode)) {
+      throw new Error("Focus node is not in the composer");
+    }
     this.anchorNode = anchorNode;
     this.focusNode = focusNode;
     this.anchorOffset = anchorOffset;
@@ -86,8 +98,6 @@ export class ContentEditableSelectionHelper {
     if (this.el === null) return;
     this.el.addEventListener("keydown", (ev: KeyboardEvent) => this.onKeyDown(this.el, ev));
     this.el.addEventListener("focus", (ev: FocusEvent) => {
-      console.log("focus");
-      debugger;
       this.reset();
       // @ts-ignore
       window.mockContentHelper = this;
@@ -106,6 +116,18 @@ export class ContentEditableSelectionHelper {
         // kaput
         this.currentState.cursorStart = 0;
         this.currentState.cursorEnd = 0;
+        this.anchorOffset = 0;
+        this.focusOffset = 0;
+        for (const child of iterateChildren(el)) {
+          if (child.nodeType === Node.TEXT_NODE) {
+            if (!this.el.contains(child)) {
+              throw new Error("Focus node is not in the composer");
+            }
+            this.anchorNode = child;
+            this.focusNode = child;
+            break;
+          }
+        }
         break;
       case "End":
         // kaput

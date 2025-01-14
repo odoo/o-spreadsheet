@@ -186,6 +186,10 @@ export class ContentEditableHelper {
         this.el.removeChild(childElements[i]);
       }
     }
+    // @ts-ignore
+    if (!this.el.contains(this.selection.focusNode)) {
+      console.log("inconsistent");
+    }
   }
 
   scrollSelectionIntoView() {

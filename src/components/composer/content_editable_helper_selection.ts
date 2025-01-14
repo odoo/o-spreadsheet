@@ -15,8 +15,6 @@ export class ContentEditableSelectionHelper {
 
   getStartAndEndSelection() {
     const selection = document.getSelection()!;
-    console.log(selection.anchorNode);
-    console.log(selection.anchorOffset);
     return {
       startElement: selection.anchorNode || this.el,
       startSelectionOffset: selection.anchorOffset,

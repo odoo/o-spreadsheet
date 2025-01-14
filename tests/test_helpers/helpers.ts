@@ -649,7 +649,7 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   let composerEl: Element = document.querySelector(selector)!;
   if (fromScratch) {
     composerEl = await startGridComposition();
-    window.mockContentHelper.setEmptyRange();
+    window.mockContentHelper?.setEmptyRange();
   }
   (composerEl as HTMLElement).focus();
   const cehMock = window.mockContentHelper;
@@ -667,7 +667,6 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   } else {
     const focusText = focusNode.textContent ?? "";
     const anchorText = anchorNode.textContent ?? "";
-    console.log(anchorText, focusText);
     const fullText =
       anchorText.slice(0, cehMock.anchorOffset) + text + focusText.slice(cehMock.focusOffset);
     anchorNode.textContent = "";
@@ -677,10 +676,13 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
     cehMock.setSelection(
       focusNode,
       // This looks louche
-      cehMock.anchorOffset + text.length,
+      cehMock.focusOffset + text.length,
       focusNode,
       cehMock.focusOffset + text.length
     );
+    if (!composerEl.contains(focusNode)) {
+      throw new Error("Focus node is not in the composer");
+    }
   }
   // const p = document.createElement("p");
   // // pas correct!
@@ -704,6 +706,17 @@ export async function typeInComposerTopBar(text: string, fromScratch: boolean = 
   // TODO: fix this helper. From scratch does not do what we expect.
   // It will start the composition on the grid and then type in the topbar
   return await typeInComposerHelper(".o-spreadsheet-topbar .o-composer", text, fromScratch);
+}
+
+export function getComposerColor(composerEl: HTMLElement, subText: string): string {
+  for (const p of composerEl.querySelectorAll("p")) {
+    for (const el of p.childNodes) {
+      if (el.textContent === subText) {
+        return window.getComputedStyle(el as HTMLElement).color;
+      }
+    }
+  }
+  throw new Error(`Subtext ${subText} not found in the composer`);
 }
 
 export async function startGridComposition(key?: string) {
