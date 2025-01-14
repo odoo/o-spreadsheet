@@ -34,10 +34,6 @@ import {
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
-
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;

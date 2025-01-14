@@ -29,9 +29,7 @@ import {
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
-jest.mock("../../src/components/composer/content_editable_helper", () =>
-  require("../__mocks__/content_editable_helper")
-);
+
 let fixture: HTMLElement;
 let model: Model;
 let env: SpreadsheetChildEnv;
