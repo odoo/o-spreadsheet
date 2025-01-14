@@ -7,6 +7,7 @@ import { ComposerSelection } from "../../src/components/composer/composer/abstra
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { getCurrentSelection } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
@@ -77,7 +78,7 @@ import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, setFormat, setStyle, undo } from "./commands_helpers";
-import { DOMTarget, click, getTarget, keyDown, keyUp } from "./dom_helper";
+import { DOMTarget, click, getTarget, getTextNodes, keyDown, keyUp } from "./dom_helper";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
 const functionsContent = functionRegistry.content;
@@ -647,15 +648,20 @@ export function createColorScale(
 
 export async function typeInComposerHelper(selector: string, text: string, fromScratch: boolean) {
   let composerEl: Element = document.querySelector(selector)!;
+  const selection = document.getSelection()!;
   if (fromScratch) {
     composerEl = await startGridComposition();
+    const range = document.createRange();
+    selection.addRange(range);
+    range.setStart(composerEl, 0);
+    range.setEnd(composerEl, 0);
   }
 
   (composerEl as HTMLElement).focus();
-  const cehMock = window.mockContentHelper;
   composerEl.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "" }));
+
   await nextTick();
-  cehMock.insertText(text);
+  insertText(composerEl as HTMLElement, text);
   composerEl.dispatchEvent(new InputEvent("input", { data: text, bubbles: true }));
   await nextTick();
   composerEl.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "" }));
@@ -703,13 +709,23 @@ export async function editStandaloneComposer(
   let composerEl = getTarget(target) as HTMLElement;
 
   composerEl.focus();
-  const cehMock = window.mockContentHelper;
   await click(composerEl);
 
   if (fromScratch) {
-    cehMock.removeAll();
+    // select the entire content
+    const textNodes = getTextNodes(composerEl);
+    const firstTextNode = textNodes[0];
+    const lastTextNode = textNodes.at(-1);
+    const selection = document.getSelection()!;
+    if (selection.rangeCount === 0) {
+      const range = document.createRange();
+      selection.addRange(range);
+    }
+    const range = selection.getRangeAt(0);
+    range.setStart(firstTextNode ?? composerEl, 0);
+    range.setEnd(lastTextNode ?? composerEl, lastTextNode?.textContent?.length ?? 0);
   }
-  cehMock.insertText(text);
+  insertText(composerEl, text);
   composerEl.dispatchEvent(new InputEvent("input", { data: text, bubbles: true }));
 
   if (confirm) {
@@ -721,12 +737,77 @@ export async function editStandaloneComposer(
 }
 
 /**
+ * This simulates the insertion of text in the composer DOM and sets the selection
+ * (focusNode, anchorNode and offsets) at a sensible position in the DOM.
+ * This does not 100% reflect the actual behavior of browsers (they all behave in slightly
+ * different ways anyway).
+ * If you want to test a very specific behavior about the selection, you should probably
+ * set the selection manually exactly where you want after calling this function.
+ */
+function insertText(el: HTMLElement, text: string) {
+  // Reads the text content of `el` line per line, inserts the text
+  // than rebuilds the entire DOM matching the new text.
+
+  const selection = document.getSelection()!;
+  const { start, end } = getCurrentSelection(el as HTMLElement);
+  const currentTextPerLines: string[] = [];
+  const lines = el.childNodes.length ? el.childNodes : [el];
+  for (const paragraph of lines) {
+    let lineText = "";
+    for (const el of getTextNodes(paragraph as HTMLElement)) {
+      lineText += el.textContent;
+    }
+    currentTextPerLines.push(lineText);
+  }
+  const fullText = currentTextPerLines.join("\n");
+  const textBefore = fullText.slice(0, start);
+  const textAfter = fullText.slice(end);
+  const newText = textBefore + text + textAfter;
+  const focusedLineIndex = (textBefore + text).split("\n").length - 1;
+  const newLines = newText.split("\n");
+  el.innerHTML = "";
+  for (const lineIndex of range(0, newLines.length)) {
+    const lineText = newLines[lineIndex];
+    const p = document.createElement("p");
+    const span = document.createElement("span");
+    if (lineText) {
+      span.textContent = lineText;
+    } else {
+      span.appendChild(document.createElement("br"));
+    }
+    p.appendChild(span);
+    el.appendChild(p);
+    if (lineIndex === focusedLineIndex) {
+      if (selection.rangeCount === 0) {
+        const range = document.createRange();
+        selection.addRange(range);
+      }
+      const range = selection.getRangeAt(0);
+      const nodeOffset = (textBefore + text).split("\n").pop()!.length;
+
+      range.setStart(span.firstChild ?? span, nodeOffset);
+      range.setEnd(span.firstChild ?? span, nodeOffset);
+    }
+  }
+}
+
+/**
  * Return the text of every node matching the selector
  */
 export function textContentAll(cssSelector: string): string[] {
   const nodes = document.querySelectorAll(cssSelector);
   if (!nodes) return [];
   return [...nodes].map((node) => node.textContent).filter((text): text is string => text !== null);
+}
+
+export function getInputSelection() {
+  const selection = document.getSelection()!;
+  return {
+    anchorNodeText: selection.anchorNode?.textContent,
+    anchorOffset: selection.anchorOffset,
+    focusNodeText: selection.focusNode?.textContent,
+    focusOffset: selection.focusOffset,
+  };
 }
 
 /**

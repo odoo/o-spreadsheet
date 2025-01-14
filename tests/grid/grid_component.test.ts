@@ -88,9 +88,6 @@ import {
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-jest.mock("../../src/components/composer/content_editable_helper", () =>
-  require("../__mocks__/content_editable_helper")
-);
 
 function getVerticalScroll(): number {
   const scrollbar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;

@@ -4,7 +4,6 @@
 import { App } from "@odoo/owl";
 import { setDefaultSheetViewSize } from "../../src/constants";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
-import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import "./canvas.mock";
 import "./jest_extend";
 import "./polyfill";
@@ -13,7 +12,6 @@ import { Resizers } from "./resize_observer.mock";
 
 declare global {
   interface Window {
-    mockContentHelper: ContentEditableHelper;
     resizers: Resizers;
   }
 }
@@ -63,6 +61,7 @@ beforeEach(() => {
 
 afterEach(() => {
   window.resizers.removeAll();
+  document.getSelection()?.removeAllRanges();
   executeCleanups();
 });
 

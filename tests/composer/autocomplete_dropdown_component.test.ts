@@ -5,7 +5,6 @@ import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { autoCompleteProviders } from "../../src/registries";
 import { Store } from "../../src/store_engine";
-import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import { registerCleanup } from "../setup/jest.setup";
 import { selectCell } from "../test_helpers/commands_helpers";
 import {
@@ -19,20 +18,17 @@ import { getCellText } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
   clearFunctions,
+  getInputSelection,
   mountComposerWrapper,
   nextTick,
   restoreDefaultFunctions,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
 
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let cehMock: ContentEditableHelper;
 let parent: ComposerWrapper;
 let composerStore: Store<CellComposerStore>;
 
@@ -41,7 +37,6 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
     parent.startComposition();
   }
   const composerEl = await typeInComposerHelper("div.o-composer", text, false);
-  cehMock = window.mockContentHelper;
   return composerEl;
 }
 
@@ -116,16 +111,26 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=S");
       await keyDown({ key: "Tab" });
       expect(composerEl.textContent).toBe("=SUM(");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(5);
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(getInputSelection()).toEqual({
+        anchorNodeText: "(",
+        anchorOffset: 1,
+        focusNodeText: "(",
+        focusOffset: 1,
+      });
     });
 
     test("=S+ENTER complete the function --> =SUM(␣", async () => {
       await typeInComposer("=S");
       await keyDown({ key: "Enter" });
       expect(composerEl.textContent).toBe("=SUM(");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(5);
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(getInputSelection()).toEqual({
+        anchorNodeText: "(",
+        anchorOffset: 1,
+        focusNodeText: "(",
+        focusOffset: 1,
+      });
     });
 
     test("=SX not show autocomplete (nothing matches SX)", async () => {
@@ -199,8 +204,13 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=S");
       await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
       expect(composerEl.textContent).toBe("=SZZ(");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(5);
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(getInputSelection()).toEqual({
+        anchorNodeText: "(",
+        anchorOffset: 1,
+        focusNodeText: "(",
+        focusOffset: 1,
+      });
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
     });
@@ -442,7 +452,7 @@ describe("Autocomplete parenthesis", () => {
   });
 
   test("=S( + edit S with autocomplete does not add left parenthesis", async () => {
-    await typeInComposer("=S(");
+    composerEl = await typeInComposer("=S(");
     // go behind the letter "S"
     composerStore.stopComposerRangeSelection();
     composerStore.changeComposerCursorSelection(2, 2);
@@ -456,8 +466,13 @@ describe("Autocomplete parenthesis", () => {
     // select the SUM function
     await click(fixture.querySelector(".o-autocomplete-value")!);
     expect(composerEl.textContent).toBe("=SUM(");
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(5);
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(getInputSelection()).toEqual({
+      anchorNodeText: "(",
+      anchorOffset: 1,
+      focusNodeText: "(",
+      focusOffset: 1,
+    });
     expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
   });
 

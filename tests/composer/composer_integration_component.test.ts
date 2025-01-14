@@ -10,7 +10,6 @@ import {
 import { colors, toHex, toZone } from "../../src/helpers";
 import { Store } from "../../src/store_engine";
 import { SpreadsheetChildEnv } from "../../src/types";
-import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import {
   activateSheet,
   copy,
@@ -27,6 +26,7 @@ import {
 import {
   click,
   clickCell,
+  getComposerColors,
   getElComputedStyle,
   gridMouseEvent,
   keyDown,
@@ -44,6 +44,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
+  getInputSelection,
   mountSpreadsheet,
   nextTick,
   startGridComposition,
@@ -52,30 +53,22 @@ import {
   typeInComposerTopBar as typeInComposerTopBarHelper,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
-
 let fixture: HTMLElement;
 let model: Model;
-let cehMock: ContentEditableHelper;
 let composerStore: Store<CellComposerStore>;
 
 async function startComposition(key?: string) {
   const composerEl = await startGridComposition(key);
-  cehMock = window.mockContentHelper;
   return composerEl;
 }
 
 async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
   const composerEl = await typeInComposerGridHelper(text, fromScratch);
-  cehMock = window.mockContentHelper;
   return composerEl;
 }
 
 async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
   const composerEl = await typeInComposerTopBarHelper(text, fromScratch);
-  cehMock = window.mockContentHelper;
   return composerEl;
 }
 
@@ -206,12 +199,17 @@ describe("Composer interactions", () => {
   test("type '=' and click Cell, the cell ref should be colored", async () => {
     const composerEl = await typeInComposerGrid("=");
     expect(composerEl.textContent).toBe("=");
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(1);
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(getInputSelection()).toEqual({
+      anchorNodeText: "=",
+      anchorOffset: 1,
+      focusNodeText: "=",
+      focusOffset: 1,
+    });
     expect(composerStore.editionMode).toBe("selecting");
     await clickCell(model, "C8");
     expect(composerEl.textContent).toBe("=C8");
-    expect(cehMock.colors["C8"]).toBe(colors[0]);
+    expect(getComposerColors(composerEl)["C8"]).toBeSameColorAs(colors[0]);
   });
 
   test("=+Click range, the range ref should be colored", async () => {
@@ -221,7 +219,7 @@ describe("Composer interactions", () => {
     gridMouseEvent(model, "pointerup", "B8");
     await nextTick();
     expect(composerEl.textContent).toBe("=B8:C8");
-    expect(cehMock.colors["B8:C8"]).toBe(colors[0]);
+    expect(getComposerColors(composerEl)["B8:C8"]).toBeSameColorAs(colors[0]);
   });
 
   test("type '=', and click a cell several times", async () => {
@@ -320,7 +318,7 @@ describe("Composer interactions", () => {
   test("type '=', backspace and select a cell should not add it", async () => {
     const composerEl = await typeInComposerGrid("=");
     composerStore.setCurrentContent("");
-    cehMock.removeAll();
+    document.getSelection()?.removeAllRanges();
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
     await clickCell(model, "C8");
@@ -724,9 +722,15 @@ describe("TopBar composer", () => {
     ({ model, fixture } = await mountSpreadsheet());
     const composerEl = await typeInComposerTopBar("=\nS");
     await click(fixture, ".o-autocomplete-dropdown > div:nth-child(2)");
-    expect(composerEl.textContent).toBe("=\nSIN(");
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(6);
+    expect(composerEl.childNodes[0].textContent).toBe("=");
+    expect(composerEl.childNodes[1].textContent).toBe("SIN(");
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(getInputSelection()).toEqual({
+      anchorNodeText: "(",
+      anchorOffset: 1,
+      focusNodeText: "(",
+      focusOffset: 1,
+    });
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
   });

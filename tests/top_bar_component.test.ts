@@ -39,9 +39,6 @@ import {
 } from "./test_helpers/helpers";
 import { mockGetBoundingClientRect } from "./test_helpers/mock_helpers";
 
-jest.mock("../src/components/composer/content_editable_helper", () =>
-  require("./__mocks__/content_editable_helper")
-);
 jest.mock("../src/helpers/figures/images/image_provider", () =>
   require("./__mocks__/mock_image_provider")
 );

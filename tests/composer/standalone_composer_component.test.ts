@@ -6,12 +6,8 @@ import { zoneToXc } from "../../src/helpers";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";
-import { click, keyDown, simulateClick } from "../test_helpers/dom_helper";
+import { click, getTextNodes, keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { editStandaloneComposer, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
-
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
 
 let env: SpreadsheetChildEnv;
 let onConfirm = jest.fn();
@@ -57,7 +53,12 @@ describe("Spreadsheet integrations tests", () => {
   test("Can edit a standalone composer", async () => {
     await openSidePanelWithComposer("Hello world");
     expect(composerEl.textContent).toBe("Hello world");
-
+    const textNode = getTextNodes(composerEl)[0];
+    const selection = document.getSelection()!;
+    selection.addRange(document.createRange());
+    const range = selection.getRangeAt(0);
+    range.setStart(textNode, composerEl.textContent?.length || 0);
+    range.setEnd(textNode, composerEl.textContent?.length || 0);
     await editStandaloneComposer(composerSelector, " new text !", {
       fromScratch: false,
       confirm: false,

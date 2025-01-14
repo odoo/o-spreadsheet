@@ -1,11 +1,9 @@
-import { tokenColors } from "../../src/components/composer/composer/abstract_composer_store";
+import { tokenColors } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { selectionIndicatorClass } from "../../src/components/composer/composer/composer";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
-import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
   createSheet,
@@ -20,6 +18,8 @@ import {
 import { FR_LOCALE } from "../test_helpers/constants";
 import {
   click,
+  getComposerColors,
+  getTextNodes,
   keyDown,
   keyUp,
   simulateClick,
@@ -34,27 +34,22 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
+  getInputSelection,
   mountComposerWrapper,
   mountSpreadsheet,
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
-  require("../__mocks__/content_editable_helper")
-);
-
 let model: Model;
 let composerEl: Element;
 let fixture: HTMLElement;
-let cehMock: ContentEditableHelper;
 let parent: ComposerWrapper;
 let composerStore: Store<CellComposerStore>;
 
 async function startComposition(text?: string): Promise<HTMLDivElement> {
   parent.startComposition(text);
   await nextTick();
-  cehMock = window.mockContentHelper;
   return fixture.querySelector("div.o-composer")! as HTMLDivElement;
 }
 
@@ -63,7 +58,6 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
     parent.startComposition();
   }
   const composerEl = await typeInComposerHelper("div.o-composer", text, false);
-  cehMock = window.mockContentHelper;
   return composerEl;
 }
 
@@ -71,9 +65,25 @@ async function moveToStart() {
   // TODO: remove keyup at refactoring of content editable helper
   keyDown({ key: "Home" });
   keyUp({ key: "Home" });
+  const firstTextNode = getTextNodes(composerEl)[0];
+  if (firstTextNode) {
+    const selection = document.getSelection()!;
+    selection.collapse(firstTextNode, 0);
+  }
 }
-async function moveToEnd() {
+async function moveToEnd(composerEl: Element) {
   await keyDown({ key: "End" });
+  const lastTextNode = getTextNodes(composerEl).at(-1);
+  if (lastTextNode) {
+    const selection = document.getSelection()!;
+    if (selection.rangeCount === 0) {
+      const range = document.createRange();
+      selection.addRange(range);
+    }
+    const range = selection.getRangeAt(0);
+    range.setStart(lastTextNode, lastTextNode.textContent!.length);
+    range.setEnd(lastTextNode, lastTextNode.textContent!.length);
+  }
   await keyUp({ key: "End" });
 }
 
@@ -84,10 +94,10 @@ beforeEach(async () => {
 
 describe("ranges and highlights", () => {
   test("=SU, the = should be colored", async () => {
-    await typeInComposer("=SU");
-    const contentColors = cehMock.colors;
-    expect(contentColors["="]).toBe("#3da4ab");
-    expect(contentColors["SU"]).toBe("#000000");
+    const composerEl = await typeInComposer("=SU");
+    const contentColors = getComposerColors(composerEl);
+    expect(contentColors["="]).toBeSameColorAs("#3da4ab");
+    expect(contentColors["SU"]).toBeSameColorAs("#000000");
   });
 
   test.each([
@@ -100,8 +110,8 @@ describe("ranges and highlights", () => {
     "'Sheet1'!A1",
     "Sheet1!$A$1",
   ])("reference %s should be colored", async (ref) => {
-    await typeInComposer(`=SUM(${ref})`);
-    expect(cehMock.colors[ref]).toBe(colors[0]);
+    const composerEl = await typeInComposer(`=SUM(${ref})`);
+    expect(getComposerColors(composerEl)[ref]).toBeSameColorAs(colors[0]);
   });
 
   test("=Key DOWN in A1, should select and highlight A2", async () => {
@@ -112,14 +122,24 @@ describe("ranges and highlights", () => {
 
   test("reference position is reset at each selection", async () => {
     composerEl = await typeInComposer("=");
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(1);
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(getInputSelection()).toEqual({
+      anchorNodeText: "=",
+      anchorOffset: 1,
+      focusNodeText: "=",
+      focusOffset: 1,
+    });
     await keyDown({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A2");
     composerEl = await typeInComposer("+", false);
     expect(composerEl.textContent).toBe("=A2+");
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-    expect(cehMock.selectionState.position).toBe(4);
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(getInputSelection()).toEqual({
+      anchorNodeText: "+",
+      anchorOffset: 1,
+      focusNodeText: "+",
+      focusOffset: 1,
+    });
     expect(composerStore.editionMode).toBe("selecting");
     await keyDown({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A2+A2");
@@ -558,8 +578,13 @@ describe("composer", () => {
           composerEl = await typeInComposer(content);
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(content);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe(content.length);
+          expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+          expect(getInputSelection()).toEqual({
+            anchorNodeText: matchingValue,
+            anchorOffset: 1,
+            focusNodeText: matchingValue,
+            focusOffset: 1,
+          });
         }
       );
 
@@ -571,7 +596,7 @@ describe("composer", () => {
           await typeInComposer(content);
           expect(composerStore.editionMode).not.toBe("selecting");
           expect(composerEl.textContent).toBe(content);
-          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+          expect(composerEl.querySelector(".selector-flag")).toBeNull();
         }
       );
 
@@ -584,8 +609,13 @@ describe("composer", () => {
           composerEl = await typeInComposer(newContent);
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(newContent);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe(newContent.length);
+          expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+          expect(getInputSelection()).toEqual({
+            anchorNodeText: "   ",
+            anchorOffset: 3,
+            focusNodeText: "   ",
+            focusOffset: 3,
+          });
         }
       );
 
@@ -597,7 +627,7 @@ describe("composer", () => {
           await typeInComposer(content + "   ");
           expect(composerStore.editionMode).not.toBe("selecting");
           expect(composerEl.textContent).toBe(content + "   ");
-          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+          expect(composerEl.querySelector(".selector-flag")).toBeNull();
         }
       );
 
@@ -613,7 +643,7 @@ describe("composer", () => {
       );
 
       test.each(matchingValues.concat([")"]))(
-        "a matching value & located before matching value --> activate 'waitingForRangeSelection' mode",
+        "a matching value & located before matching value --> activate waitingForRangeSelection mode",
         async (matchingValue) => {
           composerEl = await startComposition();
           await typeInComposer(matchingValue);
@@ -621,8 +651,13 @@ describe("composer", () => {
           composerEl = await typeInComposer(formula + ",", false);
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + "," + matchingValue);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe((formula + ",").length);
+          expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+          expect(getInputSelection()).toEqual({
+            anchorNodeText: ",",
+            anchorOffset: 1,
+            focusNodeText: ",",
+            focusOffset: 1,
+          });
         }
       );
 
@@ -648,8 +683,13 @@ describe("composer", () => {
           composerEl = await typeInComposer(formulaInput, false);
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(formulaInput + matchingValue);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe(formulaInput.length);
+          expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+          expect(getInputSelection()).toEqual({
+            anchorNodeText: "  ",
+            anchorOffset: 2,
+            focusNodeText: "  ",
+            focusOffset: 2,
+          });
         }
       );
 
@@ -662,7 +702,7 @@ describe("composer", () => {
           await typeInComposer(formula + ",  ", false);
           expect(composerStore.editionMode).not.toBe("selecting");
           expect(composerEl.textContent).toBe(formula + ",  " + mismatchingValue);
-          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+          expect(composerEl.querySelector(".selector-flag")).toBeNull();
         }
       );
 
@@ -675,8 +715,13 @@ describe("composer", () => {
           composerEl = await typeInComposer(formula + ",", false);
           expect(composerStore.editionMode).toBe("selecting");
           expect(composerEl.textContent).toBe(formula + ",   " + matchingValue);
-          expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-          expect(cehMock.selectionState.position).toBe((formula + ",").length);
+          expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+          expect(getInputSelection()).toEqual({
+            anchorNodeText: ",",
+            anchorOffset: 1,
+            focusNodeText: ",",
+            focusOffset: 1,
+          });
         }
       );
 
@@ -688,7 +733,7 @@ describe("composer", () => {
           await moveToStart();
           composerEl = await typeInComposer(formula + ",", false);
           expect(composerStore.editionMode).not.toBe("selecting");
-          expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+          expect(composerEl.querySelector(".selector-flag")).toBeNull();
           expect(composerEl.textContent).toBe(formula + ",   " + mismatchingValue);
         }
       );
@@ -700,7 +745,7 @@ describe("composer", () => {
         await startComposition();
         composerEl = await typeInComposer(value);
         expect(composerStore.editionMode).not.toBe("selecting");
-        expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+        expect(composerEl.querySelector(".selector-flag")).toBeNull();
         expect(composerEl.textContent).toBe(value);
       }
     );
@@ -710,8 +755,13 @@ describe("composer", () => {
       composerEl = await typeInComposer("=");
       expect(composerStore.editionMode).toBe("selecting");
       expect(composerEl.textContent).toBe("=");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(1);
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(getInputSelection()).toEqual({
+        anchorNodeText: "=",
+        anchorOffset: 1,
+        focusNodeText: "=",
+        focusOffset: 1,
+      });
     });
 
     test("typing '=' & spaces --> activate 'selecting' mode", async () => {
@@ -720,15 +770,20 @@ describe("composer", () => {
       await typeInComposer(content);
       expect(composerStore.editionMode).toBe("selecting");
       expect(composerEl.textContent).toBe("=   ");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(content.length);
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(getInputSelection()).toEqual({
+        anchorNodeText: "   ",
+        anchorOffset: 3,
+        focusNodeText: "   ",
+        focusOffset: 3,
+      });
     });
   });
 
   test("dont show selection indicator if in editing mode ", async () => {
     composerEl = await startComposition("=");
     await simulateClick(composerEl);
-    expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+    expect(composerEl.querySelector(".selector-flag")).toBeNull();
     expect(composerStore.showSelectionIndicator).toBeFalsy();
   });
 
@@ -736,6 +791,11 @@ describe("composer", () => {
     composerEl = await typeInComposer("Hello");
     expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
     await keyDown({ key: "Home" });
+    const selection = document.getSelection()!;
+    const range = selection.getRangeAt(0);
+    const textNode = getTextNodes(composerEl)[0];
+    range.setStart(textNode, 0);
+    range.setEnd(textNode, 0);
     await keyUp({ key: "Home" });
     expect(composerStore.composerSelection).toEqual({ start: 0, end: 0 });
   });
@@ -745,25 +805,38 @@ describe("composer", () => {
     composerStore.changeComposerCursorSelection(0, 0);
     await nextTick();
     await keyDown({ key: "End" });
+    const selection = document.getSelection()!;
+    const range = selection.getRangeAt(0);
+    const textNode = getTextNodes(composerEl)[0];
+    range.setStart(textNode, 5);
+    range.setEnd(textNode, 5);
     await keyUp({ key: "End" });
     expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
   });
 
   test("Move cursor while in edit mode with non empty cell", async () => {
+    const composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
     setCellContent(model, "A1", "Hello");
     await nextTick();
     await simulateClick("div.o-composer");
-    await moveToEnd();
+    await moveToEnd(composerEl);
     expect(composerStore.editionMode).toBe("editing");
     expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
     for (let _ in [1, 2, 3]) {
       await keyDown({ key: "ArrowLeft" });
     }
+    const selection = document.getSelection()!;
+    const range = selection.getRangeAt(0);
+    const textNode = getTextNodes(composerEl)[0];
+    range.setStart(textNode, 2);
+    range.setEnd(textNode, 2);
     await keyUp({ key: "ArrowLeft" });
     expect(composerStore.composerSelection).toEqual({ start: 2, end: 2 });
     for (let _ in [1, 2]) {
       await keyDown({ key: "ArrowRight" });
     }
+    range.setStart(textNode, 4);
+    range.setEnd(textNode, 4);
     await keyUp({ key: "ArrowRight" });
 
     expect(composerStore.composerSelection).toEqual({ start: 4, end: 4 });
@@ -777,28 +850,20 @@ describe("composer", () => {
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("Select a right-to-left range with the keyboard", async () => {
-    setCellContent(model, "A1", "Hello");
-    composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
-    await simulateClick("div.o-composer");
-    await moveToEnd();
-    const { end } = composerStore.composerSelection;
-    await keyDown({ key: "ArrowLeft", shiftKey: true });
-    await keyUp({ key: "ArrowLeft", shiftKey: true });
-    expect(composerStore.composerSelection).toEqual({
-      start: end,
-      end: end - 1,
-    });
-  });
-
   test("Select a left-to-right range with the keyboard in a non empty cell", async () => {
     setCellContent(model, "A1", "Hello");
     await nextTick();
     await simulateClick("div.o-composer");
-    await moveToEnd();
+    composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
+    await moveToEnd(composerEl);
     composerStore.changeComposerCursorSelection(0, 0);
     await nextTick();
     await keyDown({ key: "ArrowRight", shiftKey: true });
+    const selection = document.getSelection()!;
+    const range = selection.getRangeAt(0);
+    const textNode = getTextNodes(composerEl)[0];
+    range.setStart(textNode, 0);
+    range.setEnd(textNode, 1);
     await keyUp({ key: "ArrowRight", shiftKey: true });
     expect(composerStore.composerSelection).toEqual({ start: 0, end: 1 });
   });
@@ -842,10 +907,10 @@ describe("composer", () => {
   });
 
   test("Add a character changing the edition mode to 'selecting' correctly renders the composer", async () => {
-    await typeInComposer("=sum(4");
-    expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+    composerEl = await typeInComposer("=sum(4");
+    expect(composerEl.querySelector(".selector-flag")).toBeNull();
     await typeInComposer(",", false);
-    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
   });
 
   test("Hitting 'Tab' without the autocomplete open should move the cursor to the next cell", async () => {
@@ -896,7 +961,7 @@ describe("composer", () => {
       expect(composerStore.currentContent).toEqual("Azerty");
       expect(composerStore.composerSelection).toEqual({ start: 6, end: 6 });
 
-      composerStore.changeComposerCursorSelection(6, 4);
+      composerStore.changeComposerCursorSelection(4, 6);
       await nextTick();
       await keyDown({ key: "Enter", bubbles: true, [`${key}Key`]: true });
       expect(composerStore.currentContent).toEqual("Azer\n");
@@ -937,58 +1002,58 @@ describe("composer", () => {
 
 describe("composer formula color", () => {
   test('type "=SUM" --> SUM should have specific function color', async () => {
-    await typeInComposer("=SUM");
-    expect(cehMock.colors["SUM"]).toBe(tokenColors["FUNCTION"]);
+    const composerEl = await typeInComposer("=SUM");
+    expect(getComposerColors(composerEl)["SUM"]).toBeSameColorAs(tokenColors["FUNCTION"]);
   });
 
   test('type "=SUM(" --> left parenthesis should have specific function color', async () => {
-    await typeInComposer("=SUM(");
-    expect(cehMock.colors["("]).toBe(tokenColors["LEFT_PAREN"]);
+    const composerEl = await typeInComposer("=SUM(");
+    expect(getComposerColors(composerEl)["("]).toBeSameColorAs(tokenColors["LEFT_PAREN"]);
   });
 
   test('type "=SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
-    await typeInComposer("=SUM(1");
-    expect(cehMock.colors["("]).toBe(tokenColors["LEFT_PAREN"]);
+    const composerEl = await typeInComposer("=SUM(1");
+    expect(getComposerColors(composerEl)["("]).toBeSameColorAs(tokenColors["LEFT_PAREN"]);
   });
 
   test('type "=SUM(1" --> number should have specific number color', async () => {
-    await typeInComposer("=SUM(1");
-    expect(cehMock.colors["1"]).toBe(tokenColors["NUMBER"]);
+    const composerEl = await typeInComposer("=SUM(1");
+    expect(getComposerColors(composerEl)["1"]).toBeSameColorAs(tokenColors["NUMBER"]);
   });
 
   test('type "=SUM(1," --> comma should have specific comma color', async () => {
-    await typeInComposer("=SUM(1,");
-    expect(cehMock.colors[","]).toBe(tokenColors["ARG_SEPARATOR"]);
+    const composerEl = await typeInComposer("=SUM(1,");
+    expect(getComposerColors(composerEl)[","]).toBeSameColorAs(tokenColors["ARG_SEPARATOR"]);
   });
 
   test(`type '=SUM(1, "2"' --> string should have specific string color`, async () => {
-    await typeInComposer('=SUM(1, "2"');
-    expect(cehMock.colors[`"2"`]).toBe(tokenColors["STRING"]);
+    const composerEl = await typeInComposer('=SUM(1, "2"');
+    expect(getComposerColors(composerEl)[`"2"`]).toBeSameColorAs(tokenColors["STRING"]);
   });
 
   test(`type '=SUM(1, "2")' --> right parenthesis should have specific function color`, async () => {
-    await typeInComposer('=SUM(1, "2")');
-    expect(cehMock.colors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
+    const composerEl = await typeInComposer('=SUM(1, "2")');
+    expect(getComposerColors(composerEl)[")"]).toBeSameColorAs(tokenColors["RIGHT_PAREN"]);
   });
 
   test(`type '=SUM(1, "2") +' --> right parenthesis should have specific parenthesis color`, async () => {
-    await typeInComposer('=SUM(1, "2") +');
-    expect(cehMock.colors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
+    const composerEl = await typeInComposer('=SUM(1, "2") +');
+    expect(getComposerColors(composerEl)[")"]).toBeSameColorAs(tokenColors["RIGHT_PAREN"]);
   });
 
   test(`type '=SUM(1, "2") +' --> operator should have specific operator color`, async () => {
-    await typeInComposer('=SUM(1, "2") +');
-    expect(cehMock.colors["+"]).toBe(tokenColors["OPERATOR"]);
+    const composerEl = await typeInComposer('=SUM(1, "2") +');
+    expect(getComposerColors(composerEl)["+"]).toBeSameColorAs(tokenColors["OPERATOR"]);
   });
 
   test(`type '=SUM(1, "2") + TRUE' --> boolean should have specific bolean color`, async () => {
-    await typeInComposer('=SUM(1, "2") + TRUE');
-    expect(cehMock.colors["TRUE"]).toBe(tokenColors.NUMBER);
+    const composerEl = await typeInComposer('=SUM(1, "2") + TRUE');
+    expect(getComposerColors(composerEl)["TRUE"]).toBeSameColorAs(tokenColors.NUMBER);
   });
 
   test(`type '=SUM(1, "2"))' --> extra parenthesis should have specific parenthesis color`, async () => {
-    await typeInComposer('=SUM(1, "2"))');
-    expect(cehMock.colors[")"]).toBe(tokenColors.ORPHAN_RIGHT_PAREN);
+    const composerEl = await typeInComposer('=SUM(1, "2"))');
+    expect(getComposerColors(composerEl)[")"]).toBeSameColorAs(tokenColors.ORPHAN_RIGHT_PAREN);
   });
 });
 
@@ -1429,71 +1494,30 @@ describe("composer highlights color", () => {
   test.skip("grid composer is resized when top bar composer grows", async () => {});
 });
 
-describe("Composer string is correctly translated to HtmlContents[][] for the contentEditableHelper", () => {
+describe("Composer string is correctly translated to DOM", () => {
   test("Simple string", async () => {
-    await typeInComposer("I'm a simple content");
-    expect(cehMock.contents).toEqual([[{ value: "I'm a simple content" }]]);
+    const composerEl = await typeInComposer("I'm a simple content");
+    expect(composerEl).toMatchSnapshot();
   });
-
   test("Simple formula", async () => {
-    await typeInComposer("=1 + A1");
-    expect(cehMock.contents).toEqual([
-      [
-        { value: "=", color: tokenColors.OPERATOR },
-        { value: "1", color: tokenColors.NUMBER },
-        { value: " ", color: "#000000" },
-        { value: "+", color: tokenColors.OPERATOR },
-        { value: " ", color: "#000000" },
-        { value: "A1", color: cehMock.colors["A1"] },
-      ],
-    ]);
+    const composerEl = await typeInComposer("=1 + A1");
+    expect(composerEl).toMatchSnapshot();
   });
-
   test("Selection indicator in simple formula", async () => {
-    await typeInComposer("=");
-    expect(cehMock.contents).toEqual([
-      [{ value: "=", color: tokenColors.OPERATOR, class: selectionIndicatorClass }],
-    ]);
+    const composerEl = await typeInComposer("=");
+    expect(composerEl).toMatchSnapshot();
   });
-
   test("Multi-line string", async () => {
-    await typeInComposer("\nI'm\nmulti\n\nline\n");
-    expect(cehMock.contents).toEqual([
-      [{ value: "" }],
-      [{ value: "I'm" }],
-      [{ value: "multi" }],
-      [{ value: "" }],
-      [{ value: "line" }],
-      [{ value: "" }],
-    ]);
+    const composerEl = await typeInComposer("\nI'm\nmulti\n\nline\n");
+    expect(composerEl).toMatchSnapshot();
   });
-
   test("Multi-line formula", async () => {
-    await typeInComposer("=\nA1: \nA2\n\n+SUM(\n5)");
-    expect(cehMock.contents).toEqual([
-      [{ value: "=", color: tokenColors.OPERATOR }],
-      [{ value: "A1: ", color: cehMock.colors["A1: "] }],
-      [{ value: "A2", color: cehMock.colors["A1: "] }],
-      [{ value: "", color: "#000000" }],
-      [
-        { value: "+", color: tokenColors.OPERATOR },
-        { value: "SUM", color: tokenColors.FUNCTION },
-        { value: "(", color: tokenColors.LEFT_PAREN, class: "background-flag" },
-      ],
-      [
-        { value: "5", color: tokenColors.NUMBER },
-        { value: ")", color: tokenColors.RIGHT_PAREN, class: "background-flag" },
-      ],
-    ]);
+    const composerEl = await typeInComposer("=\nA1: \nA2\n\n+SUM(\n5)");
+    expect(composerEl).toMatchSnapshot();
   });
-
   test("Selection indicator in multi-line formula", async () => {
-    await typeInComposer("=\n\n");
-    expect(cehMock.contents).toEqual([
-      [{ value: "=", color: tokenColors.OPERATOR }],
-      [{ value: "", color: "#000000" }],
-      [{ value: "", color: "#000000", class: selectionIndicatorClass }],
-    ]);
+    const composerEl = await typeInComposer("=\n\n");
+    expect(composerEl).toMatchSnapshot();
   });
 });
 

@@ -11,9 +11,6 @@ import {
   mountSpreadsheet,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
-jest.mock("../../src/components/composer/content_editable_helper", () =>
-  require("../__mocks__/content_editable_helper")
-);
 
 describe("Data validation with blocking rule", () => {
   let model: Model;
