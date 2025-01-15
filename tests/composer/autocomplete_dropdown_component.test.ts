@@ -3,6 +3,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
+import { autoCompleteProviders } from "../../src/registries";
 import { Store } from "../../src/store_engine";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import { registerCleanup } from "../setup/jest.setup";
@@ -611,4 +612,27 @@ describe("composer entries", () => {
     expect(entries[5].textContent).toBe("SAPER");
     expect(entries[6].textContent).toBe("SUPER");
   });
+});
+
+test("aucomplete supports values with similar names", async () => {
+  autoCompleteProviders.add("test", {
+    sequence: 1,
+    getProposals() {
+      return [
+        { text: "SA", fuzzySearchKey: "s" },
+        { text: "SA", fuzzySearchKey: "s" },
+      ];
+    },
+    selectProposal() {},
+  });
+  ({ fixture, parent } = await mountComposerWrapper());
+  // start composition
+  parent.startComposition();
+  await nextTick();
+  composerEl = fixture.querySelector("div.o-composer")!;
+
+  composerStore = parent.env.getStore(CellComposerStore);
+  await typeInComposer("=s");
+  expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
+  autoCompleteProviders.remove("test");
 });
