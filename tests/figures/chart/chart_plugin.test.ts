@@ -3324,4 +3324,116 @@ describe("trending line", () => {
       pointRadius: 0,
     });
   });
+
+  test("logarithmic trending line", () => {
+    // prettier-ignore
+    setGrid(model, {
+        B1: "12", C1: "=LN(B1)",
+        B2: "16", C2: "=LN(B2)",
+        B3: "19", C3: "=LN(B3)",
+        B4: "23", C4: "=LN(B4)",
+        B5: "29", C5: "=LN(B5)",
+        B6: "32", C6: "=LN(B6)",
+        B7: "45", C7: "=LN(B7)",
+        B8: "64", C8: "=LN(B8)",
+      });
+    createChart(
+      model,
+      {
+        type: "scatter",
+        dataSets: [{ dataRange: "C1:C8", trend: { display: true, type: "logarithmic" } }],
+        labelRange: "B1:B8",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+    function roundToFourDecimals(value) {
+      return Math.round(value * 10000) / 10000;
+    }
+    let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    // We round up to 4 decimals to avoid floating point errors
+    expect(
+      // @ts-ignore
+      runtime.chartJsConfig.data.datasets[1].data.map((item) => roundToFourDecimals(item.x))
+    ).toEqual([
+      2.4849, 2.5202, 2.5555, 2.5908, 2.6261, 2.6614, 2.6967, 2.732, 2.7673, 2.8026, 2.8379, 2.8732,
+      2.9085, 2.9437, 2.979, 3.0143, 3.0496, 3.0849, 3.1202, 3.1555, 3.1908, 3.2261, 3.2614, 3.2967,
+      3.332, 3.3673,
+    ]);
+  });
+
+  test("logarithmic trending line with negative values", () => {
+    // prettier-ignore
+    setGrid(model, {
+        B1: "2", C1: "-12",
+        B2: "3", C2: "-10",
+        B3: "4", C3: "-7",
+        B4: "5", C4: "-2",
+        B5: "6", C5: "0",
+        B6: "7", C6: "17",
+        B7: "8", C7: "26",
+        B8: "9", C8: "33",
+      });
+    createChart(
+      model,
+      {
+        type: "scatter",
+        dataSets: [{ dataRange: "C1:C8", trend: { display: true, type: "logarithmic" } }],
+        labelRange: "B1:B8",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+    function roundToFourDecimals(value) {
+      return Math.round(value * 10000) / 10000;
+    }
+    let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    // We round up to 4 decimals to avoid floating point errors
+    expect(
+      // @ts-ignore
+      runtime.chartJsConfig.data.datasets[1].data.map((item) => roundToFourDecimals(item.x))
+    ).toEqual([
+      -12, -11.52, -11.04, -10.56, -10.08, -9.6, -9.12, -8.64, -8.16, -7.68, -7.2, -6.72, -6.24,
+      -5.76, -5.28, -4.8, -4.32, -3.84, -3.36, -2.88, -2.4, -1.92, -1.44, -0.96, -0.48, 0,
+    ]);
+  });
+
+  test("logarithmic trending line with values between 0 and 1", () => {
+    // prettier-ignore
+    setGrid(model, {
+        B1: "0.25", C1: "=LN(B1)",
+        B2: "0.3",  C2: "=LN(B2)",
+        B3: "0.35", C3: "=LN(B3)",
+        B4: "0.4",  C4: "=LN(B4",
+        B5: "0.45", C5: "=LN(B5)",
+        B6: "0.5",  C6: "=LN(B6)",
+        B7: "0.6",  C7: "=LN(B7)",
+        B8: "0.75", C8: "=LN(B8)",
+      });
+    createChart(
+      model,
+      {
+        type: "scatter",
+        dataSets: [{ dataRange: "C1:C8", trend: { display: true, type: "logarithmic" } }],
+        labelRange: "B1:B8",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+    function roundToFourDecimals(value) {
+      return Math.round(value * 10000) / 10000;
+    }
+    let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    // We round up to 4 decimals to avoid floating point errors
+    expect(
+      // @ts-ignore
+      runtime.chartJsConfig.data.datasets[1].data.map((item) => roundToFourDecimals(item.x))
+    ).toEqual([
+      1, 1.16, 1.32, 1.48, 1.64, 1.8, 1.96, 2.12, 2.28, 2.44, 2.6, 2.76, 2.92, 3.08, 3.24, 3.4,
+      3.56, 3.72, 3.88, 4.04, 4.2, 4.36, 4.52, 4.68, 4.84, 5,
+    ]);
+  });
 });
