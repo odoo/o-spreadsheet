@@ -1001,6 +1001,11 @@ export interface PaintFormat extends TargetDependentCommand {
   type: "PAINT_FORMAT";
 }
 
+export interface ScrollModeCommand {
+  type: "SET_SCROLL_MODE";
+  mode: "snapped" | "smooth";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1150,7 +1155,8 @@ export type LocalCommand =
   | DuplicatePivotInNewSheetCommand
   | InsertPivotWithTableCommand
   | SplitPivotFormulaCommand
-  | PaintFormat;
+  | PaintFormat
+  | ScrollModeCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

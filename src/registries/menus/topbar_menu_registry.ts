@@ -207,6 +207,23 @@ topbarMenuRegistry
     sequence: 40,
     separator: true,
   })
+  .addChild("scroll_mode", ["view"], {
+    name: _t("scroll mode"),
+    sequence: 15,
+    separator: true,
+  })
+  .addChild("snapped", ["view", "scroll_mode"], {
+    execute: (env) => env.model.dispatch("SET_SCROLL_MODE", { mode: "snapped" }),
+    sequence: 10,
+    isActive: (env) => env.model.getters.getScrollMode() === "snapped",
+    name: _t("Snapped scrolling"),
+  })
+  .addChild("smooth_scroll", ["view", "scroll_mode"], {
+    execute: (env) => env.model.dispatch("SET_SCROLL_MODE", { mode: "smooth" }),
+    sequence: 20,
+    isActive: (env) => env.model.getters.getScrollMode() === "smooth",
+    name: _t("Smooth scrolling"),
+  })
 
   // ---------------------------------------------------------------------
   // INSERT MENU ITEMS

@@ -28,6 +28,7 @@ export class InternalViewport {
   viewportHeight: Pixel;
   offsetCorrectionX: Pixel;
   offsetCorrectionY: Pixel;
+  mode: "snapped" | "smooth";
 
   constructor(
     private getters: Getters,
@@ -35,8 +36,10 @@ export class InternalViewport {
     private boundaries: Zone,
     sizeInGrid: DOMDimension,
     options: { canScrollVertically: boolean; canScrollHorizontally: boolean },
-    offsets: DOMCoordinates
+    offsets: DOMCoordinates,
+    mode: "snapped" | "smooth"
   ) {
+    this.mode = mode;
     this.viewportWidth = sizeInGrid.width;
     this.viewportHeight = sizeInGrid.height;
     this.offsetScrollbarX = offsets.x;
@@ -117,7 +120,11 @@ export class InternalViewport {
     if (x < this.offsetCorrectionX || x > this.offsetCorrectionX + this.viewportWidth) {
       return -1;
     }
-    return this.searchHeaderIndex("COL", x - this.offsetCorrectionX, this.left);
+    return this.searchHeaderIndex(
+      "COL",
+      x - this.offsetCorrectionX + Math.abs(this.scrollCorrection.x),
+      this.left
+    );
   }
 
   /**
@@ -129,7 +136,11 @@ export class InternalViewport {
     if (y < this.offsetCorrectionY || y > this.offsetCorrectionY + this.viewportHeight) {
       return -1;
     }
-    return this.searchHeaderIndex("ROW", y - this.offsetCorrectionY, this.top);
+    return this.searchHeaderIndex(
+      "ROW",
+      y - this.offsetCorrectionY + Math.abs(this.scrollCorrection.y),
+      this.top
+    );
   }
 
   /**
@@ -229,31 +240,53 @@ export class InternalViewport {
    * @param zone
    * @returns Computes the absolute coordinate of a given zone inside the viewport
    */
-  getRect(zone: Zone): Rect | undefined {
+  getVisibleRect(zone: Zone): Rect | undefined {
     const targetZone = intersection(zone, this);
+    const scrollDeltaX = Math.abs(this.scrollCorrection.x);
+    const scrollDeltaY = Math.abs(this.scrollCorrection.y);
     if (targetZone) {
       const x =
-        this.getters.getColRowOffset("COL", this.left, targetZone.left) + this.offsetCorrectionX;
+        this.getters.getColRowOffset("COL", this.left, targetZone.left) +
+        this.offsetCorrectionX -
+        (this.left !== targetZone.left ? scrollDeltaX : 0);
 
       const y =
-        this.getters.getColRowOffset("ROW", this.top, targetZone.top) + this.offsetCorrectionY;
+        this.getters.getColRowOffset("ROW", this.top, targetZone.top) +
+        this.offsetCorrectionY -
+        (this.top !== targetZone.top ? scrollDeltaY : 0);
 
       const width = Math.min(
-        this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1),
+        this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1) -
+          (this.left === targetZone.left ? scrollDeltaX : 0),
         this.viewportWidth
       );
       const height = Math.min(
-        this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1),
+        this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1) -
+          (this.top === targetZone.top ? scrollDeltaY : 0),
         this.viewportHeight
       );
-      return {
-        x,
-        y,
-        width,
-        height,
-      };
+      return { x, y, width, height };
     }
     return undefined;
+  }
+
+  getFullRect(zone: Zone): Rect | undefined {
+    const targetZone = intersection(zone, this);
+    const scrollDeltaX = Math.abs(this.scrollCorrection.x);
+    const scrollDeltaY = Math.abs(this.scrollCorrection.y);
+    if (targetZone) {
+      const x = this.getters.getColRowOffset("COL", this.left, zone.left) + this.offsetCorrectionX;
+      const y = this.getters.getColRowOffset("ROW", this.top, zone.top) + this.offsetCorrectionY;
+      const width =
+        this.getters.getColRowOffset("COL", this.boundaries.left, zone.right + 1) -
+        this.getters.getColRowOffset("COL", this.boundaries.left, zone.left);
+      const height =
+        this.getters.getColRowOffset("ROW", this.boundaries.top, zone.bottom + 1) -
+        this.getters.getColRowOffset("ROW", this.boundaries.top, zone.top);
+      return { x: x - scrollDeltaX, y: y - scrollDeltaY, width, height };
+    } else {
+      return undefined;
+    }
   }
 
   isVisible(col: HeaderIndex, row: HeaderIndex) {
@@ -276,7 +309,7 @@ export class InternalViewport {
     let start = startIndex;
     let end = headers;
     while (start <= end && start !== headers && end !== -1) {
-      const mid = Math.floor((start + end) / 2);
+      const mid: HeaderIndex = Math.floor((start + end) / 2);
       const offset = this.getters.getColRowOffset(dimension, startIndex, mid);
       const size = this.getters.getHeaderSize(sheetId, dimension, mid);
       if (position >= offset && position < offset + size) {
@@ -339,7 +372,11 @@ export class InternalViewport {
     this.left = this.searchHeaderIndex("COL", this.offsetScrollbarX, this.boundaries.left);
     this.right = Math.min(
       this.boundaries.right,
-      this.searchHeaderIndex("COL", this.viewportWidth, this.left)
+      this.searchHeaderIndex(
+        "COL",
+        this.viewportWidth + Math.abs(this.scrollCorrection.x),
+        this.left
+      )
     );
     if (this.left === -1) {
       this.left = this.boundaries.left;
@@ -359,7 +396,11 @@ export class InternalViewport {
     this.top = this.searchHeaderIndex("ROW", this.offsetScrollbarY, this.boundaries.top);
     this.bottom = Math.min(
       this.boundaries.bottom,
-      this.searchHeaderIndex("ROW", this.viewportHeight, this.top)
+      this.searchHeaderIndex(
+        "ROW",
+        this.viewportHeight + Math.abs(this.scrollCorrection.y),
+        this.top
+      )
     );
     if (this.top === -1) {
       this.top = this.boundaries.top;
@@ -370,5 +411,20 @@ export class InternalViewport {
     this.offsetY =
       this.getters.getRowDimensions(sheetId, this.top).start -
       this.getters.getRowDimensions(sheetId, this.boundaries.top).start;
+  }
+
+  get scrollCorrection() {
+    if (this.mode === "snapped") {
+      return { x: 0, y: 0 };
+    }
+
+    return {
+      x:
+        this.offsetScrollbarX -
+        this.getters.getColRowOffset("COL", this.boundaries.left, Math.max(0, this.left)),
+      y:
+        this.offsetScrollbarY -
+        this.getters.getColRowOffset("ROW", this.boundaries.top, Math.max(0, this.top)),
+    };
   }
 }

@@ -1544,3 +1544,22 @@ describe("shift viewport up/down", () => {
     expect(model.getters.isVisibleInViewport({ sheetId, col, row })).toBeTruthy();
   });
 });
+
+describe("smooth mode", () => {
+  describe("simple sheet viewport", () => {
+    beforeEach(() => {
+      model = new Model();
+    });
+    test("scroll of half a cell height/width", () => {
+      setViewportOffset(model, DEFAULT_CELL_WIDTH / 2, DEFAULT_CELL_HEIGHT / 2);
+    });
+
+    test("scroll of half a cell width");
+
+    test("getRect of a cell partially visible");
+
+    test("getRect of a cell partially visible after scrolling");
+
+    test("changing mode resnaps the viewport");
+  });
+});

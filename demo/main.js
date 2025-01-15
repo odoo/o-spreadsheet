@@ -90,7 +90,10 @@ class Demo extends Component {
       sequence: 12,
       isReadonlyAllowed: true,
       isVisible: () => this.model.config.mode !== "dashboard",
-      execute: () => this.model.updateMode("dashboard"),
+      execute: () => {
+        this.model.updateMode("dashboard");
+        this.model.dispatch("SET_SROLL_MODE", { mode: "smooth" });
+      },
       icon: "o-spreadsheet-Icon.OPEN_DASHBOARD",
     });
 

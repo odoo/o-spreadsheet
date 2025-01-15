@@ -39,7 +39,6 @@ import {
   Box,
   CellPosition,
   CellValueType,
-  Dimension,
   Getters,
   GridRenderingContext,
   HeaderIndex,
@@ -73,18 +72,6 @@ export class GridRenderer {
     return ["Background", "Headers"] as const;
   }
 
-  /**
-   * Get the offset of a header (see getColRowOffsetInViewport), adjusted with the header
-   * size (HEADER_HEIGHT and HEADER_WIDTH)
-   */
-  private getHeaderOffset(dimension: Dimension, start: HeaderIndex, index: HeaderIndex): number {
-    let size = this.getters.getColRowOffsetInViewport(dimension, start, index);
-    if (!this.getters.isDashboard()) {
-      size += dimension === "ROW" ? HEADER_HEIGHT : HEADER_WIDTH;
-    }
-    return size;
-  }
-
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
@@ -92,31 +79,47 @@ export class GridRenderer {
   drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
     switch (layer) {
       case "Background":
-        const boxes = this.getGridBoxes();
-        this.drawBackground(renderingContext, boxes);
-        this.drawOverflowingCellBackground(renderingContext, boxes);
-        this.drawCellBackground(renderingContext, boxes);
-        this.drawBorders(renderingContext, boxes);
-        this.drawTexts(renderingContext, boxes);
-        this.drawIcon(renderingContext, boxes);
+        this.drawGlobalBackground(renderingContext);
+        for (const zone of this.getters.getAllActiveViewportsZones()) {
+          const { ctx } = renderingContext;
+          ctx.save();
+          ctx.beginPath();
+          const rect = this.getters.getVisibleRect(zone);
+          ctx.rect(rect.x, rect.y, rect.width, rect.height);
+          ctx.clip();
+          const boxes = this.getGridBoxes(zone);
+          this.drawBackground(renderingContext, boxes);
+          this.drawOverflowingCellBackground(renderingContext, boxes);
+          this.drawCellBackground(renderingContext, boxes);
+          this.drawBorders(renderingContext, boxes);
+          this.drawTexts(renderingContext, boxes);
+          this.drawIcon(renderingContext, boxes);
+          ctx.restore();
+        }
         this.drawFrozenPanes(renderingContext);
         break;
       case "Headers":
-        if (!this.getters.isDashboard()) {
-          this.drawHeaders(renderingContext);
-          this.drawFrozenPanesHeaders(renderingContext);
+        {
+          if (!this.getters.isDashboard()) {
+            this.drawHeaders(renderingContext);
+            this.drawFrozenPanesHeaders(renderingContext);
+          }
         }
         break;
     }
   }
 
-  private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
-    const { ctx, thinLineWidth } = renderingContext;
+  private drawGlobalBackground(renderingContext: GridRenderingContext) {
+    const { ctx } = renderingContext;
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
 
     // white background
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
+  }
+
+  private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
+    const { ctx, thinLineWidth } = renderingContext;
 
     const areGridLinesVisible =
       !this.getters.isDashboard() &&
@@ -451,26 +454,41 @@ export class GridRenderer {
 
     // column text + separator
     for (const i of visibleCols) {
-      const colSize = this.getters.getColSize(sheetId, i);
       const colName = numberToLetters(i);
       ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
-      let colStart = this.getHeaderOffset("COL", left, i);
+      const zone = { left: i, right: i, top: top, bottom: top };
+      const { x: colStart, width: colSize } = this.getters.getRenderingRect(zone);
+      const { x, width } = this.getters.getVisibleRect(zone);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, 0, width, HEADER_HEIGHT);
+      ctx.clip();
       ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
+      ctx.restore();
+      ctx.beginPath();
       ctx.moveTo(colStart + colSize, 0);
       ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
+      ctx.stroke();
     }
-    // row text + separator
-    for (const i of visibleRows) {
-      const rowSize = this.getters.getRowSize(sheetId, i);
-      ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
 
-      let rowStart = this.getHeaderOffset("ROW", top, i);
+    // row text + separator
+    // should ge the large zone to get the size right ? or just
+    for (const i of visibleRows) {
+      ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
+      const zone = { top: i, bottom: i, left: left, right: left };
+      const { y: rowStart, height: rowSize } = this.getters.getRenderingRect(zone);
+      const { y, height } = this.getters.getVisibleRect(zone);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, y, HEADER_WIDTH, height);
+      ctx.clip();
       ctx.fillText(String(i + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
+      ctx.restore();
+      ctx.beginPath();
       ctx.moveTo(0, rowStart + rowSize);
       ctx.lineTo(HEADER_WIDTH, rowStart + rowSize);
+      ctx.stroke();
     }
-
-    ctx.stroke();
   }
 
   private drawFrozenPanesHeaders(renderingContext: GridRenderingContext) {
@@ -591,7 +609,7 @@ export class GridRenderer {
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { x, y, width, height } = this.getters.getRenderingRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
     let style = this.getters.getCellComputedStyle(position);
     if (this.fingerprints.isEnabled) {
@@ -732,13 +750,17 @@ export class GridRenderer {
     return box;
   }
 
-  private getGridBoxes(): Box[] {
+  private getGridBoxes(zone: Zone): Box[] {
     const boxes: Box[] = [];
 
-    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleCols = this.getters
+      .getSheetViewVisibleCols()
+      .filter((col) => col >= zone.left && col <= zone.right);
     const left = visibleCols[0];
     const right = visibleCols[visibleCols.length - 1];
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    const visibleRows = this.getters
+      .getSheetViewVisibleRows()
+      .filter((row) => row >= zone.top && row <= zone.bottom);
     const top = visibleRows[0];
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
