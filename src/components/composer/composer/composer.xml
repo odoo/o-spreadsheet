@@ -60,7 +60,7 @@
           t-if="functionDescriptionState.showDescription"
           functionName="functionDescriptionState.functionName"
           functionDescription="functionDescriptionState.functionDescription"
-          argToFocus="functionDescriptionState.argToFocus"
+          argsToFocus="functionDescriptionState.argsToFocus"
         />
         <div
           t-if="functionDescriptionState.showDescription and autoCompleteState.provider"

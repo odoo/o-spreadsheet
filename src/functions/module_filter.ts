@@ -200,7 +200,7 @@ export const SORTN: AddFunctionDescription = {
   description: _t("Returns the first n items in a data set after performing a sort."),
   args: [
     arg("range (range)", _t("The data to be sorted.")),
-    arg("n (number, default=1)", _t("The number of items to return.")),
+    arg("n (number)", _t("The number of items to return.")),
     arg(
       "display_ties_mode (number, default=0)",
       _t("A number representing the way to display ties.")
@@ -221,12 +221,20 @@ export const SORTN: AddFunctionDescription = {
   compute: function (
     range: Matrix<FunctionResultObject>,
     n: Maybe<FunctionResultObject>,
-    displayTiesMode: Maybe<FunctionResultObject>,
-    ...sortingCriteria: (FunctionResultObject | Matrix<FunctionResultObject>)[]
+    ...displayTiesMode_sortingCriteria: [Maybe<FunctionResultObject>, ...Array<Arg>]
   ): any {
     const _n = toNumber(n?.value ?? 1, this.locale);
+
+    const _displayTiesMode: number =
+      displayTiesMode_sortingCriteria.length % 2 === 0
+        ? 0
+        : toNumber(displayTiesMode_sortingCriteria[0]?.value, this.locale);
+    const sortingCriteria: Arg[] =
+      displayTiesMode_sortingCriteria.length % 2 === 0
+        ? displayTiesMode_sortingCriteria
+        : displayTiesMode_sortingCriteria.slice(1);
+
     assert(() => _n >= 0, _t("Wrong value of 'n'. Expected a positive number. Got %s.", _n));
-    const _displayTiesMode = toNumber(displayTiesMode?.value ?? 0, this.locale);
     assert(
       () => _displayTiesMode >= 0 && _displayTiesMode <= 3,
       _t(
