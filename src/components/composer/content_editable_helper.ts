@@ -188,9 +188,9 @@ export class ContentEditableHelper {
       }
     }
     // @ts-ignore
-    if (!this.el.contains(this.selection.focusNode)) {
-      console.log("inconsistent");
-    }
+    // if (!this.el.contains(this.selection.focusNode)) {
+    //   console.log("inconsistent");
+    // }
   }
 
   scrollSelectionIntoView() {

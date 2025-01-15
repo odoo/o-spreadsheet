@@ -611,11 +611,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       if (this.props.focus !== "inactive") {
         // Put the cursor back where it was before the rendering
         const { start, end } = this.props.composerStore.composerSelection;
-        console.log("fixed");
+        // console.log("fixed");
         this.contentHelper.selectRange(start, end);
         // @ts-ignore
         if (!this.contentHelper.el.contains(this.contentHelper.selection.focusNode)) {
-          console.log("fixed...but not");
+          // console.log("fixed...but not");
         }
       }
       this.contentHelper.scrollSelectionIntoView();

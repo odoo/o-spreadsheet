@@ -7,6 +7,7 @@ import { ComposerSelection } from "../../src/components/composer/composer/abstra
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { iterateChildren } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
@@ -660,33 +661,72 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   await nextTick();
   const focusNode = cehMock.focusNode;
   const anchorNode = cehMock.anchorNode;
+  let fullText = "";
+  let offset = 0;
   if (!focusNode || !anchorNode) {
-    const p = document.createElement("p");
-    const span = document.createElement("span");
-    span.textContent = text;
-    p.appendChild(span);
-    composerEl.appendChild(p);
-    cehMock.setSelection(span, text.length, span, text.length);
+    fullText = text;
+    offset = text.length;
   } else {
-    const focusText = focusNode.textContent ?? "";
-    const anchorText = anchorNode.textContent ?? "";
-    const fullText =
-      anchorText.slice(0, cehMock.anchorOffset) + text + focusText.slice(cehMock.focusOffset);
-    anchorNode.textContent = "";
-    focusNode.textContent = fullText;
-    // remove end of anchor text
-    // focusNode.textContent = fullText;
-    cehMock.setSelection(
-      focusNode,
-      // This looks louche
-      cehMock.focusOffset + text.length,
-      focusNode,
-      cehMock.focusOffset + text.length
-    );
-    // if (!composerEl.contains(focusNode)) {
-    //   throw new Error("Focus node is not in the composer");
-    // }
+    // doesn't work with multi line
+    for (const el of iterateChildren(composerEl)) {
+      if (el === anchorNode && anchorNode === focusNode) {
+        fullText += anchorNode.textContent?.slice(0, cehMock.anchorOffset) ?? "";
+        fullText += text;
+        offset = fullText.length;
+        fullText += focusNode.textContent?.slice(cehMock.focusOffset) ?? "";
+      } else if (el === anchorNode) {
+        fullText += anchorNode.textContent?.slice(0, cehMock.anchorOffset) ?? "";
+      } else if (el === focusNode) {
+        fullText += text;
+        offset = fullText.length;
+        fullText += focusNode.textContent?.slice(cehMock.focusOffset) ?? "";
+      } else if (el.nodeType === Node.TEXT_NODE) {
+        fullText += el.textContent;
+      }
+    }
   }
+  const p = document.createElement("p");
+  const span = document.createElement("span");
+  span.textContent = fullText;
+  p.appendChild(span);
+  composerEl.innerHTML = "";
+  composerEl.appendChild(p);
+  // if (cehMock.rangeCount === 0) {
+  //   const range = document.createRange();
+  //   selection.addRange(range);
+  // }
+  const range = cehMock.getRange();
+  range.setStart(span.firstChild!, offset);
+  range.setEnd(span.firstChild!, offset);
+  // const focusNode = cehMock.focusNode;
+  // const anchorNode = cehMock.anchorNode;
+  // if (!focusNode || !anchorNode) {
+  //   const p = document.createElement("p");
+  //   const span = document.createElement("span");
+  //   span.textContent = text;
+  //   p.appendChild(span);
+  //   composerEl.appendChild(p);
+  //   cehMock.setSelection(span, text.length, span, text.length);
+  // } else {
+  //   const focusText = focusNode.textContent ?? "";
+  //   const anchorText = anchorNode.textContent ?? "";
+  //   const fullText =
+  //     anchorText.slice(0, cehMock.anchorOffset) + text + focusText.slice(cehMock.focusOffset);
+  //   anchorNode.textContent = "";
+  //   focusNode.textContent = fullText;
+  //   // remove end of anchor text
+  //   // focusNode.textContent = fullText;
+  //   cehMock.setSelection(
+  //     focusNode,
+  //     // This looks louche
+  //     cehMock.focusOffset + text.length,
+  //     focusNode,
+  //     cehMock.focusOffset + text.length
+  //   );
+  //   // if (!composerEl.contains(focusNode)) {
+  //   //   throw new Error("Focus node is not in the composer");
+  //   // }
+  // }
   // const p = document.createElement("p");
   // // pas correct!
   // p.textContent = fullText;
@@ -758,7 +798,7 @@ export async function editStandaloneComposer(
   if (fromScratch) {
     cehMock.removeAll();
   }
-  cehMock.insertText(text);
+  // cehMock.insertText(text);
   composerEl.dispatchEvent(new InputEvent("input", { data: text, bubbles: true }));
 
   if (confirm) {

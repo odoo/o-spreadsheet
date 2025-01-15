@@ -17,36 +17,36 @@ export class ContentEditableSelectionHelper {
   }
 
   updateEl(el: HTMLElement) {
-    const mutationObserver = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.addedNodes.length === mutation.removedNodes.length) {
-          for (let i = 0; i < mutation.addedNodes.length; i++) {
-            const addedNode = mutation.addedNodes[i];
-            const removedNode = mutation.removedNodes[i];
-            if (
-              removedNode.contains(this.anchorNode) &&
-              addedNode.textContent === removedNode.textContent
-            ) {
-              // @ts-ignore
-              console.log("replacing", removedNode.outerHTML, addedNode.outerHTML);
-              // console.log(mutation.removedNodes.length);
-              this.anchorNode = addedNode;
-            }
-            if (
-              removedNode.contains(this.focusNode) &&
-              addedNode.textContent === removedNode.textContent
-            ) {
-              this.focusNode = addedNode;
-            }
-          }
-        }
-      }
-    });
+    // const mutationObserver = new MutationObserver((mutations) => {
+    //   for (const mutation of mutations) {
+    //     if (mutation.addedNodes.length === mutation.removedNodes.length) {
+    //       for (let i = 0; i < mutation.addedNodes.length; i++) {
+    //         const addedNode = mutation.addedNodes[i];
+    //         const removedNode = mutation.removedNodes[i];
+    //         if (
+    //           removedNode.contains(this.anchorNode) &&
+    //           addedNode.textContent === removedNode.textContent
+    //         ) {
+    //           // @ts-ignore
+    //           console.log("replacing", removedNode.outerHTML, addedNode.outerHTML);
+    //           // console.log(mutation.removedNodes.length);
+    //           this.anchorNode = addedNode;
+    //         }
+    //         if (
+    //           removedNode.contains(this.focusNode) &&
+    //           addedNode.textContent === removedNode.textContent
+    //         ) {
+    //           this.focusNode = addedNode;
+    //         }
+    //       }
+    //     }
+    //   }
+    // });
     // disconnect please
-    mutationObserver.observe(el, {
-      subtree: true,
-      childList: true,
-    });
+    // mutationObserver.observe(el, {
+    //   subtree: true,
+    //   childList: true,
+    // });
     this.el = el;
     this.currentState = {
       cursorStart: 0,
