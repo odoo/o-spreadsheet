@@ -111,9 +111,8 @@ export function cycleFixedReference(
   content: string,
   locale: Locale
 ) {
-  const currentTokens: EnrichedToken[] = content.startsWith("=")
-    ? composerTokenize(content, locale)
-    : [];
+  const currentTokens: EnrichedToken[] =
+    content.startsWith("=") || content.startsWith("+") ? composerTokenize(content, locale) : [];
 
   const tokens = currentTokens.filter(
     (t) =>

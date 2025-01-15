@@ -306,11 +306,16 @@ export class DataValidationPlugin
     const criterion = cmd.rule.criterion;
     const evaluator = dataValidationEvaluatorRegistry.get(criterion.type);
     const isInvalid = (value: string) => {
-      if (evaluator.allowedValues === "onlyFormulas" && !value.startsWith("=")) {
+      if (
+        evaluator.allowedValues === "onlyFormulas" &&
+        !value.startsWith("=") &&
+        !value.startsWith("+")
+      ) {
         return true;
       }
-      if (value.startsWith("=")) {
-        return evaluator.allowedValues === "onlyLiterals" || compile(value).isBadExpression;
+      if (value.startsWith("=") || value.startsWith("+")) {
+        const newValue = value.startsWith("+") ? "=" + value.slice(1) : value;
+        return evaluator.allowedValues === "onlyLiterals" || compile(newValue).isBadExpression;
       }
       return !evaluator.isCriterionValueValid(value);
     };

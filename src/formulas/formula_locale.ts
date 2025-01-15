@@ -4,7 +4,7 @@ import { tokenize } from "./tokenizer";
 
 /** Change a number string to its canonical form (en_US locale) */
 export function canonicalizeNumberValue(content: string, locale: Locale) {
-  return content.startsWith("=")
+  return content.startsWith("=") || content.startsWith("+")
     ? canonicalizeFormula(content, locale)
     : canonicalizeNumberLiteral(content, locale);
 }

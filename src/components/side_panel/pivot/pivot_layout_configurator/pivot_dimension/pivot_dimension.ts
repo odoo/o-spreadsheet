@@ -55,7 +55,7 @@ export class PivotDimension extends Component<Props, SpreadsheetChildEnv> {
   updateName(name: string) {
     this.props.onNameUpdated?.(
       this.props.dimension,
-      name === "" || name.startsWith("=") ? undefined : name
+      name === "" || name.startsWith("=") || name.startsWith("+") ? undefined : name
     );
   }
 }

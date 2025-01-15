@@ -147,7 +147,9 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     if (this.composerStore.editionMode === "inactive") {
       return `z-index: -1000;`;
     }
-    const isFormula = this.composerStore.currentContent.startsWith("=");
+    const isFormula =
+      this.composerStore.currentContent.startsWith("=") ||
+      this.composerStore.currentContent.startsWith("+");
     const cell = this.env.model.getters.getActiveCell();
     const position = this.env.model.getters.getActivePosition();
     const style = this.env.model.getters.getCellComputedStyle(position);

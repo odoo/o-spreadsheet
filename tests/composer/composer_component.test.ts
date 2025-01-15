@@ -90,6 +90,13 @@ describe("ranges and highlights", () => {
     expect(contentColors["SU"]).toBe("#000000");
   });
 
+  test("+SU, the + should be colored", async () => {
+    await typeInComposer("+SU");
+    const contentColors = cehMock.colors;
+    expect(contentColors["+"]).toBe("#3da4ab");
+    expect(contentColors["SU"]).toBe("#000000");
+  });
+
   test.each([
     "A1",
     "$A1",
@@ -108,6 +115,12 @@ describe("ranges and highlights", () => {
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A2");
+  });
+
+  test("+Key DOWN in A1, should select and highlight A2", async () => {
+    composerEl = await typeInComposer("+");
+    await keyDown({ key: "ArrowDown" });
+    expect(composerEl.textContent).toBe("+A2");
   });
 
   test("reference position is reset at each selection", async () => {
@@ -132,10 +145,23 @@ describe("ranges and highlights", () => {
     expect(composerEl.textContent).toBe("=A3");
   });
 
+  test("+Key DOWN+DOWN in A1, should select and highlight A3", async () => {
+    composerEl = await typeInComposer("+");
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowDown" });
+    expect(composerEl.textContent).toBe("+A3");
+  });
+
   test("=Key RIGHT in A1, should select and highlight B1", async () => {
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowRight" });
     expect(composerEl.textContent).toBe("=B1");
+  });
+
+  test("+Key RIGHT in A1, should select and highlight B1", async () => {
+    composerEl = await typeInComposer("+");
+    await keyDown({ key: "ArrowRight" });
+    expect(composerEl.textContent).toBe("+B1");
   });
 
   test("=Key RIGHT twice selects C1", async () => {
@@ -468,8 +494,24 @@ describe("composer", () => {
     expect(getCellText(model, "A1")).toBe("=C8");
   });
 
+  test("type '+', select a cell, press enter", async () => {
+    composerEl = await typeInComposer("+");
+    selectCell(model, "C8");
+    await nextTick();
+    expect(composerEl.textContent).toBe("+C8");
+    await keyDown({ key: "Enter" });
+    expect(composerStore.editionMode).toBe("inactive");
+    expect(getCellText(model, "A1")).toBe("=C8");
+  });
+
   test("full rows/cols ranges are correctly displayed", async () => {
     composerEl = await typeInComposer("=SUM(A:A)");
+    await keyDown({ key: "Enter" });
+    expect(getCellText(model, "A1")).toBe("=SUM(A:A)");
+  });
+
+  test("full rows/cols ranges are correctly displayed with +", async () => {
+    composerEl = await typeInComposer("+SUM(A:A)");
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=SUM(A:A)");
   });
@@ -694,8 +736,8 @@ describe("composer", () => {
       );
     });
 
-    test.each([",", "+", "*", ")", "("])(
-      "typing a matching values (except '=') --> not activate 'waitingForRangeSelection' mode",
+    test.each([",", "*", ")", "("])(
+      "typing a matching values (except '=' or '+') --> not activate 'waitingForRangeSelection' mode",
       async (value) => {
         await startComposition();
         composerEl = await typeInComposer(value);
@@ -714,6 +756,15 @@ describe("composer", () => {
       expect(cehMock.selectionState.position).toBe(1);
     });
 
+    test("typing '+'--> activate 'waitingForRangeSelection' mode", async () => {
+      await startComposition();
+      composerEl = await typeInComposer("+");
+      expect(composerStore.editionMode).toBe("selecting");
+      expect(composerEl.textContent).toBe("+");
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(1);
+    });
+
     test("typing '=' & spaces --> activate 'selecting' mode", async () => {
       composerEl = await startComposition();
       const content = "=   ";
@@ -723,8 +774,17 @@ describe("composer", () => {
       expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
       expect(cehMock.selectionState.position).toBe(content.length);
     });
-  });
 
+    test("typing '+' & spaces --> activate 'selecting' mode", async () => {
+      composerEl = await startComposition();
+      const content = "+   ";
+      await typeInComposer(content);
+      expect(composerStore.editionMode).toBe("selecting");
+      expect(composerEl.textContent).toBe("+   ");
+      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+      expect(cehMock.selectionState.position).toBe(content.length);
+    });
+  });
   test("dont show selection indicator if in editing mode ", async () => {
     composerEl = await startComposition("=");
     await simulateClick(composerEl);
@@ -841,8 +901,36 @@ describe("composer", () => {
     expect(composerStore.editionMode).toBe("inactive");
   });
 
+  test("type '+', stop editing with enter, click on the modified cell --> the edition mode should be inactive", async () => {
+    // type '+' in C8
+    selectCell(model, "C8");
+    await nextTick();
+    composerEl = await typeInComposer("+");
+    expect(composerStore.editionMode).toBe("selecting");
+
+    // stop editing with enter
+    await keyDown({ key: "Enter" });
+    expect(getCellText(model, "C8")).toBe("=");
+    expect(getEvaluatedCell(model, "C8").value).toBe("#BAD_EXPR");
+    expect(getSelectionAnchorCellXc(model)).toBe("C9");
+    expect(composerStore.editionMode).toBe("inactive");
+
+    // click on the modified cell C8
+    selectCell(model, "C8");
+    await nextTick();
+    expect(getSelectionAnchorCellXc(model)).toBe("C8");
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
   test("Add a character changing the edition mode to 'selecting' correctly renders the composer", async () => {
     await typeInComposer("=sum(4");
+    expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
+    await typeInComposer(",", false);
+    expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
+  });
+
+  test("Add a character changing the edition mode to 'selecting' correctly renders the composer with +", async () => {
+    await typeInComposer("+sum(4");
     expect(cehMock.selectionState.isSelectingRange).toBeFalsy();
     await typeInComposer(",", false);
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
@@ -941,8 +1029,18 @@ describe("composer formula color", () => {
     expect(cehMock.colors["SUM"]).toBe(tokenColors["FUNCTION"]);
   });
 
+  test('type "+SUM" --> SUM should have specific function color', async () => {
+    await typeInComposer("+SUM");
+    expect(cehMock.colors["SUM"]).toBe(tokenColors["FUNCTION"]);
+  });
+
   test('type "=SUM(" --> left parenthesis should have specific function color', async () => {
     await typeInComposer("=SUM(");
+    expect(cehMock.colors["("]).toBe(tokenColors["LEFT_PAREN"]);
+  });
+
+  test('type "+SUM(" --> left parenthesis should have specific function color', async () => {
+    await typeInComposer("+SUM(");
     expect(cehMock.colors["("]).toBe(tokenColors["LEFT_PAREN"]);
   });
 
@@ -951,8 +1049,18 @@ describe("composer formula color", () => {
     expect(cehMock.colors["("]).toBe(tokenColors["LEFT_PAREN"]);
   });
 
+  test('type "+SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
+    await typeInComposer("+SUM(1");
+    expect(cehMock.colors["("]).toBe(tokenColors["LEFT_PAREN"]);
+  });
+
   test('type "=SUM(1" --> number should have specific number color', async () => {
     await typeInComposer("=SUM(1");
+    expect(cehMock.colors["1"]).toBe(tokenColors["NUMBER"]);
+  });
+
+  test('type "+SUM(1" --> number should have specific number color', async () => {
+    await typeInComposer("+SUM(1");
     expect(cehMock.colors["1"]).toBe(tokenColors["NUMBER"]);
   });
 
@@ -961,8 +1069,18 @@ describe("composer formula color", () => {
     expect(cehMock.colors[","]).toBe(tokenColors["ARG_SEPARATOR"]);
   });
 
+  test('type "+SUM(1," --> comma should have specific comma color', async () => {
+    await typeInComposer("+SUM(1,");
+    expect(cehMock.colors[","]).toBe(tokenColors["ARG_SEPARATOR"]);
+  });
+
   test(`type '=SUM(1, "2"' --> string should have specific string color`, async () => {
     await typeInComposer('=SUM(1, "2"');
+    expect(cehMock.colors[`"2"`]).toBe(tokenColors["STRING"]);
+  });
+
+  test(`type '+SUM(1, "2"' --> string should have specific string color`, async () => {
+    await typeInComposer('+SUM(1, "2"');
     expect(cehMock.colors[`"2"`]).toBe(tokenColors["STRING"]);
   });
 
@@ -971,8 +1089,18 @@ describe("composer formula color", () => {
     expect(cehMock.colors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
   });
 
+  test(`type '+SUM(1, "2")' --> right parenthesis should have specific function color`, async () => {
+    await typeInComposer('+SUM(1, "2")');
+    expect(cehMock.colors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
+  });
+
   test(`type '=SUM(1, "2") +' --> right parenthesis should have specific parenthesis color`, async () => {
     await typeInComposer('=SUM(1, "2") +');
+    expect(cehMock.colors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
+  });
+
+  test(`type '+SUM(1, "2") +' --> right parenthesis should have specific parenthesis color`, async () => {
+    await typeInComposer('+SUM(1, "2") +');
     expect(cehMock.colors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
   });
 
@@ -981,13 +1109,28 @@ describe("composer formula color", () => {
     expect(cehMock.colors["+"]).toBe(tokenColors["OPERATOR"]);
   });
 
+  test(`type '+SUM(1, "2") +' --> operator should have specific operator color`, async () => {
+    await typeInComposer('+SUM(1, "2") +');
+    expect(cehMock.colors["+"]).toBe(tokenColors["OPERATOR"]);
+  });
+
   test(`type '=SUM(1, "2") + TRUE' --> boolean should have specific bolean color`, async () => {
     await typeInComposer('=SUM(1, "2") + TRUE');
     expect(cehMock.colors["TRUE"]).toBe(tokenColors.NUMBER);
   });
 
+  test(`type '+SUM(1, "2") + TRUE' --> boolean should have specific bolean color`, async () => {
+    await typeInComposer('+SUM(1, "2") + TRUE');
+    expect(cehMock.colors["TRUE"]).toBe(tokenColors.NUMBER);
+  });
+
   test(`type '=SUM(1, "2"))' --> extra parenthesis should have specific parenthesis color`, async () => {
     await typeInComposer('=SUM(1, "2"))');
+    expect(cehMock.colors[")"]).toBe(tokenColors.ORPHAN_RIGHT_PAREN);
+  });
+
+  test(`type '+SUM(1, "2"))' --> extra parenthesis should have specific parenthesis color`, async () => {
+    await typeInComposer('+SUM(1, "2"))');
     expect(cehMock.colors[")"]).toBe(tokenColors.ORPHAN_RIGHT_PAREN);
   });
 });
@@ -1067,6 +1210,82 @@ describe("Composer blurs formula parts not affected by cursor position.", () => 
     );
 
     firstPart = "= SUM( COS ( A1 ) ) + ";
+    test.each([
+      "ABS (",
+      "ABS ( ",
+      "ABS ( 4",
+      "ABS ( 42",
+      "ABS ( 42 ",
+      "ABS ( 42 +",
+      "ABS ( 42 + ",
+      "ABS ( 42 + (",
+      "ABS ( 42 + (3",
+      "ABS ( 42 + (3*",
+      "ABS ( 42 + (3*2",
+      "ABS ( 42 + (3*2)",
+      "ABS ( 42 + (3*2) ",
+    ])(`type "${firstPart}%s" --> lighten all elements in ABS`, async (str: string) => {
+      await typeInComposer(firstPart + str);
+      expect(getBlurredState(composerStore)).toEqual([
+        { isBlurred: true, value: firstPart },
+        { isBlurred: false, value: str },
+      ]);
+    });
+  });
+  describe("Type an unfinished formula with + --> lighten the unfinished part.", () => {
+    let firstPart: string;
+    test.each([
+      "+",
+      "+ ",
+      "+ S",
+      "+ SU",
+      "+ SUM",
+      "+ SUM( COS ( A1 ) )",
+      "+ SUM( COS ( A1 ) ) ",
+      "+ SUM( COS ( A1 ) ) +",
+      "+ SUM( COS ( A1 ) ) + ",
+      "+ SUM( COS ( A1 ) ) + A",
+      "+ SUM( COS ( A1 ) ) + AB",
+      "+ SUM( COS ( A1 ) ) + ABS",
+      "+ SUM( COS ( A1 ) ) + ABS ",
+      "+ SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) )",
+      "+ SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ",
+    ])('type "%s" --> lighten all', async (str: string) => {
+      await typeInComposer(str);
+      expect(getBlurredState(composerStore)).toEqual([{ isBlurred: false, value: str }]);
+    });
+
+    firstPart = "+ ";
+    test.each([
+      "SUM(",
+      "SUM( ",
+      "SUM( C",
+      "SUM( CO",
+      "SUM( COS",
+      "SUM( COS ",
+      "SUM( COS ( A1 )",
+      "SUM( COS ( A1 ) ",
+    ])(`type "${firstPart}%s" --> lighten all elements in SUM`, async (str: string) => {
+      await typeInComposer(firstPart + str);
+      expect(getBlurredState(composerStore)).toEqual([
+        { isBlurred: true, value: firstPart },
+        { isBlurred: false, value: str },
+      ]);
+    });
+
+    firstPart = "+ SUM( ";
+    test.each(["COS (", "COS ( ", "COS ( A", "COS ( A", "COS ( A1", "COS ( A1 "])(
+      `type "${firstPart}%s" --> lighten all elements in COS`,
+      async (str: string) => {
+        await typeInComposer(firstPart + str);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: firstPart },
+          { isBlurred: false, value: str },
+        ]);
+      }
+    );
+
+    firstPart = "+ SUM( COS ( A1 ) ) + ";
     test.each([
       "ABS (",
       "ABS ( ",
