@@ -4,7 +4,7 @@
       t-ref="autoCompleteList"
       t-att-class="{
           'o-autocomplete-dropdown': props.proposals.length}">
-      <t t-foreach="props.proposals" t-as="proposal" t-key="proposal.text">
+      <t t-foreach="props.proposals" t-as="proposal" t-key="proposal.text + proposal_index">
         <div
           class="d-flex flex-column text-start"
           t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === proposal_index}"
