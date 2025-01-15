@@ -2,10 +2,6 @@ import { iterateChildren } from "../../src/components/helpers/dom_helpers";
 
 export class ContentEditableSelectionHelper {
   private el: HTMLElement;
-  currentState = {
-    cursorStart: 0,
-    cursorEnd: 0,
-  };
   anchorNode: Node | null = null;
   focusNode: Node | null = null;
   anchorOffset: number = 0;
@@ -48,10 +44,6 @@ export class ContentEditableSelectionHelper {
     //   childList: true,
     // });
     this.el = el;
-    this.currentState = {
-      cursorStart: 0,
-      cursorEnd: 0,
-    };
     this.reset();
     this.attachEventHandlers();
   }
@@ -101,14 +93,10 @@ export class ContentEditableSelectionHelper {
 
   removeSelection() {
     this.reset();
-    this.currentState.cursorStart = 0;
-    this.currentState.cursorEnd = 0;
   }
 
   removeAll() {
     this.reset();
-    this.currentState.cursorStart = 0;
-    this.currentState.cursorEnd = 0;
   }
 
   scrollSelectionIntoView() {}
@@ -121,9 +109,6 @@ export class ContentEditableSelectionHelper {
     this.focusNode = focusNode;
     this.anchorOffset = anchorOffset;
     this.focusOffset = focusOffset;
-    this.currentState.cursorStart = anchorOffset;
-    this.currentState.cursorEnd = focusOffset;
-    // update this.currentState
   }
 
   private reset() {
@@ -152,37 +137,56 @@ export class ContentEditableSelectionHelper {
     }
     switch (ev.key) {
       case "Home":
-        this.currentState.cursorStart = 0;
-        this.currentState.cursorEnd = 0;
-        this.anchorOffset = 0;
-        this.focusOffset = 0;
         const firstTextNode = [...iterateChildren(el)].find(
           (child) => child.nodeType === Node.TEXT_NODE
         )!;
         this.anchorNode = firstTextNode;
         this.focusNode = firstTextNode;
+        this.anchorOffset = 0;
+        this.focusOffset = 0;
         break;
       case "End":
         const end = el.textContent ? el.textContent.length : 0;
-        this.currentState.cursorStart = end;
-        this.currentState.cursorEnd = end;
         const lastTextNode = [...iterateChildren(el)]
           .reverse()
           .find((child) => child.nodeType === Node.TEXT_NODE)!;
         this.anchorNode = lastTextNode;
         this.focusNode = lastTextNode;
+        this.anchorOffset = lastTextNode.textContent?.length || 0;
+        this.focusOffset = lastTextNode.textContent?.length || 0;
         break;
       case "ArrowRight":
-        this.currentState.cursorEnd += 1;
-        this.currentState.cursorStart = ev.shiftKey
-          ? this.currentState.cursorStart
-          : this.currentState.cursorEnd;
+        if (
+          this.focusNode?.textContent?.length === this.focusOffset &&
+          this.focusNode.nextSibling
+        ) {
+          const nextTextNode = [...iterateChildren(this.focusNode.nextSibling)].find(
+            (child) => child.nodeType === Node.TEXT_NODE
+          )!;
+          this.focusNode = nextTextNode;
+          this.focusOffset = 0;
+        } else {
+          this.focusOffset += 1;
+        }
+        if (!ev.shiftKey) {
+          this.anchorNode = this.focusNode;
+          this.anchorOffset = this.focusOffset;
+        }
         break;
       case "ArrowLeft":
-        this.currentState.cursorEnd -= 1;
-        this.currentState.cursorStart = ev.shiftKey
-          ? this.currentState.cursorStart
-          : this.currentState.cursorEnd;
+        if (this.focusOffset === 0 && this.focusNode?.previousSibling) {
+          const nextTextNode = [...iterateChildren(this.focusNode.previousSibling)].find(
+            (child) => child.nodeType === Node.TEXT_NODE
+          )!;
+          this.focusNode = nextTextNode;
+          this.focusOffset = nextTextNode.textContent?.length || 0;
+        } else {
+          this.focusOffset -= 1;
+        }
+        if (!ev.shiftKey) {
+          this.anchorNode = this.focusNode;
+          this.anchorOffset = this.focusOffset;
+        }
         break;
     }
   }
