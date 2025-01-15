@@ -3,6 +3,7 @@ import { SCORECARD_CHART_TITLE_FONT_SIZE } from "../../../../constants";
 import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { FontSizeEditor } from "../../../font_size_editor/font_size_editor";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -26,6 +27,7 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     SidePanelCollapsible,
     Section,
     Checkbox,
+    FontSizeEditor,
   };
   static props = {
     figureId: String,
@@ -72,5 +74,13 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
         this.props.updateChart(this.props.figureId, { baselineColorUp: color });
         break;
     }
+  }
+
+  updateKeyFontSize(fontSize: number) {
+    this.props.updateChart(this.props.figureId, { keyFontSize: fontSize });
+  }
+
+  updateBaselineFontSize(fontSize: number) {
+    this.props.updateChart(this.props.figureId, { baselineFontSize: fontSize });
   }
 }

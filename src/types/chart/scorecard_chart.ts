@@ -5,9 +5,11 @@ export interface ScorecardChartDefinition {
   readonly type: "scorecard";
   readonly title: TitleDesign;
   readonly keyValue?: string;
+  readonly keyFontSize?: number;
   readonly baseline?: string;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: string;
+  readonly baselineFontSize?: number;
   readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
