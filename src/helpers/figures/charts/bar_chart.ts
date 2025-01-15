@@ -66,6 +66,7 @@ export class BarChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly horizontal?: boolean;
   readonly showValues?: boolean;
+  readonly switchAxes?: boolean;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -85,6 +86,7 @@ export class BarChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.horizontal = definition.horizontal;
     this.showValues = definition.showValues;
+    this.switchAxes = definition.switchAxes;
   }
 
   static transformDefinition(
@@ -114,6 +116,7 @@ export class BarChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      switchAxes: context.switchAxes,
     };
   }
 
@@ -185,6 +188,7 @@ export class BarChart extends AbstractChart {
       axesDesign: this.axesDesign,
       horizontal: this.horizontal,
       showValues: this.showValues,
+      switchAxes: this.switchAxes,
     };
   }
 

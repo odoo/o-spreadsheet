@@ -1,5 +1,13 @@
 import { Component, useState } from "@odoo/owl";
-import { createValidRange, spreadRange } from "../../../../../helpers";
+import {
+  createValidRange,
+  mergeContiguousZones,
+  numberToLetters,
+  splitReference,
+  spreadRange,
+  toZone,
+  zoneToXc,
+} from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
 import { _t } from "../../../../../translation";
 import {
@@ -82,7 +90,13 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   }
 
   get dataSetsHaveTitleLabel(): string {
-    return _t("Use row %s as headers", this.calculateHeaderPosition() || "");
+    return this.switchAxes
+      ? _t("Use col %s as headers", numberToLetters(this.calculateHeaderPosition() || 0))
+      : _t("Use row %s as headers", this.calculateHeaderPosition() || "");
+  }
+
+  get switchAxes(): boolean {
+    return this.props.definition.switchAxes ?? false;
   }
 
   getLabelRangeOptions() {
@@ -106,6 +120,60 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     this.props.updateChart(this.props.figureId, {
       dataSetsHaveTitle,
     });
+  }
+
+  onswitchAxesToggled(switchAxes: boolean) {
+    const OldDataSets = this.props.definition.dataSets;
+    const dataRanges = OldDataSets.map((d) => d.dataRange);
+    const dataSets = this.transposeDataSet([this.props.definition.labelRange, ...dataRanges]);
+    const labelRange = dataSets.shift().dataRange;
+
+    this.props.updateChart(this.props.figureId, {
+      switchAxes,
+      labelRange,
+      dataSets,
+    });
+    this.dataSeriesRanges = dataSets;
+    this.labelRange = labelRange;
+  }
+
+  private transposeDataSet(dataRanges: any[]): any[] {
+    const zonesBySheetName = {};
+    const transposedDatasets: any[] = [];
+    for (const dataRange of dataRanges) {
+      let { sheetName, xc } = splitReference(dataRange);
+      sheetName = sheetName ?? "";
+      if (!zonesBySheetName[sheetName]) {
+        zonesBySheetName[sheetName] = [];
+      }
+      zonesBySheetName[sheetName].push(toZone(xc));
+    }
+    for (const sheetName in zonesBySheetName) {
+      const zones = zonesBySheetName[sheetName];
+      const contiguousZones = mergeContiguousZones(zones);
+      if (this.switchAxes) {
+        for (const zone of contiguousZones) {
+          for (let col = zone.left; col <= zone.right; col++) {
+            let newRange = zoneToXc({ top: zone.top, bottom: zone.bottom, left: col, right: col });
+            if (sheetName) {
+              newRange = `${sheetName}!${newRange}`;
+            }
+            transposedDatasets.push({ dataRange: newRange });
+          }
+        }
+      } else {
+        for (const zone of contiguousZones) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            let newRange = zoneToXc({ top: row, bottom: row, left: zone.left, right: zone.right });
+            if (sheetName) {
+              newRange = `${sheetName}!${newRange}`;
+            }
+            transposedDatasets.push({ dataRange: newRange });
+          }
+        }
+      }
+    }
+    return transposedDatasets;
   }
 
   /**
@@ -174,7 +242,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       this.props.definition.dataSetsHaveTitle
     );
     if (dataSets.length) {
-      return dataSets[0].dataRange.zone.top + 1;
+      return this.switchAxes ? dataSets[0].dataRange.zone.left : dataSets[0].dataRange.zone.top + 1;
     } else if (labelRange) {
       return labelRange.zone.top + 1;
     }

@@ -16,6 +16,7 @@ export interface RadarChartDefinition {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly switchAxes?: boolean;
 }
 
 export type RadarChartRuntime = {

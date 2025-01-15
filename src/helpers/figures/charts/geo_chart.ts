@@ -57,6 +57,7 @@ export class GeoChart extends AbstractChart {
   readonly colorScale?: GeoChartColorScale;
   readonly missingValueColor?: Color;
   readonly region?: string;
+  readonly switchAxes?: boolean;
 
   constructor(definition: GeoChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -74,6 +75,7 @@ export class GeoChart extends AbstractChart {
     this.colorScale = definition.colorScale;
     this.missingValueColor = definition.missingValueColor;
     this.region = definition.region;
+    this.switchAxes = definition.switchAxes;
   }
 
   static transformDefinition(
@@ -100,6 +102,7 @@ export class GeoChart extends AbstractChart {
       type: "geo",
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated,
+      switchAxes: context.switchAxes,
     };
   }
 
@@ -169,6 +172,7 @@ export class GeoChart extends AbstractChart {
       colorScale: this.colorScale,
       missingValueColor: this.missingValueColor,
       region: this.region,
+      switchAxes: this.switchAxes,
     };
   }
 

@@ -21,6 +21,7 @@ export interface WaterfallChartDefinition {
   readonly subTotalValuesColor?: Color;
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  readonly switchAxes?: boolean;
 }
 
 export type WaterfallChartRuntime = {
