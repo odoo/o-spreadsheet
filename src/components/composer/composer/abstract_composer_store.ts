@@ -127,6 +127,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     if (!this.isSelectionValid(this._currentContent.length, start, end)) {
       return;
     }
+    console.log("changeComposerCursorSelection", start, end);
     this.selectionStart = start;
     this.selectionEnd = end;
     this.computeFormulaCursorContext();
@@ -395,9 +396,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   protected setContent(text: string, selection?: ComposerSelection, raise?: boolean) {
-    if (text === "=,=") {
-      debugger;
-    }
+    // if (text === "=,=") {
+    //   debugger;
+    // }
     const isNewCurrentContent = this._currentContent !== text;
     this._currentContent = text;
 
@@ -407,6 +408,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     } else {
       this.selectionStart = this.selectionEnd = text.length;
     }
+    console.log("setContent", this.selectionStart);
     if (isNewCurrentContent || this.editionMode !== "inactive") {
       const locale = this.getters.getLocale();
       this.currentTokens = text.startsWith("=") ? composerTokenize(text, locale) : [];

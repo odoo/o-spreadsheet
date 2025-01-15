@@ -25,7 +25,9 @@ export class ContentEditableHelper {
   selectRange(start: number, end: number) {
     const { start: currentStart, end: currentEnd } = this.getCurrentSelection();
 
-    if (currentStart === start && currentEnd === end) {
+    const { startElement, endElement } = this.selection.getStartAndEndSelection();
+    const inconsistentState = !this.el.contains(startElement) || !this.el.contains(endElement);
+    if (currentStart === start && currentEnd === end && !inconsistentState) {
       return;
     }
     const currentRange = this.selection.getRange();
@@ -109,7 +111,7 @@ export class ContentEditableHelper {
       this.removeAll();
       return;
     }
-
+    console.log(contents);
     const childElements = Array.from(this.el.childNodes);
     const contentLength = contents.length;
 

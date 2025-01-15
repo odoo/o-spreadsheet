@@ -666,6 +666,10 @@ export async function typeInComposerHelper(selector: string, text: string, fromS
   if (!focusNode || !anchorNode) {
     fullText = text;
     offset = text.length;
+  } else if (focusNode.nodeType !== Node.TEXT_NODE || anchorNode.nodeType !== Node.TEXT_NODE) {
+    // TODO do that correctly
+    fullText = text + composerEl.textContent;
+    offset = text.length;
   } else {
     // doesn't work with multi line
     for (const el of iterateChildren(composerEl)) {

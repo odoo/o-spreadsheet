@@ -704,6 +704,22 @@ describe("composer", () => {
         }
       );
 
+      test("a qsdfqsdfqsdfqsdfde", async () => {
+        const matchingValue = "+";
+        composerEl = await startComposition();
+        await typeInComposer(matchingValue);
+        await moveToStart();
+        composerEl = await typeInComposer(formula + ",", false);
+        console.log(document.getSelection()?.focusNode?.textContent);
+        console.log(document.getSelection()?.focusOffset);
+        expect(composerStore.editionMode).toBe("selecting");
+        expect(composerEl.textContent).toBe(formula + "," + matchingValue);
+        expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+        expect(cehMock.focusNode?.textContent).toBe(",");
+        expect(cehMock.focusOffset).toBe(1);
+        // expect(cehMock.selectionState.position).toBe((formula + ",").length);
+      });
+
       test.each(mismatchingValues.concat(["("]))(
         "a matching value & located before spaces & mismatching value --> not activate 'waitingForRangeSelection' mode",
         async (mismatchingValue) => {
