@@ -555,6 +555,17 @@ describe("Grid composer", () => {
     expect(getCellContent(model, "B2")).toBe("");
   });
 
+  test("escape cancels the edition and go back to edition sheet", async () => {
+    const sheet1Id = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sheet2" });
+    await startComposition("=");
+    activateSheet(model, "sheet2");
+    await keyDown({ key: "Escape" });
+    expect(model.getters.getActiveSheetId()).toBe(sheet1Id);
+    expect(getCellContent(model, "A1", sheet1Id)).toBe("");
+    expect(getCellContent(model, "A1", "sheet2")).toBe("");
+  });
+
   describe("grid composer basic style", () => {
     const composerContainerSelector = ".o-grid .o-grid-composer";
 

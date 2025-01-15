@@ -4,7 +4,7 @@ import { Token } from "../../../../../formulas";
 import { unquote } from "../../../../../helpers";
 import { PivotRuntimeDefinition } from "../../../../../helpers/pivot/pivot_runtime_definition";
 import { createMeasureAutoComplete } from "../../../../../registries/auto_completes/pivot_dimension_auto_complete";
-import { Color, PivotMeasure } from "../../../../../types";
+import { Color, PivotMeasure, UID } from "../../../../../types";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
@@ -37,11 +37,11 @@ export class PivotMeasureEditor extends Component<Props> {
     return createMeasureAutoComplete(this.props.definition, this.props.measure);
   }
 
-  updateMeasureFormula(formula: string) {
+  updateMeasureFormula(sheetId: UID, formula: string) {
     this.props.onMeasureUpdated({
       ...this.props.measure,
       computedBy: {
-        sheetId: this.env.model.getters.getActiveSheetId(),
+        sheetId,
         formula: formula[0] === "=" ? formula : "=" + formula,
       },
     });
