@@ -152,27 +152,25 @@ export class ContentEditableSelectionHelper {
     }
     switch (ev.key) {
       case "Home":
-        // kaput
         this.currentState.cursorStart = 0;
         this.currentState.cursorEnd = 0;
         this.anchorOffset = 0;
         this.focusOffset = 0;
-        for (const child of iterateChildren(el)) {
-          if (child.nodeType === Node.TEXT_NODE) {
-            if (!this.el.contains(child)) {
-              throw new Error("Focus node is not in the composer");
-            }
-            this.anchorNode = child;
-            this.focusNode = child;
-            break;
-          }
-        }
+        const firstTextNode = [...iterateChildren(el)].find(
+          (child) => child.nodeType === Node.TEXT_NODE
+        )!;
+        this.anchorNode = firstTextNode;
+        this.focusNode = firstTextNode;
         break;
       case "End":
-        // kaput
         const end = el.textContent ? el.textContent.length : 0;
         this.currentState.cursorStart = end;
         this.currentState.cursorEnd = end;
+        const lastTextNode = [...iterateChildren(el)]
+          .reverse()
+          .find((child) => child.nodeType === Node.TEXT_NODE)!;
+        this.anchorNode = lastTextNode;
+        this.focusNode = lastTextNode;
         break;
       case "ArrowRight":
         this.currentState.cursorEnd += 1;

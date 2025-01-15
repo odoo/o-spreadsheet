@@ -111,7 +111,6 @@ export class ContentEditableHelper {
       this.removeAll();
       return;
     }
-    console.log(contents);
     const childElements = Array.from(this.el.childNodes);
     const contentLength = contents.length;
 
