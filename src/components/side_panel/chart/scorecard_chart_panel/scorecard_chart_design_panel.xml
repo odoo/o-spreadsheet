@@ -16,6 +16,13 @@
             onChange.bind="updateHumanizeNumbers"
           />
         </Section>
+        <Section class="'o-chart-baseline-color pt-0'" title.translate="Key Font Size">
+          <FontSizeEditor
+            currentFontSize="props.definition.keyFontSize"
+            onFontSizeChanged.bind="this.updateKeyFontSize"
+            class="'o-hoverable-button'"
+          />
+        </Section>
       </t>
     </GeneralDesignEditor>
     <SidePanelCollapsible collapsedAtInit="false" title.translate="Baseline">
@@ -27,6 +34,11 @@
             t-on-change="updateBaselineDescr"
             class="o-input"
             placeholder="Baseline description"
+          />
+          <FontSizeEditor
+            currentFontSize="props.definition.baselineFontSize"
+            onFontSizeChanged.bind="this.updateBaselineFontSize"
+            class="'o-hoverable-button'"
           />
         </Section>
         <Section class="'o-chart-baseline-color pt-0'" title="colorsSectionTitle">

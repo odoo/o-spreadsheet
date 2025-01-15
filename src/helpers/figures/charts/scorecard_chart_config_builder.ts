@@ -1,5 +1,9 @@
 import { Color } from "chart.js";
-import { SCORECARD_CHART_TITLE_FONT_SIZE } from "../../../constants";
+import {
+  DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
+  DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
+  SCORECARD_CHART_TITLE_FONT_SIZE,
+} from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { getDefaultContextFont } from "../../text_helper";
@@ -8,10 +12,6 @@ import { chartMutedFontColor } from "./chart_common";
 /* Padding at the border of the chart */
 const CHART_PADDING = 10;
 const BOTTOM_PADDING_RATIO = 0.05;
-
-/* Maximum font sizes of each element */
-const KEY_VALUE_FONT_SIZE = 32;
-const BASELINE_MAX_FONT_SIZE = 16;
 
 type ScorecardChartElement = {
   text: string;
@@ -73,11 +73,22 @@ class ScorecardChartConfigBuilder {
   private context: CanvasRenderingContext2D;
   private width: number;
   private height: number;
+  private keyValueFontSize?: number;
+  private baselineValueFontSize?: number;
 
   constructor({ width, height }: DOMDimension, readonly runtime: ScorecardChartRuntime) {
     const canvas = document.createElement("canvas");
     this.width = canvas.width = width;
     this.height = canvas.height = height;
+    this.keyValueFontSize = runtime.keyValueStyle?.fontSize;
+    console.log(runtime);
+    if (this.keyValueFontSize) {
+      (this.keyValueFontSize * 4) / 3; // pt to px
+    }
+    this.baselineValueFontSize = runtime.baselineStyle?.fontSize;
+    if (this.baselineValueFontSize) {
+      (this.baselineValueFontSize * 4) / 3; // pt to px
+    }
     this.context = canvas.getContext("2d")!;
   }
 
@@ -89,7 +100,7 @@ class ScorecardChartConfigBuilder {
         backgroundColor: this.backgroundColor,
       },
     };
-    const style = this.getTextStyles();
+    const style = this.getTextStyles(this.keyValueFontSize, this.baselineValueFontSize);
 
     let titleHeight = 0;
     if (this.title) {
@@ -260,8 +271,10 @@ class ScorecardChartConfigBuilder {
     };
   }
 
-  private getTextStyles() {
-    let baselineValueFontSize = BASELINE_MAX_FONT_SIZE;
+  private getTextStyles(
+    keyValueFontSize: number = DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
+    baselineValueFontSize: number = DEFAULT_SCORECARD_BASELINE_FONT_SIZE
+  ) {
     const baselineDescrFontSize = Math.floor(0.9 * baselineValueFontSize);
     if (this.runtime.progressBar) {
       baselineValueFontSize /= 1.5;
@@ -279,7 +292,7 @@ class ScorecardChartConfigBuilder {
       keyValue: {
         color: this.runtime.keyValueStyle?.textColor || this.runtime.fontColor,
         font: getDefaultContextFont(
-          KEY_VALUE_FONT_SIZE,
+          keyValueFontSize,
           this.runtime.keyValueStyle?.bold,
           this.runtime.keyValueStyle?.italic
         ),
