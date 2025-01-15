@@ -170,6 +170,7 @@ describe("Migrations", () => {
         },
       ],
     });
+
     const data = model.exportData();
     expect(data.sheets[0].figures[0].data).toEqual({
       type: "line",

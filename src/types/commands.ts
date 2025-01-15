@@ -1,6 +1,5 @@
 import {
   ConditionalFormat,
-  DOMCoordinates,
   DataValidationRule,
   Figure,
   Format,
@@ -16,6 +15,8 @@ import {
   Dimension,
   HeaderIndex,
   Pixel,
+  PixelPosition,
+  Position,
   SetDecimalStep,
   SortDirection,
   SortOptions,
@@ -496,15 +497,20 @@ export interface DeleteFigureCommand extends SheetDependentCommand {
   id: UID;
 }
 
+interface SubFigureCommand extends SheetDependentCommand {
+  id: UID;
+  anchor?: Position;
+  offset?: PixelPosition;
+  fixed_position?: boolean;
+  size?: FigureSize;
+}
+
 //------------------------------------------------------------------------------
 // Chart
 //------------------------------------------------------------------------------
 
-export interface CreateChartCommand extends SheetDependentCommand {
+export interface CreateChartCommand extends SheetDependentCommand, SubFigureCommand {
   type: "CREATE_CHART";
-  id: UID;
-  position?: DOMCoordinates;
-  size?: FigureSize;
   definition: ChartDefinition;
 }
 
@@ -518,10 +524,8 @@ export interface UpdateChartCommand extends SheetDependentCommand {
 // Image
 //------------------------------------------------------------------------------
 
-export interface CreateImageOverCommand extends SheetDependentCommand {
+export interface CreateImageOverCommand extends SheetDependentCommand, SubFigureCommand {
   type: "CREATE_IMAGE";
-  figureId: UID;
-  position: DOMCoordinates;
   size: FigureSize;
   definition: Image;
 }

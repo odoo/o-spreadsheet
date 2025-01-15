@@ -150,8 +150,12 @@ describe("Collaborative Sheet manipulation", () => {
         width: 100,
         id: "456",
         tag: "test",
-        x: 0,
-        y: 0,
+        offset: {
+          x: 0,
+          y: 0,
+        },
+        anchor: { col: 0, row: 0 },
+        fixed_position: true,
       },
     });
     network.concurrent(() => {

@@ -489,8 +489,9 @@ describe("Multi users synchronisation", () => {
       tag: "hey",
       width: 100,
       height: 100,
-      x: 100,
-      y: 100,
+      fixed_position: true,
+      anchor: { col: 0, row: 0 },
+      offset: { x: 100, y: 100 },
     };
     alice.dispatch("CREATE_FIGURE", {
       sheetId,
@@ -539,7 +540,15 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Selected figure Id is not modified if the create sheet comes from someone else", () => {
-    const figure = { id: "42", x: 0, y: 0, width: 100, height: 100, tag: "text" };
+    const figure = {
+      id: "42",
+      fixed_position: true,
+      anchor: { col: 0, row: 0 },
+      offset: { x: 0, y: 0 },
+      width: 100,
+      height: 100,
+      tag: "text",
+    };
     const sheetId = alice.getters.getActiveSheetId();
     alice.dispatch("CREATE_FIGURE", { sheetId, figure });
     alice.dispatch("SELECT_FIGURE", { id: "42" });

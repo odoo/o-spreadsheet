@@ -30,7 +30,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     if (type === "chart") {
       createChart(model, { type: "bar" }, figureId);
     } else if (type === "image") {
-      createImage(model, { figureId });
+      createImage(model, { id: figureId });
     }
     await nextTick();
   });
@@ -88,9 +88,10 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     model.dispatch("SELECT_FIGURE", { id: figureId });
     copy(model);
     paste(model, "C3:C10, B8");
-    const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId());
-    expect(copiedFigure?.x).toEqual(2 * DEFAULT_CELL_WIDTH);
-    expect(copiedFigure?.y).toEqual(2 * DEFAULT_CELL_HEIGHT);
+    const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId())!;
+    const figureUI = model.getters.getFigureUI(sheetId, copiedFigure);
+    expect(figureUI.x).toEqual(2 * DEFAULT_CELL_WIDTH);
+    expect(figureUI.y).toEqual(2 * DEFAULT_CELL_HEIGHT);
   });
 
   test("Figure size is copied", () => {
@@ -140,6 +141,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     copy(model);
     paste(model, "Z100");
     const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId())!;
+    const figureUI = model.getters.getFigureUI(sheetId, copiedFigure);
     const maxX = model.getters.getColDimensions(
       sheetId,
       model.getters.getNumberCols(sheetId) - 1
@@ -148,8 +150,8 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       sheetId,
       model.getters.getNumberRows(sheetId) - 1
     ).end;
-    expect(copiedFigure.x).toBe(maxX - copiedFigure.width);
-    expect(copiedFigure.y).toBe(maxY - copiedFigure.height);
+    expect(figureUI.x).toBe(maxX - copiedFigure.width);
+    expect(figureUI.y).toBe(maxY - copiedFigure.height);
   });
 
   test("Can paste a chart with ranges that were deleted between the copy and the paste", () => {

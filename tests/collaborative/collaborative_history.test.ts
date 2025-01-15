@@ -406,7 +406,7 @@ describe("Collaborative local history", () => {
             type: "CREATE_CHART",
             sheetId: "sheet1",
             id: "fig2",
-            position: {
+            offset: {
               x: 0,
               y: 0,
             },
