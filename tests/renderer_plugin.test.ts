@@ -26,6 +26,8 @@ import {
   copy,
   createFilter,
   deleteColumns,
+  freezeColumns,
+  freezeRows,
   merge,
   paste,
   resizeColumns,
@@ -1531,6 +1533,7 @@ describe("renderer", () => {
     ]);
   });
 
+<<<<<<< 17.0:tests/renderer_plugin.test.ts
   test("draw text position depends on vertical align", () => {
     const model = new Model({
       sheets: [
@@ -2065,5 +2068,52 @@ describe("renderer", () => {
     const boxes = getPlugin(model, RendererPlugin)["boxes"];
     const boxesText = boxes.map((box) => box.content?.textLines.join(""));
     expect(boxesText).toEqual(["=MUNIT(2)", "", "", ""]);
+||||||| 9d0e3350ba39dc2a01a999be97c2bd14df16d228:tests/plugins/renderer.test.ts
+=======
+  test("Each frozen pane is clipped in the grid", () => {
+    const model = new Model();
+
+    setCellContent(model, "A1", "1");
+    freezeColumns(model, 2);
+    freezeRows(model, 1);
+    const spyFn = jest.fn();
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (key, args) => {
+        if (["rect", "clip"].includes(key)) {
+          spyFn(key, args);
+        }
+      },
+    });
+    model.drawGrid(ctx);
+    expect(spyFn).toHaveBeenCalledTimes(8);
+    expect(spyFn).toHaveBeenNthCalledWith(1, "rect", [
+      0,
+      0,
+      DEFAULT_CELL_WIDTH * 2,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+    expect(spyFn).toHaveBeenNthCalledWith(2, "clip", []);
+    expect(spyFn).toHaveBeenNthCalledWith(3, "rect", [
+      DEFAULT_CELL_WIDTH * 2,
+      0,
+      760,
+      DEFAULT_CELL_HEIGHT,
+    ]);
+    expect(spyFn).toHaveBeenNthCalledWith(4, "clip", []);
+    expect(spyFn).toHaveBeenNthCalledWith(5, "rect", [
+      0,
+      DEFAULT_CELL_HEIGHT,
+      DEFAULT_CELL_WIDTH * 2,
+      951,
+    ]);
+    expect(spyFn).toHaveBeenNthCalledWith(6, "clip", []);
+    expect(spyFn).toHaveBeenNthCalledWith(7, "rect", [
+      DEFAULT_CELL_WIDTH * 2,
+      DEFAULT_CELL_HEIGHT,
+      760,
+      951,
+    ]);
+    expect(spyFn).toHaveBeenNthCalledWith(8, "clip", []);
+>>>>>>> 399c63e02c69012c6178776b4cb8385c7a8168ed:tests/plugins/renderer.test.ts
   });
 });
