@@ -18,15 +18,36 @@
         </Section>
       </t>
     </GeneralDesignEditor>
+    <SidePanelCollapsible collapsedAtInit="false" title.translate="Key value">
+      <t t-set-slot="content">
+        <Section class="'pt-0'" title.translate="Key description">
+          <ChartTitle
+            title="Key"
+            updateTitle="(title) => this.updateStyle('key', 'title', title)"
+            name="key_label"
+            toggleItalic="(italic) => this.updateStyle('key', 'italic', italic)"
+            toggleBold="(bold) => this.updateStyle('key', 'bold', bold)"
+            updateAlignment="(align) => this.updateStyle('key', 'align', align)"
+            updateColor="(color) => this.updateStyle('key', 'color', color)"
+            style="keyStyle"
+            onFontSizeChanged.bind="(size) => this.updateStyle('key', 'fontSize', size)"
+          />
+        </Section>
+      </t>
+    </SidePanelCollapsible>
     <SidePanelCollapsible collapsedAtInit="false" title.translate="Baseline">
       <t t-set-slot="content">
         <Section class="'pt-0'" title.translate="Baseline description">
-          <input
-            type="text"
-            t-att-value="translate(props.definition.baselineDescr)"
-            t-on-change="updateBaselineDescr"
-            class="o-input"
-            placeholder="Baseline description"
+          <ChartTitle
+            title="Baseline"
+            updateTitle="(title) => this.updateStyle('baseline', 'title', title)"
+            name="baseline_label"
+            toggleItalic="(italic) => this.updateStyle('baseline', 'italic', italic)"
+            toggleBold="(bold) => this.updateStyle('baseline', 'bold', bold)"
+            updateAlignment="(align) => this.updateStyle('baseline', 'align', align)"
+            updateColor="(color) => this.updateStyle('baseline', 'color', color)"
+            style="baselineStyle"
+            onFontSizeChanged.bind="(size) => this.updateStyle('baseline', 'fontSize', size)"
           />
         </Section>
         <Section class="'o-chart-baseline-color pt-0'" title="colorsSectionTitle">

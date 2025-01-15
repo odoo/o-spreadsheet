@@ -3,7 +3,9 @@ import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+  DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
   DEFAULT_SCORECARD_BASELINE_MODE,
+  DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
 } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
 import { _t } from "../../../translation";
@@ -162,9 +164,11 @@ const arrowUpPath = new window.Path2D(
 
 export class ScorecardChart extends AbstractChart {
   readonly keyValue?: Range;
+  readonly keyFontSize: number;
   readonly baseline?: Range;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: string;
+  readonly baselineFontSize: number;
   readonly progressBar: boolean = false;
   readonly background?: Color;
   readonly baselineColorUp: Color;
@@ -176,9 +180,11 @@ export class ScorecardChart extends AbstractChart {
   constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.keyValue = createValidRange(getters, sheetId, definition.keyValue);
+    this.keyFontSize = definition.keyFontSize ?? DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE;
     this.baseline = createValidRange(getters, sheetId, definition.baseline);
     this.baselineMode = definition.baselineMode;
     this.baselineDescr = definition.baselineDescr;
+    this.baselineFontSize = definition.baselineFontSize ?? DEFAULT_SCORECARD_BASELINE_FONT_SIZE;
     this.background = definition.background;
     this.baselineColorUp = definition.baselineColorUp ?? DEFAULT_SCORECARD_BASELINE_COLOR_UP;
     this.baselineColorDown = definition.baselineColorDown ?? DEFAULT_SCORECARD_BASELINE_COLOR_DOWN;
@@ -197,11 +203,13 @@ export class ScorecardChart extends AbstractChart {
       background: context.background,
       type: "scorecard",
       keyValue: context.range ? context.range[0].dataRange : undefined,
+      keyFontSize: DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
       title: context.title || { text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
+      baselineFontSize: DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
     };
   }
 
@@ -262,6 +270,7 @@ export class ScorecardChart extends AbstractChart {
       baselineColorDown: this.baselineColorDown,
       baselineColorUp: this.baselineColorUp,
       baselineMode: this.baselineMode,
+      baselineFontSize: this.baselineFontSize,
       title: this.title,
       type: "scorecard",
       background: this.background,
@@ -272,6 +281,7 @@ export class ScorecardChart extends AbstractChart {
       keyValue: keyValue
         ? this.getters.getRangeString(keyValue, targetSheetId || this.sheetId)
         : undefined,
+      keyFontSize: this.keyFontSize,
       humanize: this.humanize,
     };
   }
@@ -300,6 +310,7 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
 
   ctx.fillStyle = structure.canvas.backgroundColor;
   ctx.fillRect(0, 0, structure.canvas.width, structure.canvas.height);
+  console.log(structure);
 
   if (structure.title) {
     ctx.font = structure.title.style.font;
