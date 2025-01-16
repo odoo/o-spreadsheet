@@ -12,6 +12,7 @@
           max="400"
           class="o-font-size o-number-input bg-transparent border-0"
           t-on-keydown="onInputKeydown"
+          t-on-wheel.prevent.stop=""
           t-on-click.stop=""
           t-on-focus.stop="onInputFocused"
           t-att-value="currentFontSize"
