@@ -5,9 +5,10 @@ export interface ScorecardChartDefinition {
   readonly type: "scorecard";
   readonly title: TitleDesign;
   readonly keyValue?: string;
+  readonly keyDescr?: TitleDesign;
   readonly baseline?: string;
   readonly baselineMode: BaselineMode;
-  readonly baselineDescr?: string;
+  readonly baselineDescr?: TitleDesign;
   readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
@@ -25,6 +26,7 @@ export interface ProgressBar {
 export interface ScorecardChartRuntime {
   readonly title: TitleDesign;
   readonly keyValue: string;
+  readonly keyDescr: string;
   readonly baselineDisplay: string;
   readonly baselineColor?: string;
   readonly baselineArrow: BaselineArrowDirection;
@@ -32,6 +34,8 @@ export interface ScorecardChartRuntime {
   readonly background: Color;
   readonly fontColor: Color;
   readonly keyValueStyle?: Style;
+  readonly keyValueDescrStyle?: Style;
   readonly baselineStyle?: Style;
+  readonly baselineDescrStyle?: Style;
   readonly progressBar?: ProgressBar;
 }

@@ -1,17 +1,18 @@
 import { Color } from "chart.js";
-import { SCORECARD_CHART_TITLE_FONT_SIZE } from "../../../constants";
+import {
+  CHART_PADDING,
+  CHART_PADDING_BOTTOM,
+  DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
+  DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
+  SCORECARD_CHART_TITLE_FONT_SIZE,
+} from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { getDefaultContextFont } from "../../text_helper";
 import { chartMutedFontColor } from "./chart_common";
 
 /* Padding at the border of the chart */
-const CHART_PADDING = 10;
 const BOTTOM_PADDING_RATIO = 0.05;
-
-/* Maximum font sizes of each element */
-const KEY_VALUE_FONT_SIZE = 32;
-const BASELINE_MAX_FONT_SIZE = 16;
 
 type ScorecardChartElement = {
   text: string;
@@ -40,8 +41,9 @@ export type ScorecardChartConfig = {
     position: PixelPosition;
   };
   baseline?: ScorecardChartElement;
-  baselineDescr?: ScorecardChartElement[];
+  baselineDescr?: ScorecardChartElement;
   key?: ScorecardChartElement;
+  keyDescr?: ScorecardChartElement;
   progressBar?: {
     position: PixelPosition;
     dimension: DOMDimension;
@@ -114,13 +116,12 @@ class ScorecardChartConfigBuilder {
         style: style.title,
         position: {
           x,
-          y: CHART_PADDING + titleHeight / 2,
+          y: CHART_PADDING_BOTTOM + titleHeight / 2,
         },
       };
     }
 
     const baselineArrowSize = style.baselineArrow?.size ?? 0;
-
     let { height: baselineHeight, width: baselineWidth } = this.getTextDimensions(
       this.baseline,
       style.baselineValue.font
@@ -133,45 +134,53 @@ class ScorecardChartConfigBuilder {
       style.baselineDescr.font
     ).width;
 
-    structure.baseline = {
-      text: this.baseline,
-      style: style.baselineValue,
-      position: {
-        x: (this.width - baselineWidth - baselineDescrWidth + baselineArrowSize) / 2,
-        y: this.keyValue
-          ? this.height * (1 - BOTTOM_PADDING_RATIO * (this.runtime.progressBar ? 1 : 2))
-          : this.height - (this.height - titleHeight - baselineHeight) / 2 - CHART_PADDING,
-      },
-    };
+    let baselineX: number;
 
-    const minimalBaselinePosition = baselineArrowSize + CHART_PADDING * 2;
-    if (structure.baseline.position.x < minimalBaselinePosition) {
-      structure.baseline.position.x = minimalBaselinePosition;
+    switch (this.runtime.baselineStyle?.align) {
+      case "right":
+        baselineX = this.width - CHART_PADDING - baselineDescrWidth - baselineWidth;
+        break;
+      case "left":
+        baselineX = CHART_PADDING + baselineArrowSize;
+        break;
+      default:
+        baselineX = (this.width - baselineWidth - baselineDescrWidth + baselineArrowSize) / 2;
     }
 
-    if (style.baselineArrow && !this.runtime.progressBar) {
-      structure.baselineArrow = {
-        direction: this.baselineArrow,
-        style: style.baselineArrow,
+    if (this.baseline) {
+      structure.baseline = {
+        text: this.baseline,
+        style: style.baselineValue,
         position: {
-          x: structure.baseline.position.x - baselineArrowSize,
-          y: structure.baseline.position.y - (baselineHeight + baselineArrowSize) / 2,
+          x: baselineX,
+          y: this.keyValue
+            ? this.height * (1 - BOTTOM_PADDING_RATIO * (this.runtime.progressBar ? 1 : 2))
+            : this.height - (this.height - titleHeight - baselineHeight) / 2 - CHART_PADDING_BOTTOM,
         },
       };
+
+      if (style.baselineArrow && !this.runtime.progressBar) {
+        structure.baselineArrow = {
+          direction: this.baselineArrow,
+          style: style.baselineArrow,
+          position: {
+            x: structure.baseline.position.x - baselineArrowSize,
+            y: structure.baseline.position.y - (baselineHeight + baselineArrowSize) / 2,
+          },
+        };
+      }
     }
 
-    if (this.baselineDescr) {
+    if (structure.baseline && this.baselineDescr) {
       const position = {
         x: structure.baseline.position.x + baselineWidth,
         y: structure.baseline.position.y,
       };
-      structure.baselineDescr = [
-        {
-          text: this.baselineDescr,
-          style: style.baselineDescr,
-          position,
-        },
-      ];
+      structure.baselineDescr = {
+        text: this.baselineDescr,
+        style: style.baselineDescr,
+        position,
+      };
     }
 
     let progressBarHeight = 0;
@@ -198,19 +207,48 @@ class ScorecardChartConfigBuilder {
       this.keyValue,
       style.keyValue.font
     );
+
+    const keyDescrWidth = this.getTextDimensions(this.keyDescr, style.keyDescr.font).width;
+
+    let keyX: number;
+
+    switch (this.runtime.keyValueStyle?.align) {
+      case "right":
+        keyX = this.width - CHART_PADDING - keyDescrWidth - keyWidth;
+        break;
+      case "left":
+        keyX = CHART_PADDING;
+        break;
+      default:
+        keyX = (this.width - keyWidth - keyDescrWidth) / 2;
+    }
+
     if (this.keyValue) {
       structure.key = {
         text: this.keyValue,
         style: style.keyValue,
         position: {
-          x: Math.max(CHART_PADDING, (this.width - keyWidth) / 2),
+          x: Math.max(CHART_PADDING, keyX),
           y:
             this.height * (0.5 - BOTTOM_PADDING_RATIO * 2) +
-            CHART_PADDING / 2 +
+            CHART_PADDING_BOTTOM / 2 +
             (titleHeight + keyHeight / 2) / 2,
         },
       };
     }
+
+    if (structure.key && this.keyDescr) {
+      const position = {
+        x: structure.key.position.x + keyWidth,
+        y: structure.key.position.y,
+      };
+      structure.keyDescr = {
+        text: this.keyDescr,
+        style: style.keyDescr,
+        position,
+      };
+    }
+
     return structure;
   }
 
@@ -220,6 +258,10 @@ class ScorecardChartConfigBuilder {
 
   get keyValue() {
     return this.runtime.keyValue;
+  }
+
+  get keyDescr() {
+    return formatBaselineDescr(this.runtime.keyDescr, this.keyValue);
   }
 
   get baseline() {
@@ -261,7 +303,11 @@ class ScorecardChartConfigBuilder {
   }
 
   private getTextStyles() {
-    let baselineValueFontSize = BASELINE_MAX_FONT_SIZE;
+    const keyValueFontSize =
+      this.runtime.keyValueStyle?.fontSize ?? DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE;
+    const keyValueDescrFontSize = Math.floor(0.9 * keyValueFontSize);
+    let baselineValueFontSize =
+      this.runtime.baselineStyle?.fontSize ?? DEFAULT_SCORECARD_BASELINE_FONT_SIZE;
     const baselineDescrFontSize = Math.floor(0.9 * baselineValueFontSize);
     if (this.runtime.progressBar) {
       baselineValueFontSize /= 1.5;
@@ -279,12 +325,22 @@ class ScorecardChartConfigBuilder {
       keyValue: {
         color: this.runtime.keyValueStyle?.textColor || this.runtime.fontColor,
         font: getDefaultContextFont(
-          KEY_VALUE_FONT_SIZE,
+          keyValueFontSize,
           this.runtime.keyValueStyle?.bold,
           this.runtime.keyValueStyle?.italic
         ),
         strikethrough: this.runtime.keyValueStyle?.strikethrough,
         underline: this.runtime.keyValueStyle?.underline,
+      },
+      keyDescr: {
+        color: this.runtime.keyValueDescrStyle?.textColor || this.runtime.fontColor,
+        font: getDefaultContextFont(
+          keyValueDescrFontSize,
+          this.runtime.keyValueDescrStyle?.bold,
+          this.runtime.keyValueDescrStyle?.italic
+        ),
+        strikethrough: this.runtime.keyValueDescrStyle?.strikethrough,
+        underline: this.runtime.keyValueDescrStyle?.underline,
       },
       baselineValue: {
         font: getDefaultContextFont(
@@ -295,20 +351,29 @@ class ScorecardChartConfigBuilder {
         strikethrough: this.runtime.baselineStyle?.strikethrough,
         underline: this.runtime.baselineStyle?.underline,
         color:
-          this.runtime.baselineStyle?.textColor ||
           this.runtime.baselineColor ||
+          this.runtime.baselineStyle?.textColor ||
           this.secondaryFontColor,
       },
       baselineDescr: {
-        font: getDefaultContextFont(baselineDescrFontSize),
-        color: this.secondaryFontColor,
+        font: getDefaultContextFont(
+          baselineDescrFontSize,
+          this.runtime.baselineDescrStyle?.bold,
+          this.runtime.baselineDescrStyle?.italic
+        ),
+        strikethrough: this.runtime.baselineDescrStyle?.strikethrough,
+        underline: this.runtime.baselineDescrStyle?.underline,
+        color: this.runtime.baselineDescrStyle?.textColor ?? this.secondaryFontColor,
       },
       baselineArrow:
         this.baselineArrow === "neutral" || this.runtime.progressBar
           ? undefined
           : {
               size: this.keyValue ? 0.8 * baselineValueFontSize : 0,
-              color: this.runtime.baselineColor || this.secondaryFontColor,
+              color:
+                this.runtime.baselineColor ||
+                this.runtime.baselineStyle?.textColor ||
+                this.secondaryFontColor,
             },
     };
   }
