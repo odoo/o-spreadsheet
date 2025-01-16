@@ -11,14 +11,14 @@ exports[`Chart title Can render a chart title component 1`] = `
       <div
         class="o-section-title"
       >
-        Title
+        Chart title
         
         
       </div>
       
       <input
         class="o-input"
-        placeholder="Add a title"
+        placeholder=""
         type="text"
       />
       <div

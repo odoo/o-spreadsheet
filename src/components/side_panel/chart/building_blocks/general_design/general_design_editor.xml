@@ -1,6 +1,5 @@
 <templates>
   <t t-name="o-spreadsheet-GeneralDesignEditor">
-    <t t-set="chart_title">Chart title</t>
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="General">
       <t t-set-slot="content">
         <Section class="'o-chart-background-color pt-0 pb-0'" title.translate="Background color">
@@ -12,7 +11,8 @@
         <ChartTitle
           title="title.text"
           updateTitle.bind="updateTitle"
-          name="chart_title"
+          name.translate="Chart title"
+          placeholder.translate="Add a Title"
           updateStyle.bind="updateChartTitleStyle"
           style="title"
           defaultStyle="{align: 'left', fontSize: this.props.defaultChartTitleFontSize}"
