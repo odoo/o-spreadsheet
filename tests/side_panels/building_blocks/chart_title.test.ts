@@ -7,6 +7,7 @@ let fixture: HTMLElement;
 
 async function mountChartTitle(props: Partial<ChartTitle["props"]>) {
   const defaultProps: ChartTitle["props"] = {
+    name: "Chart title",
     title: "My title",
     updateTitle: () => {},
     updateStyle: () => {},
