@@ -342,6 +342,18 @@ describe("TopBar component", () => {
     expect(getStyle(model, "A1").fontSize).toBe(8);
   });
 
+  test("prevents default behavior of mouse wheel event on font size input", async () => {
+    await mountParent();
+    const fontSizeInput = fixture.querySelector("input.o-font-size") as HTMLInputElement;
+
+    const event = new WheelEvent("wheel", { deltaY: 100 });
+    const preventDefaultSpy = jest.spyOn(event, "preventDefault");
+
+    fontSizeInput.dispatchEvent(event);
+
+    expect(preventDefaultSpy).toHaveBeenCalled();
+  });
+
   describe("horizontal align", () => {
     test.each([
       ["Left (Ctrl+Shift+L)", { align: "left" }],
