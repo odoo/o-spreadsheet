@@ -1,5 +1,5 @@
 import { deepEquals, toHex } from "../../helpers";
-import { iterateChildren } from "../helpers/dom_helpers";
+import { getCurrentSelection, iterateChildren } from "../helpers/dom_helpers";
 import { NEWLINE } from "./../../constants";
 import { HtmlContent } from "./composer/composer";
 
@@ -213,103 +213,7 @@ export class ContentEditableHelper {
    * finds the indexes of the current selection.
    * */
   getCurrentSelection() {
-    let { startElement, endElement, startSelectionOffset, endSelectionOffset } =
-      this.getStartAndEndSelection();
-    let startSizeBefore = this.findSelectionIndex(startElement!, startSelectionOffset);
-    let endSizeBefore = this.findSelectionIndex(endElement!, endSelectionOffset);
-
-    return {
-      start: startSizeBefore,
-      end: endSizeBefore,
-    };
-  }
-
-  /**
-   * Computes the text 'index' inside this.el based on the currently selected node and its offset.
-   * The selected node is either a Text node or an Element node.
-   *
-   * case 1 -Text node:
-   * the offset is the number of characters from the start of the node. We have to add this offset to the
-   * content length of all previous nodes.
-   *
-   * case 2 - Element node:
-   * the offset is the number of child nodes before the selected node. We have to add the content length of
-   * all the bnodes prior to the selected node as well as the content of the child node before the offset.
-   *
-   * See the MDN documentation for more details.
-   * https://developer.mozilla.org/en-US/docs/Web/API/Range/startOffset
-   * https://developer.mozilla.org/en-US/docs/Web/API/Range/endOffset
-   *
-   */
-  private findSelectionIndex(nodeToFind: Node, nodeOffset: number): number {
-    let usedCharacters = 0;
-
-    let it = iterateChildren(this.el);
-    let current = it.next();
-    let isFirstParagraph = true;
-    while (!current.done && current.value !== nodeToFind) {
-      if (!current.value.hasChildNodes()) {
-        if (current.value.textContent) {
-          usedCharacters += current.value.textContent.length;
-        }
-      }
-      // One new paragraph = one new line character, except for the first paragraph
-      if (
-        current.value.nodeName === "P" ||
-        (current.value.nodeName === "DIV" && current.value !== this.el) // On paste, the HTML may contain <div> instead of <p>
-      ) {
-        if (isFirstParagraph) {
-          isFirstParagraph = false;
-        } else {
-          usedCharacters++;
-        }
-      }
-      current = it.next();
-    }
-    if (current.value !== nodeToFind) {
-      /** This situation can happen if the code is called while the selection is not currently on the ContentEditableHelper.
-       * In this case, we return 0 because we don't know the size of the text before the selection.
-       *
-       * A known occurence is triggered since the introduction of commit d4663158 (PR #2038).
-       *
-       * FIXME: find a way to test eventhough the selection API is not available in jsDOM.
-       */
-      return 0;
-    } else {
-      if (!current.value.hasChildNodes()) {
-        usedCharacters += nodeOffset;
-      } else {
-        const children = [...current.value.childNodes].slice(0, nodeOffset);
-        usedCharacters += children.reduce((acc: number, child: Node, index: number) => {
-          if (child.textContent !== null) {
-            // need to account for paragraph nodes that implicitely add a new line
-            // except for the last paragraph
-            let chars = child.textContent.length;
-            if (child.nodeName === "P" && index !== children.length - 1) {
-              chars++;
-            }
-            return acc + chars;
-          } else {
-            return acc;
-          }
-        }, 0);
-      }
-    }
-    if (nodeToFind.nodeName === "P" && !isFirstParagraph && nodeToFind.textContent === "") {
-      usedCharacters++;
-    }
-    return usedCharacters;
-  }
-
-  private getStartAndEndSelection() {
-    const selection = document.getSelection()!;
-
-    return {
-      startElement: selection.anchorNode || this.el,
-      startSelectionOffset: selection.anchorOffset,
-      endElement: selection.focusNode || this.el,
-      endSelectionOffset: selection.focusOffset,
-    };
+    return getCurrentSelection(this.el);
   }
 
   getText(): string {
