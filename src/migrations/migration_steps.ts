@@ -450,6 +450,23 @@ migrationStepRegistry
     migrate(data: WorkbookData): any {
       return data;
     },
+  })
+  .add("migration_25", {
+    versionFrom: "25",
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag !== "chart" || figure.data.type !== "scorecard") {
+            continue;
+          }
+          const scData = figure.data;
+          if (scData.baselineDescr) {
+            scData.baselineDescr = { text: scData.baselineDescr };
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

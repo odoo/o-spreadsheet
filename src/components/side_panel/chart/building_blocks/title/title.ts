@@ -41,6 +41,7 @@ css/* scss */ `
 
 interface Props {
   title?: string;
+  placeholder?: string;
   updateTitle: (title: string) => void;
   name?: string;
   toggleItalic?: () => void;
@@ -60,6 +61,7 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static components = { Section, ColorPickerWidget, FontSizeEditor };
   static props = {
     title: { type: String, optional: true },
+    placeholder: { type: String, optional: true },
     updateTitle: Function,
     name: { type: String, optional: true },
     toggleItalic: { type: Function, optional: true },
@@ -71,6 +73,7 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   };
   static defaultProps = {
     title: "",
+    placeholder: "",
   };
   openedEl: HTMLElement | null = null;
 

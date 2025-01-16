@@ -40,7 +40,7 @@ export const TEST_CHART_DATA = {
     keyValue: "B1:B4",
     baseline: "A2:A4",
     title: { text: "hello" },
-    baselineDescr: "description",
+    baselineDescr: { text: "description" },
     baselineMode: "difference" as const,
   },
   gauge: {

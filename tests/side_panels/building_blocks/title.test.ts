@@ -12,6 +12,8 @@ describe("Chart title", () => {
   test("Can render a chart title component", async () => {
     await mountChartTitle({
       title: "My title",
+      name: "Title",
+      placeholder: "Add a title",
       updateTitle: () => {},
       style: { fontSize: 22 },
       onFontSizeChanged: () => {},

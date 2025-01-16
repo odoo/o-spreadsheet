@@ -1,4 +1,5 @@
 import { Model } from "../../../../src";
+import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -10,23 +11,35 @@ import {
   formatBaselineDescr,
   getScorecardConfiguration,
 } from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
-import { Pixel, UID } from "../../../../src/types";
-import { ScorecardChartRuntime } from "../../../../src/types/chart/scorecard_chart";
+import { Pixel, SpreadsheetChildEnv, UID } from "../../../../src/types";
+import {
+  ScorecardChartDefinition,
+  ScorecardChartRuntime,
+} from "../../../../src/types/chart/scorecard_chart";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
+import { click } from "../../../test_helpers";
+import { openChartDesignSidePanel } from "../../../test_helpers/chart_helpers";
 import {
   createScorecardChart,
   setCellContent,
   setFormat,
   setStyle,
+  updateChart,
   updateLocale,
 } from "../../../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
-import { toRangesData } from "../../../test_helpers/helpers";
+import {
+  mountComponentWithPortalTarget,
+  nextTick,
+  toRangesData,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let chartId: string;
 let sheetId: string;
+let fixture: HTMLElement;
+let env: SpreadsheetChildEnv;
 
 const mutedFontColor = chartMutedFontColor("#fff");
 
@@ -127,7 +140,7 @@ describe("Scorecard charts computation", () => {
   test("Chart display correct info", () => {
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B1", title: { text: "hello" }, baselineDescr: "desc" },
+      { keyValue: "A1", baseline: "B1", title: { text: "hello" }, baselineDescr: { text: "desc" } },
       chartId
     );
     const chartDesign = getChartDesign(model, chartId, sheetId);
@@ -377,7 +390,7 @@ describe("Scorecard charts computation", () => {
       {
         keyValue: "A1",
         baseline: "A1",
-        baselineDescr: "descr",
+        baselineDescr: { text: "descr" },
         title: { text: "title" },
         background: "#000000",
       },
@@ -436,7 +449,7 @@ describe("Scorecard charts computation", () => {
 });
 
 describe("Scorecard charts rendering", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     chartId = "someuuid";
     sheetId = "Sheet1";
     const data = {
@@ -464,6 +477,8 @@ describe("Scorecard charts rendering", () => {
       baseline: {},
       baselineDescr: {},
     };
+    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
+
     /*
      * We mock the fillText method of the canvas context to get the font size and color used
      * to display each element of the chart. This is done by checking the text that is passed
@@ -547,6 +562,175 @@ describe("Scorecard charts rendering", () => {
     }
   });
 
+  test("Key value and baseline descriptions are displayed with the chosen style if no cell style", () => {
+    createScorecardChart(
+      model,
+      {
+        keyValue: "A1",
+        keyDescr: { text: "keykey", italic: true, bold: true, color: "#FF0000" },
+        baseline: "A1",
+        baselineDescr: { text: "baselineDescr", italic: true, bold: true, color: "#FF0000" },
+      },
+      chartId
+    );
+    renderScorecardChart(model, chartId, sheetId, canvas);
+    for (const style of [
+      scorecardChartStyle.key,
+      scorecardChartStyle.baseline,
+      scorecardChartStyle.baselineDescr,
+    ]) {
+      expect(style.italic).toEqual(true);
+      expect(style.bold).toEqual(true);
+      expect(style.color).toBeSameColorAs("#FF0000");
+    }
+  });
+
+  test("Changing description style affect render", () => {
+    createScorecardChart(
+      model,
+      {
+        keyValue: "A1",
+        keyDescr: { text: "keykey" },
+        baseline: "A1",
+        baselineDescr: { text: "baselineDescr" },
+      },
+      chartId
+    );
+    renderScorecardChart(model, chartId, sheetId, canvas);
+    for (const style of [scorecardChartStyle.key, scorecardChartStyle.baseline]) {
+      expect(style.italic).toEqual(false);
+      expect(style.bold).toEqual(false);
+    }
+
+    updateChart(model, chartId, { keyDescr: { text: "keykey", bold: true } });
+    renderScorecardChart(model, chartId, sheetId, canvas);
+
+    expect(scorecardChartStyle.key.bold).toEqual(true);
+    expect(scorecardChartStyle.baseline.bold).toEqual(false);
+
+    updateChart(model, chartId, { baselineDescr: { text: "baselineDescr", bold: true } });
+    renderScorecardChart(model, chartId, sheetId, canvas);
+
+    expect(scorecardChartStyle.key.bold).toEqual(true);
+    expect(scorecardChartStyle.baseline.bold).toEqual(true);
+  });
+
+  test("Changing key description style in panel affect render", async () => {
+    createScorecardChart(
+      model,
+      {
+        keyValue: "A1",
+        keyDescr: { text: "keykey" },
+        baseline: "A1",
+        baselineDescr: { text: "baselineDescr" },
+      },
+      chartId
+    );
+    renderScorecardChart(model, chartId, sheetId, canvas);
+    for (const style of [scorecardChartStyle.key, scorecardChartStyle.baseline]) {
+      expect(style.italic).toEqual(false);
+      expect(style.bold).toEqual(false);
+    }
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    const keyDescrElem = fixture.querySelectorAll(".o-chart-title")[1]!;
+    const keyDescrElemText = keyDescrElem.querySelector("input");
+    const keyDescrElemBold = keyDescrElem.querySelector("[title=Bold]");
+    const keyDescrElemItalic = keyDescrElem.querySelector("[title=Italic]");
+    const keyDescrElemFontSize = keyDescrElem.querySelector(
+      '[title="Font Size"] input'
+    ) as HTMLInputElement;
+
+    expect(keyDescrElemText?.value).toEqual("keykey");
+    expect(keyDescrElemBold?.className).not.toContain("active");
+    expect(keyDescrElemItalic?.className).not.toContain("active");
+    expect(keyDescrElemFontSize?.value).toEqual("32");
+
+    keyDescrElemText!.value = "just Key";
+    keyDescrElemText!.dispatchEvent(new Event("change"));
+    await nextTick();
+
+    let definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
+    expect(definition?.keyDescr?.text).toEqual("just Key");
+    expect(definition.keyDescr?.bold).toBeFalsy();
+    expect(definition.keyDescr?.fontSize).toBeFalsy();
+
+    keyDescrElemFontSize!.value = "64";
+    keyDescrElemFontSize!.dispatchEvent(new Event("change"));
+    await nextTick();
+
+    definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
+    expect(definition.keyDescr?.text).toEqual("just Key");
+    expect(definition.keyDescr?.bold).toBeFalsy();
+    expect(definition.keyDescr?.fontSize).toEqual(64);
+
+    await click(keyDescrElemBold!);
+    renderScorecardChart(model, chartId, sheetId, canvas);
+
+    definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
+    expect(definition.keyDescr?.text).toEqual("just Key");
+    expect(definition.keyDescr?.bold).toEqual(true);
+    expect(definition.keyDescr?.fontSize).toEqual(64);
+  });
+
+  test("Changing baseline description style in panel affect render", async () => {
+    createScorecardChart(
+      model,
+      {
+        keyValue: "A1",
+        keyDescr: { text: "keykey" },
+        baseline: "A1",
+        baselineDescr: { text: "baselineDescr" },
+      },
+      chartId
+    );
+    renderScorecardChart(model, chartId, sheetId, canvas);
+    for (const style of [scorecardChartStyle.key, scorecardChartStyle.baseline]) {
+      expect(style.italic).toEqual(false);
+      expect(style.bold).toEqual(false);
+    }
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    const baselineDescrElem = fixture.querySelectorAll(".o-chart-title")[1]!;
+    const baselineDescrElemText = baselineDescrElem.querySelector("input");
+    const baselineDescrElemBold = baselineDescrElem.querySelector("[title=Bold]");
+    const baselineDescrElemItalic = baselineDescrElem.querySelector("[title=Italic]");
+    const baselineDescrElemFontSize = baselineDescrElem.querySelector(
+      '[title="Font Size"] input'
+    ) as HTMLInputElement;
+
+    expect(baselineDescrElemText?.value).toEqual("keykey");
+    expect(baselineDescrElemBold?.className).not.toContain("active");
+    expect(baselineDescrElemItalic?.className).not.toContain("active");
+    expect(baselineDescrElemFontSize?.value).toEqual("32");
+
+    baselineDescrElemText!.value = "A B C, easy as 1 2 3, do ré mi";
+    baselineDescrElemText!.dispatchEvent(new Event("change"));
+    await nextTick();
+
+    let definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
+    expect(definition?.keyDescr?.text).toEqual("A B C, easy as 1 2 3, do ré mi");
+    expect(definition.keyDescr?.bold).toBeFalsy();
+    expect(definition.keyDescr?.fontSize).toBeFalsy();
+
+    baselineDescrElemFontSize!.value = "64";
+    baselineDescrElemFontSize!.dispatchEvent(new Event("change"));
+    await nextTick();
+
+    definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
+    expect(definition.keyDescr?.text).toEqual("A B C, easy as 1 2 3, do ré mi");
+    expect(definition.keyDescr?.bold).toBeFalsy();
+    expect(definition.keyDescr?.fontSize).toEqual(64);
+
+    await click(baselineDescrElemBold!);
+    renderScorecardChart(model, chartId, sheetId, canvas);
+
+    definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
+    expect(definition.keyDescr?.text).toEqual("A B C, easy as 1 2 3, do ré mi");
+    expect(definition.keyDescr?.bold).toEqual(true);
+    expect(definition.keyDescr?.fontSize).toEqual(64);
+  });
+
   test("Baseline mode percentage don't inherit of the style of the cell", () => {
     setStyle(model, "A1", { bold: true });
     setFormat(model, "A1", "0.0");
@@ -565,7 +749,7 @@ describe("Scorecard charts rendering", () => {
       {
         keyValue: "A1",
         baseline: "A1",
-        baselineDescr: "descr",
+        baselineDescr: { text: "descr" },
         title: { text: "title" },
         background: "#000000",
       },

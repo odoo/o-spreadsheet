@@ -22,7 +22,7 @@ import {
   UID,
   UnboundedZone,
 } from "../../../types";
-import { ChartCreationContext } from "../../../types/chart/chart";
+import { ChartCreationContext, TitleDesign } from "../../../types/chart/chart";
 import {
   BaselineArrowDirection,
   BaselineMode,
@@ -162,9 +162,10 @@ const arrowUpPath = new window.Path2D(
 
 export class ScorecardChart extends AbstractChart {
   readonly keyValue?: Range;
+  readonly keyDescr?: TitleDesign;
   readonly baseline?: Range;
   readonly baselineMode: BaselineMode;
-  readonly baselineDescr?: string;
+  readonly baselineDescr?: TitleDesign;
   readonly progressBar: boolean = false;
   readonly background?: Color;
   readonly baselineColorUp: Color;
@@ -176,6 +177,7 @@ export class ScorecardChart extends AbstractChart {
   constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.keyValue = createValidRange(getters, sheetId, definition.keyValue);
+    this.keyDescr = definition.keyDescr;
     this.baseline = createValidRange(getters, sheetId, definition.baseline);
     this.baselineMode = definition.baselineMode;
     this.baselineDescr = definition.baselineDescr;
@@ -272,6 +274,7 @@ export class ScorecardChart extends AbstractChart {
       keyValue: keyValue
         ? this.getters.getRangeString(keyValue, targetSheetId || this.sheetId)
         : undefined,
+      keyDescr: this.keyDescr,
       humanize: this.humanize,
     };
   }
@@ -295,7 +298,7 @@ export class ScorecardChart extends AbstractChart {
 export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d")!;
   canvas.width = structure.canvas.width;
-  const availableWidth = canvas.width - CHART_PADDING * 2;
+  const availableWidth = canvas.width - CHART_PADDING;
   canvas.height = structure.canvas.height;
 
   ctx.fillStyle = structure.canvas.backgroundColor;
@@ -350,13 +353,11 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
     const descr = structure.baselineDescr[0];
     ctx.font = descr.style.font;
     ctx.fillStyle = descr.style.color;
-    for (const description of structure.baselineDescr) {
-      ctx.fillText(
-        clipTextWithEllipsis(ctx, description.text, availableWidth - description.position.x),
-        description.position.x,
-        description.position.y
-      );
-    }
+    ctx.fillText(
+      clipTextWithEllipsis(ctx, descr.text, availableWidth - descr.position.x),
+      descr.position.x,
+      descr.position.y
+    );
   }
 
   if (structure.key) {
@@ -368,6 +369,16 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
       structure.key.position,
       structure.key.style.underline,
       structure.key.style.strikethrough
+    );
+  }
+  if (structure.keyDescr) {
+    const descr = structure.keyDescr;
+    ctx.font = structure.keyDescr?.style.font ?? descr.style.font;
+    ctx.fillStyle = descr.style.color;
+    ctx.fillText(
+      clipTextWithEllipsis(ctx, descr.text, availableWidth - descr.position.x),
+      descr.position.x,
+      descr.position.y
     );
   }
 
@@ -458,6 +469,9 @@ export function createScorecardChartRuntime(
       text: chart.title.text ? _t(chart.title.text) : "",
     },
     keyValue: formattedKeyValue,
+    keyDescr: chart.keyDescr?.text
+      ? _t(chart.keyDescr.text) // descriptions are extracted from .json files and they are translated at runtime here
+      : "",
     baselineDisplay,
     baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, chart.baselineMode),
     baselineColor: getBaselineColor(
@@ -468,26 +482,35 @@ export function createScorecardChartRuntime(
       chart.baselineColorDown
     ),
     baselineDescr:
-      chart.baselineMode !== "progress" && chart.baselineDescr
-        ? _t(chart.baselineDescr) // descriptions are extracted from .json files and they are translated at runtime here
+      chart.baselineMode !== "progress" && chart.baselineDescr?.text
+        ? _t(chart.baselineDescr.text) // descriptions are extracted from .json files and they are translated at runtime here
         : "",
     fontColor,
     background,
-    baselineStyle:
-      chart.baselineMode !== "percentage" && chart.baselineMode !== "progress" && baseline
+    baselineStyle: {
+      textColor: chart.baselineDescr?.color,
+      ...chart.baselineDescr,
+      ...(chart.baselineMode !== "percentage" && chart.baselineMode !== "progress" && baseline
         ? getters.getCellStyle({
             sheetId: baseline.sheetId,
             col: baseline.zone.left,
             row: baseline.zone.top,
           })
-        : undefined,
-    keyValueStyle: chart.keyValue
-      ? getters.getCellStyle({
-          sheetId: chart.keyValue.sheetId,
-          col: chart.keyValue.zone.left,
-          row: chart.keyValue.zone.top,
-        })
-      : undefined,
+        : undefined),
+    },
+    baselineDescrStyle: { textColor: chart.baselineDescr?.color, ...chart.baselineDescr },
+    keyValueStyle: {
+      textColor: chart.keyDescr?.color,
+      ...chart.keyDescr,
+      ...(chart.keyValue
+        ? getters.getCellStyle({
+            sheetId: chart.keyValue.sheetId,
+            col: chart.keyValue.zone.left,
+            row: chart.keyValue.zone.top,
+          })
+        : undefined),
+    },
+    keyValueDescrStyle: { textColor: chart.keyDescr?.color, ...chart.keyDescr },
     progressBar:
       chart.baselineMode === "progress"
         ? {
