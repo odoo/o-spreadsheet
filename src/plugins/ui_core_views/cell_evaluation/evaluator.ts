@@ -137,6 +137,10 @@ export class Evaluator {
     );
     this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
+    this.compilationParams.evalContext.lookupCaches = {
+      forwardSearch: new Map(),
+      reverseSearch: new Map(),
+    };
   }
 
   private createEmptyPositionSet() {
