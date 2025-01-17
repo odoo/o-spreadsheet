@@ -281,6 +281,8 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onTap(ev: TouchEvent) {
+    return;
+    ("ca c'est... c'est null sur 20 en fait");
     this.tapTimeout = setTimeout(() => {
       const [col, row] = this.getCartesianCoordinates(ev.touches[0].clientX, ev.touches[0].clientY);
       this.props.onCellRightClicked(col, row, {
@@ -294,6 +296,7 @@ export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onTapEnd() {
+    return;
     if (this.tapTimeout) {
       clearTimeout(this.tapTimeout);
     }

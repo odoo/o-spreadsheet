@@ -418,6 +418,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     );
 
     useExternalListener((window as any).visualViewport, "resize", () => this.render(true));
+    // keep this? check the differences and document
+    useExternalListener((window as any).viewport, "resize", () => this.render(true));
 
     useExternalListener((window as any).visualViewport, "resize", () =>
       this.env.notifyUser({
@@ -428,6 +430,13 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
         type: "info",
       })
     );
+    onMounted(() => {
+      this.env.notifyUser({
+        text: navigator.userAgent || "nada",
+        sticky: true,
+        type: "info",
+      });
+    });
 
     // useExternalListener(window as any, "resize", () => this.env.notifyUser({ text: "resize viewport",sticky: true,
     //   type:'info' }));
