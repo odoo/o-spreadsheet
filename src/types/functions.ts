@@ -60,4 +60,13 @@ export type EvalContext = {
   updateDependencies?: (position: CellPosition) => void;
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
   debug?: boolean;
+  lookupCaches?: LookupCaches;
+};
+
+/**
+ * used to cache lookup values for linear search
+ **/
+export type LookupCaches = {
+  forwardSearch: Map<unknown, Map<CellValue, number>>;
+  reverseSearch: Map<unknown, Map<CellValue, number>>;
 };
