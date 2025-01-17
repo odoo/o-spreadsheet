@@ -1,7 +1,0 @@
-<templates>
-  <t t-name="o-spreadsheet.ChartErrorSection">
-    <Section>
-      <ValidationMessages messages="props.messages" msgType="'error'"/>
-    </Section>
-  </t>
-</templates>

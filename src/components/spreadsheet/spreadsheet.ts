@@ -419,7 +419,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     useExternalListener((window as any).visualViewport, "resize", () => this.render(true));
     // keep this? check the differences and document
-    useExternalListener((window as any).viewport, "resize", () => this.render(true));
+    // useExternalListener(window, "resize", () => this.render(true));
 
     useExternalListener((window as any).visualViewport, "resize", () =>
       this.env.notifyUser({

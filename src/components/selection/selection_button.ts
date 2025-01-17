@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { ActionSpec } from "../../actions/action";
-import { CellComposerStore } from "../../current_components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../components/composer/composer/cell_composer_store";
 import { SelectionStore } from "../../stores/draw_selection_store";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers";
