@@ -14,6 +14,7 @@ import {
   isMatrix,
 } from "../types";
 import { CellErrorType, EvaluationError, errorTypes } from "../types/errors";
+import { LookupCaches } from "../types/functions";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
@@ -848,6 +849,7 @@ export function linearSearch<T>(
   mode: LinearSearchMode,
   numberOfValues: number,
   getValueInData: (data: T, index: number) => CellValue | undefined,
+  lookupCaches?: LookupCaches,
   reverseSearch = false
 ): number {
   if (target === undefined || target.value === null) {
@@ -856,13 +858,59 @@ export function linearSearch<T>(
   if (isEvaluationError(target.value)) {
     throw target;
   }
+
   const _target = normalizeValue(target.value);
   const getValue = reverseSearch
-    ? (data: T, i: number) => getValueInData(data, numberOfValues - i - 1)
-    : getValueInData;
+    ? (data: T, i: number) => normalizeValue(getValueInData(data, numberOfValues - i - 1))
+    : (data: T, i: number) => normalizeValue(getValueInData(data, i));
 
+  // first check if the target is in the cache
+
+  const isNotWildcardTarget =
+    mode !== "wildcard" ||
+    typeof _target !== "string" ||
+    !(_target.includes("*") || _target.includes("?"));
+
+  if (lookupCaches && isNotWildcardTarget) {
+    const searchMode = reverseSearch ? "reverseSearch" : "forwardSearch";
+    let cache = lookupCaches[searchMode].get(data);
+    if (cache === undefined) {
+      // build the cache for all the values
+      cache = new Map<CellValue, number>();
+      for (let i = 0; i < numberOfValues; i++) {
+        const value = getValue(data, i) ?? null;
+        if (!cache.has(value)) {
+          cache.set(value, i);
+        }
+      }
+      lookupCaches[searchMode].set(data, cache);
+    }
+
+    if (cache.has(_target)) {
+      const resultIndex = cache.get(_target)!;
+      return reverseSearch ? numberOfValues - resultIndex - 1 : resultIndex;
+    }
+
+    if (mode === "strict") {
+      return -1;
+    }
+  }
+
+  // else perform the linear search
+
+  const resultIndex = _linearSearch(data, _target, mode, numberOfValues, getValue);
+  return reverseSearch && resultIndex !== -1 ? numberOfValues - resultIndex - 1 : resultIndex;
+}
+
+function _linearSearch<T>(
+  data: T,
+  _target: Exclude<CellValue, null>,
+  mode: LinearSearchMode,
+  numberOfValues: number,
+  getNormalizeValue: (data: T, index: number) => CellValue | undefined
+): number {
   let indexMatchTarget: (index: number) => boolean = (i) => {
-    return normalizeValue(getValue(data, i)) === _target;
+    return getNormalizeValue(data, i) === _target;
   };
 
   if (
@@ -872,7 +920,7 @@ export function linearSearch<T>(
   ) {
     const regExp = wildcardToRegExp(_target);
     indexMatchTarget = (i) => {
-      const value = normalizeValue(getValue(data, i));
+      const value = getNormalizeValue(data, i);
       if (typeof value === "string") {
         return regExp.test(value);
       }
@@ -885,7 +933,7 @@ export function linearSearch<T>(
 
   if (mode === "nextSmaller") {
     indexMatchTarget = (i) => {
-      const value = normalizeValue(getValue(data, i));
+      const value = getNormalizeValue(data, i);
       if (
         (!closestMatch && compareCellValues(_target, value) >= 0) ||
         (compareCellValues(_target, value) >= 0 && compareCellValues(value, closestMatch) > 0)
@@ -899,7 +947,7 @@ export function linearSearch<T>(
 
   if (mode === "nextGreater") {
     indexMatchTarget = (i) => {
-      const value = normalizeValue(getValue(data, i));
+      const value = getNormalizeValue(data, i);
       if (
         (!closestMatch && compareCellValues(_target, value) <= 0) ||
         (compareCellValues(_target, value) <= 0 && compareCellValues(value, closestMatch) < 0)
@@ -913,12 +961,11 @@ export function linearSearch<T>(
 
   for (let i = 0; i < numberOfValues; i++) {
     if (indexMatchTarget(i)) {
-      return reverseSearch ? numberOfValues - i - 1 : i;
+      return i;
     }
   }
-  return reverseSearch && closestMatchIndex !== -1
-    ? numberOfValues - closestMatchIndex - 1
-    : closestMatchIndex;
+
+  return closestMatchIndex;
 }
 
 /**

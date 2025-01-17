@@ -59,4 +59,13 @@ export type EvalContext = {
   [key: string]: any;
   updateDependencies?: (position: CellPosition) => void;
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
+  lookupCaches?: LookupCaches;
+};
+
+/**
+ * used to cache lookup values for linear search
+ **/
+export type LookupCaches = {
+  forwardSearch: Map<unknown, Map<CellValue, number>>;
+  reverseSearch: Map<unknown, Map<CellValue, number>>;
 };

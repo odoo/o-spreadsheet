@@ -200,7 +200,14 @@ export const HLOOKUP = {
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
       ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range.length, getValueFromRange)
-      : linearSearch(range, searchKey, "wildcard", range.length, getValueFromRange);
+      : linearSearch(
+          range,
+          searchKey,
+          "wildcard",
+          range.length,
+          getValueFromRange,
+          this.lookupCaches
+        );
     const col = range[colIndex];
     if (col === undefined) {
       return valueNotAvailable(searchKey);
@@ -443,7 +450,7 @@ export const MATCH = {
         index = dichotomicSearch(range, searchKey, "nextSmaller", "asc", rangeLen, getElement);
         break;
       case 0:
-        index = linearSearch(range, searchKey, "wildcard", rangeLen, getElement);
+        index = linearSearch(range, searchKey, "wildcard", rangeLen, getElement, this.lookupCaches);
         break;
       case -1:
         index = dichotomicSearch(range, searchKey, "nextGreater", "desc", rangeLen, getElement);
@@ -556,7 +563,14 @@ export const VLOOKUP = {
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
       ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range[0].length, getValueFromRange)
-      : linearSearch(range, searchKey, "wildcard", range[0].length, getValueFromRange);
+      : linearSearch(
+          range,
+          searchKey,
+          "wildcard",
+          range[0].length,
+          getValueFromRange,
+          this.lookupCaches
+        );
 
     const value = range[_index - 1][rowIndex];
     if (value === undefined) {
@@ -671,7 +685,15 @@ export const XLOOKUP = {
             rangeLen,
             getElement
           )
-        : linearSearch(lookupRange, searchKey, mode, rangeLen, getElement, reverseSearch);
+        : linearSearch(
+            lookupRange,
+            searchKey,
+            mode,
+            rangeLen,
+            getElement,
+            this.lookupCaches,
+            reverseSearch
+          );
 
     if (index !== -1) {
       return lookupDirection === "col"
