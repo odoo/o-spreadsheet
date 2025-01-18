@@ -576,6 +576,7 @@ export class TokenizingChars {
   private text: string;
   private currentIndex: number = 0;
   current: string;
+  private sliceEndIndex = 0;
 
   constructor(text: string) {
     this.text = text;
@@ -612,6 +613,23 @@ export class TokenizingChars {
       }
     }
     return true;
+  }
+
+  beginSlice() {
+    this.sliceEndIndex = this.currentIndex;
+  }
+
+  advanceSliceEnd() {
+    this.sliceEndIndex++;
+    this.current = this.text[this.sliceEndIndex];
+  }
+
+  shiftSlice() {
+    const nextHead = this.sliceEndIndex;
+    const sliceString = this.text.slice(this.currentIndex, nextHead);
+    this.currentIndex = nextHead;
+    this.current = this.text[nextHead];
+    return sliceString;
   }
 }
 

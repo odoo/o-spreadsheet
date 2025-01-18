@@ -169,20 +169,22 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
   // there are two main cases to manage: either something which starts with
   // a ', like 'Sheet 2'A2, or a word-like element.
   if (chars.current === "'") {
-    let lastChar = chars.shift();
-    result += lastChar;
+    let lastChar = chars.current;
+    chars.beginSlice();
+    chars.advanceSliceEnd();
     while (chars.current) {
-      lastChar = chars.shift();
-      result += lastChar;
+      lastChar = chars.current;
+      chars.advanceSliceEnd();
       if (lastChar === "'") {
         if (chars.current && chars.current === "'") {
-          lastChar = chars.shift();
-          result += lastChar;
+          lastChar = chars.current;
+          chars.advanceSliceEnd();
         } else {
           break;
         }
       }
     }
+    result += chars.shiftSlice();
 
     if (lastChar !== "'") {
       return {
@@ -191,9 +193,11 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
       };
     }
   }
+  chars.beginSlice();
   while (chars.current && SYMBOL_CHARS.has(chars.current)) {
-    result += chars.shift();
+    chars.advanceSliceEnd();
   }
+  result += chars.shiftSlice();
   if (result.length) {
     const value = result;
     const isReference = rangeReference.test(value);
