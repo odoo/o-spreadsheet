@@ -3,6 +3,7 @@ import { Model } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
+import { topBarToolBarRegistry } from "../src/components/top_bar/top_bar_tools_registry";
 import { DEBOUNCE_TIME, DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
 import { topbarComponentRegistry, topbarMenuRegistry } from "../src/registries";
@@ -43,9 +44,31 @@ jest.mock("../src/helpers/figures/images/image_provider", () =>
   require("./__mocks__/mock_image_provider")
 );
 
+const topBarToolsHeight = 30;
+let spreadsheetWidth = 1000;
+const moreToolsContainerWidth = 50;
+const moreToolsWidth = 50;
+const toolWidth = 100;
+
 mockGetBoundingClientRect({
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+  "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
   "o-popover": () => ({ width: 50, height: 50 }),
+  "o-topbar-responsive": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
+  "o-toolbar-tools": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: topBarToolsHeight }),
+  "tool-container": () => ({ x: 0, y: 0, width: toolWidth, height: topBarToolsHeight }),
+  "more-tools-container": () => ({
+    x: 0,
+    y: 0,
+    width: moreToolsContainerWidth,
+    height: topBarToolsHeight,
+  }),
+  "more-tools": () => ({
+    x: 0,
+    y: 0,
+    width: moreToolsWidth,
+    height: topBarToolsHeight,
+  }),
+  "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: topBarToolsHeight }),
 });
 
 let fixture: HTMLElement;
@@ -105,6 +128,7 @@ describe("TopBar component", () => {
     setCellContent(model, "B2", "b2");
     await mountParent(model);
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
+    await nextTick();
     await click(fixture, '.o-menu-item-button[title="Vertical align"]');
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(1);
     expect(fixture.querySelectorAll('.o-menu-item-button[title="Top"]').length).not.toBe(0);
@@ -620,7 +644,7 @@ describe("TopBar component", () => {
   );
 
   test.each([["Fill Color", "Text Color"]])(
-    "Clicking a static element inside the color picker '%s' don't close the color picker dropdown",
+    "Clicking a static element inside the color picker *%s* dont close the color picker dropdown",
     async (toolName: string) => {
       await mountParent();
 
@@ -916,14 +940,13 @@ describe("Topbar svg icon", () => {
     setStyle(model, "A1", style as Style);
 
     ({ fixture } = await mountSpreadsheet({ model }));
-    await nextTick();
 
     const icon = fixture.querySelector(`.o-menu-item-button[title="${buttonTitle}"] svg`);
     expect(icon?.classList.contains(iconClass)).toBeTruthy();
   });
 });
 
-test("Clicking on a topbar button triggers two renders", async () => {
+test("Clicking on a topbar button triggers three renders", async () => {
   jest.useFakeTimers();
   const transportService = new MockTransportService();
 
@@ -932,13 +955,160 @@ test("Clicking on a topbar button triggers two renders", async () => {
   jest.advanceTimersByTime(DEBOUNCE_TIME + 10); // wait for the debounce of session.move
   jest.useRealTimers();
 
-  const triggerRender = jest.fn();
-  model.on("update", {}, triggerRender);
-  env["__spreadsheet_stores__"].on("store-updated", null, triggerRender);
+  const modelRender = jest.fn();
+  const storeRender = jest.fn();
+  model.on("update", {}, modelRender);
+  env["__spreadsheet_stores__"].on("store-updated", null, storeRender);
 
   await click(fixture, ".o-spreadsheet-topbar [title='Bold (Ctrl+B)']");
 
-  // one render from the collaboration session
+  // two renders from the collaboration session
   // one from the top bar interaction
-  expect(triggerRender).toHaveBeenCalledTimes(2);
+  expect(modelRender).toHaveBeenCalledTimes(2);
+  expect(storeRender).toHaveBeenCalledTimes(1);
+});
+
+describe("Responsive Top bar behaviour", () => {
+  afterEach(() => {
+    spreadsheetWidth = 1000;
+  });
+  const categories = topBarToolBarRegistry.getCategories();
+  describe("items are hidden when the screen is resized", () => {
+    const topbarToolsWidthThresholds = [750, 650];
+    const widthThresholds = topbarToolsWidthThresholds.map((threshold, index) => [
+      threshold,
+      index,
+    ]);
+
+    test.each(widthThresholds)("Screen slightly smaller than %spx ", async (threshold, index) => {
+      spreadsheetWidth = threshold - 1;
+      await mountParent();
+      await nextTick();
+      const tools = [...fixture.querySelectorAll(".o-toolbar-tools .tool-container")].filter(
+        (element) => !element.classList.contains("d-none")
+      );
+      expect(tools.length).toBe(categories.length - (index + 1));
+    });
+
+    test("toolbar items hidden are available in a popover", async () => {
+      await mountParent();
+
+      expect(fixture.querySelector('.o-menu-item-button[title="Vertical align"]')).not.toBeNull();
+      expect(fixture.querySelector('.o-menu-item-button[title="Horizontal align"]')).not.toBeNull();
+      expect(fixture.querySelector('.o-menu-item-button[title="Wrapping"]')).not.toBeNull();
+
+      spreadsheetWidth = (categories.length - 2) * toolWidth + moreToolsContainerWidth + 1; // hides the last 2 categories
+      await nextTick();
+
+      expect(
+        fixture
+          .querySelector('.o-menu-item-button[title="Vertical align"]')
+          ?.closest(".tool-container")?.classList
+      ).toContain("d-none");
+      expect(
+        fixture
+          .querySelector('.o-menu-item-button[title="Horizontal align"]')
+          ?.closest(".tool-container")?.classList
+      ).toContain("d-none");
+      expect(
+        fixture.querySelector('.o-menu-item-button[title="Wrapping"]')?.closest(".tool-container")
+          ?.classList
+      ).toContain("d-none");
+
+      await click(fixture, ".more-tools");
+      expect(
+        fixture.querySelector('.o-popover .o-menu-item-button[title="Vertical align"]')
+      ).not.toBeNull();
+      expect(
+        fixture.querySelector('.o-popover .o-menu-item-button[title="Horizontal align"]')
+      ).not.toBeNull();
+      expect(
+        fixture.querySelector('.o-popover .o-menu-item-button[title="Wrapping"]')
+      ).not.toBeNull();
+    });
+  });
+
+  test("the popover should close when the screen is resized", async () => {
+    spreadsheetWidth = (toolWidth * categories.length) / 2;
+    const { parent } = await mountParent();
+    await nextTick();
+    await click(fixture, ".more-tools");
+    expect(fixture.querySelector(".o-popover")).not.toBeNull();
+    spreadsheetWidth += 10;
+
+    parent.render(true);
+    await nextTick();
+    expect(fixture.querySelector(".o-popover")).toBeNull();
+  });
+
+  test("the popover should close when clicking the grid", async () => {
+    spreadsheetWidth = (toolWidth * categories.length) / 2;
+    const { fixture } = await mountSpreadsheet();
+    await nextTick();
+    await click(fixture, ".more-tools");
+    expect(fixture.querySelector(".o-popover")).not.toBeNull();
+
+    await click(fixture, ".o-grid");
+    expect(fixture.querySelector(".o-popover")).toBeNull();
+  });
+
+  test("the popover should close when clicking visible tools", async () => {
+    spreadsheetWidth = (toolWidth * categories.length) / 2;
+    await mountParent();
+    await nextTick();
+    await click(fixture, ".more-tools");
+    expect(fixture.querySelector(".o-popover")).not.toBeNull();
+    await click(fixture, '.o-menu-item-button[title="Format as percent"]');
+    expect(fixture.querySelector(".o-popover")).toBeNull();
+  });
+
+  test("the popover should close when clicking top bar menus", async () => {
+    spreadsheetWidth = (toolWidth * categories.length) / 2;
+    await mountParent();
+    await nextTick();
+    await click(fixture, ".more-tools");
+    const menuInPopoverSelector = '.o-popover .o-menu-item-button[title="Vertical align"]';
+    expect(fixture.querySelector(menuInPopoverSelector)).not.toBeNull();
+    await click(fixture, ".o-topbar-menu[data-id='edit']");
+    expect(fixture.querySelector(menuInPopoverSelector)).toBeNull();
+  });
+
+  test("Use a color picker from the popover", async () => {
+    // Hide the text Style section
+    const index = categories.findIndex((category) => category === "cellStyle");
+    spreadsheetWidth = index * toolWidth + moreToolsContainerWidth + 1;
+
+    const model = new Model();
+    await mountParent(model);
+    await nextTick();
+    await click(fixture, ".more-tools");
+    await click(fixture, '.o-popover .o-menu-item-button[title="Fill Color"]');
+    await click(fixture, ".o-color-picker-line-item:nth-child(2)");
+    expect(getStyle(model, "A1").fillColor).toBe("#434343");
+  });
+
+  test("use an action button from the popover", async () => {
+    // Hide a section with an action button
+    const index = categories.findIndex((category) => category === "textStyle");
+    spreadsheetWidth = index * toolWidth + moreToolsContainerWidth + 1;
+    const model = new Model();
+    await mountParent(model);
+    await nextTick();
+    await click(fixture, ".more-tools");
+    await click(fixture, '.o-popover .o-menu-item-button[title="Strikethrough"]');
+    expect(getStyle(model, "A1").strikethrough).toBeTruthy();
+    await click(fixture, '.o-popover .o-menu-item-button[title="Strikethrough"]');
+    expect(getStyle(model, "A1").strikethrough).toBeFalsy();
+  });
+
+  test("Use a dropdown item from the popover", async () => {
+    spreadsheetWidth = 550;
+    const model = new Model();
+    await mountParent(model);
+    await nextTick();
+    await click(fixture, ".more-tools");
+    await click(fixture, '.o-popover .o-menu-item-button[title="Vertical align"]');
+    await click(fixture, '.o-popover .o-menu-item-button[title="Top"]');
+    expect(getStyle(model, "A1").verticalAlign).toBe("top");
+  });
 });

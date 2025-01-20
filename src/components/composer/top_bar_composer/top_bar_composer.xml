@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-TopBarComposer">
     <div class="o-topbar-composer-container w-100">
       <div
-        class="o-topbar-composer position-relative bg-white user-select-text"
+        class="o-topbar-composer position-relative bg-white user-select-text d-flex"
         t-on-click.stop=""
         t-att-style="containerStyle">
         <Composer
