@@ -78,6 +78,7 @@ export interface ExcelCellData extends CellData {
 }
 export interface ExcelSheetData extends Omit<SheetData, "figureTables"> {
   cells: { [key: string]: ExcelCellData | undefined };
+  formulaSpillRanges: { [xc: string]: string };
   charts: FigureData<ExcelChartDefinition>[];
   images: FigureData<Image>[];
   filterTables: ExcelFilterTableData[];
