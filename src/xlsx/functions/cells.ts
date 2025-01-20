@@ -17,7 +17,10 @@ import { getCellType, pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";
 import { DEFAULT_LOCALE } from "./../../types/locale";
 
-export function addFormula(cell: ExcelCellData): {
+export function addFormula(
+  cell: ExcelCellData,
+  formulaSpillRange: string
+): {
   attrs: XMLAttributes;
   node: XMLString;
 } {
@@ -31,11 +34,18 @@ export function addFormula(cell: ExcelCellData): {
     return { attrs: [], node: escapeXml`` };
   }
 
-  const attrs: XMLAttributes = [["t", type]];
+  const attrs: XMLAttributes = [
+    ["cm", "1"],
+    ["t", type],
+  ];
   const XlsxFormula = adaptFormulaToExcel(formula);
 
   const exportedValue = adaptFormulaValueToExcel(cell.value);
-  const node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${exportedValue}</v>`;
+  // We treat all formulas as array formulas (a simple formula
+  // is an array formula that spills on only one cell) to avoid
+  // trying to detect spilling sub-formulas which is not a trivial task.
+  let node: XMLString;
+  node = escapeXml/*xml*/ `<f t="array" ref="${formulaSpillRange}">${XlsxFormula}</f><v>${exportedValue}</v>`;
   return { attrs, node };
 }
 

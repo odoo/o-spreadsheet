@@ -29,6 +29,7 @@ export const DRAWING_NS_C = "http://schemas.openxmlformats.org/drawingml/2006/ch
 export const CONTENT_TYPES = {
   workbook: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
   sheet: "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml",
+  metadata: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml",
   sharedStrings: "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml",
   styles: "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml",
   drawing: "application/vnd.openxmlformats-officedocument.drawing+xml",
@@ -42,6 +43,7 @@ export const CONTENT_TYPES = {
 export const XLSX_RELATION_TYPE = {
   document: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument",
   sheet: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
+  metadata: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata",
   sharedStrings:
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
   styles: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles",
@@ -52,6 +54,8 @@ export const XLSX_RELATION_TYPE = {
   hyperlink: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
   image: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
 } as const;
+
+export const ARRAY_FORMULA_URI = "bdbb8cdc-fa1e-496e-a857-3c3f30c029c3";
 
 export const RELATIONSHIP_NSR =
   "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
