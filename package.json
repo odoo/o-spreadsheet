@@ -13,15 +13,15 @@
     "dist/*.xml"
   ],
   "scripts": {
-    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,demo",
+    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.iife.js,build/o_spreadsheet.xml,build/o_spreadsheet.css,main.css,demo",
     "dev": "npm-run-all --print-label bundle:dev --parallel server serve-static watch",
     "server": "node tools/server/main.cjs",
     "build:js": "tsc --module es6 --incremental",
     "bundle:iife": "rollup -c -m -- --format iife",
     "bundle:esm": "rollup -c -m -- --format esm",
     "bundle:xml": "node tools/bundle_xml/main.cjs",
-    "bundle:dev": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\"",
-    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run bundle:xml -- --outDir dist",
+    "bundle:dev": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir build\" && node tools/bundle_scss/main.cjs --out build",
+    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run bundle:xml -- --outDir dist && node tools/bundle_scss/main.cjs --out dist",
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "test:watch": "jest --watch",
     "prettier": "prettier . --write",
@@ -31,9 +31,10 @@
     "watch:bundle": "npm run bundle:iife -- --watch",
     "watch:ts": "npm run build:js -- --watch",
     "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
+    "watch:scss": "node tools/bundle_scss/watch_scss_files.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
-    "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\""
+    "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_scss/main.cjs --out build"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -74,6 +75,7 @@
     "express-ws": "^4.0.0",
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
+    "glob": "^10.2.6",
     "husky": "^7.0.4",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
@@ -90,6 +92,7 @@
     "rollup": "^3.28.0",
     "rollup-plugin-dts": "^5.3.1",
     "rollup-plugin-typescript2": "^0.35.0",
+    "sass": "^1.62.1",
     "typescript": "^5.4.3",
     "xml-formatter": "^2.4.0"
   },
