@@ -7,7 +7,7 @@
       t-att-class="{'o-disabled': !isEnabled, active: isActive}"
       t-attf-class="{{props.class}}"
       t-on-click="onClick">
-      <span t-if="iconTitle" t-att-style="buttonStyle">
+      <span t-if="iconTitle" t-att-style="buttonStyle" class="d-flex">
         <t t-call="{{iconTitle}}"/>
       </span>
       <t t-if="props.hasTriangleDownIcon">

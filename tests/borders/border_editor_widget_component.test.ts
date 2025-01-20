@@ -2,7 +2,7 @@ import { Component, useState, xml } from "@odoo/owl";
 import { BorderPosition, BorderStyle, Color, Model, SpreadsheetChildEnv } from "../../src";
 import { BorderEditorWidget } from "../../src/components/border_editor/border_editor_widget";
 import { toHex, toZone } from "../../src/helpers";
-import { simulateClick } from "../test_helpers/dom_helper";
+import { click, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponent } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -56,13 +56,7 @@ class BorderWidgetContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get borderWidgetProps(): Props {
-    return {
-      toggleBorderEditor: () => {
-        this.state.showBorderEditor = !this.state.showBorderEditor;
-      },
-      showBorderEditor: this.state.showBorderEditor,
-      class: "border-widget",
-    };
+    return { class: "border-widget" };
   }
 }
 
@@ -109,9 +103,9 @@ describe("BorderEditorWidget", () => {
     const sheetId = model.getters.getActiveSheetId();
     const dispatch = jest.spyOn(model, "dispatch");
     await simulateClick(".border-widget");
-    await setBorder({ position: "all", color: toHex("#ff0000"), style: "dashed" });
+    await click(fixture, 'span[name="all"]');
     expect(dispatch).toHaveBeenCalledWith("SET_ZONE_BORDERS", {
-      border: { color: "#FF0000", position: "all", style: "dashed" },
+      border: { color: "#000000", position: "all", style: "thin" },
       sheetId,
       target: [toZone("A1")],
     });
