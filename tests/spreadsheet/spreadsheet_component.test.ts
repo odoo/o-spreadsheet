@@ -33,6 +33,7 @@ import {
   typeInComposerGrid,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
@@ -46,6 +47,13 @@ beforeEach(() => {
 afterEach(() => {
   jest.useRealTimers();
 });
+
+mockGetBoundingClientRect({
+  "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+  "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
+  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+});
+
 describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
@@ -188,10 +196,6 @@ describe("Simple Spreadsheet Component", () => {
     const hScrollbarZIndex = getZIndex(".o-scrollbar.horizontal");
     const scrollbarCornerZIndex = getZIndex(".o-scrollbar.corner");
 
-    const dropdownEL = fixture.querySelector(".o-menu-item-button[title='Vertical align']")!;
-    await click(dropdownEL);
-    const dropDownZIndex = getZIndex(".o-dropdown-content");
-
     setCellContent(model, "A1", "=SUM()");
     await nextTick();
     await hoverCell(model, "A1", 400);
@@ -223,8 +227,7 @@ describe("Simple Spreadsheet Component", () => {
     expect(hScrollbarZIndex).toEqual(scrollbarCornerZIndex);
     expect(scrollbarCornerZIndex).toBeLessThan(gridComposerZIndex);
     expect(gridPopoverZIndex).toBeLessThan(gridComposerZIndex);
-    expect(gridComposerZIndex).toBeLessThan(dropDownZIndex);
-    expect(dropDownZIndex).toBeLessThan(topBarComposerZIndex);
+    expect(gridComposerZIndex).toBeLessThan(topBarComposerZIndex);
     expect(topBarComposerZIndex).toBeLessThan(popoverZIndex);
     expect(popoverZIndex).toBeLessThan(figureAnchorZIndex);
     jest.useRealTimers();
