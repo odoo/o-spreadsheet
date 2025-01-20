@@ -27,6 +27,7 @@ class SidePanelWithComposer extends Component<any, any> {
           onConfirm="props.onConfirm"
           composerContent="props.composerContent"
           defaultRangeSheetId="props.defaultRangeSheetId"
+          defaultStatic="props.defaultStatic"
         />
       </div>`;
   static props = { "*": Object };
@@ -39,9 +40,15 @@ sidePanelRegistry.add("SidePanelWithComposer", {
 
 async function openSidePanelWithComposer(
   composerContent = "",
+  defaultStatic = false,
   defaultRangeSheetId = model.getters.getActiveSheetId()
 ) {
-  env.openSidePanel("SidePanelWithComposer", { onConfirm, composerContent, defaultRangeSheetId });
+  env.openSidePanel("SidePanelWithComposer", {
+    onConfirm,
+    composerContent,
+    defaultRangeSheetId,
+    defaultStatic,
+  });
   await nextTick();
   composerEl = fixture.querySelector<HTMLElement>(".o-sidePanel .o-composer")!;
 }
@@ -94,6 +101,13 @@ describe("Spreadsheet integrations tests", () => {
     expect(composerEl.textContent).toBe("=SUM(D9");
   });
 
+  test("Can select a static range with the mouse using standalone composer", async () => {
+    await openSidePanelWithComposer("", true);
+    await editStandaloneComposer(composerSelector, "=SUM(", { confirm: false });
+    await simulateClick(".o-grid-overlay", 300, 200);
+    expect(composerEl.textContent).toBe("=SUM($D$9");
+  });
+
   test("Parenthesis are closed when composer is confirmed", async () => {
     await openSidePanelWithComposer();
     await editStandaloneComposer(composerSelector, "=SUM(A1");
@@ -121,7 +135,7 @@ describe("Spreadsheet integrations tests", () => {
   test("content with references from another sheet", async () => {
     const sheet1Id = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sheet2", activate: true });
-    await openSidePanelWithComposer("=A1", sheet1Id);
+    await openSidePanelWithComposer("=A1", false, sheet1Id);
     expect(composerEl.textContent).toBe("=Sheet1!A1");
   });
 

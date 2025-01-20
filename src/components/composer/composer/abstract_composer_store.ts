@@ -479,7 +479,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.replaceSelection(newRef);
   }
 
-  private getZoneReference(zone: Zone | UnboundedZone): string {
+  protected getZoneReference(zone: Zone | UnboundedZone): string {
     const inputSheetId = this.sheetId;
     const sheetId = this.getters.getActiveSheetId();
     const range = this.getters.getRangeFromZone(sheetId, zone);

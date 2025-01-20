@@ -1,8 +1,9 @@
 import { Token, rangeTokenize } from "../../../formulas";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { setXcToFixedReferenceType } from "../../../helpers/reference_type";
 import { AutoCompleteProviderDefinition } from "../../../registries";
 import { Get } from "../../../store_engine";
-import { Color, UID } from "../../../types";
+import { Color, UID, UnboundedZone, Zone } from "../../../types";
 import { AbstractComposerStore } from "../composer/abstract_composer_store";
 
 export interface StandaloneComposerArgs {
@@ -12,6 +13,7 @@ export interface StandaloneComposerArgs {
    * the sheet id to which unqualified references (A1 vs Sheet1!A1)
    * will be resolved.
    */
+  defaultStatic?: boolean;
   defaultRangeSheetId: UID;
   contextualAutocomplete?: AutoCompleteProviderDefinition;
   getContextualColoredSymbolToken?: (token: Token) => Color;
@@ -30,6 +32,17 @@ export class StandaloneComposerStore extends AbstractComposerStore {
       providersDefinitions.push(contextualAutocomplete);
     }
     return providersDefinitions;
+  }
+
+  /**
+   * Replace the current reference selected by the new one.
+   * */
+  protected getZoneReference(zone: Zone | UnboundedZone): string {
+    const res = super.getZoneReference(zone);
+    if (this.args().defaultStatic) {
+      return setXcToFixedReferenceType(res, "colrow");
+    }
+    return res;
   }
 
   protected getComposerContent(): string {
