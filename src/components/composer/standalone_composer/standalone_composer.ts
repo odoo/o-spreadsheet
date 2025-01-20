@@ -41,6 +41,7 @@ interface Props {
   onConfirm: (content: string) => void;
   composerContent: string;
   defaultRangeSheetId: UID;
+  defaultStatic?: boolean;
   contextualAutocomplete?: AutoCompleteProviderDefinition;
   placeholder?: string;
   class?: string;
@@ -53,6 +54,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     composerContent: { type: String, optional: true },
     defaultRangeSheetId: { type: String, optional: true },
+    defaultStatic: { type: Boolean, optional: true },
     onConfirm: Function,
     contextualAutocomplete: { type: Object, optional: true },
     placeholder: { type: String, optional: true },
@@ -63,6 +65,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
   static components = { Composer };
   static defaultProps = {
     composerContent: "",
+    defaultStatic: false,
   };
 
   private composerFocusStore!: Store<ComposerFocusStore>;
@@ -75,6 +78,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
     const standaloneComposerStore = useLocalStore(StandaloneComposerStore, () => ({
       onConfirm: this.props.onConfirm,
       content: this.props.composerContent,
+      defaultStatic: this.props.defaultStatic ?? false,
       contextualAutocomplete: this.props.contextualAutocomplete,
       defaultRangeSheetId: this.props.defaultRangeSheetId,
       getContextualColoredSymbolToken: this.props.getContextualColoredSymbolToken,
