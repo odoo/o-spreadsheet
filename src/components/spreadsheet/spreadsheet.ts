@@ -78,12 +78,8 @@ css/* scss */ `
   .o-spreadsheet {
     position: relative;
     display: grid;
-    color: ${TEXT_BODY};
     font-size: 14px;
 
-    input {
-      background-color: white;
-    }
     .text-muted {
       color: ${TEXT_BODY_MUTED} !important;
     }

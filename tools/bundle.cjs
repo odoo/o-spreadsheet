@@ -27,6 +27,14 @@ ${BANNER_MESSAGE.map((line) => ` ${line}`).join("\n")}
 `;
 }
 
+function cssBanner() {
+  return `
+/*
+${BANNER_MESSAGE.map((line) => ` * ${line}`).join("\n")}
+ */
+`;
+}
+
 // Use __dirname to make the path relative to the current source
 // file instead of process.cwd()
 const packageJson = JSON.parse(readFileSync(path.join("__dirname", "../package.json")));
@@ -62,4 +70,5 @@ exports.bundle = {
   outro,
   jsBanner,
   xmlBanner,
+  cssBanner,
 };
