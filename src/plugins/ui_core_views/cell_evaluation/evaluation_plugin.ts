@@ -331,6 +331,7 @@ export class EvaluationPlugin extends UIPlugin {
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
       sheet.cellValues = {};
+      sheet.formulaSpillRanges = {};
     }
     for (const position of this.evaluator.getEvaluatedPositions()) {
       const evaluatedCell = this.evaluator.getEvaluatedCell(position);
@@ -345,8 +346,9 @@ export class EvaluationPlugin extends UIPlugin {
 
       const formulaCell = this.getCorrespondingFormulaCell(position);
       if (formulaCell) {
+        const cell = this.getters.getCell(position);
         isExported = isExportableToExcel(formulaCell.compiledFormula.tokens);
-        isFormula = isExported;
+        isFormula = isExported && cell?.content === formulaCell.content;
 
         // If the cell contains a non-exported formula and that is evaluates to
         // nothing* ,we don't export it.
@@ -371,7 +373,14 @@ export class EvaluationPlugin extends UIPlugin {
         content = !isExported ? newContent : exportedCellData;
       }
       exportedSheetData.cells[xc] = content;
-      exportedSheetData.cellValues[xc] = value;
+      exportedSheetData.cellValues[xc] = evaluatedCell.type !== "error" ? value : undefined;
+      const spillZone = this.getSpreadZone(position);
+      if (spillZone) {
+        exportedSheetData.formulaSpillRanges[xc] = this.getters.getRangeString(
+          this.getters.getRangeFromZone(position.sheetId, spillZone),
+          position.sheetId
+        );
+      }
     }
   }
 
