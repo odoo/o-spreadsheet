@@ -205,7 +205,7 @@ export const formatNumberShortMonth = createFormatActionSpec({
   descriptionValue: EXAMPLE_DATE,
 });
 
-export const incraseDecimalPlaces: ActionSpec = {
+export const increaseDecimalPlaces: ActionSpec = {
   name: _t("Increase decimal places"),
   icon: "o-spreadsheet-Icon.INCREASE_DECIMAL",
   execute: (env) =>
@@ -216,7 +216,7 @@ export const incraseDecimalPlaces: ActionSpec = {
     }),
 };
 
-export const decraseDecimalPlaces: ActionSpec = {
+export const decreaseDecimalPlaces: ActionSpec = {
   name: _t("Decrease decimal places"),
   icon: "o-spreadsheet-Icon.DECRASE_DECIMAL",
   execute: (env) =>

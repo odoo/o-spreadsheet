@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-TableDropdownButton">
-    <div class="o-table-widget d-flex align-item-center">
+    <div class="o-table-widget d-flex align-item-center" t-att-class="props.class">
       <ActionButton
         action="action"
         hasTriangleDownIcon="true"

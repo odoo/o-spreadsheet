@@ -32,6 +32,8 @@ export interface PopoverProps {
 
   /** Setting popover to allow dynamic zIndex */
   zIndex?: Number;
+
+  class?: string;
 }
 
 css/* scss */ `
@@ -58,6 +60,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     onPopoverHidden: { type: Function, optional: true },
     onPopoverMoved: { type: Function, optional: true },
     zIndex: { type: Number, optional: true },
+    class: { type: String, optional: true },
     slots: Object,
   };
   static defaultProps = {
