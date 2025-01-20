@@ -1,11 +1,14 @@
 import {
   Component,
+  onMounted,
   onWillStart,
+  onWillUnmount,
   onWillUpdateProps,
   useExternalListener,
+  useRef,
   useState,
 } from "@odoo/owl";
-import { Action, ActionSpec, createAction } from "../../actions/action";
+import { Action } from "../../actions/action";
 import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
@@ -15,16 +18,16 @@ import {
   BACKGROUND_HEADER_COLOR,
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
-  ComponentsImportance,
   DEFAULT_FONT_SIZE,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
 import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
+import { topBarToolBarRegistry } from "../../registries/toolbar_menu_registry";
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
-import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
+import { Color, DOMCoordinates, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ActionButton } from "../action_button/action_button";
 import { BorderEditorWidget } from "../border_editor/border_editor_widget";
 import { ColorPicker } from "../color_picker/color_picker";
@@ -34,14 +37,20 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
+import { Popover, PopoverProps } from "../popover";
 import { TableDropdownButton } from "../tables/table_dropdown_button/table_dropdown_button";
 import { PaintFormatButton } from "./../paint_format_button/paint_format_button";
+import { TopBarFillColorEditor, TopBarTextColorEditor } from "./color_editor/color_editor";
+import { DropdownAction } from "./dropdown_action/dropdown_action";
+import { TopBarFontSizeEditor } from "./font_size_editor/font_size_editor";
+import { NumberFormatsTool } from "./number_formats_tool/number_formats_tool";
+import { TopBarToolStore } from "./top_bar_tool_store";
 
 interface State {
   menuState: MenuState;
-  activeTool: string;
-  fillColor: string;
-  textColor: string;
+  visibleToolsCategories: string[];
+  invisibleToolsCategories: string[];
+  toolsPopoverState: { isOpen: boolean; position: DOMCoordinates | null };
 }
 
 interface Props {
@@ -53,6 +62,18 @@ interface Props {
 // TopBar
 // -----------------------------------------------------------------------------
 css/* scss */ `
+  .o-topbar-divider {
+    border-right: 1px solid ${SEPARATOR_COLOR};
+    width: 0;
+    padding-left: 6px;
+    margin-right: 6px;
+  }
+
+  .o-toolbar-button {
+    height: 30px;
+    box-sizing: border-box !important;
+  }
+
   .o-spreadsheet-topbar {
     line-height: 1.2;
     font-size: 13px;
@@ -65,6 +86,7 @@ css/* scss */ `
 
       /* Menus */
       .o-topbar-topleft {
+        height: 23px;
         .o-topbar-menu {
           padding: 4px 6px;
           margin: 0 2px;
@@ -102,51 +124,17 @@ css/* scss */ `
 
       /* Toolbar */
       .o-toolbar-tools {
-        display: flex;
-        flex-shrink: 0;
         margin: 0px 6px 0px 16px;
         cursor: default;
-
-        .o-divider {
-          display: inline-block;
-          border-right: 1px solid ${SEPARATOR_COLOR};
-          width: 0;
-          margin: 0 6px;
-        }
-
-        .o-dropdown {
-          position: relative;
-          display: flex;
-          align-items: center;
-
-          > span {
-            height: 30px;
-          }
-
-          .o-dropdown-content {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 2px;
-            z-index: ${ComponentsImportance.Dropdown};
-            box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-            background-color: white;
-
-            .o-dropdown-line {
-              display: flex;
-
-              > span {
-                padding: 4px;
-              }
-            }
-          }
-        }
       }
     }
   }
 `;
+
+export const topbarToolsWidthThresholds = [750, 710, 560, 480];
+/**
+ * find the firs index bigger than the current width and retract it from  the registry entries
+ */
 
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
@@ -164,31 +152,59 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     PaintFormatButton,
     BorderEditorWidget,
     TableDropdownButton,
+    Popover,
   };
 
   state: State = useState({
     menuState: { isOpen: false, position: null, menuItems: [] },
-    activeTool: "",
-    fillColor: "#ffffff",
-    textColor: "#000000",
+    visibleToolsCategories: topBarToolBarRegistry.getCategories(),
+    invisibleToolsCategories: [],
+    toolsPopoverState: { isOpen: false, position: null },
   });
+
   isSelectingMenu = false;
   openedEl: HTMLElement | null = null;
   menus: Action[] = [];
-  EDIT = ACTION_EDIT;
-  FORMAT = ACTION_FORMAT;
-  DATA = ACTION_DATA;
+
+  toolbarMenuRegistry = topBarToolBarRegistry;
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
   composerFocusStore!: Store<ComposerFocusStore>;
   fingerprints!: Store<FormulaFingerprintStore>;
+  topBarToolStore!: Store<TopBarToolStore>;
+  toolbarRef = useRef("toolbarRef");
+  moreToolsButtonRef = useRef("moreToolsButton");
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
+    this.topBarToolStore = useStore(TopBarToolStore);
     useExternalListener(window, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
+    const resizeObserver = new ResizeObserver(() => {
+      this.state.toolsPopoverState.isOpen = false;
+      this.setVisiblityToolsGroups();
+    });
+    onMounted(() => {
+      resizeObserver.observe(this.toolbarEl);
+    });
+    onWillUnmount(() => {
+      resizeObserver.disconnect();
+    });
+  }
+
+  setVisiblityToolsGroups() {
+    const { width } = this.toolbarEl.getBoundingClientRect();
+    const i = topbarToolsWidthThresholds.findLastIndex((rule) => width < rule);
+    const categories = topBarToolBarRegistry.getCategories();
+
+    this.state.visibleToolsCategories = categories.slice(0, categories.length - i - 1);
+    this.state.invisibleToolsCategories = categories.slice(categories.length - i - 1);
+  }
+
+  get toolbarEl(): Element {
+    return this.toolbarRef.el!;
   }
 
   get topbarComponents() {
@@ -224,13 +240,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  toggleDropdownTool(tool: string, ev: MouseEvent) {
-    const isOpen = this.state.activeTool === tool;
-    this.closeMenus();
-    this.state.activeTool = isOpen ? "" : tool;
-    this.openedEl = isOpen ? null : (ev.target as HTMLElement);
-  }
-
   toggleContextMenu(menu: Action, ev: MouseEvent) {
     if (this.state.menuState.isOpen && this.isntToolbarMenu) {
       this.closeMenus();
@@ -240,19 +249,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  toggleToolbarContextMenu(menuSpec: ActionSpec, ev: MouseEvent) {
-    if (this.state.menuState.isOpen && !this.isntToolbarMenu) {
-      this.closeMenus();
-    } else {
-      const menu = createAction(menuSpec);
-      this.openMenu(menu, ev);
-      this.isntToolbarMenu = false;
-    }
-  }
-
   private openMenu(menu: Action, ev: MouseEvent) {
+    this.topBarToolStore.closeDropdowns();
+    this.state.toolsPopoverState.isOpen = false;
     const { left, top, height } = (ev.currentTarget as HTMLElement).getBoundingClientRect();
-    this.state.activeTool = "";
     this.state.menuState.isOpen = true;
     this.state.menuState.position = { x: left, y: top + height };
     this.state.menuState.menuItems = menu
@@ -265,7 +265,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   closeMenus() {
-    this.state.activeTool = "";
+    this.topBarToolStore.closeDropdowns();
+    this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = false;
     this.state.menuState.parentMenu = undefined;
     this.isSelectingMenu = false;
@@ -273,9 +274,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateCellState() {
-    const style = this.env.model.getters.getCurrentStyle();
-    this.state.fillColor = style.fillColor || "#ffffff";
-    this.state.textColor = style.textColor || "#000000";
     this.menus = topbarMenuRegistry.getMenuItems();
   }
 
@@ -291,4 +289,228 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   setFontSize(fontSize: number) {
     setStyle(this.env, { fontSize });
   }
+
+  toggleMoreTools() {
+    this.topBarToolStore.closeDropdowns();
+    this.state.toolsPopoverState.isOpen = !this.state.toolsPopoverState.isOpen;
+  }
+
+  get toolsPopoverProps(): PopoverProps {
+    const rect = this.moreToolsButtonRef.el
+      ? this.moreToolsButtonRef.el.getBoundingClientRect()
+      : { x: 0, y: 0, width: 0, height: 0 };
+    const anchorRect = {
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height,
+    };
+    return {
+      anchorRect,
+      positioning: "BottomLeft",
+      verticalOffset: 0,
+      class: "rounded",
+      maxWidth: 300,
+    };
+  }
+
+  showDivider(categoryIndex: number) {
+    return (
+      categoryIndex < this.state.visibleToolsCategories.length - 1 ||
+      this.state.invisibleToolsCategories.length > 0
+    );
+  }
 }
+
+/** TODORAR put this abomination somewhere else? */
+
+topBarToolBarRegistry
+  .add("edit")
+  .addChild("edit", {
+    component: ActionButton,
+    props: {
+      action: ACTION_EDIT.undo,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 1,
+  })
+  .addChild("edit", {
+    component: ActionButton,
+    props: {
+      action: ACTION_EDIT.redo,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 2,
+  })
+  .addChild("edit", {
+    component: PaintFormatButton,
+    props: {
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 3,
+  })
+  .addChild("edit", {
+    component: ActionButton,
+    props: {
+      action: ACTION_FORMAT.clearFormat,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 4,
+  })
+
+  .add("numberFormat")
+  .addChild("numberFormat", {
+    component: ActionButton,
+    props: {
+      action: ACTION_FORMAT.formatPercent,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 1,
+  })
+  .addChild("numberFormat", {
+    component: ActionButton,
+    props: {
+      action: ACTION_FORMAT.decreaseDecimalPlaces,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 2,
+  })
+  .addChild("numberFormat", {
+    component: ActionButton,
+    props: {
+      action: ACTION_FORMAT.increaseDecimalPlaces,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 3,
+  })
+  .addChild("numberFormat", {
+    component: NumberFormatsTool,
+    props: {
+      class: "o-menu-item-button o-hoverable-button o-toolbar-button",
+    },
+    sequence: 4,
+  })
+  .add("fontSize")
+  .addChild("fontSize", {
+    component: TopBarFontSizeEditor,
+    props: {
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 3,
+  })
+  .add("textStyle")
+  .addChild("textStyle", {
+    component: ActionButton,
+    props: {
+      action: ACTION_FORMAT.formatBold,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 1,
+  })
+  .addChild("textStyle", {
+    component: ActionButton,
+    props: {
+      action: ACTION_FORMAT.formatItalic,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 2,
+  })
+  .addChild("textStyle", {
+    component: ActionButton,
+    props: {
+      action: ACTION_FORMAT.formatStrikethrough,
+      class: "o-hoverable-button o-toolbar-button",
+    },
+    sequence: 3,
+  })
+  .addChild("textStyle", {
+    component: TopBarTextColorEditor,
+    props: {
+      class: "o-hoverable-button o-menu-item-button o-toolbar-button",
+      style: "textColor",
+      icon: "o-spreadsheet-Icon.TEXT_COLOR",
+    },
+    sequence: 4,
+  })
+  .add("cellStyle")
+  .addChild("cellStyle", {
+    component: TopBarFillColorEditor,
+    props: {
+      class: "o-hoverable-button o-menu-item-button o-toolbar-button",
+      style: "fillColor",
+      icon: "o-spreadsheet-Icon.FILL_COLOR",
+    },
+    sequence: 1,
+  })
+  .addChild("cellStyle", {
+    component: BorderEditorWidget,
+    props: {
+      class: "o-hoverable-button o-menu-item-button o-toolbar-button",
+    },
+    sequence: 2,
+  })
+  .addChild("cellStyle", {
+    component: ActionButton,
+    props: {
+      action: ACTION_EDIT.mergeCells,
+      class: "o-hoverable-button o-menu-item-button o-toolbar-button",
+    },
+    sequence: 3,
+  })
+  .add("alignment")
+  .addChild("alignment", {
+    component: DropdownAction,
+    props: {
+      parentAction: ACTION_FORMAT.formatAlignmentHorizontal,
+      childActions: [
+        ACTION_FORMAT.formatAlignmentLeft,
+        ACTION_FORMAT.formatAlignmentCenter,
+        ACTION_FORMAT.formatAlignmentRight,
+      ],
+      class: "o-hoverable-button o-toolbar-button",
+      childClass: "o-hoverable-button",
+    },
+    sequence: 1,
+  })
+  .addChild("alignment", {
+    component: DropdownAction,
+    props: {
+      parentAction: ACTION_FORMAT.formatAlignmentVertical,
+      childActions: [
+        ACTION_FORMAT.formatAlignmentTop,
+        ACTION_FORMAT.formatAlignmentMiddle,
+        ACTION_FORMAT.formatAlignmentBottom,
+      ],
+      class: "o-hoverable-button o-menu-item-button o-toolbar-button",
+      childClass: "o-hoverable-button",
+    },
+    sequence: 2,
+  })
+  .addChild("alignment", {
+    component: DropdownAction,
+    props: {
+      parentAction: ACTION_FORMAT.formatWrapping,
+      childActions: [
+        ACTION_FORMAT.formatWrappingOverflow,
+        ACTION_FORMAT.formatWrappingWrap,
+        ACTION_FORMAT.formatWrappingClip,
+      ],
+      class: "o-hoverable-button o-menu-item-button o-toolbar-button",
+      childClass: "o-hoverable-button",
+    },
+    sequence: 3,
+  })
+  .add("misc")
+  .addChild("misc", {
+    component: TableDropdownButton,
+    props: { class: "toolbar-button" },
+    sequence: 1,
+  })
+  .addChild("misc", {
+    component: ActionButton,
+    props: {
+      action: ACTION_DATA.createRemoveFilterTool,
+      class: "o-hoverable-button o-menu-item-button o-toolbar-button",
+    },
+    sequence: 2,
+  });

@@ -1,0 +1,11 @@
+<templates>
+  <div t-name="o-spreadsheet-NumberFormatsTool" t-ref="buttonRef" t-on-click.stop="">
+    <ActionButton
+      action="formatNumberMenuItemSpec"
+      hasTriangleDownIcon="true"
+      onClick.bind="toggleMenu"
+      class="props.class"
+    />
+    <Menu t-if="isActive" position="state.position" menuItems="state.menuItems" onClose="() => {}"/>
+  </div>
+</templates>

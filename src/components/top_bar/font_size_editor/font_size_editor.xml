@@ -1,0 +1,11 @@
+<templates>
+  <t t-name="o-spreadsheet-TopBarFontSizeEditor">
+    <FontSizeEditor
+      currentFontSize="currentFontSize"
+      onFontSizeChanged.bind="this.setFontSize"
+      class="props.class"
+      onToggle.bind="this.onToggle"
+      onFocusInput.bind="this.onFocusInput"
+    />
+  </t>
+</templates>
