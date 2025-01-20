@@ -2,20 +2,18 @@ import {
   Component,
   onWillStart,
   onWillUpdateProps,
+  useEffect,
   useExternalListener,
+  useRef,
   useState,
 } from "@odoo/owl";
-import { Action, ActionSpec, createAction } from "../../actions/action";
-import * as ACTION_DATA from "../../actions/data_actions";
-import * as ACTION_EDIT from "../../actions/edit_actions";
-import * as ACTION_FORMAT from "../../actions/format_actions";
+import { Action } from "../../actions/action";
 import { setStyle } from "../../actions/menu_items_actions";
 import {
   ALERT_INFO_BORDER,
   BACKGROUND_HEADER_COLOR,
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
-  ComponentsImportance,
   DEFAULT_FONT_SIZE,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
@@ -25,23 +23,20 @@ import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry"
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
-import { ActionButton } from "../action_button/action_button";
-import { BorderEditorWidget } from "../border_editor/border_editor_widget";
-import { ColorPicker } from "../color_picker/color_picker";
-import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
-import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
+import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
+import { useSpreadsheetRect } from "../helpers/position_hook";
 import { Menu, MenuState } from "../menu/menu";
-import { TableDropdownButton } from "../tables/table_dropdown_button/table_dropdown_button";
-import { PaintFormatButton } from "./../paint_format_button/paint_format_button";
+import { Popover, PopoverProps } from "../popover";
+import { TopBarToolStore } from "./top_bar_tool_store";
+import { topBarToolBarRegistry } from "./top_bar_tools_registry";
 
 interface State {
   menuState: MenuState;
-  activeTool: string;
-  fillColor: string;
-  textColor: string;
+  invisibleToolsCategories: string[];
+  toolsPopoverState: { isOpen: boolean };
 }
 
 interface Props {
@@ -53,6 +48,16 @@ interface Props {
 // TopBar
 // -----------------------------------------------------------------------------
 css/* scss */ `
+  .o-topbar-divider {
+    border-right: 1px solid ${SEPARATOR_COLOR};
+    width: 0;
+    margin: 0 6px;
+  }
+
+  .o-toolbar-button {
+    height: 30px;
+  }
+
   .o-spreadsheet-topbar {
     line-height: 1.2;
     font-size: 13px;
@@ -102,47 +107,7 @@ css/* scss */ `
 
       /* Toolbar */
       .o-toolbar-tools {
-        display: flex;
-        flex-shrink: 0;
-        margin: 0px 6px 0px 16px;
         cursor: default;
-
-        .o-divider {
-          display: inline-block;
-          border-right: 1px solid ${SEPARATOR_COLOR};
-          width: 0;
-          margin: 0 6px;
-        }
-
-        .o-dropdown {
-          position: relative;
-          display: flex;
-          align-items: center;
-
-          > span {
-            height: 30px;
-          }
-
-          .o-dropdown-content {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 2px;
-            z-index: ${ComponentsImportance.Dropdown};
-            box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-            background-color: white;
-
-            .o-dropdown-line {
-              display: flex;
-
-              > span {
-                padding: 4px;
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -155,40 +120,91 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     dropdownMaxHeight: Number,
   };
   static components = {
-    ColorPickerWidget,
-    ColorPicker,
     Menu,
     TopBarComposer,
-    FontSizeEditor,
-    ActionButton,
-    PaintFormatButton,
-    BorderEditorWidget,
-    TableDropdownButton,
+    Popover,
   };
+
+  toolsCategories = topBarToolBarRegistry.getCategories();
 
   state: State = useState({
     menuState: { isOpen: false, position: null, menuItems: [] },
-    activeTool: "",
-    fillColor: "#ffffff",
-    textColor: "#000000",
+    invisibleToolsCategories: [],
+    toolsPopoverState: { isOpen: false },
   });
+
   isSelectingMenu = false;
   openedEl: HTMLElement | null = null;
   menus: Action[] = [];
-  EDIT = ACTION_EDIT;
-  FORMAT = ACTION_FORMAT;
-  DATA = ACTION_DATA;
+
+  toolbarMenuRegistry = topBarToolBarRegistry;
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
   composerFocusStore!: Store<ComposerFocusStore>;
   fingerprints!: Store<FormulaFingerprintStore>;
+  topBarToolStore!: Store<TopBarToolStore>;
+
+  toolBarContainerRef = useRef("toolBarContainer");
+  toolbarRef = useRef("toolBar");
+
+  moreToolsContainerRef = useRef("moreToolsContainer");
+  moreToolsButtonRef = useRef("moreToolsButton");
+
+  spreadsheetRect = useSpreadsheetRect();
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
+    this.topBarToolStore = useStore(TopBarToolStore);
     useExternalListener(window, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
+
+    useEffect(
+      () => {
+        this.state.toolsPopoverState.isOpen = false;
+        this.setVisibilityToolsGroups();
+      },
+      () => [this.spreadsheetRect.width]
+    );
+  }
+
+  setVisibilityToolsGroups() {
+    if (this.env.model.getters.isReadonly()) {
+      return;
+    }
+    const hiddenCategories: string[] = [];
+
+    const { x: toolsX } = this.toolbarRef.el!.getBoundingClientRect();
+    const { x } = this.toolBarContainerRef.el!.getBoundingClientRect();
+
+    // Compute the with of the button that will toggle the hidden tools
+    this.moreToolsContainerRef.el?.classList.remove("d-none");
+    const moreToolsWidth = this.moreToolsButtonRef.el?.getBoundingClientRect().width || 0;
+
+    // The actual width in which we can place our tools so that they are visible.
+    // Every tool container passed that width will be hidden.
+    // We remove 16px to the width to account for a scrollbar that might appear.
+    // Otherwise, we could end up in a loop of computation
+    const usableWidth = Math.round(this.spreadsheetRect.width) - moreToolsWidth - (toolsX - x) - 16;
+
+    const toolElements = document.querySelectorAll(".tool-container");
+
+    let currentWidth = 0;
+    for (let index = 0; index < toolElements.length; index++) {
+      const element = toolElements[index];
+      element.classList.remove("d-none");
+      const { width: toolWidth } = element.getBoundingClientRect();
+      currentWidth += toolWidth;
+      if (currentWidth > usableWidth) {
+        element.classList.add("d-none");
+        hiddenCategories.push(this.toolsCategories[index]);
+      }
+    }
+    this.state.invisibleToolsCategories = hiddenCategories;
+    if (!hiddenCategories.length) {
+      this.moreToolsContainerRef.el?.classList.add("d-none");
+    }
   }
 
   get topbarComponents() {
@@ -224,13 +240,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  toggleDropdownTool(tool: string, ev: MouseEvent) {
-    const isOpen = this.state.activeTool === tool;
-    this.closeMenus();
-    this.state.activeTool = isOpen ? "" : tool;
-    this.openedEl = isOpen ? null : (ev.target as HTMLElement);
-  }
-
   toggleContextMenu(menu: Action, ev: MouseEvent) {
     if (this.state.menuState.isOpen && this.isntToolbarMenu) {
       this.closeMenus();
@@ -240,19 +249,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  toggleToolbarContextMenu(menuSpec: ActionSpec, ev: MouseEvent) {
-    if (this.state.menuState.isOpen && !this.isntToolbarMenu) {
-      this.closeMenus();
-    } else {
-      const menu = createAction(menuSpec);
-      this.openMenu(menu, ev);
-      this.isntToolbarMenu = false;
-    }
-  }
-
   private openMenu(menu: Action, ev: MouseEvent) {
+    this.topBarToolStore.closeDropdowns();
+    this.state.toolsPopoverState.isOpen = false;
     const { left, top, height } = (ev.currentTarget as HTMLElement).getBoundingClientRect();
-    this.state.activeTool = "";
     this.state.menuState.isOpen = true;
     this.state.menuState.position = { x: left, y: top + height };
     this.state.menuState.menuItems = menu
@@ -265,7 +265,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   closeMenus() {
-    this.state.activeTool = "";
+    this.topBarToolStore.closeDropdowns();
+    this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = false;
     this.state.menuState.parentMenu = undefined;
     this.isSelectingMenu = false;
@@ -273,9 +274,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateCellState() {
-    const style = this.env.model.getters.getCurrentStyle();
-    this.state.fillColor = style.fillColor || "#ffffff";
-    this.state.textColor = style.textColor || "#000000";
     this.menus = topbarMenuRegistry.getMenuItems();
   }
 
@@ -290,5 +288,30 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   setFontSize(fontSize: number) {
     setStyle(this.env, { fontSize });
+  }
+
+  toggleMoreTools() {
+    this.topBarToolStore.closeDropdowns();
+    this.state.toolsPopoverState.isOpen = !this.state.toolsPopoverState.isOpen;
+  }
+
+  get toolsPopoverProps(): PopoverProps {
+    const rect = this.moreToolsButtonRef.el
+      ? getBoundingRectAsPOJO(this.moreToolsButtonRef.el)
+      : { x: 0, y: 0, width: 0, height: 0 };
+    return {
+      anchorRect: rect,
+      positioning: "BottomLeft",
+      verticalOffset: 0,
+      class: "rounded",
+      maxWidth: 300,
+    };
+  }
+
+  showDivider(categoryIndex: number) {
+    return (
+      categoryIndex < this.toolsCategories.length - 1 ||
+      this.state.invisibleToolsCategories.length > 0
+    );
   }
 }

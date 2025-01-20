@@ -14,7 +14,6 @@ import {
   ACTION_COLOR_HOVER,
   ALERT_DANGER_BORDER,
   BACKGROUND_GRAY_COLOR,
-  BOTTOMBAR_HEIGHT,
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
   BUTTON_BG,
@@ -348,7 +347,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     if (this.env.isDashboard()) {
       properties["grid-template-rows"] = `auto`;
     } else {
-      properties["grid-template-rows"] = `max-content auto ${BOTTOMBAR_HEIGHT + 1}px`;
+      properties["grid-template-rows"] = `min-content auto min-content`;
     }
     properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
 
@@ -489,8 +488,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   get gridHeight(): Pixel {
-    const { height } = this.env.model.getters.getSheetViewDimension();
-    return height;
+    return this.env.model.getters.getSheetViewDimension().height;
   }
 
   get gridContainerStyle(): string {

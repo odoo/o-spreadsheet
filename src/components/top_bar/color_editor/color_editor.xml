@@ -1,0 +1,16 @@
+<templates>
+  <t t-name="o-spreadsheet-ColorEditor">
+    <div class="d-flex align-items-center">
+      <ColorPickerWidget
+        currentColor="currentColor"
+        toggleColorPicker.bind="onClick"
+        showColorPicker="isMenuOpen"
+        onColorPicked="(color) => this.setColor(color)"
+        title="props.title"
+        icon="props.icon"
+        dropdownMaxHeight="dropdownMaxHeight"
+        class="props.class"
+      />
+    </div>
+  </t>
+</templates>
