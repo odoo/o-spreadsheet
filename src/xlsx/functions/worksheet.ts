@@ -97,7 +97,7 @@ export function addRows(
         let cellNode = escapeXml``;
         // Either formula or static value inside the cell
         if (cell.isFormula) {
-          const res = addFormula(cell);
+          const res = addFormula(cell, sheet.formulaSpillRanges[xc] ?? xc);
           if (!res) {
             continue;
           }
