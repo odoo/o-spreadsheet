@@ -229,7 +229,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const zone = this.env.model.getters.getSelectedZone();
+    const zone = positionToZone(this.env.model.getters.getSelection().anchor.cell);
     const rect = this.env.model.getters.getVisibleRect(zone);
     if (!deepEquals(rect, this.rect) || sheetId !== this.composerStore.currentEditedCell.sheetId) {
       this.isCellReferenceVisible = true;
