@@ -3,6 +3,12 @@
  * https://chartjs-chart-treemap.pages.dev/
  * (c) 2024 Jukka Kurkela
  * Released under the MIT license
+ *
+ * This library is slightly patched to allow to render a tree map with parent groups that looks more like a header
+ * rather than an enclosing box (see "PATCH" comments).
+ *
+ * This is a quick fix, that works very well for our use case, but that make charts ugly if
+ * we deviate from it (for example if dataset.spacing is not 0.)
  */
 (function (global, factory) {
   typeof exports === "object" && typeof module !== "undefined"
@@ -328,15 +334,22 @@
     if (!options || options.display === false) {
       return false;
     }
-    const { w, h } = rect;
-    const font = helpers.toFont(options.font);
-    const min = font.lineHeight;
-    const padding = limit(helpers.valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
-    return w - padding > min && h - padding > min;
+    // PATCH: always draw group header if they are enabled. Whether the text is displayed or not is handled in drawCaption
+    return true;
+    // const { w, h } = rect;
+    // const font = helpers.toFont(options.font);
+    // const min = font.lineHeight;
+    // const padding = limit(helpers.valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
+    // return w - padding > min && h - padding > min;
+  }
+
+  function getCaptionHeight(rect, font, padding) {
+    let captionHeight = font.lineHeight + padding * 2;
+    return rect.h < 2 * captionHeight ? rect.h / 3 : captionHeight;
   }
 
   function drawText(ctx, rect, options, item, levels) {
-    const { captions, labels } = options;
+    const { labels } = options;
     ctx.save();
     ctx.beginPath();
     ctx.rect(rect.x, rect.y, rect.w, rect.h);
@@ -344,7 +357,8 @@
     const isLeaf = item && (!helpers.defined(item.l) || item.l === levels);
     if (isLeaf && labels.display) {
       drawLabel(ctx, rect, options);
-    } else if (!isLeaf && shouldDrawCaption(rect, captions)) {
+      // PATCH: always try to draw caption label in header. We'll try to fit it in the available space in the draw function
+    } else if (!isLeaf /* && shouldDrawCaption(rect, captions) */) {
       drawCaption(ctx, rect, options, item);
     }
     ctx.restore();
@@ -352,18 +366,56 @@
 
   function drawCaption(ctx, rect, options, item) {
     const { captions, spacing, rtl } = options;
-    const { color, hoverColor, font, hoverFont, padding, align, formatter } = captions;
-    const oColor = (rect.active ? hoverColor : color) || color;
-    const oAlign = align || (rtl ? "right" : "left");
+    let { color, hoverColor, font, hoverFont, padding, align, formatter } = captions;
     const optFont = (rect.active ? hoverFont : font) || font;
     const oFont = helpers.toFont(optFont);
+    const fonts = [oFont];
+    // PATCH: do not draw caption if there is not enough vertical space
+    const captionHeight = getCaptionHeight(rect, oFont, padding);
+    if (oFont.lineHeight + padding * 2 > captionHeight) {
+      return;
+    }
+    // PATCH: slice text to fit the available space
+    let text = formatter || item.g;
+    const captionSize = measureLabelSize(ctx, [formatter], fonts);
+    if (captionSize.width + 2 * padding > rect.w) {
+      text = sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts);
+    }
+    const oColor = (rect.active ? hoverColor : color) || color;
+    const oAlign = align || (rtl ? "right" : "left");
     const lh = oFont.lineHeight / 2;
     const x = calculateX(rect, oAlign, padding);
     ctx.fillStyle = oColor;
     ctx.font = oFont.string;
     ctx.textAlign = oAlign;
     ctx.textBaseline = "middle";
-    ctx.fillText(formatter || item.g, x, rect.y + padding + spacing + lh);
+    ctx.fillText(text, x, rect.y + padding + spacing + lh);
+  }
+
+  function sliceTextToFitWidth(ctx, text, width, fonts) {
+    const ellipsis = "…";
+    const ellipsisWidth = measureLabelSize(ctx, [ellipsis], fonts).width;
+    if (ellipsisWidth >= width) {
+      return "";
+    }
+
+    let lowerBoundLen = 1;
+    let upperBoundLen = text.length;
+    let currentWidth = undefined;
+
+    while (lowerBoundLen <= upperBoundLen) {
+      const currentLen = Math.floor((lowerBoundLen + upperBoundLen) / 2);
+      const currentText = text.slice(0, currentLen);
+      currentWidth = measureLabelSize(ctx, [currentText], fonts).width;
+      if (currentWidth + ellipsisWidth > width) {
+        upperBoundLen = currentLen - 1;
+      } else {
+        lowerBoundLen = currentLen + 1;
+      }
+    }
+
+    const slicedText = text.slice(0, Math.max(0, lowerBoundLen - 1));
+    return slicedText ? slicedText + ellipsis : "";
   }
 
   function measureLabelSize(ctx, lines, fonts) {
@@ -510,12 +562,21 @@
       super();
 
       this.options = undefined;
-      this.width = undefined;
+      this._width = undefined;
       this.height = undefined;
+      this.isLeaf = false;
 
       if (cfg) {
         Object.assign(this, cfg);
       }
+    }
+
+    get width() {
+      return this._width;
+    }
+
+    set width(value) {
+      this._width = value;
     }
 
     draw(ctx, data, levels = 0) {
@@ -572,6 +633,17 @@
     }
 
     tooltipPosition() {
+      // PATCH: return center of header rather than center of rectangle for parent groups
+      if (!this.isLeaf) {
+        const { x, y, width, height } = this.getProps(["x", "y", "width", "height"]);
+        const rect = { x, y, w: width, h: height };
+        const { captions } = this.options;
+        let { font, hoverFont, padding } = captions;
+        const optFont = (this.active ? hoverFont : font) || font;
+        const oFont = helpers.toFont(optFont);
+        const headerHeight = getCaptionHeight(rect, oFont, padding);
+        return { x: x + width / 2, y: y + headerHeight / 2 };
+      }
       return this.getCenterPoint();
     }
 
@@ -621,7 +693,7 @@
       padding: 3,
     },
     rtl: false,
-    spacing: 0.5,
+    spacing: 0,
     unsorted: false,
   };
 
@@ -948,7 +1020,9 @@
     }
     const groups = dataset.groups || [];
     const glen = groups.length;
-    const sp = helpers.valueOrDefault(dataset.spacing, 0);
+    // PATCH: Ignore spacing
+    const sp = 0;
+    // const sp = valueOrDefault(dataset.spacing, 0);
     const captions = dataset.captions || {};
     const font = helpers.toFont(captions.font);
     const padding = helpers.valueOrDefault(captions.padding, 3);
@@ -969,7 +1043,9 @@
       const ret = gsq.slice();
       if (gidx < glen - 1) {
         gsq.forEach((sq) => {
-          const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+          // PATCH: Do not include border to compute box size
+          const bw = parseBorderWidth(0, sq.w / 2, sq.h / 2);
+          // const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
           const subRect = {
             ...rect,
             x: sq.x + sp + bw.l,
@@ -978,8 +1054,10 @@
             h: sq.h - 2 * sp - bw.t - bw.b,
           };
           if (shouldDrawCaption(subRect, captions)) {
-            subRect.y += font.lineHeight + padding * 2;
-            subRect.h -= font.lineHeight + padding * 2;
+            // PATCH: reduce header height if there is no space
+            const captionHeight = getCaptionHeight(subRect, font, padding);
+            subRect.y += captionHeight;
+            subRect.h -= captionHeight;
           }
           gdata.forEach((gEl) => {
             ret.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
@@ -1079,6 +1157,7 @@
       const sharedOptions = this.getSharedOptions(firstOpts);
       const includeOptions = this.includeOptions(mode, sharedOptions);
       const { xScale, yScale } = this.getMeta(this.index);
+      const maxDepth = dataset.groups.length - 1;
 
       for (let i = start; i < start + count; i++) {
         const options = sharedOptions || this.resolveDataElementOptions(i, mode);
@@ -1087,6 +1166,8 @@
           properties.width = 0;
           properties.height = 0;
         }
+        // PATCH: add this property to compute the tooltip position
+        properties.isLeaf = dataset.data[i].l === maxDepth;
 
         if (includeOptions) {
           properties.options = options;
