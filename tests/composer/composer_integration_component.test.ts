@@ -18,6 +18,7 @@ import {
   resizeRows,
   selectCell,
   setCellContent,
+  setSelection,
 } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -246,6 +247,7 @@ describe("Composer interactions", () => {
   });
 
   test("Starting the edition should not display the cell reference", async () => {
+    setSelection(model, ["A1:A2"]);
     await startComposition();
     expect(fixture.querySelector(".o-grid div.o-cell-reference")).toBeNull();
   });
