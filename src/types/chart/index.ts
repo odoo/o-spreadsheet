@@ -1,5 +1,6 @@
 export * from "./bar_chart";
 export * from "./chart";
+export * from "./chartjs_tree_map_type";
 export * from "./common_chart";
 export * from "./funnel_chart";
 export * from "./gauge_chart";
