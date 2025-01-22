@@ -44,7 +44,7 @@ export type ChartDefinition =
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
-  { dataSets: CustomizedDataSet[]; labelRange?: string }
+  { dataSets: CustomizedDataSet[]; labelRange?: string[] }
 >;
 
 export type ChartJSRuntime =
@@ -131,7 +131,7 @@ export interface ExcelChartDefinition {
   readonly title?: TitleDesign;
   readonly type: ExcelChartType;
   readonly dataSets: ExcelChartDataset[];
-  readonly labelRange?: string;
+  readonly labelRange?: string[];
   readonly backgroundColor: XlsxHexColor;
   readonly fontColor: XlsxHexColor;
   readonly legendPosition: LegendPosition;
@@ -148,7 +148,7 @@ export interface ChartCreationContext {
   readonly range?: CustomizedDataSet[];
   readonly title?: TitleDesign;
   readonly background?: string;
-  readonly auxiliaryRange?: string;
+  readonly auxiliaryRange?: string[];
   readonly aggregated?: boolean;
   readonly stacked?: boolean;
   readonly cumulative?: boolean;
@@ -168,7 +168,7 @@ export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefi
 export interface ChartRuntimeGenerationArgs {
   dataSetsValues: DatasetValues[];
   axisFormats: ChartAxisFormats;
-  labels: string[];
+  labels: (string | string[])[];
   locale: Locale;
   trendDataSetsValues?: (Point[] | undefined)[];
   axisType?: AxisType;

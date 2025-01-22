@@ -111,7 +111,7 @@ describe("Collaborative range manipulation", () => {
       alice,
       {
         dataSets: [{ dataRange: "A2" }],
-        labelRange: "A1",
+        labelRange: ["A1"],
         dataSetsHaveTitle: false,
         type: "line",
       },

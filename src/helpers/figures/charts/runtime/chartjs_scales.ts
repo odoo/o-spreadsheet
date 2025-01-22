@@ -94,7 +94,7 @@ export function getLineChartScales(
   if (axisType === "time" && labels && labelFormat) {
     const axis = {
       type: "time",
-      time: getChartTimeOptions(labels, labelFormat, locale),
+      time: getChartTimeOptions(labels as string[], labelFormat, locale),
     };
     Object.assign(scales!.x!, axis);
     scales!.x!.ticks!.maxTicksLimit = 15;

@@ -84,7 +84,7 @@ describe("datasource tests", function () {
       background: "#123456",
       title: { text: "hello there" },
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      auxiliaryRange: "Sheet1!A1:A4",
+      auxiliaryRange: ["Sheet1!A1:A4"],
       legendPosition: "bottom",
       cumulative: true,
       labelsAsText: true,

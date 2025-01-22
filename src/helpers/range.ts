@@ -213,6 +213,12 @@ export function createValidRange(
   return !(range.invalidSheetName || range.invalidXc) ? range : undefined;
 }
 
+export function createValidRanges(getters: CoreGetters, sheetId: UID, xcs?: string[]): Range[] {
+  if (xcs === undefined) return [];
+  const ranges = xcs.map((xc) => getters.getRangeFromSheetXC(sheetId, xc));
+  return ranges.filter((range) => !(range.invalidSheetName || range.invalidXc));
+}
+
 /**
  * Spread multiple colrows zone to one row/col zone and add a many new input range as needed.
  * For example, A1:B4 will become [A1:A4, B1:B4]

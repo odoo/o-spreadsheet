@@ -6,7 +6,7 @@ import { LegendPosition } from "./common_chart";
 export interface RadarChartDefinition {
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
+  readonly labelRange?: string[];
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;

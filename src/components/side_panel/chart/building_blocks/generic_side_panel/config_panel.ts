@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { createValidRange, spreadRange } from "../../../../../helpers";
+import { createValidRanges, spreadRange } from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
 import { _t } from "../../../../../translation";
@@ -55,7 +55,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   });
 
   protected dataSets: CustomizedDataSet[] = [];
-  private labelRange: string | undefined;
+  private labelRange: string[] | undefined;
 
   protected chartTerms = ChartTerms;
 
@@ -171,7 +171,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
    * button "confirm" is clicked
    */
   onLabelRangeChanged(ranges: string[]) {
-    this.labelRange = ranges[0];
+    this.labelRange = ranges;
     this.state.labelsDispatchResult = this.props.canUpdateChart(this.props.figureId, {
       labelRange: this.labelRange,
     });
@@ -183,8 +183,25 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     });
   }
 
-  getLabelRange(): string {
-    return this.labelRange || "";
+  onLabelRangeRemoved(index: number) {
+    if (!this.labelRange) {
+      return;
+    }
+    this.labelRange = this.labelRange.filter((_, i) => i !== index);
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
+      labelRange: this.labelRange,
+    });
+  }
+
+  onLabelRangesReordered(indexes: number[]) {
+    this.labelRange = indexes.map((i) => this.labelRange![i]);
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
+      labelRange: this.labelRange,
+    });
+  }
+
+  getLabelRange(): string[] {
+    return this.labelRange ?? [];
   }
 
   onUpdateAggregated(aggregated: boolean) {
@@ -199,7 +216,6 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     }
     const getters = this.env.model.getters;
     const sheetId = getters.getActiveSheetId();
-    const labelRange = createValidRange(getters, sheetId, this.labelRange);
     const dataSets = createDataSets(
       getters,
       this.dataSets,
@@ -208,8 +224,11 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     );
     if (dataSets.length) {
       return dataSets[0].dataRange.zone.top + 1;
-    } else if (labelRange) {
-      return labelRange.zone.top + 1;
+    }
+
+    const labelRanges = createValidRanges(getters, sheetId, this.labelRange);
+    if (labelRanges?.length) {
+      return Math.min(...labelRanges.map((labelRange) => labelRange.zone.top + 1));
     }
     return undefined;
   }

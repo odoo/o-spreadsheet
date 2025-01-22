@@ -96,7 +96,7 @@ export function getWaterfallDatasetAndLabels(
   for (const dataSetsValue of dataSetsValues) {
     for (let i = 0; i < dataSetsValue.data.length; i++) {
       const data = dataSetsValue.data[i];
-      labelsWithSubTotals.push(labels[i]);
+      labelsWithSubTotals.push(labels[i].toString());
       if (isNaN(Number(data))) {
         datasetValues.push([lastValue, lastValue]);
         backgroundColor.push("");
@@ -301,9 +301,12 @@ export function getGeoChartDatasets(
         if (!labels[i] || dataSetsValues[0].data[i] === undefined) {
           continue;
         }
-        const featureId = args.geoFeatureNameToId(regionName, labels[i]);
+        const featureId = args.geoFeatureNameToId(regionName, labels[i].toString());
         if (featureId) {
-          labelsAndValues[featureId] = { value: dataSetsValues[0].data[i], label: labels[i] };
+          labelsAndValues[featureId] = {
+            value: dataSetsValues[0].data[i],
+            label: labels[i].toString(),
+          };
         }
       }
     }

@@ -201,7 +201,7 @@ export class ScorecardChart extends AbstractChart {
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-      baseline: context.auxiliaryRange || "",
+      baseline: context.auxiliaryRange?.[0] || "",
     };
   }
 
@@ -248,7 +248,7 @@ export class ScorecardChart extends AbstractChart {
         ? [{ dataRange: this.getters.getRangeString(this.keyValue, this.sheetId) }]
         : undefined,
       auxiliaryRange: this.baseline
-        ? this.getters.getRangeString(this.baseline, this.sheetId)
+        ? [this.getters.getRangeString(this.baseline, this.sheetId)]
         : undefined,
     };
   }

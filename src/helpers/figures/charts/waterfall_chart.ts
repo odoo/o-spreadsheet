@@ -24,7 +24,7 @@ import {
   WaterfallChartRuntime,
 } from "../../../types/chart/waterfall_chart";
 import { Validator } from "../../../types/validator";
-import { createValidRange } from "../../range";
+import { createValidRanges } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
@@ -49,7 +49,7 @@ import {
 
 export class WaterfallChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRange?: Range[] | undefined;
   readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
@@ -74,7 +74,7 @@ export class WaterfallChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRanges(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
@@ -135,19 +135,19 @@ export class WaterfallChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
-        : undefined,
+      auxiliaryRange: this.labelRange?.map((lr) => this.getters.getRangeString(lr, this.sheetId)),
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): WaterfallChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
+    const labelRange: Range[] = [];
+    for (const lr of this.labelRange ?? []) {
+      const duplicated = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, lr);
+      if (duplicated) {
+        labelRange.push(duplicated);
+      }
+    }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
     return new WaterfallChart(definition, newSheetId, this.getters);
   }
@@ -167,7 +167,7 @@ export class WaterfallChart extends AbstractChart {
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRange: Range[] | undefined,
     targetSheetId?: UID
   ): WaterfallChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -184,9 +184,9 @@ export class WaterfallChart extends AbstractChart {
       dataSets: ranges,
       legendPosition: this.legendPosition,
       verticalAxisPosition: this.verticalAxisPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
+      labelRange: labelRange?.map((lr) =>
+        this.getters.getRangeString(lr, targetSheetId || this.sheetId)
+      ),
       title: this.title,
       aggregated: this.aggregated,
       showSubTotals: this.showSubTotals,

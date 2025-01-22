@@ -355,7 +355,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [{ dataRange: "B2:B5", yAxisId: "y" }];
-    payload.definition.labelRange = "A2:A5";
+    payload.definition.labelRange = ["A2:A5"];
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
 
@@ -364,7 +364,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [{ dataRange: "B1:B5", yAxisId: "y" }];
-    payload.definition.labelRange = "A1:A5";
+    payload.definition.labelRange = ["A1:A5"];
     payload.definition.dataSetsHaveTitle = true;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
@@ -374,7 +374,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [{ dataRange: "B1:B5", yAxisId: "y" }];
-    payload.definition.labelRange = "A1:A5";
+    payload.definition.labelRange = ["A1:A5"];
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.legendPosition = "none";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
@@ -385,7 +385,7 @@ describe("Insert chart menu item", () => {
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [{ dataRange: "G1:I5", yAxisId: "y" }];
     payload.definition.dataSetsHaveTitle = true;
-    payload.definition.labelRange = "F1:F5";
+    payload.definition.labelRange = ["F1:F5"];
     payload.definition.legendPosition = "top";
     payload.definition.type = "line";
     payload.definition.cumulative = false;
@@ -422,7 +422,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [{ dataRange: "B1:H5", yAxisId: "y" }];
-    payload.definition.labelRange = "A1:A5";
+    payload.definition.labelRange = ["A1:A5"];
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.legendPosition = "top";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
@@ -441,7 +441,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [{ dataRange: "L1:L3", yAxisId: "y" }];
-    payload.definition.labelRange = "K1:K3";
+    payload.definition.labelRange = ["K1:K3"];
     payload.definition.type = "line";
     payload.definition.cumulative = false;
     payload.definition.labelsAsText = false;
@@ -461,7 +461,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [{ dataRange: "L1:L3", yAxisId: "y" }];
-    payload.definition.labelRange = "K1:K3";
+    payload.definition.labelRange = ["K1:K3"];
     payload.definition.type = "line";
     payload.definition.cumulative = false;
     payload.definition.labelsAsText = false;
@@ -483,7 +483,7 @@ describe("Insert chart menu item", () => {
       ...defaultPayload,
       definition: {
         dataSets: [{ dataRange: "K1:K6" }],
-        labelRange: "K1:K6",
+        labelRange: ["K1:K6"],
         aggregated: true,
         legendPosition: "top",
         type: "pie",
@@ -500,7 +500,7 @@ describe("Insert chart menu item", () => {
     const chartId = model.getters.getChartIds(model.getters.getActiveSheetId())[0];
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       dataSets: [{ dataRange: "B:B" }],
-      labelRange: "A:A",
+      labelRange: ["A:A"],
     });
   });
 });

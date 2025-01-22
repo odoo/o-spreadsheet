@@ -18,27 +18,23 @@ import {
   CustomizedDataSet,
   DataSet,
   DatasetDesign,
-  ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { LineChartDefinition } from "../../../types/chart/line_chart";
-import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
+import { createValidRanges } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
+  convertToExcelDataSetAndLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
-  shouldRemoveFirstLabel,
-  toExcelDataset,
-  toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -56,7 +52,7 @@ import {
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRange?: Range[] | undefined;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
@@ -78,7 +74,7 @@ export class LineChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRanges(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
@@ -131,7 +127,7 @@ export class LineChart extends AbstractChart {
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRange: Range[] | undefined,
     targetSheetId?: UID
   ): LineChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -141,15 +137,16 @@ export class LineChart extends AbstractChart {
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
       });
     }
+    let newLabelRange = labelRange?.map((lr) =>
+      this.getters.getRangeString(lr, targetSheetId || this.sheetId)
+    );
     return {
       type: "line",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
+      labelRange: newLabelRange?.length ? newLabelRange : undefined,
       title: this.title,
       labelsAsText: this.labelsAsText,
       stacked: this.stacked,
@@ -172,9 +169,7 @@ export class LineChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
-        : undefined,
+      auxiliaryRange: this.labelRange?.map((lr) => this.getters.getRangeString(lr, this.sheetId)),
     };
   }
 
@@ -195,32 +190,30 @@ export class LineChart extends AbstractChart {
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     // Excel does not support aggregating labels
     if (this.aggregated) return undefined;
-    const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
-    const labelRange = toExcelLabelRange(
-      this.getters,
-      this.labelRange,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
-    );
     const definition = this.getDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
-      dataSets,
-      labelRange,
+      ...convertToExcelDataSetAndLabelRange(
+        this.getters,
+        this.dataSets,
+        this.labelRange,
+        this.dataSetsHaveTitle
+      ),
       verticalAxis: getDefinedAxis(definition),
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): LineChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
+    const labelRange: Range[] = [];
+    for (const lr of this.labelRange ?? []) {
+      const duplicated = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, lr);
+      if (duplicated) {
+        labelRange.push(duplicated);
+      }
+    }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
     return new LineChart(definition, newSheetId, this.getters);
   }

@@ -777,22 +777,13 @@ describe("Import xlsx data", () => {
       expect(chartData.type).toEqual(chartType);
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
-      expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
+      expect(chartData.labelRange).toEqual(["Sheet1!A27:A35"]);
       expect(chartData.dataSets).toEqual(chartDatasets);
       expect(chartData.dataSetsHaveTitle).toBeFalsy();
     }
   );
 
   test.each([
-    [
-      "line chart",
-      "line",
-      "#CECECE",
-      [
-        { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
-        { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
-      ],
-    ],
     ["pie chart", "pie", "#fff", [{ dataRange: "Sheet1!B26:B35", backgroundColor: "#1F77B4" }]],
     [
       "doughnut chart",
@@ -813,11 +804,27 @@ describe("Import xlsx data", () => {
       expect(chartData.type).toEqual(chartType);
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
-      expect(chartData.labelRange).toEqual("Sheet1!A26:A35");
+      expect(chartData.labelRange).toEqual(["Sheet1!A26:A35"]);
       expect(chartData.dataSets).toEqual(chartDatasets);
       expect(chartData.dataSetsHaveTitle).toBeTruthy();
     }
   );
+
+  test("Can import charts with multiple labels", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.data.title.text === "line chart")!;
+    const chartData = figure.data as LineChartDefinition | PieChartDefinition;
+    expect(chartData.title.text).toEqual("line chart");
+    expect(chartData.type).toEqual("line");
+    expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#CECECE"));
+
+    expect(chartData.labelRange).toEqual(["Sheet1!A26:A35", "Sheet1!G1:G10"]);
+    expect(chartData.dataSets).toEqual([
+      { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
+      { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
+    ]);
+    expect(chartData.dataSetsHaveTitle).toBeTruthy();
+  });
 
   test("Can import scatter plot", () => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
@@ -827,7 +834,7 @@ describe("Import xlsx data", () => {
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
     expect(chartData.dataSets).toEqual([{ dataRange: "Sheet1!C27:C35" }]);
-    expect(chartData.labelRange).toEqual("Sheet1!B27:B35");
+    expect(chartData.labelRange).toEqual(["Sheet1!B27:B35"]);
     expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
 

@@ -14,12 +14,13 @@
         hasSingleRange="true"
       />
       <ChartLabelRange
-        range="this.getLabelRange()"
+        ranges="this.getLabelRange()"
         isInvalid="isLabelInvalid"
         onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
         onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         options="this.getLabelRangeOptions()"
         title.translate="Territories"
+        hasSingleRange="true"
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>

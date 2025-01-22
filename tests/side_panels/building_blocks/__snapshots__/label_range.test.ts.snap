@@ -39,6 +39,11 @@ exports[`Label range Can add options to the label range component 1`] = `
       <div
         class="d-flex flex-row w-100 o-selection-input"
       >
+        <button
+          class="o-button o-add-selection"
+        >
+           Add range 
+        </button>
         
         
       </div>
@@ -100,6 +105,11 @@ exports[`Label range Can render a label range component 1`] = `
       <div
         class="d-flex flex-row w-100 o-selection-input"
       >
+        <button
+          class="o-button o-add-selection"
+        >
+           Add range 
+        </button>
         
         
       </div>
