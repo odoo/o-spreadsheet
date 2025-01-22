@@ -267,14 +267,14 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
   } else if (ds.labelCell) {
     label = {
       reference: getters.getRangeString(ds.labelCell, "forceSheetReference", {
-        useFixedReference: true,
+        useBoundedReference: true,
       }),
     };
   }
 
   return {
     label,
-    range: getters.getRangeString(dataRange, "forceSheetReference", { useFixedReference: true }),
+    range: getters.getRangeString(dataRange, "forceSheetReference", { useBoundedReference: true }),
     backgroundColor: ds.backgroundColor,
     rightYAxis: ds.rightYAxis,
   };
@@ -293,7 +293,7 @@ export function toExcelLabelRange(
     zone.top = zone.top + 1;
   }
   const range = labelRange.clone({ zone });
-  return getters.getRangeString(range, "forceSheetReference", { useFixedReference: true });
+  return getters.getRangeString(range, "forceSheetReference", { useBoundedReference: true });
 }
 
 /**

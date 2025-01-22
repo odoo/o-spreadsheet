@@ -366,9 +366,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
    * @param options
-   * @param options.useFixedReference if true, the range will be returned with fixed row and column
+   * @param options.useBoundedReference if true, the range will be returned with fixed row and column
    */
-  getRangeString(range: Range, forSheetId: UID, options = { useFixedReference: false }): string {
+  getRangeString(range: Range, forSheetId: UID, options = { useBoundedReference: false }): string {
     if (!range) {
       return CellErrorType.InvalidReference;
     }
@@ -498,7 +498,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getRangePartString(
     range: RangeImpl,
     part: 0 | 1,
-    options: { useFixedReference: boolean } = { useFixedReference: false }
+    options: { useBoundedReference: boolean } = { useBoundedReference: false }
   ): string {
     const colFixed = range.parts && range.parts[part]?.colFixed ? "$" : "";
     const col = part === 0 ? numberToLetters(range.zone.left) : numberToLetters(range.zone.right);
@@ -506,13 +506,13 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const row = part === 0 ? String(range.zone.top + 1) : String(range.zone.bottom + 1);
 
     let str = "";
-    if (range.isFullCol && !options.useFixedReference) {
+    if (range.isFullCol && !options.useBoundedReference) {
       if (part === 0 && range.unboundedZone.hasHeader) {
         str = colFixed + col + rowFixed + row;
       } else {
         str = colFixed + col;
       }
-    } else if (range.isFullRow && !options.useFixedReference) {
+    } else if (range.isFullRow && !options.useBoundedReference) {
       if (part === 0 && range.unboundedZone.hasHeader) {
         str = colFixed + col + rowFixed + row;
       } else {
