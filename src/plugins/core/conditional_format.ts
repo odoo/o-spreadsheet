@@ -208,7 +208,7 @@ export class ConditionalFormatPlugin
       for (let sheet of data.sheets) {
         if (this.cfRules[sheet.id]) {
           sheet.conditionalFormats = this.cfRules[sheet.id].map((rule) =>
-            this.mapToConditionalFormat(sheet.id, rule, { useFixedReference: true })
+            this.mapToConditionalFormat(sheet.id, rule, { useBoundedReference: true })
           );
         }
       }
@@ -300,10 +300,10 @@ export class ConditionalFormatPlugin
   private mapToConditionalFormat(
     sheetId: UID,
     cf: ConditionalFormatInternal,
-    { useFixedReference } = { useFixedReference: false }
+    { useBoundedReference } = { useBoundedReference: false }
   ): ConditionalFormat {
     const ranges = cf.ranges.map((range) => {
-      return this.getters.getRangeString(range, sheetId, { useFixedReference });
+      return this.getters.getRangeString(range, sheetId, { useBoundedReference });
     });
     if (cf.rule.type !== "DataBarRule") {
       return {
@@ -319,7 +319,7 @@ export class ConditionalFormatPlugin
         rangeValues:
           cf.rule.rangeValues &&
           this.getters.getRangeString(cf.rule.rangeValues!, sheetId, {
-            useFixedReference,
+            useBoundedReference,
           }),
       },
       ranges,

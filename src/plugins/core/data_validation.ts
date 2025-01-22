@@ -274,13 +274,13 @@ export class DataValidationPlugin
         const excelRule = {
           ...deepCopy(rule),
           ranges: rule.ranges.map((range) =>
-            this.getters.getRangeString(range, sheet.id, { useFixedReference: true })
+            this.getters.getRangeString(range, sheet.id, { useBoundedReference: true })
           ),
         };
         if (rule.criterion.type === "isValueInRange") {
           excelRule.criterion.values = rule.criterion.values.map((value) => {
             const range = this.getters.getRangeFromSheetXC(sheet.id, value);
-            return this.getters.getRangeString(range, sheet.id, { useFixedReference: true });
+            return this.getters.getRangeString(range, sheet.id, { useBoundedReference: true });
           });
         }
         sheet.dataValidationRules.push(excelRule);
