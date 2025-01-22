@@ -23277,10 +23277,15 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Data validati
     </cols>
     <sheetData>
     </sheetData>
-    <dataValidations count="4">
+    <dataValidations count="5">
         <dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1" errorStyle="warning" sqref="A1:A5" type="list">
             <formula1>
                 A1:A5
+            </formula1>
+        </dataValidation>
+        <dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1" errorStyle="warning" sqref="A1:A100" type="list">
+            <formula1>
+                A1:A100
             </formula1>
         </dataValidation>
         <dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1" errorStyle="warning" sqref="B1:B5" type="decimal" operator="greaterThan">
