@@ -654,6 +654,14 @@ describe("Test XLSX export", () => {
                 },
               },
               {
+                ranges: ["A1:A"],
+                criterion: {
+                  type: "isValueInRange",
+                  values: ["A1:A"],
+                  isBlocking: true,
+                },
+              },
+              {
                 ranges: ["B1:B5"],
                 criterion: {
                   type: "isGreaterThan",
