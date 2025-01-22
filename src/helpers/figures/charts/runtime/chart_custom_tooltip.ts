@@ -50,13 +50,16 @@ const templates = /* xml */ `
 </templates>
 `;
 
-const app = new App(Component, { templates, translateFn: _t });
+let app: App | undefined;
 
 export function renderToString(templateName: string, context: any = {}) {
   return render(templateName, context).innerHTML;
 }
 
 function render(templateName: string, context: any = {}) {
+  if (!app) {
+    app = new App(Component, { templates, translateFn: _t });
+  }
   const templateFn = app.getTemplate(templateName);
   const bdom = templateFn(context, {});
   const div = document.createElement("div");
