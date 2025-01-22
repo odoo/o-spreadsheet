@@ -271,12 +271,19 @@ export class DataValidationPlugin
     for (const sheet of data.sheets) {
       sheet.dataValidationRules = [];
       for (const rule of this.rules[sheet.id]) {
-        sheet.dataValidationRules.push({
-          ...rule,
+        const excelRule = {
+          ...deepCopy(rule),
           ranges: rule.ranges.map((range) =>
             this.getters.getRangeString(range, sheet.id, { useFixedReference: true })
           ),
-        });
+        };
+        if (rule.criterion.type === "isValueInRange") {
+          excelRule.criterion.values = rule.criterion.values.map((value) => {
+            const range = this.getters.getRangeFromSheetXC(sheet.id, value);
+            return this.getters.getRangeString(range, sheet.id, { useFixedReference: true });
+          });
+        }
+        sheet.dataValidationRules.push(excelRule);
       }
     }
   }
