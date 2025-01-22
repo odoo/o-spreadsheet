@@ -399,7 +399,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     sheetId: UID,
     tokens: Token[],
     dependencies: Range[],
-    useFixedReference: boolean = false
+    useBoundedReference: boolean = false
   ): string {
     if (!dependencies.length) {
       return concat(tokens.map((token) => token.value));
@@ -409,7 +409,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       tokens.map((token) => {
         if (token.type === "REFERENCE") {
           const range = dependencies[rangeIndex++];
-          return this.getters.getRangeString(range, sheetId, { useFixedReference });
+          return this.getters.getRangeString(range, sheetId, { useBoundedReference });
         }
         return token.value;
       })
@@ -740,7 +740,7 @@ export class FormulaCellWithDependencies implements FormulaCell {
     private readonly getRangeString: (
       range: Range,
       sheetId: UID,
-      option?: { useFixedReference: boolean }
+      option?: { useBoundedReference: boolean }
     ) => string
   ) {
     let rangeIndex = 0;
@@ -769,7 +769,7 @@ export class FormulaCellWithDependencies implements FormulaCell {
         if (token.type === "REFERENCE") {
           const index = rangeIndex++;
           return this.getRangeString(this.compiledFormula.dependencies[index], this.sheetId, {
-            useFixedReference: true,
+            useBoundedReference: true,
           });
         }
         return token.value;

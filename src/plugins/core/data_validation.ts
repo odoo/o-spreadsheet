@@ -276,7 +276,7 @@ export class DataValidationPlugin
         sheet.dataValidationRules.push({
           ...rule,
           ranges: rule.ranges.map((range) =>
-            this.getters.getRangeString(range, sheet.id, { useFixedReference: true })
+            this.getters.getRangeString(range, sheet.id, { useBoundedReference: true })
           ),
         });
       }
