@@ -180,10 +180,10 @@ describe("MATCH formula", () => {
     const ascendingAsDescending = { ...rangeAscending, ...evAsDescending };
     const aAsD = evaluateGrid(ascendingAsDescending);
 
-    expect(aAsD.D1).toBe(3); // @compatibility: on googlesheets, return 6
-    expect(aAsD.D2).toBe(3); // @compatibility: on googlesheets, return 6
-    expect(aAsD.D3).toBe(3); // @compatibility: on googlesheets, return 6
-    expect(aAsD.D4).toBe("#ERROR"); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D1).toBe(4); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D2).toBe(4); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D3).toBe(4); // @compatibility: on googlesheets, return 6
+    expect(aAsD.D4).toBe(4); // @compatibility: on googlesheets, return 6
     expect(aAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(aAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(aAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
@@ -218,12 +218,12 @@ describe("MATCH formula", () => {
     const unsortedAsDescending = { ...rangeUnsorted, ...evAsDescending };
     const uAsD = evaluateGrid(unsortedAsDescending);
 
-    expect(uAsD.D1).toBe(5); // @compatibility: on googlesheets, return 6
-    expect(uAsD.D2).toBe(5); // @compatibility: on googlesheets, return 6
-    expect(uAsD.D3).toBe(5); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D1).toBe(4); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D2).toBe(4); // @compatibility: on googlesheets, return 6
+    expect(uAsD.D3).toBe(4); // @compatibility: on googlesheets, return 6
     expect(uAsD.D4).toBe(3);
-    expect(uAsD.D5).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
-    expect(uAsD.D6).toBe("#ERROR"); // @compatibility: on googlesheets, return 2
+    expect(uAsD.D5).toBe(2);
+    expect(uAsD.D6).toBe(2);
     expect(uAsD.D7).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
     expect(uAsD.D8).toBe("#ERROR"); // @compatibility: on googlesheets, return #N/A
   });
@@ -940,7 +940,7 @@ describe("XLOOKUP formula", () => {
         Z6: "=XLOOKUP( 4, B1:B6, C1:C6,, -1, 2 )",
         Z7: '=XLOOKUP( "b", B1:B6, C1:C6,, 1, 2 )',
       });
-      expect(grid.Z1).toBe("C2");
+      expect(grid.Z1).toBe("C1");
       expect(grid.Z2).toBe("C4");
       expect(grid.Z3).toBe("#ERROR");
       expect(grid.Z4).toBe("C2");
@@ -960,7 +960,7 @@ describe("XLOOKUP formula", () => {
         Z6: "=XLOOKUP( 4, B1:B6, C1:C6,, -1, -2 )",
         Z7: '=XLOOKUP( "b", B1:B6, C1:C6,, 1, -2 )',
       });
-      expect(grid.Z1).toBe("C5");
+      expect(grid.Z1).toBe("C6");
       expect(grid.Z2).toBe("C3");
       expect(grid.Z3).toBe("#ERROR");
       expect(grid.Z4).toBe("C5");

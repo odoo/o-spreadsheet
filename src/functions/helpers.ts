@@ -555,17 +555,22 @@ export function dichotomicSearch<T>(
   let currentVal: CellValue | undefined;
   let currentType: string;
 
+  const getValue =
+    sortOrder === "desc"
+      ? (i: number) => getValueInData(data, rangeLength - i - 1)
+      : (i: number) => getValueInData(data, i);
+
   while (indexRight - indexLeft >= 0) {
     indexMedian = Math.floor((indexLeft + indexRight) / 2);
 
     currentIndex = indexMedian;
-    currentVal = getValueInData(data, currentIndex);
+    currentVal = getValue(currentIndex);
     currentType = typeof currentVal;
 
     // 1 - linear search to find value with the same type
     while (indexLeft < currentIndex && targetType !== currentType) {
       currentIndex--;
-      currentVal = getValueInData(data, currentIndex);
+      currentVal = getValue(currentIndex);
       currentType = typeof currentVal;
     }
     if (currentType !== targetType || currentVal === undefined) {
@@ -581,8 +586,7 @@ export function dichotomicSearch<T>(
       if (
         matchVal === undefined ||
         matchVal < currentVal ||
-        (matchVal === currentVal && sortOrder === "asc" && matchValIndex! < currentIndex) ||
-        (matchVal === currentVal && sortOrder === "desc" && matchValIndex! > currentIndex)
+        (matchVal === currentVal && matchValIndex! < currentIndex)
       ) {
         matchVal = currentVal;
         matchValIndex = currentIndex;
@@ -591,8 +595,7 @@ export function dichotomicSearch<T>(
       if (
         matchVal === undefined ||
         matchVal > currentVal ||
-        (matchVal === currentVal && sortOrder === "asc" && matchValIndex! < currentIndex) ||
-        (matchVal === currentVal && sortOrder === "desc" && matchValIndex! > currentIndex)
+        (matchVal === currentVal && matchValIndex! < currentIndex)
       ) {
         matchVal = currentVal;
         matchValIndex = currentIndex;
@@ -600,10 +603,7 @@ export function dichotomicSearch<T>(
     }
 
     // 3 - give new indexes for the Binary search
-    if (
-      (sortOrder === "asc" && currentVal > target) ||
-      (sortOrder === "desc" && currentVal <= target)
-    ) {
+    if (currentVal > target || (mode === "strict" && currentVal === target)) {
       indexRight = currentIndex - 1;
     } else {
       indexLeft = indexMedian + 1;
@@ -611,7 +611,10 @@ export function dichotomicSearch<T>(
   }
 
   // note that valMinIndex could be 0
-  return matchValIndex !== undefined ? matchValIndex : -1;
+  if (matchValIndex === undefined) {
+    return -1;
+  }
+  return sortOrder === "desc" ? rangeLength - matchValIndex - 1 : matchValIndex;
 }
 
 /**
