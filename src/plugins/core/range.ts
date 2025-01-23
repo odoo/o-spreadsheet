@@ -33,6 +33,11 @@ import {
   Zone,
 } from "../../types/index";
 
+interface RangeStringOptions {
+  useBoundedReference?: boolean;
+  useFixedReference?: boolean;
+}
+
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
   private providers: Array<RangeProvider["adaptRanges"]> = [];
@@ -366,9 +371,14 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
    * @param options
-   * @param options.useBoundedReference if true, the range will be returned with fixed row and column
+   * @param options.useBoundedReference if true, the range will be returned with bounded row and column
+   * @param options.useFixedReference if true, the range will be returned with fixed row and column
    */
-  getRangeString(range: Range, forSheetId: UID, options = { useBoundedReference: false }): string {
+  getRangeString(
+    range: Range,
+    forSheetId: UID,
+    options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
+  ): string {
     if (!range) {
       return CellErrorType.InvalidReference;
     }
@@ -498,11 +508,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getRangePartString(
     range: RangeImpl,
     part: 0 | 1,
-    options: { useBoundedReference: boolean } = { useBoundedReference: false }
+    options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
   ): string {
-    const colFixed = range.parts && range.parts[part]?.colFixed ? "$" : "";
+    const colFixed = range.parts[part]?.colFixed || options.useFixedReference ? "$" : "";
     const col = part === 0 ? numberToLetters(range.zone.left) : numberToLetters(range.zone.right);
-    const rowFixed = range.parts && range.parts[part]?.rowFixed ? "$" : "";
+    const rowFixed = range.parts[part]?.rowFixed || options.useFixedReference ? "$" : "";
     const row = part === 0 ? String(range.zone.top + 1) : String(range.zone.bottom + 1);
 
     let str = "";
