@@ -96,6 +96,15 @@ describe("Geo charts plugin tests", () => {
     expect(runtime.chartJsConfig.options?.scales?.color?.["ticks"]?.callback?.(20)).toBe("$20");
   });
 
+  test("Geo charts use custom tooltip", () => {
+    createGeoChart(model, {});
+    const runtime = model.getters.getChartRuntime("chartId") as any;
+    expect(runtime.chartJsConfig.options?.plugins?.tooltip).toMatchObject({
+      enabled: false,
+      external: expect.any(Function),
+    });
+  });
+
   test("Tooltip values have the same format as the data", () => {
     setCellContent(model, "A2", "France");
     setCellContent(model, "B2", "20");

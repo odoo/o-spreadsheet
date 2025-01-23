@@ -204,6 +204,8 @@ export function getGeoChartTooltip(
   const { locale, axisFormats } = args;
   const format = axisFormats?.y || axisFormats?.y1;
   return {
+    enabled: false,
+    external: customTooltipHandler,
     filter: function (tooltipItem: TooltipItem<"choropleth">) {
       return (tooltipItem.raw as any).value !== undefined;
     },
