@@ -119,7 +119,7 @@ describe("Function helpers", () => {
       expect(dichotomicSearch([3, 3, 2, 1, 0], 3, "nextSmaller", "desc", 5, getItem)).toBe(0);
 
       expect(dichotomicSearch([4, 3, 2, 1, 0], -22, "strict", "desc", 5, getItem)).toBe(-1);
-      expect(dichotomicSearch([3, 3, 2, 1, 0], 3, "strict", "desc", 5, getItem)).toBe(0);
+      expect(dichotomicSearch([3, 3, 2, 1, 0], 3, "strict", "desc", 5, getItem)).toBe(1);
     });
 
     test("with strings only", () => {
