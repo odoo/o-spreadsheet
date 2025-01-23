@@ -1,4 +1,4 @@
-import { compile } from "../../formulas/index";
+import { compile } from "../../formulas/compiler";
 import { deepEquals, isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
@@ -58,37 +58,92 @@ export class ConditionalFormatPlugin
 
   readonly cfRules: { [sheet: string]: ConditionalFormatInternal[] } = {};
 
-  loopThroughRangesOfSheet(sheetId: UID, applyChange: ApplyRangeChange) {
-    for (const rule of this.cfRules[sheetId]) {
-      if (rule.rule.type === "DataBarRule" && rule.rule.rangeValues) {
-        const change = applyChange(rule.rule.rangeValues);
-        switch (change.changeType) {
-          case "REMOVE":
+  adaptCFFormulas(applyChange: ApplyRangeChange) {
+    for (const sheetId in this.cfRules) {
+      for (const rule of this.cfRules[sheetId]) {
+        if (rule.rule.type === "DataBarRule" && rule.rule.rangeValues) {
+          const change = applyChange(rule.rule.rangeValues);
+          switch (change.changeType) {
+            case "REMOVE":
+              this.history.update(
+                "cfRules",
+                sheetId,
+                this.cfRules[sheetId].indexOf(rule),
+                "rule",
+                //@ts-expect-error
+                "rangeValues",
+                undefined
+              );
+              break;
+            case "RESIZE":
+            case "MOVE":
+            case "CHANGE":
+              this.history.update(
+                "cfRules",
+                sheetId,
+                this.cfRules[sheetId].indexOf(rule),
+                "rule",
+                //@ts-expect-error
+                "rangeValues",
+                change.range
+              );
+              break;
+          }
+        } else if (rule.rule.type === "CellIsRule") {
+          for (let i = 0; i < rule.rule.values.length; i++) {
             this.history.update(
               "cfRules",
               sheetId,
               this.cfRules[sheetId].indexOf(rule),
               "rule",
               //@ts-expect-error
-              "rangeValues",
-              undefined
+              "values",
+              i,
+              this.getters.adaptFormulaStringDependencies(sheetId, rule.rule.values[i], applyChange)
             );
-            break;
-          case "RESIZE":
-          case "MOVE":
-          case "CHANGE":
-            this.history.update(
-              "cfRules",
-              sheetId,
-              this.cfRules[sheetId].indexOf(rule),
-              "rule",
-              //@ts-expect-error
-              "rangeValues",
-              change.range
-            );
-            break;
+          }
+        } else if (rule.rule.type === "IconSetRule") {
+          for (const inflectionPoint of ["lowerInflectionPoint", "upperInflectionPoint"] as const) {
+            if (rule.rule[inflectionPoint].type === "formula") {
+              this.history.update(
+                "cfRules",
+                sheetId,
+                this.cfRules[sheetId].indexOf(rule),
+                "rule",
+                //@ts-expect-error
+                inflectionPoint,
+                "value",
+                this.getters.adaptFormulaStringDependencies(
+                  sheetId,
+                  rule.rule[inflectionPoint].value,
+                  applyChange
+                )
+              );
+            }
+          }
+        } else if (rule.rule.type === "ColorScaleRule") {
+          for (const value of ["minimum", "maximum", "midpoint"] as const) {
+            const ruleValue = rule.rule[value];
+            if (ruleValue?.type === "formula" && ruleValue?.value) {
+              this.history.update(
+                "cfRules",
+                sheetId,
+                this.cfRules[sheetId].indexOf(rule),
+                "rule",
+                //@ts-expect-error
+                value,
+                "value",
+                this.getters.adaptFormulaStringDependencies(sheetId, ruleValue.value, applyChange)
+              );
+            }
+          }
         }
       }
+    }
+  }
+
+  adaptCFRanges(sheetId: UID, applyChange: ApplyRangeChange) {
+    for (const rule of this.cfRules[sheetId]) {
       for (const range of rule.ranges) {
         const change = applyChange(range);
         switch (change.changeType) {
@@ -126,13 +181,11 @@ export class ConditionalFormatPlugin
   }
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
-    if (sheetId) {
-      this.loopThroughRangesOfSheet(sheetId, applyChange);
-    } else {
-      for (const sheetId of Object.keys(this.cfRules)) {
-        this.loopThroughRangesOfSheet(sheetId, applyChange);
-      }
+    const sheetIds = sheetId ? [sheetId] : Object.keys(this.cfRules);
+    for (const sheetId of sheetIds) {
+      this.adaptCFRanges(sheetId, applyChange);
     }
+    this.adaptCFFormulas(applyChange);
   }
 
   // ---------------------------------------------------------------------------
