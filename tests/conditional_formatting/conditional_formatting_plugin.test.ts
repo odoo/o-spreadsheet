@@ -1,5 +1,6 @@
 import { Model } from "../../src/model";
 import { CommandResult, ConditionalFormattingOperatorValues, UID } from "../../src/types";
+import { ConditionalFormat, ConditionalFormatRule } from "../../src/types/conditional_formatting";
 import {
   activateSheet,
   addColumns,
@@ -548,7 +549,7 @@ describe("conditional format", () => {
     });
   });
 
-  describe("Grid Manipulation", () => {
+  describe("Grid Manipulation Range", () => {
     const rule = {
       values: ["42"],
       operator: "Equal",
@@ -676,6 +677,278 @@ describe("conditional format", () => {
       ]);
       expect(getStyle(model, "D2")).toEqual({});
       expect(getStyle(model, "D3")!.fillColor).toBe("orange");
+    });
+  });
+
+  describe("Grid Manipulation Formulas", () => {
+    function cellIsRuleEqual(formula: string): ConditionalFormatRule {
+      return {
+        type: "CellIsRule",
+        values: [formula],
+        operator: "Equal",
+        style: { fillColor: "orange" },
+      };
+    }
+
+    function cellIsRuleBetween(formula: string): ConditionalFormatRule {
+      return {
+        type: "CellIsRule",
+        values: [formula, formula],
+        operator: "Between",
+        style: { fillColor: "orange" },
+      };
+    }
+
+    function colorScaleRule(formula: string): ConditionalFormatRule {
+      return {
+        type: "ColorScaleRule",
+        minimum: {
+          type: "formula",
+          value: formula,
+          color: 0,
+        },
+        maximum: {
+          type: "formula",
+          value: formula,
+          color: 0,
+        },
+        midpoint: {
+          type: "formula",
+          value: formula,
+          color: 0,
+        },
+      };
+    }
+
+    function iconSetRule(formula: string): ConditionalFormatRule {
+      return {
+        type: "IconSetRule",
+        icons: {
+          upper: "u",
+          middle: "m",
+          lower: "l",
+        },
+        upperInflectionPoint: {
+          type: "formula",
+          operator: "gt",
+          value: formula,
+        },
+        lowerInflectionPoint: {
+          type: "formula",
+          operator: "gt",
+          value: formula,
+        },
+      };
+    }
+
+    function formulasToCFs(
+      formulas: string[],
+      cfrule: (formula: string) => ConditionalFormatRule
+    ): ConditionalFormat[] {
+      return formulas
+        .map((formula) => cfrule(formula))
+        .map((rule) => {
+          return {
+            id: "1",
+            rule,
+            ranges: ["A1"],
+          };
+        });
+    }
+
+    const cfGenerators = [
+      ["cellIsRuleEqual", cellIsRuleEqual],
+      ["cellIsRuleBetween", cellIsRuleBetween],
+      ["colorScaleRule", colorScaleRule],
+      ["IconSetRule", iconSetRule],
+    ] as const;
+
+    test.each(cfGenerators)("On row deletion %s", (name, cfrule) => {
+      const formulas = [
+        "=A1",
+        "=A5",
+        "=F1",
+        "=F5",
+        "=$F$5",
+        "=$F$10",
+        "=F5*5",
+        "=F5*10",
+        "=SUM(A1:F5)",
+      ];
+      const expected = [
+        "=A1",
+        "=A3",
+        "=F1",
+        "=F3",
+        "=$F$3",
+        "=$F$8",
+        "=F3*5",
+        "=F3*10",
+        "=SUM(A1:F3)",
+      ];
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 7,
+            rowNumber: 4,
+            conditionalFormats: formulasToCFs(formulas, cfrule),
+          },
+        ],
+      });
+      deleteRows(model, [1, 3]);
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
+    });
+
+    test.each(cfGenerators)("On column deletion %s", (name, cfrule) => {
+      const formulas = [
+        "=A1",
+        "=A5",
+        "=F1",
+        "=F5",
+        "=$F$5",
+        "=$F$10",
+        "=F5*5",
+        "=F5*10",
+        "=SUM(A1:F5)",
+      ];
+      const expected = [
+        "=A1",
+        "=A5",
+        "=D1",
+        "=D5",
+        "=$D$5",
+        "=$D$10",
+        "=D5*5",
+        "=D5*10",
+        "=SUM(A1:D5)",
+      ];
+
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 7,
+            rowNumber: 4,
+            conditionalFormats: formulasToCFs(formulas, cfrule),
+          },
+        ],
+      });
+      deleteColumns(model, ["B", "E"]);
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
+    });
+
+    test.each(cfGenerators)("On column addition %s", (name, cfrule) => {
+      const formulas = [
+        "=A1",
+        "=A5",
+        "=F1",
+        "=F5",
+        "=$F$5",
+        "=$F$10",
+        "=F5*5",
+        "=F5*10",
+        "=SUM(A1:F5)",
+      ];
+      const expected = [
+        "=A1",
+        "=A5",
+        "=H1",
+        "=H5",
+        "=$H$5",
+        "=$H$10",
+        "=H5*5",
+        "=H5*10",
+        "=SUM(A1:H5)",
+      ];
+
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 7,
+            rowNumber: 4,
+            conditionalFormats: formulasToCFs(formulas, cfrule),
+          },
+        ],
+      });
+      addColumns(model, "after", "B", 2);
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
+    });
+
+    test.each(cfGenerators)("On row addition %s", (name, cfrule) => {
+      const formulas = [
+        "=A1",
+        "=A5",
+        "=F1",
+        "=F5",
+        "=$F$5",
+        "=$F$10",
+        "=F5*5",
+        "=F5*10",
+        "=SUM(A1:F5)",
+      ];
+      const expected = [
+        "=A1",
+        "=A7",
+        "=F1",
+        "=F7",
+        "=$F$7",
+        "=$F$12",
+        "=F7*5",
+        "=F7*10",
+        "=SUM(A1:F7)",
+      ];
+
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 7,
+            rowNumber: 4,
+            conditionalFormats: formulasToCFs(formulas, cfrule),
+          },
+        ],
+      });
+      addRows(model, "after", 2, 2);
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
+    });
+
+    test.each(cfGenerators)("On another sheet %s", (name, cfrule) => {
+      const formulas = [
+        "=OtherSheet!A1",
+        "=OtherSheet!A5",
+        "=OtherSheet!F1",
+        "=OtherSheet!F5",
+        "=OtherSheet!$F$5",
+        "=OtherSheet!$F$10",
+        "=OtherSheet!F5*5",
+        "=OtherSheet!F5*10",
+        "=SUM(OtherSheet!A1:F5)",
+      ];
+      const expected = [
+        "=OtherSheet!A1",
+        "=OtherSheet!A3",
+        "=OtherSheet!F1",
+        "=OtherSheet!F3",
+        "=OtherSheet!$F$3",
+        "=OtherSheet!$F$8",
+        "=OtherSheet!F3*5",
+        "=OtherSheet!F3*10",
+        "=SUM(OtherSheet!A1:F3)",
+      ];
+      model = new Model({
+        sheets: [
+          {
+            colNumber: 7,
+            rowNumber: 4,
+            conditionalFormats: formulasToCFs(formulas, cfrule),
+            name: "Sheet1",
+          },
+          {
+            name: "OtherSheet",
+            id: "otherSheet",
+          },
+        ],
+      });
+      deleteRows(model, [1, 3], "otherSheet");
+      expect(model.getters.getConditionalFormats(sheetId)).toEqual(formulasToCFs(expected, cfrule));
     });
   });
 
