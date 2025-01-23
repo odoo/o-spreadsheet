@@ -282,7 +282,10 @@ export class DataValidationPlugin
         if (rule.criterion.type === "isValueInRange") {
           excelRule.criterion.values = rule.criterion.values.map((value) => {
             const range = this.getters.getRangeFromSheetXC(sheet.id, value);
-            return this.getters.getRangeString(range, sheet.id, { useBoundedReference: true });
+            return this.getters.getRangeString(range, sheet.id, {
+              useBoundedReference: true,
+              useFixedReference: true,
+            });
           });
         }
         sheet.dataValidationRules.push(excelRule);
