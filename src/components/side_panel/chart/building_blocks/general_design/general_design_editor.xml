@@ -3,11 +3,14 @@
     <t t-set="chart_title">Chart title</t>
     <SidePanelCollapsible collapsedAtInit="false" title.translate="General">
       <t t-set-slot="content">
-        <Section class="'o-chart-background-color pt-0 pb-0'" title.translate="Background color">
-          <RoundColorPicker
-            currentColor="props.definition.background"
-            onColorPicked.bind="updateBackgroundColor"
-          />
+        <Section class="'o-chart-background-color pt-0 pb-0'">
+          <div class="d-flex align-items-center">
+            <span class="o-section-title mb-0 pe-2">Background color</span>
+            <RoundColorPicker
+              currentColor="props.definition.background"
+              onColorPicked.bind="updateBackgroundColor"
+            />
+          </div>
         </Section>
         <ChartTitle
           title="title.text"
