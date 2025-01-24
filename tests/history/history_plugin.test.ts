@@ -1,7 +1,5 @@
-import { UIPlugin } from "../../src";
 import { MAX_HISTORY_STEPS } from "../../src/constants";
 import { Model } from "../../src/model";
-import { featurePluginRegistry } from "../../src/plugins";
 import { StateObserver } from "../../src/state_observer";
 import { CommandResult, UpdateCellCommand } from "../../src/types/commands";
 import {
@@ -21,7 +19,7 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { addTestPlugin, getPlugin, makeTestComposerStore } from "../test_helpers/helpers";
+import { makeTestComposerStore, spyUiPluginHandle } from "../test_helpers/helpers";
 
 // we test here the undo/redo feature
 
@@ -310,11 +308,8 @@ describe("Model history", () => {
   });
 
   test("undone & redone commands are part of the command", () => {
-    class TestPlugin extends UIPlugin {}
-    addTestPlugin(featurePluginRegistry, TestPlugin);
     const model = new Model();
-    const plugin = getPlugin(model, TestPlugin);
-    plugin.handle = jest.fn((cmd) => {});
+    const pluginHandle = spyUiPluginHandle(model);
     const command: UpdateCellCommand = {
       type: "UPDATE_CELL",
       col: 0,
@@ -324,12 +319,12 @@ describe("Model history", () => {
     };
     model.dispatch(command.type, command);
     undo(model);
-    expect(plugin.handle).toHaveBeenCalledWith({
+    expect(pluginHandle).toHaveBeenCalledWith({
       type: "UNDO",
       commands: [command],
     });
     redo(model);
-    expect(plugin.handle).toHaveBeenCalledWith({
+    expect(pluginHandle).toHaveBeenCalledWith({
       type: "REDO",
       commands: [command],
     });
