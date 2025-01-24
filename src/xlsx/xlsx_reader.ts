@@ -121,7 +121,12 @@ export class XlsxReader {
   private buildXlsxFileStructure(): XLSXFileStructure {
     const xlsxFileStructure = {
       sheets: getXLSXFilesOfType(CONTENT_TYPES.sheet, this.xmls),
-      workbook: getXLSXFilesOfType(CONTENT_TYPES.workbook, this.xmls)[0],
+      workbook:
+        getXLSXFilesOfType(CONTENT_TYPES.workbook, this.xmls)[0] ||
+        getXLSXFilesOfType(CONTENT_TYPES.macroEnabledWorkbook, this.xmls)[0] ||
+        getXLSXFilesOfType(CONTENT_TYPES.templateWorkbook, this.xmls)[0] ||
+        getXLSXFilesOfType(CONTENT_TYPES.macroEnabledTemplateWorkbook, this.xmls)[0] ||
+        getXLSXFilesOfType(CONTENT_TYPES.excelAddInWorkbook, this.xmls)[0],
       styles: getXLSXFilesOfType(CONTENT_TYPES.styles, this.xmls)[0],
       sharedStrings: getXLSXFilesOfType(CONTENT_TYPES.sharedStrings, this.xmls)[0],
       theme: getXLSXFilesOfType(CONTENT_TYPES.themes, this.xmls)[0],

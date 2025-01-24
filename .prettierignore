@@ -18,3 +18,7 @@ tests/**/xlsx_demo_data
 # Ignore all PNG files:
 **/*.png
 **/*.xlsx
+**/*.xlsm
+**/*.xltx
+**/*.xltm
+**/*.xlam
