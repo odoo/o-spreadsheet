@@ -26,6 +26,7 @@ import { Model } from "../../src/model";
 import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
+import { SheetUIPlugin } from "../../src/plugins/ui_feature";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
@@ -91,6 +92,10 @@ export function spyDispatch(parent: Spreadsheet): jest.SpyInstance {
 
 export function spyModelDispatch(model: Model): jest.SpyInstance {
   return jest.spyOn(model, "dispatch");
+}
+
+export function spyUiPluginHandle(model: Model): jest.SpyInstance {
+  return jest.spyOn(getPlugin(model, SheetUIPlugin), "handle");
 }
 
 export function getPlugin<T extends new (...args: any) => any>(
