@@ -46,14 +46,13 @@ export class SheetUIPlugin extends UIPlugin {
         }
         break;
       case "AUTORESIZE_ROWS":
-        for (let row of cmd.rows) {
-          this.dispatch("RESIZE_COLUMNS_ROWS", {
-            elements: [row],
-            dimension: "ROW",
-            size: null,
-            sheetId: cmd.sheetId,
-          });
-        }
+        this.dispatch("RESIZE_COLUMNS_ROWS", {
+          elements: cmd.rows,
+          dimension: "ROW",
+          size: null,
+          sheetId: cmd.sheetId,
+        });
+
         break;
     }
   }
