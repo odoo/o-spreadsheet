@@ -52,7 +52,7 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
       draggedItemId: cf.id,
       initialMousePosition: event.clientY,
       items: items,
-      containerEl: this.cfListRef.el!,
+      scrollableContainerEl: this.cfListRef.el!,
       onDragEnd: (cfId: UID, finalIndex: number) => this.onDragEnd(cfId, finalIndex),
     });
   }
