@@ -7,6 +7,7 @@ import { FocusableElement } from "../../src/helpers/focus_manager";
 import { toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
+import { SheetUIPlugin } from "../../src/plugins/ui/ui_sheet";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -77,6 +78,10 @@ export function getChildFromComponent<T extends new (...args: any) => any>(
 
 export function spyModelDispatch(model: Model): jest.SpyInstance {
   return jest.spyOn(model, "dispatch");
+}
+
+export function spyUiPluginHandle(model: Model): jest.SpyInstance {
+  return jest.spyOn(getPlugin(model, SheetUIPlugin), "handle");
 }
 
 export function makeTestFixture() {
