@@ -1,7 +1,6 @@
-import { Model, UIPlugin } from "../../src";
+import { Model } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
-import { featurePluginRegistry } from "../../src/plugins";
 import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
@@ -22,7 +21,7 @@ import {
   unfreezeColumns,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
-import { getPlugin, target } from "../test_helpers/helpers";
+import { spyUiPluginHandle, target } from "../test_helpers/helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative local history", () => {
@@ -794,8 +793,6 @@ describe("Collaborative local history", () => {
   });
 
   test("undone & redone commands are transformed", () => {
-    class TestPlugin extends UIPlugin {}
-    featurePluginRegistry.add("test-plugin", TestPlugin);
     const david = new Model(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
@@ -804,7 +801,6 @@ describe("Collaborative local history", () => {
       transportService: network,
       client: { id: "elisa", name: "Elisa" },
     });
-    featurePluginRegistry.remove("test-plugin");
     const command: UpdateCellCommand = {
       type: "UPDATE_CELL",
       col: 0,
@@ -816,25 +812,23 @@ describe("Collaborative local history", () => {
       addColumns(alice, "before", "A", 1);
       david.dispatch(command.type, command);
     });
-    const pluginDavid = getPlugin(david, TestPlugin);
-    const pluginElisa = getPlugin(elisa, TestPlugin);
-    pluginDavid.handle = jest.fn((cmd) => {});
-    pluginElisa.handle = jest.fn((cmd) => {});
+    const davidPluginHandle = spyUiPluginHandle(david);
+    const elisePluginHandle = spyUiPluginHandle(elisa);
     undo(david);
-    expect(pluginDavid.handle).toHaveBeenCalledWith({
+    expect(davidPluginHandle).toHaveBeenCalledWith({
       type: "UNDO",
       commands: [{ ...command, col: 1 }],
     });
-    expect(pluginElisa.handle).toHaveBeenCalledWith({
+    expect(elisePluginHandle).toHaveBeenCalledWith({
       type: "UNDO",
       commands: [{ ...command, col: 1 }],
     });
     redo(david);
-    expect(pluginDavid.handle).toHaveBeenCalledWith({
+    expect(davidPluginHandle).toHaveBeenCalledWith({
       type: "REDO",
       commands: [{ ...command, col: 1 }],
     });
-    expect(pluginElisa.handle).toHaveBeenCalledWith({
+    expect(elisePluginHandle).toHaveBeenCalledWith({
       type: "REDO",
       commands: [{ ...command, col: 1 }],
     });
