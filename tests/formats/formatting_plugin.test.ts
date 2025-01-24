@@ -37,6 +37,7 @@ import {
   setStyle,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { spyUiPluginHandle } from "../test_helpers/helpers";
 
 function setDecimal(model: Model, step: SetDecimalStep) {
   model.dispatch("SET_DECIMAL", {
@@ -543,6 +544,22 @@ describe("Autoresize", () => {
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 2] });
     expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 2)).toBe(fontSizeInPixels(24) + vPadding);
+  });
+
+  test("Only a single resize command is dispatched when auto-resizing multiple rows", () => {
+    const rows = [0, 1, 2];
+    resizeRows(model, rows, DEFAULT_CELL_HEIGHT + 30);
+    const handleCmd = spyUiPluginHandle(model);
+    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0, 1, 2] });
+    expect(handleCmd).toHaveBeenCalledTimes(2);
+    expect(handleCmd).toHaveBeenNthCalledWith(1, { type: "AUTORESIZE_ROWS", sheetId, rows });
+    expect(handleCmd).toHaveBeenNthCalledWith(2, {
+      type: "RESIZE_COLUMNS_ROWS",
+      elements: rows,
+      dimension: "ROW",
+      size: null,
+      sheetId,
+    });
   });
 
   test("Can autoresize a column in another sheet", () => {
