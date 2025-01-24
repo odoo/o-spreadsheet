@@ -28,6 +28,10 @@ export const DRAWING_NS_C = "http://schemas.openxmlformats.org/drawingml/2006/ch
 
 export const CONTENT_TYPES = {
   workbook: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+  macroEnabledWorkbook: "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
+  templateWorkbook: "application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml",
+  macroEnabledTemplateWorkbook: "application/vnd.ms-excel.template.macroEnabled.main+xml",
+  excelAddInWorkbook: "application/vnd.ms-excel.addin.macroEnabled.main+xml",
   sheet: "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml",
   sharedStrings: "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml",
   styles: "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml",

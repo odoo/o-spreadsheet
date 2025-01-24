@@ -31,7 +31,7 @@ import { adaptFormula } from "../../src/xlsx/conversion/formula_conversion";
 import { getRelativePath } from "../../src/xlsx/helpers/misc";
 import { XLSXImportWarningManager } from "../../src/xlsx/helpers/xlsx_parser_error_manager";
 import { XlsxReader } from "../../src/xlsx/xlsx_reader";
-import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
+import { EXCEL_TEST_FILES_PATH, getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import {
   getCFBeginningAt,
   getColPosition,
@@ -957,4 +957,17 @@ test.each([
   expect(formatValue(0, { format: convertedFormat, locale: DEFAULT_LOCALE })).toEqual(
     expectedValue
   );
+});
+
+test.each([
+  EXCEL_TEST_FILES_PATH.XLSM,
+  EXCEL_TEST_FILES_PATH.XLTM,
+  EXCEL_TEST_FILES_PATH.XLTX,
+  EXCEL_TEST_FILES_PATH.XLAM,
+])("Can import other excel file types %s", async (path: EXCEL_TEST_FILES_PATH) => {
+  const demo_xlsx = await getTextXlsxFiles(path);
+  const reader = new XlsxReader(demo_xlsx);
+  const convertedData = reader.convertXlsx();
+
+  expect(convertedData.sheets[0].cells["A1"]).toEqual("Hello World !");
 });
