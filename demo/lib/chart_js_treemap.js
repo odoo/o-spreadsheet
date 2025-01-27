@@ -330,26 +330,30 @@
     ctx.rect(rect.x, rect.y, rect.w, rect.h);
   }
 
-  function shouldDrawCaption(rect, options) {
+  function shouldDrawCaption(displayMode, rect, options) {
     if (!options || options.display === false) {
       return false;
     }
-    // PATCH: always draw group header if they are enabled. Whether the text is displayed or not is handled in drawCaption
-    return true;
-    // const { w, h } = rect;
-    // const font = helpers.toFont(options.font);
-    // const min = font.lineHeight;
-    // const padding = limit(helpers.valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
-    // return w - padding > min && h - padding > min;
+    if (displayMode === "headerBoxes") {
+      return true;
+    }
+    const { w, h } = rect;
+    const font = helpers.toFont(options.font);
+    const min = font.lineHeight;
+    const padding = limit(helpers.valueOrDefault(options.padding, 3) * 2, 0, Math.min(w, h));
+    return w - padding > min && h - padding > min;
   }
 
-  function getCaptionHeight(rect, font, padding) {
-    let captionHeight = font.lineHeight + padding * 2;
+  function getCaptionHeight(displayMode, rect, font, padding) {
+    if (displayMode !== "headerBoxes") {
+      return font.lineHeight + padding * 2;
+    }
+    const captionHeight = font.lineHeight + padding * 2;
     return rect.h < 2 * captionHeight ? rect.h / 3 : captionHeight;
   }
 
   function drawText(ctx, rect, options, item, levels) {
-    const { labels } = options;
+    const { labels, captions, displayMode } = options;
     ctx.save();
     ctx.beginPath();
     ctx.rect(rect.x, rect.y, rect.w, rect.h);
@@ -357,22 +361,19 @@
     const isLeaf = item && (!helpers.defined(item.l) || item.l === levels);
     if (isLeaf && labels.display) {
       drawLabel(ctx, rect, options);
-      // PATCH: always try to draw caption label in header. We'll try to fit it in the available space in the draw function
-    } else if (!isLeaf /* && shouldDrawCaption(rect, captions) */) {
+    } else if (!isLeaf && shouldDrawCaption(displayMode, rect, captions)) {
       drawCaption(ctx, rect, options, item);
     }
     ctx.restore();
   }
 
   function drawCaption(ctx, rect, options, item) {
-    const { captions, spacing, rtl } = options;
+    const { captions, spacing, rtl, displayMode } = options;
     let { color, hoverColor, font, hoverFont, padding, align, formatter } = captions;
     const optFont = (rect.active ? hoverFont : font) || font;
     const oFont = helpers.toFont(optFont);
     const fonts = [oFont];
-    // PATCH: do not draw caption if there is not enough vertical space
-    const captionHeight = getCaptionHeight(rect, oFont, padding);
-    if (oFont.lineHeight + padding * 2 > captionHeight) {
+    if (displayMode === "headerBoxes" && oFont.lineHeight > rect.h) {
       return;
     }
     // PATCH: slice text to fit the available space
@@ -381,6 +382,7 @@
     if (captionSize.width + 2 * padding > rect.w) {
       text = sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts);
     }
+
     const oColor = (rect.active ? hoverColor : color) || color;
     const oAlign = align || (rtl ? "right" : "left");
     const lh = oFont.lineHeight / 2;
@@ -389,7 +391,8 @@
     ctx.font = oFont.string;
     ctx.textAlign = oAlign;
     ctx.textBaseline = "middle";
-    ctx.fillText(text, x, rect.y + padding + spacing + lh);
+    const y = displayMode === "headerBoxes" ? rect.y + rect.h / 2 : rect.y + padding + spacing + lh;
+    ctx.fillText(text, x, y);
   }
 
   function sliceTextToFitWidth(ctx, text, width, fonts) {
@@ -562,21 +565,12 @@
       super();
 
       this.options = undefined;
-      this._width = undefined;
+      this.width = undefined;
       this.height = undefined;
-      this.isLeaf = false;
 
       if (cfg) {
         Object.assign(this, cfg);
       }
-    }
-
-    get width() {
-      return this._width;
-    }
-
-    set width(value) {
-      this._width = value;
     }
 
     draw(ctx, data, levels = 0) {
@@ -633,17 +627,6 @@
     }
 
     tooltipPosition() {
-      // PATCH: return center of header rather than center of rectangle for parent groups
-      if (!this.isLeaf) {
-        const { x, y, width, height } = this.getProps(["x", "y", "width", "height"]);
-        const rect = { x, y, w: width, h: height };
-        const { captions } = this.options;
-        let { font, hoverFont, padding } = captions;
-        const optFont = (this.active ? hoverFont : font) || font;
-        const oFont = helpers.toFont(optFont);
-        const headerHeight = getCaptionHeight(rect, oFont, padding);
-        return { x: x + width / 2, y: y + headerHeight / 2 };
-      }
       return this.getCenterPoint();
     }
 
@@ -693,8 +676,9 @@
       padding: 3,
     },
     rtl: false,
-    spacing: 0,
+    spacing: 0.5,
     unsorted: false,
+    displayMode: "containerBoxes",
   };
 
   TreemapElement.descriptors = {
@@ -1020,9 +1004,10 @@
     }
     const groups = dataset.groups || [];
     const glen = groups.length;
-    // PATCH: Ignore spacing
-    const sp = 0;
-    // const sp = valueOrDefault(dataset.spacing, 0);
+    // PATCH: Ignore spacing in X to compute box size
+    const sp = helpers.valueOrDefault(dataset.spacing, 0);
+    const spX = dataset.displayMode === "headerBoxes" ? 0 : sp;
+    const spY = sp;
     const captions = dataset.captions || {};
     const font = helpers.toFont(captions.font);
     const padding = helpers.valueOrDefault(captions.padding, 3);
@@ -1044,20 +1029,29 @@
       if (gidx < glen - 1) {
         gsq.forEach((sq) => {
           // PATCH: Do not include border to compute box size
-          const bw = parseBorderWidth(0, sq.w / 2, sq.h / 2);
-          // const bw = parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+          const bw =
+            dataset.displayMode === "headerBoxes"
+              ? { l: 0, r: 0, t: 0, b: 0 }
+              : parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
+
           const subRect = {
             ...rect,
-            x: sq.x + sp + bw.l,
-            y: sq.y + sp + bw.t,
-            w: sq.w - 2 * sp - bw.l - bw.r,
-            h: sq.h - 2 * sp - bw.t - bw.b,
+            x: sq.x + spX + bw.l,
+            y: sq.y + spY + bw.t,
+            w: sq.w - 2 * spX - bw.l - bw.r,
+            h: sq.h - 2 * spY - bw.t - bw.b,
           };
-          if (shouldDrawCaption(subRect, captions)) {
+          if (shouldDrawCaption(dataset.displayMode, subRect, captions)) {
             // PATCH: reduce header height if there is no space
-            const captionHeight = getCaptionHeight(subRect, font, padding);
-            subRect.y += captionHeight;
-            subRect.h -= captionHeight;
+            const captionHeight = getCaptionHeight(dataset.displayMode, subRect, font, padding);
+
+            if (dataset.displayMode === "headerBoxes") {
+              subRect.y += captionHeight - spY;
+              subRect.h -= captionHeight - spY * 2;
+            } else {
+              subRect.y += captionHeight;
+              subRect.h -= captionHeight;
+            }
           }
           gdata.forEach((gEl) => {
             ret.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
@@ -1067,7 +1061,22 @@
       return ret;
     }
 
-    return glen ? recur(tree, 0, mainRect) : squarify(tree, mainRect, keys);
+    let data = glen ? recur(tree, 0, mainRect) : squarify(tree, mainRect, keys);
+    data = data
+      .map((d) => {
+        if (dataset.displayMode !== "headerBoxes" || d.l === glen - 1) {
+          return d;
+        }
+
+        const rect = { ...d, h: d.h - 2 * spY };
+        if (!shouldDrawCaption(dataset.displayMode, rect, captions)) {
+          return undefined;
+        }
+        const captionHeight = getCaptionHeight(dataset.displayMode, rect, font, padding);
+        return { ...d, h: captionHeight };
+      })
+      .filter((d) => d);
+    return data;
   }
 
   class TreemapController extends chart_js.DatasetController {
@@ -1166,8 +1175,6 @@
           properties.width = 0;
           properties.height = 0;
         }
-        // PATCH: add this property to compute the tooltip position
-        properties.isLeaf = dataset.data[i].l === maxDepth;
 
         if (includeOptions) {
           properties.options = options;

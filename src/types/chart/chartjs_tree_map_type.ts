@@ -84,6 +84,8 @@ export interface TreemapControllerDatasetOptions<DType> {
   tree: number[] | DType[] | AnyObject;
   treeLeafKey?: keyof DType;
   key?: keyof DType;
+
+  displayMode?: "containerBoxes" | "headerBoxes";
 }
 
 export interface TreemapDataPoint {

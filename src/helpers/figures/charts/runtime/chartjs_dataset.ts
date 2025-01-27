@@ -381,10 +381,12 @@ export function getTreeMapChartDatasets(
       },
       key: "value",
       groups: range(0, dataSetsValues.length).map((i) => String(i)),
-      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      // borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderColor: "#f00",
       hoverBorderColor: definition.background || BACKGROUND_CHART_COLOR,
-      borderWidth: 1,
-      spacing: 0,
+      borderWidth: 0,
+      spacing: 1,
+      displayMode: "headerBoxes",
     },
   ];
 
