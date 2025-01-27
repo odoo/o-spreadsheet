@@ -1038,6 +1038,7 @@ describe("move elements(s)", () => {
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = model.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: model.getters.getActiveSheetId(),
+      sheetName: model.getters.getActiveSheetName(),
       base: -1,
       elements: [0],
       position: "after",

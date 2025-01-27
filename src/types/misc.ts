@@ -295,6 +295,7 @@ export type ApplyRangeChangeResult =
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
 export type ApplyRangeChangeSheet = {
   sheetId?: UID;
+  sheetName?: string;
   applyChange: ApplyRangeChange;
 };
 
@@ -303,7 +304,7 @@ export type Dimension = "COL" | "ROW";
 export type ConsecutiveIndexes = HeaderIndex[];
 
 export interface RangeProvider {
-  adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
+  adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string) => void;
 }
 
 export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];

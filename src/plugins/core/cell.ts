@@ -72,12 +72,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string) {
     for (const sheet of Object.keys(this.cells)) {
       for (const cell of Object.values(this.cells[sheet] || {})) {
         if (cell.isFormula) {
           for (const range of cell.compiledFormula.dependencies) {
-            if (!sheetId || range.sheetId === sheetId) {
+            if (
+              !sheetId ||
+              range.sheetId === sheetId ||
+              (sheetName && range.invalidSheetName === sheetName)
+            ) {
               const change = applyChange(range);
               if (change.changeType !== "NONE") {
                 this.history.update(

@@ -1,11 +1,14 @@
 import {
   getAddHeaderStartIndex,
+  getApplyRangeChange,
   isDefined,
   isInside,
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/index";
+import { deepCopy } from "../../helpers/misc";
 import { otRegistry } from "../../registries/ot_registry";
+import { ovtRegistry } from "../../registries/ovt_registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -30,6 +33,7 @@ import {
 } from "./../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
+import "./ovt_specific";
 
 type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
 
@@ -64,9 +68,22 @@ export function transform(
   executed: CoreCommand
 ): CoreCommand | undefined {
   const specificTransform = otRegistry.getTransformation(toTransform.type, executed.type);
-  return specificTransform
+  const transformed = specificTransform
     ? specificTransform(toTransform, executed)
     : genericTransform(toTransform, executed);
+  if (transformed) {
+    return adaptTransform(transformed, executed);
+  }
+  return transformed;
+}
+
+function adaptTransform(toTransform: CoreCommand, executed: CoreCommand): CoreCommand {
+  const arc = getApplyRangeChange(executed);
+  const adaptFn = ovtRegistry.getValues(toTransform.type);
+  if (arc && adaptFn) {
+    return adaptFn(toTransform, arc);
+  }
+  return toTransform;
 }
 
 /**
@@ -80,7 +97,7 @@ export function transformAll(
   let transformedCommands = [...toTransform];
   for (const executedCommand of executed) {
     transformedCommands = transformedCommands
-      .map((cmd) => transform(cmd, executedCommand))
+      .map((cmd) => transform(deepCopy(cmd), executedCommand))
       .filter(isDefined);
   }
   return transformedCommands;

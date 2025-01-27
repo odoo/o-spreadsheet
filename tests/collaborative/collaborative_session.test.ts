@@ -26,7 +26,7 @@ describe("Collaborative session", () => {
       recordChanges: () => ({ changes: [], commands: [] }),
       dispatch: () => CommandResult.Success,
     });
-    session = new Session(revisionLog, transport);
+    session = new Session(revisionLog, transport, undefined);
     session.join(client);
   });
 

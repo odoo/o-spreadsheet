@@ -80,6 +80,7 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
     const rowNumber = this.env.model.getters.getNumberRows(activeSheetId);
     this.env.model.dispatch("ADD_COLUMNS_ROWS", {
       sheetId: activeSheetId,
+      sheetName: this.env.model.getters.getSheetName(activeSheetId),
       position: "after",
       base: rowNumber - 1,
       quantity,

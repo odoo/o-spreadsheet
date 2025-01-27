@@ -45,6 +45,7 @@ export class GridSelectionPlugin extends UIPlugin {
   static getters = [
     "getActiveSheet",
     "getActiveSheetId",
+    "getActiveSheetName",
     "getActiveCell",
     "getActiveCols",
     "getActiveRows",
@@ -284,6 +285,10 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveSheetId(): UID {
     return this.activeSheet.id;
+  }
+
+  getActiveSheetName(): string {
+    return this.activeSheet.name;
   }
 
   tryGetActiveSheetId(): UID | undefined {
@@ -540,6 +545,7 @@ export class GridSelectionPlugin extends UIPlugin {
     this.dispatch("ADD_COLUMNS_ROWS", {
       dimension: cmd.dimension,
       sheetId: cmd.sheetId,
+      sheetName: cmd.sheetName,
       base: cmd.base,
       quantity: thickness,
       position: cmd.position,
@@ -610,6 +616,7 @@ export class GridSelectionPlugin extends UIPlugin {
     this.dispatch("REMOVE_COLUMNS_ROWS", {
       dimension: cmd.dimension,
       sheetId: cmd.sheetId,
+      sheetName: cmd.sheetName,
       elements: toRemove,
     });
   }

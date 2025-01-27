@@ -8,7 +8,11 @@ export function interactiveRenameSheet(
   name: string,
   errorCallback: () => void
 ) {
-  const result = env.model.dispatch("RENAME_SHEET", { sheetId, name });
+  const result = env.model.dispatch("RENAME_SHEET", {
+    sheetId,
+    name,
+    sheetName: env.model.getters.getSheetName(sheetId),
+  });
   if (result.reasons.includes(CommandResult.MissingSheetName)) {
     env.raiseError(_t("The sheet name cannot be empty."), errorCallback);
   } else if (result.reasons.includes(CommandResult.DuplicatedSheetName)) {

@@ -17,6 +17,7 @@ import {
   createSheetWithName,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   freezeColumns,
   freezeRows,
   hideColumns,
@@ -843,7 +844,7 @@ describe("sheets", () => {
     createSheetWithName(model, { sheetId: "42", activate: true }, name);
     const sheet2 = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "42");
-    model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
+    deleteSheet(model, sheet2);
     expect(getCellText(model, "A1")).toBe("=#REF");
     expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
     undo(model);

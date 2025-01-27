@@ -259,6 +259,7 @@ export class CellComposerStore extends AbstractComposerStore {
     if (missingCols > 0) {
       this.model.dispatch("ADD_COLUMNS_ROWS", {
         sheetId: this.sheetId,
+        sheetName: this.getters.getSheetName(this.sheetId),
         dimension: "COL",
         base: numberOfCols - 1,
         position: "after",
@@ -268,6 +269,7 @@ export class CellComposerStore extends AbstractComposerStore {
     if (missingRows > 0) {
       this.model.dispatch("ADD_COLUMNS_ROWS", {
         sheetId: this.sheetId,
+        sheetName: this.getters.getSheetName(this.sheetId),
         dimension: "ROW",
         base: numberOfRows - 1,
         position: "after",

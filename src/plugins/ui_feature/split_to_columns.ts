@@ -154,6 +154,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
         dimension: "COL",
         base: selection.left,
         sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: colsToAdd,
         position: "after",
       });
@@ -183,6 +184,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
         dimension: "COL",
         base: maxColIndex,
         sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: selection.left + maxColumnsToSpread - maxColIndex,
         position: "after",
       });

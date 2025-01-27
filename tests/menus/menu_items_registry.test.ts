@@ -322,6 +322,7 @@ describe("Menu Item actions", () => {
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         elements: [4, 5],
       });
@@ -334,6 +335,7 @@ describe("Menu Item actions", () => {
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         elements: [4, 5],
       });
@@ -351,6 +353,7 @@ describe("Menu Item actions", () => {
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         elements: [3, 4],
       });
@@ -388,6 +391,7 @@ describe("Menu Item actions", () => {
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "COL",
         elements: [4],
       });
@@ -400,6 +404,7 @@ describe("Menu Item actions", () => {
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "COL",
         elements: [4, 5],
       });
@@ -412,6 +417,7 @@ describe("Menu Item actions", () => {
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "COL",
         elements: [4, 5],
       });
@@ -423,6 +429,7 @@ describe("Menu Item actions", () => {
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "COL",
         elements: [3],
       });
@@ -435,6 +442,7 @@ describe("Menu Item actions", () => {
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "COL",
         elements: [3, 4],
       });
@@ -468,6 +476,7 @@ describe("Menu Item actions", () => {
       doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         base: 4,
         quantity: 2,
@@ -500,6 +509,7 @@ describe("Menu Item actions", () => {
       doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         base: 3,
         quantity: 2,
@@ -525,6 +535,7 @@ describe("Menu Item actions", () => {
       doAction(addRowBeforePath, env, rowMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         base: 4,
         quantity: 2,
@@ -561,6 +572,7 @@ describe("Menu Item actions", () => {
       doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         base: 5,
         quantity: 2,
@@ -593,6 +605,7 @@ describe("Menu Item actions", () => {
       doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         base: 4,
         quantity: 2,
@@ -618,6 +631,7 @@ describe("Menu Item actions", () => {
       doAction(addRowAfterPath, env, rowMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         dimension: "ROW",
         base: 5,
         quantity: 2,
@@ -654,6 +668,7 @@ describe("Menu Item actions", () => {
       doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         base: 4,
         dimension: "COL",
         quantity: 2,
@@ -686,6 +701,7 @@ describe("Menu Item actions", () => {
       doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         base: 3,
         dimension: "COL",
         quantity: 2,
@@ -711,6 +727,7 @@ describe("Menu Item actions", () => {
       doAction(addColBeforePath, env, colMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         base: 4,
         dimension: "COL",
         quantity: 2,
@@ -747,6 +764,7 @@ describe("Menu Item actions", () => {
       doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         base: 5,
         dimension: "COL",
         quantity: 2,
@@ -779,6 +797,7 @@ describe("Menu Item actions", () => {
       doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         base: 4,
         dimension: "COL",
         quantity: 2,
@@ -804,6 +823,7 @@ describe("Menu Item actions", () => {
       doAction(addColAfterPath, env, colMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
         sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
         base: 5,
         dimension: "COL",
         quantity: 2,

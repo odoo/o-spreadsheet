@@ -17,11 +17,16 @@ import {
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { toRangesData } from "../../test_helpers/helpers";
+import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with DELETE_SHEET", () => {
   const deletedSheetId = "deletedSheet";
   const sheetId = "stillPresent";
-  const deleteSheet: DeleteSheetCommand = { type: "DELETE_SHEET", sheetId: deletedSheetId };
+  const deleteSheet: DeleteSheetCommand = {
+    type: "DELETE_SHEET",
+    sheetId: deletedSheetId,
+    sheetName: "Sheet Name",
+  };
 
   const addColumns: Omit<AddColumnsRowsCommand, "sheetId"> = {
     ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
@@ -160,6 +165,21 @@ describe("OT with DELETE_SHEET", () => {
       };
       const result = transform(cmd, deleteSheet);
       expect(result).toEqual({ ...cmd, ranges: toRangesData(sheetId, "A1:B1") });
+    });
+  });
+
+  describe("Delete sheed with string formula dependant command", () => {
+    const deletedSheetName = "DeletedSheetName";
+
+    const cmds = getFormulaStringCommands(
+      sheetId,
+      "=" + deletedSheetName + "!A1",
+      "=" + deletedSheetName + "!A1"
+    );
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, deleteSheet);
+      expect(result).toEqual(expected);
     });
   });
 });

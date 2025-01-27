@@ -17,6 +17,7 @@ import {
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
+import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
@@ -507,5 +508,61 @@ describe("Transform of UPDATE_TABLE when adding rows", () => {
     const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 0, sheetId: "42" };
     const result = transform(updateFilterCmd, executed);
     expect(result).toEqual(updateFilterCmd);
+  });
+});
+
+describe("Transform adapt string formulas on row addition", () => {
+  const sheetId = "mainSheetId";
+  const sheetName = "MainSheetName";
+  const otherSheetId = "otherSheetId";
+  const otherSheetName = "OtherSheetName";
+
+  describe("on the same sheet", () => {
+    const cmds = getFormulaStringCommands(sheetId, "=SUM(A1:A5)", "=SUM(A1:A6)");
+    const addRowCmd: AddColumnsRowsCommand = {
+      ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+      dimension: "ROW",
+      sheetId,
+      sheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, addRowCmd);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("on another sheet", () => {
+    const cmds = getFormulaStringCommands(
+      sheetId,
+      "=SUM(" + otherSheetName + "!A1:A5)",
+      "=SUM(" + otherSheetName + "!A1:A6)"
+    );
+    const addRowCmd: AddColumnsRowsCommand = {
+      ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+      dimension: "ROW",
+      sheetId: otherSheetId,
+      sheetName: otherSheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, addRowCmd);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("do not adapt strings", () => {
+    const cmds = getFormulaStringCommands(sheetId, "hello in A5", "hello in A5");
+    const addRowCmd: AddColumnsRowsCommand = {
+      ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+      dimension: "ROW",
+      sheetId,
+      sheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, addRowCmd);
+      expect(result).toEqual(expected);
+    });
   });
 });

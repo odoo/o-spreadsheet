@@ -259,6 +259,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         dimension: "COL",
         base: numberCols - 1,
         sheetId: sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: colLimit - deltaCol,
         position: "after",
       });
@@ -271,6 +272,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         dimension: "ROW",
         base: numberRows - 1,
         sheetId: sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: rowLimit - deltaRow,
         position: "after",
       });
