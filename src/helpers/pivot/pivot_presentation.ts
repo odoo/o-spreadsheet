@@ -133,7 +133,7 @@ export default function (PivotClass: PivotUIConstructor) {
           const symbolIndex = rowDomain.findIndex((row) => row.field === symbolName);
           return this.getPivotHeaderValueAndFormat(rowDomain.slice(0, symbolIndex + 1));
         }
-        return this._getPivotCellValueAndFormat(symbolName, domain);
+        return this.getPivotCellValueAndFormat(symbolName, domain);
       };
       const result = this.getters.evaluateCompiledFormula(
         measure.computedBy.sheetId,

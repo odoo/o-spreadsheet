@@ -1558,6 +1558,43 @@ describe("Measure display", () => {
     });
   });
 
+  test("calculated measure uses the displayed values", () => {
+    const measureDisplay: PivotMeasureDisplay = {
+      type: "%_of_grand_total",
+      fieldNameWithGranularity: "Created on:month_number",
+      value: 2,
+    };
+    const model = createModelWithTestPivotDataset();
+    const sheetId = model.getters.getActiveSheetId();
+    updatePivot(model, pivotId, {
+      measures: [
+        {
+          fieldName: "Expected Revenue",
+          userDefinedName: "m1",
+          aggregator: "sum",
+          id: "m1",
+          display: measureDisplay,
+        },
+        {
+          fieldName: "Expected Revenue + 10%",
+          userDefinedName: "m2",
+          aggregator: "sum",
+          id: "calculated",
+          computedBy: { formula: "='m1' + 10%", sheetId },
+        },
+      ],
+    });
+    // prettier-ignore
+    expect(getFormattedGrid(model)).toMatchObject({
+      A20:"(#1) Pivot",  B20: "Alice",   C20: "",        D20: "Bob",     E20: "",        F20: "Total",    G20: "",
+      A21: "",           B21: "m1",      C21: "m2",      D21: "m1",      E21: "m2",      F21: "m1",       G21: "m2",
+      A22: "February",   B22: "7.03%",   C22: "17.03%",  D22: "0.00%",   E22: "10.00%",  F22: "7.03%",    G22: "27.03%",
+      A23: "March",      B23: "39.16%",  C23: "49.16%",  D23: "19.99%",  E23: "29.99%",  F23: "59.15%",   G23: "79.15%",
+      A24: "April",      B24: "25.70%",  C24: "35.70%",  D24: "8.12%",   E24: "18.12%",  F24: "33.82%",   G24: "53.82%",
+      A25: "Total",      B25: "71.89%",  C25: "101.89%", D25: "28.11%",  E25: "58.11%",  F25: "100.00%",  G25: "160.00%",
+    });
+  });
+
   test("Can change measure display with calculated measure", () => {
     const measureDisplay: PivotMeasureDisplay = {
       type: "%_of_grand_total",
@@ -1576,11 +1613,11 @@ describe("Measure display", () => {
           display: measureDisplay,
         },
         {
-          fieldName: "Expected Revenue + 1000",
+          fieldName: "Expected Revenue + 10%",
           userDefinedName: "m2",
           aggregator: "sum",
           id: "calculated",
-          computedBy: { formula: "='m1' + 1000", sheetId },
+          computedBy: { formula: "='m1' + 10%", sheetId },
           display: measureDisplay,
         },
       ],
@@ -1589,10 +1626,10 @@ describe("Measure display", () => {
     expect(getFormattedGrid(model)).toMatchObject({
       A20:"(#1) Pivot",  B20: "Alice",   C20: "",        D20: "Bob",     E20: "",        F20: "Total",    G20: "",
       A21: "",           B21: "m1",      C21: "m2",      D21: "m1",      E21: "m2",      F21: "m1",       G21: "m2",
-      A22: "February",   B22: "7.03%",   C22: "7.20%",   D22: "0.00%",   E22: "0.31%",   F22: "7.03%",    G22: "7.51%",
-      A23: "March",      B23: "39.16%",  C23: "38.75%",  D23: "19.99%",  E23: "19.93%",  F23: "59.15%",   G23: "58.68%",
-      A24: "April",      B24: "25.70%",  C24: "25.54%",  D24: "8.12%",   E24: "8.28%",   F24: "33.82%",   G24: "33.81%",
-      A25: "Total",      B25: "71.89%",  C25: "71.49%",  D25: "28.11%",  E25: "28.51%",  F25: "100.00%",  G25: "100.00%",
+      A22: "February",   B22: "7.03%",   C22: "10.64%",  D22: "0.00%",   E22: "6.25%",   F22: "7.03%",    G22: "16.89%",
+      A23: "March",      B23: "39.16%",  C23: "30.73%",  D23: "19.99%",  E23: "18.74%",  F23: "59.15%",   G23: "49.47%",
+      A24: "April",      B24: "25.70%",  C24: "22.31%",  D24: "8.12%",   E24: "11.32%",  F24: "33.82%",   G24: "33.64%",
+      A25: "Total",      B25: "71.89%",  C25: "63.68%",  D25: "28.11%",  E25: "36.32%",  F25: "100.00%",  G25: "100.00%",
     });
   });
 });
