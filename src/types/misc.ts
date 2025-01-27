@@ -293,6 +293,10 @@ export type ApplyRangeChangeResult =
   | { changeType: Exclude<ChangeType, "NONE">; range: Range }
   | { changeType: "NONE" };
 export type ApplyRangeChange = (range: Range) => ApplyRangeChangeResult;
+export type ApplyRangeChangeSheet = {
+  sheetId?: UID;
+  applyChange: ApplyRangeChange;
+};
 
 export type Dimension = "COL" | "ROW";
 
