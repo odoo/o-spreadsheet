@@ -1,4 +1,4 @@
-import { ChartType as ChartJSType, Point, TooltipItem } from "chart.js";
+import { Point } from "chart.js";
 import { CommandResult, Model } from "../../../src";
 import { ChartDefinition } from "../../../src/types";
 import {
@@ -1944,12 +1944,10 @@ describe("Chart design configuration", () => {
     const y = typeof datasetPoint === "number" ? datasetPoint : datasetPoint?.["y"];
     const x = chart.chartJsConfig!.data.labels![dataIndex];
     const point = chart.chartJsConfig.type === "pie" ? y : { x, y };
-    const tooltipItem: TooltipItem<ChartJSType> = {
+    const tooltipItem = {
       label: "",
-      // @ts-ignore chart.js type is wrong
       parsed: point,
       raw: point,
-      //@ts-ignore chartjs dataset type is wrong
       dataset: chart.chartJsConfig.data!.datasets[datasetIndex],
       datasetIndex,
       dataIndex,

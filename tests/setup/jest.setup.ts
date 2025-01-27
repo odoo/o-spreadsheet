@@ -3,6 +3,7 @@
  */
 import { App } from "@odoo/owl";
 import { setDefaultSheetViewSize } from "../../src/constants";
+import "../../src/types/chart/chartjs_tree_map_type";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import "./canvas.mock";
