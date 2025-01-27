@@ -1,7 +1,7 @@
-import { ChartCreationContext, ChartJSRuntime, Model } from "../../../src";
-import { PyramidChart } from "../../../src/helpers/figures/charts/pyramid_chart";
-import { PyramidChartDefinition } from "../../../src/types/chart/pyramid_chart";
-import { createChart, setCellContent, setFormat } from "../../test_helpers/commands_helpers";
+import { ChartCreationContext, ChartJSRuntime, Model } from "../../../../src";
+import { PyramidChart } from "../../../../src/helpers/figures/charts/pyramid_chart";
+import { PyramidChartDefinition } from "../../../../src/types/chart/pyramid_chart";
+import { createChart, setCellContent, setFormat } from "../../../test_helpers/commands_helpers";
 
 let model: Model;
 describe("population pyramid chart", () => {
