@@ -30,11 +30,12 @@ export interface AutoCompleteProvider {
  * We declare the providers in the registry as an object (rather than a class)
  * to allow a type-safe way to declare the provider.
  * We still want to be able to use `this` for the getters and dispatch for simplicity.
- * Binding happens at runtime in the edition plugin.
+ * Binding happens at runtime in the composer store.
  */
 export interface AutoCompleteProviderDefinition {
   sequence?: number;
   autoSelectFirstProposal?: boolean;
+  displayAllOnInitialContent?: boolean;
   maxDisplayedProposals?: number;
   getProposals(
     this: { composer: ComposerStore; getters: Getters },

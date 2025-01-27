@@ -2,6 +2,7 @@ import { isNotNull } from "../../helpers";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {
+  displayAllOnInitialContent: true,
   getProposals(tokenAtCursor, content) {
     if (content.startsWith("=")) {
       return [];
