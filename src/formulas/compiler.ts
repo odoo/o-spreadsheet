@@ -33,13 +33,8 @@ export const UNARY_OPERATOR_MAP = {
   "%": "UNARY.PERCENT",
 };
 
-interface ConstantValues {
-  numbers: number[];
-  strings: string[];
-}
-
 type InternalCompiledFormula = CompiledFormula & {
-  constantValues: ConstantValues;
+  constantValues: (string | number)[];
   symbols: string[];
 };
 
@@ -76,7 +71,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
 function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const { dependencies, constantValues, symbols } = formulaArguments(tokens);
-  const cacheKey = compilationCacheKey(tokens, dependencies, constantValues, symbols);
+  const cacheKey = compilationCacheKey(tokens, dependencies);
   if (!functionCache[cacheKey]) {
     const ast = parseTokens([...tokens]);
     const scope = new Scope();
@@ -87,6 +82,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
     if (ast.type === "EMPTY") {
       throw new BadExpressionError(_t("Invalid formula"));
     }
+    let constValueIndex = -1;
     const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
     code.append(`// ${cacheKey}`);
@@ -168,13 +164,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         case "BOOLEAN":
           return code.return(`{ value: ${ast.value} }`);
         case "NUMBER":
-          return code.return(
-            `{ value: this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}] }`
-          );
         case "STRING":
-          return code.return(
-            `{ value: this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}] }`
-          );
+          constValueIndex++;
+          return code.return(`{ value: this.constantValues[${constValueIndex}] }`);
         case "REFERENCE":
           const referenceIndex = dependencies.indexOf(ast.value);
           if ((!isMeta && ast.value.includes(":")) || hasRange) {
@@ -233,23 +225,15 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
  *
  * A formula `=A1+A2+SUM(2, 2, "2")` have the cache key `=|0|+|1|+SUM(|N0|,|N0|,|S0|)`
  */
-function compilationCacheKey(
-  tokens: Token[],
-  dependencies: string[],
-  constantValues: ConstantValues,
-  symbols: string[]
-): string {
+function compilationCacheKey(tokens: Token[], dependencies: string[]): string {
   let cacheKey = "";
   for (const token of tokens) {
     switch (token.type) {
       case "STRING":
-        const value = removeStringQuotes(token.value);
-        cacheKey += `|S${constantValues.strings.indexOf(value)}|`;
+        cacheKey += `|S|`;
         break;
       case "NUMBER":
-        cacheKey += `|N${constantValues.numbers.indexOf(
-          parseNumber(token.value, DEFAULT_LOCALE)
-        )}|`;
+        cacheKey += `|N|`;
         break;
       case "REFERENCE":
       case "INVALID_REFERENCE":
@@ -274,10 +258,7 @@ function compilationCacheKey(
  * Return formula arguments which are references, strings and numbers.
  */
 function formulaArguments(tokens: Token[]) {
-  const constantValues: ConstantValues = {
-    numbers: [],
-    strings: [],
-  };
+  const constantValues: (string | number)[] = [];
   const dependencies: string[] = [];
   const symbols: string[] = [];
   for (const token of tokens) {
@@ -288,15 +269,11 @@ function formulaArguments(tokens: Token[]) {
         break;
       case "STRING":
         const value = removeStringQuotes(token.value);
-        if (!constantValues.strings.includes(value)) {
-          constantValues.strings.push(value);
-        }
+        constantValues.push(value);
         break;
       case "NUMBER": {
         const value = parseNumber(token.value, DEFAULT_LOCALE);
-        if (!constantValues.numbers.includes(value)) {
-          constantValues.numbers.push(value);
-        }
+        constantValues.push(value);
         break;
       }
       case "SYMBOL": {
