@@ -1,3 +1,4 @@
+import { Model } from "../../../src";
 import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
 import {
@@ -9,6 +10,7 @@ import {
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
 } from "../../../src/types";
+import { CoreGetters } from "../../../src/types/getters";
 import {
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
   OT_TESTS_SINGLE_CELL_COMMANDS,
@@ -17,11 +19,21 @@ import {
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { toRangesData } from "../../test_helpers/helpers";
+import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with DELETE_SHEET", () => {
   const deletedSheetId = "deletedSheet";
   const sheetId = "stillPresent";
   const deleteSheet: DeleteSheetCommand = { type: "DELETE_SHEET", sheetId: deletedSheetId };
+  let model: Model;
+  let getters: CoreGetters;
+
+  beforeEach(() => {
+    model = new Model({
+      sheets: [{ id: sheetId, name: "Sheet Name" }],
+    });
+    getters = model.getters;
+  });
 
   const addColumns: Omit<AddColumnsRowsCommand, "sheetId"> = {
     ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
@@ -79,13 +91,13 @@ describe("OT with DELETE_SHEET", () => {
     TEST_COMMANDS.REMOVE_DATA_VALIDATION_RULE,
   ])("Delete sheet", (cmd) => {
     test("Delete the sheet on which the command is triggered", () => {
-      const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
+      const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet, getters);
       expect(result).toBeUndefined();
     });
 
     test("Delete a sheet other than the one on which the command is triggered", () => {
       const command = { ...cmd, sheetId };
-      const result = transform(command, deleteSheet);
+      const result = transform(command, deleteSheet, getters);
       expect(result).toEqual(command);
     });
   });
@@ -97,13 +109,13 @@ describe("OT with DELETE_SHEET", () => {
     };
 
     test("Delete the sheet on which the command is triggered", () => {
-      const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
+      const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet, getters);
       expect(result).toBeUndefined();
     });
 
     test("Delete the sheet on which the command is triggered", () => {
       const command = { ...cmd, sheetId };
-      const result = transform(command, deleteSheet);
+      const result = transform(command, deleteSheet, getters);
       expect(result).toEqual(command);
     });
   });
@@ -118,20 +130,21 @@ describe("OT with DELETE_SHEET", () => {
     };
 
     test("Delete the sheet on which the command is triggered", () => {
-      const result = transform({ ...cmd, targetSheetId: deletedSheetId }, deleteSheet);
+      const result = transform({ ...cmd, targetSheetId: deletedSheetId }, deleteSheet, getters);
       expect(result).toBeUndefined();
     });
 
     test("Delete another sheet", () => {
       const command = { ...cmd, sheetId, targetSheetId: sheetId };
-      const result = transform(command, deleteSheet);
+      const result = transform(command, deleteSheet, getters);
       expect(result).toEqual(command);
     });
 
     test("Delete the sheet source and target sheet", () => {
       const result = transform(
         { ...cmd, sheetId: deletedSheetId, targetSheetId: deletedSheetId },
-        deleteSheet
+        deleteSheet,
+        getters
       );
       expect(result).toBeUndefined();
     });
@@ -142,13 +155,13 @@ describe("OT with DELETE_SHEET", () => {
 
     test("Delete the sheet of the command", () => {
       const cmd = { ...addCF, sheetId: deletedSheetId, ranges: toRangesData(sheetId, "A1:B1") };
-      const result = transform(cmd, deleteSheet);
+      const result = transform(cmd, deleteSheet, getters);
       expect(result).toBeUndefined();
     });
 
     test("Delete the sheet of the ranges", () => {
       const cmd = { ...addCF, sheetId: sheetId, ranges: toRangesData(deletedSheetId, "A1:B1") };
-      const result = transform(cmd, deleteSheet);
+      const result = transform(cmd, deleteSheet, getters);
       expect(result).toBeUndefined();
     });
 
@@ -158,8 +171,35 @@ describe("OT with DELETE_SHEET", () => {
         sheetId: sheetId,
         ranges: [...toRangesData(deletedSheetId, "A1:B1"), ...toRangesData(sheetId, "A1:B1")],
       };
-      const result = transform(cmd, deleteSheet);
+      const result = transform(cmd, deleteSheet, getters);
       expect(result).toEqual({ ...cmd, ranges: toRangesData(sheetId, "A1:B1") });
+    });
+  });
+
+  describe("Delete sheed with string formula dependant command", () => {
+    const sheetName = "MainSheetName";
+    const deletedSheetName = "DeletedSheetName";
+
+    let model: Model;
+
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          { id: sheetId, name: sheetName },
+          { id: deletedSheetId, name: deletedSheetName },
+        ],
+      });
+    });
+
+    const cmds = getFormulaStringCommands(
+      sheetId,
+      "=" + deletedSheetName + "!A1",
+      "=" + deletedSheetName + "!A1"
+    );
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, deleteSheet, model.getters);
+      expect(result).toEqual(expected);
     });
   });
 });

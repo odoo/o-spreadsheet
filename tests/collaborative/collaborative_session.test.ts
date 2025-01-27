@@ -3,7 +3,7 @@ import { Session } from "../../src/collaborative/session";
 import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { lazy } from "../../src/helpers";
 import { buildRevisionLog } from "../../src/history/factory";
-import { Client, CommandResult, WorkbookData } from "../../src/types";
+import { Client, CommandResult, CoreGetters, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
@@ -21,12 +21,14 @@ describe("Collaborative session", () => {
       id: "alice",
       name: "Alice",
     };
+    const coreGetters = {} as CoreGetters;
     const revisionLog = buildRevisionLog({
       initialRevisionId: "START_REVISION",
       recordChanges: () => ({ changes: [], commands: [] }),
       dispatch: () => CommandResult.Success,
+      coreGetters,
     });
-    session = new Session(revisionLog, transport);
+    session = new Session(revisionLog, transport, undefined, coreGetters);
     session.join(client);
   });
 

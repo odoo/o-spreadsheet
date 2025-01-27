@@ -3,12 +3,14 @@ import { Revision } from "../collaborative/revisions";
 import { inverseCommand } from "../helpers/inverse_commands";
 import { StateObserver } from "../state_observer";
 import { CoreCommand, HistoryChange, UID } from "../types";
+import { CoreGetters } from "../types/getters";
 import { SelectiveHistory } from "./selective_history";
 
 export function buildRevisionLog(args: {
   initialRevisionId: UID;
   recordChanges: StateObserver["recordChanges"];
   dispatch: (command: CoreCommand) => void;
+  coreGetters: CoreGetters;
 }) {
   return new SelectiveHistory<Revision>({
     initialOperationId: args.initialRevisionId,
@@ -28,7 +30,7 @@ export function buildRevisionLog(args: {
         return new Revision(
           toTransform.id,
           toTransform.clientId,
-          transformAll(toTransform.commands, revision.commands),
+          transformAll(toTransform.commands, revision.commands, args.coreGetters),
           toTransform.rootCommand,
           undefined,
           toTransform.timestamp
@@ -38,7 +40,11 @@ export function buildRevisionLog(args: {
         return new Revision(
           toTransform.id,
           toTransform.clientId,
-          transformAll(toTransform.commands, revision.commands.map(inverseCommand).flat()),
+          transformAll(
+            toTransform.commands,
+            revision.commands.map(inverseCommand).flat(),
+            args.coreGetters
+          ),
           toTransform.rootCommand,
           undefined,
           toTransform.timestamp
