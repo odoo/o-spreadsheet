@@ -20,6 +20,7 @@ export class ReferenceClipboardHandler extends AbstractCellClipboardHandler<Clip
       this.dispatch("MOVE_RANGES", {
         target: content.zones,
         sheetId: content.sheetId,
+        sheetName: this.getters.getSheetName(content.sheetId),
         targetSheetId: target.sheetId,
         col: selection.left,
         row: selection.top,

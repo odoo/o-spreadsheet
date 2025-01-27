@@ -17,6 +17,7 @@ import {
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
+import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
@@ -27,6 +28,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     base: 5,
     quantity: 2,
     sheetId,
+    sheetName: "",
   };
   const addRowsBefore: AddColumnsRowsCommand = {
     type: "ADD_COLUMNS_ROWS",
@@ -35,6 +37,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     base: 10,
     quantity: 2,
     sheetId,
+    sheetName: "",
   };
   describe.each(OT_TESTS_SINGLE_CELL_COMMANDS)(
     "OT with ADD_COLUMNS_ROW with dimension ROW",
@@ -193,6 +196,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     type: "REMOVE_COLUMNS_ROWS",
     dimension: "ROW",
     sheetId,
+    sheetName: "",
   };
 
   describe.each([resizeRowsCommand, removeRowsCommands])("delete or resize rows", (toTransform) => {
@@ -259,6 +263,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const addRowsBefore: AddColumnsRowsCommand = {
         type: "ADD_COLUMNS_ROWS",
@@ -267,6 +272,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform(addRowsBefore, addRowsAfter);
       expect(result).toEqual(addRowsBefore);
@@ -279,6 +285,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const addRowsBefore: AddColumnsRowsCommand = {
         type: "ADD_COLUMNS_ROWS",
@@ -287,6 +294,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform(addRowsAfter, addRowsBefore);
       expect(result).toEqual({ ...addRowsAfter, base: 7 });
@@ -299,6 +307,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform({ ...addRowsAfter, base: 0 }, addRowsAfter);
       expect(result).toEqual({ ...addRowsAfter, base: 0 });
@@ -311,6 +320,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform({ ...addRowsAfter, base: 10 }, addRowsAfter);
       expect(result).toEqual({ ...addRowsAfter, base: 12 });
@@ -508,4 +518,56 @@ describe("Transform of UPDATE_TABLE when adding rows", () => {
     const result = transform(updateFilterCmd, executed);
     expect(result).toEqual(updateFilterCmd);
   });
+});
+
+describe("Transform adapt string formulas on row addition", () => {
+  const sheetId = "mainSheetId";
+  const sheetName = "MainSheetName";
+  const otherSheetId = "otherSheetId";
+  const otherSheetName = "OtherSheetName";
+
+  test.each(getFormulaStringCommands(sheetId, "=SUM(A1:A5)", "=SUM(A1:A6)"))(
+    "on the same sheet %s",
+    (cmd, expected) => {
+      const addRowCmd: AddColumnsRowsCommand = {
+        ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+        dimension: "ROW",
+        sheetId,
+        sheetName,
+      };
+      const result = transform(cmd, addRowCmd);
+      expect(result).toEqual(expected);
+    }
+  );
+
+  test.each(
+    getFormulaStringCommands(
+      sheetId,
+      "=SUM(" + otherSheetName + "!A1:A5)",
+      "=SUM(" + otherSheetName + "!A1:A6)"
+    )
+  )("on another sheet %s", (cmd, expected) => {
+    const addRowCmd: AddColumnsRowsCommand = {
+      ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+      dimension: "ROW",
+      sheetId: otherSheetId,
+      sheetName: otherSheetName,
+    };
+    const result = transform(cmd, addRowCmd);
+    expect(result).toEqual(expected);
+  });
+
+  test.each(getFormulaStringCommands(sheetId, "hello in A5", "hello in A5"))(
+    "do not adapt string %s",
+    (cmd, expected) => {
+      const addRowCmd: AddColumnsRowsCommand = {
+        ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+        dimension: "ROW",
+        sheetId,
+        sheetName,
+      };
+      const result = transform(cmd, addRowCmd);
+      expect(result).toEqual(expected);
+    }
+  );
 });

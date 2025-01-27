@@ -272,7 +272,7 @@ describe("Model history", () => {
   test("undo a sheet creation changes the active sheet", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42", position: 1 });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
     undo(model);
     expect(model.getters.getActiveSheetId()).toBe(sheetId);

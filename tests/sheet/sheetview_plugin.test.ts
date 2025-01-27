@@ -1035,9 +1035,9 @@ describe("Viewport of Simple sheet", () => {
         version: MESSAGE_VERSION,
         clientId: "bob",
         commands: [
-          { type: "CREATE_SHEET", position: 1, sheetId: "newSheetId" },
+          { type: "CREATE_SHEET", position: 1, sheetId: "newSheetId", name: "newSheetName" },
           { type: "UPDATE_CELL", sheetId: "newSheetId", col: 0, row: 0, content: "1" },
-          { type: "DELETE_SHEET", sheetId: "newSheetId" },
+          { type: "DELETE_SHEET", sheetId: "newSheetId", sheetName: "newSheetName" },
         ],
       },
     ];

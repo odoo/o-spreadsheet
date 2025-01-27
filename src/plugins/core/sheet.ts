@@ -187,7 +187,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.moveSheet(cmd.sheetId, cmd.delta);
         break;
       case "RENAME_SHEET":
-        this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
+        this.renameSheet(this.sheets[cmd.sheetId]!, cmd.newName);
         break;
       case "COLOR_SHEET":
         this.history.update("sheets", cmd.sheetId, "color", cmd.color);
@@ -642,12 +642,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
     const originalSheetName = this.getters.tryGetSheetName(cmd.sheetId);
-    if (originalSheetName !== undefined && cmd.name === originalSheetName) {
+    const sheetName = cmd.type === "RENAME_SHEET" ? cmd.newName : cmd.name;
+    if (originalSheetName !== undefined && sheetName === originalSheetName) {
       return CommandResult.UnchangedSheetName;
     }
 
     const { orderedSheetIds, sheets } = this;
-    const name = cmd.name && cmd.name.trim().toLowerCase();
+    const name = sheetName && sheetName.trim().toLowerCase();
     if (
       orderedSheetIds.find((id) => sheets[id]?.name.toLowerCase() === name && id !== cmd.sheetId)
     ) {
@@ -700,7 +701,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {
-    const name = cmd.name && cmd.name.trim().toLowerCase();
+    const name = cmd.newName && cmd.newName.trim().toLowerCase();
     if (!name) {
       return CommandResult.MissingSheetName;
     }
