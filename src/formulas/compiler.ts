@@ -71,7 +71,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
 function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const { dependencies, constantValues, symbols } = formulaArguments(tokens);
-  const cacheKey = compilationCacheKey(tokens, dependencies);
+  const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
     const ast = parseTokens([...tokens]);
     const scope = new Scope();
@@ -83,6 +83,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       throw new BadExpressionError(_t("Invalid formula"));
     }
     let constValueIndex = -1;
+    let depsValueIndex = -1;
     const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
     code.append(`// ${cacheKey}`);
@@ -168,11 +169,11 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
           constValueIndex++;
           return code.return(`{ value: this.constantValues[${constValueIndex}] }`);
         case "REFERENCE":
-          const referenceIndex = dependencies.indexOf(ast.value);
+          depsValueIndex++;
           if ((!isMeta && ast.value.includes(":")) || hasRange) {
-            return code.return(`range(deps[${referenceIndex}])`);
+            return code.return(`range(deps[${depsValueIndex}])`);
           } else {
-            return code.return(`ref(deps[${referenceIndex}], ${isMeta ? "true" : "false"})`);
+            return code.return(`ref(deps[${depsValueIndex}], ${isMeta ? "true" : "false"})`);
           }
         case "FUNCALL":
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
@@ -225,7 +226,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
  *
  * A formula `=A1+A2+SUM(2, 2, "2")` have the cache key `=|0|+|1|+SUM(|N0|,|N0|,|S0|)`
  */
-function compilationCacheKey(tokens: Token[], dependencies: string[]): string {
+function compilationCacheKey(tokens: Token[]): string {
   let cacheKey = "";
   for (const token of tokens) {
     switch (token.type) {
@@ -238,9 +239,9 @@ function compilationCacheKey(tokens: Token[], dependencies: string[]): string {
       case "REFERENCE":
       case "INVALID_REFERENCE":
         if (token.value.includes(":")) {
-          cacheKey += `R|${dependencies.indexOf(token.value)}|`;
+          cacheKey += `|R|`;
         } else {
-          cacheKey += `C|${dependencies.indexOf(token.value)}|`;
+          cacheKey += `|C|`;
         }
         break;
       case "SPACE":

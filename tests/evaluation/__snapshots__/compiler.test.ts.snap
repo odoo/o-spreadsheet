@@ -56,7 +56,7 @@ return ctx['ADD'](_1, _2);
 exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =USEMETAARG(C|0|)
+// =USEMETAARG(|C|)
 const _1 = ref(deps[0], true);
 return ctx['USEMETAARG'](_1);
 }"
@@ -65,7 +65,7 @@ return ctx['USEMETAARG'](_1);
 exports[`compile functions with meta arguments function call requesting meta parameter 2`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =USEMETAARG(C|0|)
+// =USEMETAARG(|C|)
 const _1 = ref(deps[0], true);
 return ctx['USEMETAARG'](_1);
 }"
@@ -74,7 +74,7 @@ return ctx['USEMETAARG'](_1);
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =sum(C|0|)
+// =sum(|C|)
 const _1 = range(deps[0]);
 return ctx['SUM'](_1);
 }"
@@ -83,7 +83,7 @@ return ctx['SUM'](_1);
 exports[`expression compiler expression with $ref 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =C|0|+C|1|+C|2|
+// =|C|+|C|+|C|
 const _1 = ref(deps[0], false);
 const _2 = ref(deps[1], false);
 const _3 = ctx['ADD'](_1, _2);
@@ -95,7 +95,7 @@ return ctx['ADD'](_3, _4);
 exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =C|0|
+// =|C|
 return ref(deps[0], false);
 }"
 `;
@@ -103,7 +103,7 @@ return ref(deps[0], false);
 exports[`expression compiler expressions with a debugger 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =?C|0|/|N|
+// =?|C|/|N|
 debugger;
 ctx["debug"] = true;
 const _1 = ref(deps[0], false);
@@ -115,7 +115,7 @@ return ctx['DIVIDE'](_1, _2);
 exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =C|0|+sum(R|1|)
+// =|C|+sum(|R|)
 const _1 = ref(deps[0], false);
 const _2 = range(deps[1]);
 const _3 = ctx['SUM'](_2);
@@ -265,7 +265,7 @@ return ctx['UNARY.PERCENT'](_3);
 exports[`expression compiler some arithmetic expressions 15`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =C|0|%
+// =|C|%
 const _1 = ref(deps[0], false);
 return ctx['UNARY.PERCENT'](_1);
 }"
@@ -274,9 +274,9 @@ return ctx['UNARY.PERCENT'](_1);
 exports[`expression compiler with the same reference multiple times 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
-// =SUM(C|0|,C|0|,C|2|)
+// =SUM(|C|,|C|,|C|)
 const _1 = range(deps[0]);
-const _2 = range(deps[0]);
+const _2 = range(deps[1]);
 const _3 = range(deps[2]);
 return ctx['SUM'](_1,_2,_3);
 }"
