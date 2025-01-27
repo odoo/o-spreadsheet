@@ -4,6 +4,7 @@ import {
   addColumns,
   addDataValidation,
   addRows,
+  createSheet,
   deleteColumns,
   deleteContent,
   deleteRows,
@@ -211,6 +212,193 @@ describe("Data validation", () => {
       expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
     }
   );
+
+  test.each([
+    [{ type: "textContains", values: ["=F5"] }, ["=G5"]],
+    [{ type: "textNotContains", values: ["=F5"] }, ["=G5"]],
+    [{ type: "textIs", values: ["=F5"] }, ["=G5"]],
+    [{ type: "textIsEmail", values: [] }, []],
+    [{ type: "textIsLink", values: [] }, []],
+    [{ type: "dateIs", values: ["=F5"], dateValue: "exactDate" }, ["=G5"]],
+    [{ type: "dateIsBefore", values: ["=F5"], dateValue: "exactDate" }, ["=G5"]],
+    [{ type: "dateIsOnOrBefore", values: ["=F5"], dateValue: "exactDate" }, ["=G5"]],
+    [{ type: "dateIsAfter", values: ["=F5"], dateValue: "exactDate" }, ["=G5"]],
+    [{ type: "dateIsOnOrAfter", values: ["=F5"], dateValue: "exactDate" }, ["=G5"]],
+    [{ type: "dateIsBetween", values: ["=A1", "=F5"] }, ["=A1", "=G5"]],
+    [{ type: "dateIsValid", values: [] }, []],
+    [{ type: "isEqual", values: ["=F5"] }, ["=G5"]],
+    [{ type: "isEqual", values: ["5"] }, ["5"]],
+    [{ type: "isNotEqual", values: ["=F5"] }, ["=G5"]],
+    [{ type: "isGreaterThan", values: ["=F5"] }, ["=G5"]],
+    [{ type: "isLessThan", values: ["=F5"] }, ["=G5"]],
+    [{ type: "isLessOrEqualTo", values: ["=F5"] }, ["=G5"]],
+    [{ type: "isGreaterOrEqualTo", values: ["=F5"] }, ["=G5"]],
+    [{ type: "isBetween", values: ["=A1", "=F5"] }, ["=A1", "=G5"]],
+    [{ type: "isNotBetween", values: ["=A1", "=F5"] }, ["=A1", "=G5"]],
+    [{ type: "customFormula", values: ["=F5"] }, ["=G5"]],
+  ])("Adapt %s data validation rule on column addition", (criterion, expectedValue) => {
+    addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    addColumns(model, "after", "C", 1);
+    expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
+    expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
+      expectedValue
+    );
+  });
+
+  test.each([
+    [{ type: "textContains", values: ["=F5"] }, ["=F6"]],
+    [{ type: "textNotContains", values: ["=F5"] }, ["=F6"]],
+    [{ type: "textIs", values: ["=F5"] }, ["=F6"]],
+    [{ type: "textIsEmail", values: [] }, []],
+    [{ type: "textIsLink", values: [] }, []],
+    [{ type: "dateIs", values: ["=F5"], dateValue: "exactDate" }, ["=F6"]],
+    [{ type: "dateIsBefore", values: ["=F5"], dateValue: "exactDate" }, ["=F6"]],
+    [{ type: "dateIsOnOrBefore", values: ["=F5"], dateValue: "exactDate" }, ["=F6"]],
+    [{ type: "dateIsAfter", values: ["=F5"], dateValue: "exactDate" }, ["=F6"]],
+    [{ type: "dateIsOnOrAfter", values: ["=F5"], dateValue: "exactDate" }, ["=F6"]],
+    [{ type: "dateIsBetween", values: ["=A1", "=F5"] }, ["=A1", "=F6"]],
+    [{ type: "dateIsValid", values: [] }, []],
+    [{ type: "isEqual", values: ["=F5"] }, ["=F6"]],
+    [{ type: "isEqual", values: ["5"] }, ["5"]],
+    [{ type: "isNotEqual", values: ["=F5"] }, ["=F6"]],
+    [{ type: "isGreaterThan", values: ["=F5"] }, ["=F6"]],
+    [{ type: "isLessThan", values: ["=F5"] }, ["=F6"]],
+    [{ type: "isLessOrEqualTo", values: ["=F5"] }, ["=F6"]],
+    [{ type: "isGreaterOrEqualTo", values: ["=F5"] }, ["=F6"]],
+    [{ type: "isBetween", values: ["=A1", "=F5"] }, ["=A1", "=F6"]],
+    [{ type: "isNotBetween", values: ["=A1", "=F5"] }, ["=A1", "=F6"]],
+    [{ type: "customFormula", values: ["=F5"] }, ["=F6"]],
+  ])("Adapt %s data validation rule on row addition", (criterion, expectedValue) => {
+    addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    addRows(model, "after", 3, 1);
+    expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
+    expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
+      expectedValue
+    );
+  });
+
+  test.each([
+    [{ type: "textContains", values: ["=F5"] }, ["=E5"]],
+    [{ type: "textNotContains", values: ["=F5"] }, ["=E5"]],
+    [{ type: "textIs", values: ["=F5"] }, ["=E5"]],
+    [{ type: "textIsEmail", values: [] }, []],
+    [{ type: "textIsLink", values: [] }, []],
+    [{ type: "dateIs", values: ["=F5"], dateValue: "exactDate" }, ["=E5"]],
+    [{ type: "dateIsBefore", values: ["=F5"], dateValue: "exactDate" }, ["=E5"]],
+    [{ type: "dateIsOnOrBefore", values: ["=F5"], dateValue: "exactDate" }, ["=E5"]],
+    [{ type: "dateIsAfter", values: ["=F5"], dateValue: "exactDate" }, ["=E5"]],
+    [{ type: "dateIsOnOrAfter", values: ["=F5"], dateValue: "exactDate" }, ["=E5"]],
+    [{ type: "dateIsBetween", values: ["=A1", "=F5"] }, ["=A1", "=E5"]],
+    [{ type: "dateIsValid", values: [] }, []],
+    [{ type: "isEqual", values: ["=F5"] }, ["=E5"]],
+    [{ type: "isEqual", values: ["5"] }, ["5"]],
+    [{ type: "isNotEqual", values: ["=F5"] }, ["=E5"]],
+    [{ type: "isGreaterThan", values: ["=F5"] }, ["=E5"]],
+    [{ type: "isLessThan", values: ["=F5"] }, ["=E5"]],
+    [{ type: "isLessOrEqualTo", values: ["=F5"] }, ["=E5"]],
+    [{ type: "isGreaterOrEqualTo", values: ["=F5"] }, ["=E5"]],
+    [{ type: "isBetween", values: ["=A1", "=F5"] }, ["=A1", "=E5"]],
+    [{ type: "isNotBetween", values: ["=A1", "=F5"] }, ["=A1", "=E5"]],
+    [{ type: "customFormula", values: ["=F5"] }, ["=E5"]],
+  ])("Adapt %s data validation rule on column deletion", (criterion, expectedValue) => {
+    addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    deleteColumns(model, ["C"]);
+    expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
+    expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
+      expectedValue
+    );
+  });
+
+  test.each([
+    [{ type: "textContains", values: ["=F5"] }, ["=F4"]],
+    [{ type: "textNotContains", values: ["=F5"] }, ["=F4"]],
+    [{ type: "textIs", values: ["=F5"] }, ["=F4"]],
+    [{ type: "textIsEmail", values: [] }, []],
+    [{ type: "textIsLink", values: [] }, []],
+    [{ type: "dateIs", values: ["=F5"], dateValue: "exactDate" }, ["=F4"]],
+    [{ type: "dateIsBefore", values: ["=F5"], dateValue: "exactDate" }, ["=F4"]],
+    [{ type: "dateIsOnOrBefore", values: ["=F5"], dateValue: "exactDate" }, ["=F4"]],
+    [{ type: "dateIsAfter", values: ["=F5"], dateValue: "exactDate" }, ["=F4"]],
+    [{ type: "dateIsOnOrAfter", values: ["=F5"], dateValue: "exactDate" }, ["=F4"]],
+    [{ type: "dateIsBetween", values: ["=A1", "=F5"] }, ["=A1", "=F4"]],
+    [{ type: "dateIsValid", values: [] }, []],
+    [{ type: "isEqual", values: ["=F5"] }, ["=F4"]],
+    [{ type: "isEqual", values: ["5"] }, ["5"]],
+    [{ type: "isNotEqual", values: ["=F5"] }, ["=F4"]],
+    [{ type: "isGreaterThan", values: ["=F5"] }, ["=F4"]],
+    [{ type: "isLessThan", values: ["=F5"] }, ["=F4"]],
+    [{ type: "isLessOrEqualTo", values: ["=F5"] }, ["=F4"]],
+    [{ type: "isGreaterOrEqualTo", values: ["=F5"] }, ["=F4"]],
+    [{ type: "isBetween", values: ["=A1", "=F5"] }, ["=A1", "=F4"]],
+    [{ type: "isNotBetween", values: ["=A1", "=F5"] }, ["=A1", "=F4"]],
+    [{ type: "customFormula", values: ["=F5"] }, ["=F4"]],
+  ])("Adapt %s data validation rule on row deletion", (criterion, expectedValue) => {
+    addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+    deleteRows(model, [3]);
+    expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
+    expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
+      expectedValue
+    );
+  });
+
+  describe("Reference to other sheet", () => {
+    beforeEach(() => {
+      createSheet(model, { sheetId: "s2", name: "OtherSheet" });
+    });
+
+    test.each([
+      [{ type: "textContains", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "textNotContains", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "textIs", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "textIsEmail", values: [] }, []],
+      [{ type: "textIsLink", values: [] }, []],
+      [{ type: "dateIs", values: ["=OtherSheet!F5"], dateValue: "exactDate" }, ["=OtherSheet!F4"]],
+      [
+        { type: "dateIsBefore", values: ["=OtherSheet!F5"], dateValue: "exactDate" },
+        ["=OtherSheet!F4"],
+      ],
+      [
+        { type: "dateIsOnOrBefore", values: ["=OtherSheet!F5"], dateValue: "exactDate" },
+        ["=OtherSheet!F4"],
+      ],
+      [
+        { type: "dateIsAfter", values: ["=OtherSheet!F5"], dateValue: "exactDate" },
+        ["=OtherSheet!F4"],
+      ],
+      [
+        { type: "dateIsOnOrAfter", values: ["=OtherSheet!F5"], dateValue: "exactDate" },
+        ["=OtherSheet!F4"],
+      ],
+      [
+        { type: "dateIsBetween", values: ["=OtherSheet!A1", "=OtherSheet!F5"] },
+        ["=OtherSheet!A1", "=OtherSheet!F4"],
+      ],
+      [{ type: "dateIsValid", values: [] }, []],
+      [{ type: "isEqual", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "isEqual", values: ["5"] }, ["5"]],
+      [{ type: "isNotEqual", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "isGreaterThan", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "isLessThan", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "isLessOrEqualTo", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "isGreaterOrEqualTo", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [
+        { type: "isBetween", values: ["=OtherSheet!A1", "=OtherSheet!F5"] },
+        ["=OtherSheet!A1", "=OtherSheet!F4"],
+      ],
+      [
+        { type: "isNotBetween", values: ["=OtherSheet!A1", "=OtherSheet!F5"] },
+        ["=OtherSheet!A1", "=OtherSheet!F4"],
+      ],
+      [{ type: "customFormula", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+    ])("Adapt %s data validation rule on other sheet", (criterion, expectedValue) => {
+      addDataValidation(model, "A1", "id", criterion as DataValidationCriterion);
+      expect(model.getters.getDataValidationRules(sheetId)).toHaveLength(1);
+      deleteRows(model, [3], "s2");
+      expect(model.getters.getDataValidationRules(sheetId)[0].criterion.values).toEqual(
+        expectedValue
+      );
+    });
+  });
 
   describe("Clearing dropdown list content", () => {
     beforeEach(async () => {

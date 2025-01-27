@@ -44,11 +44,37 @@ export class DataValidationPlugin
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     const sheetIds = sheetId ? [sheetId] : Object.keys(this.rules);
     for (const sheetId of sheetIds) {
-      this.loopThroughRangesOfSheet(sheetId, applyChange);
+      this.adaptDVRanges(sheetId, applyChange);
+    }
+    this.adaptDVFormulas(applyChange);
+  }
+
+  private adaptDVFormulas(applyChange: ApplyRangeChange) {
+    for (const sheetId in this.rules) {
+      const rules = this.rules[sheetId];
+      for (let ruleIndex = rules.length - 1; ruleIndex >= 0; ruleIndex--) {
+        const rule = this.rules[sheetId][ruleIndex];
+        for (let valueIndex = 0; valueIndex < rule.criterion.values.length; valueIndex++) {
+          const value = this.getters.adaptFormulaStringDependencies(
+            sheetId,
+            rule.criterion.values[valueIndex],
+            applyChange
+          );
+          this.history.update(
+            "rules",
+            sheetId,
+            ruleIndex,
+            "criterion",
+            "values",
+            valueIndex,
+            value
+          );
+        }
+      }
     }
   }
 
-  private loopThroughRangesOfSheet(sheetId: UID, applyChange: ApplyRangeChange) {
+  private adaptDVRanges(sheetId: UID, applyChange: ApplyRangeChange) {
     const rules = this.rules[sheetId];
     for (let ruleIndex = rules.length - 1; ruleIndex >= 0; ruleIndex--) {
       const rule = this.rules[sheetId][ruleIndex];
