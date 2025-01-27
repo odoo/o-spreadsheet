@@ -1,19 +1,38 @@
 import { _t } from "../translation";
 import {
+  AddColumnsRowsCommand,
+  ApplyRangeChange,
+  ApplyRangeChangeSheet,
   CellPosition,
+  ChangeType,
+  Command,
   CoreGetters,
   CustomizedDataSet,
+  DeleteSheetCommand,
   Getters,
+  MoveRangeCommand,
   Range,
   RangeData,
   RangePart,
+  RemoveColumnsRowsCommand,
+  RenameSheetCommand,
   UID,
   UnboundedZone,
   Zone,
   ZoneDimension,
 } from "../types";
+import { CellErrorType } from "../types/errors";
+import { groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
-import { getZoneArea, isZoneOrdered, positions, toUnboundedZone, zoneToXc } from "./zones";
+import {
+  createAdaptedZone,
+  getZoneArea,
+  isZoneInside,
+  isZoneOrdered,
+  positions,
+  toUnboundedZone,
+  zoneToXc,
+} from "./zones";
 
 interface ConstructorArgs {
   readonly zone: Readonly<Zone | UnboundedZone>;
@@ -273,4 +292,176 @@ export function getCellPositionsInRanges(ranges: Range[]): CellPosition[] {
     }
   }
   return cellPositions;
+}
+
+export function getApplyRangeChange(
+  cmd: Command,
+  getters: CoreGetters
+): ApplyRangeChangeSheet | undefined {
+  switch (cmd.type) {
+    case "REMOVE_COLUMNS_ROWS":
+      return { applyChange: getApplyRangeChangeRemoveColRow(cmd), sheetId: cmd.sheetId };
+    case "ADD_COLUMNS_ROWS":
+      return { applyChange: getApplyRangeChangeAddColRow(cmd), sheetId: cmd.sheetId };
+    case "DELETE_SHEET":
+      return { applyChange: getApplyRangeChangeDeleteSheet(cmd, getters), sheetId: cmd.sheetId };
+    case "RENAME_SHEET":
+      return { applyChange: getApplyRangeChangeRenameSheet(cmd) };
+    case "MOVE_RANGES":
+      return { applyChange: getApplyRangeChangeMoveRange(cmd) };
+  }
+  return undefined;
+}
+
+function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRangeChange {
+  let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
+  let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
+  let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
+
+  const elements = [...cmd.elements];
+  elements.sort((a, b) => b - a);
+
+  const groups = groupConsecutive(elements);
+  return (range: RangeImpl) => {
+    if (range.sheetId !== cmd.sheetId) {
+      return { changeType: "NONE" };
+    }
+    let newRange = range;
+    let changeType: ChangeType = "NONE";
+    for (let group of groups) {
+      const min = largeMin(group);
+      const max = largeMax(group);
+      if (range.zone[start] <= min && min <= range.zone[end]) {
+        const toRemove = Math.min(range.zone[end], max) - min + 1;
+        changeType = "RESIZE";
+        newRange = createAdaptedRange(newRange, dimension, changeType, -toRemove);
+      } else if (range.zone[start] >= min && range.zone[end] <= max) {
+        changeType = "REMOVE";
+        newRange = range.clone({ ...getInvalidRange() });
+      } else if (range.zone[start] <= max && range.zone[end] >= max) {
+        const toRemove = max - range.zone[start] + 1;
+        changeType = "RESIZE";
+        newRange = createAdaptedRange(newRange, dimension, changeType, -toRemove);
+        newRange = createAdaptedRange(newRange, dimension, "MOVE", -(range.zone[start] - min));
+      } else if (min < range.zone[start]) {
+        changeType = "MOVE";
+        newRange = createAdaptedRange(newRange, dimension, changeType, -(max - min + 1));
+      }
+    }
+    if (changeType !== "NONE") {
+      return { changeType, range: newRange };
+    }
+    return { changeType: "NONE" };
+  };
+}
+
+function getApplyRangeChangeAddColRow(cmd: AddColumnsRowsCommand): ApplyRangeChange {
+  let start: "left" | "top" = cmd.dimension === "COL" ? "left" : "top";
+  let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
+  let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
+
+  return (range: RangeImpl) => {
+    if (range.sheetId !== cmd.sheetId) {
+      return { changeType: "NONE" };
+    }
+    if (cmd.position === "after") {
+      if (range.zone[start] <= cmd.base && cmd.base < range.zone[end]) {
+        return {
+          changeType: "RESIZE",
+          range: createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
+        };
+      }
+      if (cmd.base < range.zone[start]) {
+        return {
+          changeType: "MOVE",
+          range: createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
+        };
+      }
+    } else {
+      if (range.zone[start] < cmd.base && cmd.base <= range.zone[end]) {
+        return {
+          changeType: "RESIZE",
+          range: createAdaptedRange(range, dimension, "RESIZE", cmd.quantity),
+        };
+      }
+      if (cmd.base <= range.zone[start]) {
+        return {
+          changeType: "MOVE",
+          range: createAdaptedRange(range, dimension, "MOVE", cmd.quantity),
+        };
+      }
+    }
+    return { changeType: "NONE" };
+  };
+}
+
+function getApplyRangeChangeDeleteSheet(
+  cmd: DeleteSheetCommand,
+  getters: CoreGetters
+): ApplyRangeChange {
+  return (range: RangeImpl) => {
+    if (range.sheetId !== cmd.sheetId) {
+      return { changeType: "NONE" };
+    }
+    const invalidSheetName = getters.getSheetName(cmd.sheetId);
+    range = range.clone({
+      ...getInvalidRange(),
+      invalidSheetName,
+    });
+    return { changeType: "REMOVE", range };
+  };
+}
+
+function getApplyRangeChangeRenameSheet(cmd: RenameSheetCommand): ApplyRangeChange {
+  return (range: RangeImpl) => {
+    if (range.sheetId === cmd.sheetId) {
+      return { changeType: "CHANGE", range };
+    }
+    if (cmd.name && range.invalidSheetName === cmd.name) {
+      const invalidSheetName = undefined;
+      const sheetId = cmd.sheetId;
+      const newRange = range.clone({ sheetId, invalidSheetName });
+      return { changeType: "CHANGE", range: newRange };
+    }
+    return { changeType: "NONE" };
+  };
+}
+
+function getApplyRangeChangeMoveRange(cmd: MoveRangeCommand): ApplyRangeChange {
+  const originZone = cmd.target[0];
+  return (range: RangeImpl) => {
+    if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, originZone)) {
+      return { changeType: "NONE" };
+    }
+    const targetSheetId = cmd.targetSheetId;
+    const offsetX = cmd.col - originZone.left;
+    const offsetY = cmd.row - originZone.top;
+    const adaptedRange = createAdaptedRange(range, "both", "MOVE", [offsetX, offsetY]);
+    const prefixSheet = cmd.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
+    return {
+      changeType: "MOVE",
+      range: adaptedRange.clone({ sheetId: targetSheetId, prefixSheet }),
+    };
+  };
+}
+
+function createAdaptedRange<Dimension extends "columns" | "rows" | "both">(
+  range: RangeImpl,
+  dimension: Dimension,
+  operation: "MOVE" | "RESIZE",
+  by: Dimension extends "both" ? [number, number] : number
+) {
+  const zone = createAdaptedZone(range.unboundedZone, dimension, operation, by);
+  const adaptedRange = range.clone({ zone });
+  return adaptedRange;
+}
+
+function getInvalidRange() {
+  return {
+    parts: [],
+    prefixSheet: false,
+    zone: { left: -1, top: -1, right: -1, bottom: -1 },
+    sheetId: "",
+    invalidXc: CellErrorType.InvalidReference,
+  };
 }
