@@ -160,6 +160,11 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
       dataSets: this.dataSets,
     });
+    if (this.state.datasetDispatchResult.isSuccessful) {
+      this.dataSets = (
+        this.env.model.getters.getChartDefinition(this.props.figureId) as ChartWithDataSetDefinition
+      ).dataSets;
+    }
   }
 
   getDataSeriesRanges() {
