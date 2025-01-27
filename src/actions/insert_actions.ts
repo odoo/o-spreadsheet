@@ -328,7 +328,11 @@ export const insertSheet: ActionSpec = {
     const activeSheetId = env.model.getters.getActiveSheetId();
     const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
     const sheetId = env.model.uuidGenerator.smallUuid();
-    env.model.dispatch("CREATE_SHEET", { sheetId, position });
+    env.model.dispatch("CREATE_SHEET", {
+      sheetId,
+      position,
+      name: env.model.getters.getNextSheetName(),
+    });
     env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   },
   icon: "o-spreadsheet-Icon.INSERT_SHEET",

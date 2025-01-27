@@ -180,7 +180,7 @@ export class ConditionalFormatPlugin
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string) {
     const sheetIds = sheetId ? [sheetId] : Object.keys(this.cfRules);
     for (const sheetId of sheetIds) {
       this.adaptCFRanges(sheetId, applyChange);

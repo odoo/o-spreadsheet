@@ -198,6 +198,7 @@ export class InsertPivotPlugin extends UIPlugin {
         dimension: "COL",
         base: numberCols - 1,
         sheetId: sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: colLimit - deltaCol,
         position: "after",
       });
@@ -210,6 +211,7 @@ export class InsertPivotPlugin extends UIPlugin {
         dimension: "ROW",
         base: numberRows - 1,
         sheetId: sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: rowLimit - deltaRow,
         position: "after",
       });

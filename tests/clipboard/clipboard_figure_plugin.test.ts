@@ -10,6 +10,7 @@ import {
   createImage,
   createSheet,
   cut,
+  deleteSheet,
   paste,
   setCellContent,
   setSelection,
@@ -168,7 +169,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     );
     model.dispatch("SELECT_FIGURE", { id: chartId });
     copy(model);
-    model.dispatch("DELETE_SHEET", { sheetId: "Sheet1" });
+    deleteSheet(model, "Sheet1");
     paste(model, "A1");
     expect(model.getters.getFigures("sheet2Id")).toHaveLength(1);
     const newChartId = model.getters.getFigures("sheet2Id")[0].id;

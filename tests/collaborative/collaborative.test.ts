@@ -200,7 +200,7 @@ describe("Multi users synchronisation", () => {
       nextRevisionId: "1",
       serverRevisionId: DEFAULT_REVISION_ID,
       clientId: "alice",
-      commands: [{ type: "DELETE_SHEET", sheetId }],
+      commands: [{ type: "DELETE_SHEET", sheetId, sheetName: "" }],
     };
     const model = new Model(
       {
@@ -556,6 +556,7 @@ describe("Multi users synchronisation", () => {
         sheetId: alice.getters.getActiveSheetId(),
         base: 1,
         quantity: 50,
+        sheetName: "",
       },
     ];
     const message: CollaborationMessage = {
@@ -828,7 +829,7 @@ describe("Multi users synchronisation", () => {
         sheetId: firstSheetId,
         sheetIdTo: "sheet2",
       });
-      charlie.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
+      deleteSheet(charlie, firstSheetId);
     });
     const colSize = alice.getters.getColSize("sheet2", 0);
     const ctx = document.createElement("canvas").getContext("2d")!;

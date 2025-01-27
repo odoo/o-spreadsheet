@@ -110,6 +110,7 @@ describe("Context Menu add/remove row/col", () => {
       elements: [3],
       dimension: "COL",
       sheetId: model.getters.getActiveSheetId(),
+      sheetName: model.getters.getActiveSheetName(),
     });
   });
 
@@ -140,6 +141,7 @@ describe("Context Menu add/remove row/col", () => {
       elements: [4],
       dimension: "ROW",
       sheetId: model.getters.getActiveSheetId(),
+      sheetName: model.getters.getActiveSheetName(),
     });
   });
 
@@ -172,6 +174,7 @@ describe("Context Menu add/remove row/col", () => {
       base: 3,
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
+      sheetName: model.getters.getActiveSheetName(),
     });
   });
 
@@ -186,6 +189,7 @@ describe("Context Menu add/remove row/col", () => {
       dimension: "ROW",
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
+      sheetName: model.getters.getActiveSheetName(),
     });
   });
 
@@ -200,6 +204,7 @@ describe("Context Menu add/remove row/col", () => {
       base: 3,
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
+      sheetName: model.getters.getActiveSheetName(),
     });
   });
 
@@ -214,6 +219,7 @@ describe("Context Menu add/remove row/col", () => {
       dimension: "ROW",
       quantity: 1,
       sheetId: model.getters.getActiveSheetId(),
+      sheetName: model.getters.getActiveSheetName(),
     });
   });
 });

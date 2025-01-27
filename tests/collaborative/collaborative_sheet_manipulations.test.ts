@@ -53,7 +53,7 @@ describe("Collaborative Sheet manipulation", () => {
     createSheet(alice, { sheetId: "42" });
     network.concurrent(() => {
       createSheet(alice, { sheetId: "2" });
-      bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+      deleteSheet(bob, "42");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -67,7 +67,7 @@ describe("Collaborative Sheet manipulation", () => {
     createSheet(alice, { sheetId: "42" });
     network.concurrent(() => {
       colorSheet(alice, "42", "#FF0000");
-      bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+      deleteSheet(bob, "42");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -188,7 +188,7 @@ describe("Collaborative Sheet manipulation", () => {
       },
     });
     network.concurrent(() => {
-      alice.dispatch("DELETE_SHEET", { sheetId });
+      deleteSheet(alice, sheetId);
       bob.dispatch("UPDATE_FIGURE", {
         id: "456",
         sheetId,
@@ -215,7 +215,7 @@ describe("Collaborative Sheet manipulation", () => {
       sheetId
     );
     network.concurrent(() => {
-      alice.dispatch("DELETE_SHEET", { sheetId });
+      deleteSheet(alice, sheetId);
       updateChart(
         bob,
         chartId,
@@ -748,7 +748,7 @@ describe("Collaborative Sheet manipulation", () => {
     test("Set grid lines visibility with a sheet deletion", () => {
       createSheet(alice, { sheetId: "42" });
       network.concurrent(() => {
-        bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+        deleteSheet(bob, "42");
         alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -973,4 +973,50 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
   });
+});
+
+test("test undo redo", () => {
+  const sheetId = "sid";
+  const sheetName = "SheetName";
+  const otherSheetId = "othersid";
+  const otherSheetName = "OtherSheetName";
+
+  const newSheetName = "NewSheetName";
+
+  const { alice, bob, charlie } = setupCollaborativeEnv({
+    sheets: [
+      { id: sheetId, name: sheetName },
+      { id: otherSheetId, name: otherSheetName },
+    ],
+  });
+
+  setCellContent(alice, "E1", "25", otherSheetId);
+  deleteColumns(alice, ["C"], otherSheetId);
+
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getCell({ sheetId: otherSheetId, col: 3, row: 0 })?.content,
+    "25"
+  );
+
+  setCellContent(bob, "A1", "=" + otherSheetName + "!D1", sheetId);
+  renameSheet(bob, otherSheetId, newSheetName);
+
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+    "=" + newSheetName + "!D1"
+  );
+
+  undo(alice);
+
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+    "=" + newSheetName + "!E1"
+  );
+
+  redo(alice);
+
+  expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+    "=" + newSheetName + "!D1"
+  );
 });

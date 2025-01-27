@@ -472,6 +472,7 @@ export class ClipboardPlugin extends UIPlugin {
         dimension: "ROW",
         base: this.getters.getNumberRows(sheetId) - 1,
         sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: missingRows,
         position: "after",
       });
@@ -482,6 +483,7 @@ export class ClipboardPlugin extends UIPlugin {
         dimension: "COL",
         base: this.getters.getNumberCols(sheetId) - 1,
         sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: missingCols,
         position: "after",
       });
