@@ -126,8 +126,11 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string, skipSheetId?: UID) {
     for (const sheetId in this.compiledMeasureFormulas) {
+      if (sheetId === skipSheetId) {
+        continue;
+      }
       for (const formulaString in this.compiledMeasureFormulas[sheetId]) {
         const compiledFormula = this.compiledMeasureFormulas[sheetId][formulaString];
         const newDependencies: Range[] = [];
@@ -259,6 +262,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         dimension: "COL",
         base: numberCols - 1,
         sheetId: sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: colLimit - deltaCol,
         position: "after",
       });
@@ -271,6 +275,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         dimension: "ROW",
         base: numberRows - 1,
         sheetId: sheetId,
+        sheetName: this.getters.getSheetName(sheetId),
         quantity: rowLimit - deltaRow,
         position: "after",
       });

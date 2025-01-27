@@ -1,3 +1,4 @@
+import { RangeStringOptions } from "../plugins/core";
 import { _t } from "../translation";
 import {
   AddColumnsRowsCommand,
@@ -7,6 +8,7 @@ import {
   ChangeType,
   Command,
   CoreGetters,
+  CreateSheetCommand,
   CustomizedDataSet,
   DeleteSheetCommand,
   Getters,
@@ -22,7 +24,8 @@ import {
   ZoneDimension,
 } from "../types";
 import { CellErrorType } from "../types/errors";
-import { groupConsecutive, largeMax, largeMin } from "./misc";
+import { numberToLetters } from "./coordinates";
+import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
 import {
   createAdaptedZone,
@@ -35,7 +38,7 @@ import {
 } from "./zones";
 
 interface ConstructorArgs {
-  readonly zone: Readonly<Zone | UnboundedZone>;
+  readonly unboundedZone: Readonly<UnboundedZone>;
   readonly parts: readonly RangePart[];
   readonly invalidXc?: string;
   /** true if the user provided the range with the sheet name */
@@ -53,15 +56,15 @@ export class RangeImpl implements Range {
   readonly prefixSheet: boolean = false;
   readonly sheetId: UID; // the sheet on which the range is defined
   readonly invalidSheetName?: string; // the name of any sheet that is invalid
+  private getSheetSize: (sheetId: UID) => ZoneDimension;
 
-  constructor(args: ConstructorArgs, private getSheetSize: (sheetId: UID) => ZoneDimension) {
-    this._zone = args.zone;
-
+  constructor(args: ConstructorArgs, getSheetSize: (sheetId: UID) => ZoneDimension) {
+    this._zone = args.unboundedZone;
     this.prefixSheet = args.prefixSheet;
     this.invalidXc = args.invalidXc;
-
     this.sheetId = args.sheetId;
     this.invalidSheetName = args.invalidSheetName;
+    this.getSheetSize = getSheetSize;
 
     let _fixedParts = [...args.parts];
     if (args.parts.length === 1 && getZoneArea(this.zone) > 1) {
@@ -72,11 +75,11 @@ export class RangeImpl implements Range {
     this.parts = _fixedParts;
   }
 
-  static fromRange(range: Range, getters: CoreGetters): RangeImpl {
+  static fromRange(range: Range, getSheetSize: (sheetId: UID) => ZoneDimension): RangeImpl {
     if (range instanceof RangeImpl) {
       return range;
     }
-    return new RangeImpl(range, getters.getSheetSize);
+    return new RangeImpl(range, getSheetSize);
   }
 
   get unboundedZone(): UnboundedZone {
@@ -175,17 +178,18 @@ export class RangeImpl implements Range {
         },
       ];
     }
-    return this.clone({ zone, parts });
+    return this.clone({ unboundedZone: zone, parts });
   }
 
   /**
    *
    * @param rangeParams optional, values to put in the cloned range instead of the current values of the range
    */
-  clone(rangeParams?: Partial<ConstructorArgs>): RangeImpl {
+  clone(rangeParams?: Partial<Range>): RangeImpl {
+    const unboundedZone = rangeParams?.unboundedZone ?? rangeParams?.zone;
     return new RangeImpl(
       {
-        zone: rangeParams?.zone ? rangeParams.zone : { ...this._zone },
+        unboundedZone: unboundedZone || { ...this._zone },
         sheetId: rangeParams?.sheetId ? rangeParams.sheetId : this.sheetId,
         invalidSheetName:
           rangeParams && "invalidSheetName" in rangeParams // 'attr in obj' instead of just 'obj.attr' because we accept undefined values
@@ -203,6 +207,85 @@ export class RangeImpl implements Range {
       },
       this.getSheetSize
     );
+  }
+
+  getRangePartString(
+    part: 0 | 1,
+    options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
+  ): string {
+    const colFixed = this.parts[part]?.colFixed || options.useFixedReference ? "$" : "";
+    const col = part === 0 ? numberToLetters(this.zone.left) : numberToLetters(this.zone.right);
+    const rowFixed = this.parts[part]?.rowFixed || options.useFixedReference ? "$" : "";
+    const row = part === 0 ? String(this.zone.top + 1) : String(this.zone.bottom + 1);
+
+    let str = "";
+    if (this.isFullCol && !options.useBoundedReference) {
+      if (part === 0 && this.unboundedZone.hasHeader) {
+        str = colFixed + col + rowFixed + row;
+      } else {
+        str = colFixed + col;
+      }
+    } else if (this.isFullRow && !options.useBoundedReference) {
+      if (part === 0 && this.unboundedZone.hasHeader) {
+        str = colFixed + col + rowFixed + row;
+      } else {
+        str = rowFixed + row;
+      }
+    } else {
+      str = colFixed + col + rowFixed + row;
+    }
+
+    return str;
+  }
+
+  getRangeString(
+    forSheetId: UID,
+    getSheetName: (sheetId: UID) => string,
+    options = { useBoundedReference: false, useFixedReference: false }
+  ): string {
+    if (!this) {
+      return CellErrorType.InvalidReference;
+    }
+    if (this.invalidXc) {
+      return this.invalidXc;
+    }
+    if (this.zone.bottom - this.zone.top < 0 || this.zone.right - this.zone.left < 0) {
+      return CellErrorType.InvalidReference;
+    }
+    if (this.zone.left < 0 || this.zone.top < 0) {
+      return CellErrorType.InvalidReference;
+    }
+    let prefixSheet = this.sheetId !== forSheetId || this.invalidSheetName || this.prefixSheet;
+    let sheetName: string = "";
+    if (prefixSheet) {
+      if (this.invalidSheetName) {
+        sheetName = this.invalidSheetName;
+      } else {
+        sheetName = getCanonicalSymbolName(getSheetName(this.sheetId));
+      }
+    }
+
+    if (prefixSheet && !sheetName) {
+      return CellErrorType.InvalidReference;
+    }
+
+    let rangeString = this.getRangePartString(0, options);
+    if (this.parts && this.parts.length === 2) {
+      // this if converts A2:A2 into A2 except if any part of the original range had fixed row or column (with $)
+      if (
+        this.zone.top !== this.zone.bottom ||
+        this.zone.left !== this.zone.right ||
+        this.parts[0].rowFixed ||
+        this.parts[0].colFixed ||
+        this.parts[1].rowFixed ||
+        this.parts[1].colFixed
+      ) {
+        rangeString += ":";
+        rangeString += this.getRangePartString(1, options);
+      }
+    }
+
+    return `${prefixSheet ? sheetName + "!" : ""}${rangeString}`;
   }
 }
 
@@ -294,21 +377,44 @@ export function getCellPositionsInRanges(ranges: Range[]): CellPosition[] {
   return cellPositions;
 }
 
-export function getApplyRangeChange(
-  cmd: Command,
-  getters: CoreGetters
-): ApplyRangeChangeSheet | undefined {
+export function getApplyRangeChange(cmd: Command): ApplyRangeChangeSheet | undefined {
   switch (cmd.type) {
     case "REMOVE_COLUMNS_ROWS":
-      return { applyChange: getApplyRangeChangeRemoveColRow(cmd), sheetId: cmd.sheetId };
+      return {
+        applyChange: getApplyRangeChangeRemoveColRow(cmd),
+        sheetId: cmd.sheetId,
+        sheetName: cmd.sheetName,
+      };
     case "ADD_COLUMNS_ROWS":
-      return { applyChange: getApplyRangeChangeAddColRow(cmd), sheetId: cmd.sheetId };
+      return {
+        applyChange: getApplyRangeChangeAddColRow(cmd),
+        sheetId: cmd.sheetId,
+        sheetName: cmd.sheetName,
+      };
     case "DELETE_SHEET":
-      return { applyChange: getApplyRangeChangeDeleteSheet(cmd, getters), sheetId: cmd.sheetId };
+      return {
+        applyChange: getApplyRangeChangeDeleteSheet(cmd),
+        sheetId: cmd.sheetId,
+        sheetName: cmd.sheetName,
+      };
+    case "CREATE_SHEET":
+      return {
+        applyChange: getApplyRangeChangeCreateSheet(cmd),
+        sheetId: cmd.sheetId,
+        sheetName: cmd.name,
+      };
     case "RENAME_SHEET":
-      return { applyChange: getApplyRangeChangeRenameSheet(cmd) };
+      return {
+        applyChange: getApplyRangeChangeRenameSheet(cmd),
+        sheetId: cmd.sheetId,
+        sheetName: cmd.sheetName,
+      };
     case "MOVE_RANGES":
-      return { applyChange: getApplyRangeChangeMoveRange(cmd) };
+      return {
+        applyChange: getApplyRangeChangeMoveRange(cmd),
+        sheetId: cmd.sheetId,
+        sheetName: cmd.sheetName,
+      };
   }
   return undefined;
 }
@@ -322,7 +428,7 @@ function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRa
   elements.sort((a, b) => b - a);
 
   const groups = groupConsecutive(elements);
-  return (range: RangeImpl) => {
+  return (range: Range) => {
     if (range.sheetId !== cmd.sheetId) {
       return { changeType: "NONE" };
     }
@@ -360,7 +466,7 @@ function getApplyRangeChangeAddColRow(cmd: AddColumnsRowsCommand): ApplyRangeCha
   let end: "right" | "bottom" = cmd.dimension === "COL" ? "right" : "bottom";
   let dimension: "columns" | "rows" = cmd.dimension === "COL" ? "columns" : "rows";
 
-  return (range: RangeImpl) => {
+  return (range: Range) => {
     if (range.sheetId !== cmd.sheetId) {
       return { changeType: "NONE" };
     }
@@ -395,15 +501,12 @@ function getApplyRangeChangeAddColRow(cmd: AddColumnsRowsCommand): ApplyRangeCha
   };
 }
 
-function getApplyRangeChangeDeleteSheet(
-  cmd: DeleteSheetCommand,
-  getters: CoreGetters
-): ApplyRangeChange {
-  return (range: RangeImpl) => {
-    if (range.sheetId !== cmd.sheetId) {
+function getApplyRangeChangeDeleteSheet(cmd: DeleteSheetCommand): ApplyRangeChange {
+  return (range: Range) => {
+    if (range.sheetId !== cmd.sheetId && range.invalidSheetName !== cmd.sheetName) {
       return { changeType: "NONE" };
     }
-    const invalidSheetName = getters.getSheetName(cmd.sheetId);
+    const invalidSheetName = cmd.sheetName;
     range = range.clone({
       ...getInvalidRange(),
       invalidSheetName,
@@ -412,8 +515,8 @@ function getApplyRangeChangeDeleteSheet(
   };
 }
 
-function getApplyRangeChangeRenameSheet(cmd: RenameSheetCommand): ApplyRangeChange {
-  return (range: RangeImpl) => {
+function getApplyRangeChangeCreateSheet(cmd: CreateSheetCommand): ApplyRangeChange {
+  return (range: Range) => {
     if (range.sheetId === cmd.sheetId) {
       return { changeType: "CHANGE", range };
     }
@@ -427,9 +530,31 @@ function getApplyRangeChangeRenameSheet(cmd: RenameSheetCommand): ApplyRangeChan
   };
 }
 
+function getApplyRangeChangeRenameSheet(cmd: RenameSheetCommand): ApplyRangeChange {
+  return (range: Range) => {
+    if (range.sheetId === cmd.sheetId) {
+      return { changeType: "CHANGE", range };
+    }
+    if (cmd.name && range.invalidSheetName === cmd.name) {
+      const invalidSheetName = undefined;
+      const sheetId = cmd.sheetId;
+      const newRange = range.clone({ sheetId, invalidSheetName });
+      return { changeType: "CHANGE", range: newRange };
+    }
+    if (cmd.sheetName && range.invalidSheetName === cmd.sheetName) {
+      const invalidSheetName = undefined;
+      const sheetId = cmd.sheetId;
+      const newRange = range.clone({ sheetId, invalidSheetName });
+      return { changeType: "CHANGE", range: newRange };
+    }
+    return { changeType: "NONE" };
+  };
+}
+
 function getApplyRangeChangeMoveRange(cmd: MoveRangeCommand): ApplyRangeChange {
   const originZone = cmd.target[0];
-  return (range: RangeImpl) => {
+  return (range: Range) => {
+    range.clone();
     if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, originZone)) {
       return { changeType: "NONE" };
     }
@@ -446,13 +571,13 @@ function getApplyRangeChangeMoveRange(cmd: MoveRangeCommand): ApplyRangeChange {
 }
 
 function createAdaptedRange<Dimension extends "columns" | "rows" | "both">(
-  range: RangeImpl,
+  range: Range,
   dimension: Dimension,
   operation: "MOVE" | "RESIZE",
   by: Dimension extends "both" ? [number, number] : number
 ) {
-  const zone = createAdaptedZone(range.unboundedZone, dimension, operation, by);
-  const adaptedRange = range.clone({ zone });
+  const zone = createAdaptedZone(range.rangeData._zone, dimension, operation, by);
+  const adaptedRange = range.clone({ unboundedZone: zone });
   return adaptedRange;
 }
 

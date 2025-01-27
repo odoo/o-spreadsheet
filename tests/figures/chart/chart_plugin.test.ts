@@ -1000,7 +1000,7 @@ describe("datasource tests", function () {
   });
 
   test("Chart is deleted on sheet deletion", () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "2", position: 1 });
+    createSheet(model, { sheetId: "2", position: 1 });
     createChart(
       model,
       {
@@ -1012,7 +1012,7 @@ describe("datasource tests", function () {
       "2"
     );
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
-    model.dispatch("DELETE_SHEET", { sheetId: "2" });
+    deleteSheet(model, "2");
     expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 
@@ -1626,7 +1626,7 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    model.dispatch("DELETE_SHEET", { sheetId: originSheet });
+    deleteSheet(model, originSheet);
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
     const chart = newModel.getters.getChartRuntime("28")!;

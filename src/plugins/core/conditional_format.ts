@@ -125,13 +125,13 @@ export class ConditionalFormatPlugin
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
-    if (sheetId) {
-      this.loopThroughRangesOfSheet(sheetId, applyChange);
-    } else {
-      for (const sheetId of Object.keys(this.cfRules)) {
-        this.loopThroughRangesOfSheet(sheetId, applyChange);
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string, skipSheetId?: UID) {
+    const sheetIds = sheetId ? [sheetId] : Object.keys(this.cfRules);
+    for (const sheetId of sheetIds) {
+      if (sheetId === skipSheetId) {
+        continue;
       }
+      this.loopThroughRangesOfSheet(sheetId, applyChange);
     }
   }
 
