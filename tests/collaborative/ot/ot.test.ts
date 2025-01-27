@@ -24,7 +24,10 @@ describe("OT with DELETE_FIGURE", () => {
     });
 
     test("distinct ID", () => {
-      expect(transform({ ...cmd, id: "otherId" }, deleteFigure)).toEqual({ ...cmd, id: "otherId" });
+      expect(transform({ ...cmd, id: "otherId" }, deleteFigure)).toEqual({
+        ...cmd,
+        id: "otherId",
+      });
     });
   });
 });

@@ -445,6 +445,7 @@ export class ColResizer extends AbstractResizer {
     }
     const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
+      sheetName: this.env.model.getters.getActiveSheetName(),
       dimension: "COL",
       base: this.state.base,
       elements,
@@ -670,6 +671,7 @@ export class RowResizer extends AbstractResizer {
     }
     const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: this.sheetId,
+      sheetName: this.env.model.getters.getActiveSheetName(),
       dimension: "ROW",
       base: this.state.base,
       elements,

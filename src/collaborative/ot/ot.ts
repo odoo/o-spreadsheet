@@ -1,11 +1,13 @@
 import {
   getAddHeaderStartIndex,
+  getRangeAdapter,
   isDefined,
   isInside,
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
+import { specificRangeTransformRegistry } from "../../registries/srt_registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
@@ -30,6 +32,7 @@ import {
 } from "./../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
+import "./srt_specific";
 
 type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
 
@@ -64,9 +67,25 @@ export function transform(
   executed: CoreCommand
 ): CoreCommand | undefined {
   const specificTransform = otRegistry.getTransformation(toTransform.type, executed.type);
-  return specificTransform
+  const transformed = specificTransform
     ? specificTransform(toTransform, executed)
     : genericTransform(toTransform, executed);
+  if (transformed) {
+    return adaptTransform(transformed, executed);
+  }
+  return transformed;
+}
+
+function adaptTransform(toTransform: CoreCommand, executed: CoreCommand): CoreCommand {
+  const adaptFn = specificRangeTransformRegistry.get(toTransform.type);
+  if (!adaptFn) {
+    return toTransform;
+  }
+  const rangeAdapter = getRangeAdapter(executed);
+  if (rangeAdapter) {
+    return adaptFn(toTransform, rangeAdapter);
+  }
+  return toTransform;
 }
 
 /**

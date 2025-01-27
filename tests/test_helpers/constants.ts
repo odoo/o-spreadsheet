@@ -202,11 +202,13 @@ export const TEST_COMMANDS: CommandMapping = {
   DELETE_SHEET: {
     type: "DELETE_SHEET",
     sheetId: "Sheet1",
+    sheetName: "newSheetName",
   },
   RENAME_SHEET: {
     type: "RENAME_SHEET",
     sheetId: "Sheet1",
-    name: "newName",
+    newName: "newName",
+    oldName: "newSheetName",
   },
   COLOR_SHEET: {
     type: "COLOR_SHEET",
@@ -299,12 +301,14 @@ export const TEST_COMMANDS: CommandMapping = {
     base: 0,
     quantity: 1,
     sheetId: "Sheet1",
+    sheetName: "newSheetName",
   },
   REMOVE_COLUMNS_ROWS: {
     type: "REMOVE_COLUMNS_ROWS",
     dimension: "ROW",
     elements: [0],
     sheetId: "Sheet1",
+    sheetName: "newSheetName",
   },
   FREEZE_COLUMNS: {
     type: "FREEZE_COLUMNS",
@@ -350,6 +354,7 @@ export const TEST_COMMANDS: CommandMapping = {
     target: target("A1"),
     sheetId: "Sheet1",
     targetSheetId: "Sheet1",
+    sheetName: "Sheet1",
     col: 0,
     row: 0,
   },

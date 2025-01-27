@@ -73,6 +73,7 @@ function inverseAddColumnsRows(cmd: AddColumnsRowsCommand): RemoveColumnsRowsCom
       dimension: cmd.dimension,
       elements,
       sheetId: cmd.sheetId,
+      sheetName: cmd.sheetName,
     },
   ];
 }
@@ -86,11 +87,11 @@ function inverseRemoveMerge(cmd: RemoveMergeCommand): AddMergeCommand[] {
 }
 
 function inverseCreateSheet(cmd: CreateSheetCommand): DeleteSheetCommand[] {
-  return [{ type: "DELETE_SHEET", sheetId: cmd.sheetId }];
+  return [{ type: "DELETE_SHEET", sheetId: cmd.sheetId, sheetName: cmd.name }];
 }
 
 function inverseDuplicateSheet(cmd: DuplicateSheetCommand): DeleteSheetCommand[] {
-  return [{ type: "DELETE_SHEET", sheetId: cmd.sheetIdTo }];
+  return [{ type: "DELETE_SHEET", sheetId: cmd.sheetIdTo, sheetName: "" }];
 }
 
 function inverseRemoveColumnsRows(cmd: RemoveColumnsRowsCommand): AddColumnsRowsCommand[] {
@@ -105,6 +106,7 @@ function inverseRemoveColumnsRows(cmd: RemoveColumnsRowsCommand): AddColumnsRows
       quantity: group.length,
       base: column,
       sheetId: cmd.sheetId,
+      sheetName: cmd.sheetName,
       position,
     });
   }
@@ -112,7 +114,7 @@ function inverseRemoveColumnsRows(cmd: RemoveColumnsRowsCommand): AddColumnsRows
 }
 
 function inverseDeleteSheet(cmd: DeleteSheetCommand): CreateSheetCommand[] {
-  return [{ type: "CREATE_SHEET", sheetId: cmd.sheetId, position: 1 }];
+  return [{ type: "CREATE_SHEET", sheetId: cmd.sheetId, position: 1, name: cmd.sheetName }];
 }
 
 function inverseCreateFigure(cmd: CreateFigureCommand): DeleteFigureCommand[] {

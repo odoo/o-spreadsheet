@@ -17,6 +17,7 @@ import {
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
+import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
@@ -25,6 +26,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     elements: [2, 5, 3],
     dimension: "ROW",
     sheetId,
+    sheetName: "",
   };
 
   describe.each(OT_TESTS_SINGLE_CELL_COMMANDS)("single cell commands", (cmd) => {
@@ -208,6 +210,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       position: "after",
       quantity: 10,
       sheetId,
+      sheetName: "",
     };
 
     test("Add a removed rows", () => {
@@ -240,6 +243,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       type: "REMOVE_COLUMNS_ROWS",
       dimension: "ROW",
       sheetId,
+      sheetName: "",
     };
 
     test("Remove a row which is in the removed rows", () => {
@@ -362,6 +366,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       base: 5,
       quantity: 2,
       sheetId,
+      sheetName: "",
     };
     const addColumnsBefore: AddColumnsRowsCommand = {
       type: "ADD_COLUMNS_ROWS",
@@ -370,6 +375,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       base: 5,
       quantity: 2,
       sheetId,
+      sheetName: "",
     };
 
     test("Add columns (after) after delete columns", () => {
@@ -526,4 +532,61 @@ describe("Transform of UPDATE_TABLE when removing rows", () => {
     const result = transform(updateFilterCmd, executed);
     expect(result).toEqual(updateFilterCmd);
   });
+});
+
+describe("Transform adapt string formulas on row deletion", () => {
+  const sheetId = "mainSheetId";
+  const sheetName = "MainSheetName";
+  const otherSheetId = "otherSheetId";
+  const otherSheetName = "OtherSheetName";
+
+  test.each(getFormulaStringCommands(sheetId, "=SUM(A1:A5)", "=SUM(A1:A4)"))(
+    "on the same sheet %s",
+    (cmd, expected) => {
+      const removeRowsCmd: RemoveColumnsRowsCommand = {
+        ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+        dimension: "ROW",
+        elements: [2],
+        sheetId,
+        sheetName,
+      };
+
+      const result = transform(cmd, removeRowsCmd);
+      expect(result).toEqual(expected);
+    }
+  );
+
+  test.each(
+    getFormulaStringCommands(
+      sheetId,
+      "=SUM(" + otherSheetName + "!A1:A5)",
+      "=SUM(" + otherSheetName + "!A1:A4)"
+    )
+  )("on another sheet %s", (cmd, expected) => {
+    const removeRowsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "ROW",
+      elements: [2],
+      sheetId: otherSheetId,
+      sheetName: otherSheetName,
+    };
+
+    const result = transform(cmd, removeRowsCmd);
+    expect(result).toEqual(expected);
+  });
+
+  test.each(getFormulaStringCommands(sheetId, "hello in A5", "hello in A5"))(
+    "do not adapt string %s",
+    (cmd, expected) => {
+      const removeRowsCmd: RemoveColumnsRowsCommand = {
+        ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+        dimension: "ROW",
+        elements: [2],
+        sheetId,
+        sheetName,
+      };
+      const result = transform(cmd, removeRowsCmd);
+      expect(result).toEqual(expected);
+    }
+  );
 });

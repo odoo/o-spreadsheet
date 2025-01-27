@@ -120,7 +120,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string) {
     const sheetIds = sheetId ? [sheetId] : Object.keys(this.merges);
     for (const sheetId of sheetIds) {
       this.applyRangeChangeOnSheet(sheetId, applyChange);
@@ -166,10 +166,10 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * Same as `getRangeString` but add all necessary merge to the range to make it a valid selection
    */
   getSelectionRangeString(range: Range, forSheetId: UID): string {
-    const rangeImpl = RangeImpl.fromRange(range, this.getters);
+    const rangeImpl = RangeImpl.fromRange(range, this.getters.getSheetSize);
     const expandedZone = this.getters.expandZone(rangeImpl.sheetId, rangeImpl.zone);
     const expandedRange = rangeImpl.clone({
-      zone: {
+      unboundedZone: {
         ...expandedZone,
         bottom: rangeImpl.isFullCol ? undefined : expandedZone.bottom,
         right: rangeImpl.isFullRow ? undefined : expandedZone.right,

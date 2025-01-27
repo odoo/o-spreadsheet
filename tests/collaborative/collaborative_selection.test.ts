@@ -4,6 +4,7 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
   createSheet,
+  deleteSheet,
   moveAnchorCell,
   selectCell,
   selectColumn,
@@ -244,7 +245,7 @@ describe("Collaborative selection", () => {
   test("client positions are updated with fallback sheet", () => {
     const sheetId = alice.getters.getActiveSheetId();
     createSheet(alice, { sheetId: "42" });
-    alice.dispatch("DELETE_SHEET", { sheetId });
+    deleteSheet(alice, sheetId);
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getConnectedClients(),

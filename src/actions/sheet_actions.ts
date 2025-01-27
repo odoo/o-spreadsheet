@@ -25,7 +25,10 @@ export const deleteSheet: ActionSpec = {
   },
   execute: (env) =>
     env.askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
-      env.model.dispatch("DELETE_SHEET", { sheetId: env.model.getters.getActiveSheetId() });
+      env.model.dispatch("DELETE_SHEET", {
+        sheetId: env.model.getters.getActiveSheetId(),
+        sheetName: env.model.getters.getActiveSheetName(),
+      });
     }),
   icon: "o-spreadsheet-Icon.TRASH",
 };

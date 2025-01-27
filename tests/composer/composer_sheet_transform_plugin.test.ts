@@ -9,6 +9,7 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   redo,
   selectCell,
   setCellContent,
@@ -152,7 +153,7 @@ describe("describe", () => {
     createSheet(model, { sheetId: "42" });
     selectCell(model, "A4");
     composerStore.startEdition("hello");
-    model.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
+    deleteSheet(model, activeSheetId);
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
@@ -181,7 +182,7 @@ describe("describe", () => {
     selectCell(model, "A4");
     composerStore.startEdition("hello");
     composerStore.stopEdition();
-    model.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
+    deleteSheet(model, activeSheetId);
     expect(raiseErrorSpy).not.toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
@@ -192,7 +193,7 @@ describe("describe", () => {
     selectCell(model, "A4");
     setCellContent(model, "A4", "=A1+");
     composerStore.startEdition();
-    model.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
+    deleteSheet(model, activeSheetId);
     expect(composerStore.editionMode).toBe("inactive");
   });
 
@@ -201,7 +202,7 @@ describe("describe", () => {
     activateSheet(model, "42");
     selectCell(model, "A4");
     composerStore.startEdition("hello");
-    model.dispatch("DELETE_SHEET", { sheetId: "42" });
+    deleteSheet(model, "42");
     expect(raiseErrorSpy).toHaveBeenCalled();
     expect(composerStore.editionMode).toBe("inactive");
   });
@@ -209,7 +210,7 @@ describe("describe", () => {
   test("Composing in a sheet when a sheet deletion is redone", () => {
     createSheet(model, { sheetId: "42" });
     selectCell(model, "A4");
-    model.dispatch("DELETE_SHEET", { sheetId: "42" });
+    deleteSheet(model, "42");
     undo(model);
     activateSheet(model, "42");
     composerStore.startEdition("hello");
