@@ -559,6 +559,17 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       const exactMatch = proposals?.find((p) => p.text === tokenAtCursor.value);
       // remove tokens that are likely to be other parts of the formula that slipped in the token if it's a string
       const searchTerm = tokenAtCursor.value.replace(/[ ,\(\)]/g, "");
+      if (
+        this._currentContent === this.initialContent &&
+        provider.displayAllOnInitialContent &&
+        proposals?.length
+      ) {
+        return {
+          proposals,
+          selectProposal: provider.selectProposal,
+          autoSelectFirstProposal: provider.autoSelectFirstProposal ?? false,
+        };
+      }
       if (exactMatch && this._currentContent !== this.initialContent) {
         // this means the user has chosen a proposal
         return;
