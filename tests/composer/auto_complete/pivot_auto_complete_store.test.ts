@@ -300,13 +300,13 @@ describe("spreadsheet pivot auto complete", () => {
     expect(autoComplete?.proposals).toEqual([
       {
         description: "",
-        fuzzySearchKey: "New",
+        fuzzySearchKey: '"New"',
         htmlContent: [{ color: "#00a82d", value: '"New"' }],
         text: '"New"',
       },
       {
         description: "",
-        fuzzySearchKey: "Won",
+        fuzzySearchKey: '"Won"',
         htmlContent: [{ color: "#00a82d", value: '"Won"' }],
         text: '"Won"',
       },
@@ -314,6 +314,26 @@ describe("spreadsheet pivot auto complete", () => {
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Stage","New"');
     expect(composer.autocompleteProvider).toBeUndefined();
+  });
+
+  test.each(['"Ne', "Ne"])("PIVOT.VALUE search text field for group value", async (searchTerm) => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
+    composer.startEdition(`=PIVOT.VALUE(1,"Expected Revenue","Stage",${searchTerm}`);
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toEqual([
+      {
+        description: "",
+        fuzzySearchKey: '"New"',
+        htmlContent: [{ color: "#00a82d", value: '"New"' }],
+        text: '"New"',
+      },
+    ]);
   });
 
   test("PIVOT.VALUE autocomplete date month_number field for group value", async () => {
