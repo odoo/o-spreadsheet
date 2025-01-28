@@ -291,7 +291,7 @@ autoCompleteProviders.add("pivot_group_values", {
         text,
         description: usedLabel,
         htmlContent: [{ value: text, color }],
-        fuzzySearchKey: value + usedLabel,
+        fuzzySearchKey: text + usedLabel,
       };
     });
   },
