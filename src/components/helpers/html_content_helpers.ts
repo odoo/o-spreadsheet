@@ -16,7 +16,7 @@ export function getHtmlContentFromPattern(
     }
     pendingHtmlContent.push(
       { value: value.slice(0, index), color: "" },
-      { value: value[index], color: highlightColor, class: className }
+      { value: value[index], color: highlightColor, classes: [className] }
     );
     value = value.slice(index + 1);
   }

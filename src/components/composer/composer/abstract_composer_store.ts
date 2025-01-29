@@ -1,9 +1,13 @@
+import { AST } from "prettier";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
+import { isEvaluationError, transposeMatrix } from "../../../functions/helpers";
 import {
   colors,
   concat,
+  formatValue,
   fuzzyLookup,
   getZoneArea,
   isEqual,
@@ -31,14 +35,18 @@ import {
   Command,
   Direction,
   EditionMode,
+  FunctionResultObject,
   HeaderIndex,
   Highlight,
+  isMatrix,
+  Matrix,
   Range,
   RangePart,
   UID,
   UnboundedZone,
   Zone,
 } from "../../../types";
+import { EvaluationError } from "../../../types/errors";
 import { SelectionEvent } from "../../../types/event_stream";
 
 export const DEFAULT_TOKEN_COLOR: Color = "#000000";
@@ -73,6 +81,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     "toggleEditionMode",
     "changeComposerCursorSelection",
     "replaceComposerCursorSelection",
+    "hoverToken",
   ] as const;
   protected col: HeaderIndex = 0;
   protected row: HeaderIndex = 0;
@@ -84,6 +93,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   protected selectionEnd: number = 0;
   protected initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
+
+  hoveredTokens: EnrichedToken[] = [];
+  hoveredContentEvaluation: string = "";
 
   protected notificationStore = this.get(NotificationStore);
   private highlightStore = this.get(HighlightStore);
@@ -278,6 +290,97 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
   }
 
+  hoverToken(tokenIndex: number | undefined) {
+    this.currentTokens.forEach((t) => (t.isInHoverContext = undefined));
+    const tokens = [...this.currentTokens];
+    if (tokenIndex === undefined || ["ARG_SEPARATOR", "SPACE"].includes(tokens[tokenIndex].type)) {
+      this.hoveredContentEvaluation = "";
+      this.hoveredTokens = [];
+      return;
+    }
+
+    const missingParenthesis = this.getNumberOfMissingParenthesis(tokens);
+    if (missingParenthesis > 0) {
+      tokens.push(...Array(missingParenthesis).fill({ value: ")", type: "RIGHT_PAREN" }));
+    }
+
+    let hoveredContextTokens = tokens;
+    if (tokenIndex !== 0) {
+      const relatedTokens = this.getRelatedTokens(tokens, tokenIndex);
+      const notHoveredTokens = tokens.filter(
+        (t) => !relatedTokens.includes(t) && t.type !== "SPACE"
+      );
+      // Includes starting "=" if all the other tokens are hovered
+      hoveredContextTokens =
+        notHoveredTokens.length === 1 && notHoveredTokens[0] === tokens[0] ? tokens : relatedTokens;
+    }
+
+    hoveredContextTokens.forEach((t) => (t.isInHoverContext = true));
+
+    let hoveredFormula = hoveredContextTokens.map((t) => t.value).join("");
+    if (!isFormula(hoveredFormula)) {
+      hoveredFormula = `=${hoveredFormula}`;
+    }
+    const canonicalFormula = canonicalizeNumberContent(hoveredFormula, this.getters.getLocale());
+    const result = this.getters.evaluateFormulaResult(this.sheetId, canonicalFormula);
+    this.hoveredTokens = hoveredContextTokens;
+    this.hoveredContentEvaluation = this.evaluationResultToDisplayString(result);
+  }
+
+  private getRelatedTokens(tokens: EnrichedToken[], tokenIndex: number): EnrichedToken[] {
+    try {
+      const ast = parseTokens(tokens);
+      let match: AST | undefined = undefined;
+      for (const node of iterateAstNodes(ast)) {
+        if (tokenIndex >= node.tokenStartIndex && tokenIndex <= node.tokenEndIndex) {
+          match = node;
+        } else if (tokenIndex < node.tokenStartIndex) {
+          break;
+        }
+      }
+      if (!match) {
+        return tokens; // Happens if we're hovering spaces at the start/end of the formula
+      }
+      return tokens.slice(match.tokenStartIndex, match.tokenEndIndex + 1);
+    } catch (e) {
+      if (e instanceof EvaluationError) {
+        return tokens;
+      }
+      throw e;
+    }
+  }
+
+  private evaluationResultToDisplayString(
+    result: Matrix<FunctionResultObject> | FunctionResultObject
+  ): string {
+    const locale = this.getters.getLocale();
+    if (isMatrix(result)) {
+      const rowSeparator = locale.decimalSeparator === "," ? "/" : ",";
+      const arrayStr = transposeMatrix(result)
+        .map((row) => row.map((val) => this.cellValueToDisplayString(val)).join(rowSeparator))
+        .join(";");
+      return `{${arrayStr}}`;
+    }
+
+    return this.cellValueToDisplayString(result);
+  }
+
+  private cellValueToDisplayString(result: FunctionResultObject): string {
+    const value = result.value;
+    switch (typeof value) {
+      case "number":
+        return formatValue(value, { locale: this.getters.getLocale(), format: result.format });
+      case "string":
+        if (isEvaluationError(value)) {
+          return value;
+        }
+        return `"${value}"`;
+      case "boolean":
+        return value ? "TRUE" : "FALSE";
+    }
+    return "0";
+  }
+
   private captureSelection(zone: Zone, col?: HeaderIndex, row?: HeaderIndex) {
     this.model.selection.capture(
       this,
@@ -347,9 +450,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
       if (content) {
         if (isFormula(content)) {
-          const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
-          const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
-          const missing = left - right;
+          const missing = this.getNumberOfMissingParenthesis(this.currentTokens);
           if (missing > 0) {
             content += concat(new Array(missing).fill(")"));
           }
@@ -384,6 +485,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.editionMode = "inactive";
     this.model.selection.release(this);
     this.colorIndexByRange = {};
+    this.hoveredTokens = [];
+    this.hoveredContentEvaluation = "";
   }
 
   /**
@@ -830,5 +933,11 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       return true;
     }
     return false;
+  }
+
+  private getNumberOfMissingParenthesis(tokens: EnrichedToken[]): number {
+    const left = tokens.filter((t) => t.type === "LEFT_PAREN").length;
+    const right = tokens.filter((t) => t.type === "RIGHT_PAREN").length;
+    return left - right;
   }
 }
