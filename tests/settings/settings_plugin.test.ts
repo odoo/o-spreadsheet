@@ -9,7 +9,7 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
-import { getCell, getCellContent } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
 describe("Settings plugin", () => {
   let model: Model;
@@ -113,6 +113,22 @@ describe("Settings plugin", () => {
       expect(getCell(model, "A1")?.format).toEqual("yyyy/mm/dd");
       expect(getCell(model, "A2")?.format).toEqual("hh:mm");
       expect(getCell(model, "A3")?.format).toEqual("yyyy/mm/dd hh:mm");
+    });
+
+    test("can use dot as thousand separator", () => {
+      const locale = { ...CUSTOM_LOCALE, decimalSeparator: ",", thousandsSeparator: "." };
+      updateLocale(model, locale);
+      setCellContent(model, "A1", "1000000");
+      setFormat(model, "A1", "#,##0.00");
+      expect(getCellContent(model, "A1")).toEqual("1.000.000,00");
+
+      setCellContent(model, "A2", '="1,2" + 1');
+      expect(getEvaluatedCell(model, "A2")?.value).toEqual(2.2);
+      expect(getCellContent(model, "A2")).toEqual("2,2");
+
+      setCellContent(model, "A2", '="1.000,2" + 1');
+      expect(getEvaluatedCell(model, "A2")?.value).toEqual(1001.2);
+      expect(getCellContent(model, "A2")).toEqual("1001,2");
     });
   });
 });
