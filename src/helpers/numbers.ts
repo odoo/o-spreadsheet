@@ -70,11 +70,12 @@ const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(l
  * number from the point of view of the isNumber function.
  */
 export function parseNumber(str: string, locale: Locale): number {
+  // remove invaluable characters
+  str = str.replace(getInvaluableSymbolsRegexp(locale), "");
+
   if (locale.decimalSeparator !== ".") {
     str = str.replace(locale.decimalSeparator, ".");
   }
-  // remove invaluable characters
-  str = str.replace(getInvaluableSymbolsRegexp(locale), "");
   let n = Number(str);
   if (isNaN(n) && str.includes("%")) {
     n = Number(str.split("%")[0]);
