@@ -31,6 +31,7 @@
           t-on-mousewheel.stop=""
           t-on-input="onInput"
           t-on-pointerdown="onMousedown"
+          t-on-pointerup="onMouseup"
           t-on-click="onClick"
           t-on-keyup="onKeyup"
           t-on-paste="onPaste"
@@ -77,6 +78,11 @@
           />
         </div>
       </div>
+      <SpeechBubble
+        t-if="displaySpeechBubble"
+        content="props.composerStore.hoveredContentEvaluation"
+        anchorRect="composerState.hoveredRect"
+      />
     </div>
   </t>
 </templates>
