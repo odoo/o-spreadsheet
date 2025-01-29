@@ -101,7 +101,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getSheetViewVisibleCols",
     "getSheetViewVisibleRows",
     "getFrozenSheetViewRatio",
-    "isPositionVisible",
+    "isPixelPositionVisible",
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
     "getAllActiveViewportsZones",
@@ -854,7 +854,7 @@ export class SheetViewPlugin extends UIPlugin {
     return result;
   }
 
-  isPositionVisible(position: PixelPosition): boolean {
+  isPixelPositionVisible(position: PixelPosition): boolean {
     const { scrollX, scrollY } = this.getters.getActiveSheetScrollInfo();
     const { x: mainViewportX, y: mainViewportY } = this.getters.getMainViewportCoordinates();
     const { width, height } = this.getters.getSheetViewDimension();
