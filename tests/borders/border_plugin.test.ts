@@ -832,6 +832,66 @@ describe("Grid manipulation", () => {
   });
 });
 
+describe("Border continuity", () => {
+  const border = {
+    top: DEFAULT_BORDER_DESC,
+    left: DEFAULT_BORDER_DESC,
+    right: DEFAULT_BORDER_DESC,
+    bottom: DEFAULT_BORDER_DESC,
+  };
+  test("border continuity is preserved when adding a row before", () => {
+    const model = new Model();
+    setZoneBorders(model, { position: "external" }, ["A1"]);
+    setZoneBorders(model, { position: "external" }, ["A2"]);
+    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "A2")).toEqual(border);
+    expect(getBorder(model, "A3")).toBeNull();
+    addRows(model, "before", 1, 1);
+    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "A2")).toEqual(border);
+    expect(getBorder(model, "A3")).toEqual(border);
+  });
+
+  test("border continuity is preserved when adding a row after", () => {
+    const model = new Model();
+    setZoneBorders(model, { position: "external" }, ["A1"]);
+    setZoneBorders(model, { position: "external" }, ["A2"]);
+    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "A2")).toEqual(border);
+    expect(getBorder(model, "A3")).toBeNull();
+    addRows(model, "after", 0, 1);
+    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "A2")).toEqual(border);
+    expect(getBorder(model, "A3")).toEqual(border);
+  });
+
+  test("border continuity is preserved when adding a column before", () => {
+    const model = new Model();
+    setZoneBorders(model, { position: "external" }, ["A1"]);
+    setZoneBorders(model, { position: "external" }, ["B1"]);
+    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "B1")).toEqual(border);
+    expect(getBorder(model, "C1")).toBeNull();
+    addColumns(model, "before", "B", 1);
+    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "B1")).toEqual(border);
+    expect(getBorder(model, "C1")).toEqual(border);
+  });
+
+  test("border continuity is preserved when adding a column after", () => {
+    const model = new Model();
+    setZoneBorders(model, { position: "external" }, ["A1"]);
+    setZoneBorders(model, { position: "external" }, ["B1"]);
+    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "B1")).toEqual(border);
+    expect(getBorder(model, "C1")).toBeNull();
+    addColumns(model, "after", "A", 1);
+    expect(getBorder(model, "A1")).toEqual(border);
+    expect(getBorder(model, "B1")).toEqual(border);
+    expect(getBorder(model, "C1")).toEqual(border);
+  });
+});
+
 test("Cells that have undefined borders don't override borders of neighboring cells at import", () => {
   const data = {
     sheets: [
