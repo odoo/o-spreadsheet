@@ -109,15 +109,13 @@ export const demoData = {
         I33: "0",
       },
       styles: {
-        A1: 1,
-        B2: 2,
-        B4: 3,
-        B9: 4,
-        B14: 5,
-        F2: 6,
-        F3: 7,
-        F4: 8,
-        F6: 9,
+        B2: 1,
+        B4: 2,
+        B9: 3,
+        B14: 4,
+        F2: 5,
+        F3: 6,
+        F4: 7,
       },
       formats: {
         C22: 1,
@@ -776,33 +774,33 @@ export const demoData = {
         D2: "scroll horizontally",
       },
       styles: {
-        "D6:D17": 10,
-        "E6:E9": 10,
-        "E14:E17": 10,
-        "F6:F8": 10,
-        "F15:F17": 10,
-        "G6:G7": 10,
-        "G16:G17": 10,
-        "H6:L6": 10,
-        "H17:L17": 10,
-        "M6:M7": 10,
-        "M16:M17": 10,
-        "N6:N8": 10,
-        "N15:N17": 10,
-        "O6:O9": 10,
-        "O14:O17": 10,
-        "P6:P17": 10,
-        "H8:H10": 11,
-        "I7:I11": 11,
-        "J7:J8": 11,
-        "J10:J11": 11,
-        J14: 11,
-        "K7:K11": 11,
-        "L7:L12": 11,
-        L16: 11,
-        "M8:M15": 11,
-        "N9:N14": 11,
-        "O10:O13": 11,
+        "D6:D17": 8,
+        "E6:E9": 8,
+        "E14:E17": 8,
+        "F6:F8": 8,
+        "F15:F17": 8,
+        "G6:G7": 8,
+        "G16:G17": 8,
+        "H6:L6": 8,
+        "H17:L17": 8,
+        "M6:M7": 8,
+        "M16:M17": 8,
+        "N6:N8": 8,
+        "N15:N17": 8,
+        "O6:O9": 8,
+        "O14:O17": 8,
+        "P6:P17": 8,
+        "H8:H10": 9,
+        "I7:I11": 9,
+        "J7:J8": 9,
+        "J10:J11": 9,
+        J14: 9,
+        "K7:K11": 9,
+        "L7:L12": 9,
+        L16: 9,
+        "M8:M15": 9,
+        "N9:N14": 9,
+        "O10:O13": 9,
       },
       formats: {},
       borders: {},
@@ -2106,9 +2104,9 @@ export const demoData = {
         S117: "4",
       },
       styles: {
-        "H24:J24": 12,
-        "G1:K1": 12,
-        "G12:K12": 12,
+        "H24:J24": 10,
+        "G1:K1": 10,
+        "G12:K12": 10,
       },
       formats: {
         C40: 3,
@@ -2788,9 +2786,9 @@ export const demoData = {
         F6: "Yvain{at}odoo.com",
       },
       styles: {
-        "E3:E6": 8,
-        "A1:A2": 12,
-        "B2:F2": 12,
+        "E3:E6": 7,
+        "A1:A2": 10,
+        "B2:F2": 10,
       },
       formats: {
         "C3:C6": 3,
@@ -3071,8 +3069,8 @@ export const demoData = {
         L3: "0.02",
       },
       styles: {
-        "A1:I1": 13,
-        K1: 13,
+        "A1:I1": 11,
+        K1: 11,
       },
       formats: {
         "L2:L3": 1,
@@ -3192,45 +3190,39 @@ export const demoData = {
   ],
   styles: {
     1: {
-      fontSize: 9,
-    },
-    2: {
       bold: true,
       textColor: "#674EA7",
       fontSize: 18,
     },
-    3: {
+    2: {
       fillColor: "#FFF2CC",
     },
-    4: {
+    3: {
       fillColor: "#D9EAD3",
     },
-    5: {
+    4: {
       fillColor: "#B6D7A8",
     },
-    6: {
+    5: {
       italic: true,
     },
-    7: {
+    6: {
       strikethrough: true,
     },
-    8: {
+    7: {
       underline: true,
     },
-    9: {
-      fontSize: 15,
-    },
-    10: {
+    8: {
       fillColor: "#d9d2e9",
     },
-    11: {
+    9: {
       fillColor: "#000000",
     },
-    12: {
+    10: {
       bold: true,
       fontSize: 11,
     },
-    13: {
+    11: {
       bold: true,
     },
   },
@@ -3594,7 +3586,7 @@ export const demoData = {
       },
     },
   },
-  revisionId: "d640bb42-f9d1-413f-bc92-08f3d4c87e22",
+  revisionId: "START_REVISION",
   uniqueFigureIds: true,
   settings: {
     locale: {
