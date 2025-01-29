@@ -609,6 +609,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             />
           </div>
           
+          
         </div>
       </div>
       
@@ -729,6 +730,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 tabindex="1"
               />
             </div>
+            
             
           </div>
         </div>

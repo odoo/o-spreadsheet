@@ -16,7 +16,7 @@
               t-foreach="htmlContent"
               t-as="content"
               t-key="content_index"
-              t-att-class="content.class"
+              t-att-class="content.classes?.join(' ')"
               t-attf-style="color: {{content.color || 'inherit'}};"
               t-esc="content.value"
             />
