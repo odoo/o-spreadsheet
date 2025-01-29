@@ -43,12 +43,12 @@ export class ImageProvider implements ImageProviderInterface {
   getImageOriginalSize(path: string): Promise<FigureSize> {
     return new Promise((resolve, reject) => {
       const image = new Image();
-      image.src = path;
       image.addEventListener("load", () => {
         const size = { width: image.width, height: image.height };
         resolve(size);
       });
       image.addEventListener("error", reject);
+      image.src = path;
     });
   }
 }

@@ -189,7 +189,6 @@ export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
 export async function convertImageToPng(imageUrl: string): Promise<Blob | null> {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.src = imageUrl;
     image.addEventListener("load", () => {
       const canvas = document.createElement("canvas");
       canvas.width = image.width;
@@ -200,6 +199,7 @@ export async function convertImageToPng(imageUrl: string): Promise<Blob | null> 
       canvas.toBlob(resolve, "image/png");
     });
     image.addEventListener("error", reject);
+    image.src = imageUrl;
   });
 }
 

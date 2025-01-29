@@ -36,29 +36,25 @@ export function chartToImageUrl(
   div.append(canvas);
   canvas.setAttribute("width", figure.width.toString());
   canvas.setAttribute("height", figure.height.toString());
+  let imageContent: string | undefined;
   // we have to add the canvas to the DOM otherwise it won't be rendered
   document.body.append(div);
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
     const chart = new window.Chart(canvas, config as ChartConfiguration);
-    const imgContent = chart.toBase64Image() as string;
+    imageContent = chart.toBase64Image() as string;
     chart.destroy();
-    div.remove();
-    return imgContent;
   } else if (type === "scorecard") {
     const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
     drawScoreChart(design, canvas);
-    const imgContent = canvas.toDataURL();
-    div.remove();
-    return imgContent;
+    imageContent = canvas.toDataURL();
   } else if (type === "gauge") {
     drawGaugeChart(canvas, runtime as GaugeChartRuntime);
-    const imgContent = canvas.toDataURL();
-    div.remove();
-    return imgContent;
+    imageContent = canvas.toDataURL();
   }
-  return undefined;
+  div.remove();
+  return imageContent;
 }
 
 export async function chartToImageFile(
@@ -66,26 +62,34 @@ export async function chartToImageFile(
   figure: Figure,
   type: ChartType
 ): Promise<File | undefined> {
-  const chartString = chartToImageUrl(runtime, figure, type);
-  if (!chartString) {
-    return undefined;
+  // wrap the canvas in a div with a fixed size because chart.js would
+  // fill the whole page otherwise
+  const div = document.createElement("div");
+  div.style.width = `${figure.width}px`;
+  div.style.height = `${figure.height}px`;
+  const canvas = document.createElement("canvas");
+  div.append(canvas);
+  canvas.setAttribute("width", figure.width.toString());
+  canvas.setAttribute("height", figure.height.toString());
+  // we have to add the canvas to the DOM otherwise it won't be rendered
+  document.body.append(div);
+  let chartBlob: Blob | null = null;
+  if ("chartJsConfig" in runtime) {
+    const config = deepCopy(runtime.chartJsConfig);
+    config.plugins = [backgroundColorChartJSPlugin];
+    const chart = new window.Chart(canvas, config as ChartConfiguration);
+    chartBlob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+    chart.destroy();
+  } else if (type === "scorecard") {
+    const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
+    drawScoreChart(design, canvas);
+    chartBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  } else if (type === "gauge") {
+    drawGaugeChart(canvas, runtime as GaugeChartRuntime);
+    chartBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
   }
-  return base64ToFile(chartString, "chart.png", "image/png");
-}
-
-function base64ToFile(base64: string, fileName: string, mimeType: string): File {
-  // Remove the data URL part if present
-  const byteCharacters = atob(base64.split(",")[1]);
-
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-
-  const byteArray = new Uint8Array(byteNumbers);
-
-  // Create a Blob object from the byteArray
-  return new File([byteArray], fileName, { type: mimeType });
+  div.remove();
+  return chartBlob ? new File([chartBlob], "chart.png", { type: "image/png" }) : undefined;
 }
 
 /**
