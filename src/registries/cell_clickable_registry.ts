@@ -5,6 +5,7 @@ import { Registry } from "./registry";
 export interface CellClickableItem {
   condition: (position: CellPosition, getters: Getters) => boolean;
   execute: (position: CellPosition, env: SpreadsheetChildEnv) => void;
+  title?: string;
   sequence: number;
 }
 
