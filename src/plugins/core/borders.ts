@@ -303,7 +303,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   private getCommonSides(border1: Border, border2: Border): Border {
     const commonBorder = {};
     for (let side of ["top", "bottom", "left", "right"]) {
-      if (border1[side] && border1[side] === border2[side]) {
+      if (border1[side] && deepEquals(border1[side], border2[side])) {
         commonBorder[side] = border1[side];
       }
     }
