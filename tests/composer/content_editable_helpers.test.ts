@@ -1,3 +1,4 @@
+import { HtmlContent } from "../../src/components/composer/composer/composer";
 import { ContentEditableHelper } from "../../src/components/composer/content_editable_helper";
 import { iterateChildren } from "../../src/components/helpers/dom_helpers";
 import { makeTestFixture } from "../test_helpers/helpers";
@@ -41,19 +42,27 @@ describe("ContentEditableHelper", () => {
       fixture.remove();
     });
 
+    function setText(contents: HtmlContent[][]) {
+      helper.setText(
+        contents,
+        () => {},
+        () => {}
+      );
+    }
+
     test("writing text in empty div", () => {
       expect(helper.getText()).toBe("");
-      helper.setText([[{ value: "hello" }]]);
+      setText([[{ value: "hello" }]]);
       expect(helper.getText()).toBe("hello");
       expect(div.innerText).toBe("hello");
     });
 
     test("Change color of an HTML content", () => {
-      helper.setText([[{ value: "hello", color: "#000000" }]]);
+      setText([[{ value: "hello", color: "#000000" }]]);
       expect(helper.getText()).toBe("hello");
       expect(div.innerText).toBe("hello");
       const childNodes = [...iterateChildren(div)];
-      helper.setText([[{ value: "hello", color: "#ffffff" }]]);
+      setText([[{ value: "hello", color: "#ffffff" }]]);
       expect(helper.getText()).toBe("hello");
       expect(div.innerText).toBe("hello");
       const childNodesAfter = [...iterateChildren(div)];
@@ -63,7 +72,7 @@ describe("ContentEditableHelper", () => {
     });
 
     test("Adding some text", () => {
-      helper.setText([[{ value: "hello" }]]);
+      setText([[{ value: "hello" }]]);
 
       expect(helper.getText()).toBe("hello");
       expect(div.innerText).toBe("hello");
@@ -72,7 +81,7 @@ describe("ContentEditableHelper", () => {
       const [, paragraphNode, spanNode] = childNodes;
       expect(div).toMatchSnapshot();
 
-      helper.setText([[{ value: "hello" }, { value: "test" }]]);
+      setText([[{ value: "hello" }, { value: "test" }]]);
       expect(helper.getText()).toBe("hellotest");
       expect(div.innerText).toBe("hellotest");
 
@@ -91,7 +100,7 @@ describe("ContentEditableHelper", () => {
     });
 
     test("Removing some text", () => {
-      helper.setText([[{ value: "hello" }, { value: "test" }]]);
+      setText([[{ value: "hello" }, { value: "test" }]]);
 
       expect(helper.getText()).toBe("hellotest");
       expect(div.innerText).toBe("hellotest");
@@ -100,7 +109,7 @@ describe("ContentEditableHelper", () => {
       const [, paragraphNode, spanNode] = childNodes;
       expect(div).toMatchSnapshot();
 
-      helper.setText([[{ value: "hello" }]]);
+      setText([[{ value: "hello" }]]);
       expect(helper.getText()).toBe("hello");
       expect(div.innerText).toBe("hello");
 

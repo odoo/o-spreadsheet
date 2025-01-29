@@ -46,7 +46,7 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
       SUM
     </span>
     <span
-      class="background-flag"
+      class="highlight-parenthesis-flag"
       style="color: rgb(0, 0, 0);"
     >
       (
@@ -59,7 +59,7 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
       5
     </span>
     <span
-      class="background-flag"
+      class="highlight-parenthesis-flag"
       style="color: rgb(0, 0, 0);"
     >
       )

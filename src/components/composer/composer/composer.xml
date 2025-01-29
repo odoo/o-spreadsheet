@@ -74,6 +74,11 @@
           onValueHovered.bind="this.updateAutoCompleteIndex"
         />
       </div>
+      <SpeechBubble
+        t-if="displaySpeechBubble"
+        content="props.composerStore.hoveredContentEvaluation"
+        anchorRect="composerState.hoveredRect"
+      />
     </div>
   </t>
 </templates>

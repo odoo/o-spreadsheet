@@ -1,6 +1,7 @@
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
+import { transposeMatrix } from "../../../functions/helpers";
 import {
   colors,
   concat,
@@ -12,7 +13,7 @@ import {
   splitReference,
   zoneToDimension,
 } from "../../../helpers/index";
-import { canonicalizeNumberContent } from "../../../helpers/locale";
+import { canonicalizeNumberContent, localizeNumberContent } from "../../../helpers/locale";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProvider,
@@ -26,18 +27,21 @@ import { NotificationStore } from "../../../stores/notification_store";
 import { _t } from "../../../translation";
 import {
   CellPosition,
+  CellValue,
   Color,
   Command,
   Direction,
   EditionMode,
   HeaderIndex,
   Highlight,
+  Matrix,
   Range,
   RangePart,
   UID,
   UnboundedZone,
   Zone,
 } from "../../../types";
+import { errorTypes } from "../../../types/errors";
 import { SelectionEvent } from "../../../types/event_stream";
 
 export const DEFAULT_TOKEN_COLOR: Color = "#000000";
@@ -72,6 +76,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     "toggleEditionMode",
     "changeComposerCursorSelection",
     "replaceComposerCursorSelection",
+    "hoverToken",
   ] as const;
   protected col: HeaderIndex = 0;
   protected row: HeaderIndex = 0;
@@ -83,6 +88,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   protected selectionEnd: number = 0;
   protected initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
+
+  hoveredContentEvaluation: string = "";
 
   protected notificationStore = this.get(NotificationStore);
   private highlightStore = this.get(HighlightStore);
@@ -277,6 +284,69 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
   }
 
+  hoverToken(tokenIndex: number | undefined) {
+    this.currentTokens.forEach((t) => (t.isInHoverContext = undefined));
+    if (tokenIndex === undefined) {
+      this.hoveredContentEvaluation = "";
+      return;
+    }
+    const hoveredToken = this.currentTokens[tokenIndex];
+    const hoveredContextTokens = this.isPrimitiveToken(hoveredToken)
+      ? [hoveredToken]
+      : this.currentTokens.filter((t) =>
+          t.parenthesesCode?.startsWith(hoveredToken.parenthesesCode || "")
+        );
+
+    hoveredContextTokens.forEach((t) => (t.isInHoverContext = true));
+
+    let hoveredFormula = hoveredContextTokens.map((t) => t.value).join("");
+    if (!hoveredFormula.startsWith("=")) {
+      hoveredFormula = `=${hoveredFormula}`;
+    }
+    hoveredFormula = this.addMissingParenthesis(hoveredFormula);
+    const canonicalFormula = canonicalizeNumberContent(hoveredFormula, this.getters.getLocale());
+    const result = this.getters.evaluateFormula(this.sheetId, canonicalFormula);
+    this.hoveredContentEvaluation = this.evaluationResultToDisplayString(result);
+  }
+
+  private evaluationResultToDisplayString(result: CellValue | Matrix<CellValue>): string {
+    const locale = this.getters.getLocale();
+    if (Array.isArray(result)) {
+      const rowSeparator = locale.decimalSeparator === "," ? "/" : ",";
+      const arrayStr = transposeMatrix(result)
+        .map((row) => row.map((val) => this.cellValueToDisplayString(val)).join(rowSeparator))
+        .join(";");
+      return `{${arrayStr}}`;
+    }
+
+    return this.cellValueToDisplayString(result);
+  }
+
+  private cellValueToDisplayString(value: CellValue): string {
+    switch (typeof value) {
+      case "number":
+        return localizeNumberContent(String(value), this.getters.getLocale());
+      case "string":
+        if (errorTypes.has(value)) {
+          return value;
+        }
+        return `"${value}"`;
+      case "boolean":
+        return value ? "TRUE" : "FALSE";
+    }
+    return "0";
+  }
+
+  private isPrimitiveToken(token: EnrichedToken): boolean {
+    return (
+      token.type === "NUMBER" ||
+      token.type === "STRING" ||
+      token.type === "REFERENCE" ||
+      (token.type === "SYMBOL" &&
+        (token.value.toLowerCase() === "true" || token.value.toLowerCase() === "false"))
+    );
+  }
+
   private captureSelection(zone: Zone, col?: HeaderIndex, row?: HeaderIndex) {
     this.model.selection.capture(
       this,
@@ -346,12 +416,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
       if (content) {
         if (content.startsWith("=")) {
-          const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
-          const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
-          const missing = left - right;
-          if (missing > 0) {
-            content += concat(new Array(missing).fill(")"));
-          }
+          content = this.addMissingParenthesis(content);
         }
       }
       this.confirmEdition(content);
@@ -818,5 +883,17 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       return true;
     }
     return false;
+  }
+
+  private addMissingParenthesis(content: string): string {
+    const tokens = composerTokenize(content, this.getters.getLocale());
+    const left = tokens.filter((t) => t.type === "LEFT_PAREN").length;
+    const right = tokens.filter((t) => t.type === "RIGHT_PAREN").length;
+    const missing = left - right;
+    if (missing > 0) {
+      content += concat(new Array(missing).fill(")"));
+    }
+
+    return content;
   }
 }
