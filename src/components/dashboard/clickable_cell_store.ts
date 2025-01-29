@@ -11,16 +11,15 @@ import {
   invalidateEvaluationCommands,
 } from "../../types";
 
-type Garbage = ((position: CellPosition, env: SpreadsheetChildEnv) => void) | false;
-
 export interface ClickableCell {
   coordinates: Rect;
   position: CellPosition;
+  title: string;
   action: (position: CellPosition, env: SpreadsheetChildEnv) => void;
 }
 
 export class ClickableCellsStore extends SpreadsheetStore {
-  private _clickableCells: Record<UID, Record<string, Garbage>> = markRaw({});
+  private _clickableCells: Record<UID, Record<string, CellClickableItem>> = markRaw({});
   private _registryItems: CellClickableItem[] = markRaw(
     clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
   );
@@ -38,7 +37,7 @@ export class ClickableCellsStore extends SpreadsheetStore {
     }
   }
 
-  private getClickableAction(position: CellPosition): Garbage {
+  private getClickableItem(position: CellPosition): CellClickableItem | undefined {
     const { sheetId, col, row } = position;
     const clickableCells = this._clickableCells;
     const xc = toXC(col, row);
@@ -46,19 +45,22 @@ export class ClickableCellsStore extends SpreadsheetStore {
       clickableCells[sheetId] = {};
     }
     if (!(xc in clickableCells[sheetId]!)) {
-      clickableCells[sheetId][xc] = this.findClickableAction(position);
+      const clickableCell = this.findClickableItem(position);
+      if (clickableCell) {
+        clickableCells[sheetId][xc] = clickableCell;
+      }
     }
     return clickableCells[sheetId][xc];
   }
 
-  private findClickableAction(position: CellPosition) {
+  private findClickableItem(position: CellPosition) {
     const getters = this.getters;
     for (const item of this._registryItems) {
       if (item.condition(position, getters)) {
-        return item.execute;
+        return item;
       }
     }
-    return false;
+    return undefined;
   }
 
   get clickableCells(): ClickableCell[] {
@@ -66,15 +68,16 @@ export class ClickableCellsStore extends SpreadsheetStore {
     const getters = this.getters;
     const sheetId = getters.getActiveSheetId();
     for (const position of this.getters.getVisibleCellPositions()) {
-      const action = this.getClickableAction(position);
-      if (!action) {
+      const item = this.getClickableItem(position);
+      if (!item) {
         continue;
       }
       const zone = getters.expandZone(sheetId, positionToZone(position));
       cells.push({
         coordinates: getters.getVisibleRect(zone),
         position,
-        action,
+        action: item.execute,
+        title: item.title || "",
       });
     }
     return cells;

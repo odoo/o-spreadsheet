@@ -148,4 +148,19 @@ describe("Grid component in dashboard mode", () => {
     expect(fn).toHaveBeenCalledWith(1, 9);
     clickableCellRegistry.remove("fake");
   });
+
+  test("Clickable cells actions can have a tooltip", async () => {
+    clickableCellRegistry.add("fake", {
+      condition: () => true,
+      execute: () => {},
+      title: "hello there",
+      sequence: 5,
+    });
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(fixture.querySelector("div.o-dashboard-clickable-cell")?.getAttribute("title")).toBe(
+      "hello there"
+    );
+    clickableCellRegistry.remove("fake");
+  });
 });
