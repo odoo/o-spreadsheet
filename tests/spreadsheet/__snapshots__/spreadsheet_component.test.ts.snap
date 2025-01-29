@@ -691,6 +691,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               />
             </div>
             
+            
           </div>
         </div>
       </div>
@@ -817,6 +818,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 tabindex="1"
               />
             </div>
+            
             
           </div>
         </div>
@@ -1701,6 +1703,7 @@ exports[`components take the small screen into account 1`] = `
               />
             </div>
             
+            
           </div>
         </div>
       </div>
@@ -1827,6 +1830,7 @@ exports[`components take the small screen into account 1`] = `
                 tabindex="1"
               />
             </div>
+            
             
           </div>
         </div>

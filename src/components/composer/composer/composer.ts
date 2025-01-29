@@ -1,7 +1,7 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, isFormula, setColorAlpha } from "../../../helpers/index";
+import { clip, debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
@@ -25,6 +25,7 @@ import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdow
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
+import { SpeechBubble } from "../speech_bubble/speech_bubble";
 import { DEFAULT_TOKEN_COLOR } from "./abstract_composer_store";
 import { CellComposerStore } from "./cell_composer_store";
 
@@ -34,14 +35,17 @@ const ASSISTANT_WIDTH = 300;
 const CLOSE_ICON_RADIUS = 9;
 
 export const selectionIndicatorClass = "selector-flag";
-const backgroundClass = "background-flag";
+export const highlightParenthesisClass = "highlight-parenthesis-flag";
+const highlightClass = "highlight-flag";
 const selectionIndicatorColor = "#a9a9a9";
 const selectionIndicator = "␣";
 
 export type HtmlContent = {
   value: string;
+  onHover?: (rect: Rect) => void;
+  onStopHover?: () => void;
   color?: Color;
-  class?: string;
+  classes?: string[];
 };
 
 css/* scss */ `
@@ -62,16 +66,23 @@ css/* scss */ `
 
         span {
           white-space: pre-wrap;
+          /* On some browsers (chromium ?) it is somehow possible to hover two of the composer's spans at the same time, leading to
+           * flickering with a succession of onmouseenter/onmouseleave events. A small invisible padding seems to prevent the issue.*/
+          padding-left: 0.01px;
 
           &.${selectionIndicatorClass}:after {
             content: "${selectionIndicator}";
             color: ${selectionIndicatorColor};
           }
 
-          &.${backgroundClass} {
+          &.${highlightParenthesisClass}:not(.${highlightClass}) {
             border-radius: 5px;
             background-color: lightgray;
-            padding: 0px 1.5px 1.5px 1.5px;
+            padding: 1.5px 0px 1.5px 0px;
+          }
+
+          &.${highlightClass} {
+            background-color: #e6edf3;
           }
         }
       }
@@ -129,6 +140,7 @@ export interface CellComposerProps {
 interface ComposerState {
   positionStart: number;
   positionEnd: number;
+  hoveredRect: Rect | undefined;
 }
 
 interface FunctionDescriptionState {
@@ -153,7 +165,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     composerStore: Object,
     placeholder: { type: String, optional: true },
   };
-  static components = { TextValueProvider, FunctionDescriptionProvider };
+  static components = { TextValueProvider, FunctionDescriptionProvider, SpeechBubble };
   static defaultProps = {
     inputStyle: "",
     isDefaultFocus: false,
@@ -168,6 +180,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   composerState: ComposerState = useState({
     positionStart: 0,
     positionEnd: 0,
+    hoveredRect: undefined,
   });
 
   autoCompleteState!: Store<AutoCompleteStore>;
@@ -182,6 +195,19 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   });
   private compositionActive: boolean = false;
   private spreadsheetRect = useSpreadsheetRect();
+  private lastHoveredTokenIndex: number | undefined = undefined;
+
+  private debouncedHover = debounce((tokenIndex: number | undefined, hoveredRect?: Rect) => {
+    const selection = this.contentHelper.getCurrentSelection();
+    if (selection.start !== selection.end) {
+      return;
+    }
+    const currentHoveredContext = this.props.composerStore.hoveredTokens;
+    this.props.composerStore.hoverToken(tokenIndex);
+    if (!deepEquals(currentHoveredContext, this.props.composerStore.hoveredTokens)) {
+      this.composerState.hoveredRect = hoveredRect;
+    }
+  }, 120);
 
   get assistantStyleProperties(): CSSProperties {
     const composerRect = this.composerRef.el!.getBoundingClientRect();
@@ -276,6 +302,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     });
     onWillUnmount(() => {
       this.env.model.selection.detachObserver(this);
+      this.debouncedHover.stopDebounce();
     });
     useEffect(() => {
       this.processContent();
@@ -554,6 +581,13 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     this.contentHelper.removeSelection();
   }
 
+  onMouseup() {
+    const selection = this.contentHelper.getCurrentSelection();
+    if (selection.start !== selection.end) {
+      this.props.composerStore.hoverToken(undefined);
+    }
+  }
+
   onClick() {
     if (this.env.model.getters.isReadonly()) {
       return;
@@ -651,36 +685,59 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     } else if (isValidFormula && this.props.focus !== "inactive") {
       return this.splitHtmlContentIntoLines(this.getHtmlContentFromTokens());
     }
-    return this.splitHtmlContentIntoLines([{ value }]);
+    return this.splitHtmlContentIntoLines([{ value, classes: [] }]);
   }
 
   private getHtmlContentFromTokens(): HtmlContent[] {
     const tokens = this.props.composerStore.currentTokens;
     const result: HtmlContent[] = [];
     const { end, start } = this.props.composerStore.composerSelection;
-    for (const token of tokens) {
+    for (let index = 0; index < tokens.length; index++) {
+      const token = tokens[index];
       let color = token.color || DEFAULT_TOKEN_COLOR;
       if (token.isBlurred) {
         color = setColorAlpha(color, 0.5);
       }
-      result.push({ value: token.value, color });
+      const classes: string[] = [];
       if (
         token.type === "REFERENCE" &&
         this.props.composerStore.tokenAtCursor === token &&
         this.props.composerStore.editionMode === "selecting"
       ) {
-        result[result.length - 1].class = "text-decoration-underline";
+        classes.push("text-decoration-underline");
       }
 
       if (end === start && token.isParenthesisLinkedToCursor) {
-        result[result.length - 1].class = backgroundClass;
+        classes.push(highlightParenthesisClass);
+      }
+
+      if (token.isInHoverContext) {
+        classes.push(highlightClass);
       }
 
       if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
-        result[result.length - 1].class = selectionIndicatorClass;
+        classes.push(selectionIndicatorClass);
       }
+
+      result.push({
+        value: token.value,
+        color,
+        classes,
+        onHover: (rect) => this.onTokenHover(index, rect),
+        onStopHover: () => this.onTokenHover(undefined),
+      });
     }
+
     return result;
+  }
+
+  private onTokenHover(tokenIndex: number | undefined, hoveredRect?: Rect) {
+    // We want to debounce the hover event to avoid flickering, but we also don't want to keep delaying the debounce timer
+    // if the user keeps moving its mouse over the same token.
+    if (this.lastHoveredTokenIndex !== tokenIndex) {
+      this.lastHoveredTokenIndex = tokenIndex;
+      this.debouncedHover(tokenIndex, hoveredRect);
+    }
   }
 
   /**
@@ -723,7 +780,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   private isContentEmpty(content: HtmlContent): boolean {
-    return !(content.value || content.class);
+    return !(content.value || content.classes?.length);
   }
 
   /**
@@ -826,5 +883,13 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     }
     this.autoCompleteState.provider?.selectProposal(value);
     this.processTokenAtCursor();
+  }
+
+  get displaySpeechBubble(): boolean {
+    return !!(
+      this.props.focus !== "inactive" &&
+      this.composerState.hoveredRect &&
+      this.props.composerStore.hoveredContentEvaluation
+    );
   }
 }

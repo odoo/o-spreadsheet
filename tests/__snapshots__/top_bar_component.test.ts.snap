@@ -691,6 +691,7 @@ exports[`TopBar component can set cell format 1`] = `
                 />
               </div>
               
+              
             </div>
           </div>
         </div>
@@ -1798,6 +1799,7 @@ exports[`TopBar component simple rendering 1`] = `
               tabindex="1"
             />
           </div>
+          
           
         </div>
       </div>
