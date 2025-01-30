@@ -168,6 +168,6 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
       )?.cf;
     }
 
-    return targetCF || { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
+    return targetCF || { ...originCF, id: this.uuidGenerator.smallUuid(), ranges: [] };
   }
 }

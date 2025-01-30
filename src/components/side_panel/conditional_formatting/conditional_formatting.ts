@@ -82,7 +82,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   addConditionalFormat() {
-    const cfId = this.env.model.uuidGenerator.uuidv4();
+    const cfId = this.env.model.uuidGenerator.smallUuid();
     this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       sheetId: this.activeSheetId,
       ranges: this.env.model.getters
