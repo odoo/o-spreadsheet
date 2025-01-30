@@ -210,7 +210,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         for (let col = zone.left; col <= zone.right; col++) {
           if (!filters.find((filter) => filter.col === col)) {
             filters.push(
-              new Filter(this.uuidGenerator.uuidv4(), { ...zone, left: col, right: col })
+              new Filter(this.uuidGenerator.smallUuid(), { ...zone, left: col, right: col })
             );
           }
         }

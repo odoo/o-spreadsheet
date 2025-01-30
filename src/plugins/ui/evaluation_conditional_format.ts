@@ -516,6 +516,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       .getConditionalFormats(targetSheetId)
       .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, originCF.rule));
 
-    return cfInTarget ? cfInTarget : { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
+    return cfInTarget
+      ? cfInTarget
+      : { ...originCF, id: this.uuidGenerator.smallUuid(), ranges: [] };
   }
 }

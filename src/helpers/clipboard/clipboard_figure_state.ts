@@ -70,7 +70,7 @@ export class ClipboardFigureState implements ClipboardState {
     };
 
     const newChart = this.copiedChart.copyInSheetId(sheetId);
-    const newId = new UuidGenerator().uuidv4();
+    const newId = new UuidGenerator().smallUuid();
 
     this.dispatch("CREATE_CHART", {
       id: newId,
