@@ -126,7 +126,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, union.zone);
         this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
 
-        const id = this.uuidGenerator.uuidv4();
+        const id = this.uuidGenerator.smallUuid();
         const config = cmd.config || DEFAULT_TABLE_CONFIG;
         const newTable =
           cmd.tableType === "dynamic"
@@ -310,7 +310,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
       filters = [];
       for (const i of range(zone.left, zone.right + 1)) {
         const filterZone = { ...zone, left: i, right: i };
-        const uid = this.uuidGenerator.uuidv4();
+        const uid = this.uuidGenerator.smallUuid();
         filters.push(this.createFilterFromZone(uid, tableRange.sheetId, filterZone, config));
       }
     }
@@ -391,7 +391,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
             ? table.filters.find((f) => f.col === i)
             : undefined;
         const filterZone = { ...tableZone, left: i, right: i };
-        const filterId = oldFilter?.id || this.uuidGenerator.uuidv4();
+        const filterId = oldFilter?.id || this.uuidGenerator.smallUuid();
         filters.push(this.createFilterFromZone(filterId, tableRange.sheetId, filterZone, config));
       }
     }
@@ -514,7 +514,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     if (filters.length < zoneToDimension(tableZone).numberOfCols) {
       for (let col = tableZone.left; col <= tableZone.right; col++) {
         if (!filters.find((filter) => filter.col === col)) {
-          const uid = this.uuidGenerator.uuidv4();
+          const uid = this.uuidGenerator.smallUuid();
           const filterZone = { ...tableZone, left: col, right: col };
           filters.push(this.createFilterFromZone(uid, sheetId, filterZone, table.config));
         }
