@@ -115,7 +115,7 @@ function forceUnicityOfFigure(data: Partial<WorkbookData>): Partial<WorkbookData
   for (const sheet of data.sheets || []) {
     for (const figure of sheet.figures || []) {
       if (figureIds.has(figure.id)) {
-        figure.id += uuidGenerator.uuidv4();
+        figure.id += uuidGenerator.smallUuid();
       }
       figureIds.add(figure.id);
     }
