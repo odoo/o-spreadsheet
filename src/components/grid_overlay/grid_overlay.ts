@@ -16,7 +16,7 @@ import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons
 import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { css } from "../helpers";
-import { getBoundingRectAsPOJO, isCtrlKey } from "../helpers/dom_helpers";
+import { getBoundingRectAsPOJO, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
@@ -53,6 +53,14 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     return { col, row };
   }
 
+  function getOffsetRelativeToOverlay(ev: MouseEvent): DOMCoordinates {
+    const gridRect = getBoundingRectAsPOJO(gridRef.el!);
+    return {
+      x: ev.clientX - gridRect.x,
+      y: ev.clientY - gridRect.y,
+    };
+  }
+
   const { pause, resume } = useInterval(checkTiming, 200);
 
   function checkTiming() {
@@ -69,9 +77,8 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     }
   }
   function updateMousePosition(e: MouseEvent) {
-    if (gridRef.el === e.target) {
-      x = e.offsetX;
-      y = e.offsetY;
+    if (isChildEvent(gridRef.el, e)) {
+      ({ x, y } = getOffsetRelativeToOverlay(e));
       lastMoved = Date.now();
     }
   }
@@ -84,8 +91,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
   }
 
   function onMouseLeave(e: MouseEvent) {
-    const x = e.offsetX;
-    const y = e.offsetY;
+    const { x, y } = getOffsetRelativeToOverlay(e);
     const gridRect = getBoundingRectAsPOJO(gridRef.el!);
 
     if (y < 0 || y > gridRect.height || x < 0 || x > gridRect.width) {
@@ -184,6 +190,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: { type: Function, optional: true },
     onGridMoved: Function,
     gridOverlayDimensions: String,
+    slots: { type: Object, optional: true },
   };
   static components = {
     FiguresContainer,

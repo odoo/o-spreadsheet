@@ -7,7 +7,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
   tabindex="-1"
 >
   <div
-    class="o-grid-overlay overflow-hidden"
+    class="position-absolute"
     style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); "
   >
     <div
@@ -17,7 +17,11 @@ exports[`Grid component simple rendering snapshot 1`] = `
     </div>
     
     
-    
+  </div>
+  <div
+    class="o-grid-overlay overflow-hidden"
+    style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); "
+  >
     
     
     
@@ -43,6 +47,8 @@ exports[`Grid component simple rendering snapshot 1`] = `
       </span>
       
     </div>
+    
+    
     
   </div>
   
