@@ -98,10 +98,10 @@ export class InternalViewport {
         Math.min(topRowSize, this.viewportHeight - lastRowSize) // Add pixels that allows the snapping at maximum vertical scroll
       );
       height = Math.max(height, this.viewportHeight); // if the viewport grid size is smaller than its client height, return client height
-    }
 
-    if (lastRowEnd + FOOTER_HEIGHT > height && !this.getters.isReadonly()) {
-      height += FOOTER_HEIGHT;
+      if (lastRowEnd + FOOTER_HEIGHT > height && !this.getters.isReadonly()) {
+        height += FOOTER_HEIGHT;
+      }
     }
 
     return { width, height };
