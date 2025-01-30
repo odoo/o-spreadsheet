@@ -93,11 +93,10 @@ export class GridRenderer {
     switch (layer) {
       case "Background":
         this.drawGlobalBackground(renderingContext);
-        for (const zone of this.getters.getAllActiveViewportsZones()) {
+        for (const { zone, rect } of this.getters.getAllActiveViewportsZonesAndRect()) {
           const { ctx } = renderingContext;
           ctx.save();
           ctx.beginPath();
-          const rect = this.getters.getVisibleRect(zone);
           ctx.rect(rect.x, rect.y, rect.width, rect.height);
           ctx.clip();
           const boxes = this.getGridBoxes(zone);

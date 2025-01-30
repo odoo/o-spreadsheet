@@ -104,7 +104,7 @@ export class SheetViewPlugin extends UIPlugin {
     "isPixelPositionVisible",
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
-    "getAllActiveViewportsZones",
+    "getAllActiveViewportsZonesAndRect",
     "getRect",
   ] as const;
 
@@ -603,9 +603,18 @@ export class SheetViewPlugin extends UIPlugin {
     };
   }
 
-  getAllActiveViewportsZones(): Zone[] {
+  getAllActiveViewportsZonesAndRect(): { zone: Zone; rect: Rect }[] {
     const sheetId = this.getters.getActiveSheetId();
-    return this.getSubViewports(sheetId);
+    return this.getSubViewports(sheetId).map((viewport) => {
+      return {
+        zone: viewport,
+        rect: {
+          x: viewport.offsetCorrectionX + this.gridOffsetX,
+          y: viewport.offsetCorrectionY + this.gridOffsetY,
+          ...viewport.getMaxSize(),
+        },
+      };
+    });
   }
 
   // ---------------------------------------------------------------------------
