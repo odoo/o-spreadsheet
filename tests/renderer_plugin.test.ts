@@ -2070,7 +2070,7 @@ describe("renderer", () => {
   });
 
   test("Each frozen pane is clipped in the grid", () => {
-    const model = new Model();
+    const model = new Model({ sheets: [{ colNumber: 7, rowNumber: 7 }] });
 
     setCellContent(model, "A1", "1");
     freezeColumns(model, 2);

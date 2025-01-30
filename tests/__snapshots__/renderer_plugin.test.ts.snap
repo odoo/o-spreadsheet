@@ -7,7 +7,7 @@ exports[`renderer snapshot for a simple grid rendering 1`] = `
   "context.fillRect(0, 0, 952.5, 974.5)",
   "context.save()",
   "context.beginPath()",
-  "context.rect(0, 0, 952, 974)",
+  "context.rect(0, 0, 2592, 2374)",
   "context.clip()",
   "context.strokeStyle="#E2E3E3";",
   "context.lineWidth=0.4;",
