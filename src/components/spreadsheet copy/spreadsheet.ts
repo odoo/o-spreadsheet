@@ -39,6 +39,7 @@ import {
   TEXT_BODY_MUTED,
 } from "../../constants";
 import { batched } from "../../helpers";
+import { instantiateClipboard } from "../../helpers/clipboard/navigator_clipboard_wrapper";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
@@ -55,7 +56,6 @@ import {
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
-import { FigureGrid } from "../figure_grid/figure_grid";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -63,7 +63,6 @@ import { useSpreadsheetRect } from "../helpers/position_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TopBar } from "../top_bar/top_bar";
-import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -344,7 +343,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SidePanel,
     SpreadsheetDashboard,
     HeaderGroupContainer,
-    FigureGrid,
   };
 
   sidePanel!: Store<SidePanelStore>;
@@ -533,6 +531,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   get isHTMLSheet() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const sheetIds = this.env.model.getters.getSheetIds();
+    console.log(sheetId, sheetIds);
     return sheetId === sheetIds[0];
   }
 }

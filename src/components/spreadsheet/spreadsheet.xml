@@ -1,7 +1,14 @@
 <templates>
   <t t-name="o-spreadsheet-Spreadsheet">
     <div class="o-spreadsheet" t-ref="spreadsheet" t-att-style="getStyle()">
-      <t t-if="env.isDashboard()">
+      <t t-if="isHTMLSheet">
+        <div/>
+        <div class="o-two-columns overflow-hidden">
+          <FigureGrid/>
+        </div>
+        <BottomBar onClick="() => {}"/>
+      </t>
+      <t t-elif="env.isDashboard()">
         <SpreadsheetDashboard/>
       </t>
       <t t-else="">

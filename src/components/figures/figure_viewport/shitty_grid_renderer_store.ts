@@ -74,7 +74,9 @@ export class ShittyGridRenderer {
 
   private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
-    const { width, height } = this.options.size; // ADRM
+
+    const width = Math.max(...boxes.map((box) => box.x + box.width));
+    const height = Math.max(...boxes.map((box) => box.y + box.height));
 
     // white background
     ctx.fillStyle = "#ffffff";

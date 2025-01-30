@@ -56,7 +56,6 @@ css/*SCSS*/ `
   }
 
   .o-figure-wrapper {
-    position: absolute;
     box-sizing: content-box;
 
     .o-fig-anchor {
@@ -118,6 +117,7 @@ interface Props {
   onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
   onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
+  wrapperStyle?: string;
 }
 
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
@@ -128,6 +128,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
     onClickAnchor: { type: Function, optional: true },
+    wrapperStyle: { type: String, optional: true },
   };
   static components = { Menu };
   static defaultProps = {
@@ -164,8 +165,12 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get wrapperStyle() {
+    if (this.props.wrapperStyle !== undefined) {
+      return this.props.wrapperStyle;
+    }
     const { x, y, width, height } = this.props.figure;
     return cssPropertiesToCss({
+      position: "absolute",
       left: `${x}px`,
       top: `${y}px`,
       width: `${width}px`,
