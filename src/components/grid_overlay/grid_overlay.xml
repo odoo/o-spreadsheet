@@ -1,5 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-GridOverlay">
+    <div class="position-absolute" t-att-style="style">
+      <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
+    </div>
     <div
       t-ref="gridOverlay"
       class="o-grid-overlay overflow-hidden"
@@ -8,7 +11,6 @@
       t-on-pointerdown="onMouseDown"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
-      <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
       <DataValidationOverlay/>
       <FilterIconsOverlay/>
       <GridAddRowsFooter
@@ -16,6 +18,7 @@
         t-key="env.model.getters.getActiveSheetId()"
         focusGrid="props.onFigureDeleted"
       />
+      <t t-slot="default"/>
     </div>
   </t>
 </templates>
