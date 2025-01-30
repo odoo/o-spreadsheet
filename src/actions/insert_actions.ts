@@ -258,7 +258,7 @@ export const insertSheet: ActionSpec = {
   execute: (env) => {
     const activeSheetId = env.model.getters.getActiveSheetId();
     const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
-    const sheetId = env.model.uuidGenerator.uuidv4();
+    const sheetId = env.model.uuidGenerator.smallUuid();
     env.model.dispatch("CREATE_SHEET", { sheetId, position });
     env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   },

@@ -95,7 +95,7 @@ export class ClipboardFigureState implements ClipboardState {
       x: maxX < width ? 0 : Math.min(targetX, maxX - width),
       y: maxY < height ? 0 : Math.min(targetY, maxY - height),
     };
-    const newId = new UuidGenerator().uuidv4();
+    const newId = new UuidGenerator().smallUuid();
     this.copiedFigureContent.paste(sheetId, newId, position, { height, width });
 
     if (this.operation === "CUT") {

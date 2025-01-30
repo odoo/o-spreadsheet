@@ -374,7 +374,7 @@ export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
 
 export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
-  const id = env.model.uuidGenerator.uuidv4();
+  const id = env.model.uuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
 
   if (getZoneArea(env.model.getters.getSelectedZone()) === 1) {
@@ -412,7 +412,7 @@ async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined
 export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
   if (env.imageProvider) {
     const sheetId = env.model.getters.getActiveSheetId();
-    const figureId = env.model.uuidGenerator.uuidv4();
+    const figureId = env.model.uuidGenerator.smallUuid();
     const image = await requestImage(env);
     if (!image) {
       throw new Error("No image provider was given to the environment");
