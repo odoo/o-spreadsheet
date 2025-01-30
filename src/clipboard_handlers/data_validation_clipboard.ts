@@ -145,7 +145,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     return (
       targetRule || {
         ...originRule,
-        id: newId ? this.uuidGenerator.uuidv4() : originRule.id,
+        id: newId ? this.uuidGenerator.smallUuid() : originRule.id,
         ranges: [],
       }
     );
