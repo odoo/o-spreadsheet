@@ -458,7 +458,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
           id:
             this.state.mode === "edit"
               ? this.state.currentCF.id
-              : this.env.model.uuidGenerator.uuidv4(),
+              : this.env.model.uuidGenerator.smallUuid(),
         },
         ranges: this.state.currentCF.ranges.map((xc) =>
           this.env.model.getters.getRangeDataFromXc(sheetId, xc)
@@ -530,7 +530,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     this.state.mode = "add";
     this.state.currentCFType = "CellIsRule";
     this.state.currentCF = {
-      id: this.env.model.uuidGenerator.uuidv4(),
+      id: this.env.model.uuidGenerator.smallUuid(),
       ranges: this.env.model.getters
         .getSelectedZones()
         .map((zone) =>

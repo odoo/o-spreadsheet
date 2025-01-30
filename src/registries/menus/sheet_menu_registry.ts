@@ -21,7 +21,7 @@ sheetMenuRegistry
     sequence: 20,
     action: (env) => {
       const sheetIdFrom = env.model.getters.getActiveSheetId();
-      const sheetIdTo = env.model.uuidGenerator.uuidv4();
+      const sheetIdTo = env.model.uuidGenerator.smallUuid();
       env.model.dispatch("DUPLICATE_SHEET", {
         sheetId: sheetIdFrom,
         sheetIdTo,

@@ -181,7 +181,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   private setContent(index: number, xc: string) {
     this.ranges[index] = {
       ...this.ranges[index],
-      id: uuidGenerator.uuidv4(),
+      id: uuidGenerator.smallUuid(),
       xc,
     };
   }

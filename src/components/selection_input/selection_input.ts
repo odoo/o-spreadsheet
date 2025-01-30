@@ -83,7 +83,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
  */
 export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionInput";
-  private id = uuidGenerator.uuidv4();
+  private id = uuidGenerator.smallUuid();
   private previousRanges: string[] = this.props.ranges || [];
   private originSheet = this.env.model.getters.getActiveSheetId();
   private state = useState({

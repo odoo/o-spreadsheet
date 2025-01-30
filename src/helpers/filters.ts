@@ -10,10 +10,10 @@ export class FilterTable implements Cloneable<FilterTable> {
     this.filters = [];
     this.zone = zone;
     const uuid = new UuidGenerator();
-    this.id = uuid.uuidv4();
+    this.id = uuid.smallUuid();
     for (const i of range(zone.left, zone.right + 1)) {
       const filterZone = { ...this.zone, left: i, right: i };
-      this.filters.push(new Filter(uuid.uuidv4(), filterZone));
+      this.filters.push(new Filter(uuid.smallUuid(), filterZone));
     }
   }
 

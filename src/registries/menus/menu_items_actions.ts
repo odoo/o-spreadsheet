@@ -570,7 +570,7 @@ export const UNHIDE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
 export const CREATE_SHEET_ACTION = (env: SpreadsheetChildEnv) => {
   const activeSheetId = env.model.getters.getActiveSheetId();
   const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;
-  const sheetId = env.model.uuidGenerator.uuidv4();
+  const sheetId = env.model.uuidGenerator.smallUuid();
   env.model.dispatch("CREATE_SHEET", { sheetId, position });
   env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
 };
@@ -583,7 +583,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
   const zone = getters.getSelectedZone();
   let dataSetZone = zone;
-  const id = env.model.uuidGenerator.uuidv4();
+  const id = env.model.uuidGenerator.smallUuid();
   let labelRange: string | undefined;
   if (zone.left !== zone.right) {
     dataSetZone = { ...zone, left: zone.left + 1 };
