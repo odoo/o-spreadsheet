@@ -55,6 +55,7 @@ const categories: Category[] = [
 ];
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
+const resultNameKey = "ouuuuuuWAAAAAAAAAAAAAAAAAAAAAH";
 
 //------------------------------------------------------------------------------
 // Function registry
@@ -240,7 +241,11 @@ function createComputeFunction(
     if (this.debug) {
       debugger;
     }
-    const result = descr.compute.apply(this, args);
+    let result = readCache(this.cacheFunctionsResult, args);
+    if (result === undefined) {
+      result = descr.compute.apply(this, args);
+      fillCache(this.cacheFunctionsResult, result, args);
+    }
 
     if (!isMatrix(result)) {
       if (typeof result === "object" && result !== null && "value" in result) {
@@ -258,6 +263,46 @@ function createComputeFunction(
     }
 
     return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
+  }
+
+  function readCache(cache: Map<any, any> | undefined, args: Arg[]): any {
+    if (!cache) {
+      return;
+    }
+
+    if (!cache.has(functionName)) {
+      return;
+    }
+
+    let subCache = cache.get(functionName);
+
+    for (const arg of args) {
+      if (!subCache.has(arg)) {
+        return;
+      }
+      subCache = subCache.get(arg);
+    }
+    return subCache.get(resultNameKey);
+  }
+
+  function fillCache(cache: Map<any, any> | undefined, result: any, args: Arg[]) {
+    if (!cache) {
+      return;
+    }
+
+    if (!cache.has(functionName)) {
+      cache.set(functionName, new Map());
+    }
+
+    let subCache = cache.get(functionName);
+
+    for (const arg of args) {
+      if (!subCache.has(arg)) {
+        subCache.set(arg, new Map());
+      }
+      subCache = subCache.get(arg);
+    }
+    subCache.set(resultNameKey, result);
   }
 
   return vectorizedCompute;
