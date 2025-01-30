@@ -129,7 +129,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
 
     return ruleInTargetSheet
       ? ruleInTargetSheet
-      : { ...originRule, id: newId ? this.uuidGenerator.uuidv4() : originRule.id, ranges: [] };
+      : { ...originRule, id: newId ? this.uuidGenerator.smallUuid() : originRule.id, ranges: [] };
   }
 
   /**

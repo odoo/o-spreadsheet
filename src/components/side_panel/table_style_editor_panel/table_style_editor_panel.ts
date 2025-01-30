@@ -91,7 +91,7 @@ export class TableStyleEditorPanel extends Component<
   }
 
   onConfirm() {
-    const tableStyleId = this.props.styleId || this.env.model.uuidGenerator.uuidv4();
+    const tableStyleId = this.props.styleId || this.env.model.uuidGenerator.smallUuid();
     this.env.model.dispatch("CREATE_TABLE_STYLE", {
       tableStyleId,
       tableStyleName: this.state.styleName,

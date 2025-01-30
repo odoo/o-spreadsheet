@@ -47,8 +47,8 @@ export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
   }
 
   duplicatePivot() {
-    const newPivotId = this.env.model.uuidGenerator.uuidv4();
-    const newSheetId = this.env.model.uuidGenerator.uuidv4();
+    const newPivotId = this.env.model.uuidGenerator.smallUuid();
+    const newSheetId = this.env.model.uuidGenerator.smallUuid();
     const result = this.env.model.dispatch("DUPLICATE_PIVOT_IN_NEW_SHEET", {
       pivotId: this.props.pivotId,
       newPivotId,
