@@ -186,7 +186,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   setup() {
     const cf = this.props.editedCf || {
-      id: this.env.model.uuidGenerator.uuidv4(),
+      id: this.env.model.uuidGenerator.smallUuid(),
       ranges: this.env.model.getters
         .getSelectedZones()
         .map((zone) =>
