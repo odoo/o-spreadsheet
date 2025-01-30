@@ -384,7 +384,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupConfig(config: Partial<ModelConfig>): ModelConfig {
     const client = config.client || {
-      id: this.uuidGenerator.uuidv4(),
+      id: this.uuidGenerator.smallUuid(),
       name: _t("Anonymous").toString(),
     };
     const transportService = config.transportService || new LocalTransportService();

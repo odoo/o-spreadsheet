@@ -7,6 +7,10 @@ export class UuidGenerator {
     return String(this.nextId++);
   }
 
+  smallUuid(): string {
+    return String(this.nextId++);
+  }
+
   setNextId(i: number) {
     this.nextId = i;
   }

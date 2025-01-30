@@ -614,7 +614,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       .getConditionalFormats(targetSheetId)
       .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, originCF.rule));
 
-    return cfInTarget ? cfInTarget : { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
+    return cfInTarget
+      ? cfInTarget
+      : { ...originCF, id: this.uuidGenerator.smallUuid(), ranges: [] };
   }
 
   private pasteDataValidation(origin: CellPosition, target: CellPosition) {
@@ -654,7 +656,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
 
     return ruleInTargetSheet
       ? ruleInTargetSheet
-      : { ...originRule, id: this.uuidGenerator.uuidv4(), ranges: [] };
+      : { ...originRule, id: this.uuidGenerator.smallUuid(), ranges: [] };
   }
 
   /**
