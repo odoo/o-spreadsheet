@@ -123,7 +123,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
       .getSelectedZones()
       .map((zone) => zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)));
     return {
-      id: this.env.model.uuidGenerator.uuidv4(),
+      id: this.env.model.uuidGenerator.smallUuid(),
       criterion: { type: "textContains", values: [""] },
       ranges,
     };

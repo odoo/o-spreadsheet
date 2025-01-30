@@ -29,7 +29,7 @@ export function repeatCreateChartCommand(
 ): CreateChartCommand {
   return {
     ...repeatSheetDependantCommand(getters, cmd),
-    id: uuidGenerator.uuidv4(),
+    id: uuidGenerator.smallUuid(),
   };
 }
 
@@ -39,7 +39,7 @@ export function repeatCreateImageCommand(
 ): CreateImageOverCommand {
   return {
     ...repeatSheetDependantCommand(getters, cmd),
-    figureId: uuidGenerator.uuidv4(),
+    figureId: uuidGenerator.smallUuid(),
   };
 }
 
@@ -48,7 +48,7 @@ export function repeatCreateFigureCommand(
   cmd: CreateFigureCommand
 ): CreateFigureCommand {
   const newCmd = repeatSheetDependantCommand(getters, cmd);
-  newCmd.figure.id = uuidGenerator.uuidv4();
+  newCmd.figure.id = uuidGenerator.smallUuid();
   return newCmd;
 }
 
@@ -57,7 +57,7 @@ export function repeatCreateSheetCommand(
   cmd: CreateSheetCommand
 ): CreateSheetCommand {
   const newCmd = deepCopy(cmd);
-  newCmd.sheetId = uuidGenerator.uuidv4();
+  newCmd.sheetId = uuidGenerator.smallUuid();
 
   const sheetName = cmd.name || getters.getSheet(getters.getActiveSheetId()).name;
   // Extract the prefix of the sheet name (everything before the number at the end of the name)
