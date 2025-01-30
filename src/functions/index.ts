@@ -55,6 +55,7 @@ const categories: Category[] = [
 ];
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
+const resultNameKey = "ouuuuuuWAAAAAAAAAAAAAAAAAAAAAH";
 
 //------------------------------------------------------------------------------
 // Function registry
@@ -227,21 +228,29 @@ function createComputeFunction(
       }
     }
     try {
-      return computeFunctionToObject.apply(this, args);
+      return computeFunction.apply(this, args);
     } catch (e) {
       return handleError(e, functionName);
     }
   }
 
-  function computeFunctionToObject(
+  function computeFunction(
     this: EvalContext,
     ...args: Arg[]
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     if (this.debug) {
       debugger;
     }
-    const result = descr.compute.apply(this, args);
+    let result = readCache(this.cacheFunctionsResult, args);
 
+    if (result === undefined) {
+      result = toObject(descr.compute.apply(this, args));
+      fillCache(this.cacheFunctionsResult, result, args);
+    }
+    return result;
+  }
+
+  function toObject(result: any): FunctionResultObject | Matrix<FunctionResultObject> {
     if (!isMatrix(result)) {
       if (typeof result === "object" && result !== null && "value" in result) {
         replaceFunctionNamePlaceholder(result, functionName);
@@ -251,13 +260,53 @@ function createComputeFunction(
     }
 
     if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      matrixForEach(result as Matrix<FunctionResultObject>, (result) =>
-        replaceFunctionNamePlaceholder(result, functionName)
+      matrixForEach(result as Matrix<FunctionResultObject>, (functionResult) =>
+        replaceFunctionNamePlaceholder(functionResult, functionName)
       );
       return result as Matrix<FunctionResultObject>;
     }
 
     return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
+  }
+
+  function readCache(cache: Map<any, any> | undefined, args: Arg[]): any {
+    if (!cache) {
+      return;
+    }
+
+    if (!cache.has(functionName)) {
+      return;
+    }
+
+    let subCache = cache.get(functionName);
+
+    for (const arg of args) {
+      if (!subCache.has(arg)) {
+        return;
+      }
+      subCache = subCache.get(arg);
+    }
+    return subCache.get(resultNameKey);
+  }
+
+  function fillCache(cache: Map<any, any> | undefined, result: any, args: Arg[]) {
+    if (!cache) {
+      return;
+    }
+
+    if (!cache.has(functionName)) {
+      cache.set(functionName, new Map());
+    }
+
+    let subCache = cache.get(functionName);
+
+    for (const arg of args) {
+      if (!subCache.has(arg)) {
+        subCache.set(arg, new Map());
+      }
+      subCache = subCache.get(arg);
+    }
+    subCache.set(resultNameKey, result);
   }
 
   return vectorizedCompute;

@@ -60,4 +60,5 @@ export type EvalContext = {
   updateDependencies?: (position: CellPosition) => void;
   addDependencies?: (position: CellPosition, ranges: Range[]) => void;
   debug?: boolean;
+  cacheFunctionsResult?: Map<any, any>;
 };
