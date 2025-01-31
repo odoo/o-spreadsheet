@@ -44,6 +44,7 @@
       </div>
       <Menu
         t-if="subMenu.isOpen"
+        t-key="subMenu.parentMenu.id"
         position="subMenuPosition"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
