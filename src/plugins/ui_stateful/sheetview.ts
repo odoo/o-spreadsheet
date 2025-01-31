@@ -357,8 +357,11 @@ export class SheetViewPlugin extends UIPlugin {
     const viewports = this.getSubViewports(sheetId);
 
     //TODO make another commit to improve this
+    /* maybe for loop with check on set belonging (with ordering ofc) */
     return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter(
-      (col) => col >= 0 && !this.getters.isHeaderHidden(sheetId, "COL", col)
+      (col) =>
+        col >= 0 && // is the col - zone valid
+        !this.getters.isHeaderHidden(sheetId, "COL", col)
     );
   }
 
@@ -366,7 +369,9 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const viewports = this.getSubViewports(sheetId);
     return [...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat())].filter(
-      (row) => row >= 0 && !this.getters.isHeaderHidden(sheetId, "ROW", row)
+      (row) =>
+        row >= 0 && // is the row/zone valid
+        !this.getters.isHeaderHidden(sheetId, "ROW", row)
     );
   }
 
@@ -421,15 +426,16 @@ export class SheetViewPlugin extends UIPlugin {
     index: HeaderIndex
   ): Pixel {
     const sheetId = this.getters.getActiveSheetId();
-    const visibleCols = this.getters.getSheetViewVisibleCols();
-    const visibleRows = this.getters.getSheetViewVisibleRows();
+    // if cast to set; the includes =# has would cost way less
+    const visibleCols = new Set(this.getters.getSheetViewVisibleCols());
+    const visibleRows = new Set(this.getters.getSheetViewVisibleRows());
     if (index < referenceIndex) {
       return -this.getColRowOffsetInViewport(dimension, index, referenceIndex);
     }
     let offset = 0;
     const visibleIndexes = dimension === "COL" ? visibleCols : visibleRows;
     for (let i = referenceIndex; i < index; i++) {
-      if (!visibleIndexes.includes(i)) {
+      if (!visibleIndexes.has(i)) {
         continue;
       }
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
