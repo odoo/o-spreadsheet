@@ -447,6 +447,10 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("should preserve the sorting of the dimension after ordering is changed", async () => {
     mockGetBoundingClientRect({
+      "h-100": () => ({
+        height: 100,
+        y: 0,
+      }),
       /**
        * 'pt-1' is the class of the main div of the pivot dimension
        */
