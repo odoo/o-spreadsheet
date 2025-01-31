@@ -1,6 +1,6 @@
 import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
 import { Rect, SpreadsheetChildEnv } from "../../types";
-import { css, cssPropertiesToCss, getElementMargins } from "../helpers/css";
+import { cssPropertiesToCss, getElementMargins } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 
 const RIPPLE_KEY_FRAMES = [
@@ -8,12 +8,6 @@ const RIPPLE_KEY_FRAMES = [
   { transform: "scale(0.8)", offset: 0.33 },
   { opacity: "0", transform: "scale(1)", offset: 1 },
 ];
-
-css/* scss */ `
-  .o-ripple {
-    z-index: 1;
-  }
-`;
 
 interface RippleProps {
   color: string;
