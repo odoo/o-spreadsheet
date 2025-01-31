@@ -1,6 +1,6 @@
 import { ComponentConstructor } from "@odoo/owl";
 import { Getters } from "./index";
-import { CellPosition, PropsOf } from "./misc";
+import { CellPosition, Position, PropsOf } from "./misc";
 import { Rect } from "./rendering";
 
 export type CellPopoverType = "ErrorToolTip" | "LinkDisplay" | "FilterMenu" | "LinkEditor";
@@ -45,6 +45,7 @@ type OpenCellPopoverComponent<C extends ComponentConstructor> = {
   Component: C;
   props: PropsOf<C>;
   cellCorner: PopoverPropsPosition;
+  onPosition?: Position;
 };
 
 export type CellPopoverComponent<

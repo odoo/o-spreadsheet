@@ -197,6 +197,8 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "SET_FORMULA_VISIBILITY",
 
   "UPDATE_FILTER",
+
+  "UPDATE_PIVOT",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([

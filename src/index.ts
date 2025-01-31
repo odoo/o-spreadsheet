@@ -176,6 +176,10 @@ import {
 } from "./registries/menus";
 import { otRegistry } from "./registries/ot_registry";
 import {
+  dashboardGridMenuRegistry,
+  registerColumnHighlightProvider,
+} from "./registries/menus/dashboard_grid_menu_registry";
+import {
   genericRepeat,
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,
@@ -262,6 +266,7 @@ export const registries = {
   autofillRulesRegistry,
   cellMenuRegistry,
   colMenuRegistry,
+  dashboardGridMenuRegistry,
   errorTypes,
   linkMenuRegistry,
   functionRegistry,
@@ -353,6 +358,7 @@ export const helpers = {
   UNDO_REDO_PIVOT_COMMANDS,
   createPivotFormula,
   areDomainArgsFieldsValid,
+  registerColumnHighlightProvider,
   splitReference,
   sanitizeSheetName,
   getUniqueText,
