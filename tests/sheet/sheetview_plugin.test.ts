@@ -54,11 +54,11 @@ function getPanes() {
   const sheetViewPlugin = getPlugin(model, SheetViewPlugin);
   const sheetId = model.getters.getActiveSheetId();
   return Object.fromEntries(
-    Object.entries(sheetViewPlugin.viewports[sheetId]!).filter((entry) => isDefined(entry[1]))
+    Object.entries(sheetViewPlugin["viewports"][sheetId]!).filter((entry) => isDefined(entry[1]))
   );
 }
 
-function getSheetViewBoundaries(model): Zone {
+function getSheetViewBoundaries(model: Model): Zone {
   const visibleCols = model.getters.getSheetViewVisibleCols();
   const left = visibleCols[0];
   const right = visibleCols[visibleCols.length - 1];

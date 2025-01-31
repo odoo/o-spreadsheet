@@ -105,7 +105,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getRect",
   ] as const;
 
-  readonly viewports: Record<UID, SheetViewports | undefined> = {};
+  private viewports: Record<UID, SheetViewports | undefined> = {};
 
   /**
    * The viewport dimensions are usually set by one of the components
@@ -264,7 +264,7 @@ export class SheetViewPlugin extends UIPlugin {
       if (this.shouldAdjustViewports) {
         const position = this.getters.getSheetPosition(sheetId);
         const viewports = this.getSubViewports(sheetId);
-        Object.values(viewports).forEach((viewport) => {
+        viewports.forEach((viewport) => {
           viewport.adjustPosition(position);
         });
       }
@@ -586,7 +586,16 @@ export class SheetViewPlugin extends UIPlugin {
 
   private getSubViewports(sheetId: UID): InternalViewport[] {
     this.ensureMainViewportExist(sheetId);
-    return Object.values(this.viewports[sheetId]!).filter(isDefined);
+    const subViewports: InternalViewport[] = [];
+    for (const position of ["topLeft", "topRight", "bottomLeft", "bottomRight"] as Array<
+      keyof SheetViewports
+    >) {
+      const viewport = this.viewports[sheetId]?.[position];
+      if (viewport) {
+        subViewports.push(viewport);
+      }
+    }
+    return subViewports;
   }
 
   private checkPositiveDimension(cmd: ResizeViewportCommand) {
@@ -643,12 +652,12 @@ export class SheetViewPlugin extends UIPlugin {
 
   /** gets rid of deprecated sheetIds */
   private cleanViewports() {
-    const sheetIds = this.getters.getSheetIds();
-    for (let sheetId of Object.keys(this.viewports)) {
-      if (!sheetIds.includes(sheetId)) {
-        delete this.viewports[sheetId];
-      }
+    const newViewport = {};
+    for (const sheetId of this.getters.getSheetIds()) {
+      newViewport[sheetId] = this.viewports[sheetId];
     }
+
+    this.viewports = newViewport;
   }
 
   private resizeSheetView(
@@ -665,7 +674,7 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   private recomputeViewports() {
-    for (let sheetId of Object.keys(this.viewports)) {
+    for (const sheetId of this.getters.getSheetIds()) {
       this.resetViewports(sheetId);
     }
   }
@@ -673,7 +682,7 @@ export class SheetViewPlugin extends UIPlugin {
   private setSheetViewOffset(offsetX: Pixel, offsetY: Pixel) {
     const sheetId = this.getters.getActiveSheetId();
     const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
-    Object.values(this.getSubViewports(sheetId)).forEach((viewport) =>
+    this.getSubViewports(sheetId).forEach((viewport) =>
       viewport.setViewportOffset(clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY))
     );
   }
@@ -764,7 +773,7 @@ export class SheetViewPlugin extends UIPlugin {
    * Adjust the viewport such that the anchor position is visible
    */
   private refreshViewport(sheetId: UID, anchorPosition?: Position) {
-    Object.values(this.getSubViewports(sheetId)).forEach((viewport) => {
+    this.getSubViewports(sheetId).forEach((viewport) => {
       viewport.adjustViewportZone();
       viewport.adjustPosition(anchorPosition);
     });
