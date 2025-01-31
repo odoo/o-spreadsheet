@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet-DashboardPopoverMenu">
+    <div>
+      <div
+        class="o-dashboard-menu bg-white border align-content-center text-center"
+        role="button"
+        t-if="!state.isOpen"
+        t-on-mouseenter="scheduleOpen"
+        t-on-mouseleave="timeOut.clear"
+        t-on-click="onClick">
+        <span class="fa fa-ellipsis-v"/>
+      </div>
+      <div class="o-dashboard-menu-expandable py-1 bg-white" t-if="state.isOpen">
+        <MenuItems menuItemsAndSeparators="props.menuItems"/>
+      </div>
+    </div>
+  </t>
+</templates>
