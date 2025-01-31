@@ -110,7 +110,8 @@ cellMenuRegistry
     name: _t("Sort pivot"),
     sequence: 155,
     icon: "o-spreadsheet-Icon.SORT_RANGE",
-    isVisible: ACTIONS_PIVOT.canSortPivot,
+    isVisible: (env) =>
+      ACTIONS_PIVOT.canSortPivot(env.model.getters, env.model.getters.getActivePosition()),
   })
   .add("pivot_fix_formulas", {
     ...ACTIONS_PIVOT.FIX_FORMULAS,
