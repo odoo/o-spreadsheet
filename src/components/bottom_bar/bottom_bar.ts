@@ -255,7 +255,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
       draggedItemId: sheetId,
       initialMousePosition: event.clientX,
       items: sheets,
-      containerEl: this.sheetListRef.el!,
+      scrollableContainerEl: this.sheetListRef.el!,
       onDragEnd: (sheetId: UID, finalIndex: number) => this.onDragEnd(sheetId, finalIndex),
     });
   }

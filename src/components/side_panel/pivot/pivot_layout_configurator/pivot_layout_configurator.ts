@@ -36,6 +36,7 @@ interface Props {
   unusedGranularities: Record<string, Set<string>>;
   dateGranularities: string[];
   datetimeGranularities: string[];
+  getScrollableContainerEl?: () => HTMLElement;
   pivotId: UID;
 }
 
@@ -62,6 +63,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     unusedGranularities: Object,
     dateGranularities: Array,
     datetimeGranularities: Array,
+    getScrollableContainerEl: { type: Function, optional: true },
     pivotId: String,
   };
 
@@ -100,7 +102,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
       draggedItemId: dimension.nameWithGranularity,
       initialMousePosition: event.clientY,
       items: draggableItems,
-      containerEl: this.dimensionsRef.el!,
+      scrollableContainerEl: this.props.getScrollableContainerEl?.() || this.dimensionsRef.el!,
       onDragEnd: (dimensionName, finalIndex) => {
         const originalIndex = draggableIds.findIndex((id) => id === dimensionName);
         if (originalIndex === finalIndex) {
@@ -162,7 +164,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
       draggedItemId: measure.id,
       initialMousePosition: event.clientY,
       items: draggableItems,
-      containerEl: this.dimensionsRef.el!,
+      scrollableContainerEl: this.props.getScrollableContainerEl?.() || this.dimensionsRef.el!,
       onDragEnd: (measureName, finalIndex) => {
         const originalIndex = draggableIds.findIndex((id) => id === measureName);
         if (originalIndex === finalIndex) {
