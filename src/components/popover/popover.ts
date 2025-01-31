@@ -81,10 +81,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       this.currentDisplayValue = newDisplay;
 
       if (!anchor) return;
-      el.style.top = "";
-      el.style.left = "";
-      el.style["max-height"] = "";
-      el.style["max-width"] = "";
 
       const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
       let elDims = {
