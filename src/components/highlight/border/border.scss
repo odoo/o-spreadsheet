@@ -1,0 +1,11 @@
+.o-border {
+  position: absolute;
+
+  &:hover {
+    cursor: grab;
+  }
+}
+
+.o-moving {
+  cursor: grabbing;
+}
