@@ -19,13 +19,13 @@ interface DndPartialArgs {
   draggedItemId: UID;
   initialMousePosition: Pixel;
   items: DragAndDropItemsPartial[];
-  containerEl: HTMLElement;
+  scrollableContainerEl: HTMLElement;
   onChange?: () => void;
   onCancel?: () => void;
   onDragEnd?: (itemId: UID, indexAtEnd: Pixel) => void;
 }
 
-interface DOMDndHelperArgs extends Omit<Required<DndPartialArgs>, "containerEl"> {
+interface DOMDndHelperArgs extends Omit<Required<DndPartialArgs>, "scrollableContainerEl"> {
   container: ContainerWrapper;
 }
 
@@ -75,8 +75,8 @@ export function useDragAndDropListItems() {
     state.draggedItemId = args.draggedItemId;
     const container =
       direction === "horizontal"
-        ? new HorizontalContainer(args.containerEl)
-        : new VerticalContainer(args.containerEl);
+        ? new HorizontalContainer(args.scrollableContainerEl)
+        : new VerticalContainer(args.scrollableContainerEl);
     dndHelper = new DOMDndHelper({
       ...args,
       container,
@@ -91,8 +91,8 @@ export function useDragAndDropListItems() {
     cleanupFns.push(stopListening);
 
     const onScroll = dndHelper.onScroll.bind(dndHelper);
-    args.containerEl.addEventListener("scroll", onScroll);
-    cleanupFns.push(() => args.containerEl.removeEventListener("scroll", onScroll));
+    args.scrollableContainerEl.addEventListener("scroll", onScroll);
+    cleanupFns.push(() => args.scrollableContainerEl.removeEventListener("scroll", onScroll));
 
     cleanupFns.push(dndHelper.destroy.bind(dndHelper));
   };
