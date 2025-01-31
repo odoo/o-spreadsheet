@@ -480,7 +480,7 @@ export class SheetViewPlugin extends UIPlugin {
     return { canEdgeScroll, direction, delay };
   }
 
-  getEdgeScrollRow(y: number, previousY: number, tartingY: number): EdgeScrollInfo {
+  getEdgeScrollRow(y: number, previousY: number, startingY: number): EdgeScrollInfo {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
@@ -502,7 +502,7 @@ export class SheetViewPlugin extends UIPlugin {
       canEdgeScroll = true;
       delay = scrollDelay(y - height);
       direction = 1;
-    } else if (y < offsetCorrectionY && tartingY >= offsetCorrectionY && currentOffsetY > 0) {
+    } else if (y < offsetCorrectionY && startingY >= offsetCorrectionY && currentOffsetY > 0) {
       // 2
       canEdgeScroll = true;
       delay = scrollDelay(offsetCorrectionY - y);
