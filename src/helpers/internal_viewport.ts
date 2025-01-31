@@ -13,12 +13,12 @@ import {
 import { intersection, isInside } from "./zones";
 
 export class InternalViewport {
-  top!: HeaderIndex;
-  bottom!: HeaderIndex;
-  left!: HeaderIndex;
-  right!: HeaderIndex;
-  offsetX!: Pixel;
-  offsetY!: Pixel;
+  top: HeaderIndex;
+  bottom: HeaderIndex;
+  left: HeaderIndex;
+  right: HeaderIndex;
+  offsetX: Pixel;
+  offsetY: Pixel;
   offsetScrollbarX: Pixel;
   offsetScrollbarY: Pixel;
   canScrollVertically: boolean;
@@ -38,6 +38,12 @@ export class InternalViewport {
   ) {
     this.viewportWidth = sizeInGrid.width;
     this.viewportHeight = sizeInGrid.height;
+    this.top = boundaries.top;
+    this.bottom = boundaries.bottom;
+    this.left = boundaries.left;
+    this.right = boundaries.right;
+    this.offsetX = offsets.x;
+    this.offsetY = offsets.y;
     this.offsetScrollbarX = offsets.x;
     this.offsetScrollbarY = offsets.y;
     this.canScrollVertically = options.canScrollVertically;
@@ -113,7 +119,11 @@ export class InternalViewport {
    * It returns -1 if no column is found.
    */
   getColIndex(x: Pixel): HeaderIndex {
-    if (x < this.offsetCorrectionX || x > this.offsetCorrectionX + this.viewportWidth) {
+    if (
+      x < this.offsetCorrectionX ||
+      x > this.offsetCorrectionX + this.viewportWidth ||
+      !this.viewportWidth
+    ) {
       return -1;
     }
     return this.searchHeaderIndex("COL", x - this.offsetCorrectionX, this.left);
@@ -125,7 +135,11 @@ export class InternalViewport {
    * It returns -1 if no row is found.
    */
   getRowIndex(y: Pixel): HeaderIndex {
-    if (y < this.offsetCorrectionY || y > this.offsetCorrectionY + this.viewportHeight) {
+    if (
+      y < this.offsetCorrectionY ||
+      y > this.offsetCorrectionY + this.viewportHeight ||
+      !this.viewportHeight
+    ) {
       return -1;
     }
     return this.searchHeaderIndex("ROW", y - this.offsetCorrectionY, this.top);
@@ -285,6 +299,9 @@ export class InternalViewport {
     position: Pixel,
     startIndex: HeaderIndex = 0
   ): HeaderIndex {
+    if (this.viewportWidth <= 0 || this.viewportHeight <= 0) {
+      return -1;
+    }
     const sheetId = this.sheetId;
     const headers = this.getters.getNumberHeaders(sheetId, dimension);
     // using a binary search:
@@ -325,7 +342,7 @@ export class InternalViewport {
   }
 
   /** Corrects the viewport's horizontal offset based on the current structure
-   *  To make sure that at least on column is visible inside the viewport.
+   *  To make sure that at least one column is visible inside the viewport.
    */
   private adjustViewportOffsetX() {
     if (this.canScrollHorizontally) {
@@ -343,7 +360,7 @@ export class InternalViewport {
   }
 
   /** Corrects the viewport's vertical offset based on the current structure
-   *  To make sure that at least on row is visible inside the viewport.
+   *  To make sure that at least one row is visible inside the viewport.
    */
   private adjustViewportOffsetY() {
     if (this.canScrollVertically) {
@@ -369,11 +386,15 @@ export class InternalViewport {
       this.boundaries.right,
       this.searchHeaderIndex("COL", this.viewportWidth, this.left)
     );
+    if (!this.viewportWidth) {
+      // this.offsetX = 0
+      return;
+    }
     if (this.left === -1) {
       this.left = this.boundaries.left;
     }
     if (this.right === -1) {
-      this.right = this.getters.getNumberCols(sheetId) - 1;
+      this.right = this.boundaries.right;
     }
     this.offsetX =
       this.getters.getColDimensions(sheetId, this.left).start -
@@ -389,11 +410,15 @@ export class InternalViewport {
       this.boundaries.bottom,
       this.searchHeaderIndex("ROW", this.viewportHeight, this.top)
     );
+    if (!this.viewportHeight) {
+      this.offsetY = 0;
+      return;
+    }
     if (this.top === -1) {
       this.top = this.boundaries.top;
     }
     if (this.bottom === -1) {
-      this.bottom = this.getters.getNumberRows(sheetId) - 1;
+      this.bottom = this.boundaries.bottom;
     }
     this.offsetY =
       this.getters.getRowDimensions(sheetId, this.top).start -
