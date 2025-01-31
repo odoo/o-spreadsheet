@@ -1,6 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
 import { Pixel, Rect, SpreadsheetChildEnv } from "../../types";
-import { css } from "../helpers";
 import { ColorPicker } from "./color_picker";
 
 interface Props {
@@ -14,42 +13,6 @@ interface Props {
   dropdownMaxHeight?: Pixel;
   class?: string;
 }
-
-css/* scss */ `
-  .o-color-picker-widget {
-    display: flex;
-    position: relative;
-    align-items: center;
-    height: 30px;
-
-    .o-color-picker-button-style {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 2px;
-      padding: 3px;
-      border-radius: 2px;
-      cursor: pointer;
-      &:not([disabled]):hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-
-    .o-color-picker-button {
-      > span {
-        border-bottom: 4px solid;
-        height: 16px;
-        margin-top: 2px;
-        display: block;
-      }
-
-      &[disabled] {
-        pointer-events: none;
-        opacity: 0.3;
-      }
-    }
-  }
-`;
 
 export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPickerWidget";
