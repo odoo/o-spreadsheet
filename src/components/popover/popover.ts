@@ -46,6 +46,7 @@ css/* scss */ `
     box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
     width: fit-content;
     height: fit-content;
+    transition: left 0.2s, top 0.2s;
   }
 `;
 
