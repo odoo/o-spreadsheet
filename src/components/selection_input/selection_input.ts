@@ -158,7 +158,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       draggedItemId: rangeId.toString(),
       initialMousePosition: event.clientY,
       items: draggableItems,
-      containerEl: this.selectionRef.el!,
+      scrollableContainerEl: this.selectionRef.el!,
       onDragEnd: (dimensionName, finalIndex) => {
         const originalIndex = draggableIds.findIndex((id) => id === rangeId);
         if (originalIndex === finalIndex) {

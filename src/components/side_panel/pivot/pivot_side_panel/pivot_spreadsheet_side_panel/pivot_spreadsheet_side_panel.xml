@@ -5,7 +5,7 @@
       class="d-flex flex-column h-100 justify-content-between overflow-hidden"
       t-att="isReadonly ? ['inert', 1] : []"
       t-att-class="{ 'pe-none': isReadonly, 'opacity-50': isReadonly }">
-      <div class="h-100 position-relative overflow-x-hidden overflow-y-auto">
+      <div class="h-100 position-relative overflow-x-hidden overflow-y-auto" t-ref="pivotSidePanel">
         <PivotTitleSection pivotId="props.pivotId" flipAxis.bind="flipAxis"/>
         <Section title.translate="Range">
           <SelectionInput
@@ -32,6 +32,7 @@
           datetimeGranularities="store.datetimeGranularities"
           definition="definition"
           onDimensionsUpdated.bind="onDimensionsUpdated"
+          getScrollableContainerEl.bind="getScrollableContainerEl"
           pivotId="props.pivotId"
         />
       </div>
