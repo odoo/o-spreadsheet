@@ -660,6 +660,33 @@ describe("Spreadsheet Pivot", () => {
     );
   });
 
+  test("sorted PIVOT include_total=FALSE with no column groups includes column data", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Person", B1: "Price", C1: "=PIVOT(1,,FALSE)",
+      A2: "Alice",  B2: "10",
+      A3: "Bob",    B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      rows: [{ fieldName: "Person" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+      sortedColumn: {
+        domain: [],
+        order: "desc",
+        measure: "Price:sum",
+      },
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D5")).toEqual([
+      ["(#1) Pivot", "Total"],
+      ["",           "Price"],
+      ["Bob",        "20"],
+      ["Alice",      "10"],
+      ["",           ""],
+    ]);
+  });
+
   test("PIVOT with limited columns count.", () => {
     // prettier-ignore
     const grid = {

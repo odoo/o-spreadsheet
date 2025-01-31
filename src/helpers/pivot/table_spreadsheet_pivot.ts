@@ -340,7 +340,7 @@ export class SpreadsheetPivotTable {
   private rowTreeToRows(tree: DimensionTree, parentRow?: PivotTableRow): PivotTableRow[] {
     return tree.flatMap((node) => {
       const row: PivotTableRow = {
-        indent: parentRow ? parentRow.indent + 1 : 0,
+        indent: parentRow ? parentRow.indent + 1 : 1,
         fields: [...(parentRow?.fields || []), node.field],
         values: [...(parentRow?.values || []), node.value],
       };

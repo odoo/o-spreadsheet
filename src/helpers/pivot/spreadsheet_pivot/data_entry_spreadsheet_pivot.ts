@@ -73,7 +73,7 @@ function dataEntriesToRows(
     pivotTableRows.push({
       fields: _fields,
       values: _values,
-      indent: index,
+      indent: index + 1,
     });
     const record = groups[value];
     if (record) {
