@@ -420,10 +420,8 @@ export class RendererPlugin extends UIPlugin {
     const { ctx, thinLineWidth } = renderingContext;
     const visibleCols = this.getters.getSheetViewVisibleCols();
     const left = visibleCols[0];
-    const right = visibleCols[visibleCols.length - 1];
     const visibleRows = this.getters.getSheetViewVisibleRows();
     const top = visibleRows[0];
-    const bottom = visibleRows[visibleRows.length - 1];
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
     const selectedCols = getZonesCols(selection);
@@ -441,7 +439,7 @@ export class RendererPlugin extends UIPlugin {
     ctx.strokeStyle = "#333";
 
     // Columns headers background
-    for (let col = left; col <= right; col++) {
+    for (const col of activeCols) {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
       const { x, width } = this.getters.getVisibleRect(colZone);
       const colHasFilter = this.getters.doesZonesContainFilter(sheetId, [colZone]);
@@ -460,7 +458,7 @@ export class RendererPlugin extends UIPlugin {
     }
 
     // Rows headers background
-    for (let row = top; row <= bottom; row++) {
+    for (const row of activeRows) {
       const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
       const { y, height } = this.getters.getVisibleRect(rowZone);
 
