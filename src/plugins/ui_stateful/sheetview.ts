@@ -422,22 +422,24 @@ export class SheetViewPlugin extends UIPlugin {
 
   getColRowOffsetInViewport(
     dimension: Dimension,
-    referenceIndex: HeaderIndex,
-    index: HeaderIndex
+    referenceHeaderIndex: HeaderIndex,
+    targetHeaderIndex: HeaderIndex
   ): Pixel {
-    const sheetId = this.getters.getActiveSheetId();
-    // if cast to set; the includes =# has would cost way less
-    const visibleCols = new Set(this.getters.getSheetViewVisibleCols());
-    const visibleRows = new Set(this.getters.getSheetViewVisibleRows());
-    if (index < referenceIndex) {
-      return -this.getColRowOffsetInViewport(dimension, index, referenceIndex);
+    if (targetHeaderIndex < referenceHeaderIndex) {
+      return -this.getColRowOffsetInViewport(dimension, targetHeaderIndex, referenceHeaderIndex);
     }
+    const sheetId = this.getters.getActiveSheetId();
     let offset = 0;
-    const visibleIndexes = dimension === "COL" ? visibleCols : visibleRows;
-    for (let i = referenceIndex; i < index; i++) {
-      if (!visibleIndexes.has(i)) {
-        continue;
-      }
+
+    const visibleHeaders =
+      dimension === "COL"
+        ? this.getters.getSheetViewVisibleCols()
+        : this.getters.getSheetViewVisibleRows();
+    const startIndex = visibleHeaders.findIndex((header) => referenceHeaderIndex >= header);
+    const endIndex = visibleHeaders.findIndex((header) => targetHeaderIndex <= header);
+
+    const relevantIndexes = visibleHeaders.slice(startIndex, endIndex);
+    for (const i of relevantIndexes) {
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
     }
     return offset;
