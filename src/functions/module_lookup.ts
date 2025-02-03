@@ -2,6 +2,7 @@ import { getFullReference, range, splitReference, toXC, toZone } from "../helper
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
+  Arg,
   CellPosition,
   FunctionResultObject,
   Matrix,
@@ -167,7 +168,7 @@ export const HLOOKUP = {
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
-      "range (range)",
+      "range (any, range)",
       _t(
         "The range to consider for the search. The first row in the range is searched for the key specified in search_key."
       )
@@ -185,14 +186,15 @@ export const HLOOKUP = {
   ],
   compute: function (
     searchKey: Maybe<FunctionResultObject>,
-    range: Matrix<FunctionResultObject>,
+    range: Arg,
     index: Maybe<FunctionResultObject>,
     isSorted: Maybe<FunctionResultObject> = { value: DEFAULT_IS_SORTED }
   ): FunctionResultObject {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
+    const _range = toMatrix(range);
 
     assert(
-      () => 1 <= _index && _index <= range[0].length,
+      () => 1 <= _index && _index <= _range[0].length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
     if (searchKey && isEvaluationError(searchKey.value)) {
@@ -204,9 +206,9 @@ export const HLOOKUP = {
 
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
-      ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range.length, getValueFromRange)
-      : linearSearch(range, searchKey, "wildcard", range.length, getValueFromRange);
-    const col = range[colIndex];
+      ? dichotomicSearch(_range, searchKey, "nextSmaller", "asc", _range.length, getValueFromRange)
+      : linearSearch(_range, searchKey, "wildcard", _range.length, getValueFromRange);
+    const col = _range[colIndex];
     if (col === undefined) {
       return valueNotAvailable(searchKey);
     }
@@ -232,7 +234,7 @@ export const INDEX: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    reference: Matrix<FunctionResultObject>,
+    reference: Arg,
     row: Maybe<FunctionResultObject> = { value: 0 },
     column: Maybe<FunctionResultObject> = { value: 0 }
   ): FunctionResultObject | Matrix<FunctionResultObject> {
@@ -334,13 +336,13 @@ export const LOOKUP = {
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
-      "search_array (range)",
+      "search_array (any, range)",
       _t(
         "One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned."
       )
     ),
     arg(
-      "result_range (range, optional)",
+      "result_range (any, range, optional)",
       _t(
         "The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method."
       )
@@ -348,11 +350,14 @@ export const LOOKUP = {
   ],
   compute: function (
     searchKey: Maybe<FunctionResultObject>,
-    searchArray: Matrix<FunctionResultObject>,
-    resultRange: Matrix<FunctionResultObject> | undefined
+    searchArray: Arg,
+    resultRange: Arg
   ): FunctionResultObject {
-    let nbCol = searchArray.length;
-    let nbRow = searchArray[0].length;
+    const _searchArray = toMatrix(searchArray);
+    const _resultRange = toMatrix(resultRange);
+
+    let nbCol = _searchArray.length;
+    let nbRow = _searchArray[0].length;
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
@@ -360,7 +365,7 @@ export const LOOKUP = {
       : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
-      searchArray,
+      _searchArray,
       searchKey,
       "nextSmaller",
       "asc",
@@ -370,18 +375,18 @@ export const LOOKUP = {
 
     if (
       index === -1 ||
-      (verticalSearch && searchArray[0][index] === undefined) ||
-      (!verticalSearch && searchArray[index][nbRow - 1] === undefined)
+      (verticalSearch && _searchArray[0][index] === undefined) ||
+      (!verticalSearch && _searchArray[index][nbRow - 1] === undefined)
     ) {
       return valueNotAvailable(searchKey);
     }
 
-    if (resultRange === undefined) {
-      return verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1];
+    if (_resultRange[0].length === 0) {
+      return verticalSearch ? _searchArray[nbCol - 1][index] : _searchArray[index][nbRow - 1];
     }
 
-    nbCol = resultRange.length;
-    nbRow = resultRange[0].length;
+    nbCol = _resultRange.length;
+    nbRow = _resultRange[0].length;
     assert(
       () => nbCol === 1 || nbRow === 1,
       _t("The result_range must be a single row or a single column.")
@@ -392,7 +397,7 @@ export const LOOKUP = {
         () => index <= nbCol - 1,
         _t("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
       );
-      return resultRange[index][0];
+      return _resultRange[index][0];
     }
 
     assert(
@@ -400,7 +405,7 @@ export const LOOKUP = {
       _t("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
     );
 
-    return resultRange[0][index];
+    return _resultRange[0][index];
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -423,12 +428,13 @@ export const MATCH = {
   ],
   compute: function (
     searchKey: Maybe<FunctionResultObject>,
-    range: Matrix<FunctionResultObject>,
+    range: Arg,
     searchType: Maybe<FunctionResultObject> = { value: DEFAULT_SEARCH_TYPE }
   ) {
     let _searchType = toNumber(searchType, this.locale);
-    const nbCol = range.length;
-    const nbRow = range[0].length;
+    const _range = toMatrix(range);
+    const nbCol = _range.length;
+    const nbRow = _range[0].length;
 
     assert(
       () => nbCol === 1 || nbRow === 1,
@@ -439,25 +445,25 @@ export const MATCH = {
 
     const getElement =
       nbCol === 1
-        ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
-        : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
+        ? (_range: Matrix<FunctionResultObject>, index: number) => _range[0][index].value
+        : (_range: Matrix<FunctionResultObject>, index: number) => _range[index][0].value;
 
-    const rangeLen = nbCol === 1 ? range[0].length : range.length;
+    const rangeLen = nbCol === 1 ? _range[0].length : _range.length;
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
-        index = dichotomicSearch(range, searchKey, "nextSmaller", "asc", rangeLen, getElement);
+        index = dichotomicSearch(_range, searchKey, "nextSmaller", "asc", rangeLen, getElement);
         break;
       case 0:
-        index = linearSearch(range, searchKey, "wildcard", rangeLen, getElement);
+        index = linearSearch(_range, searchKey, "wildcard", rangeLen, getElement);
         break;
       case -1:
-        index = dichotomicSearch(range, searchKey, "nextGreater", "desc", rangeLen, getElement);
+        index = dichotomicSearch(_range, searchKey, "nextGreater", "desc", rangeLen, getElement);
         break;
     }
     if (
-      (nbCol === 1 && range[0][index] === undefined) ||
-      (nbCol !== 1 && range[index] === undefined)
+      (nbCol === 1 && _range[0][index] === undefined) ||
+      (nbCol !== 1 && _range[index] === undefined)
     ) {
       return valueNotAvailable(searchKey);
     }
@@ -542,13 +548,14 @@ export const VLOOKUP = {
   ],
   compute: function (
     searchKey: Maybe<FunctionResultObject>,
-    range: Matrix<FunctionResultObject>,
+    range: Arg,
     index: Maybe<FunctionResultObject>,
     isSorted: Maybe<FunctionResultObject> = { value: DEFAULT_IS_SORTED }
   ): FunctionResultObject {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
+    const _range = toMatrix(range);
     assert(
-      () => 1 <= _index && _index <= range.length,
+      () => 1 <= _index && _index <= _range.length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
     if (searchKey && isEvaluationError(searchKey.value)) {
@@ -560,10 +567,17 @@ export const VLOOKUP = {
 
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
-      ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range[0].length, getValueFromRange)
-      : linearSearch(range, searchKey, "wildcard", range[0].length, getValueFromRange);
+      ? dichotomicSearch(
+          _range,
+          searchKey,
+          "nextSmaller",
+          "asc",
+          _range[0].length,
+          getValueFromRange
+        )
+      : linearSearch(_range, searchKey, "wildcard", _range[0].length, getValueFromRange);
 
-    const value = range[_index - 1][rowIndex];
+    const value = _range[_index - 1][rowIndex];
     if (value === undefined) {
       return valueNotAvailable(searchKey);
     }
@@ -620,17 +634,18 @@ export const XLOOKUP = {
   ],
   compute: function (
     searchKey: Maybe<FunctionResultObject>,
-    lookupRange: Matrix<FunctionResultObject>,
-    returnRange: Matrix<FunctionResultObject>,
+    lookupRange: Arg,
+    returnRange: Arg,
     defaultValue: Maybe<FunctionResultObject>,
     matchMode: Maybe<FunctionResultObject> = { value: DEFAULT_MATCH_MODE },
     searchMode: Maybe<FunctionResultObject> = { value: DEFAULT_SEARCH_MODE }
   ) {
     const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
-
+    const _lookupRange = toMatrix(lookupRange);
+    const _returnRange = toMatrix(returnRange);
     assert(
-      () => lookupRange.length === 1 || lookupRange[0].length === 1,
+      () => _lookupRange.length === 1 || _lookupRange[0].length === 1,
       _t("lookup_range should be either a single row or single column.")
     );
     assert(
@@ -642,7 +657,7 @@ export const XLOOKUP = {
       _t("match_mode should be a value in [-1, 0, 1, 2].")
     );
 
-    const lookupDirection = lookupRange.length === 1 ? "col" : "row";
+    const lookupDirection = _lookupRange.length === 1 ? "col" : "row";
 
     assert(
       () => !(_matchMode === 2 && [-2, 2].includes(_searchMode)),
@@ -652,8 +667,8 @@ export const XLOOKUP = {
     assert(
       () =>
         lookupDirection === "col"
-          ? returnRange[0].length === lookupRange[0].length
-          : returnRange.length === lookupRange.length,
+          ? _returnRange[0].length === _lookupRange[0].length
+          : _returnRange.length === _lookupRange.length,
       _t("return_range should have the same dimensions as lookup_range.")
     );
 
@@ -666,26 +681,26 @@ export const XLOOKUP = {
         ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
         : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
 
-    const rangeLen = lookupDirection === "col" ? lookupRange[0].length : lookupRange.length;
+    const rangeLen = lookupDirection === "col" ? _lookupRange[0].length : _lookupRange.length;
     const mode = MATCH_MODE[_matchMode];
     const reverseSearch = _searchMode === -1;
 
     const index =
       _searchMode === 2 || _searchMode === -2
         ? dichotomicSearch(
-            lookupRange,
+            _lookupRange,
             searchKey,
             mode as "strict" | "nextGreater" | "nextSmaller",
             _searchMode === 2 ? "asc" : "desc",
             rangeLen,
             getElement
           )
-        : linearSearch(lookupRange, searchKey, mode, rangeLen, getElement, reverseSearch);
+        : linearSearch(_lookupRange, searchKey, mode, rangeLen, getElement, reverseSearch);
 
     if (index !== -1) {
       return lookupDirection === "col"
-        ? returnRange.map((col) => [col[index]])
-        : [returnRange[index]];
+        ? _returnRange.map((col) => [col[index]])
+        : [_returnRange[index]];
     }
     if (defaultValue === undefined) {
       return valueNotAvailable(searchKey);
