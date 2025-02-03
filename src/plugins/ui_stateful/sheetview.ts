@@ -107,7 +107,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getRect",
   ] as const;
 
-  readonly viewports: Record<UID, SheetViewports | undefined> = {};
+  private viewports: Record<UID, SheetViewports | undefined> = {};
 
   /**
    * The viewport dimensions are usually set by one of the components
@@ -482,7 +482,7 @@ export class SheetViewPlugin extends UIPlugin {
     return { canEdgeScroll, direction, delay };
   }
 
-  getEdgeScrollRow(y: number, previousY: number, tartingY: number): EdgeScrollInfo {
+  getEdgeScrollRow(y: number, previousY: number, startingY: number): EdgeScrollInfo {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
     let delay = 0;
@@ -504,7 +504,7 @@ export class SheetViewPlugin extends UIPlugin {
       canEdgeScroll = true;
       delay = scrollDelay(y - height);
       direction = 1;
-    } else if (y < offsetCorrectionY && tartingY >= offsetCorrectionY && currentOffsetY > 0) {
+    } else if (y < offsetCorrectionY && startingY >= offsetCorrectionY && currentOffsetY > 0) {
       // 2
       canEdgeScroll = true;
       delay = scrollDelay(offsetCorrectionY - y);
@@ -686,12 +686,11 @@ export class SheetViewPlugin extends UIPlugin {
 
   /** gets rid of deprecated sheetIds */
   private cleanViewports() {
-    const sheetIds = this.getters.getSheetIds();
-    for (let sheetId of Object.keys(this.viewports)) {
-      if (!sheetIds.includes(sheetId)) {
-        delete this.viewports[sheetId];
-      }
+    const newViewport = {};
+    for (const sheetId of this.getters.getSheetIds()) {
+      newViewport[sheetId] = this.viewports[sheetId];
     }
+    this.viewports = newViewport;
   }
 
   private resizeSheetView(
@@ -708,7 +707,7 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   private recomputeViewports() {
-    for (let sheetId of Object.keys(this.viewports)) {
+    for (const sheetId of this.getters.getSheetIds()) {
       this.resetViewports(sheetId);
     }
   }
@@ -716,7 +715,7 @@ export class SheetViewPlugin extends UIPlugin {
   private setSheetViewOffset(offsetX: Pixel, offsetY: Pixel) {
     const sheetId = this.getters.getActiveSheetId();
     const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
-    Object.values(this.getSubViewports(sheetId)).forEach((viewport) =>
+    this.getSubViewports(sheetId).forEach((viewport) =>
       viewport.setViewportOffset(clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY))
     );
   }
@@ -807,7 +806,7 @@ export class SheetViewPlugin extends UIPlugin {
    * Adjust the viewport such that the anchor position is visible
    */
   private refreshViewport(sheetId: UID, anchorPosition: Position) {
-    Object.values(this.getSubViewports(sheetId)).forEach((viewport) => {
+    this.getSubViewports(sheetId).forEach((viewport) => {
       viewport.adjustViewportZone();
       viewport.adjustPosition(anchorPosition);
     });
