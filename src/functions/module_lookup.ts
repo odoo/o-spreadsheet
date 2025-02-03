@@ -2,6 +2,8 @@ import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
+  Arg,
+  ArgValue,
   CellValue,
   Matrix,
   Maybe,
@@ -18,6 +20,7 @@ import {
   linearSearch,
   strictToInteger,
   toBoolean,
+  toMatrix,
   toNumber,
   toString,
 } from "./helpers";
@@ -153,7 +156,7 @@ export const HLOOKUP = {
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
-      "range (range)",
+      "range (any, range)",
       _t(
         "The range to consider for the search. The first row in the range is searched for the key specified in search_key."
       )
@@ -172,14 +175,15 @@ export const HLOOKUP = {
   returns: ["ANY"],
   computeValueAndFormat: function (
     searchKey: Maybe<ValueAndFormat>,
-    range: Matrix<ValueAndFormat>,
+    range: Arg,
     index: Maybe<ValueAndFormat>,
     isSorted: Maybe<ValueAndFormat> = { value: DEFAULT_IS_SORTED }
   ): ValueAndFormat {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
+    const _range = toMatrix(range);
 
     assert(
-      () => 1 <= _index && _index <= range[0].length,
+      () => 1 <= _index && _index <= _range[0].length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
@@ -189,15 +193,15 @@ export const HLOOKUP = {
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
       ? dichotomicSearch(
-          range,
+          _range,
           searchKey?.value,
           "nextSmaller",
           "asc",
-          range.length,
+          _range.length,
           getValueFromRange
         )
-      : linearSearch(range, searchKey?.value, "strict", range.length, getValueFromRange);
-    const col = range[colIndex];
+      : linearSearch(_range, searchKey?.value, "strict", _range.length, getValueFromRange);
+    const col = _range[colIndex];
     assertAvailable(col, searchKey?.value);
     return col[_index - 1];
   },
@@ -222,7 +226,7 @@ export const INDEX: AddFunctionDescription = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    reference: Matrix<ValueAndFormat>,
+    reference: Arg,
     row: Maybe<ValueAndFormat> = { value: 0 },
     column: Maybe<ValueAndFormat> = { value: 0 }
   ): any {
@@ -260,13 +264,13 @@ export const LOOKUP = {
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
-      "search_array (range)",
+      "search_array (any, range)",
       _t(
         "One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned."
       )
     ),
     arg(
-      "result_range (range, optional)",
+      "result_range (any, range, optional)",
       _t(
         "The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method."
       )
@@ -275,11 +279,14 @@ export const LOOKUP = {
   returns: ["ANY"],
   computeValueAndFormat: function (
     searchKey: Maybe<ValueAndFormat>,
-    searchArray: Matrix<ValueAndFormat>,
-    resultRange: Matrix<ValueAndFormat> | undefined
+    searchArray: Arg,
+    resultRange: Arg
   ): ValueAndFormat {
-    let nbCol = searchArray.length;
-    let nbRow = searchArray[0].length;
+    const _searchArray = toMatrix(searchArray);
+    const _resultRange = toMatrix(resultRange);
+
+    let nbCol = _searchArray.length;
+    let nbRow = _searchArray[0].length;
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
@@ -287,7 +294,7 @@ export const LOOKUP = {
       : (range: Matrix<ValueAndFormat>, index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
-      searchArray,
+      _searchArray,
       searchKey?.value,
       "nextSmaller",
       "asc",
@@ -298,15 +305,15 @@ export const LOOKUP = {
     if (index === -1) assertAvailable(undefined, searchKey?.value);
 
     verticalSearch
-      ? assertAvailable(searchArray[0][index], searchKey?.value)
-      : assertAvailable(searchArray[index][nbRow - 1], searchKey?.value);
+      ? assertAvailable(_searchArray[0][index], searchKey?.value)
+      : assertAvailable(_searchArray[index][nbRow - 1], searchKey?.value);
 
-    if (resultRange === undefined) {
-      return verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1];
+    if (_resultRange[0].length === 0) {
+      return verticalSearch ? _searchArray[nbCol - 1][index] : _searchArray[index][nbRow - 1];
     }
 
-    nbCol = resultRange.length;
-    nbRow = resultRange[0].length;
+    nbCol = _resultRange.length;
+    nbRow = _resultRange[0].length;
     assert(
       () => nbCol === 1 || nbRow === 1,
       _t("The result_range must be a single row or a single column.")
@@ -317,7 +324,7 @@ export const LOOKUP = {
         () => index <= nbCol - 1,
         _t("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
       );
-      return resultRange[index][0];
+      return _resultRange[index][0];
     }
 
     assert(
@@ -325,7 +332,7 @@ export const LOOKUP = {
       _t("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
     );
 
-    return resultRange[0][index];
+    return _resultRange[0][index];
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -349,12 +356,13 @@ export const MATCH = {
   returns: ["NUMBER"],
   compute: function (
     searchKey: Maybe<CellValue>,
-    range: Matrix<CellValue>,
+    range: ArgValue,
     searchType: Maybe<CellValue> = DEFAULT_SEARCH_TYPE
   ): number {
     let _searchType = toNumber(searchType, this.locale);
-    const nbCol = range.length;
-    const nbRow = range[0].length;
+    const _range = toMatrix(range);
+    const nbCol = _range.length;
+    const nbRow = _range[0].length;
 
     assert(
       () => nbCol === 1 || nbRow === 1,
@@ -365,24 +373,24 @@ export const MATCH = {
 
     const getElement =
       nbCol === 1
-        ? (range: Matrix<CellValue>, index: number) => range[0][index]
-        : (range: Matrix<CellValue>, index: number) => range[index][0];
+        ? (_range: Matrix<CellValue>, index: number) => _range[0][index]
+        : (_range: Matrix<CellValue>, index: number) => _range[index][0];
 
-    const rangeLen = nbCol === 1 ? range[0].length : range.length;
+    const rangeLen = nbCol === 1 ? _range[0].length : _range.length;
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
-        index = dichotomicSearch(range, searchKey, "nextSmaller", "asc", rangeLen, getElement);
+        index = dichotomicSearch(_range, searchKey, "nextSmaller", "asc", rangeLen, getElement);
         break;
       case 0:
-        index = linearSearch(range, searchKey, "strict", rangeLen, getElement);
+        index = linearSearch(_range, searchKey, "strict", rangeLen, getElement);
         break;
       case -1:
-        index = dichotomicSearch(range, searchKey, "nextGreater", "desc", rangeLen, getElement);
+        index = dichotomicSearch(_range, searchKey, "nextGreater", "desc", rangeLen, getElement);
         break;
     }
 
-    assertAvailable(nbCol === 1 ? range[0][index] : range[index], searchKey);
+    assertAvailable(nbCol === 1 ? _range[0][index] : _range[index], searchKey);
 
     return index + 1;
   },
@@ -461,13 +469,14 @@ export const VLOOKUP = {
   returns: ["ANY"],
   computeValueAndFormat: function (
     searchKey: Maybe<ValueAndFormat>,
-    range: Matrix<ValueAndFormat>,
+    range: Arg,
     index: Maybe<ValueAndFormat>,
     isSorted: Maybe<ValueAndFormat> = { value: DEFAULT_IS_SORTED }
   ): ValueAndFormat {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
+    const _range = toMatrix(range);
     assert(
-      () => 1 <= _index && _index <= range.length,
+      () => 1 <= _index && _index <= _range.length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
@@ -477,16 +486,16 @@ export const VLOOKUP = {
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
       ? dichotomicSearch(
-          range,
+          _range,
           searchKey?.value,
           "nextSmaller",
           "asc",
-          range[0].length,
+          _range[0].length,
           getValueFromRange
         )
-      : linearSearch(range, searchKey?.value, "strict", range[0].length, getValueFromRange);
+      : linearSearch(_range, searchKey?.value, "strict", _range[0].length, getValueFromRange);
 
-    const value = range[_index - 1][rowIndex];
+    const value = _range[_index - 1][rowIndex];
     assertAvailable(value, searchKey?.value);
     return value;
   },
@@ -534,17 +543,18 @@ export const XLOOKUP = {
   returns: ["ANY"],
   computeValueAndFormat: function (
     searchKey: Maybe<ValueAndFormat>,
-    lookupRange: Matrix<ValueAndFormat>,
-    returnRange: Matrix<ValueAndFormat>,
+    lookupRange: Arg,
+    returnRange: Arg,
     defaultValue?: () => Maybe<ValueAndFormat>,
     matchMode: Maybe<ValueAndFormat> = { value: DEFAULT_MATCH_MODE },
     searchMode: Maybe<ValueAndFormat> = { value: DEFAULT_SEARCH_MODE }
   ): Matrix<ValueAndFormat> {
     const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
-
+    const _lookupRange = toMatrix(lookupRange);
+    const _returnRange = toMatrix(returnRange);
     assert(
-      () => lookupRange.length === 1 || lookupRange[0].length === 1,
+      () => _lookupRange.length === 1 || _lookupRange[0].length === 1,
       _t("lookup_range should be either a single row or single column.")
     );
     assert(
@@ -553,13 +563,13 @@ export const XLOOKUP = {
     );
     assert(() => [-1, 0, 1].includes(_matchMode), _t("matchMode should be a value in [-1, 0, 1]."));
 
-    const lookupDirection = lookupRange.length === 1 ? "col" : "row";
+    const lookupDirection = _lookupRange.length === 1 ? "col" : "row";
 
     assert(
       () =>
         lookupDirection === "col"
-          ? returnRange[0].length === lookupRange[0].length
-          : returnRange.length === lookupRange.length,
+          ? _returnRange[0].length === _lookupRange[0].length
+          : _returnRange.length === _lookupRange.length,
       _t("return_range should have the same dimensions as lookup_range.")
     );
 
@@ -568,7 +578,7 @@ export const XLOOKUP = {
         ? (range: Matrix<ValueAndFormat>, index: number) => range[0][index].value
         : (range: Matrix<ValueAndFormat>, index: number) => range[index][0].value;
 
-    const rangeLen = lookupDirection === "col" ? lookupRange[0].length : lookupRange.length;
+    const rangeLen = lookupDirection === "col" ? _lookupRange[0].length : _lookupRange.length;
 
     const mode = _matchMode === 0 ? "strict" : _matchMode === 1 ? "nextGreater" : "nextSmaller";
     const reverseSearch = _searchMode === -1;
@@ -576,19 +586,19 @@ export const XLOOKUP = {
     const index =
       _searchMode === 2 || _searchMode === -2
         ? dichotomicSearch(
-            lookupRange,
+            _lookupRange,
             searchKey?.value,
             mode,
             _searchMode === 2 ? "asc" : "desc",
             rangeLen,
             getElement
           )
-        : linearSearch(lookupRange, searchKey?.value, mode, rangeLen, getElement, reverseSearch);
+        : linearSearch(_lookupRange, searchKey?.value, mode, rangeLen, getElement, reverseSearch);
 
     if (index !== -1) {
       return lookupDirection === "col"
-        ? returnRange.map((col) => [col[index]])
-        : [returnRange[index]];
+        ? _returnRange.map((col) => [col[index]])
+        : [_returnRange[index]];
     }
 
     const _defaultValue = defaultValue?.();

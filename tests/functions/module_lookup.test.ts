@@ -231,6 +231,15 @@ describe("LOOKUP formula", () => {
     expect(evaluateCellFormat("A5", { A5: "=LOOKUP(2, A1:B2)", ...grid })).toBe("m/d/yy");
     expect(evaluateCellFormat("A6", { A6: "=LOOKUP(1, A1:A2, C1:C2)", ...grid })).toBe("#,##0[$$]");
   });
+
+  test("Accept simple values on the search range or the return range", () => {
+    const grid = evaluateGrid({
+      A1: "=LOOKUP(42, 42)",
+      A2: "=LOOKUP(42, 42, 42)",
+    });
+    expect(grid.A1).toBe(42);
+    expect(grid.A2).toBe(42);
+  });
 });
 
 describe("MATCH formula", () => {
@@ -446,6 +455,17 @@ describe("MATCH formula", () => {
 
   test("Accents and uppercase are ignored", () => {
     expect(evaluateCell("A1", { A1: '=MATCH("epee", B1, 1)', B1: "Épée" })).toBe(1);
+  });
+
+  test("Accept simple values on the search range or the return range", () => {
+    const grid = evaluateGrid({
+      A1: "=MATCH(42, 42)",
+      A2: "=MATCH(42, 42, 0)",
+      A3: "=MATCH(42, 42, -1)",
+    });
+    expect(grid.A1).toBe(1);
+    expect(grid.A2).toBe(1);
+    expect(grid.A3).toBe(1);
   });
 });
 
@@ -764,6 +784,15 @@ describe("VLOOKUP formula", () => {
     setCellContent(model, "A1", "=VLOOKUP(5, B1, 1)");
     expect(getCellError(model, "A1")).toBe("Did not find value '5' in VLOOKUP evaluation.");
   });
+
+  test("Accept simple values on the search range or the return range", () => {
+    const grid = evaluateGrid({
+      A1: "=VLOOKUP(42, 42, 1)",
+      A2: "=VLOOKUP(42, 42, 1, true)",
+    });
+    expect(grid.A1).toBe(42);
+    expect(grid.A2).toBe(42);
+  });
 });
 
 describe("HLOOKUP formula", () => {
@@ -943,6 +972,15 @@ describe("HLOOKUP formula", () => {
     const model = new Model();
     setCellContent(model, "A1", "=HLOOKUP(5, B1, 1)");
     expect(getCellError(model, "A1")).toBe("Did not find value '5' in HLOOKUP evaluation.");
+  });
+
+  test("Accept simple values on the search range or the return range", () => {
+    const grid = evaluateGrid({
+      A1: "=HLOOKUP(42, 42, 1)",
+      A2: "=HLOOKUP(42, 42, 1, true)",
+    });
+    expect(grid.A1).toBe(42);
+    expect(grid.A2).toBe(42);
   });
 });
 
@@ -1190,6 +1228,25 @@ describe("XLOOKUP formula", () => {
     const model = new Model();
     setCellContent(model, "A1", "=XLOOKUP(5, B1, C1)");
     expect(getCellError(model, "A1")).toBe("Did not find value '5' in XLOOKUP evaluation.");
+  });
+
+  test.each([
+    "=XLOOKUP(42, 42, 42)",
+    "=XLOOKUP(42, 42, 42, 24)",
+    "=XLOOKUP(42, 42, 42, 24, -1)",
+    "=XLOOKUP(42, 42, 42, 24, 0)",
+    "=XLOOKUP(42, 42, 42, 24, 1)",
+    "=XLOOKUP(42, 42, 42, 24, -1, -1)",
+    "=XLOOKUP(42, 42, 42, 24, 0 , -1)",
+    "=XLOOKUP(42, 42, 42, 24, 1 , -1)",
+    "=XLOOKUP(42, 42, 42, 24, -1,  2)",
+    "=XLOOKUP(42, 42, 42, 24, 0 ,  2)",
+    "=XLOOKUP(42, 42, 42, 24, 1 ,  2)",
+    "=XLOOKUP(42, 42, 42, 24, -1,  -2)",
+    "=XLOOKUP(42, 42, 42, 24, 0 ,  -2)",
+    "=XLOOKUP(42, 42, 42, 24, 1 ,  -2)",
+  ])("Accept simple values on the search range or the return range. Formula: %s", (formula) => {
+    expect(evaluateCell("A1", { A1: formula })).toBe(42);
   });
 });
 
