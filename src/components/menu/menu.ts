@@ -20,7 +20,7 @@ import {
 } from "../../constants";
 import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { getOpenedMenus, isChildEvent } from "../helpers/dom_helpers";
+import { getOpenedMenus, isChildEvent, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useTimeOut } from "../helpers/time_hooks";
 import { Popover, PopoverProps } from "../popover/popover";
@@ -217,8 +217,8 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     return cssPropertiesToCss({ color: menu.iconColor });
   }
 
-  async activateMenu(menu: Action) {
-    const result = await menu.execute?.(this.env);
+  async activateMenu(menu: Action, isMiddleClick?: boolean) {
+    const result = await menu.execute?.(this.env, isMiddleClick);
     this.close();
     this.props.onMenuClicked?.({ detail: result } as CustomEvent);
   }
@@ -293,12 +293,14 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onClickMenu(menu: Action, ev: MouseEvent) {
-    if (this.isEnabled(menu)) {
-      if (this.isRoot(menu)) {
-        this.openSubMenu(menu, ev.currentTarget as HTMLElement);
-      } else {
-        this.activateMenu(menu);
-      }
+    if (!this.isEnabled(menu)) {
+      return;
+    }
+
+    if (this.isRoot(menu)) {
+      this.openSubMenu(menu, ev.currentTarget as HTMLElement);
+    } else {
+      this.activateMenu(menu, isMiddleClickOrCtrlClick(ev));
     }
   }
 

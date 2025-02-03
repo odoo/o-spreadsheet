@@ -149,6 +149,25 @@ describe("Grid component in dashboard mode", () => {
     clickableCellRegistry.remove("fake");
   });
 
+  test("Triggers clickable cell actions with correct params on left-click and middle-click", async () => {
+    const fn = jest.fn();
+    clickableCellRegistry.add("fake", {
+      condition: (position, getters) => {
+        return !!getters.getCell(position)?.content.startsWith("__");
+      },
+      execute: (_, __, isMiddleClick) => fn(isMiddleClick),
+      sequence: 5,
+    });
+    setCellContent(model, "A1", "__test1");
+    model.updateMode("dashboard");
+    await nextTick();
+    await simulateClick("div.o-dashboard-clickable-cell", 10, 10, { bubbles: true, button: 0 });
+    expect(fn).toHaveBeenCalledWith(false);
+    await simulateClick("div.o-dashboard-clickable-cell", 10, 10, { bubbles: true, button: 1 });
+    expect(fn).toHaveBeenCalledWith(true);
+    clickableCellRegistry.remove("fake");
+  });
+
   test("Clickable cells actions can have a tooltip", async () => {
     clickableCellRegistry.add("fake", {
       condition: () => true,

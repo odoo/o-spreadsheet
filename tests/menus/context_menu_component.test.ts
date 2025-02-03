@@ -713,6 +713,22 @@ describe("Context Menu internal tests", () => {
     const childMenu = fixture.querySelectorAll<HTMLElement>(".o-menu")[1]!;
     expect(getStylePropertyInPx(childMenu, "width")).toBe(100);
   });
+
+  test("Triggers menu item action with correct params on left-click and middle-click", async () => {
+    const mockCallback = jest.fn();
+    const menuItems: Action[] = createActions([
+      {
+        id: "menuItem",
+        name: "menuItem",
+        execute: (_, isMiddleClick) => mockCallback(isMiddleClick),
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    await simulateClick(".o-menu div[data-name='menuItem']", 10, 10, { button: 0 });
+    expect(mockCallback).toHaveBeenCalledWith(false);
+    await simulateClick(".o-menu div[data-name='menuItem']", 10, 10, { button: 1 });
+    expect(mockCallback).toHaveBeenCalledWith(true);
+  });
 });
 
 describe("Context Menu position on large screen 1000px/1000px", () => {

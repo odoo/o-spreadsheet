@@ -6,6 +6,7 @@ import { Store, useStore } from "../../../store_engine";
 import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
+import { isMiddleClickOrCtrlClick } from "../../helpers/dom_helpers";
 import { CellPopoverStore } from "../../popover/cell_popover_store";
 
 const LINK_TOOLTIP_HEIGHT = 32;
@@ -97,8 +98,8 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
     return urlRepresentation(link, this.env.model.getters);
   }
 
-  openLink() {
-    openLink(this.link, this.env);
+  openLink(ev: MouseEvent) {
+    openLink(this.link, this.env, isMiddleClickOrCtrlClick(ev));
   }
 
   edit() {

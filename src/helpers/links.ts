@@ -24,7 +24,7 @@ export interface LinkSpec {
    * - a link to a sheet displays the sheet name
    */
   readonly urlRepresentation: (url: string, getters: Getters) => string;
-  readonly open: (url: string, env: SpreadsheetChildEnv) => void;
+  readonly open: (url: string, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
   readonly sequence: number;
 }
 
@@ -92,8 +92,8 @@ export function urlRepresentation(link: Link, getters: Getters): string {
   return findMatchingSpec(link.url).urlRepresentation(link.url, getters);
 }
 
-export function openLink(link: Link, env: SpreadsheetChildEnv) {
-  findMatchingSpec(link.url).open(link.url, env);
+export function openLink(link: Link, env: SpreadsheetChildEnv, isMiddleClick?: boolean) {
+  findMatchingSpec(link.url).open(link.url, env, isMiddleClick);
 }
 
 export function detectLink(value: CellValue | null): Link | undefined {

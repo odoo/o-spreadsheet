@@ -185,3 +185,12 @@ export function isMacOS(): boolean {
 export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
   return isMacOS() ? ev.metaKey : ev.ctrlKey;
 }
+
+/**
+ * @param {MouseEvent} ev - The mouse event.
+ * @returns {boolean} Returns true if the event was triggered by a middle-click
+ * or a Ctrl + Click (Cmd + Click on Mac).
+ */
+export function isMiddleClickOrCtrlClick(ev: MouseEvent): boolean {
+  return ev.button === 1 || (isCtrlKey(ev) && ev.button === 0);
+}

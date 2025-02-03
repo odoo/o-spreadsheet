@@ -15,7 +15,7 @@ export interface ClickableCell {
   coordinates: Rect;
   position: CellPosition;
   title: string;
-  action: (position: CellPosition, env: SpreadsheetChildEnv) => void;
+  action: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
 }
 
 export class ClickableCellsStore extends SpreadsheetStore {
