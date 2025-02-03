@@ -1209,6 +1209,46 @@ describe("Multi Panes viewport", () => {
 
     expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
   });
+
+  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 width", () => {
+    const model = new Model();
+    model.dispatch("RESIZE_SHEETVIEW", {
+      width: 0,
+      height: 100,
+      gridOffsetX: 0,
+      gridOffsetY: 0,
+    });
+    expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
+    expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
+
+    freezeColumns(model, 2);
+    expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
+    expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
+
+    freezeRows(model, 2);
+    expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
+    expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
+  });
+
+  test("Visible Cols and Rows are correctly computed when the sheetview has a 0 height", () => {
+    const model = new Model();
+    model.dispatch("RESIZE_SHEETVIEW", {
+      width: 100,
+      height: 0,
+      gridOffsetX: 0,
+      gridOffsetY: 0,
+    });
+    expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
+    expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
+
+    freezeColumns(model, 2);
+    expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
+    expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
+
+    freezeRows(model, 2);
+    expect(model.getters.getSheetViewVisibleCols()).toEqual([]);
+    expect(model.getters.getSheetViewVisibleRows()).toEqual([]);
+  });
 });
 
 describe("multi sheet with different sizes", () => {
