@@ -360,7 +360,7 @@ export class SheetViewPlugin extends UIPlugin {
 
     //TODO ake another commit to eimprove this
     return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter(
-      (col) => !this.getters.isHeaderHidden(sheetId, "COL", col)
+      (col) => col >= 0 && !this.getters.isHeaderHidden(sheetId, "COL", col)
     );
   }
 
@@ -368,7 +368,7 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const viewports = this.getSubViewports(sheetId);
     return [...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat())].filter(
-      (row) => !this.getters.isHeaderHidden(sheetId, "ROW", row)
+      (row) => row >= 0 && !this.getters.isHeaderHidden(sheetId, "ROW", row)
     );
   }
 
@@ -747,8 +747,16 @@ export class SheetViewPlugin extends UIPlugin {
     const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
     const nCols = this.getters.getNumberCols(sheetId);
     const nRows = this.getters.getNumberRows(sheetId);
-    const colOffset = this.getters.getColRowOffset("COL", 0, xSplit, sheetId);
-    const rowOffset = this.getters.getColRowOffset("ROW", 0, ySplit, sheetId);
+    const colOffset = Math.min(
+      this.getters.getColRowOffset("COL", 0, xSplit, sheetId),
+      this.sheetViewWidth
+    );
+    const rowOffset = Math.min(
+      this.getters.getColRowOffset("ROW", 0, ySplit, sheetId),
+      this.sheetViewHeight
+    );
+    const unfrozenWidth = Math.max(this.sheetViewWidth - colOffset, 0);
+    const unfrozenHeight = Math.max(this.sheetViewHeight - rowOffset, 0);
     const { xRatio, yRatio } = this.getFrozenSheetViewRatio(sheetId);
     const canScrollHorizontally = xRatio < 1.0;
     const canScrollVertically = yRatio < 1.0;
@@ -773,7 +781,7 @@ export class SheetViewPlugin extends UIPlugin {
             this.getters,
             sheetId,
             { left: xSplit, right: nCols - 1, top: 0, bottom: ySplit - 1 },
-            { width: this.sheetViewWidth - colOffset, height: rowOffset },
+            { width: unfrozenWidth, height: rowOffset },
             { canScrollHorizontally, canScrollVertically: false },
             { x: canScrollHorizontally ? previousOffset.x : 0, y: 0 }
           )) ||
@@ -784,7 +792,7 @@ export class SheetViewPlugin extends UIPlugin {
             this.getters,
             sheetId,
             { left: 0, right: xSplit - 1, top: ySplit, bottom: nRows - 1 },
-            { width: colOffset, height: this.sheetViewHeight - rowOffset },
+            { width: colOffset, height: unfrozenHeight },
             { canScrollHorizontally: false, canScrollVertically },
             { x: 0, y: canScrollVertically ? previousOffset.y : 0 }
           )) ||
@@ -794,8 +802,8 @@ export class SheetViewPlugin extends UIPlugin {
         sheetId,
         { left: xSplit, right: nCols - 1, top: ySplit, bottom: nRows - 1 },
         {
-          width: this.sheetViewWidth - colOffset,
-          height: this.sheetViewHeight - rowOffset,
+          width: unfrozenWidth,
+          height: unfrozenHeight,
         },
         { canScrollHorizontally, canScrollVertically },
         {
