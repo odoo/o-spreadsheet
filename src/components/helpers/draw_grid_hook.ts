@@ -23,6 +23,9 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.setAttribute("style", `width:${width}px;height:${height}px;`);
+    if (width === 0 || height === 0) {
+      return;
+    }
     // Imagine each pixel as a large square. The whole-number coordinates (0, 1, 2…)
     // are the edges of the squares. If you draw a one-unit-wide line between whole-number
     // coordinates, it will overlap opposite sides of the pixel square, and the resulting
