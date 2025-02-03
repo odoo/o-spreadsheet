@@ -63,8 +63,8 @@ async function resizeColumn(letter: string, delta: number) {
   triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "pointerdown", x, 10);
-  triggerMouseEvent(window, "pointermove", x + delta, 10);
-  triggerMouseEvent(window, "pointerup", x + delta, 10);
+  triggerMouseEvent(document, "pointermove", x + delta, 10);
+  triggerMouseEvent(document, "pointerup", x + delta, 10);
   await nextTick();
 }
 /**
@@ -78,9 +78,9 @@ async function dragColumn(startLetter: string, endLetter: string) {
   triggerMouseEvent(".o-overlay .o-col-resizer", "pointerdown", x, 10);
   index = lettersToNumber(endLetter);
   x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
-  triggerMouseEvent(window, "pointermove", x, 10, { buttons: 1 });
+  triggerMouseEvent(document, "pointermove", x, 10, { buttons: 1 });
   await nextTick();
-  triggerMouseEvent(window, "pointerup", x, 10);
+  triggerMouseEvent(document, "pointerup", x, 10);
 }
 /**
  * Trigger a double click on a column
@@ -103,7 +103,7 @@ async function selectRow(index: number, extra: any = {}) {
   triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, y);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-row-resizer", "pointerdown", 10, y, extra);
-  triggerMouseEvent(window, "pointerup", 10, y);
+  triggerMouseEvent(document, "pointerup", 10, y);
 }
 /**
  * Resize a row
@@ -115,8 +115,8 @@ async function resizeRow(index: number, delta: number) {
   triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, y);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "pointerdown", 10, y);
-  triggerMouseEvent(window, "pointermove", 10, y + delta);
-  triggerMouseEvent(window, "pointerup", 10, y + delta);
+  triggerMouseEvent(document, "pointermove", 10, y + delta);
+  triggerMouseEvent(document, "pointerup", 10, y + delta);
   await nextTick();
 }
 /**
@@ -128,9 +128,9 @@ async function dragRow(startIndex: number, endIndex: number) {
   let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), startIndex)!.start + 1;
   triggerMouseEvent(".o-overlay .o-row-resizer", "pointerdown", 10, y);
   y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), endIndex)!.start + 1;
-  triggerMouseEvent(window, "pointermove", 10, y, { buttons: 1 });
+  triggerMouseEvent(document, "pointermove", 10, y, { buttons: 1 });
   await nextTick();
-  triggerMouseEvent(window, "pointerup", 10, y);
+  triggerMouseEvent(document, "pointerup", 10, y);
 }
 /**
  * Trigger a double click on a row
@@ -181,10 +181,10 @@ describe("Resizer component", () => {
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "pointerdown", x, 10);
-    triggerMouseEvent(window, "pointermove", x + 50, 10);
+    triggerMouseEvent(document, "pointermove", x + 50, 10);
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
-    triggerMouseEvent(window, "pointerup", x + 50, 10);
+    triggerMouseEvent(document, "pointerup", x + 50, 10);
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
   });

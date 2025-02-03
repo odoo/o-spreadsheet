@@ -53,7 +53,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
   static props = {
     anchorRect: Object,
-    containerRect: { type: Object, optional: true },
     positioning: { type: String, optional: true },
     maxWidth: { type: Number, optional: true },
     maxHeight: { type: Number, optional: true },

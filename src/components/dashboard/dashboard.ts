@@ -1,14 +1,7 @@
-import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
+import { Component, toRaw, useRef } from "@odoo/owl";
 import { SCROLLBAR_WIDTH } from "../../constants";
 import { Store, useStore } from "../../store_engine";
-import {
-  DOMCoordinates,
-  DOMDimension,
-  Pixel,
-  Rect,
-  Ref,
-  SpreadsheetChildEnv,
-} from "../../types/index";
+import { DOMDimension, Pixel, Rect, Ref, SpreadsheetChildEnv } from "../../types/index";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -45,7 +38,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   protected cellPopovers!: Store<CellPopoverStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
-  canvasPosition!: DOMCoordinates;
+  canvasRect!: Rect;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   clickableCellsStore!: Store<ClickableCellsStore>;
 
@@ -57,7 +50,6 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
 
-    useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
@@ -130,11 +122,8 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     });
   }
 
-  private getGridRect(): Rect {
-    return {
-      ...getRefBoundingRect(this.gridRef),
-      ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
-    };
+  getGridRect(): Rect {
+    return getRefBoundingRect(this.gridRef);
   }
 
   getGridSize() {
