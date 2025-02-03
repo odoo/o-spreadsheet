@@ -1,6 +1,13 @@
 import { registries } from "../../src";
+<<<<<<< 18.0
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+=======
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { autoCompleteProviders } from "../../src/registries";
@@ -10,6 +17,7 @@ import { registerCleanup } from "../setup/jest.setup";
 import { selectCell } from "../test_helpers/commands_helpers";
 import {
   click,
+  getElStyle,
   keyDown,
   keyUp,
   simulateClick,
@@ -24,7 +32,12 @@ import {
   restoreDefaultFunctions,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
+<<<<<<< 18.0
 import { addPivot } from "../test_helpers/pivot_helpers";
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+=======
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
 jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
   require("../__mocks__/content_editable_helper")
 );
@@ -469,30 +482,62 @@ describe("Autocomplete parenthesis", () => {
 
 describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
+<<<<<<< 18.0
     ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
       delimitation: { width: 500, height: 500 },
       rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+    ({ model, fixture, parent } = await mountComposerWrapper());
+=======
+    mockGetBoundingClientRect({
+      "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+      "o-popover": () => ({ width: 50, height: 500 }),
+      "o-composer": () => ({ x: 100, y: 100, width: 400, height: 50 }),
+    });
+
+    ({ model, fixture, parent } = await mountComposerWrapper());
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
     await typeInComposer("=s");
     expect(fixture.querySelectorAll(".o-composer-assistant").length).toBe(1);
-    const assistantEl = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
-    expect(assistantEl).toMatchSnapshot();
-    expect(assistantEl.style.width).toBe("300px");
-    expect(assistantEl.style.top).toBe("");
-    expect(assistantEl.style.transform).toBe("");
+    const popover = fixture.querySelector(".o-popover")! as HTMLElement;
+    expect(popover.style.top).toBe("150px"); // (container top) + (container height)
+    expect(popover.style.left).toBe("100px");
+    expect(popover).toMatchSnapshot();
   });
 
   test("render above the cell when not enough place below", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
-      delimitation: { width: 200, height: 200 },
-      rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
-    }));
+    mockGetBoundingClientRect({
+      "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+      "o-popover": () => ({ width: 50, height: 500 }),
+      "o-composer": () => ({ x: 100, y: 600, width: 400, height: 50 }),
+    });
+
+    ({ model, fixture, parent } = await mountComposerWrapper());
     await typeInComposer("=s");
-    const assistantEL = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
-    expect(assistantEL).toMatchSnapshot();
-    expect(assistantEL.style.width).toBe("300px");
-    expect(assistantEL.style.top).toBe("-3px");
-    expect(assistantEL.style.transform).toBe("translate(0, -100%)");
+    const popover = fixture.querySelector(".o-popover")! as HTMLElement;
+    expect(popover).toMatchSnapshot();
+    expect(popover.style.top).toBe("100px"); // (container top) - (popover height)
+    expect(popover.style.left).toBe("100px");
+  });
+
+  test("composer assistant min-width is the same as the underlying cell", async () => {
+    mockGetBoundingClientRect({
+      "o-composer": () => ({ x: 100, y: 600, width: 226, height: 50 }),
+    });
+
+    ({ model, fixture, parent } = await mountComposerWrapper());
+    await typeInComposer("=s");
+    expect(getElStyle(".o-composer-assistant", "min-width")).toBe("226px");
+  });
+
+  test("composer assistant min-width is capped for large cells", async () => {
+    mockGetBoundingClientRect({
+      "o-composer": () => ({ x: 100, y: 600, width: 1000, height: 50 }),
+    });
+    ({ model, fixture, parent } = await mountComposerWrapper());
+    await typeInComposer("=s");
+    expect(getElStyle(".o-composer-assistant", "min-width")).toBe("300px");
   });
 });
 

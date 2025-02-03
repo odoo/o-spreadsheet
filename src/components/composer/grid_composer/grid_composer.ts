@@ -113,6 +113,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+<<<<<<< 18.0
   get focus(): ComposerFocusType {
     const focus =
       this.composerFocusStore.activeComposer === this.composerInterface
@@ -123,13 +124,30 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get composerProps(): CellComposerProps {
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+  get composerProps(): ComposerProps {
+    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+=======
+  get composerProps(): ComposerProps {
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
     return {
+<<<<<<< 18.0
       rect: { ...this.rect },
       delimitation: {
         width,
         height,
       },
       focus: this.focus,
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+      rect: { ...this.rect },
+      delimitation: {
+        width,
+        height,
+      },
+      focus: this.composerFocusStore.gridComposerFocus,
+=======
+      focus: this.composerFocusStore.gridComposerFocus,
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
       isDefaultFocus: true,
       onComposerContentFocused: () =>
         this.composerFocusStore.focusComposer(this.composerInterface, {

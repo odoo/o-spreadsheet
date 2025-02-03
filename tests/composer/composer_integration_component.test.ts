@@ -15,6 +15,7 @@ import {
   activateSheet,
   copy,
   createSheet,
+  createTable,
   paste,
   renameSheet,
   resizeColumns,
@@ -33,6 +34,7 @@ import {
   rightClickCell,
   selectColumnByClicking,
   simulateClick,
+  triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
@@ -42,6 +44,7 @@ import {
   getCellContent,
   getCellText,
   getSelectionAnchorCellXc,
+  getTable,
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
@@ -150,11 +153,10 @@ describe("Composer interactions", () => {
 
   test("autocomplete disappear when grid composer is blurred", async () => {
     await keyDown({ key: "Enter" });
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     await typeInComposerGrid("=SU");
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
-    await click(topBarComposer);
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).not.toBeNull();
+    await simulateClick(".o-grid-overlay");
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).toBeNull();
   });
 
   test("autocomplete disappear when selecting a cell in the grid", async () => {
@@ -168,9 +170,9 @@ describe("Composer interactions", () => {
     });
     await keyDown({ key: "Enter" });
     await typeInComposerGrid("=PIVOT(");
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).not.toBeNull();
     await clickCell(model, "B3");
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).toBeNull();
     await keyDown({ key: "Enter" });
     expect(getCell(model, "A1")?.content).toBe("=PIVOT(B3)");
   });
@@ -487,6 +489,7 @@ describe("Composer interactions", () => {
     expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
   });
 
+<<<<<<< 18.0
   test("Confirming topbar composer ends up focusing the grid composer", async () => {
     await typeInComposerTopBar("=A1");
     const topBarComposerEl = fixture.querySelector<HTMLElement>(
@@ -523,6 +526,32 @@ describe("Composer interactions", () => {
     await startComposition("=");
     await simulateClick(".o-spreadsheet", 300, 200);
     expect(composerStore.editionMode).toBe("inactive");
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+=======
+  test("Pressing Enter while editing a label does not open grid composer", async () => {
+    setCellContent(model, "A1", "[label](http://odoo.com)");
+    await simulateClick(".o-topbar-menu[data-id='insert']");
+    await simulateClick(".o-menu-item[data-name='insert_link']");
+    const editor = fixture.querySelector(".o-link-editor");
+    expect(editor).toBeTruthy();
+
+    editor!.querySelectorAll("input")[0].focus();
+    await keyDown({ key: "Enter" });
+    expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
+  test("should create a table when a cell is double clicked in edit mode", async () => {
+    selectCell(model, "A1");
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    createTable(model, "A1");
+    expect(getTable(model, "A1")).toBeTruthy();
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
   });
 });
 
