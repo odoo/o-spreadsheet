@@ -5,6 +5,7 @@ import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css, cssPropertiesToCss } from "../helpers/css";
+import { isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -92,9 +93,9 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     return toRaw(this.clickableCellsStore.clickableCells);
   }
 
-  selectClickableCell(clickableCell: ClickableCell) {
+  selectClickableCell(ev: MouseEvent, clickableCell: ClickableCell) {
     const { position, action } = clickableCell;
-    action(position, this.env);
+    action(position, this.env, isMiddleClickOrCtrlClick(ev));
   }
 
   onClosePopover() {

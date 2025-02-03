@@ -49,7 +49,7 @@ export interface ActionSpec {
    * Execute the action. The action can return a result.
    * The result will be carried by a `menu-clicked` event to the menu parent component.
    */
-  execute?: (env: SpreadsheetChildEnv) => unknown;
+  execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
   /**
    * subitems associated to this item
    * NB: an action without an execute function or children is not displayed !
@@ -77,7 +77,7 @@ export interface Action {
   iconColor?: Color;
   secondaryIcon: (env: SpreadsheetChildEnv) => string;
   isReadonlyAllowed: boolean;
-  execute?: (env: SpreadsheetChildEnv) => unknown;
+  execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
   children: (env: SpreadsheetChildEnv) => Action[];
   separator: boolean;
   textColor?: Color;
