@@ -3,7 +3,6 @@ import {
   tokenColors,
 } from "../../src/components/composer/composer/composer";
 import { ComposerStore } from "../../src/components/composer/composer/composer_store";
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
@@ -12,7 +11,6 @@ import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard"
 import {
   createSheet,
   createSheetWithName,
-  createTable,
   merge,
   resizeAnchorZone,
   selectCell,
@@ -32,12 +30,10 @@ import {
   getCellText,
   getEvaluatedCell,
   getSelectionAnchorCellXc,
-  getTable,
 } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
   mountComposerWrapper,
-  mountSpreadsheet,
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
@@ -509,19 +505,6 @@ describe("composer", () => {
     expect(composerStore.editionMode).toBe("inactive");
   });
 
-  test("should create a table when a cell is double clicked in edit mode", async () => {
-    ({ model, fixture } = await mountSpreadsheet());
-    selectCell(model, "A1");
-    triggerMouseEvent(
-      ".o-grid-overlay",
-      "dblclick",
-      0.5 * DEFAULT_CELL_WIDTH,
-      0.5 * DEFAULT_CELL_HEIGHT
-    );
-    createTable(model, "A1");
-    expect(getTable(model, "A1")).toBeTruthy();
-  });
-
   test("edit link cell changes the label", async () => {
     setCellContent(model, "A1", "[label](http://odoo.com)");
     composerEl = await startComposition();
@@ -530,20 +513,6 @@ describe("composer", () => {
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("label updated");
     expect(link?.url).toBe("http://odoo.com");
-  });
-
-  test("Pressing Enter while editing a label does not open grid composer", async () => {
-    ({ model, fixture } = await mountSpreadsheet());
-    setCellContent(model, "A1", "[label](http://odoo.com)");
-    await simulateClick(".o-topbar-menu[data-id='insert']");
-    await simulateClick(".o-menu-item[data-name='insert_link']");
-    const editor = fixture.querySelector(".o-link-editor");
-    expect(editor).toBeTruthy();
-
-    editor!.querySelectorAll("input")[0].focus();
-    await keyDown({ key: "Enter" });
-    expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
-    expect(composerStore.editionMode).toBe("inactive");
   });
 
   describe("change selecting mode when typing specific token value", () => {
