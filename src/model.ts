@@ -212,8 +212,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.config = this.setupConfig(config);
 
-    this.session = this.setupSession(workbookData.revisionId);
-
     this.coreGetters = {} as CoreGetters;
 
     this.range = new RangeAdapter(this.coreGetters);
@@ -229,11 +227,15 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.extendRange = this.range.extendRange.bind(this.range);
     this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
     this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
+    this.coreGetters.adaptFormulaStringDependencies =
+      this.range.adaptFormulaStringDependencies.bind(this.range);
 
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
       isDashboard: () => this.config.mode === "dashboard",
     } as Getters;
+
+    this.session = this.setupSession(workbookData.revisionId, this.coreGetters);
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
@@ -374,7 +376,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.finalize();
   }
 
-  private setupSession(revisionId: UID): Session {
+  private setupSession(revisionId: UID, coreGetters: CoreGetters): Session {
     return new Session(
       buildRevisionLog({
         initialRevisionId: revisionId,
@@ -388,9 +390,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           this.dispatchToHandlers(this.coreHandlers, command);
           this.isReplayingCommand = false;
         },
+        coreGetters,
       }),
       this.config.transportService,
-      revisionId
+      revisionId,
+      coreGetters
     );
   }
 

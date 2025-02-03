@@ -1,5 +1,11 @@
+import { Model } from "../../../src";
 import { transform } from "../../../src/collaborative/ot/ot";
-import { DeleteFigureCommand, UpdateChartCommand, UpdateFigureCommand } from "../../../src/types";
+import {
+  CoreGetters,
+  DeleteFigureCommand,
+  UpdateChartCommand,
+  UpdateFigureCommand,
+} from "../../../src/types";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 
 describe("OT with DELETE_FIGURE", () => {
@@ -17,14 +23,27 @@ describe("OT with DELETE_FIGURE", () => {
     type: "UPDATE_FIGURE",
     sheetId: "42",
   };
+  let sheetId = "sheetId";
+  let model: Model;
+  let getters: CoreGetters;
+
+  beforeEach(() => {
+    model = new Model({
+      sheets: [{ id: sheetId, name: "Sheet Name" }],
+    });
+    getters = model.getters;
+  });
 
   describe.each([updateChart, updateFigure])("UPDATE_CHART & UPDATE_FIGURE", (cmd) => {
     test("Same ID", () => {
-      expect(transform({ ...cmd, id: "42" }, deleteFigure)).toBeUndefined();
+      expect(transform({ ...cmd, id: "42" }, deleteFigure, getters)).toBeUndefined();
     });
 
     test("distinct ID", () => {
-      expect(transform({ ...cmd, id: "otherId" }, deleteFigure)).toEqual({ ...cmd, id: "otherId" });
+      expect(transform({ ...cmd, id: "otherId" }, deleteFigure, getters)).toEqual({
+        ...cmd,
+        id: "otherId",
+      });
     });
   });
 });

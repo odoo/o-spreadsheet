@@ -22,6 +22,7 @@ import {
   StateUpdateMessage,
   TransportService,
 } from "../types/collaborative/transport_service";
+import { CoreGetters } from "../types/getters";
 import { Command } from "./../types/commands";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
@@ -75,7 +76,8 @@ export class Session extends EventBus<CollaborativeEvent> {
   constructor(
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
-    private serverRevisionId: UID = DEFAULT_REVISION_ID
+    private serverRevisionId: UID = DEFAULT_REVISION_ID,
+    private CoreGetters: CoreGetters
   ) {
     super();
 
@@ -318,7 +320,7 @@ export class Session extends EventBus<CollaborativeEvent> {
             .map((msg) => (msg as RemoteRevisionMessage).commands)
             .flat();
           this.trigger("remote-revision-received", {
-            commands: transformAll(commands, pendingCommands),
+            commands: transformAll(commands, pendingCommands, this.CoreGetters),
           });
         }
         break;

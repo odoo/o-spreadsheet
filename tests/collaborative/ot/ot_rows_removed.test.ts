@@ -1,7 +1,9 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
+import { Model } from "../../../src/model";
 import {
   AddColumnsRowsCommand,
+  CoreGetters,
   FreezeColumnsCommand,
   FreezeRowsCommand,
   RemoveColumnsRowsCommand,
@@ -17,6 +19,7 @@ import {
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
+import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
@@ -26,36 +29,45 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     dimension: "ROW",
     sheetId,
   };
+  let model: Model;
+  let getters: CoreGetters;
+
+  beforeEach(() => {
+    model = new Model({
+      sheets: [{ id: sheetId, name: "Sheet Name" }],
+    });
+    getters = model.getters;
+  });
 
   describe.each(OT_TESTS_SINGLE_CELL_COMMANDS)("single cell commands", (cmd) => {
     test(`remove rows before ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, row: 10 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, row: 7 });
     });
     test(`remove rows after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, row: 1 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
     test(`remove rows before and after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, row: 4 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, row: 2 });
     });
     test(`${cmd.type} in removed rows`, () => {
       const command = { ...cmd, sheetId, row: 2 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toBeUndefined();
     });
     test(`${cmd.type} and rows removed in different sheets`, () => {
       const command = { ...cmd, row: 10, sheetId: "42" };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
     test(`with many row elements in growing order`, () => {
       const command = { ...cmd, sheetId, row: 8 };
-      const result = transform(command, { ...removeRows, elements: [2, 3, 4, 5, 6] });
+      const result = transform(command, { ...removeRows, elements: [2, 3, 4, 5, 6] }, getters);
       expect(result).toEqual({ ...command, row: 3 });
     });
   });
@@ -63,37 +75,37 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   describe.each(OT_TESTS_TARGET_DEPENDANT_COMMANDS)("target commands", (cmd) => {
     test(`remove rows after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A1:C1")] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
     test(`remove rows before ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A12:B14")] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, target: [toZone("A9:B11")] });
     });
     test(`remove rows before and after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A5:B5")] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, target: [toZone("A3:B3")] });
     });
     test(`${cmd.type} in removed rows`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A6:B7")] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, target: [toZone("A4:B4")] });
     });
     test(`${cmd.type} and rows removed in different sheets`, () => {
       const command = { ...cmd, target: [toZone("A1:C6")], sheetId: "42" };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
     test(`${cmd.type} with a target removed`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A3:B4")] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toBeUndefined();
     });
     test(`${cmd.type} with a target removed, but another valid`, () => {
       const command = { ...cmd, sheetId, target: [toZone("A3:B4"), toZone("A1")] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, target: [toZone("A1")] });
     });
   });
@@ -101,27 +113,27 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   describe.each(OT_TESTS_ZONE_DEPENDANT_COMMANDS)("zone dependant commands", (cmd) => {
     test(`remove rows after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, zone: toZone("A1:C1") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
     test(`remove rows before ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, zone: toZone("A12:B14") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, zone: toZone("A9:B11") });
     });
     test(`remove rows before and after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, zone: toZone("A5:B5") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, zone: toZone("A3:B3") });
     });
     test(`${cmd.type} in removed rows`, () => {
       const command = { ...cmd, sheetId, zone: toZone("A6:B7") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, zone: toZone("A4:B4") });
     });
     test(`${cmd.type} and rows removed in different sheets`, () => {
       const command = { ...cmd, zone: toZone("A1:C6"), sheetId: "42" };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
   });
@@ -129,12 +141,12 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   describe.each(OT_TESTS_RANGE_DEPENDANT_COMMANDS)("Range dependant commands", (cmd) => {
     test(`remove rows after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A1:C1") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
     test(`remove rows before ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A12:B14") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, ranges: toRangesData(sheetId, "A9:B11") });
     });
     test(`remove rows before ${cmd.type} in the sheet of the ranges`, () => {
@@ -143,59 +155,59 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
         ranges: toRangesData(sheetId, "A12:B14"),
         sheetId: "42",
       };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, ranges: toRangesData(sheetId, "A9:B11") });
     });
     test(`remove rows before and after ${cmd.type}`, () => {
       const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A5:B5") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, ranges: toRangesData(sheetId, "A3:B3") });
     });
     test(`${cmd.type} in removed rows`, () => {
       const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A6:B7") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, ranges: toRangesData(sheetId, "A4:B4") });
     });
     test(`${cmd.type} and rows removed in different sheets`, () => {
       const command = { ...cmd, ranges: toRangesData("42", "A1:C6"), sheetId: "42" };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
     test(`${cmd.type} with a target removed`, () => {
       const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A3:B4") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toBeUndefined();
     });
     test(`${cmd.type} with a target removed, but another valid`, () => {
       const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A3:B4, A1") };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, ranges: toRangesData(sheetId, "A1") });
     });
 
     describe("With unbounded ranges", () => {
       test(`remove rows after ${cmd.type}`, () => {
         const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "1:1") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual(command);
       });
       test(`remove rows before ${cmd.type}`, () => {
         const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "A12:14") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual({ ...command, ranges: toRangesData(sheetId, "A9:11") });
       });
       test(`${cmd.type} in removed rows`, () => {
         const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "6:7") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual({ ...command, ranges: toRangesData(sheetId, "4:4") });
       });
       test(`${cmd.type} with a target removed`, () => {
         const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "C3:4") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toBeUndefined();
       });
       test(`${cmd.type} with a target removed, but another valid`, () => {
         const command = { ...cmd, sheetId, ranges: toRangesData(sheetId, "3:4,1:1") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual({ ...command, ranges: toRangesData(sheetId, "1:1") });
       });
     });
@@ -212,25 +224,25 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
 
     test("Add a removed rows", () => {
       const command = { ...toTransform, base: 2 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toBeUndefined();
     });
 
     test("Add a row after the removed ones", () => {
       const command = { ...toTransform, base: 10 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, base: 7 });
     });
 
     test("Add a row before the removed ones", () => {
       const command = { ...toTransform, base: 0 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
 
     test("Add on another sheet", () => {
       const command = { ...toTransform, base: 2, sheetId: "42" };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
   });
@@ -244,43 +256,43 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
 
     test("Remove a row which is in the removed rows", () => {
       const command = { ...toTransform, elements: [2] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toBeUndefined();
     });
 
     test("Remove rows with one in the removed rows", () => {
       const command = { ...toTransform, elements: [0, 2] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, elements: [0] });
     });
 
     test("Remove a row before removed rows", () => {
       const command = { ...toTransform, elements: [0] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
 
     test("Remove a row after removed rows", () => {
       const command = { ...toTransform, elements: [8] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, elements: [5] });
     });
 
     test("Remove a row inside removed rows", () => {
       const command = { ...toTransform, elements: [4] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, elements: [2] });
     });
 
     test("Remove a row on another sheet", () => {
       const command = { ...toTransform, elements: [4], sheetId: "42" };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
 
     test("Remove a row adjacent to removed row", () => {
       const command = { ...toTransform, elements: [2] };
-      const result = transform(command, { ...removeRows, elements: [0, 1] });
+      const result = transform(command, { ...removeRows, elements: [0, 1] }, getters);
       expect(result).toEqual({ ...command, elements: [0] });
     });
   });
@@ -295,25 +307,25 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   describe("Rows removed - Resize rows", () => {
     test("Resize rows which are positioned before the removed rows", () => {
       const command = { ...resizeRowsCommand, elements: [0, 1] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
 
     test("Resize rows which are positioned before AND after the removed rows", () => {
       const command = { ...resizeRowsCommand, elements: [0, 10] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, elements: [0, 7] });
     });
 
     test("Resize a row which is a deleted row", () => {
       const command = { ...resizeRowsCommand, elements: [5] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toBeUndefined();
     });
 
     test("Resize rows one of which is a deleted row", () => {
       const command = { ...resizeRowsCommand, elements: [0, 5] };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, elements: [0] });
     });
   });
@@ -323,32 +335,32 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     (cmd) => {
       test(`remove rows before Merge`, () => {
         const command = { ...cmd, sheetId, target: target("A1:C1") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual(command);
       });
       test(`remove rows after Merge`, () => {
         const command = { ...cmd, sheetId, target: target("A12:B14") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual({ ...command, target: target("A9:B11") });
       });
       test(`remove rows before and after Merge`, () => {
         const command = { ...cmd, sheetId, target: target("A5:B5") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual({ ...command, target: target("A3:B3") });
       });
       test(`Merge in removed rows`, () => {
         const command = { ...cmd, sheetId, target: target("A6:B7") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual({ ...command, target: target("A4:B4") });
       });
       test(`Merge and rows removed in different sheets`, () => {
         const command = { ...cmd, target: target("A1:C6"), sheetId: "42" };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toEqual(command);
       });
       test(`Merge with a target removed`, () => {
         const command = { ...cmd, sheetId, target: target("A3:B4") };
-        const result = transform(command, removeRows);
+        const result = transform(command, removeRows, getters);
         expect(result).toBeUndefined();
       });
     }
@@ -373,11 +385,11 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     };
 
     test("Add columns (after) after delete columns", () => {
-      const result = transform(addColumnsAfter, removeRows);
+      const result = transform(addColumnsAfter, removeRows, getters);
       expect(result).toEqual(addColumnsAfter);
     });
     test("Add rows (before) after delete columns", () => {
-      const result = transform(addColumnsBefore, removeRows);
+      const result = transform(addColumnsBefore, removeRows, getters);
       expect(result).toEqual(addColumnsBefore);
     });
   });
@@ -390,31 +402,31 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
 
     test("freeze a row before the left-most deleted row", () => {
       const command = { ...toTransform, quantity: 2 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
 
     test("Freeze a removed row", () => {
       const command = { ...toTransform, quantity: 3 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, quantity: 2 });
     });
 
     test("Freeze row after the removed ones", () => {
       const command = { ...toTransform, quantity: 10 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command, quantity: 7 });
     });
 
     test("Freeze a row before the removed ones", () => {
       const command = { ...toTransform, quantity: 1 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
 
     test("Freeze row on another sheet", () => {
       const command = { ...toTransform, quantity: 2, sheetId: "42" };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual(command);
     });
   });
@@ -427,7 +439,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
 
     test("freeze a row after added after column", () => {
       const command = { ...toTransform, quantity: 3 };
-      const result = transform(command, removeRows);
+      const result = transform(command, removeRows, getters);
       expect(result).toEqual({ ...command });
     });
   });
@@ -447,27 +459,38 @@ describe.each(OT_TESTS_HEADER_GROUP_COMMANDS)(
       end: 7,
     };
 
+    let sheetId = "sheetId";
+    let model: Model;
+    let getters: CoreGetters;
+
+    beforeEach(() => {
+      model = new Model({
+        sheets: [{ id: sheetId, name: "Sheet Name" }],
+      });
+      getters = model.getters;
+    });
+
     test("Remove rows before the group", () => {
       const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [0, 1] };
-      const result = transform(toTransform, executed);
+      const result = transform(toTransform, executed, getters);
       expect(result).toEqual({ ...toTransform, start: 3, end: 5 });
     });
 
     test("Remove some rows of the group", () => {
       const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [6, 1] };
-      const result = transform(toTransform, executed);
+      const result = transform(toTransform, executed, getters);
       expect(result).toEqual({ ...toTransform, start: 4, end: 5 });
     });
 
     test("Remove all rows of the group", () => {
       const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [5, 6, 7] };
-      const result = transform(toTransform, executed);
+      const result = transform(toTransform, executed, getters);
       expect(result).toEqual(undefined);
     });
 
     test("Remove rows after the group", () => {
       const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [8, 9] };
-      const result = transform(toTransform, executed);
+      const result = transform(toTransform, executed, getters);
       expect(result).toEqual({ ...toTransform, start: 5, end: 7 });
     });
 
@@ -477,7 +500,7 @@ describe.each(OT_TESTS_HEADER_GROUP_COMMANDS)(
         elements: [0],
         sheetId: "42",
       };
-      const result = transform(toTransform, executed);
+      const result = transform(toTransform, executed, getters);
       expect(result).toEqual(toTransform);
     });
   }
@@ -494,10 +517,19 @@ describe("Transform of UPDATE_TABLE when removing rows", () => {
     zone: toZone("B2:C3"),
     newTableRange: toRangeData(sheetId, "B2:D4"),
   };
+  let model: Model;
+  let getters: CoreGetters;
+
+  beforeEach(() => {
+    model = new Model({
+      sheets: [{ id: sheetId, name: "Sheet Name" }],
+    });
+    getters = model.getters;
+  });
 
   test("Add rows before the zones", () => {
     const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [0] };
-    const result = transform(updateFilterCmd, executed);
+    const result = transform(updateFilterCmd, executed, getters);
     expect(result).toEqual({
       ...updateFilterCmd,
       zone: toZone("B1:C2"),
@@ -507,7 +539,7 @@ describe("Transform of UPDATE_TABLE when removing rows", () => {
 
   test("Add rows inside the zones", () => {
     const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [2] };
-    const result = transform(updateFilterCmd, executed);
+    const result = transform(updateFilterCmd, executed, getters);
     expect(result).toEqual({
       ...updateFilterCmd,
       zone: toZone("B2:C2"),
@@ -517,13 +549,80 @@ describe("Transform of UPDATE_TABLE when removing rows", () => {
 
   test("Add rows after the zones", () => {
     const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [7] };
-    const result = transform(updateFilterCmd, executed);
+    const result = transform(updateFilterCmd, executed, getters);
     expect(result).toEqual(updateFilterCmd);
   });
 
   test("Add rows in another sheet", () => {
     const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [0], sheetId: "42" };
-    const result = transform(updateFilterCmd, executed);
+    const result = transform(updateFilterCmd, executed, getters);
     expect(result).toEqual(updateFilterCmd);
+  });
+});
+
+describe("Transform adapt string formulas on row deletion", () => {
+  const sheetId = "mainSheetId";
+  const sheetName = "MainSheetName";
+  const otherSheetId = "otherSheetId";
+  const otherSheetName = "OtherSheetName";
+
+  let model: Model;
+
+  beforeEach(() => {
+    model = new Model({
+      sheets: [
+        { id: sheetId, name: sheetName },
+        { id: otherSheetId, name: otherSheetName },
+      ],
+    });
+  });
+
+  describe("on the same sheet", () => {
+    const cmds = getFormulaStringCommands(sheetId, "=SUM(A1:A5)", "=SUM(A1:A4)");
+    const removeRowsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "ROW",
+      elements: [2],
+      sheetId,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, removeRowsCmd, model.getters);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("on another sheet", () => {
+    const cmds = getFormulaStringCommands(
+      sheetId,
+      "=SUM(" + otherSheetName + "!A1:A5)",
+      "=SUM(" + otherSheetName + "!A1:A4)"
+    );
+    const removeRowsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "ROW",
+      elements: [2],
+      sheetId: otherSheetId,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, removeRowsCmd, model.getters);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("do not adapt strings", () => {
+    const cmds = getFormulaStringCommands(sheetId, "hello in A5", "hello in A5");
+    const removeRowsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "ROW",
+      elements: [2],
+      sheetId: otherSheetId,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, removeRowsCmd, model.getters);
+      expect(result).toEqual(expected);
+    });
   });
 });

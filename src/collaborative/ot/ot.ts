@@ -1,15 +1,18 @@
 import {
   getAddHeaderStartIndex,
+  getApplyRangeChange,
   isDefined,
   isInside,
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
+import { ovtRegistry } from "../../registries/ovt_registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CoreCommand,
+  CoreGetters,
   HeaderIndex,
   PositionDependentCommand,
   RemoveColumnsRowsCommand,
@@ -30,6 +33,7 @@ import {
 } from "./../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
+import "./ovt_specific";
 
 type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
 
@@ -61,12 +65,30 @@ const transformations: {
  */
 export function transform(
   toTransform: CoreCommand,
-  executed: CoreCommand
+  executed: CoreCommand,
+  coreGetters: CoreGetters
 ): CoreCommand | undefined {
   const specificTransform = otRegistry.getTransformation(toTransform.type, executed.type);
-  return specificTransform
+  const transformed = specificTransform
     ? specificTransform(toTransform, executed)
     : genericTransform(toTransform, executed);
+  if (transformed) {
+    return adaptTransform(transformed, executed, coreGetters);
+  }
+  return transformed;
+}
+
+function adaptTransform(
+  toTransform: CoreCommand,
+  executed: CoreCommand,
+  coreGetters: CoreGetters
+): CoreCommand {
+  const arc = getApplyRangeChange(executed, coreGetters);
+  const adaptFn = ovtRegistry.getValues(toTransform.type);
+  if (arc && adaptFn) {
+    return adaptFn(toTransform, coreGetters, arc);
+  }
+  return toTransform;
 }
 
 /**
@@ -75,12 +97,13 @@ export function transform(
  */
 export function transformAll(
   toTransform: readonly CoreCommand[],
-  executed: readonly CoreCommand[]
+  executed: readonly CoreCommand[],
+  coreGetters: CoreGetters
 ): CoreCommand[] {
   let transformedCommands = [...toTransform];
   for (const executedCommand of executed) {
     transformedCommands = transformedCommands
-      .map((cmd) => transform(cmd, executedCommand))
+      .map((cmd) => transform(cmd, executedCommand, coreGetters))
       .filter(isDefined);
   }
   return transformedCommands;
