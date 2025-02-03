@@ -103,13 +103,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get composerProps(): ComposerProps {
-    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
     return {
-      rect: { ...this.rect },
-      delimitation: {
-        width,
-        height,
-      },
       focus: this.composerFocusStore.gridComposerFocus,
       isDefaultFocus: true,
       onComposerContentFocused: () => this.composerFocusStore.focusGridComposerContent(),
