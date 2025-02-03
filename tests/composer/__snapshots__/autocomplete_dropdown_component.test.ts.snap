@@ -57,124 +57,134 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
 
 exports[`composer Assistant render above the cell when not enough place below 1`] = `
 <div
-  class="o-composer-assistant shadow"
-  style="min-width:96px; width:300px; max-height:150px; top:-3px; transform:translate(0, -100%); right:0px; "
+  class="o-popover"
+  style="z-index: 35; display: block; max-height: 600px; max-width: 900px; top: 100px; left: 100px;"
 >
   <div
-    class="o-autocomplete-dropdown"
+    class="o-composer-assistant"
+    style="min-width:300px; width:300px; "
   >
     <div
-      class="d-flex flex-column text-start o-autocomplete-value-focus"
+      class="o-autocomplete-dropdown"
     >
       <div
-        class="o-autocomplete-value text-truncate"
+        class="d-flex flex-column text-start o-autocomplete-value-focus"
       >
-        <span
-          class="o-semi-bold"
-          style="color: #9B359B;"
+        <div
+          class="o-autocomplete-value text-truncate"
         >
-          S
-        </span>
-        <span
-          style="color: inherit;"
+          <span
+            class="o-semi-bold"
+            style="color: #9B359B;"
+          >
+            S
+          </span>
+          <span
+            style="color: inherit;"
+          >
+            UM
+          </span>
+          
+        </div>
+        <div
+          class="o-autocomplete-description text-truncate"
         >
-          UM
-        </span>
+          do sum
+        </div>
         
       </div>
       <div
-        class="o-autocomplete-description text-truncate"
+        class="d-flex flex-column text-start"
       >
-        do sum
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column text-start"
-    >
-      <div
-        class="o-autocomplete-value text-truncate"
-      >
-        <span
-          class="o-semi-bold"
-          style="color: #9B359B;"
+        <div
+          class="o-autocomplete-value text-truncate"
         >
-          S
-        </span>
-        <span
-          style="color: inherit;"
-        >
-          ZZ
-        </span>
+          <span
+            class="o-semi-bold"
+            style="color: #9B359B;"
+          >
+            S
+          </span>
+          <span
+            style="color: inherit;"
+          >
+            ZZ
+          </span>
+          
+        </div>
         
       </div>
       
     </div>
     
+    
   </div>
-  
-  
 </div>
 `;
 
 exports[`composer Assistant render below the cell by default 1`] = `
 <div
-  class="o-composer-assistant shadow"
-  style="min-width:300px; width:300px; "
+  class="o-popover"
+  style="z-index: 35; display: block; max-height: 850px; max-width: 900px; top: 150px; left: 100px;"
 >
   <div
-    class="o-autocomplete-dropdown"
+    class="o-composer-assistant"
+    style="min-width:300px; width:300px; "
   >
     <div
-      class="d-flex flex-column text-start o-autocomplete-value-focus"
+      class="o-autocomplete-dropdown"
     >
       <div
-        class="o-autocomplete-value text-truncate"
+        class="d-flex flex-column text-start o-autocomplete-value-focus"
       >
-        <span
-          class="o-semi-bold"
-          style="color: #9B359B;"
+        <div
+          class="o-autocomplete-value text-truncate"
         >
-          S
-        </span>
-        <span
-          style="color: inherit;"
+          <span
+            class="o-semi-bold"
+            style="color: #9B359B;"
+          >
+            S
+          </span>
+          <span
+            style="color: inherit;"
+          >
+            UM
+          </span>
+          
+        </div>
+        <div
+          class="o-autocomplete-description text-truncate"
         >
-          UM
-        </span>
+          do sum
+        </div>
         
       </div>
       <div
-        class="o-autocomplete-description text-truncate"
+        class="d-flex flex-column text-start"
       >
-        do sum
-      </div>
-      
-    </div>
-    <div
-      class="d-flex flex-column text-start"
-    >
-      <div
-        class="o-autocomplete-value text-truncate"
-      >
-        <span
-          class="o-semi-bold"
-          style="color: #9B359B;"
+        <div
+          class="o-autocomplete-value text-truncate"
         >
-          S
-        </span>
-        <span
-          style="color: inherit;"
-        >
-          ZZ
-        </span>
+          <span
+            class="o-semi-bold"
+            style="color: #9B359B;"
+          >
+            S
+          </span>
+          <span
+            style="color: inherit;"
+          >
+            ZZ
+          </span>
+          
+        </div>
         
       </div>
       
     </div>
     
+    
   </div>
-  
-  
 </div>
 `;
