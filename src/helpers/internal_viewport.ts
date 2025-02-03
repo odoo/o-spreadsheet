@@ -3,12 +3,12 @@ import { Dimension, Getters, HeaderIndex, Pixel, Position, Rect, UID, Zone } fro
 import { intersection, isInside } from "./zones";
 
 export class InternalViewport {
-  top!: HeaderIndex;
-  bottom!: HeaderIndex;
-  left!: HeaderIndex;
-  right!: HeaderIndex;
-  offsetX!: Pixel;
-  offsetY!: Pixel;
+  top: HeaderIndex;
+  bottom: HeaderIndex;
+  left: HeaderIndex;
+  right: HeaderIndex;
+  offsetX: Pixel;
+  offsetY: Pixel;
   offsetScrollbarX: Pixel;
   offsetScrollbarY: Pixel;
   canScrollVertically: boolean;
@@ -26,8 +26,17 @@ export class InternalViewport {
     options: { canScrollVertically: boolean; canScrollHorizontally: boolean },
     offsets: { x: Pixel; y: Pixel }
   ) {
-    this.viewportWidth = sizeInGrid.width;
-    this.viewportHeight = sizeInGrid.height;
+    if (sizeInGrid.width < 0 || sizeInGrid.height < 0) {
+      throw new Error("Viewport size cannot be negative");
+    }
+    this.viewportWidth = sizeInGrid.height && sizeInGrid.width;
+    this.viewportHeight = sizeInGrid.width && sizeInGrid.height;
+    this.top = boundaries.top;
+    this.bottom = boundaries.bottom;
+    this.left = boundaries.left;
+    this.right = boundaries.right;
+    this.offsetX = offsets.x;
+    this.offsetY = offsets.y;
     this.offsetScrollbarX = offsets.x;
     this.offsetScrollbarY = offsets.y;
     this.canScrollVertically = options.canScrollVertically;
@@ -278,6 +287,9 @@ export class InternalViewport {
     startIndex: HeaderIndex = 0,
     absolute = false
   ): HeaderIndex {
+    if (this.viewportWidth <= 0 || this.viewportHeight <= 0) {
+      return -1;
+    }
     let size = 0;
     const sheetId = this.sheetId;
     const headers = this.getters.getNumberHeaders(sheetId, dimension);
@@ -320,7 +332,7 @@ export class InternalViewport {
   }
 
   /** Corrects the viewport's horizontal offset based on the current structure
-   *  To make sure that at least on column is visible inside the viewport.
+   *  To make sure that at least one column is visible inside the viewport.
    */
   private adjustViewportOffsetX() {
     if (this.canScrollHorizontally) {
@@ -338,7 +350,7 @@ export class InternalViewport {
   }
 
   /** Corrects the viewport's vertical offset based on the current structure
-   *  To make sure that at least on row is visible inside the viewport.
+   *  To make sure that at least one row is visible inside the viewport.
    */
   private adjustViewportOffsetY() {
     if (this.canScrollVertically) {
@@ -364,11 +376,14 @@ export class InternalViewport {
       this.boundaries.right,
       this.searchHeaderIndex("COL", this.viewportWidth, this.left)
     );
+    if (!this.viewportWidth) {
+      return;
+    }
     if (this.left === -1) {
       this.left = this.boundaries.left;
     }
     if (this.right === -1) {
-      this.right = this.getters.getNumberCols(sheetId) - 1;
+      this.right = this.boundaries.right;
     }
     this.offsetX =
       this.getters.getColDimensions(sheetId, this.left).start -
@@ -384,11 +399,14 @@ export class InternalViewport {
       this.boundaries.bottom,
       this.searchHeaderIndex("ROW", this.viewportHeight, this.top)
     );
+    if (!this.viewportHeight) {
+      return;
+    }
     if (this.top === -1) {
       this.top = this.boundaries.top;
     }
     if (this.bottom === -1) {
-      this.bottom = this.getters.getNumberRows(sheetId) - 1;
+      this.bottom = this.boundaries.bottom;
     }
     this.offsetY =
       this.getters.getRowDimensions(sheetId, this.top).start -
