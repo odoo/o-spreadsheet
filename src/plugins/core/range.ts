@@ -1,3 +1,4 @@
+import { compile } from "../../formulas";
 import {
   createAdaptedZone,
   getCanonicalSymbolName,
@@ -41,6 +42,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   static getters = [
+    "adaptFormulaStringDependencies",
     "extendRange",
     "getRangeString",
     "getRangeFromSheetXC",
@@ -486,6 +488,24 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const zones = ranges.map((range) => RangeImpl.fromRange(range, this.getters).unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
+  }
+
+  adaptFormulaStringDependencies(
+    sheetId: UID,
+    formula: string,
+    applyChange: ApplyRangeChange
+  ): string {
+    if (!formula.startsWith("=")) {
+      return formula;
+    }
+
+    const compiledFormula = compile(formula);
+    const updatedDependencies = compiledFormula.dependencies.map((dep) => {
+      const range = this.getters.getRangeFromSheetXC(sheetId, dep);
+      const changedRange = applyChange(range);
+      return changedRange.changeType === "NONE" ? range : changedRange.range;
+    });
+    return this.getters.getFormulaString(sheetId, compiledFormula.tokens, updatedDependencies);
   }
 
   // ---------------------------------------------------------------------------
