@@ -84,11 +84,19 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     }
   }
   function updateMousePosition(e: MouseEvent) {
-    if (isChildEvent(gridRef.el, e)) {
+    // moving on the grid overlay or the grid (which is a parent and does not necessarily have the same size)
+    // is considered as a move
+    if (
+      isChildEvent(gridRef.el, e) ||
+      (e.target as HTMLElement | null)?.classList?.contains("o-grid")
+    ) {
       ({ x, y } = getOffsetRelativeToOverlay(e));
-      lastMoved = Date.now();
-      hoveredTable.hover(getPosition());
+      resume();
+    } else {
+      pause();
     }
+    lastMoved = Date.now();
+    hoveredTable.hover(getPosition());
   }
 
   function recompute() {
@@ -98,22 +106,9 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     }
   }
 
-  function onMouseLeave(e: MouseEvent) {
-    const { x, y } = getOffsetRelativeToOverlay(e);
-    const gridRect = getBoundingRectAsPOJO(gridRef.el!);
-
-    if (y < 0 || y > gridRect.height || x < 0 || x > gridRect.width) {
-      return updateMousePosition(e);
-    } else {
-      return pause();
-    }
-  }
-
-  useRefListener(gridRef, "pointermove", updateMousePosition);
-  useRefListener(gridRef, "mouseleave", onMouseLeave);
-  useRefListener(gridRef, "mouseenter", resume);
   useRefListener(gridRef, "pointerdown", recompute);
 
+  useExternalListener(window, "pointermove", updateMousePosition);
   useExternalListener(window, "click", handleGlobalClick);
   function handleGlobalClick(e: MouseEvent) {
     const target = e.target as HTMLElement;
