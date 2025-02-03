@@ -20,7 +20,7 @@
         </GridOverlay>
         <canvas t-ref="canvas"/>
         <GridPopover
-          gridRect="getGridRect()"
+          gridRect="canvasRect"
           onMouseWheel.bind="onMouseWheel"
           onClosePopover.bind="onClosePopover"
         />
