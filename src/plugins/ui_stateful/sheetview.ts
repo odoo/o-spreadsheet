@@ -422,21 +422,23 @@ export class SheetViewPlugin extends UIPlugin {
 
   getColRowOffsetInViewport(
     dimension: Dimension,
-    referenceIndex: HeaderIndex,
-    index: HeaderIndex
+    referenceHeaderIndex: HeaderIndex,
+    targetHeaderIndex: HeaderIndex
   ): Pixel {
-    const sheetId = this.getters.getActiveSheetId();
-    const visibleCols = this.getters.getSheetViewVisibleCols();
-    const visibleRows = this.getters.getSheetViewVisibleRows();
-    if (index < referenceIndex) {
-      return -this.getColRowOffsetInViewport(dimension, index, referenceIndex);
+    if (targetHeaderIndex < referenceHeaderIndex) {
+      return -this.getColRowOffsetInViewport(dimension, targetHeaderIndex, referenceHeaderIndex);
     }
+
+    const sheetId = this.getters.getActiveSheetId();
+    const visibleHeaders =
+      dimension === "COL"
+        ? this.getters.getSheetViewVisibleCols()
+        : this.getters.getSheetViewVisibleRows();
+    const startIndex = visibleHeaders.findIndex((header) => referenceHeaderIndex >= header);
+    const endIndex = visibleHeaders.findIndex((header) => targetHeaderIndex <= header);
+    const relevantIndexes = visibleHeaders.slice(startIndex, endIndex);
     let offset = 0;
-    const visibleIndexes = dimension === "COL" ? visibleCols : visibleRows;
-    for (let i = referenceIndex; i < index; i++) {
-      if (!visibleIndexes.includes(i)) {
-        continue;
-      }
+    for (const i of relevantIndexes) {
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
     }
     return offset;
