@@ -534,14 +534,7 @@ export class SheetViewPlugin extends UIPlugin {
    */
   getVisibleRectWithoutHeaders(zone: Zone): Rect {
     const sheetId = this.getters.getActiveSheetId();
-    const viewportRects = this.getSubViewports(sheetId)
-      .map((viewport) => viewport.getVisibleRect(zone))
-      .filter(isDefined);
-
-    if (viewportRects.length === 0) {
-      return { x: 0, y: 0, width: 0, height: 0 };
-    }
-    return this.recomposeRect(viewportRects);
+    return this.mapViewportsToRect(sheetId, (viewport) => viewport.getVisibleRect(zone));
   }
 
   /**
@@ -550,14 +543,7 @@ export class SheetViewPlugin extends UIPlugin {
    */
   getRect(zone: Zone): Rect {
     const sheetId = this.getters.getActiveSheetId();
-    const viewportRects = this.getSubViewports(sheetId)
-      .map((viewport) => viewport.getFullRect(zone))
-      .filter(isDefined);
-
-    if (viewportRects.length === 0) {
-      return { x: 0, y: 0, width: 0, height: 0 };
-    }
-    const rect = this.recomposeRect(viewportRects);
+    const rect = this.mapViewportsToRect(sheetId, (viewport) => viewport.getFullRect(zone));
     return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
   }
 
@@ -903,11 +889,28 @@ export class SheetViewPlugin extends UIPlugin {
     return { xRatio: offsetCorrectionX / width, yRatio: offsetCorrectionY / height };
   }
 
-  private recomposeRect(viewportRects: Rect[]): Rect {
-    const x = Math.min(...viewportRects.map((rect) => rect.x));
-    const y = Math.min(...viewportRects.map((rect) => rect.y));
-    const width = Math.max(...viewportRects.map((rect) => rect.x + rect.width)) - x;
-    const height = Math.max(...viewportRects.map((rect) => rect.y + rect.height)) - y;
-    return { x, y, width, height };
+  mapViewportsToRect(
+    sheetId: UID,
+    rectCallBack: (viewport: InternalViewport) => Rect | undefined
+  ): Rect {
+    let x: Pixel = Infinity;
+    let y: Pixel = Infinity;
+    let width: Pixel = 0;
+    let height: Pixel = 0;
+    let hasViewports: boolean = false;
+    for (const viewport of this.getSubViewports(sheetId)) {
+      const rect = rectCallBack(viewport);
+      if (rect) {
+        hasViewports = true;
+        x = Math.min(x, rect.x);
+        y = Math.min(y, rect.y);
+        width = Math.max(width, rect.x + rect.width);
+        height = Math.max(height, rect.y + rect.height);
+      }
+    }
+    if (!hasViewports) {
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
+    return { x, y, width: width - x, height: height - y };
   }
 }
