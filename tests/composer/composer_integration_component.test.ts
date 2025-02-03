@@ -149,11 +149,10 @@ describe("Composer interactions", () => {
 
   test("autocomplete disappear when grid composer is blurred", async () => {
     await keyDown({ key: "Enter" });
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     await typeInComposerGrid("=SU");
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
-    await click(topBarComposer);
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).not.toBeNull();
+    await simulateClick(".o-grid-overlay");
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).toBeNull();
   });
 
   test("focus top bar composer does not resize grid composer when autocomplete is displayed", async () => {
