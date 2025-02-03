@@ -5,6 +5,7 @@ import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import { selectCell } from "../test_helpers/commands_helpers";
 import {
   click,
+  getElStyle,
   keyDown,
   keyUp,
   simulateClick,
@@ -402,6 +403,22 @@ describe("composer Assistant", () => {
     expect(assistantEL.style.width).toBe("300px");
     expect(assistantEL.style.top).toBe("-3px");
     expect(assistantEL.style.transform).toBe("translate(0, -100%)");
+  });
+
+  test("composer assistant min-width is the same as the underlying cell", async () => {
+    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+      rect: { width: 60, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
+    }));
+    await typeInComposer("=s");
+    expect(getElStyle(".o-composer-assistant", "min-width")).toBe("60px");
+  });
+
+  test("composer assistant min-width is capped for large cells", async () => {
+    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+      rect: { width: 1000, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
+    }));
+    await typeInComposer("=s");
+    expect(getElStyle(".o-composer-assistant", "min-width")).toBe("300px");
   });
 });
 

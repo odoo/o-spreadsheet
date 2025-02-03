@@ -172,7 +172,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     const composerRect = this.composerRef.el!.getBoundingClientRect();
     const assistantStyle: CSSProperties = {};
 
-    assistantStyle["min-width"] = `${this.props.rect?.width || ASSISTANT_WIDTH}px`;
+    const minWidth = Math.min(this.props.rect?.width || Infinity, ASSISTANT_WIDTH);
+    assistantStyle["min-width"] = `${minWidth}px`;
     if (this.autoCompleteState.type === "function") {
       assistantStyle.width = `${ASSISTANT_WIDTH}px`;
     }
