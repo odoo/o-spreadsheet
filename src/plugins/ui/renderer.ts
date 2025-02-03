@@ -356,10 +356,8 @@ export class RendererPlugin extends UIPlugin {
     const { ctx, thinLineWidth } = renderingContext;
     const visibleCols = this.getters.getSheetViewVisibleCols();
     const left = visibleCols[0];
-    const right = visibleCols[visibleCols.length - 1];
     const visibleRows = this.getters.getSheetViewVisibleRows();
     const top = visibleRows[0];
-    const bottom = visibleRows[visibleRows.length - 1];
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
     const selectedCols = getZonesCols(selection);
@@ -377,7 +375,7 @@ export class RendererPlugin extends UIPlugin {
     ctx.strokeStyle = "#333";
 
     // Columns headers background
-    for (let col = left; col <= right; col++) {
+    for (const col of visibleCols) {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
       const { x, width } = this.getters.getVisibleRect(colZone);
       const colHasFilter = this.getters.doesZonesContainFilter(sheetId, [colZone]);
@@ -396,7 +394,7 @@ export class RendererPlugin extends UIPlugin {
     }
 
     // Rows headers background
-    for (let row = top; row <= bottom; row++) {
+    for (const row of visibleRows) {
       const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
       const { y, height } = this.getters.getVisibleRect(rowZone);
 
@@ -427,22 +425,22 @@ export class RendererPlugin extends UIPlugin {
     ctx.beginPath();
 
     // column text + separator
-    for (const i of visibleCols) {
-      const colSize = this.getters.getColSize(sheetId, i);
-      const colName = numberToLetters(i);
-      ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
-      let colStart = this.getHeaderOffset("COL", left, i);
+    for (const col of visibleCols) {
+      const colSize = this.getters.getColSize(sheetId, col);
+      const colName = numberToLetters(col);
+      ctx.fillStyle = activeCols.has(col) ? "#fff" : TEXT_HEADER_COLOR;
+      let colStart = this.getHeaderOffset("COL", left, col);
       ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
       ctx.moveTo(colStart + colSize, 0);
       ctx.lineTo(colStart + colSize, HEADER_HEIGHT);
     }
     // row text + separator
-    for (const i of visibleRows) {
-      const rowSize = this.getters.getRowSize(sheetId, i);
-      ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
+    for (const row of visibleRows) {
+      const rowSize = this.getters.getRowSize(sheetId, row);
+      ctx.fillStyle = activeRows.has(row) ? "#fff" : TEXT_HEADER_COLOR;
 
-      let rowStart = this.getHeaderOffset("ROW", top, i);
-      ctx.fillText(String(i + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
+      let rowStart = this.getHeaderOffset("ROW", top, row);
+      ctx.fillText(String(row + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);
       ctx.moveTo(0, rowStart + rowSize);
       ctx.lineTo(HEADER_WIDTH, rowStart + rowSize);
     }
