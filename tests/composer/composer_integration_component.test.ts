@@ -11,6 +11,7 @@ import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import {
   activateSheet,
   copy,
+  createFilter,
   createSheet,
   paste,
   renameSheet,
@@ -29,6 +30,7 @@ import {
   rightClickCell,
   selectColumnByClicking,
   simulateClick,
+  triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
@@ -36,6 +38,7 @@ import {
   getActiveSheetFullScrollInfo,
   getCellContent,
   getCellText,
+  getFilterTable,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
 import {
@@ -451,6 +454,31 @@ describe("Composer interactions", () => {
     await typeInComposerGrid("=sum(sum(1,2");
     await clickCell(model, "B2");
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
+  });
+
+  test("Pressing Enter while editing a label does not open grid composer", async () => {
+    setCellContent(model, "A1", "[label](http://odoo.com)");
+    await simulateClick(".o-topbar-menu[data-id='insert']");
+    await simulateClick(".o-menu-item[data-name='insert_link']");
+    const editor = fixture.querySelector(".o-link-editor");
+    expect(editor).toBeTruthy();
+
+    editor!.querySelectorAll("input")[0].focus();
+    await keyDown({ key: "Enter" });
+    expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("should create a table when a cell is double clicked in edit mode", async () => {
+    selectCell(model, "A1");
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    createFilter(model, "A1");
+    expect(getFilterTable(model, "A1")).toBeTruthy();
   });
 });
 
