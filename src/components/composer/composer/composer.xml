@@ -22,28 +22,31 @@
         t-on-contextmenu="onContextMenu"
       />
 
-      <div
-        t-if="props.focus !== 'inactive' and (autoCompleteState.provider or functionDescriptionState.showDescription)"
-        class="o-composer-assistant shadow"
-        t-att-style="assistantStyle"
-        t-on-wheel.stop=""
-        t-on-pointerdown.prevent.stop=""
-        t-on-click.prevent.stop=""
-        t-on-pointerup.prevent.stop="">
-        <TextValueProvider
-          t-if="autoCompleteState.provider"
-          proposals="autoCompleteState.provider.proposals"
-          selectedIndex="autoCompleteState.selectedIndex"
-          onValueSelected.bind="this.autoComplete"
-          onValueHovered.bind="this.updateAutoCompleteIndex"
-        />
-        <FunctionDescriptionProvider
-          t-if="functionDescriptionState.showDescription"
-          functionName="functionDescriptionState.functionName"
-          functionDescription="functionDescriptionState.functionDescription"
-          argToFocus="functionDescriptionState.argToFocus"
-        />
-      </div>
+      <Popover
+        t-props="popoverProps"
+        t-if="props.focus !== 'inactive' and (autoCompleteState.provider or functionDescriptionState.showDescription)">
+        <div
+          class="o-composer-assistant"
+          t-att-style="assistantStyle"
+          t-on-wheel.stop=""
+          t-on-pointerdown.prevent.stop=""
+          t-on-click.prevent.stop=""
+          t-on-pointerup.prevent.stop="">
+          <TextValueProvider
+            t-if="autoCompleteState.provider"
+            proposals="autoCompleteState.provider.proposals"
+            selectedIndex="autoCompleteState.selectedIndex"
+            onValueSelected.bind="this.autoComplete"
+            onValueHovered.bind="this.updateAutoCompleteIndex"
+          />
+          <FunctionDescriptionProvider
+            t-if="functionDescriptionState.showDescription"
+            functionName="functionDescriptionState.functionName"
+            functionDescription="functionDescriptionState.functionDescription"
+            argToFocus="functionDescriptionState.argToFocus"
+          />
+        </div>
+      </Popover>
     </div>
   </t>
 </templates>

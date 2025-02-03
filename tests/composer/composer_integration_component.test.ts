@@ -153,11 +153,10 @@ describe("Composer interactions", () => {
 
   test("autocomplete disappear when grid composer is blurred", async () => {
     await keyDown({ key: "Enter" });
-    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
     await typeInComposerGrid("=SU");
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
-    await click(topBarComposer);
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).not.toBeNull();
+    await simulateClick(".o-grid-overlay");
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).toBeNull();
   });
 
   test("autocomplete disappear when selecting a cell in the grid", async () => {
@@ -171,9 +170,9 @@ describe("Composer interactions", () => {
     });
     await keyDown({ key: "Enter" });
     await typeInComposerGrid("=PIVOT(");
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).not.toBeNull();
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).not.toBeNull();
     await clickCell(model, "B3");
-    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+    expect(fixture.querySelector(".o-popover .o-autocomplete-dropdown")).toBeNull();
     await keyDown({ key: "Enter" });
     expect(getCell(model, "A1")?.content).toBe("=PIVOT(B3)");
   });

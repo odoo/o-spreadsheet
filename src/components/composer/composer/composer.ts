@@ -1,7 +1,7 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import { getZoneArea, isEqual, splitReference } from "../../../helpers/index";
 import { ComposerStore } from "./composer_store";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
@@ -10,16 +10,14 @@ import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
   CSSProperties,
   Color,
-  DOMDimension,
   Direction,
   FunctionDescription,
-  Rect,
   SpreadsheetChildEnv,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
-import { useSpreadsheetRect } from "../../helpers/position_hook";
+import { getBoundingRectAsPOJO, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
+import { Popover, PopoverProps } from "../../popover";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 import { ComposerFocusType } from "../composer_focus_store";
@@ -83,19 +81,15 @@ css/* scss */ `
         }
       }
     }
+  }
+  .o-spreadsheet .o-composer-assistant {
+    pointer-events: none;
 
-    .o-composer-assistant {
-      position: absolute;
-      margin: 1px 4px;
-      pointer-events: none;
-      overflow: auto;
-
-      .o-semi-bold {
-        /** FIXME: to remove in favor of Bootstrap
-        * 'fw-semibold' when we upgrade to Bootstrap 5.2
-        */
-        font-weight: 600 !important;
-      }
+    .o-semi-bold {
+      /** FIXME: to remove in favor of Bootstrap
+      * 'fw-semibold' when we upgrade to Bootstrap 5.2
+      */
+      font-weight: 600 !important;
     }
   }
 `;
@@ -103,8 +97,6 @@ css/* scss */ `
 export interface ComposerProps {
   focus: ComposerFocusType;
   inputStyle?: string;
-  rect?: Rect;
-  delimitation?: DOMDimension;
   onComposerContentFocused: () => void;
   onComposerCellFocused?: (content: String) => void;
   onInputContextMenu?: (event: MouseEvent) => void;
@@ -130,14 +122,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
     },
     inputStyle: { type: String, optional: true },
-    rect: { type: Object, optional: true },
-    delimitation: { type: Object, optional: true },
     onComposerCellFocused: { type: Function, optional: true },
     onComposerContentFocused: Function,
     isDefaultFocus: { type: Boolean, optional: true },
     onInputContextMenu: { type: Function, optional: true },
   };
-  static components = { TextValueProvider, FunctionDescriptionProvider };
+  static components = { TextValueProvider, FunctionDescriptionProvider, Popover };
   static defaultProps = {
     inputStyle: "",
     isDefaultFocus: false,
@@ -164,13 +154,14 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     argToFocus: 0,
   });
   private compositionActive: boolean = false;
-  private spreadsheetRect = useSpreadsheetRect();
 
   get assistantStyle(): string {
-    const composerRect = this.composerRef.el!.getBoundingClientRect();
     const assistantStyle: CSSProperties = {};
 
-    const minWidth = Math.min(this.props.rect?.width || Infinity, ASSISTANT_WIDTH);
+    const minWidth = Math.min(
+      getBoundingRectAsPOJO(this.composerRef.el!).width || Infinity,
+      ASSISTANT_WIDTH
+    );
     assistantStyle["min-width"] = `${minWidth}px`;
     const proposals = this.autoCompleteState.provider?.proposals;
     const proposalsHaveDescription = proposals?.some((proposal) => proposal.description);
@@ -178,28 +169,6 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       assistantStyle.width = `${ASSISTANT_WIDTH}px`;
     }
 
-    if (this.props.delimitation && this.props.rect) {
-      const { x: cellX, y: cellY, height: cellHeight } = this.props.rect;
-      const remainingHeight = this.props.delimitation.height - (cellY + cellHeight);
-      assistantStyle["max-height"] = `${remainingHeight}px`;
-      if (cellY > remainingHeight) {
-        const availableSpaceAbove = cellY;
-        assistantStyle["max-height"] = `${availableSpaceAbove}px`;
-        // render top
-        // We compensate 2 px of margin on the assistant style + 1px for design reasons
-        assistantStyle.top = `-3px`;
-        assistantStyle.transform = `translate(0, -100%)`;
-      }
-      if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {
-        // render left
-        assistantStyle.right = `0px`;
-      }
-    } else if (this.props.delimitation) {
-      assistantStyle["max-height"] = `${this.props.delimitation.height}px`;
-      if (composerRect.left + ASSISTANT_WIDTH > this.spreadsheetRect.width) {
-        assistantStyle.right = `0px`;
-      }
-    }
     return cssPropertiesToCss(assistantStyle);
   }
 
@@ -461,7 +430,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   updateAutoCompleteIndex(index: number) {
-    this.autoCompleteState.selectIndex(clip(0, index, 10));
+    this.autoCompleteState.selectIndex(index);
   }
 
   /**
@@ -733,5 +702,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
     this.autoCompleteState.provider?.selectProposal(value);
     this.processTokenAtCursor();
+  }
+
+  get popoverProps(): PopoverProps {
+    return {
+      anchorRect: getBoundingRectAsPOJO(this.composerRef.el!),
+      positioning: "BottomLeft",
+      verticalOffset: 0,
+    };
   }
 }
