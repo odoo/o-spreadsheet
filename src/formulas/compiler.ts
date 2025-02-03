@@ -38,8 +38,13 @@ interface ConstantValues {
   strings: string[];
 }
 
+interface ConstantValueObjects {
+  numbers: { value: number }[];
+  strings: { value: string }[];
+}
+
 type InternalCompiledFormula = CompiledFormula & {
-  constantValues: ConstantValues;
+  constantValues: ConstantValueObjects;
   symbols: string[];
 };
 
@@ -167,14 +172,14 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       switch (ast.type) {
         case "BOOLEAN":
           return code.return(`{ value: ${ast.value} }`);
-        case "NUMBER":
-          return code.return(
-            `{ value: this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}] }`
-          );
-        case "STRING":
-          return code.return(
-            `{ value: this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}] }`
-          );
+          case "NUMBER":
+            return code.return(
+              `this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}]`
+            );
+          case "STRING":
+            return code.return(
+              `this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}]`
+            );
         case "REFERENCE":
           const referenceIndex = dependencies.indexOf(ast.value);
           if ((!isMeta && ast.value.includes(":")) || hasRange) {
@@ -214,7 +219,10 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const compiledFormula: InternalCompiledFormula = {
     execute: functionCache[cacheKey],
     dependencies,
-    constantValues,
+    constantValues: {
+      numbers: constantValues.numbers.map((value) => ({ value })),
+      strings: constantValues.strings.map((value) => ({ value })),
+    },
     symbols,
     tokens,
     isBadExpression: false,
