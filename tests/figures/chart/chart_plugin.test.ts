@@ -29,7 +29,7 @@ import {
   updateChart,
   updateLocale,
 } from "../../test_helpers/commands_helpers";
-import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpers";
+import { getPlugin, mockChart, nextTick, setGrid, target } from "../../test_helpers/helpers";
 
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER, MAX_CHAR_LABEL } from "../../../src/constants";
@@ -2004,6 +2004,29 @@ describe("Linear/Time charts", () => {
     expect(chart.data!.datasets![0].data![0]).toEqual({ y: 10, x: formattedValue });
   });
 
+  test("date chart: rows datasets/labels are supported", () => {
+    setGrid(model, { A1: "2", B1: "3", A2: "1", B2: "10" });
+    setFormat(model, "mm/dd/yyyy", target("B1"));
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["A2:B2"],
+        labelRange: "A1:B1",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      chartId
+    );
+
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([
+      { y: 1, x: "2" },
+      { y: 10, x: "01/02/1900" },
+    ]);
+    expect(chart.options?.scales?.x?.type).toEqual("time");
+  });
+
   test.each(["bar", "line", "pie"] as const)("long labels are truncated in %s chart", (type) => {
     setCellContent(model, "A2", "This is a very long label that should be truncated");
     setCellContent(model, "B1", "First dataset");
@@ -2068,6 +2091,25 @@ describe("Linear/Time charts", () => {
     const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.data!.labels![1]).toEqual("");
     expect(chart.data!.datasets![0].data![1]).toEqual({ y: 11, x: undefined });
+  });
+
+  test("can create linear chart with non-number header in the label range", () => {
+    setGrid(model, { A1: "x", A2: "1", B1: "y", B2: "10" });
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B1:B2"],
+        labelRange: "A1:A2",
+        labelsAsText: false,
+        dataSetsHaveTitle: true,
+      },
+      chartId
+    );
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
+    expect(chart.options?.scales?.x?.type).toEqual("linear");
+    expect(chart.data!.labels).toEqual(["1"]);
+    expect(chart.data!.datasets![0].data).toEqual([{ y: 10, x: "1" }]);
   });
 
   test("snapshot test of chartJS configuration for linear chart", () => {
