@@ -920,7 +920,6 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
     "data": {
       "datasets": [],
       "labels": [
-        "P4",
         "P5",
         "P6",
       ],
