@@ -2709,6 +2709,29 @@ describe("Linear/Time charts", () => {
     expect(data.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
   });
 
+  test("date chart: rows datasets/labels are supported", () => {
+    setGrid(model, { A1: "2", B1: "3", A2: "1", B2: "10" });
+    setFormat(model, "B1", "mm/dd/yyyy");
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: [{ dataRange: "A2:B2" }],
+        labelRange: "A1:B1",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      chartId
+    );
+
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
+    expect(chart.data!.datasets![0].data).toEqual([
+      { y: 1, x: "2" },
+      { y: 10, x: "01/02/1900" },
+    ]);
+    expect(chart.options?.scales?.x?.type).toEqual("time");
+  });
+
   test("linear chart: label 0 isn't set to undefined", () => {
     setCellContent(model, "B2", "0");
     setCellContent(model, "B3", "1");
@@ -2749,6 +2772,25 @@ describe("Linear/Time charts", () => {
     const data = getChartConfiguration(model, chartId).data;
     expect(data.labels![1]).toEqual("");
     expect(data.datasets![0].data![1]).toEqual({ y: 11, x: undefined });
+  });
+
+  test("can create linear chart with non-number header in the label range", () => {
+    setGrid(model, { A1: "x", A2: "1", B1: "y", B2: "10" });
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: [{ dataRange: "B1:B2" }],
+        labelRange: "A1:A2",
+        labelsAsText: false,
+        dataSetsHaveTitle: true,
+      },
+      chartId
+    );
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
+    expect(chart.options?.scales?.x?.type).toEqual("linear");
+    expect(chart.data!.labels).toEqual(["1"]);
+    expect(chart.data!.datasets![0].data).toEqual([{ y: 10, x: "1" }]);
   });
 
   test("snapshot test of chartJS configuration for linear chart", () => {
