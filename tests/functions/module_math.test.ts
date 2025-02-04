@@ -1572,6 +1572,37 @@ describe("LN formula", () => {
   });
 });
 
+describe("LOG function", () => {
+  test("LOG takes 1-2 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=LOG()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=LOG(10)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=LOG(10, 10)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=LOG(10, 10, 0)" })).toBe("#BAD_EXPR");
+  });
+
+  test("Value argument bust be strictly positive", () => {
+    expect(evaluateCell("A1", { A1: "=LOG(0)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=LOG(-1)" })).toBe("#ERROR");
+  });
+
+  test("Base argument must be positive and different from 1", () => {
+    expect(evaluateCell("A1", { A1: "=LOG(10, -1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=LOG(10, 0)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=LOG(10, 1)" })).toBe("#ERROR");
+  });
+
+  test.each([
+    [1, 2, 0],
+    [100, 10, 2],
+    [16, 2, 4],
+    [5, 6, 0.898244402],
+    [125.15, 0.1, -2.097430854],
+  ])("function result =LOG(%s, %s)", (arg0: number, arg1: number, expectedResult: number) => {
+    const cellValue = evaluateCell("A1", { A1: `=LOG(${arg0}, ${arg1})` });
+    expect(cellValue).toBeCloseTo(expectedResult, 4);
+  });
+});
+
 describe("MOD formula", () => {
   test.each([
     ["-42", "-10", -2],

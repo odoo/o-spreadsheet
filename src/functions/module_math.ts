@@ -797,6 +797,27 @@ export const LN: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
+// LOG
+// -----------------------------------------------------------------------------
+export const LOG: AddFunctionDescription = {
+  description: _lt("The logarithm of a number, for a given base."),
+  args: args(`
+    value (number) ${_lt("The value for which to calculate the logarithm, base e.")}
+    base (number, default=10) ${_lt("The base of the logarithm.")}
+  `),
+  returns: ["NUMBER"],
+  compute: function (value: PrimitiveArgValue, base: PrimitiveArgValue = 10): number {
+    const _value = toNumber(value);
+    const _base = toNumber(base);
+    assert(() => _value > 0, _lt("The value (%s) must be strictly positive.", _value.toString()));
+    assert(() => _base > 0, _lt("The base (%s) must be strictly positive.", _base.toString()));
+    assert(() => _base !== 1, _lt("The base must be different from 1."));
+    return Math.log10(_value) / Math.log10(_base);
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
 // MOD
 // -----------------------------------------------------------------------------
 export const MOD: AddFunctionDescription = {
