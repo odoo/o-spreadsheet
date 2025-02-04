@@ -1,7 +1,8 @@
 import { Model, PivotSortedColumn, SpreadsheetChildEnv } from "../../../src";
 import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "../../../src/constants";
-import { toZone } from "../../../src/helpers";
+import { toXC, toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
+import { topbarMenuRegistry } from "../../../src/registries";
 import { NotificationStore } from "../../../src/stores/notification_store";
 import {
   activateSheet,
@@ -20,6 +21,7 @@ import {
 } from "../../test_helpers/dom_helper";
 import { getCellText, getCoreTable } from "../../test_helpers/getters_helpers";
 import {
+  doAction,
   editStandaloneComposer,
   mountSpreadsheet,
   nextTick,
@@ -539,17 +541,15 @@ describe("Spreadsheet pivot side panel", () => {
 
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
-    // don't notify when dynamic pivot is visible
+    // don't notify when only dynamic pivot is visible
     expect(mockNotify).toHaveBeenCalledTimes(0);
 
     // scroll beyond the =PIVOT formula
     setViewportOffset(model, 0, 1000);
-    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
-    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
-    expect(mockNotify).toHaveBeenCalledTimes(0);
 
     // add a static pivot in the viewport
-    setCellContent(model, "A50", "=PIVOT.VALUE(1)");
+    const { bottom: row, right: col } = model.getters.getActiveMainViewport();
+    setCellContent(model, toXC(col, row), "=PIVOT.VALUE(1)");
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
     expect(mockNotify).toHaveBeenCalledWith({
@@ -562,6 +562,26 @@ describe("Spreadsheet pivot side panel", () => {
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
     expect(mockNotify).toHaveBeenCalledTimes(1);
+  });
+
+  test("notification should not be triggered when the pivot opened in the side panel differs from the pivots visible in the viewport.", async () => {
+    const mockNotify = jest.fn();
+    const notificationStore = env.getStore(NotificationStore);
+    notificationStore.updateNotificationCallbacks({
+      notifyUser: mockNotify,
+    });
+    const pivotData = { measures: [{ id: "amount:sum", fieldName: "amount", aggregator: "sum" }] };
+    addPivot(model, "B1:B2", pivotData, "2");
+    // insert the first pivot as static pivot in a new empty sheet
+    const sheet2Id = "sheet2";
+    createSheet(model, { sheetId: sheet2Id, activate: true });
+    const reinsertStaticPivotPath = ["data", "reinsert_static_pivot", "reinsert_static_pivot_1"];
+    doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    await nextTick();
+    // update the pivot
+    await click(fixture.querySelector(".pivot-measure .fa-eye")!);
+    expect(mockNotify).toHaveBeenCalledTimes(0);
   });
 
   test("Invalid pivot dimensions are displayed as such in the side panel", async () => {
