@@ -141,11 +141,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         pivot: this.draft,
       });
       this.draft = null;
-      if (
-        !this.alreadyNotified &&
-        !this.isDynamicPivotInViewport() &&
-        this.isStaticPivotInViewport()
-      ) {
+      if (!this.alreadyNotified && this.isUpdatedPivotVisibleInViewportOnlyAsStaticPivot()) {
         const formulaId = this.getters.getPivotFormulaId(this.pivotId);
         const pivotExample = `=PIVOT(${formulaId})`;
         this.alreadyNotified = true;
@@ -209,30 +205,32 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     }
   }
 
-  private isDynamicPivotInViewport() {
-    const sheetId = this.getters.getActiveSheetId();
-    for (const col of this.getters.getSheetViewVisibleCols()) {
-      for (const row of this.getters.getSheetViewVisibleRows()) {
-        const isDynamicPivot = this.getters.isSpillPivotFormula({ sheetId, col, row });
-        if (isDynamicPivot) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  private isStaticPivotInViewport() {
+  /**
+   * @returns true if the updated pivot is visible in the viewport only as a
+   * static pivot and not as a dynamic pivot
+   */
+  private isUpdatedPivotVisibleInViewportOnlyAsStaticPivot() {
+    let staticPivotCount = 0;
+    const updatedPivotFormulaId = this.getters.getPivotFormulaId(this.pivotId);
     for (const position of this.getters.getVisibleCellPositions()) {
       const cell = this.getters.getCell(position);
       if (cell?.isFormula) {
         const pivotFunction = getFirstPivotFunction(cell.compiledFormula.tokens);
-        if (pivotFunction && pivotFunction.functionName !== "PIVOT") {
-          return true;
+        const pivotFormulaId = pivotFunction?.args[0]?.value;
+        if (pivotFunction && updatedPivotFormulaId === pivotFormulaId.toString()) {
+          if (pivotFunction.functionName === "PIVOT") {
+            // if we have at least one dynamic pivot visible inserted the viewport
+            // we return false
+            return false;
+          } else {
+            staticPivotCount++;
+          }
         }
       }
     }
-    return false;
+    // we return true if there are only static pivots visible inserted the viewport,
+    // otherwise false
+    return staticPivotCount > 0;
   }
 
   private addDefaultDateTimeGranularity(fields: PivotFields, definition: PivotCoreDefinition) {
