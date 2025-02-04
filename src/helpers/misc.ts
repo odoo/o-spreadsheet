@@ -482,9 +482,17 @@ export function deepEquals(o1: any, o2: any): boolean {
   return true;
 }
 
-/** Check if the given array contains all the values of the other array. */
+/**
+ * Check if the given array contains all the values of the other array.
+ * It makes the assumption that both array do not contain duplicates.
+ */
 export function includesAll<T>(arr: T[], values: T[]): boolean {
-  return values.every((value) => arr.includes(value));
+  if (arr.length < values.length) {
+    return false;
+  }
+
+  const set = new Set(arr);
+  return values.every((value) => set.has(value));
 }
 
 /**
