@@ -44,6 +44,7 @@ import {
   createDataSets,
   formatTickValue,
   getChartAxisTitleRuntime,
+  shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -342,11 +343,7 @@ export function createWaterfallChartRuntime(
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
-  if (
-    chart.dataSetsHaveTitle &&
-    dataSetsValues[0] &&
-    labels.length > dataSetsValues[0].data.length
-  ) {
+  if (shouldRemoveFirstLabel(chart.labelRange, chart.dataSets[0], chart.dataSetsHaveTitle)) {
     labels.shift();
   }
 

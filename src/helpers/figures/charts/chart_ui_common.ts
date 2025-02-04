@@ -19,6 +19,7 @@ import { formatValue, isDateTimeFormat } from "../../format/format";
 import { deepCopy, range } from "../../misc";
 import { isNumber } from "../../numbers";
 import { recomputeZones } from "../../recompute_zones";
+import { positions } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
@@ -191,22 +192,21 @@ export function getDefaultChartJsRuntime(
 
 export function getChartLabelFormat(
   getters: Getters,
-  range: Range | undefined
+  range: Range | undefined,
+  shouldRemoveFirstLabel: boolean
 ): Format | undefined {
   if (!range) return undefined;
 
-  const {
-    sheetId,
-    zone: { left, top, bottom },
-  } = range;
-  for (let row = top; row <= bottom; row++) {
-    const format = getters.getEvaluatedCell({ sheetId, col: left, row }).format;
-    if (format) {
-      return format;
-    }
+  const { sheetId, zone } = range;
+
+  const formats = positions(zone).map(
+    (position) => getters.getEvaluatedCell({ sheetId, ...position }).format
+  );
+  if (shouldRemoveFirstLabel) {
+    formats.shift();
   }
 
-  return undefined;
+  return formats.find((format) => format !== undefined);
 }
 
 export function getChartLabelValues(
