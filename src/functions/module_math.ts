@@ -845,6 +845,29 @@ export const LN = {
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
+// LOG
+// -----------------------------------------------------------------------------
+export const LOG = {
+  description: _t("The logarithm of a number, for a given base."),
+  args: [
+    arg("value (number)", _t("The value for which to calculate the logarithm.")),
+    arg("base (number, default=10)", _t("The base of the logarithm.")),
+  ],
+  compute: function (
+    value: Maybe<FunctionResultObject>,
+    base: Maybe<FunctionResultObject> = { value: 10 }
+  ): number {
+    const _value = toNumber(value, this.locale);
+    const _base = toNumber(base, this.locale);
+    assert(() => _value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
+    assert(() => _base > 0, _t("The base (%s) must be strictly positive.", _base.toString()));
+    assert(() => _base !== 1, _t("The base must be different from 1."));
+    return Math.log10(_value) / Math.log10(_base);
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
 // MOD
 // -----------------------------------------------------------------------------
 function mod(dividend: number, divisor: number): number {
