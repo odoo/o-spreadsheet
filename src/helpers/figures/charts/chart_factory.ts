@@ -13,6 +13,7 @@ import {
   UID,
   Zone,
 } from "../../../types";
+import { LineChartDefinition } from "../../../types/chart";
 import {
   ChartCreationContext,
   ChartDefinition,
@@ -23,7 +24,7 @@ import { CoreGetters, Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
 import { getZoneArea, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { canChartParseLabels } from "./line_chart";
+import { LineChart, canChartParseLabels } from "./line_chart";
 
 /**
  * Create a function used to create a Chart based on the definition
@@ -168,21 +169,22 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   // Only display legend for several datasets.
   const newLegendPos = dataSetZone.right === dataSetZone.left ? "none" : "top";
 
-  const labelRange = labelRangeXc ? getters.getRangeFromSheetXC(sheetId, labelRangeXc) : undefined;
-  if (canChartParseLabels(labelRange, getters)) {
-    return {
-      title,
-      dataSets,
-      labelsAsText: false,
-      stacked: false,
-      aggregated: false,
-      cumulative: false,
-      labelRange: labelRangeXc,
-      type: "line",
-      dataSetsHaveTitle,
-      verticalAxisPosition: "left",
-      legendPosition: newLegendPos,
-    };
+  const lineChartDefinition: LineChartDefinition = {
+    title,
+    dataSets,
+    labelsAsText: false,
+    stacked: false,
+    aggregated: false,
+    cumulative: false,
+    labelRange: labelRangeXc,
+    type: "line",
+    dataSetsHaveTitle,
+    verticalAxisPosition: "left",
+    legendPosition: newLegendPos,
+  };
+  const chart = new LineChart(lineChartDefinition, sheetId, getters);
+  if (canChartParseLabels(chart, getters)) {
+    return lineChartDefinition;
   }
   return {
     title,

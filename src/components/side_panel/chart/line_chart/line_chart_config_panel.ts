@@ -7,7 +7,7 @@ export class LineConfigPanel extends LineBarPieConfigPanel {
   get canTreatLabelsAsText() {
     const chart = this.env.model.getters.getChart(this.props.figureId);
     if (chart && chart instanceof LineChart) {
-      return canChartParseLabels(chart.labelRange, this.env.model.getters);
+      return canChartParseLabels(chart, this.env.model.getters);
     }
     return false;
   }

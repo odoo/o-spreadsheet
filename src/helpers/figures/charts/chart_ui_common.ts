@@ -6,7 +6,7 @@ import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../ty
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { deepCopy, range } from "../../misc";
-import { recomputeZones, zoneToXc } from "../../zones";
+import { positions, recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
@@ -157,22 +157,21 @@ export function getDefaultChartJsRuntime(
 
 export function getChartLabelFormat(
   getters: Getters,
-  range: Range | undefined
+  range: Range | undefined,
+  shouldRemoveFirstLabel: boolean
 ): Format | undefined {
   if (!range) return undefined;
 
-  const {
-    sheetId,
-    zone: { left, top, bottom },
-  } = range;
-  for (let row = top; row <= bottom; row++) {
-    const format = getters.getEvaluatedCell({ sheetId, col: left, row }).format;
-    if (format) {
-      return format;
-    }
+  const { sheetId, zone } = range;
+
+  const formats = positions(zone).map(
+    (position) => getters.getEvaluatedCell({ sheetId, ...position }).format
+  );
+  if (shouldRemoveFirstLabel) {
+    formats.shift();
   }
 
-  return undefined;
+  return formats.find((format) => format !== undefined);
 }
 
 export function getChartLabelValues(
