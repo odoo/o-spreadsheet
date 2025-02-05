@@ -6,6 +6,7 @@ import { dataValidationEvaluatorRegistry } from "../../../../registries/data_val
 import {
   AddDataValidationCommand,
   CancelledReason,
+  CommandResult,
   DataValidationCriterion,
   DataValidationCriterionType,
   DataValidationRule,
@@ -134,6 +135,24 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get errorMessages(): string[] {
-    return this.state.errors.map((error) => DVTerms.Errors[error] || DVTerms.Errors.Unexpected);
+    return this.state.errors.map((error) => this.errorMessage(error));
+  }
+
+  errorMessage(reason: CancelledReason): string {
+    switch (reason) {
+      case CommandResult.TargetOutOfSheet:
+      case CommandResult.InvalidRange:
+        return DVTerms.Errors[reason](this.firstInvalidRangeString);
+      default:
+        return DVTerms.Errors[reason]() || DVTerms.Errors.Unexpected();
+    }
+  }
+
+  get firstInvalidRangeString(): string | undefined {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.state.rule.ranges.find((xc) => {
+      const range = this.env.model.getters.getRangeDataFromXc(sheetId, xc);
+      return range._sheetId != sheetId || !this.env.model.getters.isRangeValid(xc);
+    });
   }
 }

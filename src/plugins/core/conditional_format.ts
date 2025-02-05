@@ -144,6 +144,8 @@ export class ConditionalFormatPlugin
       case "ADD_CONDITIONAL_FORMAT":
         return this.checkValidations(
           cmd,
+          this.checkEmptyRange,
+          this.checkValidRange,
           this.checkCFRule,
           this.checkEmptyRange,
           this.checkCFHasChanged
@@ -387,6 +389,18 @@ export class ConditionalFormatPlugin
 
   private checkEmptyRange(cmd: AddConditionalFormatCommand) {
     return cmd.ranges.length ? CommandResult.Success : CommandResult.EmptyRange;
+  }
+
+  private checkValidRange(cmd: AddConditionalFormatCommand): CommandResult {
+    const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
+    if (ranges.some((range) => range.sheetId != cmd.sheetId)) {
+      return CommandResult.TargetOutOfSheet;
+    }
+    const stringRanges = ranges.map((range) => this.getters.getRangeString(range, cmd.sheetId));
+    if (stringRanges.some((xc) => !this.getters.isRangeValid(xc))) {
+      return CommandResult.InvalidRange;
+    }
+    return CommandResult.Success;
   }
 
   private checkCFRule(cmd: AddConditionalFormatCommand) {
