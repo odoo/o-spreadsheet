@@ -68,15 +68,15 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     };
   }
 
-  const { pause, resume } = useInterval(checkTiming, 200);
+  const { pause, resume } = useInterval(checkTiming, 100);
 
   function checkTiming() {
     const { col, row } = getPosition();
     const delta = Date.now() - lastMoved;
-    if (delta > 300 && (col !== hoveredPosition.col || row !== hoveredPosition.row)) {
+    if (delta >= 100 && (col !== hoveredPosition.col || row !== hoveredPosition.row)) {
       setPosition(undefined, undefined);
     }
-    if (delta > 300) {
+    if (delta >= 100) {
       if (col < 0 || row < 0) {
         return;
       }
