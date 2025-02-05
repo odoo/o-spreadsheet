@@ -72,8 +72,8 @@ css/* scss */ `
         margin: 1px;
         .o-line-item {
           padding: 4px;
-          width: 18px;
-          height: 18px;
+          width: 26px;
+          height: 26px;
           &.active {
             background-color: ${BUTTON_ACTIVE_BG};
           }

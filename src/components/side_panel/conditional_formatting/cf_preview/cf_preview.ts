@@ -15,7 +15,7 @@ css/* scss */ `
     }
 
     border-bottom: 1px solid ${GRAY_300};
-    height: 60px;
+    height: 80px;
     padding: 10px;
     position: relative;
     cursor: pointer;

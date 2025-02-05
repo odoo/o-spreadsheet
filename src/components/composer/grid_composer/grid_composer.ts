@@ -21,7 +21,6 @@ const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
 css/* scss */ `
   div.o-grid-composer {
     z-index: ${ComponentsImportance.GridComposer};
-    box-sizing: border-box;
     position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
     font-family: ${DEFAULT_FONT};

@@ -22,7 +22,6 @@ css/* scss */ `
     justify-content: space-between;
     height: ${LINK_TOOLTIP_HEIGHT}px;
     width: ${LINK_TOOLTIP_WIDTH}px;
-    box-sizing: border-box !important;
 
     img {
       margin-right: 3px;

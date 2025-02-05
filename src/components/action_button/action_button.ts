@@ -11,7 +11,7 @@ css/* scss */ `
     margin: 2px 1px;
     padding: 0px 1px;
     border-radius: 2px;
-    min-width: 20px;
+    min-width: 22px;
   }
   .o-disabled {
     opacity: 0.6;

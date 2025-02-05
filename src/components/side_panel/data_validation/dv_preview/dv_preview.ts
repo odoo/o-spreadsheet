@@ -9,7 +9,6 @@ css/* scss */ `
   .o-sidePanel {
     .o-dv-preview {
       height: 70px;
-      box-sizing: border-box;
       cursor: pointer;
       border-bottom: 1px solid ${FIGURE_BORDER_COLOR};
 

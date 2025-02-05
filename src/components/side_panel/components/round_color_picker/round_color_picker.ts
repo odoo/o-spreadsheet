@@ -25,8 +25,8 @@ const TRANSPARENT_BACKGROUND_SVG = /*xml*/ `
 
 css/* scss */ `
   .o-round-color-picker-button {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
     border: 1px solid ${GRAY_300};
     background-position: 1px 1px;

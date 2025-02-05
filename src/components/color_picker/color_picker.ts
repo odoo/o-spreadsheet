@@ -74,8 +74,8 @@ css/* scss */ `
       }
     }
     .o-color-picker-line-item {
-      width: ${ITEM_EDGE_LENGTH}px;
-      height: ${ITEM_EDGE_LENGTH}px;
+      width: ${ITEM_EDGE_LENGTH + 2 * ITEM_BORDER_WIDTH}px;
+      height: ${ITEM_EDGE_LENGTH + 2 * ITEM_BORDER_WIDTH}px;
       margin: 0px;
       border-radius: 50px;
       border: ${ITEM_BORDER_WIDTH}px solid #666666;
@@ -98,7 +98,6 @@ css/* scss */ `
         font-size: 14px;
         background: white;
         border-radius: 4px;
-        box-sizing: border-box;
         &:hover:enabled {
           background-color: rgba(0, 0, 0, 0.08);
         }
@@ -125,7 +124,6 @@ css/* scss */ `
       .o-gradient {
         margin-bottom: ${MAGNIFIER_EDGE / 2}px;
         border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-        box-sizing: border-box;
         width: ${INNER_GRADIENT_WIDTH + 2 * ITEM_BORDER_WIDTH}px;
         height: ${INNER_GRADIENT_HEIGHT + 2 * ITEM_BORDER_WIDTH}px;
         position: relative;
@@ -134,7 +132,6 @@ css/* scss */ `
       .magnifier {
         height: ${MAGNIFIER_EDGE}px;
         width: ${MAGNIFIER_EDGE}px;
-        box-sizing: border-box;
         border-radius: 50%;
         border: 2px solid #fff;
         box-shadow: 0px 0px 3px #c0c0c0;
@@ -149,7 +146,6 @@ css/* scss */ `
       }
       .o-hue-picker {
         border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;
-        box-sizing: border-box;
         width: 100%;
         height: 12px;
         border-radius: 4px;
@@ -176,7 +172,6 @@ css/* scss */ `
         padding: 2px 0px;
         display: flex;
         input {
-          box-sizing: border-box;
           width: 50%;
           border-radius: 4px;
           padding: 4px 23px 4px 10px;

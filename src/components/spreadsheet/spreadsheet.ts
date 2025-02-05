@@ -33,7 +33,6 @@ import {
   PRIMARY_BUTTON_ACTIVE_BG,
   PRIMARY_BUTTON_BG,
   PRIMARY_BUTTON_HOVER_BG,
-  SCROLLBAR_WIDTH,
   SEPARATOR_COLOR,
   TEXT_BODY,
   TEXT_BODY_MUTED,
@@ -93,7 +92,6 @@ css/* scss */ `
     *,
     *:before,
     *:after {
-      box-sizing: content-box;
       /* rtl not supported ATM */
       direction: ltr;
     }
@@ -152,7 +150,6 @@ css/* scss */ `
     .o-input {
       min-width: 0px;
       padding: 1px 0;
-      box-sizing: border-box;
       width: 100%;
       outline: none;
       border-color: ${GRAY_300};
@@ -225,17 +222,8 @@ css/* scss */ `
     }
 
     > canvas {
+      box-sizing: content-box;
       border-bottom: 1px solid #e2e3e3;
-    }
-    .o-scrollbar {
-      &.corner {
-        right: 0px;
-        bottom: 0px;
-        height: ${SCROLLBAR_WIDTH}px;
-        width: ${SCROLLBAR_WIDTH}px;
-        border-top: 1px solid #e2e3e3;
-        border-left: 1px solid #e2e3e3;
-      }
     }
 
     .o-grid-overlay {
@@ -249,7 +237,7 @@ css/* scss */ `
     border-radius: 4px;
     font-weight: 500;
     font-size: 14px;
-    height: 30px;
+    height: 32px;
     line-height: 16px;
     flex-grow: 1;
     background-color: ${BUTTON_BG};

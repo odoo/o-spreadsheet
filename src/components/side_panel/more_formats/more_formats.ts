@@ -25,7 +25,7 @@ interface Props {
 css/* scss */ `
   .o-more-formats-panel {
     .format-preview {
-      height: 48px;
+      height: 49px;
       background-color: white;
       cursor: pointer;
 

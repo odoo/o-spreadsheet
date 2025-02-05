@@ -19,7 +19,6 @@ css/* scss */ `
   .o-sidePanel {
     .o-pivot-measure-display-field,
     .o-pivot-measure-display-value {
-      box-sizing: border-box;
       border: solid 1px ${GRAY_300};
       border-radius: 3px;
     }

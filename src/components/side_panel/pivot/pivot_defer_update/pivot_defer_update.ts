@@ -7,7 +7,7 @@ import { Section } from "../../components/section/section";
 
 css/* scss */ `
   .pivot-defer-update {
-    min-height: 35px;
+    min-height: 40px;
   }
 `;
 

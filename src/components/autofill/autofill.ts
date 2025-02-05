@@ -15,7 +15,6 @@ css/* scss */ `
     height: ${AUTOFILL_EDGE_LENGTH}px;
     width: ${AUTOFILL_EDGE_LENGTH}px;
     border: 1px solid white;
-    box-sizing: border-box !important;
     background-color: #1a73e8;
   }
 

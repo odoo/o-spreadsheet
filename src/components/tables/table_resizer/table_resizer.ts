@@ -9,8 +9,8 @@ const COLOR = "#777";
 
 css/* scss */ `
   .o-table-resizer {
-    width: ${SIZE}px;
-    height: ${SIZE}px;
+    width: ${SIZE * 2}px;
+    height: ${SIZE * 2}px;
     border-bottom: ${SIZE}px solid ${COLOR};
     border-right: ${SIZE}px solid ${COLOR};
     cursor: nwse-resize;

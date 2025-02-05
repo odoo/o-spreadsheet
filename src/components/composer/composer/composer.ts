@@ -51,8 +51,6 @@ css/* scss */ `
       word-break: break-all;
       padding-right: 2px;
 
-      box-sizing: border-box;
-
       caret-color: black;
       padding-left: 3px;
       padding-right: 3px;

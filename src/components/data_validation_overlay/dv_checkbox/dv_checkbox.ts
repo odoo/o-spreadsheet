@@ -8,8 +8,6 @@ const MARGIN = (GRID_ICON_EDGE_LENGTH - CHECKBOX_WIDTH) / 2;
 
 css/* scss */ `
   .o-dv-checkbox {
-    box-sizing: border-box !important;
-    accent-color: #808080;
     margin: ${MARGIN}px;
     /* required to prevent the checkbox position to be sensible to the font-size (affects Firefox) */
     position: absolute;

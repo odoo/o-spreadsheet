@@ -15,7 +15,6 @@ css/* scss */ `
   .o-spreadsheet {
     .o-standalone-composer {
       min-height: 24px;
-      box-sizing: border-box;
 
       border-bottom: 1px solid;
       border-color: ${GRAY_300};

@@ -31,7 +31,6 @@ css/* scss */ `
       width: ${CHECKBOX_WIDTH}px;
       height: ${CHECKBOX_WIDTH}px;
       vertical-align: top;
-      box-sizing: border-box;
       outline: none;
       border: 1px solid ${GRAY_300};
       cursor: pointer;

@@ -34,7 +34,6 @@ css/* scss */ `
     }
 
     td {
-      box-sizing: border-box;
       height: 30px;
       padding: 6px 0;
     }
@@ -57,7 +56,6 @@ css/* scss */ `
     select {
       width: 100%;
       height: 100%;
-      box-sizing: border-box;
     }
   }
 `;
