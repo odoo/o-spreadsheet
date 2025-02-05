@@ -20,7 +20,6 @@ interface TableStylePickerState {
 
 css/* scss */ `
   .o-table-style-picker {
-    box-sizing: border-box;
     border: 1px solid ${GRAY_300};
     border-radius: 3px;
 

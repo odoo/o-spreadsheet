@@ -39,7 +39,6 @@ const ACTIVE_BORDER_WIDTH = 2;
 
 css/*SCSS*/ `
   div.o-figure {
-    box-sizing: border-box;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -51,7 +50,6 @@ css/*SCSS*/ `
   }
 
   div.o-figure-border {
-    box-sizing: border-box;
     z-index: 1;
   }
 

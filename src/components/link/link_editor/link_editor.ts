@@ -12,7 +12,7 @@ import { Menu } from "../../menu/menu";
 const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
 const PADDING = 12;
-const LINK_EDITOR_WIDTH = 340;
+const LINK_EDITOR_WIDTH = 340 + 2 * PADDING;
 
 css/* scss */ `
   .o-link-editor {
@@ -37,7 +37,6 @@ css/* scss */ `
       text-align: right;
     }
     input.o-input {
-      box-sizing: border-box;
       width: 100%;
       padding: 0 23px 4px 0;
     }

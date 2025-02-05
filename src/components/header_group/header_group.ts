@@ -31,8 +31,8 @@ css/* scss */ `
       z-index: ${ComponentsImportance.HeaderGroupingButton};
       .o-group-fold-button {
         cursor: pointer;
-        width: 13px;
-        height: 13px;
+        width: 15px;
+        height: 15px;
         border: 1px solid ${HEADER_GROUPING_BORDER_COLOR};
         .o-icon {
           width: 7px;
@@ -43,9 +43,6 @@ css/* scss */ `
           border-color: #777;
         }
       }
-    }
-    .o-group-border {
-      box-sizing: border-box;
     }
   }
 `;

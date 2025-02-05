@@ -31,7 +31,6 @@ css/* scss */ `
       width: 14px;
       height: 14px;
       border: 1px solid ${GRAY_300};
-      box-sizing: border-box;
       outline: none;
       border-radius: 8px;
 

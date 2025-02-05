@@ -21,9 +21,6 @@ css/* scss */ `
       font-size: 12px;
       background-color: #fff;
       z-index: ${ComponentsImportance.FigureTooltip};
-      table td span {
-        box-sizing: border-box;
-      }
     }
   }
 `;

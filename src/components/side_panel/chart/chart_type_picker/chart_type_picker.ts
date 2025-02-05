@@ -28,7 +28,6 @@ css/* scss */ `
   }
 
   .o-popover .o-chart-select-popover {
-    box-sizing: border-box;
     background: #fff;
     .o-chart-type-item {
       cursor: pointer;

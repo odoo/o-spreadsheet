@@ -38,7 +38,7 @@ css/* scss */ `
     .o-color-picker-button {
       > span {
         border-bottom: 4px solid;
-        height: 16px;
+        height: 20px;
         margin-top: 2px;
         display: block;
       }

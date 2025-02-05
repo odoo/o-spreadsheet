@@ -34,11 +34,9 @@ css/* scss */ `
     background-color: white;
     padding: ${MENU_VERTICAL_PADDING}px 0px;
     width: ${MENU_WIDTH}px;
-    box-sizing: border-box !important;
     user-select: none;
 
     .o-menu-item {
-      box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
       padding: ${MENU_ITEM_PADDING_VERTICAL}px ${MENU_ITEM_PADDING_HORIZONTAL}px;
       cursor: pointer;

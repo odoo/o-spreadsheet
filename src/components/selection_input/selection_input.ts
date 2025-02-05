@@ -24,7 +24,6 @@ css/* scss */ `
       }
     }
     .o-button {
-      height: 28px;
       flex-grow: 0;
     }
 

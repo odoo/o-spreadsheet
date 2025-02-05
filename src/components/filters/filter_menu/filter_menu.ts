@@ -12,14 +12,12 @@ const FILTER_MENU_HEIGHT = 295;
 
 const CSS = css/* scss */ `
   .o-filter-menu {
-    box-sizing: border-box;
     padding: 8px 16px;
     height: ${FILTER_MENU_HEIGHT}px;
     line-height: 1;
 
     .o-filter-menu-item {
       display: flex;
-      box-sizing: border-box;
       cursor: pointer;
       user-select: none;
 

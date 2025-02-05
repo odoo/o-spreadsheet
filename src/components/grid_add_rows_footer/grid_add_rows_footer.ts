@@ -7,7 +7,6 @@ import { ValidationMessages } from "../validation_messages/validation_messages";
 css/* scss */ `
   .o-grid-add-rows {
     input.o-input {
-      box-sizing: border-box;
       width: 60px;
       height: 30px;
     }

@@ -92,7 +92,7 @@
             disabled="!this.canBeDynamic"
           />
           <div
-            class="o-info-icon d-flex flex-row align-items-center text-muted ps-1"
+            class="o-info-icon d-flex flex-row align-items-center text-muted ms-1"
             t-att-title="dynamicTableTooltip">
             <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
           </div>

@@ -22,6 +22,7 @@ css/* scss */ `
     background-color: ${BACKGROUND_GRAY_COLOR};
 
     &.corner {
+      box-sizing: content-box;
       right: 0px;
       bottom: 0px;
       height: ${SCROLLBAR_WIDTH}px;

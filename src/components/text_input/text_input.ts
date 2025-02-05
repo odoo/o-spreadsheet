@@ -7,7 +7,6 @@ import { css } from "../helpers";
 css/* scss */ `
   .o-spreadsheet {
     .os-input {
-      box-sizing: border-box;
       border-width: 0 0 1px 0;
       border-color: transparent;
       outline: none;
