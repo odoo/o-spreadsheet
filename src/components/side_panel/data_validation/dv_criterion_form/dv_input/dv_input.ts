@@ -2,13 +2,15 @@ import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { canonicalizeContent } from "../../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../../registries/data_validation_registry";
 import { _t } from "../../../../../translation";
-import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../../types";
+import { DataValidationCriterionType, SpreadsheetChildEnv, UID } from "../../../../../types";
 import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { css } from "../../../../helpers";
+import { adaptFormulaToSheet } from "../../../../helpers/formulas";
 
 interface Props {
   value: string;
   criterionType: DataValidationCriterionType;
+  sheetId: UID;
   onValueChanged: (value: string) => void;
   onKeyDown?: (ev: KeyboardEvent) => void;
   focused: boolean;
@@ -33,6 +35,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     value: { type: String, optional: true },
     criterionType: String,
     onValueChanged: Function,
+    sheetId: { type: String, optional: true },
     onKeyDown: { type: Function, optional: true },
     focused: { type: Boolean, optional: true },
     onBlur: { type: Function, optional: true },
@@ -87,6 +90,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
 
   onChangeComposerValue(str: string) {
     this.state.shouldDisplayError = true;
+    str = adaptFormulaToSheet(this.env.model.getters, str, this.props.sheetId);
     this.props.onValueChanged(str);
   }
 
@@ -96,7 +100,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
       composerContent: this.props.value,
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.props.sheetId,
     };
   }
 

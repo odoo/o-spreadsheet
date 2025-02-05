@@ -6,6 +6,7 @@
           ranges="state.rule.ranges"
           onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
           required="true"
+          availableOnSheetId="props.sheetId"
         />
       </Section>
       <Section class="'pt-0'">
@@ -23,6 +24,7 @@
             t-key="state.rule.criterion.type"
             criterion="state.rule.criterion"
             onCriterionChanged.bind="onCriterionChanged"
+            sheetId="props.sheetId"
           />
         </div>
       </Section>
