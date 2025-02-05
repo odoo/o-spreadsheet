@@ -182,10 +182,6 @@ css/* scss */ `
       }
     }
 
-    .o-input[type="text"] {
-      border-width: 0 0 1px 0;
-    }
-
     .o-input[type="number"],
     .o-number-input {
       border-width: 0 0 1px 0;

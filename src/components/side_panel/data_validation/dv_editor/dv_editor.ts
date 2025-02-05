@@ -3,14 +3,17 @@ import { Action } from "../../../../actions/action";
 import { zoneToXc } from "../../../../helpers";
 import { canonicalizeContent } from "../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
+import { _t } from "../../../../translation";
 import {
   AddDataValidationCommand,
   CancelledReason,
+  CommandResult,
   DataValidationCriterion,
   DataValidationCriterionType,
   DataValidationRule,
   DataValidationRuleData,
   SpreadsheetChildEnv,
+  UID,
 } from "../../../../types";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { DVTerms } from "../../../translations_terms";
@@ -26,6 +29,7 @@ interface Props {
   rule: DataValidationRule | undefined;
   onExit: () => void;
   onCloseSidePanel?: () => void;
+  sheetId: UID;
 }
 
 interface State {
@@ -40,21 +44,34 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     rule: { type: Object, optional: true },
     onExit: Function,
     onCloseSidePanel: { type: Function, optional: true },
+    sheetId: { type: String, optional: false },
   };
 
-  state = useState<State>({ rule: this.defaultDataValidationRule, errors: [] });
+  state = useState<State>({
+    rule: this.defaultDataValidationRule,
+    errors: [],
+  });
 
   setup() {
     if (this.props.rule) {
-      const sheetId = this.env.model.getters.getActiveSheetId();
       this.state.rule = {
         ...this.props.rule,
         ranges: this.props.rule.ranges.map((range) =>
-          this.env.model.getters.getRangeString(range, sheetId)
+          this.env.model.getters.getRangeString(range, this.props.sheetId)
         ),
       };
       this.state.rule.criterion.type = this.props.rule.criterion.type;
     }
+  }
+
+  get rangeTitle(): string {
+    if (this.isRangeReadonly) {
+      return _t(
+        "Apply to ranges: (on %s)",
+        this.env.model.getters.getSheetName(this.props.sheetId)
+      );
+    }
+    return _t("Apply to ranges:");
   }
 
   onCriterionTypeChanged(type: DataValidationCriterionType) {
@@ -81,8 +98,20 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
         this.state.errors = result.reasons;
       } else {
         this.props.onExit();
+        this.env.model.dispatch("ACTIVATE_SHEET", {
+          sheetIdTo: this.props.sheetId,
+          sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+        });
       }
     }
+  }
+
+  onCancel() {
+    this.props.onExit();
+    this.env.model.dispatch("ACTIVATE_SHEET", {
+      sheetIdTo: this.props.sheetId,
+      sheetIdFrom: this.env.model.getters.getActiveSheetId(),
+    });
   }
 
   get dispatchPayload(): Omit<AddDataValidationCommand, "type"> {
@@ -92,7 +121,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     const criterion = rule.criterion;
     const criterionEvaluator = dataValidationEvaluatorRegistry.get(criterion.type);
 
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.props.sheetId;
     const values = criterion.values
       .slice(0, criterionEvaluator.numberOfValues(criterion))
       .map((value) => value?.trim())
@@ -108,6 +137,10 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     };
   }
 
+  get isRangeReadonly(): boolean {
+    return this.env.model.getters.getActiveSheetId() !== this.props.sheetId;
+  }
+
   get dvCriterionMenuItems(): Action[] {
     return getDataValidationCriterionMenuItems((type) => this.onCriterionTypeChanged(type));
   }
@@ -118,7 +151,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get defaultDataValidationRule(): DataValidationRuleData {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.props.sheetId;
     const ranges = this.env.model.getters
       .getSelectedZones()
       .map((zone) => zoneToXc(this.env.model.getters.getUnboundedZone(sheetId, zone)));
@@ -134,6 +167,26 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get errorMessages(): string[] {
-    return this.state.errors.map((error) => DVTerms.Errors[error] || DVTerms.Errors.Unexpected);
+    return this.state.errors.map((error) => this.errorMessage(error));
+  }
+
+  errorMessage(reason: CancelledReason): string {
+    switch (reason) {
+      case CommandResult.TargetOutOfSheet:
+        const sheetName = this.env.model.getters.getSheetName(this.props.sheetId);
+        return DVTerms.Errors[reason](sheetName, this.invalidRangeString);
+      case CommandResult.InvalidRange:
+        return DVTerms.Errors[reason](this.invalidRangeString);
+      default:
+        return DVTerms.Errors[reason]?.() || DVTerms.Errors.Unexpected();
+    }
+  }
+
+  get invalidRangeString(): string[] {
+    const sheetId = this.props.sheetId;
+    return this.state.rule.ranges.filter((xc) => {
+      const range = this.env.model.getters.getRangeDataFromXc(sheetId, xc);
+      return range._sheetId != sheetId || !this.env.model.getters.isRangeValid(xc);
+    });
   }
 }
