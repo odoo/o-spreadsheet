@@ -29,6 +29,7 @@ import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard"
 import {
   copy,
   createChart,
+  createImage,
   createSheet,
   createTableWithFilter,
   cut,
@@ -88,6 +89,10 @@ import {
   typeInComposerGrid,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+
+jest.mock("../../src/helpers/figures/images/image_provider", () =>
+  require("../__mocks__/mock_image_provider")
+);
 
 function getVerticalScroll(): number {
   const scrollbar = fixture.querySelector(".o-scrollbar.vertical") as HTMLElement;
@@ -266,6 +271,68 @@ describe("Grid component", () => {
     // move up again but we are at the stop: ev not prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 4 });
     expect(mockCallback).toBeCalledTimes(2);
+  });
+
+  test("Double clicking only opens composer when actually targetting grid overlay", async () => {
+    // creating a child  node
+    mockChart();
+    createChart(model, { type: "bar" }, "chartId");
+    await nextTick();
+    await simulateClick(".o-figure", 0, 0);
+    await nextTick();
+    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+    // double click on child
+    await doubleClick(fixture, ".o-figure");
+    expect(composerStore.editionMode).toBe("inactive");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+
+    // double click on grid overlay
+    await doubleClick(fixture, ".o-grid-overlay");
+    expect(composerStore.editionMode).toBe("editing");
+    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
+  });
+
+  test("Double clicking on gridOverlay opens composer in different edition modes", async () => {
+    setCellContent(model, "A1", "things");
+    merge(model, "A1:A2", model.getters.getActiveSheetId(), true);
+    await nextTick();
+    // double click A1
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("contentFocus");
+
+    composerStore.stopEdition();
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("inactive");
+
+    // double click A2 - still in a non empty cell (in merge)
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      1.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("contentFocus");
+
+    composerStore.stopEdition();
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("inactive");
+
+    // double click B2
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      1.5 * DEFAULT_CELL_WIDTH,
+      1.5 * DEFAULT_CELL_HEIGHT
+    );
+    await nextTick();
+    expect(composerFocusStore.focusMode).toBe("cellFocus");
   });
 
   describe("keybindings", () => {
@@ -1029,14 +1096,14 @@ describe("Grid component", () => {
       expect(highlightStore.highlights).toEqual([]);
     });
 
-    test("paint format does not destroy clipboard content", () => {
+    test("paint format does not destroy clipboard content", async () => {
       setCellContent(model, "A1", "hello");
       setStyle(model, "A1", { bold: true });
       copy(model, "A1");
 
-      const clipboardContent = model.getters.getClipboardContent();
+      const clipboardContent = await model.getters.getClipboardTextAndImageContent();
       paintFormatStore.activate({ persistent: false });
-      expect(model.getters.getClipboardContent()).toEqual(clipboardContent);
+      expect(await model.getters.getClipboardTextAndImageContent()).toEqual(clipboardContent);
     });
 
     test("can paint format after a cut", async () => {
@@ -1541,13 +1608,14 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
 describe("Copy paste keyboard shortcut", () => {
   let clipboardData: MockClipboardData;
   let sheetId: string;
-
+  const fileStore = new FileStore();
   beforeEach(async () => {
+    // mockChartData = mockChart();
     clipboardData = new MockClipboardData();
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    ({ parent, model, fixture } = await mountSpreadsheet({
+      model: new Model({}, { external: { fileStore } }),
+    }));
     sheetId = model.getters.getActiveSheetId();
-    composerStore = parent.env.getStore(CellComposerStore);
-    composerFocusStore = parent.env.getStore(ComposerFocusStore);
   });
 
   test("Default paste is prevented when handled by the grid", async () => {
@@ -1569,6 +1637,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
@@ -1587,6 +1658,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
@@ -1607,6 +1681,9 @@ describe("Copy paste keyboard shortcut", () => {
     setStyle(model, "A1", { bold: true });
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     setCellContent(model, "A1", "new content");
     setStyle(model, "A1", { bold: false });
     selectCell(model, "A2");
@@ -1622,6 +1699,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
@@ -1635,6 +1715,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    let clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     let clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "A1").formattedValue
@@ -1648,6 +1731,9 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "B1", "1");
     selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     clipboardContent = clipboardData.content;
     expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
@@ -1664,7 +1750,11 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", content);
     setStyle(model, "A1", { fillColor: "red", align: "right", bold: true });
     selectCell(model, "A1");
-    document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    const ev = getClipboardEvent("copy", clipboardData);
+    document.body.dispatchEvent(ev);
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     // Fake OS clipboard should have the same content
     // to make paste come from spreadsheet clipboard
     // which support paste as values
@@ -1764,11 +1854,15 @@ describe("Copy paste keyboard shortcut", () => {
     createChart(model, { type: "bar" }, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
       "text/plain": "\t",
     });
-    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await nextTick();
     expect(model.getters.getChartIds(sheetId)).toHaveLength(2);
   });
 
@@ -1777,75 +1871,89 @@ describe("Copy paste keyboard shortcut", () => {
     createChart(model, { type: "bar" }, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await nextTick();
+    const clipboard = await parent.env.clipboard.read!();
+    if (clipboard.status === "ok") clipboardData.content = clipboard.content;
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
       "text/plain": "\t",
     });
-    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await nextTick();
     expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
     expect(model.getters.getChartIds(sheetId)[0]).not.toEqual("chartId");
   });
 
-  test("Double clicking only opens composer when actually targetting grid overlay", async () => {
-    // creating a child  node
-    mockChart();
-    createChart(model, { type: "bar" }, "chartId");
-    await nextTick();
-    await simulateClick(".o-figure", 0, 0);
-    await nextTick();
-    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
-    // double click on child
-    await doubleClick(fixture, ".o-figure");
-    expect(composerStore.editionMode).toBe("inactive");
-    expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
+  test.each<"cut" | "copy">(["copy", "cut"])(
+    "%s a chart doesn't  push it in the clipboard",
+    async (operation) => {
+      selectCell(model, "A1");
+      createChart(model, { type: "bar" }, "chartId");
+      model.dispatch("SELECT_FIGURE", { id: "chartId" });
+      document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
+      await nextTick();
+      const clipboard = await parent.env.clipboard.read!();
+      if (clipboard.status !== "ok") {
+        throw new Error("Clipboard read failed");
+      }
+      const clipboardContent = clipboard.content;
 
-    // double click on grid overlay
-    await doubleClick(fixture, ".o-grid-overlay");
-    expect(composerStore.editionMode).toBe("editing");
-    expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
-  });
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      //@ts-ignore
+      const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
 
-  test("Double clicking on gridOverlay opens composer in different edition modes", async () => {
-    setCellContent(model, "A1", "things");
-    merge(model, "A1:A2", model.getters.getActiveSheetId(), true);
-    await nextTick();
-    // double click A1
-    triggerMouseEvent(
-      ".o-grid-overlay",
-      "dblclick",
-      0.5 * DEFAULT_CELL_WIDTH,
-      0.5 * DEFAULT_CELL_HEIGHT
-    );
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("contentFocus");
+      expect(clipboardContent).toMatchObject({
+        "text/plain": "\t",
+        "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>\t</div>`,
+      });
+    }
+  );
 
-    composerStore.stopEdition();
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("inactive");
+  test.each<"cut" | "copy">(["copy"])(
+    "%s an image pushes it in the clipboard as attachment",
+    async (operation) => {
+      selectCell(model, "A1");
+      createImage(model, { figureId: "imageId" });
+      model.dispatch("SELECT_FIGURE", { id: "imageId" });
+      document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
+      await nextTick();
+      const clipboard = await parent.env.clipboard.read!();
+      if (clipboard.status !== "ok") {
+        throw new Error("Clipboard read failed");
+      }
+      const clipboardContent = clipboard.content;
 
-    // double click A2 - still in a non empty cell (in merge)
-    triggerMouseEvent(
-      ".o-grid-overlay",
-      "dblclick",
-      0.5 * DEFAULT_CELL_WIDTH,
-      1.5 * DEFAULT_CELL_HEIGHT
-    );
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("contentFocus");
+      const cbPlugin = getPlugin(model, ClipboardPlugin);
+      //@ts-ignore
+      const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+      //@ts-ignore
+      const imgData = (await cbPlugin.readFileAsDataURL(
+        new Blob([], { type: "image/png" })
+      )) as string;
 
-    composerStore.stopEdition();
-    await nextTick();
-    expect(composerFocusStore.focusMode).toBe("inactive");
+      expect(clipboardContent).toMatchObject({
+        "text/plain": "\t",
+        "text/html": `<div data-osheet-clipboard='${xmlEscape(
+          clipboardHtmlData
+        )}'><img src="${xmlEscape(imgData)}" /></div>`,
+        "image/png": expect.any(Blob),
+      });
+    }
+  );
 
-    // double click B2
-    triggerMouseEvent(
-      ".o-grid-overlay",
-      "dblclick",
-      1.5 * DEFAULT_CELL_WIDTH,
-      1.5 * DEFAULT_CELL_HEIGHT
-    );
+  test("Paste an image from the clipboard uploads it on the server and adds it to the sheet", async () => {
+    const image = new File(["image"], "image.png", { type: "image/png" });
+    clipboardData.setData("image/png", image);
+    selectCell(model, "A1");
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     await nextTick();
-    expect(composerFocusStore.focusMode).toBe("cellFocus");
+    const figures = model.getters.getFigures(sheetId);
+    expect(figures).toHaveLength(1);
+    // const spy = spyDispatch(parent)
+    // spy on dispatch and check payload
+
+    expect(model.getters.getFigure(sheetId, figures[0].id)).toMatchObject({});
   });
 });
 

@@ -2,6 +2,8 @@ import { FigureSize } from "../../../types";
 import { FileStore, ImageProviderInterface } from "../../../types/files";
 import { Image } from "../../../types/image";
 
+export class ImageImportError extends Error {}
+
 export class ImageProvider implements ImageProviderInterface {
   private fileStore: FileStore;
 
@@ -10,13 +12,19 @@ export class ImageProvider implements ImageProviderInterface {
   }
 
   async requestImage(): Promise<Image> {
-    const file = await this.getImageFromUser();
+    const file = await this.userImageUpload();
     const path = await this.fileStore.upload(file);
     const size = await this.getImageOriginalSize(path);
     return { path, size, mimetype: file.type };
   }
 
-  private getImageFromUser(): Promise<File> {
+  async uploadFile(file: File): Promise<Image> {
+    const path = await this.fileStore.upload(file);
+    const size = await this.getImageOriginalSize(path);
+    return { path, size, mimetype: file.type };
+  }
+
+  private userImageUpload(): Promise<File> {
     return new Promise((resolve, reject) => {
       const input = document.createElement("input");
       input.setAttribute("type", "file");
@@ -35,12 +43,12 @@ export class ImageProvider implements ImageProviderInterface {
   getImageOriginalSize(path: string): Promise<FigureSize> {
     return new Promise((resolve, reject) => {
       const image = new Image();
-      image.src = path;
       image.addEventListener("load", () => {
         const size = { width: image.width, height: image.height };
         resolve(size);
       });
       image.addEventListener("error", reject);
+      image.src = path;
     });
   }
 }
