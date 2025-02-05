@@ -7,7 +7,13 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { clickCell, hoverCell, rightClickCell, simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  clickCell,
+  hoverCell,
+  rightClickCell,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -118,17 +124,17 @@ describe("link display component", () => {
 
   test("component is not closed when leaving grid", async () => {
     setCellContent(model, "A1", "[label](url.com)");
-    await hoverCell(model, "A1", 400);
+    await hoverCell(model, "A1", 150);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
     // hover an other cell then move your cursor away from the grid.
     // i.e hover the link component itself
-    await hoverCell(model, "A2", 100);
+    await hoverCell(model, "A2", 50);
     triggerMouseEvent("body", "pointermove");
     jest.advanceTimersByTime(10000);
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
 
-    await hoverCell(model, "A3", 400);
+    await hoverCell(model, "A3", 150);
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });
