@@ -12,7 +12,7 @@
       </div>
       <div class="o-dashboard-menu-expandable py-1 bg-white" t-if="state.isOpen">
         <MenuItems
-          menuItemsAndSeparators="menuItems"
+          menuItemsAndSeparators="props.menuItems"
           onMenuClicked.bind="() => {}"
           onRootMenuClicked.bind="() => {}"
           onMouseEnter.bind="() => {}"

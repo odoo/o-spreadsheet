@@ -1,6 +1,6 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { CellPosition, SpreadsheetChildEnv } from "../..";
-import { ActionSpec, createActions } from "../../actions/action";
+import { Action, createActions } from "../../actions/action";
 import { dashboardGridMenuRegistry } from "../../registries/menus/dashboard_grid_menu_registry";
 import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 import { useTimeOut } from "../helpers/time_hooks";
@@ -8,6 +8,7 @@ import { MenuItems } from "../menu/menu_items";
 
 interface Props {
   position: CellPosition;
+  menuItems: Action[];
 }
 
 export class DashboardPopoverMenu extends Component<Props, SpreadsheetChildEnv> {
@@ -16,6 +17,7 @@ export class DashboardPopoverMenu extends Component<Props, SpreadsheetChildEnv> 
   static components = { MenuItems };
   static props = {
     position: Object,
+    menuItems: Array,
     onClosed: { type: Function, optional: true },
   };
 
@@ -33,22 +35,6 @@ export class DashboardPopoverMenu extends Component<Props, SpreadsheetChildEnv> 
     });
   }
 
-  get menuItems() {
-    const actions: ActionSpec[] = dashboardGridMenuRegistry
-      .getAll()
-      .map((action) => ({
-        ...action,
-        isVisible: (env: SpreadsheetChildEnv) =>
-          action.isVisible?.(env.model.getters, this.props.position) ?? true,
-        execute: (env: SpreadsheetChildEnv, isMiddleClick) =>
-          action.execute(env, this.props.position, isMiddleClick),
-        onStartHover: (env: SpreadsheetChildEnv) => action.onStartHover?.(env, this.props.position),
-        isReadonlyAllowed: true,
-      }))
-      .filter((action) => action.isVisible?.(this.env));
-    return createActions(actions);
-  }
-
   scheduleOpen() {
     this.timeOut.schedule(() => {
       this.state.isOpen = true;
@@ -62,13 +48,26 @@ export class DashboardPopoverMenu extends Component<Props, SpreadsheetChildEnv> 
 
 export const DashboardPopoverMenuBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof DashboardPopoverMenu> => {
-    const hasVisibleItems = dashboardGridMenuRegistry
+    const visibleItems = dashboardGridMenuRegistry
       .getAll()
-      .some((action) => action.isVisible?.(getters, position));
+      .filter((action) => action.isVisible?.(getters, position));
+    if (visibleItems.length === 0) {
+      return { isOpen: false };
+    }
+    const actionSpecs = visibleItems.map((action) => ({
+      ...action,
+      isVisible: (env: SpreadsheetChildEnv) =>
+        action.isVisible?.(env.model.getters, position) ?? true,
+      execute: (env: SpreadsheetChildEnv, isMiddleClick) =>
+        action.execute(env, position, isMiddleClick),
+      onStartHover: (env: SpreadsheetChildEnv) => action.onStartHover?.(env, position),
+      isReadonlyAllowed: true,
+    }));
     return {
-      isOpen: hasVisibleItems,
+      isOpen: true,
       props: {
         position,
+        menuItems: createActions(actionSpecs),
       },
       Component: DashboardPopoverMenu,
       cellCorner: "top-right",
