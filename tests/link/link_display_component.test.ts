@@ -122,7 +122,7 @@ describe("link display component", () => {
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
     // hover an other cell then move your cursor from the grid.
     // i.e hover the link component itself
-    await hoverCell(model, "A2", 100);
+    await hoverCell(model, "A2", 50);
     fixture.querySelector(".o-grid-overlay")?.dispatchEvent(new Event("mouseleave"));
     jest.advanceTimersByTime(10000);
     await nextTick();
