@@ -2,7 +2,7 @@ import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo
 import { ALERT_DANGER_BG } from "../../constants";
 import { deepEquals, range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
-import { Color, SpreadsheetChildEnv } from "../../types";
+import { Color, SpreadsheetChildEnv, UID } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
@@ -15,6 +15,10 @@ css/* scss */ `
 
       input.o-invalid {
         background-color: ${ALERT_DANGER_BG};
+      }
+      input:disabled {
+        border-color: transparent;
+        cursor: not-allowed;
       }
       .input-icon {
         right: 7px;
@@ -43,6 +47,7 @@ interface Props {
   ranges: string[];
   hasSingleRange?: boolean;
   required?: boolean;
+  availableOnSheetId?: UID;
   isInvalid?: boolean;
   class?: string;
   onSelectionChanged?: (ranges: string[]) => void;
@@ -81,6 +86,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     ranges: Array,
     hasSingleRange: { type: Boolean, optional: true },
     required: { type: Boolean, optional: true },
+    availableOnSheetId: { type: String, optional: true },
     isInvalid: { type: Boolean, optional: true },
     class: { type: String, optional: true },
     onSelectionChanged: { type: Function, optional: true },
@@ -91,6 +97,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     disabledRanges: { type: Array, optional: true, default: [] },
     disabledRangeTitle: { type: String, optional: true },
   };
+
   private state: State = useState({
     isMissing: false,
     mode: "select-range",
@@ -105,7 +112,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get canAddRange(): boolean {
-    return !this.props.hasSingleRange;
+    return !this.props.hasSingleRange && !this.isReadonly;
   }
 
   get isInvalid(): boolean {
@@ -113,11 +120,17 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get isConfirmable(): boolean {
-    return this.store.isConfirmable;
+    return this.store.isConfirmable && !this.isReadonly;
   }
 
   get isResettable(): boolean {
-    return this.store.isResettable;
+    return this.store.isResettable && !this.isReadonly;
+  }
+
+  get isReadonly(): boolean {
+    return this.props.availableOnSheetId
+      ? this.env.model.getters.getActiveSheetId() !== this.props.availableOnSheetId
+      : false;
   }
 
   get hasDisabledRanges(): boolean {
@@ -134,7 +147,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       this.props.ranges,
       this.props.hasSingleRange || false,
       this.props.colors,
-      this.props.disabledRanges
+      this.props.disabledRanges,
+      this.props.availableOnSheetId
     );
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
@@ -198,7 +212,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getColor(range: SelectionRange) {
-    if (!range.color) {
+    if (!range.color || this.isReadonly) {
       return "";
     }
     return cssPropertiesToCss({ color: range.color });
