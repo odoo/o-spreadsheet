@@ -27,8 +27,8 @@ function sortMatrix(
     assert(
       () => value !== undefined,
       _t(
-        "Value for parameter %d is missing, while the function [[FUNCTION_NAME]] expect a number or a range.",
-        i + 1
+        "Value for parameter %s is missing, while the function [[FUNCTION_NAME]] expect a number or a range.",
+        (i + 1).toString()
       )
     );
   }
