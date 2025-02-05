@@ -7,6 +7,7 @@
             ranges="state.ranges"
             class="'o-range'"
             isInvalid="isRangeValid"
+            readonly="isRangeReadonly"
             onSelectionChanged.bind="onRangeUpdate"
             onSelectionConfirmed.bind="onRangeConfirmed"
             required="true"

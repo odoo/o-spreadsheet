@@ -40,6 +40,7 @@ interface Props {
   ranges: string[];
   hasSingleRange?: boolean;
   required?: boolean;
+  readonly?: boolean;
   isInvalid?: boolean;
   class?: string;
   onSelectionChanged?: (ranges: string[]) => void;
@@ -75,6 +76,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     ranges: Array,
     hasSingleRange: { type: Boolean, optional: true },
     required: { type: Boolean, optional: true },
+    readonly: { type: Boolean, optional: true, default: false },
     isInvalid: { type: Boolean, optional: true },
     class: { type: String, optional: true },
     onSelectionChanged: { type: Function, optional: true },
@@ -83,6 +85,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     onSelectionRemoved: { type: Function, optional: true },
     colors: { type: Array, optional: true, default: [] },
   };
+  static defaultProps = {
+    readonly: false,
+  };
+
   private state: State = useState({
     isMissing: false,
     mode: "select-range",
@@ -97,7 +103,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get canAddRange(): boolean {
-    return !this.props.hasSingleRange;
+    return !this.props.hasSingleRange && !this.props.readonly;
   }
 
   get isInvalid(): boolean {
@@ -105,11 +111,11 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get isConfirmable(): boolean {
-    return this.store.isConfirmable;
+    return this.store.isConfirmable && !this.props.readonly;
   }
 
   get isResettable(): boolean {
-    return this.store.isResettable;
+    return this.store.isResettable && !this.props.readonly;
   }
 
   setup() {
@@ -181,7 +187,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getColor(range: SelectionRange) {
-    if (!range.color) {
+    if (!range.color || this.props.readonly) {
       return "";
     }
     return cssPropertiesToCss({ color: range.color });
