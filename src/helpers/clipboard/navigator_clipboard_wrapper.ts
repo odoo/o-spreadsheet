@@ -69,7 +69,7 @@ class WebClipboardWrapper implements ClipboardInterface {
         for (const item of clipboardItems) {
           for (const type of item.types) {
             const blob = await item.getType(type);
-            if (type in AllowedImageMimeTypes) {
+            if (AllowedImageMimeTypes.includes(type as (typeof AllowedImageMimeTypes)[number])) {
               osClipboardContent[type] = blob;
             } else {
               const text = await blob.text();
