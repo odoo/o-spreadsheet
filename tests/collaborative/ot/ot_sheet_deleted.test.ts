@@ -15,6 +15,7 @@ import {
   Figure,
   HideSheetCommand,
   MoveRangeCommand,
+  MoveReferencesCommand,
   MoveSheetCommand,
   RemoveColumnsRowsCommand,
   RemoveConditionalFormatCommand,
@@ -205,24 +206,29 @@ describe("OT with DELETE_SHEET", () => {
     });
   });
 
-  describe("Delete sheet with move ranges", () => {
-    const cmd: Omit<MoveRangeCommand, "targetSheetId"> = {
-      type: "MOVE_RANGES",
+  describe("Delete sheet with move references", () => {
+    const cmd: MoveReferencesCommand = {
+      type: "MOVE_REFERENCES",
       sheetId,
-      col: 0,
-      row: 0,
-      target: [toZone("A1")],
+      targetSheetId: "sheet2",
+      targetCol: 0,
+      targetRow: 0,
+      zone: toZone("A1"),
     };
 
-    test("Delete the sheet on which the command is triggered", () => {
+    test("Delete the source sheet", () => {
+      const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
+      expect(result).toBeUndefined();
+    });
+
+    test("Delete the target sheet", () => {
       const result = transform({ ...cmd, targetSheetId: deletedSheetId }, deleteSheet);
       expect(result).toBeUndefined();
     });
 
     test("Delete another sheet", () => {
-      const command = { ...cmd, targetSheetId: sheetId };
-      const result = transform(command, deleteSheet);
-      expect(result).toEqual(command);
+      const result = transform(cmd, deleteSheet);
+      expect(result).toEqual(cmd);
     });
 
     test("Delete the sheet source and target sheet", () => {

@@ -2,6 +2,7 @@ import { toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui/clipboard";
+import { LineChartDefinition } from "../../src/types/chart";
 import { CellValueType, CommandResult, Zone } from "../../src/types/index";
 import {
   activateSheet,
@@ -9,6 +10,7 @@ import {
   addColumns,
   addRows,
   copy,
+  createChart,
   createSheet,
   createSheetWithName,
   cut,
@@ -336,6 +338,15 @@ describe("clipboard", () => {
     ).toBe(true);
   });
 
+  test("can copy and paste merge not at the origin of the copy", () => {
+    const model = new Model();
+    merge(model, "B2:C3");
+    copy(model, "A1:C3");
+    paste(model, "A4");
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3", "B5:C6"]);
+  });
+
   test("can cut and paste merged content", () => {
     const model = new Model({
       sheets: [
@@ -357,6 +368,20 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge("s2", ...toCartesianArray("B5"))).toBe(true);
     expect(model.getters.isInMerge("s2", ...toCartesianArray("C4"))).toBe(true);
     expect(model.getters.isInMerge("s2", ...toCartesianArray("C5"))).toBe(true);
+  });
+
+  test("can cut and paste merge in another sheet", () => {
+    const model = new Model();
+    const sheet1Id = model.getters.getActiveSheetId();
+    setCellContent(model, "B2", "text");
+    merge(model, "B2:C3");
+    cut(model, "B2:C3");
+    createSheet(model, { sheetId: "s2", activate: true });
+
+    paste(model, "A1");
+    expect(getCellContent(model, "A1", "s2")).toBe("text");
+    expect(model.getters.getMerges("s2").map(zoneToXc)).toEqual(["A1:B2"]);
+    expect(model.getters.getMerges(sheet1Id)).toEqual([]);
   });
 
   test("Pasting merge on content will remove the content", () => {
@@ -1459,6 +1484,24 @@ describe("clipboard", () => {
       expect(getCellText(model, "B1")).toBe("");
       expect(getCellText(model, "A2")).toBe("=SUM(B1:C1)+B2");
       expect(getCellText(model, "B2")).toBe("b1");
+    });
+  });
+
+  test("cut/paste ranges present in charts", () => {
+    const model = new Model();
+    createChart(model, { dataSets: ["A1:A4", "B1:B4"], labelRange: "C1:C4" }, "chartId");
+
+    cut(model, "A1:A4");
+    paste(model, "A5");
+
+    cut(model, "C1:C4");
+    createSheet(model, { activate: true, sheetId: "sh2" });
+    paste(model, "C1");
+
+    const chartDefinition = model.getters.getChartDefinition("chartId") as LineChartDefinition;
+    expect(chartDefinition).toMatchObject({
+      dataSets: ["A5:A8", "B1:B4"],
+      labelRange: "Sheet2!C1:C4",
     });
   });
 

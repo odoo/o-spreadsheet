@@ -10,6 +10,7 @@ import {
   Getters,
   GridRenderingContext,
   HeaderIndex,
+  Merge,
   UID,
   Zone,
 } from "../../types";
@@ -28,6 +29,7 @@ interface CopiedTable {
 export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private readonly cells: ClipboardCell[][];
   private readonly copiedTables: CopiedTable[];
+  private readonly copiedMerges: Merge[] = [];
   private readonly zones: Zone[];
 
   constructor(
@@ -42,6 +44,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       this.cells = [[]];
       this.zones = [];
       this.copiedTables = [];
+      this.copiedMerges = [];
       return;
     }
     const lefts = new Set(zones.map((z) => z.left));
@@ -91,6 +94,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     this.cells = cellsInClipboard;
     this.zones = clippedZones;
     this.copiedTables = tables;
+    this.copiedMerges = zones.map((zone) => getters.getMergesInZone(sheetId, zone)).flat();
   }
 
   isCutAllowed(target: Zone[]): CommandResult {
@@ -182,18 +186,19 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     if (options?.pasteOption === undefined) {
       this.pasteCopiedTables(target);
     }
+    this.pasteCopiedMerges(target);
   }
 
   private pasteFromCut(target: Zone[], options?: ClipboardOptions) {
     this.clearClippedZones();
     const selection = target[0];
     this.pasteZone(selection.left, selection.top, options);
-    this.dispatch("MOVE_RANGES", {
-      target: this.zones,
+    this.dispatch("MOVE_REFERENCES", {
+      zone: this.zones[0],
       sheetId: this.sheetId,
       targetSheetId: this.getters.getActiveSheetId(),
-      col: selection.left,
-      row: selection.top,
+      targetCol: selection.left,
+      targetRow: selection.top,
     });
 
     for (const filterTable of this.copiedTables) {
@@ -203,6 +208,14 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       });
     }
     this.pasteCopiedTables(target);
+
+    for (const merge of this.copiedMerges) {
+      this.dispatch("REMOVE_MERGE", {
+        sheetId: this.sheetId,
+        target: [merge],
+      });
+    }
+    this.pasteCopiedMerges(target);
   }
 
   /**
@@ -316,12 +329,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       for (let c = 0; c < width; c++) {
         const origin = rowCells[c];
         const position = { col: col + c, row: row + r, sheetId: sheetId };
-        // TODO: refactor this part. the "Paste merge" action is also executed with
-        // MOVE_RANGES in pasteFromCut. Adding a condition on the operation type here
-        // is not appropriate
-        if (this.operation !== "CUT") {
-          this.pasteMergeIfExist(origin.position, position);
-        }
         this.pasteCell(origin, position, this.operation, clipboardOptions);
         if (shouldPasteCF) {
           this.dispatch("PASTE_CONDITIONAL_FORMAT", {
@@ -410,39 +417,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     return this.getters.buildFormulaContent(sheetId, cell, ranges);
   }
 
-  /**
-   * If the origin position given is the top left of a merge, merge the target
-   * position.
-   */
-  private pasteMergeIfExist(origin: CellPosition, target: CellPosition) {
-    let { sheetId, col, row } = origin;
-
-    const { col: mainCellColOrigin, row: mainCellRowOrigin } = this.getters.getMainCellPosition(
-      sheetId,
-      col,
-      row
-    );
-    if (mainCellColOrigin === col && mainCellRowOrigin === row) {
-      const merge = this.getters.getMerge(sheetId, col, row);
-      if (!merge) {
-        return;
-      }
-      ({ sheetId, col, row } = target);
-      this.dispatch("ADD_MERGE", {
-        sheetId,
-        force: true,
-        target: [
-          {
-            left: col,
-            top: row,
-            right: col + merge.right - merge.left,
-            bottom: row + merge.bottom - merge.top,
-          },
-        ],
-      });
-    }
-  }
-
   /** Paste the filter tables that are in the state */
   private pasteCopiedTables(target: Zone[]) {
     const sheetId = this.getters.getActiveSheetId();
@@ -463,6 +437,20 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
           values: table.filtersValues[i],
         });
       }
+    }
+  }
+
+  private pasteCopiedMerges(target: Zone[]) {
+    const sheetId = this.getters.getActiveSheetId();
+    const selection = target[0];
+    const cutZone = this.zones[0];
+    const cutOffset: [number, number] = [
+      selection.left - cutZone.left,
+      selection.top - cutZone.top,
+    ];
+    for (const merge of this.copiedMerges) {
+      const newMerge = createAdaptedZone(merge, "both", "MOVE", cutOffset);
+      this.dispatch("ADD_MERGE", { sheetId, target: [newMerge], force: true });
     }
   }
 

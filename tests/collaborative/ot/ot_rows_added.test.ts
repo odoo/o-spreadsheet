@@ -10,6 +10,7 @@ import {
   DeleteContentCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  MoveReferencesCommand,
   RemoveColumnsRowsCommand,
   RemoveFilterTableCommand,
   RemoveMergeCommand,
@@ -455,6 +456,47 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
       const command = { ...toTransform, quantity: 2 };
       const result = transform(command, addRowsBefore);
       expect(result).toEqual({ ...command });
+    });
+  });
+
+  describe("OT with MOVE_REFERENCES", () => {
+    const moveReferencesCmd: MoveReferencesCommand = {
+      type: "MOVE_REFERENCES",
+      sheetId,
+      zone: toZone("A1:B2"),
+      targetSheetId: "Sheet2",
+      targetCol: 0,
+      targetRow: 0,
+    };
+
+    test("Rows added before origin zone", () => {
+      const addRowsCmd = { ...addRowsBefore, quantity: 2, base: 0 };
+      const result = transform(moveReferencesCmd, addRowsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, zone: toZone("A3:B4") });
+    });
+
+    test("Rows added inside origin zone", () => {
+      const addRowsCmd = { ...addRowsBefore, quantity: 2, base: 1 };
+      const result = transform(moveReferencesCmd, addRowsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, zone: toZone("A1:B4") });
+    });
+
+    test("Rows added after origin zone", () => {
+      const addRowsCmd = { ...addRowsAfter, quantity: 2, base: 2 };
+      const result = transform(moveReferencesCmd, addRowsCmd);
+      expect(result).toEqual(moveReferencesCmd);
+    });
+
+    test("Rows added before target position", () => {
+      const addRowsCmd = { ...addRowsBefore, quantity: 2, base: 0, sheetId: "Sheet2" };
+      const result = transform(moveReferencesCmd, addRowsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, targetRow: 2 });
+    });
+
+    test("Rows added after target position", () => {
+      const addRowsCmd = { ...addRowsAfter, quantity: 2, base: 2, sheetId: "Sheet2" };
+      const result = transform(moveReferencesCmd, addRowsCmd);
+      expect(result).toEqual(moveReferencesCmd);
     });
   });
 });
