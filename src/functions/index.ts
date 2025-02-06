@@ -57,6 +57,11 @@ const categories: Category[] = [
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 const resultNameKey = "ouuuuuuWAAAAAAAAAAAAAAAAAAAAAH";
 
+(window as any).cacheUsageAccess = 0;
+(window as any).cacheUsageCounter = 0;
+(window as any).cacheUsageMatrixCounter = 0;
+(window as any).cacheUsageMatrixCounterBlocked = 0;
+
 //------------------------------------------------------------------------------
 // Function registry
 //------------------------------------------------------------------------------
@@ -279,10 +284,13 @@ function createComputeFunction(
     }
 
     let subCache = cache.get(functionName);
+    (window as any).cacheUsageAccess++;
 
     for (const arg of args) {
       if (isMatrix(arg)) {
+        (window as any).cacheUsageMatrixCounter++;
         if (!subCache.has(arg)) {
+          (window as any).cacheUsageMatrixCounterBlocked++;
           return;
         }
         subCache = subCache.get(arg);
@@ -298,6 +306,7 @@ function createComputeFunction(
         subCache = subCache.get(arg?.format);
       }
     }
+    (window as any).cacheUsageCounter++;
     return subCache.get(resultNameKey);
   }
 
