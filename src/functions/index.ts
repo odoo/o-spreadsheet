@@ -281,10 +281,22 @@ function createComputeFunction(
     let subCache = cache.get(functionName);
 
     for (const arg of args) {
-      if (!subCache.has(arg)) {
-        return;
+      if (isMatrix(arg)) {
+        if (!subCache.has(arg)) {
+          return;
+        }
+        subCache = subCache.get(arg);
+      } else {
+        if (!subCache.has(arg?.value)) {
+          return;
+        }
+        subCache = subCache.get(arg?.value);
+
+        if (!subCache.has(arg?.format)) {
+          return;
+        }
+        subCache = subCache.get(arg?.format);
       }
-      subCache = subCache.get(arg);
     }
     return subCache.get(resultNameKey);
   }
@@ -301,11 +313,24 @@ function createComputeFunction(
     let subCache = cache.get(functionName);
 
     for (const arg of args) {
-      if (!subCache.has(arg)) {
-        subCache.set(arg, new Map());
+      if (isMatrix(arg)) {
+        if (!subCache.has(arg)) {
+          subCache.set(arg, new Map());
+        }
+        subCache = subCache.get(arg);
+      } else {
+        if (!subCache.has(arg?.value)) {
+          subCache.set(arg?.value, new Map());
+        }
+        subCache = subCache.get(arg?.value);
+
+        if (!subCache.has(arg?.format)) {
+          subCache.set(arg?.format, new Map());
+        }
+        subCache = subCache.get(arg?.format);
       }
-      subCache = subCache.get(arg);
     }
+
     subCache.set(resultNameKey, result);
   }
 
