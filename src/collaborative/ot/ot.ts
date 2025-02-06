@@ -6,6 +6,7 @@ import {
   moveHeaderIndexesOnHeaderAddition,
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/index";
+import { deepCopy } from "../../helpers/misc";
 import { otRegistry } from "../../registries/ot_registry";
 import { ovtRegistry } from "../../registries/ovt_registry";
 import {
@@ -103,7 +104,7 @@ export function transformAll(
   let transformedCommands = [...toTransform];
   for (const executedCommand of executed) {
     transformedCommands = transformedCommands
-      .map((cmd) => transform(cmd, executedCommand, coreGetters))
+      .map((cmd) => transform(deepCopy(cmd), executedCommand, coreGetters))
       .filter(isDefined);
   }
   return transformedCommands;
