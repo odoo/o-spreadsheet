@@ -53,6 +53,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         return this.checkDuplicatedMeasureIds(cmd.pivot);
       }
       case "UPDATE_PIVOT": {
+        if (!(cmd.pivotId in this.pivots)) {
+          return CommandResult.PivotIdNotFound;
+        }
         if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
           return CommandResult.NoChanges;
         }
@@ -69,16 +72,14 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           return CommandResult.EmptyName;
         }
         break;
-      case "INSERT_PIVOT": {
+      case "REMOVE_PIVOT":
+      case "INSERT_PIVOT":
+      case "DUPLICATE_PIVOT": {
         if (!(cmd.pivotId in this.pivots)) {
           return CommandResult.PivotIdNotFound;
         }
         break;
       }
-      case "DUPLICATE_PIVOT":
-        if (!(cmd.pivotId in this.pivots)) {
-          return CommandResult.PivotIdNotFound;
-        }
     }
     return CommandResult.Success;
   }
