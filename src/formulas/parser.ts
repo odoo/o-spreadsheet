@@ -12,6 +12,31 @@ const UNARY_OPERATORS_POSTFIX = ["%"];
 
 const ASSOCIATIVE_OPERATORS = ["*", "+", "&"];
 
+export class TokenList {
+  private tokens: Token[];
+  currentIndex: number = 0;
+  current: Token | undefined;
+
+  constructor(tokens: Token[]) {
+    this.tokens = tokens;
+    this.current = tokens[0];
+  }
+
+  shift() {
+    const current = this.tokens[this.currentIndex];
+    this.current = this.tokens[++this.currentIndex];
+    return current;
+  }
+
+  get length() {
+    return this.tokens.length;
+  }
+
+  get next(): Token | undefined {
+    return this.tokens[this.currentIndex + 1];
+  }
+}
+
 // -----------------------------------------------------------------------------
 // PARSER
 // -----------------------------------------------------------------------------
@@ -103,7 +128,7 @@ const OP_PRIORITY = {
  *  for (1+2)*3, the next operand is (1+2)
  *  for SUM(1,2)+3, the next operand is SUM(1,2)
  */
-function parseOperand(tokens: Token[]): AST {
+function parseOperand(tokens: TokenList): AST {
   const current = tokens.shift();
   if (!current) {
     throw new BadExpressionError();
@@ -124,7 +149,7 @@ function parseOperand(tokens: Token[]): AST {
       };
 
     case "REFERENCE":
-      if (tokens[0]?.value === ":" && tokens[1]?.type === "REFERENCE") {
+      if (tokens.current?.value === ":" && tokens.next?.type === "REFERENCE") {
         tokens.shift();
         const rightReference = tokens.shift();
         return {
@@ -138,7 +163,7 @@ function parseOperand(tokens: Token[]): AST {
       };
     case "SYMBOL":
       const value = current.value;
-      const nextToken = tokens[0];
+      const nextToken = tokens.current;
       if (
         nextToken?.type === "LEFT_PAREN" &&
         functionRegex.test(current.value) &&
@@ -171,16 +196,16 @@ function parseOperand(tokens: Token[]): AST {
   }
 }
 
-function parseFunctionArgs(tokens: Token[]): AST[] {
+function parseFunctionArgs(tokens: TokenList): AST[] {
   consumeOrThrow(tokens, "LEFT_PAREN", _t("Missing opening parenthesis"));
-  const nextToken = tokens[0];
+  const nextToken = tokens.current;
   if (nextToken?.type === "RIGHT_PAREN") {
     consumeOrThrow(tokens, "RIGHT_PAREN");
     return [];
   }
   const args: AST[] = [];
   args.push(parseOneFunctionArg(tokens));
-  while (tokens[0]?.type !== "RIGHT_PAREN") {
+  while (tokens.current?.type !== "RIGHT_PAREN") {
     consumeOrThrow(tokens, "ARG_SEPARATOR", _t("Wrong function call"));
     args.push(parseOneFunctionArg(tokens));
   }
@@ -188,8 +213,8 @@ function parseFunctionArgs(tokens: Token[]): AST[] {
   return args;
 }
 
-function parseOneFunctionArg(tokens: Token[]): AST {
-  const nextToken = tokens[0];
+function parseOneFunctionArg(tokens: TokenList): AST {
+  const nextToken = tokens.current;
   if (nextToken?.type === "ARG_SEPARATOR" || nextToken?.type === "RIGHT_PAREN") {
     // arg is empty: "sum(1,,2)" "sum(,1)" "sum(1,)"
     return { type: "EMPTY", value: "" };
@@ -204,14 +229,17 @@ function consumeOrThrow(tokens, type, message?) {
   }
 }
 
-function parseExpression(tokens: Token[], parent_priority: number = 0): AST {
+function parseExpression(tokens: TokenList, parent_priority: number = 0): AST {
   if (tokens.length === 0) {
     throw new BadExpressionError();
   }
   let left = parseOperand(tokens);
   // as long as we have operators with higher priority than the parent one,
   // continue parsing the expression because it is a child sub-expression
-  while (tokens[0]?.type === "OPERATOR" && OP_PRIORITY[tokens[0].value] > parent_priority) {
+  while (
+    tokens.current?.type === "OPERATOR" &&
+    OP_PRIORITY[tokens.current.value] > parent_priority
+  ) {
     const operator = tokens.shift()!.value;
     if (UNARY_OPERATORS_POSTFIX.includes(operator)) {
       left = {
@@ -245,8 +273,9 @@ export function parseTokens(tokens: Token[]): AST {
   if (tokens[0]?.value === "=") {
     tokens.splice(0, 1);
   }
-  const result = parseExpression(tokens);
-  if (tokens.length) {
+  const tokenList = new TokenList(tokens);
+  const result = parseExpression(tokenList);
+  if (tokenList.current) {
     throw new BadExpressionError();
   }
   return result;
