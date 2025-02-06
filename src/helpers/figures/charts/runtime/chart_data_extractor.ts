@@ -630,7 +630,7 @@ function filterInvalidDataPoints(
 }
 
 /**
- * Filter the data points that have either no value or a missing group value
+ * Filter the data points that have either no value or no root group
  */
 function filterInvalidHierarchicalPoints(
   values: string[],
@@ -645,7 +645,9 @@ function filterInvalidHierarchicalPoints(
     return (
       values[dataPointIndex] &&
       !isNaN(Number(values[dataPointIndex])) &&
-      groups.every((group) => group !== undefined && group !== "" && group !== null)
+      groups[0] !== undefined &&
+      groups[0] !== "" &&
+      groups[0] !== null
     );
   });
   return {

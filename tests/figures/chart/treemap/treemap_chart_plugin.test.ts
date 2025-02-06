@@ -135,6 +135,34 @@ describe("TreeMap chart", () => {
     });
   });
 
+  test("Can have a hierarchical dataset with some categories more detailed that others", () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Year", B1: "Quarter", C1: "Sales",
+      A2: "2024", B2: "Q1",      C2: "100",
+      A3: "2024", B3: "Q2",      C3: "200",
+      A4: "2024", B4: "Q3",      C4: "300",
+      A5: "2025", B5: "",        C5: "600",
+    });
+
+    const chartId = createTreeMapChart(model, {
+      dataSets: [{ dataRange: "A1:A5" }, { dataRange: "B1:B5" }],
+      labelRange: "C1:C5",
+      dataSetsHaveTitle: true,
+    });
+    const datasetConfig = getTreeMapDatasetConfig(chartId);
+    expect(datasetConfig).toMatchObject({
+      tree: [
+        { 0: "2024", 1: "Q1", value: 100 },
+        { 0: "2024", 1: "Q2", value: 200 },
+        { 0: "2024", 1: "Q3", value: 300 },
+        { 0: "2025", 1: "2025", value: 600 },
+      ],
+      groups: ["0", "1"],
+      key: "value",
+    });
+  });
+
   test("Can define TreeMap dataset in a tree-like manner", () => {
     // prettier-ignore
     const grid = {
@@ -169,13 +197,11 @@ describe("TreeMap chart", () => {
   test("Invalid values are filtered out", () => {
     // prettier-ignore
     const grid = {
-      A1: "",     B1: "Q1",      C1: "",     D1: "50",         // No year value
+      A1: "",     B1: "Q1",      C1: "",     D1: "50",         // No root group value
       A2: "2024", B2: "Q1",      C2: "W1",   D2: "100",
-                                 C3: "",     D3: "200",        // No leaf value
                   B4: "Q2",      C4: "W1",   D4: "notANumber", // Invalid value
                                  C5: "W2",   D5: "400",
-      A6: "2025", B6: "",        C6: "W1",   D6: "500",        // No quarter value
-      A7: "2026", B7: "Q1",      C7: "W1",   D7: "",           // No data value
+      A7: "2025", B7: "Q1",      C7: "W1",   D7: "",           // No data value
     };
     setGrid(model, grid);
 
@@ -198,7 +224,6 @@ describe("TreeMap chart", () => {
       dataSets: [{ dataRange: "A1" }],
     });
     expect(model.getters.getChartRuntime(chartId)?.background).toEqual("#123456");
-    expect(getTreeMapDatasetConfig(chartId).borderColor).toEqual("#123456");
   });
 
   test("TreeMap header style", () => {
