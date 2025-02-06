@@ -291,11 +291,9 @@ export function getTreeMapChartData(
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   // In TreeMap, labels are the leaf values (numbers), and the hierarchy is defined in the dataSets (strings)
-  // It's the opposite of the other charts. To not change the whole typing of ChartRuntimeGenerationArgs, we
-  // will keep labels and dataSetsValues names in the return object.
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.values;
+  let labels = getChartLabelValues(getters, dataSets, labelRange).values;
   let dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
+  // ADRM TODO: rebase & use helper shouldRemoveFirstLabel
   if (
     definition.dataSetsHaveTitle &&
     dataSetsValues[0] &&

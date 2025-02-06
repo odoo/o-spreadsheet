@@ -1007,7 +1007,7 @@
     // PATCH: Ignore spacing in X to compute box size
     const sp = helpers.valueOrDefault(dataset.spacing, 0);
     const spX = dataset.displayMode === "headerBoxes" ? 0 : sp;
-    const spY = sp;
+    const spY = dataset.displayMode === "headerBoxes" ? 0 : sp;
     const captions = dataset.captions || {};
     const font = helpers.toFont(captions.font);
     const padding = helpers.valueOrDefault(captions.padding, 3);
@@ -1045,13 +1045,8 @@
             // PATCH: reduce header height if there is no space
             const captionHeight = getCaptionHeight(dataset.displayMode, subRect, font, padding);
 
-            if (dataset.displayMode === "headerBoxes") {
-              subRect.y += captionHeight - spY;
-              subRect.h -= captionHeight - spY * 2;
-            } else {
-              subRect.y += captionHeight;
-              subRect.h -= captionHeight;
-            }
+            subRect.y += captionHeight;
+            subRect.h -= captionHeight;
           }
           gdata.forEach((gEl) => {
             ret.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
@@ -1068,7 +1063,7 @@
           return d;
         }
 
-        const rect = { ...d, h: d.h - 2 * spY };
+        const rect = { ...d, h: d.h - 2 * 0 };
         if (!shouldDrawCaption(dataset.displayMode, rect, captions)) {
           return undefined;
         }
