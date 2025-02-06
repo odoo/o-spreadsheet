@@ -19,9 +19,11 @@ import {
   hideRows,
   merge,
   moveSheet,
+  redo,
   renameSheet,
   selectCell,
   setCellContent,
+  undo,
   unfreezeColumns,
   unfreezeRows,
   unhideColumns,
@@ -938,6 +940,61 @@ describe("Collaborative Sheet manipulation", () => {
         xSplit: 0,
         ySplit: 0,
       }
+    );
+  });
+});
+
+describe("Collaborative multi sheet manipulation", () => {
+  let network: MockTransportService;
+  let alice: Model;
+  let bob: Model;
+  let charlie: Model;
+
+  const sheetId = "sid";
+  const sheetName = "SheetName";
+  const otherSheetId = "othersid";
+  const otherSheetName = "OtherSheetName";
+
+  const newSheetName = "NewSheetName";
+
+  beforeEach(() => {
+    ({ network, alice, bob, charlie } = setupCollaborativeEnv({
+      sheets: [
+        { id: sheetId, name: sheetName },
+        { id: otherSheetId, name: otherSheetName },
+      ],
+    }));
+  });
+
+  test("LE test", () => {
+    setCellContent(alice, "E1", "25", otherSheetId);
+    deleteColumns(alice, ["C"], otherSheetId);
+
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCell({ sheetId: otherSheetId, col: 3, row: 0 })?.content,
+      "25"
+    );
+
+    setCellContent(bob, "A1", "=" + otherSheetName + "!D1", sheetId);
+    renameSheet(bob, otherSheetId, newSheetName);
+
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+      "=" + newSheetName + "!D1"
+    );
+
+    undo(alice);
+
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+      "=" + newSheetName + "!E1"
+    );
+
+    redo(alice);
+
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getCell({ sheetId: sheetId, col: 0, row: 0 })?.content,
+      "=" + newSheetName + "!D1"
     );
   });
 });
