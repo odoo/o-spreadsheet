@@ -1,10 +1,13 @@
+import { AST } from "prettier";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
 import { transposeMatrix } from "../../../functions/helpers";
 import {
   colors,
   concat,
+  formatValue,
   fuzzyLookup,
   getZoneArea,
   isEqual,
@@ -13,7 +16,7 @@ import {
   splitReference,
   zoneToDimension,
 } from "../../../helpers/index";
-import { canonicalizeNumberContent, localizeNumberContent } from "../../../helpers/locale";
+import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProvider,
@@ -290,12 +293,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       this.hoveredContentEvaluation = "";
       return;
     }
-    const hoveredToken = this.currentTokens[tokenIndex];
-    const hoveredContextTokens = this.isPrimitiveToken(hoveredToken)
-      ? [hoveredToken]
-      : this.currentTokens.filter((t) =>
-          t.parenthesesCode?.startsWith(hoveredToken.parenthesesCode || "")
-        );
+    const hoveredContextTokens =
+      tokenIndex === 0 && this.currentTokens[tokenIndex]?.value === "="
+        ? this.currentTokens
+        : this.getRelatedTokens(tokenIndex);
 
     hoveredContextTokens.forEach((t) => (t.isInHoverContext = true));
 
@@ -307,6 +308,19 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const canonicalFormula = canonicalizeNumberContent(hoveredFormula, this.getters.getLocale());
     const result = this.getters.evaluateFormula(this.sheetId, canonicalFormula);
     this.hoveredContentEvaluation = this.evaluationResultToDisplayString(result);
+  }
+
+  private getRelatedTokens(tokenIndex: number): EnrichedToken[] {
+    const ast = parseTokens(this.currentTokens);
+    let match: AST | undefined = undefined;
+    for (const node of iterateAstNodes(ast)) {
+      if (tokenIndex >= node.tokenStartIndex && tokenIndex <= node.tokenEndIndex) {
+        match = node;
+      } else if (tokenIndex < node.tokenStartIndex) {
+        break;
+      }
+    }
+    return match ? this.currentTokens.slice(match.tokenStartIndex, match.tokenEndIndex + 1) : [];
   }
 
   private evaluationResultToDisplayString(result: CellValue | Matrix<CellValue>): string {
@@ -325,7 +339,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   private cellValueToDisplayString(value: CellValue): string {
     switch (typeof value) {
       case "number":
-        return localizeNumberContent(String(value), this.getters.getLocale());
+        return formatValue(value, { locale: this.getters.getLocale() });
       case "string":
         if (errorTypes.has(value)) {
           return value;
@@ -335,16 +349,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         return value ? "TRUE" : "FALSE";
     }
     return "0";
-  }
-
-  private isPrimitiveToken(token: EnrichedToken): boolean {
-    return (
-      token.type === "NUMBER" ||
-      token.type === "STRING" ||
-      token.type === "REFERENCE" ||
-      (token.type === "SYMBOL" &&
-        (token.value.toLowerCase() === "true" || token.value.toLowerCase() === "false"))
-    );
   }
 
   private captureSelection(zone: Zone, col?: HeaderIndex, row?: HeaderIndex) {

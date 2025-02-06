@@ -4,6 +4,7 @@ import { Store } from "../../src/store_engine";
 import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { getElStyle, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
   mountComposerWrapper,
@@ -94,7 +95,7 @@ describe("Composer hover", () => {
     expect(getHighlightedContent()).toEqual("");
 
     await hoverComposerContent("*");
-    expect(getHighlightedContent()).toEqual("=SUM(A1+2) * 8");
+    expect(getHighlightedContent()).toEqual("SUM(A1+2) * 8");
   });
 
   test("Can hover primitive types", async () => {
@@ -166,6 +167,35 @@ describe("Composer hover", () => {
 
     await hoverComposerContent(")");
     expect(".o-speech-bubble").toHaveText("20");
+  });
+
+  test("Hovered tokens take operation priority into account", async () => {
+    await typeInComposer("=SUM(5 * 5 + 6) - 12 / SUM(6)");
+
+    await hoverComposerContent("*");
+    expect(getHighlightedContent()).toEqual("5 * 5");
+    expect(".o-speech-bubble").toHaveText("25");
+
+    await hoverComposerContent("+");
+    expect(getHighlightedContent()).toEqual("5 * 5 + 6");
+    expect(".o-speech-bubble").toHaveText("31");
+
+    await hoverComposerContent("-");
+    expect(getHighlightedContent()).toEqual("SUM(5 * 5 + 6) - 12 / SUM(6)");
+    expect(".o-speech-bubble").toHaveText("29");
+
+    await hoverComposerContent("/");
+    expect(getHighlightedContent()).toEqual("12 / SUM(6)");
+    expect(".o-speech-bubble").toHaveText("2");
+  });
+
+  test("Speech bubble numbers are default formatted (remove too many decimals)", async () => {
+    setCellContent(model, "B1", "1.1000000001");
+    expect(getEvaluatedCell(model, "B1").formattedValue).toEqual("1.1");
+
+    await typeInComposer("=B1");
+    await hoverComposerContent("=");
+    expect(".o-speech-bubble").toHaveText("1.1");
   });
 
   test("Can hover localized content", async () => {

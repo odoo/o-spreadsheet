@@ -40,6 +40,8 @@ exports[`composerTokenizer = SUM ( C4 : C5 ) 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "REFERENCE",
           "value": "C4 : C5",
         },
@@ -58,6 +60,8 @@ exports[`composerTokenizer = SUM ( C4 : C5 ) 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "REFERENCE",
           "value": "C4 : C5",
         },
@@ -76,6 +80,8 @@ exports[`composerTokenizer = SUM ( C4 : C5 ) 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "REFERENCE",
           "value": "C4 : C5",
         },
@@ -94,6 +100,8 @@ exports[`composerTokenizer = SUM ( C4 : C5 ) 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "REFERENCE",
           "value": "C4 : C5",
         },
@@ -141,10 +149,14 @@ exports[`composerTokenizer base tests Boolean 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "BOOLEAN",
           "value": true,
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "BOOLEAN",
           "value": false,
         },
@@ -163,10 +175,14 @@ exports[`composerTokenizer base tests Boolean 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "BOOLEAN",
           "value": true,
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "BOOLEAN",
           "value": false,
         },
@@ -185,10 +201,14 @@ exports[`composerTokenizer base tests Boolean 1`] = `
       "argPosition": 1,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "BOOLEAN",
           "value": true,
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "BOOLEAN",
           "value": false,
         },
@@ -207,10 +227,14 @@ exports[`composerTokenizer base tests Boolean 1`] = `
       "argPosition": 1,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "BOOLEAN",
           "value": true,
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "BOOLEAN",
           "value": false,
         },
@@ -258,36 +282,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -306,36 +346,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -354,36 +410,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -402,36 +474,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 1,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -482,36 +570,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 1,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -530,36 +634,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 2,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -578,36 +698,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 2,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -626,36 +762,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 2,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -674,10 +826,14 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 2,
         },
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "NUMBER",
           "value": 3,
         },
@@ -696,10 +852,14 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 0,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 2,
         },
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "NUMBER",
           "value": 3,
         },
@@ -718,10 +878,14 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 1,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 2,
         },
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "NUMBER",
           "value": 3,
         },
@@ -740,10 +904,14 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 1,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 2,
         },
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "NUMBER",
           "value": 3,
         },
@@ -762,10 +930,14 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 1,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 2,
         },
         {
+          "tokenEndIndex": 1,
+          "tokenStartIndex": 1,
           "type": "NUMBER",
           "value": 3,
         },
@@ -784,36 +956,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 2,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -832,36 +1020,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 3,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },
@@ -880,36 +1084,52 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "argPosition": 3,
       "args": [
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 1,
         },
         {
           "left": {
+            "tokenEndIndex": 1,
+            "tokenStartIndex": 1,
             "type": "NUMBER",
             "value": 1,
           },
           "right": {
+            "tokenEndIndex": 3,
+            "tokenStartIndex": 3,
             "type": "NUMBER",
             "value": 2,
           },
+          "tokenEndIndex": 4,
+          "tokenStartIndex": 0,
           "type": "BIN_OPERATION",
           "value": "+",
         },
         {
           "args": [
             {
+              "tokenEndIndex": 3,
+              "tokenStartIndex": 3,
               "type": "NUMBER",
               "value": 2,
             },
             {
+              "tokenEndIndex": 6,
+              "tokenStartIndex": 6,
               "type": "NUMBER",
               "value": 3,
             },
           ],
+          "tokenEndIndex": 7,
+          "tokenStartIndex": 0,
           "type": "FUNCALL",
           "value": "ADD",
         },
         {
+          "tokenEndIndex": 0,
+          "tokenStartIndex": 0,
           "type": "NUMBER",
           "value": 4,
         },

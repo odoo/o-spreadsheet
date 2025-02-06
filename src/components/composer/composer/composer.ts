@@ -202,7 +202,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   private debouncedHover = debounce((hoveredContent?: HtmlContent, hoveredRect?: Rect) => {
     this.props.composerStore.hoverToken(hoveredContent?.tokenIndex);
     this.composerState.hoveredRect = hoveredRect;
-  }, 70);
+  }, 120);
 
   get assistantStyle(): string {
     const composerRect = this.composerRef.el!.getBoundingClientRect();
