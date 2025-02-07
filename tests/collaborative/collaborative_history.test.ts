@@ -22,7 +22,6 @@ import {
   undo,
   unfreezeColumns,
 } from "../test_helpers/commands_helpers";
-import { printDebugModel } from "../test_helpers/debug_helpers";
 import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { spyUiPluginHandle, target } from "../test_helpers/helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -748,6 +747,17 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
     undo(bob);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F1"), "hello");
+  });
+
+  test("Active sheet is correctly recomputed after concurrent sheet modifications", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(bob, { sheetId: "sheet2", name: "Sheet2", position: 1 });
+    network.concurrent(() => {
+      deleteSheet(bob, "sheet2");
+      createSheet(alice, { sheetId: "sheet3", position: 1, name: "Sheet3" });
+      deleteSheet(charlie, firstSheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("local history is cleared and cannot repeat last command after snapshot", () => {
