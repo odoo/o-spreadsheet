@@ -7,12 +7,14 @@ import { StateUpdateMessage } from "../../src/types/collaborative/transport_serv
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
+  addRows,
   createSheet,
   deleteColumns,
   deleteRows,
   deleteSheet,
   freezeColumns,
   redo,
+  resizeColumns,
   setCellContent,
   setSelection,
   snapshot,
@@ -90,6 +92,17 @@ describe("Collaborative local history", () => {
   test("Undo a pending revision", () => {
     network.concurrent(() => {
       setCellContent(alice, "A1", "hello");
+      undo(alice);
+      setCellContent(bob, "B1", "hello");
+    });
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "B1"), "hello");
+    expect(all).toHaveSynchronizedExportedData();
+  });
+
+  test("Concurrent undo and a non-related pending revision", () => {
+    setCellContent(alice, "A1", "hello");
+    network.concurrent(() => {
       undo(alice);
       setCellContent(bob, "B1", "hello");
     });
@@ -280,6 +293,16 @@ describe("Collaborative local history", () => {
     );
     expect(getCell(model, "B1")).toBeUndefined();
     expect(model.exportData().revisionId).toBe("2");
+  });
+
+  test("Only the revisions **after** the first transformed one are dropped", () => {
+    addRows(alice, "after", 11, 1);
+    network.concurrent(() => {
+      undo(alice);
+      setCellContent(charlie, "A1", "Hello"); // This command is not transformed, so transferred to others users
+      setCellContent(charlie, "A13", "Hello"); // This command is transformed, hence dropped when receiveing the concurrent undo
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("Load model with initial messages, with redo", () => {
@@ -515,7 +538,7 @@ describe("Collaborative local history", () => {
       undo(alice);
       setCellContent(bob, "B1", "hello");
     });
-    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1"), undefined);
   });
 
@@ -931,6 +954,16 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
+  test("Concurrent undo where the transformation partially destroys the other", () => {
+    addColumns(alice, "before", "C", 3);
+    network.concurrent(() => {
+      undo(alice);
+      resizeColumns(bob, ["A", "B", "C", "D", "E"], 20);
+    });
+    redo(alice);
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
   test("Transform command with preceding concurrent command when previous command is redone", () => {
     setCellContent(alice, "E10", "hello");
     addColumns(alice, "before", "F", 3);
@@ -960,10 +993,7 @@ describe("Collaborative local history", () => {
       setCellContent(alice, "C4", "hello");
     });
     redo(bob);
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "C4"),
-      "hello"
-    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "C4"), undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
