@@ -4,7 +4,9 @@ import { deepCopy, range } from "../../src/helpers";
 import { Command } from "../../src/types";
 // import { redo, undo } from "../test_helpers/commands_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { redo } from "../test_helpers/commands_helpers";
 import { printDebugModel } from "../test_helpers/debug_helpers";
+import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 import { commands } from "./revisions_party";
 
@@ -45,7 +47,7 @@ describe("monkey party", () => {
   let bob: Model;
   let charlie: Model;
   const now = Date.now();
-  const seeds = range(0, 200).map((i) => (now + i).toString());
+  const seeds = range(0, 80).map((i) => (now + i).toString());
   seeds;
   let print = () => {
     printDebugModel(alice);
@@ -59,11 +61,9 @@ describe("monkey party", () => {
   });
 
   let x: string[] = [];
-  //1643365577223
-  // 1643639531275 1643639531325
-  // export cells 1643724900272
-  test.each(["1673524871000"])("monkey party with seed %s", (seed) => {
-    //   test.each(seeds)("monkey party with seed %s", (seed) => {
+
+  test.each(["1738851888923"])("monkey party with seed %s", (seed) => {
+    // test.each(seeds)("monkey party with seed %s", (seed) => {
     // test("monkey party with seed %s", () => {
     seedrandom(seed, { global: true });
     shuffle;
@@ -97,8 +97,8 @@ describe("monkey party", () => {
           );
           user.dispatch(command.type, deepCopy(command));
         }
+        x.push("});");
       });
-      x.push("});");
       // console.log(count);
       // printDebugModel(alice);
       // printDebugModel(bob);
@@ -107,5 +107,27 @@ describe("monkey party", () => {
       // expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     }
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("1738851888923", () => {
+    bob.dispatch("CREATE_SHEET", {
+      sheetId: "5d17252a-7b7a-448e-9c9b-706349d797cb",
+      name: "Pivot #1",
+      position: 1,
+    });
+    network.concurrent(() => {
+      bob.dispatch("UPDATE_CELL", { sheetId: "Sheet1", col: 1, row: 4, content: "4" });
+      charlie.dispatch("SET_FORMATTING", { sheetId: "Sheet1", target: [], format: "" });
+      charlie.dispatch("UPDATE_CELL", { sheetId: "Sheet1", col: 0, row: 0, content: "4" });
+      // charlie.dispatch("DELETE_SHEET", { "sheetId": "Sheet1" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (usef) => getEvaluatedCell(usef, "A1").value,
+      4
+    );
+    printDebugModel(bob);
+    printDebugModel(charlie);
+    // debugger
+    redo(bob);
   });
 });

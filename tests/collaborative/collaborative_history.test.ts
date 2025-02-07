@@ -13,6 +13,7 @@ import {
   deleteSheet,
   freezeColumns,
   redo,
+  resizeColumns,
   setCellContent,
   setSelection,
   setStyle,
@@ -20,6 +21,7 @@ import {
   undo,
   unfreezeColumns,
 } from "../test_helpers/commands_helpers";
+import { printDebugModel } from "../test_helpers/debug_helpers";
 import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { spyUiPluginHandle, target } from "../test_helpers/helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -918,6 +920,18 @@ describe("Collaborative local history", () => {
       undo(alice);
       setCellContent(bob, "B2", "B2", "sheet2");
     });
+    redo(alice);
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("bouzi bousou", () => {
+    addColumns(alice, "before", "C", 3);
+    network.concurrent(() => {
+      undo(alice);
+      resizeColumns(bob, ["A", "B", "C", "D", "E"], 20);
+    });
+    printDebugModel(bob);
+    printDebugModel(alice);
     redo(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });

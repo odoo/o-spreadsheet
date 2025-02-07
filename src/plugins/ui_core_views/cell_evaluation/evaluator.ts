@@ -41,6 +41,8 @@ import { PositionSet, SheetSizes } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
+let i = 0;
+
 const MAX_ITERATION = 30;
 const ERROR_CYCLE_CELL = createEvaluatedCell(new CircularDependencyError());
 const EMPTY_CELL = createEvaluatedCell({ value: null });
@@ -189,6 +191,10 @@ export class Evaluator {
   }
 
   buildDependencyGraph() {
+    // console.log(i++);
+    // if (i >= 63) {
+    //   debugger
+    // }
     this.blockedArrayFormulas = this.createEmptyPositionSet();
     this.spreadingRelations = new SpreadingRelation();
     this.formulaDependencies = lazy(() => {
