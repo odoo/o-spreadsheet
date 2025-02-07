@@ -1477,10 +1477,11 @@ describe("charts", () => {
         type: "line",
         labelRange: "C2",
         dataSets: [{ dataRange: "A1" }],
+        dataSetsHaveTitle: false,
       });
       await mountChartSidePanel();
 
-      const checkbox = document.querySelector("input[name='labelsAsText']") as HTMLInputElement;
+      const checkbox = document.querySelector<HTMLInputElement>("input[name='dataSetsHaveTitle']")!;
       expect(checkbox.checked).toBe(false);
 
       await simulateClick(checkbox);
@@ -1493,10 +1494,11 @@ describe("charts", () => {
         type: "line",
         labelRange: "C2",
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
+        dataSetsHaveTitle: false,
       });
       await mountChartSidePanel();
 
-      const checkbox = document.querySelector("input[name='labelsAsText']") as HTMLInputElement;
+      const checkbox = document.querySelector<HTMLInputElement>("input[name='dataSetsHaveTitle']")!;
       expect(checkbox.checked).toBe(false);
 
       expect(checkbox.checked).toBe(false);
