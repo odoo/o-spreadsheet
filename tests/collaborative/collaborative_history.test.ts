@@ -754,6 +754,17 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "F1"), "hello");
   });
 
+  test("Active sheet is correctly recomputed after concurrent sheet modifications", () => {
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(bob, { sheetId: "sheet2", name: "Sheet2", position: 1 });
+    network.concurrent(() => {
+      deleteSheet(bob, "sheet2");
+      createSheet(alice, { sheetId: "sheet3", position: 1, name: "Sheet3" });
+      deleteSheet(charlie, firstSheetId);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
   test("local history is cleared and cannot repeat last command after snapshot", () => {
     setCellContent(alice, "A1", "hello");
     setCellContent(alice, "A2", "hello");
