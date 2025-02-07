@@ -43,7 +43,6 @@ export function escapeRegExp(str: string): string {
  * Sparse arrays remain sparse.
  */
 export function deepCopy<T>(obj: T): T {
-  const result: any = Array.isArray(obj) ? [] : {};
   switch (typeof obj) {
     case "object": {
       if (obj === null) {
@@ -53,8 +52,17 @@ export function deepCopy<T>(obj: T): T {
       } else if (!(isPlainObject(obj) || obj instanceof Array)) {
         throw new Error("Unsupported type: only objects and arrays are supported");
       }
-      for (const key in obj) {
-        result[key] = deepCopy(obj[key]);
+      const result: any = Array.isArray(obj) ? new Array(obj.length) : {};
+      if (Array.isArray(obj)) {
+        for (let i = 0, len = obj.length; i < len; i++) {
+          if (i in obj) {
+            result[i] = deepCopy(obj[i]);
+          }
+        }
+      } else {
+        for (const key in obj) {
+          result[key] = deepCopy(obj[key]);
+        }
       }
       return result;
     }
