@@ -1,8 +1,9 @@
 import seedrandom from "seedrandom";
 import { Model } from "../../src";
-import { deepCopy, range } from "../../src/helpers";
+import { range } from "../../src/helpers";
 import { Command } from "../../src/types";
 // import { redo, undo } from "../test_helpers/commands_helpers";
+import { FunctionCodeBuilder } from "../../src/formulas/code_builder";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { redo } from "../test_helpers/commands_helpers";
 import { printDebugModel } from "../test_helpers/debug_helpers";
@@ -28,7 +29,7 @@ function randomIntFromInterval(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function randomGroup(commands: UserAction[]): UserAction[][] {
+function randomConcurrencyGroup(commands: UserAction[]): UserAction[][] {
   const result: any[] = [];
   while (commands.length) {
     const groupSize = randomIntFromInterval(1, 6);
@@ -39,6 +40,28 @@ function randomGroup(commands: UserAction[]): UserAction[][] {
 
 function assignUser(commands: Command[], users: Model[]): UserAction[] {
   return commands.map((cmd) => ({ command: cmd, user: randomChoice(users) }));
+}
+
+function actionsToTestCode(testTitle, actions: UserAction[][]) {
+  const code = new FunctionCodeBuilder();
+  code.append(`test("${testTitle}", () => {`);
+  for (const commandGroup of actions) {
+    code.append("network.concurrent(() => {");
+    for (const { command, user } of commandGroup) {
+      const userName = user.getters.getClient().name.toLowerCase();
+      if (command.type === "REQUEST_UNDO") {
+        code.append(`undo(${userName});`);
+      } else if (command.type === "REQUEST_REDO") {
+        code.append(`redo(${userName});`);
+      } else {
+        const cmdPayload = JSON.stringify({ ...command, type: undefined });
+        code.append(`${userName}.dispatch("${command.type}", ${cmdPayload});`);
+      }
+    }
+    code.append("});");
+  }
+  code.append("expect([alice, bob, charlie]).toHaveSynchronizedExportedData();", "});");
+  return code.toString();
 }
 
 describe("monkey party", () => {
@@ -60,50 +83,39 @@ describe("monkey party", () => {
     ({ network, alice, bob, charlie } = setupCollaborativeEnv());
   });
 
-  let x: string[] = [];
-
-  test.each(["1738918805500"])("monkey party with seed %s", (seed) => {
-    // test.each(seeds)("monkey party with seed %s", (seed) => {
-    // test("monkey party with seed %s", () => {
+  // test.each(["1738918805500"])("monkey party with seed %s", (seed) => {
+  test.each(seeds)("monkey party with seed %s", (seed) => {
     seedrandom(seed, { global: true });
-    shuffle;
-    const actions = assignUser(shuffle(commands), [alice, bob, charlie]);
-    const commandGroups = randomGroup(actions);
-    let count = 0;
-    for (const commandGroup of commandGroups) {
-      count++;
-      x.push("network.concurrent(() => {");
+
+    // add some undo/redo
+    const undoRedoRatio = 0.1;
+    const undoRedoCount = Math.floor(commands.length * undoRedoRatio);
+    const commandsWithUndoRedo = [...commands];
+    commandsWithUndoRedo.push(
+      ...new Array(undoRedoCount).fill({ type: "REQUEST_UNDO" }),
+      ...new Array(undoRedoCount).fill({ type: "REQUEST_REDO" })
+    );
+    const actions = assignUser(shuffle(commandsWithUndoRedo), [alice, bob, charlie]);
+    const concurrencyGroups = randomConcurrencyGroup(actions);
+
+    const executed: UserAction[][] = [];
+    for (const commandGroup of concurrencyGroups) {
+      const concurrentlyExecuted: UserAction[] = [];
+      executed.push(concurrentlyExecuted);
       network.concurrent(() => {
         for (const { command, user } of commandGroup) {
-          if (Math.random() > 0.9) {
-            const result = user.dispatch("REQUEST_UNDO");
-            if (!result.isSuccessful) {
-              // x.push(`undo(${user["config"].client.name.toLowerCase()}) // refused`);
-            } else {
-              x.push(`undo(${user["config"].client.name.toLowerCase()})`);
+          try {
+            const result = user.dispatch(command.type, command);
+            if (result.isSuccessful) {
+              concurrentlyExecuted.push({ command, user });
             }
-          } else if (Math.random() > 0.9) {
-            const result = user.dispatch("REQUEST_REDO");
-            if (!result.isSuccessful) {
-              // x.push(`redo(${user["config"].client.name.toLowerCase()}) // refused`);
-            } else {
-              x.push(`redo(${user["config"].client.name.toLowerCase()})`);
-            }
+          } catch (e) {
+            concurrentlyExecuted.push({ command, user });
+            throw new Error(`Error while executing ${command.type}`, { cause: e });
           }
-          x.push(
-            `${user["config"].client.name.toLowerCase()}.dispatch("${
-              command.type
-            }", ${JSON.stringify({ ...command, type: undefined })});`
-          );
-          user.dispatch(command.type, deepCopy(command));
         }
-        x.push("});");
       });
-      // console.log(count);
-      // printDebugModel(alice);
-      // printDebugModel(bob);
-      // if (count === 15) {
-      // }
+      // console.log(actionsToTestCode(seed, executed));
       // expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     }
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
