@@ -38,8 +38,10 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           ),
           labelRange: this.extractChildTextContent(
             rootChartElement,
-            `c:ser ${chartType === "scatterChart" ? "c:numRef" : "c:cat"} c:f`
-          ),
+            `c:ser ${chartType === "scatterChart" ? "c:xVal" : "c:cat"} c:f`
+          )
+            ?.split(",")
+            .reverse(),
           backgroundColor: this.extractChildAttr(
             rootChartElement,
             "c:chartSpace > c:spPr a:srgbClr",
@@ -86,7 +88,9 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           "comboChart"
         ),
       ],
-      labelRange: this.extractChildTextContent(chartElement, "c:ser c:cat c:f"),
+      labelRange: this.extractChildTextContent(chartElement, "c:ser c:cat c:f")
+        ?.split(",")
+        .reverse(),
       backgroundColor: this.extractChildAttr(
         chartElement,
         "c:chartSpace > c:spPr a:srgbClr",

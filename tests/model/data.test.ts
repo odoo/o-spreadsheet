@@ -222,4 +222,45 @@ describe("load data", () => {
       ],
     });
   });
+
+  test("figure labelRange is correctly set to an array", () => {
+    expect(
+      load({
+        version: 24,
+        sheets: [
+          {
+            name: "Sheet1",
+            id: "Sheet1",
+            cells: {},
+            figures: [
+              {
+                id: "1",
+                data: {
+                  type: "line",
+                  title: "Line",
+                  labelRange: "Sheet1!A27:A35",
+                  dataSets: ["Sheet1!B26:B35", "Sheet1!C26:C35"],
+                  dataSetsHaveTitle: true,
+                },
+              },
+            ],
+          },
+        ],
+      })
+    ).toMatchObject({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          figures: [
+            {
+              data: {
+                labelRange: ["Sheet1!A27:A35"],
+                dataSetsHaveTitle: true,
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
 });

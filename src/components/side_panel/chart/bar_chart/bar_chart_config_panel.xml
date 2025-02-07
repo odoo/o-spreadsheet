@@ -17,10 +17,12 @@
         onSelectionRemoved.bind="onDataSeriesRemoved"
       />
       <ChartLabelRange
-        range="this.getLabelRange()"
+        ranges="this.getLabelRange()"
         isInvalid="isLabelInvalid"
         onSelectionChanged.bind="onLabelRangeChanged"
         onSelectionConfirmed.bind="onLabelRangeConfirmed"
+        onSelectionReordered.bind="onLabelRangesReordered"
+        onSelectionRemoved.bind="onLabelRangeRemoved"
         options="this.getLabelRangeOptions()"
       />
 

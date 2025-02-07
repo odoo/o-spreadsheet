@@ -44,11 +44,27 @@ import { recomputeZones } from "../../../recompute_zones";
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRange: Range[] | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
+  let labels: string[] = [];
+  if (labelRange && labelRange.length) {
+    for (const range of labelRange) {
+      const labelValues = getChartLabelValues(getters, dataSets, range);
+      const values = labelValues.formattedValues;
+      if (!labels.length) {
+        labels = values;
+      } else {
+        for (let i = 0; i < values.length; i++) {
+          if (values[i]) {
+            labels[i] += " \n " + values[i];
+          }
+        }
+      }
+    }
+  } else {
+    labels = getChartLabelValues(getters, dataSets).formattedValues;
+  }
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (
     definition.dataSetsHaveTitle &&
@@ -87,7 +103,7 @@ export function getBarChartData(
     dataSetsValues,
     trendDataSetsValues,
     axisFormats,
-    labels,
+    labels: applyLineBreakForLabels(labels),
     locale: getters.getLocale(),
   };
 }
@@ -95,7 +111,7 @@ export function getBarChartData(
 export function getPyramidChartData(
   definition: PyramidChartDefinition,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRange: Range[] | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const barChartData = getBarChartData(definition, dataSets, labelRange, getters);
@@ -120,12 +136,32 @@ export function getPyramidChartData(
 export function getLineChartData(
   definition: GenericDefinition<LineChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRange: Range[] | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const axisType = getChartAxisType(definition, labelRange, getters);
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
+  let axisType: AxisType = "category";
+  if (labelRange && labelRange.length === 1) {
+    axisType = getChartAxisType(definition, labelRange[0], getters);
+  }
+  let labels: string[] = [];
+  if (labelRange && labelRange.length) {
+    for (const range of labelRange) {
+      const labelValues = getChartLabelValues(getters, dataSets, range);
+      const values = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
+      if (!labels.length) {
+        labels = values;
+      } else {
+        for (let i = 0; i < labelValues.formattedValues.length; i++) {
+          if (values[i]) {
+            labels[i] += " \n " + values[i];
+          }
+        }
+      }
+    }
+  } else {
+    const labelValues = getChartLabelValues(getters, dataSets);
+    labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
+  }
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (
     definition.dataSetsHaveTitle &&
@@ -145,7 +181,7 @@ export function getLineChartData(
 
   const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
   const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
-  const labelsFormat = getChartLabelFormat(getters, labelRange);
+  const labelsFormat = getChartLabelFormat(getters, labelRange?.[0]);
   const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat, x: labelsFormat };
 
   const trendDataSetsValues: (Point[] | undefined)[] = [];
@@ -177,21 +213,45 @@ export function getLineChartData(
   return {
     dataSetsValues,
     axisFormats,
-    labels,
+    labels: applyLineBreakForLabels(labels),
     locale: getters.getLocale(),
     trendDataSetsValues,
     axisType,
   };
 }
 
+function applyLineBreakForLabels(labels: string[]): (string | string[])[] {
+  return labels.map((label) => (label.includes("\n") ? label.split("\n") : label));
+}
+
 export function getPieChartData(
   definition: GenericDefinition<PieChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRange: Range[] | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
+  let axisType: AxisType = "category";
+  if (labelRange && labelRange.length === 1) {
+    axisType = getChartAxisType(definition, labelRange[0], getters);
+  }
+  let labels: string[] = [];
+  if (labelRange && labelRange.length) {
+    for (const range of labelRange) {
+      const labelValues = getChartLabelValues(getters, dataSets, range);
+      const values = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
+      if (!labels.length) {
+        labels = values;
+      } else {
+        for (let i = 0; i < labelValues.formattedValues.length; i++) {
+          if (values[i]) {
+            labels[i] += " \n " + values[i];
+          }
+        }
+      }
+    }
+  } else {
+    labels = getChartLabelValues(getters, dataSets).formattedValues;
+  }
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (
     definition.dataSetsHaveTitle &&
@@ -222,11 +282,27 @@ export function getPieChartData(
 export function getRadarChartData(
   definition: GenericDefinition<RadarChartDefinition>,
   dataSets: DataSet[],
-  labelRange: Range | undefined,
+  labelRange: Range[] | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
-  let labels = labelValues.formattedValues;
+  let labels: string[] = [];
+  if (labelRange && labelRange.length) {
+    for (const range of labelRange) {
+      const labelValues = getChartLabelValues(getters, dataSets, range);
+      const values = labelValues.formattedValues;
+      if (!labels.length) {
+        labels = values;
+      } else {
+        for (let i = 0; i < values.length; i++) {
+          if (values[i]) {
+            labels[i] += " \n " + values[i];
+          }
+        }
+      }
+    }
+  } else {
+    labels = getChartLabelValues(getters, dataSets).formattedValues;
+  }
   let dataSetsValues = getChartDatasetValues(getters, dataSets);
   if (
     definition.dataSetsHaveTitle &&
@@ -249,7 +325,7 @@ export function getRadarChartData(
   return {
     dataSetsValues,
     axisFormats,
-    labels,
+    labels: applyLineBreakForLabels(labels),
     locale: getters.getLocale(),
   };
 }
@@ -490,8 +566,11 @@ function isLinearChart(
   return !definition.labelsAsText && canBeLinearChart(labelRange, getters);
 }
 
-export function canChartParseLabels(labelRange: Range | undefined, getters: Getters): boolean {
-  return canBeDateChart(labelRange, getters) || canBeLinearChart(labelRange, getters);
+export function canChartParseLabels(labelRange: Range[] | undefined, getters: Getters): boolean {
+  if (!labelRange || labelRange.length !== 1) {
+    return false;
+  }
+  return canBeDateChart(labelRange[0], getters) || canBeLinearChart(labelRange[0], getters);
 }
 
 function canBeDateChart(labelRange: Range | undefined, getters: Getters): boolean {

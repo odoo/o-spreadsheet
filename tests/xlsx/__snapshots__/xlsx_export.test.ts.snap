@@ -33743,11 +33743,12 @@ exports[`Test XLSX export references with headers should be converted to referen
                         </a:ln>
                     </c:spPr>
                     <c:cat>
-                        <c:strRef>
+                        <c:multiLvlStrRef>
                             <c:f>
-                                Sheet1!A3:A100
+                                Sheet1!B2:B4,Sheet1!A3:A100
                             </c:f>
-                        </c:strRef>
+                            <c:numCache/>
+                        </c:multiLvlStrRef>
                     </c:cat>
                     <!-- x-coordinate values -->
                     <c:val>
@@ -33781,11 +33782,12 @@ exports[`Test XLSX export references with headers should be converted to referen
                         </a:ln>
                     </c:spPr>
                     <c:cat>
-                        <c:strRef>
+                        <c:multiLvlStrRef>
                             <c:f>
-                                Sheet1!A3:A100
+                                Sheet1!A3:A100,Sheet1!B2:B4
                             </c:f>
-                        </c:strRef>
+                            <c:numCache/>
+                        </c:multiLvlStrRef>
                     </c:cat>
                     <!-- x-coordinate values -->
                     <c:val>

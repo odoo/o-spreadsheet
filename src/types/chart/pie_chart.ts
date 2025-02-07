@@ -7,7 +7,7 @@ export interface PieChartDefinition {
   readonly type: "pie";
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
+  readonly labelRange?: string[];
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;

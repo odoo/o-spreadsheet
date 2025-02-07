@@ -114,7 +114,7 @@ describe("Migrations", () => {
               data: {
                 type: "line",
                 title: "demo chart",
-                labelRange: "My sheet!A27:A35",
+                labelRange: ["My sheet!A27:A35"],
                 dataSets: [
                   { labelCell: "My sheet!B26", dataRange: "My sheet!B27:B35" },
                   { labelCell: "My sheet!C26", dataRange: "My sheet!C27:C35" },
@@ -131,7 +131,7 @@ describe("Migrations", () => {
               data: {
                 type: "bar",
                 title: "demo chart 2",
-                labelRange: "My sheet!A27:A35",
+                labelRange: ["My sheet!A27:A35"],
                 dataSets: [
                   { labelCell: undefined, dataRange: "My sheet!B27:B35" },
                   { dataRange: "My sheet!C27:C35" },
@@ -148,7 +148,7 @@ describe("Migrations", () => {
               data: {
                 type: "bar",
                 title: "demo chart 3",
-                labelRange: "My sheet!A27",
+                labelRange: ["My sheet!A27"],
                 dataSets: [{ labelCell: "My sheet!B26", dataRange: "My sheet!B27" }],
               },
             },
@@ -162,7 +162,7 @@ describe("Migrations", () => {
               data: {
                 type: "bar",
                 title: "demo chart 4",
-                labelRange: "My sheet!A27",
+                labelRange: ["My sheet!A27"],
                 dataSets: [{ dataRange: "My sheet!B27" }],
               },
             },
@@ -174,7 +174,7 @@ describe("Migrations", () => {
     expect(data.sheets[0].figures[0].data).toEqual({
       type: "line",
       title: { text: "demo chart" },
-      labelRange: "'My sheet'!A27:A35",
+      labelRange: ["'My sheet'!A27:A35"],
       dataSets: [{ dataRange: "B26:B35" }, { dataRange: "C26:C35" }],
       dataSetsHaveTitle: true,
       background: BACKGROUND_CHART_COLOR,
@@ -184,7 +184,7 @@ describe("Migrations", () => {
     expect(data.sheets[0].figures[1].data).toEqual({
       type: "bar",
       title: { text: "demo chart 2" },
-      labelRange: "'My sheet'!A27:A35",
+      labelRange: ["'My sheet'!A27:A35"],
       dataSets: [{ dataRange: "B27:B35" }, { dataRange: "C27:C35" }],
       dataSetsHaveTitle: false,
       background: BACKGROUND_CHART_COLOR,
@@ -194,7 +194,7 @@ describe("Migrations", () => {
     expect(data.sheets[0].figures[2].data).toEqual({
       type: "bar",
       title: { text: "demo chart 3" },
-      labelRange: "'My sheet'!A27",
+      labelRange: ["'My sheet'!A27"],
       dataSets: [{ dataRange: "B26:B27" }],
       dataSetsHaveTitle: true,
       background: BACKGROUND_CHART_COLOR,
@@ -204,7 +204,7 @@ describe("Migrations", () => {
     expect(data.sheets[0].figures[3].data).toEqual({
       type: "bar",
       title: { text: "demo chart 4" },
-      labelRange: "'My sheet'!A27",
+      labelRange: ["'My sheet'!A27"],
       dataSets: [{ dataRange: "B27" }],
       dataSetsHaveTitle: false,
       background: BACKGROUND_CHART_COLOR,
@@ -291,7 +291,7 @@ describe("Migrations", () => {
       { dataRange: "=sheetName_!A1:A2" },
       { dataRange: "My sheet!A1:A2" },
     ]);
-    expect(figures[0].data?.labelRange).toBe("=sheetName_!B1:B2");
+    expect(figures[0].data?.labelRange).toEqual(["=sheetName_!B1:B2"]);
 
     const cfs = data.sheets[1].conditionalFormats;
     const rule1 = cfs[0].rule as ColorScaleRule;
@@ -683,7 +683,7 @@ describe("Export", () => {
               data: {
                 type: "line",
                 title: "demo chart",
-                labelRange: "A1:A4",
+                labelRange: ["A1:A4"],
                 dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
               },
             },

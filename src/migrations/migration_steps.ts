@@ -450,6 +450,25 @@ migrationStepRegistry
     migrate(data: WorkbookData): any {
       return data;
     },
+  })
+  .add("migration_25", {
+    versionFrom: "25",
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const f in sheet.figures || []) {
+          const figure = sheet.figures[f];
+          const figureType = figure.data.type;
+          if (!["line", "bar", "pie", "scatter", "waterfall", "combo"].includes(figureType)) {
+            continue;
+          }
+          if ("labelRange" in figure.data && typeof figure.data.labelRange === "string") {
+            figure.data.labelRange = [figure.data.labelRange];
+          }
+          sheet.figures[f].data = figure.data;
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

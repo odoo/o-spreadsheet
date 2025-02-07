@@ -18,26 +18,22 @@ import {
   CustomizedDataSet,
   DataSet,
   DatasetDesign,
-  ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
-import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
+import { createValidRanges } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
+  convertToExcelDataSetAndLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
-  shouldRemoveFirstLabel,
-  toExcelDataset,
-  toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -55,7 +51,7 @@ import {
 
 export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRange?: Range[];
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly stacked: boolean;
@@ -75,7 +71,7 @@ export class BarChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRanges(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.stacked = definition.stacked;
@@ -128,19 +124,21 @@ export class BarChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
-        : undefined,
+      auxiliaryRange: this.labelRange?.map((labelRange) =>
+        this.getters.getRangeString(labelRange, this.sheetId)
+      ),
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): BarChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
+    const labelRange: Range[] = [];
+    for (const lr of this.labelRange ?? []) {
+      const duplicated = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, lr);
+      if (duplicated) {
+        labelRange.push(duplicated);
+      }
+    }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
     return new BarChart(definition, newSheetId, this.getters);
   }
@@ -160,7 +158,7 @@ export class BarChart extends AbstractChart {
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRange: Range[] | undefined,
     targetSheetId?: UID
   ): BarChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -176,9 +174,9 @@ export class BarChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
+      labelRange: labelRange?.map((l) =>
+        this.getters.getRangeString(l, targetSheetId || this.sheetId)
+      ),
       title: this.title,
       stacked: this.stacked,
       aggregated: this.aggregated,
@@ -191,21 +189,17 @@ export class BarChart extends AbstractChart {
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
     // Excel does not support aggregating labels
     if (this.aggregated) return undefined;
-    const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
-    const labelRange = toExcelLabelRange(
-      this.getters,
-      this.labelRange,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
-    );
     const definition = this.getDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
-      dataSets,
-      labelRange,
+      ...convertToExcelDataSetAndLabelRange(
+        this.getters,
+        this.dataSets,
+        this.labelRange,
+        this.dataSetsHaveTitle
+      ),
       verticalAxis: getDefinedAxis(definition),
     };
   }

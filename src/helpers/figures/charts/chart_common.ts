@@ -49,7 +49,7 @@ export function updateChartRangesWithDataSets(
   getters: CoreGetters,
   applyChange: ApplyRangeChange,
   chartDataSets: DataSet[],
-  chartLabelRange?: Range
+  chartLabelRange?: Range[]
 ) {
   let isStale = false;
   const dataSetsWithUndefined: (DataSet | undefined)[] = [];
@@ -81,17 +81,24 @@ export function updateChartRangesWithDataSets(
     }
     dataSetsWithUndefined[index] = ds;
   }
-  let labelRange = chartLabelRange;
-  const range = adaptChartRange(labelRange, applyChange);
-  if (range !== labelRange) {
-    isStale = true;
-    labelRange = range;
+  let labelRange: Range[] = [];
+  if (chartLabelRange) {
+    for (let i = 0; i < chartLabelRange.length ?? 0; i++) {
+      const previousRange = chartLabelRange[i];
+      const range = adaptChartRange(previousRange, applyChange);
+      if (range) {
+        labelRange.push(range);
+      }
+      if (range !== previousRange) {
+        isStale = true;
+      }
+    }
   }
   const dataSets = dataSetsWithUndefined.filter(isDefined);
   return {
     isStale,
     dataSets,
-    labelRange,
+    labelRange: labelRange.length ? labelRange : undefined,
   };
 }
 
@@ -220,7 +227,7 @@ export function createDataSets(
   return dataSets;
 }
 
-function createDataSet(
+export function createDataSet(
   getters: CoreGetters,
   sheetId: UID,
   fullZone: Zone | UnboundedZone,
@@ -305,10 +312,12 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
   definition: T,
   executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
 ): T {
-  let labelRange: string | undefined;
-  if (definition.labelRange) {
-    const labelZone = transformZone(toUnboundedZone(definition.labelRange), executed);
-    labelRange = labelZone ? zoneToXc(labelZone) : undefined;
+  let labelRange: string[] | undefined;
+  if (definition.labelRange !== undefined) {
+    labelRange = definition.labelRange.map((range) => {
+      const zone = transformZone(toUnboundedZone(range), executed);
+      return zone ? zoneToXc(zone) : "";
+    });
   }
   const dataSets: CustomizedDataSet[] = definition.dataSets
     .map((ds) => toUnboundedZone(ds.dataRange))
@@ -357,7 +366,9 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
 
 export function checkLabelRange(definition: ChartWithDataSetDefinition): CommandResult {
   if (definition.labelRange) {
-    const invalidLabels = !rangeReference.test(definition.labelRange || "");
+    const invalidLabels = definition.labelRange.some(
+      (labelRange) => !rangeReference.test(labelRange || "")
+    );
     if (invalidLabels) {
       return CommandResult.InvalidLabelRange;
     }
@@ -458,4 +469,33 @@ export function truncateLabel(label: string | undefined): string {
     return label.substring(0, MAX_CHAR_LABEL) + "…";
   }
   return label;
+}
+
+export function convertToExcelDataSetAndLabelRange(
+  getters: CoreGetters,
+  _dataSets: DataSet[],
+  _labelRange: Range[] | undefined,
+  dataSetsHaveTitle: boolean
+): {
+  dataSets: ExcelChartDataset[];
+  labelRange: string[];
+} {
+  const dataSets: ExcelChartDataset[] = _dataSets
+    .map((ds: DataSet) => toExcelDataset(getters, ds))
+    .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
+  const labelRange: string[] = [];
+  for (const lr of _labelRange ?? []) {
+    const range = toExcelLabelRange(
+      getters,
+      lr,
+      shouldRemoveFirstLabel(lr, _dataSets[0], dataSetsHaveTitle)
+    );
+    if (range) {
+      labelRange.push(range);
+    }
+  }
+  return {
+    dataSets,
+    labelRange,
+  };
 }

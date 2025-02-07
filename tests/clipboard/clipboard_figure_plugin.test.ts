@@ -161,7 +161,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!A1:A5" }, { dataRange: "Sheet2!B1:B5" }],
-        labelRange: "B1",
+        labelRange: ["B1"],
       },
       chartId
     );
@@ -173,7 +173,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     const newChartId = model.getters.getFigures("sheet2Id")[0].id;
     expect(model.getters.getChartDefinition(newChartId)).toMatchObject({
       dataSets: [{ dataRange: "B1:B5" }],
-      labelRange: undefined,
+      labelRange: [],
     });
   });
 
@@ -210,7 +210,7 @@ describe("chart specific Clipboard test", () => {
     const model = new Model();
     const chartId = "thisIsAnId";
     createChart(model, { type: "bar" }, chartId);
-    updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
+    updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: ["B1"] });
     const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
     model.dispatch("SELECT_FIGURE", { id: chartId });
     copy(model);
@@ -221,7 +221,7 @@ describe("chart specific Clipboard test", () => {
     expect(model.getters.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
       dataSets: [{ dataRange: "Sheet1!A1:A5" }],
-      labelRange: "Sheet1!B1",
+      labelRange: ["Sheet1!B1"],
     });
   });
 });

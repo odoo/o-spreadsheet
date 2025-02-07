@@ -269,7 +269,7 @@ describe("Export data to xlsx then import it", () => {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -288,7 +288,7 @@ describe("Export data to xlsx then import it", () => {
     {
       title: { text: "demo chart" },
       dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      labelRange: ["Sheet1!A27:A35"],
       type: "line" as const,
       dataSetsHaveTitle: false,
       background: "#FFFFFF",
@@ -299,7 +299,7 @@ describe("Export data to xlsx then import it", () => {
     {
       title: { text: "demo chart 2" },
       dataSets: [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      labelRange: ["Sheet1!A27:A35"],
       type: "bar" as const,
       dataSetsHaveTitle: false,
       background: "#AAAAAA",
@@ -309,7 +309,7 @@ describe("Export data to xlsx then import it", () => {
     {
       title: { text: "pie demo chart" },
       dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      labelRange: ["Sheet1!A27:A35"],
       type: "pie" as const,
       dataSetsHaveTitle: false,
       background: "#FFFFFF",
@@ -319,7 +319,7 @@ describe("Export data to xlsx then import it", () => {
     {
       title: { text: "demo chart4" },
       dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      labelRange: ["Sheet1!A27:A35"],
       type: "line" as const,
       dataSetsHaveTitle: false,
       background: "#FFFFFF",
@@ -330,7 +330,7 @@ describe("Export data to xlsx then import it", () => {
     {
       title: { text: "demo chart 5" },
       dataSets: [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      labelRange: ["Sheet1!A27:A35"],
       type: "combo" as const,
       dataSetsHaveTitle: false,
       background: "#AAAAAA",
@@ -340,7 +340,7 @@ describe("Export data to xlsx then import it", () => {
     {
       title: { text: "demo chart6" },
       dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
-      labelRange: "Sheet1!A27:A35",
+      labelRange: ["Sheet1!A27:A35", "Sheet1!A27:A35"],
       type: "radar" as const,
       dataSetsHaveTitle: false,
       background: "#FFFFFF",

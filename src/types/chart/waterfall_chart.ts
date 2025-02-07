@@ -7,7 +7,7 @@ export interface WaterfallChartDefinition {
   readonly type: "waterfall";
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
+  readonly labelRange?: string[];
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly verticalAxisPosition: VerticalAxisPosition;

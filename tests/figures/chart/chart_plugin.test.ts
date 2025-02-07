@@ -117,14 +117,14 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
-      labelRange: "Sheet1!A2:A4",
+      labelRange: ["Sheet1!A2:A4"],
       title: { text: "test" },
       type: "line",
     });
@@ -136,14 +136,14 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
-      labelRange: "Sheet1!A2:A4",
+      labelRange: ["Sheet1!A2:A4"],
       title: { text: "test" },
       type: "line",
     });
@@ -155,7 +155,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
-        labelRange: "A2:A4",
+        labelRange: ["A2:A4"],
         dataSetsHaveTitle: false,
         type: "line",
       },
@@ -163,7 +163,7 @@ describe("datasource tests", function () {
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "B2:B4" }, { dataRange: "C2:C4" }],
-      labelRange: "A2:A4",
+      labelRange: ["A2:A4"],
       dataSetsHaveTitle: false,
       title: { text: "test" },
       type: "line",
@@ -176,7 +176,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "A1:A4",
+        labelRange: ["A1:A4"],
         type: "line",
       },
       "1"
@@ -190,14 +190,14 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "A8:D8" }, { dataRange: "A9:D9" }],
-        labelRange: "B7:D7",
+        labelRange: ["B7:D7"],
         type: "line",
       },
       "1"
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "A8:D8" }, { dataRange: "A9:D9" }],
-      labelRange: "B7:D7",
+      labelRange: ["B7:D7"],
       title: { text: "test" },
       type: "line",
     });
@@ -225,7 +225,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B8:D8" }, { dataRange: "Sheet1!B9:D9" }],
-        labelRange: "B7:D7",
+        labelRange: ["B7:D7"],
         dataSetsHaveTitle: false,
         type: "line",
       },
@@ -233,7 +233,7 @@ describe("datasource tests", function () {
     );
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "B8:D8" }, { dataRange: "B9:D9" }],
-      labelRange: "B7:D7",
+      labelRange: ["B7:D7"],
       title: { text: "test" },
       type: "line",
     });
@@ -245,7 +245,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }, { dataRange: "Sheet1!A9:D9" }],
-        labelRange: "A7:D7",
+        labelRange: ["A7:D7"],
         type: "line",
       },
       "1"
@@ -259,7 +259,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B8" }],
-        labelRange: "Sheet1!B7:D7",
+        labelRange: ["Sheet1!B7:D7"],
         type: "line",
       },
       "1"
@@ -267,7 +267,7 @@ describe("datasource tests", function () {
     const data = getChartConfiguration(model, "1").data;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "B8" }],
-      labelRange: "Sheet1!B7:D7",
+      labelRange: ["Sheet1!B7:D7"],
       title: { text: "test" },
       type: "line",
     });
@@ -281,7 +281,7 @@ describe("datasource tests", function () {
       {
         dataSets: [{ dataRange: "B8" }],
         dataSetsHaveTitle: false,
-        labelRange: "B7",
+        labelRange: ["B7"],
         type: "line",
       },
       "1"
@@ -289,7 +289,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "B8" }],
       dataSetsHaveTitle: false,
-      labelRange: "B7",
+      labelRange: ["B7"],
       title: { text: "test" },
       type: "line",
     });
@@ -344,7 +344,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         dataSetsHaveTitle: true,
         type: "line",
       },
@@ -366,7 +366,7 @@ describe("datasource tests", function () {
         model,
         {
           dataSets: [{ dataRange: "G1:G3" }],
-          labelRange: "F1:F3",
+          labelRange: ["F1:F3"],
           dataSetsHaveTitle: false,
           type: chartType,
         },
@@ -406,7 +406,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B2" }, { dataRange: "Sheet1!C1:C2" }],
-        labelRange: "Sheet1!A2",
+        labelRange: ["Sheet1!A2"],
         dataSetsHaveTitle: true,
         type: "line",
       },
@@ -421,7 +421,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "B7:B8" }],
-        labelRange: "B7",
+        labelRange: ["B7"],
         type: "bar",
         stacked: true,
       },
@@ -435,7 +435,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -444,7 +444,7 @@ describe("datasource tests", function () {
     const chart = model.getters.getChartDefinition("1") as LineChartDefinition;
     expect(chart.dataSets[0].dataRange).toStrictEqual("D1:D4");
     expect(chart.dataSets[1].dataRange).toStrictEqual("E1:E4");
-    expect(chart.labelRange).toStrictEqual("Sheet1!C2:C4");
+    expect(chart.labelRange?.[0]).toStrictEqual("Sheet1!C2:C4");
   });
 
   test("pie chart tooltip title display the correct dataset", () => {
@@ -453,7 +453,7 @@ describe("datasource tests", function () {
       {
         dataSets: [{ dataRange: "B7:B8" }],
         dataSetsHaveTitle: true,
-        labelRange: "B7",
+        labelRange: ["B7"],
         type: "pie",
       },
       "1"
@@ -471,7 +471,7 @@ describe("datasource tests", function () {
       {
         dataSets: [{ dataRange: "B7:B8" }],
         dataSetsHaveTitle: true,
-        labelRange: "B7",
+        labelRange: ["B7"],
         type: chartType,
       },
       "1"
@@ -485,7 +485,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "B7:B8" }],
-        labelRange: "B7",
+        labelRange: ["B7"],
         type: "line",
       },
       "1"
@@ -504,7 +504,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -522,7 +522,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -533,14 +533,14 @@ describe("datasource tests", function () {
     updateChart(model, "1", {
       type: "bar",
       dataSets: [{ dataRange: "Sheet1!A8:D8" }, { dataRange: "Sheet1!A9:D9" }],
-      labelRange: "Sheet1!C7:D7",
+      labelRange: ["Sheet1!C7:D7"],
       dataSetsHaveTitle: true,
       title: { text: "hello1" },
     });
     config = getChartConfiguration(model, "1");
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "A8:D8" }, { dataRange: "A9:D9" }],
-      labelRange: "Sheet1!C7:D7",
+      labelRange: ["Sheet1!C7:D7"],
       title: { text: "hello1" },
       type: "bar",
     });
@@ -554,12 +554,12 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
     );
-    updateChart(model, "1", { labelRange: undefined });
+    updateChart(model, "1", { labelRange: [] });
     expect(
       (model.getters.getChartDefinition("1") as LineChartDefinition).labelRange
     ).toBeUndefined();
@@ -570,7 +570,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -587,7 +587,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -604,7 +604,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -621,7 +621,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -639,7 +639,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
-        labelRange: "Sheet1!A2:A5",
+        labelRange: ["Sheet1!A2:A5"],
         dataSetsHaveTitle: true,
         type: "line",
       },
@@ -657,7 +657,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
-        labelRange: "Sheet1!A2:A5",
+        labelRange: ["Sheet1!A2:A5"],
         dataSetsHaveTitle: true,
         type: "line",
       },
@@ -675,7 +675,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
-        labelRange: "Sheet1!A2:A5",
+        labelRange: ["Sheet1!A2:A5"],
         dataSetsHaveTitle: true,
         type: "line",
       },
@@ -693,7 +693,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!A8:D8" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -710,7 +710,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
-        labelRange: "Sheet1!A2:A5",
+        labelRange: ["Sheet1!A2:A5"],
         dataSetsHaveTitle: true,
         type: "line",
       },
@@ -727,7 +727,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -747,7 +747,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "this is invalid" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -761,7 +761,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -772,7 +772,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "bar",
       },
       "1"
@@ -783,7 +783,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "bar",
       },
       "1",
@@ -797,7 +797,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1"
@@ -820,7 +820,7 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "B1:B4" }],
-        labelRange: "A2:A4",
+        labelRange: ["A2:A4"],
       },
       chartId
     );
@@ -831,7 +831,7 @@ describe("datasource tests", function () {
     expect(model.getters.getSelectedFigureId()).toBeNull();
     updateChart(model, chartId, {
       dataSets: [{ dataRange: "B1:B4" }],
-      labelRange: "A2:A4",
+      labelRange: ["A2:A4"],
       title: { text: "updated chart" },
     });
     expect(model.getters.getSelectedFigureId()).toBeNull();
@@ -842,7 +842,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
-        labelRange: "Miaouss oui la guerre",
+        labelRange: ["Miaouss oui la guerre"],
         type: "line",
       },
       "1"
@@ -856,14 +856,14 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "Coucou!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
       },
       "1"
     );
     const config = getChartConfiguration(model, "1");
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: [{ dataRange: "B1:B4" }],
-      labelRange: "Sheet1!A2:A4",
+      labelRange: ["Sheet1!A2:A4"],
       title: { text: "test" },
       type: "bar",
     });
@@ -877,7 +877,7 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
-        labelRange: "",
+        labelRange: [],
       },
       "1"
     );
@@ -891,7 +891,7 @@ describe("datasource tests", function () {
         {
           type: "bar",
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
-          labelRange: "",
+          labelRange: [],
         },
         "1"
       );
@@ -909,13 +909,13 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "A1:A2" }],
-        labelRange: "A1",
+        labelRange: ["A1"],
       },
       "1"
     );
     expect(
       updateChart(model, "1", {
-        labelRange: "This is invalid",
+        labelRange: ["This is invalid"],
       })
     ).toBeCancelledBecause(CommandResult.InvalidLabelRange);
   });
@@ -940,7 +940,7 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A1:A2",
+        labelRange: ["A1:A2"],
       },
       "1",
       "2"
@@ -966,13 +966,13 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "A1:A2" }],
-        labelRange: "A1",
+        labelRange: ["A1"],
       },
       "1"
     );
     updateChart(model, "1", {
       dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
-      labelRange: "Sheet1!A2:A5",
+      labelRange: ["Sheet1!A2:A5"],
       dataSetsHaveTitle: true,
     });
     const dataSets = getChartConfiguration(model, "1").data.datasets;
@@ -985,14 +985,14 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "A1:A2" }],
-        labelRange: "A1",
+        labelRange: ["A1"],
         dataSetsHaveTitle: true,
       },
       "1"
     );
     updateChart(model, "1", {
       dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
-      labelRange: "Sheet1!A2:A5",
+      labelRange: ["Sheet1!A2:A5"],
       dataSetsHaveTitle: true,
     });
     const config = getChartConfiguration(model, "1");
@@ -1005,7 +1005,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "1",
@@ -1026,7 +1026,7 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets,
-        labelRange: "A2:A4",
+        labelRange: ["A2:A4"],
       },
       firstSheetId
     );
@@ -1040,8 +1040,10 @@ describe("datasource tests", function () {
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const newChart = model.getters.getChart(duplicatedFigure.id) as BarChart;
 
-    expect(newChart.labelRange?.sheetId).toEqual(secondSheetId);
-    expect(zoneToXc(newChart.labelRange!.zone)).toEqual("A2:A4");
+    const labelRange = newChart.labelRange?.[0];
+
+    expect(labelRange?.sheetId).toEqual(secondSheetId);
+    expect(zoneToXc(labelRange!.zone)).toEqual("A2:A4");
 
     newChart.dataSets?.map((ds, index) => {
       expect(ds.dataRange.sheetId).toEqual(secondSheetId);
@@ -1066,7 +1068,7 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRange: ["A2:A4"],
       },
       "myChart",
       firstSheetId
@@ -1122,7 +1124,7 @@ describe("datasource tests", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: `${secondSheetName}!C1:C4` }],
-        labelRange: `${secondSheetName}!A2:A4`,
+        labelRange: [`${secondSheetName}!A2:A4`],
       },
       firstSheetId
     );
@@ -1134,7 +1136,7 @@ describe("datasource tests", function () {
     const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
     expect(duplicatedChartDefinition).toMatchObject({
       dataSets: [{ dataRange: `${secondSheetName}!C1:C4` }],
-      labelRange: `${secondSheetName}!A2:A4`,
+      labelRange: [`${secondSheetName}!A2:A4`],
       title: { text: "test" },
     });
   });
@@ -1144,7 +1146,7 @@ describe("datasource tests", function () {
       model,
       {
         dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
-        labelRange: "A2:A4",
+        labelRange: ["A2:A4"],
         type: "line",
       },
       "1"
@@ -1164,7 +1166,7 @@ describe("title", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "A1:B1" }],
-        labelRange: "A2:B2",
+        labelRange: ["A2:B2"],
         title: { text: "title" },
       },
       "1"
@@ -1183,7 +1185,7 @@ describe("title", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "A1:B1" }],
-        labelRange: "A2:B2",
+        labelRange: ["A2:B2"],
         title: {
           text: "title",
         },
@@ -1202,7 +1204,7 @@ describe("title", function () {
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
+          labelRange: ["A2:B2"],
           title: {
             text: "title",
           },
@@ -1226,7 +1228,7 @@ describe("title", function () {
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
+          labelRange: ["A2:B2"],
           title: {
             text: "title",
             color: "#f00",
@@ -1246,7 +1248,7 @@ describe("title", function () {
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
+          labelRange: ["A2:B2"],
           title: {
             text: "title",
             bold: true,
@@ -1272,7 +1274,7 @@ describe("title", function () {
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
+          labelRange: ["A2:B2"],
           title: {
             text: "title",
             italic: true,
@@ -1298,7 +1300,7 @@ describe("title", function () {
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
+          labelRange: ["A2:B2"],
           type,
           axesDesign: {
             x: {
@@ -1358,7 +1360,7 @@ describe("title", function () {
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
+          labelRange: ["A2:B2"],
           type,
           axesDesign: {
             x: {
@@ -1383,7 +1385,7 @@ describe("title", function () {
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
+          labelRange: ["A2:B2"],
           type,
           axesDesign: {
             x: {
@@ -1419,7 +1421,7 @@ describe("title", function () {
         model,
         {
           dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
+          labelRange: ["A2:B2"],
           type,
           axesDesign: {
             x: {
@@ -1457,7 +1459,7 @@ describe("multiple sheets", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
       },
       "1"
     );
@@ -1476,14 +1478,14 @@ describe("multiple sheets", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
       },
       "1"
     );
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(getChartConfiguration(model, "1").data.labels).toEqual(["P1", "P2", "P3"]);
     expect(chartDefinition).toMatchObject({
-      labelRange: "Sheet1!A2:A4",
+      labelRange: ["Sheet1!A2:A4"],
     });
   });
   test("change source data then activate the chart sheet (it should be up-to-date)", () => {
@@ -1493,7 +1495,7 @@ describe("multiple sheets", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
       },
       "28"
     );
@@ -1514,7 +1516,7 @@ describe("multiple sheets", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
       },
       "28"
     );
@@ -1535,7 +1537,7 @@ describe("multiple sheets", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
       },
       "28"
     );
@@ -1570,7 +1572,7 @@ describe("multiple sheets", function () {
                 data: {
                   type: "line",
                   title: { text: "demo chart" },
-                  labelRange: "Sheet1!A1:A2",
+                  labelRange: ["Sheet1!A1:A2"],
                   dataSets: [{ dataRange: "Sheet2!A1:A2" }],
                   dataSetsHaveTitle: false,
                   background: "#124578",
@@ -1622,7 +1624,7 @@ describe("multiple sheets", function () {
       {
         type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
       },
       "28"
     );
@@ -1652,7 +1654,7 @@ describe("undo/redo", () => {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "line",
       },
       "27"
@@ -1690,7 +1692,7 @@ describe("Chart without labels", () => {
     );
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
 
-    createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
+    createChart(model, { ...defaultChart, labelRange: ["B1:B2"] }, "44");
     expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
   });
 
@@ -1711,7 +1713,7 @@ describe("Chart without labels", () => {
 
     setCellContent(model, "B1", "B1");
     setCellContent(model, "B2", "B2");
-    createChart(model, { ...defaultChart, type: "bar", labelRange: "B1:B2" }, "44");
+    createChart(model, { ...defaultChart, type: "bar", labelRange: ["B1:B2"] }, "44");
     expect(getChartConfiguration(model, "44").data?.labels).toEqual(["B1", "B2"]);
   });
 
@@ -1749,7 +1751,7 @@ describe("Chart design configuration", () => {
     legendPosition: "top",
     title: { text: "My chart" },
     type: "bar",
-    labelRange: "A3",
+    labelRange: ["A3"],
     stacked: false,
     aggregated: false,
   };
@@ -1803,7 +1805,7 @@ describe("Chart design configuration", () => {
       model,
       {
         type: "bar",
-        labelRange: "A2:A6",
+        labelRange: ["A2:A6"],
         dataSets: [{ dataRange: "B1:B15" }, { dataRange: "C1:C15" }],
       },
       "1"
@@ -1820,7 +1822,7 @@ describe("Chart design configuration", () => {
     setCellContent(model, "B8", "30");
     createChart(
       model,
-      { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B15" }] },
+      { type: "bar", labelRange: ["A2:A3"], dataSets: [{ dataRange: "B1:B15" }] },
       "1"
     );
     const data = getChartConfiguration(model, "1").data;
@@ -1834,7 +1836,7 @@ describe("Chart design configuration", () => {
     setCellContent(model, "A8", "P1");
     createChart(
       model,
-      { type: "bar", labelRange: "A2:A15", dataSets: [{ dataRange: "B1:B3" }] },
+      { type: "bar", labelRange: ["A2:A15"], dataSets: [{ dataRange: "B1:B3" }] },
       "1"
     );
     const data = getChartConfiguration(model, "1").data;
@@ -1846,7 +1848,7 @@ describe("Chart design configuration", () => {
     const model = new Model();
     createChart(
       model,
-      { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+      { type: "bar", labelRange: ["A2:A3"], dataSets: [{ dataRange: "B1:B3" }] },
       "1"
     );
     const data = getChartConfiguration(model, "1").data;
@@ -1865,7 +1867,7 @@ describe("Chart design configuration", () => {
       });
       createChart(
         model,
-        { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+        { type: "bar", labelRange: ["A2:A3"], dataSets: [{ dataRange: "B1:B3" }] },
         "1"
       );
       const data = getChartConfiguration(model, "1").data;
@@ -1885,7 +1887,7 @@ describe("Chart design configuration", () => {
       });
       createChart(
         model,
-        { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+        { type: "bar", labelRange: ["A2:A3"], dataSets: [{ dataRange: "B1:B3" }] },
         "1"
       );
       const data = getChartConfiguration(model, "1").data;
@@ -1899,7 +1901,7 @@ describe("Chart design configuration", () => {
     setCellContent(model, "B2", "0");
     createChart(
       model,
-      { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+      { type: "bar", labelRange: ["A2:A3"], dataSets: [{ dataRange: "B1:B3" }] },
       "1"
     );
     const data = getChartConfiguration(model, "1").data;
@@ -1912,7 +1914,7 @@ describe("Chart design configuration", () => {
     setCellContent(model, "A2", "0");
     createChart(
       model,
-      { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+      { type: "bar", labelRange: ["A2:A3"], dataSets: [{ dataRange: "B1:B3" }] },
       "1"
     );
     const data = getChartConfiguration(model, "1").data;
@@ -1928,7 +1930,7 @@ describe("Chart design configuration", () => {
       model,
       {
         type: "bar",
-        labelRange: "A2:A3",
+        labelRange: ["A2:A3"],
         dataSets: [{ dataRange: "B2:B3" }],
         dataSetsHaveTitle: false,
       },
@@ -2150,7 +2152,7 @@ describe("Chart design configuration", () => {
         model,
         {
           dataSets: [{ dataRange: "A1:A3" }],
-          labelRange: "A1",
+          labelRange: ["A1"],
           type: "pie",
         },
         "1"
@@ -2169,7 +2171,7 @@ describe("Chart design configuration", () => {
         model,
         {
           dataSets: [{ dataRange: "A1:A2" }],
-          labelRange: "A1",
+          labelRange: ["A1"],
           type: "pie",
         },
         "1"
@@ -2190,7 +2192,7 @@ describe("Chart design configuration", () => {
     createChart(
       model,
       {
-        labelRange: "A2",
+        labelRange: ["A2"],
         dataSets: [{ dataRange: "B1:B2" }],
         type: "scatter",
         dataSetsHaveTitle: true,
@@ -2209,7 +2211,7 @@ describe("Chart design configuration", () => {
     createChart(
       model,
       {
-        labelRange: "A1:A2",
+        labelRange: ["A1:A2"],
         dataSets: [{ dataRange: "B1:B2", trend: { type: "polynomial", order: 1, display: true } }],
         type: "scatter",
         dataSetsHaveTitle: false,
@@ -2462,7 +2464,7 @@ describe("Chart aggregate labels", () => {
     aggregatedChart = {
       background: "#FFFFFF",
       dataSets: [{ dataRange: "B2:B9", yAxisId: "y" }],
-      labelRange: "A2:A9",
+      labelRange: ["A2:A9"],
       dataSetsHaveTitle: false,
       legendPosition: "top",
       title: { text: "My chart" },
@@ -2612,7 +2614,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
+        labelRange: ["C2:C5"],
         labelsAsText: false,
       },
       chartId
@@ -2627,7 +2629,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
+        labelRange: ["C2:C5"],
         labelsAsText: false,
       },
       chartId
@@ -2646,7 +2648,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
+        labelRange: ["C2:C5"],
         labelsAsText: false,
       },
       chartId
@@ -2661,7 +2663,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C3",
+        labelRange: ["C2:C3"],
         labelsAsText: false,
       },
       chartId
@@ -2697,7 +2699,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
+        labelRange: ["C2:C5"],
         labelsAsText: false,
         dataSetsHaveTitle: false,
       },
@@ -2719,7 +2721,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B3" }],
-        labelRange: "C2:C3",
+        labelRange: ["C2:C3"],
         labelsAsText: false,
         dataSetsHaveTitle: false,
       },
@@ -2739,7 +2741,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
+        labelRange: ["C2:C5"],
         labelsAsText: false,
         dataSetsHaveTitle: false,
       },
@@ -2757,7 +2759,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
+        labelRange: ["C2:C5"],
         labelsAsText: false,
         dataSetsHaveTitle: false,
       },
@@ -2774,7 +2776,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
+        labelRange: ["C2:C5"],
         labelsAsText: false,
         dataSetsHaveTitle: false,
       },
@@ -2790,7 +2792,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B2:B5" }],
-        labelRange: "C2:C5",
+        labelRange: ["C2:C5"],
         background: "#010101",
       },
       chartId
@@ -2808,7 +2810,7 @@ describe("Linear/Time charts", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B1:B2" }],
-        labelRange: "A1:A2",
+        labelRange: ["A1:A2"],
         labelsAsText: false,
         dataSetsHaveTitle: true,
       },
@@ -2832,7 +2834,7 @@ describe("Chart evaluation", () => {
         type: "bar",
         dataSets: [{ dataRange: "B1:B2" }],
         dataSetsHaveTitle: true,
-        labelRange: "A2",
+        labelRange: ["A2"],
       },
       "1"
     );
@@ -2849,7 +2851,7 @@ describe("Chart evaluation", () => {
     setCellContent(model, "A2", "non");
     createChart(model, { type: "bar" }, chartId);
 
-    updateChart(model, chartId, { labelRange: "A1:A2" });
+    updateChart(model, chartId, { labelRange: ["A1:A2"] });
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual(["oui", "non"]);
     undo(model);
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual([]);
@@ -2889,7 +2891,7 @@ describe("Chart evaluation", () => {
         model,
         {
           dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
-          labelRange: "Sheet1!A2:A5",
+          labelRange: ["Sheet1!A2:A5"],
           dataSetsHaveTitle: true,
           type: "line",
         },
@@ -2998,7 +3000,7 @@ describe("Chart evaluation", () => {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
-        labelRange: "Sheet1!A2:A5",
+        labelRange: ["Sheet1!A2:A5"],
         dataSetsHaveTitle: true,
         type: "line",
       },
@@ -3020,7 +3022,7 @@ describe("Cumulative Data line chart", () => {
       {
         dataSets: [{ dataRange: "B2:B8" }],
         dataSetsHaveTitle: true,
-        labelRange: "A2:A8",
+        labelRange: ["A2:A8"],
         type: "line",
         cumulative: false,
       },
@@ -3048,7 +3050,7 @@ describe("Cumulative Data line chart", () => {
       {
         dataSets: [{ dataRange: "B1:B2" }],
         dataSetsHaveTitle: false,
-        labelRange: "A1:A2",
+        labelRange: ["A1:A2"],
         type: "line",
         cumulative: true,
       },
@@ -3070,7 +3072,7 @@ describe("Pie chart invalid values", () => {
       model,
       {
         dataSets: [{ dataRange: "D5:D10" }],
-        labelRange: "A2:A6",
+        labelRange: ["A2:A6"],
         type: "pie",
       },
       "1"
@@ -3091,7 +3093,7 @@ describe("Pie chart invalid values", () => {
       model,
       {
         dataSets: [{ dataRange: "D5:D9" }, { dataRange: "B1:B5" }],
-        labelRange: "A2:A6",
+        labelRange: ["A2:A6"],
         type: "pie",
       },
       "1"
@@ -3122,7 +3124,7 @@ describe("Pie chart invalid values", () => {
     setCellContent(model, "F8", "Not a number, but has a label");
     createChart(
       model,
-      { dataSets: [{ dataRange: "F5:F8" }], labelRange: "G5:G8", type: "pie" },
+      { dataSets: [{ dataRange: "F5:F8" }], labelRange: ["G5:G8"], type: "pie" },
       "1"
     );
 
@@ -3187,7 +3189,7 @@ test("trend line dataset are put after original dataset in the runtime", async (
           },
         },
       ],
-      labelRange: "A1:A4",
+      labelRange: ["A1:A4"],
       type: "line",
       dataSetsHaveTitle: false,
     },
@@ -3218,7 +3220,7 @@ describe("trending line", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B1:B5", trend: { display: true, type: "polynomial", order: 2 } }],
-        labelRange: "C1:C5",
+        labelRange: ["C1:C5"],
         labelsAsText: false,
         dataSetsHaveTitle: false,
       },
@@ -3275,7 +3277,7 @@ describe("trending line", () => {
     });
     updateChart(model, "1", {
       dataSets: [{ dataRange: "B1:B10", trend: { display: true, type: "polynomial", order: 2 } }],
-      labelRange: "C1:C10",
+      labelRange: ["C1:C10"],
     });
     const step = (10 - 1) / 50;
     const data = getChartConfiguration(model, "1").data.datasets[1].data;
@@ -3364,7 +3366,7 @@ describe("trending line", () => {
       {
         type: "line",
         dataSets: [{ dataRange: "B1:B4", trend: { type: "polynomial", order: 2, display: true } }],
-        labelRange: "A1:A4",
+        labelRange: ["A1:A4"],
         fillArea: true,
         dataSetsHaveTitle: false,
       },
@@ -3428,7 +3430,7 @@ test("moving average trending line", () => {
       dataSets: [
         { dataRange: "C1:C5", trend: { display: true, type: "trailingMovingAverage", window: 3 } },
       ],
-      labelRange: "B1:B5",
+      labelRange: ["B1:B5"],
       labelsAsText: false,
       dataSetsHaveTitle: false,
     },
@@ -3468,7 +3470,7 @@ describe("Chart labels truncation", () => {
 
       createChart(
         model,
-        { type, dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" },
+        { type, dataSets: [{ dataRange: "B1:B2" }], labelRange: ["A1:A2"] },
         "chartId"
       );
 
@@ -3507,7 +3509,7 @@ describe("Chart labels truncation", () => {
 
       createChart(
         model,
-        { type, dataSets: [{ dataRange: "B1:B3" }], labelRange: "A1:A3" },
+        { type, dataSets: [{ dataRange: "B1:B3" }], labelRange: ["A1:A3"] },
         "chartId"
       );
 
@@ -3571,7 +3573,7 @@ test("logarithmic trending line", () => {
     {
       type: "scatter",
       dataSets: [{ dataRange: "C1:C8", trend: { display: true, type: "logarithmic" } }],
-      labelRange: "B1:B8",
+      labelRange: ["B1:B8"],
       labelsAsText: false,
       dataSetsHaveTitle: false,
     },
@@ -3609,7 +3611,7 @@ test("logarithmic trending line with negative values", () => {
     {
       type: "scatter",
       dataSets: [{ dataRange: "C1:C8", trend: { display: true, type: "logarithmic" } }],
-      labelRange: "B1:B8",
+      labelRange: ["B1:B8"],
       labelsAsText: false,
       dataSetsHaveTitle: false,
     },
@@ -3647,7 +3649,7 @@ test("logarithmic trending line with values between 0 and 1", () => {
     {
       type: "scatter",
       dataSets: [{ dataRange: "C1:C8", trend: { display: true, type: "logarithmic" } }],
-      labelRange: "B1:B8",
+      labelRange: ["B1:B8"],
       labelsAsText: false,
       dataSetsHaveTitle: false,
     },

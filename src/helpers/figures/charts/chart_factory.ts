@@ -18,7 +18,7 @@ import { CoreGetters, Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
 import { getZoneArea, zoneToDimension, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { createDataSets } from "./chart_common";
+import { createDataSet, createDataSets } from "./chart_common";
 import { canChartParseLabels, getData } from "./runtime";
 
 /**
@@ -95,14 +95,7 @@ export function transformDefinition(
  */
 export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefinition {
   const sheetId = getters.getActiveSheetId();
-  let dataSetZone = zone;
   const singleColumn = zoneToDimension(zone).numberOfCols === 1;
-  if (!singleColumn) {
-    dataSetZone = { ...zone, left: zone.left + 1 };
-  }
-  const dataRange = zoneToXc(getters.getUnboundedZone(sheetId, dataSetZone));
-  const dataSets = [{ dataRange, yAxisId: "y" }];
-
   const topLeftCell = getters.getCell({ sheetId, col: zone.left, row: zone.top });
   if (getZoneArea(zone) === 1 && topLeftCell?.content) {
     return {
@@ -116,6 +109,25 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     };
   }
 
+  let dataSetZone = zone;
+  let labelRangeXc: string[] | undefined;
+  if (!singleColumn) {
+    labelRangeXc = [zoneToXc(getters.getUnboundedZone(sheetId, { ...zone, right: zone.left }))];
+    let labelZoneRight = zone.left;
+    for (let right = zone.left + 1; right < zone.right; right++) {
+      let _zone = { ...zone, left: right, right };
+      const _dataSet = createDataSet(getters, sheetId, _zone, undefined);
+      if (!getData(getters, _dataSet).every((e) => typeof e === "string")) {
+        break;
+      }
+      labelRangeXc.push(
+        zoneToXc(getters.getUnboundedZone(sheetId, { ...zone, left: right, right }))
+      );
+      labelZoneRight = right;
+    }
+    dataSetZone = { ...zone, left: labelZoneRight + 1 };
+  }
+
   const cellsInFirstRow = getters.getEvaluatedCellsInZone(sheetId, {
     ...dataSetZone,
     bottom: dataSetZone.top,
@@ -124,14 +136,13 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     (cell) => cell.type !== CellValueType.empty && cell.type !== CellValueType.number
   );
 
-  let labelRangeXc: string | undefined;
-  if (!singleColumn) {
-    labelRangeXc = zoneToXc(getters.getUnboundedZone(sheetId, { ...zone, right: zone.left }));
-  }
+  const labelRange = labelRangeXc?.map((l) => getters.getRangeFromSheetXC(sheetId, l));
+  const dataRange = zoneToXc(getters.getUnboundedZone(sheetId, dataSetZone));
+  const dataSets = [{ dataRange, yAxisId: "y" }];
+
   // Only display legend for several datasets.
   const newLegendPos = dataSetZone.right === dataSetZone.left ? "none" : "top";
 
-  const labelRange = labelRangeXc ? getters.getRangeFromSheetXC(sheetId, labelRangeXc) : undefined;
   if (canChartParseLabels(labelRange, getters)) {
     return {
       title: {},
@@ -155,7 +166,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
       title: {},
       dataSets: [{ dataRange }],
       aggregated: true,
-      labelRange: dataRange,
+      labelRange: [dataRange],
       type: "pie",
       legendPosition: "top",
       dataSetsHaveTitle: false,

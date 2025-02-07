@@ -17,26 +17,23 @@ import {
   CustomizedDataSet,
   DataSet,
   DatasetDesign,
-  ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
+import { createValidRanges } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
+  convertToExcelDataSetAndLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
-  shouldRemoveFirstLabel,
-  toExcelDataset,
-  toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -54,7 +51,7 @@ import {
 
 export class ScatterChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range | undefined;
+  readonly labelRange?: Range[] | undefined;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
@@ -73,7 +70,7 @@ export class ScatterChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRanges(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
@@ -120,7 +117,7 @@ export class ScatterChart extends AbstractChart {
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
-    labelRange: Range | undefined,
+    labelRange: Range[] | undefined,
     targetSheetId?: UID
   ): ScatterChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -136,9 +133,9 @@ export class ScatterChart extends AbstractChart {
       background: this.background,
       dataSets: ranges,
       legendPosition: this.legendPosition,
-      labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
-        : undefined,
+      labelRange: labelRange?.map((lr) =>
+        this.getters.getRangeString(lr, targetSheetId || this.sheetId)
+      ),
       title: this.title,
       labelsAsText: this.labelsAsText,
       aggregated: this.aggregated,
@@ -158,9 +155,7 @@ export class ScatterChart extends AbstractChart {
     return {
       ...this,
       range,
-      auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
-        : undefined,
+      auxiliaryRange: this.labelRange?.map((lr) => this.getters.getRangeString(lr, this.sheetId)),
     };
   }
 
@@ -183,32 +178,30 @@ export class ScatterChart extends AbstractChart {
     if (this.aggregated) {
       return undefined;
     }
-    const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== "");
-    const labelRange = toExcelLabelRange(
-      this.getters,
-      this.labelRange,
-      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
-    );
     const definition = this.getDefinition();
     return {
       ...definition,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
-      dataSets,
-      labelRange,
+      ...convertToExcelDataSetAndLabelRange(
+        this.getters,
+        this.dataSets,
+        this.labelRange,
+        this.dataSetsHaveTitle
+      ),
       verticalAxis: getDefinedAxis(definition),
     };
   }
 
   duplicateInDuplicatedSheet(newSheetId: UID): ScatterChart {
     const dataSets = duplicateDataSetsInDuplicatedSheet(this.sheetId, newSheetId, this.dataSets);
-    const labelRange = duplicateLabelRangeInDuplicatedSheet(
-      this.sheetId,
-      newSheetId,
-      this.labelRange
-    );
+    const labelRange: Range[] = [];
+    for (const lr of this.labelRange ?? []) {
+      const duplicated = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, lr);
+      if (duplicated) {
+        labelRange.push(duplicated);
+      }
+    }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
     return new ScatterChart(definition, newSheetId, this.getters);
   }

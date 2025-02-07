@@ -66,7 +66,7 @@ export class GeoChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(getters, sheetId, definition.labelRange?.[0]);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
@@ -115,7 +115,7 @@ export class GeoChart extends AbstractChart {
       ...this,
       range,
       auxiliaryRange: this.labelRange
-        ? this.getters.getRangeString(this.labelRange, this.sheetId)
+        ? [this.getters.getRangeString(this.labelRange, this.sheetId)]
         : undefined,
     };
   }
@@ -163,7 +163,7 @@ export class GeoChart extends AbstractChart {
       dataSets: ranges,
       legendPosition: this.legendPosition,
       labelRange: labelRange
-        ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
+        ? [this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)]
         : undefined,
       title: this.title,
       colorScale: this.colorScale,
@@ -181,12 +181,12 @@ export class GeoChart extends AbstractChart {
       this.getters,
       applyChange,
       this.dataSets,
-      this.labelRange
+      this.labelRange ? [this.labelRange] : []
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange?.[0]);
     return new GeoChart(definition, this.sheetId, this.getters);
   }
 }

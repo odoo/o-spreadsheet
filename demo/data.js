@@ -6,7 +6,7 @@
  */
 
 export const demoData = {
-  version: 25,
+  version: 26,
   sheets: [
     {
       id: "sh1",
@@ -433,7 +433,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRange: ["Sheet1!A27:A35"],
             title: {
               text: "Line",
             },
@@ -460,7 +460,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRange: ["Sheet1!A27:A35"],
             title: {
               text: "Bar",
             },
@@ -487,7 +487,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRange: ["Sheet1!A27:A35"],
             title: {
               text: "Pie",
             },
@@ -567,7 +567,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!B27:B35",
+            labelRange: ["Sheet1!B27:B35"],
             title: {
               text: "Scatter",
             },
@@ -595,7 +595,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRange: ["Sheet1!A27:A35"],
             title: {
               text: "Combo",
             },
@@ -623,7 +623,7 @@ export const demoData = {
             ],
             legendPosition: "top",
             verticalAxisPosition: "left",
-            labelRange: "Sheet1!A26:A29",
+            labelRange: ["Sheet1!A26:A29"],
             title: {
               text: "Waterfall",
             },
@@ -652,7 +652,7 @@ export const demoData = {
               },
             ],
             legendPosition: "top",
-            labelRange: "Sheet1!A27:A35",
+            labelRange: ["Sheet1!A27:A35"],
             title: {
               text: "Radar",
             },
@@ -676,7 +676,7 @@ export const demoData = {
               },
             ],
             legendPosition: "left",
-            labelRange: "R:R",
+            labelRange: ["R:R"],
             title: {
               text: "Geo",
             },

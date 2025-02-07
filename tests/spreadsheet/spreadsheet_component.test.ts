@@ -416,7 +416,7 @@ describe("Composer / selectionInput interactions", () => {
       model,
       {
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
-        labelRange: "Sheet1!A2:A4",
+        labelRange: ["Sheet1!A2:A4"],
         type: "bar",
       },
       "1"

@@ -48,7 +48,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C1", "30");
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
-      labelRange: "A1:A2",
+      labelRange: ["A1:A2"],
       dataSets: [{ dataRange: "B1:C2" }],
       dataSetsHaveTitle: false,
       showSubTotals: false,
@@ -75,7 +75,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C1", "30");
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
-      labelRange: "A1:A2",
+      labelRange: ["A1:A2"],
       dataSets: [{ dataRange: "B1:C2" }],
       dataSetsHaveTitle: false,
       showSubTotals: true,
@@ -106,7 +106,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B1", "10");
     setCellContent(model, "B3", "30");
     const chartId = createWaterfallChart(model, {
-      labelRange: "A1:A4",
+      labelRange: ["A1:A4"],
       dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
       showSubTotals: true,
@@ -130,7 +130,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B3", "20");
     setCellContent(model, "B4", "10");
     const chartId = createWaterfallChart(model, {
-      labelRange: "A1:A4",
+      labelRange: ["A1:A4"],
       dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
       showSubTotals: false,
@@ -299,7 +299,7 @@ describe("Waterfall chart", () => {
       background: "#123456",
       title: { text: "hello there" },
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      auxiliaryRange: "Sheet1!A1:A4",
+      auxiliaryRange: ["Sheet1!A1:A4"],
       legendPosition: "bottom",
       cumulative: true,
       labelsAsText: true,
@@ -319,7 +319,7 @@ describe("Waterfall chart", () => {
       background: "#123456",
       title: { text: "hello there" },
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      labelRange: "Sheet1!A1:A4",
+      labelRange: ["Sheet1!A1:A4"],
       legendPosition: "bottom",
       dataSetsHaveTitle: true,
       aggregated: true,

@@ -7,7 +7,7 @@ export interface GeoChartDefinition {
   readonly type: "geo";
   readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
+  readonly labelRange?: string[];
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;

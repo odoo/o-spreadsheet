@@ -248,15 +248,22 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
       line: { color },
     });
 
+    let labelRange: XMLString = escapeXml/*xml*/ ``;
+    if (chart.labelRange) {
+      if (chart.labelRange.length > 1) {
+        labelRange = escapeXml/*xml*/ `<c:cat>${multiLvlStringRef(chart.labelRange)}</c:cat>`;
+      } else {
+        labelRange = escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange[0])}</c:cat>`;
+      }
+    }
+
     const dataSetNode = escapeXml/*xml*/ `
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
         ${extractDataSetLabel(dataset.label)}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
+        ${labelRange} <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
         </c:val>
@@ -340,6 +347,14 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
   let dataSet = dataSets[0];
   const firstColor = toXlsxHexColor(colors.next());
   const useRightAxisForBarSerie = dataSet.rightYAxis ?? false;
+  let labelRange = escapeXml/*xml*/ ``;
+  if (chart.labelRange) {
+    if (chart.labelRange.length > 1) {
+      labelRange = escapeXml/*xml*/ `<c:cat>${multiLvlStringRef(chart.labelRange)}</c:cat>`;
+    } else {
+      labelRange = escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange[0])}</c:cat>`;
+    }
+  }
   const barDataSetNode: XMLString = escapeXml/*xml*/ `
     <c:ser>
       <c:idx val="0"/>
@@ -349,7 +364,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         backgroundColor: firstColor,
         line: { color: firstColor },
       })}
-      ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+      ${labelRange}
       <!-- x-coordinate values -->
       <c:val>
         ${numberRef(dataSet.range)}
@@ -378,7 +393,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         </c:marker>
         ${extractDataSetLabel(dataSet.label)}
         ${dataShapeProperty}
-        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+        ${labelRange}
         <!-- x-coordinate values -->
         <c:val>
           ${numberRef(dataSet.range)}
@@ -480,6 +495,14 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
   const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
   const leftDataSetsNodes: XMLString[] = [];
   const rightDataSetsNodes: XMLString[] = [];
+  let labelRange = escapeXml/*xml*/ ``;
+  if (chart.labelRange) {
+    if (chart.labelRange.length > 1) {
+      labelRange = escapeXml/*xml*/ `<c:cat>${multiLvlStringRef(chart.labelRange)}</c:cat>`;
+    } else {
+      labelRange = escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange[0])}</c:cat>`;
+    }
+  }
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
     const color = toXlsxHexColor(colors.next());
     const dataShapeProperty = shapeProperty({
@@ -502,9 +525,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
         </c:marker>
         ${extractDataSetLabel(dataset.label)}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
+        ${labelRange} <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
         </c:val>
@@ -575,6 +596,22 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
   const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
   const leftDataSetsNodes: XMLString[] = [];
   const rightDataSetsNodes: XMLString[] = [];
+  let labelRange = escapeXml/*xml*/ ``;
+  if (chart.labelRange) {
+    if (chart.labelRange.length > 1) {
+      labelRange = escapeXml/*xml*/ `
+        <c:xVal>
+          <!-- x-coordinate values -->
+          ${multiLvlNumberRef(chart.labelRange)}
+        </c:xVal>`;
+    } else {
+      labelRange = escapeXml/*xml*/ `
+        <c:xVal>
+          <!-- x-coordinate values -->
+          ${numberRef(chart.labelRange[0])}
+        </c:xVal>`;
+    }
+  }
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
     const color = toXlsxHexColor(colors.next());
     const dataSetNode = escapeXml/*xml*/ `
@@ -595,13 +632,7 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
           ${shapeProperty({ backgroundColor: color, line: { color } })}
         </c:marker>
         ${extractDataSetLabel(dataset.label)}
-        ${
-          chart.labelRange
-            ? escapeXml/*xml*/ `<c:xVal> <!-- x-coordinate values -->
-              ${numberRef(chart.labelRange)}
-            </c:xVal>`
-            : ""
-        }
+        ${labelRange}
         <c:yVal> <!-- y-coordinate values -->
           ${numberRef(dataset.range)}
         </c:yVal>
@@ -667,6 +698,14 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
   const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
   const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
   const dataSetsNodes: XMLString[] = [];
+  let labelRange = escapeXml/*xml*/ ``;
+  if (chart.labelRange) {
+    if (chart.labelRange.length > 1) {
+      labelRange = escapeXml/*xml*/ `<c:cat>${multiLvlStringRef(chart.labelRange)}</c:cat>`;
+    } else {
+      labelRange = escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange[0])}</c:cat>`;
+    }
+  }
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
     const color = toXlsxHexColor(colors.next());
     const dataShapeProperty = shapeProperty({
@@ -689,9 +728,7 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
         </c:marker>
         ${extractDataSetLabel(dataset.label)}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
+        ${labelRange} <!-- x-coordinate values -->
         <c:val> <!-- x-coordinate values -->
           ${numberRef(dataset.range)}
         </c:val>
@@ -728,6 +765,14 @@ function addDoughnutChart(
   const doughnutColors: string[] = range(0, maxLength).map(() => toXlsxHexColor(colors.next()));
 
   const dataSetsNodes: XMLString[] = [];
+  let labelRange = escapeXml/*xml*/ ``;
+  if (chart.labelRange) {
+    if (chart.labelRange.length > 1) {
+      labelRange = escapeXml/*xml*/ `<c:cat>${multiLvlStringRef(chart.labelRange)}</c:cat>`;
+    } else {
+      labelRange = escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange[0])}</c:cat>`;
+    }
+  }
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets).reverse()) {
     //dataset slice labels
     const dsSize = getRangeSize(dataset.range, chartSheetIndex, data);
@@ -752,7 +797,7 @@ function addDoughnutChart(
         ${extractDataSetLabel(dataset.label)}
         ${joinXmlNodes(dataPoints)}
         ${insertDataLabels({ showLeaderLines: true })}
-        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
+        ${labelRange}
         <c:val>
           ${numberRef(dataset.range)}
         </c:val>
@@ -845,11 +890,29 @@ function stringRef(reference: string): XMLString {
   `;
 }
 
+function multiLvlStringRef(references: string[]): XMLString {
+  return escapeXml/*xml*/ `
+    <c:multiLvlStrRef>
+      <c:f>${references.reverse().join(",")}</c:f>
+      <c:numCache />
+    </c:multiLvlStrRef>
+  `;
+}
+
 function numberRef(reference: string): XMLString {
   return escapeXml/*xml*/ `
     <c:numRef>
       <c:f>${reference}</c:f>
       <c:numCache />
     </c:numRef>
+  `;
+}
+
+function multiLvlNumberRef(references: string[]): XMLString {
+  return escapeXml/*xml*/ `
+    <c:multiLvlNbrRef>
+      <c:f>${references.reverse().join(",")}</c:f>
+      <c:numCache />
+    </c:multiLvlNbrRef>
   `;
 }
