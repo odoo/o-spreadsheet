@@ -1056,13 +1056,18 @@ describe("charts", () => {
 
     test("Side panel correctly reacts to has_header checkbox check/uncheck (with only one point)", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line", labelRange: "C2", dataSets: ["A1"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "C2",
+        dataSets: ["A1"],
+        dataSetsHaveTitle: false,
+      });
       await nextTick();
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
 
-      const checkbox = document.querySelector("input[name='labelsAsText']") as HTMLInputElement;
+      const checkbox = document.querySelector(".o-use-row-as-headers input") as HTMLInputElement;
       expect(checkbox.checked).toBe(false);
 
       await simulateClick(checkbox);
@@ -1071,13 +1076,18 @@ describe("charts", () => {
 
     test("Side panel correctly reacts to has_header checkbox check/uncheck (with two datasets)", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line", labelRange: "C2", dataSets: ["A1:A2", "A1"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "C2",
+        dataSets: ["A1:A2", "A1"],
+        dataSetsHaveTitle: false,
+      });
       await nextTick();
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='edit']");
 
-      const checkbox = document.querySelector("input[name='labelsAsText']") as HTMLInputElement;
+      const checkbox = document.querySelector(".o-use-row-as-headers input") as HTMLInputElement;
       expect(checkbox.checked).toBe(false);
 
       expect(checkbox.checked).toBe(false);
