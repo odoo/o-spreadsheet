@@ -62,7 +62,7 @@ describe("monkey party", () => {
 
   let x: string[] = [];
 
-  test.each(["1738851888923"])("monkey party with seed %s", (seed) => {
+  test.each(["1738918805500"])("monkey party with seed %s", (seed) => {
     // test.each(seeds)("monkey party with seed %s", (seed) => {
     // test("monkey party with seed %s", () => {
     seedrandom(seed, { global: true });
