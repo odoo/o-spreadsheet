@@ -59,7 +59,7 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
   setup(): void {
     useEffect(
       () => {
-        const { scrollX, scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+        const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
         if (
           // this.maskRef.el?.scrollLeft !== scrollX ||
           // this.maskRef.el?.scrollTop !== scrollY ||
@@ -78,14 +78,14 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
         this.maskRef.el?.scrollTop,
         this.submaskRef.el?.scrollLeft,
         this.submaskRef.el?.scrollTop,
-        this.env.model.getters.getActiveSheetDOMScrollInfo().scrollX,
-        this.env.model.getters.getActiveSheetDOMScrollInfo().scrollY,
+        this.env.model.getters.getActiveSheetScrollInfo().scrollX,
+        this.env.model.getters.getActiveSheetScrollInfo().scrollY,
       ]
     );
   }
 
   get offset() {
-    return this.env.model.getters.getActiveSheetDOMScrollInfo().scrollY;
+    return this.env.model.getters.getActiveSheetScrollInfo().scrollY;
   }
 
   get height() {
@@ -93,7 +93,7 @@ export class ScrollMask extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get slotStyle() {
-    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
+    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
     return cssPropertiesToCss({
       position: "relative",
       top: scrollY + "px",
