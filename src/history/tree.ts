@@ -164,7 +164,7 @@ export class Tree<T = unknown> {
 
   /**
    * Drop the operation and all following operations in every
-   * branch
+   * branches
    */
   drop(operationId: UID) {
     for (const branch of this.branches) {
