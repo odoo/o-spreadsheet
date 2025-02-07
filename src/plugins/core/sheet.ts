@@ -325,6 +325,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   getSheet(sheetId: UID): Sheet {
     const sheet = this.sheets[sheetId];
     if (!sheet) {
+      debugger;
       throw new Error(`Sheet ${sheetId} not found.`);
     }
     return sheet;

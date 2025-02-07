@@ -2,11 +2,11 @@ import { Model } from "../../src";
 import { deepEquals, range } from "../../src/helpers";
 import { Command } from "../../src/types";
 // import { redo, undo } from "../test_helpers/commands_helpers";
+import seedrandom from "seedrandom";
 import { FunctionCodeBuilder } from "../../src/formulas/code_builder";
-import { MockTransportService } from "../__mocks__/transport_service";
-import { redo } from "../test_helpers/commands_helpers";
+import { createSheet, deleteSheet, redo, undo } from "../test_helpers/commands_helpers";
 import { printDebugModel } from "../test_helpers/debug_helpers";
-import { getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 import { commands } from "./revisions_party";
 
@@ -167,7 +167,7 @@ describe("monkey party", () => {
   let bob: Model;
   let charlie: Model;
   const now = Date.now();
-  const seeds = range(0, 80).map((i) => (now + i).toString());
+  const seeds = range(0, 500).map((i) => (now + i).toString());
   seeds;
   let print = () => {
     printDebugModel(alice);
@@ -180,8 +180,8 @@ describe("monkey party", () => {
     ({ network, alice, bob, charlie } = setupCollaborativeEnv());
   });
 
-  test.each(["1738925119284"])("monkey party with seed %s", (seed) => {
-    // test.each(seeds)("monkey party with seed %s", (seed) => {
+  // test.each(["1738925119284"])("monkey party with seed %s", (seed) => {
+  test.each(seeds)("monkey party with seed %s", (seed) => {
     seedrandom(seed, { global: true });
 
     // add some undo/redo
@@ -240,13 +240,49 @@ describe("monkey party", () => {
       charlie.dispatch("UPDATE_CELL", { sheetId: "Sheet1", col: 0, row: 0, content: "4" });
       // charlie.dispatch("DELETE_SHEET", { "sheetId": "Sheet1" });
     });
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (usef) => getEvaluatedCell(usef, "A1").value,
-      4
-    );
+    // expect([alice, bob, charlie]).toHaveSynchronizedValue(
+    //   (usef) => getEvaluatedCell(usef, "A1").value,
+    //   4
+    // );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     printDebugModel(bob);
     printDebugModel(charlie);
     // debugger
     redo(bob);
+  });
+
+  test("1738939279712", () => {
+    bob.dispatch("CREATE_SHEET", {
+      sheetId: "57047cd7-c980-4231-b9f2-1da2a98a3136",
+      position: 1,
+      name: "Sheet2",
+    });
+    bob.dispatch("DUPLICATE_SHEET", {
+      sheetId: "57047cd7-c980-4231-b9f2-1da2a98a3136",
+      sheetIdTo: "5c555a62-a750-4877-97ac-654f3b85e287",
+    });
+    network.concurrent(() => {
+      charlie.dispatch("DELETE_SHEET", { sheetId: "Sheet1" });
+      alice.dispatch("UNGROUP_HEADERS", {
+        sheetId: "Sheet1",
+        dimension: "COL",
+        start: 3,
+        end: 5,
+      });
+      alice.dispatch("DELETE_SHEET", { sheetId: "5c555a62-a750-4877-97ac-654f3b85e287" });
+    });
+    charlie.dispatch("HIDE_SHEET", { sheetId: "57047cd7-c980-4231-b9f2-1da2a98a3136" });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("1738939279745", () => {
+    const name = "Sheet2"
+    createSheet(bob, { name, position: 1, sheetId: "Sheet2"})
+    deleteSheet(bob, "Sheet2");
+    network.concurrent(() => {
+      undo(bob);
+      createSheet(alice, { name, position: 1, sheetId: "Sheet2bis" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 });

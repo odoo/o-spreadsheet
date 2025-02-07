@@ -387,6 +387,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         dispatch: (command: CoreCommand) => {
           const result = this.checkDispatchAllowed(command);
           if (!result.isSuccessful) {
+            debugger;
             return;
           }
           this.isReplayingCommand = true;
