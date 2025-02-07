@@ -1,6 +1,6 @@
 import { isExportableToExcel } from "../../../formulas/index";
 import { matrixMap } from "../../../functions/helpers";
-import { getItemId, positions, toXC } from "../../../helpers/index";
+import { createReverseLookup, getItemId, positions, toXC } from "../../../helpers/index";
 import {
   CellPosition,
   CellValue,
@@ -329,6 +329,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
   // ---------------------------------------------------------------------------
 
   exportForExcel(data: ExcelWorkbookData) {
+    const reverseLookupFormats = createReverseLookup(data.formats);
     for (const sheet of data.sheets) {
       sheet.cellValues = {};
     }
@@ -356,7 +357,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
           newContent = (value ?? "").toString();
           const newFormat = evaluatedCell.format;
           if (newFormat) {
-            const newFormatId = getItemId<Format>(newFormat, data.formats);
+            const newFormatId = getItemId<Format>(newFormat, data.formats, reverseLookupFormats);
             exportedSheetData.formats[xc] = newFormatId;
           }
         }

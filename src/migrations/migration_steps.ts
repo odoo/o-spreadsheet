@@ -206,11 +206,13 @@ migrationStepRegistry
     versionFrom: "10",
     migrate(data: any): any {
       const formats: { [formatId: number]: Format } = {};
+      const reverseLookup = new Map<string, number>();
+
       for (let sheet of data.sheets || []) {
         for (let xc in sheet.cells || []) {
           const cell = sheet.cells[xc];
           if (cell.format) {
-            cell.format = getItemId(cell.format, formats);
+            cell.format = getItemId(cell.format, formats, reverseLookup);
           }
         }
       }
