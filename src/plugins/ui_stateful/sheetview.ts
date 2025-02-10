@@ -261,6 +261,9 @@ export class SheetViewPlugin extends UIPlugin {
 
   finalize() {
     for (const sheetId of this.sheetsWithDirtyViewports) {
+      if (!this.getters.tryGetSheet(sheetId)) {
+        continue;
+      }
       this.resetViewports(sheetId);
       if (this.shouldAdjustViewports) {
         const position = this.getters.getSheetPosition(sheetId);

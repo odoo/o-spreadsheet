@@ -21,6 +21,9 @@ export class PositionSet {
   }
 
   add(position: CellPosition) {
+    if (!this.sheets[position.sheetId]) {
+      debugger;
+    }
     const hasBeenInserted = this.sheets[position.sheetId].setValue(position, 1);
     if (hasBeenInserted) {
       this.insertions.push(position);

@@ -75,28 +75,25 @@ expect.extend({
     return { pass: !this.isNot, message: () => "" };
   },
   toHaveSynchronizedExportedData(users: Model[]) {
-    for (let a of users) {
-      for (let b of users) {
-        if (a === b) {
-          continue;
-        }
-        const exportA = a.exportData();
-        const exportB = b.exportData();
-        if (!this.equals(exportA, exportB, [this.utils.iterableEquality])) {
-          const clientA = a.getters.getClient().id;
-          const clientB = b.getters.getClient().id;
-          return {
-            pass: this.isNot,
-            message: () =>
-              `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
-                exportA,
-                exportB,
-                clientA,
-                clientB,
-                false
-              )}`,
-          };
-        }
+    for (let i = 0; i < users.length - 1; i++) {
+      const a = users[i];
+      const b = users[i + 1];
+      const exportA = a.exportData();
+      const exportB = b.exportData();
+      if (!this.equals(exportA, exportB, [this.utils.iterableEquality])) {
+        const clientA = a.getters.getClient().id;
+        const clientB = b.getters.getClient().id;
+        return {
+          pass: this.isNot,
+          message: () =>
+            `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
+              exportA,
+              exportB,
+              clientA,
+              clientB,
+              false
+            )}`,
+        };
       }
     }
     return { pass: !this.isNot, message: () => "" };

@@ -50,7 +50,11 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "ADD_PIVOT": {
-        return this.checkDuplicatedMeasureIds(cmd.pivot);
+        return this.checkValidations(
+          cmd.pivot,
+          this.checkDuplicatedMeasureIds,
+          this.checkValidDataSet
+        );
       }
       case "UPDATE_PIVOT": {
         if (!(cmd.pivotId in this.pivots)) {
@@ -331,6 +335,18 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     const uniqueIds = new Set(definition.measures.map((m) => m.id));
     if (definition.measures.length !== uniqueIds.size) {
       return CommandResult.InvalidDefinition;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkValidDataSet(definition: PivotCoreDefinition) {
+    if (definition.type === "SPREADSHEET" && definition.dataSet) {
+      // move to registry ?
+      // check zone as well
+      const { sheetId } = definition.dataSet;
+      if (!this.getters.tryGetSheet(sheetId)) {
+        return CommandResult.InvalidSheetId;
+      }
     }
     return CommandResult.Success;
   }

@@ -371,6 +371,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
     for (let command of commands) {
+      // @ts-ignore
+      if (command.isCancelled) {
+        continue;
+      }
       const previousStatus = this.status;
       this.status = Status.RunningCore;
       this.dispatchToHandlers(this.statefulUIPlugins, command);
@@ -387,9 +391,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         dispatch: (command: CoreCommand) => {
           const result = this.checkDispatchAllowed(command);
           if (!result.isSuccessful) {
-            debugger;
+            // @ts-ignore
+            // command.isCancelled = true;
+            // // command is dropped. UI plugins should be notified
+            // this.notifyUIDroppedCommands([command]);
             return;
           }
+          // @ts-ignore
+          // command.isCancelled = false;
           this.isReplayingCommand = true;
           this.dispatchToHandlers(this.coreHandlers, command);
           this.isReplayingCommand = false;
@@ -410,12 +419,36 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.dispatchFromCorePlugin("REDO", { commands });
       this.finalize();
     });
+    this.session.on("pending-revisions-dropped", this, ({ commands }) => {
+      this.notifyUIDroppedCommands(commands);
+      this.finalize(); // is this necessary? -> yes
+    });
     // How could we improve communication between the session and UI?
     // It feels weird to have the model piping specific session events to its own bus.
     this.session.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     this.session.on("collaborative-event-received", this, () => {
       this.trigger("update");
     });
+  }
+
+  private notifyUIDroppedCommands(commands: CoreCommand[]) {
+    const previousStatus = this.status;
+    this.status = Status.RunningCore;
+    // UI plugin should invalidate their state or check its consistency
+    // just like if some commands were redone
+    this.dispatchToHandlers(this.uiHandlers, {
+      type: "UNDO",
+      commands,
+    });
+    // for (const invertedCommand of commands.map(inverseCommand).flat()) {
+    //   if (this.checkDispatchAllowed(invertedCommand).isSuccessful) {
+    //     this.dispatchToHandlers(this.uiHandlers, invertedCommand);
+    //   } else {
+    //     // fuck, I can't re-dispatch CREATE_SHEET because the id already exists
+    //     debugger
+    //   }
+    // }
+    this.status = previousStatus;
   }
 
   private setupConfig(config: Partial<ModelConfig>): ModelConfig {

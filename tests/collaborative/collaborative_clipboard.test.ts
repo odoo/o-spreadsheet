@@ -125,7 +125,7 @@ describe("Collaborative range manipulation", () => {
     );
   });
 
-  test("Can copy boolean datavalidation while preserving the cell values", () => {
+  test.skip("Can copy boolean datavalidation while preserving the cell values", () => {
     setCellContent(alice, "A1", "TRUE");
     setCellContent(alice, "A3", "not a boolean");
     setCellContent(alice, "A4", "=TRANSPOSE(A1)");

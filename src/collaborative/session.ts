@@ -389,7 +389,14 @@ export class Session extends EventBus<CollaborativeEvent> {
     const revisionIds = this.pendingMessages
       .filter((message) => message.type === "REMOTE_REVISION")
       .map((message) => message.nextRevisionId);
-    this.trigger("pending-revisions-dropped", { revisionIds });
+    const commands = this.pendingMessages
+      .filter((message) => message.type === "REMOTE_REVISION")
+      .map((message) => (message as RemoteRevisionMessage).commands)
+      .flat();
+    this.trigger("pending-revisions-dropped", {
+      revisionIds,
+      commands,
+    });
     this.waitingAck = false;
     this.waitingUndoRedoAck = false;
   }

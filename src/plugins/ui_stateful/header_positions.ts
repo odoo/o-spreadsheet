@@ -46,21 +46,27 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       case "UNGROUP_HEADERS":
       case "GROUP_HEADERS":
       case "CREATE_SHEET":
-        this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
+        if (this.getters.tryGetSheet(cmd.sheetId)) {
+          this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
+        }
         break;
       case "DUPLICATE_SHEET":
-        this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);
+        if (this.getters.tryGetSheet(cmd.sheetId)) {
+          this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);
+        }
         break;
     }
   }
 
   finalize() {
-    if (this.isDirty) {
-      for (const sheetId of this.getters.getSheetIds()) {
+    for (const sheetId of this.getters.getSheetIds()) {
+      // sheets can be created without this plugin being aware of it
+      // in concurrent situations.
+      if (this.isDirty || !this.headerPositions[sheetId]) {
         this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
       }
-      this.isDirty = false;
     }
+    this.isDirty = false;
   }
 
   /**
@@ -104,6 +110,9 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     index: HeaderIndex,
     sheetId: UID = this.getters.getActiveSheetId()
   ): Pixel {
+    if (!this.headerPositions[sheetId]) {
+      debugger;
+    }
     const referencePosition = this.headerPositions[sheetId][dimension][referenceIndex];
     const position = this.headerPositions[sheetId][dimension][index];
     return position - referencePosition;
