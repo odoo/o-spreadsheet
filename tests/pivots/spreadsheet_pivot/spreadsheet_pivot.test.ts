@@ -1,4 +1,5 @@
-import { CellErrorType, FunctionResultObject, Model } from "../../../src";
+import { CellErrorType, CommandResult, FunctionResultObject, Model } from "../../../src";
+import { toZone } from "../../../src/helpers";
 import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { DEFAULT_LOCALES } from "../../../src/types/locale";
 import {
@@ -2180,5 +2181,21 @@ describe("Spreadsheet arguments parsing", () => {
       ["",            "Price",  "Price", "Price"],
       ["Total",       "10",     "20",    "30"],
     ]);
+  });
+
+  test("Cannot add a pivot from a range in a sheet that do not exist", () => {
+    const model = new Model();
+    const result = addPivot(model, "A1:C3", {
+      dataSet: { sheetId: "non-existing-sheet", zone: toZone("A1") },
+    });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+  });
+
+  test("Cannot update a pivot from a range in a sheet that do not exist", () => {
+    const model = createModelWithPivot("A1:D5");
+    const result = updatePivot(model, "1", {
+      dataSet: { sheetId: "non-existing-sheet", zone: toZone("A1") },
+    });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 });

@@ -1,4 +1,10 @@
-import { ApplyRangeChange, Range } from "../../types";
+import {
+  ApplyRangeChange,
+  CommandResult,
+  CoreCommand,
+  PivotCoreDefinition,
+  Range,
+} from "../../types";
 import { CorePlugin } from "../core_plugin";
 
 function adaptPivotRange(
@@ -20,6 +26,16 @@ function adaptPivotRange(
 }
 
 export class SpreadsheetPivotCorePlugin extends CorePlugin {
+  allowDispatch(cmd: CoreCommand) {
+    switch (cmd.type) {
+      case "ADD_PIVOT":
+      case "UPDATE_PIVOT": {
+        return this.checkValidDataSetSheet(cmd.pivot);
+      }
+    }
+    return CommandResult.Success;
+  }
+
   adaptRanges(applyChange: ApplyRangeChange) {
     for (const pivotId of this.getters.getPivotIds()) {
       const definition = this.getters.getPivotCoreDefinition(pivotId);
@@ -38,5 +54,15 @@ export class SpreadsheetPivotCorePlugin extends CorePlugin {
         this.dispatch("UPDATE_PIVOT", { pivotId, pivot: { ...definition, dataSet } });
       }
     }
+  }
+
+  private checkValidDataSetSheet(definition: PivotCoreDefinition) {
+    if (definition.type === "SPREADSHEET" && definition.dataSet) {
+      const { sheetId } = definition.dataSet;
+      if (!this.getters.tryGetSheet(sheetId)) {
+        return CommandResult.InvalidSheetId;
+      }
+    }
+    return CommandResult.Success;
   }
 }
