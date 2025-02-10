@@ -71,6 +71,14 @@ describe("Data validation", () => {
       expect(result).toBeCancelledBecause(CommandResult.UnknownDataValidationRule);
     });
 
+    test("Cannot remove from an invalid sheet", () => {
+      const result = removeDataValidation(model, "notAnExistingId", "not a sheet id");
+      expect(result).toBeCancelledBecause(
+        CommandResult.InvalidSheetId,
+        CommandResult.UnknownDataValidationRule
+      );
+    });
+
     test("Cannot create a data validation rule with an empty range", () => {
       const result = model.dispatch("ADD_DATA_VALIDATION_RULE", {
         sheetId,

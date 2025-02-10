@@ -89,7 +89,7 @@ export class DataValidationPlugin
           )
         );
       case "REMOVE_DATA_VALIDATION_RULE":
-        if (!this.rules[cmd.sheetId].find((rule) => rule.id === cmd.id)) {
+        if (!this.rules[cmd.sheetId]?.find((rule) => rule.id === cmd.id)) {
           return CommandResult.UnknownDataValidationRule;
         }
         break;
