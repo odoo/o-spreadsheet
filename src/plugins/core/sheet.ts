@@ -123,7 +123,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           ? CommandResult.Success
           : CommandResult.InvalidColor;
       case "DELETE_SHEET":
-        return this.orderedSheetIds.length > 1
+        return this.getVisibleSheetIds().length > 1
           ? CommandResult.Success
           : CommandResult.NotEnoughSheets;
       case "ADD_COLUMNS_ROWS":
