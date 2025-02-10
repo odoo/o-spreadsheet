@@ -32,7 +32,10 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   allowDispatch(cmd: CoreCommand): CommandResult {
     switch (cmd.type) {
       case "GROUP_HEADERS": {
-        const { start, end } = cmd;
+        const { start, end, sheetId } = cmd;
+        if (!this.getters.tryGetSheet(sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
         if (!this.getters.doesHeadersExist(cmd.sheetId, cmd.dimension, [start, end])) {
           return CommandResult.InvalidHeaderGroupStartEnd;
         }
@@ -46,7 +49,10 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
         break;
       }
       case "UNGROUP_HEADERS": {
-        const { start, end } = cmd;
+        const { start, end, sheetId } = cmd;
+        if (!this.getters.tryGetSheet(sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
         if (!this.getters.doesHeadersExist(cmd.sheetId, cmd.dimension, [start, end])) {
           return CommandResult.InvalidHeaderGroupStartEnd;
         }
@@ -57,6 +63,9 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
       }
       case "UNFOLD_HEADER_GROUP":
       case "FOLD_HEADER_GROUP":
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
         const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
         if (!group) {
           return CommandResult.UnknownHeaderGroup;
