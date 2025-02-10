@@ -9,7 +9,7 @@ sheetMenuRegistry
     name: _lt("Delete"),
     sequence: 10,
     isVisible: (env) => {
-      return env.model.getters.getSheetIds().length > 1;
+      return env.model.getters.getVisibleSheetIds().length > 1;
     },
     action: (env) =>
       env.askConfirmation(_lt("Are you sure you want to delete this sheet ?"), () => {
