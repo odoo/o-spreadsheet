@@ -3,7 +3,7 @@ import { BACKGROUND_GRAY_COLOR, ComponentsImportance, SCROLLBAR_WIDTH } from "..
 import { CSSProperties, Pixel, Ref } from "../../types";
 import { cssPropertiesToCss } from "../helpers";
 import { css } from "../helpers/css";
-import { ScrollBar as ScrollBarElement, ScrollDirection } from "../scrollbar";
+import { ScrollBar as ScrollBarElement, ScrollDirection } from "../scrollbar_helper";
 
 interface Props {
   width: Pixel;

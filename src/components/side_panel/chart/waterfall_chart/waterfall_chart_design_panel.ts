@@ -14,6 +14,7 @@ import {
   UID,
 } from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -24,7 +25,6 @@ import {
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
-import { Checkbox } from "./../../components/checkbox/checkbox";
 
 interface Props {
   figureId: UID;

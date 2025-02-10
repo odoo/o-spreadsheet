@@ -1,93 +1,89 @@
 <templates>
-  <t t-name="o-spreadsheet-BottomBar">
+  <t t-name="o-spreadsheet-mobile-BottomBar">
     <div
-      class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
+      class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center justify-content-between overflow-hidden"
       t-on-click="props.onClick"
       t-ref="bottomBar"
       t-on-contextmenu.prevent="">
-      <Ripple>
-        <div
-          class="o-sheet-item o-add-sheet me-2 p-1"
-          t-if="!env.model.getters.isReadonly()"
-          t-on-click="clickAddSheet">
-          <t t-call="o-spreadsheet-Icon.PLUS"/>
-        </div>
-      </Ripple>
-      <Ripple>
-        <div class="o-sheet-item o-list-sheets me-2 p-1" t-on-click="clickListSheets">
-          <t t-call="o-spreadsheet-Icon.LIST"/>
-        </div>
-      </Ripple>
-      <div class="o-all-sheets position-relative flex-shrink-0 d-flex h-100 me-3">
-        <div
-          class="o-bottom-bar-fade-in position-absolute h-100 w-100 pe-none"
-          t-if="state.isSheetListScrollableLeft"
-        />
-        <div
-          class="o-sheet-list d-flex w-100 px-1"
-          t-ref="sheetList"
-          t-on-wheel="onWheel"
-          t-on-scroll="onScroll">
-          <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
-            <BottomBarSheet
-              style="getSheetStyle(sheet.id)"
-              sheetId="sheet.id"
-              openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
-              onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
+      <t t-if="selectionStore.isActive">
+        <!-- here goes the composer code -->
+        <div class="mobile-edition px-2">
+          <div class="mobile-composer px-2 mt-2" t-if="isComposerVisible" t-ref="gridComposer">
+            <Composer t-props="composerProps"/>
+            <span
+              class="align-items-center d-flex justify-content-center o-selection-button"
+              title="End Selection"
+              t-on-click="() => this.composerStore.stopEdition()">
+              <span class="d-flex">
+                <t t-call="o-spreadsheet-Icon.CHECK"/>
+              </span>
+            </span>
+          </div>
+          <div class="o-toolbar-tools d-flex flex-shrink-0 pb-4 pt-2 mx-4">
+            <ActionButton action="FORMAT.formatBold" class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.formatItalic" class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.formatStrikethrough" class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.clearFormat" class="'o-hoverable-button'"/>
+            <div class="o-divider"/>
+            <ColorPickerWidget
+              currentColor="state.fillColor"
+              toggleColorPicker="() => this.state.activeTool = 'fillColorTool'"
+              showColorPicker="state.activeTool === 'fillColorTool'"
+              onColorPicked="(color) => this.setColor('fillColor', color)"
+              title="fill_color"
+              icon="'o-spreadsheet-Icon.FILL_COLOR'"
+              class="'o-hoverable-button o-menu-item-button'"
             />
-          </t>
+            <div class="o-divider"/>
+            <t t-if="isComposerVisible"/>
+            <t t-else="">
+              <ActionButton action="EDIT.mergeCells" class="'o-hoverable-button'"/>
+            </t>
+          </div>
         </div>
-        <div
-          class="o-bottom-bar-fade-out position-absolute h-100 w-100 pe-none"
-          t-if="state.isSheetListScrollableRight"
+      </t>
+      <t t-else="">
+        <Ripple>
+          <div class="o-sheet-item o-list-sheets me-2 p-1 ms-4" t-on-click="clickListSheets">
+            <t t-call="o-spreadsheet-Icon.LIST"/>
+          </div>
+        </Ripple>
+        <div class="o-all-sheets position-relative d-flex h-100 me-auto flex-fill overflow-hidden">
+          <div class="o-bottom-bar-fade-in h-100 pe-none" t-if="state.isSheetListScrollableLeft"/>
+          <div
+            class="o-sheet-list d-flex w-100 px-1"
+            t-ref="sheetList"
+            t-on-wheel="onWheel"
+            t-on-scroll="onScroll">
+            <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
+              <BottomBarSheet
+                style="getSheetStyle(sheet.id)"
+                sheetId="sheet.id"
+                openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
+                onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
+              />
+            </t>
+          </div>
+          <div t-if="state.isSheetListScrollableRight" class="o-bottom-bar-fade-out h-100 pe-none"/>
+        </div>
+        <Ripple>
+          <div
+            class="o-sheet-item o-add-sheet me-2 ms-2 p-1"
+            t-if="!env.model.getters.isReadonly()"
+            t-on-click="clickAddSheet">
+            <t t-call="o-spreadsheet-Icon.PLUS"/>
+          </div>
+        </Ripple>
+        <Menu
+          t-if="menuState.isOpen"
+          position="menuState.position"
+          menuItems="menuState.menuItems"
+          maxHeight="menuMaxHeight"
+          onClose="() => this.closeMenu()"
+          menuId="menuState.menuId"
+          menuTitle="menuState.menuTitle"
         />
-      </div>
-      <div
-        class="o-bottom-bar-arrows d-flex h-100 me-5 align-items-center"
-        t-if="state.isSheetListScrollableLeft || state.isSheetListScrollableRight">
-        <Ripple
-          ignoreClickPosition="true"
-          width="20"
-          height="20"
-          offsetX="1"
-          allowOverflow="true"
-          enabled="state.isSheetListScrollableLeft">
-          <div
-            class="o-bottom-bar-arrow o-bottom-bar-arrow-left d-flex align-items-center me-2"
-            t-att-class="{'o-disabled': !state.isSheetListScrollableLeft}"
-            t-on-click="onArrowLeft">
-            <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
-          </div>
-        </Ripple>
-        <Ripple
-          ignoreClickPosition="true"
-          width="20"
-          height="20"
-          offsetX="-1"
-          allowOverflow="true"
-          enabled="state.isSheetListScrollableRight">
-          <div
-            class="o-bottom-bar-arrow o-bottom-bar-arrow-right d-flex align-items-center me-4"
-            t-att-class="{'o-disabled': !state.isSheetListScrollableRight}"
-            t-on-click="onArrowRight">
-            <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
-          </div>
-        </Ripple>
-      </div>
-
-      <BottomBarStatistic
-        openContextMenu="(x, y, registry) => this.openContextMenu(x, y, 'listSelectionStatistics', registry)"
-        closeContextMenu="() => this.closeContextMenuWithId('listSelectionStatistics')"
-      />
-
-      <Menu
-        t-if="menuState.isOpen"
-        position="menuState.position"
-        menuItems="menuState.menuItems"
-        maxHeight="menuMaxHeight"
-        onClose="() => this.closeMenu()"
-        menuId="menuState.menuId"
-      />
+      </t>
     </div>
   </t>
 </templates>

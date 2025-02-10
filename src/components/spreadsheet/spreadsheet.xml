@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-Spreadsheet">
+  <t t-name="o-spreadsheet-mobile-Spreadsheet">
     <div class="o-spreadsheet" t-ref="spreadsheet" t-att-style="getStyle()">
       <t t-if="env.isDashboard()">
         <SpreadsheetDashboard/>
@@ -22,7 +22,7 @@
             <Grid exposeFocus="(focus) => this._focusGrid = focus"/>
           </div>
         </div>
-        <SidePanel/>
+        <!-- <SidePanel/> -->
         <BottomBar onClick="() => this.focusGrid()"/>
       </t>
     </div>

@@ -18,12 +18,12 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types/index";
+import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { ContextMenuType } from "../grid/grid";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
-import { ComposerFocusStore } from "./../composer/composer_focus_store";
 
 // -----------------------------------------------------------------------------
 // Resizer component
@@ -143,6 +143,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     const selectedZoneEnd = this._getSelectedZoneEnd();
     if (activeElements.has(selectedZoneStart)) {
       if (selectedZoneStart <= index && index <= selectedZoneEnd) {
+        // TODORAR voir si on veut conserver cette crasse, je ne pense pas pour le mobile en fait
         this.state.waitingForMove = true;
         return;
       }
@@ -151,6 +152,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   }
 
   onMouseMove(ev: MouseEvent) {
+    return;
+    // pas de ca en mobile
     if (this.state.isResizing || this.state.isMoving || this.state.isSelecting) {
       return;
     }
@@ -274,6 +277,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     } else {
       this._selectElement(index, isCtrlKey(ev));
     }
+    // en mobile osef du reste - on veut psécifiquement pas de ce comportement d'ailleurs
+    return;
     this.lastSelectedElementIndex = index;
 
     const mouseMoveSelect = (col: HeaderIndex, row: HeaderIndex) => {
@@ -451,6 +456,10 @@ export class ColResizer extends AbstractResizer {
   }
 
   _selectElement(index: HeaderIndex, addDistinctHeader: boolean): void {
+    // ca devrait envoyer un sgnal a un  store qui peut savoir sur quel genre de zone on va travailler
+    // MAIS le soucis c'est que ce "reset" doit aussi fonctionner (plus tard) avec les highlights ...
+    // donc d'abord on fix les highlights (qui doivent s'adapter au nouveau border (facile))
+    // et puis il faut réussir a dire que quand ca change de valeur qq part on reset tout
     this.env.model.selection.selectColumn(
       index,
       addDistinctHeader ? "newAnchor" : "overrideSelection"
@@ -558,7 +567,7 @@ export class RowResizer extends AbstractResizer {
   static props = {
     onOpenContextMenu: Function,
   };
-  static template = "o-spreadsheet-RowResizer";
+  static template = "o-spreadsheet-mobile-RowResizer";
 
   setup() {
     super.setup();
@@ -572,6 +581,13 @@ export class RowResizer extends AbstractResizer {
 
   _getEvOffset(ev: MouseEvent): Pixel {
     return ev.offsetY;
+  }
+
+  get style() {
+    // ce truc doit bouger dans le css directement et pas un tattstyle
+    return cssPropertiesToCss({
+      height: `calc(100% - ${HEADER_HEIGHT}px)`,
+    });
   }
 
   _getViewportOffset(): Pixel {

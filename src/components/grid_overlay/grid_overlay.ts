@@ -1,5 +1,6 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
+import { SelectionStore } from "../../stores/draw_selection_store";
 import {
   DOMCoordinates,
   GridClickModifiers,
@@ -121,7 +122,7 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-function useTouchMove(
+export function useTouchMove(
   gridRef: Ref<HTMLElement>,
   handler: (deltaX: Pixel, deltaY: Pixel) => void,
   canMoveUp: () => boolean
@@ -146,9 +147,12 @@ function useTouchMove(
     // We only want this behavior if the grid is already at the top.
     // Otherwise we only want to move the canvas up, without triggering any refresh.
     if (canMoveUp()) {
-      ev.preventDefault();
+      if (ev.cancelable) {
+        ev.preventDefault();
+      }
       ev.stopPropagation();
     }
+    // console.log(ev.defaultPrevented);
     const currentX = ev.touches[0].clientX;
     const currentY = ev.touches[0].clientY;
     handler(x! - currentX, y! - currentY);
@@ -172,8 +176,8 @@ interface Props {
   onFigureDeleted: () => void;
 }
 
-export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-GridOverlay";
+export class MobileGridOverlay extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-mobile-GridOverlay";
   static props = {
     onCellHovered: { type: Function, optional: true },
     onCellDoubleClicked: { type: Function, optional: true },
@@ -202,17 +206,25 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private gridOverlayRect = useAbsoluteBoundingRect(this.gridOverlay);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+  private selectionStore!: Store<SelectionStore>;
+  private tapTimeout: number | undefined;
 
   setup() {
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
+    this.selectionStore = useStore(SelectionStore);
     const resizeObserver = new ResizeObserver(() => {
       const boundingRect = this.gridOverlayEl.getBoundingClientRect();
       this.props.onGridResized({
         x: boundingRect.left,
         y: boundingRect.top,
-        height: this.gridOverlayEl.clientHeight,
-        width: this.gridOverlayEl.clientWidth,
+        height: Math.floor(boundingRect.height),
+        width: Math.floor(boundingRect.width),
       });
+      if (this.selectionStore.scrollSelectionIntoView) {
+        const { col, row } = this.env.model.getters.getActivePosition();
+        this.env.model.dispatch("SCROLL_TO_CELL", { col, row });
+        this.selectionStore.forgetSelectionToDisplay();
+      }
     });
     onMounted(() => {
       resizeObserver.observe(this.gridOverlayEl);
@@ -220,10 +232,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       resizeObserver.disconnect();
     });
-    useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
-    });
+    // useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
+    //   const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+    //   return scrollY > 0;
+    // });
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
   }
@@ -251,7 +263,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     if (ev.target === this.gridOverlay.el && this.cellPopovers.isOpen) {
       this.cellPopovers.close();
     }
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(ev.clientX, ev.clientY);
     this.props.onCellClicked(col, row, {
       expandZone: ev.shiftKey,
       addZone: isCtrlKey(ev),
@@ -259,18 +271,40 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onDoubleClick(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(ev.clientX, ev.clientY);
     this.props.onCellDoubleClicked(col, row);
   }
 
   onContextMenu(ev: MouseEvent) {
-    const [col, row] = this.getCartesianCoordinates(ev);
+    const [col, row] = this.getCartesianCoordinates(ev.clientX, ev.clientY);
     this.props.onCellRightClicked(col, row, { x: ev.clientX, y: ev.clientY });
   }
 
-  private getCartesianCoordinates(ev: MouseEvent): [HeaderIndex, HeaderIndex] {
-    const x = ev.clientX - this.gridOverlayRect.x;
-    const y = ev.clientY - this.gridOverlayRect.y;
+  onTap(ev: TouchEvent) {
+    return;
+    ("ca c'est... c'est null sur 20 en fait");
+    this.tapTimeout = setTimeout(() => {
+      const [col, row] = this.getCartesianCoordinates(ev.touches[0].clientX, ev.touches[0].clientY);
+      this.props.onCellRightClicked(col, row, {
+        x: ev.touches[0].clientX,
+        y: ev.touches[0].clientY,
+      });
+      this.tapTimeout = undefined;
+      ev.preventDefault();
+      ev.stopPropagation();
+    }, 500) as unknown as number;
+  }
+
+  onTapEnd() {
+    return;
+    if (this.tapTimeout) {
+      clearTimeout(this.tapTimeout);
+    }
+  }
+
+  private getCartesianCoordinates(clientX: Pixel, clientY: Pixel): [HeaderIndex, HeaderIndex] {
+    const x = clientX - this.gridOverlayRect.x;
+    const y = clientY - this.gridOverlayRect.y;
 
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);

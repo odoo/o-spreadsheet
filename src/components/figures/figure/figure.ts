@@ -121,7 +121,7 @@ interface Props {
 }
 
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-FigureComponent";
+  static template = "o-spreadsheet-mobile-FigureComponent";
   static props = {
     figure: Object,
     style: { type: String, optional: true },

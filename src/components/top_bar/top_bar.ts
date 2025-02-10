@@ -24,6 +24,7 @@ import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registr
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
+import { SelectionStore } from "../../stores/draw_selection_store";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
 import { ActionButton } from "../action_button/action_button";
 import { BorderEditorWidget } from "../border_editor/border_editor_widget";
@@ -34,8 +35,9 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
+import { PaintFormatButton } from "../paint_format_button/paint_format_button";
+import { SelectionButton } from "../selection/selection_button";
 import { TableDropdownButton } from "../tables/table_dropdown_button/table_dropdown_button";
-import { PaintFormatButton } from "./../paint_format_button/paint_format_button";
 
 interface State {
   menuState: MenuState;
@@ -53,18 +55,28 @@ interface Props {
 // TopBar
 // -----------------------------------------------------------------------------
 css/* scss */ `
+  @media (max-width: 800px) {
+    .caca {
+      flex-direction: column !important;
+    }
+  }
   .o-spreadsheet-topbar {
     line-height: 1.2;
     font-size: 13px;
     font-weight: 500;
     background-color: #fff;
+    width: inherit;
+    overflow: clip;
 
     .o-topbar-top {
       border-bottom: 1px solid ${SEPARATOR_COLOR};
       padding: 2px 10px;
+      /* TODORAR: this hides the emnu items that crop themselves upon another but might beuseless in mobile */
+      overflow: hidden;
 
       /* Menus */
       .o-topbar-topleft {
+        height: 23px;
         .o-topbar-menu {
           padding: 4px 6px;
           margin: 0 2px;
@@ -149,7 +161,7 @@ css/* scss */ `
 `;
 
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-TopBar";
+  static template = "o-spreadsheet-mobile-TopBar";
   static props = {
     onClick: Function,
     dropdownMaxHeight: Number,
@@ -164,6 +176,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     PaintFormatButton,
     BorderEditorWidget,
     TableDropdownButton,
+    SelectionButton,
   };
 
   state: State = useState({
@@ -182,10 +195,12 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   isntToolbarMenu = false;
   composerFocusStore!: Store<ComposerFocusStore>;
   fingerprints!: Store<FormulaFingerprintStore>;
+  selectionStore!: Store<SelectionStore>;
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.fingerprints = useStore(FormulaFingerprintStore);
+    this.selectionStore = useStore(SelectionStore);
     useExternalListener(window, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
@@ -290,5 +305,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   setFontSize(fontSize: number) {
     setStyle(this.env, { fontSize });
+  };
+
+  get isSelectionActive() {
+    return this.selectionStore.isActive;
   }
 }

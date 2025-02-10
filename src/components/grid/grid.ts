@@ -15,14 +15,9 @@ import {
   PASTE_AS_VALUE_ACTION,
 } from "../../actions/menu_items_actions";
 import { canUngroupHeaders } from "../../actions/view_actions";
-import {
-  AUTOFILL_EDGE_LENGTH,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
-  SCROLLBAR_WIDTH,
-} from "../../constants";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
-import { isInside } from "../../helpers/index";
+import { getZoneArea, isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
@@ -37,6 +32,7 @@ import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
+import { SelectionStore } from "../../stores/draw_selection_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import {
   Align,
@@ -47,7 +43,6 @@ import {
   DOMDimension,
   Dimension,
   Direction,
-  GridClickModifiers,
   HeaderIndex,
   Pixel,
   Rect,
@@ -55,17 +50,15 @@ import {
   SpreadsheetChildEnv,
   Table,
 } from "../../types/index";
-import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
-import { GridOverlay } from "../grid_overlay/grid_overlay";
+import { MobileGridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
 import { keyboardEventToShortcutString } from "../helpers/dom_helpers";
-import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
@@ -75,7 +68,9 @@ import { Menu, MenuState } from "../menu/menu";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
-import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { ScrollMask } from "../scroll_mask/scroll_mask";
+import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar";
+import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";
 import { HoveredCellStore } from "./hovered_cell_store";
@@ -115,23 +110,24 @@ interface Props {
 // JS
 // -----------------------------------------------------------------------------
 export class Grid extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Grid";
+  static template = "o-spreadsheet-mobile-Grid";
   static props = {
     exposeFocus: Function,
   };
   static components = {
     GridComposer,
-    GridOverlay,
+    MobileGridOverlay,
     GridPopover,
     HeadersOverlay,
     Menu,
-    Autofill,
     ClientTag,
     Highlight,
     Popover,
     VerticalScrollBar,
     HorizontalScrollBar,
     TableResizer,
+    Selection,
+    ScrollMask,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
@@ -142,6 +138,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+  selectionStore!: Store<SelectionStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -163,12 +160,24 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.sidePanel = useStore(SidePanelStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     useStore(ArrayFormulaHighlight);
+    this.selectionStore = useStore(SelectionStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
+    // magic handler
+    // useExternalListener(window, "touchmove", () => {}, { passive: false });
+
+    /** Dans le cas mobile, on a pas de default composeur comme ça donc faut faire attention - ca a du sense de mettre le grid comme default a ce moment-là
+     * il faudrait voir a quel point on peut réconcilier les deux comportements avec un setFocusableElement qui change en fonction de mobile/desktop
+     * et faudra voir si le mode change en fonctionde la visibilité ou bien du mode "mobile" ou "desktop" du navigateur (userAgent)
+     * en fait on peut garder un comportement sans grid comme default ?
+     */
+    onMounted(() => this.DOMFocusableElementStore.setFocusableElement(this.gridEl));
+
     onMounted(() => this.focusDefaultElement());
+
     this.props.exposeFocus(() => this.focusDefaultElement());
     useGridDrawing("canvas", this.env.model, () =>
       this.env.model.getters.getSheetViewDimensionWithHeaders()
@@ -178,7 +187,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.hoveredCell.clear();
     });
     this.cellPopovers = useStore(CellPopoverStore);
-
     useEffect(
       () => {
         if (!this.sidePanel.isOpen) {
@@ -201,8 +209,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return cssPropertiesToCss({
       top: `${HEADER_HEIGHT}px`,
       left: `${HEADER_WIDTH}px`,
-      height: `calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px)`,
-      width: `calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px)`,
+      // height: `calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px)`,
+      height: `calc(100% - ${HEADER_HEIGHT}px)`,
+      // width: `calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px)`,
+      width: `calc(100% - ${HEADER_WIDTH}px)`,
     });
   }
 
@@ -419,26 +429,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return this.gridRef.el;
   }
 
-  getAutofillPosition() {
-    const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.env.model.getters.getVisibleRect(zone);
-    return {
-      left: rect.x + rect.width - AUTOFILL_EDGE_LENGTH / 2,
-      top: rect.y + rect.height - AUTOFILL_EDGE_LENGTH / 2,
-    };
-  }
-
-  get isAutofillVisible(): boolean {
-    const zone = this.env.model.getters.getSelectedZone();
-    const rect = this.env.model.getters.getVisibleRect({
-      left: zone.right,
-      right: zone.right,
-      top: zone.bottom,
-      bottom: zone.bottom,
-    });
-    return !(rect.width === 0 || rect.height === 0);
-  }
-
   onGridResized({ height, width }: DOMDimension) {
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
       width: width,
@@ -472,37 +462,61 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
-  onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) {
+  onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: any) {
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
-    if (modifiers.expandZone) {
-      this.env.model.selection.setAnchorCorner(col, row);
-    } else if (modifiers.addZone) {
-      this.env.model.selection.addCellToSelection(col, row);
+    const selectedZone = this.env.model.getters.getSelectedZone();
+    if (isInside(col, row, selectedZone) && getZoneArea(selectedZone) !== 1) {
+      alert("should display a samll copy/paste popover at the click position");
     } else {
       this.env.model.selection.selectCell(col, row);
-    }
-    let prevCol = col;
-    let prevRow = row;
+      this.selectionStore.enable();
+      // this.composerFocusStore.activeComposer.startEdition();
+      // this.composerFocusStore.focusActiveComposer({ focusMode: "contentFocus" });
 
-    const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
-      // When selecting cells during the edition, we don't want to avoid the default
-      // browser behaviour that will select the text inside the composer
-      // (see related commit msg for more information)
-      ev.preventDefault();
-      if ((col !== prevCol && col != -1) || (row !== prevRow && row != -1)) {
-        prevCol = col === -1 ? prevCol : col;
-        prevRow = row === -1 ? prevRow : row;
-        this.env.model.selection.setAnchorCorner(prevCol, prevRow);
-      }
-    };
-    const onMouseUp = () => {
-      if (this.paintFormatStore.isActive) {
-        this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
-      }
-    };
-    dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
+      // this.DOMFocusableElementStore.focus();
+    }
+
+    // if (modifiers.expandZone) {
+    //   this.env.model.selection.setAnchorCorner(col, row);
+    // } else if (modifiers.addZone) {
+    //   this.env.model.selection.addCellToSelection(col, row);
+    // } else {
+    //   this.env.model.selection.selectCell(col, row);
+    // }
+    // let prevCol = col;
+    // let prevRow = row;
+
+    // const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
+    //   // When selecting cells during the edition, we don't want to avoid the default
+    //   // browser behaviour that will select the text inside the composer
+    //   // (see related commit msg for more information)
+    //   ev.preventDefault();
+    //   if ((col !== prevCol && col != -1) || (row !== prevRow && row != -1)) {
+    //     prevCol = col === -1 ? prevCol : col;
+    //     prevRow = row === -1 ? prevRow : row;
+    //     this.env.model.selection.setAnchorCorner(prevCol, prevRow);
+    //   }
+    // };
+    // const onMouseUp = () => {
+    //   if (this.paintFormatStore.isActive) {
+    //     this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
+    //   }
+    // };
+    // dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
+  }
+
+  get maskStyle() {
+    const { width, height } = this.env.model.getters.getMainViewportRect();
+    return cssPropertiesToCss({
+      height: `${height}px`,
+      width: `${width}px`,
+    });
+  }
+
+  get maskPositionOffset() {
+    return { offsetX: HEADER_WIDTH, offsetY: HEADER_HEIGHT };
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {
@@ -585,6 +599,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     }
     this.toggleContextMenu(type, x, y);
+    this.selectionStore.markSelectionToDisplay();
   }
 
   toggleContextMenu(type: ContextMenuType, x: Pixel, y: Pixel) {
@@ -772,11 +787,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onComposerCellFocused(content?: string, selection?: ComposerSelection) {
-    this.composerFocusStore.focusActiveComposer({ content, selection, focusMode: "cellFocus" });
+    // this.composerFocusStore.focusActiveComposer({ content, selection, focusMode: "cellFocus" });
   }
 
   onComposerContentFocused() {
-    this.composerFocusStore.focusActiveComposer({ focusMode: "contentFocus" });
+    // this.composerFocusStore.focusActiveComposer({ focusMode: "contentFocus" });
   }
 
   get staticTables(): Table[] {

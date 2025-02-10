@@ -1,12 +1,16 @@
 import { Component, useState } from "@odoo/owl";
 import { Action } from "../../actions/action";
-import { FROZEN_PANE_HEADER_BORDER_COLOR, GROUP_LAYER_WIDTH } from "../../constants";
+import {
+  FROZEN_PANE_HEADER_BORDER_COLOR,
+  GROUP_LAYER_WIDTH,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "../../constants";
 import { createHeaderGroupContainerContextMenu } from "../../registries/menus/header_group_registry";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../../types";
 import { CSSProperties, Dimension, HeaderGroup, Pixel } from "../../types/misc";
 import { css, cssPropertiesToCss } from "../helpers";
-import { HEADER_HEIGHT, HEADER_WIDTH } from "./../../constants";
-import { Menu, MenuState } from "./../menu/menu";
+import { Menu, MenuState } from "../menu/menu";
 import { ColGroup, RowGroup } from "./header_group";
 
 interface Props {

@@ -1,16 +1,27 @@
-import { Component, onWillUpdateProps } from "@odoo/owl";
+import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import { Color } from "chart.js";
+import * as EDIT_ACTION from "../../../actions/edit_actions";
+import * as ACTION_FORMAT from "../../../actions/format_actions";
+import * as INSERT_ACTION from "../../../actions/insert_actions";
+import { setStyle } from "../../../actions/menu_items_actions";
 import { ComponentsImportance, DEFAULT_FONT, SELECTION_BORDER_COLOR } from "../../../constants";
 import {
   deepEquals,
   fontSizeInPixels,
   getFullReference,
+  getZoneArea,
   positionToZone,
   toXC,
 } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
+import { SelectionStore } from "../../../stores/draw_selection_store";
 import { ComposerFocusType, DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
+import { ActionButton } from "../../action_button/action_button";
+import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { Popover, PopoverProps } from "../../popover";
+import { SelectionButton } from "../../selection/selection_button";
 import { CellComposerStore } from "../composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
@@ -40,6 +51,10 @@ css/* scss */ `
     padding: 6px 7px;
     border-radius: 4px;
   }
+
+  .mobile-edition {
+    background-color: white;
+  }
 `;
 
 interface Props {
@@ -52,12 +67,15 @@ interface Props {
  * It also applies the style of the cell to the composer input.
  */
 export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-GridComposer";
+  static template = "o-spreadsheet-mobile-GridComposer";
   static props = {
     gridDims: Object,
     onInputContextMenu: Function,
   };
-  static components = { Composer };
+  static components = { Composer, Popover, ActionButton, ColorPickerWidget, SelectionButton };
+  FORMAT = ACTION_FORMAT;
+  INSERT = INSERT_ACTION;
+  EDIT = EDIT_ACTION;
 
   private rect: Rect = this.defaultRect;
   private isEditing: boolean = false;
@@ -67,6 +85,14 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   composerFocusStore!: Store<ComposerFocusStore>;
 
   private composerInterface!: ComposerInterface;
+  selectionStore!: Store<SelectionStore>;
+
+  state = useState({
+    menuState: { isOpen: false, position: null, menuItems: [] },
+    activeTool: "",
+    fillColor: "#ffffff",
+    textColor: "#000000",
+  });
 
   get defaultRect() {
     return { x: 0, y: 0, width: 0, height: 0 };
@@ -76,6 +102,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const composerStore = useStore(CellComposerStore);
     this.composerStore = composerStore;
     this.composerFocusStore = useStore(ComposerFocusStore);
+    this.selectionStore = useStore(SelectionStore);
     this.composerInterface = {
       id: "gridComposer",
       get editionMode() {
@@ -90,6 +117,13 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       this.updateComponentPosition();
       this.updateCellReferenceVisibility();
     });
+  }
+
+  get isComposerVisible(): boolean {
+    return (
+      this.env.model.getters.getSelectedZones().length === 1 &&
+      getZoneArea(this.env.model.getters.getSelectedZone()) === 1
+    );
   }
 
   get shouldDisplayCellReference(): boolean {
@@ -119,16 +153,30 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       : "inactive";
   }
 
+  get popoverProps(): PopoverProps {
+    return {
+      // TODO: make sure that we use this.rect when we are actually editing ... or something similar
+      anchorRect: { x: 0, y: 0, width: 10000, height: 10000 },
+      // this.composerStore.editionMode !== "inactive"
+      //   ? { x: 0, y: 0, width: 10000, height: 10000 }
+      //   : { x: -1, y: -1, width: -1, height: -1 },
+      positioning: "TopRight",
+      verticalOffset: 0,
+      zIndex: 17,
+    };
+  }
+
   get composerProps(): CellComposerProps {
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
-    return {
+    const props = {
       rect: { ...this.rect },
       delimitation: {
         width,
         height,
       },
       focus: this.focus,
-      isDefaultFocus: true,
+      // if Mobile, False, else true
+      isDefaultFocus: false,
       onComposerContentFocused: () =>
         this.composerFocusStore.focusComposer(this.composerInterface, {
           focusMode: "contentFocus",
@@ -141,6 +189,19 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       onInputContextMenu: this.props.onInputContextMenu,
       composerStore: this.composerStore,
     };
+
+    // if (true) {
+    //   // if is mobile
+    //   Object.assign(props, {
+    //     inputStyle: cssPropertiesToCss({
+    //       border: `lightgrey solid 1px`,
+    //       "border-radius": "5px",
+    //       "line-height": "24px",
+    //     }),
+    //   });
+    // }
+
+    return props;
   }
 
   get containerStyle(): string {
@@ -153,7 +214,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const style = this.env.model.getters.getCellComputedStyle(position);
 
     // position style
-    const { x: left, y: top, width, height } = this.rect;
 
     // color style
     const background = (!isFormula && style.fillColor) || "#ffffff";
@@ -172,9 +232,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       textAlign = style.align || cell.defaultAlign;
     }
 
-    const maxHeight = this.props.gridDims.height - this.rect.y;
-    const maxWidth = this.props.gridDims.width - this.rect.x;
-
     /**
      * min-size is on the container, not the composer element, because we want to have the same size as the cell by default,
      * including all the paddings/margins of the composer
@@ -182,14 +239,16 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
      * The +-1 are there to include cell borders in the composer sizing/positioning
      */
     return cssPropertiesToCss({
-      left: `${left - 1}px`,
-      top: `${top}px`,
+      // left: `${left - 1}px`,
+      // top: `${top}px`,
 
-      "min-width": `${width + 1}px`,
-      "min-height": `${height + 1}px`,
-      "max-width": `${maxWidth}px`,
-      "max-height": `${maxHeight}px`,
-
+      // "min-width": `${width + 1}px`,
+      // "min-height": `${height + 1}px`,
+      // "max-width": `${maxWidth}px`,
+      // "max-height": `${maxHeight}px`,
+      "margin-top": `auto`,
+      width: "100%",
+      height: "fit-content",
       background,
       color,
       "font-size": `${fontSizeInPixels(fontSize)}px`,
@@ -197,6 +256,8 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       "font-style": fontStyle,
       "text-decoration": textDecoration,
       "text-align": textAlign,
+      bottom: "0",
+      position: "absolute",
     });
   }
 
@@ -208,10 +269,10 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
     if (this.isEditing !== isEditing) {
       this.isEditing = isEditing;
-      if (!isEditing) {
-        this.rect = this.defaultRect;
-        return;
-      }
+      // if (!isEditing) {
+      //   this.rect = this.defaultRect;
+      //   return;
+      // }
       const position = this.env.model.getters.getActivePosition();
       const zone = this.env.model.getters.expandZone(position.sheetId, positionToZone(position));
       this.rect = this.env.model.getters.getVisibleRect(zone);
@@ -236,5 +297,11 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   onFocus() {
     this.composerFocusStore.focusComposer(this.composerInterface, { focusMode: "contentFocus" });
+  }
+
+  setColor(target: string, color: Color) {
+    setStyle(this.env, { [target]: color });
+    this.state.activeTool = "";
+    // this.onClick();
   }
 }

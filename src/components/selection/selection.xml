@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet-mobile-Selection">
+    <div class="o-highlight" t-ref="highlight" t-on-scroll.stop.prevent="">
+      <t t-foreach="orientations" t-as="orientation" t-key="orientation">
+        <Corner
+          onResizeHighlight="(dirX, dirY) => this.onResizeSelection(dirX, dirY)"
+          isResizing='selectionState.shiftingMode === "isResizing"'
+          orientation="orientation"
+          zone="zone"
+          color="COLOR"
+        />
+      </t>
+    </div>
+  </t>
+</templates>

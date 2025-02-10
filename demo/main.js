@@ -320,7 +320,7 @@ Demo.template = xml/* xml */ `
       <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key"/>
     </div>
   </div>
-  <div t-else="" class="vh-100">
+  <div t-else="" class="" style="width:100dvw; height:100dvh">
     <Spreadsheet model="model" t-key="state.key" notifyUser="notifyUser"/>
   </div>
 `;

@@ -1,0 +1,12 @@
+<templates>
+  <t t-name="o-spreadsheet-SelectionButton">
+    <span
+      class="align-items-center d-flex justify-content-center o-selection-button"
+      title="End Selection"
+      t-on-click="onClick">
+      <span class="d-flex">
+        <t t-call="o-spreadsheet-Icon.CHECK"/>
+      </span>
+    </span>
+  </t>
+</templates>

@@ -2,7 +2,7 @@ import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { HoveredCellStore } from "../grid/hovered_cell_store";
-import { GridOverlay } from "../grid_overlay/grid_overlay";
+import { MobileGridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
@@ -10,7 +10,7 @@ import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
-import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
 interface Props {}
@@ -26,7 +26,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   static template = "o-spreadsheet-SpreadsheetDashboard";
   static props = {};
   static components = {
-    GridOverlay,
+    MobileGridOverlay,
     GridPopover,
     Popover,
     VerticalScrollBar,

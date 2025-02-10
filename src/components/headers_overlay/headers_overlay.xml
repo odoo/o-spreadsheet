@@ -7,15 +7,16 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet-RowResizer">
+  <t t-name="o-spreadsheet-mobile-RowResizer">
     <div
       class="o-row-resizer"
       t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
-      t-on-pointerdown.self.prevent="select"
+      t-on-click.self.prevent="select"
       t-ref="rowResizer"
       t-on-pointerup.self="onMouseUp"
       t-on-contextmenu.self="onContextMenu"
+      t-att-style="style"
       t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving}">
       <div
         t-if="state.isMoving"

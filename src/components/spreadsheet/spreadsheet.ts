@@ -14,7 +14,6 @@ import {
   ACTION_COLOR_HOVER,
   ALERT_DANGER_BORDER,
   BACKGROUND_GRAY_COLOR,
-  BOTTOMBAR_HEIGHT,
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
   BUTTON_BG,
@@ -39,6 +38,7 @@ import {
   TEXT_BODY_MUTED,
 } from "../../constants";
 import { batched } from "../../helpers";
+import { instantiateClipboard } from "../../helpers/clipboard/navigator_clipboard_wrapper";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
@@ -62,7 +62,6 @@ import { useSpreadsheetRect } from "../helpers/position_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TopBar } from "../top_bar/top_bar";
-import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -79,6 +78,8 @@ css/* scss */ `
     position: relative;
     display: grid;
     font-size: 14px;
+    width: inherit !important;
+    height: inherit !important;
 
     .text-muted {
       color: ${TEXT_BODY_MUTED} !important;
@@ -215,6 +216,7 @@ css/* scss */ `
 // GRID STYLE
 // -----------------------------------------------------------------------------
 
+// TODORAR move this style to grid.ts
 css/* scss */ `
   .o-grid {
     position: relative;
@@ -225,7 +227,8 @@ css/* scss */ `
     }
 
     > canvas {
-      border-bottom: 1px solid #e2e3e3;
+      /* border-bottom: 1px solid #e2e3e3; */
+      position: absolute;
     }
     .o-scrollbar {
       &.corner {
@@ -243,6 +246,7 @@ css/* scss */ `
       outline: none;
     }
   }
+  /* all of the above should be in gridts */
 
   .o-button {
     border: 1px solid;
@@ -325,7 +329,7 @@ export interface SpreadsheetProps extends Partial<NotificationStoreMethods> {
 }
 
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Spreadsheet";
+  static template = "o-spreadsheet-mobile-Spreadsheet";
   static props = {
     model: Object,
     notifyUser: { type: Function, optional: true },
@@ -360,9 +364,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     if (this.env.isDashboard()) {
       properties["grid-template-rows"] = `auto`;
     } else {
-      properties["grid-template-rows"] = `max-content auto ${BOTTOMBAR_HEIGHT + 1}px`;
+      properties["grid-template-rows"] = `min-content auto min-content`;
     }
-    properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
+    if (this.sidePanel.isOpen) {
+      properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
+    }
 
     return cssPropertiesToCss(properties);
   }
@@ -411,11 +417,35 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       () => [this.env.model.getters.getActiveSheetId()]
     );
 
-    useExternalListener(window as any, "resize", () => this.render(true));
+    useExternalListener((window as any).visualViewport, "resize", () => this.render(true));
+    // keep this? check the differences and document
+    // useExternalListener(window, "resize", () => this.render(true));
+
+    useExternalListener((window as any).visualViewport, "resize", () =>
+      this.env.notifyUser({
+        text:
+          document.querySelector(".o-grid-overlay")?.getBoundingClientRect().height.toString() ||
+          "nada",
+        sticky: true,
+        type: "info",
+      })
+    );
+    onMounted(() => {
+      this.env.notifyUser({
+        text: navigator.userAgent || "nada",
+        sticky: true,
+        type: "info",
+      });
+    });
+
+    // useExternalListener(window as any, "resize", () => this.env.notifyUser({ text: "resize viewport",sticky: true,
+    //   type:'info' }));
 
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
+    // TODORAR: we probably shipped something that would stop the propagation / default behaviour which in turn did not allow the event to reach the grid
+    // witnessed the same thing while working on mobile with the "touchmove" event which in fact did not
     useExternalListener(document.body, "wheel", () => {});
 
     this.bindModelEvents();

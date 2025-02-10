@@ -141,7 +141,7 @@ interface FunctionDescriptionState {
 }
 
 export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Composer";
+  static template = "o-spreadsheet-mobile-Composer";
   static props = {
     focus: {
       validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
@@ -249,6 +249,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   setup() {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.autoCompleteState = useLocalStore(AutoCompleteStore);
+
     onMounted(() => {
       const el = this.composerRef.el!;
       if (this.props.isDefaultFocus) {
@@ -459,6 +460,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
    * Triggered automatically by the content-editable between the keydown and key up
    * */
   onInput(ev: InputEvent) {
+    // @ts-ignore
+    ev.target?.scrollIntoView();
     if (!this.shouldProcessInputEvents) {
       return;
     }
