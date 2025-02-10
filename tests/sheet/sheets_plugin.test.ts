@@ -809,6 +809,15 @@ describe("sheets", () => {
     ).toBeCancelledBecause(CommandResult.NotEnoughSheets);
   });
 
+  test("Cannot delete sheet if it is the last visible one", () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "Sheet2" });
+    hideSheet(model, "Sheet2");
+    expect(model.dispatch("DELETE_SHEET", { sheetId: "Sheet1" })).toBeCancelledBecause(
+      CommandResult.NotEnoughSheets
+    );
+  });
+
   test("Can undo-redo a sheet deletion", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
