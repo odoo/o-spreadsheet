@@ -1134,4 +1134,18 @@ describe("Collaborative local history", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
+
+  test("1738939279745", () => {
+    const name = "Sheet2";
+    createSheet(bob, { name, position: 1, sheetId: "Sheet2" });
+    deleteSheet(bob, "Sheet2");
+    network.concurrent(() => {
+      undo(bob);
+
+      // this create sheet is rejected and should not be replayed
+      // to UI plugins.
+      createSheet(alice, { name, position: 1, sheetId: "Sheet2bis" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
 });
