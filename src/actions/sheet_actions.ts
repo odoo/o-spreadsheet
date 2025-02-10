@@ -21,7 +21,7 @@ export const linkSheet: ActionSpec = {
 export const deleteSheet: ActionSpec = {
   name: _t("Delete"),
   isVisible: (env) => {
-    return env.model.getters.getSheetIds().length > 1;
+    return env.model.getters.getVisibleSheetIds().length > 1;
   },
   execute: (env) =>
     env.askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
