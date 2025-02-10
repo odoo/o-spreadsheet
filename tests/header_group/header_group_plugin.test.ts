@@ -108,6 +108,39 @@ describe("Header grouping plugin", () => {
       const result = foldHeaderGroupsInZone(model, dimension, "ZZ999:ZZ999");
       expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     });
+
+    test("Cannot group on invalid sheet", () => {
+      const result = groupHeaders(model, dimension, 0, 2, "wrong-sheet-id");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("Cannot ungroup on invalid sheet", () => {
+      groupHeaders(model, dimension, 0, 2);
+      const result = ungroupHeaders(model, dimension, 0, 2, "wrong-sheet-id");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("Cannot fold on invalid sheet", () => {
+      const result = foldHeaderGroup(model, dimension, 0, 2, "wrong-sheet-id");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("Cannot unfold on invalid sheet", () => {
+      foldHeaderGroup(model, dimension, 0, 2);
+      const result = unfoldHeaderGroup(model, dimension, 0, 2, "wrong-sheet-id");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("Cannot fold in zone on invalid sheet", () => {
+      const result = foldHeaderGroupsInZone(model, dimension, "A1:D4", "wrong-sheet-id");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("Cannot unfold in zone on invalid sheet", () => {
+      foldHeaderGroupsInZone(model, dimension, "A1:D4");
+      const result = unfoldHeaderGroupsInZone(model, dimension, "A1:D4", "wrong-sheet-id");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
   });
 
   describe.each(["COL", "ROW"] as const)("tests for %s", (dimension) => {
