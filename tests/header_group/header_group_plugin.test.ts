@@ -104,6 +104,32 @@ describe("Header grouping plugin", () => {
       expect(result).toBeCancelledBecause(CommandResult.UnknownHeaderGroup);
     });
 
+    test("Cannot fold group in an invalid sheet", () => {
+      let result = model.dispatch("FOLD_HEADER_GROUP", {
+        sheetId: "not a valid sheet",
+        dimension,
+        start: 0,
+        end: 1,
+      });
+      expect(result).toBeCancelledBecause(
+        CommandResult.InvalidSheetId,
+        CommandResult.UnknownHeaderGroup
+      );
+    });
+
+    test("Cannot unfold group in an invalid sheet", () => {
+      let result = model.dispatch("UNFOLD_HEADER_GROUP", {
+        sheetId: "not a valid sheet",
+        dimension,
+        start: 0,
+        end: 1,
+      });
+      expect(result).toBeCancelledBecause(
+        CommandResult.InvalidSheetId,
+        CommandResult.UnknownHeaderGroup
+      );
+    });
+
     test("Cannot hide all the headers", () => {
       const numberOFHeaders = model.getters.getNumberHeaders(sheetId, dimension);
       groupHeaders(model, dimension, 0, numberOFHeaders - 1);

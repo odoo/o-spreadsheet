@@ -171,7 +171,7 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   }
 
   getHeaderGroups(sheetId: UID, dim: Dimension): HeaderGroup[] {
-    return this.groups[sheetId][dim];
+    return this.groups[sheetId]?.[dim] ?? [];
   }
 
   getHeaderGroup(
