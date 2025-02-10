@@ -1148,4 +1148,16 @@ describe("Collaborative local history", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
+
+  test("1739002942601", () => {
+    charlie.dispatch("CREATE_SHEET", { sheetId: "sheet2", position: 1, name: "Sheet2" });
+    network.concurrent(() => {
+      alice.dispatch("HIDE_SHEET", { sheetId: "sheet2" });
+
+      // UI plugins are not aware that this command was rejected when replayed after the HIDE_SHEET
+      // and that sheet1 actually exists.
+      charlie.dispatch("DELETE_SHEET", { sheetId: "Sheet1" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
 });

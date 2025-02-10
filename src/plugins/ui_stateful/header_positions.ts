@@ -59,12 +59,14 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
   }
 
   finalize() {
-    if (this.isDirty) {
-      for (const sheetId of this.getters.getSheetIds()) {
+    for (const sheetId of this.getters.getSheetIds()) {
+      // sheets can be created without this plugin being aware of it
+      // in concurrent situations.
+      if (this.isDirty || !this.headerPositions[sheetId]) {
         this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
       }
-      this.isDirty = false;
     }
+    this.isDirty = false;
   }
 
   /**
