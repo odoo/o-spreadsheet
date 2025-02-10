@@ -1,24 +1,8 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { _t } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types";
-import { css, cssPropertiesToCss } from "../helpers";
+import { cssPropertiesToCss } from "../helpers";
 import { ValidationMessages } from "../validation_messages/validation_messages";
-
-css/* scss */ `
-  .o-grid-add-rows {
-    input.o-input {
-      box-sizing: border-box;
-      width: 60px;
-      height: 30px;
-    }
-
-    .o-validation-error {
-      display: inline-block !important;
-      margin-top: 0;
-      margin-left: 8px;
-    }
-  }
-`;
 
 interface Props {
   focusGrid: () => void;

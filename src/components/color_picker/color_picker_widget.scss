@@ -1,0 +1,34 @@
+.o-color-picker-widget {
+  display: flex;
+  position: relative;
+  align-items: center;
+  height: 30px;
+
+  .o-color-picker-button-style {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2px;
+    padding: 3px;
+    border-radius: 2px;
+    cursor: pointer;
+
+    &:not([disabled]):hover {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  .o-color-picker-button {
+    > span {
+      border-bottom: 4px solid;
+      height: 16px;
+      margin-top: 2px;
+      display: block;
+    }
+
+    &[disabled] {
+      pointer-events: none;
+      opacity: 0.3;
+    }
+  }
+}

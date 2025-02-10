@@ -4,24 +4,11 @@ import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { Store, useStore } from "../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../types";
 import { Ripple } from "../../animation/ripple";
-import { css } from "../../helpers/css";
 import { AggregateStatisticsStore } from "./aggregate_statistics_store";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
-
-css/* scss */ `
-  .o-selection-statistic {
-    margin-right: 20px;
-    padding: 4px 4px 4px 8px;
-    color: #333;
-    cursor: pointer;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.08) !important;
-    }
-  }
-`;
 
 interface Props {
   openContextMenu: (x: number, y: number, registry: MenuItemRegistry) => void;

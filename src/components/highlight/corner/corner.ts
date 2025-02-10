@@ -1,31 +1,7 @@
 import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
 import { Color, SpreadsheetChildEnv, Zone } from "../../../types";
-import { css, cssPropertiesToCss } from "../../helpers/css";
-
-css/* scss */ `
-  .o-corner {
-    position: absolute;
-    height: 6px;
-    width: 6px;
-    border: 1px solid white;
-  }
-  .o-corner-nw,
-  .o-corner-se {
-    &:hover {
-      cursor: nwse-resize;
-    }
-  }
-  .o-corner-ne,
-  .o-corner-sw {
-    &:hover {
-      cursor: nesw-resize;
-    }
-  }
-  .o-resizing {
-    cursor: grabbing;
-  }
-`;
+import { cssPropertiesToCss } from "../../helpers/css";
 
 type Orientation = "nw" | "ne" | "sw" | "se";
 

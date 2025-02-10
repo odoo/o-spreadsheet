@@ -1,0 +1,14 @@
+.o-menu-item-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2px 1px;
+  padding: 0px 1px;
+  border-radius: 2px;
+  min-width: 20px;
+}
+
+.o-disabled {
+  opacity: 0.6;
+  cursor: default;
+}

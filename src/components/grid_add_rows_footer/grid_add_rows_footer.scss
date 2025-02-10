@@ -1,0 +1,13 @@
+.o-grid-add-rows {
+  input.o-input {
+    box-sizing: border-box;
+    width: 60px;
+    height: 30px;
+  }
+
+  .o-validation-error {
+    display: inline-block !important;
+    margin-top: 0;
+    margin-left: 8px;
+  }
+}

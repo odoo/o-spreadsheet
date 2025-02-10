@@ -4,7 +4,7 @@ import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "
 import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { cssPropertiesToCss } from "../helpers/css";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -14,13 +14,6 @@ import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
 interface Props {}
-
-css/* scss */ `
-  .o-dashboard-clickable-cell {
-    position: absolute;
-    cursor: pointer;
-  }
-`;
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";

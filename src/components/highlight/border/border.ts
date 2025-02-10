@@ -1,18 +1,6 @@
 import { Component } from "@odoo/owl";
 import { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
-import { css, cssPropertiesToCss } from "../../helpers/css";
-
-css/* scss */ `
-  .o-border {
-    position: absolute;
-    &:hover {
-      cursor: grab;
-    }
-  }
-  .o-moving {
-    cursor: grabbing;
-  }
-`;
+import { cssPropertiesToCss } from "../../helpers/css";
 
 type Orientation = "n" | "s" | "w" | "e";
 
