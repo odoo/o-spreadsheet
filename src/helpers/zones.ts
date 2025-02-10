@@ -111,16 +111,7 @@ export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
  */
 export function toUnboundedZone(xc: string): UnboundedZone {
   const zone = toZoneWithoutBoundaryChanges(xc);
-  if (zone.right !== undefined && zone.right < zone.left) {
-    const tmp = zone.left;
-    zone.left = zone.right;
-    zone.right = tmp;
-  }
-  if (zone.bottom !== undefined && zone.bottom < zone.top) {
-    const tmp = zone.top;
-    zone.top = zone.bottom;
-    zone.bottom = tmp;
-  }
+  reorderZone(zone);
   return zone;
 }
 
@@ -451,12 +442,12 @@ export function positions(zone: Zone): Position[] {
   return positions;
 }
 
-export function reorderZone(zone: Zone): Zone {
-  if (zone.left > zone.right) {
-    zone = { left: zone.right, right: zone.left, top: zone.top, bottom: zone.bottom };
+export function reorderZone<Z extends UnboundedZone | Zone>(zone: Z): Z {
+  if (zone.right !== undefined && zone.left > zone.right) {
+    zone = { ...zone, left: zone.right, right: zone.left, };
   }
-  if (zone.top > zone.bottom) {
-    zone = { left: zone.left, right: zone.right, top: zone.bottom, bottom: zone.top };
+  if (zone.bottom !== undefined && zone.top > zone.bottom) {
+    zone = { ...zone, top: zone.bottom, bottom: zone.top };
   }
   return zone;
 }
