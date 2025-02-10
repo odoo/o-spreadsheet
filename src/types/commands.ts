@@ -56,7 +56,9 @@ export interface SheetDependentCommand {
   sheetId: UID;
 }
 
-export function isSheetDependent(cmd: CoreCommand): boolean {
+export function isSheetDependent(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, SheetDependentCommand> {
   return "sheetId" in cmd;
 }
 
@@ -66,7 +68,9 @@ export interface HeadersDependentCommand {
   elements: HeaderIndex[];
 }
 
-export function isHeadersDependant(cmd: CoreCommand): boolean {
+export function isHeadersDependant(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, HeadersDependentCommand> {
   return "dimension" in cmd && "sheetId" in cmd && "elements" in cmd;
 }
 
@@ -75,7 +79,9 @@ export interface TargetDependentCommand {
   target: Zone[];
 }
 
-export function isTargetDependent(cmd: CoreCommand): boolean {
+export function isTargetDependent(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, TargetDependentCommand> {
   return "target" in cmd && "sheetId" in cmd;
 }
 
@@ -83,7 +89,9 @@ export interface RangesDependentCommand {
   ranges: RangeData[];
 }
 
-export function isRangeDependant(cmd: CoreCommand): boolean {
+export function isRangeDependant(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, RangesDependentCommand> {
   return "ranges" in cmd;
 }
 
@@ -93,17 +101,21 @@ export interface PositionDependentCommand {
   row: number;
 }
 
+export function isPositionDependent(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, PositionDependentCommand> {
+  return "col" in cmd && "row" in cmd && "sheetId" in cmd;
+}
+
 export interface ZoneDependentCommand {
   sheetId: UID;
   zone: Zone;
 }
 
-export function isZoneDependent(cmd: CoreCommand): boolean {
-  return "zone" in cmd;
-}
-
-export function isPositionDependent(cmd: CoreCommand): boolean {
-  return "col" in cmd && "row" in cmd && "sheetId" in cmd;
+export function isZoneDependent(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, ZoneDependentCommand> {
+  return "sheetId" in cmd && "zone" in cmd;
 }
 
 export const invalidateEvaluationCommands = new Set<CommandTypes>([
@@ -1240,6 +1252,7 @@ export const enum CommandResult {
   InvalidRange = "InvalidRange",
   InvalidZones = "InvalidZones",
   InvalidSheetId = "InvalidSheetId",
+  InvalidCellId = "InvalidCellId",
   InvalidFigureId = "InvalidFigureId",
   InputAlreadyFocused = "InputAlreadyFocused",
   MaximumRangesReached = "MaximumRangesReached",
