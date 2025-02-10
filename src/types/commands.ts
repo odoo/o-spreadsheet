@@ -47,7 +47,9 @@ export interface SheetDependentCommand {
   sheetId: UID;
 }
 
-export function isSheetDependent(cmd: CoreCommand): boolean {
+export function isSheetDependent(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, SheetDependentCommand> {
   return "sheetId" in cmd;
 }
 
@@ -56,7 +58,9 @@ export interface GridDependentCommand {
   dimension: Dimension;
 }
 
-export function isGridDependent(cmd: CoreCommand): boolean {
+export function isGridDependent(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, GridDependentCommand> {
   return "dimension" in cmd && "sheetId" in cmd;
 }
 
@@ -65,7 +69,9 @@ export interface TargetDependentCommand {
   target: Zone[];
 }
 
-export function isTargetDependent(cmd: CoreCommand): boolean {
+export function isTargetDependent(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, TargetDependentCommand> {
   return "target" in cmd && "sheetId" in cmd;
 }
 
@@ -73,7 +79,9 @@ export interface RangesDependentCommand {
   ranges: RangeData[];
 }
 
-export function isRangeDependant(cmd: CoreCommand): boolean {
+export function isRangeDependant(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, RangesDependentCommand> {
   return "ranges" in cmd;
 }
 
@@ -83,7 +91,9 @@ export interface PositionDependentCommand {
   row: number;
 }
 
-export function isPositionDependent(cmd: CoreCommand): boolean {
+export function isPositionDependent(
+  cmd: CoreCommand
+): cmd is Extract<CoreCommand, PositionDependentCommand> {
   return "col" in cmd && "row" in cmd && "sheetId" in cmd;
 }
 
@@ -1056,6 +1066,7 @@ export const enum CommandResult {
   InvalidRange,
   InvalidZones,
   InvalidSheetId,
+  InvalidCellId,
   InputAlreadyFocused,
   MaximumRangesReached,
   InvalidInputId,
