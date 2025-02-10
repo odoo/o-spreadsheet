@@ -117,7 +117,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
       case "DELETE_SHEET":
-        return this.orderedSheetIds.length > 1
+        return this.getVisibleSheetIds().length > 1
           ? CommandResult.Success
           : CommandResult.NotEnoughSheets;
       case "ADD_COLUMNS_ROWS":
