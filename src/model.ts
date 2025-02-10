@@ -387,6 +387,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         dispatch: (command: CoreCommand) => {
           const result = this.checkDispatchAllowed(command);
           if (!result.isSuccessful) {
+            // core views plugins need to be invalidated
+            this.dispatchToHandlers(this.coreHandlers, {
+              type: "UNDO",
+              commands: [command],
+            });
             return;
           }
           this.isReplayingCommand = true;
@@ -414,6 +419,18 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     this.session.on("collaborative-event-received", this, () => {
       this.trigger("update");
+    });
+    this.session.on("pending-revisions-dropped", this, ({ commands }) => {
+      const previousStatus = this.status;
+      this.status = Status.RunningCore;
+      // UI plugin should invalidate their state or check its consistency
+      // just like if some commands were undone
+      this.dispatchToHandlers(this.uiHandlers, {
+        type: "UNDO",
+        commands,
+      });
+      this.status = previousStatus;
+      this.finalize();
     });
   }
 

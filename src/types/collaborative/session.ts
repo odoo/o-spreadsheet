@@ -53,6 +53,7 @@ export interface NewLocalStateUpdateEvent {
 export interface RevisionsDroppedEvent {
   type: "pending-revisions-dropped";
   revisionIds: UID[];
+  commands: CoreCommand[];
 }
 
 export interface SnapshotEvent {

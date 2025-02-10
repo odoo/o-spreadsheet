@@ -635,6 +635,22 @@ describe("Multi users synchronisation", () => {
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
       functionRegistry.remove("GET.ASYNC.VALUE");
     });
+
+    test("evaluation is recomputed after command is rejected because of a concurrent update", () => {
+      createSheet(bob, { sheetId: "sheet2" });
+      network.concurrent(() => {
+        hideSheet(alice, "sheet2");
+        // this command is first accepted on Charlie's side
+        // but later rejected because there's actually only one visible sheet
+        deleteSheet(charlie, "Sheet1");
+      });
+      setCellContent(charlie, "A1", "hello", "Sheet1");
+      expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => getEvaluatedCell(user, "A1").value,
+        "hello"
+      );
+    });
   });
 
   test("Reorder formatting rules concurrently", () => {

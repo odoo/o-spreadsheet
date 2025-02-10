@@ -386,10 +386,15 @@ export class Session extends EventBus<CollaborativeEvent> {
 
   private dropPendingRevision(revisionId: UID) {
     this.revisions.drop(revisionId);
-    const revisionIds = this.pendingMessages
-      .filter((message) => message.type === "REMOTE_REVISION")
-      .map((message) => message.nextRevisionId);
-    this.trigger("pending-revisions-dropped", { revisionIds });
+    const revisionIds: UID[] = [];
+    const commands: CoreCommand[] = [];
+    for (const message of this.pendingMessages) {
+      if (message.type === "REMOTE_REVISION") {
+        commands.push(...message.commands);
+        revisionIds.push(message.nextRevisionId);
+      }
+    }
+    this.trigger("pending-revisions-dropped", { revisionIds, commands });
     this.waitingAck = false;
     this.waitingUndoRedoAck = false;
   }

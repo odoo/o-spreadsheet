@@ -1090,4 +1090,48 @@ describe("Collaborative local history", () => {
     });
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello there");
   });
+
+  test("1738939279712", () => {
+    bob.dispatch("CREATE_SHEET", {
+      sheetId: "57047cd7-c980-4231-b9f2-1da2a98a3136",
+      position: 1,
+      name: "Sheet2",
+    });
+    bob.dispatch("DUPLICATE_SHEET", {
+      sheetId: "57047cd7-c980-4231-b9f2-1da2a98a3136",
+      sheetIdTo: "5c555a62-a750-4877-97ac-654f3b85e287",
+    });
+    network.concurrent(() => {
+      charlie.dispatch("DELETE_SHEET", { sheetId: "Sheet1" });
+      alice.dispatch("UNGROUP_HEADERS", {
+        sheetId: "Sheet1",
+        dimension: "COL",
+        start: 3,
+        end: 5,
+      });
+      alice.dispatch("DELETE_SHEET", { sheetId: "5c555a62-a750-4877-97ac-654f3b85e287" });
+    });
+    charlie.dispatch("HIDE_SHEET", { sheetId: "57047cd7-c980-4231-b9f2-1da2a98a3136" });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("1738954896185 header position is not recreated when the DELETE_SHEET is dropped", () => {
+    bob.dispatch("CREATE_SHEET", { sheetId: "sheet2", position: 1, name: "Sheet2" });
+    bob.dispatch("DUPLICATE_SHEET", { sheetId: "sheet2", sheetIdTo: "sheet3" });
+    network.concurrent(() => {
+      alice.dispatch("ADD_MERGE", {
+        sheetId: "Sheet1",
+        target: [{ left: 4, right: 5, top: 9, bottom: 11 }],
+      });
+      charlie.dispatch("SET_FORMATTING", { sheetId: "Sheet1", target: [], format: "" });
+      charlie.dispatch("DELETE_SHEET", { sheetId: "sheet3" });
+    });
+    bob.dispatch("RESIZE_COLUMNS_ROWS", {
+      dimension: "ROW",
+      sheetId: "Sheet1",
+      elements: [2],
+      size: 61,
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
 });
