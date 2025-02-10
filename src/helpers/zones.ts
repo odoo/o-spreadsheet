@@ -102,19 +102,22 @@ export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
  */
 export function toUnboundedZone(xc: string): UnboundedZone {
   const zone = toZoneWithoutBoundaryChanges(xc);
-  if (zone.right !== undefined && zone.right < zone.left) {
-    const tmp = zone.left;
-    zone.left = zone.right;
-    zone.right = tmp;
-  }
-  if (zone.bottom !== undefined && zone.bottom < zone.top) {
-    const tmp = zone.top;
-    zone.top = zone.bottom;
-    zone.bottom = tmp;
-  }
+  reorderZone(zone);
   return zone;
 }
 
+export function reorderZone<Z extends UnboundedZone | Zone>(zone: Z) {
+  if (zone.right !== undefined && zone.right < zone.left) {
+    const right = zone.left;
+    zone.left = zone.right;
+    zone.right = right;
+  }
+  if (zone.bottom !== undefined && zone.bottom < zone.top) {
+    const bottom = zone.top;
+    zone.top = zone.bottom;
+    zone.bottom = bottom;
+  }
+}
 /**
  * Convert from a cartesian reference to a Zone.
  * Will return throw an error if given a unbounded zone (eg : A:A).

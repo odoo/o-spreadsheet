@@ -96,6 +96,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
       case "CLEAR_CELL":
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
+      case "UPDATE_CELL_POSITION":
+        return !cmd.cellId || this.cells[cmd.sheetId]?.[cmd.cellId]
+          ? CommandResult.Success
+          : CommandResult.InvalidCellId;
       default:
         return CommandResult.Success;
     }
