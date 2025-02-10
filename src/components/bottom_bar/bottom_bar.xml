@@ -18,7 +18,6 @@
                 <t t-call="o-spreadsheet-Icon.CHECK"/>
               </span>
             </span>
-            <!-- <SelectionButton composerStore="composerStore" /> -->
           </div>
           <div class="o-toolbar-tools d-flex flex-shrink-0 pb-4 pt-2 mx-4">
             <ActionButton action="FORMAT.formatBold" class="'o-hoverable-button'"/>
@@ -44,9 +43,11 @@
         </div>
       </t>
       <t t-else="">
-        <div class="o-sheet-item o-list-sheets me-2 p-1 ms-4" t-on-click="clickListSheets">
-          <t t-call="o-spreadsheet-Icon.LIST"/>
-        </div>
+        <Ripple>
+          <div class="o-sheet-item o-list-sheets me-2 p-1 ms-4" t-on-click="clickListSheets">
+            <t t-call="o-spreadsheet-Icon.LIST"/>
+          </div>
+        </Ripple>
         <div class="o-all-sheets position-relative d-flex h-100 me-auto flex-fill overflow-hidden">
           <div class="o-bottom-bar-fade-in h-100 pe-none" t-if="state.isSheetListScrollableLeft"/>
           <div
@@ -65,13 +66,14 @@
           </div>
           <div t-if="state.isSheetListScrollableRight" class="o-bottom-bar-fade-out h-100 pe-none"/>
         </div>
-        <div
-          class="o-sheet-item o-add-sheet me-2 ms-2 p-1"
-          t-if="!env.model.getters.isReadonly()"
-          t-on-click="clickAddSheet">
-          <t t-call="o-spreadsheet-Icon.PLUS"/>
-        </div>
-
+        <Ripple>
+          <div
+            class="o-sheet-item o-add-sheet me-2 ms-2 p-1"
+            t-if="!env.model.getters.isReadonly()"
+            t-on-click="clickAddSheet">
+            <t t-call="o-spreadsheet-Icon.PLUS"/>
+          </div>
+        </Ripple>
         <Menu
           t-if="menuState.isOpen"
           position="menuState.position"

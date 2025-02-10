@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-mobile-BottomBarSheet">
-    <div class="position-relative">
+    <Ripple>
       <div
         class="o-sheet d-flex align-items-center user-select-none text-nowrap "
         tabindex="-1"
@@ -32,7 +32,7 @@
           t-att-style="sheetColorStyle"
         />
       </div>
-    </div>
+    </Ripple>
     <ColorPicker
       t-if="state.pickerOpened"
       anchorRect="colorPickerAnchorRect"
