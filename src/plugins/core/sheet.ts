@@ -369,6 +369,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   doesHeaderExist(sheetId: UID, dimension: Dimension, index: number) {
+    if (!this.sheets[sheetId]) {
+      return false;
+    }
     return dimension === "COL"
       ? index >= 0 && index < this.getNumberCols(sheetId)
       : index >= 0 && index < this.getNumberRows(sheetId);

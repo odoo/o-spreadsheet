@@ -58,6 +58,14 @@ describe("Header grouping plugin", () => {
       expect(result).toBeCancelledBecause(CommandResult.HeaderGroupAlreadyExists);
     });
 
+    test("Cannot group in a sheet that does not exist", () => {
+      const result = groupHeaders(model, dimension, 0, 2, "sheet42");
+      expect(result).toBeCancelledBecause(
+        CommandResult.InvalidSheetId,
+        CommandResult.InvalidHeaderGroupStartEnd
+      );
+    });
+
     test("Cannot ungroup with invalid header indexes", () => {
       let result = ungroupHeaders(model, dimension, -1, 0);
       expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderGroupStartEnd);
