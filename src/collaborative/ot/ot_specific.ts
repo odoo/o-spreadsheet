@@ -185,6 +185,9 @@ function createSheetTransformation(
   toTransform: CreateSheetCommand,
   executed: CreateSheetCommand
 ): CreateSheetCommand {
+  if (toTransform.sheetId === executed.sheetId) {
+    toTransform = { ...toTransform, sheetId: `${toTransform.sheetId}~` };
+  }
   if (toTransform.name === executed.name) {
     return {
       ...toTransform,
