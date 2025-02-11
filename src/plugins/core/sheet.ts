@@ -1052,6 +1052,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       zones.push(...cmd.target);
     }
     if ("ranges" in cmd && Array.isArray(cmd.ranges)) {
+      if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
+        return CommandResult.InvalidSheetId;
+      }
       zones.push(
         ...cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData).zone)
       );
