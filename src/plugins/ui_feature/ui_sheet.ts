@@ -217,6 +217,12 @@ export class SheetUIPlugin extends UIPlugin {
    */
   private checkZonesAreInSheet(cmd: Command): CommandResult {
     const sheetId = "sheetId" in cmd ? cmd.sheetId : this.getters.tryGetActiveSheetId();
+    if (
+      "ranges" in cmd &&
+      cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))
+    ) {
+      return CommandResult.InvalidSheetId;
+    }
     const zones = this.getters.getCommandZones(cmd);
     if (!sheetId && zones.length > 0) {
       return CommandResult.NoActiveSheet;
