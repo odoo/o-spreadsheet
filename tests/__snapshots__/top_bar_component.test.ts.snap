@@ -589,25 +589,29 @@ exports[`TopBar component can set cell format 1`] = `
           
         </div>
         <div
-          class="o-topbar-composer bg-white user-select-text"
-          style="border-color:#E0E2E4; border-right:none; "
+          class="o-topbar-composer-container w-100"
         >
           <div
-            class="o-composer-container w-100 h-100"
+            class="o-topbar-composer position-relative bg-white user-select-text"
+            style="border-color:#E0E2E4; border-right:none; "
           >
             <div
-              class="d-flex flex-row position-relative"
+              class="o-composer-container w-100 h-100"
             >
-              
               <div
-                class="o-composer w-100 text-start"
-                contenteditable="true"
-                spellcheck="false"
-                style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
-                tabindex="1"
-              />
+                class="d-flex flex-row position-relative"
+              >
+                
+                <div
+                  class="o-composer w-100 text-start"
+                  contenteditable="true"
+                  spellcheck="false"
+                  style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
+                  tabindex="1"
+                />
+              </div>
+              
             </div>
-            
           </div>
         </div>
         
@@ -1613,25 +1617,29 @@ exports[`TopBar component simple rendering 1`] = `
       
     </div>
     <div
-      class="o-topbar-composer bg-white user-select-text"
-      style="border-color:#E0E2E4; border-right:none; "
+      class="o-topbar-composer-container w-100"
     >
       <div
-        class="o-composer-container w-100 h-100"
+        class="o-topbar-composer position-relative bg-white user-select-text"
+        style="border-color:#E0E2E4; border-right:none; "
       >
         <div
-          class="d-flex flex-row position-relative"
+          class="o-composer-container w-100 h-100"
         >
-          
           <div
-            class="o-composer w-100 text-start"
-            contenteditable="true"
-            spellcheck="false"
-            style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
-            tabindex="1"
-          />
+            class="d-flex flex-row position-relative"
+          >
+            
+            <div
+              class="o-composer w-100 text-start"
+              contenteditable="true"
+              spellcheck="false"
+              style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
+              tabindex="1"
+            />
+          </div>
+          
         </div>
-        
       </div>
     </div>
     
