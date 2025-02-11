@@ -107,6 +107,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "CREATE_SHEET": {
         return this.checkValidations(cmd, this.checkSheetName, this.checkSheetPosition);
       }
+      case "DUPLICATE_SHEET": {
+        return this.sheets[cmd.sheetIdTo] ? CommandResult.DuplicatedSheetId : CommandResult.Success;
+      }
       case "MOVE_SHEET":
         try {
           const currentIndex = this.orderedSheetIds.findIndex((id) => id === cmd.sheetId);
