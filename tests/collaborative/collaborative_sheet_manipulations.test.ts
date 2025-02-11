@@ -11,15 +11,18 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   freezeColumns,
   freezeRows,
   hideColumns,
   hideRows,
   merge,
   moveSheet,
+  redo,
   renameSheet,
   selectCell,
   setCellContent,
+  undo,
   unfreezeColumns,
   unfreezeRows,
   unhideColumns,
@@ -69,6 +72,36 @@ describe("Collaborative Sheet manipulation", () => {
       [sheet1, "2", "3"]
     );
     expect(alice.getters.getSheetName("2")).not.toEqual(alice.getters.getSheetName("3"));
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("Create two sheets concurrently with the same id", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    network.concurrent(() => {
+      createSheet(alice, { sheetId: "sheet2", name: "Sheet2" });
+      createSheet(charlie, { sheetId: "sheet2", name: "Sheet2" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getSheetIds(),
+      ["Sheet1", "sheet2", "sheet2~"]
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getSheetIds().map(user.getters.getSheetName),
+      ["Sheet1", "Sheet2", "Sheet3"]
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("recreate a sheet with the same id from an undo", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const firstSheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "sheet2" });
+    deleteSheet(alice, firstSheetId);
+    network.concurrent(() => {
+      undo(alice); // Sheet1 is recreated
+      createSheet(charlie, { sheetId: firstSheetId, name: "from Charlie" });
+    });
+    redo(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 

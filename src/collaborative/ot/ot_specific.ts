@@ -92,6 +92,9 @@ function createSheetTransformation(
   cmd: CreateSheetCommand,
   executed: CreateSheetCommand
 ): CreateSheetCommand {
+  if (cmd.sheetId === executed.sheetId) {
+    cmd = { ...cmd, sheetId: `${cmd.sheetId}~` };
+  }
   if (cmd.name === executed.name) {
     return {
       ...cmd,
