@@ -1,16 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-TopBarComposer">
-    <div
-      class="o-topbar-composer bg-white user-select-text"
-      t-on-click.stop=""
-      t-att-style="containerStyle">
-      <Composer
-        focus="focus"
-        inputStyle="composerStyle"
-        onComposerContentFocused.bind="onFocus"
-        composerStore="composerStore"
-        placeholder="composerStore.placeholder"
-      />
+    <div class="o-topbar-composer-container w-100">
+      <div
+        class="o-topbar-composer position-relative bg-white user-select-text"
+        t-on-click.stop=""
+        t-att-style="containerStyle">
+        <Composer
+          focus="focus"
+          inputStyle="composerStyle"
+          onComposerContentFocused.bind="onFocus"
+          composerStore="composerStore"
+          placeholder="composerStore.placeholder"
+        />
+      </div>
     </div>
   </t>
 </templates>

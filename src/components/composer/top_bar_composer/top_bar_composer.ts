@@ -24,6 +24,10 @@ const FX_SVG = /*xml*/ `
 `;
 
 css/* scss */ `
+  .o-topbar-composer-container {
+    height: ${TOPBAR_TOOLBAR_HEIGHT}px;
+  }
+
   .o-topbar-composer {
     height: fit-content;
     margin-top: -1px;
