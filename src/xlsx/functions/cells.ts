@@ -44,6 +44,7 @@ export function addFormula(
 export function addContent(
   content: string,
   sharedStrings: string[],
+  reverseLookup: Map<string, number>,
   forceString = false
 ): {
   attrs: XMLAttributes;
@@ -57,7 +58,7 @@ export function addContent(
     value = clearValue === "TRUE" ? "1" : "0";
     attrs.push(["t", "b"]);
   } else if (forceString || !isNumber(value, DEFAULT_LOCALE)) {
-    value = pushElement(content, sharedStrings);
+    value = pushElement(content, sharedStrings, reverseLookup);
     attrs.push(["t", "s"]);
   }
   return { attrs, node: escapeXml/*xml*/ `<v>${value}</v>` };

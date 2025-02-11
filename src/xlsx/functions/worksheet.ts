@@ -1,5 +1,6 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
+  createReverseLookup,
   isInside,
   isMarkdownLink,
   isSheetUrl,
@@ -68,6 +69,13 @@ export function addRows(
   const styles = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.styles));
   const borders = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.borders));
   const formats = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.formats));
+  const reverseLookups = {
+    numFmts: createReverseLookup(construct.numFmts),
+    fonts: createReverseLookup(construct.fonts),
+    fills: createReverseLookup(construct.fills),
+    styles: createReverseLookup(construct.styles),
+  };
+  const sharedStringsLookup = createReverseLookup(construct.sharedStrings);
   for (let r = 0; r < sheet.rowNumber; r++) {
     const rowAttrs: XMLAttributes = [["r", r + 1]];
     const row = sheet.rows[r] || {};
@@ -98,7 +106,8 @@ export function addRows(
         // style
         const id = normalizeStyle(
           construct,
-          extractStyle(data, content, styleId, formatId, borderId)
+          extractStyle(data, content, styleId, formatId, borderId),
+          reverseLookups
         );
         // don't add style if default
         if (id) {
@@ -116,7 +125,11 @@ export function addRows(
           ({ attrs: additionalAttrs, node: cellNode } = res);
         } else if (content && isMarkdownLink(content)) {
           const { label } = parseMarkdownLink(content);
-          ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
+          ({ attrs: additionalAttrs, node: cellNode } = addContent(
+            label,
+            construct.sharedStrings,
+            sharedStringsLookup
+          ));
         } else if (content && content !== "") {
           const isTableHeader = isCellTableHeader(c, r, sheet);
           const isTableTotal = isCellTableTotal(c, r, sheet);
@@ -124,6 +137,7 @@ export function addRows(
           ({ attrs: additionalAttrs, node: cellNode } = addContent(
             content,
             construct.sharedStrings,
+            sharedStringsLookup,
             isTableHeader || isTableTotal || isPlainText
           ));
         }
