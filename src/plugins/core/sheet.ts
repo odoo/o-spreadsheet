@@ -1041,6 +1041,14 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
    */
   private checkZonesAreInSheet(cmd: CoreCommand): CommandResult {
     if (!("sheetId" in cmd)) return CommandResult.Success;
+    if (
+      "ranges" in cmd &&
+      cmd.ranges.some(
+        (rangeData) => rangeData._sheetId !== "" && !this.getters.tryGetSheet(rangeData._sheetId)
+      )
+    ) {
+      return CommandResult.InvalidSheetId;
+    }
     return this.checkZonesExistInSheet(cmd.sheetId, this.getCommandZones(cmd));
   }
 }
