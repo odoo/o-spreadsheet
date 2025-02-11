@@ -142,6 +142,9 @@ export class ConditionalFormatPlugin
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "ADD_CONDITIONAL_FORMAT":
+        if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
+          return CommandResult.InvalidSheetId;
+        }
         return this.checkValidations(
           cmd,
           this.checkCFRule,
