@@ -785,6 +785,18 @@ describe("sheets", () => {
     expect(model.exportData().sheets[1].merges).toHaveLength(1);
   });
 
+  test("cannot duplicate a sheet twice with the same new id", () => {
+    const model = new Model();
+    const firstSheetId = model.getters.getActiveSheetId();
+    const duplicatedSheetId = "new-sheet-id";
+    model.dispatch("DUPLICATE_SHEET", { sheetId: firstSheetId, sheetIdTo: duplicatedSheetId });
+    const result = model.dispatch("DUPLICATE_SHEET", {
+      sheetId: firstSheetId,
+      sheetIdTo: duplicatedSheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.DuplicatedSheetId);
+  });
+
   test("Can delete the active sheet", () => {
     const model = new Model();
     const sheet1 = model.getters.getActiveSheetId();
