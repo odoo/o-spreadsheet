@@ -38,7 +38,7 @@ const LINK_STYLE = { textColor: LINK_COLOR };
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
-  cells: Record<UID, Record<UID, Cell | undefined>>;
+  cells: Record<UID, Record<UID, Cell | undefined> | undefined>;
   nextId: number;
 }
 
@@ -139,6 +139,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: "",
         });
         break;
+      case "DELETE_SHEET": {
+        this.history.update("cells", cmd.sheetId, undefined);
+      }
     }
   }
 
