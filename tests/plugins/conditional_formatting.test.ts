@@ -306,6 +306,15 @@ describe("conditional format", () => {
     });
   });
 
+  test("Conditional formatting with an unbounded range on an invalid sheet", () => {
+    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
+      ranges: toRangesData("not-a-valid-sheet-id", "B1,A1:A"),
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+  });
+
   test("Conditional formatting with empty target", () => {
     const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("4", { fillColor: "#0000FF" }, "2"),
