@@ -1,5 +1,5 @@
 import { DEFAULT_FONT_SIZE, NEWLINE } from "../../constants";
-import { deepEquals, splitReference, toUnboundedZone } from "../../helpers";
+import { getCanonicalRepresentation, splitReference, toUnboundedZone } from "../../helpers";
 import {
   ConditionalFormattingOperatorValues,
   ExcelCellData,
@@ -190,17 +190,28 @@ export function addRelsToFile(
   return id;
 }
 
+const globalReverseLookup = new WeakMap<any[], Map<string, number>>();
+
 export function pushElement<T>(property: T, propertyList: T[]): number {
-  let len = propertyList.length;
-  const operator = typeof property === "object" ? deepEquals : (a: T, b: T) => a === b;
-  for (let i = 0; i < len; i++) {
-    if (operator(property, propertyList[i])) {
-      return i;
+  let reverseLookup = globalReverseLookup.get(propertyList);
+  if (!reverseLookup) {
+    reverseLookup = new Map();
+    for (let i = 0; i < propertyList.length; i++) {
+      const canonical = getCanonicalRepresentation(propertyList[i]);
+      reverseLookup.set(canonical, i);
     }
+    globalReverseLookup.set(propertyList, reverseLookup);
   }
 
-  propertyList[propertyList.length] = property;
-  return propertyList.length - 1;
+  const canonical = getCanonicalRepresentation(property);
+  if (reverseLookup.has(canonical)) {
+    return reverseLookup.get(canonical)!;
+  }
+
+  const maxId = propertyList.length;
+  propertyList.push(property);
+  reverseLookup.set(canonical, maxId);
+  return maxId;
 }
 
 const chartIds: UID[] = [];
