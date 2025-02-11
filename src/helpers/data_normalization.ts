@@ -44,7 +44,7 @@ export function groupItemIdsByZones(positionsByItemId: { [id: number]: Position[
   return result;
 }
 
-function getCanonicalRepresentation(item: any): string {
+export function getCanonicalRepresentation(item: any): string {
   if (item === null) return "null";
   if (item === undefined) return "undefined";
   if (typeof item !== "object") return String(item);
