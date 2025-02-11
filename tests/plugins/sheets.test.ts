@@ -11,6 +11,7 @@ import {
   createSheetWithName,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   freezeColumns,
   freezeRows,
   hideColumns,
@@ -238,6 +239,17 @@ describe("sheets", () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");
     expect(getCell(model, "A1", "invalidSheetId")!).toBe(undefined);
+  });
+
+  test("delete then create a sheet with the same id", () => {
+    const model = new Model();
+    const newSheetId = "42";
+    createSheet(model, { sheetId: newSheetId });
+    setCellContent(model, "A1", "hello", newSheetId);
+    deleteSheet(model, newSheetId);
+    createSheet(model, { sheetId: newSheetId });
+    expect(getCell(model, "A1", newSheetId)).toBeUndefined();
+    expect(model.exportData().sheets[1].cells).toEqual({});
   });
 
   test("cannot activate an invalid sheet", () => {
