@@ -49,7 +49,7 @@ import { PositionMap } from "../ui_core_views/cell_evaluation/position_map";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
-  cells: Record<UID, Record<UID, Cell | undefined>>;
+  cells: Record<UID, Record<UID, Cell | undefined> | undefined>;
   nextId: number;
 }
 
@@ -158,6 +158,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
         break;
+      case "DELETE_SHEET": {
+        this.history.update("cells", cmd.sheetId, undefined);
+      }
     }
   }
 
