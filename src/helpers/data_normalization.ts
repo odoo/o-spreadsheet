@@ -53,7 +53,7 @@ export function* iterateItemIdsPositions(sheetId: UID, itemIdsByZones: Record<st
   }
 }
 
-function getCanonicalRepresentation(item: any): string {
+export function getCanonicalRepresentation(item: any): string {
   if (item === null) return "null";
   if (item === undefined) return "undefined";
   if (typeof item !== "object") return String(item);
