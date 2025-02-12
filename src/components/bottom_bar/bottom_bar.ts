@@ -38,6 +38,7 @@ css/* scss */ `
       }
 
       .o-bottom-bar-fade-in {
+        z-index: 1;
         background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
       }
 
@@ -68,6 +69,22 @@ css/* scss */ `
           font-size: 18px;
         }
       }
+    }
+  }
+
+  .mobile.o-spreadsheet-bottom-bar {
+    padding-left: 1rem;
+
+    .add-sheet-container {
+      order: 2;
+    }
+
+    .o-add-sheet {
+      margin-left: 0.5rem;
+    }
+
+    .o-all-sheets {
+      max-width: none;
     }
   }
 `;

@@ -34,7 +34,7 @@ interface RippleProps {
   allowOverflow?: boolean;
   enabled: boolean;
   onAnimationEnd: () => void;
-  class: string;
+  class?: string;
 }
 
 interface RippleEffectProps
@@ -74,6 +74,7 @@ class RippleEffect extends Component<RippleEffectProps, SpreadsheetChildEnv> {
     onAnimationEnd: Function,
     style: String,
   };
+
   private rippleRef = useRef("ripple");
 
   setup() {

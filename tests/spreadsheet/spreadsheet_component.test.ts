@@ -1,6 +1,8 @@
-import { Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
+import { Component, useSubEnv, xml } from "@odoo/owl";
+import { Model, Spreadsheet, setDefaultSheetViewSize } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { useScreenWidth } from "../../src/components/helpers/screen_width_hook";
 import { DEBOUNCE_TIME, getDefaultSheetViewSize } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
@@ -26,6 +28,7 @@ import { getCellContent } from "../test_helpers/getters_helpers";
 import {
   doAction,
   mockChart,
+  mountComponent,
   mountSpreadsheet,
   nextTick,
   restoreDefaultFunctions,
@@ -48,10 +51,14 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
+let spreadsheetWidth = 1000;
+
 mockGetBoundingClientRect({
   "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
   "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+  "o-spreadsheet": () => {
+    return { x: 0, y: 0, width: spreadsheetWidth, height: 1000 };
+  },
 });
 
 describe("Simple Spreadsheet Component", () => {
@@ -183,7 +190,7 @@ describe("Simple Spreadsheet Component", () => {
     await nextTick();
     await keyDown({ key: "F", metaKey: true, bubbles: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
-    jest.restoreAllMocks();
+    mockUserAgent.mockReset();
   });
 
   test("Z-indexes of the various spreadsheet components", async () => {
@@ -440,6 +447,7 @@ describe("Composer / selectionInput interactions", () => {
     expect(fixture.querySelector(".o-autofill")).toBeNull();
   });
 });
+
 test("cell popovers to be closed on clicking outside grid", async () => {
   jest.useFakeTimers();
   ({ model, fixture } = await mountSpreadsheet());
@@ -451,4 +459,36 @@ test("cell popovers to be closed on clicking outside grid", async () => {
   await simulateClick(".o-topbar-menu");
   expect(fixture.querySelector(".o-popover .o-error-tooltip")).toBeNull();
   jest.useRealTimers();
+});
+
+test("*isSmall* is properly recomputed when changing window size", async () => {
+  class Parent extends Component {
+    static template = xml`<div class="o-spreadsheet"/>`;
+    static components = { Spreadsheet };
+    static props = {};
+
+    setup() {
+      const screenSize = useScreenWidth();
+      useSubEnv({
+        get isSmall() {
+          return screenSize.isSmall;
+        },
+      });
+    }
+  }
+  const env = { model };
+  const { parent } = await mountComponent(Parent, { env });
+  expect(parent.env.isSmall).toBeFalsy();
+  spreadsheetWidth = 500;
+  parent.render();
+  await nextTick();
+
+  expect(parent.env.isSmall).toBeTruthy();
+});
+
+test("components take the small screen into account", async () => {
+  const model = new Model();
+  const { fixture } = await mountSpreadsheet({ model }, { isSmall: true });
+  expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
+  expect(fixture.querySelector(".o-spreadsheet-bottom-bar")?.classList).toContain("mobile");
 });
