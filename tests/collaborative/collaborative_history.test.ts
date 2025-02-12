@@ -7,12 +7,14 @@ import { StateUpdateMessage } from "../../src/types/collaborative/transport_serv
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
+  addRows,
   createSheet,
   deleteColumns,
   deleteRows,
   deleteSheet,
   freezeColumns,
   redo,
+  resizeColumns,
   setCellContent,
   setSelection,
   setStyle,
@@ -277,6 +279,19 @@ describe("Collaborative local history", () => {
     );
     expect(getCell(model, "B1")).toBeUndefined();
     expect(model.exportData().revisionId).toBe("2");
+  });
+
+  test("The revisions are rebased", () => {
+    addRows(alice, "after", 11, 1);
+    network.concurrent(() => {
+      undo(alice);
+      setCellContent(charlie, "A1", "Hello"); // This command is not transformed
+      setCellContent(charlie, "A13", "Hello"); // This command is transformed (and destroyed)
+    });
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "Hello");
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A12"), undefined);
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A13"), undefined);
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("Load model with initial messages, with redo", () => {
@@ -921,13 +936,59 @@ describe("Collaborative local history", () => {
      * branches, because obviously it's not possible to retrieve the
      * SET_CELL_CONTENT from an empty command.
      *
-     * To solve this, the behavior is to drop a command (and all the following)
-     * is the command is *local* and is empty.
+     * To solve this, the behavior is to rebase the command (and all the following)
+     * if the *local* command is empty.
      */
     createSheet(alice, { sheetId: "sheet2" });
     network.concurrent(() => {
       undo(alice);
       setCellContent(bob, "B2", "B2", "sheet2");
+    });
+    redo(alice);
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("do not transformed revisions with concurrently rejected commands", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    const initialCols = alice.getters.getNumberCols("Sheet1");
+    charlie.dispatch("DUPLICATE_SHEET", { sheetId: "Sheet1", sheetIdTo: "duplicateSheetId" });
+    network.concurrent(() => {
+      undo(charlie);
+
+      // DELETE_SHEET is initially accepted (there's 2 sheets) but later
+      // rejected because there's only one sheet left when DUPLICATE_SHEET is undone
+      bob.dispatch("DELETE_SHEET", { sheetId: "Sheet1" });
+    });
+    network.concurrent(() => {
+      undo(bob);
+
+      // ADD_COLUMNS_ROWS no longer makes sense because the sheet has been finally deleted
+      // and the transformation drops the command
+      alice.dispatch("ADD_COLUMNS_ROWS", {
+        position: "after",
+        dimension: "ROW",
+        base: 0,
+        quantity: 1,
+        sheetId: "Sheet1",
+      });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getNumberCols("Sheet1"),
+      initialCols
+    );
+    redo(charlie);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getNumberCols("Sheet1"),
+      initialCols
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("Concurrent undo where the transformation partially destroys the other", () => {
+    addColumns(alice, "before", "C", 3);
+    network.concurrent(() => {
+      undo(alice);
+      resizeColumns(bob, ["A", "B", "C", "D", "E"], 20);
     });
     redo(alice);
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
@@ -961,6 +1022,10 @@ describe("Collaborative local history", () => {
       undo(bob);
       setCellContent(alice, "C4", "hello");
     });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "C9"),
+      "hello"
+    );
     redo(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "C4"),
@@ -977,19 +1042,18 @@ describe("Collaborative local history", () => {
       setCellContent(bob, "A1", "Hello");
     });
     redo(alice);
-    /**
-     * // @implementation-limitation
-     * The UPDATE_CELL command triggered by Bob to insert "Hello" in B2 is done
-     * on the sheet that Alice is currently undoing the creation. So, this command
-     * should be drop.
-     * As the command is drop, the following command (UPDATE_CELL of A1) is also
-     * drop.
-     */
-    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "A1"),
+      "Hello"
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "B2", "sheet2"),
+      ""
+    );
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
-  test("redo dropped command", () => {
+  test("redo destroyed command", () => {
     setCellContent(charlie, "A1", "hi");
     network.concurrent(() => {
       deleteRows(bob, [6, 5, 4, 3, 2]);
@@ -997,26 +1061,30 @@ describe("Collaborative local history", () => {
       undo(charlie);
     });
     const result = redo(charlie);
-    expect(result).not.toBeCancelledBecause(CommandResult.WaitingSessionConfirmation);
-    expect(getCellContent(charlie, "C5")).not.toBe("hi");
-    expect(getCellContent(charlie, "A1")).toBe("hi");
+    expect(result).toBeSuccessfullyDispatched();
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "C5"), undefined);
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("can undo/redo command previous to dropped command", () => {
+  test("can undo/redo command previous to a destroyed command", () => {
     setCellContent(charlie, "A1", "hello");
     network.concurrent(() => {
       deleteRows(bob, [6, 5, 4, 3, 2]);
       setCellContent(charlie, "C5", "hi");
     });
     undo(charlie);
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "C5"), undefined);
+    undo(charlie);
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1"), undefined);
+    expect(all).toHaveSynchronizedValue((user) => getCell(user, "C5"), undefined);
     redo(charlie);
+    expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "C5"), "");
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
     expect(all).toHaveSynchronizedExportedData();
   });
 
-  test("cannot redo command previous to dropped command", () => {
+  test("cannot redo command after a destroyed command", () => {
     setCellContent(charlie, "A1", "hello");
     undo(charlie);
     network.concurrent(() => {

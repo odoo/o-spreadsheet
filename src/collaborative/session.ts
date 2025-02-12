@@ -377,21 +377,14 @@ export class Session extends EventBus<CollaborativeEvent> {
     let message = this.pendingMessages[0];
     if (!message) return;
     if (message.type === "REMOTE_REVISION") {
-      const revision = this.revisions.get(message.nextRevisionId);
+      let revision = this.revisions.get(message.nextRevisionId);
       if (revision.commands.length === 0) {
         /**
-         * The command is empty, we have to drop all the next local revisions
+         * The command is empty, we have to rebase all the next local revisions
          * to avoid issues with undo/redo
          */
-        this.revisions.drop(revision.id);
-        const revisionIds = this.pendingMessages
-          .filter((message) => message.type === "REMOTE_REVISION")
-          .map((message) => message.nextRevisionId);
-        this.trigger("pending-revisions-dropped", { revisionIds });
-        this.waitingAck = false;
-        this.waitingUndoRedoAck = false;
-        this.pendingMessages = [];
-        return;
+        this.revisions.rebase(revision.id);
+        revision = this.revisions.get(message.nextRevisionId);
       }
       message = {
         ...message,
@@ -416,7 +409,6 @@ export class Session extends EventBus<CollaborativeEvent> {
     switch (message.type) {
       case "REMOTE_REVISION":
       case "REVISION_REDONE":
-      case "REVISION_UNDONE":
       case "SNAPSHOT_CREATED":
         this.waitingAck = false;
         this.pendingMessages = this.pendingMessages.filter(
@@ -426,6 +418,29 @@ export class Session extends EventBus<CollaborativeEvent> {
         this.processedRevisions.add(message.nextRevisionId);
         this.sendPendingMessage();
         break;
+      case "REVISION_UNDONE": {
+        this.waitingAck = false;
+        this.pendingMessages = this.pendingMessages.filter(
+          (msg) => msg.nextRevisionId !== message.nextRevisionId
+        );
+        const firstPendingRevisionId = this.pendingMessages.findIndex(
+          (message): message is RemoteRevisionMessage => message.type === "REMOTE_REVISION"
+        );
+        if (firstPendingRevisionId !== -1) {
+          /**
+           * Some revisions undergo transformations that may cause issues with
+           * undo/redo if the transformation is destructive (we don't get back
+           * the original command by transforming it with the inverse).
+           * To prevent these problems, we must rebase all subsequent local
+           * revisions.
+           */
+          this.revisions.rebase(this.pendingMessages[firstPendingRevisionId].nextRevisionId);
+        }
+        this.serverRevisionId = message.nextRevisionId;
+        this.processedRevisions.add(message.nextRevisionId);
+        this.sendPendingMessage();
+        break;
+      }
     }
   }
 
