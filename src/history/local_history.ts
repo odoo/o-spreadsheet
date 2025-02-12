@@ -33,7 +33,6 @@ export class LocalHistory extends EventBus implements CommandHandler<Command> {
     this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
     this.session.on("revision-undone", this, ({ commands }) => this.selectiveUndo(commands));
     this.session.on("revision-redone", this, ({ commands }) => this.selectiveRedo(commands));
-    this.session.on("pending-revisions-dropped", this, ({ revisionIds }) => this.drop(revisionIds));
     this.session.on("snapshot", this, () => {
       this.undoStack = [];
       this.redoStack = [];
@@ -91,11 +90,6 @@ export class LocalHistory extends EventBus implements CommandHandler<Command> {
 
   canRedo(): boolean {
     return this.redoStack.length > 0;
-  }
-
-  private drop(revisionIds: UID[]) {
-    this.undoStack = this.undoStack.filter((id) => !revisionIds.includes(id));
-    this.redoStack = [];
   }
 
   private onNewLocalStateUpdate({ id }: { id: UID }) {

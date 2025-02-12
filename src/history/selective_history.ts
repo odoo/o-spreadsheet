@@ -98,9 +98,16 @@ export class SelectiveHistory<T = unknown> {
     this.insert(redoId, this.buildEmpty(redoId), insertAfter);
   }
 
-  drop(operationId: UID) {
+  rebase(operationId: UID) {
+    const operation = this.get(operationId);
+    const execution = [...this.tree.execution(this.HEAD_BRANCH).startAfter(operationId)];
     this.revertBefore(operationId);
+    const baseId = this.HEAD_OPERATION.id;
     this.tree.drop(operationId);
+    this.insert(operationId, operation, baseId);
+    for (const { operation } of execution) {
+      this.insert(operation.id, operation.data, this.HEAD_OPERATION.id);
+    }
   }
 
   /**

@@ -1,7 +1,7 @@
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
 import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
-import { debounce, deepEquals, isDefined } from "../helpers/misc";
+import { debounce, isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
 import { CoreCommand, HistoryChange, UID, WorkbookData } from "../types";
 import {
@@ -323,16 +323,6 @@ export class Session extends EventBus<CollaborativeEvent> {
     this.sendPendingMessage();
   }
 
-  private dropPendingRevision(revisionId: UID) {
-    this.revisions.drop(revisionId);
-    const revisionIds = this.pendingMessages
-      .filter((message) => message.type === "REMOTE_REVISION")
-      .map((message) => message.nextRevisionId);
-    this.trigger("pending-revisions-dropped", { revisionIds });
-    this.waitingAck = false;
-    this.waitingUndoRedoAck = false;
-  }
-
   /**
    * Send the next pending message
    */
@@ -340,15 +330,14 @@ export class Session extends EventBus<CollaborativeEvent> {
     let message = this.pendingMessages[0];
     if (!message) return;
     if (message.type === "REMOTE_REVISION") {
-      const revision = this.revisions.get(message.nextRevisionId);
+      let revision = this.revisions.get(message.nextRevisionId);
       if (revision.commands.length === 0) {
         /**
-         * The command is empty, we have to drop all the next local revisions
+         * The command is empty, we have to rebase all the next local revisions
          * to avoid issues with undo/redo
          */
-        this.dropPendingRevision(revision.id);
-        this.pendingMessages = [];
-        return;
+        this.revisions.rebase(revision.id);
+        revision = this.revisions.get(message.nextRevisionId);
       }
       message = {
         ...message,
@@ -387,26 +376,18 @@ export class Session extends EventBus<CollaborativeEvent> {
         this.pendingMessages = this.pendingMessages.filter(
           (msg) => msg.nextRevisionId !== message.nextRevisionId
         );
-        const pendingRemoteRevisions: RemoteRevisionMessage[] = this.pendingMessages.filter(
+        const firstPendingRevisionId = this.pendingMessages.findIndex(
           (message): message is RemoteRevisionMessage => message.type === "REMOTE_REVISION"
         );
-        const firstTransformedRevisionIndex = pendingRemoteRevisions.findIndex(
-          (message) =>
-            !deepEquals(message.commands, this.revisions.get(message.nextRevisionId).commands)
-        );
-
-        if (firstTransformedRevisionIndex !== -1) {
+        if (firstPendingRevisionId !== -1) {
           /**
            * Some revisions undergo transformations that may cause issues with
            * undo/redo if the transformation is destructive (we don't get back
            * the original command by transforming it with the inverse).
-           * To prevent these problems, we must discard all subsequent local
+           * To prevent these problems, we must rebase all subsequent local
            * revisions.
            */
-          this.dropPendingRevision(
-            this.pendingMessages[firstTransformedRevisionIndex].nextRevisionId
-          );
-          this.pendingMessages = this.pendingMessages.slice(0, firstTransformedRevisionIndex);
+          this.revisions.rebase(this.pendingMessages[firstPendingRevisionId].nextRevisionId);
         }
         this.serverRevisionId = message.nextRevisionId;
         this.processedRevisions.add(message.nextRevisionId);
