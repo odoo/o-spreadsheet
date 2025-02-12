@@ -3,6 +3,7 @@ import { ChartTerms } from "../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
 import { ChartDefinition } from "../../src/types";
+import { PieChartRuntime } from "../../src/types/chart";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { getCellContent } from "../test_helpers";
@@ -1363,6 +1364,13 @@ describe("figures", () => {
 
     await keyDown("z", { ctrlKey: true });
     expect(getCellContent(model, "D6")).toEqual("");
+  });
+
+  test("Pie chart border color matches the background color", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, { type: "pie", background: "#FF0000" });
+    const runtime = model.getters.getChartRuntime(chartId) as PieChartRuntime;
+    expect(runtime.chartJsConfig.data?.datasets?.[0].borderColor).toBe("#FF0000");
   });
 });
 
