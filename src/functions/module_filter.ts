@@ -282,7 +282,7 @@ export const SORTN: AddFunctionDescription = {
       }
     }
   },
-  isExported: true,
+  isExported: false,
 };
 
 // -----------------------------------------------------------------------------
