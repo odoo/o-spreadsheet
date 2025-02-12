@@ -14,6 +14,7 @@
       updateStyle.bind="updateAxisTitleStyle"
       label="editor_label"
       style="axisTitleStyle"
+      hasHorizontalAlign="true"
       defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
     />
   </t>

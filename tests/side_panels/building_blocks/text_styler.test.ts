@@ -19,7 +19,7 @@ async function mountChartTitle(props: Partial<TextStyler["props"]>) {
 
 describe("Chart title", () => {
   test("Can render a chart title component", async () => {
-    await mountChartTitle({});
+    await mountChartTitle({ hasHorizontalAlign: true });
     expect(fixture).toMatchSnapshot();
   });
 
@@ -70,11 +70,25 @@ describe("Chart title", () => {
     expect(updateStyle).toHaveBeenCalledWith({ fillColor: "#EFEFEF" });
   });
 
+  test("Alignments buttons are not visible by default", async () => {
+    await mountChartTitle({});
+
+    expect(".o-menu-item-button[title='Horizontal alignment']").toHaveCount(0);
+    expect(".o-menu-item-button[title='Vertical alignment']").toHaveCount(0);
+  });
+
+  test("Can show horizontal alignment buttons", async () => {
+    await mountChartTitle({ hasHorizontalAlign: true, hasVerticalAlign: true });
+
+    expect(".o-menu-item-button[title='Horizontal alignment']").toHaveCount(1);
+    expect(".o-menu-item-button[title='Vertical alignment']").toHaveCount(1);
+  });
+
   test.each(["Left", "Center", "Right"])(
     "Can change alignment to %s",
     async (alignment: string) => {
       const updateStyle = jest.fn();
-      await mountChartTitle({ updateStyle });
+      await mountChartTitle({ updateStyle, hasHorizontalAlign: true });
       expect(updateStyle).toHaveBeenCalledTimes(0);
       await click(fixture, ".o-menu-item-button[title='Horizontal alignment']");
       await click(fixture, `.o-menu-item-button[title='${alignment}']`);

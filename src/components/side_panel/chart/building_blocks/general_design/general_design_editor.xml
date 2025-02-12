@@ -15,6 +15,7 @@
           label="chart_title"
           updateStyle.bind="updateChartTitleStyle"
           style="title"
+          hasHorizontalAlign="true"
           defaultStyle="{align: 'left', fontSize: this.props.defaultChartTitleFontSize}"
         />
         <t t-slot="general-extension"/>

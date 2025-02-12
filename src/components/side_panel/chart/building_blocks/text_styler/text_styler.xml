@@ -13,8 +13,8 @@
       <div class="o-chart-title-designer position-relative d-flex align-items-center">
         <ActionButton action="boldButtonAction" class="'o-hoverable-button'"/>
         <ActionButton action="italicButtonAction" class="'o-hoverable-button'"/>
-        <div class="o-divider"/>
-        <div class="o-dropdown position-relative">
+        <div class="o-divider" t-if="props.hasHorizontalAlign"/>
+        <div class="o-dropdown position-relative" t-if="props.hasHorizontalAlign">
           <ActionButton
             action="horizontalAlignButtonAction"
             hasTriangleDownIcon="true"

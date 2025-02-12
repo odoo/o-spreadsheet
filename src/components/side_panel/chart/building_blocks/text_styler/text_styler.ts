@@ -61,6 +61,7 @@ interface Props {
   defaultStyle?: Partial<TitleDesign>;
   hasText?: boolean;
   hasVerticalAlign?: boolean;
+  hasHorizontalAlign?: boolean;
   hasBackgroundColor?: boolean;
 }
 
@@ -81,6 +82,7 @@ export class TextStyler extends Component<Props, SpreadsheetChildEnv> {
     defaultStyle: { type: Object, optional: true },
     hasText: { type: Boolean, optional: true },
     hasVerticalAlign: { type: Boolean, optional: true },
+    hasHorizontalAlign: { type: Boolean, optional: true },
     hasBackgroundColor: { type: Boolean, optional: true },
   };
   static defaultProps = {
