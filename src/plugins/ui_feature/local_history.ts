@@ -29,7 +29,6 @@ export class HistoryPlugin extends UIPlugin {
     super(config);
     this.session = config.session;
     this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
-    this.session.on("pending-revisions-dropped", this, ({ revisionIds }) => this.drop(revisionIds));
     this.session.on("snapshot", this, () => {
       this.undoStack = [];
       this.redoStack = [];
@@ -105,11 +104,6 @@ export class HistoryPlugin extends UIPlugin {
     if (this.redoStack.length > 0) return true;
     const lastNonRedoRevision = this.getPossibleRevisionToRepeat();
     return canRepeatRevision(lastNonRedoRevision);
-  }
-
-  private drop(revisionIds: UID[]) {
-    this.undoStack = this.undoStack.filter((id) => !revisionIds.includes(id));
-    this.redoStack = [];
   }
 
   private onNewLocalStateUpdate({ id }: { id: UID }) {

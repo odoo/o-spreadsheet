@@ -50,12 +50,6 @@ export interface NewLocalStateUpdateEvent {
   id: UID;
 }
 
-export interface RevisionsDroppedEvent {
-  type: "pending-revisions-dropped";
-  revisionIds: UID[];
-  commands: CoreCommand[];
-}
-
 export interface SnapshotEvent {
   type: "snapshot";
 }
@@ -67,7 +61,6 @@ export type CollaborativeEvent =
   | RevisionAcknowledgedEvent
   | RevisionUndone
   | RevisionRedone
-  | RevisionsDroppedEvent
   | SnapshotEvent
   | CollaborativeEventReceived;
 

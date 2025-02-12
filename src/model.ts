@@ -420,18 +420,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.on("collaborative-event-received", this, () => {
       this.trigger("update");
     });
-    this.session.on("pending-revisions-dropped", this, ({ commands }) => {
-      const previousStatus = this.status;
-      this.status = Status.RunningCore;
-      // UI plugin should invalidate their state or check its consistency
-      // just like if some commands were undone
-      this.dispatchToHandlers(this.uiHandlers, {
-        type: "UNDO",
-        commands,
-      });
-      this.status = previousStatus;
-      this.finalize();
-    });
   }
 
   private setupConfig(config: Partial<ModelConfig>): ModelConfig {
