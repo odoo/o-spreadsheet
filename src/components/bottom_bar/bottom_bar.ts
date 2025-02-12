@@ -32,7 +32,6 @@ css/* scss */ `
     }
 
     .o-all-sheets {
-      max-width: 70%;
       .o-bottom-bar-fade-out {
         background-image: linear-gradient(-90deg, #cfcfcf, transparent 1%);
       }

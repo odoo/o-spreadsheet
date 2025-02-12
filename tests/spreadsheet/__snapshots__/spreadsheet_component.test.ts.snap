@@ -881,7 +881,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     </div>
     
     <div
-      class="o-ripple-container position-relative"
+      class="o-ripple-container position-relative listSheets"
     >
       <div
         class="position-absolute w-100 h-100"
@@ -926,7 +926,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     </div>
     
     <div
-      class="o-all-sheets position-relative flex-shrink-0 d-flex h-100 me-3"
+      class="o-all-sheets position-relative d-flex h-100 flex-fill overflow-hidden"
+      style="max-width: 70%;"
     >
       
       <div
