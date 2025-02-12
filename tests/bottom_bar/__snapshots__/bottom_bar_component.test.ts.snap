@@ -140,7 +140,7 @@ exports[`BottomBar component simple rendering 1`] = `
   class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
 >
   <div
-    class="o-ripple-container position-relative"
+    class="o-ripple-container position-relative add-sheet-container"
   >
     <div
       class="position-absolute w-100 h-100"
@@ -213,7 +213,7 @@ exports[`BottomBar component simple rendering 1`] = `
   </div>
   
   <div
-    class="o-all-sheets position-relative flex-shrink-0 d-flex h-100 me-3"
+    class="o-all-sheets position-relative d-flex h-100 flex-fill overflow-hidden"
   >
     
     <div

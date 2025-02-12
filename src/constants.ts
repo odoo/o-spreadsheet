@@ -179,6 +179,10 @@ export const FILTER_ICON_MARGIN = 2;
 export const FILTER_ICON_EDGE_LENGTH = 17;
 export const FOOTER_HEIGHT = 2 * DEFAULT_CELL_HEIGHT;
 
+// 768px is a common breakpoint for small screens
+// Typically inside Odoo, it is the threshold for switching to mobile view
+export const MOBILE_WIDTH_BREAKPOINT = 768;
+
 // Menus
 export const MENU_WIDTH = 250;
 export const MENU_VERTICAL_PADDING = 6;
