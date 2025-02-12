@@ -9,7 +9,7 @@ export enum ClipboardMIMEType {
 export type OSClipboardContent = { [type in ClipboardMIMEType]?: string };
 
 export type ParsedOSClipboardContent = {
-  text?: string;
+  text?: string[][];
   data?: SpreadsheetClipboardData;
 };
 

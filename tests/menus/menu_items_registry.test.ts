@@ -229,7 +229,7 @@ describe("Menu Item actions", () => {
     selectCell(model, "A1");
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
-      clipboardContent: { text: "Copy in OS clipboard" },
+      clipboardContent: { text: [["Copy in OS clipboard"]] },
       target: target("A1"),
       pasteOption: "onlyFormat",
     });
@@ -273,7 +273,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
-      clipboardContent: { text },
+      clipboardContent: { text: [[text]] },
       pasteOption: "asValue",
     });
   });
@@ -293,7 +293,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_format"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
-      clipboardContent: { text },
+      clipboardContent: { text: [[text]] },
       pasteOption: "onlyFormat",
     });
   });

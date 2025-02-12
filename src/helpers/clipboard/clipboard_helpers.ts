@@ -64,9 +64,7 @@ export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
 
 export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSClipboardContent {
   if (!content[ClipboardMIMEType.Html]) {
-    return {
-      text: content[ClipboardMIMEType.PlainText],
-    };
+    return { text: splitPlainTextContent(content[ClipboardMIMEType.PlainText]) };
   }
   const htmlDocument = new DOMParser().parseFromString(
     content[ClipboardMIMEType.Html],
@@ -77,7 +75,25 @@ export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSCl
     ?.getAttribute("data-osheet-clipboard");
   const spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
   return {
-    text: content[ClipboardMIMEType.PlainText],
+    text:
+      getContentFromHTMLTable(htmlDocument) ??
+      splitPlainTextContent(content[ClipboardMIMEType.PlainText]),
     data: spreadsheetContent,
   };
+}
+
+function splitPlainTextContent(content: string | undefined): string[][] {
+  return (content || "")
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((vals) => vals.split("\t"));
+}
+
+function getContentFromHTMLTable(document: Document): string[][] | undefined {
+  const table = document.querySelector("table");
+  if (!table) {
+    return undefined;
+  }
+  const rows = Array.from(table.rows);
+  return rows.map((row) => Array.from(row.cells).map((cell) => cell.innerText));
 }

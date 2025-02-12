@@ -249,10 +249,13 @@ describe("UI Helpers", () => {
     });
 
     describe("Paste from OS", () => {
-      const clipboardString = "a\t1\nb\t2";
+      const osClipboardContent = [
+        ["a", "1"],
+        ["b", "2"],
+      ];
 
       test("Can interactive paste", () => {
-        interactivePasteFromOS(env, target("D2"), { text: clipboardString });
+        interactivePasteFromOS(env, target("D2"), { text: osClipboardContent });
         expect(getCellContent(model, "D2")).toBe("a");
         expect(getCellContent(model, "E2")).toBe("1");
         expect(getCellContent(model, "D3")).toBe("b");
@@ -263,7 +266,7 @@ describe("UI Helpers", () => {
         merge(model, "B2:C3");
         selectCell(model, "A1");
         interactivePasteFromOS(env, model.getters.getSelectedZones(), {
-          text: clipboardString,
+          text: osClipboardContent,
         });
         expect(notifyUserTextSpy).toHaveBeenCalledWith(
           PasteInteractiveContent.willRemoveExistingMerge.toString()
