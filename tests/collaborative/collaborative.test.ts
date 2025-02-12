@@ -278,6 +278,12 @@ describe("Multi users synchronisation", () => {
     ]);
     undo(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCellContent(user, "C1"),
+      "hello"
+    );
+    undo(bob);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "C1"), undefined);
     expect(undo(bob)).toBeCancelledBecause(CommandResult.EmptyUndoStack);
   });
