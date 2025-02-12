@@ -327,7 +327,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
     const dataset: ChartDataset = {
       label,
       data,
-      borderColor: "#FFFFFF",
+      borderColor: chart.background || "#FFFFFF",
       backgroundColor,
     };
     config.data!.datasets!.push(dataset);
