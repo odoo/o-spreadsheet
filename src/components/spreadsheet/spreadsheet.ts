@@ -58,6 +58,7 @@ import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { useSpreadsheetRect } from "../helpers/position_hook";
+import { useScreenSize } from "../helpers/screen_size_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TopBar } from "../top_bar/top_bar";
@@ -373,6 +374,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
     const fileStore = this.model.config.external.fileStore;
+
     useSubEnv({
       model: this.model,
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
@@ -389,6 +391,15 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
         this.notificationStore.askConfirmation(text, confirm, cancel),
       raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
     } satisfies Partial<SpreadsheetChildEnv>);
+
+    if (!("isSmall" in this.env)) {
+      const screenSize = useScreenSize();
+      useSubEnv({
+        get isSmall() {
+          return screenSize.isSmall;
+        },
+      } satisfies Partial<SpreadsheetChildEnv>);
+    }
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
@@ -449,6 +460,10 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     const resizeObserver = new ResizeObserver(() => {
       this.sidePanel.changePanelSize(this.sidePanel.panelSize, this.spreadsheetRect.width);
     });
+  }
+
+  get _isSmall() {
+    return this.env.isSmall;
   }
 
   private bindModelEvents() {
