@@ -197,7 +197,7 @@ export function getPieChartDatasets(
     const dataset: ChartDataset<"pie"> = {
       label,
       data,
-      borderColor: BACKGROUND_CHART_COLOR,
+      borderColor: definition.background || "#FFFFFF",
       backgroundColor,
       hoverOffset: 30,
     };
