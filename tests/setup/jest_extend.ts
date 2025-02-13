@@ -1,6 +1,9 @@
 import { Model } from "../../src";
 import { isSameColor } from "../../src/helpers/color";
-import { CancelledReason, DispatchResult } from "../../src/types";
+import { toXC } from "../../src/helpers/coordinates";
+import { deepEquals } from "../../src/helpers/misc";
+import { positions } from "../../src/helpers/zones";
+import { CancelledReason, DispatchResult, Zone } from "../../src/types";
 
 type DOMTarget = string | Element | Document | Window | null;
 
@@ -12,6 +15,10 @@ declare global {
        * exportData
        */
       toHaveSynchronizedExportedData(): R;
+      /*
+       * Check that the evaluation of the given models are synchronized
+       */
+      toHaveSynchronizedEvaluation(): R;
       /**
        * Check that the same callback on each users give the same expected value
        */
@@ -34,6 +41,16 @@ declare global {
       toHaveAttribute(attribute: string, value: string): R;
     }
   }
+}
+
+function getPrettyEvaluatedCells(model: Model, sheetId: string, zone: Zone) {
+  return positions(zone).map(({ col, row }) => {
+    return {
+      sheetId,
+      xc: toXC(col, row),
+      value: model.getters.getEvaluatedCell({ sheetId, col, row }).value,
+    };
+  });
 }
 
 expect.extend({
@@ -74,29 +91,55 @@ expect.extend({
     }
     return { pass: !this.isNot, message: () => "" };
   },
-  toHaveSynchronizedExportedData(users: Model[]) {
-    for (let a of users) {
-      for (let b of users) {
-        if (a === b) {
-          continue;
-        }
-        const exportA = a.exportData();
-        const exportB = b.exportData();
-        if (!this.equals(exportA, exportB, [this.utils.iterableEquality])) {
+  toHaveSynchronizedEvaluation(users: Model[]) {
+    for (let i = 0; i < users.length - 1; i++) {
+      const a = users[i];
+      const b = users[i + 1];
+      for (const sheetId of a.getters.getSheetIds()) {
+        const sheetZone = a.getters.getSheetZone(sheetId);
+        const valuesUserA = a.getters.getEvaluatedCells(sheetId);
+        const valuesUserB = b.getters.getEvaluatedCells(sheetId);
+        if (!deepEquals(valuesUserA, valuesUserB)) {
           const clientA = a.getters.getClient().id;
           const clientB = b.getters.getClient().id;
+          const prettyValuesUserA = getPrettyEvaluatedCells(a, sheetId, sheetZone);
+          const prettyValuesUserB = getPrettyEvaluatedCells(b, sheetId, sheetZone);
           return {
             pass: this.isNot,
             message: () =>
               `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
-                exportA,
-                exportB,
+                prettyValuesUserA,
+                prettyValuesUserB,
                 clientA,
                 clientB,
                 false
               )}`,
           };
         }
+      }
+    }
+    return { pass: !this.isNot, message: () => "" };
+  },
+  toHaveSynchronizedExportedData(users: Model[]) {
+    for (let i = 0; i < users.length - 1; i++) {
+      const a = users[i];
+      const b = users[i + 1];
+      const exportA = a.exportData();
+      const exportB = b.exportData();
+      if (!this.equals(exportA, exportB, [this.utils.iterableEquality])) {
+        const clientA = a.getters.getClient().id;
+        const clientB = b.getters.getClient().id;
+        return {
+          pass: this.isNot,
+          message: () =>
+            `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
+              exportA,
+              exportB,
+              clientA,
+              clientB,
+              false
+            )}`,
+        };
       }
     }
     return { pass: !this.isNot, message: () => "" };
