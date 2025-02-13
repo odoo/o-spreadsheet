@@ -13,12 +13,11 @@ export class UuidGenerator {
    *
    */
   smallUuid(): string {
-    //@ts-ignore
-    if (window.crypto && window.crypto.getRandomValues) {
-      //@ts-ignore
-      return ([1e7] + -1e3).replace(/[018]/g, (c) =>
-        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
-      );
+    if (window.crypto) {
+      return "10000000-1000".replace(/[01]/g, (c) => {
+        const n = Number(c);
+        return (n ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (n / 4)))).toString(16);
+      });
     } else {
       // mainly for jest and other browsers that do not have the crypto functionality
       return "xxxxxxxx-xxxx".replace(/[xy]/g, function (c) {
@@ -34,12 +33,11 @@ export class UuidGenerator {
    * This method should be used when you need to avoid collisions at all costs, like the id of a revision.
    */
   uuidv4(): string {
-    //@ts-ignore
-    if (window.crypto && window.crypto.getRandomValues) {
-      //@ts-ignore
-      return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
-      );
+    if (window.crypto) {
+      return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => {
+        const n = Number(c);
+        return (n ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (n / 4)))).toString(16);
+      });
     } else {
       // mainly for jest and other browsers that do not have the crypto functionality
       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
