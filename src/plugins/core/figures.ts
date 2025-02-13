@@ -1,4 +1,3 @@
-import { isDefined } from "../../helpers/index";
 import {
   CommandResult,
   CoreCommand,
@@ -12,6 +11,7 @@ import { DEFAULT_CELL_HEIGHT } from "./../../constants";
 
 interface FigureState {
   readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };
+  readonly insertionOrders: UID[];
 }
 
 export class FigurePlugin extends CorePlugin<FigureState> implements FigureState {
@@ -19,6 +19,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   readonly figures: {
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
+  readonly insertionOrders: UID[] = []; // TODO use a list in master
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -129,13 +130,22 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
 
   private addFigure(figure: Figure, sheetId: UID) {
     this.history.update("figures", sheetId, figure.id, figure);
+    this.history.update("insertionOrders", this.insertionOrders.length, figure.id);
   }
 
   private deleteSheet(sheetId: UID) {
+    this.history.update(
+      "insertionOrders",
+      this.insertionOrders.filter((id) => !this.figures[sheetId]?.[id])
+    );
     this.history.update("figures", sheetId, undefined);
   }
 
   private removeFigure(id: string, sheetId: UID) {
+    this.history.update(
+      "insertionOrders",
+      this.insertionOrders.filter((figureId) => figureId !== id)
+    );
     this.history.update("figures", sheetId, id, undefined);
   }
 
@@ -158,7 +168,14 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // ---------------------------------------------------------------------------
 
   getFigures(sheetId: UID): Figure[] {
-    return Object.values(this.figures[sheetId] || {}).filter(isDefined);
+    const figures: Figure[] = [];
+    for (const figureId of this.insertionOrders) {
+      const figure = this.figures[sheetId]?.[figureId];
+      if (figure) {
+        figures.push(figure);
+      }
+    }
+    return figures;
   }
 
   getFigure(sheetId: string, figureId: string): Figure | undefined {
@@ -176,11 +193,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // ---------------------------------------------------------------------------
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      const figures = {};
-      sheet.figures.forEach((figure) => {
-        figures[figure.id] = figure;
-      });
-      this.figures[sheet.id] = figures;
+      for (const figure of sheet.figures) {
+        this.addFigure(figure, sheet.id);
+      }
     }
   }
 
