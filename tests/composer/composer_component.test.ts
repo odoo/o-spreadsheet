@@ -100,6 +100,13 @@ describe("ranges and highlights", () => {
     expect(contentColors["SU"]).toBeSameColorAs("#000000");
   });
 
+  test("+SU, the + should be colored", async () => {
+    const composerEl = await typeInComposer("+SU");
+    const contentColors = getComposerColors(composerEl);
+    expect(contentColors["+"]).toBeSameColorAs("#3da4ab");
+    expect(contentColors["SU"]).toBeSameColorAs("#000000");
+  });
+
   test.each([
     "A1",
     "$A1",
@@ -114,10 +121,30 @@ describe("ranges and highlights", () => {
     expect(getComposerColors(composerEl)[ref]).toBeSameColorAs(colors[0]);
   });
 
+  test.each([
+    "A1",
+    "$A1",
+    "A$1",
+    "A1:B2",
+    "Sheet1!A1",
+    "Sheet1!A1:B2",
+    "'Sheet1'!A1",
+    "Sheet1!$A$1",
+  ])("reference %s should be colored using +", async (ref) => {
+    const composerEl = await typeInComposer(`+SUM(${ref})`);
+    expect(getComposerColors(composerEl)[ref]).toBeSameColorAs(colors[0]);
+  });
+
   test("=Key DOWN in A1, should select and highlight A2", async () => {
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A2");
+  });
+
+  test("+Key DOWN in A1, should select and highlight A2", async () => {
+    composerEl = await typeInComposer("+");
+    await keyDown({ key: "ArrowDown" });
+    expect(composerEl.textContent).toBe("+A2");
   });
 
   test("reference position is reset at each selection", async () => {
@@ -145,6 +172,31 @@ describe("ranges and highlights", () => {
     expect(composerEl.textContent).toBe("=A2+A2");
   });
 
+  test("reference position is reset at each selection using +", async () => {
+    composerEl = await typeInComposer("+");
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(getInputSelection()).toEqual({
+      anchorNodeText: "+",
+      anchorOffset: 1,
+      focusNodeText: "+",
+      focusOffset: 1,
+    });
+    await keyDown({ key: "ArrowDown" });
+    expect(composerEl.textContent).toBe("+A2");
+    composerEl = await typeInComposer("+", false);
+    expect(composerEl.textContent).toBe("+A2+");
+    expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+    expect(getInputSelection()).toEqual({
+      anchorNodeText: "+",
+      anchorOffset: 1,
+      focusNodeText: "+",
+      focusOffset: 1,
+    });
+    expect(composerStore.editionMode).toBe("selecting");
+    await keyDown({ key: "ArrowDown" });
+    expect(composerEl.textContent).toBe("+A2+A2");
+  });
+
   test("=Key DOWN+DOWN in A1, should select and highlight A3", async () => {
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowDown" });
@@ -152,10 +204,23 @@ describe("ranges and highlights", () => {
     expect(composerEl.textContent).toBe("=A3");
   });
 
+  test("+Key DOWN+DOWN in A1, should select and highlight A3", async () => {
+    composerEl = await typeInComposer("+");
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowDown" });
+    expect(composerEl.textContent).toBe("+A3");
+  });
+
   test("=Key RIGHT in A1, should select and highlight B1", async () => {
     composerEl = await typeInComposer("=");
     await keyDown({ key: "ArrowRight" });
     expect(composerEl.textContent).toBe("=B1");
+  });
+
+  test("+Key RIGHT in A1, should select and highlight B1", async () => {
+    composerEl = await typeInComposer("+");
+    await keyDown({ key: "ArrowRight" });
+    expect(composerEl.textContent).toBe("+B1");
   });
 
   test("=Key RIGHT twice selects C1", async () => {
@@ -166,6 +231,16 @@ describe("ranges and highlights", () => {
     await keyDown({ key: "ArrowRight" });
     await keyUp({ key: "ArrowRight" });
     expect(composerEl.textContent).toBe("=C1");
+  });
+
+  test("+Key RIGHT twice selects C1", async () => {
+    composerEl = await typeInComposer("+");
+    await keyDown({ key: "ArrowRight" });
+    await keyUp({ key: "ArrowRight" });
+    expect(composerEl.textContent).toBe("+B1");
+    await keyDown({ key: "ArrowRight" });
+    await keyUp({ key: "ArrowRight" });
+    expect(composerEl.textContent).toBe("+C1");
   });
 
   test("=Key UP in B2, should select and highlight B1", async () => {
@@ -488,8 +563,24 @@ describe("composer", () => {
     expect(getCellText(model, "A1")).toBe("=C8");
   });
 
+  test("type '+', select a cell, press enter", async () => {
+    composerEl = await typeInComposer("+");
+    selectCell(model, "C8");
+    await nextTick();
+    expect(composerEl.textContent).toBe("+C8");
+    await keyDown({ key: "Enter" });
+    expect(composerStore.editionMode).toBe("inactive");
+    expect(getCellText(model, "A1")).toBe("=C8");
+  });
+
   test("full rows/cols ranges are correctly displayed", async () => {
     composerEl = await typeInComposer("=SUM(A:A)");
+    await keyDown({ key: "Enter" });
+    expect(getCellText(model, "A1")).toBe("=SUM(A:A)");
+  });
+
+  test("full rows/cols ranges are correctly displayed using +", async () => {
+    composerEl = await typeInComposer("+SUM(A:A)");
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=SUM(A:A)");
   });
@@ -739,8 +830,8 @@ describe("composer", () => {
       );
     });
 
-    test.each([",", "+", "*", ")", "("])(
-      "typing a matching values (except '=') --> not activate 'waitingForRangeSelection' mode",
+    test.each([",", "*", ")", "("])(
+      "typing a matching values (except '=' & '+') --> not activate 'waitingForRangeSelection' mode",
       async (value) => {
         await startComposition();
         composerEl = await typeInComposer(value);
@@ -760,6 +851,20 @@ describe("composer", () => {
         anchorNodeText: "=",
         anchorOffset: 1,
         focusNodeText: "=",
+        focusOffset: 1,
+      });
+    });
+
+    test("typing '+'--> activate 'waitingForRangeSelection' mode", async () => {
+      await startComposition();
+      composerEl = await typeInComposer("+");
+      expect(composerStore.editionMode).toBe("selecting");
+      expect(composerEl.textContent).toBe("+");
+      expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
+      expect(getInputSelection()).toEqual({
+        anchorNodeText: "+",
+        anchorOffset: 1,
+        focusNodeText: "+",
         focusOffset: 1,
       });
     });
@@ -1006,13 +1111,28 @@ describe("composer formula color", () => {
     expect(getComposerColors(composerEl)["SUM"]).toBeSameColorAs(tokenColors["FUNCTION"]);
   });
 
+  test('type "+SUM" --> SUM should have specific function color', async () => {
+    const composerEl = await typeInComposer("=SUM");
+    expect(getComposerColors(composerEl)["SUM"]).toBeSameColorAs(tokenColors["FUNCTION"]);
+  });
+
   test('type "=SUM(" --> left parenthesis should have specific function color', async () => {
     const composerEl = await typeInComposer("=SUM(");
     expect(getComposerColors(composerEl)["("]).toBeSameColorAs(tokenColors["LEFT_PAREN"]);
   });
 
+  test('type "+SUM(" --> left parenthesis should have specific function color', async () => {
+    const composerEl = await typeInComposer("+SUM(");
+    expect(getComposerColors(composerEl)["("]).toBeSameColorAs(tokenColors["LEFT_PAREN"]);
+  });
+
   test('type "=SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
     const composerEl = await typeInComposer("=SUM(1");
+    expect(getComposerColors(composerEl)["("]).toBeSameColorAs(tokenColors["LEFT_PAREN"]);
+  });
+
+  test('type "+SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
+    const composerEl = await typeInComposer("+SUM(1");
     expect(getComposerColors(composerEl)["("]).toBeSameColorAs(tokenColors["LEFT_PAREN"]);
   });
 
@@ -1028,6 +1148,11 @@ describe("composer formula color", () => {
 
   test(`type '=SUM(1, "2"' --> string should have specific string color`, async () => {
     const composerEl = await typeInComposer('=SUM(1, "2"');
+    expect(getComposerColors(composerEl)[`"2"`]).toBeSameColorAs(tokenColors["STRING"]);
+  });
+
+  test(`type '+SUM(1, "2"' --> string should have specific string color`, async () => {
+    const composerEl = await typeInComposer('+SUM(1, "2"');
     expect(getComposerColors(composerEl)[`"2"`]).toBeSameColorAs(tokenColors["STRING"]);
   });
 
@@ -1100,6 +1225,26 @@ describe("Composer blurs formula parts not affected by cursor position.", () => 
       await typeInComposer(str);
       expect(getBlurredState(composerStore)).toEqual([{ isBlurred: false, value: str }]);
     });
+    test.each([
+      "=",
+      "= ",
+      "= S",
+      "= SU",
+      "= SUM",
+      "= SUM( COS ( A1 ) )",
+      "= SUM( COS ( A1 ) ) ",
+      "= SUM( COS ( A1 ) ) +",
+      "= SUM( COS ( A1 ) ) + ",
+      "= SUM( COS ( A1 ) ) + A",
+      "= SUM( COS ( A1 ) ) + AB",
+      "= SUM( COS ( A1 ) ) + ABS",
+      "= SUM( COS ( A1 ) ) + ABS ",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) )",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ",
+    ])('type "%s" --> lighten all', async (str: string) => {
+      await typeInComposer(str);
+      expect(getBlurredState(composerStore)).toEqual([{ isBlurred: false, value: str }]);
+    });
 
     firstPart = "= ";
     test.each([
@@ -1132,6 +1277,103 @@ describe("Composer blurs formula parts not affected by cursor position.", () => 
     );
 
     firstPart = "= SUM( COS ( A1 ) ) + ";
+    test.each([
+      "ABS (",
+      "ABS ( ",
+      "ABS ( 4",
+      "ABS ( 42",
+      "ABS ( 42 ",
+      "ABS ( 42 +",
+      "ABS ( 42 + ",
+      "ABS ( 42 + (",
+      "ABS ( 42 + (3",
+      "ABS ( 42 + (3*",
+      "ABS ( 42 + (3*2",
+      "ABS ( 42 + (3*2)",
+      "ABS ( 42 + (3*2) ",
+    ])(`type "${firstPart}%s" --> lighten all elements in ABS`, async (str: string) => {
+      await typeInComposer(firstPart + str);
+      expect(getBlurredState(composerStore)).toEqual([
+        { isBlurred: true, value: firstPart },
+        { isBlurred: false, value: str },
+      ]);
+    });
+  });
+
+  describe("Type an unfinished formula using + --> lighten the unfinished part.", () => {
+    let firstPart: string;
+    test.each([
+      "+",
+      "+ ",
+      "+ S",
+      "+ SU",
+      "+ SUM",
+      "+ SUM( COS ( A1 ) )",
+      "+ SUM( COS ( A1 ) ) ",
+      "+ SUM( COS ( A1 ) ) +",
+      "+ SUM( COS ( A1 ) ) + ",
+      "+ SUM( COS ( A1 ) ) + A",
+      "+ SUM( COS ( A1 ) ) + AB",
+      "+ SUM( COS ( A1 ) ) + ABS",
+      "+ SUM( COS ( A1 ) ) + ABS ",
+      "+ SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) )",
+      "+ SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ",
+    ])('type "%s" --> lighten all', async (str: string) => {
+      await typeInComposer(str);
+      expect(getBlurredState(composerStore)).toEqual([{ isBlurred: false, value: str }]);
+    });
+    test.each([
+      "+",
+      "+ ",
+      "+ S",
+      "+ SU",
+      "+ SUM",
+      "+ SUM( COS ( A1 ) )",
+      "+ SUM( COS ( A1 ) ) ",
+      "+ SUM( COS ( A1 ) ) +",
+      "+ SUM( COS ( A1 ) ) + ",
+      "+ SUM( COS ( A1 ) ) + A",
+      "+ SUM( COS ( A1 ) ) + AB",
+      "+ SUM( COS ( A1 ) ) + ABS",
+      "+ SUM( COS ( A1 ) ) + ABS ",
+      "+ SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) )",
+      "+ SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ",
+    ])('type "%s" --> lighten all', async (str: string) => {
+      await typeInComposer(str);
+      expect(getBlurredState(composerStore)).toEqual([{ isBlurred: false, value: str }]);
+    });
+
+    firstPart = "+ ";
+    test.each([
+      "SUM(",
+      "SUM( ",
+      "SUM( C",
+      "SUM( CO",
+      "SUM( COS",
+      "SUM( COS ",
+      "SUM( COS ( A1 )",
+      "SUM( COS ( A1 ) ",
+    ])(`type "${firstPart}%s" --> lighten all elements in SUM`, async (str: string) => {
+      await typeInComposer(firstPart + str);
+      expect(getBlurredState(composerStore)).toEqual([
+        { isBlurred: true, value: firstPart },
+        { isBlurred: false, value: str },
+      ]);
+    });
+
+    firstPart = "+ SUM( ";
+    test.each(["COS (", "COS ( ", "COS ( A", "COS ( A", "COS ( A1", "COS ( A1 "])(
+      `type "${firstPart}%s" --> lighten all elements in COS`,
+      async (str: string) => {
+        await typeInComposer(firstPart + str);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: firstPart },
+          { isBlurred: false, value: str },
+        ]);
+      }
+    );
+
+    firstPart = "+ SUM( COS ( A1 ) ) + ";
     test.each([
       "ABS (",
       "ABS ( ",
@@ -1435,9 +1677,32 @@ describe("composer highlights color", () => {
     expect(composerStore.highlights[1].color).toBe(colors[1]);
   });
 
+  test("colors start with first color using +", async () => {
+    setCellContent(model, "A1", "+a1+a2");
+    await startComposition();
+    expect(composerStore.highlights.length).toBe(2);
+    expect(composerStore.highlights[0].color).toBe(colors[0]);
+    expect(composerStore.highlights[1].color).toBe(colors[1]);
+  });
+
   test("colors always start with first color", async () => {
     setCellContent(model, "A1", "=b1+b2");
     setCellContent(model, "A2", "=b1+b3");
+    await startComposition();
+    expect(composerStore.highlights.length).toBe(2);
+    expect(composerStore.highlights[0].color).toBe(colors[0]);
+    expect(composerStore.highlights[1].color).toBe(colors[1]);
+    await keyDown({ key: "Enter" });
+
+    await startComposition();
+    expect(composerStore.highlights.length).toBe(2);
+    expect(composerStore.highlights[0].color).toBe(colors[0]);
+    expect(composerStore.highlights[1].color).toBe(colors[1]);
+  });
+
+  test("colors always start with first color using +", async () => {
+    setCellContent(model, "A1", "+b1+b2");
+    setCellContent(model, "A2", "+b1+b3");
     await startComposition();
     expect(composerStore.highlights.length).toBe(2);
     expect(composerStore.highlights[0].color).toBe(colors[0]);
@@ -1466,6 +1731,14 @@ describe("composer highlights color", () => {
     expect(composerEl.textContent).toBe("=sum(A1:A10)");
   });
 
+  test("highlight range using +", async () => {
+    setCellContent(model, "A1", "+sum(a1:a10)");
+    composerEl = await startComposition();
+    expect(composerStore.highlights.length).toBe(1);
+    expect(composerStore.highlights[0].color).toBe(colors[0]);
+    expect(composerEl.textContent).toBe("=sum(A1:A10)");
+  });
+
   test("highlight 'reverse' ranges", async () => {
     setCellContent(model, "A1", "=sum(B3:a1)");
     await startComposition();
@@ -1482,6 +1755,18 @@ describe("composer highlights color", () => {
   test("highlight cross-sheet ranges", async () => {
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "=B1+Sheet2!A1");
+    await startComposition();
+    const highlights = composerStore.highlights;
+    expect(highlights).toHaveLength(2);
+    expect(highlights[0].sheetId).toBe(model.getters.getActiveSheetId());
+    expect(highlights[0].zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
+    expect(highlights[1].sheetId).toBe("42");
+    expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
+  });
+
+  test("highlight cross-sheet ranges using +", async () => {
+    createSheet(model, { sheetId: "42" });
+    setCellContent(model, "A1", "+B1+Sheet2!A1");
     await startComposition();
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(2);
