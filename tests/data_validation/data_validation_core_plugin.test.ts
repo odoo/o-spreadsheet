@@ -31,6 +31,23 @@ describe("Data validation", () => {
       expect(result).toBeCancelledBecause(CommandResult.UnknownDataValidationCriterionType);
     });
 
+    test("Dispatch a ADD_DATA_VALIDATION_RULE with a wrong sheet id is rejected", () => {
+      const result = addDataValidation(
+        model,
+        "A1",
+        "id",
+        { type: "textContains", values: ["1"] },
+        "blocking",
+        "wrong-sheet-id"
+      );
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("Dispatch a REMOVE_DATA_VALIDATION with a wrong sheet id is rejected", () => {
+      const result = removeDataValidation(model, "id", "wrong-sheet-id");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
     test("Cannot add invalid criterion values", () => {
       let result = addDataValidation(model, "A1", "id", {
         type: "isBetween",
