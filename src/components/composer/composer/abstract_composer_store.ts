@@ -7,6 +7,7 @@ import {
   fuzzyLookup,
   getZoneArea,
   isEqual,
+  isFormula,
   isNumber,
   positionToZone,
   splitReference,
@@ -345,7 +346,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         return;
       }
       if (content) {
-        if (content.startsWith("=")) {
+        if (isFormula(content)) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
           const missing = left - right;
@@ -404,7 +405,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
     if (isNewCurrentContent || this.editionMode !== "inactive") {
       const locale = this.getters.getLocale();
-      this.currentTokens = text.startsWith("=") ? composerTokenize(text, locale) : [];
+      this.currentTokens = isFormula(text) ? composerTokenize(text, locale) : [];
       if (this.currentTokens.length > 100) {
         if (raise) {
           this.notificationStore.raiseError(
@@ -643,7 +644,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   private updateRangeColor() {
-    if (!this._currentContent.startsWith("=") || this.editionMode === "inactive") {
+    if (!isFormula(this._currentContent) || this.editionMode === "inactive") {
       return;
     }
     const editionSheetId = this.sheetId;
@@ -674,7 +675,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
    * Highlight all ranges that can be found in the composer content.
    */
   get highlights(): Highlight[] {
-    if (!this.currentContent.startsWith("=") || this.editionMode === "inactive") {
+    if (!isFormula(this.currentContent) || this.editionMode === "inactive") {
       return [];
     }
     const editionSheetId = this.sheetId;
@@ -712,7 +713,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   get autocompleteProvider(): AutoCompleteProvider | undefined {
     const content = this.currentContent;
-    const tokenAtCursor = content.startsWith("=")
+    const tokenAtCursor = isFormula(content)
       ? this.tokenAtCursor
       : { type: "STRING", value: content };
     if (
@@ -780,7 +781,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
    * - Previous and next tokens can be separated by spaces
    */
   private canStartComposerRangeSelection(): boolean {
-    if (this._currentContent.startsWith("=")) {
+    if (isFormula(this._currentContent)) {
       const tokenAtCursor = this.tokenAtCursor;
       if (!tokenAtCursor) {
         return false;

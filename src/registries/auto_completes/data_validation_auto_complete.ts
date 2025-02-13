@@ -1,9 +1,9 @@
-import { isNotNull } from "../../helpers";
+import { isFormula, isNotNull } from "../../helpers";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {
   getProposals(tokenAtCursor, content) {
-    if (content.startsWith("=")) {
+    if (isFormula(content)) {
       return [];
     }
     if (!this.composer.currentEditedCell) {

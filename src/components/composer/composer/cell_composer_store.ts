@@ -2,6 +2,7 @@ import { parseLiteral } from "../../../helpers/cells";
 import {
   formatValue,
   isDateTimeFormat,
+  isFormula,
   markdownLink,
   numberToString,
   parseDateTime,
@@ -82,7 +83,7 @@ export class CellComposerStore extends AbstractComposerStore {
         }
         break;
       case "ACTIVATE_SHEET":
-        if (!this._currentContent.startsWith("=")) {
+        if (!isFormula(this._currentContent)) {
           this._cancelEdition();
           this.resetContent();
         }
@@ -179,7 +180,7 @@ export class CellComposerStore extends AbstractComposerStore {
     if (content) {
       const sheetId = this.getters.getActiveSheetId();
       const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
-      if (cell.link && !content.startsWith("=")) {
+      if (cell.link && !isFormula(content)) {
         content = markdownLink(content, cell.link.url);
       }
       this.addHeadersForSpreadingFormula(content);
@@ -241,7 +242,7 @@ export class CellComposerStore extends AbstractComposerStore {
 
   /** Add headers at the end of the sheet so the formula in the composer has enough space to spread */
   private addHeadersForSpreadingFormula(content: string) {
-    if (!content.startsWith("=")) {
+    if (!isFormula(content)) {
       return;
     }
 
@@ -279,7 +280,7 @@ export class CellComposerStore extends AbstractComposerStore {
   private checkDataValidation(): boolean {
     const cellPosition = { sheetId: this.sheetId, col: this.col, row: this.row };
     const content = this.getCurrentCanonicalContent();
-    const cellValue = content.startsWith("=")
+    const cellValue = isFormula(content)
       ? this.getters.evaluateFormula(this.sheetId, content)
       : parseLiteral(content, this.getters.getLocale());
 
