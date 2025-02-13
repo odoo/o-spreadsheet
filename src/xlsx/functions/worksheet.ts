@@ -65,6 +65,9 @@ export function addRows(
   sheet: ExcelSheetData
 ): XMLString {
   const rowNodes: XMLString[] = [];
+  const styles = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.styles));
+  const borders = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.borders));
+  const formats = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.formats));
   for (let r = 0; r < sheet.rowNumber; r++) {
     const rowAttrs: XMLAttributes = [["r", r + 1]];
     const row = sheet.rows[r] || {};
@@ -80,10 +83,6 @@ export function addRows(
     if (row.collapsed) {
       rowAttrs.push(["collapsed", 1]);
     }
-
-    const styles = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.styles));
-    const borders = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.borders));
-    const formats = new PositionMap(iterateItemIdsPositions(sheet.id, sheet.formats));
     const cellNodes: XMLString[] = [];
     for (let c = 0; c < sheet.colNumber; c++) {
       const xc = toXC(c, r);
