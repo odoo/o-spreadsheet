@@ -542,7 +542,7 @@ export class ColorGenerator {
   private currentColorIndex = 0;
   protected palette: Color[];
 
-  constructor(paletteSize: number, private preferredColors: (string | undefined)[] = []) {
+  constructor(paletteSize: number, private preferredColors: (Color | undefined | null)[] = []) {
     this.palette = getColorsPalette(paletteSize).filter((c) => !preferredColors.includes(c));
   }
 

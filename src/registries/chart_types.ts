@@ -18,6 +18,10 @@ import {
   createScorecardChartRuntime,
 } from "../helpers/figures/charts/scorecard_chart";
 import {
+  SunburstChart,
+  createSunburstChartRuntime,
+} from "../helpers/figures/charts/sunburst_chart";
+import {
   WaterfallChart,
   createWaterfallChartRuntime,
 } from "../helpers/figures/charts/waterfall_chart";
@@ -36,6 +40,7 @@ import {
   LineChartDefinition,
   PieChartDefinition,
   ScorecardChartDefinition,
+  SunburstChartDefinition,
 } from "../types/chart";
 import {
   ChartCreationContext,
@@ -204,6 +209,16 @@ chartRegistry.add("funnel", {
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
   sequence: 100,
 });
+chartRegistry.add("sunburst", {
+  match: (type) => type === "sunburst",
+  createChart: (definition, sheetId, getters) =>
+    new SunburstChart(definition as SunburstChartDefinition, sheetId, getters),
+  getChartRuntime: createSunburstChartRuntime,
+  validateChartDefinition: SunburstChart.validateChartDefinition,
+  transformDefinition: SunburstChart.transformDefinition,
+  getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
+  sequence: 30,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -218,6 +233,7 @@ chartComponentRegistry.add("pyramid", ChartJsComponent);
 chartComponentRegistry.add("radar", ChartJsComponent);
 chartComponentRegistry.add("geo", ChartJsComponent);
 chartComponentRegistry.add("funnel", ChartJsComponent);
+chartComponentRegistry.add("sunburst", ChartJsComponent);
 
 type ChartUICategory = keyof typeof chartCategories;
 
@@ -418,4 +434,12 @@ chartSubtypeRegistry
     chartType: "funnel",
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.FUNNEL_CHART",
+  })
+  .add("sunburst", {
+    matcher: (definition) => definition.type === "sunburst",
+    displayName: _t("Sunburst"),
+    chartSubtype: "sunburst",
+    chartType: "sunburst",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.SUNBURST_CHART",
   });
