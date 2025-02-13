@@ -490,11 +490,6 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
   };
 }
 
-export function mockUuidV4To(model: Model, value: number | string) {
-  //@ts-ignore
-  return model.uuidGenerator.setNextId(value);
-}
-
 /**
  * Make a test environment for testing interactive actions
  */

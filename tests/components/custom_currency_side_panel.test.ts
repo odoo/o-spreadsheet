@@ -4,7 +4,6 @@ import { Currency } from "../../src/types/currency";
 import { setSelection } from "../test_helpers/commands_helpers";
 import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 
 const selectors = {

@@ -12,7 +12,6 @@ import {
   deleteSheet,
   renameSheet,
 } from "../test_helpers/commands_helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let m;
 

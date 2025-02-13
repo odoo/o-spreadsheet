@@ -43,7 +43,6 @@ import {
   XCToMergeCellMap,
 } from "../test_helpers/helpers";
 let model: Model;
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 function clearColumns(indexes: string[]) {
   const sheetId = model.getters.getActiveSheetId();
