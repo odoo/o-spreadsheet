@@ -4,6 +4,7 @@ import {
   deepEquals,
   fontSizeInPixels,
   getFullReference,
+  isFormula,
   positionToZone,
   toXC,
 } from "../../../helpers";
@@ -146,7 +147,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     if (this.composerStore.editionMode === "inactive") {
       return `z-index: -1000;`;
     }
-    const isFormula = this.composerStore.currentContent.startsWith("=");
+    const _isFormula = isFormula(this.composerStore.currentContent);
     const cell = this.env.model.getters.getActiveCell();
     const position = this.env.model.getters.getActivePosition();
     const style = this.env.model.getters.getCellComputedStyle(position);
@@ -155,19 +156,19 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const { x: left, y: top, width, height } = this.rect;
 
     // color style
-    const background = (!isFormula && style.fillColor) || "#ffffff";
-    const color = (!isFormula && style.textColor) || "#000000";
+    const background = (!_isFormula && style.fillColor) || "#ffffff";
+    const color = (!_isFormula && style.textColor) || "#000000";
 
     // font style
-    const fontSize = (!isFormula && style.fontSize) || 10;
-    const fontWeight = !isFormula && style.bold ? "bold" : undefined;
-    const fontStyle = !isFormula && style.italic ? "italic" : "normal";
-    const textDecoration = !isFormula ? getTextDecoration(style) : "none";
+    const fontSize = (!_isFormula && style.fontSize) || 10;
+    const fontWeight = !_isFormula && style.bold ? "bold" : undefined;
+    const fontStyle = !_isFormula && style.italic ? "italic" : "normal";
+    const textDecoration = !_isFormula ? getTextDecoration(style) : "none";
 
     // align style
     let textAlign = "left";
 
-    if (!isFormula) {
+    if (!_isFormula) {
       textAlign = style.align || cell.defaultAlign;
     }
 

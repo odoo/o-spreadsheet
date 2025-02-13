@@ -1,17 +1,22 @@
+import { isFormula } from "../helpers";
 import { canonicalizeNumberLiteral } from "../helpers/locale";
 import { DEFAULT_LOCALE, Locale } from "../types";
 import { tokenize } from "./tokenizer";
 
 /** Change a number string to its canonical form (en_US locale) */
 export function canonicalizeNumberValue(content: string, locale: Locale) {
-  return content.startsWith("=")
+  return isFormula(content)
     ? canonicalizeFormula(content, locale)
     : canonicalizeNumberLiteral(content, locale);
 }
 
 /** Change a formula to its canonical form (en_US locale) */
 function canonicalizeFormula(formula: string, locale: Locale) {
-  return _localizeFormula(formula, locale, DEFAULT_LOCALE);
+  return _localizeFormula(
+    formula.startsWith("+") ? "=" + formula.slice(1) : formula,
+    locale,
+    DEFAULT_LOCALE
+  );
 }
 
 /** Change a formula from the canonical form to the given locale */

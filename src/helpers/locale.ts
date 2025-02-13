@@ -10,7 +10,7 @@ import {
 } from "../types";
 import { isDateTime } from "./dates";
 import { formatValue, getDecimalNumberRegex } from "./format/format";
-import { deepCopy } from "./misc";
+import { deepCopy, isFormula } from "./misc";
 import { isNumber } from "./numbers";
 
 export function isValidLocale(locale: any): locale is Locale {
@@ -61,7 +61,7 @@ export function isValidLocale(locale: any): locale is Locale {
  * canonicalizeNumberContent("02/12/2012", FR_LOCALE) // "02/12/2012"
  */
 export function canonicalizeNumberContent(content: string, locale: Locale) {
-  return content.startsWith("=")
+  return isFormula(content)
     ? canonicalizeFormula(content, locale)
     : canonicalizeNumberLiteral(content, locale);
 }
@@ -77,7 +77,7 @@ export function canonicalizeNumberContent(content: string, locale: Locale) {
  * canonicalizeContent("02-12-2012", FR_LOCALE) // "12/02/2012"
  */
 export function canonicalizeContent(content: string, locale: Locale) {
-  return content.startsWith("=")
+  return isFormula(content)
     ? canonicalizeFormula(content, locale)
     : canonicalizeLiteral(content, locale);
 }
@@ -114,7 +114,11 @@ export function localizeContent(content: string, locale: Locale) {
 
 /** Change a formula to its canonical form (en_US locale) */
 function canonicalizeFormula(formula: string, locale: Locale) {
-  return _localizeFormula(formula, locale, DEFAULT_LOCALE);
+  return _localizeFormula(
+    formula.startsWith("+") ? "=" + formula.slice(1) : formula,
+    locale,
+    DEFAULT_LOCALE
+  );
 }
 
 /** Change a formula from the canonical form to the given locale */
