@@ -364,6 +364,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         dispatch: (command: CoreCommand) => {
           const result = this.checkDispatchAllowed(command);
           if (!result.isSuccessful) {
+            // core views plugins need to be invalidated
+            this.dispatchToHandlers(this.coreHandlers, {
+              type: "UNDO",
+              commands: [command],
+            });
             return;
           }
           this.isReplayingCommand = true;
