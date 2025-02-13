@@ -1,4 +1,5 @@
-import { DateTime, deepCopy, deepEquals } from "../../src/helpers";
+import seedrandom from "seedrandom";
+import { DateTime, deepCopy, deepEquals, UuidGenerator } from "../../src/helpers";
 import { groupConsecutive, lazy, range } from "../../src/helpers/misc";
 
 describe("Misc", () => {
@@ -218,4 +219,49 @@ test.each([
   [undefined, undefined, true],
 ])("deepEquals %s %s", (o1: any, o2: any, expectedResult) => {
   expect(deepEquals(o1, o2)).toEqual(expectedResult);
+});
+
+describe("UUID", () => {
+  test("Can generate UUID on environnement missing window.crypto", () => {
+    seedrandom("seed", { global: true });
+    expect(window.crypto).toBeUndefined();
+
+    const uuidGenerator = new UuidGenerator();
+    expect(uuidGenerator.uuidv4()).toBe("9d28f280-be50-4a0c-a166-9ba361b2fb6b");
+    expect(uuidGenerator.uuidv4()).toBe("9e42e52b-d387-40e8-b284-db1c93448b70");
+
+    expect(uuidGenerator.smallUuid()).toBe("d3d8fa3c-5fd2");
+    expect(uuidGenerator.smallUuid()).toBe("1079cad0-d88b");
+  });
+
+  test("Can generate UUID on environnement with window.crypto", () => {
+    seedrandom("seed", { global: true });
+    const mockCrypto = {
+      getRandomValues: (array: Uint8Array) => {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = Math.floor(Math.random() * 256);
+        }
+        return array;
+      },
+    };
+    window.crypto = mockCrypto as Crypto;
+
+    const uuidGenerator = new UuidGenerator();
+    expect(uuidGenerator.uuidv4()).toBe("17698da6-740c-4ed3-bde7-60faf206d0e5");
+    expect(uuidGenerator.uuidv4()).toBe("b69741c8-91fd-4ed2-8724-8a56cc8c66db");
+
+    expect(uuidGenerator.smallUuid()).toBe("61025c5c-7a2d");
+    expect(uuidGenerator.smallUuid()).toBe("2262468c-923d");
+  });
+
+  test("Can generate uuid with isFastIdStrategy", () => {
+    const uuidGenerator = new UuidGenerator();
+    uuidGenerator.setIsFastStrategy(true);
+
+    expect(uuidGenerator.uuidv4()).toBe("1");
+    expect(uuidGenerator.uuidv4()).toBe("2");
+
+    expect(uuidGenerator.smallUuid()).toBe("3");
+    expect(uuidGenerator.smallUuid()).toBe("4");
+  });
 });
