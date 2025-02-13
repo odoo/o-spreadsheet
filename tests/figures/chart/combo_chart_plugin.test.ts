@@ -1,6 +1,10 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { ComboChartRuntime } from "../../../src/types/chart/combo_chart";
-import { getChartLegendLabels, getChartTooltipValues } from "../../test_helpers/chart_helpers";
+import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  getChartLegendLabels,
+  getChartTooltipValues,
+} from "../../test_helpers/chart_helpers";
 import {
   createChart,
   setCellContent,
@@ -13,23 +17,8 @@ import { ComboChart } from "./../../../src/helpers/figures/charts/combo_chart";
 describe("combo chart", () => {
   test("create combo chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
-      background: "#123456",
-      title: { text: "hello there" },
+      ...GENERAL_CHART_CREATION_CONTEXT,
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      auxiliaryRange: "Sheet1!A1:A4",
-      legendPosition: "bottom",
-      cumulative: true,
-      labelsAsText: true,
-      dataSetsHaveTitle: true,
-      aggregated: true,
-      stacked: true,
-      firstValueAsSubtotal: true,
-      showConnectorLines: false,
-      showSubTotals: true,
-      axesDesign: {},
-      fillArea: true,
-      showValues: false,
-      funnelColors: [],
     };
     const definition = ComboChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

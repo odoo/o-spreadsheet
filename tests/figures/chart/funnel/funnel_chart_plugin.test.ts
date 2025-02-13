@@ -3,6 +3,7 @@ import { ColorGenerator } from "../../../../src/helpers";
 import { FunnelChart } from "../../../../src/helpers/figures/charts/funnel_chart";
 import { FunnelChartRuntime } from "../../../../src/types/chart/funnel_chart";
 import { createFunnelChart, setCellContent, setFormat } from "../../../test_helpers";
+import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 
 let model: Model;
 
@@ -13,22 +14,8 @@ function getFunnelRuntime(chartId: UID): FunnelChartRuntime {
 describe("Funnel chart", () => {
   test("create funnel chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
-      background: "#123456",
-      title: { text: "hello there" },
+      ...GENERAL_CHART_CREATION_CONTEXT,
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      auxiliaryRange: "Sheet1!A1:A4",
-      legendPosition: "bottom",
-      cumulative: true,
-      labelsAsText: true,
-      dataSetsHaveTitle: true,
-      aggregated: true,
-      stacked: true,
-      firstValueAsSubtotal: true,
-      showConnectorLines: false,
-      showSubTotals: true,
-      axesDesign: {},
-      fillArea: true,
-      showValues: false,
       funnelColors: ["#ff0000", "#00ff00"],
     };
     const definition = FunnelChart.getDefinitionFromContextCreation(context);
