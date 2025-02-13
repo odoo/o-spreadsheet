@@ -2174,6 +2174,7 @@ test("ChartJS charts extensions are loaded when mounting a chart, and are only l
     "waterfallLinesPlugin",
     "funnel",
     "funnel",
+    "sunburstLabelsPlugin",
   ]);
 
   createChart(model, { type: "line" }, "chart2");

@@ -12,6 +12,8 @@ import {
   ChartWithDataSetDefinition,
   GenericDefinition,
   LineChartDefinition,
+  SunburstChartDefinition,
+  SunburstChartJSDataset,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
@@ -186,6 +188,37 @@ export function getRadarChartLegend(
       pointStyle,
       lineWidth,
     }),
+  };
+}
+
+export function getSunburstChartLegend(
+  definition: SunburstChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartLegend {
+  const fontColor = chartFontColor(definition.background);
+
+  return {
+    ...getLegendDisplayOptions(definition, args),
+    labels: {
+      usePointStyle: true,
+      generateLabels: (chart) => {
+        const rootDataset = chart.data.datasets.at(-1) as SunburstChartJSDataset;
+        if (!rootDataset) {
+          return [];
+        }
+        const colors = rootDataset.groupColors;
+
+        return colors.map(({ color, label }) => {
+          return {
+            text: truncateLabel(label),
+            fontColor,
+            fillStyle: color,
+            strokeStyle: color,
+            pointStyle: "rect" as const,
+          };
+        });
+      },
+    },
   };
 }
 
