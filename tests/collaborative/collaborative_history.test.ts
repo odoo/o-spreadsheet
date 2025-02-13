@@ -1160,4 +1160,17 @@ describe("Collaborative local history", () => {
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
+
+  test("rejected new sheet with the same name", () => {
+    const name = "Sheet2";
+    createSheet(bob, { name, position: 1, sheetId: "Sheet2" });
+    deleteSheet(bob, "Sheet2");
+    network.concurrent(() => {
+      undo(bob);
+      // this create sheet is rejected because it has a duplicated
+      // sheet name
+      createSheet(alice, { name, position: 1, sheetId: "Sheet2bis" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
 });
