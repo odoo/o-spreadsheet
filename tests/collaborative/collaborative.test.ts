@@ -20,6 +20,7 @@ import {
   createTableStyle,
   deleteRows,
   deleteSheet,
+  duplicateSheet,
   groupHeaders,
   hideRows,
   hideSheet,
@@ -483,6 +484,19 @@ describe("Multi users synchronisation", () => {
     alice.dispatch("DUPLICATE_SHEET", {
       sheetId: alice.getters.getActiveSheetId(),
       sheetIdTo: "Sheet2",
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("duplicate charts in deterministic order", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    createChart(bob, { type: "bar" }, "figureId");
+    redo(bob);
+    setCellContent(alice, "A1", "hello");
+    duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    network.concurrent(() => {
+      undo(alice);
+      charlie.dispatch("DELETE_FIGURE", { id: "figureId", sheetId: "Sheet1" });
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
