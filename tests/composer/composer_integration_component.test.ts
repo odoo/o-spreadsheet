@@ -14,6 +14,7 @@ import {
   activateSheet,
   copy,
   createSheet,
+  createTable,
   paste,
   renameSheet,
   resizeColumns,
@@ -33,6 +34,7 @@ import {
   rightClickCell,
   selectColumnByClicking,
   simulateClick,
+  triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
@@ -41,6 +43,7 @@ import {
   getCellContent,
   getCellText,
   getSelectionAnchorCellXc,
+  getTable,
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
@@ -519,6 +522,31 @@ describe("Composer interactions", () => {
     await startComposition("=");
     await simulateClick(".o-spreadsheet", 300, 200);
     expect(composerStore.editionMode).toBe("inactive");
+  });
+
+  test("Pressing Enter while editing a label does not open grid composer", async () => {
+    setCellContent(model, "A1", "[label](http://odoo.com)");
+    await simulateClick(".o-topbar-menu[data-id='insert']");
+    await simulateClick(".o-menu-item[data-name='insert_link']");
+    const editor = fixture.querySelector(".o-link-editor");
+    expect(editor).toBeTruthy();
+
+    editor!.querySelectorAll("input")[0].focus();
+    await keyDown({ key: "Enter" });
+    expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
+  test("should create a table when a cell is double clicked in edit mode", async () => {
+    selectCell(model, "A1");
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    createTable(model, "A1");
+    expect(getTable(model, "A1")).toBeTruthy();
   });
 });
 
