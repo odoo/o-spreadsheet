@@ -78,6 +78,9 @@ export class DataValidationPlugin
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
       case "ADD_DATA_VALIDATION_RULE":
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
         return this.checkValidations(
           cmd,
           this.chainValidations(
@@ -89,6 +92,9 @@ export class DataValidationPlugin
           )
         );
       case "REMOVE_DATA_VALIDATION_RULE":
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
         if (!this.rules[cmd.sheetId].find((rule) => rule.id === cmd.id)) {
           return CommandResult.UnknownDataValidationRule;
         }
