@@ -13,6 +13,7 @@ import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
 import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
+import { SunburstChartDefinition, SunburstChartRuntime } from "./sunburst_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
 export const CHART_TYPES = [
@@ -28,6 +29,7 @@ export const CHART_TYPES = [
   "radar",
   "geo",
   "funnel",
+  "sunburst",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -43,7 +45,8 @@ export type ChartDefinition =
   | PyramidChartDefinition
   | RadarChartDefinition
   | GeoChartDefinition
-  | FunnelChartDefinition;
+  | FunnelChartDefinition
+  | SunburstChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
@@ -65,7 +68,8 @@ export type ChartJSRuntime =
   | PyramidChartRuntime
   | RadarChartRuntime
   | GeoChartRuntime
-  | FunnelChartRuntime;
+  | FunnelChartRuntime
+  | SunburstChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
@@ -177,6 +181,9 @@ export interface ChartCreationContext {
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
   readonly funnelColors?: FunnelChartColors;
+  readonly showLabels?: boolean;
+  readonly valuesDesign?: ChartStyle;
+  readonly groupColors?: (Color | undefined | null)[];
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

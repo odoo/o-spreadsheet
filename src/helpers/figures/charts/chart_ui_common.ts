@@ -5,6 +5,7 @@ import {
   getFunnelChartElement,
 } from "../../../components/figures/chart/chartJs/chartjs_funnel_chart";
 import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
+import { sunburstLabelsPlugin } from "../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
 import { Figure } from "../../../types";
 import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
@@ -123,7 +124,8 @@ export function getChartJSConstructor() {
       chartShowValuesPlugin,
       waterfallLinesPlugin,
       getFunnelChartController(),
-      getFunnelChartElement()
+      getFunnelChartElement(),
+      sunburstLabelsPlugin
     );
     window.Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner;
   }

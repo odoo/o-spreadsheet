@@ -33,6 +33,7 @@ import {
 } from "../../src/types";
 import { target, toRangeData, toRangesData } from "./helpers";
 
+import { SunburstChartDefinition } from "../../src/types/chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
@@ -250,6 +251,11 @@ export function createFunnelChart(model: Model, def?: Partial<FunnelChartDefinit
   createChart(model, { ...def, type: "funnel" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
+}
+
+export function createSunburstChart(model: Model, def?: Partial<SunburstChartDefinition>): UID {
+  createChart(model, { ...def, type: "sunburst" });
+  return model.getters.getChartIds(model.getters.getActiveSheetId())[0];
 }
 
 export function createScorecardChart(
