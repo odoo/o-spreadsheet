@@ -1,7 +1,7 @@
 import seedrandom from "seedrandom";
 import { Model } from "../../src";
 import { FunctionCodeBuilder } from "../../src/formulas/code_builder";
-import { deepCopy, deepEquals, range, reorderZone, zoneToXc } from "../../src/helpers";
+import { deepCopy, deepEquals, range, reorderZone } from "../../src/helpers";
 import {
   Command,
   CoreCommand,
@@ -12,7 +12,6 @@ import {
   isTargetDependent,
 } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { getRangeValues } from "../test_helpers";
 import { TEST_COMMANDS } from "../test_helpers/constants";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
@@ -120,7 +119,11 @@ function actionsToTestCode(testTitle: string, actions: UserAction[][]) {
       code.append("});");
     }
   }
-  code.append("expect([alice, bob, charlie]).toHaveSynchronizedExportedData();", "});");
+  code.append(
+    "expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();",
+    "expect([alice, bob, charlie]).toHaveSynchronizedExportedData();",
+    "});"
+  );
   return code.toString();
 }
 
@@ -195,20 +198,6 @@ function areSynced(users: Model[]): boolean {
   return true;
 }
 
-function evaluationsAreSynced(users: Model[]): boolean {
-  for (let i = 0; i < users.length - 1; i++) {
-    for (const sheetId of users[i].getters.getSheetIds()) {
-      const sheetZoneXc = zoneToXc(users[i].getters.getSheetZone(sheetId));
-      const valuesUserA = getRangeValues(users[i], sheetZoneXc, sheetId);
-      const valuesUserB = getRangeValues(users[i + 1], sheetZoneXc, sheetId);
-      if (!deepEquals(valuesUserA, valuesUserB)) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
 function run(network: MockTransportService, users: Model[], actions: UserAction[][]) {
   const executed: UserAction[][] = [];
   for (const commandGroup of actions) {
@@ -223,9 +212,8 @@ function run(network: MockTransportService, users: Model[], actions: UserAction[
           }
         }
       });
-      expect(evaluationsAreSynced(users)).toBe(true);
+      expect(users).toHaveSynchronizedEvaluation();
     } catch (e) {
-      console.error(e);
       concurrentlyExecuted.length = 0;
       concurrentlyExecuted.push(...commandGroup);
       return {
