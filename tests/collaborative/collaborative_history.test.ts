@@ -12,7 +12,9 @@ import {
   deleteColumns,
   deleteRows,
   deleteSheet,
+  duplicateSheet,
   freezeColumns,
+  hideSheet,
   redo,
   resizeColumns,
   setCellContent,
@@ -1147,5 +1149,15 @@ describe("Collaborative local history", () => {
       redo(alice);
     });
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A3"), "hello there");
+  });
+
+  test("Can concurrently hide and delete a sheet", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    network.concurrent(() => {
+      hideSheet(bob, "Sheet1");
+      deleteSheet(charlie, "Sheet1");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 });
