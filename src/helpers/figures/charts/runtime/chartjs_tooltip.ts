@@ -9,6 +9,8 @@ import {
   LineChartDefinition,
   PieChartDefinition,
   PyramidChartDefinition,
+  SunburstChartDefinition,
+  SunburstChartRawData,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
@@ -18,6 +20,7 @@ import { formatValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { TREND_LINE_XAXIS_ID, formatChartDatasetValue } from "../chart_common";
 import { renderToString } from "./chart_custom_tooltip";
+import { GHOST_SUNBURST_VALUE } from "./chartjs_dataset";
 
 type ChartTooltip = _DeepPartialObject<TooltipOptions<any>>;
 type ChartContext = { chart: Chart; tooltip: TooltipModel<any> };
@@ -232,6 +235,35 @@ export function getFunnelChartTooltip(
         const axisId = tooltipItem.dataset.xAxisID;
         const yLabelStr = formatChartDatasetValue(args.axisFormats, args.locale)(yLabel, axisId);
         return yLabelStr;
+      },
+    },
+  };
+}
+
+export function getSunburstChartTooltip(
+  definition: SunburstChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  const { locale, axisFormats } = args;
+  const format = axisFormats?.y || axisFormats?.y1;
+  return {
+    enabled: false,
+    external: customTooltipHandler,
+    filter: function (tooltipItem) {
+      const data = tooltipItem.raw as SunburstChartRawData;
+      return data?.label !== GHOST_SUNBURST_VALUE;
+    },
+    callbacks: {
+      title: () => "",
+      beforeLabel: (tooltipItem) => {
+        const data = tooltipItem.raw as SunburstChartRawData;
+        return data.groups.join(" / ");
+      },
+      label: function (tooltipItem) {
+        const data = tooltipItem.raw as SunburstChartRawData;
+        const yLabel = data.value;
+        const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
+        return formatValue(yLabel, { format: toolTipFormat, locale });
       },
     },
   };

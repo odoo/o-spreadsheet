@@ -358,3 +358,38 @@ export function drawDecoratedText(
     context.stroke();
   }
 }
+
+export function sliceTextToFitWidth(
+  context: CanvasRenderingContext2D,
+  width: number,
+  text: string,
+  style: Style,
+  fontUnit: "px" | "pt" = "pt"
+) {
+  if (computeTextWidth(context, text, style, fontUnit) <= width) {
+    return text;
+  }
+  const ellipsis = "...";
+  const ellipsisWidth = computeTextWidth(context, ellipsis, style, fontUnit);
+  if (ellipsisWidth >= width) {
+    return "";
+  }
+
+  let lowerBoundLen = 1;
+  let upperBoundLen = text.length;
+  let currentWidth: number;
+
+  while (lowerBoundLen <= upperBoundLen) {
+    const currentLen = Math.floor((lowerBoundLen + upperBoundLen) / 2);
+    const currentText = text.slice(0, currentLen);
+    currentWidth = computeTextWidth(context, currentText, style, fontUnit);
+    if (currentWidth + ellipsisWidth > width) {
+      upperBoundLen = currentLen - 1;
+    } else {
+      lowerBoundLen = currentLen + 1;
+    }
+  }
+
+  const slicedText = text.slice(0, Math.max(0, lowerBoundLen - 1));
+  return slicedText ? slicedText + ellipsis : "";
+}

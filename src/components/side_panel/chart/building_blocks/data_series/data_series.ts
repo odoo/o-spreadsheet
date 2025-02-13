@@ -11,6 +11,7 @@ interface Props {
   onSelectionReordered?: (indexes: number[]) => void;
   onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed: () => void;
+  title?: string;
 }
 
 export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
@@ -23,6 +24,7 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     onSelectionReordered: { type: Function, optional: true },
     onSelectionRemoved: { type: Function, optional: true },
     onSelectionConfirmed: Function,
+    title: { type: String, optional: true },
   };
 
   get ranges(): string[] {
@@ -34,6 +36,9 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get title() {
+    if (this.props.title) {
+      return this.props.title;
+    }
     return this.props.hasSingleRange ? _t("Data range") : _t("Data series");
   }
 }
