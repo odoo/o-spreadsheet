@@ -30,6 +30,7 @@ import {
 } from "../../src/types";
 import { target, toRangeData, toRangesData } from "./helpers";
 
+import { SunburstChartDefinition } from "../../src/types/chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
@@ -240,6 +241,11 @@ export function createWaterfallChart(model: Model, def?: Partial<WaterfallChartD
   createChart(model, { ...def, type: "waterfall" });
   const sheetId = model.getters.getActiveSheetId();
   return model.getters.getChartIds(sheetId)[0];
+}
+
+export function createSunburstChart(model: Model, def?: Partial<SunburstChartDefinition>): UID {
+  createChart(model, { ...def, type: "sunburst" });
+  return model.getters.getChartIds(model.getters.getActiveSheetId())[0];
 }
 
 export function createScorecardChart(
