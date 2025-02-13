@@ -907,6 +907,18 @@ describe("Collaborative local history", () => {
     );
   });
 
+  test("Evaluation is the same after a sheet deletion replayed", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    setCellContent(alice, "A1", "hello");
+    duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    network.concurrent(() => {
+      hideSheet(bob, "Sheet1");
+      deleteSheet(charlie, "Sheet1");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
   test("transform target command with column addition before the target edge", () => {
     addColumns(charlie, "before", "B", 1);
     network.concurrent(() => {
