@@ -46,7 +46,9 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
       case "UNGROUP_HEADERS":
       case "GROUP_HEADERS":
       case "CREATE_SHEET":
-        this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
+        if (this.getters.tryGetSheet(cmd.sheetId)) {
+          this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
+        }
         break;
       case "DUPLICATE_SHEET":
         this.headerPositions[cmd.sheetIdTo] = deepCopy(this.headerPositions[cmd.sheetId]);
