@@ -28,8 +28,6 @@ import {
 } from "../../test_helpers/commands_helpers";
 import { getPlugin, nextTick, target } from "../../test_helpers/helpers";
 
-jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
-
 let model: Model;
 
 beforeEach(() => {

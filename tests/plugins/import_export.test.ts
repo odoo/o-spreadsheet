@@ -21,7 +21,6 @@ import {
 import { getCell, getCellContent, getMerges } from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers";
 
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 describe("data", () => {
   test("give default col size if not specified", () => {
     const model = new Model();

@@ -5,7 +5,6 @@ import { Model } from "../../src/model";
 import { CellValueType, UID } from "../../src/types";
 import { redo, setCellContent, sort, undo } from "../test_helpers/commands_helpers";
 import { getCellsObject } from "../test_helpers/helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
 const dateFormat = "mm/dd/yyyy";

@@ -31,7 +31,6 @@ import {
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let fixture: HTMLElement;
 const t = (s: string): string => s;
@@ -39,7 +38,7 @@ const t = (s: string): string => s;
 class Parent extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
-      <TopBar 
+      <TopBar
         focusComposer="state.focusComposer"
         onComposerContentFocused="()=>{}"
         dropdownMaxHeight="gridHeight"

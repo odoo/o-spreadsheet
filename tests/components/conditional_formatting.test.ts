@@ -18,14 +18,12 @@ import {
   createColorScale,
   createEqualCF,
   getPlugin,
-  mockUuidV4To,
   mountSpreadsheet,
   nextTick,
   spyDispatch,
   textContentAll,
   toRangesData,
 } from "../test_helpers/helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
 
@@ -311,7 +309,6 @@ describe("UI of conditional formats", () => {
     });
 
     test("can create a new CellIsRule", async () => {
-      mockUuidV4To(model, "42");
       triggerMouseEvent(selectors.buttonAdd, "click");
       await nextTick();
       await nextTick();
@@ -334,7 +331,7 @@ describe("UI of conditional formats", () => {
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "43",
+          id: expect.any(String),
           rule: {
             operator: "BeginsWith",
             style: {
@@ -436,7 +433,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with cell values", async () => {
-    mockUuidV4To(model, "43");
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
     triggerMouseEvent(document.querySelectorAll(selectors.cfTabSelector)[1], "click");
@@ -458,7 +454,7 @@ describe("UI of conditional formats", () => {
 
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "44",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -477,7 +473,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with fixed values", async () => {
-    mockUuidV4To(model, "44");
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
 
@@ -508,7 +503,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -529,7 +524,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with percent values", async () => {
-    mockUuidV4To(model, "44");
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
 
@@ -560,7 +554,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -581,7 +575,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with percentile values", async () => {
-    mockUuidV4To(model, "44");
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
 
@@ -612,7 +605,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -633,7 +626,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with a midpoint", async () => {
-    mockUuidV4To(model, "44");
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
 
@@ -672,7 +664,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -1200,7 +1192,6 @@ describe("UI of conditional formats", () => {
     });
 
     test("can create a new IconsetRule", async () => {
-      mockUuidV4To(model, "44");
       triggerMouseEvent(selectors.buttonAdd, "click");
       await nextTick();
 
@@ -1218,7 +1209,7 @@ describe("UI of conditional formats", () => {
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "45",
+          id: expect.any(String),
           rule: {
             type: "IconSetRule",
             icons: {
@@ -1244,7 +1235,6 @@ describe("UI of conditional formats", () => {
     });
 
     test("can change inputs", async () => {
-      mockUuidV4To(model, "44");
       triggerMouseEvent(selectors.buttonAdd, "click");
       await nextTick();
 
@@ -1280,7 +1270,7 @@ describe("UI of conditional formats", () => {
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "45",
+          id: expect.any(String),
           rule: {
             type: "IconSetRule",
             icons: {
@@ -1311,7 +1301,6 @@ describe("UI of conditional formats", () => {
     [1, { lower: "arrowBad", middle: "dotNeutral", upper: "arrowGood" }],
     [2, { lower: "dotNeutral", middle: "arrowNeutral", upper: "arrowGood" }],
   ])("can change each icon individually", async (iconIndex, expectedIcons) => {
-    mockUuidV4To(model, "44");
     triggerMouseEvent(selectors.buttonAdd, "click");
     await nextTick();
 
@@ -1335,7 +1324,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           type: "IconSetRule",
           icons: expectedIcons,

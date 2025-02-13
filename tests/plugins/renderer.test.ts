@@ -40,7 +40,6 @@ import { DEFAULT_CELL_WIDTH } from "./../../src/constants";
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   return { width: text.length };
 };
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 function getBoxFromText(model: Model, text: string): Box {
   const rendererPlugin = getPlugin(model, RendererPlugin);
