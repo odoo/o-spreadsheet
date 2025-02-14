@@ -271,7 +271,8 @@ describe("datasource tests", function () {
       title: { text: "test" },
       type: "line",
     });
-    expect(data.datasets).toEqual([]);
+    expect(data.datasets.length).toEqual(1);
+    expect(data.datasets[0].hidden).toBeTruthy();
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
@@ -351,7 +352,9 @@ describe("datasource tests", function () {
       "1"
     );
     const chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
-    expect(chart.chartJsConfig.data!.datasets?.length).toEqual(1);
+    expect(chart.chartJsConfig.data!.datasets?.length).toEqual(2);
+    expect(chart.chartJsConfig.data!.datasets?.[0].hidden).toBeFalsy();
+    expect(chart.chartJsConfig.data!.datasets?.[1].hidden).toBeTruthy();
   });
 
   test.each(["line", "bar"] as const)(
@@ -413,7 +416,9 @@ describe("datasource tests", function () {
       "1"
     );
     const chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
-    expect(chart.chartJsConfig.data!.datasets?.length).toEqual(1);
+    expect(chart.chartJsConfig.data!.datasets?.length).toEqual(2);
+    expect(chart.chartJsConfig.data!.datasets?.[0].hidden).toBeFalsy();
+    expect(chart.chartJsConfig.data!.datasets?.[1].hidden).toBeTruthy();
   });
 
   test("create a chart with stacked bar", () => {
@@ -718,7 +723,9 @@ describe("datasource tests", function () {
     );
     deleteRows(model, [1, 2, 3, 4]);
     const data = getChartConfiguration(model, "1").data;
-    expect(data.datasets).toHaveLength(0);
+    expect(data.datasets).toHaveLength(2);
+    expect(data.datasets[0].hidden).toBeTruthy();
+    expect(data.datasets[1].hidden).toBeTruthy();
     expect(data.labels).toEqual([]);
   });
 
@@ -1839,7 +1846,8 @@ describe("Chart design configuration", () => {
     );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual(["P1"]);
-    expect(data.datasets).toEqual([]);
+    expect(data.datasets).toHaveLength(1);
+    expect(data.datasets[0].hidden).toBeTruthy();
   });
 
   test("no data points at all", () => {
@@ -1851,7 +1859,8 @@ describe("Chart design configuration", () => {
     );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual([]);
-    expect(data.datasets).toEqual([]);
+    expect(data.datasets).toHaveLength(1);
+    expect(data.datasets[0].hidden).toBeTruthy();
   });
 
   test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
@@ -1870,7 +1879,8 @@ describe("Chart design configuration", () => {
       );
       const data = getChartConfiguration(model, "1").data;
       expect(data.labels).toEqual([]);
-      expect(data.datasets).toEqual([]);
+      expect(data.datasets).toHaveLength(1);
+      expect(data.datasets[0].hidden).toBeTruthy();
     }
   );
 
@@ -1890,7 +1900,8 @@ describe("Chart design configuration", () => {
       );
       const data = getChartConfiguration(model, "1").data;
       expect(data.labels).toEqual([]);
-      expect(data.datasets).toEqual([]);
+      expect(data.datasets).toHaveLength(1);
+      expect(data.datasets[0].hidden).toBeTruthy();
     }
   );
 
@@ -1917,7 +1928,8 @@ describe("Chart design configuration", () => {
     );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual(["0"]);
-    expect(data.datasets).toEqual([]);
+    expect(data.datasets).toHaveLength(1);
+    expect(data.datasets[0].hidden).toBeTruthy();
   });
 
   test("Changing the format of a cell reevaluates a chart runtime", () => {
@@ -2882,7 +2894,8 @@ describe("Chart evaluation", () => {
     setCellContent(model, "C3", "1");
     expect(getChartConfiguration(model, "1").data!.datasets![0]!.data![0]).toBe(1);
     deleteColumns(model, ["C"]);
-    expect(getChartConfiguration(model, "1").data!.datasets.length).toBe(0);
+    expect(getChartConfiguration(model, "1").data!.datasets.length).toBe(1);
+    expect(getChartConfiguration(model, "1").data!.datasets[0].hidden).toBeTruthy();
   });
 
   test("undo/redo invalidates the chart runtime", () => {
@@ -2941,27 +2954,33 @@ describe("Chart evaluation", () => {
 
     test("hidden columns are filtered", () => {
       let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
-      expect(chart.chartJsConfig.data.datasets?.length).toEqual(2);
+      expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
+      expect(chart.chartJsConfig.data.datasets[1].hidden).toBeFalsy();
       hideColumns(model, ["C"]);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
-      expect(chart.chartJsConfig.data.datasets?.length).toEqual(1);
+      expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
+      expect(chart.chartJsConfig.data.datasets[1].hidden).toBeTruthy();
       expect(chart.chartJsConfig.data.datasets![0].label).toBe("first column dataset");
       unhideColumns(model, ["C"]);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
-      expect(chart.chartJsConfig.data.datasets?.length).toEqual(2);
+      expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
+      expect(chart.chartJsConfig.data.datasets[1].hidden).toBeFalsy();
     });
 
     test("folded group of columns are filtered", () => {
       let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
-      expect(chart.chartJsConfig.data.datasets?.length).toEqual(2);
+      expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
+      expect(chart.chartJsConfig.data.datasets[1].hidden).toBeFalsy();
       groupHeaders(model, "COL", 2, 2);
       foldHeaderGroup(model, "COL", 2, 2);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
-      expect(chart.chartJsConfig.data.datasets?.length).toEqual(1);
+      expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
+      expect(chart.chartJsConfig.data.datasets[1].hidden).toBeTruthy();
       expect(chart.chartJsConfig.data.datasets![0].label).toBe("first column dataset");
       unfoldHeaderGroup(model, "COL", 2, 2);
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
-      expect(chart.chartJsConfig.data.datasets?.length).toEqual(2);
+      expect(chart.chartJsConfig.data.datasets).toHaveLength(2);
+      expect(chart.chartJsConfig.data.datasets[1].hidden).toBeFalsy();
     });
 
     test("hidden rows are filtered", () => {
@@ -3006,6 +3025,29 @@ describe("Chart evaluation", () => {
       chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
       expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
       expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    });
+
+    test("configuration is synchronized between the definition the runtime", () => {
+      updateChart(model, "1", {
+        dataSets: [
+          { dataRange: "B2:B5", label: "first", backgroundColor: "#123456" },
+          { dataRange: "C2:C5", label: "second", backgroundColor: "#222222" },
+        ],
+      });
+      const definition = model.getters.getChartDefinition("1") as LineChartDefinition;
+      let runtime = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(runtime.chartJsConfig.data.datasets).toHaveLength(2);
+      hideColumns(model, ["B"]);
+      runtime = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(runtime.chartJsConfig.data.datasets).toHaveLength(2);
+      expect(runtime.chartJsConfig.data.datasets![0].label).toEqual(definition.dataSets![0].label);
+      expect(runtime.chartJsConfig.data.datasets![1].label).toEqual(definition.dataSets![1].label);
+      expect(runtime.chartJsConfig.data.datasets![0].backgroundColor).toEqual(
+        definition.dataSets![0].backgroundColor
+      );
+      expect(runtime.chartJsConfig.data.datasets![1].backgroundColor).toEqual(
+        definition.dataSets![1].backgroundColor
+      );
     });
   });
 
