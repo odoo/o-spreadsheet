@@ -17,6 +17,7 @@ import {
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
+import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
@@ -525,5 +526,64 @@ describe("Transform of UPDATE_TABLE when removing rows", () => {
     const executed: RemoveColumnsRowsCommand = { ...removeRowsCmd, elements: [0], sheetId: "42" };
     const result = transform(updateFilterCmd, executed);
     expect(result).toEqual(updateFilterCmd);
+  });
+});
+
+describe("Transform adapt string formulas on row deletion", () => {
+  const sheetId = "mainSheetId";
+  const sheetName = "MainSheetName";
+  const otherSheetId = "otherSheetId";
+  const otherSheetName = "OtherSheetName";
+
+  describe("on the same sheet", () => {
+    const cmds = getFormulaStringCommands(sheetId, "=SUM(A1:A5)", "=SUM(A1:A4)");
+    const removeRowsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "ROW",
+      elements: [2],
+      sheetId,
+      sheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, removeRowsCmd);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("on another sheet", () => {
+    const cmds = getFormulaStringCommands(
+      sheetId,
+      "=SUM(" + otherSheetName + "!A1:A5)",
+      "=SUM(" + otherSheetName + "!A1:A4)"
+    );
+    const removeRowsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "ROW",
+      elements: [2],
+      sheetId: otherSheetId,
+      sheetName: otherSheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, removeRowsCmd);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("do not adapt strings", () => {
+    const cmds = getFormulaStringCommands(sheetId, "hello in A5", "hello in A5");
+    const removeRowsCmd: RemoveColumnsRowsCommand = {
+      ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+      dimension: "ROW",
+      elements: [2],
+      sheetId,
+      sheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, removeRowsCmd);
+      expect(result).toEqual(expected);
+    });
   });
 });

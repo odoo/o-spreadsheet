@@ -377,12 +377,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       if (columns.length > 0 && rows.length === 0) {
         this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
           sheetId: this.env.model.getters.getActiveSheetId(),
+          sheetName: this.env.model.getters.getActiveSheetName(),
           dimension: "COL",
           elements: columns,
         });
       } else if (rows.length > 0 && columns.length === 0) {
         this.env.model.dispatch("REMOVE_COLUMNS_ROWS", {
           sheetId: this.env.model.getters.getActiveSheetId(),
+          sheetName: this.env.model.getters.getActiveSheetName(),
           dimension: "ROW",
           elements: rows,
         });

@@ -73,6 +73,7 @@ function inverseAddColumnsRows(cmd: AddColumnsRowsCommand): RemoveColumnsRowsCom
       dimension: cmd.dimension,
       elements,
       sheetId: cmd.sheetId,
+      sheetName: cmd.sheetName,
     },
   ];
 }
@@ -105,6 +106,7 @@ function inverseRemoveColumnsRows(cmd: RemoveColumnsRowsCommand): AddColumnsRows
       quantity: group.length,
       base: column,
       sheetId: cmd.sheetId,
+      sheetName: cmd.sheetName,
       position,
     });
   }

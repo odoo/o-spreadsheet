@@ -74,6 +74,10 @@ export function isHeadersDependant(cmd: CoreCommand): boolean {
   return "dimension" in cmd && "sheetId" in cmd && "elements" in cmd;
 }
 
+export interface SheetEditingCommand {
+  sheetName?: string;
+}
+
 export interface TargetDependentCommand {
   sheetId: UID;
   target: Zone[];
@@ -310,7 +314,7 @@ export interface UpdateCellPositionCommand extends PositionDependentCommand {
 // Grid Shape
 //------------------------------------------------------------------------------
 
-export interface AddColumnsRowsCommand extends SheetDependentCommand {
+export interface AddColumnsRowsCommand extends SheetDependentCommand, SheetEditingCommand {
   type: "ADD_COLUMNS_ROWS";
   dimension: Dimension;
   base: HeaderIndex;
@@ -318,12 +322,12 @@ export interface AddColumnsRowsCommand extends SheetDependentCommand {
   position: "before" | "after";
 }
 
-export interface RemoveColumnsRowsCommand extends HeadersDependentCommand {
+export interface RemoveColumnsRowsCommand extends HeadersDependentCommand, SheetEditingCommand {
   type: "REMOVE_COLUMNS_ROWS";
   elements: HeaderIndex[];
 }
 
-export interface MoveColumnsRowsCommand extends HeadersDependentCommand {
+export interface MoveColumnsRowsCommand extends HeadersDependentCommand, SheetEditingCommand {
   type: "MOVE_COLUMNS_ROWS";
   base: HeaderIndex;
   elements: HeaderIndex[];
@@ -407,7 +411,7 @@ export interface CreateSheetCommand extends SheetDependentCommand {
   rows?: number;
 }
 
-export interface DeleteSheetCommand extends SheetDependentCommand {
+export interface DeleteSheetCommand extends SheetDependentCommand, SheetEditingCommand {
   type: "DELETE_SHEET";
 }
 
@@ -421,7 +425,7 @@ export interface MoveSheetCommand extends SheetDependentCommand {
   delta: number;
 }
 
-export interface RenameSheetCommand extends SheetDependentCommand {
+export interface RenameSheetCommand extends SheetDependentCommand, SheetEditingCommand {
   type: "RENAME_SHEET";
   name?: string;
 }
@@ -448,7 +452,10 @@ export interface ShowSheetCommand extends SheetDependentCommand {
  * to cells/ranges within a specific zone.
  * Command particularly useful during CUT / PATE.
  */
-export interface MoveRangeCommand extends PositionDependentCommand, TargetDependentCommand {
+export interface MoveRangeCommand
+  extends PositionDependentCommand,
+    TargetDependentCommand,
+    SheetEditingCommand {
   type: "MOVE_RANGES";
   targetSheetId: string;
 }

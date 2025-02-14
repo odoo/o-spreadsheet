@@ -17,6 +17,7 @@ import {
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
 import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
+import { getFormulaStringCommands } from "./ot_helper";
 
 describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
   const sheetId = "Sheet1";
@@ -512,5 +513,61 @@ describe("Transform of UPDATE_TABLE when adding columns", () => {
     const executed: AddColumnsRowsCommand = { ...addColsCms, base: 0, sheetId: "42" };
     const result = transform(updateFilterCmd, executed);
     expect(result).toEqual(updateFilterCmd);
+  });
+});
+
+describe("Transform adapt string formulas on col addition", () => {
+  const sheetId = "mainSheetId";
+  const sheetName = "MainSheetName";
+  const otherSheetId = "otherSheetId";
+  const otherSheetName = "OtherSheetName";
+
+  describe("on the same sheet", () => {
+    const cmds = getFormulaStringCommands(sheetId, "=SUM(A1:F1)", "=SUM(A1:G1)");
+    const addColCmd: AddColumnsRowsCommand = {
+      ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+      dimension: "COL",
+      sheetId,
+      sheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, addColCmd);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("on another sheet", () => {
+    const cmds = getFormulaStringCommands(
+      sheetId,
+      "=SUM(" + otherSheetName + "!A1:F1)",
+      "=SUM(" + otherSheetName + "!A1:G1)"
+    );
+    const addColCmd: AddColumnsRowsCommand = {
+      ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+      dimension: "COL",
+      sheetId: otherSheetId,
+      sheetName: otherSheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, addColCmd);
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("do not adapt strings", () => {
+    const cmds = getFormulaStringCommands(sheetId, "hello in F1", "hello in F1");
+    const addColCmd: AddColumnsRowsCommand = {
+      ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+      dimension: "COL",
+      sheetId,
+      sheetName,
+    };
+
+    test.each(cmds)("%s", (cmd, expected) => {
+      const result = transform(cmd, addColCmd);
+      expect(result).toEqual(expected);
+    });
   });
 });
