@@ -9,7 +9,7 @@ import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import { Grid } from "./components/grid/grid";
 import { HoveredCellStore } from "./components/grid/hovered_cell_store";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
-import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_hook";
+import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_dom_items_hook";
 import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
 import { Menu } from "./components/menu/menu";
 import { Popover } from "./components/popover";

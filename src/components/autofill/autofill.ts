@@ -3,7 +3,7 @@ import { AUTOFILL_EDGE_LENGTH } from "../../constants";
 import { clip } from "../../helpers";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
+import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 
 // -----------------------------------------------------------------------------
 // Autofill
@@ -64,6 +64,8 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     handler: false,
   });
 
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
+
   get style() {
     const { left, top } = this.props.position;
     return cssPropertiesToCss({
@@ -96,7 +98,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
     return tooltip;
   }
 
-  onMouseDown(ev: MouseEvent) {
+  onMouseDown(ev: PointerEvent) {
     this.state.handler = true;
 
     let lastCol: HeaderIndex | undefined;
@@ -127,7 +129,7 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
         }
       }
     };
-    dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
   }
 
   onDblClick() {

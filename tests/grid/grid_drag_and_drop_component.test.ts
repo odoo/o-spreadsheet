@@ -1,6 +1,6 @@
-import { Component, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
-import { dragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop";
+import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop_grid_hook";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
@@ -26,11 +26,12 @@ jest.mock("../../src/components/helpers/dom_helpers", () => {
 
 let model: Model;
 let sheetId: UID;
+let app: App;
 
 //Test Component required
 const TEMPLATE = xml/* xml */ `
   <div class="o-fake-grid" t-on-pointerdown="onMouseDown">
-    <t t-esc='"coucou"'/>
+    coucou
   </div>
 `;
 
@@ -41,24 +42,24 @@ interface Props {
 let selectedCol: number | undefined = undefined;
 let selectedRow: number | undefined = undefined;
 
+const mouseUpFn = jest.fn();
+
 class FakeGridComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static props = { model: Object };
+  static props = {};
 
-  setup() {
-    useSubEnv({
-      model: this.props.model,
-    });
-  }
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
-  onMouseDown(ev: MouseEvent) {
-    dragAndDropBeyondTheViewport(
-      this.env,
+  onMouseDown(ev: PointerEvent) {
+    this.dragNDropGrid.start(
+      ev,
       (col, row) => {
         selectedCol = col;
         selectedRow = row;
       },
-      () => {}
+      () => {
+        mouseUpFn();
+      }
     );
   }
 }
@@ -71,11 +72,14 @@ afterAll(() => {
 });
 
 beforeEach(async () => {
-  model = new Model();
-  await mountComponent(FakeGridComponent, { model, props: { model } });
+  ({ model, app } = await mountComponent(FakeGridComponent));
   selectedCol = selectedRow = undefined;
   sheetId = model.getters.getActiveSheetId();
   await nextTick();
+});
+
+afterEach(() => {
+  mouseUpFn.mockClear();
 });
 
 describe("Drag And Drop horizontal tests", () => {
@@ -120,6 +124,7 @@ describe("Drag And Drop horizontal tests", () => {
       left: 4,
       right: 10,
     });
+    expect(mouseUpFn).toHaveBeenCalled();
   });
 
   test("Start Drag&Drop in XRight then moving it outside right scroll XRight to the right", async () => {
@@ -383,4 +388,30 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
       bottom: 83,
     });
   });
+});
+
+test("Drag&drop is stopped when the calling component is unmounted", async () => {
+  const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
+  const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
+
+  // move to col 1
+  triggerMouseEvent(".o-fake-grid", "pointerdown", x, 0);
+  triggerMouseEvent("body", "pointermove", x + DEFAULT_CELL_WIDTH / 2, 0);
+  let advanceTimer = edgeScrollDelay(offsetCorrectionX + DEFAULT_CELL_WIDTH / 2, 1);
+  jest.advanceTimersByTime(advanceTimer);
+  expect(selectedCol).toEqual(1);
+  triggerMouseEvent("body", "pointerup", x, 0);
+  expect(mouseUpFn).toHaveBeenCalledTimes(1);
+
+  const spyRemoveEventListener = jest.spyOn(window, "removeEventListener");
+  // move to col 2
+  triggerMouseEvent(".o-fake-grid", "pointerdown", x, 0);
+  // force unmount
+  app.destroy();
+  triggerMouseEvent("body", "pointermove", x + DEFAULT_CELL_WIDTH * 1.5, 0);
+  advanceTimer = edgeScrollDelay(offsetCorrectionX + DEFAULT_CELL_WIDTH * 1.5, 1);
+  jest.advanceTimersByTime(advanceTimer);
+  expect(selectedCol).toEqual(1);
+  expect(mouseUpFn).toHaveBeenCalledTimes(1);
+  expect(spyRemoveEventListener).toHaveBeenCalledTimes(4);
 });
