@@ -191,8 +191,9 @@ export function createPyramidChartRuntime(
   const barDef: BarChartDefinition = { ...chart.getDefinition(), type: "bar" };
   const barChart = new BarChart(barDef, chart.sheetId, getters);
   const barRuntime = createBarChartRuntime(barChart, getters);
+  // align design with filtered datasets
   const config = barRuntime.chartJsConfig;
-  let datasets = config.data?.datasets;
+  let datasets = config.data?.datasets.filter((dataSet) => !dataSet.hidden);
   if (datasets && datasets[0]) {
     datasets[0].data = datasets[0].data.map((value: number) => (value > 0 ? value : 0));
   }

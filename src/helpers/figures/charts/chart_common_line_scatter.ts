@@ -26,6 +26,7 @@ import {
   filterEmptyDataPoints,
   getChartDatasetFormat,
   getChartDatasetValues,
+  getChartJsLegend,
   getChartLabelFormat,
   getChartLabelValues,
   getDefaultChartJsRuntime,
@@ -136,7 +137,9 @@ export function getTrendDatasetForLineChart(
   const filteredLabels: number[] = [];
   const labels: number[] = [];
   const datasetLength = dataset.data.length;
-
+  if (dataset.hidden) {
+    return;
+  }
   if (datasetLength < 2) {
     return;
   }
@@ -226,9 +229,8 @@ export function createLineOrScatterChartRuntime(
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
 
-  const legend: DeepPartial<LegendOptions<"line">> = {
+  const legend: DeepPartial<LegendOptions<"line">> = getChartJsLegend(fontColor, {
     labels: {
-      color: fontColor,
       generateLabels(chart) {
         // color the legend labels with the dataset color, without any transparency
         const { data } = chart;
@@ -239,7 +241,8 @@ export function createLineOrScatterChartRuntime(
         return labels;
       },
     },
-  };
+  });
+
   if (chart.legendPosition === "none") {
     legend.display = false;
   } else {
@@ -343,7 +346,7 @@ export function createLineOrScatterChartRuntime(
 
   const definition = chart.getDefinition();
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
-  for (let [index, { label, data }] of dataSetsValues.entries()) {
+  for (let [index, { label, data, hidden }] of dataSetsValues.entries()) {
     const color = colors.next();
     let backgroundRGBA = colorToRGBA(color);
     if (areaChart) {
@@ -369,6 +372,7 @@ export function createLineOrScatterChartRuntime(
     const dataset: ChartDataset = {
       label,
       data,
+      hidden,
       tension: 0, // 0 -> render straight lines, which is much faster
       borderColor: color,
       backgroundColor,

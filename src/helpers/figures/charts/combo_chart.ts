@@ -56,6 +56,7 @@ import {
   filterEmptyDataPoints,
   getChartDatasetFormat,
   getChartDatasetValues,
+  getChartJsLegend,
   getChartLabelValues,
   getDefaultChartJsRuntime,
 } from "./chart_ui_common";
@@ -251,9 +252,8 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
 
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
-  const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
-  };
+  const legend: DeepPartial<LegendOptions<"bar">> = getChartJsLegend(fontColor);
+
   if (chart.legendPosition === "none") {
     legend.display = false;
   } else {
@@ -320,13 +320,14 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   let maxLength = 0;
   const trendDatasets: any[] = [];
 
-  for (let [index, { label, data }] of dataSetsValues.entries()) {
+  for (let [index, { label, data, hidden }] of dataSetsValues.entries()) {
     const design = definition.dataSets[index];
     const color = colors.next();
     const type = design?.type ?? "line";
     const dataset: ChartDataset<"bar" | "line", number[]> = {
       label: design?.label ?? label,
       data,
+      hidden,
       borderColor: color,
       backgroundColor: color,
       yAxisID: design?.yAxisId ?? "y",
@@ -334,7 +335,6 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       order: type === "bar" ? dataSetsValues.length + index : index,
     };
     config.data.datasets.push(dataset);
-
     const trend = definition.dataSets?.[index].trend;
     if (!trend?.display) {
       continue;
