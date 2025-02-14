@@ -501,6 +501,20 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
+  test("duplicate table in deterministic order", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    createTable(charlie, "C5:G7");
+    redo(charlie);
+    duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    network.concurrent(() => {
+      setCellContent(bob, "A1", "hello");
+      deleteSheet(alice, "Sheet1");
+    });
+    undo(charlie);
+    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
   test("Delete the same figure concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
     const figure = {
