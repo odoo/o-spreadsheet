@@ -37,6 +37,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "UPDATE_PIVOT": {
+        if (!(cmd.pivotId in this.pivots)) {
+          return CommandResult.PivotIdNotFound;
+        }
         if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
           return CommandResult.NoChanges;
         }
@@ -50,6 +53,8 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           return CommandResult.EmptyName;
         }
         break;
+      case "REMOVE_PIVOT":
+      case "DUPLICATE_PIVOT":
       case "INSERT_PIVOT": {
         if (!(cmd.pivotId in this.pivots)) {
           return CommandResult.PivotIdNotFound;
