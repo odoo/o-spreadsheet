@@ -935,6 +935,33 @@ describe("Collaborative local history", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
+  test("Replay a REMOVE_TABLE in empty sheet after a local CREATE_TABLE", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    setCellContent(charlie, "A1", "Hello", "Sheet1");
+    alice.dispatch("REMOVE_TABLE", {
+      target: [
+        { left: 4, right: 7, top: 4, bottom: 5 },
+        { left: 5, right: 7, top: 3, bottom: 8 },
+      ],
+      sheetId: "Sheet1",
+    });
+    network.concurrent(() => {
+      undo(charlie);
+      alice.dispatch("CREATE_TABLE", {
+        ranges: [
+          {
+            _sheetId: "Sheet1",
+            _zone: { hasHeader: false, left: 0, top: 2, bottom: 10, right: 10 },
+          },
+        ],
+        sheetId: "Sheet1",
+        tableType: "static",
+      });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
   test("transform target command with column addition before the target edge", () => {
     addColumns(charlie, "before", "B", 1);
     network.concurrent(() => {
