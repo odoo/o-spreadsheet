@@ -132,6 +132,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "REDO",
   "ADD_MERGE",
   "REMOVE_MERGE",
+  "DUPLICATE_SHEET",
   "UPDATE_LOCALE",
   "ADD_PIVOT",
   "UPDATE_PIVOT",
@@ -163,7 +164,6 @@ export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
 
 export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
-  "DUPLICATE_SHEET",
   "EVALUATE_CELLS",
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
