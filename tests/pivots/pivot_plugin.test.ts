@@ -185,6 +185,38 @@ describe("Pivot plugin", () => {
     );
   });
 
+  test("cannot update a pivot with a wrong id", () => {
+    const model = new Model();
+    const updateResult = model.dispatch("UPDATE_PIVOT", {
+      pivotId: "9999",
+      pivot: {
+        columns: [],
+        rows: [],
+        measures: [],
+        name: "Pivot",
+        type: "SPREADSHEET",
+      },
+    });
+    expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
+  });
+
+  test("cannot duplicate a pivot with a wrong id", () => {
+    const model = new Model();
+    const updateResult = model.dispatch("DUPLICATE_PIVOT", {
+      pivotId: "9999",
+      newPivotId: "1",
+    });
+    expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
+  });
+
+  test("cannot remove a pivot with a wrong id", () => {
+    const model = new Model();
+    const updateResult = model.dispatch("REMOVE_PIVOT", {
+      pivotId: "9999",
+    });
+    expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
+  });
+
   test("forbidden characters are removed from new sheet name when duplicating a pivot", () => {
     const grid = {
       A1: "Customer",
