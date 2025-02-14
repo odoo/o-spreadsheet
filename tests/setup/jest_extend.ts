@@ -119,7 +119,7 @@ expect.extend({
       const b = users[i + 1];
       const exportA = a.exportData();
       const exportB = b.exportData();
-      if (!this.equals(exportA, exportB, [this.utils.iterableEquality])) {
+      if (!deepEquals(exportA, exportB)) {
         const clientA = a.getters.getClient().id;
         const clientB = b.getters.getClient().id;
         return {
