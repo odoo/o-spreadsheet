@@ -85,6 +85,11 @@ export function getPieChartLegend(
           hidden: false,
           lineWidth: 2,
         })),
+      filter: (legendItem, data) => {
+        return "datasetIndex" in legendItem
+          ? !data.datasets[legendItem.datasetIndex!].hidden
+          : true;
+      },
     },
   };
 }
@@ -159,6 +164,11 @@ export function getWaterfallChartLegend(
         }
         return legendValues;
       },
+      filter: (legendItem, data) => {
+        return "datasetIndex" in legendItem
+          ? !data.datasets[legendItem.datasetIndex!].hidden
+          : true;
+      },
     },
     onClick: () => {}, // Disables click interaction with the waterfall chart legend items
   };
@@ -227,6 +237,7 @@ function getCustomLegendLabels(
     color: Color;
     usePointStyle: boolean;
     generateLabels: (chart: Chart) => LegendItem[];
+    filter?: LegendOptions<any>["labels"]["filter"];
   };
 } {
   return {
@@ -257,6 +268,11 @@ function getCustomLegendLabels(
             ...legendLabelConfig,
           };
         }),
+      filter: (legendItem, data) => {
+        return "datasetIndex" in legendItem
+          ? !data.datasets[legendItem.datasetIndex!].hidden
+          : true;
+      },
     },
   };
 }
