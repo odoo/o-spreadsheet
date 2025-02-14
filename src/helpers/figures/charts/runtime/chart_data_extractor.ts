@@ -97,7 +97,7 @@ export function getPyramidChartData(
   getters: Getters
 ): ChartRuntimeGenerationArgs {
   const barChartData = getBarChartData(definition, dataSets, labelRange, getters);
-  const barDataset = barChartData.dataSetsValues;
+  const barDataset = barChartData.dataSetsValues.filter((ds) => !ds.hidden);
 
   const pyramidDatasetValues: DatasetValues[] = [];
   if (barDataset[0]) {
@@ -755,10 +755,8 @@ function getChartDatasetFormat(
 function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
-    if (getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)) {
-      continue;
-    }
     let label: string;
+    let hidden = getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left);
     if (ds.labelCell) {
       const labelRange = ds.labelCell;
       const cell = labelRange
@@ -789,9 +787,9 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
         (cell) => cell === undefined || cell === null || !isNumber(cell.toString(), DEFAULT_LOCALE)
       )
     ) {
-      continue;
+      hidden = true;
     }
-    datasetValues.push({ data, label });
+    datasetValues.push({ data, label, hidden });
   }
   return datasetValues;
 }
