@@ -41,16 +41,16 @@ import {
 
 import { CorePlugin } from "../core_plugin";
 
-let nextTableId = 1;
-
 interface TableState {
   tables: Record<UID, Record<TableId, CoreTable | undefined>>;
+  nextTableId: number;
 }
 
 export class TablePlugin extends CorePlugin<TableState> implements TableState {
   static getters = ["getCoreTable", "getCoreTables", "getCoreTableMatchingTopLeft"] as const;
 
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
+  readonly nextTableId: number = 1;
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     const sheetIds = sheetId ? [sheetId] : this.getters.getSheetIds();
@@ -136,7 +136,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, union.zone);
         this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
 
-        const id = `${nextTableId++}`;
+        const id = this.consumeNextId();
         const config = cmd.config || DEFAULT_TABLE_CONFIG;
         const newTable =
           cmd.tableType === "dynamic"
@@ -320,7 +320,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
       filters = [];
       for (const i of range(zone.left, zone.right + 1)) {
         const filterZone = { ...zone, left: i, right: i };
-        const uid = `${nextTableId++}`;
+        const uid = this.consumeNextId();
         filters.push(this.createFilterFromZone(uid, tableRange.sheetId, filterZone, config));
       }
     }
@@ -401,7 +401,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
             ? table.filters.find((f) => f.col === i)
             : undefined;
         const filterZone = { ...tableZone, left: i, right: i };
-        const filterId = oldFilter?.id || `${nextTableId++}`;
+        const filterId = oldFilter?.id || this.consumeNextId();
         filters.push(this.createFilterFromZone(filterId, tableRange.sheetId, filterZone, config));
       }
     }
@@ -524,7 +524,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     if (filters.length < zoneToDimension(tableZone).numberOfCols) {
       for (let col = tableZone.left; col <= tableZone.right; col++) {
         if (!filters.find((filter) => filter.col === col)) {
-          const uid = `${nextTableId++}`;
+          const uid = this.consumeNextId();
           const filterZone = { ...tableZone, left: col, right: col };
           filters.push(this.createFilterFromZone(uid, sheetId, filterZone, table.config));
         }
@@ -542,6 +542,12 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     this.history.update("tables", sheetId, table.id, newTable);
   }
 
+  private consumeNextId() {
+    const id = `${this.nextTableId}`;
+    this.history.update("nextTableId", this.nextTableId + 1);
+    return id;
+  }
+
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------
@@ -549,7 +555,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       for (const tableData of sheet.tables || []) {
-        const uuid = `${nextTableId++}`;
+        const uuid = this.consumeNextId();
         const tableConfig = tableData.config || DEFAULT_TABLE_CONFIG;
         const range = this.getters.getRangeFromSheetXC(sheet.id, tableData.range);
         const tableType = tableData.type || "static";
