@@ -66,7 +66,7 @@ import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
 import { keyboardEventToShortcutString } from "../helpers/dom_helpers";
-import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
+import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
@@ -143,6 +143,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -475,7 +477,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
-  onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) {
+  onCellClicked(
+    col: HeaderIndex,
+    row: HeaderIndex,
+    modifiers: GridClickModifiers,
+    ev: PointerEvent
+  ) {
+    ev.preventDefault();
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
@@ -505,7 +513,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }
     };
-    dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {

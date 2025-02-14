@@ -3,7 +3,7 @@
     <div class="o-highlight" t-ref="highlight">
       <t t-foreach="['n', 's', 'w', 'e']" t-as="orientation" t-key="orientation">
         <Border
-          onMoveHighlight="(x, y) => this.onMoveHighlight(x,y)"
+          onMoveHighlight.bind="this.onMoveHighlight"
           isMoving='highlightState.shiftingMode === "isMoving"'
           orientation="orientation"
           zone="props.zone"
@@ -11,7 +11,7 @@
       </t>
       <t t-foreach="['nw', 'ne', 'sw', 'se']" t-as="orientation" t-key="orientation">
         <Corner
-          onResizeHighlight="(isLeft, isTop) => this.onResizeHighlight(isLeft, isTop)"
+          onResizeHighlight.bind="onResizeHighlight"
           isResizing='highlightState.shiftingMode === "isResizing"'
           orientation="orientation"
           zone="props.zone"

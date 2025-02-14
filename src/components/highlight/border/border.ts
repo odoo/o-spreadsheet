@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
+import { SpreadsheetChildEnv, Zone } from "../../../types";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 
 css/* scss */ `
@@ -20,7 +20,7 @@ interface Props {
   zone: Zone;
   orientation: Orientation;
   isMoving: boolean;
-  onMoveHighlight: (x: Pixel, y: Pixel) => void;
+  onMoveHighlight: (ev: PointerEvent) => void;
 }
 
 export class Border extends Component<Props, SpreadsheetChildEnv> {
@@ -61,7 +61,7 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  onMouseDown(ev: MouseEvent) {
-    this.props.onMoveHighlight(ev.clientX, ev.clientY);
+  onMouseDown(ev: PointerEvent) {
+    this.props.onMoveHighlight(ev);
   }
 }
