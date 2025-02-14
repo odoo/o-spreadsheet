@@ -53,6 +53,7 @@ import {
   filterEmptyDataPoints,
   getChartDatasetFormat,
   getChartDatasetValues,
+  getChartJsLegend,
   getChartLabelValues,
   getDefaultChartJsRuntime,
 } from "./chart_ui_common";
@@ -246,9 +247,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     ...localeFormat,
     horizontalChart: chart.horizontal,
   });
-  const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
-  };
+  const legend: DeepPartial<LegendOptions<"bar">> = getChartJsLegend(fontColor);
   if (chart.legendPosition === "none") {
     legend.display = false;
   } else {
@@ -316,11 +315,12 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   const trendDatasets: any[] = [];
   for (const index in dataSetsValues) {
-    const { label, data } = dataSetsValues[index];
+    const { label, data, hidden } = dataSetsValues[index];
     const color = colors.next();
     const dataset: ChartDataset<"bar", number[]> = {
       label,
       data,
+      hidden,
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderWidth: definition.stacked ? 1 : 0,
       backgroundColor: color,

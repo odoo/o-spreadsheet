@@ -342,7 +342,7 @@ export function createWaterfallChartRuntime(
 ): WaterfallChartRuntime {
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
-  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
+  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets).filter((ds) => !ds.hidden);
   if (shouldRemoveFirstLabel(chart.labelRange, chart.dataSets[0], chart.dataSetsHaveTitle)) {
     labels.shift();
   }

@@ -1,4 +1,6 @@
 import type { BasePlatform, ChartConfiguration, ChartOptions, ChartType } from "chart.js";
+import { LegendOptions } from "chart.js";
+import { DeepPartial } from "chart.js/dist/types/utils";
 import { ChartTerms } from "../../../components/translations_terms";
 import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, MAX_CHAR_LABEL } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
@@ -266,10 +268,8 @@ export function getChartDatasetFormat(getters: Getters, dataSets: DataSet[]): Fo
 export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
-    if (getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)) {
-      continue;
-    }
     let label: string;
+    let hidden = getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left);
     if (ds.labelCell) {
       const labelRange = ds.labelCell;
       const cell = labelRange
@@ -300,9 +300,10 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
         (cell) => cell === undefined || cell === null || !isNumber(cell.toString(), DEFAULT_LOCALE)
       )
     ) {
-      continue;
+      hidden = true;
     }
-    datasetValues.push({ data, label });
+
+    datasetValues.push({ data, label, hidden });
   }
   return datasetValues;
 }
@@ -374,3 +375,21 @@ const backgroundColorChartJSPlugin = {
     ctx.restore();
   },
 };
+
+export function getChartJsLegend(
+  fontColor: Color,
+  legend: DeepPartial<LegendOptions<any>> = {}
+): DeepPartial<LegendOptions<any>> {
+  return {
+    ...legend,
+    labels: {
+      color: fontColor,
+      filter: (legendItem, data) => {
+        return "datasetIndex" in legendItem
+          ? !data.datasets[legendItem.datasetIndex!].hidden
+          : true;
+      },
+      ...legend.labels,
+    },
+  };
+}

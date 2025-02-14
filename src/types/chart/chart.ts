@@ -59,6 +59,7 @@ export interface LabelValues {
 export interface DatasetValues {
   readonly label?: string;
   readonly data: any[];
+  readonly hidden?: boolean;
 }
 
 export interface DatasetDesign {

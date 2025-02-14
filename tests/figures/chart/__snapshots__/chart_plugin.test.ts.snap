@@ -24,6 +24,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
             },
           ],
           "fill": false,
+          "hidden": false,
           "label": "10",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -63,6 +64,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
         "legend": {
           "labels": {
             "color": "#FFFFFF",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -143,6 +145,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
             },
           ],
           "fill": false,
+          "hidden": false,
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -183,6 +186,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -270,6 +274,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
             },
           ],
           "fill": false,
+          "hidden": false,
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -310,6 +315,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -375,6 +381,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "data": [
             30,
           ],
+          "hidden": false,
           "label": "P4",
         },
       ],
@@ -412,6 +419,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
           },
           "onClick": [Function],
           "position": "top",
@@ -475,6 +483,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
             30,
           ],
           "fill": false,
+          "hidden": false,
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -512,6 +521,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -577,6 +587,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
             12,
           ],
           "fill": false,
+          "hidden": false,
           "label": "first column dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -590,6 +601,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
             18,
           ],
           "fill": false,
+          "hidden": false,
           "label": "second column datase…",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
@@ -629,6 +641,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -694,6 +707,7 @@ exports[`datasource tests create chart with column datasets with category title 
             12,
           ],
           "fill": false,
+          "hidden": false,
           "label": "first column dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -707,6 +721,7 @@ exports[`datasource tests create chart with column datasets with category title 
             18,
           ],
           "fill": false,
+          "hidden": false,
           "label": "second column datase…",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
@@ -746,6 +761,7 @@ exports[`datasource tests create chart with column datasets with category title 
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -811,6 +827,7 @@ exports[`datasource tests create chart with column datasets without series title
             12,
           ],
           "fill": false,
+          "hidden": false,
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -824,6 +841,7 @@ exports[`datasource tests create chart with column datasets without series title
             18,
           ],
           "fill": false,
+          "hidden": false,
           "label": "Series 2",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
@@ -863,6 +881,7 @@ exports[`datasource tests create chart with column datasets without series title
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -918,7 +937,21 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
   "background": "#FFFFFF",
   "chartJsConfig": {
     "data": {
-      "datasets": [],
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            undefined,
+            undefined,
+          ],
+          "fill": false,
+          "hidden": true,
+          "label": "30",
+          "pointBackgroundColor": "#4EA7F2",
+          "tension": 0,
+        },
+      ],
       "labels": [
         "P5",
         "P6",
@@ -952,6 +985,7 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -1017,6 +1051,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
             12,
           ],
           "fill": false,
+          "hidden": false,
           "label": "first column dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -1030,6 +1065,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
             18,
           ],
           "fill": false,
+          "hidden": false,
           "label": "second column datase…",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
@@ -1069,6 +1105,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -1134,6 +1171,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
             32,
           ],
           "fill": false,
+          "hidden": false,
           "label": "first row dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -1147,6 +1185,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
             42,
           ],
           "fill": false,
+          "hidden": false,
           "label": "second row dataset",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
@@ -1186,6 +1225,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -1251,6 +1291,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
             32,
           ],
           "fill": false,
+          "hidden": false,
           "label": "first row dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -1264,6 +1305,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
             42,
           ],
           "fill": false,
+          "hidden": false,
           "label": "second row dataset",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
@@ -1303,6 +1345,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],
@@ -1368,6 +1411,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
             32,
           ],
           "fill": false,
+          "hidden": false,
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
@@ -1381,6 +1425,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
             42,
           ],
           "fill": false,
+          "hidden": false,
           "label": "Series 2",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
@@ -1420,6 +1465,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
         "legend": {
           "labels": {
             "color": "#000000",
+            "filter": [Function],
             "generateLabels": [Function],
           },
           "onClick": [Function],

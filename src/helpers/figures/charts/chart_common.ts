@@ -477,6 +477,9 @@ export function getTrendDatasetForBarChart(
   const filteredValues: number[] = [];
   const filteredLabels: number[] = [];
   const labels: number[] = [];
+  if (dataset.hidden) {
+    return;
+  }
   for (let i = 0; i < dataset.data.length; i++) {
     if (typeof dataset.data[i] === "number") {
       filteredValues.push(dataset.data[i]);
