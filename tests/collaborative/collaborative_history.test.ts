@@ -10,6 +10,7 @@ import {
   addRows,
   clearCells,
   createSheet,
+  createTable,
   deleteColumns,
   deleteRows,
   deleteSheet,
@@ -941,6 +942,24 @@ describe("Collaborative local history", () => {
     network.concurrent(() => {
       hideSheet(bob, "Sheet1");
       deleteSheet(charlie, "Sheet1");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("Replay a REMOVE_TABLE in empty sheet after a local CREATE_TABLE", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    setCellContent(charlie, "A1", "Hello", "Sheet1");
+    alice.dispatch("REMOVE_TABLE", {
+      target: [
+        { left: 4, right: 7, top: 4, bottom: 5 },
+        { left: 5, right: 7, top: 3, bottom: 8 },
+      ],
+      sheetId: "Sheet1",
+    });
+    network.concurrent(() => {
+      undo(charlie);
+      createTable(alice, "3:11", {});
     });
     expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
