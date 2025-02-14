@@ -51,6 +51,7 @@ export function startDnd(
  */
 export function dragAndDropBeyondTheViewport(
   env: SpreadsheetChildEnv,
+  startEv: MouseEvent,
   cbMouseMove: (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => void,
   cbMouseUp: () => void,
   only: "horizontal" | "vertical" | false = false
@@ -67,7 +68,6 @@ export function dragAndDropBeyondTheViewport(
   let colIndex: number;
   let rowIndex: number;
   const onMouseDown = (ev: MouseEvent) => {
-    console.log("coucou");
     previousEv = ev;
     startingEv = ev;
     startingX = startingEv.clientX - position.left;
