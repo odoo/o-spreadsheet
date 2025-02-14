@@ -31,7 +31,7 @@ import {
   getFilter,
   getTable,
 } from "../test_helpers/getters_helpers";
-import { getFilterHiddenValues, toRangeData } from "../test_helpers/helpers";
+import { getFilterHiddenValues, toRangeData, toRangesData } from "../test_helpers/helpers";
 
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
@@ -157,6 +157,23 @@ describe("Table plugin", () => {
       expect(updateTableConfig(model, "A1", configUpdate)).toBeCancelledBecause(
         CommandResult.InvalidTableConfig
       );
+    });
+
+    test("reject with an unbounded range on an invalid sheet", () => {
+      const result = createTable(model, "B1,A1:A", {}, "static", "not-a-valid-sheet-id");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("reject data range targeting a different sheet", () => {
+      const firstSheetId = model.getters.getActiveSheetId();
+      createSheet(model, { sheetId: "sheet2" });
+      const result = model.dispatch("CREATE_TABLE", {
+        ranges: toRangesData(firstSheetId, "A1"),
+        sheetId: "sheet2",
+        tableType: "static",
+        config: DEFAULT_TABLE_CONFIG,
+      });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
   });
 
