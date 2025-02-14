@@ -3,7 +3,6 @@ import {
   deepCopy,
   deepEquals,
   intersection,
-  isDefined,
   isInside,
   isZoneInside,
   overlap,
@@ -45,12 +44,14 @@ let nextTableId = 1;
 
 interface TableState {
   tables: Record<UID, Record<TableId, CoreTable | undefined>>;
+  insertionOrders: Record<UID, TableId[] | undefined>;
 }
 
 export class TablePlugin extends CorePlugin<TableState> implements TableState {
   static getters = ["getCoreTable", "getCoreTables", "getCoreTableMatchingTopLeft"] as const;
 
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
+  readonly insertionOrders: Record<UID, TableId[] | undefined> = {};
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     const sheetIds = sheetId ? [sheetId] : this.getters.getSheetIds();
@@ -112,11 +113,13 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     switch (cmd.type) {
       case "CREATE_SHEET":
         this.history.update("tables", cmd.sheetId, {});
+        this.history.update("insertionOrders", cmd.sheetId, []);
         break;
       case "DELETE_SHEET": {
         const tables = { ...this.tables };
         delete tables[cmd.sheetId];
         this.history.update("tables", tables);
+        this.history.update("insertionOrders", cmd.sheetId, undefined);
         break;
       }
       case "DUPLICATE_SHEET": {
@@ -128,6 +131,9 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
               : this.copyStaticTableForSheet(cmd.sheetIdTo, table);
         }
         this.history.update("tables", cmd.sheetIdTo, newTables);
+        this.history.update("insertionOrders", cmd.sheetIdTo, [
+          ...(this.insertionOrders[cmd.sheetId] ?? []),
+        ]);
         break;
       }
       case "CREATE_TABLE": {
@@ -143,6 +149,10 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
             ? this.createDynamicTable(id, union, config)
             : this.createStaticTable(id, cmd.tableType, union, config);
         this.history.update("tables", cmd.sheetId, newTable.id, newTable);
+        this.history.update("insertionOrders", cmd.sheetId, [
+          ...(this.insertionOrders[cmd.sheetId] ?? []),
+          newTable.id,
+        ]);
         break;
       }
       case "REMOVE_TABLE": {
@@ -153,6 +163,11 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
           }
         }
         this.history.update("tables", cmd.sheetId, tables);
+        this.history.update(
+          "insertionOrders",
+          cmd.sheetId,
+          this.insertionOrders[cmd.sheetId]?.filter((id) => id in tables)
+        );
         break;
       }
       case "UPDATE_TABLE": {
@@ -188,7 +203,14 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   }
 
   getCoreTables(sheetId: UID): CoreTable[] {
-    return this.tables[sheetId] ? Object.values(this.tables[sheetId]).filter(isDefined) : [];
+    const tables: CoreTable[] = [];
+    for (const tableId of this.insertionOrders[sheetId] || []) {
+      const table = this.tables[sheetId][tableId];
+      if (table) {
+        tables.push(table);
+      }
+    }
+    return tables;
   }
 
   getCoreTable({ sheetId, col, row }: CellPosition): CoreTable | undefined {
@@ -548,6 +570,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
 
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
+      const tableIds: TableId[] = [];
       for (const tableData of sheet.tables || []) {
         const uuid = `${nextTableId++}`;
         const tableConfig = tableData.config || DEFAULT_TABLE_CONFIG;
@@ -558,7 +581,9 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
             ? this.createDynamicTable(uuid, range, tableConfig)
             : this.createStaticTable(uuid, tableType, range, tableConfig);
         this.history.update("tables", sheet.id, table.id, table);
+        tableIds.push(table.id);
       }
+      this.history.update("insertionOrders", sheet.id, tableIds);
     }
   }
 
