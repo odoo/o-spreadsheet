@@ -2,23 +2,27 @@
   <t t-name="o-spreadsheet-BottomBar">
     <div
       class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
+      t-att-class="{'ps-3 flex-fill': env.isSmall}"
       t-on-click="props.onClick"
       t-ref="bottomBar"
       t-on-contextmenu.prevent="">
-      <Ripple>
+      <Ripple class="env.isSmall ? 'order-2' : ''">
         <div
           class="o-sheet-item o-add-sheet me-2 p-1"
+          t-att-class="{'ms-2': env.isSmall}"
           t-if="!env.model.getters.isReadonly()"
           t-on-click="clickAddSheet">
           <t t-call="o-spreadsheet-Icon.PLUS"/>
         </div>
       </Ripple>
-      <Ripple>
+      <Ripple class="'listSheets'">
         <div class="o-sheet-item o-list-sheets me-2 p-1" t-on-click="clickListSheets">
           <t t-call="o-spreadsheet-Icon.LIST"/>
         </div>
       </Ripple>
-      <div class="o-all-sheets position-relative flex-shrink-0 d-flex h-100 me-3">
+      <div
+        class="o-all-sheets position-relative d-flex h-100 flex-fill overflow-hidden"
+        t-att-style=" env.isSmall ? '' : 'max-width: 70%;'">
         <div
           class="o-bottom-bar-fade-in position-absolute h-100 w-100 pe-none"
           t-if="state.isSheetListScrollableLeft"
@@ -43,8 +47,8 @@
         />
       </div>
       <div
-        class="o-bottom-bar-arrows d-flex h-100 me-5 align-items-center"
-        t-if="state.isSheetListScrollableLeft || state.isSheetListScrollableRight">
+        class="o-bottom-bar-arrows d-flex h-100 me-4 align-items-center ms-3"
+        t-if="!env.isSmall &amp;&amp; (state.isSheetListScrollableLeft || state.isSheetListScrollableRight)">
         <Ripple
           ignoreClickPosition="true"
           width="20"
@@ -53,7 +57,7 @@
           allowOverflow="true"
           enabled="state.isSheetListScrollableLeft">
           <div
-            class="o-bottom-bar-arrow o-bottom-bar-arrow-left d-flex align-items-center me-2"
+            class="o-bottom-bar-arrow o-bottom-bar-arrow-left d-flex align-items-center"
             t-att-class="{'o-disabled': !state.isSheetListScrollableLeft}"
             t-on-click="onArrowLeft">
             <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
@@ -67,7 +71,7 @@
           allowOverflow="true"
           enabled="state.isSheetListScrollableRight">
           <div
-            class="o-bottom-bar-arrow o-bottom-bar-arrow-right d-flex align-items-center me-4"
+            class="o-bottom-bar-arrow o-bottom-bar-arrow-right d-flex align-items-center"
             t-att-class="{'o-disabled': !state.isSheetListScrollableRight}"
             t-on-click="onArrowRight">
             <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
@@ -76,6 +80,7 @@
       </div>
 
       <BottomBarStatistic
+        t-if="!env.isSmall"
         openContextMenu="(x, y, registry) => this.openContextMenu(x, y, 'listSelectionStatistics', registry)"
         closeContextMenu="() => this.closeContextMenuWithId('listSelectionStatistics')"
       />

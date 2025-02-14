@@ -850,10 +850,10 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
   </div>
   
   <div
-    class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
+    class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden ps-3 flex-fill"
   >
     <div
-      class="o-ripple-container position-relative"
+      class="o-ripple-container position-relative order-2"
     >
       <div
         class="position-absolute w-100 h-100"
@@ -864,7 +864,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         class="position-relative"
       >
         <div
-          class="o-sheet-item o-add-sheet me-2 p-1"
+          class="o-sheet-item o-add-sheet me-2 p-1 ms-2"
         >
           <svg
             class="o-icon plus"
@@ -881,7 +881,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     </div>
     
     <div
-      class="o-ripple-container position-relative"
+      class="o-ripple-container position-relative listSheets"
     >
       <div
         class="position-absolute w-100 h-100"
@@ -926,7 +926,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     </div>
     
     <div
-      class="o-all-sheets position-relative flex-shrink-0 d-flex h-100 me-3"
+      class="o-all-sheets position-relative d-flex h-100 flex-fill overflow-hidden"
+      style=""
     >
       
       <div
@@ -977,7 +978,6 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       </div>
       
     </div>
-    
     
     
     
