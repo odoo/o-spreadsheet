@@ -137,6 +137,7 @@ export class Evaluator {
     );
     this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
     this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
+    this.compilationParams.evalContext.cacheFunctionsResult = new Map();
   }
 
   private createEmptyPositionSet() {
