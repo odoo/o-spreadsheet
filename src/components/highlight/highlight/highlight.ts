@@ -1,10 +1,10 @@
 import { Component, useState } from "@odoo/owl";
 import { ComponentsImportance } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
-import { Color, HeaderIndex, Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
+import { Color, HeaderIndex, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
-import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
+import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
 
@@ -36,8 +36,9 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   highlightState: HighlightState = useState({
     shiftingMode: "none",
   });
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
-  onResizeHighlight(isLeft: boolean, isTop: boolean) {
+  onResizeHighlight(ev: PointerEvent, isLeft: boolean, isTop: boolean) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     this.highlightState.shiftingMode = "isResizing";
     const z = this.props.zone;
@@ -86,19 +87,18 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     const mouseUp = () => {
       this.highlightState.shiftingMode = "none";
     };
-
-    dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
+    this.dragNDropGrid.start(ev, mouseMove, mouseUp);
   }
 
-  onMoveHighlight(clientX: Pixel, clientY: Pixel) {
+  onMoveHighlight(ev: PointerEvent) {
     this.highlightState.shiftingMode = "isMoving";
     const z = this.props.zone;
 
     const position = gridOverlayPosition();
     const activeSheetId = this.env.model.getters.getActiveSheetId();
 
-    const initCol = this.env.model.getters.getColIndex(clientX - position.left);
-    const initRow = this.env.model.getters.getRowIndex(clientY - position.top);
+    const initCol = this.env.model.getters.getColIndex(ev.clientX - position.left);
+    const initRow = this.env.model.getters.getRowIndex(ev.clientY - position.top);
 
     const deltaColMin = -z.left;
     const deltaColMax = this.env.model.getters.getNumberCols(activeSheetId) - z.right - 1;
@@ -143,6 +143,6 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
       this.highlightState.shiftingMode = "none";
     };
 
-    dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
+    this.dragNDropGrid.start(ev, mouseMove, mouseUp);
   }
 }

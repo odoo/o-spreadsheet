@@ -164,7 +164,12 @@ function useTouchMove(
 interface Props {
   onCellHovered: (position: Partial<Position>) => void;
   onCellDoubleClicked: (col: HeaderIndex, row: HeaderIndex) => void;
-  onCellClicked: (col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) => void;
+  onCellClicked: (
+    col: HeaderIndex,
+    row: HeaderIndex,
+    modifiers: GridClickModifiers,
+    ev: MouseEvent
+  ) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
   onGridResized: (dimension: Rect) => void;
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
@@ -252,10 +257,15 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       this.cellPopovers.close();
     }
     const [col, row] = this.getCartesianCoordinates(ev);
-    this.props.onCellClicked(col, row, {
-      expandZone: ev.shiftKey,
-      addZone: isCtrlKey(ev),
-    });
+    this.props.onCellClicked(
+      col,
+      row,
+      {
+        expandZone: ev.shiftKey,
+        addZone: isCtrlKey(ev),
+      },
+      ev
+    );
   }
 
   onDoubleClick(ev: MouseEvent) {

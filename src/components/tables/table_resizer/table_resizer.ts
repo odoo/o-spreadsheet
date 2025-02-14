@@ -1,7 +1,7 @@
 import { Component, useState } from "@odoo/owl";
 import { HeaderIndex, Highlight, SpreadsheetChildEnv, Table, Zone } from "../../../types";
 import { css, cssPropertiesToCss } from "../../helpers";
-import { dragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop";
+import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
 import { useHighlights } from "../../helpers/highlight_hook";
 
 const SIZE = 3;
@@ -30,6 +30,7 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
   static props = { table: Object };
 
   state = useState<State>({ highlightZone: undefined });
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
   setup(): void {
     useHighlights(this);
@@ -49,7 +50,7 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  onMouseDown(ev: MouseEvent) {
+  onMouseDown(ev: PointerEvent) {
     const tableZone = this.props.table.range.zone;
     const topLeft = { col: tableZone.left, row: tableZone.top };
     document.body.style.cursor = "nwse-resize";
@@ -75,7 +76,7 @@ export class TableResizer extends Component<Props, SpreadsheetChildEnv> {
         bottom: Math.max(row, topLeft.row),
       };
     };
-    dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
   }
 
   get highlights(): Highlight[] {
