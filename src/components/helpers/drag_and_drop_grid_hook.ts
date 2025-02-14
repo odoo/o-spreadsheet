@@ -1,6 +1,7 @@
+import { onWillUnmount } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers";
 import { SpreadsheetChildEnv } from "../../types/env";
-import { HeaderIndex } from "../../types/misc";
+import { HeaderIndex, Pixel } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 type EventFn = (ev: MouseEvent) => void;
 
@@ -9,13 +10,8 @@ type EventFn = (ev: MouseEvent) => void;
  *
  * @returns A function to remove the listeners.
  */
-export function startDnd(
-  onMouseMove: EventFn,
-  onMouseUp: EventFn,
-  onMouseDown: EventFn = () => {}
-) {
+export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
   const removeListeners = () => {
-    window.removeEventListener("pointerdown", onMouseDown);
     window.removeEventListener("pointerup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
     window.removeEventListener("pointermove", onMouseMove);
@@ -28,7 +24,6 @@ export function startDnd(
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
   }
-  window.addEventListener("pointerdown", onMouseDown);
   window.addEventListener("pointerup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
   window.addEventListener("pointermove", onMouseMove);
@@ -49,30 +44,25 @@ export function startDnd(
  * (occurrence of the current column and the current row). Second intended for actions
  * performed during the pointerup event.
  */
-export function dragAndDropBeyondTheViewport(
+export function useDragAndDropBeyondTheViewport(
   env: SpreadsheetChildEnv,
-  startEv: MouseEvent,
-  cbMouseMove: (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => void,
-  cbMouseUp: () => void,
   only: "horizontal" | "vertical" | false = false
 ) {
   let timeOutId: any = null;
   let currentEv: MouseEvent;
-  let previousEv: MouseEvent;
-  let startingEv: MouseEvent;
+  let previousEvPosition: { clientX: number; clientY: number };
   let startingX: number;
   let startingY: number;
   const getters = env.model.getters;
   const sheetId = getters.getActiveSheetId();
-  const position = gridOverlayPosition();
+  let position = { top: 0, left: 0 };
   let colIndex: number;
   let rowIndex: number;
-  const onMouseDown = (ev: MouseEvent) => {
-    previousEv = ev;
-    startingEv = ev;
-    startingX = startingEv.clientX - position.left;
-    startingY = startingEv.clientY - position.top;
-  };
+  let stop: () => void;
+
+  let cbMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {};
+  let cbMouseUp = () => {};
+
   const onMouseMove = (ev: MouseEvent) => {
     currentEv = ev;
     if (timeOutId) {
@@ -90,7 +80,7 @@ export function dragAndDropBeyondTheViewport(
     colIndex = getters.getColIndex(x);
 
     if (only !== "vertical") {
-      const previousX = previousEv.clientX - position.left;
+      const previousX = previousEvPosition.clientX - position.left;
       const edgeScrollInfoX = getters.getEdgeScrollCol(x, previousX, startingX);
       if (edgeScrollInfoX.canEdgeScroll) {
         canEdgeScroll = true;
@@ -121,7 +111,7 @@ export function dragAndDropBeyondTheViewport(
     rowIndex = getters.getRowIndex(y);
 
     if (only !== "horizontal") {
-      const previousY = previousEv.clientY - position.top;
+      const previousY = previousEvPosition.clientY - position.top;
       const edgeScrollInfoY = getters.getEdgeScrollRow(y, previousY, startingY);
       if (edgeScrollInfoY.canEdgeScroll) {
         canEdgeScroll = true;
@@ -165,7 +155,7 @@ export function dragAndDropBeyondTheViewport(
         onMouseMove(currentEv);
       }, Math.round(timeoutDelay));
     }
-    previousEv = currentEv;
+    previousEvPosition = { clientX: currentEv.clientX, clientY: currentEv.clientY };
   };
 
   const onMouseUp = () => {
@@ -173,5 +163,25 @@ export function dragAndDropBeyondTheViewport(
     cbMouseUp();
   };
 
-  startDnd(onMouseMove, onMouseUp, onMouseDown);
+  // start should have the callbacks as well
+  const start = (
+    dndStartClientX: Pixel,
+    dndStartClientY: Pixel,
+    cbMouseMove: (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => void,
+    cbMouseUp: () => void
+  ) => {
+    startingX = dndStartClientX - position.left;
+    startingY = dndStartClientY - position.top;
+    previousEvPosition = { clientX: dndStartClientX, clientY: dndStartClientY };
+    position = gridOverlayPosition();
+    cbMouseMove = cbMouseMove;
+    cbMouseUp = cbMouseUp;
+    stop = startDnd(onMouseMove, onMouseUp);
+  };
+
+  onWillUnmount(() => {
+    stop();
+  });
+
+  return { start };
 }
