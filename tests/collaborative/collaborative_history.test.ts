@@ -27,6 +27,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { spyUiPluginHandle, target } from "../test_helpers/helpers";
+import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative local history", () => {
@@ -957,6 +958,35 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
     expect(all).toHaveSynchronizedExportedData();
+  });
+
+  test("Pivot payload replayed is the same as the original", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    network.concurrent(() => {
+      setCellContent(alice, "A1", "hello");
+      addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
+      charlie.dispatch("RENAME_PIVOT", { pivotId: "1", name: "newName" });
+    });
+    undo(charlie);
+    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("updated pivot payload transformed is the same as the original", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    addPivot(charlie, "A1:A2", { name: "pivot" }, "1");
+    deleteRows(alice, [0]);
+    redo(alice);
+    network.concurrent(() => {
+      setCellContent(charlie, "A10", "hello");
+      updatePivot(alice, "1", {
+        dataSet: { sheetId: alice.getters.getActiveSheetId(), zone: toZone("A1:B1") },
+      });
+      alice.dispatch("RENAME_PIVOT", { pivotId: "1", name: "newName" });
+      undo(alice);
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("Concurrently undo a command on which another is based", () => {
