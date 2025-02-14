@@ -44,13 +44,14 @@ export function getBarChartDatasets(
   const trendDatasets: ChartDataset<"line">[] = [];
 
   for (const index in dataSetsValues) {
-    let { label, data } = dataSetsValues[index];
+    let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
 
     const backgroundColor = colors.next();
     const dataset: ChartDataset<"bar"> = {
       label,
       data,
+      hidden,
       borderColor: definition.background || BACKGROUND_CHART_COLOR,
       borderWidth: definition.stacked ? 1 : 0,
       backgroundColor,
@@ -95,6 +96,9 @@ export function getWaterfallDatasetAndLabels(
   const labelsWithSubTotals: string[] = [];
   let lastValue = 0;
   for (const dataSetsValue of dataSetsValues) {
+    if (dataSetsValue.hidden) {
+      continue;
+    }
     for (let i = 0; i < dataSetsValue.data.length; i++) {
       const data = dataSetsValue.data[i];
       labelsWithSubTotals.push(labels[i]);
@@ -138,7 +142,7 @@ export function getLineChartDatasets(
 
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let index = 0; index < dataSetsValues.length; index++) {
-    let { label, data } = dataSetsValues[index];
+    let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
 
     const color = colors.next();
@@ -150,6 +154,7 @@ export function getLineChartDatasets(
     const dataset: ChartDataset<"line"> = {
       label,
       data,
+      hidden,
       tension: 0, // 0 -> render straight lines, which is much faster
       borderColor: color,
       backgroundColor: areaChart ? setColorAlpha(color, LINE_FILL_TRANSPARENCY) : color,
@@ -193,7 +198,8 @@ export function getPieChartDatasets(
   const dataSets: ChartDataset<"pie">[] = [];
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
   const backgroundColor = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
-  for (const { label, data } of dataSetsValues) {
+  for (const { label, data, hidden } of dataSetsValues) {
+    if (hidden) continue;
     const dataset: ChartDataset<"pie"> = {
       label,
       data,
@@ -217,7 +223,7 @@ export function getComboChartDatasets(
   const trendDatasets: ChartDataset<"line">[] = [];
 
   for (let index = 0; index < dataSetsValues.length; index++) {
-    let { label, data } = dataSetsValues[index];
+    let { label, data, hidden } = dataSetsValues[index];
     label = definition.dataSets?.[index].label || label;
 
     const design = definition.dataSets?.[index];
@@ -227,6 +233,7 @@ export function getComboChartDatasets(
     const dataset: ChartDataset<"bar" | "line"> = {
       label: label,
       data,
+      hidden,
       borderColor: color,
       backgroundColor: color,
       yAxisID: definition.dataSets?.[index].yAxisId || "y",
@@ -260,7 +267,7 @@ export function getRadarChartDatasets(
 
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let i = 0; i < dataSetsValues.length; i++) {
-    let { label, data } = dataSetsValues[i];
+    let { label, data, hidden } = dataSetsValues[i];
     if (definition.dataSets?.[i]?.label) {
       label = definition.dataSets[i].label;
     }
@@ -268,6 +275,7 @@ export function getRadarChartDatasets(
     const dataset: ChartDataset<"radar"> = {
       label,
       data,
+      hidden,
       borderColor,
       backgroundColor: borderColor,
     };
