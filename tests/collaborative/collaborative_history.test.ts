@@ -8,6 +8,7 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
   addRows,
+  clearCells,
   createSheet,
   deleteColumns,
   deleteRows,
@@ -921,6 +922,20 @@ describe("Collaborative local history", () => {
       (user) => user.getters.getVisibleSheetIds(),
       [firstSheetId]
     );
+  });
+
+  test("Evaluation is re-triggered after a replay of dupplicate sheet", () => {
+    const { network, alice, bob, charlie } = setupCollaborativeEnv();
+    network.concurrent(() => {
+      deleteRows(bob, [0], "Sheet1");
+      setCellContent(alice, "A1", "hello", "Sheet1");
+    });
+    network.concurrent(() => {
+      clearCells(alice, ["A1:B2"], "Sheet1");
+      duplicateSheet(charlie, "Sheet1", "duplicateSheetId");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedEvaluation();
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
 
   test("Evaluation is the same after a sheet deletion replayed", () => {

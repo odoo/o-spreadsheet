@@ -127,6 +127,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "UNDO",
   "REDO",
   "ADD_MERGE",
+  "DUPLICATE_SHEET",
   "UPDATE_LOCALE",
 ]);
 
@@ -137,7 +138,6 @@ export const invalidateDependenciesCommands = new Set<CommandTypes>([
 
 export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   ...invalidateEvaluationCommands,
-  "DUPLICATE_SHEET",
   "EVALUATE_CELLS",
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
