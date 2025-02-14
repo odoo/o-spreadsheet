@@ -5,6 +5,7 @@ import { SelectionInput } from "../../src/components/selection_input/selection_i
 import { ColorGenerator, toCartesian, toZone } from "../../src/helpers";
 import { useStoreProvider } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
+import { HighlightStore } from "../../src/stores/highlight_store";
 import { Color, SpreadsheetChildEnv } from "../../src/types";
 import {
   activateSheet,
@@ -234,20 +235,26 @@ describe("Selection Input", () => {
     // data series of a chart, as the color of the removed range won't be passed anymore to
     // the colors function in the chart's side panel's props.
     let colors = ["#FF0000", "#00FF00"];
-    await createSelectionInput({
+    const { parent, env } = await createSelectionInput({
       initialRanges: ["A1", "B1"],
       colors: colors,
     });
-    simulateClick(fixture.querySelectorAll("input")[0]);
-    await nextTick();
+    const highlightStore = env.getStore(HighlightStore);
+    await simulateClick(fixture.querySelectorAll("input")[0]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color:#FF0000; ");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color:#00FF00; ");
-    colors[0] = "#0000FF";
-    colors[1] = "#FF00FF";
-    simulateClick(fixture.querySelectorAll("input")[1]);
-    await nextTick();
+    expect(highlightStore.highlights).toMatchObject([
+      { color: "#FF0000", zone: toZone("A1") },
+      { color: "#00FF00", zone: toZone("B1") },
+    ]);
+    parent.colors = ["#0000FF", "#FF00FF"];
+    await simulateClick(fixture.querySelectorAll("input")[1]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color:#0000FF; ");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color:#FF00FF; ");
+    expect(highlightStore.highlights).toMatchObject([
+      { color: "#0000FF", zone: toZone("A1") },
+      { color: "#FF00FF", zone: toZone("B1") },
+    ]);
   });
 
   test("can select full column as unbounded zone by clicking on header", async () => {
