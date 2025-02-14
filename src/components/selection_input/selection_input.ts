@@ -4,7 +4,7 @@ import { range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
 import { Color, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { useDragAndDropListItems } from "../helpers/drag_and_drop_hook";
+import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
 
