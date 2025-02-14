@@ -99,6 +99,58 @@ expect.extend({
     }
     return { pass: !this.isNot, message: () => "" };
   },
+<<<<<<< 18.0
+||||||| 34b39f169c2ddfa227b060de5344673f57b5efb9
+  toHaveSynchronizedExportedData(users: Model[]) {
+    for (let i = 0; i < users.length - 1; i++) {
+      const a = users[i];
+      const b = users[i + 1];
+      const exportA = a.exportData();
+      const exportB = b.exportData();
+      if (!this.equals(exportA, exportB, [this.utils.iterableEquality])) {
+        const clientA = a.getters.getClient().id;
+        const clientB = b.getters.getClient().id;
+        return {
+          pass: this.isNot,
+          message: () =>
+            `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
+              exportA,
+              exportB,
+              clientA,
+              clientB,
+              false
+            )}`,
+        };
+      }
+    }
+    return { pass: !this.isNot, message: () => "" };
+  },
+=======
+  toHaveSynchronizedExportedData(users: Model[]) {
+    for (let i = 0; i < users.length - 1; i++) {
+      const a = users[i];
+      const b = users[i + 1];
+      const exportA = a.exportData();
+      const exportB = b.exportData();
+      if (!deepEquals(exportA, exportB)) {
+        const clientA = a.getters.getClient().id;
+        const clientB = b.getters.getClient().id;
+        return {
+          pass: this.isNot,
+          message: () =>
+            `${clientA} and ${clientB} are not synchronized: \n${this.utils.printDiffOrStringify(
+              exportA,
+              exportB,
+              clientA,
+              clientB,
+              false
+            )}`,
+        };
+      }
+    }
+    return { pass: !this.isNot, message: () => "" };
+  },
+>>>>>>> 5a190d2f1436ee8099d83551acee70a0e588c527
   toBeCancelledBecause(dispatchResult: DispatchResult, ...expectedReasons: CancelledReason[]) {
     const pass = this.equals(dispatchResult.reasons, expectedReasons, [
       this.utils.iterableEquality,
