@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { isSameColor } from "../../src/helpers/color";
+import { deepEquals } from "../../src/helpers/misc";
 import { CancelledReason, DispatchResult } from "../../src/types";
 
 declare global {
@@ -74,7 +75,7 @@ expect.extend({
         }
         const exportA = a.exportData();
         const exportB = b.exportData();
-        if (!this.equals(exportA, exportB, [this.utils.iterableEquality])) {
+        if (!deepEquals(exportA, exportB)) {
           const clientA = a.getters.getClient().id;
           const clientB = b.getters.getClient().id;
           return {
