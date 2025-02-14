@@ -31,7 +31,7 @@ export class SelectionInputStore extends SpreadsheetStore {
     "confirm",
     "updateColors",
   ] as const;
-  ranges: RangeInputValue[] = [];
+  private ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
   private inputSheetId: UID;
   private focusStore = this.get(FocusStore);
@@ -166,6 +166,11 @@ export class SelectionInputStore extends SpreadsheetStore {
 
   updateColors(colors: Color[]) {
     this.colors = colors;
+    const colorGenerator = new ColorGenerator(this.ranges.length, this.colors);
+    this.ranges = this.ranges.map((range) => ({
+      ...range,
+      color: colorGenerator.next(),
+    }));
   }
 
   confirm() {
@@ -206,14 +211,13 @@ export class SelectionInputStore extends SpreadsheetStore {
    * e.g. ["A1", "Sheet2!B3", "E12"]
    */
   get selectionInputs(): (RangeInputValue & { isFocused: boolean; isValidRange: boolean })[] {
-    const generator = new ColorGenerator(this.ranges.length, this.colors);
     return this.ranges.map((input, index) =>
       Object.assign({}, input, {
         color:
           this.hasMainFocus &&
           this.focusedRangeIndex !== null &&
           this.getters.isRangeValid(input.xc)
-            ? generator.next()
+            ? input.color
             : null,
         isFocused: this.hasMainFocus && this.focusedRangeIndex === index,
         isValidRange: input.xc === "" || this.getters.isRangeValid(input.xc),
