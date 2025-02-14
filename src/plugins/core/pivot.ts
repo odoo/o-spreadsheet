@@ -124,7 +124,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         break;
       }
       case "UPDATE_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, "definition", cmd.pivot);
+        this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
         this.compileCalculatedMeasures(cmd.pivot.measures);
         break;
       }
@@ -214,7 +214,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     pivot: PivotCoreDefinition,
     formulaId = this.nextFormulaId.toString()
   ) {
-    this.history.update("pivots", pivotId, { definition: pivot, formulaId });
+    this.history.update("pivots", pivotId, { definition: deepCopy(pivot), formulaId });
     this.compileCalculatedMeasures(pivot.measures);
     this.history.update("formulaIds", formulaId, pivotId);
     this.history.update("nextFormulaId", this.nextFormulaId + 1);
