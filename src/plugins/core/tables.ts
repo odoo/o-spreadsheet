@@ -62,6 +62,14 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "CREATE_TABLE":
+        if (
+          cmd.ranges.some(
+            (rangeData) =>
+              !this.getters.tryGetSheet(rangeData._sheetId) || rangeData._sheetId !== cmd.sheetId
+          )
+        ) {
+          return CommandResult.InvalidSheetId;
+        }
         const zones = cmd.ranges.map(
           (rangeData) => this.getters.getRangeFromRangeData(rangeData).zone
         );
