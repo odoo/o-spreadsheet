@@ -1,6 +1,6 @@
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
-import { dragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop";
+import { useDragAndDropBeyondTheViewport } from "../../src/components/helpers/drag_and_drop_grid_hook";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { numberToLetters } from "../../src/helpers";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
@@ -50,10 +50,11 @@ class FakeGridComponent extends Component<Props, SpreadsheetChildEnv> {
       model: this.props.model,
     });
   }
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
-  onMouseDown(ev: MouseEvent) {
-    dragAndDropBeyondTheViewport(
-      this.env,
+  onMouseDown(ev: PointerEvent) {
+    this.dragNDropGrid.start(
+      ev,
       (col, row) => {
         selectedCol = col;
         selectedRow = row;

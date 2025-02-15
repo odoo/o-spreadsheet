@@ -1,39 +1,9 @@
 import { onWillUnmount } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers";
 import { SpreadsheetChildEnv } from "../../types/env";
-import { HeaderIndex, Pixel } from "../../types/misc";
+import { HeaderIndex } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
-type EventFn = (ev: MouseEvent) => void;
-
-/**
- * Start listening to pointer events and apply the given callbacks.
- *
- * @returns A function to remove the listeners.
- */
-export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
-  const removeListeners = () => {
-    window.removeEventListener("pointerup", _onMouseUp);
-    window.removeEventListener("dragstart", _onDragStart);
-    window.removeEventListener("pointermove", onMouseMove);
-    window.removeEventListener("wheel", onMouseMove);
-  };
-  const _onMouseUp = (ev: MouseEvent) => {
-    onMouseUp(ev);
-    removeListeners();
-  };
-  function _onDragStart(ev: DragEvent) {
-    ev.preventDefault();
-  }
-  window.addEventListener("pointerup", _onMouseUp);
-  window.addEventListener("dragstart", _onDragStart);
-  window.addEventListener("pointermove", onMouseMove);
-  // mouse wheel on window is by default a passive event.
-  // preventDefault() is not allowed in passive event handler.
-  // https://chromestatus.com/feature/6662647093133312
-  window.addEventListener("wheel", onMouseMove, { passive: false });
-
-  return removeListeners;
-}
+import { startDnd } from "./drag_and_drop";
 
 /**
  * Function to be used during a pointerdown event, this function allows to
@@ -44,30 +14,27 @@ export function startDnd(onMouseMove: EventFn, onMouseUp: EventFn) {
  * (occurrence of the current column and the current row). Second intended for actions
  * performed during the pointerup event.
  */
-export function useDragAndDropBeyondTheViewport(
-  env: SpreadsheetChildEnv,
-  only: "horizontal" | "vertical" | false = false
-) {
+export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let timeOutId: any = null;
-  let currentEv: MouseEvent;
-  let previousEvPosition: { clientX: number; clientY: number };
+  let currentEv: PointerEvent;
+  // uniformiser les objets qu'ohn manipule, soit object soit variable X et Y
+  let previousEvClientPosition: { clientX: number; clientY: number };
   let startingX: number;
   let startingY: number;
   const getters = env.model.getters;
   const sheetId = getters.getActiveSheetId();
-  let position = { top: 0, left: 0 };
-  let colIndex: number;
-  let rowIndex: number;
-  let stop: () => void;
+  let cleanUp: () => void;
 
-  let cbMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {};
-  let cbMouseUp = () => {};
+  let pointerMoveCallback: (col: HeaderIndex, row: HeaderIndex, ev: PointerEvent) => void;
+  let pointerUpCallback: () => void;
 
-  const onMouseMove = (ev: MouseEvent) => {
+  const pointerMoveHandler = (ev: PointerEvent) => {
     currentEv = ev;
     if (timeOutId) {
       return;
     }
+
+    const position = gridOverlayPosition();
 
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
     let { top, left, bottom, right } = getters.getActiveMainViewport();
@@ -77,65 +44,61 @@ export function useDragAndDropBeyondTheViewport(
     let timeoutDelay = MAX_DELAY;
 
     const x = currentEv.clientX - position.left;
-    colIndex = getters.getColIndex(x);
+    let colIndex = getters.getColIndex(x);
 
-    if (only !== "vertical") {
-      const previousX = previousEvPosition.clientX - position.left;
-      const edgeScrollInfoX = getters.getEdgeScrollCol(x, previousX, startingX);
-      if (edgeScrollInfoX.canEdgeScroll) {
-        canEdgeScroll = true;
-        timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoX.delay);
-        let newTarget: number;
-        switch (edgeScrollInfoX.direction) {
-          case "reset":
-            colIndex = xSplit;
-            newTarget = xSplit;
-            break;
-          case 1:
-            colIndex = right;
-            newTarget = left + 1;
-            break;
-          case -1:
-            colIndex = left - 1;
-            while (env.model.getters.isColHidden(sheetId, colIndex)) {
-              colIndex--;
-            }
-            newTarget = colIndex;
-            break;
-        }
-        scrollX = getters.getColDimensions(sheetId, newTarget!).start - offsetCorrectionX;
+    const previousX = previousEvClientPosition.clientX - position.left;
+    const edgeScrollInfoX = getters.getEdgeScrollCol(x, previousX, startingX);
+    if (edgeScrollInfoX.canEdgeScroll) {
+      canEdgeScroll = true;
+      timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoX.delay);
+      let newTarget: number;
+      switch (edgeScrollInfoX.direction) {
+        case "reset":
+          colIndex = xSplit;
+          newTarget = xSplit;
+          break;
+        case 1:
+          colIndex = right;
+          newTarget = left + 1;
+          break;
+        case -1:
+          colIndex = left - 1;
+          while (env.model.getters.isColHidden(sheetId, colIndex)) {
+            colIndex--;
+          }
+          newTarget = colIndex;
+          break;
       }
+      scrollX = getters.getColDimensions(sheetId, newTarget!).start - offsetCorrectionX;
     }
 
     const y = currentEv.clientY - position.top;
-    rowIndex = getters.getRowIndex(y);
+    let rowIndex = getters.getRowIndex(y);
 
-    if (only !== "horizontal") {
-      const previousY = previousEvPosition.clientY - position.top;
-      const edgeScrollInfoY = getters.getEdgeScrollRow(y, previousY, startingY);
-      if (edgeScrollInfoY.canEdgeScroll) {
-        canEdgeScroll = true;
-        timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoY.delay);
-        let newTarget: number;
-        switch (edgeScrollInfoY.direction) {
-          case "reset":
-            rowIndex = ySplit;
-            newTarget = ySplit;
-            break;
-          case 1:
-            rowIndex = bottom;
-            newTarget = top + edgeScrollInfoY.direction;
-            break;
-          case -1:
-            rowIndex = top - 1;
-            while (env.model.getters.isRowHidden(sheetId, rowIndex)) {
-              rowIndex--;
-            }
-            newTarget = rowIndex;
-            break;
-        }
-        scrollY = env.model.getters.getRowDimensions(sheetId, newTarget!).start - offsetCorrectionY;
+    const previousY = previousEvClientPosition.clientY - position.top;
+    const edgeScrollInfoY = getters.getEdgeScrollRow(y, previousY, startingY);
+    if (edgeScrollInfoY.canEdgeScroll) {
+      canEdgeScroll = true;
+      timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoY.delay);
+      let newTarget: number;
+      switch (edgeScrollInfoY.direction) {
+        case "reset":
+          rowIndex = ySplit;
+          newTarget = ySplit;
+          break;
+        case 1:
+          rowIndex = bottom;
+          newTarget = top + edgeScrollInfoY.direction;
+          break;
+        case -1:
+          rowIndex = top - 1;
+          while (env.model.getters.isRowHidden(sheetId, rowIndex)) {
+            rowIndex--;
+          }
+          newTarget = rowIndex;
+          break;
       }
+      scrollY = env.model.getters.getRowDimensions(sheetId, newTarget!).start - offsetCorrectionY;
     }
 
     if (!canEdgeScroll) {
@@ -147,41 +110,42 @@ export function useDragAndDropBeyondTheViewport(
       }
     }
 
-    cbMouseMove(colIndex, rowIndex, currentEv);
+    pointerMoveCallback?.(colIndex, rowIndex, currentEv);
     if (canEdgeScroll) {
       env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: scrollX, offsetY: scrollY });
       timeOutId = setTimeout(() => {
         timeOutId = null;
-        onMouseMove(currentEv);
+        pointerMoveHandler(currentEv);
       }, Math.round(timeoutDelay));
     }
-    previousEvPosition = { clientX: currentEv.clientX, clientY: currentEv.clientY };
+    previousEvClientPosition = { clientX: currentEv.clientX, clientY: currentEv.clientY };
   };
 
-  const onMouseUp = () => {
+  const pointerUpHandler = () => {
     clearTimeout(timeOutId);
-    cbMouseUp();
+    timeOutId = null;
+    pointerUpCallback?.();
   };
 
-  // start should have the callbacks as well
-  const start = (
-    dndStartClientX: Pixel,
-    dndStartClientY: Pixel,
-    cbMouseMove: (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => void,
-    cbMouseUp: () => void
+  const startFn = (
+    ev: PointerEvent,
+    onPointerMove: (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => void,
+    onPointerUp: () => void
   ) => {
-    startingX = dndStartClientX - position.left;
-    startingY = dndStartClientY - position.top;
-    previousEvPosition = { clientX: dndStartClientX, clientY: dndStartClientY };
-    position = gridOverlayPosition();
-    cbMouseMove = cbMouseMove;
-    cbMouseUp = cbMouseUp;
-    stop = startDnd(onMouseMove, onMouseUp);
+    const position = gridOverlayPosition();
+    startingX = ev.clientX - position.left;
+    startingY = ev.clientY - position.top;
+    previousEvClientPosition = { clientX: ev.clientX, clientY: ev.clientY };
+    pointerMoveCallback = onPointerMove;
+    pointerUpCallback = onPointerUp;
+    cleanUp = startDnd(pointerMoveHandler, pointerUpHandler);
   };
 
   onWillUnmount(() => {
-    stop();
+    clearTimeout(timeOutId);
+    timeOutId = null;
+    cleanUp?.();
   });
 
-  return { start };
+  return { start: startFn };
 }

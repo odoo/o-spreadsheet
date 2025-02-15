@@ -475,7 +475,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
-  onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers, ev: MouseEvent) {
+  onCellClicked(
+    col: HeaderIndex,
+    row: HeaderIndex,
+    modifiers: GridClickModifiers,
+    ev: PointerEvent
+  ) {
+    ev.preventDefault();
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.composerFocusStore.activeComposer.stopEdition();
     }
@@ -505,7 +511,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }
     };
-    this.dragNDropGrid.start(ev.clientX, ev.clientY, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
     // dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
   }
 
