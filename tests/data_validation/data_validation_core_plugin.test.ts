@@ -14,7 +14,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { getDataValidationRules } from "../test_helpers/helpers";
+import { getDataValidationRules, toRangesData } from "../test_helpers/helpers";
 
 describe("Data validation", () => {
   let model: Model;
@@ -40,6 +40,15 @@ describe("Data validation", () => {
         "blocking",
         "wrong-sheet-id"
       );
+      expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+    });
+
+    test("Data validation with a wrong sheet in ranges", () => {
+      const result = model.dispatch("ADD_DATA_VALIDATION_RULE", {
+        sheetId: "Sheet1",
+        ranges: toRangesData("wrong-sheet-id", "A1:5"),
+        rule: { id: "dvId", criterion: { type: "textContains", values: ["1"] } },
+      });
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
 
