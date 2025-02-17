@@ -169,6 +169,6 @@ Here is the way to declare it.
 const { inverseCommandRegistry } = o_spreadsheet.registries;
 
 inverseCommandRegistry.add("CREATE_SHEET", (cmd) => {
-  return [{ type: "DELETE_SHEET", sheetId: cmd.sheetId }];
+  return [{ type: "DELETE_SHEET", sheetId: cmd.sheetId, sheetName: cmd.sheetName }];
 });
 ```

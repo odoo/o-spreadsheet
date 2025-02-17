@@ -17,12 +17,12 @@ export type CommandAdaptRangeFunction<C extends CoreCommand> = (
 ) => C;
 
 export class OVTRegistry extends Registry<CommandAdaptRangeFunction<CoreCommand>> {
-  addValue<C extends CoreCommand>(cmdType: C["type"], fn: CommandAdaptRangeFunction<C>): this {
-    this.content[cmdType] = fn;
+  add<C extends CoreCommand>(cmdType: C["type"], fn: CommandAdaptRangeFunction<C>): this {
+    super.add(cmdType, fn);
     return this;
   }
 
-  getValues<C extends CoreCommand>(cmdType: C["type"]): CommandAdaptRangeFunction<CoreCommand> {
+  get<C extends CoreCommand>(cmdType: C["type"]): CommandAdaptRangeFunction<CoreCommand> {
     return this.content[cmdType];
   }
 }

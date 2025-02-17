@@ -126,8 +126,11 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string, skipSheetId?: UID) {
     for (const sheetId in this.compiledMeasureFormulas) {
+      if (sheetId === skipSheetId) {
+        continue;
+      }
       for (const formulaString in this.compiledMeasureFormulas[sheetId]) {
         const compiledFormula = this.compiledMeasureFormulas[sheetId][formulaString];
         const newDependencies: Range[] = [];

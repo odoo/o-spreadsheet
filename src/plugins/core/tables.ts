@@ -52,9 +52,12 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
 
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string, skipSheetId?: UID) {
     const sheetIds = sheetId ? [sheetId] : this.getters.getSheetIds();
     for (const sheetId of sheetIds) {
+      if (sheetId === skipSheetId) {
+        continue;
+      }
       for (const table of this.getCoreTables(sheetId)) {
         this.applyRangeChangeOnTable(sheetId, table, applyChange);
       }

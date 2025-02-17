@@ -1,6 +1,13 @@
 import { Model } from "../../../src";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
-import { createImage, paste, redo, undo } from "../../test_helpers/commands_helpers";
+import {
+  createImage,
+  createSheet,
+  deleteSheet,
+  paste,
+  redo,
+  undo,
+} from "../../test_helpers/commands_helpers";
 import { getFigureIds } from "../../test_helpers/helpers";
 
 describe("image plugin", function () {
@@ -89,9 +96,9 @@ describe("test image in sheet", function () {
     const model = new Model();
     const imageId = "Image1";
     const newSheetId = "Sheet2";
-    model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 2 });
+    createSheet(model, { sheetId: newSheetId, position: 2 });
     createImage(model, { sheetId: newSheetId, figureId: imageId });
-    model.dispatch("DELETE_SHEET", { sheetId: newSheetId });
+    deleteSheet(model, newSheetId);
     const images = getFigureIds(model, newSheetId);
     expect(images).toHaveLength(0);
   });

@@ -189,7 +189,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     this.clearClippedZones(content);
     const selection = target[0];
     this.pasteZone(sheetId, selection.left, selection.top, content.cells, options);
-    const sheetName = this.getters.tryGetSheetName(sheetId);
+    const sheetName = this.getters.getSheetName(sheetId);
     this.dispatch("MOVE_RANGES", {
       target: content.zones,
       sheetId: content.sheetId,

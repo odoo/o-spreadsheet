@@ -120,9 +120,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
   }
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string, skipSheetId?: UID) {
     const sheetIds = sheetId ? [sheetId] : Object.keys(this.merges);
     for (const sheetId of sheetIds) {
+      if (sheetId === skipSheetId) {
+        continue;
+      }
       this.applyRangeChangeOnSheet(sheetId, applyChange);
     }
   }

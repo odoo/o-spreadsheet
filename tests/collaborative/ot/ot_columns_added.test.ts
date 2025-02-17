@@ -28,6 +28,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     base: 5,
     quantity: 2,
     sheetId,
+    sheetName: "",
   };
   const addColumnsBefore: AddColumnsRowsCommand = {
     type: "ADD_COLUMNS_ROWS",
@@ -36,6 +37,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
     base: 10,
     quantity: 2,
     sheetId,
+    sheetName: "",
   };
 
   describe.each(OT_TESTS_SINGLE_CELL_COMMANDS)(
@@ -266,6 +268,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const addColumnsBefore: AddColumnsRowsCommand = {
         type: "ADD_COLUMNS_ROWS",
@@ -274,6 +277,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform(addColumnsBefore, addColumnsAfter);
       expect(result).toEqual(addColumnsBefore);
@@ -286,6 +290,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const addColumnsBefore: AddColumnsRowsCommand = {
         type: "ADD_COLUMNS_ROWS",
@@ -294,6 +299,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform(addColumnsAfter, addColumnsBefore);
       expect(result).toEqual({ ...addColumnsAfter, base: 7 });
@@ -306,6 +312,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform({ ...addColumnsAfter, base: 0 }, addColumnsAfter);
       expect(result).toEqual({ ...addColumnsAfter, base: 0 });
@@ -318,6 +325,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform({ ...addColumnsAfter, base: 10 }, addColumnsAfter);
       expect(result).toEqual({ ...addColumnsAfter, base: 12 });

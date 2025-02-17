@@ -120,6 +120,7 @@ describe("OT with DELETE_SHEET", () => {
       col: 0,
       row: 0,
       target: [toZone("A1")],
+      sheetName: "",
     };
 
     test("Delete the sheet on which the command is triggered", () => {

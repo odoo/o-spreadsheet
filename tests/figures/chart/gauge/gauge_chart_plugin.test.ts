@@ -374,10 +374,10 @@ describe("datasource tests", function () {
   });
 
   test("Gauge Chart is deleted on sheet deletion", () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "sheet2", position: 1 });
+    createSheet(model, { sheetId: "sheet2", position: 1 });
     createGaugeChart(model, { dataRange: "Sheet1!B1:B4" }, "chartId", "sheet2");
     expect(model.getters.getChartRuntime("chartId") as GaugeChartRuntime).not.toBeUndefined();
-    model.dispatch("DELETE_SHEET", { sheetId: "sheet2" });
+    deleteSheet(model, "sheet2");
     expect(() => model.getters.getChartRuntime("chartId")).toThrow();
   });
 

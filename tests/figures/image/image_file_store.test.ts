@@ -227,7 +227,7 @@ describe("image file store", () => {
           nextRevisionId: "2",
           version: 1,
           commands: [
-            { type: "CREATE_SHEET", position: 1, sheetId: "sheet_2" },
+            { type: "CREATE_SHEET", position: 1, sheetId: "sheet_2", name: "Sheet2" },
             {
               type: "CREATE_IMAGE",
               definition: { path: "/image/1", size, mimetype: "image/jpeg" },
@@ -236,7 +236,7 @@ describe("image file store", () => {
               sheetId: "sheet_2",
               size,
             },
-            { type: "DELETE_SHEET", sheetId: "sheet_2" },
+            { type: "DELETE_SHEET", sheetId: "sheet_2", sheetName: "Sheet2" },
           ],
         },
       ]
@@ -263,7 +263,7 @@ describe("image file store", () => {
           nextRevisionId: "2",
           version: 1,
           commands: [
-            { type: "CREATE_SHEET", position: 1, sheetId: "sheet_2" },
+            { type: "CREATE_SHEET", position: 1, sheetId: "sheet_2", name: "Sheet2" },
             {
               type: "CREATE_IMAGE",
               definition: { path: "/image/1", size, mimetype: "image/jpeg" },

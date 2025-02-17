@@ -8,7 +8,7 @@ import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from ".
 import { MockTransportService } from "../__mocks__/transport_service";
 import { getTextXlsxFiles } from "../__xlsx__/read_demo_xlsx";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
-import { copy, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { copy, createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import {
   getCell,
   getCellContent,
@@ -69,7 +69,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
+    createSheet(model, { sheetId: "42", position: 1 });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A1", "42")).toBe("Hello");
   });
@@ -153,12 +153,12 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    expect(model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1 })).toBeCancelledBecause(
-      CommandResult.CancelledForUnknownReason
-    );
-    expect(model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 })).toBeCancelledBecause(
-      CommandResult.CancelledForUnknownReason
-    );
+    expect(
+      model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
+    ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
+    expect(
+      model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1, name: "Sheet42" })
+    ).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
 
     const sheetId = model.getters.getActiveSheetId();
     expect(

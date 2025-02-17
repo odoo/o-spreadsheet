@@ -346,6 +346,7 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "MOVE_RANGES",
     target: target("A1"),
     sheetId: "sheetId",
+    sheetName: "SheetId",
     targetSheetId: "sheetId",
     col: 0,
     row: 0,

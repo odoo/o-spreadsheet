@@ -25,6 +25,7 @@ import {
   createGaugeChart,
   createScorecardChart,
   createSheet,
+  deleteSheet,
   paste,
   selectCell,
   setCellContent,
@@ -1983,7 +1984,8 @@ describe("charts with multiple sheets", () => {
 
   test("delete sheet containing chart data does not crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
-    model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() });
+    const sheetId = model.getters.getActiveSheetId();
+    deleteSheet(model, sheetId);
     const runtimeChart = model.getters.getChartRuntime(chartId);
     expect(runtimeChart).toBeDefined();
     await nextTick();

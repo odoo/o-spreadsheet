@@ -16,7 +16,7 @@ function updateCellCommandAdaptRange(
   cmd.content = cmd.content && adaptFormulaStringRanges(cmd.sheetId, cmd.content, applyChange);
   return cmd;
 }
-ovtRegistry.addValue("UPDATE_CELL", updateCellCommandAdaptRange);
+ovtRegistry.add("UPDATE_CELL", updateCellCommandAdaptRange);
 
 function addConditionalFormatCommandAdaptRange(
   cmd: AddConditionalFormatCommand,
@@ -29,7 +29,7 @@ function addConditionalFormatCommandAdaptRange(
   }
   return cmd;
 }
-ovtRegistry.addValue("ADD_CONDITIONAL_FORMAT", addConditionalFormatCommandAdaptRange);
+ovtRegistry.add("ADD_CONDITIONAL_FORMAT", addConditionalFormatCommandAdaptRange);
 
 function addDataValidationCommandAdaptRange(
   cmd: AddDataValidationCommand,
@@ -40,7 +40,7 @@ function addDataValidationCommandAdaptRange(
   );
   return cmd;
 }
-ovtRegistry.addValue("ADD_DATA_VALIDATION_RULE", addDataValidationCommandAdaptRange);
+ovtRegistry.add("ADD_DATA_VALIDATION_RULE", addDataValidationCommandAdaptRange);
 
 function addPivotCommandAdaptRange<Cmd extends AddPivotCommand | UpdatePivotCommand>(
   cmd: Cmd,
@@ -57,5 +57,5 @@ function addPivotCommandAdaptRange<Cmd extends AddPivotCommand | UpdatePivotComm
   });
   return cmd;
 }
-ovtRegistry.addValue("ADD_PIVOT", addPivotCommandAdaptRange);
-ovtRegistry.addValue("UPDATE_PIVOT", addPivotCommandAdaptRange);
+ovtRegistry.add("ADD_PIVOT", addPivotCommandAdaptRange);
+ovtRegistry.add("UPDATE_PIVOT", addPivotCommandAdaptRange);

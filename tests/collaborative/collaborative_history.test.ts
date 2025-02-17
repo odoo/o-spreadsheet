@@ -226,7 +226,9 @@ describe("Collaborative local history", () => {
         nextRevisionId: "2",
         version: MESSAGE_VERSION,
         clientId: "bob",
-        commands: [{ type: "CREATE_SHEET", sheetId: "newSheetId", position: 1 }],
+        commands: [
+          { type: "CREATE_SHEET", sheetId: "newSheetId", name: "newSheetName", position: 1 },
+        ],
       },
       {
         type: "REMOTE_REVISION",
@@ -556,7 +558,7 @@ describe("Collaborative local history", () => {
     expect(all).toHaveSynchronizedExportedData();
     setCellContent(alice, "A1", "hello", sheetId);
     undo(alice);
-    bob.dispatch("DELETE_SHEET", { sheetId });
+    deleteSheet(bob, sheetId);
     redo(alice);
     expect(all).toHaveSynchronizedExportedData();
   });
@@ -624,7 +626,7 @@ describe("Collaborative local history", () => {
   test("Undo a create sheet command", () => {
     const sheet1Id = alice.getters.getActiveSheetId();
     const sheetId = "42";
-    alice.dispatch("CREATE_SHEET", { sheetId, position: 0 });
+    createSheet(alice, { sheetId, position: 0 });
     setCellContent(bob, "A1", "Hello in A1", sheetId);
     expect(all).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1", sheetId),

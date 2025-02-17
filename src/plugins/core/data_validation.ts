@@ -41,9 +41,12 @@ export class DataValidationPlugin
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
 
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string, skipSheetId?: UID) {
     const sheetIds = sheetId ? [sheetId] : Object.keys(this.rules);
     for (const sheetId of sheetIds) {
+      if (sheetId === skipSheetId) {
+        continue;
+      }
       this.loopThroughRangesOfSheet(sheetId, applyChange);
     }
   }

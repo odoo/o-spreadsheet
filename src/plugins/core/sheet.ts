@@ -173,7 +173,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "CREATE_SHEET":
         const sheet = this.createSheet(
           cmd.sheetId,
-          cmd.name || this.getNextSheetName(),
+          cmd.name,
           cmd.cols || 26,
           cmd.rows || 100,
           cmd.position

@@ -76,7 +76,7 @@ export function createSheet(
     sheetId,
     cols: data.cols,
     rows: data.rows,
-    name: data.name,
+    name: data.name ?? model.getters.getNextSheetName(),
   });
   if (data.hidden) {
     hideSheet(model, sheetId);
@@ -91,7 +91,7 @@ export function createSheet(
 }
 
 export function renameSheet(model: Model, sheetId: UID, name: string): DispatchResult {
-  const sheetName = model.getters.tryGetSheet(sheetId)?.name;
+  const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("RENAME_SHEET", { sheetId, name, sheetName });
 }
 
@@ -104,16 +104,11 @@ export function createSheetWithName(
   data: Partial<CreateSheetCommand & { activate: boolean }>,
   name: string
 ): DispatchResult {
-  let createResult = createSheet(model, data);
-  if (!createResult.isSuccessful) {
-    return createResult;
-  }
-  const sheets = model.getters.getSheetIds();
-  return renameSheet(model, sheets[sheets.length - 1], name);
+  return createSheet(model, { ...data, name });
 }
 
 export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
-  const sheetName = model.getters.tryGetSheet(sheetId)?.name;
+  const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("DELETE_SHEET", {
     sheetId,
     sheetName,
@@ -438,7 +433,7 @@ export function addColumns(
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  const sheetName = model.getters.tryGetSheet(sheetId)?.name;
+  const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("ADD_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -457,7 +452,7 @@ export function deleteColumns(
   columns: string[],
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  const sheetName = model.getters.tryGetSheet(sheetId)?.name;
+  const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
     dimension: "COL",
@@ -493,7 +488,7 @@ export function addRows(
   quantity: number,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  const sheetName = model.getters.tryGetSheet(sheetId)?.name;
+  const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("ADD_COLUMNS_ROWS", {
     dimension: "ROW",
     sheetId,
@@ -512,7 +507,7 @@ export function deleteRows(
   rows: number[],
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  const sheetName = model.getters.tryGetSheet(sheetId)?.name;
+  const sheetName = model.getters.tryGetSheet(sheetId)?.name ?? "SheetName";
   return model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId,
     elements: rows,

@@ -28,6 +28,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     base: 5,
     quantity: 2,
     sheetId,
+    sheetName: "",
   };
   const addRowsBefore: AddColumnsRowsCommand = {
     type: "ADD_COLUMNS_ROWS",
@@ -36,6 +37,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     base: 10,
     quantity: 2,
     sheetId,
+    sheetName: "",
   };
   describe.each(OT_TESTS_SINGLE_CELL_COMMANDS)(
     "OT with ADD_COLUMNS_ROW with dimension ROW",
@@ -194,6 +196,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
     type: "REMOVE_COLUMNS_ROWS",
     dimension: "ROW",
     sheetId,
+    sheetName: "",
   };
 
   describe.each([resizeRowsCommand, removeRowsCommands])("delete or resize rows", (toTransform) => {
@@ -260,6 +263,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const addRowsBefore: AddColumnsRowsCommand = {
         type: "ADD_COLUMNS_ROWS",
@@ -268,6 +272,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform(addRowsBefore, addRowsAfter);
       expect(result).toEqual(addRowsBefore);
@@ -280,6 +285,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const addRowsBefore: AddColumnsRowsCommand = {
         type: "ADD_COLUMNS_ROWS",
@@ -288,6 +294,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform(addRowsAfter, addRowsBefore);
       expect(result).toEqual({ ...addRowsAfter, base: 7 });
@@ -300,6 +307,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform({ ...addRowsAfter, base: 0 }, addRowsAfter);
       expect(result).toEqual({ ...addRowsAfter, base: 0 });
@@ -312,6 +320,7 @@ describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
         base: 5,
         quantity: 2,
         sheetId,
+        sheetName: "",
       };
       const result = transform({ ...addRowsAfter, base: 10 }, addRowsAfter);
       expect(result).toEqual({ ...addRowsAfter, base: 12 });

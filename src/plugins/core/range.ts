@@ -71,7 +71,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   handle(cmd: Command) {
     const arc = getApplyRangeChange(cmd);
     if (arc?.applyChange) {
-      this.executeOnAllRanges(arc.applyChange, arc.sheetId, arc.sheetName);
+      const skipSheetId = cmd.type === "CREATE_SHEET" ? cmd.sheetId : undefined;
+      this.executeOnAllRanges(arc.applyChange, arc.sheetId, arc.sheetName, skipSheetId);
     }
   }
 
@@ -93,10 +94,15 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
   }
 
-  private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId?: UID, sheetName?: string) {
+  private executeOnAllRanges(
+    adaptRange: ApplyRangeChange,
+    sheetId?: UID,
+    sheetName?: string,
+    skipSheetId?: UID
+  ) {
     const func = this.verifyRangeRemoved(adaptRange);
     for (const provider of this.providers) {
-      provider(func, sheetId, sheetName);
+      provider(func, sheetId, sheetName, skipSheetId);
     }
   }
 

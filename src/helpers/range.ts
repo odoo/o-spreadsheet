@@ -8,6 +8,7 @@ import {
   ChangeType,
   Command,
   CoreGetters,
+  CreateSheetCommand,
   CustomizedDataSet,
   DeleteSheetCommand,
   Getters,
@@ -404,9 +405,17 @@ export function getApplyRangeChange(cmd: Command): ApplyRangeChangeSheet | undef
         sheetId: cmd.sheetId,
         sheetName: cmd.sheetName,
       };
+    case "CREATE_SHEET":
+      return {
+        applyChange: getApplyRangeChangeCreateSheet(cmd),
+        sheetId: cmd.sheetId,
+        sheetName: cmd.name,
+      };
     case "RENAME_SHEET":
       return {
         applyChange: getApplyRangeChangeRenameSheet(cmd),
+        sheetId: cmd.sheetId,
+        sheetName: cmd.sheetName,
       };
     case "MOVE_RANGES":
       return {
@@ -511,6 +520,21 @@ function getApplyRangeChangeDeleteSheet(cmd: DeleteSheetCommand): ApplyRangeChan
       invalidSheetName,
     });
     return { changeType: "REMOVE", range };
+  };
+}
+
+function getApplyRangeChangeCreateSheet(cmd: CreateSheetCommand): ApplyRangeChange {
+  return (range: Range) => {
+    if (range.sheetId === cmd.sheetId) {
+      return { changeType: "CHANGE", range };
+    }
+    if (cmd.name && range.invalidSheetName === cmd.name) {
+      const invalidSheetName = undefined;
+      const sheetId = cmd.sheetId;
+      const newRange = range.clone({ sheetId, invalidSheetName });
+      return { changeType: "CHANGE", range: newRange };
+    }
+    return { changeType: "NONE" };
   };
 }
 

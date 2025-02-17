@@ -972,6 +972,7 @@ describe("Menu Item actions", () => {
     doAction(["insert", "insert_sheet"], env);
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       sheetId: "42",
+      name: "Sheet2",
       position: 1,
     });
     expect(dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {

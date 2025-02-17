@@ -26,6 +26,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
     elements: [2, 5, 3],
     dimension: "ROW",
     sheetId,
+    sheetName: "",
   };
 
   describe.each(OT_TESTS_SINGLE_CELL_COMMANDS)("single cell commands", (cmd) => {
@@ -209,6 +210,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       position: "after",
       quantity: 10,
       sheetId,
+      sheetName: "",
     };
 
     test("Add a removed rows", () => {
@@ -241,6 +243,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       type: "REMOVE_COLUMNS_ROWS",
       dimension: "ROW",
       sheetId,
+      sheetName: "",
     };
 
     test("Remove a row which is in the removed rows", () => {
@@ -363,6 +366,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       base: 5,
       quantity: 2,
       sheetId,
+      sheetName: "",
     };
     const addColumnsBefore: AddColumnsRowsCommand = {
       type: "ADD_COLUMNS_ROWS",
@@ -371,6 +375,7 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       base: 5,
       quantity: 2,
       sheetId,
+      sheetName: "",
     };
 
     test("Add columns (after) after delete columns", () => {

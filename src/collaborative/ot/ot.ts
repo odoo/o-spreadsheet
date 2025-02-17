@@ -79,7 +79,7 @@ export function transform(
 
 function adaptTransform(toTransform: CoreCommand, executed: CoreCommand): CoreCommand {
   const arc = getApplyRangeChange(executed);
-  const adaptFn = ovtRegistry.getValues(toTransform.type);
+  const adaptFn = ovtRegistry.get(toTransform.type);
   if (arc && adaptFn) {
     return adaptFn(toTransform, arc);
   }

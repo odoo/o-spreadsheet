@@ -75,7 +75,7 @@ export function isHeadersDependant(cmd: CoreCommand): boolean {
 }
 
 export interface SheetEditingCommand {
-  sheetName?: string;
+  sheetName: string;
 }
 
 export interface TargetDependentCommand {
@@ -406,7 +406,7 @@ export interface RemoveMergeCommand extends TargetDependentCommand {
 export interface CreateSheetCommand extends SheetDependentCommand {
   type: "CREATE_SHEET";
   position: number;
-  name?: string; // should be required in master
+  name: string;
   cols?: number;
   rows?: number;
 }

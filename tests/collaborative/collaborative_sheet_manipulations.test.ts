@@ -13,6 +13,7 @@ import {
   deleteCells,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   freezeColumns,
   freezeRows,
   hideColumns,
@@ -52,7 +53,7 @@ describe("Collaborative Sheet manipulation", () => {
     createSheet(alice, { sheetId: "42" });
     network.concurrent(() => {
       createSheet(alice, { sheetId: "2" });
-      bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+      deleteSheet(bob, "42");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -66,7 +67,7 @@ describe("Collaborative Sheet manipulation", () => {
     createSheet(alice, { sheetId: "42" });
     network.concurrent(() => {
       colorSheet(alice, "42", "#FF0000");
-      bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+      deleteSheet(bob, "42");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
@@ -157,7 +158,7 @@ describe("Collaborative Sheet manipulation", () => {
       },
     });
     network.concurrent(() => {
-      alice.dispatch("DELETE_SHEET", { sheetId });
+      deleteSheet(alice, sheetId);
       bob.dispatch("UPDATE_FIGURE", {
         id: "456",
         sheetId,
@@ -184,7 +185,7 @@ describe("Collaborative Sheet manipulation", () => {
       sheetId
     );
     network.concurrent(() => {
-      alice.dispatch("DELETE_SHEET", { sheetId });
+      deleteSheet(alice, sheetId);
       updateChart(
         bob,
         chartId,
@@ -717,7 +718,7 @@ describe("Collaborative Sheet manipulation", () => {
     test("Set grid lines visibility with a sheet deletion", () => {
       createSheet(alice, { sheetId: "42" });
       network.concurrent(() => {
-        bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+        deleteSheet(bob, "42");
         alice.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "42", areGridLinesVisible: false });
       });
       expect([alice, bob, charlie]).toHaveSynchronizedValue(
