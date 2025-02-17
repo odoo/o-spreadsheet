@@ -81,6 +81,9 @@ export class DataValidationPlugin
         if (!this.getters.tryGetSheet(cmd.sheetId)) {
           return CommandResult.InvalidSheetId;
         }
+        if (cmd.ranges.some((rangeData) => !this.getters.tryGetSheet(rangeData._sheetId))) {
+          return CommandResult.InvalidSheetId;
+        }
         return this.checkValidations(
           cmd,
           this.chainValidations(
