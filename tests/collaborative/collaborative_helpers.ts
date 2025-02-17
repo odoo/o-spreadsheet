@@ -1,3 +1,4 @@
+import { WorkbookData } from "../../src";
 import { deepCopy } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -17,7 +18,7 @@ interface CollaborativeEnv {
  * first, meaning she will also resend her pending messages first.
  * Similarly, Bob's messages are resent before Charlie's.
  */
-export function setupCollaborativeEnv(modelData?: any): CollaborativeEnv {
+export function setupCollaborativeEnv(modelData?: WorkbookData): CollaborativeEnv {
   const network = new MockTransportService();
   const emptySheetData = new Model(modelData).exportData();
   const alice = new Model(deepCopy(emptySheetData), {
