@@ -6,8 +6,8 @@ import { css, cssPropertiesToCss } from "../../helpers/css";
 css/* scss */ `
   .o-corner {
     position: absolute;
-    height: 6px;
-    width: 6px;
+    height: 8px;
+    width: 8px;
     border: 1px solid white;
   }
   .o-corner-nw,
