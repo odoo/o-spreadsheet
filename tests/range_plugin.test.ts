@@ -14,8 +14,6 @@ import {
 } from "./test_helpers/commands_helpers";
 import { addTestPlugin } from "./test_helpers/helpers";
 
-jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
-
 let m;
 
 export interface UseRange {

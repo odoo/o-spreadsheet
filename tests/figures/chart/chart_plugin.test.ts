@@ -38,8 +38,6 @@ import { ChartPlugin } from "../../../src/plugins/core";
 import { FR_LOCALE } from "../../test_helpers/constants";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 
-jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
-
 let model: Model;
 
 beforeEach(() => {
