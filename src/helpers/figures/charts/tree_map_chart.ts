@@ -45,6 +45,10 @@ import {
   getTreeMapChartTooltip,
 } from "./runtime";
 
+// ADRM TODO: stop leaking data
+// ADRM TODO: use sunburst config panel
+// ADRM TODO: adapt demo data for sunburst
+// ADRM TODO: maybe hierarchy chart category ?
 export class TreeMapChart extends AbstractChart {
   static defaults = {
     background: BACKGROUND_CHART_COLOR,
