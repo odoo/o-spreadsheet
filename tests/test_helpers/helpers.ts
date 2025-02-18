@@ -765,11 +765,6 @@ export function getExportedExcelData(model: Model): ExcelWorkbookData {
   return purgeSingleRowTables(data);
 }
 
-export function mockUuidV4To(model: Model, value: number | string) {
-  //@ts-ignore
-  return model.uuidGenerator.setNextId(value);
-}
-
 export const mockChart = () => {
   const mockChartData: ChartConfiguration = {
     data: { datasets: [] },
