@@ -38,8 +38,6 @@ import {
 import "../test_helpers/helpers";
 import { createEqualCF, testUndoRedo, toRangesData } from "../test_helpers/helpers";
 
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
-
 describe("sheets", () => {
   test("can create a new sheet, then undo, then redo", () => {
     const model = new Model();
