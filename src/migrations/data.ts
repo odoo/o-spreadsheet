@@ -26,7 +26,7 @@ import { normalizeV9 } from "./legacy_tools";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 14;
+export const CURRENT_VERSION = 14.5;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**

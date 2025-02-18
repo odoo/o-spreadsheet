@@ -439,6 +439,7 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
+    expect(data.version).toEqual(14.5);
     expect(data.sheets[0].filterTables).toEqual([{ range: "A1:C2" }]);
   });
 });
