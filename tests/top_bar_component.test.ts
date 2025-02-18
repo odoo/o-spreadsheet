@@ -42,7 +42,6 @@ import { mockGetBoundingClientRect } from "./test_helpers/mock_helpers";
 jest.mock("../src/helpers/figures/images/image_provider", () =>
   require("./__mocks__/mock_image_provider")
 );
-jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 mockGetBoundingClientRect({
   "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
