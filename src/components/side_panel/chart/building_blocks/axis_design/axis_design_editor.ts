@@ -2,13 +2,12 @@ import { Component, useState } from "@odoo/owl";
 import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../../constants";
 import { deepCopy } from "../../../../../helpers";
 import {
-  ChartWithDataSetDefinition,
+  ChartWithAxisDefinition,
   DispatchResult,
   SpreadsheetChildEnv,
   TitleDesign,
   UID,
 } from "../../../../../types";
-import { WaterfallChartDefinition } from "../../../../../types/chart/waterfall_chart";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Section } from "../../../components/section/section";
 import { ChartTitle } from "../chart_title/chart_title";
@@ -20,11 +19,8 @@ export interface AxisDefinition {
 
 interface Props {
   figureId: UID;
-  definition: ChartWithDataSetDefinition | WaterfallChartDefinition;
-  updateChart: (
-    figureId: UID,
-    definition: Partial<ChartWithDataSetDefinition | WaterfallChartDefinition>
-  ) => DispatchResult;
+  definition: ChartWithAxisDefinition;
+  updateChart: (figureId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
   axesList: AxisDefinition[];
 }
 

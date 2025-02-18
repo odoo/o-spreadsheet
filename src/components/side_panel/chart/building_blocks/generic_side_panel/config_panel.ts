@@ -87,17 +87,18 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   }
 
   getLabelRangeOptions() {
+    const definition = this.props.definition;
     return [
       {
         name: "aggregated",
         label: this.chartTerms.AggregatedChart,
-        value: this.props.definition.aggregated ?? false,
+        value: ("aggregated" in definition ? definition.aggregated : false) ?? false,
         onChange: this.onUpdateAggregated.bind(this),
       },
       {
         name: "dataSetsHaveTitle",
         label: this.dataSetsHaveTitleLabel,
-        value: this.props.definition.dataSetsHaveTitle,
+        value: definition.dataSetsHaveTitle,
         onChange: this.onUpdateDataSetsHaveTitle.bind(this),
       },
     ];

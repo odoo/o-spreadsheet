@@ -12,7 +12,7 @@ import {
   AxisDesign,
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
-  ChartWithDataSetDefinition,
+  ChartWithAxisDefinition,
   FunnelChartDefinition,
   GenericDefinition,
   LegendPosition,
@@ -331,7 +331,7 @@ function getChartAxisTitleRuntime(design?: AxisDesign):
 }
 
 function getChartAxis(
-  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  definition: GenericDefinition<ChartWithAxisDefinition>,
   position: "left" | "right" | "bottom",
   type: "values" | "labels",
   options: LocaleFormat & { stacked?: boolean }

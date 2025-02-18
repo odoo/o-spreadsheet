@@ -1,6 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { AxesDesign, ChartRuntimeGenerationArgs, CustomizedDataSet, TitleDesign } from "./chart";
+import { ChartRuntimeGenerationArgs, CustomizedDataSet, TitleDesign } from "./chart";
 import { LegendPosition } from "./common_chart";
 
 export interface GeoChartDefinition {
@@ -11,8 +11,6 @@ export interface GeoChartDefinition {
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
-  readonly axesDesign?: AxesDesign;
-  readonly aggregated?: boolean;
   readonly colorScale?: GeoChartColorScale;
   readonly missingValueColor?: Color;
   readonly region?: string;
