@@ -66,8 +66,6 @@ import {
 } from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
 
-jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
-
 let model: Model;
 
 beforeEach(() => {

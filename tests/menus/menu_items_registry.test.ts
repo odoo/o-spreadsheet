@@ -44,7 +44,6 @@ import {
   getName,
   getNode,
   makeTestEnv,
-  mockUuidV4To,
   restoreDefaultFunctions,
   spyModelDispatch,
   target,
@@ -59,8 +58,6 @@ import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { DEFAULT_LOCALES } from "../../src/types/locale";
 import { FR_LOCALE } from "../test_helpers/constants";
-
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 const TEST_CURRENCY: Partial<Currency> = {
   symbol: "€",
@@ -947,15 +944,15 @@ describe("Menu Item actions", () => {
   });
 
   test("Insert -> new sheet", () => {
-    mockUuidV4To(model, 42);
     const activeSheetId = env.model.getters.getActiveSheetId();
     doAction(["insert", "insert_sheet"], env);
+    const newSheetId = env.model.getters.getSheetIds()[1];
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
-      sheetId: "42",
+      sheetId: newSheetId,
       position: 1,
     });
     expect(dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
-      sheetIdTo: "42",
+      sheetIdTo: newSheetId,
       sheetIdFrom: activeSheetId,
     });
   });
