@@ -15,7 +15,7 @@ import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { css } from "../helpers";
-import { getBoundingRectAsPOJO, isCtrlKey } from "../helpers/dom_helpers";
+import { getBoundingRectAsPOJO, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
@@ -55,15 +55,23 @@ function useCellHovered(
     return { col, row };
   }
 
-  const { pause, resume } = useInterval(checkTiming, 200);
+  function getOffsetRelativeToOverlay(ev: MouseEvent): DOMCoordinates {
+    const gridRect = getBoundingRectAsPOJO(gridRef.el!);
+    return {
+      x: ev.clientX - gridRect.x,
+      y: ev.clientY - gridRect.y,
+    };
+  }
+
+  const { pause, resume } = useInterval(checkTiming, 100);
 
   function checkTiming() {
     const { col, row } = getPosition();
     const delta = Date.now() - lastMoved;
-    if (delta > 300 && (col !== hoveredPosition.col || row !== hoveredPosition.row)) {
+    if (delta >= 100 && (col !== hoveredPosition.col || row !== hoveredPosition.row)) {
       setPosition(undefined, undefined);
     }
-    if (delta > 300) {
+    if (delta >= 100) {
       if (col < 0 || row < 0) {
         return;
       }
@@ -71,11 +79,18 @@ function useCellHovered(
     }
   }
   function updateMousePosition(e: MouseEvent) {
-    if (gridRef.el === e.target) {
-      x = e.offsetX;
-      y = e.offsetY;
-      lastMoved = Date.now();
+    // moving on the grid overlay or the grid (which is a parent and does not necessarily have the same size)
+    // is considered as a move
+    if (
+      isChildEvent(gridRef.el, e) ||
+      (e.target as HTMLElement | null)?.classList?.contains("o-grid")
+    ) {
+      ({ x, y } = getOffsetRelativeToOverlay(e));
+      resume();
+    } else {
+      pause();
     }
+    lastMoved = Date.now();
   }
 
   function recompute() {
@@ -85,23 +100,9 @@ function useCellHovered(
     }
   }
 
-  function onMouseLeave(e: MouseEvent) {
-    const x = e.offsetX;
-    const y = e.offsetY;
-    const gridRect = getBoundingRectAsPOJO(gridRef.el!);
-
-    if (y < 0 || y > gridRect.height || x < 0 || x > gridRect.width) {
-      return updateMousePosition(e);
-    } else {
-      return pause();
-    }
-  }
-
-  useRefListener(gridRef, "pointermove", updateMousePosition);
-  useRefListener(gridRef, "mouseleave", onMouseLeave);
-  useRefListener(gridRef, "mouseenter", resume);
   useRefListener(gridRef, "pointerdown", recompute);
 
+  useExternalListener(window, "pointermove", updateMousePosition);
   useExternalListener(window, "click", handleGlobalClick);
   function handleGlobalClick(e: MouseEvent) {
     const target = e.target as HTMLElement;
@@ -183,6 +184,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: { type: Function, optional: true },
     onGridMoved: Function,
     gridOverlayDimensions: String,
+    slots: { type: Object, optional: true },
   };
   static components = {
     FiguresContainer,

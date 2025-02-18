@@ -1,0 +1,23 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotSortingToolTip">
+    <div t-ref="ref" class="o-pivot-sorting bg-white p-2 border rounded shadow">
+      <div class="o-pivot-sorting-header">
+        <t t-call="o-spreadsheet-Icon.SORT_RANGE"/>
+      </div>
+      <div class="o-pivot-sorting-expandable flex-column">
+        <div class="p-1 d-flex" t-on-click="sortAscending">
+          <div class="align-items-center pe-1" t-att-class="{'active': isSortedAsc}">
+            <t t-call="o-spreadsheet-Icon.SORT_ASCENDING_NUMERIC"/>
+          </div>
+          Sort ascending
+        </div>
+        <div class="p-1 d-flex" t-on-click="sortDescending">
+          <div class="align-items-center pe-1" t-att-class="{'active': isSortedDesc}">
+            <t t-call="o-spreadsheet-Icon.SORT_DESCENDING_NUMERIC"/>
+          </div>
+          Sort descending
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>
