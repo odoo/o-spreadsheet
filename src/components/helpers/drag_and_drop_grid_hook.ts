@@ -139,6 +139,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     pointerMoveCallback = onPointerMove;
     pointerUpCallback = onPointerUp;
     cleanUp = startDnd(pointerMoveHandler, pointerUpHandler);
+    return { col: getters.getColIndex(startingX), row: getters.getRowIndex(startingY) };
   };
 
   onWillUnmount(() => {
