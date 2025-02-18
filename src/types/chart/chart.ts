@@ -50,6 +50,11 @@ export type ChartWithDataSetDefinition = Extract<
   { dataSets: CustomizedDataSet[]; labelRange?: string }
 >;
 
+export type ChartWithAxisDefinition = Extract<
+  ChartWithDataSetDefinition,
+  { axesDesign?: AxesDesign }
+>;
+
 export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
