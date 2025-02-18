@@ -28,15 +28,8 @@ import {
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
-import {
-  makeTestEnv,
-  mockUuidV4To,
-  mountComponentWithPortalTarget,
-  nextTick,
-} from "../test_helpers/helpers";
+import { makeTestEnv, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let fixture: HTMLElement;
 
@@ -68,16 +61,16 @@ describe("BottomBar component", () => {
   test("Can create a new sheet", async () => {
     const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
-    mockUuidV4To(model, 42);
     const activeSheetId = model.getters.getActiveSheetId();
     await click(fixture, ".o-add-sheet");
+    const newSheetId = model.getters.getSheetIds()[1];
     expect(dispatch).toHaveBeenNthCalledWith(1, "CREATE_SHEET", {
       name: "Sheet2",
-      sheetId: "42",
+      sheetId: newSheetId,
       position: 1,
     });
     expect(dispatch).toHaveBeenNthCalledWith(2, "ACTIVATE_SHEET", {
-      sheetIdTo: "42",
+      sheetIdTo: newSheetId,
       sheetIdFrom: activeSheetId,
     });
   });
@@ -386,7 +379,6 @@ describe("BottomBar component", () => {
   test("Can duplicate a sheet", async () => {
     const { model } = await mountBottomBar();
     const dispatch = jest.spyOn(model, "dispatch");
-    mockUuidV4To(model, 123);
 
     triggerMouseEvent(".o-sheet", "contextmenu");
     await nextTick();
@@ -394,7 +386,7 @@ describe("BottomBar component", () => {
     await click(fixture, ".o-menu-item[data-name='duplicate'");
     expect(dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
       sheetId: sheet,
-      sheetIdTo: "123",
+      sheetIdTo: expect.any(String),
     });
   });
 

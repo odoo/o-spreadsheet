@@ -50,7 +50,6 @@ import { makeStoreWithModel } from "./test_helpers/stores";
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   return { width: text.length };
 };
-jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
   const sheetId = gridRenderer["getters"].getActiveSheetId();

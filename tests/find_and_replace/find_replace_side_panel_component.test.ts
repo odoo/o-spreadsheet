@@ -11,7 +11,6 @@ import {
 } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 const selectors = {
   closeSidepanel: ".o-sidePanel .o-sidePanelClose",

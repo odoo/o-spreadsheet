@@ -6,7 +6,7 @@ import { setSelection, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+
 jest.useFakeTimers();
 
 const selectors = {
