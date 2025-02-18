@@ -44,7 +44,6 @@ import { watchClipboardOutline } from "./test_helpers/renderer_helpers";
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   return { width: text.length };
 };
-jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
 function getBoxFromText(model: Model, text: string): Box {
   const rendererPlugin = getPlugin(model, RendererPlugin);
