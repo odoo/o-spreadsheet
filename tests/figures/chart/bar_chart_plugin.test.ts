@@ -2,7 +2,11 @@ import { ChartCreationContext, Model } from "../../../src";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { BarChartRuntime } from "../../../src/types/chart";
-import { getChartLegendLabels, isChartAxisStacked } from "../../test_helpers/chart_helpers";
+import {
+  getChartLegendLabels,
+  getChartTooltipValues,
+  isChartAxisStacked,
+} from "../../test_helpers/chart_helpers";
 import {
   createChart,
   setCellContent,
@@ -95,8 +99,8 @@ describe("bar chart", () => {
         label: "dataSetLabel",
         dataset: { xAxisID: "x" },
       };
-      const tooltip = runtime.chartJsConfig.options?.plugins?.tooltip as any;
-      expect(tooltip?.callbacks?.label(tooltipTestItem)).toBe("dataSetLabel: 5€");
+      const tooltipValues = getChartTooltipValues(runtime, tooltipTestItem);
+      expect(tooltipValues).toEqual({ beforeLabel: "dataSetLabel", label: "5€" });
     });
 
     test("Horizontal bar chart cannot have datasets on the right", () => {

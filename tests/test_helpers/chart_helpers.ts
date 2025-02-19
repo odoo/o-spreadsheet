@@ -1,4 +1,5 @@
-import { Model, SpreadsheetChildEnv, UID } from "../../src";
+import { TooltipItem } from "chart.js";
+import { ChartJSRuntime, Model, SpreadsheetChildEnv, UID } from "../../src";
 import { range, toHex } from "../../src/helpers";
 import { click, simulateClick } from "./dom_helper";
 import { nextTick } from "./helpers";
@@ -63,4 +64,34 @@ export function getColorPickerValue(fixture: HTMLElement, selector: string) {
 export async function editColorPicker(fixture: HTMLElement, selector: string, color: string) {
   await click(fixture.querySelector(selector + " .o-round-color-picker-button")!);
   await click(fixture, `.o-color-picker-line-item[data-color='${color}'`);
+}
+
+export function getChartTooltipItemFromDataset(
+  chart: ChartJSRuntime,
+  datasetIndex: number,
+  dataIndex: number
+): Partial<TooltipItem<any>> {
+  const datasetPoint = chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex];
+  const y = typeof datasetPoint === "number" ? datasetPoint : datasetPoint?.["y"];
+  const x = chart.chartJsConfig!.data.labels![dataIndex];
+  const point = chart.chartJsConfig.type === "pie" ? y : { x, y };
+  return {
+    label: "",
+    parsed: point,
+    raw: point,
+    dataset: chart.chartJsConfig.data!.datasets[datasetIndex],
+    datasetIndex,
+    dataIndex,
+  };
+}
+
+export function getChartTooltipValues(
+  chart: ChartJSRuntime,
+  tooltipItem: Partial<TooltipItem<any>>
+) {
+  const callbacks = chart.chartJsConfig!.options!.plugins!.tooltip!.callbacks! as any;
+  return {
+    label: callbacks.label(tooltipItem),
+    beforeLabel: callbacks.beforeLabel(tooltipItem),
+  };
 }
