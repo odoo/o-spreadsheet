@@ -17,7 +17,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
   Border | null
 > {
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent | undefined {
     const sheetId = data.sheetId;
     if (data.zones.length === 0) {
       return;
@@ -26,6 +26,9 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     const borders: (Border | null)[][] = [];
 
     for (const row of rowsIndexes) {
+      if (!isCutOperation && this.getters.isRowFiltered(sheetId, row)) {
+        continue;
+      }
       const bordersInRow: (Border | null)[] = [];
       for (const col of columnsIndexes) {
         const position = { col, row, sheetId };

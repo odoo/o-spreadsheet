@@ -18,12 +18,15 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
   Maybe<Merge>
 > {
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent | undefined {
     const sheetId = this.getters.getActiveSheetId();
     const { rowsIndexes, columnsIndexes } = data;
     const merges: Maybe<Merge>[][] = [];
 
     for (const row of rowsIndexes) {
+      if (!isCutOperation && this.getters.isRowFiltered(sheetId, row)) {
+        continue;
+      }
       const mergesInRow: Maybe<Merge>[] = [];
       for (const col of columnsIndexes) {
         const position = { col, row, sheetId };
