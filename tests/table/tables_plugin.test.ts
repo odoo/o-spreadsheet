@@ -877,6 +877,30 @@ describe("Table plugin", () => {
         bold: true,
       });
     });
+
+    test("Copy table and adjacent cells", () => {
+      const sheet1Id = model.getters.getActiveSheetId();
+      createTableWithFilter(model, "B2:C4");
+      setCellContent(model, "B3", "4");
+      updateFilter(model, "B2", ["4"]);
+      copy(model, "A1:D5");
+      paste(model, "E6");
+      expect(model.getters.getTables(sheet1Id)).toHaveLength(2);
+      const copiedTable = getTable(model, "F7");
+      expect(copiedTable).toMatchObject({ range: { zone: toZone("F7:G8") } });
+    });
+
+    test("Cut table and adjacent cells", () => {
+      const sheet1Id = model.getters.getActiveSheetId();
+      createTableWithFilter(model, "B2:C4");
+      setCellContent(model, "B3", "4");
+      updateFilter(model, "B2", ["4"]);
+      cut(model, "A1:D5");
+      paste(model, "E6");
+      expect(model.getters.getTables(sheet1Id)).toHaveLength(1);
+      const copiedTable = getTable(model, "F7");
+      expect(copiedTable).toMatchObject({ range: { zone: toZone("F7:G9") } });
+    });
   });
 
   describe("Import/Export", () => {
