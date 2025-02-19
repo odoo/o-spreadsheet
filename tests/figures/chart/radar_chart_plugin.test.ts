@@ -1,7 +1,7 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { RadarChart } from "../../../src/helpers/figures/charts/radar_chart";
 import { RadarChartRuntime } from "../../../src/types/chart/radar_chart";
-import { getChartLegendLabels } from "../../test_helpers/chart_helpers";
+import { getChartLegendLabels, getChartTooltipValues } from "../../test_helpers/chart_helpers";
 import {
   createChart,
   createRadarChart,
@@ -113,10 +113,9 @@ describe("radar chart", () => {
     const tickCallback = runtime.chartJsConfig.options?.scales?.r?.["ticks"]?.callback as any;
     expect(tickCallback(1)).toBe("1.0 écu d'or");
 
-    const tooltipLabel = runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks?.label as any;
-    expect(tooltipLabel({ parsed: { x: "Louis", r: 14 }, dataset: { label: "Ds1" } })).toBe(
-      "Ds1: 14.0 écu d'or"
-    );
+    const tooltipItem = { parsed: { x: "Louis", r: 14 }, dataset: { label: "Ds1" } };
+    const tooltipValues = getChartTooltipValues(runtime, tooltipItem);
+    expect(tooltipValues).toEqual({ beforeLabel: "Ds1", label: "14.0 écu d'or" });
   });
 
   test("Radar point color depend on the chart background", () => {

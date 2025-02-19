@@ -35,8 +35,8 @@ export function getBarChartTooltip(
           ? undefined
           : "";
       },
+      beforeLabel: (tooltipItem) => tooltipItem.dataset?.label || tooltipItem.label,
       label: function (tooltipItem) {
-        const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
         const horizontalChart = definition.horizontal;
         let yLabel = horizontalChart ? tooltipItem.parsed.x : tooltipItem.parsed.y;
         if (yLabel === undefined || yLabel === null) {
@@ -45,7 +45,7 @@ export function getBarChartTooltip(
 
         const axisId = horizontalChart ? tooltipItem.dataset.xAxisID : tooltipItem.dataset.yAxisID;
         const yLabelStr = formatChartDatasetValue(args.axisFormats, args.locale)(yLabel, axisId);
-        return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
+        return yLabelStr;
       },
     },
   };
@@ -78,22 +78,19 @@ export function getLineChartTooltip(
       const formattedX = formatValue(label, { locale, format: labelFormat });
       const axisId = tooltipItem.dataset.yAxisID || "y";
       const formattedY = formatValue(dataSetPoint, { locale, format: axisFormats?.[axisId] });
-      const dataSetTitle = tooltipItem.dataset.label;
-      return formattedX
-        ? `${dataSetTitle}: (${formattedX}, ${formattedY})`
-        : `${dataSetTitle}: ${formattedY}`;
+      return formattedX ? `(${formattedX}, ${formattedY})` : `${formattedY}`;
     };
   } else {
     tooltip.callbacks!.label = function (tooltipItem) {
-      const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
       const yLabel = tooltipItem.parsed.y;
 
       const axisId = tooltipItem.dataset.yAxisID;
       const yLabelStr = formatChartDatasetValue(axisFormats, locale)(yLabel, axisId);
-      return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
+      return yLabelStr;
     };
   }
 
+  tooltip.callbacks!.beforeLabel = (tooltipItem) => tooltipItem.dataset?.label || tooltipItem.label;
   tooltip.callbacks!.title = function (tooltipItems) {
     const displayTooltipTitle =
       axisType !== "linear" &&
@@ -117,19 +114,17 @@ export function getPieChartTooltip(
       title: function (tooltipItems) {
         return tooltipItems[0].dataset.label;
       },
+      beforeLabel: (tooltipItem) => tooltipItem.label || tooltipItem.dataset.label,
       label: function (tooltipItem) {
         const data = tooltipItem.dataset.data;
         const dataIndex = tooltipItem.dataIndex;
         const percentage = calculatePercentage(data, dataIndex);
 
-        const xLabel = tooltipItem.label || tooltipItem.dataset.label;
         const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
         const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
         const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
 
-        return xLabel
-          ? `${xLabel}: ${yLabelStr} (${percentage}%)`
-          : `${yLabelStr} (${percentage}%)`;
+        return `${yLabelStr} (${percentage}%)`;
       },
     },
   };
@@ -146,16 +141,17 @@ export function getWaterfallChartTooltip(
     enabled: false,
     external: customTooltipHandler,
     callbacks: {
-      label: function (tooltipItem) {
-        const [lastValue, currentValue] = tooltipItem.raw as [number, number];
-        const yLabel = currentValue - lastValue;
+      beforeLabel: function (tooltipItem) {
         const dataSeriesIndex = labels.length
           ? Math.floor(tooltipItem.dataIndex / labels.length)
           : 0;
-        const dataSeriesLabel = dataSeriesLabels[dataSeriesIndex];
+        return dataSeriesLabels[dataSeriesIndex];
+      },
+      label: function (tooltipItem) {
+        const [lastValue, currentValue] = tooltipItem.raw as [number, number];
+        const yLabel = currentValue - lastValue;
         const toolTipFormat = !format && Math.abs(yLabel) > 1000 ? "#,##" : format;
-        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
-        return dataSeriesLabel ? `${dataSeriesLabel}: ${yLabelStr}` : yLabelStr;
+        return formatValue(yLabel, { format: toolTipFormat, locale });
       },
     },
   };
@@ -187,11 +183,10 @@ export function getRadarChartTooltip(
     enabled: false,
     external: customTooltipHandler,
     callbacks: {
+      beforeLabel: (tooltipItem) => tooltipItem.dataset?.label || tooltipItem.label,
       label: function (tooltipItem) {
-        const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
         const yLabel = tooltipItem.parsed.r;
-        const formattedY = formatValue(yLabel, { format: axisFormats?.r, locale });
-        return xLabel ? `${xLabel}: ${formattedY}` : formattedY;
+        return formatValue(yLabel, { format: axisFormats?.r, locale });
       },
     },
   };
@@ -210,13 +205,12 @@ export function getGeoChartTooltip(
       return (tooltipItem.raw as any).value !== undefined;
     },
     callbacks: {
+      beforeLabel: (tooltipItem) => (tooltipItem.raw as any).feature.properties.name,
       label: function (tooltipItem: TooltipItem<"choropleth">) {
         const rawItem = tooltipItem.raw as any;
-        const xLabel = rawItem.feature.properties.name;
         const yLabel = rawItem.value;
         const toolTipFormat = !format && Math.abs(yLabel) >= 1000 ? "#,##" : format;
-        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
-        return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
+        return formatValue(yLabel, { format: toolTipFormat, locale });
       },
     },
   };
@@ -244,7 +238,8 @@ function customTooltipHandler({ chart, tooltip }: ChartContext) {
   }
 
   const tooltipItems = tooltip.body.map((body, index) => {
-    let [label, value] = body.lines[0].split(":").map((str) => str.trim());
+    let label = body.before[0];
+    let value = body.lines[0];
     if (!value) {
       value = label;
       label = "";

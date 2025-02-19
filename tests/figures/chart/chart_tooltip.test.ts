@@ -42,6 +42,7 @@ function openTooltip(chartConfig: ChartJSRuntime, args: TooltipArgs) {
     title: [args.title || ""], // We cannot use callback.title because we rely on chartJS default behavior
     body: [
       {
+        before: [tooltip.callbacks.beforeLabel(args.tooltipItem)],
         lines: [tooltip.callbacks.label(args.tooltipItem)],
       },
     ],
@@ -99,5 +100,19 @@ describe("Chart tooltip", () => {
 
     openTooltip(runtime, { tooltipItem, title: "" });
     expect(".o-tooltip-title").toHaveCount(0);
+  });
+
+  test("Can handle label with colons", () => {
+    const model = new Model();
+    createChart(model, { type: "bar" }, "chartId");
+    const runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
+    const tooltipItem = {
+      parsed: { y: 20 },
+      dataset: { yAxisID: "y", label: "Avengers: Endgame" },
+    };
+
+    openTooltip(runtime, { tooltipItem });
+    expect(".o-tooltip-label").toHaveText("Avengers: Endgame");
+    expect(".o-tooltip-value").toHaveText("20");
   });
 });
