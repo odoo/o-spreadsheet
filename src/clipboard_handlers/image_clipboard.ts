@@ -19,7 +19,7 @@ type ClipboardContent = {
 };
 
 export class ImageClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
-  copy(data: ClipboardFigureData): ClipboardContent | undefined {
+  copy(data: ClipboardFigureData, isCutOperation?: boolean): ClipboardContent | undefined {
     const sheetId = data.sheetId;
     const figure = this.getters.getFigure(sheetId, data.figureId);
     if (!figure) {
