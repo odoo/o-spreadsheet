@@ -1298,6 +1298,28 @@ describe("charts", () => {
     }
   );
 
+  test("Only yAxisId option is copied when spreading a range of a selection input", async () => {
+    createChart(
+      model,
+      {
+        type: "bar",
+        dataSets: [
+          { dataRange: "B1:B4", backgroundColor: "#FF0000", label: "MyLabel", yAxisId: "y1" },
+        ],
+      },
+      chartId
+    );
+    await mountSpreadsheet();
+    await openChartConfigSidePanel(chartId);
+    await setInputValueAndTrigger(".o-data-series input", "B2:C4");
+    await simulateClick(".o-data-series .o-selection-ok");
+    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    expect(definition.dataSets).toEqual([
+      { dataRange: "B2:B4", backgroundColor: "#FF0000", label: "MyLabel", yAxisId: "y1" },
+      { dataRange: "C2:C4", yAxisId: "y1" },
+    ]);
+  });
+
   describe("Scorecard specific tests", () => {
     test("can edit chart baseline colors", async () => {
       createTestChart("scorecard");
