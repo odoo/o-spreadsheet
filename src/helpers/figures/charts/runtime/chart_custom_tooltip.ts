@@ -13,7 +13,7 @@ const templates = /* xml */ `
     <div
       class="o-chart-custom-tooltip border rounded px-2 py-1 pe-none mw-100 position-absolute text-nowrap shadow opacity-100">
       <table class="overflow-hidden m-0">
-        <thead>
+        <thead t-if="title">
           <tr>
             <th class="o-tooltip-title align-baseline border-0 text-truncate" t-esc="title" t-attf-style="max-width: {{ labelsMaxWidth }}"/>
           </tr>
