@@ -1,6 +1,7 @@
 import { ChartCreationContext, ChartJSRuntime, Model } from "../../../src";
 import { PyramidChart } from "../../../src/helpers/figures/charts/pyramid_chart";
 import { PyramidChartDefinition } from "../../../src/types/chart/pyramid_chart";
+import { getChartTooltipValues } from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent, setFormat } from "../../test_helpers/commands_helpers";
 
 let model: Model;
@@ -102,8 +103,8 @@ describe("population pyramid chart", () => {
         label: "dataSetLabel",
         dataset: { xAxisID: "x" },
       };
-      const tooltip = runtime.chartJsConfig.options?.plugins?.tooltip as any;
-      expect(tooltip?.callbacks?.label(tooltipTestItem)).toBe("dataSetLabel: 10€");
+      const tooltipValues = getChartTooltipValues(runtime, tooltipTestItem);
+      expect(tooltipValues).toEqual({ beforeLabel: "dataSetLabel", label: "10€" });
     });
 
     test("The negative and positive values have the same max value", () => {

@@ -1,10 +1,9 @@
-import { ChartType as ChartJSType, Point, TooltipItem } from "chart.js";
+import { Point } from "chart.js";
 import { CommandResult, Model } from "../../../src";
 import { ChartDefinition } from "../../../src/types";
 import {
   BarChartDefinition,
   BarChartRuntime,
-  ChartJSRuntime,
   ChartWithDataSetDefinition,
   LineChartDefinition,
   LineChartRuntime,
@@ -63,6 +62,8 @@ import {
   getCategoryAxisTickLabels,
   getChartConfiguration,
   getChartLegendLabels,
+  getChartTooltipItemFromDataset,
+  getChartTooltipValues,
 } from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
 
@@ -1951,25 +1952,6 @@ describe("Chart design configuration", () => {
     expect(getChartConfiguration(model, "1").data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
   });
 
-  function getTooltipLabel(chart: ChartJSRuntime, datasetIndex: number, dataIndex: number): string {
-    const datasetPoint = chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex];
-    const y = typeof datasetPoint === "number" ? datasetPoint : datasetPoint?.["y"];
-    const x = chart.chartJsConfig!.data.labels![dataIndex];
-    const point = chart.chartJsConfig.type === "pie" ? y : { x, y };
-    const tooltipItem: TooltipItem<ChartJSType> = {
-      label: "",
-      // @ts-ignore chart.js type is wrong
-      parsed: point,
-      raw: point,
-      //@ts-ignore chartjs dataset type is wrong
-      dataset: chart.chartJsConfig.data!.datasets[datasetIndex],
-      datasetIndex,
-      dataIndex,
-    };
-    // @ts-ignore
-    return chart.chartJsConfig!.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem);
-  }
-
   describe("Format of Y values at Runtime", () => {
     test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell without format: thousand separator",
@@ -2030,17 +2012,18 @@ describe("Chart design configuration", () => {
         setCellFormat(model, "A2", "[$$]#,#");
         setCellFormat(model, "B1", "0%");
 
-        const options = getChartConfiguration(model, "42").options;
-        const scales = options.scales;
+        const config = model.getters.getChartRuntime("42") as any;
+        const scales = config.chartJsConfig?.options?.scales!;
         expect(scales.y?.ticks.callback!(60000000)).toEqual("$60,000,000");
         expect(scales.y1?.ticks.callback!(0.5)).toEqual("50%");
 
-        const tooltipCallbacks = options?.plugins?.tooltip?.callbacks as any;
         let tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
-        expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 1: $20");
+        let labelValues = getChartTooltipValues(config, tooltipItem);
+        expect(labelValues).toEqual({ label: "$20", beforeLabel: "Ds 1" });
 
         tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y1", label: "Ds 2" } };
-        expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 2: 2000%");
+        labelValues = getChartTooltipValues(config, tooltipItem);
+        expect(labelValues).toEqual({ label: "2000%", beforeLabel: "Ds 2" });
       }
     );
 
@@ -2062,9 +2045,9 @@ describe("Chart design configuration", () => {
         setCellContent(model, "A2", "60000000");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-        const label = getTooltipLabel(runtime, 0, 0);
-
-        expect(label).toEqual("60,000,000");
+        const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
+        const labelValues = getChartTooltipValues(runtime, tooltipItem);
+        expect(labelValues).toEqual({ label: "60,000,000", beforeLabel: "" });
       }
     );
 
@@ -2074,9 +2057,9 @@ describe("Chart design configuration", () => {
         setCellContent(model, "A2", "-60000000");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-        const label = getTooltipLabel(runtime, 0, 0);
-
-        expect(label).toEqual("-60,000,000");
+        const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
+        const labelValues = getChartTooltipValues(runtime, tooltipItem);
+        expect(labelValues).toEqual({ label: "-60,000,000", beforeLabel: "" });
       }
     );
 
@@ -2085,8 +2068,9 @@ describe("Chart design configuration", () => {
       setCellFormat(model, "A2", "m/d/yyyy");
       createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
       const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-      const label = getTooltipLabel(runtime, 0, 0);
-      expect(label).toEqual("6,000");
+      const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
+      const labelValues = getChartTooltipValues(runtime, tooltipItem);
+      expect(labelValues).toEqual({ label: "6,000", beforeLabel: "" });
     });
 
     test.each(["line", "scatter", "combo", "bar"] as const)(
@@ -2117,9 +2101,9 @@ describe("Chart design configuration", () => {
         setCellContent(model, "A2", "0");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-        const label = getTooltipLabel(runtime, 0, 0);
-
-        expect(label).toEqual("0");
+        const tooltipItem = getChartTooltipItemFromDataset(runtime, 0, 0);
+        const labelValues = getChartTooltipValues(runtime, tooltipItem);
+        expect(labelValues).toEqual({ label: "0", beforeLabel: "" });
       }
     );
 
@@ -2168,9 +2152,9 @@ describe("Chart design configuration", () => {
         "1"
       );
       const chart = model.getters.getChartRuntime("1") as PieChartRuntime;
-      const label = getTooltipLabel(chart, 0, 1);
-
-      expect(label).toBe("P1: 150 (60.00%)");
+      const tooltipItem = getChartTooltipItemFromDataset(chart, 0, 1);
+      const labelValues = getChartTooltipValues(chart, tooltipItem);
+      expect(labelValues).toEqual({ beforeLabel: "P1", label: "150 (60.00%)" });
     });
 
     test("pie chart tooltip label with format", () => {
@@ -2187,9 +2171,9 @@ describe("Chart design configuration", () => {
         "1"
       );
       const chart = model.getters.getChartRuntime("1") as PieChartRuntime;
-      const label = getTooltipLabel(chart, 0, 0);
-
-      expect(label).toBe("P1: $6,000.00 (100.00%)");
+      const tooltipItem = getChartTooltipItemFromDataset(chart, 0, 0);
+      const labelValues = getChartTooltipValues(chart, tooltipItem);
+      expect(labelValues).toEqual({ beforeLabel: "P1", label: "$6,000.00 (100.00%)" });
     });
   });
 
@@ -2210,9 +2194,9 @@ describe("Chart design configuration", () => {
       "1"
     );
     const chart = model.getters.getChartRuntime("1") as ScatterChartRuntime;
-    const label = getTooltipLabel(chart, 0, 0);
-
-    expect(label).toBe("Dataset 1: (500%, $6,000.00)");
+    const tooltipItem = getChartTooltipItemFromDataset(chart, 0, 0);
+    const labelValues = getChartTooltipValues(chart, tooltipItem);
+    expect(labelValues).toEqual({ beforeLabel: "Dataset 1", label: "(500%, $6,000.00)" });
   });
 
   test("scatter chart trend line tooltip label", () => {
@@ -2229,9 +2213,9 @@ describe("Chart design configuration", () => {
       "1"
     );
     const chart = model.getters.getChartRuntime("1") as ScatterChartRuntime;
-    const label = getTooltipLabel(chart, 1, 0);
-
-    expect(label).toBe("Trend line for Series 1: 12");
+    const tooltipItem = getChartTooltipItemFromDataset(chart, 1, 0);
+    const labelValues = getChartTooltipValues(chart, tooltipItem);
+    expect(labelValues).toEqual({ beforeLabel: "Trend line for Series 1", label: "12" });
   });
 
   test.each(["line", "scatter", "bar", "combo"] as const)(

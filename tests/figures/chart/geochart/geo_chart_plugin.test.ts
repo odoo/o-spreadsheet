@@ -1,6 +1,7 @@
 import { Model } from "../../../../src";
 import { GeoChartRuntime } from "../../../../src/types/chart/geo_chart";
 import { createGeoChart, setCellContent, setFormat, updateChart } from "../../../test_helpers";
+import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
 import { mockChart, mockGeoJsonService, nextTick } from "../../../test_helpers/helpers";
 
 mockChart();
@@ -112,14 +113,9 @@ describe("Geo charts plugin tests", () => {
 
     createGeoChart(model, { dataSets: [{ dataRange: "B1:B2" }], labelRange: "A1:A2" });
     const runtime = model.getters.getChartRuntime("chartId") as any;
-    expect(
-      runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks?.label?.({
-        raw: {
-          value: 20,
-          feature: { properties: { name: "France" } },
-        },
-      })
-    ).toBe("France: $20");
+    const tooltipItem = { raw: { value: 20, feature: { properties: { name: "France" } } } };
+    const tooltipValues = getChartTooltipValues(runtime, tooltipItem);
+    expect(tooltipValues).toEqual({ beforeLabel: "France", label: "$20" });
   });
 
   test("The projection used depends on the region selected", () => {

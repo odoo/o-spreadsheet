@@ -92,6 +92,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -231,6 +232,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -378,6 +380,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -499,6 +502,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -619,6 +623,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -758,6 +763,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -897,6 +903,7 @@ exports[`datasource tests create chart with column datasets with category title 
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -1036,6 +1043,7 @@ exports[`datasource tests create chart with column datasets without series title
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -1158,6 +1166,7 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -1297,6 +1306,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -1436,6 +1446,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -1575,6 +1586,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
@@ -1714,6 +1726,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
         },
         "tooltip": {
           "callbacks": {
+            "beforeLabel": [Function],
             "label": [Function],
             "title": [Function],
           },
