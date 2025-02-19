@@ -23,6 +23,7 @@
     "buildDev": "npm-run-all build:js build:bundleJsDev \"build:bundleXml -- --outDir build\"",
     "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir build\"",
     "precommit": "npm run prettier && npm run doc",
+    "monkey": "SPREADSHEET_MONKEY_COUNT=$npm_config_monkey_count jest 'tests/collaborative/collaborative_monkey_party.test.ts'",
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "test:watch": "jest --watch",
     "prettier": "prettier . --write",
