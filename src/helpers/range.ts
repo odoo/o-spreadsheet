@@ -228,8 +228,9 @@ export function spreadRange(getters: Getters, dataSets: CustomizedDataSet[]): Cu
     if (zone.bottom !== zone.top && zone.left != zone.right) {
       if (zone.right) {
         for (let j = zone.left; j <= zone.right; ++j) {
+          const datasetOptions = j === zone.left ? dataSet : { yAxisId: dataSet.yAxisId };
           postProcessedRanges.push({
-            ...dataSet,
+            ...datasetOptions,
             dataRange: `${sheetPrefix}${zoneToXc({
               left: j,
               right: j,
@@ -240,8 +241,9 @@ export function spreadRange(getters: Getters, dataSets: CustomizedDataSet[]): Cu
         }
       } else {
         for (let j = zone.top; j <= zone.bottom!; ++j) {
+          const datasetOptions = j === zone.top ? dataSet : { yAxisId: dataSet.yAxisId };
           postProcessedRanges.push({
-            ...dataSet,
+            ...datasetOptions,
             dataRange: `${sheetPrefix}${zoneToXc({
               left: zone.left,
               right: zone.right,
