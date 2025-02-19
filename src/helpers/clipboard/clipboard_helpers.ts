@@ -2,6 +2,7 @@ import { SpreadsheetClipboardData } from "../../plugins/ui_stateful";
 import {
   ClipboardCellData,
   ClipboardMIMEType,
+  Getters,
   OSClipboardContent,
   ParsedOSClipboardContent,
   UID,
@@ -9,6 +10,16 @@ import {
 } from "../../types";
 import { AllowedImageMimeTypes } from "../../types/image";
 import { mergeOverlappingZones, positions } from "../zones";
+
+export function getFilteredClipboardDataPositions(
+  sheetId: UID,
+  zones: Zone[],
+  getters: Getters
+): ClipboardCellData {
+  const data = getClipboardDataPositions(sheetId, zones);
+  data.rowsIndexes = data.rowsIndexes.filter((r) => !getters.isRowFiltered(sheetId, r));
+  return data;
+}
 
 export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
   const lefts = new Set(zones.map((z) => z.left));
