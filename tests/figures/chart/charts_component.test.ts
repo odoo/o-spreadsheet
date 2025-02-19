@@ -1741,16 +1741,12 @@ describe("charts", () => {
 
   describe("trend line", () => {
     beforeEach(() => {
-      //@prettier-ignore
+      //prettier-ignore
       setGrid(model, {
-        A1: "1",
-        B1: "1",
-        A2: "2",
-        B2: "4",
-        A3: "3",
-        B3: "27",
-        A4: "4",
-        B4: "64",
+        A1: "1", B1: "1",
+        A2: "2", B2: "4",
+        A3: "3", B3: "27",
+        A4: "4", B4: "64",
       });
     });
     test.each(["bar", "line", "scatter", "combo"] as const)(

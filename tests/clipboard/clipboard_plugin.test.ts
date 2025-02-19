@@ -35,11 +35,14 @@ import {
   createSheet,
   createSheetWithName,
   createTable,
+  createTableWithFilter,
   cut,
   deleteCells,
   deleteColumns,
   deleteRows,
   deleteSheet,
+  hideColumns,
+  hideRows,
   insertCells,
   merge,
   paste,
@@ -55,6 +58,7 @@ import {
   setZoneBorders,
   unMerge,
   undo,
+  updateFilter,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import {
@@ -2052,6 +2056,86 @@ describe("clipboard", () => {
     cut(model, "B1");
     paste(model, "C3");
     expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
+  });
+
+  test("filtered rows are ignored when copying range", () => {
+    //prettier-ignore
+    const model = createModelFromGrid({
+      B2: "b2", C2: "c2", D2: "d2",
+      B3: "b3", C3: "c3", D3: "d3",
+      B4: "b4", C4: "c4", D4: "d4",
+    });
+
+    createTableWithFilter(model, "B2:D4");
+    updateFilter(model, "C3", ["c3"]);
+    copy(model, "B2:D4");
+    paste(model, "B5");
+
+    expect(getEvaluatedGrid(model, "B5:D7")).toEqual([
+      ["b2", "c2", "d2"],
+      ["b4", "c4", "d4"],
+      ["", "", ""],
+    ]);
+  });
+
+  test("filtered rows are ignored when cutting range", () => {
+    //prettier-ignore
+    const model = createModelFromGrid({
+      B2: "b2", C2: "c2", D2: "d2",
+      B3: "b3", C3: "c3", D3: "d3",
+      B4: "b4", C4: "c4", D4: "d4",
+    });
+
+    createTableWithFilter(model, "B2:D4");
+    updateFilter(model, "C3", ["c3"]);
+    cut(model, "B2:D4");
+    paste(model, "B5");
+
+    expect(getEvaluatedGrid(model, "B5:D7")).toEqual([
+      ["b2", "c2", "d2"],
+      ["b3", "c3", "d3"],
+      ["b4", "c4", "d4"],
+    ]);
+  });
+
+  test("hidden rows/columns are taken into account when copypasting range", () => {
+    //prettier-ignore
+    const model = createModelFromGrid({
+      B2: "b2", C2: "c2", D2: "d2",
+      B3: "b3", C3: "c3", D3: "d3",
+      B4: "b4", C4: "c4", D4: "d4",
+    });
+
+    hideRows(model, [2]);
+    hideColumns(model, ["C"]);
+    copy(model, "B2:D4");
+    paste(model, "E1");
+
+    expect(getEvaluatedGrid(model, "E1:G3")).toEqual([
+      ["b2", "c2", "d2"],
+      ["b3", "c3", "d3"],
+      ["b4", "c4", "d4"],
+    ]);
+  });
+
+  test("hidden rows/columns are taken into account when cutpasting range", () => {
+    //prettier-ignore
+    const model = createModelFromGrid({
+      B2: "b2", C2: "c2", D2: "d2",
+      B3: "b3", C3: "c3", D3: "d3",
+      B4: "b4", C4: "c4", D4: "d4",
+    });
+
+    hideRows(model, [2]);
+    hideColumns(model, ["C"]);
+    cut(model, "B2:D4");
+    paste(model, "E1");
+
+    expect(getEvaluatedGrid(model, "E1:G3")).toEqual([
+      ["b2", "c2", "d2"],
+      ["b3", "c3", "d3"],
+      ["b4", "c4", "d4"],
+    ]);
   });
 
   test("copying a spread pivot cell results in the fixed pivot formula", () => {
