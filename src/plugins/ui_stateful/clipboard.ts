@@ -138,8 +138,8 @@ export class ClipboardPlugin extends UIPlugin {
         const zones = this.getters.getSelectedZones();
         this.status = "visible";
         this.originSheetId = this.getters.getActiveSheetId();
-        this.copiedData = this.copy(zones);
         this._isCutOperation = cmd.type === "CUT";
+        this.copiedData = this.copy(zones);
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
@@ -381,7 +381,7 @@ export class ClipboardPlugin extends UIPlugin {
     let copiedData = {};
     const clipboardData = this.getClipboardData(zones);
     for (const { handlerName, handler } of this.selectClipboardHandlers(clipboardData)) {
-      const data = handler.copy(clipboardData);
+      const data = handler.copy(clipboardData, this._isCutOperation);
       copiedData[handlerName] = data;
       const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
       for (const key of minimalKeys) {
