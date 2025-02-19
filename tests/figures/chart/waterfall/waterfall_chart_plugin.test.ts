@@ -12,6 +12,7 @@ import {
   setFormat,
   updateChart,
 } from "../../../test_helpers";
+import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
 
 let model: Model;
 
@@ -215,11 +216,12 @@ describe("Waterfall chart", () => {
     const runtime = getWaterfallRuntime(chartId);
 
     let tooltipItem = { raw: [0, 30], dataIndex: 0, dataset: { xAxisID: "x" } };
-    const tooltipCallbacks = runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks as any;
-    expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Dataset 1: 30€");
+    let tooltipValues = getChartTooltipValues(runtime, tooltipItem);
+    expect(tooltipValues).toEqual({ beforeLabel: "Dataset 1", label: "30€" });
 
     tooltipItem = { raw: [30, -10], dataIndex: 1, dataset: { xAxisID: "x" } };
-    expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Dataset 2: -40€");
+    tooltipValues = getChartTooltipValues(runtime, tooltipItem);
+    expect(tooltipValues).toEqual({ beforeLabel: "Dataset 2", label: "-40€" });
   });
 
   test("Waterfall legend", () => {

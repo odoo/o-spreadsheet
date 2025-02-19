@@ -1,6 +1,6 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { ComboChartRuntime } from "../../../src/types/chart/combo_chart";
-import { getChartLegendLabels } from "../../test_helpers/chart_helpers";
+import { getChartLegendLabels, getChartTooltipValues } from "../../test_helpers/chart_helpers";
 import {
   createChart,
   setCellContent,
@@ -69,12 +69,13 @@ describe("combo chart", () => {
     expect(scales?.y?.ticks?.callback?.apply(null, [1])).toBe("100.00%");
     expect(scales?.y1?.ticks?.callback?.apply(null, [1])).toBe("1.00$");
 
-    const tooltipCallbacks = runtime.chartJsConfig.options?.plugins?.tooltip?.callbacks as any;
     let tooltipItem = { parsed: { y: 20 }, dataIndex: 0, dataset: { yAxisID: "y", label: "Ds 1" } };
-    expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 1: 2000.00%");
+    let tooltipValues = getChartTooltipValues(runtime, tooltipItem);
+    expect(tooltipValues).toEqual({ beforeLabel: "Ds 1", label: "2000.00%" });
 
     tooltipItem = { parsed: { y: 20 }, dataIndex: 1, dataset: { yAxisID: "y1", label: "Ds 2" } };
-    expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 2: 20.00$");
+    tooltipValues = getChartTooltipValues(runtime, tooltipItem);
+    expect(tooltipValues).toEqual({ beforeLabel: "Ds 2", label: "20.00$" });
   });
 
   test("Can edit the type of the series", () => {
