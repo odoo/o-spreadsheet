@@ -52,8 +52,16 @@ export class ContentEditableHelper {
       }
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);
-      range.setStart(startNode.node, startNode.offset);
-      range.setEnd(endNode.node, endNode.offset);
+
+      // setEnd (setStart) will result in a collapsed range if the end point is before the start point
+      // https://developer.mozilla.org/en-US/docs/Web/API/Range/setEnd
+      if (start <= end) {
+        range.setStart(startNode.node, startNode.offset);
+        range.setEnd(endNode.node, endNode.offset);
+      } else {
+        range.setStart(endNode.node, endNode.offset);
+        range.setEnd(startNode.node, startNode.offset);
+      }
     }
   }
 
