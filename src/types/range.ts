@@ -1,4 +1,3 @@
-import { RangeStringOptions } from "../plugins/core";
 import { Cloneable, UID, UnboundedZone, Zone } from "./misc";
 
 export interface RangePart {
@@ -18,15 +17,16 @@ export interface Range extends Cloneable<Range> {
   /** the sheet on which the range is defined */
   readonly sheetId: UID;
   readonly rangeData: RangeData;
-
-  getRangeString: (
-    forSheetId: UID,
-    getSheetName: (sheetId: UID) => string,
-    options?: RangeStringOptions
-  ) => string;
+  readonly sheetXC: SheetXC;
 }
 
 export interface RangeData {
   _zone: Zone | UnboundedZone;
   _sheetId: UID;
+}
+
+export interface SheetXC {
+  sheetName?: string;
+  zone: UnboundedZone;
+  parts: Range["parts"];
 }

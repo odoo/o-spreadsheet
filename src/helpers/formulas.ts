@@ -1,12 +1,13 @@
-import { ApplyRangeChangeSheet, CellErrorType, Range, UID, ZoneDimension } from "..";
+import { ApplyRangeChangeSheet, CellErrorType, SheetXC } from "..";
 import { rangeTokenize } from "../formulas";
+import { RangeStringOptions } from "../plugins/core";
+import { HeaderIndex } from "../types/misc";
+import { numberToLetters } from "./coordinates";
 import { concat } from "./misc";
-import { RangeImpl } from "./range";
-import { rangeReference, splitReference } from "./references";
+import { isRowReference, rangeReference, splitReference } from "./references";
 import { toUnboundedZone } from "./zones";
 
 export function adaptFormulaStringRanges(
-  defaultSheetId: string,
   formula: string,
   applyChange: ApplyRangeChangeSheet
 ): string {
@@ -14,29 +15,17 @@ export function adaptFormulaStringRanges(
     return formula;
   }
   const tokens = rangeTokenize(formula);
-  const getSheetName = (sheetId: UID): string => {
-    return sheetId === applyChange.sheetId ? applyChange.sheetName : "";
-  };
-  const getSheetSize = (sheetId: UID) => {
-    return { numberOfRows: Number.MAX_SAFE_INTEGER, numberOfCols: Number.MAX_SAFE_INTEGER };
-  };
   for (let tokenIdx = 1; tokenIdx < tokens.length; tokenIdx++) {
     if (tokens[tokenIdx].type != "REFERENCE") {
       continue;
     }
-    const range = getRange(
-      tokens[tokenIdx].value,
-      defaultSheetId,
-      applyChange.sheetId,
-      applyChange.sheetName,
-      getSheetSize
-    );
-    if (!range.sheetId) {
+    const sheetXC = stringToSheetXC(formula);
+    if (!sheetXC) {
       continue;
     }
-    const change = applyChange.applyChange(range);
+    const change = applyChange.applyChange(sheetXC);
     if (change.changeType != "NONE" && change.changeType != "REMOVE") {
-      const newValue = change.range.getRangeString(defaultSheetId, getSheetName);
+      const newValue = sheetXCToString(change.sheetXC);
       if (newValue != CellErrorType.InvalidReference) {
         tokens[tokenIdx] = {
           value: newValue,
@@ -48,50 +37,99 @@ export function adaptFormulaStringRanges(
   return concat(tokens.map((token) => token.value));
 }
 
-function getRange(
-  sheetXC: string,
-  defaultSheetId: UID,
-  changeId: UID,
-  changeName: string,
-  getSheetSize: (sheetId: UID) => ZoneDimension
-): Range {
+export function stringToSheetXC(sheetXC: string): SheetXC | undefined {
   if (!rangeReference.test(sheetXC)) {
-    return invalidRange(sheetXC, getSheetSize);
+    return;
   }
 
   let sheetName: string | undefined;
   let xc = sheetXC;
-  let prefixSheet = false;
   if (sheetXC.includes("!")) {
     ({ xc, sheetName } = splitReference(sheetXC));
-    if (sheetName) {
-      prefixSheet = true;
+  }
+
+  const zone = toUnboundedZone(xc);
+  const parts = xc.split(":").map((p) => {
+    const isFullRow = isRowReference(p);
+    return {
+      colFixed: isFullRow ? false : p.startsWith("$"),
+      rowFixed: isFullRow ? p.startsWith("$") : p.includes("$", 1),
+    };
+  });
+
+  if (zone.bottom === undefined) {
+    parts[0].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
+    parts[1].rowFixed = parts[0].rowFixed;
+  }
+  if (zone.right === undefined) {
+    parts[0].colFixed = parts[0].colFixed || parts[1].colFixed;
+    parts[1].colFixed = parts[0].colFixed;
+  }
+
+  return {
+    sheetName,
+    zone,
+    parts,
+  };
+}
+
+export function sheetXCToString(
+  sheetXC: SheetXC,
+  options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false },
+  sheetSize: { row: HeaderIndex; col: HeaderIndex } | undefined = undefined
+): string {
+  let invalid = sheetXC.zone.left < 0 || sheetXC.zone.top < 0;
+  invalid = invalid || sheetXC.zone.bottom ? sheetXC.zone.bottom! < sheetXC.zone.top : false;
+  invalid = invalid || sheetXC.zone.right ? sheetXC.zone.right! < sheetXC.zone.left : false;
+
+  if (invalid) {
+    return CellErrorType.InvalidReference;
+  }
+  const colFixed0 = sheetXC.parts[0].colFixed || options.useFixedReference ? "$" : "";
+  const col0 = numberToLetters(sheetXC.zone.left);
+  const rowFixed0 = sheetXC.parts[0].rowFixed || options.useFixedReference ? "$" : "";
+  const row0 = String(sheetXC.zone.top + 1);
+
+  let rangeString = "";
+  if (
+    sheetXC.zone.bottom === undefined &&
+    !options.useBoundedReference &&
+    !sheetXC.zone.hasHeader
+  ) {
+    rangeString = colFixed0 + col0;
+  } else if (
+    sheetXC.zone.right === undefined &&
+    !options.useBoundedReference &&
+    !sheetXC.zone.hasHeader
+  ) {
+    rangeString = rowFixed0 + row0;
+  } else {
+    rangeString = colFixed0 + col0 + rowFixed0 + row0;
+  }
+
+  if (
+    sheetXC.zone.top !== sheetXC.zone.bottom ||
+    sheetXC.zone.left !== sheetXC.zone.right ||
+    sheetXC.parts[0].rowFixed !== sheetXC.parts[1].rowFixed ||
+    sheetXC.parts[0].colFixed !== sheetXC.parts[1].colFixed
+  ) {
+    rangeString += ":";
+
+    const colFixed1 = sheetXC.parts[1].colFixed || options.useBoundedReference ? "$" : "";
+    const col1 = (sheetXC.zone.right && numberToLetters(sheetXC.zone.right)) || sheetSize?.col;
+    const rowFixed1 = sheetXC.parts[1].rowFixed || options.useFixedReference ? "$" : "";
+    const row1 = (sheetXC.zone.bottom && String(sheetXC.zone.bottom + 1)) || sheetSize?.row;
+
+    if (options.useBoundedReference && col1 && row1) {
+      rangeString += colFixed1 + col1 + rowFixed1 + row1;
+    } else if (sheetXC.zone.right === undefined) {
+      rangeString += colFixed1 + col1;
+    } else if (sheetXC.zone.bottom === undefined) {
+      rangeString += rowFixed1 + row1;
+    } else {
+      rangeString += colFixed1 + col1 + rowFixed1 + row1;
     }
   }
 
-  if (sheetName && sheetName != changeName) {
-    return invalidRange(sheetXC, getSheetSize);
-  }
-
-  const unboundedZone = toUnboundedZone(xc);
-  const parts = RangeImpl.getRangeParts(xc, unboundedZone);
-  const invalidSheetName = sheetName;
-  const sheetId = sheetName === changeName ? changeId ?? defaultSheetId : defaultSheetId;
-
-  const rangeInterface = { prefixSheet, unboundedZone, sheetId, invalidSheetName, parts };
-
-  return new RangeImpl(rangeInterface, getSheetSize).orderZone();
-}
-
-function invalidRange(sheetXC: string, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
-  return new RangeImpl(
-    {
-      sheetId: "",
-      unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
-      parts: [],
-      invalidXc: sheetXC,
-      prefixSheet: false,
-    },
-    getSheetSize
-  );
+  return `${sheetXC.sheetName ? sheetXC.sheetName + "!" : ""}${rangeString}`;
 }
