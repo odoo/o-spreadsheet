@@ -942,6 +942,24 @@ describe("composer", () => {
     expect(composerStore.editionMode).toBe("inactive");
   });
 
+  test("Can select a right-to-left range that spans multiple span elements", async () => {
+    setCellContent(model, "A1", "=A1+SUM(A2)");
+    await nextTick();
+    await simulateClick("div.o-composer");
+    composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
+
+    composerStore.changeComposerCursorSelection(5, 5);
+    await nextTick();
+
+    composerStore.changeComposerCursorSelection(5, 2);
+    await nextTick();
+    const selection = document.getSelection()!;
+    await nextTick();
+    expect(selection?.toString()).toBe("1+S");
+    expect(selection.anchorNode?.textContent).toBe("A1");
+    expect(selection.focusNode?.textContent).toBe("SUM");
+  });
+
   test("clicking on the composer while in selecting mode should put the composer in edition mode", async () => {
     composerEl = await typeInComposer("=");
     expect(composerStore.editionMode).toBe("selecting");
