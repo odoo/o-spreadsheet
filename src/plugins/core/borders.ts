@@ -412,7 +412,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       if (
         border?.left &&
         col > 0 &&
-        !deepEquals(this.getCellBorder({ sheetId, col: col - 1, row })?.right, border?.left)
+        !deepEquals(this.borders[sheetId]?.[col - 1]?.[row]?.right, border?.left)
       ) {
         this.history.update("borders", sheetId, col - 1, row, "right", undefined);
       }
@@ -422,7 +422,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       if (
         border?.top &&
         row > 0 &&
-        !deepEquals(this.getCellBorder({ sheetId, col, row: row - 1 })?.bottom, border?.top)
+        !deepEquals(this.borders[sheetId]?.[col]?.[row - 1]?.bottom, border?.top)
       ) {
         this.history.update("borders", sheetId, col, row - 1, "bottom", undefined);
       }
@@ -432,7 +432,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       if (
         border?.right &&
         col < maxCol &&
-        !deepEquals(this.getCellBorder({ sheetId, col: col + 1, row })?.left, border?.right)
+        !deepEquals(this.borders[sheetId]?.[col + 1]?.[row]?.left, border?.right)
       ) {
         this.history.update("borders", sheetId, col + 1, row, "left", undefined);
       }
@@ -442,7 +442,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       if (
         border?.bottom &&
         row < maxRow &&
-        !deepEquals(this.getCellBorder({ sheetId, col, row: row + 1 })?.top, border?.bottom)
+        !deepEquals(this.borders[sheetId]?.[col]?.[row + 1]?.top, border?.bottom)
       ) {
         this.history.update("borders", sheetId, col, row + 1, "top", undefined);
       }
