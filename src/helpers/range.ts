@@ -58,22 +58,14 @@ export class RangeImpl implements Range {
   readonly invalidSheetName?: string; // the name of any sheet that is invalid
   private getSheetSize: (sheetId: UID) => ZoneDimension;
 
-  constructor(args: ConstructorArgs, getSheetSize?: (sheetId: UID) => ZoneDimension) {
+  constructor(args: ConstructorArgs, getSheetSize: (sheetId: UID) => ZoneDimension) {
     this._zone = args.unboundedZone;
-
     this.prefixSheet = args.prefixSheet;
     this.invalidXc = args.invalidXc;
-
     this.sheetId = args.sheetId;
     this.invalidSheetName = args.invalidSheetName;
+    this.getSheetSize = getSheetSize;
 
-    if (getSheetSize) {
-      this.getSheetSize = getSheetSize;
-    } else {
-      this.getSheetSize = (sheetId: UID) => {
-        return { numberOfRows: Number.MAX_SAFE_INTEGER, numberOfCols: Number.MAX_SAFE_INTEGER };
-      };
-    }
     let _fixedParts = [...args.parts];
     if (args.parts.length === 1 && getZoneArea(this.zone) > 1) {
       _fixedParts.push({ ...args.parts[0] });
