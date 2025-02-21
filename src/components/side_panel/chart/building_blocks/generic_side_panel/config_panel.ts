@@ -129,9 +129,9 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       this.dataSets.length
     );
     const colors = this.dataSets.map((ds) => colorGenerator.next());
-    this.dataSets = indexes.map((i) => ({
-      backgroundColor: colors[i],
-      ...this.dataSets[i],
+    this.dataSets = indexes.map((index, i) => ({
+      backgroundColor: colors[index],
+      ...this.dataSets[index],
     }));
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
       dataSets: this.dataSets,

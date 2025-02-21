@@ -79,6 +79,7 @@ export interface DatasetDesign {
   readonly backgroundColor?: string;
   readonly yAxisId?: string;
   readonly label?: string;
+  readonly ignored?: boolean;
 }
 
 export interface AxisDesign {
