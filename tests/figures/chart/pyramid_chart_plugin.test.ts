@@ -46,11 +46,15 @@ describe("population pyramid chart", () => {
       model = new Model();
     });
 
-    test("We only keep the first two datasets", () => {
+    test("We only keep the first two datasets and ignore the others", () => {
       const dataSets = [{ dataRange: "A1" }, { dataRange: "A2" }, { dataRange: "A3" }];
       createChart(model, { type: "pyramid", dataSets }, "id");
       const definition = model.getters.getChartDefinition("id") as PyramidChartDefinition;
-      expect(definition.dataSets).toEqual([{ dataRange: "A1" }, { dataRange: "A2" }]);
+      expect(definition.dataSets).toEqual([
+        { dataRange: "A1", ignored: false },
+        { dataRange: "A2", ignored: false },
+        { dataRange: "A3", ignored: true },
+      ]);
     });
 
     test("Runtime is a stacked bar chart, with the second dataset converted to negative values", () => {
