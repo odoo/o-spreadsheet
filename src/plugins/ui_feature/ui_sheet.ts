@@ -3,6 +3,7 @@ import {
   computeIconWidth,
   computeTextWidth,
   formatValue,
+  groupConsecutive,
   isEqual,
   largeMax,
   positions,
@@ -59,7 +60,20 @@ export class SheetUIPlugin extends UIPlugin {
           size: null,
           sheetId: cmd.sheetId,
         });
+        break;
 
+      case "DELETE_UNFILTERED_CONTENT":
+        const newTarget: Zone[] = [];
+        for (const target of cmd.target) {
+          const nonFilteredRows = range(target.top, target.bottom + 1).filter(
+            (row) => !this.getters.isRowFiltered(cmd.sheetId, row)
+          );
+          const consecutiveRows = groupConsecutive(nonFilteredRows);
+          for (const group of consecutiveRows) {
+            newTarget.push({ ...target, top: group[0], bottom: group[group.length - 1] });
+          }
+        }
+        this.dispatch("DELETE_CONTENT", { sheetId: cmd.sheetId, target: newTarget });
         break;
     }
   }

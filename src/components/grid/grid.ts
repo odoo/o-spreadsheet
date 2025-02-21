@@ -231,13 +231,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         : this.onComposerContentFocused();
     },
     Delete: () => {
-      this.env.model.dispatch("DELETE_CONTENT", {
+      this.env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
       });
     },
     Backspace: () => {
-      this.env.model.dispatch("DELETE_CONTENT", {
+      this.env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
         sheetId: this.env.model.getters.getActiveSheetId(),
         target: this.env.model.getters.getSelectedZones(),
       });

@@ -83,7 +83,7 @@ export const findAndReplace: ActionSpec = {
 export const deleteValues: ActionSpec = {
   name: _t("Delete values"),
   execute: (env) =>
-    env.model.dispatch("DELETE_CONTENT", {
+    env.model.dispatch("DELETE_UNFILTERED_CONTENT", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     }),

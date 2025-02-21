@@ -96,6 +96,7 @@ describe("Repeat commands basics", () => {
       "SORT_CELLS",
       "SUM_SELECTION",
       "SET_DECIMAL",
+      "DELETE_UNFILTERED_CONTENT",
     ].sort();
     const registryKeys = repeatLocalCommandTransformRegistry.getKeys().sort();
     expect(repeatableCommands).toEqual(registryKeys);
@@ -556,5 +557,18 @@ describe("Repeat local commands", () => {
     setSelection(model, ["A1:A2"]);
     redo(model);
     expect(getCell(model, "A3")?.content).toEqual("=SUM(A1:A2)");
+  });
+
+  test("Repeat delete unfiltered content", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+
+    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
+    expect(getCellContent(model, "A1")).toEqual("");
+    expect(getCellContent(model, "A2")).toEqual("2");
+
+    setSelection(model, ["A2"]);
+    redo(model);
+    expect(getCellContent(model, "A2")).toEqual("");
   });
 });
