@@ -31,6 +31,7 @@ exports[`Label range Can add options to the label range component 1`] = `
             type="text"
           />
           
+          
         </div>
         
       </div>
@@ -91,6 +92,7 @@ exports[`Label range Can render a label range component 1`] = `
             style=""
             type="text"
           />
+          
           
         </div>
         

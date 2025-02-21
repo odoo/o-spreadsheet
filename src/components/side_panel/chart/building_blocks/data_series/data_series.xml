@@ -10,6 +10,8 @@
         onSelectionReordered="props.onSelectionReordered"
         onSelectionRemoved="props.onSelectionRemoved"
         colors="colors"
+        disabledRanges="disabledRanges"
+        disabledRangeTitle.translate="Excluded due to chart limits. Drag to swap with another range."
       />
     </Section>
   </t>

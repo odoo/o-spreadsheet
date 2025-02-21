@@ -1,6 +1,5 @@
 import { ChartCreationContext, ChartJSRuntime, Model } from "../../../../src";
 import { PyramidChart } from "../../../../src/helpers/figures/charts/pyramid_chart";
-import { PyramidChartDefinition } from "../../../../src/types/chart/pyramid_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
   getChartTooltipValues,
@@ -34,13 +33,6 @@ describe("population pyramid chart", () => {
   describe("Pyramid chart definition and runtime", () => {
     beforeEach(() => {
       model = new Model();
-    });
-
-    test("We only keep the first two datasets", () => {
-      const dataSets = [{ dataRange: "A1" }, { dataRange: "A2" }, { dataRange: "A3" }];
-      createChart(model, { type: "pyramid", dataSets }, "id");
-      const definition = model.getters.getChartDefinition("id") as PyramidChartDefinition;
-      expect(definition.dataSets).toEqual([{ dataRange: "A1" }, { dataRange: "A2" }]);
     });
 
     test("Runtime is a stacked bar chart, with the second dataset converted to negative values", () => {

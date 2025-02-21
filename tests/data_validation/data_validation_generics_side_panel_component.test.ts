@@ -148,7 +148,7 @@ describe("data validation sidePanel component", () => {
     await editStandaloneComposer(composer, "=SUM(1,2)");
 
     await simulateClick(".o-dv-save");
-    expect(fixture.querySelector(".o-selection-input .error-icon")).toBeTruthy();
+    expect(fixture.querySelector(".o-selection-input .input-icon.text-danger")).toBeTruthy();
     expect(fixture.querySelector(".o-selection-input .o-invalid")).toBeTruthy();
     const errorMessageEl = fixture.querySelector(".o-validation-error");
     expect(errorMessageEl).toBeTruthy();

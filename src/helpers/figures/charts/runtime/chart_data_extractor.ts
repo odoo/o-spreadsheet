@@ -100,7 +100,7 @@ export function getPyramidChartData(
   labelRange: Range | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  const barChartData = getBarChartData(definition, dataSets, labelRange, getters);
+  const barChartData = getBarChartData(definition, dataSets.slice(0, 2), labelRange, getters);
   const barDataset = barChartData.dataSetsValues.filter((ds) => !ds.hidden);
 
   const pyramidDatasetValues: DatasetValues[] = [];
@@ -244,10 +244,11 @@ export function getRadarChartData(
 
 export function getGeoChartData(
   definition: GeoChartDefinition,
-  dataSets: DataSet[],
+  fullDataSets: DataSet[],
   labelRange: Range | undefined,
   getters: Getters
 ): GeoChartRuntimeGenerationArgs {
+  const dataSets = fullDataSets.slice(0, 1);
   const labelValues = getChartLabelValues(getters, dataSets, labelRange);
   let labels = labelValues.formattedValues;
   if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {

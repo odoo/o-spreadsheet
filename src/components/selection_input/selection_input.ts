@@ -1,6 +1,6 @@
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { ALERT_DANGER_BG } from "../../constants";
-import { range } from "../../helpers";
+import { deepEquals, range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
 import { Color, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -16,13 +16,16 @@ css/* scss */ `
       input.o-invalid {
         background-color: ${ALERT_DANGER_BG};
       }
-      .error-icon {
+      .input-icon {
         right: 7px;
         top: 4px;
       }
       .o-drag-handle {
         cursor: move;
       }
+    }
+    .o-disabled-ranges {
+      color: #888 !important;
     }
     .o-button {
       flex-grow: 0;
@@ -47,6 +50,8 @@ interface Props {
   onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed?: () => void;
   colors?: Color[];
+  disabledRanges?: boolean[];
+  disabledRangeTitle?: string;
 }
 
 type SelectionRangeEditMode = "select-range" | "text-edit";
@@ -60,6 +65,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isFocused: boolean;
   isValidRange: boolean;
   color?: Color;
+  disabled?: boolean;
 }
 /**
  * This component can be used when the user needs to input some
@@ -82,6 +88,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     onSelectionReordered: { type: Function, optional: true },
     onSelectionRemoved: { type: Function, optional: true },
     colors: { type: Array, optional: true, default: [] },
+    disabledRanges: { type: Array, optional: true, default: [] },
+    disabledRangeTitle: { type: String, optional: true },
   };
   private state: State = useState({
     isMissing: false,
@@ -112,6 +120,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     return this.store.isResettable;
   }
 
+  get hasDisabledRanges(): boolean {
+    return this.store.disabledRanges.some(Boolean);
+  }
+
   setup() {
     useEffect(
       () => this.focusedInput.el?.focus(),
@@ -121,7 +133,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       SelectionInputStore,
       this.props.ranges,
       this.props.hasSingleRange || false,
-      this.props.colors
+      this.props.colors,
+      this.props.disabledRanges
     );
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
@@ -138,6 +151,12 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
         nextProps.colors?.join() !== this.store.colors.join()
       ) {
         this.store.updateColors(nextProps.colors || []);
+      }
+      if (
+        !deepEquals(nextProps.disabledRanges, this.props.disabledRanges) &&
+        !deepEquals(nextProps.disabledRanges, this.store.disabledRanges)
+      ) {
+        this.store.updateDisabledRanges(nextProps.disabledRanges || []);
       }
     });
   }
