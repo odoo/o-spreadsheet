@@ -989,4 +989,9 @@
       <i class="fa fa-download"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.INFORMATION">
+    <div class="o-icon">
+      <i class="fa fa-info-circle"/>
+    </div>
+  </t>
 </templates>

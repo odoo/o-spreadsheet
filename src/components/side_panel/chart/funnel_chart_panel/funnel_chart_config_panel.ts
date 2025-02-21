@@ -31,4 +31,8 @@ export class FunnelChartConfigPanel extends GenericChartConfigPanel {
       cumulative,
     });
   }
+
+  get disabledRanges() {
+    return this.props.definition.dataSets.map((ds, i) => i > 0);
+  }
 }

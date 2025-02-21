@@ -10,6 +10,8 @@
         onSelectionReordered="props.onSelectionReordered"
         onSelectionRemoved="props.onSelectionRemoved"
         colors="colors"
+        disabledRanges="props.disabledRanges"
+        disabledRangeTitle="props.disabledRangeTitle"
       />
     </Section>
   </t>
