@@ -31,6 +31,7 @@ exports[`Data Series Can render a data series component 1`] = `
             type="text"
           />
           
+          
         </div>
         
       </div>

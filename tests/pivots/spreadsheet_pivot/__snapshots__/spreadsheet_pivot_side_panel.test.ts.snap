@@ -126,6 +126,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                       type="text"
                     />
                     
+                    
                   </div>
                   
                 </div>
@@ -345,7 +346,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                       type="text"
                     />
                     <span
-                      class="error-icon text-danger position-absolute d-flex align-items-center"
+                      class="input-icon text-danger position-absolute d-flex align-items-center"
                       title="This range is invalid"
                     >
                       <div
@@ -356,6 +357,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                         />
                       </div>
                     </span>
+                    
                     
                   </div>
                   

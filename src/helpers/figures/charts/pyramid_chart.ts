@@ -66,7 +66,7 @@ export class PyramidChart extends AbstractChart {
       definition.dataSets,
       sheetId,
       definition.dataSetsHaveTitle
-    ).slice(0, 2);
+    );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;

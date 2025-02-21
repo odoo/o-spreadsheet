@@ -1,4 +1,3 @@
-import { spreadRange } from "../../../../helpers";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 import { GeoChartRegionSelectSection } from "./geo_chart_region_select_section";
 
@@ -7,14 +6,11 @@ export class GeoChartConfigPanel extends GenericChartConfigPanel {
   static components = { ...GenericChartConfigPanel.components, GeoChartRegionSelectSection };
 
   get dataRanges() {
-    return this.getDataSeriesRanges().slice(0, 1);
+    return this.getDataSeriesRanges();
   }
 
-  onDataSeriesConfirmed() {
-    this.dataSets = spreadRange(this.env.model.getters, this.dataSets).slice(0, 1);
-    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
-      dataSets: this.dataSets,
-    });
+  get disabledRanges() {
+    return this.props.definition.dataSets.map((ds, i) => i > 0);
   }
 
   getLabelRangeOptions() {

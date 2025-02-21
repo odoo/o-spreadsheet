@@ -27,6 +27,7 @@
             t-att-style="getColor(range)"
             class="o-input mb-2"
             t-att-class="{
+              'o-disabled-ranges' : range.disabled and !range.isFocused,
               'o-focused' : range.isFocused,
               'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
               'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
@@ -35,9 +36,15 @@
           />
           <span
             t-if="isInvalid || !range.isValidRange"
-            class="error-icon text-danger position-absolute d-flex align-items-center"
+            class="input-icon text-danger position-absolute d-flex align-items-center"
             title="This range is invalid">
             <t t-call="o-spreadsheet-Icon.ERROR"/>
+          </span>
+          <span
+            class="input-icon o-disabled-ranges position-absolute d-flex align-items-center"
+            t-if="!range.isFocused and range.disabled"
+            t-att-title="props.disabledRangeTitle">
+            <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
           </span>
         </div>
         <button
@@ -47,7 +54,6 @@
           <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
         </button>
       </div>
-
       <div class="d-flex flex-row w-100 o-selection-input">
         <button class="o-button o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">
           Add range

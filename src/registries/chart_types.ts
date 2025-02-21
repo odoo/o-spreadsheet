@@ -84,6 +84,7 @@ export interface ChartBuilder {
   ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
   sequence: number;
+  dataSeriesLimit?: number;
 }
 
 /**
@@ -180,6 +181,7 @@ chartRegistry.add("pyramid", {
   transformDefinition: PyramidChart.transformDefinition,
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
   sequence: 80,
+  dataSeriesLimit: 2,
 });
 chartRegistry.add("radar", {
   match: (type) => type === "radar",
@@ -200,6 +202,7 @@ chartRegistry.add("geo", {
   transformDefinition: GeoChart.transformDefinition,
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
   sequence: 90,
+  dataSeriesLimit: 1,
 });
 chartRegistry.add("funnel", {
   match: (type) => type === "funnel",
@@ -210,6 +213,7 @@ chartRegistry.add("funnel", {
   transformDefinition: FunnelChart.transformDefinition,
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
   sequence: 100,
+  dataSeriesLimit: 1,
 });
 chartRegistry.add("sunburst", {
   match: (type) => type === "sunburst",

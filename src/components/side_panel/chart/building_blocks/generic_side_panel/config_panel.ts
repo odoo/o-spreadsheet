@@ -2,6 +2,7 @@ import { Component, useState } from "@odoo/owl";
 import { createValidRange, spreadRange } from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
+import { chartRegistry } from "../../../../../registries/chart_types";
 import { _t } from "../../../../../translation";
 import {
   ChartWithDataSetDefinition,
@@ -218,5 +219,9 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       return labelRange.zone.top + 1;
     }
     return undefined;
+  }
+
+  get maxNumberOfUsedRanges(): number | undefined {
+    return chartRegistry.get(this.props.definition.type).dataSeriesLimit;
   }
 }

@@ -11,6 +11,7 @@ interface Props {
   onSelectionReordered?: (indexes: number[]) => void;
   onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed: () => void;
+  maxNumberOfUsedRanges?: number;
   title?: string;
 }
 
@@ -25,10 +26,17 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     onSelectionRemoved: { type: Function, optional: true },
     onSelectionConfirmed: Function,
     title: { type: String, optional: true },
+    maxNumberOfUsedRanges: { type: Number, optional: true },
   };
 
   get ranges(): string[] {
     return this.props.ranges.map((r) => r.dataRange);
+  }
+
+  get disabledRanges(): boolean[] {
+    return this.props.ranges.map((r, i) =>
+      this.props.maxNumberOfUsedRanges ? i >= this.props.maxNumberOfUsedRanges : false
+    );
   }
 
   get colors(): (Color | undefined)[] {
