@@ -85,6 +85,8 @@ import {
   mockChart,
   mountSpreadsheet,
   nextTick,
+  spyModelDispatch,
+  target,
   toRangesData,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
@@ -352,13 +354,17 @@ describe("Grid component", () => {
       expect(getCellContent(model, "A1")).toBe("a");
     });
 
-    test("pressing BACKSPACE remove the content of a cell", async () => {
+    test.each(["Backspace", "Delete"])("pressing %s remove the content of a cell", async (key) => {
       setCellContent(model, "A1", "test");
-      await nextTick();
-      keyDown({ key: "Backspace" });
+      const dispatch = spyModelDispatch(model);
+      keyDown({ key });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
       expect(composerStore.editionMode).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("");
+      expect(dispatch).toHaveBeenCalledWith("DELETE_UNFILTERED_CONTENT", {
+        sheetId: model.getters.getActiveSheetId(),
+        target: target("A1"),
+      });
     });
 
     test("pressing shift+ENTER in edit mode stop editing and move one cell up", async () => {

@@ -3,7 +3,7 @@ import { LINK_COLOR } from "../../src/constants";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { corePluginRegistry } from "../../src/plugins";
-import { CellValueType, CommandResult } from "../../src/types";
+import { CellValueType, CommandResult, UID } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -11,16 +11,19 @@ import {
   clearCells,
   copy,
   createSheet,
+  createTableWithFilter,
   deleteColumns,
   deleteContent,
   deleteRows,
   deleteSheet,
+  hideRows,
   paste,
   renameSheet,
   setCellContent,
   setCellFormat,
   setStyle,
   undo,
+  updateFilter,
 } from "../test_helpers/commands_helpers";
 import {
   getCell,
@@ -29,7 +32,7 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin } from "../test_helpers/helpers";
+import { addTestPlugin, getGrid, setGrid, target } from "../test_helpers/helpers";
 
 describe("getCellText", () => {
   test("Update cell with a format is correctly set", () => {
@@ -668,5 +671,42 @@ describe("Cell dependencies and tokens are updated", () => {
     counter = 0;
     deleteContent(model, ["A1"]);
     expect(counter).toBe(0);
+  });
+});
+
+describe("Delete cell content", () => {
+  let model: Model;
+  let sheetId: UID;
+
+  beforeEach(() => {
+    model = new Model();
+    sheetId = model.getters.getActiveSheetId();
+  });
+
+  test("With DELETE_CONTENT command", () => {
+    setCellContent(model, "A1", "hello");
+    model.dispatch("DELETE_CONTENT", { sheetId, target: target("A1") });
+    expect(getCellContent(model, "A1")).toBe("");
+  });
+
+  test("With DELETE_UNFILTERED_CONTENT command", () => {
+    setCellContent(model, "A1", "hello");
+    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1") });
+    expect(getCellContent(model, "A1")).toBe("");
+  });
+
+  test("DELETE_UNFILTERED_CONTENT ignores filtered rows", () => {
+    setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
+    createTableWithFilter(model, "A1:B4");
+    updateFilter(model, "A1", ["A3"]);
+    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1:B4") });
+    expect(getGrid(model)).toEqual({ A3: "A3", B3: "B3" });
+  });
+
+  test("DELETE_UNFILTERED_CONTENT removes content of hidden rows", () => {
+    setGrid(model, { A2: "A1", A3: "A3", A4: "A4", B2: "B2", B3: "B3", B4: "B4" });
+    hideRows(model, [2]);
+    model.dispatch("DELETE_UNFILTERED_CONTENT", { sheetId, target: target("A1:B4") });
+    expect(getGrid(model)).toEqual({});
   });
 });

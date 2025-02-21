@@ -302,7 +302,7 @@ describe("Menu Item actions", () => {
 
   test("Edit -> edit_delete_cell_values", () => {
     doAction(["edit", "delete", "edit_delete_cell_values"], env);
-    expect(dispatch).toHaveBeenCalledWith("DELETE_CONTENT", {
+    expect(dispatch).toHaveBeenCalledWith("DELETE_UNFILTERED_CONTENT", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     });

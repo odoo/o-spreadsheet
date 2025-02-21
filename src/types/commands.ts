@@ -1013,6 +1013,10 @@ export interface PaintFormat extends TargetDependentCommand {
   type: "PAINT_FORMAT";
 }
 
+export interface DeleteUnfilteredContentCommand extends TargetDependentCommand {
+  type: "DELETE_UNFILTERED_CONTENT";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1162,7 +1166,8 @@ export type LocalCommand =
   | DuplicatePivotInNewSheetCommand
   | InsertPivotWithTableCommand
   | SplitPivotFormulaCommand
-  | PaintFormat;
+  | PaintFormat
+  | DeleteUnfilteredContentCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
