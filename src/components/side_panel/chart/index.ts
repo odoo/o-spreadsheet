@@ -11,6 +11,7 @@ import { GeoChartConfigPanel } from "./geo_chart_panel/geo_chart_config_panel";
 import { GeoChartDesignPanel } from "./geo_chart_panel/geo_chart_design_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
 import { PieChartDesignPanel } from "./pie_chart/pie_chart_design_panel";
+import { PyramidConfigPanel } from "./pyramid_chart/pyramid_chart_config_panel";
 import { RadarChartDesignPanel } from "./radar_chart/radar_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
 import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
@@ -25,6 +26,7 @@ export { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
 export { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 export { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 export { LineConfigPanel } from "./line_chart/line_chart_config_panel";
+export { PyramidConfigPanel } from "./pyramid_chart/pyramid_chart_config_panel";
 export { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
 export { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
 
@@ -69,7 +71,7 @@ chartSidePanelComponentRegistry
     design: WaterfallChartDesignPanel,
   })
   .add("pyramid", {
-    configuration: GenericChartConfigPanel,
+    configuration: PyramidConfigPanel,
     design: ChartWithAxisDesignPanel,
   })
   .add("radar", {
