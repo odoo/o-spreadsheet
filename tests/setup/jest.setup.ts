@@ -2,6 +2,7 @@
  * This file will be run before each test file
  */
 import { App } from "@odoo/owl";
+import Chart from "chart.js";
 import { setDefaultSheetViewSize } from "../../src/constants";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import "./canvas.mock";
@@ -9,6 +10,8 @@ import "./jest_extend";
 import "./polyfill";
 import "./resize_observer.mock";
 import { Resizers } from "./resize_observer.mock";
+
+window.Chart = Object.assign(Chart.Chart, Chart);
 
 declare global {
   interface Window {

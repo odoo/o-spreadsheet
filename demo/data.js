@@ -683,6 +683,24 @@ export const demoData = {
             region: "world",
           },
         },
+        {
+          id: "12",
+          x: 950,
+          y: 1500,
+          height: 275,
+          width: 500,
+          tag: "chart",
+          data: {
+            type: "funnel",
+            dataSetsHaveTitle: true,
+            background: "#FFFFFF",
+            dataSets: [{ dataRange: "Sheet1!B26:B30" }],
+            legendPosition: "none",
+            labelRange: "Sheet1!A26:A30",
+            title: { text: "Funnel" },
+            aggregated: false,
+          },
+        },
       ],
       tables: [
         {

@@ -545,8 +545,8 @@ function isLuxonTimeAdapterInstalled() {
   if (!window.Chart) {
     return false;
   }
-  // @ts-ignore
   const adapter = new window.Chart._adapters._date({});
+  // @ts-ignore
   const isInstalled = adapter._id === "luxon";
   if (!isInstalled && !missingTimeAdapterAlreadyWarned) {
     missingTimeAdapterAlreadyWarned = true;

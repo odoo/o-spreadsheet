@@ -49,6 +49,9 @@ export const chartShowValuesPlugin: Plugin = {
           ? drawHorizontalBarChartValues(chart, options, ctx)
           : drawLineOrBarOrRadarChartValues(chart, options, ctx);
         break;
+      case "funnel":
+        drawHorizontalBarChartValues(chart, options, ctx);
+        break;
     }
 
     ctx.restore();

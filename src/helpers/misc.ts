@@ -520,7 +520,7 @@ export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: nu
 
 export function replaceItemAtIndex<T>(array: readonly T[], newItem: T, index: number): T[] {
   const newArray = [...array];
-  newArray.splice(index, 1, newItem);
+  newArray[index] = newItem;
   return newArray;
 }
 

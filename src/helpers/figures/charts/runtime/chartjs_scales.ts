@@ -13,6 +13,7 @@ import {
   BarChartDefinition,
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
+  FunnelChartDefinition,
   GenericDefinition,
   LegendPosition,
   LineChartDefinition,
@@ -252,6 +253,42 @@ export function getGeoChartScales(
       },
       interpolate: getRuntimeColorScale(definition),
       missing: definition.missingValueColor || "#ffffff",
+    },
+  };
+}
+
+export function getFunnelChartScales(
+  definition: FunnelChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartScales {
+  const dataSet = args.dataSetsValues[0];
+  return {
+    x: {
+      display: false,
+    },
+    y: {
+      grid: { offset: false }, // bar charts grid is offset by default
+      ticks: {
+        callback: function (tickValue: number) {
+          return truncateLabel(this.getLabelForValue(tickValue));
+        },
+      },
+      border: { display: false },
+    },
+    percentages: {
+      position: "right",
+      border: { display: false },
+      ticks: {
+        callback: function (tickValue, index, ticks) {
+          const value = dataSet.data?.[index];
+          const baseValue = dataSet.data?.[0];
+          if (!baseValue || value === undefined) {
+            return "";
+          }
+          return formatValue(value / baseValue, { format: "0%", locale: args.locale });
+        },
+      },
+      grid: { display: false },
     },
   };
 }

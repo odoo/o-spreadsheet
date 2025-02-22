@@ -23,6 +23,7 @@ describe("line chart", () => {
       axesDesign: {},
       fillArea: true,
       showValues: false,
+      funnelColors: [],
     };
     const definition = LineChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

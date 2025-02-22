@@ -31,6 +31,7 @@ describe("bar chart", () => {
       axesDesign: {},
       fillArea: true,
       showValues: false,
+      funnelColors: [],
     };
     const definition = BarChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
