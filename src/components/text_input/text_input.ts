@@ -3,6 +3,7 @@ import { SpreadsheetChildEnv } from "../..";
 import { GRAY_300, TEXT_BODY } from "../../constants";
 import { Ref } from "../../types";
 import { css } from "../helpers";
+import { useAutofocus } from "../helpers/autofocus_hook";
 
 css/* scss */ `
   .o-spreadsheet {
@@ -26,6 +27,7 @@ interface Props {
   class?: string;
   id?: string;
   placeholder?: string;
+  autofocus?: boolean;
 }
 
 export class TextInput extends Component<Props, SpreadsheetChildEnv> {
@@ -45,6 +47,10 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
       type: String,
       optional: true,
     },
+    autofocus: {
+      type: Boolean,
+      optional: true,
+    },
   };
   private inputRef: Ref<HTMLInputElement> = useRef("input");
 
@@ -59,6 +65,9 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
       },
       { capture: true }
     );
+    if (this.props.autofocus) {
+      useAutofocus({ refName: "input" });
+    }
   }
 
   onKeyDown(ev: KeyboardEvent) {

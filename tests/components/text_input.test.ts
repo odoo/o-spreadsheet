@@ -94,4 +94,14 @@ describe("TextInput", () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(input.value).toEqual("hello");
   });
+
+  test("Input is not focused by default", async () => {
+    await mountTextInput({ value: "hello", onChange: () => {} });
+    expect(fixture.querySelector("input")).not.toEqual(document.activeElement);
+  });
+
+  test("Can autofocus the input", async () => {
+    await mountTextInput({ value: "hello", onChange: () => {}, autofocus: true });
+    expect(fixture.querySelector("input")).toEqual(document.activeElement);
+  });
 });
