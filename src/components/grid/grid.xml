@@ -44,6 +44,11 @@
       />
       <t t-if="env.model.getters.isGridSelectionActive()">
         <Autofill position="getAutofillPosition()" isVisible="isAutofillVisible"/>
+        <PasteToolbox
+          t-if="isPasteToolboxVisible"
+          position="getBottomSelectionPosition()"
+          onClosed.bind="focusDefaultElement"
+        />
       </t>
       <t t-foreach="highlights" t-as="highlight" t-key="highlight_index">
         <t

@@ -25,7 +25,7 @@ import {
   isCoreCommand,
 } from "../../types/index";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 interface InsertDeleteCellsTargets {
   cut: Zone[];
@@ -57,13 +57,26 @@ export class ClipboardPlugin extends UIPlugin {
     "getClipboardId",
     "getClipboardTextContent",
     "isCutOperation",
+    "canModifyPaste",
   ] as const;
 
   private status: "visible" | "invisible" = "invisible";
   private originSheetId?: UID;
   private copiedData?: MinimalClipboardData;
   private _isCutOperation: boolean = false;
+  private recentlyPasted: boolean = false;
   private clipboardId = new UuidGenerator().uuidv4();
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    this.selection.observe(this, {
+      handleEvent: this.handleEvent.bind(this),
+    });
+  }
+
+  handleEvent() {
+    this.recentlyPasted = false;
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -118,6 +131,9 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
+    if (isCoreCommand(cmd)) {
+      this.recentlyPasted = false;
+    }
     switch (cmd.type) {
       case "COPY":
       case "CUT":
@@ -126,6 +142,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.originSheetId = this.getters.getActiveSheetId();
         this.copiedData = this.copy(zones);
         this._isCutOperation = cmd.type === "CUT";
+        this.recentlyPasted = false;
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
@@ -141,6 +158,7 @@ export class ClipboardPlugin extends UIPlugin {
           isCutOperation: false,
         });
         this.status = "invisible";
+        this.recentlyPasted = true;
         break;
       }
       case "PASTE": {
@@ -154,6 +172,9 @@ export class ClipboardPlugin extends UIPlugin {
         if (this._isCutOperation) {
           this.copiedData = undefined;
           this._isCutOperation = false;
+          this.recentlyPasted = false;
+        } else {
+          this.recentlyPasted = true;
         }
         break;
       }
@@ -191,8 +212,11 @@ export class ClipboardPlugin extends UIPlugin {
           });
         }
         break;
-      case "CLEAN_CLIPBOARD_HIGHLIGHT":
+      case "CLEAR_CLIPBOARD_HIGHLIGHT":
         this.status = "invisible";
+        break;
+      case "CLEAR_PASTE_HANDLER":
+        this.recentlyPasted = false;
         break;
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
@@ -551,6 +575,10 @@ export class ClipboardPlugin extends UIPlugin {
 
   isCutOperation(): boolean {
     return this._isCutOperation ?? false;
+  }
+
+  canModifyPaste(): boolean {
+    return this.recentlyPasted ?? false;
   }
 
   // ---------------------------------------------------------------------------

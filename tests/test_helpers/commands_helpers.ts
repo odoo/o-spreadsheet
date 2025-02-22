@@ -420,7 +420,7 @@ export function copyPasteCellsOnLeft(model: Model): DispatchResult {
  * Clean clipboard highlight selection.
  */
 export function cleanClipBoardHighlight(model: Model): DispatchResult {
-  return model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+  return model.dispatch("CLEAR_CLIPBOARD_HIGHLIGHT");
 }
 
 /**
