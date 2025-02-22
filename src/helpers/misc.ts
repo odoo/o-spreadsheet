@@ -680,3 +680,7 @@ export function getUniqueText(
   }
   return newText;
 }
+
+export function isFormula(content: string): boolean {
+  return content.startsWith("=") || content.startsWith("+");
+}

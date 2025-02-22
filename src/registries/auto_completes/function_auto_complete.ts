@@ -1,6 +1,7 @@
 import { getHtmlContentFromPattern } from "../../components/helpers/html_content_helpers";
 import { COMPOSER_ASSISTANT_COLOR } from "../../constants";
 import { functionRegistry } from "../../functions";
+import { isFormula } from "../../helpers";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("functions", {
@@ -12,7 +13,7 @@ autoCompleteProviders.add("functions", {
       return [];
     }
     const searchTerm = tokenAtCursor.value;
-    if (!this.composer.currentContent.startsWith("=")) {
+    if (!isFormula(this.composer.currentContent)) {
       return [];
     }
     const values = Object.entries(functionRegistry.content)

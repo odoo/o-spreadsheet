@@ -1,7 +1,7 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, setColorAlpha } from "../../../helpers/index";
+import { clip, isFormula, setColorAlpha } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -306,7 +306,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     if (
       this.props.focus === "cellFocus" &&
       !this.autoCompleteState.provider &&
-      !content.startsWith("=")
+      !isFormula(content)
     ) {
       this.props.composerStore.stopEdition();
       return;
@@ -555,7 +555,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       return;
     }
     const composerContent = this.props.composerStore.currentContent;
-    const isValidFormula = composerContent.startsWith("=");
+    const isValidFormula = isFormula(composerContent);
 
     if (isValidFormula) {
       const tokens = this.props.composerStore.currentTokens;
@@ -627,7 +627,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
    */
   private getContentLines(): HtmlContent[][] {
     let value = this.props.composerStore.currentContent;
-    const isValidFormula = value.startsWith("=");
+    const isValidFormula = isFormula(value);
 
     if (value === "") {
       return [];
@@ -726,7 +726,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     }
     const token = this.props.composerStore.tokenAtCursor;
 
-    if (content.startsWith("=") && token && token.type !== "SYMBOL") {
+    if (isFormula(content) && token && token.type !== "SYMBOL") {
       const tokenContext = token.functionContext;
       const parentFunction = tokenContext?.parent.toUpperCase();
       if (
