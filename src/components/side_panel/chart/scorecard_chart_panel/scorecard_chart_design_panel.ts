@@ -1,13 +1,25 @@
 import { Component } from "@odoo/owl";
-import { SCORECARD_CHART_TITLE_FONT_SIZE } from "../../../../constants";
+import {
+  DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
+  DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
+  SCORECARD_CHART_TITLE_FONT_SIZE,
+} from "../../../../constants";
 import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
-import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import {
+  Align,
+  Color,
+  DispatchResult,
+  SpreadsheetChildEnv,
+  TitleDesign,
+  UID,
+} from "../../../../types/index";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartTitle } from "../building_blocks/title/title";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
@@ -26,6 +38,7 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     SidePanelCollapsible,
     Section,
     Checkbox,
+    ChartTitle,
   };
   static props = {
     figureId: String,
@@ -56,10 +69,6 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     return _t(term);
   }
 
-  updateBaselineDescr(ev) {
-    this.props.updateChart(this.props.figureId, { baselineDescr: ev.target.value });
-  }
-
   setColor(color: Color, colorPickerId: ColorPickerId) {
     switch (colorPickerId) {
       case "backgroundColor":
@@ -72,5 +81,97 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
         this.props.updateChart(this.props.figureId, { baselineColorUp: color });
         break;
     }
+  }
+
+  get keyStyle(): TitleDesign {
+    return {
+      align: "center",
+      fontSize: DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE,
+      ...this.props.definition.keyDescr,
+    };
+  }
+
+  get baselineStyle(): TitleDesign {
+    return {
+      align: "center",
+      fontSize: DEFAULT_SCORECARD_BASELINE_FONT_SIZE,
+      ...this.props.definition.baselineDescr,
+    };
+  }
+
+  setKeyAlign(align: Align) {
+    this.props.updateChart(this.props.figureId, {
+      keyDescr: { ...this.props.definition.keyDescr, align },
+    });
+  }
+
+  setKeyText(text: string) {
+    this.props.updateChart(this.props.figureId, {
+      keyDescr: { ...this.props.definition.keyDescr, text },
+    });
+  }
+
+  setKeyFontSize(fontSize: number) {
+    this.props.updateChart(this.props.figureId, {
+      keyDescr: { ...this.props.definition.keyDescr, fontSize },
+    });
+  }
+
+  setKeyColor(color: Color) {
+    this.props.updateChart(this.props.figureId, {
+      keyDescr: { ...this.props.definition.keyDescr, color },
+    });
+  }
+
+  toggleKeyItalic() {
+    const descr = this.props.definition.keyDescr;
+    this.props.updateChart(this.props.figureId, {
+      keyDescr: { ...descr, italic: descr ? !descr.italic : false },
+    });
+  }
+
+  toggleKeyBold() {
+    const descr = this.props.definition.keyDescr;
+    this.props.updateChart(this.props.figureId, {
+      keyDescr: { ...descr, bold: descr ? !descr.bold : false },
+    });
+  }
+
+  setBaselineAlign(align: Align) {
+    this.props.updateChart(this.props.figureId, {
+      baselineDescr: { ...this.props.definition.baselineDescr, align },
+    });
+  }
+
+  setBaselineText(text: string) {
+    this.props.updateChart(this.props.figureId, {
+      baselineDescr: { ...this.props.definition.baselineDescr, text },
+    });
+  }
+
+  setBaselineFontSize(fontSize: number) {
+    this.props.updateChart(this.props.figureId, {
+      baselineDescr: { ...this.props.definition.baselineDescr, fontSize },
+    });
+  }
+
+  setBaselineColor(color: Color) {
+    this.props.updateChart(this.props.figureId, {
+      baselineDescr: { ...this.props.definition.baselineDescr, color },
+    });
+  }
+
+  toggleBaselineItalic() {
+    const descr = this.props.definition.baselineDescr;
+    this.props.updateChart(this.props.figureId, {
+      baselineDescr: { ...descr, italic: descr ? !descr.italic : false },
+    });
+  }
+
+  toggleBaselineBold() {
+    const descr = this.props.definition.baselineDescr;
+    this.props.updateChart(this.props.figureId, {
+      baselineDescr: { ...descr, bold: descr ? !descr.bold : false },
+    });
   }
 }
