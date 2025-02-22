@@ -408,6 +408,65 @@ describe("OR formula", () => {
   });
 });
 
+describe("SWITCH formula", () => {
+  test("take 3 argument minimum", () => {
+    expect(evaluateCell("A1", { A1: "=SWITCH(42, 42, 42)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=SWITCH(42, 42)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=SWITCH(42)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=SWITCH()" })).toBe("#BAD_EXPR");
+  });
+
+  test("functional tests on simple arguments", () => {
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 23, 123)" })).toBe("#N/A");
+    expect(evaluateCell("A1", { A1: "=SWITCH( 23, 23, 123)" })).toBe(123);
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 23, 123, 42, 321)" })).toBe(321);
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 23, 123, 24, 321)" })).toBe("#N/A");
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 23, 123, 24, 321, 42, 1111)" })).toBe(1111);
+
+    expect(evaluateCell("A1", { A1: "=SWITCH(TRUE, FALSE, 23)" })).toBe("#N/A");
+    expect(evaluateCell("A1", { A1: "=SWITCH(TRUE, TRUE, 23)" })).toBe(23);
+    expect(evaluateCell("A1", { A1: "=SWITCH(23, 23, TRUE)" })).toBe(true);
+
+    expect(evaluateCell("A1", { A1: '=SWITCH("str", 23, 1, "str2", 2, "str", 3)' })).toBe(3);
+    expect(evaluateCell("A1", { A1: '=SWITCH(25, 26, "str2", 25, "str")' })).toBe("str");
+
+    expect(evaluateCell("A1", { A1: "=SWITCH( , , 42)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 42, )" })).toBe(0);
+
+    expect(evaluateCell("A1", { A1: '=SWITCH("", "", 42)' })).toBe(42);
+    expect(evaluateCell("A1", { A1: '=SWITCH(42, 42, "")' })).toBe("");
+
+    expect(evaluateCell("A1", { A1: '=SWITCH("true" , TRUE, 42)' })).toBe("#N/A");
+    expect(evaluateCell("A1", { A1: "=SWITCH(1, TRUE, 42)" })).toBe("#N/A");
+  });
+
+  test("functional with optional value after repeatable values", () => {
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 23, 23, 123)" })).toBe(123);
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 23, 23, 42, 321, 123)" })).toBe(321);
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 23, 23, 45, 321, )" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=SWITCH( 42, 43, 43, )" })).toBe(0);
+  });
+
+  test("functional tests on cell arguments", () => {
+    expect(
+      evaluateCell("A1", { A1: "=SWITCH(A2, A3, A4)", A2: "test", A3: "TRUE", A4: "42" })
+    ).toBe("#N/A");
+    expect(
+      evaluateCell("A1", { A1: "=SWITCH(A2, A3, A4)", A2: "test", A3: "test", A4: "42" })
+    ).toBe(42);
+  });
+
+  test("return error only when arriving on an error value", () => {
+    expect(evaluateCell("A1", { A1: "=SWITCH(KABOUM, 42, 42)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=SWITCH(42, KABOUM, 42)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=SWITCH(42, 23, KABOUM, 42, 111)" })).toBe(111);
+    expect(evaluateCell("A1", { A1: "=SWITCH(42, 42, 111, KABOUM, 666)" })).toBe(111);
+    expect(evaluateCell("A1", { A1: "=SWITCH(42, 23, KABOUM, KABOUM, 666, 42, 11)" })).toBe(
+      "#BAD_EXPR"
+    );
+  });
+});
+
 describe("TRUE formula", () => {
   test("does not accept argument", () => {
     expect(evaluateCell("A1", { A1: "=TRUE(45)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A

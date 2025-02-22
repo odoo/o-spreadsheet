@@ -25,19 +25,13 @@ import {
   toMatrix,
   toNumber,
   toString,
+  valueNotAvailable,
 } from "./helpers";
 
 const DEFAULT_IS_SORTED = true;
 const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
 const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
-
-function valueNotAvailable(searchKey: Maybe<FunctionResultObject>): FunctionResultObject {
-  return {
-    value: CellErrorType.NotAvailable,
-    message: _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey)),
-  };
-}
 
 // -----------------------------------------------------------------------------
 // ADDRESS
@@ -740,8 +734,8 @@ export const PIVOT_VALUE = {
   args: [
     arg("pivot_id (number,string)", _t("ID of the pivot.")),
     arg("measure_name (string)", _t("Name of the measure.")),
-    arg("domain_field_name (string,optional,repeating)", _t("Field name.")),
-    arg("domain_value (number,string,boolean,optional,repeating)", _t("Value.")),
+    arg("domain_field_name (string,repeating)", _t("Field name.")),
+    arg("domain_value (number,string,boolean,repeating)", _t("Value.")),
   ],
   compute: function (
     formulaId: Maybe<FunctionResultObject>,
@@ -788,8 +782,8 @@ export const PIVOT_HEADER = {
   description: _t("Get the header of a pivot."),
   args: [
     arg("pivot_id (number,string)", _t("ID of the pivot.")),
-    arg("domain_field_name (string,optional,repeating)", _t("Field name.")),
-    arg("domain_value (number,string,value,optional,repeating)", _t("Value.")),
+    arg("domain_field_name (string,repeating)", _t("Field name.")),
+    arg("domain_value (number,string,value,repeating)", _t("Value.")),
   ],
   compute: function (
     pivotId: Maybe<FunctionResultObject>,

@@ -48,7 +48,7 @@ export type FunctionDescription = AddFunctionDescription & {
   minArgRequired: number;
   maxArgPossible: number;
   nbrArgRepeating: number;
-  getArgToFocus: (argPosition: number) => number;
+  nbrArgOptional: number;
 };
 
 export type EvalContext = {

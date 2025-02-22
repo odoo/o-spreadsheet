@@ -141,7 +141,7 @@ describe("compile functions", () => {
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
-          { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
+          { name: "arg2", description: "", type: ["ANY"], repeating: true },
         ],
       });
       expect(compiledBaseFunction("=REPEATABLE(1)").isBadExpression).toBe(false);
@@ -158,8 +158,8 @@ describe("compile functions", () => {
         },
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
-          { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
-          { name: "arg3", description: "", type: ["ANY"], optional: true, repeating: true },
+          { name: "arg2", description: "", type: ["ANY"], repeating: true },
+          { name: "arg3", description: "", type: ["ANY"], repeating: true },
         ],
       });
       expect(compiledBaseFunction("=REPEATABLES(1, 2)").isBadExpression).toBe(true);
