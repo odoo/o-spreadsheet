@@ -4,6 +4,7 @@ import { iterateAstNodes, parseTokens } from "../../../formulas/parser";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
 import { isEvaluationError, transposeMatrix } from "../../../functions/helpers";
+import { KeepLast } from "../../../helpers/concurrency";
 import {
   clip,
   colors,
@@ -21,6 +22,7 @@ import {
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
+  AutoCompleteProvider,
   AutoCompleteProviderDefinition,
   autoCompleteProviders,
 } from "../../../registries/auto_completes/auto_complete_registry";
@@ -104,6 +106,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   hoveredTokens: EnrichedToken[] = [];
   hoveredContentEvaluation: string = "";
 
+  private autoCompleteKeepLast = new KeepLast<AutoCompleteProvider | undefined>();
   protected notificationStore = this.get(NotificationStore);
   private highlightStore = this.get(HighlightStore);
 
@@ -837,16 +840,16 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     return referenceRanges.filter((range) => !range.invalidSheetName && !range.invalidXc);
   }
 
-  private updateAutoCompleteProvider() {
+  private async updateAutoCompleteProvider() {
     this.autoComplete.hide();
-    const provider = this.findAutocompleteProvider();
+    const provider = await this.autoCompleteKeepLast.add(this.findAutocompleteProvider());
     if (provider) {
       this.autoComplete.useProvider(provider);
+      this.model.trigger("update");
     }
   }
 
-  private findAutocompleteProvider() {
-    this.autoComplete.hide();
+  private async findAutocompleteProvider() {
     const content = this.currentContent;
     const tokenAtCursor = isFormula(content)
       ? this.tokenAtCursor
@@ -872,7 +875,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         selectProposal: provider.selectProposal.bind(thisCtx, tokenAtCursor),
       }));
     for (const provider of providers) {
-      let proposals = provider.getProposals();
+      let proposals = await provider.getProposals();
       const exactMatch = proposals?.find((p) => p.text === tokenAtCursor.value);
       // remove tokens that are likely to be other parts of the formula that slipped in the token if it's a string
       const searchTerm = tokenAtCursor.value.replace(/[ ,\(\)]/g, "");
