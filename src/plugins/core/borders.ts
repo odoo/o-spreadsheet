@@ -639,13 +639,14 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
 
   export(data: WorkbookData) {
     const borders: { [borderId: number]: Border } = {};
+    const reverseLookup = new Map<string, number>();
     for (let sheet of data.sheets) {
       const positionsByBorder: Record<number, CellPosition[]> = {};
       for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
         for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
           const border = this.getCellBorder({ sheetId: sheet.id, col, row });
           if (border) {
-            const borderId = getItemId(border, borders);
+            const borderId = getItemId(border, borders, reverseLookup);
             const position = { sheetId: sheet.id, col, row };
             positionsByBorder[borderId] ??= [];
             positionsByBorder[borderId].push(position);

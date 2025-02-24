@@ -1,5 +1,5 @@
 import { DEFAULT_FONT_SIZE, NEWLINE } from "../../constants";
-import { deepEquals, splitReference, toUnboundedZone } from "../../helpers";
+import { getCanonicalRepresentation, splitReference, toUnboundedZone } from "../../helpers";
 import {
   ConditionalFormattingOperatorValues,
   ExcelWorkbookData,
@@ -128,12 +128,23 @@ export function extractStyle(
   return styles;
 }
 
-export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle): number {
+export type XLSXStructureReverseLookup = {
+  numFmts: Map<string, number>;
+  fonts: Map<string, number>;
+  fills: Map<string, number>;
+  styles: Map<string, number>;
+};
+
+export function normalizeStyle(
+  construct: XLSXStructure,
+  styles: ExtractedStyle,
+  reverseLookups: XLSXStructureReverseLookup
+): number {
   // Normalize this
-  const numFmtId = convertFormat(styles["numFmt"], construct.numFmts);
+  const numFmtId = convertFormat(styles["numFmt"], construct.numFmts, reverseLookups.numFmts);
   const style = {
-    fontId: pushElement(styles.font, construct.fonts),
-    fillId: pushElement(styles.fill, construct.fills),
+    fontId: pushElement(styles.font, construct.fonts, reverseLookups.fonts),
+    fillId: pushElement(styles.fill, construct.fills, reverseLookups.fills),
     borderId: styles.border,
     numFmtId,
     alignment: {
@@ -143,19 +154,20 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
     },
   } as XLSXStyle;
 
-  return pushElement(style, construct.styles);
+  return pushElement(style, construct.styles, reverseLookups.styles);
 }
 
 function convertFormat(
   format: XLSXNumFormat | undefined,
-  numFmtStructure: XLSXNumFormat[]
+  numFmtStructure: XLSXNumFormat[],
+  reverseLookup: Map<string, number>
 ): number {
   if (!format) {
     return 0;
   }
   let formatId: number | undefined = XLSX_FORMAT_MAP[format.format];
   if (!formatId) {
-    formatId = pushElement(format, numFmtStructure) + FIRST_NUMFMT_ID;
+    formatId = pushElement(format, numFmtStructure, reverseLookup) + FIRST_NUMFMT_ID;
   }
   return formatId;
 }
@@ -184,17 +196,20 @@ export function addRelsToFile(
   return id;
 }
 
-export function pushElement<T>(property: T, propertyList: T[]): number {
-  let len = propertyList.length;
-  const operator = typeof property === "object" ? deepEquals : (a: T, b: T) => a === b;
-  for (let i = 0; i < len; i++) {
-    if (operator(property, propertyList[i])) {
-      return i;
-    }
+export function pushElement<T>(
+  property: T,
+  propertyList: T[],
+  reverseLookup: Map<string, number>
+): number {
+  const canonical = getCanonicalRepresentation(property);
+  if (reverseLookup.has(canonical)) {
+    return reverseLookup.get(canonical)!;
   }
 
-  propertyList[propertyList.length] = property;
-  return propertyList.length - 1;
+  const maxId = propertyList.length;
+  propertyList.push(property);
+  reverseLookup.set(canonical, maxId);
+  return maxId;
 }
 
 const chartIds: UID[] = [];

@@ -1,4 +1,4 @@
-import { colorNumberString } from "../../helpers";
+import { colorNumberString, createReverseLookup } from "../../helpers";
 import {
   CellIsRule,
   ColorScaleMidPointThreshold,
@@ -26,11 +26,13 @@ export function addConditionalFormatting(
 ): XMLString[] {
   // Conditional Formats
   const cfNodes: XMLString[] = [];
+
+  const reverseLookup = createReverseLookup(dxfs);
   for (const cf of conditionalFormats) {
     // Special case for each type of rule: might be better to extract that logic in dedicated functions
     switch (cf.rule.type) {
       case "CellIsRule":
-        cfNodes.push(addCellIsRule(cf, cf.rule, dxfs));
+        cfNodes.push(addCellIsRule(cf, cf.rule, dxfs, reverseLookup));
         break;
       case "ColorScaleRule":
         cfNodes.push(addColorScaleRule(cf, cf.rule));
@@ -54,7 +56,12 @@ export function addConditionalFormatting(
 //         RULES
 // ----------------------
 
-function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[]): XMLString {
+function addCellIsRule(
+  cf: ConditionalFormat,
+  rule: CellIsRule,
+  dxfs: XLSXDxf[],
+  reverseLookup: Map<string, number>
+): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
   const operator = convertOperator(rule.operator);
   ruleAttributes.push(...cellRuleTypeAttributes(rule), ["operator", operator]);
@@ -73,7 +80,7 @@ function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[])
   if (rule.style.fillColor) {
     dxf.fill = { fgColor: { rgb: rule.style.fillColor } };
   }
-  ruleAttributes.push(["dxfId", pushElement(dxf, dxfs)]);
+  ruleAttributes.push(["dxfId", pushElement(dxf, dxfs, reverseLookup)]);
 
   return escapeXml/*xml*/ `
     <conditionalFormatting sqref="${cf.ranges.join(" ")}">

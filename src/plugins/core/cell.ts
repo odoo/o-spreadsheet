@@ -310,7 +310,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   export(data: WorkbookData) {
     const styles: { [styleId: number]: Style } = {};
+    const reverseLookupStyles = new Map<string, number>();
     const formats: { [formatId: number]: string } = {};
+    const reverseLookupFormats = new Map<string, number>();
 
     for (let _sheet of data.sheets) {
       const positionsByStyle: Record<number, CellPosition[]> = [];
@@ -324,12 +326,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const xc = toXC(position.col, position.row);
         const style = this.removeDefaultStyleValues(cell.style);
         if (Object.keys(style).length) {
-          const styleId = getItemId<Style>(style, styles);
+          const styleId = getItemId<Style>(style, styles, reverseLookupStyles);
           positionsByStyle[styleId] ??= [];
           positionsByStyle[styleId].push(position);
         }
         if (cell.format) {
-          const formatId = getItemId<Format>(cell.format, formats);
+          const formatId = getItemId<Format>(cell.format, formats, reverseLookupFormats);
           positionsByFormat[formatId] ??= [];
           positionsByFormat[formatId].push(position);
         }
