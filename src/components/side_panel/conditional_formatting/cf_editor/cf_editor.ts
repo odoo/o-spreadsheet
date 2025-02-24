@@ -7,12 +7,8 @@ import {
   GRAY_200,
   GRAY_300,
 } from "../../../../constants";
-import {
-  colorNumberString,
-  colorToNumber,
-  isColorValid,
-  rangeReference,
-} from "../../../../helpers";
+import { compile } from "../../../../formulas";
+import { colorNumberString, colorToNumber, isColorValid } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import { _t } from "../../../../translation";
@@ -31,6 +27,7 @@ import {
   IconThreshold,
   SpreadsheetChildEnv,
   ThresholdType,
+  UID,
 } from "../../../../types";
 import { hexaToInt } from "../../../../xlsx/conversion";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
@@ -194,6 +191,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   colorNumberString = colorNumberString;
 
   private state!: State;
+  private sheetId!: UID;
 
   setup() {
     this.state = useState<State>({
@@ -202,6 +200,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       ranges: this.props.editedCf.ranges,
       rules: this.getDefaultRules(),
     });
+    this.sheetId = this.env.model.getters.getActiveSheetId();
     switch (this.props.editedCf.rule.type) {
       case "CellIsRule":
         this.state.rules.cellIs = this.props.editedCf.rule;
@@ -225,7 +224,33 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   get errorMessages(): string[] {
-    return this.state.errors.map((error) => CfTerms.Errors[error] || CfTerms.Errors.Unexpected);
+    return this.state.errors.map((error) => this.errorMessage(error));
+  }
+
+  get firstInvalidRangeString(): string | undefined {
+    const sheetId = this.sheetId;
+    return this.state.ranges.find((xc) => {
+      const range = this.env.model.getters.getRangeDataFromXc(sheetId, xc);
+      return range._sheetId != sheetId || !this.env.model.getters.isRangeValid(xc);
+    });
+  }
+
+  get firstInvalidFormula(): string | undefined {
+    return this.state.rules.cellIs.values.find((formula) => {
+      return formula.startsWith("=") && compile(formula || "").isBadExpression;
+    });
+  }
+
+  errorMessage(reason: CancelledReason): string {
+    switch (reason) {
+      case CommandResult.TargetOutOfSheet:
+      case CommandResult.InvalidRange:
+        return CfTerms.Errors[reason](this.firstInvalidRangeString);
+      case CommandResult.ValueCellIsInvalidFormula:
+        return CfTerms.Errors[reason](this.firstInvalidFormula);
+      default:
+        return CfTerms.Errors[reason]() || CfTerms.Errors.Unexpected();
+    }
   }
 
   get cfTypesValues() {
@@ -237,26 +262,17 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     ];
   }
 
-  updateConditionalFormat(
-    newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }
-  ): CancelledReason[] {
-    const ranges = newCf.ranges || this.state.ranges;
-    const invalidRanges = this.state.ranges.some((xc) => !xc.match(rangeReference));
-    if (invalidRanges) {
-      if (!newCf.suppressErrors) {
-        this.state.errors = [CommandResult.InvalidRange];
-      }
-      return [CommandResult.InvalidRange];
-    }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const locale = this.env.model.getters.getLocale();
+  updateConditionalFormat(newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
+    const sheetId = this.sheetId;
+    const rangesXC = newCf.ranges || this.state.ranges;
+    const ranges = rangesXC.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc));
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
     const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        rule: canonicalizeCFRule(rule, locale),
+        rule: canonicalizeCFRule(rule, this.env.model.getters.getLocale()),
         id: this.props.editedCf.id,
       },
-      ranges: ranges.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc)),
+      ranges,
       sheetId,
     });
     const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
@@ -365,12 +381,17 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   get isValue1Invalid(): boolean {
     return (
       this.state.errors.includes(CommandResult.FirstArgMissing) ||
-      this.state.errors.includes(CommandResult.ValueCellIsInvalidFormula)
+      (this.state.errors.includes(CommandResult.ValueCellIsInvalidFormula) &&
+        this.firstInvalidFormula == this.state.rules.cellIs.values[0])
     );
   }
 
   get isValue2Invalid(): boolean {
-    return this.state.errors.includes(CommandResult.SecondArgMissing);
+    return (
+      this.state.errors.includes(CommandResult.SecondArgMissing) ||
+      (this.state.errors.includes(CommandResult.ValueCellIsInvalidFormula) &&
+        this.firstInvalidFormula != this.state.rules.cellIs.values[0])
+    );
   }
 
   toggleStyle(tool: string) {

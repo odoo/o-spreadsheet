@@ -427,8 +427,27 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.buttonSave);
       expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
       const errorString = document.querySelector(selectors.error);
-      expect(errorString!.textContent).toBe("The range is invalid");
+      expect(errorString!.textContent).toBe("The range 'hello' is invalid");
     });
+
+    test("cannot create a new CF with out of sheet range", async () => {
+      createSheet(model, { sheetId: "s2", name: "Sheet2", activate: false });
+      await click(fixture, selectors.buttonAdd);
+      await nextTick();
+
+      setInputValueAndTrigger(selectors.ruleEditor.range, "Sheet2!A1");
+
+      const dispatch = spyModelDispatch(model);
+      //  click save
+      await click(fixture, selectors.buttonSave);
+      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
+      const errorString = document.querySelector(selectors.error);
+      expect(errorString).toBeTruthy();
+      expect(errorString?.textContent).toContain(
+        "The range Sheet2!A1 cannot target out of the sheet."
+      );
+    });
+
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
@@ -1032,7 +1051,7 @@ describe("UI of conditional formats", () => {
     await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=suùù(");
     await click(fixture, selectors.buttonSave);
     expect(fixture.querySelector(".o-invalid")).not.toBeNull();
-    expect(errorMessages()).toEqual(["At least one of the provided values is an invalid formula"]);
+    expect(errorMessages()).toEqual(["=suùù() is an invalid formula"]);
   });
 
   test("changing rule type resets errors", async () => {
@@ -1475,7 +1494,7 @@ describe("Integration tests", () => {
     expect(ranges[1]["value"]).toBe("C3");
   });
 
-  test("switching sheet resets CF Editor to list", async () => {
+  test("switching sheet doesn't resets CF Editor to list", async () => {
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
@@ -1491,7 +1510,7 @@ describe("Integration tests", () => {
     expect(fixture.querySelector(selectors.ruleEditor.range! as "input")!.value).toBe("A1:A2");
     activateSheet(model, "42");
     await nextTick();
-    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeNull();
-    expect(fixture.querySelector(selectors.listPreview)).toBeDefined();
+    expect(fixture.querySelector(selectors.ruleEditor.range)).toBeDefined();
+    expect(fixture.querySelector(selectors.listPreview)).toBeNull();
   });
 });

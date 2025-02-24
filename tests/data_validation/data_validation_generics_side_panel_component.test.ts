@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
 import { UID } from "../../src/types";
-import { addDataValidation, updateLocale } from "../test_helpers/commands_helpers";
+import { addDataValidation, createSheet, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import {
@@ -18,7 +18,7 @@ mockGetBoundingClientRect({
   "o-dv-type": () => dataValidationSelectBoundingRect,
 });
 
-export async function mountDataValidationPanel(model?: Model) {
+async function mountDataValidationPanel(model?: Model) {
   return mountComponentWithPortalTarget(DataValidationPanel, {
     model: model || new Model(),
     props: { onCloseSidePanel: () => {} },
@@ -152,7 +152,26 @@ describe("data validation sidePanel component", () => {
     expect(fixture.querySelector(".o-selection-input .o-invalid")).toBeTruthy();
     const errorMessageEl = fixture.querySelector(".o-validation-error");
     expect(errorMessageEl).toBeTruthy();
-    expect(errorMessageEl?.textContent).toContain("The range is invalid.");
+    expect(errorMessageEl?.textContent).toContain("The range A1:HOLA is invalid.");
+  });
+
+  test("Out of sheet range", async () => {
+    createSheet(model, { sheetId: "ID", name: "Sheet2", activate: false });
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await changeCriterionType("dateIs");
+
+    setInputValueAndTrigger(".o-selection-input input", "Sheet2!A1");
+
+    const composer = ".o-dv-settings .o-composer";
+    await editStandaloneComposer(composer, "=SUM(1,2)");
+
+    await simulateClick(".o-dv-save");
+    const errorMessageEl = fixture.querySelector(".o-validation-error");
+    expect(errorMessageEl).toBeTruthy();
+    expect(errorMessageEl?.textContent).toContain(
+      "The range Sheet2!A1 cannot target out of the sheet."
+    );
   });
 
   test("Invalid input values with single input", async () => {
