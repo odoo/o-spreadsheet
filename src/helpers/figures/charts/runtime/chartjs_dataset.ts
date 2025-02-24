@@ -11,9 +11,14 @@ import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../.
 import {
   BarChartDefinition,
   ChartWithDataSetDefinition,
+  DatasetValues,
   LineChartDefinition,
   PieChartDefinition,
   ScatterChartDefinition,
+  SunburstChartDefinition,
+  SunburstChartJSDataset,
+  SunburstChartRawData,
+  SunburstTreeNode,
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
@@ -31,6 +36,8 @@ import {
   setColorAlpha,
 } from "../../../color";
 import { TREND_LINE_XAXIS_ID, getPieColors } from "../chart_common";
+
+export const GHOST_SUNBURST_VALUE = "nullValue";
 
 export function getBarChartDatasets(
   definition: GenericDefinition<BarChartDefinition>,
@@ -204,7 +211,7 @@ export function getPieChartDatasets(
       data,
       borderColor: definition.background || "#FFFFFF",
       backgroundColor,
-      hoverOffset: 30,
+      hoverOffset: 10,
     };
     dataSets!.push(dataset);
   }
@@ -331,6 +338,132 @@ export function getGeoChartDatasets(
   }
 
   return [dataset];
+}
+
+export function getSunburstChartDatasets(
+  definition: GenericDefinition<SunburstChartDefinition>,
+  args: ChartRuntimeGenerationArgs
+): SunburstChartJSDataset[] {
+  const { dataSetsValues, labels } = args;
+
+  const tree = getSunburstTree(dataSetsValues, labels);
+  const data = pyramidizeTree(tree);
+
+  const rootData = data[0] || [];
+  const colorGenerator = new ColorGenerator(rootData.length, definition.groupColors || []);
+  const groupColors = rootData.map((rawValue) => ({
+    label: rawValue.label,
+    color: colorGenerator.next(),
+  }));
+
+  const dataSets: SunburstChartJSDataset[] = [];
+  for (let i = data.length - 1; i >= 0; i--) {
+    const dataset: SunburstChartJSDataset = {
+      groupColors,
+      parsing: { key: "value" },
+      data: data[i] as any,
+      borderColor: (ctx) => {
+        const data = ctx.type === "data" ? (ctx.raw as SunburstChartRawData) : undefined;
+        if (!data || data.label === GHOST_SUNBURST_VALUE) {
+          return "rgba(0, 0, 0, 0)";
+        }
+        return definition.background || BACKGROUND_CHART_COLOR;
+      },
+      backgroundColor: (ctx) => {
+        const data = ctx.type === "data" ? (ctx.raw as SunburstChartRawData) : undefined;
+        if (!data || data.label === GHOST_SUNBURST_VALUE) {
+          return "rgba(0, 0, 0, 0)";
+        }
+        const rootGroup = data.groups[0];
+        return groupColors.find((groupColor) => groupColor.label === rootGroup)?.color;
+      },
+      hoverOffset: 10,
+    };
+    dataSets!.push(dataset);
+  }
+  return dataSets;
+}
+
+function getDataEntriesFromDatasets(hierarchicalDatasetValues: DatasetValues[], values: string[]) {
+  const entries: Record<string, string | number>[] = [];
+  const maxDatasetLength = Math.max(...hierarchicalDatasetValues.map((ds) => ds.data.length));
+  for (let i = 0; i < maxDatasetLength; i++) {
+    entries[i] = {};
+    for (let j = 0; j < hierarchicalDatasetValues.length; j++) {
+      const groupBy =
+        hierarchicalDatasetValues[j].data[i] === null
+          ? GHOST_SUNBURST_VALUE
+          : String(hierarchicalDatasetValues[j].data[i]);
+      entries[i][j] = groupBy;
+    }
+    entries[i].value = Number(values[i]);
+  }
+  return entries;
+}
+
+function getSunburstTree(
+  hierarchicalDatasetValues: DatasetValues[],
+  values: string[]
+): SunburstTreeNode[] {
+  const entries = getDataEntriesFromDatasets(hierarchicalDatasetValues, values);
+  return sunburstGroupBy(entries, 0, hierarchicalDatasetValues.length, []);
+}
+
+function sunburstGroupBy(
+  entries: Record<string, string | number>[],
+  index: number,
+  maxDepth: number,
+  parentGroups: string[]
+): SunburstTreeNode[] {
+  if (index >= maxDepth) {
+    return [];
+  }
+  const groups = Object.groupBy(entries, (item) => item[index]);
+  return Object.keys(groups)
+    .map((key) => {
+      const total = groups[key]?.reduce((acc, item) => acc + Number(item.value), 0) || 0;
+      const itemGroups = [...parentGroups, key];
+      const tree = sunburstGroupBy(groups[key] || [], index + 1, maxDepth, [...parentGroups, key]);
+      return {
+        label: key,
+        value: total,
+        children: tree,
+        groups: itemGroups,
+        depth: index,
+      };
+    })
+    .sort((a, b) => b.value - a.value);
+}
+
+/**
+ * Transform a tree into a "pyramid" array, ie. an array in which each level is an array of nodes at the same depth.
+ *
+ * Example:
+ * ```
+ *       A                  [
+ *      / \                    [A],
+ *     B   C       ===>        [B, C],
+ *    / \   \                  [D, E, F],
+ *   D   E   F              ]
+ *  ```
+ */
+function pyramidizeTree(tree: SunburstTreeNode[]): SunburstTreeNode[][] {
+  const flattened: SunburstTreeNode[][] = [];
+  const queue = [...tree];
+  while (queue.length > 0) {
+    const node = queue.shift();
+    if (!node) {
+      continue;
+    }
+    if (!flattened[node.depth]) {
+      flattened[node.depth] = [];
+    }
+    flattened[node.depth].push(node);
+    if (node.children) {
+      queue.push(...node.children);
+    }
+  }
+  return flattened;
 }
 
 function getTrendingLineDataSet(

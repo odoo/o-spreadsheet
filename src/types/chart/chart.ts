@@ -1,5 +1,5 @@
 import { Point } from "chart.js";
-import { Align, Color, Format, Locale, Range } from "../../types";
+import { Align, Color, Format, Locale, Range, VerticalAlign } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -12,6 +12,7 @@ import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
 import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
+import { SunburstChartDefinition, SunburstChartRuntime } from "./sunburst_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
 export const CHART_TYPES = [
@@ -26,6 +27,7 @@ export const CHART_TYPES = [
   "pyramid",
   "radar",
   "geo",
+  "sunburst",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -40,11 +42,17 @@ export type ChartDefinition =
   | WaterfallChartDefinition
   | PyramidChartDefinition
   | RadarChartDefinition
-  | GeoChartDefinition;
+  | GeoChartDefinition
+  | SunburstChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string }
+>;
+
+export type ChartWithAxisDefinition = Extract<
+  ChartWithDataSetDefinition,
+  { axesDesign?: AxesDesign }
 >;
 
 export type ChartJSRuntime =
@@ -56,7 +64,8 @@ export type ChartJSRuntime =
   | WaterfallChartRuntime
   | PyramidChartRuntime
   | RadarChartRuntime
-  | GeoChartRuntime;
+  | GeoChartRuntime
+  | SunburstChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
@@ -92,8 +101,10 @@ export interface TitleDesign {
   readonly bold?: boolean;
   readonly italic?: boolean;
   readonly align?: Align;
+  readonly verticalAlign?: VerticalAlign;
   readonly color?: Color;
   readonly fontSize?: number;
+  readonly fillColor?: Color;
 }
 
 export type TrendType = "polynomial" | "exponential" | "logarithmic" | "trailingMovingAverage";
@@ -162,6 +173,9 @@ export interface ChartCreationContext {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly showLabels?: boolean;
+  readonly valuesDesign?: TitleDesign;
+  readonly groupColors?: (Color | undefined | null)[];
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

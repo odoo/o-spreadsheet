@@ -8,16 +8,14 @@
         selectedValue="state.currentAxis"
       />
     </Section>
-    <ChartTitle
-      title="this.getAxisTitle()"
-      updateTitle.bind="updateAxisTitle"
-      name="editor_label"
-      toggleItalic.bind="toggleItalicAxisTitle"
-      toggleBold.bind="toggleBoldAxisTitle"
-      updateAlignment.bind="updateAxisTitleAlignment"
-      updateColor.bind="updateAxisTitleColor"
+    <TextStyler
+      text="this.getAxisTitle()"
+      updateText.bind="updateAxisTitle"
+      updateStyle.bind="updateAxisTitleStyle"
+      label="editor_label"
       style="axisTitleStyle"
-      onFontSizeChanged.bind="updateAxisTitleFontSize"
+      hasHorizontalAlign="true"
+      defaultStyle="{align: 'center', color: '', fontSize: defaultFontSize}"
     />
   </t>
 </templates>
