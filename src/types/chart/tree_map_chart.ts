@@ -39,7 +39,7 @@ export interface TreeMapGroupColor {
   color: Color;
 }
 
-export type TreeMapTree = Record<string, string | number>[];
+export type TreeMapTree = Record<string, string | number | undefined>[];
 
 export type TreeMapColoringOptions = TreeMapCategoryColorOptions | TreeMapColorScaleOptions;
 

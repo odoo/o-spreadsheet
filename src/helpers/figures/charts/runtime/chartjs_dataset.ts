@@ -353,9 +353,11 @@ export function getTreeMapChartDatasets(
       // Note: there can be empty child groups. Eg. a dataset with "January" detailed week by week, and "February" with only
       // the total for the month. Leaving undefined values in the tree breaks the chart. We'll repeat the last group value.
       // This leads to repeated labels/subtitles in the chart, but it's better than nothing.
-      const groupBy = dataSetsValues[j].data[i]
-        ? String(dataSetsValues[j].data[i])
-        : tree[i][j - 1];
+      // const groupBy = dataSetsValues[j].data[i]
+      //   ? String(dataSetsValues[j].data[i])
+      //   : tree[i][j - 1];
+      const groupBy = dataSetsValues[j].data[i] ? String(dataSetsValues[j].data[i]) : undefined;
+
       tree[i][j] = groupBy;
     }
     tree[i].value = Number(labels[i]);

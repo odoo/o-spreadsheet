@@ -1,14 +1,8 @@
 /*!
  * chartjs-chart-treemap v3.1.0
  * https://chartjs-chart-treemap.pages.dev/
- * (c) 2024 Jukka Kurkela
+ * (c) 2025 Jukka Kurkela
  * Released under the MIT license
- *
- * This library is slightly patched to allow to render a tree map with parent groups that looks more like a header
- * rather than an enclosing box (see "PATCH" comments).
- *
- * This is a quick fix, that works very well for our use case, but that make charts ugly if
- * we deviate from it (for example if dataset.spacing is not 0.)
  */
 (function (global, factory) {
   typeof exports === "object" && typeof module !== "undefined"
@@ -130,6 +124,9 @@
         continue;
       }
       g = v[grp] || v[treeLeafKey] || "";
+      if (!g) {
+        return [];
+      }
       if (!(g in tmp)) {
         const tmpRef = (tmp[g] = { value: 0 });
         addKeys.forEach(function (k) {
@@ -352,13 +349,13 @@
     return rect.h < 2 * captionHeight ? rect.h / 3 : captionHeight;
   }
 
-  function drawText(ctx, rect, options, item, levels) {
-    const { labels, captions, displayMode } = options;
+  function drawText(ctx, rect, options, item) {
+    const { captions, labels, displayMode } = options;
     ctx.save();
     ctx.beginPath();
     ctx.rect(rect.x, rect.y, rect.w, rect.h);
     ctx.clip();
-    const isLeaf = item && (!helpers.defined(item.l) || item.l === levels);
+    const isLeaf = item && (!helpers.defined(item.l) || item.isLeaf);
     if (isLeaf && labels.display) {
       drawLabel(ctx, rect, options);
     } else if (!isLeaf && shouldDrawCaption(displayMode, rect, captions)) {
@@ -369,22 +366,21 @@
 
   function drawCaption(ctx, rect, options, item) {
     const { captions, spacing, rtl, displayMode } = options;
-    let { color, hoverColor, font, hoverFont, padding, align, formatter } = captions;
+    const { color, hoverColor, font, hoverFont, padding, align, formatter } = captions;
+    const oColor = (rect.active ? hoverColor : color) || color;
+    const oAlign = align || (rtl ? "right" : "left");
     const optFont = (rect.active ? hoverFont : font) || font;
     const oFont = helpers.toFont(optFont);
     const fonts = [oFont];
-    if (displayMode === "headerBoxes" && oFont.lineHeight > rect.h) {
+    if (oFont.lineHeight > rect.h) {
       return;
     }
-    // PATCH: slice text to fit the available space
     let text = formatter || item.g;
     const captionSize = measureLabelSize(ctx, [formatter], fonts);
     if (captionSize.width + 2 * padding > rect.w) {
       text = sliceTextToFitWidth(ctx, text, rect.w - 2 * padding, fonts);
     }
 
-    const oColor = (rect.active ? hoverColor : color) || color;
-    const oAlign = align || (rtl ? "right" : "left");
     const lh = oFont.lineHeight / 2;
     const x = calculateX(rect, oAlign, padding);
     ctx.fillStyle = oColor;
@@ -396,16 +392,14 @@
   }
 
   function sliceTextToFitWidth(ctx, text, width, fonts) {
-    const ellipsis = "…";
+    const ellipsis = "...";
     const ellipsisWidth = measureLabelSize(ctx, [ellipsis], fonts).width;
     if (ellipsisWidth >= width) {
       return "";
     }
-
     let lowerBoundLen = 1;
     let upperBoundLen = text.length;
-    let currentWidth = undefined;
-
+    let currentWidth;
     while (lowerBoundLen <= upperBoundLen) {
       const currentLen = Math.floor((lowerBoundLen + upperBoundLen) / 2);
       const currentText = text.slice(0, currentLen);
@@ -416,7 +410,6 @@
         lowerBoundLen = currentLen + 1;
       }
     }
-
     const slicedText = text.slice(0, Math.max(0, lowerBoundLen - 1));
     return slicedText ? slicedText + ellipsis : "";
   }
@@ -599,7 +592,7 @@
       ctx.fill();
 
       drawDivider(ctx, inner, options, data);
-      drawText(ctx, inner, options, data, levels);
+      drawText(ctx, inner, options, data);
       ctx.restore();
     }
 
@@ -1004,10 +997,8 @@
     }
     const groups = dataset.groups || [];
     const glen = groups.length;
-    // PATCH: Ignore spacing in X to compute box size
-    const sp = helpers.valueOrDefault(dataset.spacing, 0);
-    const spX = dataset.displayMode === "headerBoxes" ? 0 : sp;
-    const spY = dataset.displayMode === "headerBoxes" ? 0 : sp;
+    const sp =
+      dataset.displayMode === "headerBoxes" ? 0 : helpers.valueOrDefault(dataset.spacing, 0);
     const captions = dataset.captions || {};
     const font = helpers.toFont(captions.font);
     const padding = helpers.valueOrDefault(captions.padding, 3);
@@ -1028,50 +1019,50 @@
       const ret = gsq.slice();
       if (gidx < glen - 1) {
         gsq.forEach((sq) => {
-          // PATCH: Do not include border to compute box size
           const bw =
             dataset.displayMode === "headerBoxes"
               ? { l: 0, r: 0, t: 0, b: 0 }
               : parseBorderWidth(dataset.borderWidth, sq.w / 2, sq.h / 2);
-
           const subRect = {
             ...rect,
-            x: sq.x + spX + bw.l,
-            y: sq.y + spY + bw.t,
-            w: sq.w - 2 * spX - bw.l - bw.r,
-            h: sq.h - 2 * spY - bw.t - bw.b,
+            x: sq.x + sp + bw.l,
+            y: sq.y + sp + bw.t,
+            w: sq.w - 2 * sp - bw.l - bw.r,
+            h: sq.h - 2 * sp - bw.t - bw.b,
           };
           if (shouldDrawCaption(dataset.displayMode, subRect, captions)) {
-            // PATCH: reduce header height if there is no space
             const captionHeight = getCaptionHeight(dataset.displayMode, subRect, font, padding);
-
             subRect.y += captionHeight;
             subRect.h -= captionHeight;
           }
+          const children = [];
           gdata.forEach((gEl) => {
-            ret.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
+            children.push(...recur(gEl.children, gidx + 1, subRect, sq.g, sq.s));
           });
+          ret.push(...children);
+          sq.isLeaf = !children.length;
+        });
+      } else {
+        gsq.forEach((sq) => {
+          sq.isLeaf = true;
         });
       }
       return ret;
     }
 
-    let data = glen ? recur(tree, 0, mainRect) : squarify(tree, mainRect, keys);
-    data = data
+    const result = glen ? recur(tree, 0, mainRect) : squarify(tree, mainRect, keys);
+    return result
       .map((d) => {
-        if (dataset.displayMode !== "headerBoxes" || d.l === glen - 1) {
+        if (dataset.displayMode !== "headerBoxes" || d.isLeaf) {
           return d;
         }
-
-        const rect = { ...d, h: d.h - 2 * 0 };
-        if (!shouldDrawCaption(dataset.displayMode, rect, captions)) {
+        if (!shouldDrawCaption(dataset.displayMode, d, captions)) {
           return undefined;
         }
-        const captionHeight = getCaptionHeight(dataset.displayMode, rect, font, padding);
+        const captionHeight = getCaptionHeight(dataset.displayMode, d, font, padding);
         return { ...d, h: captionHeight };
       })
       .filter((d) => d);
-    return data;
   }
 
   class TreemapController extends chart_js.DatasetController {
@@ -1161,7 +1152,6 @@
       const sharedOptions = this.getSharedOptions(firstOpts);
       const includeOptions = this.includeOptions(mode, sharedOptions);
       const { xScale, yScale } = this.getMeta(this.index);
-      const maxDepth = dataset.groups.length - 1;
 
       for (let i = start; i < start + count; i++) {
         const options = sharedOptions || this.resolveDataElementOptions(i, mode);

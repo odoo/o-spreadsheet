@@ -46,7 +46,7 @@ export const treeMapColorsPlugin: Plugin = {
         if (ctx.type !== "data") {
           return "transparent";
         }
-        if (ctx.raw.l !== maxDepth) {
+        if (!ctx.raw.isLeaf) {
           return definition.headerDesign?.fillColor || TreeMapChartDefaults.headerDesign?.fillColor;
         }
         const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
@@ -95,7 +95,7 @@ function getTreeMapColorScale(
   coloringOption: TreeMapColorScaleOptions,
   maxDepth: number
 ) {
-  const nodes = dataset.data.filter((node) => node.l === maxDepth);
+  const nodes = dataset.data.filter((node) => node.isLeaf);
   const minValue = Math.min(...nodes.map((node) => Number(node.v) || 0));
   const maxValue = Math.max(...nodes.map((node) => Number(node.v) || 0));
   if (Number.isFinite(minValue) && Number.isFinite(maxValue)) {
@@ -124,7 +124,7 @@ function getTreeMapElementColor(
   }
 
   const nodes = dataset.data.filter(
-    (node) => node._data.path.startsWith(rootCategory) && node.l === maxDepth
+    (node) => node._data.path.startsWith(rootCategory) && node.isLeaf
   );
   const max = Math.max(...nodes.map((node) => Number(node.v) || 0));
   const min = Math.min(...nodes.map((node) => Number(node.v) || 0));
