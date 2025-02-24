@@ -169,6 +169,8 @@ export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefi
 export interface ChartRuntimeGenerationArgs {
   dataSetsValues: DatasetValues[];
   axisFormats: ChartAxisFormats;
+  evaluatedChartTitle: TitleDesign;
+  evaluatedAxesDesign?: AxesDesign;
   labels: string[];
   locale: Locale;
   trendDataSetsValues?: (Point[] | undefined)[];

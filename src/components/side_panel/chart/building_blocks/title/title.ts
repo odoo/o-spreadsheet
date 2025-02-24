@@ -2,6 +2,7 @@ import { Component, useExternalListener, useState } from "@odoo/owl";
 import { GRAY_300 } from "../../../../../constants";
 import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
+import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
 import { FontSizeEditor } from "../../../../font_size_editor/font_size_editor";
 import { css } from "../../../../helpers";
 import { Section } from "../../../components/section/section";
@@ -57,7 +58,7 @@ export interface ChartTitleState {
 
 export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
-  static components = { Section, ColorPickerWidget, FontSizeEditor };
+  static components = { Section, ColorPickerWidget, FontSizeEditor, StandaloneComposer };
   static props = {
     title: { type: String, optional: true },
     updateTitle: Function,
@@ -82,8 +83,8 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
     activeTool: "",
   });
 
-  updateTitle(ev: InputEvent) {
-    this.props.updateTitle((ev.target as HTMLInputElement).value);
+  updateTitle(newTitle: string) {
+    this.props.updateTitle(newTitle);
   }
 
   updateFontSize(fontSize: number) {
