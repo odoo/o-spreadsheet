@@ -29,7 +29,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   private queuedChanges: Record<UID, { toAdd: Zone[]; toRemove: Zone[]; cf: ConditionalFormat }[]> =
     {};
 
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent | undefined {
     if (!data.zones.length) {
       return;
     }
@@ -39,6 +39,9 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     const cfRules: Maybe<ClipboardConditionalFormat>[][] = [];
 
     for (const row of rowsIndexes) {
+      if (!isCutOperation && this.getters.isRowFiltered(sheetId, row)) {
+        continue;
+      }
       const cfRuleInRow: Maybe<ClipboardConditionalFormat>[] = [];
       for (const col of columnsIndexes) {
         const cfRules = Array.from(this.getters.getRulesByCell(sheetId, col, row));
