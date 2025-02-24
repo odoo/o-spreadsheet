@@ -46,6 +46,7 @@ interface Props {
   onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed?: () => void;
   colors?: Color[];
+  enabled?: boolean[];
 }
 
 type SelectionRangeEditMode = "select-range" | "text-edit";
@@ -59,6 +60,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isFocused: boolean;
   isValidRange: boolean;
   color?: Color;
+  enabled?: boolean;
 }
 /**
  * This component can be used when the user needs to input some
@@ -81,6 +83,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     onSelectionReordered: { type: Function, optional: true },
     onSelectionRemoved: { type: Function, optional: true },
     colors: { type: Array, optional: true, default: [] },
+    enabled: { type: Array, optional: true, default: [] },
   };
   private state: State = useState({
     isMissing: false,
@@ -120,7 +123,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       SelectionInputStore,
       this.props.ranges,
       this.props.hasSingleRange || false,
-      this.props.colors
+      this.props.colors,
+      this.props.enabled
     );
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {
@@ -137,6 +141,12 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
         nextProps.colors?.join() !== this.store.colors.join()
       ) {
         this.store.updateColors(nextProps.colors || []);
+      }
+      if (
+        nextProps.enabled?.join() !== this.props.enabled?.join() &&
+        nextProps.enabled?.join() !== this.store.enabled.join()
+      ) {
+        this.store.updateEnabled(nextProps.enabled || []);
       }
     });
   }
@@ -180,10 +190,17 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getColor(range: SelectionRange) {
+    if (!this.isEnabled(range)) {
+      return "#fff";
+    }
     if (!range.color) {
       return "";
     }
     return cssPropertiesToCss({ color: range.color });
+  }
+
+  isEnabled(range: SelectionRange): boolean {
+    return range.enabled ?? true;
   }
 
   private triggerChange() {

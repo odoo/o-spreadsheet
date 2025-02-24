@@ -33,6 +33,10 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     return this.props.ranges.map((r) => r.backgroundColor);
   }
 
+  get enabled(): boolean[] {
+    return this.props.ranges.map((r) => !r.ignored);
+  }
+
   get title() {
     return this.props.hasSingleRange ? _t("Data range") : _t("Data series");
   }

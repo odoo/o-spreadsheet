@@ -29,7 +29,8 @@
             t-att-class="{
               'o-focused' : range.isFocused,
               'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
-              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
+              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range',
+              'o-disabled':  !isEnabled(range)
             }"
             t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
           />

@@ -128,10 +128,12 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       { dataSets: this.dataSets },
       this.dataSets.length
     );
+    const ignored = this.dataSets.map((ds) => ds.ignored);
     const colors = this.dataSets.map((ds) => colorGenerator.next());
-    this.dataSets = indexes.map((i) => ({
-      backgroundColor: colors[i],
-      ...this.dataSets[i],
+    this.dataSets = indexes.map((index, i) => ({
+      backgroundColor: colors[index],
+      ...this.dataSets[index],
+      ignored: ignored[i],
     }));
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
       dataSets: this.dataSets,
@@ -144,12 +146,19 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       this.dataSets.length
     );
     const colors = this.dataSets.map((ds) => colorGenerator.next());
+    const ignored = this.dataSets.map((ds) => ds.ignored);
     this.dataSets = this.dataSets
       .map((ds, i) => ({
         backgroundColor: colors[i],
         ...ds,
       }))
       .filter((_, i) => i !== index);
+    for (let i = 0; i < this.dataSets.length; i++) {
+      this.dataSets[i] = {
+        ...this.dataSets[i],
+        ignored: ignored[i],
+      };
+    }
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
       dataSets: this.dataSets,
     });

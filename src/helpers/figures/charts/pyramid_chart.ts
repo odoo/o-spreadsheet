@@ -66,7 +66,7 @@ export class PyramidChart extends AbstractChart {
       definition.dataSets,
       sheetId,
       definition.dataSetsHaveTitle
-    ).slice(0, 2);
+    );
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
@@ -114,6 +114,7 @@ export class PyramidChart extends AbstractChart {
       range.push({
         ...this.dataSetDesign?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
+        ignored: undefined,
       });
     }
     return {
@@ -159,6 +160,7 @@ export class PyramidChart extends AbstractChart {
       ranges.push({
         ...this.dataSetDesign?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
+        ignored: i > 1,
       });
     }
     return {
@@ -203,7 +205,12 @@ export function createPyramidChartRuntime(
   getters: Getters
 ): PyramidChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getPyramidChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getPyramidChartData(
+    definition,
+    chart.dataSets.slice(0, 2),
+    chart.labelRange,
+    getters
+  );
 
   const config: ChartConfiguration = {
     type: "bar",

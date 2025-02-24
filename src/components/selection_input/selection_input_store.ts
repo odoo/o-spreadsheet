@@ -30,6 +30,7 @@ export class SelectionInputStore extends SpreadsheetStore {
     "reset",
     "confirm",
     "updateColors",
+    "updateEnabled",
   ] as const;
   ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
@@ -41,7 +42,8 @@ export class SelectionInputStore extends SpreadsheetStore {
     get: Get,
     private initialRanges: string[] = [],
     private readonly inputHasSingleRange: boolean = false,
-    public colors: Color[] = []
+    public colors: Color[] = [],
+    public enabled: boolean[] = []
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -168,6 +170,10 @@ export class SelectionInputStore extends SpreadsheetStore {
     this.colors = colors;
   }
 
+  updateEnabled(enabled: boolean[]) {
+    this.enabled = enabled;
+  }
+
   confirm() {
     for (const range of this.selectionInputs) {
       if (range.xc === "") {
@@ -217,6 +223,7 @@ export class SelectionInputStore extends SpreadsheetStore {
             : null,
         isFocused: this.hasMainFocus && this.focusedRangeIndex === index,
         isValidRange: input.xc === "" || this.getters.isRangeValid(input.xc),
+        enabled: this.enabled?.[index],
       })
     );
   }
