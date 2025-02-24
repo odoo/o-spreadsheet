@@ -2,6 +2,7 @@ import { composerTokenize, EnrichedToken } from "../../../formulas/composer_toke
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
 import {
+  clip,
   colors,
   concat,
   fuzzyLookup,
@@ -16,11 +17,10 @@ import {
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
-  AutoCompleteProvider,
   AutoCompleteProviderDefinition,
   autoCompleteProviders,
 } from "../../../registries/auto_completes/auto_complete_registry";
-import { Get } from "../../../store_engine";
+import { Get, Store } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
@@ -40,6 +40,7 @@ import {
   Zone,
 } from "../../../types";
 import { SelectionEvent } from "../../../types/event_stream";
+import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 
 export const DEFAULT_TOKEN_COLOR: Color = "#000000";
 const functionColor = DEFAULT_TOKEN_COLOR;
@@ -70,6 +71,11 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     "stopComposerRangeSelection",
     "cancelEdition",
     "cycleReferences",
+    "hideHelp",
+    "autoCompleteOrStop",
+    "insertAutoCompleteValue",
+    "moveAutoCompleteSelection",
+    "selectAutoCompleteIndex",
     "toggleEditionMode",
     "changeComposerCursorSelection",
     "replaceComposerCursorSelection",
@@ -84,6 +90,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   protected selectionEnd: number = 0;
   protected initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
+  private autoComplete: Store<AutoCompleteStore> = new AutoCompleteStore(this.get);
 
   protected notificationStore = this.get(NotificationStore);
   private highlightStore = this.get(HighlightStore);
@@ -101,6 +108,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   abstract stopEdition(direction?: Direction): void;
 
   private handleEvent(event: SelectionEvent) {
+    this.hideHelp();
     const sheetId = this.getters.getActiveSheetId();
     let unboundedZone: UnboundedZone;
     if (event.options.unbounded) {
@@ -132,6 +140,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.selectionEnd = end;
     this.computeFormulaCursorContext();
     this.computeParenthesisRelatedToCursor();
+    this.updateAutoCompleteProvider();
   }
 
   stopComposerRangeSelection() {
@@ -160,6 +169,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.updateTokenColor();
     this.computeFormulaCursorContext();
     this.computeParenthesisRelatedToCursor();
+    this.updateAutoCompleteProvider();
   }
 
   cancelEdition() {
@@ -241,6 +251,18 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     } else {
       return this.currentTokens.find((t) => t.start <= start && t.end >= end);
     }
+  }
+
+  get autoCompleteProposals() {
+    return this.autoComplete.provider?.proposals || [];
+  }
+
+  get autoCompleteSelectedIndex() {
+    return this.autoComplete.selectedIndex;
+  }
+
+  get isAutoCompleteDisplayed() {
+    return !!this.autoComplete.provider;
   }
 
   cycleReferences() {
@@ -419,6 +441,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     if (this.canStartComposerRangeSelection()) {
       this.startComposerRangeSelection();
     }
+    this.updateAutoCompleteProvider();
   }
 
   protected getAutoCompleteProviders(): AutoCompleteProviderDefinition[] {
@@ -711,7 +734,16 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     return referenceRanges.filter((range) => !range.invalidSheetName && !range.invalidXc);
   }
 
-  get autocompleteProvider(): AutoCompleteProvider | undefined {
+  private updateAutoCompleteProvider() {
+    this.autoComplete.hide();
+    const provider = this.findAutocompleteProvider();
+    if (provider) {
+      this.autoComplete.useProvider(provider);
+    }
+  }
+
+  private findAutocompleteProvider() {
+    this.autoComplete.hide();
     const content = this.currentContent;
     const tokenAtCursor = isFormula(content)
       ? this.tokenAtCursor
@@ -782,6 +814,36 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
     }
     return;
+  }
+
+  hideHelp() {
+    this.autoComplete.hide();
+  }
+
+  autoCompleteOrStop(direction: Direction) {
+    if (this.editionMode !== "inactive") {
+      const autoComplete = this.autoComplete;
+      if (autoComplete.provider && autoComplete.selectedIndex !== undefined) {
+        const autoCompleteValue = autoComplete.provider.proposals[autoComplete.selectedIndex]?.text;
+        if (autoCompleteValue) {
+          this.autoComplete.provider?.selectProposal(autoCompleteValue);
+          return;
+        }
+      }
+      this.stopEdition(direction);
+    }
+  }
+
+  insertAutoCompleteValue(value: string) {
+    this.autoComplete.provider?.selectProposal(value);
+  }
+
+  selectAutoCompleteIndex(index: number) {
+    this.autoComplete.selectIndex(clip(0, index, 10));
+  }
+
+  moveAutoCompleteSelection(direction: "previous" | "next") {
+    this.autoComplete.moveSelection(direction);
   }
 
   /**
