@@ -783,6 +783,28 @@ describe("Import xlsx data", () => {
     }
   );
 
+  test("Can import horizontal bar charts", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find(
+      (figure) => figure.data.title.text === "horizontal bar chart"
+    )!;
+    const chartData = figure.data as BarChartDefinition;
+    expect(chartData.title.text).toEqual("horizontal bar chart");
+    expect(chartData.type).toEqual("bar");
+    expect(chartData.horizontal).toEqual(true);
+  });
+
+  test("Can import doughnut charts", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find(
+      (figure) => figure.data.title.text === "single dataset doughnut chart"
+    )!;
+    const chartData = figure.data as PieChartDefinition;
+    expect(chartData.title.text).toEqual("single dataset doughnut chart");
+    expect(chartData.type).toEqual("pie");
+    expect(chartData.isDoughnut).toEqual(true);
+  });
+
   test.each([
     [
       "line chart",
