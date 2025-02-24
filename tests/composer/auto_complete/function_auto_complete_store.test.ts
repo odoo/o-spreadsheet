@@ -7,12 +7,11 @@ describe("Function auto complete", () => {
     const { store: composer, model } = makeStore(CellComposerStore);
     setCellContent(model, "A1", "=SUM");
     composer.startEdition();
-    const autoComplete = composer.autocompleteProvider;
-    const proposals = autoComplete?.proposals;
+    const proposals = composer.autoCompleteProposals;
     expect(proposals).toHaveLength(10);
     expect(proposals?.[0].text).toEqual("SUM");
     expect(proposals?.[1].text).toEqual("SUMIF");
-    autoComplete?.selectProposal(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0].text);
     expect(composer.currentContent).toEqual("=SUM(");
   });
 });
