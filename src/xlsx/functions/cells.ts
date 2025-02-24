@@ -12,12 +12,19 @@ import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../h
 import { CellValue, ExcelCellData, Format } from "../../types";
 import { CellErrorType } from "../../types/errors";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
-import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
+import {
+  FORCE_DEFAULT_ARGS_FUNCTIONS,
+  NON_RETROCOMPATIBLE_FUNCTIONS,
+  NON_VECTORIZABLE_FUNCTIONS,
+} from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";
 import { DEFAULT_LOCALE } from "./../../types/locale";
 
-export function addFormula(cell: ExcelCellData): {
+export function addFormula(
+  cell: ExcelCellData,
+  formulaSpillRange: string
+): {
   attrs: XMLAttributes;
   node: XMLString;
 } {
@@ -35,7 +42,15 @@ export function addFormula(cell: ExcelCellData): {
   const XlsxFormula = adaptFormulaToExcel(formula);
 
   const exportedValue = adaptFormulaValueToExcel(cell.value);
-  const node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${exportedValue}</v>`;
+  // We treat all formulas as array formulas (a simple formula
+  // is an array formula that spills on only one cell) to avoid
+  // trying to detect spilling sub-formulas which is not a trivial task.
+  let node: XMLString;
+  if (NON_VECTORIZABLE_FUNCTIONS.some((f) => XlsxFormula.includes(f))) {
+    node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${exportedValue}</v>`;
+  } else {
+    node = escapeXml/*xml*/ `<f t="array" ref="${formulaSpillRange}">${XlsxFormula}</f><v>${exportedValue}</v>`;
+  }
   return { attrs, node };
 }
 
