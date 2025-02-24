@@ -33,9 +33,11 @@ const mutedFontColor = chartMutedFontColor("#fff");
 function updateScorecardChartSize(width: Pixel, height: Pixel) {
   model.dispatch("UPDATE_FIGURE", {
     sheetId,
-    id: chartId,
-    x: 0,
-    y: 0,
+    figureId: chartId,
+    offset: {
+      x: 0,
+      y: 0,
+    },
     width,
     height,
   });

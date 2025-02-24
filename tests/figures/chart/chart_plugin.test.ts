@@ -497,7 +497,10 @@ describe("datasource tests", function () {
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
-    newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
+    newModel.dispatch("DELETE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figureId: "1",
+    });
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
   });
@@ -811,7 +814,7 @@ describe("datasource tests", function () {
     const result = model.dispatch("UPDATE_CHART", {
       definition: model.getters.getChartDefinition("1"),
       sheetId: model.getters.getActiveSheetId(),
-      id: "2",
+      figureId: "2",
     });
 
     updateChart(model, "1", { legendPosition: "left" });
@@ -830,7 +833,7 @@ describe("datasource tests", function () {
       chartId
     );
     expect(model.getters.getSelectedFigureId()).toBeNull();
-    model.dispatch("SELECT_FIGURE", { id: chartId });
+    model.dispatch("SELECT_FIGURE", { figureId: chartId });
     expect(model.getters.getSelectedFigureId()).toBe(chartId);
     selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBeNull();
@@ -961,7 +964,7 @@ describe("datasource tests", function () {
       sheetIdTo: "SheetWithFigure",
     });
     activateSheet(model, "2");
-    const { x, y, height, width, tag } = model.getters.getVisibleFigures()[0];
+    const { x, y, width, height, tag } = model.getters.getVisibleFigures()[0];
     activateSheet(model, "SheetWithFigure");
     expect(model.getters.getVisibleFigures()).toMatchObject([{ x, y, height, width, tag }]);
   });
