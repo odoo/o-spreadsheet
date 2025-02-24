@@ -12,8 +12,7 @@ describe("Data validation auto complete", () => {
     });
     setCellContent(model, "A1", "S");
     composer.startEdition();
-    const autoComplete = composer.autocompleteProvider;
-    const proposals = autoComplete?.proposals;
+    const proposals = composer.autoCompleteProposals;
     expect(proposals).toHaveLength(5);
   });
 
@@ -26,8 +25,7 @@ describe("Data validation auto complete", () => {
     });
     setCellContent(model, "A1", "X");
     composer.startEdition();
-    const autoComplete = composer.autocompleteProvider;
-    const proposals = autoComplete?.proposals;
+    const proposals = composer.autoCompleteProposals;
     expect(proposals).toHaveLength(3);
   });
 });

@@ -65,10 +65,6 @@ export class EventStream<Event> {
     this.observers.set(owner, { owner, callbacks });
   }
 
-  detachObserver(owner: Owner) {
-    this.observers.delete(owner);
-  }
-
   /**
    * Capture the stream for yourself
    */

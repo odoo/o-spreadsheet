@@ -27,8 +27,7 @@ describe("spreadsheet pivot auto complete", () => {
       composer.startEdition(`=${func}(`);
       expect(composer.isSelectingRange).toBeTruthy();
 
-      const autoComplete = composer.autocompleteProvider;
-      expect(autoComplete?.proposals).toEqual([
+      expect(composer.autoCompleteProposals).toEqual([
         {
           description: "My pivot",
           fuzzySearchKey: "1My pivot",
@@ -44,11 +43,11 @@ describe("spreadsheet pivot auto complete", () => {
           alwaysExpanded: true,
         },
       ]);
-      autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+      composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
       expect(composer.currentContent).toBe(`=${func}(1`);
       // range selection stops
       expect(composer.isSelectingRange).toBeFalsy();
-      expect(composer.autocompleteProvider).toBeUndefined();
+      expect(composer.isAutoCompleteDisplayed).toBe(false);
       composer.cancelEdition();
     }
   });
@@ -64,12 +63,12 @@ describe("spreadsheet pivot auto complete", () => {
     for (const func of ["PIVOT", "PIVOT.HEADER", "PIVOT.VALUE"]) {
       // id as a number
       composer.startEdition(`=${func}(1`);
-      expect(composer.autocompleteProvider).toBeUndefined();
+      expect(composer.isAutoCompleteDisplayed).toBe(false);
       composer.cancelEdition();
 
       // id as a string
       composer.startEdition(`=${func}("1"`);
-      expect(composer.autocompleteProvider).toBeUndefined();
+      expect(composer.isAutoCompleteDisplayed).toBe(false);
       composer.cancelEdition();
     }
   });
@@ -86,8 +85,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition("=PIVOT.VALUE(1,");
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         description: "Expected Revenue",
         fuzzySearchKey: 'Expected RevenueExpected Revenue"Expected Revenue:sum"',
@@ -101,9 +99,9 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"__count"',
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue:sum"');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE measure with the pivot id as a string", async () => {
@@ -115,22 +113,21 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE("1",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Expected Revenue:sum"']);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Expected Revenue:sum"']);
   });
 
   test("PIVOT.VALUE measure with pivot id that does not exist", async () => {
     const model = createModelWithPivot("A1:I5");
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition(`=PIVOT.VALUE(9999,`);
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE measure without any pivot id", async () => {
     const model = createModelWithPivot("A1:I5");
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition(`=PIVOT.VALUE(,`);
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE group with a single col group", async () => {
@@ -142,8 +139,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         description: "Stage",
         fuzzySearchKey: '"Stage"',
@@ -151,9 +147,9 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"Stage"',
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Stage"');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE group with a pivot id as string", async () => {
@@ -165,8 +161,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE("1","Expected Revenue",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Stage"']);
   });
 
   test("PIVOT.VALUE group with a single row group", async () => {
@@ -178,8 +173,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         description: "Stage",
         fuzzySearchKey: '"Stage"',
@@ -187,9 +181,9 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"Stage"',
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Stage"');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE group with a single date grouped by day", async () => {
@@ -201,8 +195,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         description: "Created on",
         fuzzySearchKey: '"Created on:day"',
@@ -210,9 +203,9 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"Created on:day"',
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Created on:day"');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE search field", async () => {
@@ -224,8 +217,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","sta');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Stage"']);
   });
 
   test("PIVOT.VALUE search field with both col and row group", async () => {
@@ -237,8 +229,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue", ');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual([
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual([
       '"Stage"',
       '"Created on:month_number"',
     ]);
@@ -253,8 +244,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual([
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual([
       '"Created on:month_number"',
       '"Stage"',
     ]);
@@ -269,8 +259,9 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Stage",1,');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Created on:month_number"']);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual([
+      '"Created on:month_number"',
+    ]);
   });
 
   test("PIVOT.VALUE group with two rows, on the first group", async () => {
@@ -286,8 +277,7 @@ describe("spreadsheet pivot auto complete", () => {
     );
     //.......................................................^ set the cursor here
     composer.changeComposerCursorSelection(34, 34);
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Stage"']);
   });
 
   test("PIVOT.VALUE autocomplete text field for group value", async () => {
@@ -299,8 +289,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Stage",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         description: "",
         fuzzySearchKey: '"New"',
@@ -314,9 +303,9 @@ describe("spreadsheet pivot auto complete", () => {
         text: '"Won"',
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue","Stage","New"');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test.each(['"Ne', "Ne"])("PIVOT.VALUE search text field for group value", async (searchTerm) => {
@@ -328,8 +317,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition(`=PIVOT.VALUE(1,"Expected Revenue","Stage",${searchTerm}`);
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         description: "",
         fuzzySearchKey: '"New"',
@@ -348,8 +336,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:month_number",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         description: "January",
         fuzzySearchKey: "January",
@@ -423,11 +410,11 @@ describe("spreadsheet pivot auto complete", () => {
         text: "12",
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:month_number",1'
     );
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE autocomplete date quarter_number field for group value", async () => {
@@ -439,8 +426,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:quarter_number",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         description: "Quarter 1",
         fuzzySearchKey: "1",
@@ -466,11 +452,11 @@ describe("spreadsheet pivot auto complete", () => {
         text: "4",
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:quarter_number",1'
     );
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE autocomplete date day_of_month field for group value", async () => {
@@ -482,25 +468,24 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_month",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toHaveLength(31);
-    expect(autoComplete?.proposals[0]).toEqual({
+    expect(composer.autoCompleteProposals).toHaveLength(31);
+    expect(composer.autoCompleteProposals[0]).toEqual({
       description: "",
       fuzzySearchKey: "1",
       htmlContent: [{ color: "#02c39a", value: "1" }],
       text: "1",
     });
-    expect(autoComplete?.proposals[30]).toEqual({
+    expect(composer.autoCompleteProposals[30]).toEqual({
       description: "",
       fuzzySearchKey: "31",
       htmlContent: [{ color: "#02c39a", value: "31" }],
       text: "31",
     });
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_month",1'
     );
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE autocomplete date iso_week_number field for group value", async () => {
@@ -512,25 +497,24 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:iso_week_number",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toHaveLength(54);
-    expect(autoComplete?.proposals[0]).toEqual({
+    expect(composer.autoCompleteProposals).toHaveLength(54);
+    expect(composer.autoCompleteProposals[0]).toEqual({
       description: "",
       fuzzySearchKey: "0",
       htmlContent: [{ color: "#02c39a", value: "0" }],
       text: "0",
     });
-    expect(autoComplete?.proposals[53]).toEqual({
+    expect(composer.autoCompleteProposals[53]).toEqual({
       description: "",
       fuzzySearchKey: "53",
       htmlContent: [{ color: "#02c39a", value: "53" }],
       text: "53",
     });
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:iso_week_number",0'
     );
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE autocomplete date day_of_week field for group value", async () => {
@@ -542,25 +526,24 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_week",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toHaveLength(7);
-    expect(autoComplete?.proposals[0]).toEqual({
+    expect(composer.autoCompleteProposals).toHaveLength(7);
+    expect(composer.autoCompleteProposals[0]).toEqual({
       description: "",
       fuzzySearchKey: "1",
       htmlContent: [{ color: "#02c39a", value: "1" }],
       text: "1",
     });
-    expect(autoComplete?.proposals[6]).toEqual({
+    expect(composer.autoCompleteProposals[6]).toEqual({
       description: "",
       fuzzySearchKey: "7",
       htmlContent: [{ color: "#02c39a", value: "7" }],
       text: "7",
     });
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_week",1'
     );
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE autocomplete date hour_number field for group value", async () => {
@@ -572,25 +555,24 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:hour_number",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toHaveLength(24);
-    expect(autoComplete?.proposals[0]).toEqual({
+    expect(composer.autoCompleteProposals).toHaveLength(24);
+    expect(composer.autoCompleteProposals[0]).toEqual({
       description: "",
       fuzzySearchKey: "0",
       htmlContent: [{ color: "#02c39a", value: "0" }],
       text: "0",
     });
-    expect(autoComplete?.proposals[23]).toEqual({
+    expect(composer.autoCompleteProposals[23]).toEqual({
       description: "",
       fuzzySearchKey: "23",
       htmlContent: [{ color: "#02c39a", value: "23" }],
       text: "23",
     });
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:hour_number",0'
     );
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE autocomplete date minute_number field for group value", async () => {
@@ -602,25 +584,24 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:minute_number",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toHaveLength(60);
-    expect(autoComplete?.proposals[0]).toEqual({
+    expect(composer.autoCompleteProposals).toHaveLength(60);
+    expect(composer.autoCompleteProposals[0]).toEqual({
       description: "",
       fuzzySearchKey: "0",
       htmlContent: [{ color: "#02c39a", value: "0" }],
       text: "0",
     });
-    expect(autoComplete?.proposals[59]).toEqual({
+    expect(composer.autoCompleteProposals[59]).toEqual({
       description: "",
       fuzzySearchKey: "59",
       htmlContent: [{ color: "#02c39a", value: "59" }],
       text: "59",
     });
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:minute_number",0'
     );
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE autocomplete date second_number field for group value", async () => {
@@ -632,25 +613,24 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:second_number",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toHaveLength(60);
-    expect(autoComplete?.proposals[0]).toEqual({
+    expect(composer.autoCompleteProposals).toHaveLength(60);
+    expect(composer.autoCompleteProposals[0]).toEqual({
       description: "",
       fuzzySearchKey: "0",
       htmlContent: [{ color: "#02c39a", value: "0" }],
       text: "0",
     });
-    expect(autoComplete?.proposals[59]).toEqual({
+    expect(composer.autoCompleteProposals[59]).toEqual({
       description: "",
       fuzzySearchKey: "59",
       htmlContent: [{ color: "#02c39a", value: "59" }],
       text: "59",
     });
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe(
       '=PIVOT.VALUE(1,"Expected Revenue","Created on:second_number",0'
     );
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.VALUE autocomplete field after a date field", async () => {
@@ -662,8 +642,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:month_number",11,');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Stage"']);
   });
 
   test("PIVOT.VALUE no autocomplete value for wrong group field", async () => {
@@ -675,7 +654,7 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","not a dimension",');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.HEADER first field", async () => {
@@ -687,11 +666,10 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition("=PIVOT.HEADER(1,");
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Stage"']);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.HEADER(1,"Stage"');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.HEADER search field", async () => {
@@ -703,11 +681,10 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.HEADER(1,"sta');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"Stage"']);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.HEADER(1,"Stage"');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("PIVOT.HEADER group value", async () => {
@@ -719,11 +696,10 @@ describe("spreadsheet pivot auto complete", () => {
     });
     const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.HEADER(1,"Stage",');
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"New"', '"Won"']);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.autoCompleteProposals.map((p) => p.text)).toEqual(['"New"', '"Won"']);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.HEADER(1,"Stage","New"');
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("auto complete measure from stand alone composer", async () => {
@@ -752,8 +728,7 @@ describe("spreadsheet pivot auto complete", () => {
       ),
     }));
     composer.startEdition();
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         text: "'Expected Revenue:sum'",
         description: "The revenue",
@@ -761,9 +736,9 @@ describe("spreadsheet pivot auto complete", () => {
         htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "'Expected Revenue:sum'" }],
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe("=1+'Expected Revenue:sum'");
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("auto complete dimension from stand alone composer", async () => {
@@ -784,8 +759,7 @@ describe("spreadsheet pivot auto complete", () => {
       ),
     }));
     composer.startEdition();
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         text: "Stage",
         description: "Stage",
@@ -793,9 +767,9 @@ describe("spreadsheet pivot auto complete", () => {
         htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe("=1+Stage");
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("auto complete dimension starting with the cursor after an operator token", async () => {
@@ -816,8 +790,7 @@ describe("spreadsheet pivot auto complete", () => {
       ),
     }));
     composer.startEdition();
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         text: "Stage",
         description: "Stage",
@@ -825,9 +798,9 @@ describe("spreadsheet pivot auto complete", () => {
         htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe("=Stage");
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test("auto complete dimension with cursor after an operator token", async () => {
@@ -849,8 +822,7 @@ describe("spreadsheet pivot auto complete", () => {
     }));
     composer.startEdition();
     composer.setCurrentContent("="); // simulate a backspace to delete the "0"
-    const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals).toEqual([
+    expect(composer.autoCompleteProposals).toEqual([
       {
         text: "Stage",
         description: "Stage",
@@ -858,9 +830,9 @@ describe("spreadsheet pivot auto complete", () => {
         htmlContent: [{ color: PIVOT_TOKEN_COLOR, value: "Stage" }],
       },
     ]);
-    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    composer.insertAutoCompleteValue(composer.autoCompleteProposals[0].text);
     expect(composer.currentContent).toBe("=Stage");
-    expect(composer.autocompleteProvider).toBeUndefined();
+    expect(composer.isAutoCompleteDisplayed).toBe(false);
   });
 
   test.each(["=add(1,2", "=add(1,2)", "=true", "=false"])(
@@ -892,7 +864,7 @@ describe("spreadsheet pivot auto complete", () => {
       }));
       composer.startEdition();
       composer.setCurrentContent(content);
-      expect(composer.autocompleteProvider).toBeUndefined();
+      expect(composer.isAutoCompleteDisplayed).toBe(false);
     }
   );
 });

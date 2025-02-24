@@ -7,15 +7,14 @@ describe("Sheet name auto complete", () => {
     const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "MySheet" });
     composer.startEdition("=MyS");
-    const autoComplete = composer.autocompleteProvider;
-    const proposals = autoComplete?.proposals;
+    const proposals = composer.autoCompleteProposals;
     expect(proposals).toEqual([
       {
         text: "MySheet",
         fuzzySearchKey: "'MySheet",
       },
     ]);
-    autoComplete?.selectProposal(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0].text);
     expect(composer.currentContent).toEqual("=MySheet!");
   });
 
@@ -23,15 +22,14 @@ describe("Sheet name auto complete", () => {
     const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "My awesome sheet" });
     composer.startEdition("=aweso");
-    const autoComplete = composer.autocompleteProvider;
-    const proposals = autoComplete?.proposals;
+    const proposals = composer.autoCompleteProposals;
     expect(proposals).toEqual([
       {
         text: "'My awesome sheet'",
         fuzzySearchKey: "'My awesome sheet'",
       },
     ]);
-    autoComplete?.selectProposal(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0].text);
     expect(composer.currentContent).toEqual("='My awesome sheet'!");
   });
 
@@ -39,8 +37,7 @@ describe("Sheet name auto complete", () => {
     const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "SUM" });
     composer.startEdition("=SU");
-    const autoComplete = composer.autocompleteProvider;
-    const proposals = autoComplete?.proposals;
+    const proposals = composer.autoCompleteProposals;
     expect(proposals![0].text).toEqual("SUM");
     expect(proposals![0].description?.toString()).toEqual(
       "Sum of a series of numbers and/or cells."
@@ -51,10 +48,9 @@ describe("Sheet name auto complete", () => {
     const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "Hello" });
     composer.startEdition("='Hel");
-    const autoComplete = composer.autocompleteProvider;
-    const proposals = autoComplete?.proposals;
+    const proposals = composer.autoCompleteProposals;
     expect(proposals![0].text).toEqual("Hello");
-    autoComplete?.selectProposal(proposals![0].text);
+    composer.insertAutoCompleteValue(proposals![0].text);
     expect(composer.currentContent).toEqual("=Hello!");
   });
 
@@ -62,8 +58,7 @@ describe("Sheet name auto complete", () => {
     const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "Hello" });
     composer.startEdition("='");
-    const autoComplete = composer.autocompleteProvider;
-    const proposals = autoComplete?.proposals;
+    const proposals = composer.autoCompleteProposals;
     expect(proposals![0].text).toEqual("Sheet1");
     expect(proposals![1].text).toEqual("Hello");
   });
