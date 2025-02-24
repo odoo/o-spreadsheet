@@ -4,6 +4,7 @@
       class="o-topbar-composer bg-white user-select-text"
       t-on-click.stop=""
       t-att-style="containerStyle">
+<<<<<<< 18.0
       <Composer
         focus="focus"
         inputStyle="composerStyle"
@@ -11,6 +12,16 @@
         composerStore="composerStore"
         placeholder="composerStore.placeholder"
       />
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+      <Composer
+        focus="focus"
+        inputStyle="composerStyle"
+        onComposerContentFocused.bind="onFocus"
+        delimitation="delimitation"
+      />
+=======
+      <Composer focus="focus" inputStyle="composerStyle" onComposerContentFocused.bind="onFocus"/>
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
     </div>
   </t>
 </templates>

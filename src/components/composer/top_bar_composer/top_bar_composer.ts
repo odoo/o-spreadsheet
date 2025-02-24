@@ -7,7 +7,13 @@ import {
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../../constants";
 import { Store, useStore } from "../../../store_engine";
+<<<<<<< 18.0
 import { CSSProperties, ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+import { CSSProperties, DOMDimension, SpreadsheetChildEnv } from "../../../types/index";
+=======
+import { CSSProperties, SpreadsheetChildEnv } from "../../../types/index";
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { CellComposerStore } from "../composer/cell_composer_store";

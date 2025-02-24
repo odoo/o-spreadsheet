@@ -5,6 +5,7 @@
         t-set="assistantIsAvailable"
         t-value="autoCompleteState.provider or functionDescriptionState.showDescription"
       />
+<<<<<<< 18.0
       <div class="d-flex flex-row position-relative">
         <span
           t-if="props.focus !== 'inactive' and assistantIsAvailable and assistant.forcedClosed"
@@ -74,6 +75,58 @@
           onValueHovered.bind="this.updateAutoCompleteIndex"
         />
       </div>
+||||||| 7a2acb6578b3c64f55d37e1683106fda21dd3b17
+
+      <div
+        t-if="props.focus !== 'inactive' and (autoCompleteState.provider or functionDescriptionState.showDescription)"
+        class="o-composer-assistant shadow"
+        t-att-style="assistantStyle"
+        t-on-wheel.stop=""
+        t-on-pointerdown.prevent.stop=""
+        t-on-click.prevent.stop=""
+        t-on-pointerup.prevent.stop="">
+        <TextValueProvider
+          t-if="autoCompleteState.provider"
+          proposals="autoCompleteState.provider.proposals"
+          selectedIndex="autoCompleteState.selectedIndex"
+          onValueSelected.bind="this.autoComplete"
+          onValueHovered.bind="this.updateAutoCompleteIndex"
+        />
+        <FunctionDescriptionProvider
+          t-if="functionDescriptionState.showDescription"
+          functionName="functionDescriptionState.functionName"
+          functionDescription="functionDescriptionState.functionDescription"
+          argToFocus="functionDescriptionState.argToFocus"
+        />
+      </div>
+=======
+
+      <Popover
+        t-props="popoverProps"
+        t-if="props.focus !== 'inactive' and (autoCompleteState.provider or functionDescriptionState.showDescription)">
+        <div
+          class="o-composer-assistant"
+          t-att-style="assistantStyle"
+          t-on-wheel.stop=""
+          t-on-pointerdown.prevent.stop=""
+          t-on-click.prevent.stop=""
+          t-on-pointerup.prevent.stop="">
+          <TextValueProvider
+            t-if="autoCompleteState.provider"
+            proposals="autoCompleteState.provider.proposals"
+            selectedIndex="autoCompleteState.selectedIndex"
+            onValueSelected.bind="this.autoComplete"
+            onValueHovered.bind="this.updateAutoCompleteIndex"
+          />
+          <FunctionDescriptionProvider
+            t-if="functionDescriptionState.showDescription"
+            functionName="functionDescriptionState.functionName"
+            functionDescription="functionDescriptionState.functionDescription"
+            argToFocus="functionDescriptionState.argToFocus"
+          />
+        </div>
+      </Popover>
+>>>>>>> f1dcba6e1e215609a768af78de974d38af9500ea
     </div>
   </t>
 </templates>
