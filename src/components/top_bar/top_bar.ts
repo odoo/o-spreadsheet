@@ -35,7 +35,7 @@ import { topBarToolBarRegistry } from "./top_bar_tools_registry";
 
 interface State {
   menuState: MenuState;
-  visibleToolsCategories: string[];
+  toolsCategories: string[];
   invisibleToolsCategories: string[];
   toolsPopoverState: { isOpen: boolean; position: DOMCoordinates | null };
 }
@@ -108,7 +108,6 @@ css/* scss */ `
 
       /* Toolbar */
       .o-toolbar-tools {
-        margin: 0px 6px 0px 16px;
         cursor: default;
       }
     }
@@ -134,7 +133,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   state: State = useState({
     menuState: { isOpen: false, position: null, menuItems: [] },
-    visibleToolsCategories: topBarToolBarRegistry.getCategories(),
+    toolsCategories: topBarToolBarRegistry.getCategories(),
     invisibleToolsCategories: [],
     toolsPopoverState: { isOpen: false, position: null },
   });
@@ -149,7 +148,11 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   composerFocusStore!: Store<ComposerFocusStore>;
   fingerprints!: Store<FormulaFingerprintStore>;
   topBarToolStore!: Store<TopBarToolStore>;
+
   toolbarRef = useRef("toolbarRef");
+  toolbarToolsRef = useRef("barTools");
+
+  moreToolsContainerRef = useRef("moreToolsContainer");
   moreToolsButtonRef = useRef("moreToolsButton");
 
   setup() {
@@ -172,12 +175,39 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setVisiblityToolsGroups() {
-    const { width } = this.toolbarRef.el!.getBoundingClientRect();
-    const index = topbarToolsWidthThresholds.findLastIndex((rule) => width < rule);
     const categories = topBarToolBarRegistry.getCategories();
+    const hiddenCategories: string[] = [];
 
-    this.state.visibleToolsCategories = categories.slice(0, categories.length - index - 1);
-    this.state.invisibleToolsCategories = categories.slice(categories.length - index - 1);
+    const { x: toolsX } = this.toolbarToolsRef.el!.getBoundingClientRect();
+    const { x, width } = this.toolbarRef.el!.getBoundingClientRect();
+
+    // Compute the with of the button that will toggle the hidden tools
+    this.moreToolsContainerRef.el?.classList.remove("d-none");
+    const moreToolsWidth = this.moreToolsButtonRef.el?.getBoundingClientRect().width || 0;
+
+    // the actual width in which we can place our tools so that they are visible.
+    // Every tool container that surpasses this width will be hidden.
+    const usableWidth = width - moreToolsWidth - (toolsX - x);
+
+    const elements = document.querySelectorAll(".tool-container");
+
+    let currentWidth = 0;
+    for (let elId = 0; elId < elements.length; elId++) {
+      const element = elements[elId];
+      element.classList.remove("d-none");
+      const elWidth = element.getBoundingClientRect().width;
+      currentWidth += elWidth;
+      if (currentWidth > usableWidth) {
+        element.classList.add("d-none");
+        hiddenCategories.push(categories[elId]);
+      }
+    }
+
+    this.state.toolsCategories = categories;
+    this.state.invisibleToolsCategories = hiddenCategories;
+    if (!hiddenCategories.length) {
+      this.moreToolsContainerRef.el?.classList.add("d-none");
+    }
   }
 
   get topbarComponents() {
@@ -283,7 +313,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   showDivider(categoryIndex: number) {
     return (
-      categoryIndex < this.state.visibleToolsCategories.length - 1 ||
+      categoryIndex < this.state.toolsCategories.length - 1 ||
       this.state.invisibleToolsCategories.length > 0
     );
   }

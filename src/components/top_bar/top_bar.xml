@@ -3,7 +3,7 @@
     <t t-set="text_color">Text Color</t>
     <t t-set="fill_color">Fill Color</t>
     <div
-      class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
+      class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none overflow-hidden"
       t-on-click="props.onClick">
       <div class="o-topbar-top d-flex justify-content-between  flex-wrap">
         <!-- Menus -->
@@ -27,7 +27,7 @@
         </div>
       </div>
       <!-- Toolbar and Cell Content -->
-      <div class="d-flex o-topbar-responsive" t-ref="toolbarRef">
+      <div class="d-flex o-topbar-responsive overflow-clip" t-ref="toolbarRef">
         <div class="o-topbar-toolbar d-flex">
           <!-- Toolbar -->
           <div
@@ -38,10 +38,10 @@
               Readonly Access
             </span>
           </div>
-          <div t-else="" class="o-toolbar-tools d-flex ms-4 flex-grow-1">
+          <div t-else="" class="o-toolbar-tools d-flex ms-4 flex-grow-1" t-ref="barTools">
             <div
-              class="d-flex"
-              t-foreach="state.visibleToolsCategories"
+              class="d-flex tool-container"
+              t-foreach="state.toolsCategories"
               t-as="category"
               t-key="category"
               t-att-id="category">
@@ -53,11 +53,9 @@
               </t>
               <div t-if="showDivider(category_index)" class="o-topbar-divider"/>
             </div>
-            <div
-              t-if="state.invisibleToolsCategories.length"
-              class="d-flex align-items-center flex-grow-1">
+            <div t-ref="moreToolsContainer" class="d-flex align-items-center flex-grow-1 me-auto">
               <span
-                class="o-toolbar-button o-menu-item-button o-hoverable-button ms-2 me-auto px-1 py-2"
+                class="o-toolbar-button o-menu-item-button o-hoverable-button  me-2 px-1 py-2"
                 id="moreTools"
                 t-ref="moreToolsButton"
                 t-on-click.stop="toggleMoreTools">
