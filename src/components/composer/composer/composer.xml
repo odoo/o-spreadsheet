@@ -1,9 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-Composer">
     <div class="o-composer-container w-100 h-100">
+      <t t-set="autoCompleteProposals" t-value="props.composerStore.autoCompleteProposals"/>
       <t
         t-set="assistantIsAvailable"
-        t-value="autoCompleteState.provider or functionDescriptionState.showDescription"
+        t-value="autoCompleteProposals.length or functionDescriptionState.showDescription"
       />
       <div class="d-flex flex-row position-relative">
         <span
@@ -66,15 +67,15 @@
             argsToFocus="functionDescriptionState.argsToFocus"
           />
           <div
-            t-if="functionDescriptionState.showDescription and autoCompleteState.provider"
+            t-if="functionDescriptionState.showDescription and autoCompleteProposals.length"
             class="border-top"
           />
           <TextValueProvider
-            t-if="autoCompleteState.provider"
-            proposals="autoCompleteState.provider.proposals"
-            selectedIndex="autoCompleteState.selectedIndex"
+            t-if="autoCompleteProposals.length"
+            proposals="autoCompleteProposals"
+            selectedIndex="props.composerStore.autoCompleteSelectedIndex"
             onValueSelected.bind="this.autoComplete"
-            onValueHovered.bind="this.updateAutoCompleteIndex"
+            onValueHovered.bind="props.composerStore.selectAutoCompleteIndex"
           />
         </div>
       </div>
