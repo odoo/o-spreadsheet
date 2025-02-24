@@ -100,7 +100,11 @@ for (let category of categories) {
     const addDescr = fns[name];
     addDescr.category = addDescr.category || category.name;
     name = name.replace(/_/g, ".");
-    functionRegistry.add(name, { isExported: false, ...addDescr });
+    if (category.name === "Logical") {
+      functionRegistry.add(name, { isExported: true, acceptCache: false, ...addDescr });
+    } else {
+      functionRegistry.add(name, { isExported: true, acceptCache: true, ...addDescr });
+    }
   }
 }
 
@@ -274,6 +278,10 @@ function createComputeFunction(
       return;
     }
 
+    if (functionRegistry.get(functionName).acceptCache === false) {
+      return;
+    }
+
     if (!cache.has(functionName)) {
       return;
     }
@@ -303,6 +311,10 @@ function createComputeFunction(
 
   function fillCache(cache: Map<any, any> | undefined, result: any, args: Arg[]) {
     if (!cache) {
+      return;
+    }
+
+    if (functionRegistry.get(functionName).acceptCache === false) {
       return;
     }
 
