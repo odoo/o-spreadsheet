@@ -1,11 +1,10 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
 import { BorderPosition, BorderStyle, Color, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
+import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { BorderEditor } from "./border_editor";
 
 interface Props {
-  toggleBorderEditor: (ev: MouseEvent) => void;
-  showBorderEditor: boolean;
   disabled?: boolean;
   dropdownMaxHeight?: Pixel;
   class?: string;
@@ -20,13 +19,12 @@ interface State {
 export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BorderEditorWidget";
   static props = {
-    toggleBorderEditor: Function,
-    showBorderEditor: Boolean,
     disabled: { type: Boolean, optional: true },
     dropdownMaxHeight: { type: Number, optional: true },
     class: { type: String, optional: true },
   };
   static components = { BorderEditor };
+  topBarToolStore!: ToolBarDropdownStore;
 
   borderEditorButtonRef = useRef("borderEditorButton");
   state: State = useState({
@@ -36,11 +34,16 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
   });
 
   setup() {
-    onWillUpdateProps((newProps: Props) => {
-      if (!newProps.showBorderEditor) {
+    this.topBarToolStore = useToolBarDropdownStore();
+    onWillUpdateProps(() => {
+      if (!this.isActive) {
         this.state.currentPosition = undefined;
       }
     });
+  }
+
+  get dropdownMaxHeight(): Pixel {
+    return this.env.model.getters.getSheetViewDimension().height;
   }
 
   get borderEditorAnchorRect(): Rect {
@@ -67,6 +70,18 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
   onBorderStylePicked(style: BorderStyle) {
     this.state.currentStyle = style;
     this.updateBorder();
+  }
+
+  get isActive(): boolean {
+    return this.topBarToolStore.isActive;
+  }
+
+  toggleBorderEditor() {
+    if (this.isActive) {
+      this.topBarToolStore.closeDropdowns();
+    } else {
+      this.topBarToolStore.openDropdown();
+    }
   }
 
   private updateBorder() {
