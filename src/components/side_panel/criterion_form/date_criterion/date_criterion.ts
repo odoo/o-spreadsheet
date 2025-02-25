@@ -1,6 +1,6 @@
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { _t } from "../../../../translation";
-import { DataValidationDateCriterion, DateCriterionValue } from "../../../../types";
+import { DateCriterionValue, GenericDateCriterion } from "../../../../types";
 import { CriterionForm } from "../criterion_form";
 import { CriterionInput } from "../criterion_input/criterion_input";
 
@@ -14,7 +14,7 @@ const DATES_VALUES: Record<DateCriterionValue, string> = {
   exactDate: _t("exact date"),
 };
 
-export class DateCriterionForm extends CriterionForm<DataValidationDateCriterion> {
+export class DateCriterionForm extends CriterionForm<GenericDateCriterion> {
   static template = "o-spreadsheet-DataValidationDateCriterion";
   static components = { CriterionInput };
 
