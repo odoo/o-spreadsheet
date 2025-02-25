@@ -17,27 +17,20 @@
     <t t-set="text_color">Text Color</t>
     <div class="o-cf-cell-is-rule">
       <div class="o-section-subtitle">Format cells if...</div>
-      <select
-        class="o-input o-cell-is-operator mb-3"
-        t-on-change="(ev) => this.editOperator(ev.target.value)">
-        <t t-foreach="cellIsOperators" t-as="op" t-key="op_index">
-          <option
-            t-att-value="op"
-            t-esc="cellIsOperators[op]"
-            t-att-selected="rule.operator === op"
-          />
-        </t>
-      </select>
-      <t t-if="rule.operator !== 'IsEmpty' and rule.operator !== 'IsNotEmpty'">
-        <div class="o-cell-is-value mb-3">
-          <StandaloneComposer t-props="getCellIsRuleComposerProps(0)"/>
-        </div>
-        <t t-if="rule.operator === 'isBetween' || rule.operator === 'isNotBetween'">
-          <div class="o-cell-is-value o-secondary-value mb-3">
-            <StandaloneComposer t-props="getCellIsRuleComposerProps(1)"/>
-          </div>
-        </t>
-      </t>
+      <SelectMenu
+        class="'o-cell-is-operator o-input mb-2'"
+        menuItems="cfCriterionMenuItems"
+        selectedValue="selectedCriterionName"
+      />
+
+      <t
+        t-if="criterionComponent"
+        t-component="criterionComponent"
+        t-key="state.rules.cellIs.operator"
+        criterion="genericCriterion"
+        onCriterionChanged.bind="onRuleValuesChanged"
+      />
+
       <div class="o-section-subtitle pt-3">Formatting style</div>
 
       <t t-call="o-spreadsheet-CellIsRuleEditorPreview">

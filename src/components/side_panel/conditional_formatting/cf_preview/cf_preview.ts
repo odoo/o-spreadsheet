@@ -1,12 +1,12 @@
 import { Component, useRef } from "@odoo/owl";
 import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300, HIGHLIGHT_COLOR } from "../../../../constants";
 import { colorNumberString } from "../../../../helpers";
-import { _t } from "../../../../translation";
+import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { cellStyleToCss, css, cssPropertiesToCss } from "../../../helpers";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { ICONS } from "../../../icons/icons";
-import { CellIsOperators, CfTerms } from "../../../translations_terms";
+import { CfTerms } from "../../../translations_terms";
 
 css/* scss */ `
   .o-cf-preview {
@@ -120,14 +120,9 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
     const cf = this.props.conditionalFormat;
     switch (cf.rule.type) {
       case "CellIsRule":
-        const description = CellIsOperators[cf.rule.operator];
-        if (cf.rule.values.length === 1) {
-          return `${description} ${cf.rule.values[0]}`;
-        }
-        if (cf.rule.values.length === 2) {
-          return _t("%s %s and %s", description, cf.rule.values[0], cf.rule.values[1]);
-        }
-        return description;
+        return criterionEvaluatorRegistry
+          .get(cf.rule.operator)
+          .getPreview({ ...cf.rule, type: cf.rule.operator }, this.env.model.getters);
       case "ColorScaleRule":
         return CfTerms.ColorScale;
       case "IconSetRule":
