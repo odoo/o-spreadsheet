@@ -382,42 +382,42 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
       value0 = value0 ?? "";
       value1 = value1 ?? "";
       switch (rule.operator) {
-        case "IsEmpty":
+        case "isEmpty":
           return cellValue.toString().trim() === "";
-        case "IsNotEmpty":
+        case "isNotEmpty":
           return cellValue.toString().trim() !== "";
-        case "BeginsWith":
+        case "beginsWithText":
           if (value0 === "") {
             return false;
           }
           return cellValue.toString().startsWith(value0.toString());
-        case "EndsWith":
+        case "endsWithText":
           if (value0 === "") {
             return false;
           }
           return cellValue.toString().endsWith(value0.toString());
-        case "Between":
+        case "isBetween":
           return cellValue >= value0 && cellValue <= value1;
-        case "NotBetween":
+        case "isNotBetween":
           return !(cellValue >= value0 && cellValue <= value1);
-        case "ContainsText":
+        case "containsText":
           return cellValue.toString().indexOf(value0.toString()) > -1;
-        case "NotContains":
+        case "notContainsText":
           return !cellValue || cellValue.toString().indexOf(value0.toString()) === -1;
-        case "GreaterThan":
+        case "isGreaterThan":
           return cellValue > value0;
-        case "GreaterThanOrEqual":
+        case "isGreaterOrEqualTo":
           return cellValue >= value0;
-        case "LessThan":
+        case "isLessThan":
           return cellValue < value0;
-        case "LessThanOrEqual":
+        case "isLessOrEqualTo":
           return cellValue <= value0;
-        case "NotEqual":
+        case "isNotEqual":
           if (value0 === "") {
             return false;
           }
           return cellValue !== value0;
-        case "Equal":
+        case "isEqual":
           if (value0 === "") {
             return true;
           }

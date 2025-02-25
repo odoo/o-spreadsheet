@@ -92,7 +92,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
         id: cfId,
         rule: {
           type: "CellIsRule",
-          operator: "IsNotEmpty",
+          operator: "isNotEmpty",
           style: { fillColor: "#b6d7a8" },
           values: [],
         },

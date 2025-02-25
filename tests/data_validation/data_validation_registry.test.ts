@@ -63,8 +63,8 @@ describe("Data validation registry", () => {
   }
 
   describe("Text contains", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("textContains");
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["test"] };
+    const evaluator = dataValidationEvaluatorRegistry.get("containsText");
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["test"] };
 
     test.each([
       ["abc", "test", false],
@@ -86,8 +86,8 @@ describe("Data validation registry", () => {
   });
 
   describe("Text not contains", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("textNotContains");
-    const criterion: DataValidationCriterion = { type: "textNotContains", values: ["test"] };
+    const evaluator = dataValidationEvaluatorRegistry.get("notContainsText");
+    const criterion: DataValidationCriterion = { type: "notContainsText", values: ["test"] };
 
     test.each([
       ["abc", "test", true],
@@ -110,8 +110,8 @@ describe("Data validation registry", () => {
   });
 
   describe("Text is", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("textIs");
-    const criterion: DataValidationCriterion = { type: "textIs", values: ["hello"] };
+    const evaluator = dataValidationEvaluatorRegistry.get("isEqualText");
+    const criterion: DataValidationCriterion = { type: "isEqualText", values: ["hello"] };
 
     test.each([
       ["hello there", "hello", false],
@@ -134,8 +134,8 @@ describe("Data validation registry", () => {
   });
 
   describe("Text is email", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("textIsEmail");
-    const criterion: DataValidationCriterion = { type: "textIsEmail", values: [] };
+    const evaluator = dataValidationEvaluatorRegistry.get("isEmail");
+    const criterion: DataValidationCriterion = { type: "isEmail", values: [] };
 
     test.each([
       ["hello", false],
@@ -155,8 +155,8 @@ describe("Data validation registry", () => {
   });
 
   describe("Text is link", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("textIsLink");
-    const criterion: DataValidationCriterion = { type: "textIsLink", values: [] };
+    const evaluator = dataValidationEvaluatorRegistry.get("isLink");
+    const criterion: DataValidationCriterion = { type: "isLink", values: [] };
 
     test.each([
       ["hello", false],
@@ -753,7 +753,7 @@ describe("Data validation registry", () => {
       values: ["01/01/2021"],
       dateValue: "exactDate",
     };
-    const textIs: DataValidationCriterion = { type: "textIs", values: ["hello"] };
+    const textIs: DataValidationCriterion = { type: "isEqualText", values: ["hello"] };
 
     test("Number criterion isValueValid expect canonical value", () => {
       updateLocale(model, FR_LOCALE);

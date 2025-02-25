@@ -61,7 +61,7 @@ describe("Edit criterion in side panel", () => {
 
     test("Side panel is correctly pre-filled for composer criterion", async () => {
       addDataValidation(model, "A1", "id", {
-        type: "textContains",
+        type: "containsText",
         values: ["hola"],
       });
       ({ fixture } = await mountDataValidationPanel(model));
