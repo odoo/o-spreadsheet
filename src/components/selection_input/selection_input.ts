@@ -1,5 +1,6 @@
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
 import { ALERT_DANGER_BG } from "../../constants";
+import { range } from "../../helpers";
 import { Store, useLocalStore } from "../../store_engine";
 import { Color, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -163,12 +164,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
         if (originalIndex === finalIndex) {
           return;
         }
-        const draggedItems = [...draggableIds];
-        draggedItems.splice(originalIndex, 1);
-        draggedItems.splice(finalIndex, 0, rangeId);
-        this.props.onSelectionReordered?.(
-          this.store.selectionInputs.map((range) => draggedItems.indexOf(range.id))
-        );
+        const indexes = range(0, draggableIds.length);
+        indexes.splice(originalIndex, 1);
+        indexes.splice(finalIndex, 0, originalIndex);
+        this.props.onSelectionReordered?.(indexes);
         this.props.onSelectionConfirmed?.();
         this.store.confirm();
       },
