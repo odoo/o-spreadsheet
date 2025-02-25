@@ -260,22 +260,22 @@ function changeCFRuleLocale(
     case "CellIsRule":
       // Only change value for number operators
       switch (rule.operator) {
-        case "Between":
-        case "NotBetween":
-        case "Equal":
-        case "NotEqual":
-        case "GreaterThan":
-        case "GreaterThanOrEqual":
-        case "LessThan":
-        case "LessThanOrEqual":
+        case "isBetween":
+        case "isNotBetween":
+        case "isEqual":
+        case "isNotEqual":
+        case "isGreaterThan":
+        case "isGreaterOrEqualTo":
+        case "isLessThan":
+        case "isLessOrEqualTo":
           rule.values = rule.values.map((v) => changeContentLocale(v));
           return rule;
-        case "BeginsWith":
-        case "ContainsText":
-        case "EndsWith":
-        case "NotContains":
-        case "IsEmpty":
-        case "IsNotEmpty":
+        case "textBeginsWith":
+        case "textContains":
+        case "textEndsWith":
+        case "textNotContains":
+        case "isEmpty":
+        case "isNotEmpty":
           return rule;
       }
     case "DataBarRule":

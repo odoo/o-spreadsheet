@@ -746,7 +746,7 @@ describe("TopBar - CF", () => {
       id: "1",
       rule: {
         values: ["2"],
-        operator: "Equal",
+        operator: "isEqual",
         type: "CellIsRule",
         style: { fillColor: "#FF0000" },
       },
@@ -777,7 +777,7 @@ describe("TopBar - CF", () => {
       id: "1",
       rule: {
         values: ["2"],
-        operator: "Equal",
+        operator: "isEqual",
         type: "CellIsRule",
         style: { fillColor: "#FF0000" },
       },
@@ -787,7 +787,7 @@ describe("TopBar - CF", () => {
       id: "2",
       rule: {
         values: ["3"],
-        operator: "Equal",
+        operator: "isEqual",
         type: "CellIsRule",
         style: { fillColor: "#FE0001" },
       },
@@ -823,7 +823,7 @@ describe("TopBar - CF", () => {
       id: "1",
       rule: {
         values: ["2"],
-        operator: "Equal",
+        operator: "isEqual",
         type: "CellIsRule",
         style: { fillColor: "#FF1200" },
       },
