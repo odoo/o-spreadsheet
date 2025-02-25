@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { CellIsRule, Model } from "../../src";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
@@ -586,6 +586,58 @@ describe("Migrations", () => {
       ],
     });
     expect(getCellContent(model, "A1")).toBe("Hello");
+  });
+
+  test("migrate version 18.3: convert cf type", () => {
+    const oldCfTypes = [
+      "BeginsWith",
+      "Between",
+      "ContainsText",
+      "EndsWith",
+      "Equal",
+      "GreaterThan",
+      "GreaterThanOrEqual",
+      "IsEmpty",
+      "IsNotEmpty",
+      "LessThan",
+      "LessThanOrEqual",
+      "NotBetween",
+      "NotContains",
+      "NotEqual",
+    ];
+    const conditionalFormats: any[] = [];
+    for (const index in oldCfTypes) {
+      conditionalFormats.push({
+        id: index,
+        ranges: ["A1"],
+        rule: { type: "CellIsRule", values: ["42"], style: {}, operator: oldCfTypes[index] },
+      });
+    }
+    const model = new Model({
+      version: 23,
+      sheets: [{ conditionalFormats }],
+    });
+
+    const migratedTypes = model.getters
+      .getConditionalFormats(model.getters.getActiveSheetId())
+      .map((cf) => (cf.rule as CellIsRule).operator);
+
+    expect(migratedTypes).toEqual([
+      "textBeginsWith",
+      "isBetween",
+      "textContains",
+      "textEndsWith",
+      "isEqual",
+      "isGreaterThan",
+      "isGreaterOrEqualTo",
+      "isEmpty",
+      "isNotEmpty",
+      "isLessThan",
+      "isLessOrEqualTo",
+      "isNotBetween",
+      "textNotContains",
+      "isNotEqual",
+    ]);
   });
 });
 
