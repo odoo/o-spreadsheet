@@ -12,7 +12,7 @@ import { getHighlightsFromStore, mountComponent, spyModelDispatch } from "../tes
 const testDataValidationRule: DataValidationRuleData = {
   id: "id",
   ranges: ["A1"],
-  criterion: { type: "textContains", values: ["foo"] },
+  criterion: { type: "containsText", values: ["foo"] },
 };
 
 describe("Data validation preview", () => {

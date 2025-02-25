@@ -232,7 +232,7 @@ export const TEST_COMMANDS: CommandMapping = {
       id: "cfId",
       rule: {
         values: ["1"],
-        operator: "Equal",
+        operator: "isEqual",
         type: "CellIsRule",
         style: { fillColor: "#FF0000" },
       },
@@ -442,7 +442,7 @@ export const TEST_COMMANDS: CommandMapping = {
     rule: {
       id: "dvId",
       criterion: {
-        type: "textContains",
+        type: "containsText",
         values: ["1"],
       },
     },

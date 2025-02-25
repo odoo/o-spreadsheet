@@ -35,20 +35,20 @@ export const CfTerms = {
 };
 
 export const CellIsOperators = {
-  IsEmpty: _t("Is empty"),
-  IsNotEmpty: _t("Is not empty"),
-  ContainsText: _t("Contains"),
-  NotContains: _t("Does not contain"),
-  BeginsWith: _t("Starts with"),
-  EndsWith: _t("Ends with"),
-  Equal: _t("Is equal to"),
-  NotEqual: _t("Is not equal to"),
-  GreaterThan: _t("Is greater than"),
-  GreaterThanOrEqual: _t("Is greater than or equal to"),
-  LessThan: _t("Is less than"),
-  LessThanOrEqual: _t("Is less than or equal to"),
-  Between: _t("Is between"),
-  NotBetween: _t("Is not between"),
+  isEmpty: _t("Is empty"),
+  isNotEmpty: _t("Is not empty"),
+  textContains: _t("Contains"),
+  textNotContains: _t("Does not contain"),
+  beginsWithText: _t("Starts with"),
+  endsWithText: _t("Ends with"),
+  isEqual: _t("Is equal to"),
+  isNotEqual: _t("Is not equal to"),
+  isGreaterThan: _t("Is greater than"),
+  isGreaterOrEqualTo: _t("Is greater than or equal to"),
+  isLessThan: _t("Is less than"),
+  isLessOrEqualTo: _t("Is less than or equal to"),
+  isBetween: _t("Is between"),
+  isNotBetween: _t("Is not between"),
 };
 
 export const ChartTerms: {

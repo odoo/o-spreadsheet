@@ -28,36 +28,36 @@ export type DataValidationCriterionItem = {
 export const dataValidationPanelCriteriaRegistry: Registry<DataValidationCriterionItem> =
   new Registry();
 
-dataValidationPanelCriteriaRegistry.add("textContains", {
-  type: "textContains",
+dataValidationPanelCriteriaRegistry.add("containsText", {
+  type: "containsText",
   component: DataValidationSingleInputCriterionForm,
   category: "text",
   sequence: 10,
 });
 
-dataValidationPanelCriteriaRegistry.add("textNotContains", {
-  type: "textNotContains",
+dataValidationPanelCriteriaRegistry.add("notContainsText", {
+  type: "notContainsText",
   component: DataValidationSingleInputCriterionForm,
   category: "text",
   sequence: 20,
 });
 
-dataValidationPanelCriteriaRegistry.add("textIs", {
-  type: "textIs",
+dataValidationPanelCriteriaRegistry.add("isEqualText", {
+  type: "isEqualText",
   component: DataValidationSingleInputCriterionForm,
   category: "text",
   sequence: 30,
 });
 
-dataValidationPanelCriteriaRegistry.add("textIsEmail", {
-  type: "textIsEmail",
+dataValidationPanelCriteriaRegistry.add("isEmail", {
+  type: "isEmail",
   component: undefined,
   category: "text",
   sequence: 40,
 });
 
-dataValidationPanelCriteriaRegistry.add("textIsLink", {
-  type: "textIsLink",
+dataValidationPanelCriteriaRegistry.add("isLink", {
+  type: "isLink",
   component: undefined,
   category: "text",
   sequence: 50,

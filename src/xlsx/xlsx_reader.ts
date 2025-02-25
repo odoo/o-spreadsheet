@@ -26,7 +26,7 @@ import { getXLSXFilesOfType } from "./helpers/xlsx_helper";
 import { XLSXImportWarningManager } from "./helpers/xlsx_parser_error_manager";
 import { escapeTagNamespaces, parseXML } from "./helpers/xml_helpers";
 
-const EXCEL_IMPORT_VERSION = "18.3";
+const EXCEL_IMPORT_VERSION = "18.4.1";
 
 export class XlsxReader {
   warningManager: XLSXImportWarningManager;

@@ -421,7 +421,7 @@ describe("Scorecard charts computation", () => {
         rule: {
           type: "CellIsRule",
           values: [],
-          operator: "IsNotEmpty",
+          operator: "isNotEmpty",
           style: { textColor: "#FF0000", fillColor: "#00FF00" },
         },
         id: "cfId",

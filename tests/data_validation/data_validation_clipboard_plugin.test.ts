@@ -23,7 +23,7 @@ describe("Data validation", () => {
   });
 
   test("Can copy data validation rule on same sheet", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     copy(model, "A1:A5");
 
@@ -34,7 +34,7 @@ describe("Data validation", () => {
   });
 
   test("Can copy data validation rule on another sheet", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     copy(model, "A1:A5");
 
@@ -51,7 +51,7 @@ describe("Data validation", () => {
   });
 
   test("Can cut/paste part of data validation rule on same sheet", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     cut(model, "A4");
     paste(model, "C1");
@@ -61,7 +61,7 @@ describe("Data validation", () => {
   });
 
   test("Can cut/paste whole data validation rule on same sheet", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     cut(model, "A1:A5");
     paste(model, "C1");
@@ -71,7 +71,7 @@ describe("Data validation", () => {
   });
 
   test("Can cut/paste part of data validation rule on another sheet", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     cut(model, "A4");
 
@@ -86,7 +86,7 @@ describe("Data validation", () => {
   });
 
   test("Can cut/paste whole validation rule on another sheet", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     cut(model, "A1:A5");
 
@@ -99,7 +99,7 @@ describe("Data validation", () => {
   });
 
   test("Paste as value or paste format only don't paste data validation", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     copy(model, "A1:A5");
     paste(model, "C1", "onlyFormat");
@@ -120,7 +120,7 @@ describe("Data validation", () => {
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];
 
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
 
     copy(model, "A1");
     activateSheet(model, sheet2Id);
@@ -130,7 +130,7 @@ describe("Data validation", () => {
     ]);
 
     activateSheet(model, sheet1Id);
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["5"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["5"] });
     copy(model, "A1");
     activateSheet(model, sheet2Id);
     paste(model, "B2");
@@ -141,7 +141,7 @@ describe("Data validation", () => {
   });
 
   test("Can copy/paste empty cell to clear data validation rule", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     copy(model, "A6");
     paste(model, "A1");
@@ -152,7 +152,7 @@ describe("Data validation", () => {
   });
 
   test("copy cells with DV => delete original DV => paste => should paste cells with copied DV", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A1:A5", "id", criterion);
     copy(model, "A1:A5");
 
@@ -166,8 +166,8 @@ describe("Data validation", () => {
   });
 
   test("copy zone with independant multiple DV => delete original DV => paste => should paste cells with copied DV", () => {
-    const criterion1: DataValidationCriterion = { type: "textContains", values: ["1"] };
-    const criterion2: DataValidationCriterion = { type: "textContains", values: ["2"] };
+    const criterion1: DataValidationCriterion = { type: "containsText", values: ["1"] };
+    const criterion2: DataValidationCriterion = { type: "containsText", values: ["2"] };
     addDataValidation(model, "A1:A5", "id1", criterion1);
     addDataValidation(model, "C1:C5", "id2", criterion2);
 
@@ -185,8 +185,8 @@ describe("Data validation", () => {
   });
 
   test("copy zone with independant multiple DV => delete origin sheet => paste => should paste cells with copied DV", () => {
-    const criterion1: DataValidationCriterion = { type: "textContains", values: ["1"] };
-    const criterion2: DataValidationCriterion = { type: "textContains", values: ["2"] };
+    const criterion1: DataValidationCriterion = { type: "containsText", values: ["1"] };
+    const criterion2: DataValidationCriterion = { type: "containsText", values: ["2"] };
     addDataValidation(model, "A1:A5", "id1", criterion1);
     addDataValidation(model, "C1:C5", "id2", criterion2);
 
@@ -212,7 +212,7 @@ describe("Data validation", () => {
 
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
-    addDataValidation(model, "A1:A2", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1:A2", "id", { type: "containsText", values: ["1"] });
 
     copy(model, "A1:A2");
     paste(model, "B1");

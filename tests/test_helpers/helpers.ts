@@ -648,7 +648,7 @@ export function createEqualCF(
 ): Omit<ConditionalFormat, "ranges"> {
   return {
     id,
-    rule: { values: [value], operator: "Equal", type: "CellIsRule", style },
+    rule: { values: [value], operator: "isEqual", type: "CellIsRule", style },
   };
 }
 
