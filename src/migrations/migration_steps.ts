@@ -450,6 +450,64 @@ migrationStepRegistry
     migrate(data: WorkbookData): any {
       return data;
     },
+  })
+  .add("migration_26", {
+    // Rename conditional format operators
+    versionFrom: "25",
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets) {
+        for (const cf of sheet.conditionalFormats || []) {
+          if (cf.rule.type !== "CellIsRule") {
+            continue;
+          }
+          switch (cf.rule.operator as string) {
+            case "BeginsWith":
+              cf.rule.operator = "textBeginsWith";
+              break;
+            case "Between":
+              cf.rule.operator = "isBetween";
+              break;
+            case "ContainsText":
+              cf.rule.operator = "textContains";
+              break;
+            case "IsEmpty":
+              cf.rule.operator = "isEmpty";
+              break;
+            case "IsNotEmpty":
+              cf.rule.operator = "isNotEmpty";
+              break;
+            case "EndsWith":
+              cf.rule.operator = "textEndsWith";
+              break;
+            case "Equal":
+              cf.rule.operator = "isEqual";
+              break;
+            case "GreaterThan":
+              cf.rule.operator = "isGreaterThan";
+              break;
+            case "GreaterThanOrEqual":
+              cf.rule.operator = "isGreaterOrEqualTo";
+              break;
+            case "LessThan":
+              cf.rule.operator = "isLessThan";
+              break;
+            case "LessThanOrEqual":
+              cf.rule.operator = "isLessOrEqualTo";
+              break;
+            case "NotBetween":
+              cf.rule.operator = "isNotBetween";
+              break;
+            case "NotContains":
+              cf.rule.operator = "textContains";
+              break;
+            case "NotEqual":
+              cf.rule.operator = "isNotEqual";
+              break;
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

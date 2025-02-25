@@ -806,7 +806,7 @@ describe("renderer", () => {
         id: "1",
         rule: {
           type: "CellIsRule",
-          operator: "IsEmpty",
+          operator: "isEmpty",
           values: [],
           style: { fillColor: "#DC6CDF" },
         },

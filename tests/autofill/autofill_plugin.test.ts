@@ -162,7 +162,7 @@ describe("Autofill", () => {
       id: "1",
       rule: {
         values: ["1"],
-        operator: "Equal",
+        operator: "isEqual",
         type: "CellIsRule",
         style: {
           fillColor: "#FF0000",

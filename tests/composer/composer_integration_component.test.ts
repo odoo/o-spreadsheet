@@ -711,7 +711,7 @@ describe("Grid composer", () => {
           rule: {
             values: [],
             type: "CellIsRule",
-            operator: "IsNotEmpty",
+            operator: "isNotEmpty",
             style: {
               fillColor: "#0000FF",
               bold: true,

@@ -43,14 +43,34 @@ import {
  * */
 export function convertOperator(operator: ConditionalFormattingOperatorValues): string {
   switch (operator) {
-    case "IsNotEmpty":
+    case "isNotEmpty":
       return "notContainsBlanks";
-    case "IsEmpty":
+    case "isEmpty":
       return "containsBlanks";
-    case "NotContains":
+    case "textNotContains":
       return "notContainsBlanks";
-    default:
-      return operator.charAt(0).toLowerCase() + operator.slice(1);
+    case "textContains":
+      return "containsText";
+    case "textBeginsWith":
+      return "beginsWith";
+    case "textEndsWith":
+      return "endsWith";
+    case "isGreaterThan":
+      return "greaterThan";
+    case "isGreaterOrEqualTo":
+      return "greaterThanOrEqual";
+    case "isLessThan":
+      return "lessThan";
+    case "isLessOrEqualTo":
+      return "lessThanOrEqual";
+    case "isBetween":
+      return "between";
+    case "isNotBetween":
+      return "notBetween";
+    case "isEqual":
+      return "equal";
+    case "isNotEqual":
+      return "notEqual";
   }
 }
 

@@ -65,7 +65,7 @@ describe("conditional format", () => {
       {
         rule: {
           values: ["2"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: {
             fillColor: "#FF0000",
@@ -77,7 +77,7 @@ describe("conditional format", () => {
       {
         rule: {
           values: ["4"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: {
             fillColor: "#0000FF",
@@ -89,7 +89,7 @@ describe("conditional format", () => {
       {
         rule: {
           values: ["5"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: {
             fillColor: "#0000FF",
@@ -101,7 +101,7 @@ describe("conditional format", () => {
       {
         rule: {
           values: ["6"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: {
             fillColor: "#0000FF",
@@ -171,7 +171,7 @@ describe("conditional format", () => {
       {
         rule: {
           values: ["4"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: {
             fillColor: "#0000FF",
@@ -248,7 +248,7 @@ describe("conditional format", () => {
       {
         rule: {
           values: ["2"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: {
             fillColor: "#FF0000",
@@ -260,7 +260,7 @@ describe("conditional format", () => {
       {
         rule: {
           values: ["4"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: {
             fillColor: "#0000FF",
@@ -375,7 +375,7 @@ describe("conditional format", () => {
         id: "1",
         ranges: ["C1", "C2"],
         rule: {
-          operator: "Equal",
+          operator: "isEqual",
           style: { fillColor: "#FF0000" },
           type: "CellIsRule",
           values: ["1"],
@@ -397,7 +397,7 @@ describe("conditional format", () => {
         id: "1",
         ranges: ["B1", "B2"],
         rule: {
-          operator: "Equal",
+          operator: "isEqual",
           style: { fillColor: "#FF0000" },
           type: "CellIsRule",
           values: ["1"],
@@ -535,7 +535,7 @@ describe("conditional format", () => {
       cf: {
         rule: {
           values: ["2"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: { fillColor: "#FF0000" },
         },
@@ -558,7 +558,7 @@ describe("conditional format", () => {
   describe("Grid Manipulation", () => {
     const rule = {
       values: ["42"],
-      operator: "Equal",
+      operator: "isEqual",
       type: "CellIsRule",
       style: { fillColor: "orange" },
     };
@@ -800,7 +800,7 @@ describe("conditional format", () => {
 
 describe("conditional formats types", () => {
   describe("CellIs condition", () => {
-    describe("Operator BeginsWith", () => {
+    describe("Operator textBeginsWith", () => {
       test.each([
         ["aaa", false],
         ["42", false],
@@ -813,7 +813,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "BeginsWith",
+              operator: "textBeginsWith",
               values: ["hi"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -837,7 +837,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "BeginsWith",
+              operator: "textBeginsWith",
               values: ["42"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -852,12 +852,12 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("Operator Between", () => {
+    test("Operator isBetween", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "Between",
+            operator: "isBetween",
             values: ["1", "3"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -889,7 +889,7 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A1")).toEqual({});
     });
 
-    describe("Operator ContainsText", () => {
+    describe("Operator textContains", () => {
       test.each([
         ["aaa", false],
         ["42", false],
@@ -903,7 +903,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "ContainsText",
+              operator: "textContains",
               values: ["hi"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -928,7 +928,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "ContainsText",
+              operator: "textContains",
               values: ["42"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -955,7 +955,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "EndsWith",
+              operator: "textEndsWith",
               values: ["hi"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -979,7 +979,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "EndsWith",
+              operator: "textEndsWith",
               values: ["42"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -999,7 +999,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "GreaterThan",
+            operator: "isGreaterThan",
             values: ["12"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1025,7 +1025,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "GreaterThan",
+            operator: "isGreaterThan",
             values: ["=A2"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1049,7 +1049,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "GreaterThan",
+            operator: "isGreaterThan",
             values: ["=$A$2"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1073,7 +1073,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "GreaterThan",
+            operator: "isGreaterThan",
             values: ["=$A2"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1097,7 +1097,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "GreaterThan",
+            operator: "isGreaterThan",
             values: ["=A$2"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1121,7 +1121,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "GreaterThan",
+            operator: "isGreaterThan",
             values: ["=SUM(A1:B2)/4"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1147,7 +1147,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "GreaterThan",
+            operator: "isGreaterThan",
             values: ["=SUM($A$1:$B$2)/4"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1175,7 +1175,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "NotContains",
+            operator: "textNotContains",
             values: ["=MUNIT(3)"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1193,7 +1193,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "GreaterThanOrEqual",
+            operator: "isGreaterOrEqualTo",
             values: ["12"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1222,7 +1222,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "LessThan",
+            operator: "isLessThan",
             values: ["10"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1249,7 +1249,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "LessThanOrEqual",
+            operator: "isLessOrEqualTo",
             values: ["10"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1273,12 +1273,12 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("Operator NotBetween", () => {
+    test("Operator isNotBetween", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "NotBetween",
+            operator: "isNotBetween",
             values: ["5", "10"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1310,12 +1310,12 @@ describe("conditional formats types", () => {
       });
     });
 
-    test("Operator NotContains", () => {
+    test("Operator textNotContains", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "NotContains",
+            operator: "textNotContains",
             values: ["qsdf"],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1337,7 +1337,7 @@ describe("conditional formats types", () => {
       });
     });
 
-    describe("Operator BeginsWith", () => {
+    describe("Operator textBeginsWith", () => {
       test.each([
         ["aaa", false],
         ["42", false],
@@ -1350,7 +1350,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "BeginsWith",
+              operator: "textBeginsWith",
               values: ["hi"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1374,7 +1374,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "BeginsWith",
+              operator: "textBeginsWith",
               values: ["42"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1400,7 +1400,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "NotEqual",
+              operator: "isNotEqual",
               values: ["hi"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1425,7 +1425,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "NotEqual",
+              operator: "isNotEqual",
               values: ["42"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1450,7 +1450,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "NotEqual",
+              operator: "isNotEqual",
               values: ["12/12/2021"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1476,7 +1476,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "Equal",
+              operator: "isEqual",
               values: ["hi"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1501,7 +1501,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "Equal",
+              operator: "isEqual",
               values: ["42"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1526,7 +1526,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "Equal",
+              operator: "isEqual",
               values: ["12/12/2021"],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1546,7 +1546,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "IsEmpty",
+            operator: "isEmpty",
             values: [],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1588,7 +1588,7 @@ describe("conditional formats types", () => {
         cf: {
           rule: {
             type: "CellIsRule",
-            operator: "IsNotEmpty",
+            operator: "isNotEmpty",
             values: [],
             style: { fillColor: "#ff0f0f" },
           },
@@ -1610,30 +1610,30 @@ describe("conditional formats types", () => {
     });
 
     test.each([
-      ["IsEmpty", ["", ""]],
-      ["IsEmpty", []],
-      ["IsEmpty", [""]],
-      ["IsNotEmpty", ["", ""]],
-      ["IsNotEmpty", []],
-      ["IsNotEmpty", [""]],
-      ["GreaterThan", ["1", ""]],
-      ["GreaterThan", ["1"]],
-      ["GreaterThanOrEqual", ["1", ""]],
-      ["GreaterThanOrEqual", ["1"]],
-      ["LessThan", ["1"]],
-      ["LessThan", ["1", ""]],
-      ["LessThanOrEqual", ["1"]],
-      ["LessThanOrEqual", ["1", ""]],
-      ["BeginsWith", ["1"]],
-      ["BeginsWith", ["1", ""]],
-      ["ContainsText", ["1"]],
-      ["ContainsText", ["1", ""]],
-      ["EndsWith", ["1"]],
-      ["EndsWith", ["1", ""]],
-      ["NotContains", ["1"]],
-      ["NotContains", ["1", ""]],
-      ["Between", ["1", "1"]],
-      ["NotBetween", ["1", "1"]],
+      ["isEmpty", ["", ""]],
+      ["isEmpty", []],
+      ["isEmpty", [""]],
+      ["isNotEmpty", ["", ""]],
+      ["isNotEmpty", []],
+      ["isNotEmpty", [""]],
+      ["isGreaterThan", ["1", ""]],
+      ["isGreaterThan", ["1"]],
+      ["isGreaterOrEqualTo", ["1", ""]],
+      ["isGreaterOrEqualTo", ["1"]],
+      ["isLessThan", ["1"]],
+      ["isLessThan", ["1", ""]],
+      ["isLessOrEqualTo", ["1"]],
+      ["isLessOrEqualTo", ["1", ""]],
+      ["textBeginsWith", ["1"]],
+      ["textBeginsWith", ["1", ""]],
+      ["textContains", ["1"]],
+      ["textContains", ["1", ""]],
+      ["textEndsWith", ["1"]],
+      ["textEndsWith", ["1", ""]],
+      ["textNotContains", ["1"]],
+      ["textNotContains", ["1", ""]],
+      ["isBetween", ["1", "1"]],
+      ["isNotBetween", ["1", "1"]],
     ])("%s operator with valid number of arguments: %s", (operator: string, values: string[]) => {
       let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
@@ -1652,29 +1652,29 @@ describe("conditional formats types", () => {
     });
 
     test.each([
-      ["Equal", []],
-      ["Equal", [""]],
-      ["NotEqual", []],
-      ["NotEqual", [""]],
-      ["GreaterThan", []],
-      ["GreaterThan", [""]],
-      ["GreaterThan", ["", "1"]],
-      ["GreaterThanOrEqual", []],
-      ["GreaterThanOrEqual", [""]],
-      ["LessThan", []],
-      ["LessThan", [""]],
-      ["LessThanOrEqual", []],
-      ["LessThanOrEqual", [""]],
-      ["BeginsWith", []],
-      ["BeginsWith", [""]],
-      ["ContainsText", []],
-      ["ContainsText", [""]],
-      ["EndsWith", []],
-      ["EndsWith", [""]],
-      ["NotContains", []],
-      ["NotContains", [""]],
-      ["Between", ["", "1"]],
-      ["NotBetween", ["", "1"]],
+      ["isEqual", []],
+      ["isEqual", [""]],
+      ["isNotEqual", []],
+      ["isNotEqual", [""]],
+      ["isGreaterThan", []],
+      ["isGreaterThan", [""]],
+      ["isGreaterThan", ["", "1"]],
+      ["isGreaterOrEqualTo", []],
+      ["isGreaterOrEqualTo", [""]],
+      ["isLessThan", []],
+      ["isLessThan", [""]],
+      ["isLessOrEqualTo", []],
+      ["isLessOrEqualTo", [""]],
+      ["textBeginsWith", []],
+      ["textBeginsWith", [""]],
+      ["textContains", []],
+      ["textContains", [""]],
+      ["textEndsWith", []],
+      ["textEndsWith", [""]],
+      ["textNotContains", []],
+      ["textNotContains", [""]],
+      ["isBetween", ["", "1"]],
+      ["isNotBetween", ["", "1"]],
     ])("%s operator with missing first argument %s", (operator: string, values: string[]) => {
       let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
@@ -1699,7 +1699,7 @@ describe("conditional formats types", () => {
           cf: {
             rule: {
               type: "CellIsRule",
-              operator: "GreaterThan",
+              operator: "isGreaterThan",
               values: [formula],
               style: { fillColor: "#ff0f0f" },
             },
@@ -1713,10 +1713,10 @@ describe("conditional formats types", () => {
     );
   });
   test.each([
-    ["Between", ["1"]],
-    ["Between", ["1", ""]],
-    ["NotBetween", ["1"]],
-    ["NotBetween", ["1", ""]],
+    ["isBetween", ["1"]],
+    ["isBetween", ["1", ""]],
+    ["isNotBetween", ["1"]],
+    ["isNotBetween", ["1", ""]],
   ])("%s operator with missing second argument %s", (operator: string, values: string[]) => {
     const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
@@ -1734,8 +1734,8 @@ describe("conditional formats types", () => {
     expect(result).toBeCancelledBecause(CommandResult.SecondArgMissing);
   });
   test.each([
-    ["Between", ["", ""]],
-    ["NotBetween", ["", ""]],
+    ["isBetween", ["", ""]],
+    ["isNotBetween", ["", ""]],
   ])("%s operator with both arguments missing %s", (operator: string, values: string[]) => {
     const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
@@ -1761,7 +1761,7 @@ describe("conditional formats types", () => {
       cf: {
         rule: {
           values: ["0"],
-          operator: "Equal",
+          operator: "isEqual",
           type: "CellIsRule",
           style: { fillColor: "#FF0FFF" },
         },

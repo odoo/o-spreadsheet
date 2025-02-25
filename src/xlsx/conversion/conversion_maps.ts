@@ -40,7 +40,7 @@ export const SUPPORTED_CF_TYPES = [
   "containsText",
   "notContainsText",
   "beginsWith",
-  "endsWith",
+  "textEndsWith",
   "containsBlanks",
   "notContainsBlanks",
 ];
@@ -105,14 +105,24 @@ export const V_ALIGNMENT_EXPORT_CONVERSION_MAP: Record<
   bottom: "bottom",
 };
 
-/** Convert the "CellIs" cf operator.
- * We have all the operators that the xlsx have, but ours begin with a uppercase character */
-export function convertCFCellIsOperator(
-  xlsxCfOperator: XLSXCfOperatorType
-): ConditionalFormattingOperatorValues {
-  return (xlsxCfOperator.slice(0, 1).toUpperCase() +
-    xlsxCfOperator.slice(1)) as ConditionalFormattingOperatorValues;
-}
+/** Conversion map CF types in XLSX <=> Cf types in o_spreadsheet */
+export const CF_OPERATOR_TYPE_CONVERSION_MAP: Record<
+  XLSXCfOperatorType,
+  ConditionalFormattingOperatorValues | undefined
+> = {
+  beginsWith: "textBeginsWith",
+  endsWith: "textEndsWith",
+  containsText: "textContains",
+  notContains: "textNotContains",
+  between: "isBetween",
+  notBetween: "isNotBetween",
+  equal: "isEqual",
+  notEqual: "isNotEqual",
+  greaterThan: "isGreaterThan",
+  greaterThanOrEqual: "isGreaterOrEqualTo",
+  lessThan: "isLessThan",
+  lessThanOrEqual: "isLessOrEqualTo",
+};
 
 /** Conversion map CF types in XLSX <=> Cf types in o_spreadsheet */
 export const CF_TYPE_CONVERSION_MAP: Record<
@@ -128,12 +138,12 @@ export const CF_TYPE_CONVERSION_MAP: Record<
   top10: undefined,
   uniqueValues: undefined,
   duplicateValues: undefined,
-  containsText: "ContainsText",
-  notContainsText: "NotContains",
-  beginsWith: "BeginsWith",
-  endsWith: "EndsWith",
-  containsBlanks: "IsEmpty",
-  notContainsBlanks: "IsNotEmpty",
+  containsText: "textContains",
+  notContainsText: "textNotContains",
+  beginsWith: "textBeginsWith",
+  endsWith: "textEndsWith",
+  containsBlanks: "isEmpty",
+  notContainsBlanks: "isNotEmpty",
   containsErrors: undefined,
   notContainsErrors: undefined,
   timePeriod: undefined,
