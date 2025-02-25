@@ -30,7 +30,7 @@ function getCFCommand(sheetId: UID, formula: string): AddConditionalFormatComman
   const cmd = deepCopy(TEST_COMMANDS.ADD_CONDITIONAL_FORMAT);
   cmd.cf.rule = {
     values: [formula],
-    operator: "Equal",
+    operator: "isEqual",
     type: "CellIsRule",
     style: { fillColor: "#FF0000" },
   };

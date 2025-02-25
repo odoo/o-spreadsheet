@@ -90,8 +90,8 @@ export type DataValidationCriterionEvaluator = {
 };
 
 export const dataValidationEvaluatorRegistry = new Registry<DataValidationCriterionEvaluator>();
-dataValidationEvaluatorRegistry.add("textContains", {
-  type: "textContains",
+dataValidationEvaluatorRegistry.add("containsText", {
+  type: "containsText",
   isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
     const strValue = String(value);
     return strValue.toLowerCase().includes(criterion.values[0].toLowerCase());
@@ -106,8 +106,8 @@ dataValidationEvaluatorRegistry.add("textContains", {
   getPreview: (criterion) => _t('Text contains "%s"', criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("textNotContains", {
-  type: "textNotContains",
+dataValidationEvaluatorRegistry.add("notContainsText", {
+  type: "notContainsText",
   isValueValid: (value: CellValue, criterion: TextNotContainsCriterion) => {
     const strValue = String(value);
     return !strValue.toLowerCase().includes(criterion.values[0].toLowerCase());
@@ -122,8 +122,8 @@ dataValidationEvaluatorRegistry.add("textNotContains", {
   getPreview: (criterion) => _t('Text does not contain "%s"', criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("textIs", {
-  type: "textIs",
+dataValidationEvaluatorRegistry.add("isEqualText", {
+  type: "isEqualText",
   isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
     const strValue = String(value);
     return strValue.toLowerCase() === criterion.values[0].toLowerCase();
@@ -140,8 +140,8 @@ dataValidationEvaluatorRegistry.add("textIs", {
 
 /** Note: this regex doesn't allow for all the RFC-compliant mail addresses but should be enough for our purpose. */
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/;
-dataValidationEvaluatorRegistry.add("textIsEmail", {
-  type: "textIsEmail",
+dataValidationEvaluatorRegistry.add("isEmail", {
+  type: "isEmail",
   isValueValid: (value: CellValue) => typeof value === "string" && emailRegex.test(value),
   getErrorString: () => _t("The value must be a valid email address"),
   isCriterionValueValid: () => true,
@@ -151,8 +151,8 @@ dataValidationEvaluatorRegistry.add("textIsEmail", {
   getPreview: () => _t("Text is valid email"),
 });
 
-dataValidationEvaluatorRegistry.add("textIsLink", {
-  type: "textIsLink",
+dataValidationEvaluatorRegistry.add("isLink", {
+  type: "isLink",
   isValueValid: (value: CellValue) => detectLink(value) !== undefined,
   getErrorString: () => _t("The value must be a valid link"),
   isCriterionValueValid: () => true,

@@ -163,7 +163,7 @@ describe("Autofill", () => {
       id: "1",
       rule: {
         values: ["1"],
-        operator: "Equal",
+        operator: "isEqual",
         type: "CellIsRule",
         style: {
           fillColor: "#FF0000",
@@ -197,12 +197,12 @@ describe("Autofill", () => {
 
   test("Autofill add data validation to target cell if present in origin cell", () => {
     setCellContent(model, "A1", "1");
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     autofill("A1", "A4");
     expect(getDataValidationRules(model, model.getters.getActiveSheetId())).toMatchObject([
       {
         id: "id",
-        criterion: { type: "textContains", values: ["1"] },
+        criterion: { type: "containsText", values: ["1"] },
         ranges: ["A1:A4"],
       },
     ]);

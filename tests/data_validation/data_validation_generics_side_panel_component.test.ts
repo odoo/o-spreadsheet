@@ -58,11 +58,11 @@ describe("data validation sidePanel component", () => {
   });
 
   test.each([
-    ["textContains", { values: ["str"] }, 'Text contains "str"'],
-    ["textNotContains", { values: ["str"] }, 'Text does not contain "str"'],
-    ["textIs", { values: ["str"] }, 'Text is exactly "str"'],
-    ["textIsEmail", { values: [] }, "Text is valid email"],
-    ["textIsLink", { values: [] }, "Text is valid link"],
+    ["containsText", { values: ["str"] }, 'Text contains "str"'],
+    ["notContainsText", { values: ["str"] }, 'Text does not contain "str"'],
+    ["isEqualText", { values: ["str"] }, 'Text is exactly "str"'],
+    ["isEmail", { values: [] }, "Text is valid email"],
+    ["isLink", { values: [] }, "Text is valid link"],
     ["dateIs", { values: ["1/1/2020"], dateValue: "exactDate" }, "Date is 1/1/2020"],
     ["dateIsBefore", { values: ["1/1/2020"], dateValue: "exactDate" }, "Date is before 1/1/2020"],
     [
@@ -279,7 +279,7 @@ describe("data validation sidePanel component", () => {
 
     test("Formula preview is localized", async () => {
       updateLocale(model, FR_LOCALE);
-      addDataValidation(model, "A1", "id", { type: "textIs", values: ["=SUM(5.5,3)"] });
+      addDataValidation(model, "A1", "id", { type: "isEqualText", values: ["=SUM(5.5,3)"] });
       await nextTick();
       expect(fixture.querySelector(".o-dv-preview-description")?.textContent).toContain(
         "=SUM(5,5;3)"
@@ -334,7 +334,7 @@ describe("data validation sidePanel component", () => {
       updateLocale(model, FR_LOCALE);
       await simulateClick(".o-dv-add");
       await nextTick();
-      await changeCriterionType("textIs");
+      await changeCriterionType("isEqualText");
 
       const composer = ".o-dv-settings .o-composer";
       await editStandaloneComposer(composer, "=SUM(5,5; 3)");
@@ -345,7 +345,7 @@ describe("data validation sidePanel component", () => {
       expect(getDataValidationRules(model, sheetId)).toEqual([
         {
           id: expect.any(String),
-          criterion: { type: "textIs", values: ["=SUM(5.5, 3)"] },
+          criterion: { type: "isEqualText", values: ["=SUM(5.5, 3)"] },
           ranges: ["A1"],
         },
       ]);
