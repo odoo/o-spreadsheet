@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { CellIsRule, Model } from "../../src";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
@@ -451,7 +451,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     expect(data.version).toEqual(getCurrentVersion());
-    expect(Number(getCurrentVersion())).toBeGreaterThanOrEqual(14.5);
+    expect(parseFloat(getCurrentVersion())).toBeGreaterThanOrEqual(14.5);
     expect(data.sheets[0].tables).toEqual([
       {
         range: "A1:C2",
@@ -627,6 +627,58 @@ describe("Migrations", () => {
     expect(model.getters.getPivot("2").definition.sortedColumn).toEqual(
       data.pivots["2"].sortedColumn
     ); // unchanged
+  });
+
+  test("migrate version 18.3.1: convert cf type", () => {
+    const oldCfTypes = [
+      "BeginsWith",
+      "Between",
+      "ContainsText",
+      "EndsWith",
+      "Equal",
+      "GreaterThan",
+      "GreaterThanOrEqual",
+      "IsEmpty",
+      "IsNotEmpty",
+      "LessThan",
+      "LessThanOrEqual",
+      "NotBetween",
+      "NotContains",
+      "NotEqual",
+    ];
+    const conditionalFormats: any[] = [];
+    for (const index in oldCfTypes) {
+      conditionalFormats.push({
+        id: index,
+        ranges: ["A1"],
+        rule: { type: "CellIsRule", values: ["42"], style: {}, operator: oldCfTypes[index] },
+      });
+    }
+    const model = new Model({
+      version: 23,
+      sheets: [{ conditionalFormats }],
+    });
+
+    const migratedTypes = model.getters
+      .getConditionalFormats(model.getters.getActiveSheetId())
+      .map((cf) => (cf.rule as CellIsRule).operator);
+
+    expect(migratedTypes).toEqual([
+      "textBeginsWith",
+      "isBetween",
+      "textContains",
+      "textEndsWith",
+      "isEqual",
+      "isGreaterThan",
+      "isGreaterOrEqualTo",
+      "isEmpty",
+      "isNotEmpty",
+      "isLessThan",
+      "isLessOrEqualTo",
+      "isNotBetween",
+      "textNotContains",
+      "isNotEqual",
+    ]);
   });
 });
 

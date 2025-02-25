@@ -15,16 +15,16 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { Image } from "../../src/types/image";
 import { SheetData, WorkbookData } from "../../src/types/workbook_data";
-import { XLSXCfOperatorType, XLSXSharedFormula } from "../../src/types/xlsx";
+import { XLSXSharedFormula } from "../../src/types/xlsx";
 import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
 import {
   BORDER_STYLE_CONVERSION_MAP,
+  CF_OPERATOR_TYPE_CONVERSION_MAP,
   CF_THRESHOLD_CONVERSION_MAP,
   CF_TYPE_CONVERSION_MAP,
   H_ALIGNMENT_CONVERSION_MAP,
   ICON_SET_CONVERSION_MAP,
   V_ALIGNMENT_CONVERSION_MAP,
-  convertCFCellIsOperator,
 } from "../../src/xlsx/conversion/conversion_maps";
 import { convertXlsxFormat } from "../../src/xlsx/conversion/format_conversion";
 import { adaptFormula } from "../../src/xlsx/conversion/formula_conversion";
@@ -302,7 +302,7 @@ describe("Import xlsx data", () => {
         operator = CF_TYPE_CONVERSION_MAP[cfType]!;
         break;
       case "cellIs":
-        operator = convertCFCellIsOperator(cellIsOperator as XLSXCfOperatorType);
+        operator = CF_OPERATOR_TYPE_CONVERSION_MAP[cellIsOperator];
         values.push("2");
         if (["between", "notBetween"].includes(cellIsOperator)) {
           values.push("4");
