@@ -34,7 +34,10 @@ export function addFormula(
     return { attrs: [], node: escapeXml`` };
   }
 
-  const attrs: XMLAttributes = [["cm", "1"]];
+  const attrs: XMLAttributes = [
+    ["cm", "1"],
+    ["t", type],
+  ];
   const XlsxFormula = adaptFormulaToExcel(formula);
   const exportedValue = adaptFormulaValueToExcel(value);
   // We treat all formulas as array formulas (a simple formula
