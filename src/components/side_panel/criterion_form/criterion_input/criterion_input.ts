@@ -17,7 +17,7 @@ interface Props {
 
 css/* scss */ `
   .o-dv-input {
-    .o-invalid {
+    &.o-invalid {
       background-color: #ffdddd;
     }
     .error-icon {
@@ -97,6 +97,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
       defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      invalid: this.state.shouldDisplayError && !!this.errorMessage,
     };
   }
 

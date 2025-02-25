@@ -5,7 +5,7 @@ import { DoubleInputCriterionForm } from "../components/side_panel/criterion_for
 import { SingleInputCriterionForm } from "../components/side_panel/criterion_form/single_input_criterion/single_input_criterion";
 import { ListCriterionForm } from "../components/side_panel/criterion_form/value_in_list_criterion/value_in_list_criterion";
 import { ValueInRangeCriterionForm } from "../components/side_panel/criterion_form/value_in_range_criterion/value_in_range_criterion";
-import { DataValidationCriterionType } from "../types";
+import { GenericCriterionType } from "../types";
 import { criterionEvaluatorRegistry } from "./criterion_registry";
 import { Registry } from "./registry";
 
@@ -19,7 +19,7 @@ export const dvCriterionCategoriesSequences: Record<DVCriterionCategory, number>
 };
 
 export type DataValidationCriterionItem = {
-  type: DataValidationCriterionType;
+  type: GenericCriterionType;
   component: ComponentConstructor | undefined;
   sequence: number;
   category: DVCriterionCategory;
@@ -39,6 +39,20 @@ criterionComponentRegistry.add("textNotContains", {
   component: SingleInputCriterionForm,
   category: "text",
   sequence: 20,
+});
+
+criterionComponentRegistry.add("textBeginsWith", {
+  type: "textBeginsWith",
+  component: SingleInputCriterionForm,
+  category: "text",
+  sequence: 25,
+});
+
+criterionComponentRegistry.add("textEndsWith", {
+  type: "textEndsWith",
+  component: SingleInputCriterionForm,
+  category: "text",
+  sequence: 26,
 });
 
 criterionComponentRegistry.add("textIs", {
@@ -202,15 +216,35 @@ criterionComponentRegistry.add("customFormula", {
   sequence: 20,
 });
 
+criterionComponentRegistry.add("isEmpty", {
+  type: "isEmpty",
+  component: undefined,
+  category: "misc",
+  sequence: 5,
+});
+
+criterionComponentRegistry.add("isNotEmpty", {
+  type: "isNotEmpty",
+  component: undefined,
+  category: "misc",
+  sequence: 6,
+});
+
 export function getCriterionMenuItems(
-  callback: (type: DataValidationCriterionType) => void
+  callback: (type: GenericCriterionType) => void,
+  availableTypes: Set<GenericCriterionType>
 ): Action[] {
-  const items = criterionComponentRegistry.getAll().sort((a, b) => {
-    if (a.category === b.category) {
-      return a.sequence - b.sequence;
-    }
-    return dvCriterionCategoriesSequences[a.category] - dvCriterionCategoriesSequences[b.category];
-  });
+  const items = criterionComponentRegistry
+    .getAll()
+    .filter((item) => availableTypes.has(item.type))
+    .sort((a, b) => {
+      if (a.category === b.category) {
+        return a.sequence - b.sequence;
+      }
+      return (
+        dvCriterionCategoriesSequences[a.category] - dvCriterionCategoriesSequences[b.category]
+      );
+    });
 
   const actionSpecs: ActionSpec[] = items.map((item, index) => {
     const evaluator = criterionEvaluatorRegistry.get(item.type);
