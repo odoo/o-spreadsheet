@@ -10,11 +10,11 @@ import { ExcelIconSet, XLSXConditionalFormat, XLSXDxf } from "../../types/xlsx";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { convertColor, hexaToInt } from "./color_conversion";
 import {
+  CF_OPERATOR_TYPE_CONVERSION_MAP,
   CF_THRESHOLD_CONVERSION_MAP,
   CF_TYPE_CONVERSION_MAP,
   ICON_SET_CONVERSION_MAP,
   SUPPORTED_CF_TYPES,
-  convertCFCellIsOperator,
 } from "./conversion_maps";
 import { convertStyle } from "./style_conversion";
 
@@ -82,7 +82,7 @@ export function convertConditionalFormats(
         break;
       case "cellIs":
         if (!rule.operator || !rule.formula || rule.formula.length === 0) continue;
-        operator = convertCFCellIsOperator(rule.operator);
+        operator = CF_OPERATOR_TYPE_CONVERSION_MAP[rule.operator];
         values.push(rule.formula[0]);
         if (rule.formula.length === 2) {
           values.push(rule.formula[1]);
