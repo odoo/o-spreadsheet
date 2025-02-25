@@ -42,7 +42,7 @@ describe("Error tooltip component", () => {
 
   test("Can display a data validation error message", async () => {
     const model = new Model();
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["hi"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] });
     setCellContent(model, "A1", "hello");
     await mountErrorTooltip(model, "A1");
     expect(".o-error-tooltip-title").toHaveText("Invalid");
@@ -51,7 +51,7 @@ describe("Error tooltip component", () => {
 
   test("Can display multiple error messages", async () => {
     const model = new Model();
-    addDataValidation(model, "A2", "id", { type: "textContains", values: ["hi"] });
+    addDataValidation(model, "A2", "id", { type: "containsText", values: ["hi"] });
     setCellContent(model, "A1", "=1/0");
     setCellContent(model, "A2", "=A1");
     await mountErrorTooltip(model, "A2");
@@ -123,14 +123,14 @@ describe("Grid integration", () => {
 
   test("can display invalid data validation error", async () => {
     setCellContent(model, "A1", "hello");
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["hi"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] });
     await hoverCell(model, "A1", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
   test("can display both cell error and data validation error", async () => {
     setCellContent(model, "A1", "=1/0");
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     await hoverCell(model, "A1", 400);
     expect(document.querySelectorAll(".o-error-tooltip-title")).toHaveLength(2);
   });

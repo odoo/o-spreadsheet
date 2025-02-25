@@ -9,27 +9,27 @@ export interface DataValidationRule {
 }
 
 export type TextContainsCriterion = {
-  type: "textContains";
+  type: "containsText";
   values: string[];
 };
 
 export type TextNotContainsCriterion = {
-  type: "textNotContains";
+  type: "notContainsText";
   values: string[];
 };
 
 export type TextIsCriterion = {
-  type: "textIs";
+  type: "isEqualText";
   values: string[];
 };
 
 export type TextIsEmailCriterion = {
-  type: "textIsEmail";
+  type: "isEmail";
   values: string[];
 };
 
 export type TextIsLinkCriterion = {
-  type: "textIsLink";
+  type: "isLink";
   values: string[];
 };
 

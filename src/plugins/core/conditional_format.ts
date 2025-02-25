@@ -451,20 +451,20 @@ export class ConditionalFormatPlugin
       case "CellIsRule":
         return this.checkValidations(
           rule,
-          this.checkOperatorArgsNumber(2, ["Between", "NotBetween"]),
+          this.checkOperatorArgsNumber(2, ["isBetween", "isNotBetween"]),
           this.checkOperatorArgsNumber(1, [
-            "BeginsWith",
-            "ContainsText",
-            "EndsWith",
-            "GreaterThan",
-            "GreaterThanOrEqual",
-            "LessThan",
-            "LessThanOrEqual",
-            "NotContains",
-            "Equal",
-            "NotEqual",
+            "beginsWithText",
+            "containsText",
+            "endsWithText",
+            "isGreaterThan",
+            "isGreaterOrEqualTo",
+            "isLessThan",
+            "isLessOrEqualTo",
+            "notContainsText",
+            "isEqual",
+            "isNotEqual",
           ]),
-          this.checkOperatorArgsNumber(0, ["IsEmpty", "IsNotEmpty"]),
+          this.checkOperatorArgsNumber(0, ["isEmpty", "isNotEmpty"]),
           this.checkCFValues
         );
       case "ColorScaleRule": {

@@ -19,7 +19,7 @@ describe("Data validation evaluation", () => {
   });
 
   test("data validation rule", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["test"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
 
     setCellContent(model, "A1", "random text");
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);
@@ -33,12 +33,12 @@ describe("Data validation evaluation", () => {
   });
 
   test("empty cells are not invalid", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["test"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
   });
 
   test("data validation on sheet duplication", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["test"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["test"] });
 
     setCellContent(model, "A1", "random text");
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);
@@ -56,7 +56,7 @@ describe("Data validation evaluation", () => {
   describe("Formula values", () => {
     test("Can use formula values", () => {
       addDataValidation(model, "A1", "id", {
-        type: "textContains",
+        type: "containsText",
         values: ['=CONCAT("te", "st")'],
       });
 
@@ -128,7 +128,7 @@ describe("Data validation evaluation", () => {
 
   test("data validation is updated on cell format change", () => {
     setFormat(model, "A2", "0.00");
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["m"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["m"] });
 
     setCellContent(model, "A1", '=CELL("format", A2)');
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);

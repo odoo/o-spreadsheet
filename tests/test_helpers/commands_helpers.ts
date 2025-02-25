@@ -1412,7 +1412,7 @@ export function addDataValidation(
   model: Model,
   xcs: string,
   id: UID,
-  criterion: DataValidationCriterion = { type: "textContains", values: ["test"] },
+  criterion: DataValidationCriterion = { type: "containsText", values: ["test"] },
   isBlocking: "blocking" | "warning" = "warning",
   sheetId: UID = model.getters.getActiveSheetId()
 ) {

@@ -89,27 +89,27 @@ function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
   const firstCell = ranges[0].split(":")[0];
   const values = rule.values;
   switch (rule.operator) {
-    case "ContainsText":
+    case "containsText":
       return [`NOT(ISERROR(SEARCH("${values[0]}",${firstCell})))`];
-    case "NotContains":
+    case "notContainsText":
       return [`ISERROR(SEARCH("${values[0]}",${firstCell}))`];
-    case "BeginsWith":
+    case "beginsWithText":
       return [`LEFT(${firstCell},LEN("${values[0]}"))="${values[0]}"`];
-    case "EndsWith":
+    case "endsWithText":
       return [`RIGHT(${firstCell},LEN("${values[0]}"))="${values[0]}"`];
-    case "IsEmpty":
+    case "isEmpty":
       return [`LEN(TRIM(${firstCell}))=0`];
-    case "IsNotEmpty":
+    case "isNotEmpty":
       return [`LEN(TRIM(${firstCell}))>0`];
-    case "Equal":
-    case "NotEqual":
-    case "GreaterThan":
-    case "GreaterThanOrEqual":
-    case "LessThan":
-    case "LessThanOrEqual":
+    case "isEqual":
+    case "isNotEqual":
+    case "isGreaterThan":
+    case "isGreaterOrEqualTo":
+    case "isLessThan":
+    case "isLessOrEqualTo":
       return [values[0]];
-    case "Between":
-    case "NotBetween":
+    case "isBetween":
+    case "isNotBetween":
       return [values[0], values[1]];
   }
 }
@@ -117,25 +117,25 @@ function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
 function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
   const operator = convertOperator(rule.operator);
   switch (rule.operator) {
-    case "ContainsText":
-    case "NotContains":
-    case "BeginsWith":
-    case "EndsWith":
+    case "containsText":
+    case "notContainsText":
+    case "beginsWithText":
+    case "endsWithText":
       return [
         ["type", operator],
         ["text", rule.values[0]],
       ];
-    case "IsEmpty":
-    case "IsNotEmpty":
+    case "isEmpty":
+    case "isNotEmpty":
       return [["type", operator]];
-    case "Equal":
-    case "NotEqual":
-    case "GreaterThan":
-    case "GreaterThanOrEqual":
-    case "LessThan":
-    case "LessThanOrEqual":
-    case "Between":
-    case "NotBetween":
+    case "isEqual":
+    case "isNotEqual":
+    case "isGreaterThan":
+    case "isGreaterOrEqualTo":
+    case "isLessThan":
+    case "isLessOrEqualTo":
+    case "isBetween":
+    case "isNotBetween":
       return [["type", "cellIs"]];
   }
 }

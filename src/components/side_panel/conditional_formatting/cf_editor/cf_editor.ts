@@ -290,7 +290,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     return {
       cellIs: {
         type: "CellIsRule",
-        operator: "IsNotEmpty",
+        operator: "isNotEmpty",
         values: [],
         style: { fillColor: "#b6d7a8" },
       },

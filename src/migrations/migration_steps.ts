@@ -456,6 +456,52 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("18.3.2", {
+    // Rename conditional format operators
+    migrate(data: WorkbookData): any {
+      const dvConversionMap = {
+        textContains: "containsText",
+        textNotContains: "notContainsText",
+        textIs: "isEqualText",
+        textIsEmail: "isEmail",
+        textIsLink: "isLink",
+      };
+      const cfConversionMap = {
+        BeginsWith: "beginsWithText",
+        Between: "isBetween",
+        ContainsText: "containsText",
+        EndsWith: "endsWithText",
+        Equal: "isEqual",
+        GreaterThan: "isGreaterThan",
+        GreaterThanOrEqual: "isGreaterOrEqualTo",
+        IsEmpty: "isEmpty",
+        IsNotEmpty: "isNotEmpty",
+        LessThan: "isLessThan",
+        LessThanOrEqual: "isLessOrEqualTo",
+        NotBetween: "isNotBetween",
+        NotContains: "notContainsText",
+        NotEqual: "isNotEqual",
+      };
+
+      for (const sheet of data.sheets || []) {
+        for (const cf of sheet.conditionalFormats || []) {
+          if (cf.rule.type === "CellIsRule") {
+            cf.rule.operator = cfConversionMap[cf.rule.operator];
+          }
+        }
+      }
+
+      for (const sheet of data.sheets || []) {
+        for (const dv of sheet.dataValidationRules || []) {
+          if (dv.criterion.type in dvConversionMap) {
+            dv.criterion.type = dvConversionMap[dv.criterion.type];
+          }
+        }
+      }
+
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

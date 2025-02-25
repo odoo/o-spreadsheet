@@ -642,7 +642,7 @@ describe("sheets", () => {
               ranges: ["A1:A2"],
               rule: {
                 values: ["42"],
-                operator: "Equal",
+                operator: "isEqual",
                 type: "CellIsRule",
                 style: { fillColor: "orange" },
               },
@@ -677,7 +677,7 @@ describe("sheets", () => {
               ranges: ["A1:A2"],
               rule: {
                 values: ["42"],
-                operator: "Equal",
+                operator: "isEqual",
                 type: "CellIsRule",
                 style: { fillColor: "orange" },
               },

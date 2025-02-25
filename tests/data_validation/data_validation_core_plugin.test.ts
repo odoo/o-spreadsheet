@@ -37,7 +37,7 @@ describe("Data validation", () => {
         model,
         "A1",
         "id",
-        { type: "textContains", values: ["1"] },
+        { type: "containsText", values: ["1"] },
         "blocking",
         "wrong-sheet-id"
       );
@@ -48,7 +48,7 @@ describe("Data validation", () => {
       const result = model.dispatch("ADD_DATA_VALIDATION_RULE", {
         sheetId: "Sheet1",
         ranges: toRangesData("wrong-sheet-id", "A1:5"),
-        rule: { id: "dvId", criterion: { type: "textContains", values: ["1"] } },
+        rule: { id: "dvId", criterion: { type: "containsText", values: ["1"] } },
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
     });
@@ -109,11 +109,11 @@ describe("Data validation", () => {
   });
 
   test("Can add a data validation rule", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
-        criterion: { type: "textContains", values: ["1"] },
+        criterion: { type: "containsText", values: ["1"] },
         ranges: ["A1"],
       },
     ]);
@@ -130,7 +130,7 @@ describe("Data validation", () => {
   });
 
   test("Adding a rule with an existing id will replace the old one", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     addDataValidation(model, "A1:C2", "id", { type: "isBetween", values: ["1", "5"] });
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
@@ -143,7 +143,7 @@ describe("Data validation", () => {
   });
 
   test("Can add data validation on an unbounded zone", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     addDataValidation(model, "A:A", "id", criterion);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: "id", criterion, ranges: ["A:A"] },
@@ -152,35 +152,35 @@ describe("Data validation", () => {
 
   describe("Cell can only have a single rule applied to them", () => {
     test("Overlapping ranges", () => {
-      addDataValidation(model, "A1:A5", "id", { type: "textContains", values: ["1"] });
-      addDataValidation(model, "2:2", "id2", { type: "textContains", values: ["2"] });
-      addDataValidation(model, "A2:B3", "id3", { type: "textContains", values: ["3"] });
+      addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
+      addDataValidation(model, "2:2", "id2", { type: "containsText", values: ["2"] });
+      addDataValidation(model, "A2:B3", "id3", { type: "containsText", values: ["3"] });
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
-        { id: "id", ranges: ["A1", "A4:A5"], criterion: { type: "textContains", values: ["1"] } },
-        { id: "id2", ranges: ["C2:2"], criterion: { type: "textContains", values: ["2"] } },
-        { id: "id3", ranges: ["A2:B3"], criterion: { type: "textContains", values: ["3"] } },
+        { id: "id", ranges: ["A1", "A4:A5"], criterion: { type: "containsText", values: ["1"] } },
+        { id: "id2", ranges: ["C2:2"], criterion: { type: "containsText", values: ["2"] } },
+        { id: "id3", ranges: ["A2:B3"], criterion: { type: "containsText", values: ["3"] } },
       ]);
     });
 
     test("When modifying existing range", () => {
-      addDataValidation(model, "A1:A5", "id", { type: "textContains", values: ["1"] });
-      addDataValidation(model, "B1:B5", "id2", { type: "textContains", values: ["2"] });
+      addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
+      addDataValidation(model, "B1:B5", "id2", { type: "containsText", values: ["2"] });
 
-      addDataValidation(model, "A1:A2", "id2", { type: "textContains", values: ["2"] });
+      addDataValidation(model, "A1:A2", "id2", { type: "containsText", values: ["2"] });
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
-        { id: "id", ranges: ["A3:A5"], criterion: { type: "textContains", values: ["1"] } },
-        { id: "id2", ranges: ["A1:A2"], criterion: { type: "textContains", values: ["2"] } },
+        { id: "id", ranges: ["A3:A5"], criterion: { type: "containsText", values: ["1"] } },
+        { id: "id2", ranges: ["A1:A2"], criterion: { type: "containsText", values: ["2"] } },
       ]);
     });
 
     test("Rule is removed if another rule is applied to all its cells", () => {
-      addDataValidation(model, "A1:A5", "id", { type: "textContains", values: ["1"] });
-      addDataValidation(model, "A1:B6", "id2", { type: "textContains", values: ["1"] });
+      addDataValidation(model, "A1:A5", "id", { type: "containsText", values: ["1"] });
+      addDataValidation(model, "A1:B6", "id2", { type: "containsText", values: ["1"] });
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
-        { id: "id2", ranges: ["A1:B6"], criterion: { type: "textContains", values: ["1"] } },
+        { id: "id2", ranges: ["A1:B6"], criterion: { type: "containsText", values: ["1"] } },
       ]);
     });
   });
@@ -199,7 +199,7 @@ describe("Data validation", () => {
   });
 
   test("Can remove a rule", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     expect(getDataValidationRules(model, sheetId)).not.toEqual([]);
 
     removeDataValidation(model, "id");
@@ -207,11 +207,11 @@ describe("Data validation", () => {
   });
 
   test.each([
-    { type: "textContains", values: ["str"] },
-    { type: "textNotContains", values: ["str"] },
-    { type: "textIs", values: ["str"] },
-    { type: "textIsEmail", values: [] },
-    { type: "textIsLink", values: [] },
+    { type: "containsText", values: ["str"] },
+    { type: "notContainsText", values: ["str"] },
+    { type: "isEqualText", values: ["str"] },
+    { type: "isEmail", values: [] },
+    { type: "isLink", values: [] },
     { type: "dateIs", values: ["1/1/2020"], dateValue: "exactDate" },
     { type: "dateIsBefore", values: ["1/1/2020"], dateValue: "exactDate" },
     { type: "dateIsOnOrBefore", values: ["1/1/2020"], dateValue: "exactDate" },
@@ -240,11 +240,11 @@ describe("Data validation", () => {
   );
 
   test.each([
-    [{ type: "textContains", values: ["=F5"] }, ["=G5"]],
-    [{ type: "textNotContains", values: ["=F5"] }, ["=G5"]],
-    [{ type: "textIs", values: ["=F5"] }, ["=G5"]],
-    [{ type: "textIsEmail", values: [] }, []],
-    [{ type: "textIsLink", values: [] }, []],
+    [{ type: "containsText", values: ["=F5"] }, ["=G5"]],
+    [{ type: "notContainsText", values: ["=F5"] }, ["=G5"]],
+    [{ type: "isEqualText", values: ["=F5"] }, ["=G5"]],
+    [{ type: "isEmail", values: [] }, []],
+    [{ type: "isLink", values: [] }, []],
     [{ type: "dateIs", values: ["=F5"], dateValue: "exactDate" }, ["=G5"]],
     [{ type: "dateIsBefore", values: ["=F5"], dateValue: "exactDate" }, ["=G5"]],
     [{ type: "dateIsOnOrBefore", values: ["=F5"], dateValue: "exactDate" }, ["=G5"]],
@@ -272,11 +272,11 @@ describe("Data validation", () => {
   });
 
   test.each([
-    [{ type: "textContains", values: ["=F5"] }, ["=F6"]],
-    [{ type: "textNotContains", values: ["=F5"] }, ["=F6"]],
-    [{ type: "textIs", values: ["=F5"] }, ["=F6"]],
-    [{ type: "textIsEmail", values: [] }, []],
-    [{ type: "textIsLink", values: [] }, []],
+    [{ type: "containsText", values: ["=F5"] }, ["=F6"]],
+    [{ type: "notContainsText", values: ["=F5"] }, ["=F6"]],
+    [{ type: "isEqualText", values: ["=F5"] }, ["=F6"]],
+    [{ type: "isEmail", values: [] }, []],
+    [{ type: "isLink", values: [] }, []],
     [{ type: "dateIs", values: ["=F5"], dateValue: "exactDate" }, ["=F6"]],
     [{ type: "dateIsBefore", values: ["=F5"], dateValue: "exactDate" }, ["=F6"]],
     [{ type: "dateIsOnOrBefore", values: ["=F5"], dateValue: "exactDate" }, ["=F6"]],
@@ -304,11 +304,11 @@ describe("Data validation", () => {
   });
 
   test.each([
-    [{ type: "textContains", values: ["=F5"] }, ["=E5"]],
-    [{ type: "textNotContains", values: ["=F5"] }, ["=E5"]],
-    [{ type: "textIs", values: ["=F5"] }, ["=E5"]],
-    [{ type: "textIsEmail", values: [] }, []],
-    [{ type: "textIsLink", values: [] }, []],
+    [{ type: "containsText", values: ["=F5"] }, ["=E5"]],
+    [{ type: "notContainsText", values: ["=F5"] }, ["=E5"]],
+    [{ type: "isEqualText", values: ["=F5"] }, ["=E5"]],
+    [{ type: "isEmail", values: [] }, []],
+    [{ type: "isLink", values: [] }, []],
     [{ type: "dateIs", values: ["=F5"], dateValue: "exactDate" }, ["=E5"]],
     [{ type: "dateIsBefore", values: ["=F5"], dateValue: "exactDate" }, ["=E5"]],
     [{ type: "dateIsOnOrBefore", values: ["=F5"], dateValue: "exactDate" }, ["=E5"]],
@@ -336,11 +336,11 @@ describe("Data validation", () => {
   });
 
   test.each([
-    [{ type: "textContains", values: ["=F5"] }, ["=F4"]],
-    [{ type: "textNotContains", values: ["=F5"] }, ["=F4"]],
-    [{ type: "textIs", values: ["=F5"] }, ["=F4"]],
-    [{ type: "textIsEmail", values: [] }, []],
-    [{ type: "textIsLink", values: [] }, []],
+    [{ type: "containsText", values: ["=F5"] }, ["=F4"]],
+    [{ type: "notContainsText", values: ["=F5"] }, ["=F4"]],
+    [{ type: "isEqualText", values: ["=F5"] }, ["=F4"]],
+    [{ type: "isEmail", values: [] }, []],
+    [{ type: "isLink", values: [] }, []],
     [{ type: "dateIs", values: ["=F5"], dateValue: "exactDate" }, ["=F4"]],
     [{ type: "dateIsBefore", values: ["=F5"], dateValue: "exactDate" }, ["=F4"]],
     [{ type: "dateIsOnOrBefore", values: ["=F5"], dateValue: "exactDate" }, ["=F4"]],
@@ -373,11 +373,11 @@ describe("Data validation", () => {
     });
 
     test.each([
-      [{ type: "textContains", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
-      [{ type: "textNotContains", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
-      [{ type: "textIs", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
-      [{ type: "textIsEmail", values: [] }, []],
-      [{ type: "textIsLink", values: [] }, []],
+      [{ type: "containsText", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "notContainsText", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "isEqualText", values: ["=OtherSheet!F5"] }, ["=OtherSheet!F4"]],
+      [{ type: "isEmail", values: [] }, []],
+      [{ type: "isLink", values: [] }, []],
       [{ type: "dateIs", values: ["=OtherSheet!F5"], dateValue: "exactDate" }, ["=OtherSheet!F4"]],
       [
         { type: "dateIsBefore", values: ["=OtherSheet!F5"], dateValue: "exactDate" },
@@ -468,14 +468,14 @@ describe("Data validation", () => {
   });
 
   test("Can undo/redo adding a rule", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     addDataValidation(model, "A1:C2", "id", { type: "isBetween", values: ["1", "5"] });
 
     undo(model);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
-        criterion: { type: "textContains", values: ["1"] },
+        criterion: { type: "containsText", values: ["1"] },
         ranges: ["A1"],
       },
     ]);
@@ -486,7 +486,7 @@ describe("Data validation", () => {
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
-        criterion: { type: "textContains", values: ["1"] },
+        criterion: { type: "containsText", values: ["1"] },
         ranges: ["A1"],
       },
     ]);
@@ -501,14 +501,14 @@ describe("Data validation", () => {
   });
 
   test("Can undo/redo removing a rule", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     removeDataValidation(model, "id");
 
     undo(model);
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       {
         id: "id",
-        criterion: { type: "textContains", values: ["1"] },
+        criterion: { type: "containsText", values: ["1"] },
         ranges: ["A1"],
       },
     ]);
@@ -518,7 +518,7 @@ describe("Data validation", () => {
   });
 
   test("Can import/export data validation rules", () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["1"] });
     addDataValidation(model, "B:B", "id2", { type: "isBetween", values: ["1", "8"] }, "blocking");
 
     const exported = model.exportData();
@@ -526,7 +526,7 @@ describe("Data validation", () => {
     expect(exported.sheets[0].dataValidationRules).toEqual([
       {
         id: "id",
-        criterion: { type: "textContains", values: ["1"] },
+        criterion: { type: "containsText", values: ["1"] },
         ranges: ["A1"],
         isBlocking: false,
       },
@@ -542,7 +542,7 @@ describe("Data validation", () => {
     expect(getDataValidationRules(newModel, sheetId)).toEqual([
       {
         id: "id",
-        criterion: { type: "textContains", values: ["1"] },
+        criterion: { type: "containsText", values: ["1"] },
         ranges: ["A1"],
         isBlocking: false,
       },
@@ -556,7 +556,7 @@ describe("Data validation", () => {
   });
 
   describe("Grid manipulation", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
 
     test("On row addition", () => {
       addDataValidation(model, "A1", "id1", criterion);
