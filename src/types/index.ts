@@ -25,6 +25,7 @@ export * from "./env";
 export * from "./figure";
 export * from "./format";
 export * from "./functions";
+export * from "./generic_criterion";
 export * from "./getters";
 export * from "./history";
 export * from "./locale";

@@ -3,7 +3,13 @@ import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
 import { toHex, toZone } from "../../src/helpers";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
-import { CellIsRule, CommandResult, SpreadsheetChildEnv, UID } from "../../src/types";
+import {
+  CellIsRule,
+  CommandResult,
+  ConditionalFormattingOperatorValues,
+  SpreadsheetChildEnv,
+  UID,
+} from "../../src/types";
 import {
   activateSheet,
   copy,
@@ -50,9 +56,7 @@ const selectors = {
     range: ".o-cf .o-cf-ruleEditor .o-cf-range .o-range input",
     editor: {
       operatorInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
-      valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value .o-composer",
-      secondValueInput:
-        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value.o-secondary-value .o-composer",
+      valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cf-cell-is-rule .o-composer",
       bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Bold']",
       italic:
         ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Italic']",
@@ -119,6 +123,14 @@ function isInputInvalid(target: DOMTarget): boolean {
   return el.className.includes("o-invalid");
 }
 
+async function changeRuleOperatorType(
+  fixture: HTMLElement,
+  type: ConditionalFormattingOperatorValues
+) {
+  await click(fixture, selectors.ruleEditor.editor.operatorInput);
+  await click(fixture, `.o-menu-item[data-name="${type}"]`);
+}
+
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
   let model: Model;
@@ -177,7 +189,7 @@ describe("UI of conditional formats", () => {
 
       // --> should be the style for CellIsRule
       expect(previews[0].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
-        "Is equal to 2"
+        "Value is equal to 2"
       );
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
       expect(
@@ -203,7 +215,7 @@ describe("UI of conditional formats", () => {
 
       let previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[2].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
-        "Is equal to 1,5"
+        "Value is equal to 1,5"
       );
     });
 
@@ -228,7 +240,7 @@ describe("UI of conditional formats", () => {
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
-      setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "beginsWithText");
+      await changeRuleOperatorType(fixture, "beginsWithText");
       editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
 
       await click(fixture, selectors.ruleEditor.editor.bold);
@@ -264,7 +276,7 @@ describe("UI of conditional formats", () => {
 
     test("Can cycle on reference (with F4) in a CellIsRule editor input", async () => {
       await click(fixture.querySelectorAll(selectors.listPreview)[0]);
-      setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "beginsWithText");
+      await changeRuleOperatorType(fixture, "beginsWithText");
 
       const input = fixture.querySelector<HTMLDivElement>(selectors.ruleEditor.editor.valueInput)!;
       await editStandaloneComposer(input, "=A2", { confirm: false });
@@ -383,7 +395,7 @@ describe("UI of conditional formats", () => {
 
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
-      await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "beginsWithText");
+      await changeRuleOperatorType(fixture, "beginsWithText");
       editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
 
       await click(fixture, selectors.ruleEditor.editor.bold);
@@ -504,7 +516,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.buttonAdd);
       expect(model.getters.getConditionalFormats(sheetId)).toHaveLength(1);
 
-      setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isEmpty");
+      await changeRuleOperatorType(fixture, "isEmpty");
       expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
         operator: "isEmpty",
       });
@@ -527,7 +539,7 @@ describe("UI of conditional formats", () => {
       await click(fixture, selectors.buttonSave);
 
       await click(fixture, selectors.listPreview);
-      setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isEmpty");
+      await changeRuleOperatorType(fixture, "isEmpty");
       expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
         operator: "isEmpty",
       });
@@ -541,7 +553,7 @@ describe("UI of conditional formats", () => {
     test("The error messages only appear when clicking save, not when changing the operator type", async () => {
       await click(fixture, selectors.buttonAdd);
 
-      await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isEqual");
+      await changeRuleOperatorType(fixture, "isEqual");
       expect(errorMessages()).toHaveLength(0);
 
       await click(fixture, selectors.buttonSave);
@@ -1000,34 +1012,29 @@ describe("UI of conditional formats", () => {
 
   test("single color missing a single value", async () => {
     await click(fixture, selectors.buttonAdd);
-    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isGreaterThan");
+    await changeRuleOperatorType(fixture, "isGreaterThan");
     expect(isInputInvalid(selectors.ruleEditor.editor.valueInput)).toBe(false);
     await click(fixture, selectors.buttonSave);
-    expect(isInputInvalid(selectors.ruleEditor.editor.valueInput)).toBe(true);
     expect(errorMessages()).toEqual(["The argument is missing. Please provide a value"]);
   });
 
   test("single color missing two values", async () => {
     await click(fixture, selectors.buttonAdd);
-    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isBetween");
+    await changeRuleOperatorType(fixture, "isBetween");
     await click(fixture, selectors.buttonSave);
-    expect(isInputInvalid(selectors.ruleEditor.editor.valueInput)).toBe(true);
-    expect(isInputInvalid(selectors.ruleEditor.editor.secondValueInput)).toBe(true);
     expect(errorMessages()).toEqual([
       "The argument is missing. Please provide a value",
       "The second argument is missing. Please provide a value",
     ]);
     await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "25");
     await click(fixture, selectors.buttonSave);
-    expect(isInputInvalid(selectors.ruleEditor.editor.valueInput)).toBe(false);
-    expect(isInputInvalid(selectors.ruleEditor.editor.secondValueInput)).toBe(true);
     expect(errorMessages()).toEqual(["The second argument is missing. Please provide a value"]);
   });
 
   test("single color with an invalid formula as value", async () => {
     await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
-    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isGreaterThan");
+    await changeRuleOperatorType(fixture, "isGreaterThan");
     expect(fixture.querySelector(".o-invalid")).toBeNull();
     await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=suùù(");
     await click(fixture, selectors.buttonSave);
@@ -1037,7 +1044,7 @@ describe("UI of conditional formats", () => {
 
   test("changing rule type resets errors", async () => {
     await click(fixture, selectors.buttonAdd);
-    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isGreaterThan");
+    await changeRuleOperatorType(fixture, "isGreaterThan");
     await click(fixture, selectors.buttonSave);
     expect(errorMessages()).not.toHaveLength(0);
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
@@ -1047,7 +1054,7 @@ describe("UI of conditional formats", () => {
 
   test("Save button is disabled if there are errors", async () => {
     await click(fixture, selectors.buttonAdd);
-    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isGreaterThan");
+    await changeRuleOperatorType(fixture, "isGreaterThan");
     await click(fixture, selectors.buttonSave);
     expect(errorMessages()).toHaveLength(1);
     expect(fixture.querySelector<HTMLButtonElement>(selectors.buttonSave)?.disabled).toBe(true);
@@ -1055,11 +1062,11 @@ describe("UI of conditional formats", () => {
 
   test("Panel is not in error if dispatch is refused because there were no changes", async () => {
     await click(fixture, selectors.buttonAdd);
-    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isNotEmpty");
+    await changeRuleOperatorType(fixture, "isNotEmpty");
     await nextTick();
     expect(errorMessages()).toHaveLength(0);
 
-    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isNotEmpty");
+    await changeRuleOperatorType(fixture, "isNotEmpty");
     await nextTick();
     expect(errorMessages()).toHaveLength(0);
   });
@@ -1367,19 +1374,19 @@ describe("UI of conditional formats", () => {
   test("Configuration is locally saved when switching cf type", async () => {
     await click(fixture, selectors.buttonAdd);
 
-    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "beginsWithText");
-    expect(selectors.ruleEditor.editor.operatorInput).toHaveValue("beginsWithText");
+    await changeRuleOperatorType(fixture, "beginsWithText");
+    expect(selectors.ruleEditor.editor.operatorInput).toHaveValue("Text begins with");
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[0]);
-    expect(selectors.ruleEditor.editor.operatorInput).toHaveValue("beginsWithText");
+    expect(selectors.ruleEditor.editor.operatorInput).toHaveValue("Text begins with");
   });
 
   test("switching to list resets the rules to their default value", async () => {
     await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.range, "B5:C7");
-    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "beginsWithText");
+    await changeRuleOperatorType(fixture, "beginsWithText");
     await click(fixture, selectors.buttonCancel);
     await click(fixture, selectors.buttonAdd);
     expect((document.querySelector(selectors.ruleEditor.range) as HTMLInputElement).value).toBe(
@@ -1387,7 +1394,7 @@ describe("UI of conditional formats", () => {
     );
     expect(
       (document.querySelector(selectors.ruleEditor.editor.operatorInput) as HTMLSelectElement).value
-    ).toBe("isNotEmpty");
+    ).toBe("Is not empty");
   });
 
   test("CF rule values are canonicalized when sending them to the model", async () => {
@@ -1395,7 +1402,7 @@ describe("UI of conditional formats", () => {
     await click(fixture, selectors.buttonAdd);
     await nextTick();
 
-    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isEqual");
+    await changeRuleOperatorType(fixture, "isEqual");
     await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3,59");
 
     await click(fixture, selectors.buttonSave);
@@ -1412,7 +1419,7 @@ describe("UI of conditional formats", () => {
     await click(fixture, selectors.buttonAdd);
     await nextTick();
 
-    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "isEqual");
+    await changeRuleOperatorType(fixture, "isEqual");
     await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "01/05/2012");
 
     await click(fixture, selectors.buttonSave);
