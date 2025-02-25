@@ -840,19 +840,20 @@ describe("charts", () => {
         }),
         "o-selection": (el: HTMLElement) => ({
           y: 0,
-          height: 200,
+          height: 300,
         }),
       });
       await mountSpreadsheet();
     });
 
-    test("can reorder ranges in chart panel", async () => {
+    test("can reorder ranges in chart panel (last to first)", async () => {
       createChart(
         model,
         {
           dataSets: [
             { dataRange: "B1:B4", label: "serie_1", backgroundColor: "#FF0000" },
             { dataRange: "C1:C4", label: "serie_2", backgroundColor: "#00FF00" },
+            { dataRange: "D1:D4", label: "serie_3", backgroundColor: "#0000FF" },
           ],
           labelRange: "A2:A4",
           type: "line",
@@ -862,14 +863,44 @@ describe("charts", () => {
       await openChartConfigSidePanel(model, env, chartId);
       await dragElement(
         fixture.querySelectorAll(".o-drag-handle")[0],
-        { x: 0, y: 150 },
+        { x: 0, y: 250 },
         undefined,
         true
       );
       const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
       expect(definition.dataSets).toMatchObject([
         { dataRange: "C1:C4", label: "serie_2", backgroundColor: "#00FF00" },
+        { dataRange: "D1:D4", label: "serie_3", backgroundColor: "#0000FF" },
         { dataRange: "B1:B4", label: "serie_1", backgroundColor: "#FF0000" },
+      ]);
+    });
+
+    test("can reorder ranges in chart panel (first to last)", async () => {
+      createChart(
+        model,
+        {
+          dataSets: [
+            { dataRange: "B1:B4", label: "serie_1", backgroundColor: "#FF0000" },
+            { dataRange: "C1:C4", label: "serie_2", backgroundColor: "#00FF00" },
+            { dataRange: "D1:D4", label: "serie_3", backgroundColor: "#0000FF" },
+          ],
+          labelRange: "A2:A4",
+          type: "line",
+        },
+        chartId
+      );
+      await openChartConfigSidePanel(model, env, chartId);
+      await dragElement(
+        fixture.querySelectorAll(".o-drag-handle")[2],
+        { x: 0, y: 50 },
+        undefined,
+        true
+      );
+      const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+      expect(definition.dataSets).toMatchObject([
+        { dataRange: "D1:D4", label: "serie_3", backgroundColor: "#0000FF" },
+        { dataRange: "B1:B4", label: "serie_1", backgroundColor: "#FF0000" },
+        { dataRange: "C1:C4", label: "serie_2", backgroundColor: "#00FF00" },
       ]);
     });
 
