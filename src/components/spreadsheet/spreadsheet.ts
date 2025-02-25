@@ -426,6 +426,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);
+      this.sidePanel.open("ConditionalFormatting", {
+        selection: this.env.model.getters.getSelectedZones(),
+      });
     });
     onWillUnmount(() => {
       this.unbindModelEvents();

@@ -25,7 +25,6 @@ import {
   CellValue,
   DEFAULT_LOCALE,
   DataValidationCriterion,
-  DataValidationCriterionType,
   DateIsAfterCriterion,
   DateIsBeforeCriterion,
   DateIsBetweenCriterion,
@@ -33,6 +32,8 @@ import {
   DateIsNotBetweenCriterion,
   DateIsOnOrAfterCriterion,
   DateIsOnOrBeforeCriterion,
+  GenericCriterion,
+  GenericCriterionType,
   Getters,
   IsBetweenCriterion,
   IsEqualCriterion,
@@ -54,7 +55,7 @@ import { rangeReference } from "./../helpers/references";
 import { Registry } from "./registry";
 
 export type DataValidationCriterionEvaluator = {
-  type: DataValidationCriterionType;
+  type: GenericCriterionType;
   /**
    * Checks if a value is valid for the given criterion.
    *
@@ -63,7 +64,7 @@ export type DataValidationCriterionEvaluator = {
    */
   isValueValid: (
     value: CellValue,
-    criterion: DataValidationCriterion,
+    criterion: Pick<GenericCriterion, "values">,
     getters: Getters,
     sheetId: UID
   ) => boolean;
@@ -72,7 +73,7 @@ export type DataValidationCriterionEvaluator = {
    *
    * The criterion values should be in canonical form (non-localized), and formulas should be evaluated.
    */
-  getErrorString: (criterion: DataValidationCriterion, getters: Getters, sheetId: UID) => string;
+  getErrorString: (criterion: GenericCriterion, getters: Getters, sheetId: UID) => string;
   /**
    * Checks if a criterion value is valid.
    *
@@ -80,9 +81,9 @@ export type DataValidationCriterionEvaluator = {
    */
   isCriterionValueValid: (value: string) => boolean;
   /** Return the number of values that the criterion must contains. Return undefined if the criterion can have any number of values */
-  numberOfValues: (criterion: DataValidationCriterion) => number | undefined;
+  numberOfValues: (criterion: GenericCriterion) => number | undefined;
   name: string;
-  getPreview: (criterion: DataValidationCriterion, getters: Getters) => string;
+  getPreview: (criterion: GenericCriterion, getters: Getters) => string;
 
   /** Error string when a criterion value is invalid */
   criterionValueErrorString: string;
@@ -408,6 +409,7 @@ dataValidationEvaluatorRegistry.add("dateIsValid", {
   getPreview: () => _t("Date is valid"),
 });
 
+// ADRM TODO: fix isEqual for data validation, is wrong with typing
 dataValidationEvaluatorRegistry.add("isEqual", {
   type: "isEqual",
   isValueValid: (value: CellValue, criterion: IsEqualCriterion) => {
@@ -685,6 +687,91 @@ dataValidationEvaluatorRegistry.add("customFormula", {
   allowedValues: "onlyFormulas",
   name: _t("Custom formula"),
   getPreview: (criterion) => _t("Custom formula %s", criterion.values[0]),
+});
+
+dataValidationEvaluatorRegistry.add("textBeginsWith", {
+  type: "textBeginsWith",
+  isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
+    const strValue = String(value);
+    return strValue.toLowerCase().startsWith(criterion.values[0].toLowerCase());
+  },
+  getErrorString: (criterion: TextContainsCriterion) => {
+    return _t('The value must be a text that begins with "%s"', criterion.values[0]);
+  },
+  isCriterionValueValid: (value: string) => !!value,
+  criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
+  numberOfValues: () => 1,
+  name: _t("Text begins with"),
+  getPreview: (criterion) => _t('Text begins with "%s"', criterion.values[0]),
+});
+
+dataValidationEvaluatorRegistry.add("textEndsWith", {
+  type: "textEndsWith",
+  isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
+    const strValue = String(value);
+    return strValue.toLowerCase().endsWith(criterion.values[0].toLowerCase());
+  },
+  getErrorString: (criterion: TextContainsCriterion) => {
+    return _t('The value must be a text that ends with "%s"', criterion.values[0]);
+  },
+  isCriterionValueValid: (value: string) => !!value,
+  criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
+  numberOfValues: () => 1,
+  name: _t("Text ends with"),
+  getPreview: (criterion) => _t('Text ends with "%s"', criterion.values[0]),
+});
+
+dataValidationEvaluatorRegistry.add("isEmpty", {
+  type: "isEmpty",
+  isValueValid: (value: CellValue) => (value ?? "").toString().trim() === "",
+  getErrorString: () => _t("The value must be empty"),
+  isCriterionValueValid: () => true,
+  criterionValueErrorString: "",
+  numberOfValues: () => 0,
+  name: _t("Is empty"),
+  getPreview: () => _t("Is empty"),
+});
+
+dataValidationEvaluatorRegistry.add("isNotEmpty", {
+  type: "isNotEmpty",
+  isValueValid: (value: CellValue) => (value ?? "").toString().trim() !== "",
+  getErrorString: () => _t("The value must not be empty"),
+  isCriterionValueValid: () => true,
+  criterionValueErrorString: "",
+  numberOfValues: () => 0,
+  name: _t("Is not empty"),
+  getPreview: () => _t("Is not empty"),
+});
+
+// ADRM TODO: probably remove isEqual instead ?
+dataValidationEvaluatorRegistry.add("typedIsEqual", {
+  type: "typedIsEqual",
+  isValueValid: (value: CellValue, criterion: IsEqualCriterion) => {
+    const criterionValue = parseLiteral(criterion.values[0], DEFAULT_LOCALE);
+    return value === criterionValue;
+  },
+  getErrorString: (criterion: IsEqualCriterion) =>
+    _t("The value must be equal to %s", criterion.values[0]),
+  isCriterionValueValid: (value) => !!value,
+  criterionValueErrorString: "",
+  numberOfValues: () => 1,
+  name: _t("Is equal to"),
+  getPreview: (criterion) => _t("Value is equal to %s", criterion.values[0]),
+});
+
+dataValidationEvaluatorRegistry.add("typedIsNotEqual", {
+  type: "typedIsNotEqual",
+  isValueValid: (value: CellValue, criterion: IsEqualCriterion) => {
+    const criterionValue = parseLiteral(criterion.values[0], DEFAULT_LOCALE);
+    return value !== criterionValue;
+  },
+  getErrorString: (criterion: IsEqualCriterion) =>
+    _t("The value must not be equal to %s", criterion.values[0]),
+  isCriterionValueValid: (value) => !!value,
+  criterionValueErrorString: "",
+  numberOfValues: () => 1,
+  name: _t("Is not equal to"),
+  getPreview: (criterion) => _t("Value is not equal to %s", criterion.values[0]),
 });
 
 function getNumberCriterionlocalizedValues(

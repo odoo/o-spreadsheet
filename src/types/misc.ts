@@ -405,3 +405,89 @@ export type EditionMode =
   | "inactive";
 
 export type SortDirection = "asc" | "desc";
+
+export interface GenericCriterion {
+  type: GenericCriterionType;
+  values: string[];
+}
+
+export type GenericCriterionType =
+  | "textContains"
+  | "textNotContains"
+  | "textIs"
+  | "textIsEmail"
+  | "textIsLink"
+  | "dateIs"
+  | "dateIsBefore"
+  | "dateIsOnOrBefore"
+  | "dateIsAfter"
+  | "dateIsOnOrAfter"
+  | "dateIsBetween"
+  | "dateIsNotBetween"
+  | "dateIsValid"
+  | "isEqual"
+  | "isNotEqual"
+  | "isGreaterThan"
+  | "isGreaterOrEqualTo"
+  | "isLessThan"
+  | "isLessOrEqualTo"
+  | "isBetween"
+  | "isNotBetween"
+  | "isBoolean"
+  | "isValueInList"
+  | "isValueInRange"
+  | "customFormula"
+  | "textBeginsWith"
+  | "textEndsWith"
+  | "isNotEmpty"
+  | "isEmpty"
+  | "typedIsNotEqual"
+  | "typedIsEqual";
+
+export const availableDataValidationOperators: Set<GenericCriterionType> = new Set([
+  "textContains",
+  "textNotContains",
+  "textIs",
+  "textIsEmail",
+  "textIsLink",
+  "dateIs",
+  "dateIsBefore",
+  "dateIsOnOrBefore",
+  "dateIsAfter",
+  "dateIsOnOrAfter",
+  "dateIsBetween",
+  "dateIsNotBetween",
+  "dateIsValid",
+  "isEqual",
+  "isNotEqual",
+  "isGreaterThan",
+  "isGreaterOrEqualTo",
+  "isLessThan",
+  "isLessOrEqualTo",
+  "isBetween",
+  "isNotBetween",
+  "isBoolean",
+  "isValueInList",
+  "isValueInRange",
+  "customFormula",
+  "textBeginsWith",
+  "textEndsWith",
+]);
+
+// ADRM TODO move this
+export const availableConditionalFormatOperators: Set<GenericCriterionType> = new Set([
+  "textContains",
+  "textNotContains",
+  "isGreaterThan",
+  "isGreaterOrEqualTo",
+  "isLessThan",
+  "isLessOrEqualTo",
+  "isBetween",
+  "isNotBetween",
+  "textBeginsWith",
+  "textEndsWith",
+  "isNotEmpty",
+  "isEmpty",
+  "typedIsNotEqual",
+  "typedIsEqual",
+]);

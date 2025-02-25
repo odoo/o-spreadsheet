@@ -11,6 +11,7 @@ import {
   DataValidationRule,
   DataValidationRuleData,
   SpreadsheetChildEnv,
+  availableDataValidationOperators,
 } from "../../../../types";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { DVTerms } from "../../../translations_terms";
@@ -19,7 +20,7 @@ import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
 import {
   dataValidationPanelCriteriaRegistry,
-  getDataValidationCriterionMenuItems,
+  getCriterionMenuItems,
 } from "../data_validation_panel_helper";
 
 interface Props {
@@ -109,7 +110,10 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get dvCriterionMenuItems(): Action[] {
-    return getDataValidationCriterionMenuItems((type) => this.onCriterionTypeChanged(type));
+    return getCriterionMenuItems(
+      (type) => this.onCriterionTypeChanged(type as DataValidationCriterionType),
+      availableDataValidationOperators
+    );
   }
 
   get selectedCriterionName(): string {

@@ -8,14 +8,14 @@ export class DataValidationDoubleInputCriterionForm extends DataValidationCriter
   onFirstValueChanged(value: string) {
     const values = this.props.criterion.values;
     this.updateCriterion({
-      values: [value, values[1]],
+      values: [value, values[1] || ""],
     });
   }
 
   onSecondValueChanged(value: string) {
     const values = this.props.criterion.values;
     this.updateCriterion({
-      values: [values[0], value],
+      values: [values[0] || "", value],
     });
   }
 }

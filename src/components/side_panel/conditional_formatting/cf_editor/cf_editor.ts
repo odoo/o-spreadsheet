@@ -1,4 +1,5 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { Component, ComponentConstructor, useExternalListener, useState } from "@odoo/owl";
+import { Action } from "../../../../actions/action";
 import {
   ACTION_COLOR,
   BADGE_SELECTED_COLOR,
@@ -13,8 +14,13 @@ import {
   isColorValid,
   rangeReference,
 } from "../../../../helpers";
+import {
+  cfOperatorToCriterionType,
+  criterionTypeToCfOperator,
+} from "../../../../helpers/conditional_format";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
+import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
 import { _t } from "../../../../translation";
 import {
   CancelledReason,
@@ -27,10 +33,12 @@ import {
   ConditionalFormatRule,
   ConditionalFormattingOperatorValues,
   DataBarRule,
+  GenericCriterion,
   IconSetRule,
   IconThreshold,
   SpreadsheetChildEnv,
   ThresholdType,
+  availableConditionalFormatOperators,
 } from "../../../../types";
 import { hexaToInt } from "../../../../xlsx/conversion";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
@@ -39,11 +47,16 @@ import { css, getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
 import { ICONS, ICON_SETS } from "../../../icons/icons";
 import { SelectionInput } from "../../../selection_input/selection_input";
-import { CellIsOperators, CfTerms } from "../../../translations_terms";
+import { CfTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
+import {
+  dataValidationPanelCriteriaRegistry,
+  getCriterionMenuItems,
+} from "../../data_validation/data_validation_panel_helper";
+import { SelectMenu } from "../../select_menu/select_menu";
 import { ConditionalFormatPreviewList } from "../cf_preview_list/cf_preview_list";
 
 css/* scss */ `
@@ -182,13 +195,13 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     ConditionalFormatPreviewList,
     Section,
     RoundColorPicker,
-    StandaloneComposer: StandaloneComposer,
+    StandaloneComposer,
     BadgeSelection,
     ValidationMessages,
+    SelectMenu,
   };
 
   icons = ICONS;
-  cellIsOperators = CellIsOperators;
   iconSets = ICON_SETS;
   getTextDecoration = getTextDecoration;
   colorNumberString = colorNumberString;
@@ -409,6 +422,35 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     this.closeMenus();
   }
 
+  get cfCriterionMenuItems(): Action[] {
+    return getCriterionMenuItems(
+      (type) => this.editOperator(criterionTypeToCfOperator(type)),
+      availableConditionalFormatOperators
+    );
+  }
+
+  get selectedCriterionName(): string {
+    const selectedType = cfOperatorToCriterionType(this.state.rules.cellIs.operator);
+    return dataValidationEvaluatorRegistry.get(selectedType).name;
+  }
+
+  get criterionComponent(): ComponentConstructor | undefined {
+    const selectedType = cfOperatorToCriterionType(this.state.rules.cellIs.operator);
+    return dataValidationPanelCriteriaRegistry.get(selectedType).component;
+  }
+
+  get genericCriterion(): GenericCriterion {
+    return {
+      type: cfOperatorToCriterionType(this.state.rules.cellIs.operator),
+      values: this.state.rules.cellIs.values,
+    };
+  }
+
+  onRuleValuesChanged(rule: CellIsRule) {
+    this.state.rules.cellIs.values = rule.values;
+    this.updateConditionalFormat({ rule: { ...this.state.rules.cellIs, values: rule.values } });
+  }
+
   /*****************************************************************************
    * Color Scale Rule
    ****************************************************************************/
@@ -564,22 +606,6 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   ) {
     this.state.rules.iconSet[inflectionPoint].type = type;
     this.updateConditionalFormat({ rule: this.state.rules.iconSet, suppressErrors: true });
-  }
-
-  getCellIsRuleComposerProps(valueIndex: 0 | 1): StandaloneComposer["props"] {
-    const isInvalid = valueIndex === 0 ? this.isValue1Invalid : this.isValue2Invalid;
-    return {
-      onConfirm: (str: string) => {
-        this.state.rules.cellIs.values[valueIndex] = str;
-        this.updateConditionalFormat({ rule: this.state.rules.cellIs });
-      },
-      composerContent: this.state.rules.cellIs.values[valueIndex],
-      placeholder: _t("Value or formula"),
-      defaultStatic: true,
-      invalid: isInvalid,
-      class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
-    };
   }
 
   getColorScaleComposerProps(

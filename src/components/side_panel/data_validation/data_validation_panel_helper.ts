@@ -2,7 +2,7 @@ import { ComponentConstructor } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../../actions/action";
 import { dataValidationEvaluatorRegistry } from "../../../registries/data_validation_registry";
 import { Registry } from "../../../registries/registry";
-import { DataValidationCriterionType } from "../../../types";
+import { GenericCriterionType } from "../../../types";
 import { DataValidationDateCriterionForm } from "./dv_criterion_form/dv_date_criterion/dv_date_criterion";
 import { DataValidationDoubleInputCriterionForm } from "./dv_criterion_form/dv_double_input_criterion/dv_double_input_criterion";
 import { DataValidationSingleInputCriterionForm } from "./dv_criterion_form/dv_single_input_criterion/dv_single_input_criterion";
@@ -19,7 +19,7 @@ export const dvCriterionCategoriesSequences: Record<DVCriterionCategory, number>
 };
 
 export type DataValidationCriterionItem = {
-  type: DataValidationCriterionType;
+  type: GenericCriterionType;
   component: ComponentConstructor | undefined;
   sequence: number;
   category: DVCriterionCategory;
@@ -40,6 +40,20 @@ dataValidationPanelCriteriaRegistry.add("textNotContains", {
   component: DataValidationSingleInputCriterionForm,
   category: "text",
   sequence: 20,
+});
+
+dataValidationPanelCriteriaRegistry.add("textBeginsWith", {
+  type: "textBeginsWith",
+  component: DataValidationSingleInputCriterionForm,
+  category: "text",
+  sequence: 25,
+});
+
+dataValidationPanelCriteriaRegistry.add("textEndsWith", {
+  type: "textEndsWith",
+  component: DataValidationSingleInputCriterionForm,
+  category: "text",
+  sequence: 26,
 });
 
 dataValidationPanelCriteriaRegistry.add("textIs", {
@@ -126,11 +140,25 @@ dataValidationPanelCriteriaRegistry.add("isEqual", {
   sequence: 10,
 });
 
+dataValidationPanelCriteriaRegistry.add("typedIsEqual", {
+  type: "typedIsEqual",
+  component: DataValidationSingleInputCriterionForm,
+  category: "number",
+  sequence: 11,
+});
+
 dataValidationPanelCriteriaRegistry.add("isNotEqual", {
   type: "isNotEqual",
   component: DataValidationSingleInputCriterionForm,
   category: "number",
   sequence: 20,
+});
+
+dataValidationPanelCriteriaRegistry.add("typedIsNotEqual", {
+  type: "typedIsNotEqual",
+  component: DataValidationSingleInputCriterionForm,
+  category: "number",
+  sequence: 11,
 });
 
 dataValidationPanelCriteriaRegistry.add("isGreaterThan", {
@@ -203,15 +231,35 @@ dataValidationPanelCriteriaRegistry.add("customFormula", {
   sequence: 20,
 });
 
-export function getDataValidationCriterionMenuItems(
-  callback: (type: DataValidationCriterionType) => void
+dataValidationPanelCriteriaRegistry.add("isEmpty", {
+  type: "isEmpty",
+  component: undefined,
+  category: "misc",
+  sequence: 5,
+});
+
+dataValidationPanelCriteriaRegistry.add("isNotEmpty", {
+  type: "isNotEmpty",
+  component: undefined,
+  category: "misc",
+  sequence: 6,
+});
+
+export function getCriterionMenuItems(
+  callback: (type: GenericCriterionType) => void,
+  availableTypes: Set<GenericCriterionType>
 ): Action[] {
-  const items = dataValidationPanelCriteriaRegistry.getAll().sort((a, b) => {
-    if (a.category === b.category) {
-      return a.sequence - b.sequence;
-    }
-    return dvCriterionCategoriesSequences[a.category] - dvCriterionCategoriesSequences[b.category];
-  });
+  const items = dataValidationPanelCriteriaRegistry
+    .getAll()
+    .filter((item) => availableTypes.has(item.type))
+    .sort((a, b) => {
+      if (a.category === b.category) {
+        return a.sequence - b.sequence;
+      }
+      return (
+        dvCriterionCategoriesSequences[a.category] - dvCriterionCategoriesSequences[b.category]
+      );
+    });
 
   const actionSpecs: ActionSpec[] = items.map((item, index) => {
     const evaluator = dataValidationEvaluatorRegistry.get(item.type);
