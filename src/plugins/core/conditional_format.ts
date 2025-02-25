@@ -1,5 +1,6 @@
 import { compile } from "../../formulas/compiler";
 import { deepEquals, isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -12,7 +13,6 @@ import {
   CommandResult,
   ConditionalFormat,
   ConditionalFormatInternal,
-  ConditionalFormattingOperatorValues,
   CoreCommand,
   ExcelWorkbookData,
   IconSetRule,
@@ -449,24 +449,7 @@ export class ConditionalFormatPlugin
     const rule = cmd.cf.rule;
     switch (rule.type) {
       case "CellIsRule":
-        return this.checkValidations(
-          rule,
-          this.checkOperatorArgsNumber(2, ["isBetween", "isNotBetween"]),
-          this.checkOperatorArgsNumber(1, [
-            "beginsWithText",
-            "containsText",
-            "endsWithText",
-            "isGreaterThan",
-            "isGreaterOrEqualTo",
-            "isLessThan",
-            "isLessOrEqualTo",
-            "notContainsText",
-            "isEqual",
-            "isNotEqual",
-          ]),
-          this.checkOperatorArgsNumber(0, ["isEmpty", "isNotEmpty"]),
-          this.checkCFValues
-        );
+        return this.checkValidations(rule, this.checkOperatorArgsNumber, this.checkCFValues);
       case "ColorScaleRule": {
         return this.checkValidations(
           rule,
@@ -510,29 +493,23 @@ export class ConditionalFormatPlugin
     return CommandResult.Success;
   }
 
-  private checkOperatorArgsNumber(
-    expectedNumber: number,
-    operators: ConditionalFormattingOperatorValues[]
-  ) {
-    if (expectedNumber > 2) {
+  private checkOperatorArgsNumber(rule: CellIsRule) {
+    const evaluator = criterionEvaluatorRegistry.get(rule.operator);
+    const expectedNumber = evaluator.numberOfValues({ type: rule.operator, values: rule.values });
+    if (expectedNumber === undefined || expectedNumber > 2) {
       throw new Error(
         "Checking more than 2 arguments is currently not supported. Add the appropriate CommandResult if you want to."
       );
     }
-    return (rule: CellIsRule) => {
-      if (operators.includes(rule.operator)) {
-        const errors: CancelledReason[] = [];
-        const isEmpty = (value) => value === undefined || value === "";
-        if (expectedNumber >= 1 && isEmpty(rule.values[0])) {
-          errors.push(CommandResult.FirstArgMissing);
-        }
-        if (expectedNumber >= 2 && isEmpty(rule.values[1])) {
-          errors.push(CommandResult.SecondArgMissing);
-        }
-        return errors.length ? errors : CommandResult.Success;
-      }
-      return CommandResult.Success;
-    };
+    const errors: CancelledReason[] = [];
+    const isEmpty = (value: string | undefined) => value === undefined || value === "";
+    if (expectedNumber >= 1 && isEmpty(rule.values[0])) {
+      errors.push(CommandResult.FirstArgMissing);
+    }
+    if (expectedNumber >= 2 && isEmpty(rule.values[1])) {
+      errors.push(CommandResult.SecondArgMissing);
+    }
+    return errors.length ? errors : CommandResult.Success;
   }
 
   private checkNaN(

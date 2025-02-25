@@ -1,3 +1,4 @@
+import { DateCriterionValue } from "./generic_criterion";
 import { UID } from "./misc";
 import { Range } from "./range";
 
@@ -167,18 +168,37 @@ export type DataValidationCriterion =
   | IsValueInRangeCriterion
   | CustomFormulaCriterion;
 
-export type DateCriterionValue =
-  | "today"
-  | "tomorrow"
-  | "yesterday"
-  | "lastWeek"
-  | "lastMonth"
-  | "lastYear"
-  | "exactDate";
-
 export type DataValidationCriterionType = DataValidationCriterion["type"];
 
 export type DataValidationDateCriterion = Extract<
   DataValidationCriterion,
   { dateValue: DateCriterionValue }
 >;
+
+export const availableDataValidationOperators: Set<DataValidationCriterionType> = new Set([
+  "containsText",
+  "notContainsText",
+  "isEqualText",
+  "isEmail",
+  "isLink",
+  "dateIs",
+  "dateIsBefore",
+  "dateIsOnOrBefore",
+  "dateIsAfter",
+  "dateIsOnOrAfter",
+  "dateIsBetween",
+  "dateIsNotBetween",
+  "dateIsValid",
+  "isEqual",
+  "isNotEqual",
+  "isGreaterThan",
+  "isGreaterOrEqualTo",
+  "isLessThan",
+  "isLessOrEqualTo",
+  "isBetween",
+  "isNotBetween",
+  "isBoolean",
+  "isValueInList",
+  "isValueInRange",
+  "customFormula",
+]);

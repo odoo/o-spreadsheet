@@ -34,23 +34,6 @@ export const CfTerms = {
   DataBar: _t("Data bar"),
 };
 
-export const CellIsOperators = {
-  isEmpty: _t("Is empty"),
-  isNotEmpty: _t("Is not empty"),
-  textContains: _t("Contains"),
-  textNotContains: _t("Does not contain"),
-  beginsWithText: _t("Starts with"),
-  endsWithText: _t("Ends with"),
-  isEqual: _t("Is equal to"),
-  isNotEqual: _t("Is not equal to"),
-  isGreaterThan: _t("Is greater than"),
-  isGreaterOrEqualTo: _t("Is greater than or equal to"),
-  isLessThan: _t("Is less than"),
-  isLessOrEqualTo: _t("Is less than or equal to"),
-  isBetween: _t("Is between"),
-  isNotBetween: _t("Is not between"),
-};
-
 export const ChartTerms: {
   [key: string]: any;
   GeoChart: {

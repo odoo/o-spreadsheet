@@ -2,10 +2,11 @@ import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, getColorScale, isInside, percentile } from "../../helpers/index";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
-import { _t } from "../../translation";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellIsRule,
   CellPosition,
+  CellValue,
   CellValueType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
@@ -120,7 +121,6 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
             const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
             for (let row = zone.top; row <= zone.bottom; row++) {
               for (let col = zone.left; col <= zone.right; col++) {
-                const predicate = this.rulePredicate[cf.rule.type];
                 const target = { sheetId, col, row };
                 const values = cf.rule.values.map((value, i) => {
                   const compiledFormula = formulas[i];
@@ -134,7 +134,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
                   }
                   return value;
                 });
-                if (predicate && predicate(target, { ...cf.rule, values })) {
+                if (this.getRuleResultForTarget(target, { ...cf.rule, values })) {
                   if (!computedStyle[col]) computedStyle[col] = [];
                   // we must combine all the properties of all the CF rules applied to the given cell
                   computedStyle[col][row] = Object.assign(
@@ -357,81 +357,29 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
     }
   }
 
-  /**
-   * Execute the predicate to know if a conditional formatting rule should be applied to a cell
-   */
-  private rulePredicate: {
-    CellIsRule: (target: CellPosition, rule: CellIsRule) => boolean;
-  } = {
-    CellIsRule: (target: CellPosition, rule: CellIsRule): boolean => {
-      const cell: EvaluatedCell = this.getters.getEvaluatedCell(target);
-      if (cell.type === CellValueType.error) {
-        return false;
-      }
-      let [value0, value1] = rule.values.map((val) => {
-        if (val.startsWith("=")) {
-          return this.getters.evaluateFormula(target.sheetId, val) ?? "";
-        }
-        return parseLiteral(val, DEFAULT_LOCALE);
-      });
-      if (isMatrix(value0) || isMatrix(value1)) {
-        return false;
-      }
-
-      const cellValue = cell.value ?? "";
-      value0 = value0 ?? "";
-      value1 = value1 ?? "";
-      switch (rule.operator) {
-        case "isEmpty":
-          return cellValue.toString().trim() === "";
-        case "isNotEmpty":
-          return cellValue.toString().trim() !== "";
-        case "beginsWithText":
-          if (value0 === "") {
-            return false;
-          }
-          return cellValue.toString().startsWith(value0.toString());
-        case "endsWithText":
-          if (value0 === "") {
-            return false;
-          }
-          return cellValue.toString().endsWith(value0.toString());
-        case "isBetween":
-          return cellValue >= value0 && cellValue <= value1;
-        case "isNotBetween":
-          return !(cellValue >= value0 && cellValue <= value1);
-        case "containsText":
-          return cellValue.toString().indexOf(value0.toString()) > -1;
-        case "notContainsText":
-          return !cellValue || cellValue.toString().indexOf(value0.toString()) === -1;
-        case "isGreaterThan":
-          return cellValue > value0;
-        case "isGreaterOrEqualTo":
-          return cellValue >= value0;
-        case "isLessThan":
-          return cellValue < value0;
-        case "isLessOrEqualTo":
-          return cellValue <= value0;
-        case "isNotEqual":
-          if (value0 === "") {
-            return false;
-          }
-          return cellValue !== value0;
-        case "isEqual":
-          if (value0 === "") {
-            return true;
-          }
-          return cellValue === value0;
-        default:
-          console.warn(
-            _t(
-              "Not implemented operator %s for kind of conditional formatting:  %s",
-              rule.operator,
-              rule.type
-            )
-          );
-      }
+  private getRuleResultForTarget(target: CellPosition, rule: CellIsRule): boolean {
+    const cell: EvaluatedCell = this.getters.getEvaluatedCell(target);
+    if (cell.type === CellValueType.error) {
       return false;
-    },
-  };
+    }
+
+    const { sheetId } = target;
+    const evaluator = criterionEvaluatorRegistry.get(rule.operator);
+
+    const evaluatedCriterionValues = rule.values.map((value) => {
+      if (!value.startsWith("=")) {
+        return parseLiteral(value, DEFAULT_LOCALE);
+      }
+      return this.getters.evaluateFormula(sheetId, value) ?? "";
+    });
+    if (evaluatedCriterionValues.some(isMatrix)) {
+      return false;
+    }
+
+    const evaluatedCriterion = {
+      type: rule.operator,
+      values: evaluatedCriterionValues as CellValue[],
+    };
+    return evaluator.isValueValid(cell.value ?? "", evaluatedCriterion, this.getters, sheetId);
+  }
 }
