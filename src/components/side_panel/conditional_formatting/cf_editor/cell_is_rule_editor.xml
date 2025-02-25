@@ -32,7 +32,7 @@
         <div class="o-cell-is-value mb-3">
           <StandaloneComposer t-props="getCellIsRuleComposerProps(0)"/>
         </div>
-        <t t-if="rule.operator === 'Between' || rule.operator === 'NotBetween'">
+        <t t-if="rule.operator === 'isBetween' || rule.operator === 'isNotBetween'">
           <div class="o-cell-is-value o-secondary-value mb-3">
             <StandaloneComposer t-props="getCellIsRuleComposerProps(1)"/>
           </div>

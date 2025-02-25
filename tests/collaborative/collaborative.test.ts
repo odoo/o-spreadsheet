@@ -932,7 +932,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Overlapping data validation rules created concurrently", () => {
-    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion: DataValidationCriterion = { type: "containsText", values: ["1"] };
     network.concurrent(() => {
       addDataValidation(alice, "A1:A5", "id", criterion);
       addDataValidation(bob, "A3:A7", "id2", criterion);
