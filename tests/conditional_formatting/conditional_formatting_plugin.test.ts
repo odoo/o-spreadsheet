@@ -1812,6 +1812,26 @@ describe("conditional formats types", () => {
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
+
+      test("With a formula value that can be parsed as a number", () => {
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "isEqual",
+              values: ['="42"'],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          ranges: toRangesData(sheetId, "A1"),
+          sheetId,
+        });
+        setCellContent(model, "A1", "42");
+        expect(getStyle(model, "A1")).toEqual({});
+        setCellContent(model, "A1", "=CONCAT(4, 2)");
+        expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+      });
     });
 
     test("Operator IsEmpty", () => {
