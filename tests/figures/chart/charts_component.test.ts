@@ -1094,6 +1094,19 @@ describe("charts", () => {
     ]);
   });
 
+  test("Can remove an empty data series range", async () => {
+    createTestChart("basicChart");
+    await mountChartSidePanel();
+    await simulateClick(".o-data-series .o-add-selection");
+    await simulateClick(".o-data-series .o-add-selection");
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(4);
+    const element = document.querySelectorAll(".o-data-series input")[2];
+    await setInputValueAndTrigger(element, "C1:C4");
+    const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
+    await simulateClick(remove);
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(3);
+  });
+
   test("Custom design is kept when removing a data series", async () => {
     createTestChart("basicChart");
     updateChart(model, chartId, {
