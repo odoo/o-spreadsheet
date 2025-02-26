@@ -233,10 +233,6 @@ export class SelectionInputStore extends SpreadsheetStore {
     return this.selectionInputs.every((range) => range.isValidRange);
   }
 
-  get hasFocus(): boolean {
-    return this.selectionInputs.some((i) => i.isFocused);
-  }
-
   private get hasMainFocus() {
     const focusedElement = this.focusStore.focusedElement;
     return !!focusedElement && focusedElement === this;
