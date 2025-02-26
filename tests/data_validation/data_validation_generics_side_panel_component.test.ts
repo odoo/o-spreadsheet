@@ -155,6 +155,56 @@ describe("data validation sidePanel component", () => {
     expect(errorMessageEl?.textContent).toContain("The range is invalid.");
   });
 
+  test("Can remove a valid, invalid or empty range", async () => {
+    await simulateClick(".o-dv-add");
+    await nextTick();
+    await changeCriterionType("dateIs");
+
+    setInputValueAndTrigger(".o-selection-input input", "A1:A4");
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+
+    // Add & remove a valid range
+    await simulateClick(".o-add-selection");
+    const range1 = document.querySelectorAll(".o-selection-input input")[1];
+    await setInputValueAndTrigger(range1, "B1:B4");
+    const remove1 = document.querySelectorAll(".o-remove-selection")[1];
+    await simulateClick(remove1);
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+
+    // Add & remove an invalid range
+    await simulateClick(".o-add-selection");
+    const range2 = document.querySelectorAll(".o-selection-input input")[1];
+    await setInputValueAndTrigger(range2, "B1:HOLA");
+    const remove2 = document.querySelectorAll(".o-remove-selection")[1];
+    await simulateClick(remove2);
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+
+    // Add & remove an empty range
+    await simulateClick(".o-add-selection");
+    const remove3 = document.querySelectorAll(".o-remove-selection")[1];
+    await simulateClick(remove3);
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+
+    // Add & remove a valid range positioned before an empty range
+    await simulateClick(".o-add-selection");
+    const range4 = document.querySelectorAll(".o-selection-input input")[1];
+    await setInputValueAndTrigger(range4, "B1:B4");
+    await simulateClick(".o-add-selection");
+    const remove4 = document.querySelectorAll(".o-remove-selection")[1];
+    await simulateClick(remove4);
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(2);
+
+    await editStandaloneComposer(".o-dv-settings .o-composer", "=DATE(2025,1,1)");
+
+    // The DV rule should be saved with the one range only
+    await simulateClick(".o-dv-save");
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      {
+        ranges: ["A1:A4"],
+      },
+    ]);
+  });
+
   test("Invalid input values with single input", async () => {
     await simulateClick(".o-dv-add");
     await nextTick();
