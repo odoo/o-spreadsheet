@@ -224,8 +224,11 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
 
   removeInput(rangeId: number) {
     const index = this.store.selectionInputs.findIndex((range) => range.id === rangeId);
-    this.props.onSelectionRemoved?.(index);
-    this.props.onSelectionConfirmed?.();
+    if (this.ranges.find((range) => range.id === rangeId)?.xc) {
+      this.props.onSelectionRemoved?.(index);
+      this.props.onSelectionConfirmed?.();
+    }
+    this.store.removeRange(rangeId);
   }
 
   onInputChanged(rangeId: number, ev: InputEvent) {
