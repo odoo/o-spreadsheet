@@ -440,6 +440,54 @@ describe("UI of conditional formats", () => {
       );
     });
 
+    test("Can remove a valid, invalid or empty range", async () => {
+      await click(fixture, selectors.buttonAdd);
+      await nextTick();
+
+      await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
+      setInputValueAndTrigger(".o-selection-input input", "A1:A4");
+      expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+
+      // Add & remove a valid range
+      await simulateClick(".o-add-selection");
+      const range1 = document.querySelectorAll(".o-selection-input input")[1];
+      await setInputValueAndTrigger(range1, "B1:B4");
+      const remove1 = document.querySelectorAll(".o-remove-selection")[1];
+      await simulateClick(remove1);
+      expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+
+      // Add & remove an invalid range
+      await simulateClick(".o-add-selection");
+      const range2 = document.querySelectorAll(".o-selection-input input")[1];
+      await setInputValueAndTrigger(range2, "MERA");
+      const remove2 = document.querySelectorAll(".o-remove-selection")[1];
+      await simulateClick(remove2);
+      expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+
+      // Add & remove an empty range
+      await simulateClick(".o-add-selection");
+      const remove3 = document.querySelectorAll(".o-remove-selection")[1];
+      await simulateClick(remove3);
+      expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(1);
+
+      // Add & remove a valid range positioned before an empty range
+      await simulateClick(".o-add-selection");
+      const range4 = document.querySelectorAll(".o-selection-input input")[1];
+      await setInputValueAndTrigger(range4, "B1:B4");
+      await simulateClick(".o-add-selection");
+      const remove4 = document.querySelectorAll(".o-remove-selection")[1];
+      await simulateClick(remove4);
+      expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(2);
+
+      editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "ABC");
+
+      // The CF rule should be saved with the one range only
+      await click(fixture, selectors.buttonSave);
+      expect(model.getters.getConditionalFormats(sheetId)[2]).toMatchObject({
+        ranges: ["A1:A4"],
+      });
+    });
+
     test("can delete Rule", async () => {
       const dispatch = spyModelDispatch(model);
       const previews = document.querySelectorAll(selectors.listPreview);

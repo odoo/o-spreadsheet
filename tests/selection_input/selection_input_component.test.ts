@@ -158,6 +158,38 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll(".o-remove-selection").length).toBe(2);
   });
 
+  test("can remove an empty selection input", async () => {
+    await createSelectionInput();
+    await simulateClick(".o-add-selection");
+    await simulateClick(".o-add-selection");
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(3);
+    const range1 = document.querySelectorAll(".o-selection-input input")[0];
+    await setInputValueAndTrigger(range1, "A1:A4");
+    const range2 = document.querySelectorAll(".o-selection-input input")[2];
+    await setInputValueAndTrigger(range2, "C1:C4");
+    // We have 3 selection inputs, the second one is empty
+    const removeEmptyRangeQuery = document.querySelectorAll(".o-remove-selection")[1];
+    await simulateClick(removeEmptyRangeQuery);
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(2);
+  });
+
+  test("can remove a non-empty selection input", async () => {
+    await createSelectionInput();
+    await simulateClick(".o-add-selection");
+    await simulateClick(".o-add-selection");
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(3);
+    const range1 = document.querySelectorAll(".o-selection-input input")[0];
+    await setInputValueAndTrigger(range1, "A1:A4");
+    const range2 = document.querySelectorAll(".o-selection-input input")[1];
+    await setInputValueAndTrigger(range2, "B1:B4");
+    const range3 = document.querySelectorAll(".o-selection-input input")[2];
+    await setInputValueAndTrigger(range3, "C1:C4");
+
+    const removeEmptyRangeQuery = document.querySelectorAll(".o-remove-selection")[1];
+    await simulateClick(removeEmptyRangeQuery);
+    expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(2);
+  });
+
   test("update with invalid input hide confirm button", async () => {
     await createSelectionInput();
     await simulateClick(fixture.querySelector("input")!);
