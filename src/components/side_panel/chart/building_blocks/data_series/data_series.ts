@@ -1,6 +1,11 @@
 import { Component } from "@odoo/owl";
 import { _t } from "../../../../../translation";
-import { Color, CustomizedDataSet, SpreadsheetChildEnv } from "../../../../../types";
+import {
+  ChartDatasetOrientation,
+  Color,
+  CustomizedDataSet,
+  SpreadsheetChildEnv,
+} from "../../../../../types";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Section } from "../../../components/section/section";
 
@@ -11,6 +16,8 @@ interface Props {
   onSelectionReordered?: (indexes: number[]) => void;
   onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed: () => void;
+  datasetOrientation?: ChartDatasetOrientation;
+  onFlipAxis?: (structure: string) => void;
 }
 
 export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
@@ -23,6 +30,8 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     onSelectionReordered: { type: Function, optional: true },
     onSelectionRemoved: { type: Function, optional: true },
     onSelectionConfirmed: Function,
+    datasetOrientation: { type: String, optional: true },
+    onFlipAxis: { type: Function, optional: true },
   };
 
   get ranges(): string[] {

@@ -22,6 +22,8 @@
         onSelectionConfirmed.bind="onDataSeriesConfirmed"
         onSelectionReordered.bind="onDataSeriesReordered"
         onSelectionRemoved.bind="onDataSeriesRemoved"
+        datasetOrientation="this.getDatasetOrientation()"
+        onFlipAxis.bind="setDatasetOrientation"
       />
       <ChartLabelRange
         range="this.getLabelRange()"

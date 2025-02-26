@@ -141,6 +141,20 @@ export function isXcValid(xc: string): boolean {
 }
 
 /**
+ * Check that the given string is a correct xc representation (ie a valid zone). The try-catch
+ * added over the ixXcValid call is necessary because the function can throw an error if the
+ * string is not convertible to a zone by the toUnboundedZone function.
+ * @param xc : the string to check
+ */
+export function isXcRepresentation(xc: string): boolean {
+  try {
+    return isXcValid(xc);
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
  * Check that the zone has valid coordinates and in
  * the correct order.
  */
