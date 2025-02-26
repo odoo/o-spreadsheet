@@ -5,6 +5,7 @@
         <SelectionInput
           ranges="state.rule.ranges"
           onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
+          onSelectionRemoved="(index) => this.onRangeRemoved(index)"
           required="true"
         />
       </Section>

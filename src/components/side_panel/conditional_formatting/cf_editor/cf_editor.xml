@@ -8,6 +8,7 @@
             class="'o-range'"
             isInvalid="isRangeValid"
             onSelectionChanged.bind="onRangeUpdate"
+            onSelectionRemoved="(index) => this.onRangeRemoved(index)"
             onSelectionConfirmed.bind="onRangeConfirmed"
             required="true"
           />
