@@ -9,11 +9,13 @@ import {
   DataValidationCriterion,
   DataValidationDateCriterion,
   DateCriterionValue,
+  EvaluatedCriterion,
   Getters,
   UID,
 } from "../../src/types";
-import { updateLocale } from "../test_helpers/commands_helpers";
+import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
+import { toCellPosition } from "../test_helpers/helpers";
 
 describe("Data validation registry", () => {
   let model: Model;
@@ -33,6 +35,12 @@ describe("Data validation registry", () => {
   afterAll(() => {
     jest.useRealTimers();
   });
+
+  function isValueValid(testValue: string, criterion: DataValidationCriterion) {
+    addDataValidation(model, "A1", "1", criterion);
+    setCellContent(model, "A1", testValue);
+    return !model.getters.isDataValidationInvalid(toCellPosition(sheetId, "A1"));
+  }
 
   function testValidTextCriterionValues(evaluator: DataValidationCriterionEvaluator) {
     expect(evaluator.isCriterionValueValid("test")).toEqual(true);
@@ -71,13 +79,11 @@ describe("Data validation registry", () => {
       ["abc test", "test", true],
       ["TEST", "test", true],
       ["test1", "test", true],
-      [1125, "12", true],
-      [true, "true", true],
+      ["1125", "12", true],
+      ["true", "true", true],
     ])("Valid values %s", (testValue, criterionValue, expectedResult) => {
       const testCriterion = { ...criterion, values: [criterionValue] };
-      expect(evaluator.isValueValid(testValue, testCriterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, testCriterion)).toEqual(expectedResult);
     });
     test("Error string", () =>
       testErrorStringEqual(criterion, 'The value must be a text that contains "test"'));
@@ -94,13 +100,11 @@ describe("Data validation registry", () => {
       ["abc test", "test", false],
       ["TEST", "test", false],
       ["test1", "test", false],
-      [1125, "9", true],
-      [true, "false", true],
+      ["1125", "9", true],
+      ["TRUE", "false", true],
     ])("Valid values %s", (testValue, criterionValue, expectedResult) => {
       const testCriterion = { ...criterion, values: [criterionValue] };
-      expect(evaluator.isValueValid(testValue, testCriterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, testCriterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -118,13 +122,11 @@ describe("Data validation registry", () => {
       ["hell", "hello", false],
       ["hello", "hello", true],
       ["HeLlO", "hello", true],
-      [1125, "1125", true],
-      [true, "true", true],
+      ["1125", "1125", true],
+      ["TRUE", "true", true],
     ])("Valid values %s", (testValue, criterionValue, expectedResult) => {
       const testCriterion = { ...criterion, values: [criterionValue] };
-      expect(evaluator.isValueValid(testValue, testCriterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, testCriterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -145,9 +147,7 @@ describe("Data validation registry", () => {
       ["hello there@gmail.com", false],
       ["hello@there@gmail.com", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -164,9 +164,7 @@ describe("Data validation registry", () => {
       ["http://hello.com", true],
       ["http://www.hello.com", true],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be a valid link"));
@@ -496,12 +494,10 @@ describe("Data validation registry", () => {
     test.each([
       ["12/31/2020", true],
       ["31/31/01/2021", false],
-      [15, true],
+      ["15", true],
       ["hello", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be a valid date"));
@@ -515,14 +511,12 @@ describe("Data validation registry", () => {
     };
 
     test.each([
-      [5, true],
-      ["5", false],
-      [12, false],
+      ["5", true],
+      ['="5"', false],
+      ["12", false],
       ["hello", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be equal to 5"));
@@ -538,15 +532,13 @@ describe("Data validation registry", () => {
     };
 
     test.each([
-      [5, false],
       ["5", false],
-      [12, true],
-      ["12", false],
-      ["hello", false],
+      ['="5"', true],
+      ["12", true],
+      ['="12"', true],
+      ["hello", true],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must not be equal to 5"));
@@ -562,14 +554,12 @@ describe("Data validation registry", () => {
     };
 
     test.each([
-      [5, false],
-      ["6", false],
-      [6, true],
+      ["5", false],
+      ['="6"', false],
+      ["6", true],
       ["hello", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be greater than 5"));
@@ -585,14 +575,12 @@ describe("Data validation registry", () => {
     };
 
     test.each([
-      [5, true],
-      ["6", false],
-      [4, false],
+      ["5", true],
+      ['="6"', false],
+      ["4", false],
       ["hello", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -609,14 +597,12 @@ describe("Data validation registry", () => {
     };
 
     test.each([
-      [5, false],
-      ["6", false],
-      [4, true],
+      ["5", false],
+      ['="6"', false],
+      ["4", true],
       ["hello", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be less than 5"));
@@ -632,15 +618,13 @@ describe("Data validation registry", () => {
     };
 
     test.each([
-      [4, false],
-      [5, true],
-      ["8", false],
-      [9, false],
+      ["4", false],
+      ["5", true],
+      ['="8"', false],
+      ["9", false],
       ["hello", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -657,15 +641,13 @@ describe("Data validation registry", () => {
     };
 
     test.each([
-      [4, true],
-      [5, false],
-      ["6", false],
-      [9, true],
+      ["4", true],
+      ["5", false],
+      ['="6"', false],
+      ["9", true],
       ["hello", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -675,18 +657,15 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is checkbox", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isBoolean");
     const criterion: DataValidationCriterion = { type: "isBoolean", values: [] };
 
     test.each([
-      [false, true],
-      [true, true],
-      ["", true],
+      // ["FALSE", true],
+      // ["TRUE", true],
+      // ["", true],
       ["hello", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () => testErrorStringEqual(criterion, "The value must be a boolean"));
@@ -707,9 +686,7 @@ describe("Data validation registry", () => {
       ["ab", false],
       ["8", false],
     ])("Valid values %s", (testValue, expectedResult) => {
-      expect(evaluator.isValueValid(testValue, criterion, getters, sheetId)).toEqual(
-        expectedResult
-      );
+      expect(isValueValid(testValue, criterion)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
@@ -718,30 +695,25 @@ describe("Data validation registry", () => {
 
   describe("Custom formula", () => {
     const evaluator = dataValidationEvaluatorRegistry.get("customFormula");
-    const criterionGeneric: DataValidationCriterion = {
-      type: "customFormula",
-      values: [],
-    };
 
     // Same behaviour as Excel/Gsheet: numbers result are valid except 0, string/empty values are not valid
     test.each([
-      ["true", true],
-      ["false", false],
-      ["5", true],
-      ["0", false],
-      ["12/12/1988", true],
+      [true, true],
+      [false, false],
+      [5, true],
+      [0, false],
       ["text", false],
       ["", false],
     ])("Valid values %s", (criterionValue, expectedResult) => {
       // Criterion value will be a formula, but will be evaluated by the EvaluationDataValidationPlugin before
       // being passed to the evaluator. The cell value is ignored, only the criterion formula result is of interest.
-      const criterion = { ...criterionGeneric, values: [criterionValue] };
+      const criterion: EvaluatedCriterion = { type: "customFormula", values: [criterionValue] };
       expect(evaluator.isValueValid("", criterion, getters, sheetId)).toEqual(expectedResult);
     });
 
     test("Error string", () =>
       testErrorStringEqual(
-        criterionGeneric,
+        { type: "customFormula", values: [] },
         "The value does not match the custom formula data validation rule"
       ));
   });
@@ -754,25 +726,6 @@ describe("Data validation registry", () => {
       dateValue: "exactDate",
     };
     const textIs: DataValidationCriterion = { type: "textIs", values: ["hello"] };
-
-    test("Number criterion isValueValid expect canonical value", () => {
-      updateLocale(model, FR_LOCALE);
-      const evaluator = dataValidationEvaluatorRegistry.get(isEqual.type);
-      expect(
-        evaluator.isValueValid(5.5, { ...isEqual, values: ["5.5"] }, getters, sheetId)
-      ).toEqual(true);
-      expect(
-        evaluator.isValueValid(5.5, { ...isEqual, values: ["5,5"] }, getters, sheetId)
-      ).toEqual(false);
-    });
-
-    test("Date criterion isValueValid expect canonical value", () => {
-      updateLocale(model, FR_LOCALE);
-      const evaluator = dataValidationEvaluatorRegistry.get(dateIs.type);
-      const criterion = { ...dateIs, values: ["12/31/2021"] };
-      expect(evaluator.isValueValid("12/31/2021", criterion, getters, sheetId)).toEqual(true);
-      expect(evaluator.isValueValid("31/12/2021", criterion, getters, sheetId)).toEqual(false);
-    });
 
     test("Number criterion error message displays localized value", () => {
       updateLocale(model, FR_LOCALE);

@@ -1,3 +1,4 @@
+import { CellValue } from "..";
 import { UID } from "./misc";
 import { Range } from "./range";
 
@@ -182,3 +183,9 @@ export type DataValidationDateCriterion = Extract<
   DataValidationCriterion,
   { dateValue: DateCriterionValue }
 >;
+
+export type EvaluatedCriterion<T extends DataValidationCriterion = DataValidationCriterion> = T & {
+  values: CellValue[];
+};
+
+export type EvaluatedDateCriterion = EvaluatedCriterion<DataValidationDateCriterion>;

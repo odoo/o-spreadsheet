@@ -1,11 +1,13 @@
 import { DVTerms } from "../../components/translations_terms";
 import { compile } from "../../formulas";
 import { getCellPositionsInRanges, isInside, lazy } from "../../helpers";
+import { parseLiteral } from "../../helpers/cells";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
 import {
   CellPosition,
   CellValue,
   CellValueType,
+  DEFAULT_LOCALE,
   DataValidationCriterion,
   DataValidationCriterionType,
   DataValidationRule,
@@ -169,6 +171,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     if (evaluator.isValueValid(cellValue, evaluatedCriterion, this.getters, sheetId)) {
       return undefined;
     }
+
     return evaluator.getErrorString(evaluatedCriterion, this.getters, sheetId);
   }
 
@@ -190,10 +193,10 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     sheetId: UID,
     offset: Offset,
     criterion: DataValidationCriterion
-  ): string[] {
+  ): CellValue[] {
     return criterion.values.map((value) => {
       if (!value.startsWith("=")) {
-        return value;
+        return parseLiteral(value, DEFAULT_LOCALE);
       }
 
       const formula = compile(value);
@@ -205,7 +208,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
       );
 
       const evaluated = this.getters.evaluateFormula(sheetId, translatedFormula);
-      return evaluated && !isMatrix(evaluated) ? evaluated.toString() : "";
+      return isMatrix(evaluated) ? "" : evaluated;
     });
   }
 }
