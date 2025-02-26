@@ -69,6 +69,10 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     this.state.rule.criterion = criterion;
   }
 
+  onRangeRemoved(index: number) {
+    this.state.rule.ranges = this.state.rule.ranges.filter((_, i) => i !== index);
+  }
+
   changeRuleIsBlocking(ev: Event) {
     const isBlocking = (ev.target as HTMLInputElement).value;
     this.state.rule.isBlocking = isBlocking === "true";
