@@ -4,7 +4,7 @@ import { ClipboardCellData, ClipboardOptions, HeaderIndex, UID, Zone } from "../
 import { ClipboardHandler } from "./abstract_clipboard_handler";
 
 export class AbstractCellClipboardHandler<T, T1> extends ClipboardHandler<T> {
-  copy(data: ClipboardCellData): T | undefined {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): T | undefined {
     return;
   }
 

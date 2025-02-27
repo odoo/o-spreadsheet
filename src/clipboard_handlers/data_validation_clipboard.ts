@@ -31,12 +31,15 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     { toAdd: Zone[]; toRemove: Zone[]; rule: DataValidationRule }[]
   > = {};
 
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent | undefined {
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
     const dvRules: Maybe<ClipboardDataValidationRule>[][] = [];
 
     for (const row of rowsIndexes) {
+      if (!isCutOperation && this.getters.isRowFiltered(sheetId, row)) {
+        continue;
+      }
       const dvRuleInRow: Maybe<ClipboardDataValidationRule>[] = [];
       for (const col of columnsIndexes) {
         const position = { sheetId, col, row };

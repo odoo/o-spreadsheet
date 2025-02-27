@@ -41,7 +41,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
   TableCell
 > {
-  copy(data: ClipboardCellData): ClipboardContent {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent {
     const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
@@ -49,6 +49,9 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     const copiedTablesIds = new Set<UID>();
     const tableCells: TableCell[][] = [];
     for (let row of rowsIndexes) {
+      if (!isCutOperation && this.getters.isRowFiltered(sheetId, row)) {
+        continue;
+      }
       let tableCellsInRow: TableCell[] = [];
       tableCells.push(tableCellsInRow);
       for (let col of columnsIndexes) {
@@ -143,6 +146,8 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     tableCells: TableCell[][],
     clipboardOptions?: ClipboardOptions
   ) {
+    const nRows = tableCells.length;
+    const nCols = tableCells[0].length;
     for (let r = 0; r < tableCells.length; r++) {
       const rowCells = tableCells[r];
       for (let c = 0; c < rowCells.length; c++) {
@@ -151,7 +156,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
           continue;
         }
         const position = { col: col + c, row: row + r, sheetId };
-        this.pasteTableCell(sheetId, tableCell, position, clipboardOptions);
+        this.pasteTableCell(sheetId, tableCell, position, nRows, nCols, clipboardOptions);
       }
     }
 
@@ -166,6 +171,8 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     sheetId: UID,
     tableCell: TableCell,
     position: CellPosition,
+    nRows: number,
+    nCols: number,
     options?: ClipboardOptions
   ) {
     if (tableCell.table && !options?.pasteOption) {
@@ -174,8 +181,8 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       const newTableZone = {
         left: position.col,
         top: position.row,
-        right: position.col + zoneDims.numberOfCols - 1,
-        bottom: position.row + zoneDims.numberOfRows - 1,
+        right: position.col + Math.min(zoneDims.numberOfCols, nCols) - 1,
+        bottom: position.row + Math.min(zoneDims.numberOfRows, nRows) - 1,
       };
       this.dispatch("CREATE_TABLE", {
         sheetId: position.sheetId,
