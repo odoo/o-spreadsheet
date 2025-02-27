@@ -7,12 +7,8 @@ import {
   GRAY_200,
   GRAY_300,
 } from "../../../../constants";
-import {
-  colorNumberString,
-  colorToNumber,
-  isColorValid,
-  rangeReference,
-} from "../../../../helpers";
+import { compile } from "../../../../formulas";
+import { colorNumberString, colorToNumber, isColorValid } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import { _t } from "../../../../translation";
@@ -31,11 +27,13 @@ import {
   IconThreshold,
   SpreadsheetChildEnv,
   ThresholdType,
+  UID,
 } from "../../../../types";
 import { hexaToInt } from "../../../../xlsx/conversion";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { css, getTextDecoration } from "../../../helpers";
+import { adaptFormulaToSheet } from "../../../helpers/formulas";
 import { IconPicker } from "../../../icon_picker/icon_picker";
 import { ICONS, ICON_SETS } from "../../../icons/icons";
 import { SelectionInput } from "../../../selection_input/selection_input";
@@ -137,6 +135,7 @@ css/* scss */ `
 `;
 interface Props {
   editedCf: ConditionalFormat;
+  sheetId: UID;
   onSave: () => void;
   onCancel: () => void;
 }
@@ -171,6 +170,7 @@ interface State {
 export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormattingEditor";
   static props = {
+    sheetId: String,
     editedCf: Object,
     onCancel: Function,
     onSave: Function,
@@ -216,8 +216,11 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
         this.state.rules.dataBar = this.props.editedCf.rule;
         break;
     }
-
     useExternalListener(window as any, "click", this.closeMenus);
+  }
+
+  get isRangeReadonly(): boolean {
+    return this.env.model.getters.getActiveSheetId() !== this.props.sheetId;
   }
 
   get isRangeValid(): boolean {
@@ -225,7 +228,43 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   get errorMessages(): string[] {
-    return this.state.errors.map((error) => CfTerms.Errors[error] || CfTerms.Errors.Unexpected);
+    return this.state.errors.map((error) => this.errorMessage(error));
+  }
+
+  get invalidRanges(): string[] {
+    return this.state.ranges.filter((xc) => {
+      return !this.env.model.getters.isRangeValid(xc);
+    });
+  }
+
+  get outOfSheetRanges(): string[] {
+    const sheetId = this.props.sheetId;
+    return this.state.ranges.filter((xc) => {
+      const range = this.env.model.getters.getRangeFromSheetXC(sheetId, xc);
+      return range.sheetId != sheetId;
+    });
+  }
+
+  get invalidFormulas(): string[] {
+    return this.state.rules.cellIs.values.filter((formula) => {
+      return formula.startsWith("=") && compile(formula || "").isBadExpression;
+    });
+  }
+
+  errorMessage(reason: CancelledReason): string {
+    switch (reason) {
+      case CommandResult.TargetOutOfSheet:
+        return CfTerms.Errors[reason](
+          this.env.model.getters.getSheetName(this.props.sheetId),
+          this.outOfSheetRanges
+        );
+      case CommandResult.InvalidRange:
+        return CfTerms.Errors[reason](this.invalidRanges);
+      case CommandResult.ValueCellIsInvalidFormula:
+        return CfTerms.Errors[reason](this.invalidFormulas);
+      default:
+        return CfTerms.Errors[reason]() || CfTerms.Errors.Unexpected();
+    }
   }
 
   get cfTypesValues() {
@@ -237,26 +276,17 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     ];
   }
 
-  updateConditionalFormat(
-    newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }
-  ): CancelledReason[] {
-    const ranges = newCf.ranges || this.state.ranges;
-    const invalidRanges = this.state.ranges.some((xc) => !xc.match(rangeReference));
-    if (invalidRanges) {
-      if (!newCf.suppressErrors) {
-        this.state.errors = [CommandResult.InvalidRange];
-      }
-      return [CommandResult.InvalidRange];
-    }
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const locale = this.env.model.getters.getLocale();
+  updateConditionalFormat(newCf: Partial<ConditionalFormat> & { suppressErrors?: boolean }) {
+    const sheetId = this.props.sheetId;
+    const rangesXC = newCf.ranges || this.state.ranges;
+    const ranges = rangesXC.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc));
     const rule = newCf.rule || this.getEditedRule(this.state.currentCFType);
     const result = this.env.model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        rule: canonicalizeCFRule(rule, locale),
+        rule: canonicalizeCFRule(rule, this.env.model.getters.getLocale()),
         id: this.props.editedCf.id,
       },
-      ranges: ranges.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc)),
+      ranges,
       sheetId,
     });
     const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
@@ -365,12 +395,17 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   get isValue1Invalid(): boolean {
     return (
       this.state.errors.includes(CommandResult.FirstArgMissing) ||
-      this.state.errors.includes(CommandResult.ValueCellIsInvalidFormula)
+      (this.state.errors.includes(CommandResult.ValueCellIsInvalidFormula) &&
+        this.invalidFormulas.includes(this.state.rules.cellIs.values[0]))
     );
   }
 
   get isValue2Invalid(): boolean {
-    return this.state.errors.includes(CommandResult.SecondArgMissing);
+    return (
+      this.state.errors.includes(CommandResult.SecondArgMissing) ||
+      (this.state.errors.includes(CommandResult.ValueCellIsInvalidFormula) &&
+        this.invalidFormulas.includes(this.state.rules.cellIs.values[1]))
+    );
   }
 
   toggleStyle(tool: string) {
@@ -570,7 +605,11 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     const isInvalid = valueIndex === 0 ? this.isValue1Invalid : this.isValue2Invalid;
     return {
       onConfirm: (str: string) => {
-        this.state.rules.cellIs.values[valueIndex] = str;
+        this.state.rules.cellIs.values[valueIndex] = adaptFormulaToSheet(
+          this.env.model.getters,
+          str,
+          this.props.sheetId
+        );
         this.updateConditionalFormat({ rule: this.state.rules.cellIs });
       },
       composerContent: this.state.rules.cellIs.values[valueIndex],
@@ -578,7 +617,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       defaultStatic: true,
       invalid: isInvalid,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.props.sheetId,
     };
   }
 
@@ -592,7 +631,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     const isInvalid = this.isValueInvalid(thresholdType);
     return {
       onConfirm: (str: string) => {
-        threshold.value = str;
+        threshold.value = adaptFormulaToSheet(this.env.model.getters, str, this.props.sheetId);
         this.updateConditionalFormat({ rule: this.state.rules.colorScale });
       },
       composerContent: threshold.value || "",
@@ -600,7 +639,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       defaultStatic: true,
       invalid: isInvalid,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.props.sheetId,
     };
   }
 
@@ -611,7 +650,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     const isInvalid = this.isInflectionPointInvalid(inflectionPoint);
     return {
       onConfirm: (str: string) => {
-        inflection.value = str;
+        inflection.value = adaptFormulaToSheet(this.env.model.getters, str, this.props.sheetId);
         this.updateConditionalFormat({ rule: this.state.rules.iconSet });
       },
       composerContent: inflection.value || "",
@@ -619,7 +658,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       defaultStatic: true,
       invalid: isInvalid,
       class: "o-sidePanel-composer",
-      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      defaultRangeSheetId: this.props.sheetId,
     };
   }
 
