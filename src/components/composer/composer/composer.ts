@@ -108,8 +108,7 @@ css/* scss */ `
     }
 
     .o-composer-assistant {
-      position: absolute;
-      margin: 1px 4px;
+      margin-top: 1px;
 
       .o-semi-bold {
         /** FIXME: to remove in favor of Bootstrap
@@ -193,7 +192,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   private compositionActive: boolean = false;
   private spreadsheetRect = useSpreadsheetRect();
 
-  get assistantStyle(): string {
+  get assistantStyleProperties(): CSSProperties {
     const composerRect = this.composerRef.el!.getBoundingClientRect();
     const assistantStyle: CSSProperties = {};
 
@@ -222,7 +221,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         assistantStyle.right = `0px`;
       }
     } else {
-      assistantStyle["max-height"] = `${this.spreadsheetRect.height - composerRect.bottom}px`;
+      assistantStyle["max-height"] = `${this.spreadsheetRect.height - composerRect.bottom - 1}px`; // -1: margin
       if (
         composerRect.left + ASSISTANT_WIDTH + SCROLLBAR_WIDTH + CLOSE_ICON_RADIUS >
         this.spreadsheetRect.width
@@ -230,7 +229,25 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         assistantStyle.right = `${CLOSE_ICON_RADIUS}px`;
       }
     }
-    return cssPropertiesToCss(assistantStyle);
+    return assistantStyle;
+  }
+
+  get assistantStyle() {
+    const allProperties = this.assistantStyleProperties;
+    return cssPropertiesToCss({
+      "max-height": allProperties["max-height"],
+      width: allProperties["width"],
+      "min-width": allProperties["min-width"],
+    });
+  }
+
+  get assistantContainerStyle() {
+    const allProperties = this.assistantStyleProperties;
+    return cssPropertiesToCss({
+      top: allProperties["top"],
+      right: allProperties["right"],
+      transform: allProperties["transform"],
+    });
   }
 
   // we can't allow input events to be triggered while we remove and add back the content of the composer in processContent
