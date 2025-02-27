@@ -456,6 +456,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.unbindModelEvents();
       stores.off("store-updated", this);
       resizeObserver.disconnect();
+      stores.clear();
     });
     onPatched(() => {
       this.checkViewportSize();

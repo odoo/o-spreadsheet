@@ -103,29 +103,28 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
   }
 
   private _computeStatisticFnResults(): StatisticFnResults {
-    const getters = this.getters;
-    const sheetId = getters.getActiveSheetId();
+    const sheetId = this.getters.getActiveSheetId();
     const cells: EvaluatedCell[] = [];
 
-    const recomputedZones = recomputeZones(getters.getSelectedZones(), []);
+    const recomputedZones = recomputeZones(this.getters.getSelectedZones(), []);
     const heightMax = this.getters.getSheetSize(sheetId).numberOfRows - 1;
     const widthMax = this.getters.getSheetSize(sheetId).numberOfCols - 1;
 
     for (const zone of recomputedZones) {
       for (let col = zone.left; col <= (zone.right ?? widthMax); col++) {
         for (let row = zone.top; row <= (zone.bottom ?? heightMax); row++) {
-          if (getters.isRowHidden(sheetId, row) || getters.isColHidden(sheetId, col)) {
+          if (this.getters.isRowHidden(sheetId, row) || this.getters.isColHidden(sheetId, col)) {
             continue; // Skip hidden cells
           }
 
-          const evaluatedCell = getters.getEvaluatedCell({ sheetId, col, row });
+          const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
           if (evaluatedCell.type !== CellValueType.empty) {
             cells.push(evaluatedCell);
           }
         }
       }
     }
-    const locale = getters.getLocale();
+    const locale = this.getters.getLocale();
     let statisticFnResults: StatisticFnResults = {};
 
     const getCells = memoize((typeStr: string) => {
