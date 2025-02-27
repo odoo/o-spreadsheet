@@ -489,11 +489,12 @@ describe("composer Assistant", () => {
       rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
     await typeInComposer("=s");
-    const assistantEL = fixture.querySelector(".o-composer-assistant")! as HTMLElement;
+    const assistantEL = fixture.querySelector<HTMLElement>(".o-composer-assistant")!;
     expect(assistantEL).toMatchSnapshot();
     expect(assistantEL.style.width).toBe("300px");
-    expect(assistantEL.style.top).toBe("-3px");
-    expect(assistantEL.style.transform).toBe("translate(0, -100%)");
+    const containerEL = fixture.querySelector<HTMLElement>(".o-composer-assistant-container")!;
+    expect(containerEL.style.top).toBe("-3px");
+    expect(containerEL.style.transform).toBe("translate(0, -100%)");
   });
 
   test("composer assistant min-width is the same as the underlying cell", async () => {
