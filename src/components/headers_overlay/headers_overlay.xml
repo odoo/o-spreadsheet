@@ -9,7 +9,7 @@
 
   <t t-name="o-spreadsheet-RowResizer">
     <div
-      class="o-row-resizer"
+      class="o-row-resizer overflow-hidden"
       t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
       t-on-pointerdown.self.prevent="select"
@@ -37,8 +37,9 @@
           <div class="dragging-resizer" t-if="state.isResizing"/>
         </div>
       </t>
+      <t t-set="viewportZone" t-value="env.model.getters.getActiveMainViewport()"/>
       <t
-        t-foreach="env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId())"
+        t-foreach="env.model.getters.getHiddenRowsGroups(sheetId)"
         t-as="hiddenItem"
         t-key="hiddenItem_index">
         <div
@@ -46,15 +47,17 @@
           t-att-style="getUnhideButtonStyle(hiddenItem[0])">
           <div
             class="o-unhide rounded mb-1"
-            t-att-class="{'invisible': hiddenItem.includes(0)}"
+            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col:viewportZone.left, row:hiddenItem[0]-1})}"
             t-att-data-index="hiddenItem_index"
+            t-att-data-direction="'up'"
             t-on-click="() => this.unhide(hiddenItem)">
             <t t-call="o-spreadsheet-Icon.CARET_UP"/>
           </div>
           <div
             class="o-unhide rounded"
-            t-att-class="{'invisible': hiddenItem.includes(env.model.getters.getNumberRows(env.model.getters.getActiveSheetId())-1)}"
+            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col: viewportZone.left, row: hiddenItem[hiddenItem.length-1]+1})}"
             t-att-data-index="hiddenItem_index"
+            t-att-data-direction="'down'"
             t-on-click="() => this.unhide(hiddenItem)">
             <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
           </div>
@@ -65,7 +68,7 @@
 
   <t t-name="o-spreadsheet-ColResizer">
     <div
-      class="o-col-resizer"
+      class="o-col-resizer overflow-hidden"
       t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
       t-on-pointerdown.self.prevent="select"
@@ -93,8 +96,9 @@
           <div class="dragging-resizer" t-if="state.isResizing"/>
         </div>
       </t>
+      <t t-set="viewportZone" t-value="env.model.getters.getActiveMainViewport()"/>
       <t
-        t-foreach="env.model.getters.getHiddenColsGroups(env.model.getters.getActiveSheetId())"
+        t-foreach="env.model.getters.getHiddenColsGroups(sheetId)"
         t-as="hiddenItem"
         t-key="hiddenItem_index">
         <div
@@ -102,15 +106,17 @@
           t-att-style="getUnhideButtonStyle(hiddenItem[0])">
           <div
             class="o-unhide rounded"
-            t-att-class="{'invisible': hiddenItem.includes(0)}"
+            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col: hiddenItem[0]-1, row: viewportZone.top})}"
             t-att-data-index="hiddenItem_index"
+            t-att-data-direction="'left'"
             t-on-click="() => this.unhide(hiddenItem)">
             <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
           </div>
           <div
             class="o-unhide rounded"
-            t-att-class="{'invisible': hiddenItem.includes(env.model.getters.getNumberCols(env.model.getters.getActiveSheetId())-1)}"
+            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col: hiddenItem[hiddenItem.length-1]+1, row: viewportZone.top})}"
             t-att-data-index="hiddenItem_index"
+            t-att-data-direction="'right'"
             t-on-click="() => this.unhide(hiddenItem)">
             <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
           </div>
