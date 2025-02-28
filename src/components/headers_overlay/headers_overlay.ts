@@ -6,6 +6,7 @@ import {
   ICONS_COLOR,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
+  SCROLLBAR_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../constants";
 import { Store, useStore } from "../../store_engine";
@@ -24,6 +25,7 @@ import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
+import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
 
 // -----------------------------------------------------------------------------
 // Resizer component
@@ -314,6 +316,7 @@ css/* scss */ `
     left: ${HEADER_WIDTH}px;
     right: 0;
     height: ${HEADER_HEIGHT}px;
+    width: calc(100% - ${HEADER_WIDTH + SCROLLBAR_WIDTH}px);
     &.o-dragging {
       cursor: grabbing;
     }
@@ -365,6 +368,7 @@ export class ColResizer extends AbstractResizer {
   };
 
   static template = "o-spreadsheet-ColResizer";
+  static components = { UnhideColumnHeaders };
 
   private colResizerRef!: Ref<HTMLElement>;
 
@@ -374,6 +378,10 @@ export class ColResizer extends AbstractResizer {
     this.PADDING = 15;
     this.MAX_SIZE_MARGIN = 90;
     this.MIN_ELEMENT_SIZE = MIN_COL_WIDTH;
+  }
+
+  get sheetId() {
+    return this.env.model.getters.getActiveSheetId();
   }
 
   _getEvOffset(ev: MouseEvent): Pixel {
@@ -405,14 +413,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions {
-    return this.env.model.getters.getColDimensionsInViewport(
-      this.env.model.getters.getActiveSheetId(),
-      index
-    );
+    return this.env.model.getters.getColDimensionsInViewport(this.sheetId, index);
   }
 
   _getElementSize(index: HeaderIndex): Pixel {
-    return this.env.model.getters.getColSize(this.env.model.getters.getActiveSheetId(), index);
+    return this.env.model.getters.getColSize(this.sheetId, index);
   }
 
   _getMaxSize(): Pixel {
@@ -425,7 +430,7 @@ export class ColResizer extends AbstractResizer {
     const cols = this.env.model.getters.getActiveCols();
     this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       elements: cols.has(index) ? [...cols] : [index],
       size,
     });
@@ -439,7 +444,7 @@ export class ColResizer extends AbstractResizer {
       elements.push(colIndex);
     }
     const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       dimension: "COL",
       base: this.state.base,
       elements,
@@ -464,7 +469,7 @@ export class ColResizer extends AbstractResizer {
   _fitElementSize(index: HeaderIndex): void {
     const cols = this.env.model.getters.getActiveCols();
     this.env.model.dispatch("AUTORESIZE_COLUMNS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       cols: cols.has(index) ? [...cols] : [index],
     });
   }
@@ -478,7 +483,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.sheetId;
     let row: HeaderIndex;
     for (row = index - 1; row >= 0; row--) {
       if (!this.env.model.getters.isColHidden(sheetId, row)) {
@@ -490,14 +495,43 @@ export class ColResizer extends AbstractResizer {
 
   unhide(hiddenElements: HeaderIndex[]) {
     this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       elements: hiddenElements,
       dimension: "COL",
     });
   }
 
-  getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
-    return cssPropertiesToCss({ left: this._getDimensionsInViewport(hiddenIndex).start + "px" });
+  get mainUnhideHeadersProps() {
+    const { left, right } = this.env.model.getters.getActiveMainViewport();
+    const { xSplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.env.model.getters.getHiddenColsGroups(this.sheetId);
+    const index = hiddenGroups.findIndex((group) => group[0] >= xSplit - 1);
+    return {
+      headersGroups: hiddenGroups.slice(index),
+      offset: this.env.model.getters.getMainViewportCoordinates().x,
+      headerRange: { start: left, end: right },
+    };
+  }
+
+  get frozenUnhideHeadersProps() {
+    const { xSplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.env.model.getters.getHiddenColsGroups(this.sheetId);
+    const index = hiddenGroups.findIndex((group) => group[0] >= xSplit - 1);
+
+    return {
+      headersGroups: hiddenGroups.slice(0, index + 1),
+      headerRange: { start: 0, end: xSplit - 1 },
+    };
+  }
+
+  get frozenContainerStyle() {
+    return cssPropertiesToCss({
+      width: this.env.model.getters.getMainViewportCoordinates().x + "px",
+    });
+  }
+
+  get hasFrozenPane(): boolean {
+    return this.env.model.getters.getPaneDivisions(this.sheetId).xSplit > 0;
   }
 }
 
@@ -508,7 +542,7 @@ css/* scss */ `
     left: 0;
     right: 0;
     width: ${HEADER_WIDTH}px;
-    height: 100%;
+    height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px);
     &.o-dragging {
       cursor: grabbing;
     }
@@ -559,6 +593,7 @@ export class RowResizer extends AbstractResizer {
     onOpenContextMenu: Function,
   };
   static template = "o-spreadsheet-RowResizer";
+  static components = { UnhideRowHeaders };
 
   setup() {
     super.setup();
@@ -569,6 +604,10 @@ export class RowResizer extends AbstractResizer {
   }
 
   private rowResizerRef!: Ref<HTMLElement>;
+
+  get sheetId() {
+    return this.env.model.getters.getActiveSheetId();
+  }
 
   _getEvOffset(ev: MouseEvent): Pixel {
     return ev.offsetY;
@@ -599,14 +638,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions {
-    return this.env.model.getters.getRowDimensionsInViewport(
-      this.env.model.getters.getActiveSheetId(),
-      index
-    );
+    return this.env.model.getters.getRowDimensionsInViewport(this.sheetId, index);
   }
 
   _getElementSize(index: HeaderIndex): Pixel {
-    return this.env.model.getters.getRowSize(this.env.model.getters.getActiveSheetId(), index);
+    return this.env.model.getters.getRowSize(this.sheetId, index);
   }
 
   _getMaxSize(): Pixel {
@@ -619,7 +655,7 @@ export class RowResizer extends AbstractResizer {
     const rows = this.env.model.getters.getActiveRows();
     this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       elements: rows.has(index) ? [...rows] : [index],
       size,
     });
@@ -633,7 +669,7 @@ export class RowResizer extends AbstractResizer {
       elements.push(rowIndex);
     }
     const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       dimension: "ROW",
       base: this.state.base,
       elements,
@@ -658,7 +694,7 @@ export class RowResizer extends AbstractResizer {
   _fitElementSize(index: HeaderIndex): void {
     const rows = this.env.model.getters.getActiveRows();
     this.env.model.dispatch("AUTORESIZE_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       rows: rows.has(index) ? [...rows] : [index],
     });
   }
@@ -672,7 +708,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.sheetId;
     let row: HeaderIndex;
     for (row = index - 1; row >= 0; row--) {
       if (!this.env.model.getters.isRowHidden(sheetId, row)) {
@@ -682,16 +718,37 @@ export class RowResizer extends AbstractResizer {
     return row;
   }
 
-  unhide(hiddenElements: HeaderIndex[]) {
-    this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      dimension: "ROW",
-      elements: hiddenElements,
+  get mainUnhideHeadersProps() {
+    const { top, bottom } = this.env.model.getters.getActiveMainViewport();
+    const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
+    const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
+    return {
+      headersGroups: hiddenGroups.slice(index),
+      offset: this.env.model.getters.getMainViewportCoordinates().y,
+      headerRange: { start: top, end: bottom },
+    };
+  }
+
+  get frozenUnhideHeadersProps() {
+    const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
+    const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
+
+    return {
+      headersGroups: hiddenGroups.slice(0, index + 1),
+      headerRange: { start: 0, end: ySplit - 1 },
+    };
+  }
+
+  get frozenContainerStyle() {
+    return cssPropertiesToCss({
+      height: this.env.model.getters.getMainViewportCoordinates().y + "px",
     });
   }
 
-  getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
-    return cssPropertiesToCss({ top: this._getDimensionsInViewport(hiddenIndex).start + "px" });
+  get hasFrozenPane(): boolean {
+    return this.env.model.getters.getPaneDivisions(this.sheetId).ySplit > 0;
   }
 }
 
