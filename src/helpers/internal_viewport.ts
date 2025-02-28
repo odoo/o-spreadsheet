@@ -245,7 +245,7 @@ export class InternalViewport {
    *
    */
   getFullRect(zone: Zone): Rect | undefined {
-    const targetZone = intersection(zone, this);
+    const targetZone = intersection(zone, this.boundaries);
     const scrollDeltaX = this.snapCorrection.x;
     const scrollDeltaY = this.snapCorrection.y;
     if (targetZone) {

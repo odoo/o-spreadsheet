@@ -14,15 +14,20 @@ import { SpreadsheetChildEnv } from "../../src/types";
 import {
   deleteColumns,
   deleteRows,
+  freezeColumns,
+  freezeRows,
   hideColumns,
   hideRows,
   merge,
   redo,
   resizeRows,
   setCellContent,
+  setSheetviewSize,
+  setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
+  click,
   edgeScrollDelay,
   selectColumnByClicking,
   triggerMouseEvent,
@@ -647,7 +652,13 @@ describe("Resizer component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
   });
+});
 
+describe("Hide/show columns", () => {
+  beforeEach(async () => {
+    model = new Model();
+    ({ fixture } = await mountSpreadsheet({ model }));
+  });
   test("Hide A unhide it", async () => {
     hideColumns(model, ["A"]);
     await nextTick();
@@ -661,12 +672,7 @@ describe("Resizer component", () => {
     // from the left
     await nextTick();
     let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.start - 10;
-    triggerMouseEvent(
-      ".o-overlay .o-col-resizer .o-unhide[data-index='0']:nth-child(1)",
-      "click",
-      x,
-      10
-    );
+    click(fixture, ".o-overlay .o-col-resizer>div>div:nth-child(1) .o-unhide[data-index='0']");
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
     // from the right
     undo(model);
@@ -676,13 +682,14 @@ describe("Resizer component", () => {
     await nextTick();
     x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(
-      ".o-overlay .o-col-resizer .o-unhide[data-index='0']:nth-child(2)",
+      ".o-overlay .o-col-resizer>div>div:nth-child(2) .o-unhide[data-index='0']",
       "click",
       x,
       10
     );
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([]);
   });
+
   test("hide  A, B, D:E and unhide A-B", async () => {
     hideColumns(model, ["A", "B", "D", "E"]);
     await nextTick();
@@ -701,6 +708,65 @@ describe("Resizer component", () => {
     ]);
   });
 
+  describe("hide columns buttons visibility", () => {
+    const getUnhideColumnButtons = () => {
+      return [
+        ...fixture.querySelectorAll<HTMLElement>(
+          ".o-overlay .o-col-resizer .o-unhide[data-index='0']"
+        ),
+      ];
+    };
+    test("No buttons if the columns adjacent to the hidden group are hidden", async () => {
+      hideColumns(model, ["D"]);
+      await nextTick();
+      const unhideButtons = getUnhideColumnButtons();
+      expect(unhideButtons).toHaveLength(2);
+
+      setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0);
+      await nextTick();
+      expect(getUnhideColumnButtons()).toHaveLength(0);
+    });
+
+    test("left button is hidden if the column before the hidden group is not in the viewport", async () => {
+      freezeColumns(model, 1);
+      hideColumns(model, ["D"]);
+      await nextTick();
+
+      let unhideButtons = getUnhideColumnButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 0);
+      await nextTick();
+      unhideButtons = getUnhideColumnButtons();
+
+      expect(unhideButtons).toHaveLength(1);
+      expect(unhideButtons[0].dataset.direction).toEqual("right");
+    });
+
+    test("right button is hidden if the column after the hidden group is not in the viewport", async () => {
+      hideColumns(model, ["F"]);
+      await nextTick();
+
+      let unhideButtons = getUnhideColumnButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH * 5);
+      await nextTick();
+      unhideButtons = getUnhideColumnButtons();
+
+      expect(unhideButtons).toHaveLength(1);
+      expect(unhideButtons[0].dataset.direction).toEqual("left");
+    });
+  });
+});
+
+describe("Hide/show rows", () => {
+  beforeEach(async () => {
+    model = new Model();
+    ({ fixture } = await mountSpreadsheet({ model }));
+  });
   test("hide 1, unhide it", async () => {
     hideRows(model, [0]);
     await nextTick();
@@ -713,17 +779,13 @@ describe("Resizer component", () => {
     );
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
   });
+
   test("hide 2:4, unhide it", async () => {
     hideRows(model, [1, 2, 3]);
     // from the left
     await nextTick();
     let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.start - 10;
-    triggerMouseEvent(
-      ".o-overlay .o-row-resizer .o-unhide[data-index='0']:nth-child(1)",
-      "click",
-      HEADER_WIDTH - 5,
-      y
-    );
+    click(fixture, ".o-overlay .o-row-resizer>div>div:nth-child(1) .o-unhide[data-index='0']");
     expect(model.getters.getHiddenRowsGroups(model.getters.getActiveSheetId())).toEqual([]);
     // from the right
     undo(model);
@@ -733,7 +795,7 @@ describe("Resizer component", () => {
     await nextTick();
     y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(
-      ".o-overlay .o-row-resizer .o-unhide[data-index='0']:nth-child(2)",
+      ".o-overlay .o-row-resizer>div>div:nth-child(2) .o-unhide[data-index='0']",
       "click",
       HEADER_WIDTH - 5,
       y
@@ -766,6 +828,59 @@ describe("Resizer component", () => {
       [0],
       [4, 5],
     ]);
+  });
+
+  describe("hide rows buttons visibility", () => {
+    const getUnhideRowButtons = () => {
+      return [
+        ...fixture.querySelectorAll<HTMLElement>(
+          ".o-overlay .o-row-resizer .o-unhide[data-index='0']"
+        ),
+      ];
+    };
+    test("No buttons if the rows adjacent to the hidden group are not in the viewport", async () => {
+      hideRows(model, [3]);
+      await nextTick();
+      const unhideButtons = getUnhideRowButtons();
+      expect(unhideButtons).toHaveLength(2);
+
+      setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
+      await nextTick();
+      expect(getUnhideRowButtons()).toHaveLength(0);
+    });
+
+    test("top button is hidden if the row before the hidden group is not in the viewport", async () => {
+      freezeRows(model, 1);
+      hideRows(model, [3]);
+      await nextTick();
+
+      let unhideButtons = getUnhideRowButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setViewportOffset(model, 0, 2 * DEFAULT_CELL_HEIGHT);
+      await nextTick();
+      unhideButtons = getUnhideRowButtons();
+
+      expect(unhideButtons).toHaveLength(1);
+      expect(unhideButtons[0].dataset.direction).toEqual("down");
+    });
+
+    test("bottom button is hidden if the row after the hidden group is not in the viewport", async () => {
+      hideRows(model, [5]);
+      await nextTick();
+
+      let unhideButtons = getUnhideRowButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setSheetviewSize(model, DEFAULT_CELL_HEIGHT * 5, 1000);
+      await nextTick();
+      unhideButtons = getUnhideRowButtons();
+
+      expect(unhideButtons).toHaveLength(1);
+      expect(unhideButtons[0].dataset.direction).toEqual("up");
+    });
   });
 });
 
