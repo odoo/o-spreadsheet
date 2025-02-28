@@ -20,6 +20,7 @@ import {
   DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
+  TitleDesign,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { LineChartDefinition } from "../../../types/chart/line_chart";
@@ -32,6 +33,8 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleWithNewSheetId,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -126,12 +129,19 @@ export class LineChart extends AbstractChart {
   }
 
   getDefinition(): LineChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecifiedProperties(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
-  private getDefinitionWithSpecificDataSets(
+  private getDefinitionWithSpecifiedProperties(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: TitleDesign,
+    axesDesign?: AxesDesign,
     targetSheetId?: UID
   ): LineChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -150,12 +160,12 @@ export class LineChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title,
       labelsAsText: this.labelsAsText,
       stacked: this.stacked,
       aggregated: this.aggregated,
       cumulative: this.cumulative,
-      axesDesign: this.axesDesign,
+      axesDesign,
       fillArea: this.fillArea,
       showValues: this.showValues,
     };
@@ -179,16 +189,24 @@ export class LineChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): LineChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, chartTitle, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign
+    );
     return new LineChart(definition, this.sheetId, this.getters);
   }
 
@@ -221,14 +239,50 @@ export class LineChart extends AbstractChart {
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const updatedAxesDesign = copyAxesDesignWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.axesDesign,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      updatedChartTitle,
+      updatedAxesDesign,
+      newSheetId
+    );
     return new LineChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): LineChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const updatedAxesDesign = copyAxesDesignWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.axesDesign,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
       this.dataSets,
       this.labelRange,
+      updatedChartTitle,
+      updatedAxesDesign,
       sheetId
     );
     return new LineChart(definition, sheetId, this.getters);
@@ -250,7 +304,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
       layout: getChartLayout(definition),
       scales: getLineChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, chartData),
         legend: getLineChartLegend(definition, chartData),
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),

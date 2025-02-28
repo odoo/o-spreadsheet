@@ -1,6 +1,6 @@
 import { ChartTitle } from "../../../src/components/side_panel/chart/building_blocks/title/title";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
-import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
+import { editStandaloneComposer, mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
@@ -26,8 +26,7 @@ describe("Chart title", () => {
       onFontSizeChanged: () => {},
     });
 
-    const input = fixture.querySelector("input")!;
-    expect(input.value).toBe("");
+    expect(".o-chart-title .o-composer").toHaveText("");
   });
 
   test("Update is called when title is changed, not on input", async () => {
@@ -38,11 +37,12 @@ describe("Chart title", () => {
       style: { fontSize: 22 },
       onFontSizeChanged: () => {},
     });
-    const input = fixture.querySelector("input")!;
-    expect(input.value).toBe("My title");
-    await setInputValueAndTrigger(input, "My new title", "onlyInput");
+    expect(".o-chart-title .o-composer").toHaveText("My title");
+    const composerEl = await editStandaloneComposer(".o-chart-title .o-composer", "My new title", {
+      confirm: false,
+    });
     expect(updateTitle).toHaveBeenCalledTimes(0);
-    input.dispatchEvent(new Event("change"));
+    composerEl.blur();
     expect(updateTitle).toHaveBeenCalledTimes(1);
   });
 
