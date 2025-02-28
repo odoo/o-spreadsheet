@@ -6,6 +6,7 @@ import {
   ICON_EDGE_LENGTH,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
+  SCROLLBAR_WIDTH,
   SELECTION_BORDER_COLOR,
   UNHIDE_ICON_EDGE_LENGTH,
 } from "../../constants";
@@ -506,7 +507,7 @@ css/* scss */ `
     left: 0;
     right: 0;
     width: ${HEADER_WIDTH}px;
-    height: 100%;
+    height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px);
     &.o-dragging {
       cursor: grabbing;
     }
