@@ -1,0 +1,67 @@
+<templates>
+  <t t-name="o-spreadsheet-UnhideRowHeaders">
+    <t t-foreach="props.headersGroups" t-as="hiddenItem" t-key="hiddenItem_index">
+      <t t-if="isVisible(hiddenItem[0]-1)">
+        <div
+          class="position-absolute w-100 pe-none"
+          t-att-style="getUnhidePreviousButtonStyle(hiddenItem[0]-1)">
+          <div
+            class="o-unhide rounded end-0 position-absolute pe-auto"
+            t-att-data-index="hiddenItem_index"
+            t-attf-style="bottom: 2px;"
+            t-att-data-direction="'up'"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.CARET_UP"/>
+          </div>
+        </div>
+      </t>
+      <t t-if="isVisible(hiddenItem.at(-1)+1)">
+        <div
+          class="position-absolute w-100 pe-none"
+          t-att-style="getUnhideNextButtonStyle(hiddenItem.at(-1)+1)">
+          <div
+            class="o-unhide rounded end-0 position-absolute pe-auto"
+            t-att-data-index="hiddenItem_index"
+            t-att-data-direction="'down'"
+            t-attf-style="top: 1px;"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+          </div>
+        </div>
+      </t>
+    </t>
+  </t>
+
+  <t t-name="o-spreadsheet-UnhideColumnHeaders">
+    <t t-foreach="props.headersGroups" t-as="hiddenItem" t-key="hiddenItem_index">
+      <t t-if="isVisible(hiddenItem[0]-1)">
+        <div
+          class="position-absolute d-flex align-items-center pe-none h-100"
+          t-att-style="getUnhidePreviousButtonStyle(hiddenItem[0]-1)">
+          <div
+            class="o-unhide position-absolute rounded pe-auto"
+            t-att-data-index="hiddenItem_index"
+            t-att-data-direction="'left'"
+            t-attf-style="right: 1px;"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
+          </div>
+        </div>
+      </t>
+      <t t-if="isVisible(hiddenItem.at(-1)+1)">
+        <div
+          class="position-absolute d-flex align-items-center pe-none h-100"
+          t-att-style="getUnhideNextButtonStyle(hiddenItem.at(-1)+1)">
+          <div
+            class="o-unhide position-absolute rounded pe-auto"
+            t-att-data-index="hiddenItem_index"
+            t-att-data-direction="'right'"
+            t-attf-style="left: 1px;"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
+          </div>
+        </div>
+      </t>
+    </t>
+  </t>
+</templates>
