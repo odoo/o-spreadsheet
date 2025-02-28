@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
@@ -8,6 +9,7 @@ import {
   ClipboardPasteOptions,
   CreateSheetCommand,
   DispatchResult,
+  Pixel,
   SortDirection,
   SortOptions,
   Style,
@@ -815,5 +817,14 @@ export function setFormat(
     sheetId,
     target,
     format,
+  });
+}
+
+export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasHeaders = true) {
+  return model.dispatch("RESIZE_SHEETVIEW", {
+    height,
+    width,
+    gridOffsetX: hasHeaders ? HEADER_WIDTH : 0,
+    gridOffsetY: hasHeaders ? HEADER_HEIGHT : 0,
   });
 }
