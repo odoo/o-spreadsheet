@@ -1,6 +1,8 @@
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
 } from "../../src/constants";
 import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
@@ -19,6 +21,7 @@ import {
   Direction,
   DispatchResult,
   Locale,
+  Pixel,
   SelectionStep,
   SortDirection,
   SortOptions,
@@ -1242,4 +1245,13 @@ export function insertPivot(
 ) {
   setSelection(model, [xc]);
   return model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
+}
+
+export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasHeaders = true) {
+  return model.dispatch("RESIZE_SHEETVIEW", {
+    height,
+    width,
+    gridOffsetX: hasHeaders ? HEADER_WIDTH : 0,
+    gridOffsetY: hasHeaders ? HEADER_HEIGHT : 0,
+  });
 }
