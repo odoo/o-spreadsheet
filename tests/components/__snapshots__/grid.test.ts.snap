@@ -37,7 +37,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
     </div>
     
     <div
-      class="o-row-resizer"
+      class="o-row-resizer overflow-hidden"
     >
       
       
