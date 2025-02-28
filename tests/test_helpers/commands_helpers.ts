@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
@@ -12,6 +13,7 @@ import {
   Direction,
   DispatchResult,
   Locale,
+  Pixel,
   SelectionStep,
   SortDirection,
   SortOptions,
@@ -1099,4 +1101,13 @@ export function removeDataValidation(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   return model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id });
+}
+
+export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasHeaders = true) {
+  return model.dispatch("RESIZE_SHEETVIEW", {
+    height,
+    width,
+    gridOffsetX: hasHeaders ? HEADER_WIDTH : 0,
+    gridOffsetY: hasHeaders ? HEADER_HEIGHT : 0,
+  });
 }
