@@ -417,7 +417,8 @@ export class SheetViewPlugin extends UIPlugin {
         ? this.getters.getSheetViewVisibleCols()
         : this.getters.getSheetViewVisibleRows();
     const startIndex = visibleHeaders.findIndex((header) => referenceHeaderIndex >= header);
-    const endIndex = visibleHeaders.findIndex((header) => targetHeaderIndex <= header);
+    let endIndex = visibleHeaders.findIndex((header) => targetHeaderIndex <= header);
+    endIndex = endIndex === -1 ? visibleHeaders.length : endIndex;
     const relevantIndexes = visibleHeaders.slice(startIndex, endIndex);
     let offset = 0;
     for (const i of relevantIndexes) {
@@ -549,11 +550,12 @@ export class SheetViewPlugin extends UIPlugin {
    * column of the current viewport
    */
   getColDimensionsInViewport(sheetId: UID, col: HeaderIndex): HeaderDimensions {
+    const { top } = this.getMainInternalViewport(sheetId);
     const zone = {
       left: col,
       right: col,
-      top: 0,
-      bottom: this.getters.getNumberRows(sheetId) - 1,
+      top: top,
+      bottom: top,
     };
     const { x, width } = this.getVisibleRect(zone);
     const start = x - this.gridOffsetX;
@@ -565,9 +567,10 @@ export class SheetViewPlugin extends UIPlugin {
    * of the current viewport
    */
   getRowDimensionsInViewport(sheetId: UID, row: HeaderIndex): HeaderDimensions {
+    const { left } = this.getMainInternalViewport(sheetId);
     const zone = {
       left: 0,
-      right: this.getters.getNumberCols(sheetId) - 1,
+      right: left,
       top: row,
       bottom: row,
     };
