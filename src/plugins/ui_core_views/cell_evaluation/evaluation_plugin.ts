@@ -331,10 +331,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
       sheet.cellValues = {};
+      sheet.formulaSpillRanges = {};
     }
     for (const position of this.evaluator.getEvaluatedPositions()) {
       const evaluatedCell = this.evaluator.getEvaluatedCell(position);
-
       const xc = toXC(position.col, position.row);
       const value = evaluatedCell.value;
       let isFormula = false;
@@ -345,8 +345,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
       const formulaCell = this.getCorrespondingFormulaCell(position);
       if (formulaCell) {
+        const cell = this.getters.getCell(position);
+        isFormula = isExported && cell?.content === formulaCell.content;
         isExported = isExportableToExcel(formulaCell.compiledFormula.tokens);
-        isFormula = isExported;
+        // isFormula = isExported;
 
         // If the cell contains a non-exported formula and that is evaluates to
         // nothing* ,we don't export it.
@@ -361,7 +363,6 @@ export class EvaluationPlugin extends CoreViewPlugin {
           }
         }
       }
-
       const exportedCellData = exportedSheetData.cells[xc];
 
       let content: string | undefined;
@@ -372,6 +373,13 @@ export class EvaluationPlugin extends CoreViewPlugin {
       }
       exportedSheetData.cells[xc] = content;
       exportedSheetData.cellValues[xc] = value;
+      const spillZone = this.getSpreadZone(position);
+      if (spillZone) {
+        exportedSheetData.formulaSpillRanges[xc] = this.getters.getRangeString(
+          this.getters.getRangeFromZone(position.sheetId, spillZone),
+          position.sheetId
+        );
+      }
     }
   }
 
