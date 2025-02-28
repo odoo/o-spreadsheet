@@ -80,6 +80,7 @@ repeatLocalCommandTransformRegistry.add("AUTORESIZE_ROWS", repeatAutoResizeComma
 repeatLocalCommandTransformRegistry.add("SORT_CELLS", repeatSortCellsCommand);
 repeatLocalCommandTransformRegistry.add("SUM_SELECTION", genericRepeat);
 repeatLocalCommandTransformRegistry.add("SET_DECIMAL", genericRepeat);
+repeatLocalCommandTransformRegistry.add("DELETE_UNFILTERED_CONTENT", genericRepeat);
 
 export function genericRepeat<T extends Command>(getters: Getters, command: T): T {
   let transformedCommand = deepCopy(command);
