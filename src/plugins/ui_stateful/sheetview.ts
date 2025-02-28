@@ -432,7 +432,8 @@ export class SheetViewPlugin extends UIPlugin {
         ? this.getters.getSheetViewVisibleCols()
         : this.getters.getSheetViewVisibleRows();
     const startIndex = visibleHeaders.findIndex((header) => referenceHeaderIndex >= header);
-    const endIndex = visibleHeaders.findIndex((header) => targetHeaderIndex <= header);
+    let endIndex = visibleHeaders.findIndex((header) => targetHeaderIndex <= header);
+    endIndex = endIndex === -1 ? visibleHeaders.length : endIndex;
     const relevantIndexes = visibleHeaders.slice(startIndex, endIndex);
     let offset = 0;
     for (const i of relevantIndexes) {

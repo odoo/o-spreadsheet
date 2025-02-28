@@ -14,12 +14,16 @@ import { SpreadsheetChildEnv } from "../../src/types";
 import {
   deleteColumns,
   deleteRows,
+  freezeColumns,
+  freezeRows,
   hideColumns,
   hideRows,
   merge,
   redo,
   resizeRows,
   setCellContent,
+  setSheetviewSize,
+  setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -647,7 +651,12 @@ describe("Resizer component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-context-menu")).toBeFalsy();
   });
-
+});
+describe("Hide/show columns", () => {
+  beforeEach(async () => {
+    model = new Model();
+    ({ fixture } = await mountSpreadsheet({ model }));
+  });
   test("Hide A unhide it", async () => {
     hideColumns(model, ["A"]);
     await nextTick();
@@ -701,6 +710,75 @@ describe("Resizer component", () => {
     ]);
   });
 
+  describe("hide columns buttons visibility", () => {
+    const getUnhideColumnButtons = () => {
+      return [
+        ...fixture.querySelectorAll<HTMLElement>(
+          ".o-overlay .o-col-resizer .o-unhide[data-index='0']"
+        ),
+      ];
+    };
+    test("No buttons if the columns adjacent to the hidden group are hidden", async () => {
+      hideColumns(model, ["D"]);
+      await nextTick();
+      const unhideButtons = getUnhideColumnButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setViewportOffset(model, 5 * DEFAULT_CELL_WIDTH, 0);
+      await nextTick();
+
+      expect(
+        getUnhideColumnButtons().every((el) => el.classList.contains("invisible"))
+      ).toBeTruthy();
+    });
+
+    test("left button is hidden if the column before the hidden group is not in the viewport", async () => {
+      freezeColumns(model, 1);
+      hideColumns(model, ["D"]);
+      await nextTick();
+
+      let unhideButtons = getUnhideColumnButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 0);
+      await nextTick();
+      unhideButtons = getUnhideColumnButtons();
+
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons[0].dataset.direction).toEqual("left");
+      expect(unhideButtons[0].classList).toContain("invisible");
+      expect(unhideButtons[1].dataset.direction).toEqual("right");
+      expect(unhideButtons[1].classList).not.toContain("invisible");
+    });
+
+    test("right button is hidden if the column after the hidden group is not in the viewport", async () => {
+      hideColumns(model, ["F"]);
+      await nextTick();
+
+      let unhideButtons = getUnhideColumnButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH * 4);
+      await nextTick();
+      unhideButtons = getUnhideColumnButtons();
+
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons[0].dataset.direction).toEqual("left");
+      expect(unhideButtons[0].classList).not.toContain("invisible");
+      expect(unhideButtons[1].dataset.direction).toEqual("right");
+      expect(unhideButtons[1].classList).toContain("invisible");
+    });
+  });
+});
+
+describe("Hide/show rows", () => {
+  beforeEach(async () => {
+    model = new Model();
+    ({ fixture } = await mountSpreadsheet({ model }));
+  });
   test("hide 1, unhide it", async () => {
     hideRows(model, [0]);
     await nextTick();
@@ -766,6 +844,67 @@ describe("Resizer component", () => {
       [0],
       [4, 5],
     ]);
+  });
+
+  describe("hide rows buttons visibility", () => {
+    const getUnhideRowButtons = () => {
+      return [
+        ...fixture.querySelectorAll<HTMLElement>(
+          ".o-overlay .o-row-resizer .o-unhide[data-index='0']"
+        ),
+      ];
+    };
+    test("No buttons if the rows adjacent to the hidden group are not in the viewport", async () => {
+      hideRows(model, [3]);
+      await nextTick();
+      const unhideButtons = getUnhideRowButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setViewportOffset(model, 0, 5 * DEFAULT_CELL_HEIGHT);
+      await nextTick();
+
+      expect(getUnhideRowButtons().every((el) => el.classList.contains("invisible"))).toBeTruthy();
+    });
+
+    test("top button is hidden if the row before the hidden group is not in the viewport", async () => {
+      freezeRows(model, 1);
+      hideRows(model, [3]);
+      await nextTick();
+
+      let unhideButtons = getUnhideRowButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setViewportOffset(model, 0, 2 * DEFAULT_CELL_HEIGHT);
+      await nextTick();
+      unhideButtons = getUnhideRowButtons();
+
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons[0].dataset.direction).toEqual("up");
+      expect(unhideButtons[0].classList).toContain("invisible");
+      expect(unhideButtons[1].dataset.direction).toEqual("down");
+      expect(unhideButtons[1].classList).not.toContain("invisible");
+    });
+
+    test("only top button if the row after the hidden group is not in the viewport", async () => {
+      hideRows(model, [5]);
+      await nextTick();
+
+      let unhideButtons = getUnhideRowButtons();
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
+
+      setSheetviewSize(model, DEFAULT_CELL_HEIGHT * 4, 1000);
+      await nextTick();
+      unhideButtons = getUnhideRowButtons();
+
+      expect(unhideButtons).toHaveLength(2);
+      expect(unhideButtons[0].dataset.direction).toEqual("up");
+      expect(unhideButtons[0].classList).not.toContain("invisible");
+      expect(unhideButtons[1].dataset.direction).toEqual("down");
+      expect(unhideButtons[1].classList).toContain("invisible");
+    });
   });
 });
 
