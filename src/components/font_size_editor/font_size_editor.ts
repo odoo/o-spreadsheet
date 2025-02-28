@@ -15,6 +15,7 @@ interface Props {
   class: string;
   onFontSizeChanged: (fontSize: number) => void;
   onToggle?: () => void;
+  onFocusInput?: () => void;
 }
 
 css/* scss */ `
@@ -42,8 +43,14 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
     currentFontSize: Number,
     onFontSizeChanged: Function,
     onToggle: { type: Function, optional: true },
+    onFocusInput: { type: Function, optional: true },
     class: String,
   };
+
+  static defaultProps = {
+    onFocusInput: () => {},
+  };
+
   static components = { Popover };
   fontSizes = FONT_SIZES;
 
