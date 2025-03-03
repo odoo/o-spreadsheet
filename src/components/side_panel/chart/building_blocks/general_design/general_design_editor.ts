@@ -11,7 +11,7 @@ import {
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
-import { ChartTitle } from "../title/title";
+import { ChartTitle } from "../chart_title/chart_title";
 
 interface GeneralDesignEditorState {
   activeTool: string;
