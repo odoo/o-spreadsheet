@@ -9,7 +9,7 @@ import { figureRegistry } from "../../../registries/index";
 import {
   CSSProperties,
   DOMCoordinates,
-  Figure,
+  FigureUI,
   Pixel,
   ResizeDirection,
   SpreadsheetChildEnv,
@@ -111,7 +111,7 @@ css/*SCSS*/ `
 `;
 
 interface Props {
-  figure: Figure;
+  figureUI: FigureUI;
   style: string;
   onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
@@ -121,7 +121,7 @@ interface Props {
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
   static props = {
-    figure: Object,
+    figureUI: Object,
     style: { type: String, optional: true },
     onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
@@ -143,7 +143,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   private borderWidth!: number;
 
   get isSelected(): boolean {
-    return this.env.model.getters.getSelectedFigureId() === this.props.figure.id;
+    return this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id;
   }
 
   get figureRegistry() {
@@ -162,7 +162,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get wrapperStyle() {
-    const { x, y, width, height } = this.props.figure;
+    const { x, y, width, height } = this.props.figureUI;
     return cssPropertiesToCss({
       left: `${x}px`,
       top: `${y}px`,
@@ -194,7 +194,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    const borderWidth = figureRegistry.get(this.props.figure.tag).borderWidth;
+    const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
     this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useEffect(
       (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
@@ -210,7 +210,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
           el?.focus({ preventScroll: true });
         }
       },
-      () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
+      () => [
+        this.env.model.getters.getSelectedFigureId(),
+        this.props.figureUI.id,
+        this.figureRef.el,
+      ]
     );
 
     onWillUnmount(() => {
@@ -227,7 +231,14 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeyDown(ev: KeyboardEvent) {
-    const figure = this.props.figure;
+    const figure = this.env.model.getters.getFigure(
+      this.env.model.getters.getActiveSheetId(),
+      this.props.figureUI.id
+    );
+    if (!figure) {
+      return;
+    }
+
     const keyDownShortcut = keyboardEventToShortcutString(ev);
 
     switch (keyDownShortcut) {
@@ -235,7 +246,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "Backspace":
         this.env.model.dispatch("DELETE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          id: figure.id,
+          figureId: figure.id,
         });
         this.props.onFigureDeleted();
         ev.preventDefault();
@@ -254,9 +265,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         const delta = deltaMap[ev.key];
         this.env.model.dispatch("UPDATE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
-          id: figure.id,
-          x: figure.x + delta[0],
-          y: figure.y + delta[1],
+          figureId: figure.id,
+          offset: {
+            x: figure.offset.x + delta[0],
+            y: figure.offset.y + delta[1],
+          },
         });
         ev.preventDefault();
         ev.stopPropagation();
@@ -301,7 +314,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = true;
     this.menuState.position = position;
     this.menuState.menuItems = figureRegistry
-      .get(this.props.figure.tag)
-      .menuBuilder(this.props.figure.id, this.props.onFigureDeleted, this.env);
+      .get(this.props.figureUI.tag)
+      .menuBuilder(this.props.figureUI.id, this.props.onFigureDeleted, this.env);
   }
 }

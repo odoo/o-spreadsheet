@@ -14,7 +14,7 @@ describe("image plugin", function () {
       size: { width: 100, height: 100 },
       mimetype: "image/jpeg",
     };
-    createImage(model, { figureId: imageId, definition });
+    createImage(model, { id: imageId, definition });
     expect(model.getters.getImage(imageId)).toEqual(definition);
   });
 
@@ -22,8 +22,8 @@ describe("image plugin", function () {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
-    createImage(model, { sheetId: sheetId, figureId: imageId });
-    model.dispatch("DELETE_FIGURE", { sheetId, id: imageId });
+    createImage(model, { sheetId: sheetId, id: imageId });
+    model.dispatch("DELETE_FIGURE", { sheetId, figureId: imageId });
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(0);
   });
@@ -38,8 +38,8 @@ describe("image plugin", function () {
       size: { width: 100, height: 100 },
       mimetype: "image/jpeg",
     };
-    createImage(model, { figureId: imageId, definition });
-    model.dispatch("SELECT_FIGURE", { id: imageId });
+    createImage(model, { id: imageId, definition });
+    model.dispatch("SELECT_FIGURE", { figureId: imageId });
     model.dispatch("COPY");
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
@@ -59,8 +59,8 @@ describe("image plugin", function () {
       size: { width: 100, height: 100 },
       mimetype: "image/jpeg",
     };
-    createImage(model, { figureId: imageId, definition });
-    model.dispatch("SELECT_FIGURE", { id: imageId });
+    createImage(model, { id: imageId, definition });
+    model.dispatch("SELECT_FIGURE", { figureId: imageId });
     model.dispatch("CUT");
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
@@ -75,7 +75,7 @@ describe("test image in sheet", function () {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
-    createImage(model, { sheetId: sheetId, figureId: imageId });
+    createImage(model, { sheetId: sheetId, id: imageId });
     const newSheetId = "Sheet2";
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: newSheetId });
     const original = model.getters.getImage(imageId);
@@ -90,7 +90,7 @@ describe("test image in sheet", function () {
     const imageId = "Image1";
     const newSheetId = "Sheet2";
     model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 2 });
-    createImage(model, { sheetId: newSheetId, figureId: imageId });
+    createImage(model, { sheetId: newSheetId, id: imageId });
     model.dispatch("DELETE_SHEET", { sheetId: newSheetId });
     const images = getFigureIds(model, newSheetId);
     expect(images).toHaveLength(0);
@@ -101,7 +101,7 @@ describe("test image in sheet", function () {
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     const thirdSheetId = "third";
-    createImage(model, { sheetId: firstSheetId, figureId: "myImage" });
+    createImage(model, { sheetId: firstSheetId, id: "myImage" });
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
@@ -138,7 +138,7 @@ describe("test image import & export", function () {
   test("can export an image", () => {
     const model = new Model();
     const imageId = "Image1";
-    createImage(model, { sheetId: "Sheet1", figureId: imageId });
+    createImage(model, { sheetId: "Sheet1", id: imageId });
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
     const sheet = data.sheets.find((s) => s.id === activeSheetId)!;
@@ -148,8 +148,14 @@ describe("test image import & export", function () {
         tag: "image",
         height: 380,
         width: 380,
-        x: 0,
-        y: 0,
+        offset: {
+          x: 0,
+          y: 0,
+        },
+        anchor: {
+          col: 0,
+          row: 0,
+        },
         data: model.getters.getImage(imageId),
       },
     ]);
@@ -158,7 +164,7 @@ describe("test image import & export", function () {
     const model = new Model();
     const sheetId = "Sheet1";
     const imageId = "Image1";
-    createImage(model, { sheetId, figureId: imageId });
+    createImage(model, { sheetId, id: imageId });
     const importedData = model.exportData();
     const newModel = new Model(importedData);
     expect(newModel.getters.getImage(imageId)).toEqual(model.getters.getImage(imageId));
@@ -183,9 +189,9 @@ describe("test image undo/redo", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
-    createImage(model, { sheetId, figureId: imageId });
+    createImage(model, { sheetId, id: imageId });
     const before = model.exportData();
-    model.dispatch("DELETE_FIGURE", { sheetId, id: imageId });
+    model.dispatch("DELETE_FIGURE", { sheetId, figureId: imageId });
     const after = model.exportData();
     undo(model);
     expect(model).toExport(before);
@@ -196,9 +202,9 @@ describe("test image undo/redo", () => {
   test("undo/redo image cut & paste", () => {
     const model = new Model();
     const imageId = "Image1";
-    createImage(model, { figureId: imageId });
+    createImage(model, { id: imageId });
     const before = model.exportData();
-    model.dispatch("SELECT_FIGURE", { id: imageId });
+    model.dispatch("SELECT_FIGURE", { figureId: imageId });
     model.dispatch("CUT");
     paste(model, "D4");
     const after = model.exportData();
@@ -212,7 +218,7 @@ describe("test image undo/redo", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
-    createImage(model, { sheetId, figureId: imageId });
+    createImage(model, { sheetId, id: imageId });
     const before = model.exportData();
     const newSheetId = "Sheet2";
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: newSheetId });

@@ -2,7 +2,7 @@ import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/ow
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { ComponentsImportance } from "../../../../constants";
 import { deepCopy } from "../../../../helpers";
-import { Figure, SpreadsheetChildEnv } from "../../../../types";
+import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
 import { FunnelChartController, FunnelChartElement } from "./chartjs_funnel_chart";
@@ -10,7 +10,7 @@ import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
 interface Props {
-  figure: Figure;
+  figureUI: FigureUI;
 }
 
 window.Chart?.register(waterfallLinesPlugin);
@@ -30,7 +30,7 @@ css/* scss */ `
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
   static props = {
-    figure: Object,
+    figureUI: Object,
   };
 
   private canvas = useRef("graphContainer");
@@ -46,7 +46,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartRuntime(): ChartJSRuntime {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figure.id);
+    const runtime = this.env.model.getters.getChartRuntime(this.props.figureUI.id);
     if (!("chartJsConfig" in runtime)) {
       throw new Error("Unsupported chart runtime");
     }

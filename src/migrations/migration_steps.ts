@@ -450,6 +450,20 @@ migrationStepRegistry
     migrate(data: WorkbookData): any {
       return data;
     },
+  })
+  .add("migration_25", {
+    // Ensure fixed position, anchor and offset for existing figures based on current position
+    versionFrom: "25",
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          const data = figure as any;
+          figure.offset = { x: data.x || 0, y: data.y || 0 };
+          figure.anchor = { col: 0, row: 0 };
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

@@ -165,7 +165,7 @@ describe("datasource tests", function () {
     });
 
     test("copying a gauge chart in another sheet keep the ranges referencing to the same sheet", () => {
-      model.dispatch("SELECT_FIGURE", { id: "chartId" });
+      model.dispatch("SELECT_FIGURE", { figureId: "chartId" });
       copy(model);
 
       activateSheet(model, "Sheet2");
@@ -204,7 +204,7 @@ describe("datasource tests", function () {
     expect(newModel.getters.getChartRuntime("chartId") as GaugeChartRuntime).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
-      id: "chartId",
+      figureId: "chartId",
     });
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("chartId")).toThrow();

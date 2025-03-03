@@ -1762,7 +1762,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("Can copy/paste chart", async () => {
     selectCell(model, "A1");
     createChart(model, { type: "bar" }, "chartId");
-    model.dispatch("SELECT_FIGURE", { id: "chartId" });
+    model.dispatch("SELECT_FIGURE", { figureId: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
@@ -1775,7 +1775,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("Can cut/paste chart", async () => {
     selectCell(model, "A1");
     createChart(model, { type: "bar" }, "chartId");
-    model.dispatch("SELECT_FIGURE", { id: "chartId" });
+    model.dispatch("SELECT_FIGURE", { figureId: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     const clipboardContent = clipboardData.content;
     expect(clipboardContent).toMatchObject({
