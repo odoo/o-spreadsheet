@@ -11,7 +11,7 @@ import {
 import { WaterfallChartDefinition } from "../../../../../types/chart/waterfall_chart";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Section } from "../../../components/section/section";
-import { ChartTitle } from "../title/title";
+import { ChartTitle } from "../chart_title/chart_title";
 
 export interface AxisDefinition {
   id: string;

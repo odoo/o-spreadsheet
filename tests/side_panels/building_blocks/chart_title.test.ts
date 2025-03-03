@@ -1,4 +1,4 @@
-import { ChartTitle } from "../../../src/components/side_panel/chart/building_blocks/title/title";
+import { ChartTitle } from "../../../src/components/side_panel/chart/building_blocks/chart_title/chart_title";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
