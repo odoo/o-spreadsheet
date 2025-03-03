@@ -1,7 +1,12 @@
 import { Model, PivotSortedColumn, SpreadsheetPivotCoreDefinition } from "../../src";
 import { PREVIOUS_VALUE } from "../../src/helpers/pivot/pivot_domain_helpers";
-import { getFormattedGrid, getGrid } from "../test_helpers/helpers";
-import { createModelWithTestPivotDataset, updatePivot } from "../test_helpers/pivot_helpers";
+import { isSortedColumnValid } from "../../src/helpers/pivot/pivot_helpers";
+import { createModelFromGrid, getFormattedGrid, getGrid } from "../test_helpers/helpers";
+import {
+  addPivot,
+  createModelWithTestPivotDataset,
+  updatePivot,
+} from "../test_helpers/pivot_helpers";
 
 // prettier-ignore
 const unsortedGrid = {
@@ -309,5 +314,39 @@ describe("Pivot sorting", () => {
 
     const importedModel = new Model(exported);
     expect(importedModel.getters.getPivotCoreDefinition("pivotId")).toMatchObject(pivotDefinition);
+  });
+
+  test("Can sort pivot table on the column '(Undefined)'", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer",    B1: "Price",        C1: "Date",
+      A2: "Alice",       B2: "10",           C2: "",
+      A3: "Bob",         B3: "20",           C3: "",
+      A4: "=PIVOT(1)"
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:C3", {
+      columns: [{ fieldName: "Date", granularity: "year" }],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    const pivotId = model.getters.getPivotIds()[0];
+    const sortedColumn: PivotSortedColumn = {
+      domain: [{ type: "integer", field: "Date", value: null }],
+      order: "desc",
+      measure: "Price:sum",
+    };
+    expect(isSortedColumnValid(sortedColumn, model.getters.getPivot(pivotId))).toBe(true);
+
+    updatePivot(model, pivotId, { sortedColumn });
+    // prettier-ignore
+    expect(getGrid(model)).toMatchObject({
+      A4: "(#1) Pivot",  B4: "(Undefined)",  C4: "Total",
+      A5: "",            B5: "Price",        C5: "Price",
+      A6: "Bob",         B6: 20,             C6: 20,
+      A7: "Alice",       B7: 10,             C7: 10,
+      A8: "Total",       B8: 30,             C8: 30,
+    });
   });
 });
