@@ -68,7 +68,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
           this.chart?.destroy();
           this.createChart(deepCopy(runtime.chartJsConfig));
         } else {
-          this.updateChartJs(deepCopy(runtime));
+          this.updateChartJs(deepCopy(runtime.chartJsConfig));
         }
         this.currentRuntime = runtime;
       }
@@ -81,8 +81,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart = new window.Chart(ctx, chartData);
   }
 
-  private updateChartJs(chartRuntime: ChartJSRuntime) {
-    const chartData = chartRuntime.chartJsConfig as ChartConfiguration;
+  private updateChartJs(chartData: ChartConfiguration<any>) {
     if (chartData.data && chartData.data.datasets) {
       this.chart!.data = chartData.data;
       if (chartData.options?.plugins?.title) {

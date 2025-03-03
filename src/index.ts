@@ -230,6 +230,7 @@ export {
 export {
   coreTypes,
   invalidateCFEvaluationCommands,
+  invalidateChartEvaluationCommands,
   invalidateDependenciesCommands,
   invalidateEvaluationCommands,
   readonlyAllowedCommands,
