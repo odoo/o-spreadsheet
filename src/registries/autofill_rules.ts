@@ -1,6 +1,6 @@
 import { DATETIME_FORMAT } from "../constants";
 import { Registry } from "../registry";
-import { AutofillModifier, Cell, CellValueType } from "../types/index";
+import { AutofillModifier, Cell, CellValueType, DIRECTION } from "../types/index";
 
 /**
  * An AutofillRule is used to generate what to do when we need to autofill
@@ -11,7 +11,7 @@ import { AutofillModifier, Cell, CellValueType } from "../types/index";
  */
 export interface AutofillRule {
   condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
-  generateRule: (cell: Cell, cells: (Cell | undefined)[]) => AutofillModifier;
+  generateRule: (cell: Cell, cells: (Cell | undefined)[], direction: DIRECTION) => AutofillModifier;
   sequence: number;
 }
 
@@ -80,10 +80,12 @@ autofillRulesRegistry
   })
   .add("increment_number", {
     condition: (cell: Cell) => cell.evaluated.type === CellValueType.number,
-    generateRule: (cell: Cell, cells: (Cell | undefined)[]) => {
+    generateRule: (cell: Cell, cells: (Cell | undefined)[], direction: DIRECTION) => {
       const group = getGroup(cell, cells);
       let increment: number = 1;
-      if (group.length == 2) {
+      if (group.length === 1 && ["up", "left"].includes(direction)) {
+        increment = -1;
+      } else if (group.length == 2) {
         increment = (group[1] - group[0]) * 2;
       } else if (group.length > 2) {
         increment = getAverageIncrement(group) * group.length;
