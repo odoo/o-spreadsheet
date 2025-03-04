@@ -1,6 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import { setStyle } from "../../../actions/menu_items_actions";
-import { Pixel, SpreadsheetChildEnv } from "../../../types";
+import { SpreadsheetChildEnv } from "../../../types";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 
@@ -35,10 +35,6 @@ export class TopBarColorEditor extends Component<Props, SpreadsheetChildEnv> {
   setColor(color: string) {
     setStyle(this.env, { [this.props.style]: color });
     this.state.isOpen = false;
-  }
-
-  get dropdownMaxHeight(): Pixel {
-    return this.env.model.getters.getSheetViewDimension().height;
   }
 
   get isMenuOpen(): boolean {
