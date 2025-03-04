@@ -15,8 +15,8 @@ export class FunnelChartController extends window.Chart?.BarController {
     super.updateElements(rects, start, count, mode);
     for (let i = start; i < start + count; i++) {
       const rect = rects[i];
-      // Add the width of the next element to the element's props
-      this.updateElement(rect, i, { nextElementWidth: rects[i + 1]?.width || 0 }, mode);
+      // Add the next element to the element's props so we can get the bottom width of the trapezoid
+      this.updateElement(rect, i, { nextElement: rects[i + 1] }, mode);
     }
   }
 }
@@ -32,15 +32,11 @@ export class FunnelChartElement extends window.Chart?.BarElement {
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
 
-    const { x, y, width, height, nextElementWidth, base, options } = this.getProps([
-      "x",
-      "y",
-      "width",
-      "height",
-      "nextElementWidth",
-      "base",
-      "options",
-    ]) as any;
+    const props = ["x", "y", "width", "height", "nextElement", "base", "options"];
+    let { x, y, height, nextElement, base, options } = this.getProps(props) as any;
+    const width = getElementWidth(this);
+    const nextElementWidth = nextElement ? getElementWidth(nextElement) : 0;
+
     const offset = (width - nextElementWidth) / 2;
 
     const startX = Math.min(x, base);
@@ -85,6 +81,18 @@ export class FunnelChartElement extends window.Chart?.BarElement {
 
     return true;
   }
+}
+
+/**
+ * Get an element width.
+ *
+ * The property width is undefined during animations, we need to compute it manually.
+ */
+function getElementWidth(element: FunnelChartElement) {
+  let { x, base } = element.getProps(["x", "base"]) as any;
+  const left = Math.min(x, base);
+  const right = Math.max(x, base);
+  return right - left;
 }
 
 /**
