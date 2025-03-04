@@ -8,7 +8,20 @@ import {
 
 export class FunnelChartController extends window.Chart?.BarController {
   static id = "funnel";
-  static defaults = { ...window.Chart?.BarController.defaults, dataElementType: "funnel" };
+  static defaults = {
+    ...window.Chart?.BarController.defaults,
+    dataElementType: "funnel",
+    animation: {
+      duration: (ctx: any) => {
+        if (ctx.type !== "data") {
+          return 1000;
+        }
+        const value = ctx.raw[1];
+        const maxValue = Math.max(...ctx.dataset.data.map((data: [number, number]) => data[1]));
+        return 1000 * (value / maxValue);
+      },
+    },
+  };
 
   /** Called at each chart render to update the elements of the chart (FunnelChartElement) with the updated data */
   updateElements(rects, start, count, mode) {
