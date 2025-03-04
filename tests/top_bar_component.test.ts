@@ -46,12 +46,13 @@ jest.mock("../src/helpers/figures/images/image_provider", () =>
 
 const topBarToolsHeight = 30;
 let spreadsheetWidth = 1000;
+let spreadsheetHeight = 1000;
 const moreToolsContainerWidth = 50;
 const moreToolsWidth = 50;
 const toolWidth = 100;
 
 mockGetBoundingClientRect({
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
+  "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: spreadsheetHeight }),
   "o-popover": () => ({ width: 50, height: 50 }),
   "o-topbar-responsive": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
   "o-toolbar-tools": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: topBarToolsHeight }),
@@ -69,6 +70,11 @@ mockGetBoundingClientRect({
     height: topBarToolsHeight,
   }),
   "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: topBarToolsHeight }),
+});
+
+afterEach(() => {
+  spreadsheetWidth = 1000;
+  spreadsheetHeight = 1000;
 });
 
 let fixture: HTMLElement;
@@ -865,6 +871,8 @@ describe("Topbar - menu item resizing with viewport", () => {
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
     model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    spreadsheetHeight = 100;
+    window.resizers.resize();
     await nextTick();
     height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
@@ -880,6 +888,8 @@ describe("Topbar - menu item resizing with viewport", () => {
       model.getters.getVisibleRect(model.getters.getActiveMainViewport()).height
     );
     model.dispatch("RESIZE_SHEETVIEW", { width: 300, height: 100 });
+    spreadsheetHeight = 100;
+    window.resizers.resize();
     await nextTick();
     height = getElComputedStyle(".o-popover", "maxHeight");
     expect(parseInt(height)).toBe(
@@ -969,9 +979,6 @@ test("Clicking on a topbar button triggers three renders", async () => {
 });
 
 describe("Responsive Top bar behaviour", () => {
-  afterEach(() => {
-    spreadsheetWidth = 1000;
-  });
   const categories = topBarToolBarRegistry.getCategories();
   describe("items are hidden when the screen is resized", () => {
     const topbarToolsWidthThresholds = [750, 650];
