@@ -8,7 +8,6 @@
         onColorPicked="(color) => this.setColor(color)"
         title="props.title"
         icon="props.icon"
-        dropdownMaxHeight="dropdownMaxHeight"
         class="props.class"
       />
     </div>
