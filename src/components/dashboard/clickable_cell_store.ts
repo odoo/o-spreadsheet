@@ -1,4 +1,3 @@
-import { markRaw } from "@odoo/owl";
 import { positionToZone, toXC } from "../../helpers";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
@@ -19,10 +18,10 @@ export interface ClickableCell {
 }
 
 export class ClickableCellsStore extends SpreadsheetStore {
-  private _clickableCells: Record<UID, Record<string, CellClickableItem>> = markRaw({});
-  private _registryItems: CellClickableItem[] = markRaw(
-    clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
-  );
+  private _clickableCells: Record<UID, Record<string, CellClickableItem>> = {};
+  private _registryItems: CellClickableItem[] = clickableCellRegistry
+    .getAll()
+    .sort((a, b) => a.sequence - b.sequence);
 
   handle(cmd: Command) {
     if (
@@ -30,10 +29,8 @@ export class ClickableCellsStore extends SpreadsheetStore {
       cmd.type === "EVALUATE_CELLS" ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
-      this._clickableCells = markRaw({});
-      this._registryItems = markRaw(
-        clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
-      );
+      this._clickableCells = {};
+      this._registryItems = clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
     }
   }
 
