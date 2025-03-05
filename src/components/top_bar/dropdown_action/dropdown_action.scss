@@ -1,17 +1,19 @@
-.o-dropdown {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.o-dropdown-content {
-  background-color: white;
-
-  .o-dropdown-line {
+.o-spreadsheet {
+  .o-dropdown {
+    position: relative;
     display: flex;
+    align-items: center;
 
-    > span {
-      padding: 4px;
+    .o-dropdown-content {
+      background-color: white;
+
+      .o-dropdown-line {
+        display: flex;
+
+        > span {
+          padding: 4px;
+        }
+      }
     }
   }
 }
