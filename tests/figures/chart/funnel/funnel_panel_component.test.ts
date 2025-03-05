@@ -53,7 +53,7 @@ describe("Funnel chart side panel", () => {
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      expect(getHTMLInputValue(".o-chart-title input")).toEqual("My Funnel chart");
+      expect(".o-chart-title .o-composer").toHaveText("My Funnel chart");
       expect(getHTMLCheckboxValue('input[name="showValues"]')).toBe(true);
 
       expect(getColorPickerValue(fixture, '.o-funnel-colors [data-id="0"]')).toEqual("#FF0000");
@@ -70,7 +70,7 @@ describe("Funnel chart side panel", () => {
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      expect(getHTMLInputValue(".o-chart-title input")).toEqual("My Funnel chart");
+      expect(".o-chart-title .o-composer").toHaveText("My Funnel chart");
       expect(getHTMLCheckboxValue('input[name="showValues"]')).toBe(true);
 
       await editColorPicker(fixture, '.o-funnel-colors [data-id="1"]', "#FF0000");
@@ -93,7 +93,7 @@ describe("Funnel chart side panel", () => {
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      expect(getHTMLInputValue(".o-chart-title input")).toEqual("My Funnel chart");
+      expect(".o-chart-title .o-composer").toHaveText("My Funnel chart");
       expect(getHTMLCheckboxValue('input[name="showValues"]')).toBe(true);
 
       expect('.o-funnel-colors [data-id="0"]').toHaveText("This is a label");

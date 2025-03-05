@@ -16,11 +16,34 @@ exports[`Chart title Can render a chart title component 1`] = `
         
       </div>
       
-      <input
-        class="o-input"
-        placeholder="Add a title"
-        type="text"
-      />
+      <div
+        class="o-standalone-composer position-relative"
+      >
+        <div
+          class="o-composer-container w-100 h-100"
+        >
+          <div
+            class="d-flex flex-row position-relative"
+          >
+            
+            <div
+              class="o-composer w-100 text-start"
+              contenteditable="true"
+              placeholder="Enter text or formula"
+              spellcheck="false"
+              style="padding:1px 0px; "
+              tabindex="1"
+            >
+              <p>
+                <span>
+                  My title
+                </span>
+              </p>
+            </div>
+          </div>
+          
+        </div>
+      </div>
       <div
         class="o-chart-title-designer position-relative d-flex align-items-center"
       >
