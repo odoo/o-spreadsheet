@@ -518,6 +518,22 @@ describe("Composer interactions", () => {
     expect(composerStore.editionMode).toBe("editing");
   });
 
+  test("composer focus is not lost when changing sheet from the list sheet in the bottom bar", async () => {
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await startGridComposition("=1");
+    await simulateClick(".o-list-sheets");
+    await simulateClick(".o-menu-item[data-name='42']");
+    expect(model.getters.getActiveSheetId()).toBe("42");
+    expect(composerStore.editionMode).toBe("editing");
+  });
+
+  test("composer focus is lost when opening a sheet menu from the bottom bar", async () => {
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await startGridComposition("=1");
+    await simulateClick(".o-sheet[data-id='42'] .o-sheet-icon");
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
   test("Composer focus is lost on blur if focusing a random element", async () => {
     await startComposition("=");
     await simulateClick(".o-spreadsheet", 300, 200);
