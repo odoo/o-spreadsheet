@@ -1,4 +1,3 @@
-import { PasteInteractiveContent } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
 import { GeoChartColorScale } from "../types/chart/geo_chart";
 import { CommandResult } from "../types/index";
@@ -131,7 +130,9 @@ export const RemoveDuplicateTerms = {
     [CommandResult.EmptyTarget]: _t("Please select a range of cells containing values."),
     [CommandResult.NoColumnsProvided]: _t("Please select at latest one column to analyze."),
     //TODO: Remove it when accept to copy and paste merge cells
-    [CommandResult.WillRemoveExistingMerge]: PasteInteractiveContent.willRemoveExistingMerge,
+    [CommandResult.WillRemoveExistingMerge]: _t(
+      "This operation is not possible due to a merge. Please remove the merges first than try again."
+    ),
   },
 };
 
