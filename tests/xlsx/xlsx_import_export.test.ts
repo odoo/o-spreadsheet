@@ -315,6 +315,7 @@ describe("Export data to xlsx then import it", () => {
       background: "#FFFFFF",
       legendPosition: "right" as const,
       stacked: false,
+      isDoughnut: false,
     },
     {
       title: { text: "demo chart4" },
@@ -346,6 +347,8 @@ describe("Export data to xlsx then import it", () => {
       background: "#FFFFFF",
       legendPosition: "top" as const,
       labelsAsText: false,
+      fillArea: false,
+      showValues: false,
     },
   ])("Charts %s", (chartDef: any) => {
     createChart(model, chartDef, "1");
