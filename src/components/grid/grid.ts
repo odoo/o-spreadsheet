@@ -492,8 +492,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.selection.selectCell(col, row);
     }
-    // let prevCol = col;
-    // let prevRow = row;
+    let prevCol = col;
+    let prevRow = row;
 
     const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
       // When selecting cells during the edition, we don't want to avoid the default
@@ -511,7 +511,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }
     };
-    let { col: prevCol, row: prevRow } = this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
+    this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
   }
 
   onCellDoubleClicked(col: HeaderIndex, row: HeaderIndex) {

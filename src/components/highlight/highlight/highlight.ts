@@ -36,7 +36,6 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   highlightState: HighlightState = useState({
     shiftingMode: "none",
   });
-
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
   onResizeHighlight(ev: PointerEvent, isLeft: boolean, isTop: boolean) {

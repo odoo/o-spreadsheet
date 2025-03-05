@@ -139,7 +139,15 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     pointerMoveCallback = onPointerMove;
     pointerUpCallback = onPointerUp;
     cleanUp = startDnd(pointerMoveHandler, pointerUpHandler);
-    return { col: getters.getColIndex(startingX), row: getters.getRowIndex(startingY) };
+    const stopDnd = (ev: KeyboardEvent) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      clearTimeout(timeOutId);
+      timeOutId = null;
+      cleanUp?.();
+      window.removeEventListener("keydown", stopDnd, { capture: true });
+    };
+    window.addEventListener("keydown", stopDnd, { capture: true });
   };
 
   onWillUnmount(() => {
