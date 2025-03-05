@@ -25,6 +25,7 @@ import {
   ChartRuntimeGenerationArgs,
   DataSet,
   DatasetValues,
+  FunnelChartDefinition,
   LabelValues,
   LineChartDefinition,
   PieChartDefinition,
@@ -143,6 +144,9 @@ export function getLineChartData(
   if (definition.aggregated) {
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
+  if (definition.cumulative) {
+    dataSetsValues = makeDatasetsCumulative(dataSetsValues, "asc");
+  }
 
   const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
   const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
@@ -151,25 +155,13 @@ export function getLineChartData(
 
   const trendDataSetsValues: (Point[] | undefined)[] = [];
   for (const index in dataSetsValues) {
-    let { data } = dataSetsValues[index];
-    if (definition.cumulative) {
-      let accumulator = 0;
-      data = data.map((value) => {
-        if (!isNaN(parseFloat(value))) {
-          accumulator += parseFloat(value);
-          return accumulator;
-        }
-        return value;
-      });
-      dataSetsValues[index] = { ...dataSetsValues[index], data };
-    }
-
     const trend = definition.dataSets?.[index].trend;
     if (!trend?.display) {
       trendDataSetsValues.push(undefined);
       continue;
     }
 
+    const { data } = dataSetsValues[index];
     trendDataSetsValues.push(
       getTrendDatasetForLineChart(trend, data, labels, axisType, getters.getLocale())
     );
@@ -273,6 +265,39 @@ export function getGeoChartData(
     availableRegions: getters.getGeoChartAvailableRegions(),
     geoFeatureNameToId: getters.geoFeatureNameToId,
     getGeoJsonFeatures: getters.getGeoJsonFeatures,
+  };
+}
+
+export function getFunnelChartData(
+  definition: GenericDefinition<FunnelChartDefinition>,
+  dataSets: DataSet[],
+  labelRange: Range | undefined,
+  getters: Getters
+): ChartRuntimeGenerationArgs {
+  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  let labels = labelValues.formattedValues;
+  let dataSetsValues = getChartDatasetValues(getters, dataSets);
+  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+    labels.shift();
+  }
+
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
+  if (definition.aggregated) {
+    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+  }
+  if (definition.cumulative) {
+    dataSetsValues = makeDatasetsCumulative(dataSetsValues, "desc");
+  }
+
+  const format =
+    getChartDatasetFormat(getters, dataSets, "left") ||
+    getChartDatasetFormat(getters, dataSets, "right");
+
+  return {
+    dataSetsValues,
+    axisFormats: { x: format },
+    labels,
+    locale: getters.getLocale(),
   };
 }
 
@@ -931,4 +956,22 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   }
 
   return datasetValues.filter((ds) => ds.data.some((d) => d !== null));
+}
+
+function makeDatasetsCumulative(datasets: DatasetValues[], order: "asc" | "desc"): DatasetValues[] {
+  return datasets.map((dataset) => {
+    const data: number[] = [];
+    let accumulator = 0;
+    const indexes =
+      order === "asc" ? Object.keys(dataset.data) : Object.keys(dataset.data).reverse();
+    for (const i of indexes) {
+      if (!isNaN(parseFloat(dataset.data[i]))) {
+        accumulator += parseFloat(dataset.data[i]);
+        data[i] = accumulator;
+      } else {
+        data[i] = dataset.data[i];
+      }
+    }
+    return { ...dataset, data };
+  });
 }
