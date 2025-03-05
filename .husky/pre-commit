@@ -25,15 +25,40 @@ if [ "$HUSKY_PRE_COMMIT" != 0 ]; then
             exec git diff --cached --color | grep -nE $consoleregexp -A 2 -B 2
             read -p "There are some occurrences of forbidden patterns at your modification. Are you sure want to continue? (y/n)" yn
             echo $yn | grep ^[Yy]$
-            if [ $? -eq 0 ]
-            then
-                exit 0; #THE USER WANTS TO CONTINUE
-            else
+            if [ $? -ne 0 ]; then
                 exit 1; # THE USER DONT WANT TO CONTINUE SO ROLLBACK
             fi
         else
             echo -e "\033[1;31mWARNING: Some occurences of forbidden patterns were detected \033[0m"
             exec git diff --cached --color | grep -nE $consoleregexp -A 2 -B 2
         fi
+    fi
+
+    # Css wrap check
+    scssregexp='.*\.scss'
+    ignoreFileInstruction='\/\* husky-ignore \*\/'
+    filelist=()
+    for file in $(git diff --cached --name-only | grep -E $scssregexp); do
+        # The script is run in -e mode (see husky.sh:23)
+        # and if grep does not match, it raises an error
+        # Therefore, we need to use || true to avoid the script to stop
+        match=$(echo "$(head -n1 $file)" | grep -E "^\s*\.o-spreadsheet|$ignoreFileInstruction" || true)
+        if [ -z "$match" ]; then
+            filelist+=($file)
+        fi
+    done
+
+    if [ ${#filelist[@]} -ne 0 ]; then
+        echo "Some scss files are not scoped to .o-spreadsheet:"
+        printf "\t%s\n" "- ${filelist[@]}"
+        cat <<-EOF
+
+Your file should start with:
+.o-spreadsheet {
+    ...
+}
+and the selector should encompass all the style.
+EOF
+        exit 1
     fi
 fi
