@@ -4,6 +4,7 @@ import { FunnelChart } from "../../../../src/helpers/figures/charts/funnel_chart
 import { FunnelChartRuntime } from "../../../../src/types/chart/funnel_chart";
 import { createFunnelChart, setCellContent, setFormat } from "../../../test_helpers";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
+import { setGrid } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -32,6 +33,7 @@ describe("Funnel chart", () => {
       showValues: false,
       horizontal: true,
       funnelColors: ["#ff0000", "#00ff00"],
+      cumulative: true,
     });
   });
 
@@ -128,6 +130,20 @@ describe("Funnel chart", () => {
     expect(getFunnelRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
       [-70, 70], // 10 + 60
       [-30, 30], // -20 + 50
+    ]);
+  });
+
+  test("Funnel runtime with cumulative", () => {
+    setGrid(model, { B1: "10", B2: "20", B3: "invalid", B4: "30" });
+    const chartId = createFunnelChart(model, {
+      dataSets: [{ dataRange: "B1:B4" }],
+      dataSetsHaveTitle: false,
+      cumulative: true,
+    });
+    expect(getFunnelRuntime(chartId).chartJsConfig.data.datasets[0].data).toEqual([
+      [-60, 60],
+      [-50, 50],
+      [-30, 30],
     ]);
   });
 
