@@ -1,12 +1,14 @@
-@media (max-width: 900px) {
-  div.o-topbar-responsive {
-    flex-direction: column !important;
+.o-spreadsheet {
+  @media (max-width: 900px) {
+    .o-topbar-responsive {
+      flex-direction: column !important;
+    }
   }
-}
 
-@media (max-width: 768px) {
-  div.irregularity-map span {
-    overflow: auto;
-    align-items: normal !important;
+  @media (max-width: 768px) {
+    .irregularity-map span {
+      overflow: auto;
+      align-items: normal !important;
+    }
   }
 }
