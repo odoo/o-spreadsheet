@@ -828,6 +828,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       >
         <div
           class="o-sheet-item o-list-sheets me-2 p-1"
+          composerfocusableelement="true"
+          tabindex="-1"
         >
           <svg
             class="o-icon"
@@ -894,6 +896,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               </span>
               <span
                 class="o-sheet-icon ms-1"
+                tabindex="-1"
               >
                 <div
                   class="o-icon fa-small"
