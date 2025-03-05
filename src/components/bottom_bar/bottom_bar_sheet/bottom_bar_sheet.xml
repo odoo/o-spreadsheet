@@ -17,14 +17,16 @@
           t-att-class="{'o-sheet-name-editable': state.isEditing }"
           t-ref="sheetNameSpan"
           t-esc="sheetName"
-          t-on-click="(ev) => this.onMouseEventSheetName(ev)"
           t-on-pointerdown="(ev) => this.onMouseEventSheetName(ev)"
           t-on-dblclick="() => this.onDblClick()"
           t-on-focusout="() => this.onFocusOut()"
           t-on-keydown="(ev) => this.onKeyDown(ev)"
           t-att-contenteditable="state.isEditing ? 'true': 'false'"
         />
-        <span class="o-sheet-icon ms-1" t-on-click.stop="(ev) => this.onIconClick(ev)">
+        <span
+          class="o-sheet-icon ms-1"
+          tabindex="-1"
+          t-on-click.stop="(ev) => this.onIconClick(ev)">
           <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
         <div
