@@ -91,6 +91,7 @@ import {
   reduceZoneOnDeletion,
   rgbaToHex,
   sanitizeSheetName,
+  setColorAlpha,
   splitReference,
   toCartesian,
   toUnboundedZone,
@@ -110,6 +111,7 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { ClickableCellsStore } from "./components/dashboard/clickable_cell_store";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { RadarChartDesignPanel } from "./components/side_panel/chart/radar_chart/radar_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfall_chart/waterfall_chart_design_panel";
@@ -312,6 +314,7 @@ export const helpers = {
   createEmptyExcelSheet,
   rgbaToHex,
   colorToRGBA,
+  setColorAlpha,
   positionToZone,
   isDefined,
   isMatrix,
@@ -415,6 +418,7 @@ export const stores = {
   CellPopoverStore,
   ComposerFocusStore,
   CellComposerStore,
+  ClickableCellsStore,
   FindAndReplaceStore,
   HighlightStore,
   HoveredCellStore,

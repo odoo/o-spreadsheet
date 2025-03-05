@@ -1,4 +1,5 @@
 import { ModelStore } from ".";
+import { ClickableCellsStore } from "../components/dashboard/clickable_cell_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -60,11 +61,13 @@ export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
+  private clickableCells: Store<ClickableCellsStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
+    this.clickableCells = get(ClickableCellsStore);
     this.renderer.register(this);
   }
 
@@ -145,6 +148,10 @@ export class GridRenderer {
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
         ctx.fillRect(box.x, box.y, width, box.height);
+      }
+      if (box.overlayStyle?.fillColor) {
+        ctx.fillStyle = box.overlayStyle.fillColor;
+        ctx.fillRect(box.x, box.y, box.width, box.height);
       }
       if (box.isError) {
         ctx.fillStyle = "red";
@@ -275,7 +282,7 @@ export class GridRenderer {
     let currentFont;
     for (let box of boxes) {
       if (box.content) {
-        const style = box.style || {};
+        const style = { ...box.style, ...box.overlayStyle };
         const align = box.content.align || "left";
 
         // compute font and textColor
@@ -618,6 +625,7 @@ export class GridRenderer {
       height,
       border: this.getters.getCellComputedBorder(position) || undefined,
       style,
+      overlayStyle: this.clickableCells.hoverStyles.get(position),
       dataBarFill,
       verticalAlign,
       isError:

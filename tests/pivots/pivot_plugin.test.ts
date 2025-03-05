@@ -1,7 +1,7 @@
 import { CommandResult, Model } from "../../src";
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
-import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { merge, renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 
@@ -253,11 +253,32 @@ describe("Pivot plugin", () => {
     expect(model.getters.getSheetName("Sheet2")).toEqual("forbidden:   (copy) (Pivot #2) (1)");
   });
 
+  test("getPivotCellFromPosition handles merged cells", () => {
+    const grid = {
+      A1: "Customer",
+      A2: "Alice",
+      A3: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A3", {
+      columns: [{ fieldName: "Customer" }],
+      rows: [],
+      measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
+    });
+    const sheetId = model.getters.getActiveSheetId();
+    merge(model, "A10:B10");
+    setCellContent(model, "A10", '=PIVOT.VALUE(1,"__count:sum")');
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "B10"))).toMatchObject({
+      measure: "__count:sum",
+      type: "VALUE",
+    });
+  });
+
   test("getPivotCellFromPosition handles falsy arguments for includeColumnTitle", () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
-      A2: "Alice",    B2: "10",    
+      A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30",
     };
     const model = createModelFromGrid(grid);
