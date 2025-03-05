@@ -15,7 +15,11 @@
         </div>
       </Ripple>
       <Ripple>
-        <div class="o-sheet-item o-list-sheets me-2 p-1" t-on-click="clickListSheets">
+        <div
+          class="o-sheet-item o-list-sheets me-2 p-1"
+          composerFocusableElement="true"
+          tabindex="-1"
+          t-on-click="clickListSheets">
           <t t-call="o-spreadsheet-Icon.LIST"/>
         </div>
       </Ripple>
