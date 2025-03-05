@@ -7,6 +7,7 @@
         t-att-style="menuStyle"
         t-on-scroll="onScroll"
         t-on-wheel.stop=""
+        t-on-pointerdown.prevent=""
         t-on-click.stop=""
         t-on-mouseover="onMouseOverMainMenu"
         t-on-contextmenu.prevent="">
