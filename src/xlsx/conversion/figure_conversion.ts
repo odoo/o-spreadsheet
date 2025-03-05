@@ -5,7 +5,13 @@ import {
   toUnboundedZone,
   zoneToXc,
 } from "../../helpers";
-import { ChartDefinition, ExcelChartDefinition, FigureData } from "../../types";
+import { chartRegistry } from "../../registries/chart_types";
+import {
+  ChartCreationContext,
+  ChartDefinition,
+  ExcelChartDefinition,
+  FigureData,
+} from "../../types";
 import { ExcelImage } from "../../types/image";
 import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
@@ -90,12 +96,11 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
   if (chartData.type === "pie") {
     dataSets.reverse();
   }
-  return {
-    dataSets,
+  const creationContext: ChartCreationContext = {
+    range: dataSets,
     dataSetsHaveTitle,
-    labelRange,
+    auxiliaryRange: labelRange,
     title: chartData.title ?? { text: "" },
-    type: chartData.type,
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
     legendPosition: chartData.legendPosition,
     stacked: chartData.stacked || false,
@@ -103,6 +108,12 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     cumulative: chartData.cumulative || false,
     labelsAsText: false,
   };
+  try {
+    const ChartClass = chartRegistry.get(chartData.type);
+    return ChartClass.getChartDefinitionFromContextCreation(creationContext);
+  } catch (e) {
+    return undefined;
+  }
 }
 
 function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): string {

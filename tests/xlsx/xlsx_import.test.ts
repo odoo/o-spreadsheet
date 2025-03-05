@@ -772,8 +772,8 @@ describe("Import xlsx data", () => {
       "combo",
       "#fff",
       [
-        { dataRange: "Sheet1!B27:B35", backgroundColor: "#1F77B4" },
-        { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E" },
+        { dataRange: "Sheet1!B27:B35", backgroundColor: "#1F77B4", type: "bar" },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E", type: "line" },
       ],
     ],
     [
@@ -796,7 +796,7 @@ describe("Import xlsx data", () => {
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
       expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
-      expect(chartData.dataSets).toEqual(chartDatasets);
+      expect(chartData.dataSets).toMatchObject(chartDatasets);
       expect(chartData.dataSetsHaveTitle).toBeFalsy();
     }
   );

@@ -1,3 +1,4 @@
+import { RemoveDuplicateTerms } from "../../components/translations_terms";
 import { CURRENT_VERSION } from "../../migrations/data";
 import { _t } from "../../translation";
 import {
@@ -11,9 +12,7 @@ import {
 
 export const PasteInteractiveContent = {
   wrongPasteSelection: _t("This operation is not allowed with multiple selections."),
-  willRemoveExistingMerge: _t(
-    "This operation is not possible due to a merge. Please remove the merges first than try again."
-  ),
+  willRemoveExistingMerge: RemoveDuplicateTerms.Errors.WillRemoveExistingMerge,
   wrongFigurePasteOption: _t("Cannot do a special paste of a figure."),
   frozenPaneOverlap: _t("This operation is not allowed due to an overlapping frozen pane."),
 };
