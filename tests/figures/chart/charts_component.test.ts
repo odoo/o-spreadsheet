@@ -2145,6 +2145,25 @@ test("ChartJS charts are correctly destroyed and re-created when runtime change 
   expect(spyConstructor).toHaveBeenCalled();
 });
 
+test("ChartJS charts extensions are loaded when mounting a chart, and are only loaded once", async () => {
+  window.Chart.registry.plugins["items"] = [];
+  model = new Model();
+  const spyRegister = jest.spyOn(window.Chart, "register");
+  createChart(model, { type: "bar" }, chartId);
+  await mountSpreadsheet();
+  expect(spyRegister).toHaveBeenCalledTimes(1);
+  expect(window.Chart.registry.plugins["items"].map((i: any) => i.id)).toMatchObject([
+    "chartShowValuesPlugin",
+    "waterfallLinesPlugin",
+    "funnel",
+    "funnel",
+  ]);
+
+  createChart(model, { type: "line" }, "chart2");
+  await nextTick();
+  expect(spyRegister).toHaveBeenCalledTimes(1);
+});
+
 describe("Change chart type", () => {
   beforeEach(() => {
     model = new Model();

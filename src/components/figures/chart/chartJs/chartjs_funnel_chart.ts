@@ -1,99 +1,103 @@
 import {
   BarControllerChartOptions,
   BarControllerDatasetOptions,
+  BarElement,
   CartesianParsedData,
   CartesianScaleTypeRegistry,
   TooltipPositionerFunction,
 } from "chart.js";
 
-export class FunnelChartController extends window.Chart?.BarController {
-  static id = "funnel";
-  static defaults = {
-    ...window.Chart?.BarController.defaults,
-    dataElementType: "funnel",
-    animation: {
-      duration: (ctx: any) => {
-        if (ctx.type !== "data") {
-          return 1000;
-        }
-        const value = ctx.raw[1];
-        const maxValue = Math.max(...ctx.dataset.data.map((data: [number, number]) => data[1]));
-        return 1000 * (value / maxValue);
+export function getFunnelChartController() {
+  return class FunnelChartController extends window.Chart?.BarController {
+    static id = "funnel";
+    static defaults = {
+      ...window.Chart?.BarController.defaults,
+      dataElementType: "funnel",
+      animation: {
+        duration: (ctx: any) => {
+          if (ctx.type !== "data") {
+            return 1000;
+          }
+          const value = ctx.raw[1];
+          const maxValue = Math.max(...ctx.dataset.data.map((data: [number, number]) => data[1]));
+          return 1000 * (value / maxValue);
+        },
       },
-    },
-  };
+    };
 
-  /** Called at each chart render to update the elements of the chart (FunnelChartElement) with the updated data */
-  updateElements(rects, start, count, mode) {
-    super.updateElements(rects, start, count, mode);
-    for (let i = start; i < start + count; i++) {
-      const rect = rects[i];
-      // Add the next element to the element's props so we can get the bottom width of the trapezoid
-      this.updateElement(rect, i, { nextElement: rects[i + 1] }, mode);
+    /** Called at each chart render to update the elements of the chart (FunnelChartElement) with the updated data */
+    updateElements(rects, start, count, mode) {
+      super.updateElements(rects, start, count, mode);
+      for (let i = start; i < start + count; i++) {
+        const rect = rects[i];
+        // Add the next element to the element's props so we can get the bottom width of the trapezoid
+        this.updateElement(rect, i, { nextElement: rects[i + 1] }, mode);
+      }
     }
-  }
+  };
 }
 
-/**
- * Similar to a bar chart element, but it's a trapezoid rather than a rectangle. The top is of width
- * `width`, and the bottom is of width `nextElementWidth`.
- */
-export class FunnelChartElement extends window.Chart?.BarElement {
-  static id = "funnel";
+export function getFunnelChartElement() {
+  /**
+   * Similar to a bar chart element, but it's a trapezoid rather than a rectangle. The top is of width
+   * `width`, and the bottom is of width `nextElementWidth`.
+   */
+  return class FunnelChartElement extends window.Chart?.BarElement {
+    static id = "funnel";
 
-  /** Overwrite this to draw a trapezoid rather then a rectangle */
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.save();
+    /** Overwrite this to draw a trapezoid rather then a rectangle */
+    draw(ctx: CanvasRenderingContext2D) {
+      ctx.save();
 
-    const props = ["x", "y", "width", "height", "nextElement", "base", "options"];
-    let { x, y, height, nextElement, base, options } = this.getProps(props) as any;
-    const width = getElementWidth(this);
-    const nextElementWidth = nextElement ? getElementWidth(nextElement) : 0;
+      const props = ["x", "y", "width", "height", "nextElement", "base", "options"];
+      let { x, y, height, nextElement, base, options } = this.getProps(props) as any;
+      const width = getElementWidth(this);
+      const nextElementWidth = nextElement ? getElementWidth(nextElement) : 0;
+      const offset = (width - nextElementWidth) / 2;
 
-    const offset = (width - nextElementWidth) / 2;
+      const startX = Math.min(x, base);
+      const startY = y - height / 2;
 
-    const startX = Math.min(x, base);
-    const startY = y - height / 2;
+      ctx.fillStyle = options.backgroundColor;
 
-    ctx.fillStyle = options.backgroundColor;
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(startX + width, startY);
+      ctx.lineTo(startX + width - offset, startY + height);
+      ctx.lineTo(startX + offset, startY + height);
+      ctx.closePath();
+      ctx.fill();
+      if (options.borderWidth) {
+        ctx.strokeStyle = options.borderColor;
+        ctx.lineWidth = options.borderWidth;
+        ctx.stroke();
+      }
 
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(startX + width, startY);
-    ctx.lineTo(startX + width - offset, startY + height);
-    ctx.lineTo(startX + offset, startY + height);
-    ctx.closePath();
-    ctx.fill();
-    if (options.borderWidth) {
-      ctx.strokeStyle = options.borderColor;
-      ctx.lineWidth = options.borderWidth;
-      ctx.stroke();
+      ctx.restore();
     }
 
-    ctx.restore();
-  }
+    /** Check if the mouse is inside the trapezoid */
+    inRange(mouseX: number, mouseY: number, useFinalPosition: boolean) {
+      const { x, y, width, height, nextElementWidth, base } = this.getProps(
+        ["x", "y", "width", "height", "nextElementWidth", "base"],
+        useFinalPosition
+      ) as any;
 
-  /** Check if the mouse is inside the trapezoid */
-  inRange(mouseX: number, mouseY: number, useFinalPosition: boolean) {
-    const { x, y, width, height, nextElementWidth, base } = this.getProps(
-      ["x", "y", "width", "height", "nextElementWidth", "base"],
-      useFinalPosition
-    ) as any;
+      const startX = Math.min(x, base);
+      const startY = y - height / 2;
+      if (mouseY < startY || mouseY > startY + height) {
+        return false;
+      }
+      const offset = (width - nextElementWidth) / 2;
+      const left = startX + (offset * (mouseY - startY)) / height;
+      const right = startX + width - (offset * (mouseY - startY)) / height;
+      if (mouseX < left || mouseX > right) {
+        return false;
+      }
 
-    const startX = Math.min(x, base);
-    const startY = y - height / 2;
-    if (mouseY < startY || mouseY > startY + height) {
-      return false;
+      return true;
     }
-    const offset = (width - nextElementWidth) / 2;
-    const left = startX + (offset * (mouseY - startY)) / height;
-    const right = startX + width - (offset * (mouseY - startY)) / height;
-    if (mouseX < left || mouseX > right) {
-      return false;
-    }
-
-    return true;
-  }
+  };
 }
 
 /**
@@ -101,7 +105,7 @@ export class FunnelChartElement extends window.Chart?.BarElement {
  *
  * The property width is undefined during animations, we need to compute it manually.
  */
-function getElementWidth(element: FunnelChartElement) {
+function getElementWidth(element: BarElement) {
   let { x, base } = element.getProps(["x", "base"]) as any;
   const left = Math.min(x, base);
   const right = Math.max(x, base);
@@ -112,12 +116,12 @@ function getElementWidth(element: FunnelChartElement) {
  * Position the tooltip inside the trapezoid.
  * The default position for tooltips of bar elements is at the end of rectangle, which is not ideal for trapezoids.
  */
-const funnelTooltipPositioner: TooltipPositionerFunction<"funnel"> = function (elements) {
+export const funnelTooltipPositioner: TooltipPositionerFunction<"funnel"> = function (elements) {
   if (!elements.length) {
     return { x: 0, y: 0 };
   }
 
-  const element = elements[0].element as FunnelChartElement;
+  const element = elements[0].element;
   const { x, y, base, width, height } = element.getProps(["x", "y", "width", "height", "base"]);
   const startX = Math.min(x, base);
   const startY = y - height / 2;
@@ -127,8 +131,6 @@ const funnelTooltipPositioner: TooltipPositionerFunction<"funnel"> = function (e
     y: startY + height / 2,
   };
 };
-
-window.Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner;
 
 declare module "chart.js" {
   interface ChartTypeRegistry {
