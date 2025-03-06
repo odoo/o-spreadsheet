@@ -1,4 +1,6 @@
 import type { BasePlatform, ChartConfiguration, ChartOptions, ChartType } from "chart.js";
+import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
+import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
 import { ChartTerms } from "../../../components/translations_terms";
 import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, MAX_CHAR_LABEL } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
@@ -306,7 +308,8 @@ export function chartToImage(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new window.Chart(canvas, config);
+    const Chart = getChartJSConstructor();
+    const chart = new Chart(canvas, config);
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();
@@ -341,3 +344,12 @@ const backgroundColorChartJSPlugin = {
     ctx.restore();
   },
 };
+
+/** Return window.Chart, making sure all our extensions are loaded in ChartJS */
+export function getChartJSConstructor() {
+  if (window.Chart && !window.Chart?.registry.plugins.get("chartShowValuesPlugin")) {
+    window.Chart.register(chartShowValuesPlugin);
+    window.Chart.register(waterfallLinesPlugin);
+  }
+  return window.Chart;
+}

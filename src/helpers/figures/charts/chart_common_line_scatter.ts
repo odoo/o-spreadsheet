@@ -19,6 +19,7 @@ import {
   filterEmptyDataPoints,
   getChartDatasetFormat,
   getChartDatasetValues,
+  getChartJSConstructor,
   getChartLabelFormat,
   getChartLabelValues,
   getDefaultChartJsRuntime,
@@ -104,11 +105,12 @@ function canBeLinearChart(chart: LineChart | ScatterChart, getters: Getters): bo
 let missingTimeAdapterAlreadyWarned = false;
 
 function isLuxonTimeAdapterInstalled() {
-  if (!window.Chart) {
+  const Chart = getChartJSConstructor();
+  if (!Chart) {
     return false;
   }
   // @ts-ignore
-  const adapter = new window.Chart._adapters._date({});
+  const adapter = new Chart._adapters._date({});
   const isInstalled = adapter._id === "luxon";
   if (!isInstalled && !missingTimeAdapterAlreadyWarned) {
     missingTimeAdapterAlreadyWarned = true;
@@ -133,7 +135,8 @@ function getLineOrScatterConfiguration(
       generateLabels(chart) {
         // color the legend labels with the dataset color, without any transparency
         const { data } = chart;
-        const labels = window.Chart.defaults.plugins.legend.labels.generateLabels!(chart);
+        const Chart = getChartJSConstructor();
+        const labels = Chart.defaults.plugins.legend.labels.generateLabels!(chart);
         for (const [index, label] of labels.entries()) {
           label.fillStyle = data.datasets![index].borderColor as string;
         }
