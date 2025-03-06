@@ -111,6 +111,8 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
+import { GeoChartDesignPanel } from "./components/side_panel/chart/geo_chart_panel/geo_chart_design_panel";
+import { GeoChartRegionSelectSection } from "./components/side_panel/chart/geo_chart_panel/geo_chart_region_select_section";
 import { RadarChartDesignPanel } from "./components/side_panel/chart/radar_chart/radar_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfall_chart/waterfall_chart_design_panel";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
@@ -381,6 +383,7 @@ export const components = {
   GaugeChartDesignPanel,
   ScorecardChartConfigPanel,
   ScorecardChartDesignPanel,
+  GeoChartDesignPanel,
   RadarChartDesignPanel,
   WaterfallChartDesignPanel,
   ComboChartDesignPanel,
@@ -401,6 +404,7 @@ export const components = {
   TextInput,
   SidePanelCollapsible,
   RadioSelection,
+  GeoChartRegionSelectSection,
 };
 
 export const hooks = {
