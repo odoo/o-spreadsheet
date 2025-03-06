@@ -1,4 +1,11 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
+import {
+  funnelTooltipPositioner,
+  getFunnelChartController,
+  getFunnelChartElement,
+} from "../../../components/figures/chart/chartJs/chartjs_funnel_chart";
+import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
+import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
 import { Figure } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -41,7 +48,8 @@ export function chartToImage(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const chart = new window.Chart(canvas, config as ChartConfiguration);
+    const Chart = getChartJSConstructor();
+    const chart = new Chart(canvas, config as ChartConfiguration);
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();
@@ -76,3 +84,17 @@ const backgroundColorChartJSPlugin = {
     ctx.restore();
   },
 };
+
+/** Return window.Chart, making sure all our extensions are loaded in ChartJS */
+export function getChartJSConstructor() {
+  if (window.Chart && !window.Chart?.registry.plugins.get("chartShowValuesPlugin")) {
+    window.Chart.register(
+      chartShowValuesPlugin,
+      waterfallLinesPlugin,
+      getFunnelChartController(),
+      getFunnelChartElement()
+    );
+    window.Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner;
+  }
+  return window.Chart;
+}
