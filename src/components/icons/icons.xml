@@ -714,9 +714,19 @@
       <i class="fa fa-sort-alpha-asc"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.SORT_ASCENDING_NUMERIC">
+    <div class="o-icon">
+      <i class="fa fa-sort-numeric-asc"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.SORT_DESCENDING">
     <div class="o-icon">
       <i class="fa fa-sort-alpha-desc"/>
+    </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.SORT_DESCENDING_NUMERIC">
+    <div class="o-icon">
+      <i class="fa fa-sort-numeric-desc"/>
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.DATA_CLEANUP">
