@@ -858,8 +858,18 @@ export const mockChart = () => {
     _id = "luxon";
   }
   class ChartMock {
-    static register = () => {};
+    static register = (...items: any[]) =>
+      items.forEach((item) => ChartMock.registry.plugins.items.push(item));
     static _adapters = { _date: MockLuxonTimeAdapter };
+    static registry = {
+      plugins: {
+        items: [] as any[],
+        get(key: string) {
+          return ChartMock.registry.plugins.items.find((item) => item.id === key);
+        },
+      },
+    };
+    static Tooltip = { positioners: {} };
     constructor(ctx: unknown, chartData: ChartConfiguration) {
       Object.assign(mockChartData, chartData);
       this.constructorMock();
@@ -876,6 +886,8 @@ export const mockChart = () => {
     update() {}
     options = mockChartData.options;
     config = mockChartData;
+    static BarController = class {};
+    static BarElement = class {};
   }
 
   //@ts-ignore
