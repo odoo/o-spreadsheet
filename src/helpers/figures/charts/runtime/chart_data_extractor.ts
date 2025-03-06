@@ -42,6 +42,7 @@ import { isNumber } from "../../../numbers";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
 import { shouldRemoveFirstLabel } from "../chart_common";
+import { getChartJSConstructor } from "../chart_ui_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
@@ -542,11 +543,12 @@ function canBeLinearChart(
 let missingTimeAdapterAlreadyWarned = false;
 
 function isLuxonTimeAdapterInstalled() {
-  if (!window.Chart) {
+  const Chart = getChartJSConstructor();
+  if (!Chart) {
     return false;
   }
   // @ts-ignore
-  const adapter = new window.Chart._adapters._date({});
+  const adapter = new Chart._adapters._date({});
   const isInstalled = adapter._id === "luxon";
   if (!isInstalled && !missingTimeAdapterAlreadyWarned) {
     missingTimeAdapterAlreadyWarned = true;
