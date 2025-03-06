@@ -774,8 +774,16 @@ export const mockChart = () => {
     _id = "luxon";
   }
   class ChartMock {
-    static register = () => {};
+    static register = (item: any) => ChartMock.registry.plugins.items.push(item);
     static _adapters = { _date: MockLuxonTimeAdapter };
+    static registry = {
+      plugins: {
+        items: [] as any[],
+        get(key: string) {
+          return ChartMock.registry.plugins.items.find((item) => item.id === key);
+        },
+      },
+    };
     constructor(ctx: unknown, chartData: ChartConfiguration) {
       Object.assign(mockChartData, chartData);
       this.constructorMock();
