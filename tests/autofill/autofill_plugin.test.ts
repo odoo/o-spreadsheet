@@ -344,6 +344,38 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A9")).toBe("test");
     });
 
+    test("Autofill mixed-mixed values UP", () => {
+      setCellContent(model, "A10", "test");
+      setCellContent(model, "A11", "test1");
+      setCellContent(model, "A12", "4");
+      autofill("A10:A12", "A1");
+      expect(getCellContent(model, "A9")).toBe("3");
+      expect(getCellContent(model, "A8")).toBe("test0");
+      expect(getCellContent(model, "A7")).toBe("test");
+      expect(getCellContent(model, "A6")).toBe("2");
+      expect(getCellContent(model, "A5")).toBe("test-1");
+      expect(getCellContent(model, "A4")).toBe("test");
+      expect(getCellContent(model, "A3")).toBe("1");
+      expect(getCellContent(model, "A2")).toBe("test-2");
+      expect(getCellContent(model, "A1")).toBe("test");
+    });
+
+    test("Autofill mixed-mixed values LEFT", () => {
+      setCellContent(model, "J1", "test");
+      setCellContent(model, "K1", "test1");
+      setCellContent(model, "L1", "4");
+      autofill("J1:L1", "A1");
+      expect(getCellContent(model, "I1")).toBe("3");
+      expect(getCellContent(model, "H1")).toBe("test0");
+      expect(getCellContent(model, "G1")).toBe("test");
+      expect(getCellContent(model, "F1")).toBe("2");
+      expect(getCellContent(model, "E1")).toBe("test-1");
+      expect(getCellContent(model, "D1")).toBe("test");
+      expect(getCellContent(model, "C1")).toBe("1");
+      expect(getCellContent(model, "B1")).toBe("test-2");
+      expect(getCellContent(model, "A1")).toBe("test");
+    });
+
     test("Autofill number and text", () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "test");
