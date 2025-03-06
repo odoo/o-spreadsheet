@@ -1,17 +1,13 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy } from "../../../../helpers";
+import { getChartJSConstructor } from "../../../../helpers/figures/charts/chart_ui_common";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
-import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
 interface Props {
   figure: Figure;
 }
-
-window.Chart?.register(waterfallLinesPlugin);
-window.Chart?.register(chartShowValuesPlugin);
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
@@ -64,7 +60,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private createChart(chartData: ChartConfiguration<any>) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    this.chart = new window.Chart(ctx, chartData);
+    const Chart = getChartJSConstructor();
+    this.chart = new Chart(ctx, chartData);
   }
 
   private updateChartJs(chartRuntime: ChartJSRuntime) {
