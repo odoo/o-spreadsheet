@@ -1,6 +1,6 @@
 import { isDateTimeFormat } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
-import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE } from "../types/index";
+import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE, DIRECTION } from "../types/index";
 import { EvaluatedCell } from "./../types/cells";
 import { Registry } from "./registry";
 
@@ -13,7 +13,7 @@ import { Registry } from "./registry";
  */
 export interface AutofillRule {
   condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
-  generateRule: (cell: Cell, cells: (Cell | undefined)[]) => AutofillModifier;
+  generateRule: (cell: Cell, cells: (Cell | undefined)[], direction: DIRECTION) => AutofillModifier;
   sequence: number;
 }
 
@@ -95,7 +95,7 @@ autofillRulesRegistry
       !cell.isFormula &&
       evaluateLiteral(cell.content, { locale: DEFAULT_LOCALE }).type === CellValueType.text &&
       alphaNumericValueRegExp.test(cell.content),
-    generateRule: (cell: Cell, cells: Cell[]) => {
+    generateRule: (cell: Cell, cells: Cell[], direction: DIRECTION) => {
       const numberPostfix = parseInt(cell.content.match(numberPostfixRegExp)![0]);
       const prefix = cell.content.match(stringPrefixRegExp)![0];
       const numberPostfixLength = cell.content.length - prefix.length;
@@ -108,7 +108,10 @@ autofillRulesRegistry
       ) // get consecutive alphanumeric cells, no matter what the prefix is
         .filter((cell) => prefix === cell.value.toString().match(stringPrefixRegExp)![0])
         .map((cell) => parseInt(cell.value.toString().match(numberPostfixRegExp)![0]));
-      const increment = calculateIncrementBasedOnGroup(group);
+      let increment = calculateIncrementBasedOnGroup(group);
+      if (["up", "left"].includes(direction) && group.length === 1) {
+        increment = -increment;
+      }
       return {
         type: "ALPHANUMERIC_INCREMENT_MODIFIER",
         prefix,
@@ -139,13 +142,16 @@ autofillRulesRegistry
     condition: (cell: Cell) =>
       !cell.isFormula &&
       evaluateLiteral(cell.content, { locale: DEFAULT_LOCALE }).type === CellValueType.number,
-    generateRule: (cell: Cell, cells: (Cell | undefined)[]) => {
+    generateRule: (cell: Cell, cells: (Cell | undefined)[], direction: DIRECTION) => {
       const group = getGroup(
         cell,
         cells,
         (evaluatedCell) => evaluatedCell.type === CellValueType.number
       ).map((cell) => Number(cell.value));
-      const increment = calculateIncrementBasedOnGroup(group);
+      let increment = calculateIncrementBasedOnGroup(group);
+      if (["up", "left"].includes(direction) && group.length === 1) {
+        increment = -increment;
+      }
       const evaluation = evaluateLiteral(cell.content, { locale: DEFAULT_LOCALE });
       return {
         type: "INCREMENT_MODIFIER",
