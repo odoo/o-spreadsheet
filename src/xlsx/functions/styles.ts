@@ -158,9 +158,9 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
     if (alignAttrs.length > 0) {
       attributes.push(["applyAlignment", "1"]); // for Libre Office
       styleNodes.push(
-        escapeXml/*xml*/ `<xf ${formatAttributes(
-          attributes
-        )}>${escapeXml/*xml*/ `<alignment ${formatAttributes(alignAttrs)} />`}</xf> `
+        escapeXml/*xml*/ `<xf ${formatAttributes(attributes)}><alignment ${formatAttributes(
+          alignAttrs
+        )} /></xf> `
       );
     } else {
       styleNodes.push(escapeXml/*xml*/ `<xf ${formatAttributes(attributes)} />`);
