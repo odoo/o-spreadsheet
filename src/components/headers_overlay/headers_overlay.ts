@@ -696,6 +696,21 @@ export class RowResizer extends AbstractResizer {
   getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
     return cssPropertiesToCss({ top: this._getDimensionsInViewport(hiddenIndex).start + "px" });
   }
+
+  getFrozenHiddenGroups() {
+    const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    if (!ySplit) {
+      return [];
+    }
+    const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
+    return hiddenGroups.filter((group) => group[0] < ySplit);
+  }
+
+  getUnfrozenHiddenGroups() {
+    const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
+    return hiddenGroups.filter((group) => group[group.length - 1] > ySplit);
+  }
 }
 
 css/* scss */ `

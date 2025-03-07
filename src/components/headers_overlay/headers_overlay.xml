@@ -39,7 +39,10 @@
       </t>
       <t t-set="viewportZone" t-value="env.model.getters.getActiveMainViewport()"/>
       <t t-call="trucRow">
-        <t t-set="trucs" t-value="env.model.getters.getHiddenRowsGroups(sheetId)"/>
+        <t t-set="trucs" t-value="getFrozenHiddenGroups()"/>
+      </t>
+      <t t-call="trucRow">
+        <t t-set="trucs" t-value="getUnfrozenHiddenGroups()"/>
       </t>
       <!-- <t
         t-foreach="env.model.getters.getHiddenRowsGroups(sheetId)"
