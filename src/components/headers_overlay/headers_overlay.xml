@@ -44,60 +44,6 @@
       <t t-call="trucRow">
         <t t-set="trucs" t-value="getUnfrozenHiddenGroups()"/>
       </t>
-      <!-- <t
-        t-foreach="env.model.getters.getHiddenRowsGroups(sheetId)"
-        t-as="hiddenItem"
-        t-key="hiddenItem_index">
-        <div
-          class="position-absolute end-0 translate-middle-y"
-          t-att-style="getUnhideButtonStyle(hiddenItem[0])">
-          <div
-            class="o-unhide rounded mb-1"
-            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col:viewportZone.left,
-      row:hiddenItem[0]-1})}"
-            t-att-data-index="hiddenItem_index"
-            t-att-data-direction="'up'"
-            t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet-Icon.CARET_UP" />
-          </div>
-          <div
-            class="o-unhide rounded"
-            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col: viewportZone.left,
-      row: hiddenItem[hiddenItem.length-1]+1})}"
-            t-att-data-index="hiddenItem_index"
-            t-att-data-direction="'down'"
-            t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet-Icon.CARET_DOWN" />
-          </div>
-        </div>
-      </t>
-      <t
-        t-foreach="env.model.getters.getHiddenRowsGroups(sheetId)"
-        t-as="hiddenItem"
-        t-key="hiddenItem_index">
-        <div
-          class="position-absolute end-0 translate-middle-y"
-          t-att-style="getUnhideButtonStyle(hiddenItem[0])">
-          <div
-            class="o-unhide rounded mb-1"
-            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col:viewportZone.left,
-      row:hiddenItem[0]-1})}"
-            t-att-data-index="hiddenItem_index"
-            t-att-data-direction="'up'"
-            t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet-Icon.CARET_UP" />
-          </div>
-          <div
-            class="o-unhide rounded"
-            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col: viewportZone.left,
-      row: hiddenItem[hiddenItem.length-1]+1})}"
-            t-att-data-index="hiddenItem_index"
-            t-att-data-direction="'down'"
-            t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet-Icon.CARET_DOWN" />
-          </div>
-        </div>
-      </t> -->
     </div>
   </t>
 
