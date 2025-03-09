@@ -645,7 +645,7 @@ export class ClipboardPlugin extends UIPlugin {
         if (file.size > MAX_FILE_SIZE) {
           this.ui.notifyUI({
             text: _t(
-              `The file you are trying to copy is too large (>%sMB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.`,
+              "The file you are trying to copy is too large (>%sMB).\nIt will not be added to your OS clipboard.\nYou can download it directly instead.",
               Math.round(MAX_FILE_SIZE / (1024 * 1024))
             ),
             sticky: false,
