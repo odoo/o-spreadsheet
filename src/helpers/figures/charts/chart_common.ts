@@ -36,6 +36,7 @@ import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
+export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
 
 /**
  * This file contains helpers that are common to different charts (mainly
@@ -458,4 +459,8 @@ export function truncateLabel(label: string | undefined): string {
     return label.substring(0, MAX_CHAR_LABEL) + "…";
   }
   return label;
+}
+
+export function isTrendLineAxis(axisID: string) {
+  return axisID === TREND_LINE_XAXIS_ID || axisID === MOVING_AVERAGE_TREND_LINE_XAXIS_ID;
 }
