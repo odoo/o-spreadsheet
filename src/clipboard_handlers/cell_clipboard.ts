@@ -32,13 +32,16 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     return CommandResult.Success;
   }
 
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent | undefined {
     const sheetId = data.sheetId;
 
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
     const clippedCells: ClipboardCell[][] = [];
     const isCopyingOneCell = rowsIndexes.length == 1 && columnsIndexes.length == 1;
     for (let row of rowsIndexes) {
+      if (!isCutOperation && this.getters.isRowFiltered(sheetId, row)) {
+        continue;
+      }
       let cellsInRow: ClipboardCell[] = [];
       for (let col of columnsIndexes) {
         const position = { col, row, sheetId };
