@@ -315,7 +315,10 @@ export function isSortedColumnValid(sortedColumn: PivotSortedColumn, pivot: Pivo
       const possibleValues: (CellValue | null)[] = pivot
         .getPossibleFieldValues(columns[i])
         .map((v) => v.value);
-      if (!possibleValues.includes(sortedColumn.domain[i].value)) {
+      if (
+        !possibleValues.includes(sortedColumn.domain[i].value) &&
+        !(sortedColumn.domain[i].value === null && possibleValues.includes(""))
+      ) {
         return false;
       }
     }
