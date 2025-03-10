@@ -1,4 +1,4 @@
-import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
+import { Component, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { HoveredCellStore } from "../grid/hovered_cell_store";
@@ -90,7 +90,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
    *
    */
   getClickableCells(): ClickableCell[] {
-    return toRaw(this.clickableCellsStore.clickableCells);
+    return this.clickableCellsStore.clickableCells;
   }
 
   selectClickableCell(ev: MouseEvent, clickableCell: ClickableCell) {
