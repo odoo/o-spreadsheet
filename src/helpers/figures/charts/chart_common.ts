@@ -25,9 +25,11 @@ import {
   DataSet,
   DatasetValues,
   ExcelChartDataset,
+  ExcelChartTrendConfiguration,
   GenericDefinition,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
+import { CHART_TRENDLINE_TYPE_CONVERSION_MAP_REVERSE } from "../../../xlsx/conversion";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
@@ -36,6 +38,8 @@ import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
+// The possible values for the XLSX polynomial trendline order are defined by the ST_Order simple type (§21.2.3.29)
+export const MAX_XLSX_POLYNOMIAL_DEGREE = 6;
 
 /**
  * This file contains helpers that are common to different charts (mainly
@@ -193,6 +197,7 @@ export function createDataSets(
           backgroundColor: dataSet.backgroundColor,
           rightYAxis: dataSet.yAxisId === "y1",
           customLabel: dataSet.label,
+          trend: dataSet.trend,
         });
       }
     } else {
@@ -214,6 +219,7 @@ export function createDataSets(
         backgroundColor: dataSet.backgroundColor,
         rightYAxis: dataSet.yAxisId === "y1",
         customLabel: dataSet.label,
+        trend: dataSet.trend,
       });
     }
   }
@@ -273,6 +279,49 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
     };
   }
 
+  let trend: ExcelChartTrendConfiguration | undefined = undefined;
+  if (ds?.trend?.type) {
+    trend = {
+      type: CHART_TRENDLINE_TYPE_CONVERSION_MAP_REVERSE[ds.trend.type],
+    };
+    if (ds.trend.color) {
+      trend = {
+        ...trend,
+        color: ds.trend.color,
+      };
+    }
+    if (ds.trend.type === "polynomial" && ds.trend.order) {
+      if (ds.trend.order === 1) {
+        trend = {
+          ...trend,
+          type: "linear",
+        };
+      } else {
+        trend = {
+          ...trend,
+          order:
+            ds.trend.order > MAX_XLSX_POLYNOMIAL_DEGREE
+              ? MAX_XLSX_POLYNOMIAL_DEGREE
+              : ds.trend.order,
+        };
+      }
+    }
+    if (ds.trend.type === "trailingMovingAverage" && ds.trend.window) {
+      trend = {
+        ...trend,
+        window: ds.trend.window,
+      };
+    }
+  }
+  if (trend) {
+    return {
+      label,
+      range: getters.getRangeString(dataRange, "forceSheetReference", { useFixedReference: true }),
+      backgroundColor: ds.backgroundColor,
+      rightYAxis: ds.rightYAxis,
+      trend,
+    };
+  }
   return {
     label,
     range: getters.getRangeString(dataRange, "forceSheetReference", { useBoundedReference: true }),
