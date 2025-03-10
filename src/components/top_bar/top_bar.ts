@@ -63,10 +63,12 @@ css/* scss */ `
     font-size: 13px;
     font-weight: 500;
     background-color: #fff;
+    width: inherit;
 
     .o-topbar-top {
       border-bottom: 1px solid ${SEPARATOR_COLOR};
       padding: 2px 10px;
+      overflow: hidden;
 
       /* Menus */
       .o-topbar-topleft {

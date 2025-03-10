@@ -221,6 +221,9 @@ export function makeTestEnv(
       const store = container.get(Store);
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
     },
+    get isSmall() {
+      return mockEnv.isSmall || false;
+    },
     // @ts-ignore
     __spreadsheet_stores__: container,
   };
@@ -286,7 +289,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   component: ComponentConstructor<Props, SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<Props>> {
-  const model = optionalArgs.model || optionalArgs?.env?.model || new Model();
+  const model = optionalArgs.model || optionalArgs.env?.model || new Model();
   model.drawLayer = () => {};
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
