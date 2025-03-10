@@ -9,7 +9,6 @@ import {
   SCROLLBAR_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../constants";
-import { positionToZone } from "../../helpers";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,
@@ -26,6 +25,7 @@ import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
+import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
 
 // -----------------------------------------------------------------------------
 // Resizer component
@@ -367,6 +367,7 @@ export class ColResizer extends AbstractResizer {
   };
 
   static template = "o-spreadsheet-ColResizer";
+  static components = { UnhideColumnHeaders };
 
   private colResizerRef!: Ref<HTMLElement>;
 
@@ -502,6 +503,30 @@ export class ColResizer extends AbstractResizer {
   getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
     return cssPropertiesToCss({ left: this._getDimensionsInViewport(hiddenIndex).start + "px" });
   }
+
+  getFrozenHiddenGroups() {
+    const { xSplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    if (!xSplit) {
+      return [];
+    }
+    const hiddenGroups = this.env.model.getters.getHiddenColsGroups(this.sheetId);
+    return hiddenGroups.filter((group) => group[0] < xSplit);
+  }
+
+  getUnfrozenHiddenGroups() {
+    const { xSplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    const hiddenGroups = this.env.model.getters.getHiddenColsGroups(this.sheetId);
+    return hiddenGroups.filter((group) => group[group.length - 1] >= xSplit);
+  }
+
+  get frozenContainerStyle() {
+    const { x } = this.env.model.getters.getMainViewportCoordinates();
+    return cssPropertiesToCss({ width: x + "px" });
+  }
+
+  get hasFrozenPane(): boolean {
+    return this.env.model.getters.getPaneDivisions(this.sheetId).ySplit > 0;
+  }
 }
 
 css/* scss */ `
@@ -549,7 +574,6 @@ css/* scss */ `
       background-color: ${SELECTION_BORDER_COLOR};
     }
     .o-unhide {
-      pointer-events: auto;
       color: ${ICONS_COLOR};
     }
     .o-unhide:hover {
@@ -564,6 +588,7 @@ export class RowResizer extends AbstractResizer {
     onOpenContextMenu: Function,
   };
   static template = "o-spreadsheet-RowResizer";
+  static components = { UnhideRowHeaders };
 
   setup() {
     super.setup();
@@ -696,15 +721,6 @@ export class RowResizer extends AbstractResizer {
     });
   }
 
-  getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
-    const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
-    const offset = hiddenIndex > ySplit ? this.env.model.getters.getMainViewportCoordinates().y : 0;
-    const y =
-      this.env.model.getters.getRect(positionToZone({ col: 0, row: hiddenIndex })).y -
-      HEADER_HEIGHT;
-    return cssPropertiesToCss({ top: y - offset + "px" });
-  }
-
   getFrozenHiddenGroups() {
     const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
     if (!ySplit) {
@@ -723,6 +739,10 @@ export class RowResizer extends AbstractResizer {
   get frozenContainerStyle() {
     const { y } = this.env.model.getters.getMainViewportCoordinates();
     return cssPropertiesToCss({ height: y + "px" });
+  }
+
+  get hasFrozenPane(): boolean {
+    return this.env.model.getters.getPaneDivisions(this.sheetId).ySplit > 0;
   }
 }
 

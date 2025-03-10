@@ -37,48 +37,25 @@
           <div class="dragging-resizer" t-if="state.isResizing"/>
         </div>
       </t>
-      <t t-set="viewportZone" t-value="env.model.getters.getActiveMainViewport()"/>
-      <div class="position-relative pe-none" t-att-style="frozenContainerStyle">
-        <t t-call="trucRow">
-          <t t-set="trucs" t-value="getFrozenHiddenGroups()"/>
+      <t t-if="env.model.getters.getHiddenRowsGroups(sheetId).length">
+        <t t-if="hasFrozenPane">
+          <div class="position-relative pe-none" t-att-style="frozenContainerStyle">
+            <UnhideRowHeaders headersGroups="getFrozenHiddenGroups()"/>
+          </div>
         </t>
-      </div>
-      <div class="pe-none overflow-hidden flex-shrink-0 position-relative h-100 w-100">
-        <t t-call="trucRow">
-          <t t-set="trucs" t-value="getUnfrozenHiddenGroups()"/>
-        </t>
-      </div>
+        <div class="pe-none overflow-hidden flex-shrink-0 position-relative h-100 w-100">
+          <UnhideRowHeaders
+            headersGroups="getUnfrozenHiddenGroups()"
+            offset="this.env.model.getters.getMainViewportCoordinates().y"
+          />
+        </div>
+      </t>
     </div>
-  </t>
-
-  <t t-name="trucRow">
-    <t t-foreach="trucs" t-as="hiddenItem" t-key="hiddenItem_index">
-      <div
-        class="position-absolute translate-middle-y end-0"
-        t-att-style="getUnhideButtonStyle(hiddenItem[0])">
-        <div
-          class="o-unhide rounded mb-1"
-          t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col:viewportZone.left, row:hiddenItem[0]-1})}"
-          t-att-data-index="hiddenItem_index"
-          t-att-data-direction="'up'"
-          t-on-click="() => this.unhide(hiddenItem)">
-          <t t-call="o-spreadsheet-Icon.CARET_UP"/>
-        </div>
-        <div
-          class="o-unhide rounded"
-          t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col: viewportZone.left, row: hiddenItem[hiddenItem.length-1]+1})}"
-          t-att-data-index="hiddenItem_index"
-          t-att-data-direction="'down'"
-          t-on-click="() => this.unhide(hiddenItem)">
-          <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
-        </div>
-      </div>
-    </t>
   </t>
 
   <t t-name="o-spreadsheet-ColResizer">
     <div
-      class="o-col-resizer overflow-hidden"
+      class="o-col-resizer overflow-hidde d-flex"
       t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
       t-on-pointerdown.self.prevent="select"
@@ -106,30 +83,19 @@
           <div class="dragging-resizer" t-if="state.isResizing"/>
         </div>
       </t>
-      <t t-set="viewportZone" t-value="env.model.getters.getActiveMainViewport()"/>
-      <t
-        t-foreach="env.model.getters.getHiddenColsGroups(sheetId)"
-        t-as="hiddenItem"
-        t-key="hiddenItem_index">
-        <div
-          class="position-absolute h-100 d-flex align-items-center translate-middle-x gap-2"
-          t-att-style="getUnhideButtonStyle(hiddenItem[0])">
+      <t t-if="env.model.getters.getHiddenColsGroups(sheetId).length">
+        <t t-if="hasFrozenPane">
           <div
-            class="o-unhide rounded"
-            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col: hiddenItem[0]-1, row: viewportZone.top})}"
-            t-att-data-index="hiddenItem_index"
-            t-att-data-direction="'left'"
-            t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet-Icon.CARET_LEFT"/>
+            class="position-relative pe-none h-100 flex-shrink-0"
+            t-att-style="frozenContainerStyle">
+            <UnhideColumnHeaders headersGroups="getFrozenHiddenGroups()"/>
           </div>
-          <div
-            class="o-unhide rounded"
-            t-att-class="{'invisible': !env.model.getters.isVisibleInViewport({sheetId, col: hiddenItem[hiddenItem.length-1]+1, row: viewportZone.top})}"
-            t-att-data-index="hiddenItem_index"
-            t-att-data-direction="'right'"
-            t-on-click="() => this.unhide(hiddenItem)">
-            <t t-call="o-spreadsheet-Icon.CARET_RIGHT"/>
-          </div>
+        </t>
+        <div class="pe-none overflow-hidden flex-shrink-0 position-relative h-100 w-100">
+          <UnhideColumnHeaders
+            headersGroups="getUnfrozenHiddenGroups()"
+            offset="this.env.model.getters.getMainViewportCoordinates().x"
+          />
         </div>
       </t>
     </div>

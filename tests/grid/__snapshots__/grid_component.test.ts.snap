@@ -50,9 +50,8 @@ exports[`Grid component simple rendering snapshot 1`] = `
     class="o-overlay"
   >
     <div
-      class="o-col-resizer overflow-hidden"
+      class="o-col-resizer overflow-hidde d-flex"
     >
-      
       
       
       
@@ -62,7 +61,6 @@ exports[`Grid component simple rendering snapshot 1`] = `
     <div
       class="o-row-resizer overflow-hidden"
     >
-      
       
       
       

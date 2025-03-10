@@ -761,7 +761,7 @@ describe("Hide/show columns", () => {
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH * 4);
+      setSheetviewSize(model, 1000, DEFAULT_CELL_WIDTH * 5);
       await nextTick();
       unhideButtons = getUnhideColumnButtons();
 
