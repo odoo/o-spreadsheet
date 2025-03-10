@@ -39,10 +39,10 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getBarChartData,
   getChartLayout,
   getChartShowValues,
   getChartTitle,
+  getFunnelChartData,
   getFunnelChartDatasets,
   getFunnelChartScales,
   getFunnelChartTooltip,
@@ -61,6 +61,7 @@ export class FunnelChart extends AbstractChart {
   readonly horizontal = true;
   readonly showValues?: boolean;
   readonly funnelColors?: FunnelChartColors;
+  readonly cumulative?: boolean;
 
   constructor(definition: FunnelChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -80,6 +81,7 @@ export class FunnelChart extends AbstractChart {
     this.showValues = definition.showValues;
     this.horizontal = true;
     this.funnelColors = definition.funnelColors;
+    this.cumulative = definition.cumulative;
   }
 
   static transformDefinition(
@@ -110,6 +112,7 @@ export class FunnelChart extends AbstractChart {
       axesDesign: context.axesDesign,
       funnelColors: context.funnelColors,
       horizontal: true,
+      cumulative: context.cumulative,
     };
   }
 
@@ -181,6 +184,7 @@ export class FunnelChart extends AbstractChart {
       axesDesign: this.axesDesign,
       showValues: this.showValues,
       funnelColors: this.funnelColors,
+      cumulative: this.cumulative,
     };
   }
 
@@ -205,7 +209,7 @@ export class FunnelChart extends AbstractChart {
 
 export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): FunnelChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getBarChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getFunnelChartData(definition, chart.dataSets, chart.labelRange, getters);
 
   const config: ChartConfiguration = {
     type: "funnel",

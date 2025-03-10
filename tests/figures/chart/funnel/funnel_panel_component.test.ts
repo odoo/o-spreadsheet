@@ -1,6 +1,7 @@
 import { Model, SpreadsheetChildEnv } from "../../../../src";
 import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
 import {
+  click,
   createFunnelChart,
   getHTMLCheckboxValue,
   getHTMLInputValue,
@@ -31,13 +32,27 @@ describe("Funnel chart side panel", () => {
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
         aggregated: true,
+        cumulative: true,
       });
       await openChartConfigSidePanel(model, env, chartId);
 
-      expect(getHTMLInputValue(".o-data-series input")).toEqual("A1:A3");
-      expect(getHTMLInputValue(".o-data-labels input")).toEqual("B1:B3");
-      expect(getHTMLCheckboxValue('input[name="aggregated"]')).toBe(true);
-      expect(getHTMLCheckboxValue('input[name="dataSetsHaveTitle"]')).toBe(true);
+      expect(".o-data-series input").toHaveValue("A1:A3");
+      expect(".o-data-labels input").toHaveValue("B1:B3");
+      expect('input[name="aggregated"]').toHaveValue(true);
+      expect('input[name="dataSetsHaveTitle"]').toHaveValue(true);
+      expect('input[name="cumulative"]').toHaveValue(true);
+    });
+
+    test("Can make chart cumulative", async () => {
+      const chartId = createFunnelChart(model);
+      await openChartConfigSidePanel(model, env, chartId);
+
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ cumulative: false });
+      expect('input[name="cumulative"]').toHaveValue(false);
+
+      await click(fixture, 'input[name="cumulative"]');
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ cumulative: true });
+      expect('input[name="cumulative"]').toHaveValue(true);
     });
   });
 
