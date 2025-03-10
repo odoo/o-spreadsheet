@@ -500,10 +500,6 @@ export class ColResizer extends AbstractResizer {
     });
   }
 
-  getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
-    return cssPropertiesToCss({ left: this._getDimensionsInViewport(hiddenIndex).start + "px" });
-  }
-
   getFrozenHiddenGroups() {
     const { xSplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
     if (!xSplit) {
@@ -525,7 +521,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   get hasFrozenPane(): boolean {
-    return this.env.model.getters.getPaneDivisions(this.sheetId).ySplit > 0;
+    return this.env.model.getters.getPaneDivisions(this.sheetId).xSplit > 0;
   }
 }
 
@@ -724,16 +720,21 @@ export class RowResizer extends AbstractResizer {
   getFrozenHiddenGroups() {
     const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
     if (!ySplit) {
-      return [];
     }
+    return [];
     const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
-    return hiddenGroups.filter((group) => group[0] < ySplit);
+    const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
+    return hiddenGroups.slice(0, index + 1);
+    // return hiddenGroups.filter((group) => group[0] < ySplit);
   }
 
   getUnfrozenHiddenGroups() {
     const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
     const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
-    return hiddenGroups.filter((group) => group[group.length - 1] >= ySplit);
+    // debugger
+    const index = hiddenGroups.findIndex((group) => group[0] >= ySplit - 1);
+    return hiddenGroups.slice(index);
+    // return hiddenGroups.filter((group) => group[group.length - 1] >= ySplit);
   }
 
   get frozenContainerStyle() {

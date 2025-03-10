@@ -29,7 +29,8 @@ export class UnhideRowHeaders extends Component<Props, SpreadsheetChildEnv> {
     const y =
       this.env.model.getters.getRect(positionToZone({ col: 0, row: hiddenIndex })).y -
       HEADER_HEIGHT;
-    return cssPropertiesToCss({ top: y - this.props.offset + "px" });
+    console.log("y", y);
+    return cssPropertiesToCss({ top: y - this.props.offset + "px", "margin-right": "1px" });
   }
 
   unhide(hiddenElements: HeaderIndex[]) {
