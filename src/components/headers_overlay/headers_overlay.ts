@@ -711,6 +711,11 @@ export class RowResizer extends AbstractResizer {
     const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
     return hiddenGroups.filter((group) => group[group.length - 1] > ySplit);
   }
+
+  get frozenContainerStyle() {
+    const { y } = this.env.model.getters.getMainViewportCoordinates();
+    return cssPropertiesToCss({ height: y + "px" });
+  }
 }
 
 css/* scss */ `

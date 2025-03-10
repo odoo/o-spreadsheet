@@ -38,9 +38,11 @@
         </div>
       </t>
       <t t-set="viewportZone" t-value="env.model.getters.getActiveMainViewport()"/>
-      <t t-call="trucRow">
-        <t t-set="trucs" t-value="getFrozenHiddenGroups()"/>
-      </t>
+      <div class="pointer-none" t-att-style="frozenContainerStyle">
+        <t t-call="trucRow">
+          <t t-set="trucs" t-value="getFrozenHiddenGroups()"/>
+        </t>
+      </div>
       <t t-call="trucRow">
         <t t-set="trucs" t-value="getUnfrozenHiddenGroups()"/>
       </t>
