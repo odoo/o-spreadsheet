@@ -1,7 +1,7 @@
 import { onWillUnmount } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers";
 import { SpreadsheetChildEnv } from "../../types/env";
-import { HeaderIndex } from "../../types/misc";
+import { HeaderIndex, Pixel } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
 
@@ -23,6 +23,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let startingY: number;
   const getters = env.model.getters;
   const sheetId = getters.getActiveSheetId();
+  let stopDnd;
   let cleanUp: () => void;
 
   let pointerMoveCallback: (col: HeaderIndex, row: HeaderIndex, ev: PointerEvent) => void;
@@ -102,12 +103,8 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     }
 
     if (!canEdgeScroll) {
-      if (rowIndex === -1) {
-        rowIndex = y < 0 ? 0 : getters.getNumberRows(sheetId) - 1;
-      }
-      if (colIndex === -1 && x < 0) {
-        colIndex = x < 0 ? 0 : getters.getNumberCols(sheetId) - 1;
-      }
+      colIndex = adjustIndexWithinBounds(colIndex, x, getters.getNumberCols(sheetId) - 1);
+      rowIndex = adjustIndexWithinBounds(rowIndex, y, getters.getNumberRows(sheetId) - 1);
     }
 
     pointerMoveCallback?.(colIndex, rowIndex, currentEv);
@@ -128,6 +125,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   };
 
   const startFn = (
+    // TODORAR change to startX startY pour pas dépendre du type d'event qui lance la machine
     ev: PointerEvent,
     onPointerMove: (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => void,
     onPointerUp: () => void
@@ -139,22 +137,35 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     pointerMoveCallback = onPointerMove;
     pointerUpCallback = onPointerUp;
     cleanUp = startDnd(pointerMoveHandler, pointerUpHandler);
-    const stopDnd = (ev: KeyboardEvent) => {
-      ev.stopPropagation();
-      ev.preventDefault();
-      clearTimeout(timeOutId);
-      timeOutId = null;
-      cleanUp?.();
-      window.removeEventListener("keydown", stopDnd, { capture: true });
-    };
-    window.addEventListener("keydown", stopDnd, { capture: true });
+    // TODORAR ca pete plein de tests
+    // stopDnd = (ev: KeyboardEvent) => {
+    //   // TODORAR déplacer pour pouvoir
+    //   // expliquer clairement pourquoi on fait ce changement
+    //   ev.stopPropagation();
+    //   ev.preventDefault();
+    //   clearTimeout(timeOutId);
+    //   timeOutId = null;
+    //   cleanUp?.();
+    //   // TODORAR ce remove listener doit aussi etre ajouté un cleanup
+    //   // faut une liste locale des cleanup a appeler.
+    //   window.removeEventListener("keydown", stopDnd, { capture: true });
+    // };
+    // window.addEventListener("keydown", stopDnd, { capture: true });
   };
 
   onWillUnmount(() => {
     clearTimeout(timeOutId);
     timeOutId = null;
     cleanUp?.();
+    window.removeEventListener("keydown", stopDnd, { capture: true });
   });
 
   return { start: startFn };
+}
+
+function adjustIndexWithinBounds(index: HeaderIndex, position: Pixel, max: HeaderIndex) {
+  if (index === -1) {
+    return position < 0 ? 0 : max;
+  }
+  return index;
 }
