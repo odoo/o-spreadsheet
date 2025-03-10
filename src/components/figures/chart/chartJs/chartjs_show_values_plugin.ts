@@ -1,9 +1,6 @@
 import { ChartType, Plugin } from "chart.js";
 import { computeTextWidth } from "../../../../helpers";
-import {
-  TREND_LINE_XAXIS_ID,
-  chartFontColor,
-} from "../../../../helpers/figures/charts/chart_common";
+import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { Color } from "../../../../types";
 
 export interface ChartShowValuesPluginOptions {
@@ -72,7 +69,7 @@ function drawLineOrBarOrRadarChartValues(
   const textsPositions: Record<number, number[]> = {};
 
   for (const dataset of chart._metasets) {
-    if (dataset.xAxisID === TREND_LINE_XAXIS_ID || dataset.hidden) {
+    if (isTrendLineAxis(dataset.axisID) || dataset.hidden) {
       continue;
     }
 
@@ -126,7 +123,7 @@ function drawHorizontalBarChartValues(
   const textsPositions: Record<number, number[]> = {};
 
   for (const dataset of chart._metasets) {
-    if (dataset.xAxisID === TREND_LINE_XAXIS_ID) {
+    if (isTrendLineAxis(dataset.axisID)) {
       return; // ignore trend lines
     }
 
