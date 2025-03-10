@@ -32,6 +32,7 @@ import { getColorScale } from "../../../color";
 import { formatValue } from "../../../format/format";
 import { isDefined, range, removeFalsyAttributes } from "../../../misc";
 import {
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   formatTickValue,
@@ -69,6 +70,11 @@ export function getBarChartScales(
     scales[TREND_LINE_XAXIS_ID] = {
       ...(scales!.x as any),
       labels: Array(maxLength).fill(""),
+      offset: false,
+      display: false,
+    };
+    scales[MOVING_AVERAGE_TREND_LINE_XAXIS_ID] = {
+      ...(scales!.x as any),
       offset: false,
       display: false,
     };
@@ -112,6 +118,10 @@ export function getLineChartScales(
       ...(scales.x as any),
       display: false,
     };
+    scales[MOVING_AVERAGE_TREND_LINE_XAXIS_ID] = {
+      ...(scales.x as any),
+      display: false,
+    };
     if (axisType === "category" || axisType === "time") {
       /* We add a second x axis here to draw the trend lines, with the labels length being
        * set so that the second axis points match the classical x axis
@@ -120,6 +130,8 @@ export function getLineChartScales(
       scales[TREND_LINE_XAXIS_ID]!["type"] = "category";
       scales[TREND_LINE_XAXIS_ID]!["labels"] = range(0, maxLength).map((x) => x.toString());
       scales[TREND_LINE_XAXIS_ID]!["offset"] = false;
+      scales[MOVING_AVERAGE_TREND_LINE_XAXIS_ID]!["type"] = "category";
+      scales[MOVING_AVERAGE_TREND_LINE_XAXIS_ID]!["offset"] = false;
     }
   }
 
