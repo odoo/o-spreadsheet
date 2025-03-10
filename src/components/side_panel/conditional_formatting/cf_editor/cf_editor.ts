@@ -338,6 +338,10 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     this.state.ranges = ranges;
   }
 
+  onRangeRemoved(index: number) {
+    this.state.ranges = this.state.ranges.filter((_, i) => i !== index);
+  }
+
   onRangeConfirmed() {
     this.updateConditionalFormat({ ranges: this.state.ranges });
   }
