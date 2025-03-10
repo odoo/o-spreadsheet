@@ -7,6 +7,7 @@ import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
 import { FunnelChartController, FunnelChartElement } from "./chartjs_funnel_chart";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
+import { sunburstLabelsPlugin } from "./chartjs_sunburst_labels_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
 window.Chart?.register(waterfallLinesPlugin);
 window.Chart?.register(chartShowValuesPlugin);
 window.Chart?.register(FunnelChartController, FunnelChartElement);
+window.Chart?.register(sunburstLabelsPlugin);
 
 css/* scss */ `
   .o-spreadsheet {
