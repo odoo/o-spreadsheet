@@ -769,6 +769,20 @@ describe("Import xlsx data", () => {
     expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
 
+  test("Can import scatter plot with textual labels", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find(
+      (figure) => figure.data.title.text === "scatter chart with textual labels"
+    )!;
+    const chartData = figure.data as ScatterChartDefinition;
+    expect(chartData.title.text).toEqual("scatter chart with textual labels");
+    expect(chartData.type).toEqual("scatter");
+    expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
+    expect(chartData.dataSets).toEqual([{ dataRange: "Sheet1!C27:C35" }]);
+    expect(chartData.labelRange).toEqual("Sheet1!A27:A35");
+    expect(chartData.dataSetsHaveTitle).toBeFalsy();
+  });
+
   test.each([
     ["chart", "A1:F19"],
     ["image", "H1:K20"],

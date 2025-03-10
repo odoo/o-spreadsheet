@@ -36,10 +36,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
             this.querySelectorAll(rootChartElement, `c:${chartType}`)!,
             chartType
           ),
-          labelRange: this.extractChildTextContent(
-            rootChartElement,
-            `c:ser ${chartType === "scatterChart" ? "c:numRef" : "c:cat"} c:f`
-          ),
+          labelRange: this.extractLabelRange(chartType, rootChartElement),
           backgroundColor: this.extractChildAttr(
             rootChartElement,
             "c:chartSpace > c:spPr a:srgbClr",
@@ -59,6 +56,16 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         };
       }
     )[0];
+  }
+
+  private extractLabelRange(chartType: XLSXChartType, rootChartElement: Element) {
+    if (chartType === "scatterChart") {
+      return (
+        this.extractChildTextContent(rootChartElement, `c:ser c:strRef c:f`) ||
+        this.extractChildTextContent(rootChartElement, `c:ser c:numRef c:f`)
+      );
+    }
+    return this.extractChildTextContent(rootChartElement, `c:ser c:cat c:f`);
   }
 
   private extractComboChart(chartElement: Element): ExcelChartDefinition {
