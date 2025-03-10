@@ -38,21 +38,23 @@
         </div>
       </t>
       <t t-set="viewportZone" t-value="env.model.getters.getActiveMainViewport()"/>
-      <div class="pointer-none" t-att-style="frozenContainerStyle">
+      <div class="position-relative pe-none" t-att-style="frozenContainerStyle">
         <t t-call="trucRow">
           <t t-set="trucs" t-value="getFrozenHiddenGroups()"/>
         </t>
       </div>
-      <t t-call="trucRow">
-        <t t-set="trucs" t-value="getUnfrozenHiddenGroups()"/>
-      </t>
+      <div class="pe-none overflow-hidden flex-shrink-0 position-relative h-100 w-100">
+        <t t-call="trucRow">
+          <t t-set="trucs" t-value="getUnfrozenHiddenGroups()"/>
+        </t>
+      </div>
     </div>
   </t>
 
   <t t-name="trucRow">
     <t t-foreach="trucs" t-as="hiddenItem" t-key="hiddenItem_index">
       <div
-        class="position-absolute end-0 translate-middle-y"
+        class="position-absolute translate-middle-y end-0"
         t-att-style="getUnhideButtonStyle(hiddenItem[0])">
         <div
           class="o-unhide rounded mb-1"

@@ -9,6 +9,7 @@ import {
   SCROLLBAR_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../constants";
+import { positionToZone } from "../../helpers";
 import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,
@@ -511,6 +512,7 @@ css/* scss */ `
     right: 0;
     width: ${HEADER_WIDTH}px;
     height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px);
+    z-index: 1;
     &.o-dragging {
       cursor: grabbing;
     }
@@ -547,6 +549,7 @@ css/* scss */ `
       background-color: ${SELECTION_BORDER_COLOR};
     }
     .o-unhide {
+      pointer-events: auto;
       color: ${ICONS_COLOR};
     }
     .o-unhide:hover {
@@ -694,7 +697,12 @@ export class RowResizer extends AbstractResizer {
   }
 
   getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
-    return cssPropertiesToCss({ top: this._getDimensionsInViewport(hiddenIndex).start + "px" });
+    const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
+    const offset = hiddenIndex > ySplit ? this.env.model.getters.getMainViewportCoordinates().y : 0;
+    const y =
+      this.env.model.getters.getRect(positionToZone({ col: 0, row: hiddenIndex })).y -
+      HEADER_HEIGHT;
+    return cssPropertiesToCss({ top: y - offset + "px" });
   }
 
   getFrozenHiddenGroups() {
@@ -709,7 +717,7 @@ export class RowResizer extends AbstractResizer {
   getUnfrozenHiddenGroups() {
     const { ySplit } = this.env.model.getters.getPaneDivisions(this.sheetId);
     const hiddenGroups = this.env.model.getters.getHiddenRowsGroups(this.sheetId);
-    return hiddenGroups.filter((group) => group[group.length - 1] > ySplit);
+    return hiddenGroups.filter((group) => group[group.length - 1] >= ySplit);
   }
 
   get frozenContainerStyle() {

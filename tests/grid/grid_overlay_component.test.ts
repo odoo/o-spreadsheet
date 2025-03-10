@@ -895,7 +895,7 @@ describe("Hide/show rows", () => {
       expect(unhideButtons).toHaveLength(2);
       expect(unhideButtons.some((el) => el.classList.contains("invisible"))).toBeFalsy();
 
-      setSheetviewSize(model, DEFAULT_CELL_HEIGHT * 4, 1000);
+      setSheetviewSize(model, DEFAULT_CELL_HEIGHT * 5, 1000);
       await nextTick();
       unhideButtons = getUnhideRowButtons();
 
