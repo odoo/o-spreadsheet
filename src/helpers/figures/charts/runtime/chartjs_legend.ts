@@ -17,7 +17,13 @@ import {
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { ColorGenerator } from "../../../color";
+<<<<<<< saas-18.2
 import { TREND_LINE_XAXIS_ID, chartFontColor, getPieColors, truncateLabel } from "../chart_common";
+||||||| 17e96f235103303db58d889204b5f87871a5df98
+import { TREND_LINE_XAXIS_ID, chartFontColor, getPieColors } from "../chart_common";
+=======
+import { chartFontColor, getPieColors, isTrendLineAxis } from "../chart_common";
+>>>>>>> 10e6a3650c8f3a60a07518390724fe61e4469b96
 
 type ChartLegend = DeepPartial<LegendOptions<any>>;
 
@@ -246,7 +252,7 @@ function getCustomLegendLabels(
       usePointStyle: true,
       generateLabels: (chart: Chart) =>
         chart.data.datasets.map((dataset, index) => {
-          if (dataset["xAxisID"] === TREND_LINE_XAXIS_ID) {
+          if (isTrendLineAxis(dataset["xAxisID"])) {
             return {
               text: truncateLabel(dataset.label),
               fontColor,
