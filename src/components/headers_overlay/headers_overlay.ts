@@ -6,6 +6,7 @@ import {
   ICONS_COLOR,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
+  SCROLLBAR_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../constants";
 import { Store, useStore } from "../../store_engine";
@@ -376,6 +377,10 @@ export class ColResizer extends AbstractResizer {
     this.MIN_ELEMENT_SIZE = MIN_COL_WIDTH;
   }
 
+  get sheetId() {
+    return this.env.model.getters.getActiveSheetId();
+  }
+
   _getEvOffset(ev: MouseEvent): Pixel {
     return ev.offsetX;
   }
@@ -405,14 +410,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions {
-    return this.env.model.getters.getColDimensionsInViewport(
-      this.env.model.getters.getActiveSheetId(),
-      index
-    );
+    return this.env.model.getters.getColDimensionsInViewport(this.sheetId, index);
   }
 
   _getElementSize(index: HeaderIndex): Pixel {
-    return this.env.model.getters.getColSize(this.env.model.getters.getActiveSheetId(), index);
+    return this.env.model.getters.getColSize(this.sheetId, index);
   }
 
   _getMaxSize(): Pixel {
@@ -425,7 +427,7 @@ export class ColResizer extends AbstractResizer {
     const cols = this.env.model.getters.getActiveCols();
     this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "COL",
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       elements: cols.has(index) ? [...cols] : [index],
       size,
     });
@@ -439,7 +441,7 @@ export class ColResizer extends AbstractResizer {
       elements.push(colIndex);
     }
     const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       dimension: "COL",
       base: this.state.base,
       elements,
@@ -464,7 +466,7 @@ export class ColResizer extends AbstractResizer {
   _fitElementSize(index: HeaderIndex): void {
     const cols = this.env.model.getters.getActiveCols();
     this.env.model.dispatch("AUTORESIZE_COLUMNS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       cols: cols.has(index) ? [...cols] : [index],
     });
   }
@@ -478,7 +480,7 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.sheetId;
     let row: HeaderIndex;
     for (row = index - 1; row >= 0; row--) {
       if (!this.env.model.getters.isColHidden(sheetId, row)) {
@@ -490,7 +492,7 @@ export class ColResizer extends AbstractResizer {
 
   unhide(hiddenElements: HeaderIndex[]) {
     this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       elements: hiddenElements,
       dimension: "COL",
     });
@@ -508,7 +510,7 @@ css/* scss */ `
     left: 0;
     right: 0;
     width: ${HEADER_WIDTH}px;
-    height: 100%;
+    height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px);
     &.o-dragging {
       cursor: grabbing;
     }
@@ -570,6 +572,10 @@ export class RowResizer extends AbstractResizer {
 
   private rowResizerRef!: Ref<HTMLElement>;
 
+  get sheetId() {
+    return this.env.model.getters.getActiveSheetId();
+  }
+
   _getEvOffset(ev: MouseEvent): Pixel {
     return ev.offsetY;
   }
@@ -599,14 +605,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getDimensionsInViewport(index: HeaderIndex): HeaderDimensions {
-    return this.env.model.getters.getRowDimensionsInViewport(
-      this.env.model.getters.getActiveSheetId(),
-      index
-    );
+    return this.env.model.getters.getRowDimensionsInViewport(this.sheetId, index);
   }
 
   _getElementSize(index: HeaderIndex): Pixel {
-    return this.env.model.getters.getRowSize(this.env.model.getters.getActiveSheetId(), index);
+    return this.env.model.getters.getRowSize(this.sheetId, index);
   }
 
   _getMaxSize(): Pixel {
@@ -619,7 +622,7 @@ export class RowResizer extends AbstractResizer {
     const rows = this.env.model.getters.getActiveRows();
     this.env.model.dispatch("RESIZE_COLUMNS_ROWS", {
       dimension: "ROW",
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       elements: rows.has(index) ? [...rows] : [index],
       size,
     });
@@ -633,7 +636,7 @@ export class RowResizer extends AbstractResizer {
       elements.push(rowIndex);
     }
     const result = this.env.model.dispatch("MOVE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       dimension: "ROW",
       base: this.state.base,
       elements,
@@ -658,7 +661,7 @@ export class RowResizer extends AbstractResizer {
   _fitElementSize(index: HeaderIndex): void {
     const rows = this.env.model.getters.getActiveRows();
     this.env.model.dispatch("AUTORESIZE_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       rows: rows.has(index) ? [...rows] : [index],
     });
   }
@@ -672,7 +675,7 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
-    const sheetId = this.env.model.getters.getActiveSheetId();
+    const sheetId = this.sheetId;
     let row: HeaderIndex;
     for (row = index - 1; row >= 0; row--) {
       if (!this.env.model.getters.isRowHidden(sheetId, row)) {
@@ -684,7 +687,7 @@ export class RowResizer extends AbstractResizer {
 
   unhide(hiddenElements: HeaderIndex[]) {
     this.env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
-      sheetId: this.env.model.getters.getActiveSheetId(),
+      sheetId: this.sheetId,
       dimension: "ROW",
       elements: hiddenElements,
     });
