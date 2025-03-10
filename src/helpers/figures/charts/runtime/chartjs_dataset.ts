@@ -346,7 +346,7 @@ function getTrendingLineDataSet(
 
   return {
     type: "line",
-    xAxisID: TREND_LINE_XAXIS_ID,
+    xAxisID: config.type !== "trailingMovingAverage" ? TREND_LINE_XAXIS_ID : "x",
     yAxisID: dataset.yAxisID,
     label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
     data,
