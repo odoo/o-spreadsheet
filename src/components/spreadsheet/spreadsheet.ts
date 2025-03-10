@@ -182,7 +182,14 @@ css/* scss */ `
     }
 
     .o-input[type="text"] {
-      border-width: 0 0 1px 0;
+      &:not([disabled]) {
+        border-width: 0 0 1px 0;
+      }
+
+      &:disabled {
+        border-width: 0 0 0 0;
+        cursor: not-allowed;
+      }
     }
 
     .o-input[type="number"],
