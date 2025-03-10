@@ -12,7 +12,10 @@ import {
   setFormat,
   updateChart,
 } from "../../../test_helpers";
-import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
+import {
+  GENERAL_CHART_CREATION_CONTEXT,
+  getChartTooltipValues,
+} from "../../../test_helpers/chart_helpers";
 
 let model: Model;
 
@@ -298,23 +301,8 @@ describe("Waterfall chart", () => {
 
   test("create waterfall chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
-      background: "#123456",
-      title: { text: "hello there" },
+      ...GENERAL_CHART_CREATION_CONTEXT,
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
-      auxiliaryRange: "Sheet1!A1:A4",
-      legendPosition: "bottom",
-      cumulative: true,
-      labelsAsText: true,
-      dataSetsHaveTitle: true,
-      aggregated: true,
-      stacked: true,
-      firstValueAsSubtotal: true,
-      showConnectorLines: false,
-      showSubTotals: true,
-      axesDesign: {},
-      fillArea: true,
-      showValues: false,
-      funnelColors: [],
     };
     const definition = WaterfallChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

@@ -12,6 +12,9 @@
         onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
         onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
         hasSingleRange="true"
+        canChangeDatasetOrientation="canChangeDatasetOrientation"
+        datasetOrientation="datasetOrientation"
+        onFlipAxis.bind="setDatasetOrientation"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
