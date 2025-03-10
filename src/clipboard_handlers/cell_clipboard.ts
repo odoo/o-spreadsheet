@@ -288,19 +288,12 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     }
   }
 
-  convertTextToClipboardData(text: string): ClipboardContent {
+  convertTextToClipboardData(values: string[][]): ClipboardContent {
     const locale = this.getters.getLocale();
     const copiedData: any = {
       cells: [],
     };
-    const values: string[][] = [];
-    let rowLength = 0;
-    for (const [i, row] of text.replace(/\r/g, "").split("\n").entries()) {
-      values.push(row.split("\t"));
-      if (values[i].length > rowLength) {
-        rowLength = values[i].length;
-      }
-    }
+    const rowLength = Math.max(...values.map((row) => row.length));
     for (const row of values) {
       const cells: any[] = [];
       for (let i = 0; i < rowLength; i++) {
