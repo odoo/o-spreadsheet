@@ -7,7 +7,8 @@
         t-att-style="menuStyle"
         t-on-scroll="onScroll"
         t-on-wheel.stop=""
-        t-on-click.stop=""
+        t-on-pointerdown.prevent=""
+        t-on-click.stop.prevent=""
         t-on-mouseover="onMouseOverMainMenu"
         t-on-contextmenu.prevent="">
         <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
