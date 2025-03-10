@@ -1893,6 +1893,7 @@ describe("Copy paste keyboard shortcut", () => {
   test.each<"cut" | "copy">(["copy", "cut"])(
     "%s a chart doesn't  push it in the clipboard",
     async (operation) => {
+      mockChart();
       selectCell(model, "A1");
       createChart(model, { type: "bar" }, "chartId");
       model.dispatch("SELECT_FIGURE", { id: "chartId" });
@@ -1915,7 +1916,7 @@ describe("Copy paste keyboard shortcut", () => {
     }
   );
 
-  test.each<"cut" | "copy">(["copy"])(
+  test.each<"cut" | "copy">(["copy", "cut"])(
     "%s an image pushes it in the clipboard as attachment",
     async (operation) => {
       selectCell(model, "A1");
@@ -1923,7 +1924,12 @@ describe("Copy paste keyboard shortcut", () => {
       model.dispatch("SELECT_FIGURE", { id: "imageId" });
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
-      const clipboard = await parent.env.clipboard.read!();
+      // copying to the clipboard might take more than one tick
+      let clipboard = await parent.env.clipboard.read!();
+      while (clipboard.status === "ok" && Object.keys(clipboard.content).length === 0) {
+        await nextTick();
+        clipboard = await parent.env.clipboard.read!();
+      }
       if (clipboard.status !== "ok") {
         throw new Error("Clipboard read failed");
       }
