@@ -214,6 +214,7 @@ export const irregularityMap: ActionSpec = {
       fingerprintStore.enable();
     }
   },
+  isReadonlyAllowed: true,
   icon: "o-spreadsheet-Icon.IRREGULARITY_MAP",
 };
 
