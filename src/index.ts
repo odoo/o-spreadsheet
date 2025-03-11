@@ -110,6 +110,7 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { GeoChartDesignPanel } from "./components/side_panel/chart/geo_chart_panel/geo_chart_design_panel";
 import { GeoChartRegionSelectSection } from "./components/side_panel/chart/geo_chart_panel/geo_chart_region_select_section";
@@ -289,6 +290,7 @@ export const registries = {
   supportedPivotPositionalFormulaRegistry,
   pivotToFunctionValueRegistry,
   migrationStepRegistry,
+  chartJsExtensionRegistry,
 };
 export const helpers = {
   arg,

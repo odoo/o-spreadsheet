@@ -2169,6 +2169,7 @@ test("ChartJS charts extensions are loaded when mounting a chart, and are only l
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
   expect(spyRegister).toHaveBeenCalledTimes(1);
+<<<<<<< fac79a277d82b78833acdc99d0053c3781037c26
   expect(window.Chart.registry.plugins["items"].map((i: any) => i.id)).toMatchObject([
     "chartShowValuesPlugin",
     "waterfallLinesPlugin",
@@ -2176,6 +2177,16 @@ test("ChartJS charts extensions are loaded when mounting a chart, and are only l
     "funnel",
     "sunburstLabelsPlugin",
     "sunburstHoverPlugin",
+||||||| a0f3791cc6158cc61d2d293173057d689cfdbdd8
+  expect(spyRegister).toHaveBeenCalledTimes(2);
+  expect(window.Chart.registry.plugins["items"]).toMatchObject([
+    { id: "chartShowValuesPlugin" },
+    { id: "waterfallLinesPlugin" },
+=======
+  expect(window.Chart.registry.plugins["items"]).toMatchObject([
+    { id: "chartShowValuesPlugin" },
+    { id: "waterfallLinesPlugin" },
+>>>>>>> 6c90910659475a33d5d69c0840dbf013f425bcba
   ]);
 
   createChart(model, { type: "line" }, "chart2");

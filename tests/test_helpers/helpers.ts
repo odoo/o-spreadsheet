@@ -862,8 +862,14 @@ export const mockChart = () => {
     _id = "luxon";
   }
   class ChartMock {
+<<<<<<< fac79a277d82b78833acdc99d0053c3781037c26
     static register = (...items: any[]) =>
       items.forEach((item) => ChartMock.registry.plugins.items.push(item));
+||||||| a0f3791cc6158cc61d2d293173057d689cfdbdd8
+    static register = (item: any) => ChartMock.registry.plugins.items.push(item);
+=======
+    static register = (...items: any[]) => ChartMock.registry.plugins.items.push(...items);
+>>>>>>> 6c90910659475a33d5d69c0840dbf013f425bcba
     static _adapters = { _date: MockLuxonTimeAdapter };
     static registry = {
       plugins: {

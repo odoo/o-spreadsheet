@@ -1,4 +1,5 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
+<<<<<<< fac79a277d82b78833acdc99d0053c3781037c26
 import {
   funnelTooltipPositioner,
   getFunnelChartController,
@@ -8,6 +9,12 @@ import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs
 import { sunburstHoverPlugin } from "../../../components/figures/chart/chartJs/chartjs_sunburst_hover_plugin";
 import { sunburstLabelsPlugin } from "../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
+||||||| a0f3791cc6158cc61d2d293173057d689cfdbdd8
+import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
+import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
+=======
+import { getChartJSConstructor } from "../../../components/figures/chart/chartJs/chart_js_extension";
+>>>>>>> 6c90910659475a33d5d69c0840dbf013f425bcba
 import { Figure } from "../../../types";
 import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -117,6 +124,7 @@ const backgroundColorChartJSPlugin = {
     ctx.restore();
   },
 };
+<<<<<<< fac79a277d82b78833acdc99d0053c3781037c26
 
 /** Return window.Chart, making sure all our extensions are loaded in ChartJS */
 export function getChartJSConstructor() {
@@ -133,3 +141,15 @@ export function getChartJSConstructor() {
   }
   return window.Chart;
 }
+||||||| a0f3791cc6158cc61d2d293173057d689cfdbdd8
+
+/** Return window.Chart, making sure all our extensions are loaded in ChartJS */
+export function getChartJSConstructor() {
+  if (window.Chart && !window.Chart?.registry.plugins.get("chartShowValuesPlugin")) {
+    window.Chart.register(chartShowValuesPlugin);
+    window.Chart.register(waterfallLinesPlugin);
+  }
+  return window.Chart;
+}
+=======
+>>>>>>> 6c90910659475a33d5d69c0840dbf013f425bcba
