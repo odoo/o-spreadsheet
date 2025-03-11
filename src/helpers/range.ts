@@ -1,4 +1,3 @@
-import { _t } from "../translation";
 import {
   CellPosition,
   CoreGetters,
@@ -73,7 +72,7 @@ export class RangeImpl implements Range {
     } else if (right === undefined && bottom !== undefined) {
       return { bottom, left, top, right: this.getSheetSize(this.sheetId).numberOfCols - 1 };
     }
-    throw new Error(_t("Bad zone format"));
+    throw new Error("Bad zone format");
   }
 
   static getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {

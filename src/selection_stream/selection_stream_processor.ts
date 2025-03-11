@@ -7,7 +7,6 @@ import {
   reorderZone,
   union,
 } from "../helpers";
-import { _t } from "../translation";
 import {
   AnchorZone,
   CellValueType,
@@ -444,7 +443,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   private checkAnchorZoneOrThrow(anchor: AnchorZone) {
     const result = this.checkAnchorZone(anchor);
     if (result === CommandResult.InvalidAnchorZone) {
-      throw new Error(_t("The provided anchor is invalid. The cell must be part of the zone."));
+      throw new Error("The provided anchor is invalid. The cell must be part of the zone.");
     }
   }
 

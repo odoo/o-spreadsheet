@@ -637,7 +637,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (deltaIndex === 0) {
       return currentIndex;
     }
-    throw new Error(_t("There is not enough visible sheets"));
+    throw new Error("There is not enough visible sheets");
   }
 
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
