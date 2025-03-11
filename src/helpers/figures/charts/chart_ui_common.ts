@@ -1,13 +1,5 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import {
-  funnelTooltipPositioner,
-  getFunnelChartController,
-  getFunnelChartElement,
-} from "../../../components/figures/chart/chartJs/chartjs_funnel_chart";
-import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
-import { sunburstHoverPlugin } from "../../../components/figures/chart/chartJs/chartjs_sunburst_hover_plugin";
-import { sunburstLabelsPlugin } from "../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
-import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
+import { getChartJSConstructor } from "../../../components/figures/chart/chartJs/chart_js_extension";
 import { Figure } from "../../../types";
 import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -117,19 +109,3 @@ const backgroundColorChartJSPlugin = {
     ctx.restore();
   },
 };
-
-/** Return window.Chart, making sure all our extensions are loaded in ChartJS */
-export function getChartJSConstructor() {
-  if (window.Chart && !window.Chart?.registry.plugins.get("chartShowValuesPlugin")) {
-    window.Chart.register(
-      chartShowValuesPlugin,
-      waterfallLinesPlugin,
-      getFunnelChartController(),
-      getFunnelChartElement(),
-      sunburstLabelsPlugin,
-      sunburstHoverPlugin
-    );
-    window.Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner;
-  }
-  return window.Chart;
-}

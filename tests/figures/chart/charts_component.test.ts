@@ -2168,19 +2168,19 @@ test("ChartJS charts extensions are loaded when mounting a chart, and are only l
   const spyRegister = jest.spyOn(window.Chart, "register");
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
-  expect(spyRegister).toHaveBeenCalledTimes(1);
-  expect(window.Chart.registry.plugins["items"].map((i: any) => i.id)).toMatchObject([
+  expect(spyRegister).toHaveBeenCalledTimes(6);
+  expect(window.Chart.registry.plugins["items"].map((i) => i.id)).toMatchObject([
     "chartShowValuesPlugin",
     "waterfallLinesPlugin",
-    "funnel",
-    "funnel",
+    "funnel", // Funnel controller
+    "funnel", // Funnel element
     "sunburstLabelsPlugin",
     "sunburstHoverPlugin",
   ]);
 
   createChart(model, { type: "line" }, "chart2");
   await nextTick();
-  expect(spyRegister).toHaveBeenCalledTimes(1);
+  expect(spyRegister).toHaveBeenCalledTimes(6);
 });
 
 describe("Change chart type", () => {
