@@ -84,7 +84,7 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
       );
     }
     const descr = addMetaInfoFromArg(addDescr);
-    validateArguments(descr.args, descr.nbrArgOptional, descr.nbrArgRepeating);
+    validateArguments(name, descr);
     this.mapping[name] = createComputeFunction(descr, name);
     super.add(name, descr);
     return this;

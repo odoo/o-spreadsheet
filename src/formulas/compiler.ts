@@ -326,10 +326,12 @@ function assertEnoughArgs(ast: ASTFuncall) {
   if (nbrArgSupplied < minArgRequired) {
     throw new BadExpressionError(
       _t(
-        "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
-        functionName,
-        minArgRequired.toString(),
-        nbrArgSupplied.toString()
+        "Invalid number of arguments for the %(functionName)s function. Expected %(minArgRequired)s minimum, but got %(nbrArgSupplied)s instead.",
+        {
+          functionName: functionName,
+          minArgRequired: minArgRequired.toString(),
+          nbrArgSupplied: nbrArgSupplied.toString(),
+        }
       )
     );
   }
@@ -337,10 +339,12 @@ function assertEnoughArgs(ast: ASTFuncall) {
   if (nbrArgSupplied > functionDefinition.maxArgPossible) {
     throw new BadExpressionError(
       _t(
-        "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
-        functionName,
-        functionDefinition.maxArgPossible.toString(),
-        nbrArgSupplied.toString()
+        "Invalid number of arguments for the %(functionName)s function. Expected %(maxArgPossible)s maximum, but got %(nbrArgSupplied)s instead.",
+        {
+          functionName: functionName,
+          maxArgPossible: functionDefinition.maxArgPossible.toString(),
+          nbrArgSupplied: nbrArgSupplied.toString(),
+        }
       )
     );
   }
@@ -354,11 +358,13 @@ function assertEnoughArgs(ast: ASTFuncall) {
     if (nbrValueRemaining > 0) {
       throw new BadExpressionError(
         _t(
-          "Invalid number of arguments for the %s function. Repeatable arguments are expected to be supplied by groups of %s argument(s) with maximum %s optional argument(s), but got %s argument(s) too many.",
-          functionName,
-          nbrArgRepeating.toString(),
-          functionDefinition.nbrArgOptional.toString(),
-          nbrValueRemaining.toString()
+          "Invalid number of arguments for the %(functionName)s function. Repeatable arguments are expected to be supplied by groups of %(nbrArgRepeating)s argument(s) with maximum %(nbrArgOptional)s optional argument(s), but got %(nbrValueRemaining)s argument(s) too many.",
+          {
+            functionName: functionName,
+            nbrArgRepeating: nbrArgRepeating.toString(),
+            nbrArgOptional: functionDefinition.nbrArgOptional.toString(),
+            nbrValueRemaining: nbrValueRemaining.toString(),
+          }
         )
       );
     }

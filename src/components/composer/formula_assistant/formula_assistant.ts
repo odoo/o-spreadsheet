@@ -50,7 +50,7 @@ export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChi
   static props = {
     functionName: String,
     functionDescription: Object,
-    argsToFocus: Array<Number>,
+    argsToFocus: Array,
   };
 
   getContext(): Props {

@@ -243,23 +243,17 @@ export function argTargeting(
 // Argument validation
 //------------------------------------------------------------------------------
 
-export function validateArguments(
-  args: ArgDefinition[],
-  nbrArgOptional: number,
-  nbrArgRepeating: number
-) {
-  if (nbrArgRepeating && nbrArgOptional >= nbrArgRepeating) {
-    throw new Error(_t("Function ${name} has more optional arguments than repeatable ones."));
+export function validateArguments(name: string, descr: FunctionDescription) {
+  if (descr.nbrArgRepeating && descr.nbrArgOptional >= descr.nbrArgRepeating) {
+    throw new Error(`Function ${name} has more optional arguments than repeatable ones.`);
   }
 
   let foundRepeating = false;
   let consecutiveRepeating = false;
-  for (let current of args) {
+  for (let current of descr.args) {
     if (current.type.includes("META") && current.type.length > 1) {
       throw new Error(
-        _t(
-          "Function ${name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone."
-        )
+        `Function ${name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone.`
       );
     }
 
@@ -267,7 +261,7 @@ export function validateArguments(
       if (!consecutiveRepeating && foundRepeating) {
         throw new Error(
           _t(
-            "Function ${name} has non-consecutive repeating arguments. All repeating arguments must be declared consecutively."
+            `Function ${name} has non-consecutive repeating arguments. All repeating arguments must be declared consecutively.`
           )
         );
       }

@@ -126,75 +126,62 @@ describe("args", () => {
 });
 
 describe("arguments validation", () => {
-  test("'META' type can only be declared alone", () => {
-    expect(() => validateArguments([arg("metaArg (meta)")], 0, 0)).not.toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, optional)")], 1, 0)).not.toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, repeating)")], 0, 1)).not.toThrow();
+  const aRandomFunction: Omit<AddFunctionDescription, "args"> = {
+    description: "a random function",
+    compute: () => 0,
+  };
 
-    expect(() => validateArguments([arg("metaArg (meta, any)")], 0, 0)).toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, range)")], 0, 0)).toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, number)")], 0, 0)).toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, string)")], 0, 0)).toThrow();
-    expect(() => validateArguments([arg("metaArg (meta, boolean)")], 0, 0)).toThrow();
+  function validateArgsDefinition(definitions: string[]) {
+    const args = definitions.map((def) => arg(def));
+    const descr = addMetaInfoFromArg({ ...aRandomFunction, args });
+    return validateArguments("functionName", descr);
+  }
+
+  test("'META' type can only be declared alone", () => {
+    expect(() => validateArgsDefinition(["metaArg (meta)"])).not.toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, optional)"])).not.toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, repeating)"])).not.toThrow();
+
+    expect(() => validateArgsDefinition(["metaArg (meta, any)"])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, range)"])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, number)"])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, string)"])).toThrow();
+    expect(() => validateArgsDefinition(["metaArg (meta, boolean)"])).toThrow();
   });
 
   test("All repeatable arguments must be declared consecutively", () => {
+    expect(() => validateArgsDefinition(["arg1 (any)", "arg2 (any, repeating)"])).not.toThrow();
     expect(() =>
-      validateArguments([arg("arg1 (any)"), arg("arg2 (any, repeating)")], 0, 1)
+      validateArgsDefinition(["arg1 (any)", "arg2 (any, repeating)", "arg3 (any, repeating)"])
     ).not.toThrow();
     expect(() =>
-      validateArguments(
-        [arg("arg1 (any)"), arg("arg2 (any, repeating)"), arg("arg3 (any, repeating)")],
-        0,
-        2
-      )
+      validateArgsDefinition(["arg1 (any)", "arg2 (any, repeating)", "arg3 (any)"])
     ).not.toThrow();
     expect(() =>
-      validateArguments([arg("arg1 (any)"), arg("arg2 (any, repeating)"), arg("arg3 (any)")], 0, 1)
-    ).not.toThrow();
-    expect(() =>
-      validateArguments(
-        [
-          arg("arg1 (any)"),
-          arg("arg2 (any, repeating)"),
-          arg("arg3 (any, optional)"),
-          arg("arg4 (any, repeating)"),
-        ],
-        1,
-        2
-      )
+      validateArgsDefinition([
+        "arg1 (any)",
+        "arg2 (any, repeating)",
+        "arg3 (any, optional)",
+        "arg4 (any, repeating)",
+      ])
     ).toThrow();
     expect(() =>
-      validateArguments(
-        [arg("arg1 (any, repeating)"), arg("arg2 (any)"), arg("arg3 (any, repeating)")],
-        0,
-        2
-      )
+      validateArgsDefinition(["arg1 (any, repeating)", "arg2 (any)", "arg3 (any, repeating)"])
     ).toThrow();
   });
 
   test("If repeatable arguments --> The number of repeatable arguments must be greater than the number of optional arguments", () => {
+    expect(() => validateArgsDefinition(["arg1 (any)", "arg2 (any, optional)"])).not.toThrow();
     expect(() =>
-      validateArguments([arg("arg1 (any)"), arg("arg2 (any, optional)")], 1, 0)
-    ).not.toThrow();
-    expect(() =>
-      validateArguments(
-        [arg("arg1 (any)"), arg("arg2 (any, optional)"), arg("arg3 (any, repeating)")],
-        1,
-        1
-      )
+      validateArgsDefinition(["arg1 (any)", "arg2 (any, optional)", "arg3 (any, repeating)"])
     ).toThrow();
     expect(() =>
-      validateArguments(
-        [
-          arg("arg1 (any)"),
-          arg("arg2 (any, optional)"),
-          arg("arg3 (any, repeating)"),
-          arg("arg4 (any, repeating)"),
-        ],
-        1,
-        2
-      )
+      validateArgsDefinition([
+        "arg1 (any)",
+        "arg2 (any, optional)",
+        "arg3 (any, repeating)",
+        "arg4 (any, repeating)",
+      ])
     ).not.toThrow();
   });
 });
