@@ -1,4 +1,5 @@
 import { Point } from "chart.js";
+import { getChartJSConstructor } from "../../../../components/figures/chart/chartJs/chart_js_extension";
 import { ChartTerms } from "../../../../components/translations_terms";
 import {
   evaluatePolynomial,
@@ -42,7 +43,6 @@ import { isNumber } from "../../../numbers";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
 import { shouldRemoveFirstLabel } from "../chart_common";
-import { getChartJSConstructor } from "../chart_ui_common";
 
 export function getBarChartData(
   definition: GenericDefinition<BarChartDefinition>,
