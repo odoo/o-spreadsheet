@@ -9,13 +9,12 @@ import { mountComponent, nextTick } from "../test_helpers/helpers";
 describe("settings sidePanel component", () => {
   let model: Model;
   let fixture: HTMLElement;
-  let onCloseSidePanel: jest.Mock;
 
   async function mountSettingsSidePanel(modelArg?: Model, env?: Partial<SpreadsheetChildEnv>) {
     model = modelArg ?? new Model();
     ({ fixture } = await mountComponent(SettingsPanel, {
       model,
-      props: { onCloseSidePanel: () => onCloseSidePanel() },
+      props: { onCloseSidePanel: () => {} },
       env,
     }));
     await nextTick();
