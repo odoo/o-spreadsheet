@@ -12,6 +12,8 @@ export const CellErrorType = {
   NullError: "#NULL!",
 } as const;
 
+export type ErrorValue = (typeof CellErrorType)[keyof typeof CellErrorType];
+
 export const errorTypes: Set<string> = new Set(Object.values(CellErrorType));
 
 export class EvaluationError extends Error {

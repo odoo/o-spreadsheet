@@ -2,7 +2,7 @@
  * This file will be run before each test file
  */
 import { App } from "@odoo/owl";
-import Chart from "chart.js";
+import * as Chart from "chart.js";
 import { setDefaultSheetViewSize } from "../../src/constants";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import "./canvas.mock";
