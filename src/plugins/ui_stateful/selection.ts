@@ -546,7 +546,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
     const sheetId = this.getActiveSheetId();
     const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getClipboardDataPositions(sheetId, target));
+    const data = handler.copy(getClipboardDataPositions(sheetId, target), true);
     if (!data) {
       return;
     }
