@@ -855,7 +855,7 @@ export const mockChart = () => {
     _id = "luxon";
   }
   class ChartMock {
-    static register = (item: any) => ChartMock.registry.plugins.items.push(item);
+    static register = (...items: any[]) => ChartMock.registry.plugins.items.push(...items);
     static _adapters = { _date: MockLuxonTimeAdapter };
     static registry = {
       plugins: {
