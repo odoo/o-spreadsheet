@@ -2135,7 +2135,7 @@ test("ChartJS charts extensions are loaded when mounting a chart, and are only l
   const spyRegister = jest.spyOn(window.Chart, "register");
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
-  expect(spyRegister).toHaveBeenCalledTimes(2);
+  expect(spyRegister).toHaveBeenCalledTimes(1);
   expect(window.Chart.registry.plugins["items"]).toMatchObject([
     { id: "chartShowValuesPlugin" },
     { id: "waterfallLinesPlugin" },
@@ -2143,7 +2143,7 @@ test("ChartJS charts extensions are loaded when mounting a chart, and are only l
 
   createChart(model, { type: "line" }, "chart2");
   await nextTick();
-  expect(spyRegister).toHaveBeenCalledTimes(2);
+  expect(spyRegister).toHaveBeenCalledTimes(1);
 });
 
 describe("Change chart type", () => {
