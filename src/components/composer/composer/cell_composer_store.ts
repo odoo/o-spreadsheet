@@ -12,7 +12,7 @@ import {
   updateSelectionOnInsertion,
 } from "../../../helpers/index";
 import { getDateTimeFormat, localizeFormula } from "../../../helpers/locale";
-import { dataValidationEvaluatorRegistry } from "../../../registries/data_validation_registry";
+import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
@@ -54,7 +54,7 @@ export class CellComposerStore extends AbstractComposerStore {
       return;
     }
 
-    const evaluator = dataValidationEvaluatorRegistry.get(rule.criterion.type);
+    const evaluator = criterionEvaluatorRegistry.get(rule.criterion.type);
     const errorStr = evaluator.getErrorString(rule.criterion, this.getters, editedCell.sheetId);
     this.notificationStore.raiseError(
       _t(
