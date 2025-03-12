@@ -27,22 +27,25 @@ describe("Collaborative selection", () => {
     const sheetId = alice.getters.getActiveSheetId();
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -55,22 +58,25 @@ describe("Collaborative selection", () => {
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     const sheetId = alice.getters.getActiveSheetId();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 2, row: 2, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 1, row: 1, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -91,22 +97,25 @@ describe("Collaborative selection", () => {
     addColumns(bob, "before", "B", 2);
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 3, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -119,22 +128,25 @@ describe("Collaborative selection", () => {
     addColumns(alice, "before", "B", 2);
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 3, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 3, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -145,22 +157,25 @@ describe("Collaborative selection", () => {
     selectColumn(bob, 1, "overrideSelection");
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 1, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -170,22 +185,25 @@ describe("Collaborative selection", () => {
     const sheetId = alice.getters.getActiveSheetId();
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -195,48 +213,55 @@ describe("Collaborative selection", () => {
     });
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "david",
           name: "David",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
     david.leaveSession();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -248,22 +273,25 @@ describe("Collaborative selection", () => {
     deleteSheet(alice, sheetId);
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId: "42" },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId: "42" },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId: "42" },
+          color: undefined,
         },
       ])
     );
@@ -274,13 +302,13 @@ describe("Collaborative selection", () => {
     createSheet(alice, { sheetId: "42", activate: true });
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId: "42" },
-        },
+        } as Client,
         {
           id: "bob",
           name: "Bob",
@@ -303,28 +331,32 @@ describe("Collaborative selection", () => {
     });
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getConnectedClients(),
+      (user) => new Set(user.getters.getConnectedClients()),
       new Set([
         {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "david",
           customId: "1",
           name: "David",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
