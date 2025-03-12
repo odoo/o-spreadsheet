@@ -122,6 +122,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                     placeholder="e.g. A1:A2"
                     spellcheck="false"
                     style=""
+                    title=""
                     type="text"
                   />
                   
@@ -339,6 +340,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                     placeholder="e.g. A1:A2"
                     spellcheck="false"
                     style=""
+                    title=""
                     type="text"
                   />
                   <span

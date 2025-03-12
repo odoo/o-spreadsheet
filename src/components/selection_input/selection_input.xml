@@ -16,6 +16,10 @@
           <t t-call="o-spreadsheet-Icon.SHORT_THIN_DRAG_HANDLE"/>
         </span>
         <div class="position-relative w-100">
+          <t t-if="range.disabled" t-set="inputTooltip">
+            This range is disabled in the chart runtime
+          </t>
+          <t t-else="" t-set="inputTooltip"/>
           <input
             type="text"
             spellcheck="false"
@@ -25,11 +29,13 @@
             t-on-keydown="onKeydown"
             t-att-value="range.xc"
             t-att-style="getColor(range)"
+            t-att-title="range.disabled ? props.disabledTitle : ''"
             class="o-input mb-2"
             t-att-class="{
               'o-focused' : range.isFocused,
               'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
-              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
+              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range',
+              'o-input-disabled': range.disabled and !store.hasFocus
             }"
             t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
           />

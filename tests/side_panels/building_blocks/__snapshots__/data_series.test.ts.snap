@@ -28,6 +28,7 @@ exports[`Data Series Can render a data series component 1`] = `
             placeholder="e.g. A1:A2"
             spellcheck="false"
             style=""
+            title=""
             type="text"
           />
           

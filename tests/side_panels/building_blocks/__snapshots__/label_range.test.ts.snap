@@ -28,6 +28,7 @@ exports[`Label range Can add options to the label range component 1`] = `
             placeholder="e.g. A1:A2"
             spellcheck="false"
             style=""
+            title=""
             type="text"
           />
           
@@ -89,6 +90,7 @@ exports[`Label range Can render a label range component 1`] = `
             placeholder="e.g. A1:A2"
             spellcheck="false"
             style=""
+            title=""
             type="text"
           />
           
