@@ -1,5 +1,5 @@
 import { CoreCommand } from "../commands";
-import { HeaderIndex, UID } from "../misc";
+import { Color, HeaderIndex, UID } from "../misc";
 
 export type ClientId = string;
 
@@ -7,6 +7,11 @@ export interface Client {
   id: ClientId;
   name: string;
   position?: ClientPosition;
+  color?: Color;
+}
+
+export interface ClientWithPosition extends Client {
+  position: ClientPosition;
 }
 
 export interface ClientPosition {
