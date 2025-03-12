@@ -249,7 +249,7 @@ describe("Model", () => {
       handle(cmd: Command) {
         //@ts-ignore
         if (cmd.type === "MY_CMD_2") {
-          if (this.getters.getClient().id === "bob") {
+          if (this.getters.getCurrentClient().id === "bob") {
             numberCall++;
           }
         }

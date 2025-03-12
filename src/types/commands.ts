@@ -950,6 +950,19 @@ export interface MoveViewportToCellCommand {
   row: HeaderIndex;
 }
 
+export interface MoveViewportToClientCommand {
+  type: "JUMP_TO_CLIENT";
+  clientId: UID;
+}
+
+export interface ShowClientTagCommand {
+  type: "SHOW_CLIENT_TAG";
+}
+
+export interface HideClientTagCommand {
+  type: "HIDE_CLIENT_TAG";
+}
+
 /**
  * Sum data according to the selected zone(s) in the appropriated
  * cells.
@@ -1162,6 +1175,9 @@ export type LocalCommand =
   | MoveViewportDownCommand
   | MoveViewportUpCommand
   | MoveViewportToCellCommand
+  | MoveViewportToClientCommand
+  | ShowClientTagCommand
+  | HideClientTagCommand
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand
   | UpdateFilterCommand
