@@ -1,3 +1,4 @@
+import { Color } from "chart.js";
 import { CoreCommand } from "../commands";
 import { HeaderIndex, UID } from "../misc";
 
@@ -7,6 +8,11 @@ export interface Client {
   id: ClientId;
   name: string;
   position?: ClientPosition;
+  color?: Color;
+}
+
+export interface ClientWithPosition extends Client {
+  position: ClientPosition;
 }
 
 export interface ClientPosition {

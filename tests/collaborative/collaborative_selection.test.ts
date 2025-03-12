@@ -33,16 +33,19 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -61,16 +64,19 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 2, row: 2, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 1, row: 1, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -97,16 +103,19 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 3, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -125,16 +134,19 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 3, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 3, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -151,16 +163,19 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 1, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -176,16 +191,19 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -201,21 +219,25 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "david",
           name: "David",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -227,16 +249,19 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
@@ -254,16 +279,19 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId: "42" },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId: "42" },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId: "42" },
+          color: undefined,
         },
       ])
     );
@@ -309,22 +337,26 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
         {
           id: "david",
           customId: "1",
           name: "David",
           position: { col: 0, row: 0, sheetId },
+          color: undefined,
         },
       ])
     );
