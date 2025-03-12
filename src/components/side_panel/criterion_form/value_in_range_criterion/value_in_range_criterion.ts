@@ -1,10 +1,10 @@
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { IsValueInRangeCriterion } from "../../../../types";
 import { SelectionInput } from "../../../selection_input/selection_input";
-import { DataValidationCriterionForm } from "../criterion_form";
+import { CriterionForm } from "../criterion_form";
 
-export class DataValidationValueInRangeCriterionForm extends DataValidationCriterionForm<IsValueInRangeCriterion> {
-  static template = "o-spreadsheet-DataValidationValueInRangeCriterionForm";
+export class ValueInRangeCriterionForm extends CriterionForm<IsValueInRangeCriterion> {
+  static template = "o-spreadsheet-ValueInRangeCriterionForm";
   static components = { SelectionInput };
 
   setup() {
