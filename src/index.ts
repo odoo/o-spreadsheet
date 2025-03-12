@@ -187,6 +187,7 @@ import { topbarComponentRegistry } from "./registries/topbar_component_registry"
 import { useLocalStore, useStore, useStoreProvider } from "./store_engine";
 import { DependencyContainer } from "./store_engine/dependency_container";
 import { SpreadsheetStore } from "./stores";
+import { ClientFocusStore } from "./stores/client_focus_store";
 import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
@@ -203,6 +204,7 @@ import { DEFAULT_LOCALE } from "./types/locale";
  */
 
 export const __info__ = {};
+export { LocalTransportService } from "./collaborative/local_transport_service";
 export { Revision } from "./collaborative/revisions";
 export { tokenColors } from "./components/composer/composer/abstract_composer_store";
 export { Spreadsheet } from "./components/index";
@@ -446,6 +448,7 @@ export const stores = {
   SidePanelStore,
   PivotSidePanelStore,
   PivotMeasureDisplayPanelStore,
+  ClientFocusStore,
 };
 
 export type { StoreConstructor, StoreParams } from "./store_engine";

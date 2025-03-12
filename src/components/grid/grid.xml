@@ -23,6 +23,7 @@
         onInputContextMenu.bind="onInputContextMenu"
       />
       <canvas t-ref="canvas"/>
+      <t t-set="focused" t-value="focusedClients"/>
       <t
         t-foreach="env.model.getters.getClientsToDisplay()"
         t-as="client"
@@ -32,7 +33,7 @@
           color="client.color"
           col="client.position.col"
           row="client.position.row"
-          active="isCellHovered(client.position.col, client.position.row)"
+          active="isCellHovered(client.position.col, client.position.row) || focused.has(client.id)"
         />
       </t>
       <GridPopover

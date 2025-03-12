@@ -79,7 +79,7 @@ expect.extend({
     for (const user of users) {
       const result = callback(user);
       if (!this.equals(result, expected, [this.utils.iterableEquality])) {
-        const userId = user.getters.getClient().name;
+        const userId = user.getters.getCurrentClient().name;
         return {
           pass: this.isNot,
           message: () =>
@@ -100,8 +100,8 @@ expect.extend({
         const valuesUserA = a.getters.getEvaluatedCells(sheetId);
         const valuesUserB = b.getters.getEvaluatedCells(sheetId);
         if (!deepEquals(valuesUserA, valuesUserB)) {
-          const clientA = a.getters.getClient().id;
-          const clientB = b.getters.getClient().id;
+          const clientA = a.getters.getCurrentClient().id;
+          const clientB = b.getters.getCurrentClient().id;
           const prettyValuesUserA = getPrettyEvaluatedCells(a, sheetId, sheetZone);
           const prettyValuesUserB = getPrettyEvaluatedCells(b, sheetId, sheetZone);
           return {
@@ -127,8 +127,8 @@ expect.extend({
       const exportA = a.exportData();
       const exportB = b.exportData();
       if (!deepEquals(exportA, exportB)) {
-        const clientA = a.getters.getClient().id;
-        const clientB = b.getters.getClient().id;
+        const clientA = a.getters.getCurrentClient().id;
+        const clientB = b.getters.getCurrentClient().id;
         return {
           pass: this.isNot,
           message: () =>
