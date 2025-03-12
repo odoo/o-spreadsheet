@@ -1,6 +1,6 @@
 import { Component, useRef } from "@odoo/owl";
 import { FIGURE_BORDER_COLOR, HIGHLIGHT_COLOR } from "../../../../constants";
-import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
+import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { DataValidationRule, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers";
 import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
@@ -70,7 +70,7 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
   }
 
   get descriptionString(): string {
-    return dataValidationEvaluatorRegistry
+    return criterionEvaluatorRegistry
       .get(this.props.rule.criterion.type)
       .getPreview(this.props.rule.criterion, this.env.model.getters);
   }

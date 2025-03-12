@@ -2,7 +2,11 @@ import { Component, ComponentConstructor, useState } from "@odoo/owl";
 import { Action } from "../../../../actions/action";
 import { zoneToXc } from "../../../../helpers";
 import { canonicalizeContent } from "../../../../helpers/locale";
-import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
+import {
+  criterionComponentRegistry,
+  getCriterionMenuItems,
+} from "../../../../registries/criterion_component_registry";
+import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import {
   AddDataValidationCommand,
   CancelledReason,
@@ -17,10 +21,6 @@ import { DVTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
-import {
-  dataValidationPanelCriteriaRegistry,
-  getDataValidationCriterionMenuItems,
-} from "../data_validation_panel_helper";
 
 interface Props {
   rule: DataValidationRule | undefined;
@@ -90,7 +90,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     const locale = this.env.model.getters.getLocale();
 
     const criterion = rule.criterion;
-    const criterionEvaluator = dataValidationEvaluatorRegistry.get(criterion.type);
+    const criterionEvaluator = criterionEvaluatorRegistry.get(criterion.type);
 
     const sheetId = this.env.model.getters.getActiveSheetId();
     const values = criterion.values
@@ -109,12 +109,12 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get dvCriterionMenuItems(): Action[] {
-    return getDataValidationCriterionMenuItems((type) => this.onCriterionTypeChanged(type));
+    return getCriterionMenuItems((type) => this.onCriterionTypeChanged(type));
   }
 
   get selectedCriterionName(): string {
     const selectedType = this.state.rule.criterion.type;
-    return dataValidationEvaluatorRegistry.get(selectedType).name;
+    return criterionEvaluatorRegistry.get(selectedType).name;
   }
 
   get defaultDataValidationRule(): DataValidationRuleData {
@@ -130,7 +130,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   }
 
   get criterionComponent(): ComponentConstructor | undefined {
-    return dataValidationPanelCriteriaRegistry.get(this.state.rule.criterion.type).component;
+    return criterionComponentRegistry.get(this.state.rule.criterion.type).component;
   }
 
   get errorMessages(): string[] {

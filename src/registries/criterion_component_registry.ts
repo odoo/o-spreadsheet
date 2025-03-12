@@ -1,13 +1,13 @@
 import { ComponentConstructor } from "@odoo/owl";
-import { Action, ActionSpec, createActions } from "../../../actions/action";
-import { dataValidationEvaluatorRegistry } from "../../../registries/data_validation_registry";
-import { Registry } from "../../../registries/registry";
-import { DataValidationCriterionType } from "../../../types";
-import { DataValidationDateCriterionForm } from "./dv_criterion_form/dv_date_criterion/dv_date_criterion";
-import { DataValidationDoubleInputCriterionForm } from "./dv_criterion_form/dv_double_input_criterion/dv_double_input_criterion";
-import { DataValidationSingleInputCriterionForm } from "./dv_criterion_form/dv_single_input_criterion/dv_single_input_criterion";
-import { DataValidationListCriterionForm } from "./dv_criterion_form/dv_value_in_list_criterion/dv_value_in_list_criterion";
-import { DataValidationValueInRangeCriterionForm } from "./dv_criterion_form/dv_value_in_range_criterion/dv_value_in_range_criterion";
+import { Action, ActionSpec, createActions } from "../actions/action";
+import { DataValidationDateCriterionForm } from "../components/side_panel/criterion_form/date_criterion/date_criterion";
+import { DataValidationDoubleInputCriterionForm } from "../components/side_panel/criterion_form/double_input_criterion/double_input_criterion";
+import { DataValidationSingleInputCriterionForm } from "../components/side_panel/criterion_form/single_input_criterion/single_input_criterion";
+import { DataValidationListCriterionForm } from "../components/side_panel/criterion_form/value_in_list_criterion/value_in_list_criterion";
+import { DataValidationValueInRangeCriterionForm } from "../components/side_panel/criterion_form/value_in_range_criterion/value_in_range_criterion";
+import { DataValidationCriterionType } from "../types";
+import { criterionEvaluatorRegistry } from "./criterion_registry";
+import { Registry } from "./registry";
 
 export type DVCriterionCategory = "text" | "date" | "number" | "misc" | "list";
 export const dvCriterionCategoriesSequences: Record<DVCriterionCategory, number> = {
@@ -25,188 +25,187 @@ export type DataValidationCriterionItem = {
   category: DVCriterionCategory;
 };
 
-export const dataValidationPanelCriteriaRegistry: Registry<DataValidationCriterionItem> =
-  new Registry();
+export const criterionComponentRegistry: Registry<DataValidationCriterionItem> = new Registry();
 
-dataValidationPanelCriteriaRegistry.add("containsText", {
+criterionComponentRegistry.add("containsText", {
   type: "containsText",
   component: DataValidationSingleInputCriterionForm,
   category: "text",
   sequence: 10,
 });
 
-dataValidationPanelCriteriaRegistry.add("notContainsText", {
+criterionComponentRegistry.add("notContainsText", {
   type: "notContainsText",
   component: DataValidationSingleInputCriterionForm,
   category: "text",
   sequence: 20,
 });
 
-dataValidationPanelCriteriaRegistry.add("isEqualText", {
+criterionComponentRegistry.add("isEqualText", {
   type: "isEqualText",
   component: DataValidationSingleInputCriterionForm,
   category: "text",
   sequence: 30,
 });
 
-dataValidationPanelCriteriaRegistry.add("isEmail", {
+criterionComponentRegistry.add("isEmail", {
   type: "isEmail",
   component: undefined,
   category: "text",
   sequence: 40,
 });
 
-dataValidationPanelCriteriaRegistry.add("isLink", {
+criterionComponentRegistry.add("isLink", {
   type: "isLink",
   component: undefined,
   category: "text",
   sequence: 50,
 });
 
-dataValidationPanelCriteriaRegistry.add("dateIs", {
+criterionComponentRegistry.add("dateIs", {
   type: "dateIs",
   component: DataValidationDateCriterionForm,
   category: "date",
   sequence: 20,
 });
 
-dataValidationPanelCriteriaRegistry.add("dateIsBefore", {
+criterionComponentRegistry.add("dateIsBefore", {
   type: "dateIsBefore",
   component: DataValidationDateCriterionForm,
   category: "date",
   sequence: 30,
 });
 
-dataValidationPanelCriteriaRegistry.add("dateIsOnOrBefore", {
+criterionComponentRegistry.add("dateIsOnOrBefore", {
   type: "dateIsOnOrBefore",
   component: DataValidationDateCriterionForm,
   category: "date",
   sequence: 40,
 });
 
-dataValidationPanelCriteriaRegistry.add("dateIsAfter", {
+criterionComponentRegistry.add("dateIsAfter", {
   type: "dateIsAfter",
   component: DataValidationDateCriterionForm,
   category: "date",
   sequence: 50,
 });
 
-dataValidationPanelCriteriaRegistry.add("dateIsOnOrAfter", {
+criterionComponentRegistry.add("dateIsOnOrAfter", {
   type: "dateIsOnOrAfter",
   component: DataValidationDateCriterionForm,
   category: "date",
   sequence: 60,
 });
 
-dataValidationPanelCriteriaRegistry.add("dateIsBetween", {
+criterionComponentRegistry.add("dateIsBetween", {
   type: "dateIsBetween",
   component: DataValidationDoubleInputCriterionForm,
   category: "date",
   sequence: 70,
 });
 
-dataValidationPanelCriteriaRegistry.add("dateIsNotBetween", {
+criterionComponentRegistry.add("dateIsNotBetween", {
   type: "dateIsNotBetween",
   component: DataValidationDoubleInputCriterionForm,
   category: "date",
   sequence: 80,
 });
 
-dataValidationPanelCriteriaRegistry.add("dateIsValid", {
+criterionComponentRegistry.add("dateIsValid", {
   type: "dateIsValid",
   component: undefined,
   category: "date",
   sequence: 10,
 });
 
-dataValidationPanelCriteriaRegistry.add("isEqual", {
+criterionComponentRegistry.add("isEqual", {
   type: "isEqual",
   component: DataValidationSingleInputCriterionForm,
   category: "number",
   sequence: 10,
 });
 
-dataValidationPanelCriteriaRegistry.add("isNotEqual", {
+criterionComponentRegistry.add("isNotEqual", {
   type: "isNotEqual",
   component: DataValidationSingleInputCriterionForm,
   category: "number",
   sequence: 20,
 });
 
-dataValidationPanelCriteriaRegistry.add("isGreaterThan", {
+criterionComponentRegistry.add("isGreaterThan", {
   type: "isGreaterThan",
   component: DataValidationSingleInputCriterionForm,
   category: "number",
   sequence: 50,
 });
 
-dataValidationPanelCriteriaRegistry.add("isGreaterOrEqualTo", {
+criterionComponentRegistry.add("isGreaterOrEqualTo", {
   type: "isGreaterOrEqualTo",
   component: DataValidationSingleInputCriterionForm,
   category: "number",
   sequence: 60,
 });
 
-dataValidationPanelCriteriaRegistry.add("isLessThan", {
+criterionComponentRegistry.add("isLessThan", {
   type: "isLessThan",
   component: DataValidationSingleInputCriterionForm,
   category: "number",
   sequence: 30,
 });
 
-dataValidationPanelCriteriaRegistry.add("isLessOrEqualTo", {
+criterionComponentRegistry.add("isLessOrEqualTo", {
   type: "isLessOrEqualTo",
   component: DataValidationSingleInputCriterionForm,
   category: "number",
   sequence: 40,
 });
 
-dataValidationPanelCriteriaRegistry.add("isBetween", {
+criterionComponentRegistry.add("isBetween", {
   type: "isBetween",
   component: DataValidationDoubleInputCriterionForm,
   category: "number",
   sequence: 70,
 });
 
-dataValidationPanelCriteriaRegistry.add("isNotBetween", {
+criterionComponentRegistry.add("isNotBetween", {
   type: "isNotBetween",
   component: DataValidationDoubleInputCriterionForm,
   category: "number",
   sequence: 80,
 });
 
-dataValidationPanelCriteriaRegistry.add("isBoolean", {
+criterionComponentRegistry.add("isBoolean", {
   type: "isBoolean",
   component: undefined,
   category: "misc",
   sequence: 10,
 });
 
-dataValidationPanelCriteriaRegistry.add("isValueInList", {
+criterionComponentRegistry.add("isValueInList", {
   type: "isValueInList",
   component: DataValidationListCriterionForm,
   category: "list",
   sequence: 10,
 });
 
-dataValidationPanelCriteriaRegistry.add("isValueInRange", {
+criterionComponentRegistry.add("isValueInRange", {
   type: "isValueInRange",
   component: DataValidationValueInRangeCriterionForm,
   category: "list",
   sequence: 20,
 });
 
-dataValidationPanelCriteriaRegistry.add("customFormula", {
+criterionComponentRegistry.add("customFormula", {
   type: "customFormula",
   component: DataValidationSingleInputCriterionForm,
   category: "misc",
   sequence: 20,
 });
 
-export function getDataValidationCriterionMenuItems(
+export function getCriterionMenuItems(
   callback: (type: DataValidationCriterionType) => void
 ): Action[] {
-  const items = dataValidationPanelCriteriaRegistry.getAll().sort((a, b) => {
+  const items = criterionComponentRegistry.getAll().sort((a, b) => {
     if (a.category === b.category) {
       return a.sequence - b.sequence;
     }
@@ -214,7 +213,7 @@ export function getDataValidationCriterionMenuItems(
   });
 
   const actionSpecs: ActionSpec[] = items.map((item, index) => {
-    const evaluator = dataValidationEvaluatorRegistry.get(item.type);
+    const evaluator = criterionEvaluatorRegistry.get(item.type);
     return {
       name: evaluator.name,
       id: item.type,

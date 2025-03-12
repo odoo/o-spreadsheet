@@ -20,6 +20,7 @@ import {
 import { parseLiteral } from "../helpers/cells";
 import { detectLink } from "../helpers/links";
 import { localizeContent } from "../helpers/locale";
+import { rangeReference } from "../helpers/references";
 import { _t } from "../translation";
 import {
   CellValue,
@@ -50,10 +51,9 @@ import {
   UID,
 } from "../types";
 import { CellErrorType } from "../types/errors";
-import { rangeReference } from "./../helpers/references";
 import { Registry } from "./registry";
 
-export type DataValidationCriterionEvaluator = {
+export type CriterionEvaluator = {
   type: DataValidationCriterionType;
   /**
    * Checks if a value is valid for the given criterion.
@@ -89,8 +89,8 @@ export type DataValidationCriterionEvaluator = {
   allowedValues?: "onlyLiterals" | "onlyFormulas";
 };
 
-export const dataValidationEvaluatorRegistry = new Registry<DataValidationCriterionEvaluator>();
-dataValidationEvaluatorRegistry.add("containsText", {
+export const criterionEvaluatorRegistry = new Registry<CriterionEvaluator>();
+criterionEvaluatorRegistry.add("containsText", {
   type: "containsText",
   isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
     const strValue = String(value);
@@ -106,7 +106,7 @@ dataValidationEvaluatorRegistry.add("containsText", {
   getPreview: (criterion) => _t('Text contains "%s"', criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("notContainsText", {
+criterionEvaluatorRegistry.add("notContainsText", {
   type: "notContainsText",
   isValueValid: (value: CellValue, criterion: TextNotContainsCriterion) => {
     const strValue = String(value);
@@ -122,7 +122,7 @@ dataValidationEvaluatorRegistry.add("notContainsText", {
   getPreview: (criterion) => _t('Text does not contain "%s"', criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isEqualText", {
+criterionEvaluatorRegistry.add("isEqualText", {
   type: "isEqualText",
   isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
     const strValue = String(value);
@@ -140,7 +140,7 @@ dataValidationEvaluatorRegistry.add("isEqualText", {
 
 /** Note: this regex doesn't allow for all the RFC-compliant mail addresses but should be enough for our purpose. */
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/;
-dataValidationEvaluatorRegistry.add("isEmail", {
+criterionEvaluatorRegistry.add("isEmail", {
   type: "isEmail",
   isValueValid: (value: CellValue) => typeof value === "string" && emailRegex.test(value),
   getErrorString: () => _t("The value must be a valid email address"),
@@ -151,7 +151,7 @@ dataValidationEvaluatorRegistry.add("isEmail", {
   getPreview: () => _t("Text is valid email"),
 });
 
-dataValidationEvaluatorRegistry.add("isLink", {
+criterionEvaluatorRegistry.add("isLink", {
   type: "isLink",
   isValueValid: (value: CellValue) => detectLink(value) !== undefined,
   getErrorString: () => _t("The value must be a valid link"),
@@ -162,7 +162,7 @@ dataValidationEvaluatorRegistry.add("isLink", {
   getPreview: () => _t("Text is valid link"),
 });
 
-dataValidationEvaluatorRegistry.add("dateIs", {
+criterionEvaluatorRegistry.add("dateIs", {
   type: "dateIs",
   isValueValid: (value: CellValue, criterion: DateIsCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
@@ -196,7 +196,7 @@ dataValidationEvaluatorRegistry.add("dateIs", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsBefore", {
+criterionEvaluatorRegistry.add("dateIsBefore", {
   type: "dateIsBefore",
   isValueValid: (value: CellValue, criterion: DateIsBeforeCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
@@ -230,7 +230,7 @@ dataValidationEvaluatorRegistry.add("dateIsBefore", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsOnOrBefore", {
+criterionEvaluatorRegistry.add("dateIsOnOrBefore", {
   type: "dateIsOnOrBefore",
   isValueValid: (value: CellValue, criterion: DateIsOnOrBeforeCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
@@ -264,7 +264,7 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrBefore", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsAfter", {
+criterionEvaluatorRegistry.add("dateIsAfter", {
   type: "dateIsAfter",
   isValueValid: (value: CellValue, criterion: DateIsAfterCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
@@ -298,7 +298,7 @@ dataValidationEvaluatorRegistry.add("dateIsAfter", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsOnOrAfter", {
+criterionEvaluatorRegistry.add("dateIsOnOrAfter", {
   type: "dateIsOnOrAfter",
   isValueValid: (value: CellValue, criterion: DateIsOnOrAfterCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
@@ -332,7 +332,7 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrAfter", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsBetween", {
+criterionEvaluatorRegistry.add("dateIsBetween", {
   type: "dateIsBetween",
   isValueValid: (value: CellValue, criterion: DateIsBetweenCriterion) => {
     const criterionValues = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE);
@@ -361,7 +361,7 @@ dataValidationEvaluatorRegistry.add("dateIsBetween", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsNotBetween", {
+criterionEvaluatorRegistry.add("dateIsNotBetween", {
   type: "dateIsNotBetween",
   isValueValid: (value: CellValue, criterion: DateIsNotBetweenCriterion) => {
     const criterionValues = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE);
@@ -395,7 +395,7 @@ dataValidationEvaluatorRegistry.add("dateIsNotBetween", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsValid", {
+criterionEvaluatorRegistry.add("dateIsValid", {
   type: "dateIsValid",
   isValueValid: (value: CellValue) => {
     return valueToDateNumber(value, DEFAULT_LOCALE) !== undefined;
@@ -408,7 +408,7 @@ dataValidationEvaluatorRegistry.add("dateIsValid", {
   getPreview: () => _t("Date is valid"),
 });
 
-dataValidationEvaluatorRegistry.add("isEqual", {
+criterionEvaluatorRegistry.add("isEqual", {
   type: "isEqual",
   isValueValid: (value: CellValue, criterion: IsEqualCriterion) => {
     if (typeof value !== "number") {
@@ -433,7 +433,7 @@ dataValidationEvaluatorRegistry.add("isEqual", {
   getPreview: (criterion) => _t("Value is equal to %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isNotEqual", {
+criterionEvaluatorRegistry.add("isNotEqual", {
   type: "isNotEqual",
   isValueValid: (value: CellValue, criterion: IsNotEqualCriterion) => {
     if (typeof value !== "number") {
@@ -458,7 +458,7 @@ dataValidationEvaluatorRegistry.add("isNotEqual", {
   getPreview: (criterion) => _t("Value is not equal to %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isGreaterThan", {
+criterionEvaluatorRegistry.add("isGreaterThan", {
   type: "isGreaterThan",
   isValueValid: (value: CellValue, criterion: IsGreaterThanCriterion) => {
     if (typeof value !== "number") {
@@ -483,7 +483,7 @@ dataValidationEvaluatorRegistry.add("isGreaterThan", {
   getPreview: (criterion) => _t("Value is greater than %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isGreaterOrEqualTo", {
+criterionEvaluatorRegistry.add("isGreaterOrEqualTo", {
   type: "isGreaterOrEqualTo",
   isValueValid: (value: CellValue, criterion: IsGreaterOrEqualToCriterion) => {
     if (typeof value !== "number") {
@@ -508,7 +508,7 @@ dataValidationEvaluatorRegistry.add("isGreaterOrEqualTo", {
   getPreview: (criterion) => _t("Value is greater or equal to %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isLessThan", {
+criterionEvaluatorRegistry.add("isLessThan", {
   type: "isLessThan",
   isValueValid: (value: CellValue, criterion: IsLessThanCriterion) => {
     if (typeof value !== "number") {
@@ -533,7 +533,7 @@ dataValidationEvaluatorRegistry.add("isLessThan", {
   getPreview: (criterion) => _t("Value is less than %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isLessOrEqualTo", {
+criterionEvaluatorRegistry.add("isLessOrEqualTo", {
   type: "isLessOrEqualTo",
   isValueValid: (value: CellValue, criterion: IsLessOrEqualToCriterion) => {
     if (typeof value !== "number") {
@@ -558,7 +558,7 @@ dataValidationEvaluatorRegistry.add("isLessOrEqualTo", {
   getPreview: (criterion) => _t("Value is less or equal to %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isBetween", {
+criterionEvaluatorRegistry.add("isBetween", {
   type: "isBetween",
   isValueValid: (value: CellValue, criterion: IsBetweenCriterion) => {
     if (typeof value !== "number") {
@@ -584,7 +584,7 @@ dataValidationEvaluatorRegistry.add("isBetween", {
     _t("Value is between %s and %s", criterion.values[0], criterion.values[1]),
 });
 
-dataValidationEvaluatorRegistry.add("isNotBetween", {
+criterionEvaluatorRegistry.add("isNotBetween", {
   type: "isNotBetween",
   isValueValid: (value: CellValue, criterion: IsNotBetweenCriterion) => {
     if (typeof value !== "number") {
@@ -610,7 +610,7 @@ dataValidationEvaluatorRegistry.add("isNotBetween", {
     _t("Value is not between %s and %s", criterion.values[0], criterion.values[1]),
 });
 
-dataValidationEvaluatorRegistry.add("isBoolean", {
+criterionEvaluatorRegistry.add("isBoolean", {
   type: "isBoolean",
   isValueValid: (value: CellValue) => value === "" || typeof value === "boolean",
   getErrorString: () => _t("The value must be a boolean"),
@@ -621,7 +621,7 @@ dataValidationEvaluatorRegistry.add("isBoolean", {
   getPreview: () => _t("Checkbox"),
 });
 
-dataValidationEvaluatorRegistry.add("isValueInList", {
+criterionEvaluatorRegistry.add("isValueInList", {
   type: "isValueInList",
   isValueValid: (value: CellValue, criterion: IsValueInListCriterion) => {
     if (value === null) {
@@ -641,7 +641,7 @@ dataValidationEvaluatorRegistry.add("isValueInList", {
   getPreview: (criterion) => _t("Value one of: %s", criterion.values.join(", ")),
 });
 
-dataValidationEvaluatorRegistry.add("isValueInRange", {
+criterionEvaluatorRegistry.add("isValueInRange", {
   type: "isValueInList",
   isValueValid: (
     value: CellValue,
@@ -669,7 +669,7 @@ dataValidationEvaluatorRegistry.add("isValueInRange", {
   getPreview: (criterion) => _t("Value in range %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("customFormula", {
+criterionEvaluatorRegistry.add("customFormula", {
   type: "customFormula",
   isValueValid: (value: CellValue, criterion: IsValueInListCriterion) => {
     const parsedValue = parseLiteral(criterion.values[0], DEFAULT_LOCALE);
