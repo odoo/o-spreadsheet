@@ -1,9 +1,9 @@
 import { Model } from "../../src";
 import { parseLiteral } from "../../src/helpers/cells";
 import {
-  DataValidationCriterionEvaluator,
-  dataValidationEvaluatorRegistry,
-} from "../../src/registries/data_validation_registry";
+  CriterionEvaluator,
+  criterionEvaluatorRegistry,
+} from "../../src/registries/criterion_registry";
 import {
   DEFAULT_LOCALE,
   DataValidationCriterion,
@@ -34,13 +34,13 @@ describe("Data validation registry", () => {
     jest.useRealTimers();
   });
 
-  function testValidTextCriterionValues(evaluator: DataValidationCriterionEvaluator) {
+  function testValidTextCriterionValues(evaluator: CriterionEvaluator) {
     expect(evaluator.isCriterionValueValid("test")).toEqual(true);
     expect(evaluator.isCriterionValueValid("")).toEqual(false);
     expect(evaluator.criterionValueErrorString.toString()).toEqual("The value must not be empty");
   }
 
-  function testValidDateCriterionValues(evaluator: DataValidationCriterionEvaluator) {
+  function testValidDateCriterionValues(evaluator: CriterionEvaluator) {
     expect(evaluator.isCriterionValueValid("01/01/2021")).toEqual(true);
     expect(evaluator.isCriterionValueValid("5")).toEqual(true);
     expect(evaluator.isCriterionValueValid("")).toEqual(false);
@@ -49,7 +49,7 @@ describe("Data validation registry", () => {
     expect(evaluator.criterionValueErrorString.toString()).toEqual("The value must be a date");
   }
 
-  function testValidNumberCriterionValues(evaluator: DataValidationCriterionEvaluator) {
+  function testValidNumberCriterionValues(evaluator: CriterionEvaluator) {
     expect(evaluator.isCriterionValueValid("59")).toEqual(true);
     expect(evaluator.isCriterionValueValid("hello")).toEqual(false);
     expect(evaluator.isCriterionValueValid("TRUE")).toEqual(false);
@@ -58,12 +58,12 @@ describe("Data validation registry", () => {
   }
 
   function testErrorStringEqual(criterion: DataValidationCriterion, errorStr: string) {
-    const evaluator = dataValidationEvaluatorRegistry.get(criterion.type);
+    const evaluator = criterionEvaluatorRegistry.get(criterion.type);
     expect(evaluator.getErrorString(criterion, getters, sheetId).toString()).toEqual(errorStr);
   }
 
   describe("Text contains", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("containsText");
+    const evaluator = criterionEvaluatorRegistry.get("containsText");
     const criterion: DataValidationCriterion = { type: "containsText", values: ["test"] };
 
     test.each([
@@ -86,7 +86,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Text not contains", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("notContainsText");
+    const evaluator = criterionEvaluatorRegistry.get("notContainsText");
     const criterion: DataValidationCriterion = { type: "notContainsText", values: ["test"] };
 
     test.each([
@@ -110,7 +110,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Text is", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isEqualText");
+    const evaluator = criterionEvaluatorRegistry.get("isEqualText");
     const criterion: DataValidationCriterion = { type: "isEqualText", values: ["hello"] };
 
     test.each([
@@ -134,7 +134,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Text is email", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isEmail");
+    const evaluator = criterionEvaluatorRegistry.get("isEmail");
     const criterion: DataValidationCriterion = { type: "isEmail", values: [] };
 
     test.each([
@@ -155,7 +155,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Text is link", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isLink");
+    const evaluator = criterionEvaluatorRegistry.get("isLink");
     const criterion: DataValidationCriterion = { type: "isLink", values: [] };
 
     test.each([
@@ -173,7 +173,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Date is", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("dateIs");
+    const evaluator = criterionEvaluatorRegistry.get("dateIs");
     const criterion: DataValidationCriterion = {
       type: "dateIs",
       values: ["01/01/2021"],
@@ -233,7 +233,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Date is before", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("dateIsBefore");
+    const evaluator = criterionEvaluatorRegistry.get("dateIsBefore");
     const criterion: DataValidationCriterion = {
       type: "dateIsBefore",
       values: ["01/01/2021"],
@@ -290,7 +290,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Date is on or before", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("dateIsOnOrBefore");
+    const evaluator = criterionEvaluatorRegistry.get("dateIsOnOrBefore");
     const criterion: DataValidationCriterion = {
       type: "dateIsOnOrBefore",
       values: ["01/01/2021"],
@@ -347,7 +347,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Date is after", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("dateIsAfter");
+    const evaluator = criterionEvaluatorRegistry.get("dateIsAfter");
     const criterion: DataValidationCriterion = {
       type: "dateIsAfter",
       values: ["01/01/2021"],
@@ -401,7 +401,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Date is on or after", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("dateIsOnOrAfter");
+    const evaluator = criterionEvaluatorRegistry.get("dateIsOnOrAfter");
     const criterion: DataValidationCriterion = {
       type: "dateIsOnOrAfter",
       values: ["01/01/2021"],
@@ -462,7 +462,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Date is between", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("dateIsBetween");
+    const evaluator = criterionEvaluatorRegistry.get("dateIsBetween");
     const criterion: DataValidationCriterion = {
       type: "dateIsBetween",
       values: ["01/01/2021", "01/10/2021"],
@@ -487,7 +487,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Date is valid", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("dateIsValid");
+    const evaluator = criterionEvaluatorRegistry.get("dateIsValid");
     const criterion: DataValidationCriterion = {
       type: "dateIsValid",
       values: [],
@@ -508,7 +508,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is equal", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isEqual");
+    const evaluator = criterionEvaluatorRegistry.get("isEqual");
     const criterion: DataValidationCriterion = {
       type: "isEqual",
       values: ["5"],
@@ -531,7 +531,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is not equal", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isNotEqual");
+    const evaluator = criterionEvaluatorRegistry.get("isNotEqual");
     const criterion: DataValidationCriterion = {
       type: "isNotEqual",
       values: ["5"],
@@ -555,7 +555,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is greater than", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isGreaterThan");
+    const evaluator = criterionEvaluatorRegistry.get("isGreaterThan");
     const criterion: DataValidationCriterion = {
       type: "isGreaterThan",
       values: ["5"],
@@ -578,7 +578,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is greater or equal to", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isGreaterOrEqualTo");
+    const evaluator = criterionEvaluatorRegistry.get("isGreaterOrEqualTo");
     const criterion: DataValidationCriterion = {
       type: "isGreaterOrEqualTo",
       values: ["5"],
@@ -602,7 +602,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is less than", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isLessThan");
+    const evaluator = criterionEvaluatorRegistry.get("isLessThan");
     const criterion: DataValidationCriterion = {
       type: "isLessThan",
       values: ["5"],
@@ -625,7 +625,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is between", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isBetween");
+    const evaluator = criterionEvaluatorRegistry.get("isBetween");
     const criterion: DataValidationCriterion = {
       type: "isBetween",
       values: ["5", "8"],
@@ -650,7 +650,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is not between", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isNotBetween");
+    const evaluator = criterionEvaluatorRegistry.get("isNotBetween");
     const criterion: DataValidationCriterion = {
       type: "isNotBetween",
       values: ["5", "8"],
@@ -675,7 +675,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value is checkbox", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isBoolean");
+    const evaluator = criterionEvaluatorRegistry.get("isBoolean");
     const criterion: DataValidationCriterion = { type: "isBoolean", values: [] };
 
     test.each([
@@ -693,7 +693,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Value in list", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("isValueInList");
+    const evaluator = criterionEvaluatorRegistry.get("isValueInList");
     const criterion: DataValidationCriterion = {
       type: "isValueInList",
       values: ["a", "B", "c"],
@@ -717,7 +717,7 @@ describe("Data validation registry", () => {
   });
 
   describe("Custom formula", () => {
-    const evaluator = dataValidationEvaluatorRegistry.get("customFormula");
+    const evaluator = criterionEvaluatorRegistry.get("customFormula");
     const criterionGeneric: DataValidationCriterion = {
       type: "customFormula",
       values: [],
@@ -757,7 +757,7 @@ describe("Data validation registry", () => {
 
     test("Number criterion isValueValid expect canonical value", () => {
       updateLocale(model, FR_LOCALE);
-      const evaluator = dataValidationEvaluatorRegistry.get(isEqual.type);
+      const evaluator = criterionEvaluatorRegistry.get(isEqual.type);
       expect(
         evaluator.isValueValid(5.5, { ...isEqual, values: ["5.5"] }, getters, sheetId)
       ).toEqual(true);
@@ -768,7 +768,7 @@ describe("Data validation registry", () => {
 
     test("Date criterion isValueValid expect canonical value", () => {
       updateLocale(model, FR_LOCALE);
-      const evaluator = dataValidationEvaluatorRegistry.get(dateIs.type);
+      const evaluator = criterionEvaluatorRegistry.get(dateIs.type);
       const criterion = { ...dateIs, values: ["12/31/2021"] };
       expect(evaluator.isValueValid("12/31/2021", criterion, getters, sheetId)).toEqual(true);
       expect(evaluator.isValueValid("31/12/2021", criterion, getters, sheetId)).toEqual(false);
@@ -776,21 +776,21 @@ describe("Data validation registry", () => {
 
     test("Number criterion error message displays localized value", () => {
       updateLocale(model, FR_LOCALE);
-      const evaluator = dataValidationEvaluatorRegistry.get(isEqual.type);
+      const evaluator = criterionEvaluatorRegistry.get(isEqual.type);
       const criterion = { ...isEqual, values: ["5.5"] };
       expect(evaluator.getErrorString(criterion, getters, sheetId)).toContain("5,5");
     });
 
     test("Date criterion error message displays localized value", () => {
       updateLocale(model, FR_LOCALE);
-      const evaluator = dataValidationEvaluatorRegistry.get(dateIs.type);
+      const evaluator = criterionEvaluatorRegistry.get(dateIs.type);
       const criterion = { ...dateIs, values: ["12/31/2021"] };
       expect(evaluator.getErrorString(criterion, getters, sheetId)).toContain("31/12/2021");
     });
 
     test("Text criterion error message displays is not localized", () => {
       updateLocale(model, FR_LOCALE);
-      const evaluator = dataValidationEvaluatorRegistry.get(textIs.type);
+      const evaluator = criterionEvaluatorRegistry.get(textIs.type);
       const criterion = { ...textIs, values: ["12/31/2021"] };
       expect(evaluator.getErrorString(criterion, getters, sheetId)).toContain("12/31/2021");
     });
