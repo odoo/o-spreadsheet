@@ -133,7 +133,7 @@ function actionsToTestCode(testTitle: string, actions: UserAction[][]) {
 }
 
 function appendCommand(code: FunctionCodeBuilder, { user, command }: UserAction) {
-  const userName = user.getters.getClient().name.toLowerCase();
+  const userName = user.getters.getCurrentClient().name.toLowerCase();
   if (command.type === "REQUEST_UNDO") {
     code.append(`undo(${userName});`);
   } else if (command.type === "REQUEST_REDO") {
@@ -149,7 +149,7 @@ function rerunTest(actions: UserAction[][]) {
   const newUsers = { alice, bob, charlie };
   for (const concurrentChunk of actions) {
     for (const action of concurrentChunk) {
-      action.user = newUsers[action.user.getters.getClient().name.toLowerCase()];
+      action.user = newUsers[action.user.getters.getCurrentClient().name.toLowerCase()];
     }
   }
   return run(network, [alice, bob, charlie], actions);
