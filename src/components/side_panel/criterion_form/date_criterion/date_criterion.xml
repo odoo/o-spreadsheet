@@ -11,7 +11,7 @@
       />
     </select>
 
-    <DataValidationInput
+    <CriterionInput
       t-if="props.criterion.dateValue === 'exactDate'"
       value="props.criterion.values[0]"
       onValueChanged.bind="onValueChanged"
