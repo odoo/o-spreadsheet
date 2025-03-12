@@ -35015,6 +35015,21 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </a:ln>
                         </c:spPr>
                     </c:marker>
+                    <c:trendline>
+                        <c:spPr>
+                            <a:ln w="19050" cap="rnd">
+                                <a:solidFill>
+                                    <a:srgbClr val="804EA7"/>
+                                </a:solidFill>
+                                <a:prstDash val="sysDot"/>
+                            </a:ln>
+                            <a:effectLst/>
+                        </c:spPr>
+                        <c:dispRSqr val="0"/>
+                        <c:dispEq val="0"/>
+                        <c:trendlineType val="poly"/>
+                        <c:order val="2"/>
+                    </c:trendline>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -35042,7 +35057,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!B3:B100
+                                Sheet1!$B$3:$B$100
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -35066,6 +35081,20 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </a:ln>
                         </c:spPr>
                     </c:marker>
+                    <c:trendline>
+                        <c:spPr>
+                            <a:ln w="19050" cap="rnd">
+                                <a:solidFill>
+                                    <a:srgbClr val="80EA61"/>
+                                </a:solidFill>
+                                <a:prstDash val="sysDot"/>
+                            </a:ln>
+                            <a:effectLst/>
+                        </c:spPr>
+                        <c:dispRSqr val="0"/>
+                        <c:dispEq val="0"/>
+                        <c:trendlineType val="linear"/>
+                    </c:trendline>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -35093,7 +35122,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!D4:Z4
+                                Sheet1!$D$4:$Z$4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -35310,6 +35339,20 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:ser>
                     <c:idx val="0"/>
                     <c:order val="0"/>
+                    <c:trendline>
+                        <c:spPr>
+                            <a:ln w="19050" cap="rnd">
+                                <a:solidFill>
+                                    <a:srgbClr val="804EA7"/>
+                                </a:solidFill>
+                                <a:prstDash val="sysDot"/>
+                            </a:ln>
+                            <a:effectLst/>
+                        </c:spPr>
+                        <c:dispRSqr val="0"/>
+                        <c:dispEq val="0"/>
+                        <c:trendlineType val="exp"/>
+                    </c:trendline>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -35339,7 +35382,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!B3:B100
+                                Sheet1!$B$3:$B$100
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -35348,6 +35391,20 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
+                    <c:trendline>
+                        <c:spPr>
+                            <a:ln w="19050" cap="rnd">
+                                <a:solidFill>
+                                    <a:srgbClr val="80EA61"/>
+                                </a:solidFill>
+                                <a:prstDash val="sysDot"/>
+                            </a:ln>
+                            <a:effectLst/>
+                        </c:spPr>
+                        <c:dispRSqr val="0"/>
+                        <c:dispEq val="0"/>
+                        <c:trendlineType val="log"/>
+                    </c:trendline>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -35377,7 +35434,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!D4:Z4
+                                Sheet1!$D$4:$Z$4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -37343,6 +37400,21 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </a:ln>
                         </c:spPr>
                     </c:marker>
+                    <c:trendline>
+                        <c:spPr>
+                            <a:ln w="19050" cap="rnd">
+                                <a:solidFill>
+                                    <a:srgbClr val="804EA7"/>
+                                </a:solidFill>
+                                <a:prstDash val="sysDot"/>
+                            </a:ln>
+                            <a:effectLst/>
+                        </c:spPr>
+                        <c:dispRSqr val="0"/>
+                        <c:dispEq val="0"/>
+                        <c:trendlineType val="movingAvg"/>
+                        <c:period val="3"/>
+                    </c:trendline>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -37363,7 +37435,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <!-- y-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!B3:B100
+                                Sheet1!$B$3:$B$100
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
@@ -37394,6 +37466,21 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </a:ln>
                         </c:spPr>
                     </c:marker>
+                    <c:trendline>
+                        <c:spPr>
+                            <a:ln w="19050" cap="rnd">
+                                <a:solidFill>
+                                    <a:srgbClr val="80EA61"/>
+                                </a:solidFill>
+                                <a:prstDash val="sysDot"/>
+                            </a:ln>
+                            <a:effectLst/>
+                        </c:spPr>
+                        <c:dispRSqr val="0"/>
+                        <c:dispEq val="0"/>
+                        <c:trendlineType val="poly"/>
+                        <c:order val="6"/>
+                    </c:trendline>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -37414,7 +37501,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <!-- y-coordinate values -->
                         <c:numRef>
                             <c:f>
-                                Sheet1!D4:Z4
+                                Sheet1!$D$4:$Z$4
                             </c:f>
                             <c:numCache/>
                         </c:numRef>
