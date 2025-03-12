@@ -8,7 +8,7 @@ interface Props<T extends DataValidationCriterion> {
   onCriterionChanged: (criterion: DataValidationCriterion) => void;
 }
 
-export abstract class DataValidationCriterionForm<
+export abstract class CriterionForm<
   T extends DataValidationCriterion = DataValidationCriterion
 > extends Component<Props<T>, SpreadsheetChildEnv> {
   static props = {
