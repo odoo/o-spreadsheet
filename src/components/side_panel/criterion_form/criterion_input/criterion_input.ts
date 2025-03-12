@@ -1,10 +1,10 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
-import { canonicalizeContent } from "../../../../../helpers/locale";
-import { dataValidationEvaluatorRegistry } from "../../../../../registries/data_validation_registry";
-import { _t } from "../../../../../translation";
-import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../../types";
-import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
-import { css } from "../../../../helpers";
+import { canonicalizeContent } from "../../../../helpers/locale";
+import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
+import { _t } from "../../../../translation";
+import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../types";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { css } from "../../../helpers";
 
 interface Props {
   value: string;
@@ -64,7 +64,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
   });
 
   get placeholder(): string {
-    const evaluator = dataValidationEvaluatorRegistry.get(this.props.criterionType);
+    const evaluator = criterionEvaluatorRegistry.get(this.props.criterionType);
 
     if (evaluator.allowedValues === "onlyFormulas") {
       return _t("Formula");
@@ -76,7 +76,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get allowedValues(): string {
-    const evaluator = dataValidationEvaluatorRegistry.get(this.props.criterionType);
+    const evaluator = criterionEvaluatorRegistry.get(this.props.criterionType);
     return evaluator.allowedValues ?? "any";
   }
 

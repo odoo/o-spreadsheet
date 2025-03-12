@@ -1,7 +1,7 @@
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
-import { IsValueInRangeCriterion } from "../../../../../types";
-import { SelectionInput } from "../../../../selection_input/selection_input";
-import { DataValidationCriterionForm } from "../dv_criterion_form";
+import { IsValueInRangeCriterion } from "../../../../types";
+import { SelectionInput } from "../../../selection_input/selection_input";
+import { DataValidationCriterionForm } from "../criterion_form";
 
 export class DataValidationValueInRangeCriterionForm extends DataValidationCriterionForm<IsValueInRangeCriterion> {
   static template = "o-spreadsheet-DataValidationValueInRangeCriterionForm";
