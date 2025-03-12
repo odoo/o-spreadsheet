@@ -27,8 +27,8 @@ css/* scss */ `
   }
 `;
 
-export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-DataValidationInput";
+export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-CriterionInput";
   static props = {
     value: { type: String, optional: true },
     criterionType: String,

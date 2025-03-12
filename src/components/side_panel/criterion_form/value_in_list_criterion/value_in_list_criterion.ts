@@ -1,8 +1,8 @@
 import { onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
 import { IsValueInListCriterion } from "../../../../types";
 import { css } from "../../../helpers";
-import { DataValidationCriterionForm } from "../criterion_form";
-import { DataValidationInput } from "../criterion_input/criterion_input";
+import { CriterionForm } from "../criterion_form";
+import { CriterionInput } from "../criterion_input/criterion_input";
 
 css/* scss */ `
   .o-dv-list-item-delete {
@@ -16,9 +16,9 @@ interface State {
   focusedValueIndex?: number;
 }
 
-export class DataValidationListCriterionForm extends DataValidationCriterionForm<IsValueInListCriterion> {
-  static template = "o-spreadsheet-DataValidationListCriterionForm";
-  static components = { DataValidationInput };
+export class ListCriterionForm extends CriterionForm<IsValueInListCriterion> {
+  static template = "o-spreadsheet-ListCriterionForm";
+  static components = { CriterionInput };
 
   state = useState<State>({
     numberOfValues: Math.max(this.props.criterion.values.length, 2),
