@@ -1,5 +1,5 @@
-import { DataValidationCriterionForm } from "../dv_criterion_form";
-import { DataValidationInput } from "../dv_input/dv_input";
+import { DataValidationCriterionForm } from "../criterion_form";
+import { DataValidationInput } from "../criterion_input/criterion_input";
 
 export class DataValidationDoubleInputCriterionForm extends DataValidationCriterionForm {
   static template = "o-spreadsheet-DataValidationDoubleInput";
