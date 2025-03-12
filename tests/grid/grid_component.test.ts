@@ -1211,6 +1211,21 @@ describe("Multi User selection", () => {
     expect(document.querySelector(".o-client-tag")?.textContent).toBe("David");
   });
 
+  test("Render collaborative user when user is focused", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    model.getters.isClientFocused = (clientId) => {
+      return clientId === "david";
+    };
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: { id: "david", name: "David", position: { sheetId, col: 1, row: 1 } },
+    });
+    await nextTick();
+    expect(document.querySelectorAll(".o-client-tag")).toHaveLength(1);
+    expect(document.querySelector(".o-client-tag")?.textContent).toBe("David");
+  });
+
   test("Do not render multi user selection with invalid sheet", async () => {
     transportService.sendMessage({
       type: "CLIENT_JOINED",
