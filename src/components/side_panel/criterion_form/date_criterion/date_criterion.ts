@@ -1,8 +1,8 @@
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
-import { _t } from "../../../../../translation";
-import { DataValidationDateCriterion, DateCriterionValue } from "../../../../../types";
-import { DataValidationCriterionForm } from "../dv_criterion_form";
-import { DataValidationInput } from "../dv_input/dv_input";
+import { _t } from "../../../../translation";
+import { DataValidationDateCriterion, DateCriterionValue } from "../../../../types";
+import { DataValidationCriterionForm } from "../criterion_form";
+import { DataValidationInput } from "../criterion_input/criterion_input";
 
 const DATES_VALUES: Record<DateCriterionValue, string> = {
   today: _t("today"),

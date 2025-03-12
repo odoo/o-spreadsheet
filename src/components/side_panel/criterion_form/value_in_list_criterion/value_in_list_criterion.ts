@@ -1,8 +1,8 @@
 import { onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
-import { IsValueInListCriterion } from "../../../../../types";
-import { css } from "../../../../helpers";
-import { DataValidationCriterionForm } from "../dv_criterion_form";
-import { DataValidationInput } from "../dv_input/dv_input";
+import { IsValueInListCriterion } from "../../../../types";
+import { css } from "../../../helpers";
+import { DataValidationCriterionForm } from "../criterion_form";
+import { DataValidationInput } from "../criterion_input/criterion_input";
 
 css/* scss */ `
   .o-dv-list-item-delete {

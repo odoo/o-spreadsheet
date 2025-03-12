@@ -7,7 +7,7 @@ import {
   recomputeZones,
   toXC,
 } from "../../helpers";
-import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   AddDataValidationCommand,
   ApplyRangeChange,
@@ -329,14 +329,14 @@ export class DataValidationPlugin
   }
 
   private checkCriterionTypeIsValid(cmd: AddDataValidationCommand): CommandResult {
-    return dataValidationEvaluatorRegistry.contains(cmd.rule.criterion.type)
+    return criterionEvaluatorRegistry.contains(cmd.rule.criterion.type)
       ? CommandResult.Success
       : CommandResult.UnknownDataValidationCriterionType;
   }
 
   private checkCriterionHasValidNumberOfValues(cmd: AddDataValidationCommand): CommandResult {
     const criterion = cmd.rule.criterion;
-    const evaluator = dataValidationEvaluatorRegistry.get(criterion.type);
+    const evaluator = criterionEvaluatorRegistry.get(criterion.type);
     const expectedNumberOfValues = evaluator.numberOfValues(criterion);
     if (
       expectedNumberOfValues !== undefined &&
@@ -349,7 +349,7 @@ export class DataValidationPlugin
 
   private checkCriterionValuesAreValid(cmd: AddDataValidationCommand): CommandResult {
     const criterion = cmd.rule.criterion;
-    const evaluator = dataValidationEvaluatorRegistry.get(criterion.type);
+    const evaluator = criterionEvaluatorRegistry.get(criterion.type);
     const isInvalid = (value: string) => {
       if (evaluator.allowedValues === "onlyFormulas" && !value.startsWith("=")) {
         return true;

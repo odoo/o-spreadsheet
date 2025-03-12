@@ -1,6 +1,6 @@
-import { deepCopy } from "../../../../../helpers";
-import { DataValidationCriterionForm } from "../dv_criterion_form";
-import { DataValidationInput } from "../dv_input/dv_input";
+import { deepCopy } from "../../../../helpers";
+import { DataValidationCriterionForm } from "../criterion_form";
+import { DataValidationInput } from "../criterion_input/criterion_input";
 
 export class DataValidationSingleInputCriterionForm extends DataValidationCriterionForm {
   static template = "o-spreadsheet-DataValidationSingleInput";
