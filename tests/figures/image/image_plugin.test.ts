@@ -138,7 +138,7 @@ describe("test image import & export", function () {
   test("can export an image", () => {
     const model = new Model();
     const imageId = "Image1";
-    createImage(model, { sheetId: "Sheet1", figureId: imageId });
+    createImage(model, { sheetId: "Sheet1", figureId: imageId, size: { height: 300, width: 400 } });
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
     const sheet = data.sheets.find((s) => s.id === activeSheetId)!;
@@ -146,8 +146,8 @@ describe("test image import & export", function () {
       {
         id: imageId,
         tag: "image",
-        height: 380,
-        width: 380,
+        height: 300,
+        width: 400,
         offset: {
           x: 0,
           y: 0,

@@ -571,7 +571,8 @@ describe("Scorecard charts rendering", () => {
         title: { text: "title" },
         background: "#000000",
       },
-      chartId
+      chartId,
+      sheetId
     );
     renderScorecardChart(model, chartId, sheetId, canvas);
 

@@ -16,7 +16,6 @@ import {
   HeaderIndex,
   Pixel,
   PixelPosition,
-  Position,
   SetDecimalStep,
   SortDirection,
   SortOptions,
@@ -494,9 +493,9 @@ export interface MoveConditionalFormatCommand extends SheetDependentCommand {
 // Figures
 //------------------------------------------------------------------------------
 
-export interface CreateFigureCommand extends SheetDependentCommand {
+export interface CreateFigureCommand extends BaseFigureCommand {
   type: "CREATE_FIGURE";
-  figure: Figure;
+  tag: string;
 }
 
 export interface UpdateFigureCommand extends Omit<Partial<Figure>, "id">, SheetDependentCommand {
@@ -509,18 +508,17 @@ export interface DeleteFigureCommand extends SheetDependentCommand {
   figureId: UID;
 }
 
-interface BaseFigureCommand extends SheetDependentCommand {
+interface BaseFigureCommand extends PositionDependentCommand {
   figureId: UID;
-  anchor: Position;
   offset: PixelPosition;
-  size?: FigureSize;
+  size: FigureSize;
 }
 
 //------------------------------------------------------------------------------
 // Chart
 //------------------------------------------------------------------------------
 
-export interface CreateChartCommand extends SheetDependentCommand, BaseFigureCommand {
+export interface CreateChartCommand extends BaseFigureCommand {
   type: "CREATE_CHART";
   definition: ChartDefinition;
 }
@@ -535,7 +533,7 @@ export interface UpdateChartCommand extends SheetDependentCommand {
 // Image
 //------------------------------------------------------------------------------
 
-export interface CreateImageOverCommand extends SheetDependentCommand, BaseFigureCommand {
+export interface CreateImageOverCommand extends BaseFigureCommand {
   type: "CREATE_IMAGE";
   size: FigureSize;
   definition: Image;

@@ -9,6 +9,7 @@ import {
   addRows,
   colorSheet,
   createChart,
+  createFigure,
   createSheet,
   deleteCells,
   deleteColumns,
@@ -176,19 +177,16 @@ describe("Collaborative Sheet manipulation", () => {
   test("delete sheet and update figure concurrently", () => {
     const sheetId = "42";
     createSheet(bob, { sheetId, activate: true });
-    bob.dispatch("CREATE_FIGURE", {
+    createFigure(bob, {
       sheetId,
-      figure: {
-        height: 100,
-        width: 100,
-        id: "456",
-        tag: "test",
-        offset: {
-          x: 0,
-          y: 0,
-        },
-        anchor: { col: 0, row: 0 },
+      height: 100,
+      width: 100,
+      id: "456",
+      offset: {
+        x: 0,
+        y: 0,
       },
+      anchor: { col: 0, row: 0 },
     });
     network.concurrent(() => {
       deleteSheet(alice, sheetId);

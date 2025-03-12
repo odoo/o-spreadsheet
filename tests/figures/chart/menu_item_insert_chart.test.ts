@@ -105,7 +105,8 @@ describe("Insert chart menu item", () => {
     mockChart();
     dispatchSpy = spyModelDispatch(model);
     defaultPayload = {
-      anchor: expect.any(Object),
+      col: expect.any(Number),
+      row: expect.any(Number),
       offset: expect.any(Object),
       size: expect.any(Object),
       figureId: expect.any(String),
@@ -137,12 +138,9 @@ describe("Insert chart menu item", () => {
       x: x % DEFAULT_CELL_WIDTH,
       y: y % DEFAULT_CELL_HEIGHT,
     };
-    payload.anchor = {
-      col: Math.floor(x / DEFAULT_CELL_WIDTH),
-      row: Math.floor(y / DEFAULT_CELL_HEIGHT),
-    };
-
-    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+    (payload.col = Math.floor(x / DEFAULT_CELL_WIDTH)),
+      (payload.row = Math.floor(y / DEFAULT_CELL_HEIGHT)),
+      expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(figureUI).toMatchObject({ x, y });
   });
 
@@ -174,10 +172,8 @@ describe("Insert chart menu item", () => {
       x: 40,
       y: 10.5,
     };
-    payload.anchor = {
-      col: 2,
-      row: 14,
-    }; // Position at the center of the viewport
+    payload.col = 2;
+    payload.row = 14;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
@@ -198,10 +194,8 @@ describe("Insert chart menu item", () => {
       x: 40,
       y: 10.5,
     };
-    payload.anchor = {
-      col: 2,
-      row: 14,
-    }; // Position at the center of the viewport
+    payload.col = 2;
+    payload.row = 14; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
@@ -223,10 +217,8 @@ describe("Insert chart menu item", () => {
       x: 40,
       y: 10.5,
     };
-    payload.anchor = {
-      col: 2,
-      row: 14,
-    }; // Position at the center of the viewport
+    payload.col = 2;
+    payload.row = 14; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
@@ -250,10 +242,8 @@ describe("Insert chart menu item", () => {
       x: 0,
       y: 0,
     };
-    payload.anchor = {
-      col: 0,
-      row: 0,
-    }; // Position at the center of the viewport
+    payload.col = 0;
+    payload.row = 0; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
@@ -282,10 +272,8 @@ describe("Insert chart menu item", () => {
       x: 38,
       y: 14.75,
     };
-    payload.anchor = {
-      col: 1,
-      row: 3,
-    }; // Position inside frozen pane
+    payload.col = 1;
+    payload.row = 3; // Position inside frozen pane
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
@@ -310,10 +298,8 @@ describe("Insert chart menu item", () => {
       x: 40,
       y: 10.5,
     };
-    payload.anchor = {
-      col: 4,
-      row: 18,
-    }; // Position at the center of the viewport
+    payload.col = 4;
+    payload.row = 18; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
@@ -340,10 +326,8 @@ describe("Insert chart menu item", () => {
       x: 40,
       y: 10.5,
     };
-    payload.anchor = {
-      col: 4,
-      row: 18,
-    }; // Position at the center of the viewport
+    payload.col = 4;
+    payload.row = 18; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
@@ -370,10 +354,8 @@ describe("Insert chart menu item", () => {
       x: 40,
       y: 10.5,
     };
-    payload.anchor = {
-      col: 2,
-      row: 18,
-    }; // Position at the center of the viewport
+    payload.col = 2;
+    payload.row = 18; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({
@@ -401,10 +383,8 @@ describe("Insert chart menu item", () => {
       x: 40,
       y: 10.5,
     };
-    payload.anchor = {
-      col: 2,
-      row: 18,
-    }; // Position at the center of the viewport
+    payload.col = 2;
+    payload.row = 18; // Position at the center of the viewport
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     const figureUI = model.getters.getVisibleFigures()[0];
     expect({ x: figureUI.x, y: figureUI.y }).toStrictEqual({

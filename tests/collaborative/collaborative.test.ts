@@ -15,6 +15,7 @@ import {
   clearCell,
   copy,
   createChart,
+  createFigure,
   createSheet,
   createTable,
   createTableStyle,
@@ -526,10 +527,7 @@ describe("Multi users synchronisation", () => {
       anchor: { col: 5, row: 6 },
       offset: { x: 7, y: 8 },
     };
-    alice.dispatch("CREATE_FIGURE", {
-      sheetId,
-      figure,
-    });
+    createFigure(alice, figure);
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getFigures(sheetId),
       [figure]
@@ -573,16 +571,15 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Selected figure Id is not modified if the create sheet comes from someone else", () => {
-    const figure = {
-      id: "42",
+    createFigure(alice, {
+      figureId: "42",
       anchor: { col: 0, row: 0 },
       offset: { x: 0, y: 0 },
-      width: 100,
-      height: 100,
-      tag: "text",
-    };
-    const sheetId = alice.getters.getActiveSheetId();
-    alice.dispatch("CREATE_FIGURE", { sheetId, figure });
+      size: {
+        width: 100,
+        height: 100,
+      },
+    });
     alice.dispatch("SELECT_FIGURE", { figureId: "42" });
     expect(alice.getters.getSelectedFigureId()).toBe("42");
     expect(bob.getters.getSelectedFigureId()).toBeNull();

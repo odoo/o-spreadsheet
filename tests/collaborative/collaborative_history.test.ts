@@ -436,7 +436,8 @@ describe("Collaborative local history", () => {
             type: "CREATE_CHART",
             sheetId: "sheet1",
             figureId: "fig2",
-            anchor: { col: 0, row: 0 },
+            col: 0,
+            row: 0,
             offset: {
               x: 0,
               y: 0,

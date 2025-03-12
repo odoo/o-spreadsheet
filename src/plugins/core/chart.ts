@@ -9,10 +9,9 @@ import {
   CoreCommand,
   CreateChartCommand,
   DOMDimension,
-  Figure,
   FigureData,
+  HeaderIndex,
   PixelPosition,
-  Position,
   UID,
   UpdateChartCommand,
   WorkbookData,
@@ -75,7 +74,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_CHART":
-        this.addFigure(cmd.figureId, cmd.sheetId, cmd.anchor, cmd.offset, cmd.size);
+        this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
         this.addChart(cmd.figureId, cmd.definition);
         break;
       case "UPDATE_CHART": {
@@ -92,7 +91,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             if (chart) {
               this.dispatch("CREATE_CHART", {
                 figureId: duplicatedFigureId,
-                anchor: fig.anchor,
+                col: fig.anchor.col,
+                row: fig.anchor.row,
                 offset: fig.offset,
                 size: { width: fig.width, height: fig.height },
                 definition: chart.getDefinition(),
@@ -202,33 +202,28 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
    * Add a figure with tag chart with the given id at the given position
    */
   private addFigure(
-    id: UID,
+    figureId: UID,
     sheetId: UID,
-    anchor: Position = {
-      col: 0,
-      row: 0,
-    },
-    offset: PixelPosition = {
-      x: 0,
-      y: 0,
-    },
+    col: HeaderIndex,
+    row: HeaderIndex,
+    offset: PixelPosition,
     size: DOMDimension = {
       width: DEFAULT_FIGURE_WIDTH,
       height: DEFAULT_FIGURE_HEIGHT,
     }
   ) {
-    if (this.getters.getFigure(sheetId, id)) {
+    if (this.getters.getFigure(sheetId, figureId)) {
       return;
     }
-    const figure: Figure = {
-      id: id,
-      anchor,
+    this.dispatch("CREATE_FIGURE", {
+      sheetId,
+      figureId,
+      col,
+      row,
       offset,
-      width: size.width,
-      height: size.height,
+      size,
       tag: "chart",
-    };
-    this.dispatch("CREATE_FIGURE", { sheetId, figure });
+    });
   }
 
   /**

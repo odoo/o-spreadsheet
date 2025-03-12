@@ -56,13 +56,13 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const { zones, figureId } = target;
     const sheetId = this.getters.getActiveSheetId();
     const { width, height } = clippedContent.copiedFigure;
-    const anchor = { col: zones[0].left, row: zones[0].top };
     const offset = { x: 0, y: 0 };
     const copy = deepCopy(clippedContent.copiedImage);
     this.dispatch("CREATE_IMAGE", {
       figureId,
       sheetId,
-      anchor,
+      col: zones[0].left,
+      row: zones[0].top,
       offset,
       size: { height, width },
       definition: copy,

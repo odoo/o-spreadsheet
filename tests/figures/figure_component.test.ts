@@ -9,7 +9,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
-import { CreateFigureCommand, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
+import { Figure, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
@@ -59,21 +59,26 @@ let env: SpreadsheetChildEnv;
 
 function createFigure(
   model: Model,
-  figureParameters: Partial<CreateFigureCommand["figure"]> = {},
+  figureParameters: Partial<Figure> = {},
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  const defaultParameters: CreateFigureCommand["figure"] = {
+  const params: Figure = {
     id: "someuuid",
     anchor: { col: 0, row: 0 },
     offset: { x: 1, y: 1 },
     height: 100,
     width: 100,
     tag: "text",
+    ...figureParameters,
   };
 
   return model.dispatch("CREATE_FIGURE", {
     sheetId,
-    figure: { ...defaultParameters, ...figureParameters },
+    ...params.anchor,
+    size: { height: params.height, width: params.width },
+    offset: params.offset,
+    figureId: params.id,
+    tag: params.tag,
   });
 }
 

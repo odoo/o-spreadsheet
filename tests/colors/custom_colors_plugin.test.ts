@@ -133,8 +133,10 @@ describe("custom colors are correctly handled when editing charts", () => {
     model.dispatch("CREATE_CHART", {
       sheetId,
       figureId: "1",
-      anchor: { col: 0, row: 0 },
+      col: 0,
+      row: 0,
       offset: { x: 0, y: 0 },
+      size: { width: 100, height: 100 },
       definition: {
         title: { text: "a title" },
         type: "gauge",
