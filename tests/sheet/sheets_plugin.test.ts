@@ -739,7 +739,9 @@ describe("sheets", () => {
     createChart(
       model,
       { type: "bar", dataSets: [{ dataRange: "Sheet1!B1:B4" }], labelRange: "Sheet1!A2:A4" },
-      chartId
+      chartId,
+      undefined,
+      { size: { height: 335, width: 536 } }
     );
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });
     model.dispatch("UPDATE_FIGURE", {

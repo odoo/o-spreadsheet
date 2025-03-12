@@ -19,7 +19,10 @@ import {
   SortCommand,
   UnGroupHeadersCommand,
 } from "./../../types/commands";
-import { repeatSheetDependantCommand } from "./repeat_commands_generic";
+import {
+  repeatPositionDependantCommand,
+  repeatSheetDependantCommand,
+} from "./repeat_commands_generic";
 
 const uuidGenerator = new UuidGenerator();
 
@@ -47,8 +50,8 @@ export function repeatCreateFigureCommand(
   getters: Getters,
   cmd: CreateFigureCommand
 ): CreateFigureCommand {
-  const newCmd = repeatSheetDependantCommand(getters, cmd);
-  newCmd.figure.id = uuidGenerator.smallUuid();
+  const newCmd = repeatPositionDependantCommand(getters, repeatSheetDependantCommand(getters, cmd));
+  newCmd.figureId = uuidGenerator.smallUuid();
   return newCmd;
 }
 

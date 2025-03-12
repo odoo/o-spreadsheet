@@ -57,15 +57,14 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const { zones, figureId } = target;
     const sheetId = target.sheetId;
     const { width, height } = clippedContent.copiedFigure;
-    const anchor = { col: zones[0].left, row: zones[0].top };
-    const offset = { x: 0, y: 0 };
     const copy = clippedContent.copiedChart.copyInSheetId(sheetId);
     this.dispatch("CREATE_CHART", {
       figureId,
       sheetId,
       definition: copy.getDefinition(),
-      anchor,
-      offset,
+      col: zones[0].left,
+      row: zones[0].top,
+      offset: { x: 0, y: 0 },
       size: { height, width },
     });
 

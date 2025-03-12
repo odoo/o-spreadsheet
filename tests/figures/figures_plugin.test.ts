@@ -4,6 +4,7 @@ import { numberToLetters, range } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   activateSheet,
+  createFigure,
   createSheet,
   deleteColumns,
   deleteRows,
@@ -35,10 +36,7 @@ describe("figure plugin", () => {
     },
   ])("can create a simple figure", (figure) => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure,
-    });
+    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     const data = model.exportData();
     const sheet = data.sheets.find((s) => s.id === model.getters.getActiveSheetId())!;
 
@@ -56,16 +54,13 @@ describe("figure plugin", () => {
 
   test("can undo figure creation", () => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        tag: "hey",
-        width: 100,
-        height: 100,
-        anchor: { col: 0, row: 0 },
-        offset: { x: 100, y: 100 },
-      },
+      id: "someuuid",
+      width: 100,
+      height: 100,
+      anchor: { col: 0, row: 0 },
+      offset: { x: 100, y: 100 },
     });
     expect(model.getters.getVisibleFigures().length).toBe(1);
     undo(model);
@@ -77,16 +72,14 @@ describe("figure plugin", () => {
     const sheetId = "Sheet2";
     createSheet(model, { sheetId }); // The sheet is not activated
 
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId,
-      figure: {
-        id: "someuuid",
-        tag: "hey",
-        width: 100,
-        height: 100,
-        anchor: { col: 5, row: 6 },
-        offset: { x: 7, y: 8 },
-      },
+      id: "someuuid",
+      tag: "hey",
+      width: 100,
+      height: 100,
+      anchor: { col: 5, row: 6 },
+      offset: { x: 7, y: 8 },
     });
     const data = model.exportData();
     const sheet = data.sheets.find((s) => s.id === sheetId)!;
@@ -124,10 +117,7 @@ describe("figure plugin", () => {
     },
   ])("getVisibleFigures only returns visible figures", (figure) => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure,
-    });
+    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     expect(model.getters.getVisibleFigures().length).toBe(1);
 
     setViewportOffset(model, 200, 200);
@@ -156,24 +146,18 @@ describe("figure plugin", () => {
     },
   ])("getVisibleFigures only returns visible figures on sheet with frozen panes", (figure) => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure,
-    });
+    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     expect(model.getters.getVisibleFigures().length).toBe(1);
     freezeColumns(model, 3);
     freezeRows(model, 3);
 
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid2",
-        anchor: { col: 0, row: 0 },
-        offset: { x: 2.5 * DEFAULT_CELL_WIDTH, y: 2.5 * DEFAULT_CELL_WIDTH },
-        tag: "hey",
-        width: 10,
-        height: 10,
-      },
+      id: "someuuid2",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 2.5 * DEFAULT_CELL_WIDTH, y: 2.5 * DEFAULT_CELL_WIDTH },
+      width: 10,
+      height: 10,
     });
 
     expect(model.getters.getVisibleFigures().length).toBe(2);
@@ -187,16 +171,13 @@ describe("figure plugin", () => {
 
   test("selecting a figure, then clicking on a cell unselect figure", () => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        anchor: { col: 0, row: 0 },
-        offset: { x: 10, y: 10 },
-        tag: "hey",
-        width: 100,
-        height: 100,
-      },
+      id: "someuuid",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 10, y: 10 },
+      width: 100,
+      height: 100,
     });
     expect(model.getters.getSelectedFigureId()).toBe(null);
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
@@ -207,16 +188,13 @@ describe("figure plugin", () => {
 
   test("some commands do not remove figure selection", () => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        anchor: { col: 0, row: 0 },
-        offset: { x: 10, y: 10 },
-        tag: "hey",
-        width: 100,
-        height: 100,
-      },
+      id: "someuuid",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 10, y: 10 },
+      width: 100,
+      height: 100,
     });
     selectCell(model, "A1");
     expect(model.getters.getSelectedFigureId()).toBeNull();
@@ -247,10 +225,7 @@ describe("figure plugin", () => {
     },
   ])("can move a figure", (figure) => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure,
-    });
+    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
 
     const figureUI = model.getters.getVisibleFigures()[0];
     const { x, y } = figureUI;
@@ -270,16 +245,13 @@ describe("figure plugin", () => {
 
   test("can undo an update operation", () => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        anchor: { col: 0, row: 0 },
-        offset: { x: 10, y: 10 },
-        tag: "hey",
-        width: 10,
-        height: 10,
-      },
+      id: "someuuid",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 10, y: 10 },
+      width: 10,
+      height: 10,
     });
 
     model.dispatch("UPDATE_FIGURE", {
@@ -317,10 +289,7 @@ describe("figure plugin", () => {
     },
   ])("prevent moving a figure left or above of the sheet", (figure) => {
     const model = new Model();
-    model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure,
-    });
+    createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
 
     const figureUI = model.getters.getVisibleFigures()[0];
     model.dispatch("UPDATE_FIGURE", {
@@ -357,16 +326,13 @@ describe("figure plugin", () => {
   test("can delete a figure", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId,
-      figure: {
-        id: "someuuid",
-        anchor: { col: 0, row: 0 },
-        offset: { x: 10, y: 10 },
-        tag: "hey",
-        width: 10,
-        height: 10,
-      },
+      id: "someuuid",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 10, y: 10 },
+      width: 10,
+      height: 10,
     });
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
@@ -386,16 +352,13 @@ describe("figure plugin", () => {
         { id: "2", colNumber: 2, rowNumber: 2 },
       ],
     });
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        anchor: { col: 0, row: 0 },
-        offset: { x: 10, y: 10 },
-        tag: "hey",
-        width: 10,
-        height: 10,
-      },
+      id: "someuuid",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 10, y: 10 },
+      width: 10,
+      height: 10,
     });
     model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
@@ -406,16 +369,13 @@ describe("figure plugin", () => {
   test("Selecting a figure cancel the edition of a cell", () => {
     const model = new Model();
     const composerStore = makeTestComposerStore(model);
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId: model.getters.getActiveSheetId(),
-      figure: {
-        id: "someuuid",
-        anchor: { col: 0, row: 0 },
-        offset: { x: 10, y: 10 },
-        tag: "hey",
-        width: 10,
-        height: 10,
-      },
+      id: "someuuid",
+      anchor: { col: 0, row: 0 },
+      offset: { x: 10, y: 10 },
+      width: 10,
+      height: 10,
     });
     composerStore.startEdition();
     composerStore.setCurrentContent("hello");
@@ -435,23 +395,14 @@ describe("figure plugin", () => {
       width: 10,
       height: 10,
     };
-    const cmd1 = model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure,
-    });
+    const cmd1 = createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     expect(cmd1).toBeSuccessfullyDispatched();
     createSheet(model, { sheetId: "42" });
 
-    const cmd2 = model.dispatch("CREATE_FIGURE", {
-      sheetId: model.getters.getActiveSheetId(),
-      figure,
-    });
+    const cmd2 = createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
     expect(cmd2).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
 
-    const cmd3 = model.dispatch("CREATE_FIGURE", {
-      sheetId: "42",
-      figure,
-    });
+    const cmd3 = createFigure(model, { sheetId: "42", ...figure });
     expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedFigureId);
   });
 
@@ -489,13 +440,7 @@ describe("figure plugin", () => {
       model.getters.getNumberRows(sheetId) - 1
     ).end;
 
-    model.dispatch("CREATE_FIGURE", {
-      sheetId,
-      figure: {
-        ...figure,
-        offset: { x: maxX, y: maxY },
-      },
-    });
+    createFigure(model, { sheetId, ...figure, offset: { x: maxX, y: maxY } });
 
     const figureBefore = model.getters.getFigure(sheetId, figureId)!;
     const figureUI = model.getters.getFigureUI(sheetId, figureBefore);
@@ -531,10 +476,7 @@ describe("figure plugin", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const figureId = "someuuid";
-    model.dispatch("CREATE_FIGURE", {
-      sheetId,
-      figure,
-    });
+    createFigure(model, { sheetId, ...figure });
 
     const figureBefore = model.getters.getFigure(sheetId, figureId)!;
     const figureUIBefore = model.getters.getFigureUI(sheetId, figureBefore);
@@ -554,16 +496,13 @@ describe("figure plugin", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const figureId = "someuuid";
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId,
-      figure: {
-        id: "someuuid",
-        tag: "hey",
-        width: 100,
-        height: 100,
-        anchor: { col: 1, row: 4 },
-        offset: { x: 4, y: 8 },
-      },
+      id: "someuuid",
+      width: 100,
+      height: 100,
+      anchor: { col: 1, row: 4 },
+      offset: { x: 4, y: 8 },
     });
 
     deleteColumns(model, ["A"]);
@@ -579,16 +518,13 @@ describe("figure plugin", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const figureId = "someuuid";
-    model.dispatch("CREATE_FIGURE", {
+    createFigure(model, {
       sheetId,
-      figure: {
-        id: "someuuid",
-        tag: "hey",
-        width: 100,
-        height: 100,
-        anchor: { col: 1, row: 4 },
-        offset: { x: 4, y: 8 },
-      },
+      id: "someuuid",
+      width: 100,
+      height: 100,
+      anchor: { col: 1, row: 4 },
+      offset: { x: 4, y: 8 },
     });
 
     deleteColumns(model, ["E"]);

@@ -6,11 +6,10 @@ import {
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
-  Figure,
   FigureData,
   FigureSize,
+  HeaderIndex,
   PixelPosition,
-  Position,
   UID,
   WorkbookData,
 } from "../../types/index";
@@ -33,6 +32,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     super(config);
     this.fileStore = config.external.fileStore;
   }
+  anchor;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -53,7 +53,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_IMAGE":
-        this.addFigure(cmd.figureId, cmd.sheetId, cmd.anchor, cmd.offset, cmd.size);
+        this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
         this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
         this.syncedImages.add(cmd.definition.path);
         break;
@@ -70,7 +70,8 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
                 sheetId: cmd.sheetIdTo,
                 figureId: duplicatedFigureId,
                 offset: fig.offset,
-                anchor: fig.anchor,
+                col: fig.anchor.col,
+                row: fig.anchor.row,
                 size,
                 definition: deepCopy(image),
               });
@@ -126,30 +127,17 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   // ---------------------------------------------------------------------------
 
   private addFigure(
-    id: UID,
+    figureId: UID,
     sheetId: UID,
-    anchor: Position | undefined,
-    offset: PixelPosition = {
-      x: 0,
-      y: 0,
-    },
+    col: HeaderIndex,
+    row: HeaderIndex,
+    offset: PixelPosition,
     size: FigureSize
   ) {
-    if (this.getters.getFigure(sheetId, id)) {
+    if (this.getters.getFigure(sheetId, figureId)) {
       return;
     }
-    if (!anchor) {
-      anchor = { col: 0, row: 0 };
-    }
-    const figure: Figure = {
-      id: id,
-      anchor,
-      offset,
-      width: size.width,
-      height: size.height,
-      tag: "image",
-    };
-    this.dispatch("CREATE_FIGURE", { sheetId, figure });
+    this.dispatch("CREATE_FIGURE", { sheetId, figureId, col, row, offset, size, tag: "image" });
   }
 
   import(data: WorkbookData) {

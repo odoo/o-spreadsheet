@@ -391,7 +391,8 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const result = env.model.dispatch("CREATE_CHART", {
     sheetId,
     figureId,
-    anchor,
+    col: anchor.col,
+    row: anchor.row,
     offset,
     size,
     definition: getSmartChartDefinition(env.model.getters.getSelectedZone(), env.model.getters),
@@ -482,7 +483,8 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
     env.model.dispatch("CREATE_IMAGE", {
       sheetId,
       figureId: id,
-      anchor,
+      col: anchor.col,
+      row: anchor.row,
       offset,
       size,
       definition: image,

@@ -253,10 +253,7 @@ describe("Repeat command transform specifics", () => {
     expect(transformed).toEqual({
       ...command,
       sheetId: "42",
-      figure: {
-        ...command.figure,
-        id: expect.not.stringMatching(command.figure.id),
-      },
+      figureId: expect.not.stringMatching(command.figureId),
     });
   });
 

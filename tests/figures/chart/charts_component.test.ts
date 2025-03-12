@@ -10,7 +10,9 @@ import {
   ChartDefinition,
   ChartType,
   ChartWithDataSetDefinition,
+  CreateFigureCommand,
   SpreadsheetChildEnv,
+  UID,
 } from "../../../src/types";
 import { PieChartRuntime } from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
@@ -67,19 +69,29 @@ mockGetBoundingClientRect({
 });
 type AllChartType = ChartType | "basicChart";
 
-function createTestChart(type: AllChartType, newChartId = chartId) {
+function createTestChart(
+  type: AllChartType,
+  newChartId: UID = chartId,
+  partialFigure: Partial<CreateFigureCommand> = {}
+) {
   switch (type) {
     case "scorecard":
-      createScorecardChart(model, TEST_CHART_DATA.scorecard, newChartId);
+      createScorecardChart(model, TEST_CHART_DATA.scorecard, newChartId, undefined, partialFigure);
       break;
     case "gauge":
-      createGaugeChart(model, TEST_CHART_DATA.gauge, newChartId);
+      createGaugeChart(model, TEST_CHART_DATA.gauge, newChartId, undefined, partialFigure);
       break;
     case "basicChart":
-      createChart(model, TEST_CHART_DATA.basicChart, newChartId);
+      createChart(model, TEST_CHART_DATA.basicChart, newChartId, undefined, partialFigure);
       break;
     default:
-      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, chartId);
+      createChart(
+        model,
+        { ...TEST_CHART_DATA.basicChart, type },
+        chartId,
+        undefined,
+        partialFigure
+      );
       break;
   }
 }
@@ -153,7 +165,7 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("can export a chart %s", (chartType) => {
-    createTestChart(chartType);
+    createTestChart(chartType, undefined, { size: { height: 335, width: 536 } });
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
     const sheet = data.sheets.find((s) => s.id === activeSheetId)!;

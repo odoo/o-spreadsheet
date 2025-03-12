@@ -116,7 +116,7 @@ function inverseDeleteSheet(cmd: DeleteSheetCommand): CreateSheetCommand[] {
 }
 
 function inverseCreateFigure(cmd: CreateFigureCommand): DeleteFigureCommand[] {
-  return [{ type: "DELETE_FIGURE", figureId: cmd.figure.id, sheetId: cmd.sheetId }];
+  return [{ type: "DELETE_FIGURE", figureId: cmd.figureId, sheetId: cmd.sheetId }];
 }
 
 function inverseCreateChart(cmd: CreateChartCommand): DeleteFigureCommand[] {
