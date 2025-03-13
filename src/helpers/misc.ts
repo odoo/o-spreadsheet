@@ -486,6 +486,10 @@ export function replaceNewLines(text: string | undefined): string {
   return text.replace(newLineRegexp, NEWLINE);
 }
 
+export function replaceSpaces(text: string): string {
+  return text.replace(whiteSpaceRegexp, " ");
+}
+
 /**
  * Determine if the numbers are consecutive.
  */

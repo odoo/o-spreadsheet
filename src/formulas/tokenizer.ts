@@ -4,7 +4,7 @@ import {
   getFormulaNumberRegex,
   rangeReference,
   replaceNewLines,
-  whiteSpaceRegexp,
+  replaceSpaces,
 } from "../helpers/index";
 import { DEFAULT_LOCALE, Locale } from "../types";
 import { CellErrorType } from "../types/errors";
@@ -50,6 +50,7 @@ export interface Token {
 
 export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
   str = replaceNewLines(str);
+  str = replaceSpaces(str);
   const chars = new TokenizingChars(str);
   const result: Token[] = [];
 
@@ -216,7 +217,7 @@ function tokenizeSpace(chars: TokenizingChars): Token | null {
   }
 
   let spaces = "";
-  while (chars.current && chars.current.match(whiteSpaceRegexp)) {
+  while (chars.current === " ") {
     spaces += chars.shift();
   }
 
