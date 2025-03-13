@@ -186,6 +186,16 @@ describe("describe", () => {
     expect(composerStore.editionMode).toBe("inactive");
   });
 
+  test("Delete sheet & Don't notify cell is deleted when composer is in selecting mode", () => {
+    const activeSheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "42" });
+    selectCell(model, "A4");
+    setCellContent(model, "A4", "=A1+");
+    composerStore.startEdition();
+    model.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
   test("Composing in a sheet when the sheet is deleted", () => {
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
