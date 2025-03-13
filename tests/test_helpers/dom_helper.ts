@@ -10,15 +10,17 @@ export async function simulateClick(
   selector: DOMTarget,
   x: number = 10,
   y: number = 10,
-  extra: MouseEventInit = { bubbles: true }
+  extra: MouseEventInit = { bubbles: true, cancelable: true }
 ) {
   const target = getTarget(selector);
-  triggerMouseEvent(selector, "pointerdown", x, y, extra);
+  const pointerDownEv = triggerMouseEvent(selector, "pointerdown", x, y, extra);
   if (target !== document.activeElement) {
     const oldActiveEl = document.activeElement;
-    (document.activeElement as HTMLElement | null)?.dispatchEvent(
-      new FocusEvent("blur", { relatedTarget: target })
-    );
+    if (!pointerDownEv.defaultPrevented) {
+      (document.activeElement as HTMLElement | null)?.dispatchEvent(
+        new FocusEvent("blur", { relatedTarget: target })
+      );
+    }
     /** Dispatching a crafted FocusEvent does not actually focus the target.
      * JSDom pretty much requires us to rely on Element.focus()
      * Because of the problematic behavior addressed in 71a9c8c2,
@@ -164,6 +166,7 @@ export function triggerMouseEvent(
   (ev as any).offsetY = offsetY;
   const target = getTarget(selector);
   target.dispatchEvent(ev);
+  return ev;
 }
 
 export function triggerWheelEvent(
