@@ -138,8 +138,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   cancelEdition() {
-    this.cancelEditionAndActivateSheet();
     this.resetContent();
+    this.cancelEditionAndActivateSheet();
   }
 
   setCurrentContent(content: string, selection?: ComposerSelection) {
@@ -159,8 +159,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     switch (cmd.type) {
       case "SELECT_FIGURE":
         if (cmd.id) {
-          this.cancelEditionAndActivateSheet();
           this.resetContent();
+          this.cancelEditionAndActivateSheet();
         }
         break;
       case "START_CHANGE_HIGHLIGHT":

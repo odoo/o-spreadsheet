@@ -103,8 +103,8 @@ export class CellComposerStore extends AbstractComposerStore {
         const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
         if (!sheetIdExists && this.editionMode !== "inactive") {
           this.sheetId = this.getters.getActiveSheetId();
-          this.cancelEditionAndActivateSheet();
           this.resetContent();
+          this.cancelEditionAndActivateSheet();
           this.notificationStore.raiseError(CELL_DELETED_MESSAGE);
         }
         break;

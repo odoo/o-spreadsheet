@@ -294,6 +294,15 @@ describe("edition", () => {
     expect(composerStore.currentContent).toBe("");
   });
 
+  test("cancel edition with initial content in a selecting position", () => {
+    setCellContent(model, "A1", "=A12+");
+    composerStore.startEdition();
+    expect(composerStore.editionMode).toBe("selecting");
+    composerStore.cancelEdition();
+    expect(composerStore.currentContent).toBe("=A12+");
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
   test("ranges are not highlighted when inactive", () => {
     expect(composerStore.editionMode).toBe("inactive");
     composerStore.setCurrentContent("=SUM(B2:B3, C5)");
