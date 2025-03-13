@@ -1,4 +1,4 @@
-import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { numberToLetters, zoneToDimension } from "../../../helpers";
 import { _t } from "../../../translation";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../../types/index";
@@ -33,7 +33,7 @@ export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv>
   });
 
   setup() {
-    onMounted(() => this.updateColumns());
+    this.updateColumns();
     onWillUpdateProps(() => this.updateColumns());
   }
 
