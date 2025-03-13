@@ -10,6 +10,7 @@ import {
   freezeColumns,
   freezeRows,
   selectCell,
+  setCellContent,
   setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -347,7 +348,7 @@ describe("figure plugin", () => {
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
 
-  test("Selecting a cell cancel the edition of a cell", () => {
+  test("Selecting a figure cancels the edition of a cell", () => {
     const model = new Model();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
@@ -366,6 +367,26 @@ describe("figure plugin", () => {
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(model.getters.getActiveCell().value).toBe("");
+  });
+
+  test("Selecting a figure cancels the edition of a cell in selecting mode", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=A1+");
+    model.dispatch("CREATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figure: {
+        id: "someuuid",
+        x: 10,
+        y: 10,
+        tag: "hey",
+        width: 10,
+        height: 10,
+      },
+    });
+    model.dispatch("START_EDITION");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   test("cannot duplicate figure ids", () => {
