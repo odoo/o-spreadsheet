@@ -1,8 +1,14 @@
-import { GRID_ICON_MARGIN, ICON_EDGE_LENGTH, PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  GRID_ICON_MARGIN,
+  ICON_EDGE_LENGTH,
+  PADDING_AUTORESIZE_HORIZONTAL,
+} from "../../constants";
 import {
   computeIconWidth,
   computeTextWidth,
   formatValue,
+  getCellContentHeight,
   groupConsecutive,
   isEqual,
   largeMax,
@@ -54,14 +60,8 @@ export class SheetUIPlugin extends UIPlugin {
         }
         break;
       case "AUTORESIZE_ROWS":
-        this.dispatch("RESIZE_COLUMNS_ROWS", {
-          elements: cmd.rows,
-          dimension: "ROW",
-          size: null,
-          sheetId: cmd.sheetId,
-        });
+        this.autoResizeRows(cmd.sheetId, cmd.rows);
         break;
-
       case "DELETE_UNFILTERED_CONTENT":
         const newTarget: Zone[] = [];
         for (const target of cmd.target) {
@@ -266,5 +266,49 @@ export class SheetUIPlugin extends UIPlugin {
       return this.getters.checkZonesExistInSheet(sheetId, zones);
     }
     return CommandResult.Success;
+  }
+
+  private autoResizeRows(sheetId: UID, rows: HeaderIndex[]) {
+    const rowSizes: (number | null)[] = [];
+    for (const row of rows) {
+      let evaluatedRowSize = 0;
+      for (const cellId of this.getters.getRowCells(sheetId, row)) {
+        const cell = this.getters.getCellById(cellId);
+        if (!cell) {
+          continue;
+        }
+        const position = this.getters.getCellPosition(cell.id);
+        const colSize = this.getters.getColSize(sheetId, position.col);
+
+        if (cell.isFormula) {
+          const content = this.getters.getEvaluatedCell(position).formattedValue;
+          const evaluatedSize = getCellContentHeight(this.ctx, content, cell?.style, colSize);
+          if (evaluatedSize > evaluatedRowSize && evaluatedSize > DEFAULT_CELL_HEIGHT) {
+            evaluatedRowSize = evaluatedSize;
+          }
+        } else {
+          const content = cell.content;
+          const dynamicRowSize = getCellContentHeight(this.ctx, content, cell?.style, colSize);
+          // Only keep the size of evaluated cells if it's bigger than the dynamic row size
+          if (dynamicRowSize >= evaluatedRowSize && dynamicRowSize > DEFAULT_CELL_HEIGHT) {
+            evaluatedRowSize = 0;
+          }
+        }
+      }
+      rowSizes.push(evaluatedRowSize || null);
+    }
+
+    const groupedSizes = new Map<number | null, HeaderIndex[]>(rowSizes.map((size) => [size, []]));
+    for (let i = 0; i < rowSizes.length; i++) {
+      groupedSizes.get(rowSizes[i])?.push(rows[i]);
+    }
+    for (const [size, rows] of groupedSizes) {
+      this.dispatch("RESIZE_COLUMNS_ROWS", {
+        elements: rows,
+        dimension: "ROW",
+        size,
+        sheetId,
+      });
+    }
   }
 }
