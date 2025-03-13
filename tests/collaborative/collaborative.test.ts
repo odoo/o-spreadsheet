@@ -636,6 +636,18 @@ describe("Multi users synchronisation", () => {
     expect(alice.getters.getEditionMode()).toBe("inactive");
   });
 
+  test("Delete sheet & Don't notify cell is deleted when composer is in selecting mode", () => {
+    const activeSheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "42" });
+    selectCell(alice, "A4");
+    setCellContent(alice, "A4", "=A1+");
+    alice.dispatch("START_EDITION");
+    const spy = jest.spyOn(alice["config"], "notifyUI");
+    alice.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
+    expect(spy).toHaveBeenCalled();
+    expect(alice.getters.getEditionMode()).toBe("inactive");
+  });
+
   test("Delete row & Don't notify cell is deleted when composer is not active", () => {
     selectCell(alice, "A4");
     alice.dispatch("START_EDITION", { text: "hello" });
