@@ -125,8 +125,8 @@ export class EditionPlugin extends UIPlugin {
         break;
       case "STOP_EDITION":
         if (cmd.cancel) {
-          this.cancelEditionAndActivateSheet();
           this.resetContent();
+          this.cancelEditionAndActivateSheet();
         } else {
           this.stopEdition();
         }
@@ -140,8 +140,8 @@ export class EditionPlugin extends UIPlugin {
         this.replaceSelection(cmd.text);
         break;
       case "SELECT_FIGURE":
-        this.cancelEditionAndActivateSheet();
         this.resetContent();
+        this.cancelEditionAndActivateSheet();
         break;
       case "ADD_COLUMNS_ROWS":
         this.onAddElements(cmd);
@@ -202,8 +202,8 @@ export class EditionPlugin extends UIPlugin {
         const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
         if (!sheetIdExists && this.mode !== "inactive") {
           this.sheetId = this.getters.getActiveSheetId();
-          this.cancelEditionAndActivateSheet();
           this.resetContent();
+          this.cancelEditionAndActivateSheet();
           this.ui.notifyUI({
             type: "ERROR",
             text: CELL_DELETED_MESSAGE,

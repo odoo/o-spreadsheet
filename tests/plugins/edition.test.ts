@@ -331,6 +331,17 @@ describe("edition", () => {
     });
     model.dispatch("STOP_EDITION", { cancel: true });
     expect(model.getters.getCurrentContent()).toBe("");
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("cancel edition with initial content in a selecting position", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=A12+");
+    model.dispatch("START_EDITION");
+    expect(model.getters.getEditionMode()).toBe("selecting");
+    model.dispatch("STOP_EDITION", { cancel: true });
+    expect(model.getters.getCurrentContent()).toBe("=A12+");
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   test("ranges are not highlighted when inactive", () => {
