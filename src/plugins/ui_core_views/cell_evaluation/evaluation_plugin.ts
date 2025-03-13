@@ -390,7 +390,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
    * formula of the array formula that spreads to the cell
    */
   getCorrespondingFormulaCell(position: CellPosition): FormulaCell | undefined {
-    const cell = this.getters.getCell(position);
+    const cell = this.getters.getCell(this.getters.getMainCellPosition(position));
 
     if (cell && cell.isFormula) {
       return cell.compiledFormula.isBadExpression ? undefined : cell;
