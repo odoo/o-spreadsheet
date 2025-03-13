@@ -214,10 +214,13 @@ describe("remove duplicates", () => {
     parent.env.openSidePanel("RemoveDuplicates");
     await nextTick();
 
+    let errors = fixture.querySelectorAll(selectors.sidePanelError);
+    expect(errors.length).toBe(0);
+
     const checkBoxSelectAll = fixture.querySelectorAll(selectors.checkBoxColumnsInput)[0]; // checkBox[0] correspond to " Select all "
     await click(checkBoxSelectAll);
 
-    const errors = fixture.querySelectorAll(selectors.sidePanelError);
+    errors = fixture.querySelectorAll(selectors.sidePanelError);
     expect(errors.length).toBe(1);
     expect(errors[0].textContent).toBe("Please select at latest one column to analyze.");
     expect(fixture.querySelector(selectors.removeDuplicateButton)!.classList).toContain(
