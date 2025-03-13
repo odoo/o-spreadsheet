@@ -2,8 +2,7 @@
 
 exports[`Grid integration can display error tooltip 1`] = `
 <div
-  class="o-popover"
-  style="z-index: 19; display: block; max-height: 824px; max-width: 697px; top: 187px; left: 336px;"
+  class="o-popover-content"
 >
   <div
     class="o-error-tooltip"

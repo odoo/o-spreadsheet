@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { ComponentsImportance } from "../../constants";
 import { rectIntersection } from "../../helpers/rectangle";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
@@ -73,6 +73,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   };
 
   private popoverRef = useRef("popover");
+  private popoverContentRef = useRef("popoverContent");
   private currentPosition: PopoverPosition | undefined = undefined;
   private currentDisplayValue: DisplayValue | undefined = undefined;
 
@@ -82,60 +83,83 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   setup() {
     this.containerRect = usePopoverContainer();
 
+    const resizeObserver = new ResizeObserver(this.computePopoverPosition.bind(this));
+    onMounted(() => {
+      resizeObserver.observe(this.popoverContentRef.el!);
+    });
+    onWillUnmount(() => {
+      resizeObserver.disconnect();
+    });
+
     // useEffect occurs after the DOM is created and the element width/height are computed, but before
     // the element in rendered, so we can still set its position
-    useEffect(() => {
-      if (!this.containerRect) throw new Error("Popover container is not defined");
-      const el = this.popoverRef.el!;
-
-      const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
-      const newDisplay: DisplayValue = anchor ? "block" : "none";
-      if (this.currentDisplayValue !== "none" && newDisplay === "none") {
-        this.props.onPopoverHidden?.();
-      }
-      el.style.display = newDisplay;
-      this.currentDisplayValue = newDisplay;
-
-      if (!anchor) return;
-
-      const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
-      let elDims = {
-        width: el.getBoundingClientRect().width,
-        height: el.getBoundingClientRect().height,
-      };
-
-      const spreadsheetRect = this.spreadsheetRect;
-
-      const popoverPositionHelper =
-        this.props.positioning === "bottom-left"
-          ? new BottomLeftPopoverContext(anchor, this.containerRect, propsMaxSize, spreadsheetRect)
-          : new TopRightPopoverContext(anchor, this.containerRect, propsMaxSize, spreadsheetRect);
-
-      el.style["max-height"] = popoverPositionHelper.getMaxHeight(elDims.height) + "px";
-      el.style["max-width"] = popoverPositionHelper.getMaxWidth(elDims.width) + "px";
-      // Re-compute the dimensions after setting the max-width and max-height
-      elDims = {
-        width: el.getBoundingClientRect().width,
-        height: el.getBoundingClientRect().height,
-      };
-
-      let style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
-      for (const property of Object.keys(style)) {
-        el.style[property] = style[property];
-      }
-
-      const newPosition = popoverPositionHelper.getCurrentPosition(elDims);
-      if (this.currentPosition && newPosition !== this.currentPosition) {
-        this.props.onPopoverMoved?.();
-      }
-      this.currentPosition = newPosition;
-    });
+    useEffect(this.computePopoverPosition.bind(this));
   }
 
   get popoverStyle(): string {
     return cssPropertiesToCss({
       "z-index": `${this.props.zIndex}`,
     });
+  }
+
+  private computePopoverPosition() {
+    if (!this.containerRect) throw new Error("Popover container is not defined");
+    const el = this.popoverRef.el!;
+    const contentEl = this.popoverContentRef.el!;
+
+    const anchor = rectIntersection(this.props.anchorRect, this.containerRect);
+    const newDisplay: DisplayValue = anchor ? "block" : "none";
+    if (this.currentDisplayValue !== "none" && newDisplay === "none") {
+      this.props.onPopoverHidden?.();
+    }
+    el.style.display = newDisplay;
+    this.currentDisplayValue = newDisplay;
+
+    if (!anchor) return;
+
+    const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
+    let elDims = {
+      width: contentEl.getBoundingClientRect().width,
+      height: contentEl.getBoundingClientRect().height,
+    };
+
+    const spreadsheetRect = this.spreadsheetRect;
+
+    const popoverPositionHelper =
+      this.props.positioning === "bottom-left"
+        ? new BottomLeftPopoverContext(
+            anchor,
+            this.containerRect,
+            propsMaxSize,
+            spreadsheetRect,
+            this.currentPosition
+          )
+        : new TopRightPopoverContext(
+            anchor,
+            this.containerRect,
+            propsMaxSize,
+            spreadsheetRect,
+            this.currentPosition
+          );
+
+    el.style["max-height"] = popoverPositionHelper.getMaxHeight(elDims.height) + "px";
+    el.style["max-width"] = popoverPositionHelper.getMaxWidth(elDims.width) + "px";
+    // Re-compute the dimensions after setting the max-width and max-height
+    elDims = {
+      width: el.getBoundingClientRect().width,
+      height: el.getBoundingClientRect().height,
+    };
+
+    let style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
+    for (const property of Object.keys(style)) {
+      el.style[property] = style[property];
+    }
+
+    const newPosition = popoverPositionHelper.getCurrentPosition(elDims);
+    if (this.currentPosition && newPosition !== this.currentPosition) {
+      this.props.onPopoverMoved?.();
+    }
+    this.currentPosition = newPosition;
   }
 }
 
@@ -144,7 +168,8 @@ abstract class PopoverPositionContext {
     protected anchorRect: Rect,
     protected containerRect: Rect,
     private propsMaxSize: Partial<DOMDimension>,
-    private spreadsheetOffset: DOMCoordinates
+    private spreadsheetOffset: DOMCoordinates,
+    private lastPosition?: PopoverPosition
   ) {}
 
   protected abstract get availableHeightUp(): number;
@@ -155,20 +180,38 @@ abstract class PopoverPositionContext {
   protected abstract getTopCoordinate(elementHeight: number, shouldRenderAtBottom: boolean): number;
   protected abstract getLeftCoordinate(elementWidth: number, shouldRenderAtRight: boolean): number;
 
-  /** Check if there is enough space for the popover to be rendered at the bottom of the anchorRect */
+  /**
+   * Check if the popover should be rendered at the bottom of the anchorRect or at the top.
+   * Try to keep the same position as this.lastPosition if possible.
+   */
   private shouldRenderAtBottom(elementHeight: number): boolean {
-    return (
+    if (this.lastPosition === "top-left" || this.lastPosition === "top-right") {
+      const shouldRenderAtTop =
+        elementHeight <= this.availableHeightUp ||
+        this.availableHeightUp >= this.availableHeightDown;
+      return !shouldRenderAtTop;
+    }
+    const shouldRenderAtBottom =
       elementHeight <= this.availableHeightDown ||
-      this.availableHeightDown >= this.availableHeightUp
-    );
+      this.availableHeightDown >= this.availableHeightUp;
+    return shouldRenderAtBottom;
   }
 
-  /** Check if there is enough space for the popover to be rendered at the right of the anchorRect */
+  /**
+   * Check if the popover should be rendered at the right of the anchorRect or at the left.
+   * Try to keep the same position as this.lastPosition if possible.
+   */
   private shouldRenderAtRight(elementWidth: number): boolean {
-    return (
+    if (this.lastPosition === "bottom-left" || this.lastPosition === "top-left") {
+      const shouldRenderAtLeft =
+        elementWidth <= this.availableWidthLeft ||
+        this.availableWidthLeft >= this.availableWidthRight;
+      return !shouldRenderAtLeft;
+    }
+    const shouldRenderAtRight =
       elementWidth <= this.availableWidthRight ||
-      this.availableWidthRight >= this.availableWidthLeft
-    );
+      this.availableWidthRight >= this.availableWidthLeft;
+    return shouldRenderAtRight;
   }
 
   getMaxHeight(elementHeight: number) {
