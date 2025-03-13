@@ -13,8 +13,8 @@ let model: Model;
 let app: App;
 
 interface MountPopoverArgs extends Partial<PopoverProps> {
-  childWidth: Pixel;
-  childHeight: Pixel;
+  childWidth?: Pixel;
+  childHeight?: Pixel;
   containerRect?: Rect;
 }
 
@@ -54,22 +54,32 @@ async function mountTestPopover(args: MountPopoverArgs) {
   ({ fixture, app } = await mountComponent(Parent, { props: { model } }));
 }
 
-mockGetBoundingClientRect({
-  "o-popover": (el: HTMLElement) => {
-    const maxHeight = getStylePropertyInPx(el, "max-height");
-    const maxWidth = getStylePropertyInPx(el, "max-height");
-    const childHeight = getStylePropertyInPx(el.firstChild! as HTMLElement, "height");
-    const childWidth = getStylePropertyInPx(el.firstChild! as HTMLElement, "width");
-    return {
-      height: childHeight || maxHeight,
-      width: childWidth || maxWidth,
-    };
-  },
-  "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
-});
-
 beforeEach(async () => {
   model = new Model();
+  mockGetBoundingClientRect({
+    "o-popover-content": (el: HTMLElement) => {
+      const popover = el.closest<HTMLElement>(".o-popover")!;
+      const maxHeight = getStylePropertyInPx(popover, "max-height");
+      const maxWidth = getStylePropertyInPx(popover, "max-height");
+      const childHeight = getStylePropertyInPx(el.firstChild! as HTMLElement, "height");
+      const childWidth = getStylePropertyInPx(el.firstChild! as HTMLElement, "width");
+      return {
+        height: childHeight || maxHeight,
+        width: childWidth || maxWidth,
+      };
+    },
+    "o-popover": (el: HTMLElement) => {
+      const maxHeight = getStylePropertyInPx(el, "max-height");
+      const maxWidth = getStylePropertyInPx(el, "max-height");
+      const childHeight = getStylePropertyInPx(el.firstChild!.firstChild as HTMLElement, "height");
+      const childWidth = getStylePropertyInPx(el.firstChild!.firstChild as HTMLElement, "width");
+      return {
+        height: childHeight || maxHeight,
+        width: childWidth || maxWidth,
+      };
+    },
+    "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+  });
 });
 
 describe("Popover sizing", () => {
@@ -333,5 +343,56 @@ describe("Popover positioning", () => {
     });
     popover = fixture.querySelector(".o-popover")! as HTMLElement;
     expect(popover.style.display).toEqual("none");
+  });
+
+  test("Popover position is updated when its content changes size", async () => {
+    let popoverContentBox = { x: 0, y: 0, width: 100, height: 100 };
+    mockGetBoundingClientRect({
+      "o-popover": (el: HTMLElement) => ({
+        height: Math.min(getStylePropertyInPx(el, "max-height") || 0, popoverContentBox.height),
+        width: 100,
+      }),
+      "o-popover-content": () => popoverContentBox,
+      "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+    });
+
+    await mountTestPopover({
+      anchorRect: { x: 500, y: 800, width: 0, height: 0 },
+      positioning: "bottom-left",
+    });
+    const popover = fixture.querySelector(".o-popover")! as HTMLElement;
+    expect(popover.style.top).toEqual(`800px`);
+
+    popoverContentBox = { x: 0, y: 0, width: 100, height: 400 };
+    window.resizers.resize();
+    expect(popover.style.top).toEqual(`400px`);
+  });
+
+  test("Popover do not move back and forth if there is multiple content size changes", async () => {
+    let popoverContentBox = { x: 0, y: 0, width: 100, height: 100 };
+    mockGetBoundingClientRect({
+      "o-popover": (el: HTMLElement) => ({
+        height: Math.min(getStylePropertyInPx(el, "max-height") || 0, popoverContentBox.height),
+        width: 100,
+      }),
+      "o-popover-content": () => popoverContentBox,
+      "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+    });
+
+    await mountTestPopover({
+      anchorRect: { x: 500, y: 800, width: 0, height: 0 },
+      positioning: "bottom-left",
+    });
+    const popover = fixture.querySelector(".o-popover")! as HTMLElement;
+    expect(popover.style.top).toEqual(`800px`);
+
+    popoverContentBox = { x: 0, y: 0, width: 100, height: 400 };
+    window.resizers.resize();
+    expect(popover.style.top).toEqual(`400px`);
+
+    popoverContentBox = { x: 0, y: 0, width: 100, height: 100 };
+    window.resizers.resize();
+    // top moves because the content changes, but the bottom stays the same, even if there is now space below the anchor rect
+    expect(popover.style.top).toEqual(`700px`);
   });
 });

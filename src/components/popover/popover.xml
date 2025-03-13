@@ -8,7 +8,9 @@
         t-on-wheel="props.onMouseWheel"
         t-att-style="popoverStyle"
         t-on-click.stop="">
-        <t t-slot="default"/>
+        <div class="o-popover-content" t-ref="popoverContent">
+          <t t-slot="default"/>
+        </div>
       </div>
     </t>
   </t>

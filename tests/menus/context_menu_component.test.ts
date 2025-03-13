@@ -67,13 +67,8 @@ function makeTestMenuItem(name: string, params?: Partial<ActionSpec>): ActionSpe
 
 mockGetBoundingClientRect({
   "o-menu": (el) => getElPosition(el),
-  "o-popover": (el) => {
-    const childName = (el.firstChild?.firstChild as HTMLElement)?.title;
-    if (childName && childName.includes("subMenu")) {
-      return getSubMenuSize();
-    }
-    return getMenuSize();
-  },
+  "o-popover": () => getMenuSize(),
+  "o-popover-content": () => getMenuSize(),
   "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
   "o-menu-item": (el) => {
     const parentPosition = getElPosition(el.parentElement!);
@@ -106,12 +101,13 @@ function getElPosition(element: string | Element): {
 } {
   const menu = typeof element === "string" ? fixture.querySelector<HTMLElement>(element)! : element;
 
-  const top = getStylePropertyInPx(menu.parentElement!, "top")!;
-  const left = getStylePropertyInPx(menu.parentElement!, "left")!;
-  const width = getStylePropertyInPx(menu.parentElement!, "width");
-  const height = getStylePropertyInPx(menu.parentElement!, "height");
-  const maxHeight = getStylePropertyInPx(menu.parentElement!, "max-height")!;
-  const maxWidth = getStylePropertyInPx(menu.parentElement!, "max-width")!;
+  const popoverEl = menu.closest<HTMLElement>(".o-popover")!;
+  const top = getStylePropertyInPx(popoverEl, "top")!;
+  const left = getStylePropertyInPx(popoverEl, "left")!;
+  const width = getStylePropertyInPx(popoverEl, "width");
+  const height = getStylePropertyInPx(popoverEl, "height");
+  const maxHeight = getStylePropertyInPx(popoverEl, "max-height")!;
+  const maxWidth = getStylePropertyInPx(popoverEl, "max-width")!;
 
   return {
     top,
@@ -265,16 +261,16 @@ describe("Context Menu integration tests", () => {
   test("context menu opens at the correct position upon right-clicking a row or column resizer", async () => {
     triggerMouseEvent(".o-col-resizer", "contextmenu", COLUMN_D.x, COLUMN_D.y);
     await nextTick();
-    const colMenuContainer = document.querySelector(".o-menu")! as HTMLElement;
-    const { top: colTop, left: colLeft } = window.getComputedStyle(colMenuContainer.parentElement!);
+    const colMenuContainer = document.querySelector(".o-popover")! as HTMLElement;
+    const { top: colTop, left: colLeft } = window.getComputedStyle(colMenuContainer);
 
     expect(colLeft).toBe(`${COLUMN_D.x}px`);
     expect(colTop).toBe(`${COLUMN_D.y}px`);
 
     triggerMouseEvent(".o-row-resizer", "contextmenu", ROW_5.x, ROW_5.y);
     await nextTick();
-    const rowMenuContainer = document.querySelector(".o-menu")! as HTMLElement;
-    const { top: rowTop, left: rowLeft } = window.getComputedStyle(rowMenuContainer.parentElement!);
+    const rowMenuContainer = document.querySelector(".o-popover")! as HTMLElement;
+    const { top: rowTop, left: rowLeft } = window.getComputedStyle(rowMenuContainer);
 
     expect(rowLeft).toBe(`${ROW_5.x}px`);
     expect(rowTop).toBe(`${ROW_5.y}px`);
@@ -872,16 +868,16 @@ describe("Context menu react to grid size changes", () => {
       .dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 800, clientY: 0 }));
     await nextTick();
     await simulateClick("div[data-name='paste_special']");
-    let menus = fixture.querySelectorAll(".o-menu");
-    expect(menus[0].parentElement?.style.display).toBe("block");
+    let menus = fixture.querySelectorAll<HTMLElement>(".o-popover");
+    expect(menus[0]?.style.display).toBe("block");
     expect(menus[1]).toBeTruthy();
 
     model.dispatch("RESIZE_SHEETVIEW", { width: 500, height: 500 });
     await nextTick();
     await nextTick(); // First render hides the parent menu, second closes the submenu
 
-    menus = fixture.querySelectorAll(".o-menu");
-    expect(menus[0].parentElement?.style.display).toBe("none");
+    menus = fixture.querySelectorAll(".o-popover");
+    expect(menus[0]?.style.display).toBe("none");
     expect(menus[1]).toBeFalsy();
   });
 
@@ -891,16 +887,16 @@ describe("Context menu react to grid size changes", () => {
       .dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 500, clientY: 0 }));
     await nextTick();
     await simulateClick("div[data-name='paste_special']");
-    let menus = fixture.querySelectorAll(".o-menu");
-    expect(menus[0].parentElement?.style.left).toBe("500px");
+    let menus = fixture.querySelectorAll<HTMLElement>(".o-popover");
+    expect(menus[0]?.style.left).toBe("500px");
     expect(menus[1]).toBeTruthy();
 
     model.dispatch("RESIZE_SHEETVIEW", { width: 500 + MENU_WIDTH / 2, height: 1000 });
     await nextTick();
     await nextTick(); // First render moves the parent menu, second closes the submenu
 
-    menus = fixture.querySelectorAll(".o-menu");
-    expect(menus[0].parentElement?.style.left).toBe(`${500 - MENU_WIDTH}px`);
+    menus = fixture.querySelectorAll(".o-popover");
+    expect(menus[0]?.style.left).toBe(`${500 - MENU_WIDTH}px`);
     expect(menus[1]).toBeFalsy();
   });
 });
