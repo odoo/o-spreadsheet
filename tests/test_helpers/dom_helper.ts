@@ -11,7 +11,7 @@ export async function simulateClick(
   selector: DOMTarget,
   x: number = 10,
   y: number = 10,
-  extra: MouseEventInit = { bubbles: true }
+  extra: MouseEventInit = { bubbles: true, cancelable: true }
 ) {
   const target = getTarget(selector);
   const pointerDownEv = triggerMouseEvent(selector, "pointerdown", x, y, extra);
