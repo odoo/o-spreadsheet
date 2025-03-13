@@ -33,6 +33,7 @@ export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv>
   });
 
   setup() {
+    this.updateColumns();
     onWillUpdateProps(() => this.updateColumns());
   }
 
