@@ -425,6 +425,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);
+      setTimeout(() => {
+        document.querySelector<HTMLElement>(".o-filter-icon")?.click();
+      }, 60);
     });
     onWillUnmount(() => {
       this.unbindModelEvents();

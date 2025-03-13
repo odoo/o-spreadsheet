@@ -5,8 +5,6 @@
       onValueChanged.bind="onFirstValueChanged"
       criterionType="props.criterion.type"
     />
-
-    <div class="o-section-subtitle ms-1 my-2">and</div>
     <CriterionInput
       value="props.criterion.values[1]"
       onValueChanged.bind="onSecondValueChanged"

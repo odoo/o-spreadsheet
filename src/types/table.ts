@@ -1,3 +1,4 @@
+import { GenericCriterionType } from "..";
 import { Border, BorderDescr, Style, TableId, UID } from "./misc";
 import { Range } from "./range";
 
@@ -96,3 +97,30 @@ export type TableStyleTemplateName =
   | "darkNoBorders"
   | "mediumWhiteBorders"
   | "dark";
+
+// ADRM TODO type
+export const availableFiltersOperators: Set<GenericCriterionType> = new Set([
+  "textContains",
+  "textNotContains",
+  "textIs",
+  "dateIs",
+  "dateIsBefore",
+  "dateIsOnOrBefore",
+  "dateIsAfter",
+  "dateIsOnOrAfter",
+  "dateIsBetween",
+  "dateIsNotBetween",
+  "isEqual",
+  "isNotEqual",
+  "isGreaterThan",
+  "isGreaterOrEqualTo",
+  "isLessThan",
+  "isLessOrEqualTo",
+  "isBetween",
+  "isNotBetween",
+  "customFormula",
+  "textBeginsWith",
+  "textEndsWith",
+  "isNotEmpty",
+  "isEmpty",
+]);

@@ -1,25 +1,57 @@
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Component, ComponentConstructor, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { Action, createAction } from "../../../actions/action";
 import { GRAY_300 } from "../../../constants";
 import { deepEquals, positions, toLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
 import { interactiveSort } from "../../../helpers/sort";
-import { Position, SortDirection, SpreadsheetChildEnv } from "../../../types";
+import {
+  criterionComponentRegistry,
+  getCriterionMenuItems,
+} from "../../../registries/criterion_component_registry";
+import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
+import { _t } from "../../../translation";
+import {
+  GenericCriterion,
+  Position,
+  SortDirection,
+  SpreadsheetChildEnv,
+  availableFiltersOperators,
+} from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
+import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
+import { SelectMenu } from "../../side_panel/select_menu/select_menu";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
 
-const FILTER_MENU_HEIGHT = 295;
+// const FILTER_MENU_HEIGHT = 295;
 
 const CSS = css/* scss */ `
   .o-filter-menu {
+    width: 245px;
     padding: 8px 16px;
-    height: ${FILTER_MENU_HEIGHT}px;
-    line-height: 1;
+    user-select: none;
+
+    // ADRM TODO: something better
+    .o_side_panel_collapsible_title {
+      font-size: inherit;
+      padding: 0 0 4px 0 !important;
+      font-weight: 500 !important;
+
+      .collapsor-arrow {
+        transform-origin: 6px 8px;
+
+        .o-icon {
+          width: 12px;
+          height: 16px;
+        }
+      }
+    }
 
     .o-filter-menu-item {
       display: flex;
       cursor: pointer;
       user-select: none;
+      line-height: 1;
 
       &.selected {
         background-color: rgba(0, 0, 0, 0.08);
@@ -42,12 +74,15 @@ const CSS = css/* scss */ `
       display: flex;
       flex-direction: row;
       margin-bottom: 4px;
+      line-height: 1;
     }
 
     .o-filter-menu-list {
       flex: auto;
       overflow-y: auto;
       border: 1px solid ${GRAY_300};
+      height: 130px;
+      line-height: 1;
 
       .o-filter-menu-no-values {
         color: #949494;
@@ -89,7 +124,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     onClosed: { type: Function, optional: true },
   };
   static style = CSS;
-  static components = { FilterMenuValueItem };
+  static components = { FilterMenuValueItem, SelectMenu, SidePanelCollapsible };
 
   private state: State = useState({
     values: [],
@@ -273,6 +308,36 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     const sortOptions = { emptyCellAsZero: true, sortHeaders: true };
     interactiveSort(this.env, sheetId, sortAnchor, contentZone, sortDirection, sortOptions);
     this.props.onClosed?.();
+  }
+
+  get criterionMenuItems(): Action[] {
+    const items = getCriterionMenuItems((type) => {}, availableFiltersOperators);
+    const emptyItem = createAction({
+      name: _t("None"),
+      id: "none",
+      separator: true,
+      execute: () => {},
+    });
+    return [emptyItem, ...items];
+  }
+
+  get selectedCriterionName(): string {
+    return criterionEvaluatorRegistry.get("isBetween").name;
+  }
+
+  get criterionComponent(): ComponentConstructor | undefined {
+    return criterionComponentRegistry.get("isBetween").component;
+  }
+
+  get genericCriterion(): GenericCriterion {
+    return {
+      type: "isBetween",
+      values: ["5", "6"],
+    };
+  }
+
+  onRuleValuesChanged(values: string[]) {
+    this.genericCriterion.values = values;
   }
 }
 
