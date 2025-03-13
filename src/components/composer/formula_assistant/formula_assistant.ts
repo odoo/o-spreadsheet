@@ -40,7 +40,6 @@ css/* scss */ `
 `;
 
 interface Props {
-  functionName: string;
   functionDescription: FunctionDescription;
   argsToFocus: number[];
 }
@@ -48,7 +47,6 @@ interface Props {
 export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FunctionDescriptionProvider";
   static props = {
-    functionName: String,
     functionDescription: Object,
     argsToFocus: Array,
   };

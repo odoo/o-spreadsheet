@@ -2,10 +2,10 @@
   <t t-name="o-spreadsheet-FunctionDescriptionProvider">
     <div class="o-formula-assistant-container user-select-none shadow">
       <t t-set="context" t-value="getContext()"/>
-      <div class="o-formula-assistant" t-if="context.functionName">
+      <div class="o-formula-assistant" t-if="context.functionDescription.name">
         <div class="o-formula-assistant-head d-flex flex-row justify-content-between">
           <div>
-            <span t-esc="context.functionName"/>
+            <span t-esc="context.functionDescription.name"/>
             (
             <t t-foreach="context.functionDescription.args" t-as="arg" t-key="arg.name">
               <span t-if="arg_index > '0'" t-esc="formulaArgSeparator"/>

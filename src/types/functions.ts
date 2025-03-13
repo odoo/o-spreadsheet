@@ -45,6 +45,7 @@ export interface AddFunctionDescription {
 }
 
 export type FunctionDescription = AddFunctionDescription & {
+  name: string;
   minArgRequired: number;
   maxArgPossible: number;
   nbrArgRepeating: number;

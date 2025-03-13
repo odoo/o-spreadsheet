@@ -84,7 +84,10 @@ function makeArg(str: string, description: string): ArgDefinition {
  *
  * This information is useful during compilation.
  */
-export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDescription {
+export function addMetaInfoFromArg(
+  name: string,
+  addDescr: AddFunctionDescription
+): FunctionDescription {
   let countArg = 0;
   let minArg = 0;
   let repeatingArg = 0;
@@ -107,6 +110,7 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
   descr.nbrArgRepeating = repeatingArg;
   descr.nbrArgOptional = optionalArg;
   descr.hidden = addDescr.hidden || false;
+  descr.name = name;
 
   return descr;
 }
@@ -191,10 +195,10 @@ const cacheArgTargeting = {};
  *
  */
 export function argTargeting(
-  functionName: string,
   functionDescription: FunctionDescription,
   nbrArgSupplied: number
 ): ArgToFocus {
+  const functionName = functionDescription.name;
   if (!cacheArgTargeting[functionName]) {
     cacheArgTargeting[functionName] = {};
   }
@@ -265,9 +269,9 @@ export function _argTargeting(
 // Argument validation
 //------------------------------------------------------------------------------
 
-export function validateArguments(name: string, descr: FunctionDescription) {
+export function validateArguments(descr: FunctionDescription) {
   if (descr.nbrArgRepeating && descr.nbrArgOptional >= descr.nbrArgRepeating) {
-    throw new Error(`Function ${name} has more optional arguments than repeatable ones.`);
+    throw new Error(`Function ${descr.name} has more optional arguments than repeatable ones.`);
   }
 
   let foundRepeating = false;
@@ -275,7 +279,7 @@ export function validateArguments(name: string, descr: FunctionDescription) {
   for (let current of descr.args) {
     if (current.type.includes("META") && current.type.length > 1) {
       throw new Error(
-        `Function ${name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone.`
+        `Function ${descr.name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone.`
       );
     }
 
@@ -283,7 +287,7 @@ export function validateArguments(name: string, descr: FunctionDescription) {
       if (!consecutiveRepeating && foundRepeating) {
         throw new Error(
           _t(
-            `Function ${name} has non-consecutive repeating arguments. All repeating arguments must be declared consecutively.`
+            `Function ${descr.name} has non-consecutive repeating arguments. All repeating arguments must be declared consecutively.`
           )
         );
       }

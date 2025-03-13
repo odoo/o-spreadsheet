@@ -58,7 +58,6 @@
         </span>
         <FunctionDescriptionProvider
           t-if="functionDescriptionState.showDescription"
-          functionName="functionDescriptionState.functionName"
           functionDescription="functionDescriptionState.functionDescription"
           argsToFocus="functionDescriptionState.argsToFocus"
         />

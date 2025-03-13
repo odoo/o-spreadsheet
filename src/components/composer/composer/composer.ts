@@ -136,7 +136,6 @@ interface ComposerState {
 
 interface FunctionDescriptionState {
   showDescription: boolean;
-  functionName: string;
   functionDescription: FunctionDescription;
   argsToFocus: number[];
 }
@@ -178,7 +177,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   functionDescriptionState: FunctionDescriptionState = useState({
     showDescription: false,
-    functionName: "",
     functionDescription: {} as FunctionDescription,
     argsToFocus: [],
   });
@@ -738,7 +736,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         const argPosition = tokenContext.argPosition;
         const nbrArgSupplied = tokenContext.args.length;
 
-        this.functionDescriptionState.functionName = parentFunction;
         this.functionDescriptionState.functionDescription = description;
         const isParenthesisClosed = this.props.composerStore.currentTokens.some(
           (t) => t.type === "RIGHT_PAREN" && t.parenthesesCode === token.parenthesesCode
@@ -777,7 +774,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     // so we know exactly the number of arguments supplied.
     if (isParenthesisClosed) {
       const focusedArg = argTargeting(
-        this.functionDescriptionState.functionName,
         description,
         Math.max(Math.min(maxArgPossible, nbrArgSupplied), minArgRequired)
       )(argPosition);
@@ -796,11 +792,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
     const argsToFocus: number[] = [];
     for (let i = minArgsNumberPossibility; i <= maxArgsNumberPossibility; i++) {
-      const focusedArg = argTargeting(
-        this.functionDescriptionState.functionName,
-        description,
-        i
-      )(argPosition);
+      const focusedArg = argTargeting(description, i)(argPosition);
       if (focusedArg !== undefined) {
         argsToFocus.push(focusedArg);
       }

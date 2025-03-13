@@ -83,9 +83,9 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
         )
       );
     }
-    const descr = addMetaInfoFromArg(addDescr);
-    validateArguments(name, descr);
-    this.mapping[name] = createComputeFunction(descr, name);
+    const descr = addMetaInfoFromArg(name, addDescr);
+    validateArguments(descr);
+    this.mapping[name] = createComputeFunction(descr);
     super.add(name, descr);
     return this;
   }
@@ -114,8 +114,7 @@ const notAvailableError = new NotAvailableError(
 );
 
 function createComputeFunction(
-  descr: FunctionDescription,
-  functionName: string
+  descr: FunctionDescription
 ): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
   function vectorizedCompute(
     this: EvalContext,
@@ -128,7 +127,7 @@ function createComputeFunction(
 
     let vectorArgsType: VectorArgType[] | undefined = undefined;
 
-    const getArgToFocus = argTargeting(functionName, descr, args.length);
+    const getArgToFocus = argTargeting(descr, args.length);
     //#region Compute vectorisation limits
     for (let i = 0; i < args.length; i++) {
       const argIndex = getArgToFocus(i) ?? -1;
@@ -166,7 +165,7 @@ function createComputeFunction(
         throw new BadExpressionError(
           _t(
             "Function %s expects the parameter '%s' to be reference to a cell or range.",
-            functionName,
+            descr.name,
             (i + 1).toString()
           )
         );
@@ -219,7 +218,7 @@ function createComputeFunction(
   ): Matrix<FunctionResultObject> | FunctionResultObject {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      const getArgToFocus = argTargeting(functionName, descr, args.length);
+      const getArgToFocus = argTargeting(descr, args.length);
       const argDefinition = descr.args[getArgToFocus(i) || i];
 
       // Early exit if the argument is an error and the function does not accept errors
@@ -232,7 +231,7 @@ function createComputeFunction(
     try {
       return computeFunctionToObject.apply(this, args);
     } catch (e) {
-      return handleError(e, functionName);
+      return handleError(e, descr.name);
     }
   }
 
@@ -247,7 +246,7 @@ function createComputeFunction(
 
     if (!isMatrix(result)) {
       if (typeof result === "object" && result !== null && "value" in result) {
-        replaceFunctionNamePlaceholder(result, functionName);
+        replaceFunctionNamePlaceholder(result, descr.name);
         return result;
       }
       return { value: result };
@@ -255,7 +254,7 @@ function createComputeFunction(
 
     if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
       matrixForEach(result as Matrix<FunctionResultObject>, (result) =>
-        replaceFunctionNamePlaceholder(result, functionName)
+        replaceFunctionNamePlaceholder(result, descr.name)
       );
       return result as Matrix<FunctionResultObject>;
     }
