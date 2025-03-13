@@ -11,6 +11,7 @@ import {
 import { criterionEvaluatorRegistry } from "../../../registries/criterion_registry";
 import { _t } from "../../../translation";
 import {
+  DataFilterValue,
   GenericCriterion,
   Position,
   SortDirection,
@@ -31,7 +32,7 @@ const CSS = css/* scss */ `
     padding: 8px 16px;
     user-select: none;
 
-    // ADRM TODO: something better
+    /* ADRM TODO: something better */
     .o_side_panel_collapsible_title {
       font-size: inherit;
       padding: 0 0 4px 0 !important;
@@ -228,9 +229,16 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_FILTER", {
       ...position,
       sheetId: this.env.model.getters.getActiveSheetId(),
-      hiddenValues: this.state.values.filter((val) => !val.checked).map((val) => val.string),
+      value: this.filterValue,
     });
     this.props.onClosed?.();
+  }
+
+  get filterValue(): DataFilterValue {
+    return {
+      filterType: "values",
+      hiddenValues: this.state.values.filter((val) => !val.checked).map((val) => val.string),
+    };
   }
 
   cancel() {

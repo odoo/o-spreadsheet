@@ -1,4 +1,4 @@
-import { GenericCriterionType } from "..";
+import { DateCriterionValue, GenericCriterionType } from "./generic_criterion";
 import { Border, BorderDescr, Style, TableId, UID } from "./misc";
 import { Range } from "./range";
 
@@ -98,8 +98,7 @@ export type TableStyleTemplateName =
   | "mediumWhiteBorders"
   | "dark";
 
-// ADRM TODO type
-export const availableFiltersOperators: Set<GenericCriterionType> = new Set([
+const filterCriterions: GenericCriterionType[] = [
   "textContains",
   "textNotContains",
   "textIs",
@@ -123,4 +122,22 @@ export const availableFiltersOperators: Set<GenericCriterionType> = new Set([
   "textEndsWith",
   "isNotEmpty",
   "isEmpty",
-]);
+];
+
+export type FilterCriterionType = (typeof filterCriterions)[number];
+
+export const availableFiltersOperators: Set<FilterCriterionType> = new Set(filterCriterions);
+
+export interface ValuesFilter {
+  filterType: "values";
+  hiddenValues: string[];
+}
+
+export interface CriterionFilter {
+  filterType: "criterion";
+  type: FilterCriterionType | "none";
+  values: string[];
+  dateValue?: DateCriterionValue;
+}
+
+export type DataFilterValue = ValuesFilter | CriterionFilter;

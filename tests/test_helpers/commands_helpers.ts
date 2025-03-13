@@ -1117,7 +1117,15 @@ export function updateFilter(
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("UPDATE_FILTER", { col, row, sheetId, hiddenValues });
+  return model.dispatch("UPDATE_FILTER", {
+    col,
+    row,
+    sheetId,
+    value: {
+      filterType: "values",
+      hiddenValues,
+    },
+  });
 }
 
 export function deleteTable(
