@@ -1,6 +1,5 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
-import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
+import { getChartJSConstructor } from "../../../components/figures/chart/chartJs/chart_js_extension";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { Figure } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
@@ -90,12 +89,3 @@ const backgroundColorChartJSPlugin = {
     ctx.restore();
   },
 };
-
-/** Return window.Chart, making sure all our extensions are loaded in ChartJS */
-export function getChartJSConstructor() {
-  if (window.Chart && !window.Chart?.registry.plugins.get("chartShowValuesPlugin")) {
-    window.Chart.register(chartShowValuesPlugin);
-    window.Chart.register(waterfallLinesPlugin);
-  }
-  return window.Chart;
-}

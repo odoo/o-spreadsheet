@@ -1,13 +1,18 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy } from "../../../../helpers";
-import { getChartJSConstructor } from "../../../../helpers/figures/charts/chart_ui_common";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
+import { chartJsExtensionRegistry, getChartJSConstructor } from "./chart_js_extension";
+import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
+import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
 interface Props {
   figure: Figure;
 }
+
+chartJsExtensionRegistry.add("chartShowValuesPlugin", chartShowValuesPlugin);
+chartJsExtensionRegistry.add("waterfallLinesPlugin", waterfallLinesPlugin);
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
@@ -50,7 +55,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
           this.chart?.destroy();
           this.createChart(deepCopy(runtime.chartJsConfig));
         } else {
-          this.updateChartJs(deepCopy(runtime));
+          this.updateChartJs(deepCopy(runtime.chartJsConfig));
         }
         this.currentRuntime = runtime;
       }
@@ -64,8 +69,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart = new Chart(ctx, chartData);
   }
 
-  private updateChartJs(chartRuntime: ChartJSRuntime) {
-    const chartData = chartRuntime.chartJsConfig as ChartConfiguration;
+  private updateChartJs(chartData: ChartConfiguration<any>) {
     if (chartData.data && chartData.data.datasets) {
       this.chart!.data = chartData.data;
       if (chartData.options?.plugins?.title) {
