@@ -69,15 +69,6 @@ export class BinaryGrid extends Uint32Array {
     return !this.some((bucket) => bucket !== 0);
   }
 
-  fillAllPositions() {
-    const thirtyTwoOnes = -1 >>> 0; // same as 2 ** 32 - 1, a 32-bit number with all bits set to 1
-    this.fill(thirtyTwoOnes);
-  }
-
-  clear() {
-    this.fill(0);
-  }
-
   private getCoordinates(position: CellPosition): [bucket: number, position: number] {
     const { row, col } = position;
     const index = (row << this.columnOffset) + col;
