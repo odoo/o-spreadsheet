@@ -205,7 +205,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(0);
     expect(descr.nbrArgOptional).toBe(0);
 
-    const getArgToFocus = argTargeting(descr, 2);
+    const getArgToFocus = argTargeting("basicFunction", descr, 2);
     expect(getArgToFocus(0)).toBe(0);
     expect(getArgToFocus(1)).toBe(1);
   });
@@ -228,10 +228,10 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(0);
     expect(descr.nbrArgOptional).toBe(1);
 
-    const getArgToFocusOnOneArg = argTargeting(descr, 1);
+    const getArgToFocusOnOneArg = argTargeting("useOptional", descr, 1);
     expect(getArgToFocusOnOneArg(0)).toBe(0);
 
-    const getArgToFocusOnTwoArgs = argTargeting(descr, 2);
+    const getArgToFocusOnTwoArgs = argTargeting("useOptional", descr, 2);
     expect(getArgToFocusOnTwoArgs(0)).toBe(0);
     expect(getArgToFocusOnTwoArgs(1)).toBe(1);
   });
@@ -254,10 +254,10 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(1);
     expect(descr.nbrArgOptional).toBe(0);
 
-    const getArgToFocusOnOneArg = argTargeting(descr, 1);
+    const getArgToFocusOnOneArg = argTargeting("useRepeatable", descr, 1);
     expect(getArgToFocusOnOneArg(0)).toBe(0);
 
-    const getArgToFocusOnSeveralArgs = argTargeting(descr, 42);
+    const getArgToFocusOnSeveralArgs = argTargeting("useRepeatable", descr, 42);
     expect(getArgToFocusOnSeveralArgs(0)).toBe(0);
     expect(getArgToFocusOnSeveralArgs(1)).toBe(1);
     expect(getArgToFocusOnSeveralArgs(20)).toBe(1);
@@ -283,7 +283,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(2);
     expect(descr.nbrArgOptional).toBe(0);
 
-    const getArgToFocus = argTargeting(descr, 42);
+    const getArgToFocus = argTargeting("useRepeatables1", descr, 42);
     expect(getArgToFocus(0)).toBe(0);
     expect(getArgToFocus(1)).toBe(1);
     expect(getArgToFocus(2)).toBe(2);
@@ -312,21 +312,21 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(2);
     expect(descr.nbrArgOptional).toBe(1);
 
-    const getArgToFocus_1 = argTargeting(descr, 1);
+    const getArgToFocus_1 = argTargeting("useRepeatables2", descr, 1);
     expect(getArgToFocus_1(0)).toBe(0);
 
-    const getArgToFocus_3 = argTargeting(descr, 3);
+    const getArgToFocus_3 = argTargeting("useRepeatables2", descr, 3);
     expect(getArgToFocus_3(0)).toBe(0);
     expect(getArgToFocus_3(1)).toBe(1);
     expect(getArgToFocus_3(2)).toBe(2);
 
-    const getArgToFocus_4 = argTargeting(descr, 4);
+    const getArgToFocus_4 = argTargeting("useRepeatables2", descr, 4);
     expect(getArgToFocus_4(0)).toBe(0);
     expect(getArgToFocus_4(1)).toBe(1);
     expect(getArgToFocus_4(2)).toBe(2);
     expect(getArgToFocus_4(3)).toBe(3);
 
-    const getArgToFocus_5 = argTargeting(descr, 5);
+    const getArgToFocus_5 = argTargeting("useRepeatables2", descr, 5);
     expect(getArgToFocus_5(0)).toBe(0);
     expect(getArgToFocus_5(1)).toBe(1);
     expect(getArgToFocus_5(2)).toBe(2);
@@ -357,17 +357,17 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(3);
     expect(descr.nbrArgOptional).toBe(2);
 
-    const getArgToFocus_1 = argTargeting(descr, 1);
+    const getArgToFocus_1 = argTargeting("useRepeatables3", descr, 1);
     expect(getArgToFocus_1(0)).toBe(0);
 
-    const getArgToFocus_5 = argTargeting(descr, 5);
+    const getArgToFocus_5 = argTargeting("useRepeatables3", descr, 5);
     expect(getArgToFocus_5(0)).toBe(0);
     expect(getArgToFocus_5(1)).toBe(1);
     expect(getArgToFocus_5(2)).toBe(2);
     expect(getArgToFocus_5(3)).toBe(3);
     expect(getArgToFocus_5(4)).toBe(4);
 
-    const getArgToFocus_8 = argTargeting(descr, 8);
+    const getArgToFocus_8 = argTargeting("useRepeatables3", descr, 8);
     expect(getArgToFocus_8(0)).toBe(0);
     expect(getArgToFocus_8(1)).toBe(1);
     expect(getArgToFocus_8(2)).toBe(2);
@@ -399,17 +399,17 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(2);
     expect(descr.nbrArgOptional).toBe(0);
 
-    const getArgToFocus_2 = argTargeting(descr, 2);
+    const getArgToFocus_2 = argTargeting("useRepeatables4", descr, 2);
     expect(getArgToFocus_2(0)).toBe(0);
     expect(getArgToFocus_2(1)).toBe(3);
 
-    const getArgToFocus_4 = argTargeting(descr, 4);
+    const getArgToFocus_4 = argTargeting("useRepeatables4", descr, 4);
     expect(getArgToFocus_4(0)).toBe(0);
     expect(getArgToFocus_4(1)).toBe(1);
     expect(getArgToFocus_4(2)).toBe(2);
     expect(getArgToFocus_4(3)).toBe(3);
 
-    const getArgToFocus_6 = argTargeting(descr, 6);
+    const getArgToFocus_6 = argTargeting("useRepeatables4", descr, 6);
     expect(getArgToFocus_6(0)).toBe(0);
     expect(getArgToFocus_6(1)).toBe(1);
     expect(getArgToFocus_6(2)).toBe(2);
@@ -439,16 +439,16 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(0);
     expect(descr.nbrArgOptional).toBe(2);
 
-    const getArgToFocus_2 = argTargeting(descr, 2);
+    const getArgToFocus_2 = argTargeting("useRepeatables5", descr, 2);
     expect(getArgToFocus_2(0)).toBe(0);
     expect(getArgToFocus_2(1)).toBe(3);
 
-    const getArgToFocus_3 = argTargeting(descr, 3);
+    const getArgToFocus_3 = argTargeting("useRepeatables5", descr, 3);
     expect(getArgToFocus_3(0)).toBe(0);
     expect(getArgToFocus_3(1)).toBe(1);
     expect(getArgToFocus_3(2)).toBe(3);
 
-    const getArgToFocus_4 = argTargeting(descr, 4);
+    const getArgToFocus_4 = argTargeting("useRepeatables5", descr, 4);
     expect(getArgToFocus_4(0)).toBe(0);
     expect(getArgToFocus_4(1)).toBe(1);
     expect(getArgToFocus_4(2)).toBe(2);
@@ -482,25 +482,25 @@ describe("function addMetaInfoFromArg", () => {
     expect(descr.nbrArgRepeating).toBe(4);
     expect(descr.nbrArgOptional).toBe(3);
 
-    const getArgToFocus_3 = argTargeting(descr, 3);
+    const getArgToFocus_3 = argTargeting("useRepeatables6", descr, 3);
     expect(getArgToFocus_3(0)).toBe(1);
     expect(getArgToFocus_3(1)).toBe(3);
     expect(getArgToFocus_3(2)).toBe(9);
 
-    const getArgToFocus_4 = argTargeting(descr, 4);
+    const getArgToFocus_4 = argTargeting("useRepeatables6", descr, 4);
     expect(getArgToFocus_4(0)).toBe(0);
     expect(getArgToFocus_4(1)).toBe(1);
     expect(getArgToFocus_4(2)).toBe(3);
     expect(getArgToFocus_4(3)).toBe(9);
 
-    const getArgToFocus_5 = argTargeting(descr, 5);
+    const getArgToFocus_5 = argTargeting("useRepeatables6", descr, 5);
     expect(getArgToFocus_5(0)).toBe(0);
     expect(getArgToFocus_5(1)).toBe(1);
     expect(getArgToFocus_5(2)).toBe(2);
     expect(getArgToFocus_5(3)).toBe(3);
     expect(getArgToFocus_5(4)).toBe(9);
 
-    const getArgToFocus_6 = argTargeting(descr, 6);
+    const getArgToFocus_6 = argTargeting("useRepeatables6", descr, 6);
     expect(getArgToFocus_6(0)).toBe(0);
     expect(getArgToFocus_6(1)).toBe(1);
     expect(getArgToFocus_6(2)).toBe(2);
@@ -508,7 +508,7 @@ describe("function addMetaInfoFromArg", () => {
     expect(getArgToFocus_6(4)).toBe(8);
     expect(getArgToFocus_6(5)).toBe(9);
 
-    const getArgToFocus_7 = argTargeting(descr, 7);
+    const getArgToFocus_7 = argTargeting("useRepeatables6", descr, 7);
     expect(getArgToFocus_7(0)).toBe(1);
     expect(getArgToFocus_7(1)).toBe(3);
     expect(getArgToFocus_7(2)).toBe(4);

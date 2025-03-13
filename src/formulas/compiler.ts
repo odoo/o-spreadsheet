@@ -126,7 +126,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
 
       const compiledArgs: FunctionCode[] = [];
 
-      const argToFocus = argTargeting(functionDefinition, args.length);
+      const argToFocus = argTargeting(functionName, functionDefinition, args.length);
 
       for (let i = 0; i < args.length; i++) {
         const argDefinition = functionDefinition.args[argToFocus(i) ?? -1];

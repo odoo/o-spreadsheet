@@ -777,6 +777,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     // so we know exactly the number of arguments supplied.
     if (isParenthesisClosed) {
       const focusedArg = argTargeting(
+        this.functionDescriptionState.functionName,
         description,
         Math.max(Math.min(maxArgPossible, nbrArgSupplied), minArgRequired)
       )(argPosition);
@@ -795,7 +796,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
     const argsToFocus: number[] = [];
     for (let i = minArgsNumberPossibility; i <= maxArgsNumberPossibility; i++) {
-      const focusedArg = argTargeting(description, i)(argPosition);
+      const focusedArg = argTargeting(
+        this.functionDescriptionState.functionName,
+        description,
+        i
+      )(argPosition);
       if (focusedArg !== undefined) {
         argsToFocus.push(focusedArg);
       }

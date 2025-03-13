@@ -111,6 +111,9 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
   return descr;
 }
 
+type ArgToFocus = (argPosition: number) => number | undefined;
+const cacheArgTargeting = {};
+
 /**
  * Returns a function that maps the position of a value in a function to its corresponding argument index.
  * This is particularly useful for functions with repeatable and/or optional arguments.
@@ -188,9 +191,28 @@ export function addMetaInfoFromArg(addDescr: AddFunctionDescription): FunctionDe
  *
  */
 export function argTargeting(
+  functionName: string,
   functionDescription: FunctionDescription,
   nbrArgSupplied: number
-): (argPosition: number) => number | undefined {
+): ArgToFocus {
+  if (!cacheArgTargeting[functionName]) {
+    cacheArgTargeting[functionName] = {};
+  }
+  if (!cacheArgTargeting[functionName][nbrArgSupplied]) {
+    cacheArgTargeting[functionName][nbrArgSupplied] = _argTargeting(
+      functionName,
+      functionDescription,
+      nbrArgSupplied
+    );
+  }
+  return cacheArgTargeting[functionName][nbrArgSupplied];
+}
+
+export function _argTargeting(
+  functionName: string,
+  functionDescription: FunctionDescription,
+  nbrArgSupplied: number
+): ArgToFocus {
   const valueIndexToArgPosition = new Map<number, number>();
   const groupsOfRepeatingValues = functionDescription.nbrArgRepeating
     ? Math.floor(

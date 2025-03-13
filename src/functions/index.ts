@@ -128,7 +128,7 @@ function createComputeFunction(
 
     let vectorArgsType: VectorArgType[] | undefined = undefined;
 
-    const getArgToFocus = argTargeting(descr, args.length);
+    const getArgToFocus = argTargeting(functionName, descr, args.length);
     //#region Compute vectorisation limits
     for (let i = 0; i < args.length; i++) {
       const argIndex = getArgToFocus(i) ?? -1;
@@ -219,7 +219,7 @@ function createComputeFunction(
   ): Matrix<FunctionResultObject> | FunctionResultObject {
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      const getArgToFocus = argTargeting(descr, args.length);
+      const getArgToFocus = argTargeting(functionName, descr, args.length);
       const argDefinition = descr.args[getArgToFocus(i) || i];
 
       // Early exit if the argument is an error and the function does not accept errors
