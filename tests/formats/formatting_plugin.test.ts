@@ -4,6 +4,7 @@ import {
   DEFAULT_FONT_SIZE,
   GRID_ICON_MARGIN,
   ICON_EDGE_LENGTH,
+  MIN_CELL_TEXT_MARGIN,
   NEWLINE,
   PADDING_AUTORESIZE_HORIZONTAL,
   PADDING_AUTORESIZE_VERTICAL,
@@ -738,6 +739,35 @@ describe("Autoresize", () => {
       size: null,
       sheetId,
     });
+  });
+
+  test("Can autoresize a row with evaluated multi-line content", () => {
+    setCellContent(model, "A1", '="Hello\nThere"');
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(DEFAULT_CELL_HEIGHT);
+    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    const numberOfLines = 2;
+    const lineHeight = 13; // default font size in px
+    const expectedHeight =
+      numberOfLines * (lineHeight + MIN_CELL_TEXT_MARGIN) -
+      MIN_CELL_TEXT_MARGIN +
+      2 * PADDING_AUTORESIZE_VERTICAL;
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(expectedHeight);
+  });
+
+  test("Evaluated multi-line content have no impact on autoresize if it's not taller than non-evaluated content", () => {
+    setCellContent(model, "A1", '="Hello\nThere"');
+
+    setCellContent(model, "B1", "Hello\nThere\nGeneral");
+    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
+
+    setCellContent(model, "B1", "Hello\nThere");
+    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    expect(model.getters.getUserRowSize(sheetId, 0)).toBe(undefined);
+
+    setCellContent(model, "B1", "Hello");
+    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
+    expect(model.getters.getUserRowSize(sheetId, 0)).toBe(36);
   });
 
   test("Can autoresize a column in another sheet", () => {
