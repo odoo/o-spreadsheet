@@ -194,8 +194,8 @@ export class ComposerStore extends SpreadsheetStore {
   }
 
   cancelEdition() {
-    this.cancelEditionAndActivateSheet();
     this.resetContent();
+    this.cancelEditionAndActivateSheet();
     this.colorIndexByRange = {};
   }
 
@@ -216,8 +216,8 @@ export class ComposerStore extends SpreadsheetStore {
     switch (cmd.type) {
       case "SELECT_FIGURE":
         if (cmd.id) {
-          this.cancelEditionAndActivateSheet();
           this.resetContent();
+          this.cancelEditionAndActivateSheet();
         }
         break;
       case "SET_FORMATTING":
@@ -266,8 +266,8 @@ export class ComposerStore extends SpreadsheetStore {
         const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
         if (!sheetIdExists && this.editionMode !== "inactive") {
           this.sheetId = this.getters.getActiveSheetId();
-          this.cancelEditionAndActivateSheet();
           this.resetContent();
+          this.cancelEditionAndActivateSheet();
           this.notificationStore.raiseError(CELL_DELETED_MESSAGE);
         }
         break;
