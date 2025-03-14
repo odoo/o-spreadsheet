@@ -311,52 +311,32 @@ describe("clipboard", () => {
 
   test("can copy and paste merged content", () => {
     const model = new Model({
-      sheets: [
-        {
-          id: "s1",
-          colNumber: 5,
-          rowNumber: 5,
-          merges: ["B1:C2"],
-        },
-      ],
+      sheets: [{ id: "s1", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
     });
     copy(model, "B1");
     paste(model, "B4");
-    expect(
-      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B4"))
-    ).toBe(true);
-    expect(
-      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B5"))
-    ).toBe(true);
-    expect(
-      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("C4"))
-    ).toBe(true);
-    expect(
-      model.getters.isInMerge(model.getters.getActiveSheetId(), ...toCartesianArray("B5"))
-    ).toBe(true);
+    expect(model.getters.getMerges("s1")).toMatchObject([toZone("B1:C2"), toZone("B4:C5")]);
   });
 
   test("can cut and paste merged content", () => {
     const model = new Model({
-      sheets: [
-        {
-          id: "s2",
-          colNumber: 5,
-          rowNumber: 5,
-          merges: ["B1:C2"],
-        },
-      ],
+      sheets: [{ id: "s2", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
     });
     cut(model, "B1:C2");
     paste(model, "B4");
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B1"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B2"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("C1"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("C2"))).toBe(false);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B4"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("B5"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("C4"))).toBe(true);
-    expect(model.getters.isInMerge("s2", ...toCartesianArray("C5"))).toBe(true);
+    expect(model.getters.getMerges("s2")).toHaveLength(1);
+    expect(model.getters.getMerges("s2")).toMatchObject([toZone("B4:C5")]);
+  });
+
+  test("can cut and paste merged content in another sheet", () => {
+    const model = new Model({
+      sheets: [{ id: "s1", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }, { id: "s2" }],
+    });
+    cut(model, "B1:C2");
+    activateSheet(model, "s2");
+    paste(model, "B4");
+    expect(model.getters.getMerges("s1")).toEqual([]);
+    expect(model.getters.getMerges("s2")).toMatchObject([toZone("B4:C5")]);
   });
 
   test("Pasting merge on content will remove the content", () => {

@@ -316,12 +316,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       for (let c = 0; c < width; c++) {
         const origin = rowCells[c];
         const position = { col: col + c, row: row + r, sheetId: sheetId };
-        // TODO: refactor this part. the "Paste merge" action is also executed with
-        // MOVE_RANGES in pasteFromCut. Adding a condition on the operation type here
-        // is not appropriate
-        if (this.operation !== "CUT") {
-          this.pasteMergeIfExist(origin.position, position);
-        }
+        this.pasteMergeIfExist(origin.position, position, this.operation);
         this.pasteCell(origin, position, this.operation, clipboardOptions);
         if (shouldPasteCF) {
           this.dispatch("PASTE_CONDITIONAL_FORMAT", {
@@ -414,7 +409,11 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
    * If the origin position given is the top left of a merge, merge the target
    * position.
    */
-  private pasteMergeIfExist(origin: CellPosition, target: CellPosition) {
+  private pasteMergeIfExist(
+    origin: CellPosition,
+    target: CellPosition,
+    operation: ClipboardOperation
+  ) {
     let { sheetId, col, row } = origin;
 
     const { col: mainCellColOrigin, row: mainCellRowOrigin } = this.getters.getMainCellPosition(
@@ -426,6 +425,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       const merge = this.getters.getMerge(sheetId, col, row);
       if (!merge) {
         return;
+      }
+      if (operation === "CUT") {
+        this.dispatch("REMOVE_MERGE", { sheetId, target: [merge] });
       }
       ({ sheetId, col, row } = target);
       this.dispatch("ADD_MERGE", {
