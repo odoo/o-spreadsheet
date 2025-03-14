@@ -512,7 +512,9 @@ function canBeDateChart(
     definition.dataSetsHaveTitle || false
   );
   const labelFormat = getChartLabelFormat(getters, labelRange, removeFirstLabel);
-  return Boolean(labelFormat && timeFormatLuxonCompatible.test(labelFormat));
+  const test = Boolean(labelFormat && timeFormatLuxonCompatible.test(labelFormat));
+  // return Boolean(labelFormat && timeFormatLuxonCompatible.test(labelFormat));
+  return test;
 }
 
 function canBeLinearChart(
