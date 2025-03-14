@@ -1,10 +1,10 @@
-import { toNumber } from "../../functions/helpers";
+import { toJsDate, toNumber } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import { CellValue, DEFAULT_LOCALE } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import { Granularity, PivotTimeAdapter, PivotTimeAdapterNotNull } from "../../types/pivot";
-import { DAYS, MONTHS, formatValue } from "../format/format";
+import { DAYS, MONTHS } from "../format/format";
 
 export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<CellValue>>();
 
@@ -48,8 +48,8 @@ const dayAdapter: PivotTimeAdapterNotNull<number> = {
     };
   },
   toFunctionValue(normalizedValue) {
-    const date = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return `"${formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/dd/yyyy" })}"`;
+    const jsDate = toJsDate(normalizedValue, DEFAULT_LOCALE);
+    return `DATE(${jsDate.getFullYear()}, ${jsDate.getMonth() + 1}, ${jsDate.getDate()})`;
   },
 };
 
