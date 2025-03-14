@@ -28,7 +28,9 @@ exports[`Chart title Can render a chart title component 1`] = `
           class="o-menu-item-button o-hoverable-button"
           title="Bold"
         >
-          <span>
+          <span
+            style=""
+          >
             <svg
               class="o-icon"
               xmlns="http://www.w3.org/2000/svg"
@@ -39,12 +41,17 @@ exports[`Chart title Can render a chart title component 1`] = `
               />
             </svg>
           </span>
+          
+          
         </span>
+        
         <span
           class="o-menu-item-button o-hoverable-button"
           title="Italic"
         >
-          <span>
+          <span
+            style=""
+          >
             <svg
               class="o-icon"
               xmlns="http://www.w3.org/2000/svg"
@@ -55,37 +62,49 @@ exports[`Chart title Can render a chart title component 1`] = `
               />
             </svg>
           </span>
+          
+          
         </span>
+        
         <div
           class="o-divider"
         />
-        <span
-          class="o-menu-item-button o-hoverable-button"
-          title="Horizontal alignment"
+        
+        <div
+          class="o-dropdown position-relative"
         >
-          <span>
-            
-            
-            <svg
-              class="o-icon align-left"
-              xmlns="http://www.w3.org/2000/svg"
+          <span
+            class="o-menu-item-button o-hoverable-button"
+            title="Horizontal alignment"
+          >
+            <span
+              style=""
             >
-              <path
-                d="M2 16h10v-2H2v2M12 6H2v2h10V6M2 2v2h14V2H2m0 10h14v-2H2v2"
-                fill="currentColor"
+              <svg
+                class="o-icon align-left"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2 16h10v-2H2v2M12 6H2v2h10V6M2 2v2h14V2H2m0 10h14v-2H2v2"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            
+            <div
+              class="o-icon fa-small"
+            >
+              <i
+                class="fa fa-caret-down"
               />
-            </svg>
+            </div>
             
           </span>
-          <div
-            class="o-icon fa-small"
-          >
-            <i
-              class="fa fa-caret-down"
-            />
-          </div>
           
-        </span>
+          
+          
+        </div>
+        
         
         <div
           class="o-divider"
@@ -124,6 +143,7 @@ exports[`Chart title Can render a chart title component 1`] = `
         >
           <span
             class="o-color-picker-button o-hoverable-button o-menu-item-button"
+            title="Text color"
           >
             <span
               style="border-bottom-style: hidden"
@@ -141,6 +161,7 @@ exports[`Chart title Can render a chart title component 1`] = `
           </span>
           
         </div>
+        
         
       </div>
       

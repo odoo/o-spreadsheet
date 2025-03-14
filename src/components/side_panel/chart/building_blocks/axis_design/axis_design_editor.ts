@@ -1,17 +1,16 @@
 import { Component, useState } from "@odoo/owl";
 import { CHART_AXIS_TITLE_FONT_SIZE } from "../../../../../constants";
+import { deepCopy } from "../../../../../helpers";
 import {
-  ChartWithDataSetDefinition,
-  Color,
+  ChartWithAxisDefinition,
   DispatchResult,
   SpreadsheetChildEnv,
   TitleDesign,
   UID,
 } from "../../../../../types";
-import { WaterfallChartDefinition } from "../../../../../types/chart/waterfall_chart";
 import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Section } from "../../../components/section/section";
-import { ChartTitle } from "../title/title";
+import { ChartTitle } from "../chart_title/chart_title";
 
 export interface AxisDefinition {
   id: string;
@@ -20,11 +19,8 @@ export interface AxisDefinition {
 
 interface Props {
   figureId: UID;
-  definition: ChartWithDataSetDefinition | WaterfallChartDefinition;
-  updateChart: (
-    figureId: UID,
-    definition: Partial<ChartWithDataSetDefinition | WaterfallChartDefinition>
-  ) => DispatchResult;
+  definition: ChartWithAxisDefinition;
+  updateChart: (figureId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
   axesList: AxisDefinition[];
 }
 
@@ -35,81 +31,14 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
 
   state = useState({ currentAxis: "x" });
 
+  defaultFontSize = CHART_AXIS_TITLE_FONT_SIZE;
+
   get axisTitleStyle(): TitleDesign {
-    const axisDesign = this.props.definition.axesDesign?.[this.state.currentAxis] ?? {};
-    return {
-      color: "",
-      align: "center",
-      fontSize: CHART_AXIS_TITLE_FONT_SIZE,
-      ...axisDesign.title,
-    };
+    return this.props.definition.axesDesign?.[this.state.currentAxis]?.title ?? {};
   }
 
   get badgeAxes() {
     return this.props.axesList.map((axis) => ({ value: axis.id, label: axis.name }));
-  }
-
-  updateAxisTitleColor(color: Color) {
-    const axesDesign = this.props.definition.axesDesign ?? {};
-    axesDesign[this.state.currentAxis] = {
-      ...axesDesign[this.state.currentAxis],
-      title: {
-        ...(axesDesign[this.state.currentAxis]?.title ?? {}),
-        color,
-      },
-    };
-    this.props.updateChart(this.props.figureId, { axesDesign });
-  }
-
-  updateAxisTitleFontSize(fontSize: number) {
-    const axesDesign = this.props.definition.axesDesign ?? {};
-    axesDesign[this.state.currentAxis] = {
-      ...axesDesign[this.state.currentAxis],
-      title: {
-        ...(axesDesign[this.state.currentAxis]?.title ?? {}),
-        fontSize,
-      },
-    };
-    this.props.updateChart(this.props.figureId, { axesDesign });
-  }
-
-  toggleBoldAxisTitle() {
-    const axesDesign = this.props.definition.axesDesign ?? {};
-    const title = axesDesign[this.state.currentAxis]?.title ?? {};
-    axesDesign[this.state.currentAxis] = {
-      ...axesDesign[this.state.currentAxis],
-      title: {
-        ...title,
-        bold: !title?.bold,
-      },
-    };
-    this.props.updateChart(this.props.figureId, { axesDesign });
-  }
-
-  toggleItalicAxisTitle() {
-    const axesDesign = this.props.definition.axesDesign ?? {};
-    const title = axesDesign[this.state.currentAxis]?.title ?? {};
-    axesDesign[this.state.currentAxis] = {
-      ...axesDesign[this.state.currentAxis],
-      title: {
-        ...title,
-        italic: !title?.italic,
-      },
-    };
-    this.props.updateChart(this.props.figureId, { axesDesign });
-  }
-
-  updateAxisTitleAlignment(align: "left" | "center" | "right") {
-    const axesDesign = this.props.definition.axesDesign ?? {};
-    const title = axesDesign[this.state.currentAxis]?.title ?? {};
-    axesDesign[this.state.currentAxis] = {
-      ...axesDesign[this.state.currentAxis],
-      title: {
-        ...title,
-        align,
-      },
-    };
-    this.props.updateChart(this.props.figureId, { axesDesign });
   }
 
   updateAxisEditor(ev) {
@@ -122,13 +51,22 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateAxisTitle(text: string) {
-    const axesDesign = this.props.definition.axesDesign ?? {};
+    const axesDesign = deepCopy(this.props.definition.axesDesign) ?? {};
     axesDesign[this.state.currentAxis] = {
       ...axesDesign[this.state.currentAxis],
       title: {
         ...axesDesign?.[this.state.currentAxis]?.title,
         text,
       },
+    };
+    this.props.updateChart(this.props.figureId, { axesDesign });
+  }
+
+  updateAxisTitleStyle(style: TitleDesign) {
+    const axesDesign = deepCopy(this.props.definition.axesDesign) ?? {};
+    axesDesign[this.state.currentAxis] = {
+      ...axesDesign[this.state.currentAxis],
+      title: style,
     };
     this.props.updateChart(this.props.figureId, { axesDesign });
   }
