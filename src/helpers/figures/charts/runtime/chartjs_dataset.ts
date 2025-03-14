@@ -421,7 +421,13 @@ export function getSunburstChartDatasets(
         const color = groupColors.find((groupColor) => groupColor.label === rootGroup)?.color;
         return color ? lightenColor(color, 0.25) : "rgba(0, 0, 0, 0)";
       },
-      hoverOffset: 10,
+      hoverOffset: (ctx) => {
+        // ADRM TODO: Discuss this offset & the hoverBackgroundColor (offset is a bit foireux sometimes https://imgur.com/xsyC55N)
+        return 10;
+        // @ts-ignore
+        // return ctx.chart.getActiveElements()[0].element == ctx.element ? 10 : 0;
+        // return 0 + (dataSets.length - ctx.datasetIndex) * 10;
+      },
     };
     dataSets!.push(dataset);
   }
