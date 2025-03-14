@@ -50,7 +50,11 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "ADD_PIVOT": {
-        return this.checkDuplicatedMeasureIds(cmd.pivot);
+        return this.checkValidations(
+          cmd.pivot,
+          this.checkDuplicatedMeasureIds,
+          this.checkSortedColumnInMeasures
+        );
       }
       case "UPDATE_PIVOT": {
         if (!(cmd.pivotId in this.pivots)) {
@@ -62,7 +66,11 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         if (cmd.pivot.name === "") {
           return CommandResult.EmptyName;
         }
-        return this.checkDuplicatedMeasureIds(cmd.pivot);
+        return this.checkValidations(
+          cmd.pivot,
+          this.checkDuplicatedMeasureIds,
+          this.checkSortedColumnInMeasures
+        );
       }
       case "RENAME_PIVOT":
         if (!(cmd.pivotId in this.pivots)) {
@@ -331,6 +339,14 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         }
       }
     }
+  }
+
+  private checkSortedColumnInMeasures(definition: PivotCoreDefinition) {
+    const measures = definition.measures.map((measure) => measure.id);
+    if (definition.sortedColumn && !measures.includes(definition.sortedColumn.measure)) {
+      return CommandResult.InvalidDefinition;
+    }
+    return CommandResult.Success;
   }
 
   private checkDuplicatedMeasureIds(definition: PivotCoreDefinition) {
