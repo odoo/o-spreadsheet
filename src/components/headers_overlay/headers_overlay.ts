@@ -22,7 +22,8 @@ import {
 import { ContextMenuType } from "../grid/grid";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
-import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
+import { startDnd } from "../helpers/drag_and_drop";
+import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { MergeErrorMessage } from "../translations_terms";
 import { ComposerFocusStore } from "./../composer/composer_focus_store";
 import { UnhideColumnHeaders, UnhideRowHeaders } from "./unhide_headers";
@@ -75,6 +76,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     base: 0,
     position: "before",
   });
+
+  dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
   abstract _getEvOffset(ev: MouseEvent): Pixel;
 
@@ -202,7 +205,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     startDnd(onMouseMove, onMouseUp);
   }
 
-  select(ev: MouseEvent) {
+  select(ev: PointerEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;
@@ -227,7 +230,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     this.startSelection(ev, index);
   }
 
-  private startMovement(ev: MouseEvent) {
+  private startMovement(ev: PointerEvent) {
     this.state.waitingForMove = false;
     this.state.isMoving = true;
     const startDimensions = this._getDimensionsInViewport(this._getSelectedZoneStart());
@@ -266,10 +269,10 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       }
       this._computeGrabDisplay(ev);
     };
-    dragAndDropBeyondTheViewport(this.env, mouseMoveMovement, mouseUpMovement);
+    this.dragNDropGrid.start(ev, mouseMoveMovement, mouseUpMovement);
   }
 
-  private startSelection(ev: MouseEvent, index: HeaderIndex) {
+  private startSelection(ev: PointerEvent, index: HeaderIndex) {
     this.state.isSelecting = true;
     if (ev.shiftKey) {
       this._increaseSelection(index);
@@ -290,7 +293,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       this.lastSelectedElementIndex = null;
       this._computeGrabDisplay(ev);
     };
-    dragAndDropBeyondTheViewport(this.env, mouseMoveSelect, mouseUpSelect);
+    this.dragNDropGrid.start(ev, mouseMoveSelect, mouseUpSelect);
   }
 
   onMouseUp(ev: MouseEvent) {
