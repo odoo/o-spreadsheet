@@ -7,6 +7,11 @@ export interface Client {
   id: ClientId;
   name: string;
   position?: ClientPosition;
+  focusTimeout?: NodeJS.Timeout;
+}
+
+export interface ClientWithPosition extends Client {
+  position: ClientPosition;
 }
 
 export interface ClientPosition {

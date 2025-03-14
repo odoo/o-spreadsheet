@@ -253,12 +253,12 @@ describe("Simple Spreadsheet Component", () => {
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
   const client = { id: "alice", name: "Alice" };
   ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
-  expect(model.getters.getClient()).toEqual(client);
+  expect(model.getters.getCurrentClient()).toEqual(client);
 
   // Validate that after the move debounce has run, the client has a position ad
   // additional property
   jest.advanceTimersByTime(DEBOUNCE_TIME + 1);
-  expect(model.getters.getClient()).toEqual({
+  expect(model.getters.getCurrentClient()).toEqual({
     id: "alice",
     name: "Alice",
     position: {
