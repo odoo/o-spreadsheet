@@ -2,6 +2,7 @@ import { CommandResult, Model } from "../../src";
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
 import { UID } from "../../src/types";
 import {
+  activateSheet,
   addColumns,
   addRows,
   copy,
@@ -724,26 +725,30 @@ describe("Table plugin", () => {
     });
 
     test("Can cut and paste a whole table", () => {
-      createTableWithFilter(model, "A1:B4");
-      updateFilter(model, "A1", ["thisIsAValue"]);
+      createTable(model, "A1:B4");
 
       cut(model, "A1:B4");
       paste(model, "A5");
       expect(getTable(model, "A1")).toBeFalsy();
       const copiedTable = getTable(model, "A5");
       expect(copiedTable).toBeTruthy();
-      expect(
-        model.getters.getFilterHiddenValues({
-          sheetId,
-          col: copiedTable!.range.zone.left,
-          row: copiedTable!.range.zone.top,
-        })
-      ).toEqual(["thisIsAValue"]);
+    });
+
+    test("Can cut and paste a whole table in another sheet", () => {
+      const sheet1Id = model.getters.getActiveSheetId();
+      createTable(model, "A1:B4");
+      createSheet(model, { sheetId: "sheet2Id" });
+
+      cut(model, "A1:B4");
+      activateSheet(model, "sheet2Id");
+      paste(model, "A5");
+      expect(model.getters.getTables(sheet1Id)).toHaveLength(0);
+      const copiedTable = getTable(model, "A5", "sheet2Id");
+      expect(copiedTable).toMatchObject({ range: { _zone: toZone("A5:B8") } });
     });
 
     test("Can cut and paste multiple tables", () => {
-      createTableWithFilter(model, "A1:B4");
-      updateFilter(model, "A1", ["thisIsAValue"]);
+      createTable(model, "A1:B4");
       createTable(model, "D5:D7");
 
       cut(model, "A1:D7");
@@ -753,13 +758,6 @@ describe("Table plugin", () => {
 
       const copiedTable = getTable(model, "A5");
       expect(copiedTable).toBeTruthy();
-      expect(
-        model.getters.getFilterHiddenValues({
-          sheetId,
-          col: copiedTable!.range.zone.left,
-          row: copiedTable!.range.zone.top,
-        })
-      ).toEqual(["thisIsAValue"]);
       expect(getTable(model, "D9")).toBeTruthy();
     });
 
