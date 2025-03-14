@@ -412,6 +412,15 @@ export function getSunburstChartDatasets(
         const rootGroup = data.groups[0];
         return groupColors.find((groupColor) => groupColor.label === rootGroup)?.color;
       },
+      hoverBackgroundColor(ctx) {
+        const data = ctx.type === "data" ? (ctx.raw as SunburstChartRawData) : undefined;
+        if (!data || data.label === GHOST_SUNBURST_VALUE) {
+          return "rgba(0, 0, 0, 0)";
+        }
+        const rootGroup = data.groups[0];
+        const color = groupColors.find((groupColor) => groupColor.label === rootGroup)?.color;
+        return color ? lightenColor(color, 0.25) : "rgba(0, 0, 0, 0)";
+      },
       hoverOffset: 10,
     };
     dataSets!.push(dataset);

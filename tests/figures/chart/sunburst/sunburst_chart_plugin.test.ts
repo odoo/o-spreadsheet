@@ -1,5 +1,5 @@
 import { Model, UID } from "../../../../src";
-import { ColorGenerator } from "../../../../src/helpers";
+import { ColorGenerator, lightenColor } from "../../../../src/helpers";
 import { GHOST_SUNBURST_VALUE } from "../../../../src/helpers/figures/charts/runtime";
 import { SunburstChart } from "../../../../src/helpers/figures/charts/sunburst_chart";
 import {
@@ -265,6 +265,11 @@ describe("Sunburst chart chart", () => {
         toChartJSCtx({ value: 10, label: groups[groups.length - 1], groups })
       );
 
+    const getHoverColor = (dataset: any, groups: string[]) =>
+      dataset.hoverBackgroundColor?.(
+        toChartJSCtx({ value: 10, label: groups[groups.length - 1], groups })
+      );
+
     for (const dataset of datasets) {
       expect(dataset.groupColors).toEqual([
         { color: "#FF0000", label: "Q2" },
@@ -274,6 +279,10 @@ describe("Sunburst chart chart", () => {
       expect(getBackgroundColor(dataset, ["Q3"])).toBe(secondColor);
       expect(getBackgroundColor(dataset, ["Q2", "May"])).toBe("#FF0000");
       expect(getBackgroundColor(dataset, ["Q1", "March", "W2"])).toBe("#0000FF");
+
+      expect(getHoverColor(dataset, ["Q3"])).toBe(lightenColor(secondColor, 0.25));
+      expect(getHoverColor(dataset, ["Q2", "May"])).toBe(lightenColor("#FF0000", 0.25));
+      expect(getHoverColor(dataset, ["Q1", "March", "W2"])).toBe(lightenColor("#0000FF", 0.25));
     }
   });
 
@@ -389,5 +398,13 @@ describe("Sunburst chart chart", () => {
       style: { fontSize: 12, bold: true, italic: true, textColor: "#FF0000" },
     });
     expect(config.options?.plugins?.sunburstLabelsPlugin?.callback?.(10, "y")).toBe("10 ( •⩊• )");
+  });
+
+  test("Sunburst hover plugin is enabled", () => {
+    const chartId = createSunburstChart(model);
+    const config = getSunburstRuntime(chartId).chartJsConfig;
+    expect(config.options?.plugins?.sunburstHoverPlugin).toMatchObject({
+      enabled: true,
+    });
   });
 });
