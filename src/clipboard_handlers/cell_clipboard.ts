@@ -179,13 +179,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     this.clearClippedZones(content);
     const selection = target[0];
     this.pasteZone(sheetId, selection.left, selection.top, content.cells, options);
-    this.dispatch("MOVE_RANGES", {
-      target: content.zones,
-      sheetId: content.sheetId,
-      targetSheetId: sheetId,
-      col: selection.left,
-      row: selection.top,
-    });
   }
 
   /**

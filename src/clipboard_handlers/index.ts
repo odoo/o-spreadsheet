@@ -8,6 +8,7 @@ import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboar
 import { DataValidationClipboardHandler } from "./data_validation_clipboard";
 import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
+import { ReferenceClipboardHandler } from "./references_clipboard";
 import { SheetClipboardHandler } from "./sheet_clipboard";
 import { TableClipboardHandler } from "./tables_clipboard";
 
@@ -27,4 +28,5 @@ clipboardHandlersRegistries.cellHandlers
   .add("merge", MergeClipboardHandler)
   .add("border", BorderClipboardHandler)
   .add("table", TableClipboardHandler)
-  .add("conditionalFormat", ConditionalFormatClipboardHandler);
+  .add("conditionalFormat", ConditionalFormatClipboardHandler)
+  .add("references", ReferenceClipboardHandler);
