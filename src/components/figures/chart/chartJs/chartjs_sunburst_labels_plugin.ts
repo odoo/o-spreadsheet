@@ -56,8 +56,14 @@ function drawSunburstChartValues(
       ].filter(isDefined);
 
       const arc = dataset.data[i];
+      let { startAngle, endAngle, innerRadius, outerRadius, circumference } = arc;
+      // Same computations as in ChartJs ArcElement's draw method. Don't ask me why they divide by 4.
+      const offset = arc.options.offset / 4;
+      const fix = 1 - Math.sin(Math.min(Math.PI, circumference || 0));
+      const radiusOffset = offset * fix;
+      innerRadius += radiusOffset;
+      outerRadius += radiusOffset;
 
-      const { startAngle, endAngle, innerRadius, outerRadius } = arc;
       const midAngle = (startAngle + endAngle) / 2;
       const midRadius = (innerRadius + outerRadius) / 2;
 
@@ -71,8 +77,9 @@ function drawSunburstChartValues(
 
       ctx.save();
 
-      const centerX = chart.chartArea.left + chart.chartArea.width / 2;
-      const centerY = chart.chartArea.top + chart.chartArea.height / 2;
+      const centerOffset = { x: Math.cos(midAngle) * offset, y: Math.sin(midAngle) * offset };
+      const centerX = chart.chartArea.left + chart.chartArea.width / 2 + centerOffset.x;
+      const centerY = chart.chartArea.top + chart.chartArea.height / 2 + centerOffset.y;
       ctx.translate(centerX, centerY);
 
       let x: number;
