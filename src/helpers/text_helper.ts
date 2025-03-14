@@ -25,14 +25,19 @@ export function getDefaultCellHeight(
   if (!cell || (!cell.isFormula && !cell.content)) {
     return DEFAULT_CELL_HEIGHT;
   }
-  const maxWidth = cell.style?.wrapping === "wrap" ? colSize - 2 * MIN_CELL_TEXT_MARGIN : undefined;
+  const content = cell.isFormula ? "" : cell.content;
+  return getCellContentHeight(ctx, content, cell.style, colSize);
+}
 
-  const numberOfLines = cell.isFormula
-    ? 1
-    : splitTextToWidth(ctx, cell.content, cell.style, maxWidth).length;
-
-  const fontSize = computeTextFontSizeInPixels(cell.style);
-
+export function getCellContentHeight(
+  ctx: CanvasRenderingContext2D,
+  content: string,
+  style: Style | undefined,
+  colSize: number
+) {
+  const maxWidth = style?.wrapping === "wrap" ? colSize - 2 * MIN_CELL_TEXT_MARGIN : undefined;
+  const numberOfLines = splitTextToWidth(ctx, content, style, maxWidth).length;
+  const fontSize = computeTextFontSizeInPixels(style);
   return computeTextLinesHeight(fontSize, numberOfLines) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
