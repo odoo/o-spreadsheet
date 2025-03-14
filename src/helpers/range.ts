@@ -28,6 +28,7 @@ interface ConstructorArgs {
 
 export class RangeImpl implements Range {
   private readonly _zone: Readonly<Zone | UnboundedZone>;
+  readonly zone: Readonly<Zone>;
   readonly parts: Range["parts"];
   readonly invalidXc?: string;
   readonly prefixSheet: boolean = false;
@@ -43,6 +44,7 @@ export class RangeImpl implements Range {
     this.sheetId = args.sheetId;
     this.invalidSheetName = args.invalidSheetName;
 
+    this.zone = this.computeZone();
     let _fixedParts = [...args.parts];
     if (args.parts.length === 1 && getZoneArea(this.zone) > 1) {
       _fixedParts.push({ ...args.parts[0] });
@@ -63,7 +65,7 @@ export class RangeImpl implements Range {
     return this._zone;
   }
 
-  get zone(): Readonly<Zone> {
+  computeZone(): Readonly<Zone> {
     const { left, top, bottom, right } = this._zone;
     if (right !== undefined && bottom !== undefined) {
       return this._zone as Readonly<Zone>;
