@@ -420,4 +420,12 @@ describe("Sunburst chart chart", () => {
     });
     expect(config.options?.plugins?.sunburstLabelsPlugin?.callback?.(10, "y")).toBe("10 ( •⩊• )");
   });
+
+  test("Sunburst hover plugin is enabled", () => {
+    const chartId = createSunburstChart(model);
+    const config = getSunburstRuntime(chartId).chartJsConfig;
+    expect(config.options?.plugins?.sunburstHoverPlugin).toMatchObject({
+      enabled: true,
+    });
+  });
 });
