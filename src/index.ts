@@ -131,6 +131,7 @@ import {
   parseDimension,
   pivotNormalizationValueRegistry,
   pivotToFunctionValueRegistry,
+  toFunctionPivotValue,
   toNormalizedPivotValue,
 } from "./helpers/pivot/pivot_helpers";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
@@ -300,6 +301,7 @@ export const helpers = {
   toNumber,
   toString,
   toNormalizedPivotValue,
+  toFunctionPivotValue,
   toXC,
   toZone,
   toUnboundedZone,
