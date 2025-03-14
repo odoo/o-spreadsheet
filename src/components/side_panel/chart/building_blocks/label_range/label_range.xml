@@ -15,6 +15,7 @@
           value="option.value"
           onChange="option.onChange"
           className="'mt-2'"
+          disabled="option.disabled"
         />
       </t>
     </Section>
