@@ -3,6 +3,9 @@
     <div class="o-topbar-composer-container w-100">
       <div
         class="o-topbar-composer position-relative bg-white user-select-text"
+        t-att-class="{
+          'o-topbar-composer-readonly': env.model.getters.isReadonly(),
+        }"
         t-on-click.stop=""
         t-att-style="containerStyle">
         <Composer
