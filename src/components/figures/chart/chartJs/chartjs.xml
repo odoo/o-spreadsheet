@@ -1,5 +1,24 @@
 <templates>
   <t t-name="o-spreadsheet-ChartJsComponent">
-    <canvas class="o-figure-canvas w-100 h-100" t-att-style="canvasStyle" t-ref="graphContainer"/>
+    <div t-att-style="globalDivStyle">
+      <div t-att-style="containerStyle">
+        <canvas
+          class="o-figure-canvas w-100 h-100"
+          t-att-style="canvasStyle"
+          t-ref="graphContainer"
+          t-on-wheel.stop="onWheel"
+        />
+      </div>
+      <div t-att-style="sliderStyle">
+        <canvas
+          id="smallChart"
+          class="o-figure-canvas w-100 h-100"
+          t-ref="graphSlider"
+          t-on-pointerdown.stop="onPointerDown"
+          t-on-pointerup.stop="onPointerUp"
+          t-on-pointermove="onPointerMove"
+        />
+      </div>
+    </div>
   </t>
 </templates>

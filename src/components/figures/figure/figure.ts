@@ -297,6 +297,67 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.openContextMenu(menuPosition);
   }
 
+  get isZoomable() {
+    if (this.props.figure.tag !== "chart") {
+      return false;
+    }
+    const figureId = this.props.figure.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    return "zoomable" in definition ? definition.zoomable : false;
+  }
+
+  get isPanable() {
+    if (this.props.figure.tag !== "chart") {
+      return false;
+    }
+    const figureId = this.props.figure.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    return "panable" in definition ? definition.panable : false;
+  }
+
+  toggleZoom() {
+    if (this.props.figure.tag !== "chart") {
+      return;
+    }
+    const figureId = this.props.figure.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    this.env.model.dispatch("UPDATE_CHART", {
+      id: figureId,
+      // @ts-ignore
+      definition: { ...definition, zoomable: !this.isZoomable },
+      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+    });
+  }
+
+  togglePan() {
+    if (this.props.figure.tag !== "chart") {
+      return;
+    }
+    const figureId = this.props.figure.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    this.env.model.dispatch("UPDATE_CHART", {
+      id: figureId,
+      // @ts-ignore
+      definition: { ...definition, panable: !this.isPanable },
+      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+    });
+  }
+
+  resetZoom() {
+    //TODO: Maybe find a better way to reset the zoom ?
+    if (this.props.figure.tag !== "chart") {
+      return;
+    }
+    const figureId = this.props.figure.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    this.env.model.dispatch("UPDATE_CHART", {
+      id: figureId,
+      // @ts-ignore
+      definition,
+      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+    });
+  }
+
   private openContextMenu(position: DOMCoordinates) {
     this.menuState.isOpen = true;
     this.menuState.position = position;
