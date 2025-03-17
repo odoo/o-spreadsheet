@@ -51,7 +51,7 @@ export interface AutoCompleteProviderDefinition {
     this: { composer: ComposerStoreInterface; getters: Getters },
     tokenAtCursor: EnrichedToken,
     content: string
-  ): AutoCompleteProposal[] | undefined;
+  ): AutoCompleteProposal[] | Promise<AutoCompleteProposal[]> | undefined;
   selectProposal(
     this: { composer: ComposerStoreInterface },
     tokenAtCursor: EnrichedToken,
