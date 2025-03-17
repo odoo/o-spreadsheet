@@ -17,6 +17,16 @@
           onFigureDeleted="props.onFigureDeleted"
           figureUI="props.figureUI"
         />
+        <div class="o-figure-menu position-absolute m-2" style="margin-right:2.5rem!important">
+          <div class="d-flex">
+            <div class="o-figure-menu-item mx-1" t-on-click="resetZoom">
+              <t t-call="o-spreadsheet-Icon.HOME"/>
+            </div>
+            <div class="o-figure-menu-item mx-1" t-on-click="toggleZoom">
+              <t t-call="o-spreadsheet-Icon.ZOOM_CHART"/>
+            </div>
+          </div>
+        </div>
         <div class="o-figure-menu position-absolute m-2" t-if="!env.isDashboard()">
           <div
             class="o-figure-menu-item"

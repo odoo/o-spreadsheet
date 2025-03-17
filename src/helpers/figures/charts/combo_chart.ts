@@ -19,6 +19,7 @@ import {
   CustomizedDataSet,
   ExcelChartDataset,
   LegendPosition,
+  ZoomConfiguration,
 } from "../../../types/chart";
 import {
   ComboChartDataSet,
@@ -67,6 +68,7 @@ export class ComboChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly type = "combo";
   readonly showValues?: boolean;
+  readonly zoom?: ZoomConfiguration;
 
   constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -84,6 +86,7 @@ export class ComboChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
+    this.zoom = definition.zoom;
   }
 
   static transformDefinition(
@@ -147,6 +150,7 @@ export class ComboChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      zoom: this.zoom,
     };
   }
 
@@ -247,6 +251,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
         legend: getComboChartLegend(definition, chartData),
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        zoomPlugin: definition.zoom,
       },
     },
   };

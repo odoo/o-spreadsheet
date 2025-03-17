@@ -1,6 +1,6 @@
 import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
+import { AxesDesign, CustomizedDataSet, TitleDesign, ZoomConfiguration } from "./chart";
 import { LegendPosition } from "./common_chart";
 
 export interface LineChartDefinition {
@@ -18,6 +18,7 @@ export interface LineChartDefinition {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly zoom?: ZoomConfiguration;
 }
 
 export type LineChartRuntime = {
