@@ -2,7 +2,7 @@
 
 exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
-  class="o-spreadsheet"
+  class="o-spreadsheet h-100 w-100"
   style="grid-template-rows:min-content auto min-content; grid-template-columns:auto 350px; "
 >
   
@@ -1006,7 +1006,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 
 exports[`components take the small screen into account 1`] = `
 <div
-  class="o-spreadsheet"
+  class="o-spreadsheet h-100 w-100"
   style="grid-template-rows:min-content auto min-content; grid-template-columns:auto 350px; "
 >
   
