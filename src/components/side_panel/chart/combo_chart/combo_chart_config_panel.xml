@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-ScatterConfigPanel">
+  <t t-name="o-spreadsheet-ComboConfigPanel">
     <div>
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"
@@ -7,9 +7,6 @@
         onSelectionConfirmed.bind="onDataSeriesConfirmed"
         onSelectionReordered.bind="onDataSeriesReordered"
         onSelectionRemoved.bind="onDataSeriesRemoved"
-        canChangeDatasetOrientation="canChangeDatasetOrientation"
-        datasetOrientation="datasetOrientation"
-        onFlipAxis.bind="setDatasetOrientation"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
@@ -20,6 +17,7 @@
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+
       <Section class="'pt-0'">
         <Checkbox
           name="'zoom'"
