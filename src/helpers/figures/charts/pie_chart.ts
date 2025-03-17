@@ -30,7 +30,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getPieChartData,
@@ -38,6 +37,7 @@ import {
   getPieChartLegend,
   getPieChartTooltip,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class PieChart extends AbstractChart {
   readonly dataSets: DataSet[];

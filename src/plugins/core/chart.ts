@@ -1,4 +1,9 @@
-import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
+import {
+  CHART_ZOOM_SLIDER_HEIGHT,
+  DEFAULT_FIGURE_HEIGHT,
+  DEFAULT_FIGURE_WIDTH,
+  FIGURE_ID_SPLITTER,
+} from "../../constants";
 import { deepEquals } from "../../helpers";
 import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
@@ -83,6 +88,28 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         this.addChart(cmd.figureId, cmd.definition);
         break;
       case "UPDATE_CHART": {
+        const definition = this.getters.getChartDefinition(cmd.figureId);
+        const previousZoomable = "zoomable" in definition && definition.zoomable;
+        const futureZoomable = "zoomable" in cmd.definition && cmd.definition.zoomable;
+        if (previousZoomable && !futureZoomable) {
+          const sheetId = this.getters.getFigureSheetId(cmd.figureId)!;
+          const figureDefinition = this.getters.getFigure(sheetId, cmd.figureId)!;
+          this.dispatch("UPDATE_FIGURE", {
+            figureId: cmd.figureId,
+            sheetId,
+            ...figureDefinition,
+            height: figureDefinition.height - CHART_ZOOM_SLIDER_HEIGHT, // Remove space for zoom controls
+          });
+        } else if (!previousZoomable && futureZoomable) {
+          const sheetId = this.getters.getFigureSheetId(cmd.figureId)!;
+          const figureDefinition = this.getters.getFigure(sheetId, cmd.figureId)!;
+          this.dispatch("UPDATE_FIGURE", {
+            figureId: cmd.figureId,
+            sheetId,
+            ...figureDefinition,
+            height: figureDefinition.height + CHART_ZOOM_SLIDER_HEIGHT, // Add space for zoom controls
+          });
+        }
         this.addChart(cmd.figureId, cmd.definition);
         break;
       }

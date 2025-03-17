@@ -13,5 +13,6 @@ export type ComboChartDataSet = CustomizedDataSet & { type?: "bar" | "line" };
 
 export type ComboChartRuntime = {
   chartJsConfig: ChartConfiguration;
+  slicerConfig?: ChartConfiguration;
   background: Color;
 };
