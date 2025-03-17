@@ -31,6 +31,7 @@ import {
   getCellError,
   getCellText,
 } from "../test_helpers/getters_helpers";
+import { addToRegistry } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 let model: Model;
@@ -190,7 +191,7 @@ describe("basic search", () => {
 
   test("refresh search when cell is update with EVALUATE_CELLS", async () => {
     let value = "3";
-    functionRegistry.add("GETVALUE", {
+    addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
       compute: () => value,
       args: [],

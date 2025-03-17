@@ -38,13 +38,13 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   clearFunctions,
   doAction,
   getDataValidationRules,
   getName,
   getNode,
   makeTestEnv,
-  restoreDefaultFunctions,
   spyModelDispatch,
   target,
 } from "../test_helpers/helpers";
@@ -71,22 +71,22 @@ describe("Top Bar Menu Item Registry", () => {
   beforeEach(() => (registry = new MenuItemRegistry()));
 
   test("Menu registry items have unique ActionSpec path", () => {
-    registry.add("root", { name: "rootNode" });
+    addToRegistry(registry, "root", { name: "rootNode" });
     registry.addChild("child", ["root"], { id: "unique", name: "child" });
     expect(() =>
       registry.addChild("child", ["root"], { id: "unique", name: "child" })
     ).toThrowError('A child with the id "unique" already exists.');
   });
   test("Menu registry entries can be overriden explicitely", () => {
-    registry.add("root", { name: "rootNode" });
+    addToRegistry(registry, "root", { name: "rootNode" });
     registry.addChild("child", ["root"], { id: "unique", name: "child" });
     expect(() =>
       registry.addChild("child", ["root"], { id: "unique", name: "child" }, { force: true })
     ).not.toThrowError();
   });
   test("Menu items can have the same id with different parent nodes", () => {
-    registry.add("root1", { name: "rootNode1" });
-    registry.add("root2", { name: "rootNode2" });
+    addToRegistry(registry, "root1", { name: "rootNode1" });
+    addToRegistry(registry, "root2", { name: "rootNode2" });
     registry.addChild("child", ["root1"], { id: "unique", name: "child" });
     expect(() =>
       registry.addChild("child", ["root2"], { id: "unique", name: "child" })
@@ -104,7 +104,7 @@ describe("Top Bar Menu Item Registry", () => {
     topbarMenuRegistry.content = menuDefinitions;
   });
   test("Can add children to menu Items", () => {
-    topbarMenuRegistry.add("root", { name: "Root", sequence: 1 });
+    addToRegistry(topbarMenuRegistry, "root", { name: "Root", sequence: 1 });
     topbarMenuRegistry.addChild("child1", ["root"], { name: "Child1", sequence: 1 });
     topbarMenuRegistry.addChild("child2", ["root", "child1"], {
       name: "Child2",
@@ -144,7 +144,7 @@ describe("Top Bar Menu Item Registry", () => {
     expect(() =>
       topbarMenuRegistry.addChild("child", ["non-existing"], { name: "child", sequence: 1 })
     ).toThrow();
-    topbarMenuRegistry.add("root", { name: "Root", sequence: 1 });
+    addToRegistry(topbarMenuRegistry, "root", { name: "Root", sequence: 1 });
     expect(() =>
       topbarMenuRegistry.addChild("child1", ["root", "non-existing"], {
         name: "Child1",
@@ -968,7 +968,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Insert -> Function -> All includes new functions", () => {
-    functionRegistry.add("TEST.FUNC", {
+    addToRegistry(functionRegistry, "TEST.FUNC", {
       args: [],
       compute: () => 42,
       description: "Test function",
@@ -979,7 +979,6 @@ describe("Menu Item actions", () => {
       env
     ).children(env);
     expect(allFunctions.map((f) => f.name(env))).toContain("TEST.FUNC");
-    restoreDefaultFunctions();
   });
 
   test("Insert -> Checkbox", () => {
@@ -993,7 +992,7 @@ describe("Menu Item actions", () => {
 
   test("Insert -> Function -> hidden formulas are filtered out", () => {
     clearFunctions();
-    functionRegistry.add("HIDDEN.FUNC", {
+    addToRegistry(functionRegistry, "HIDDEN.FUNC", {
       args: [],
       compute: () => 42,
       description: "Test function",
@@ -1008,7 +1007,6 @@ describe("Menu Item actions", () => {
       env
     ).children(env);
     expect(allFunctions.map((f) => f.name(env))).not.toContain("HIDDEN.FUNC");
-    restoreDefaultFunctions();
   });
 
   describe("Format -> numbers", () => {

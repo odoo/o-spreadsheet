@@ -4,7 +4,7 @@ import { compile } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions";
 import { createValidRange } from "../../src/helpers";
 import { CompiledFormula } from "../../src/types";
-import { evaluateCell, evaluateCellFormat, restoreDefaultFunctions } from "../test_helpers/helpers";
+import { addToRegistry, evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
   for (let f in functionCache) {
@@ -77,12 +77,8 @@ describe("expression compiler", () => {
 
 describe("compile functions", () => {
   describe("check number of arguments", () => {
-    afterAll(() => {
-      restoreDefaultFunctions();
-    });
-
     test("with basic arguments", () => {
-      functionRegistry.add("ANYFUNCTION", {
+      addToRegistry(functionRegistry, "ANYFUNCTION", {
         description: "any function",
         compute: () => {
           return true;
@@ -96,11 +92,10 @@ describe("compile functions", () => {
       expect(compiledBaseFunction("=ANYFUNCTION(1)").isBadExpression).toBe(true);
       expect(compiledBaseFunction("=ANYFUNCTION(1,2)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=ANYFUNCTION(1,2,3)").isBadExpression).toBe(true);
-      restoreDefaultFunctions();
     });
 
     test("with optional argument", () => {
-      functionRegistry.add("OPTIONAL", {
+      addToRegistry(functionRegistry, "OPTIONAL", {
         description: "function with optional argument",
         compute: () => {
           return true;
@@ -113,11 +108,10 @@ describe("compile functions", () => {
       expect(compiledBaseFunction("=OPTIONAL(1)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=OPTIONAL(1,2)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=OPTIONAL(1,2,3)").isBadExpression).toBe(true);
-      restoreDefaultFunctions();
     });
 
     test("with default argument", () => {
-      functionRegistry.add("USEDEFAULTARG", {
+      addToRegistry(functionRegistry, "USEDEFAULTARG", {
         description: "function with a default argument",
         compute: () => {
           return true;
@@ -130,11 +124,10 @@ describe("compile functions", () => {
       expect(compiledBaseFunction("=USEDEFAULTARG(1)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=USEDEFAULTARG(1,2)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=USEDEFAULTARG(1,2,3)").isBadExpression).toBe(true);
-      restoreDefaultFunctions();
     });
 
     test("with repeatable argument", () => {
-      functionRegistry.add("REPEATABLE", {
+      addToRegistry(functionRegistry, "REPEATABLE", {
         description: "function with repeatable argument",
         compute: (arg) => {
           return true;
@@ -147,11 +140,10 @@ describe("compile functions", () => {
       expect(compiledBaseFunction("=REPEATABLE(1)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=REPEATABLE(1,2)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=REPEATABLE(1,2,3,4,5,6)").isBadExpression).toBe(false);
-      restoreDefaultFunctions();
     });
 
     test("with more than one repeatable argument", () => {
-      functionRegistry.add("REPEATABLES", {
+      addToRegistry(functionRegistry, "REPEATABLES", {
         description: "any function",
         compute: (arg) => {
           return true;
@@ -166,13 +158,12 @@ describe("compile functions", () => {
       expect(compiledBaseFunction("=REPEATABLES(1, 2, 3)").isBadExpression).toBe(false);
       expect(compiledBaseFunction("=REPEATABLES(1, 2, 3, 4)").isBadExpression).toBe(true);
       expect(compiledBaseFunction("=REPEATABLES(1, 2, 3, 4, 5)").isBadExpression).toBe(false);
-      restoreDefaultFunctions();
     });
   });
 
   describe("interpret arguments", () => {
-    beforeAll(() => {
-      functionRegistry.add("ISSECONDARGUNDEFINED", {
+    beforeEach(() => {
+      addToRegistry(functionRegistry, "ISSECONDARGUNDEFINED", {
         description: "any function",
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -186,7 +177,7 @@ describe("compile functions", () => {
         },
       });
 
-      functionRegistry.add("SECONDARGDEFAULTVALUEEQUAL42", {
+      addToRegistry(functionRegistry, "SECONDARGDEFAULTVALUEEQUAL42", {
         description: "function with a default argument",
         args: [
           { name: "arg1", description: "", type: ["ANY"] },
@@ -198,9 +189,6 @@ describe("compile functions", () => {
             : { value: false, format: '"FALSE"' };
         },
       });
-    });
-    afterAll(() => {
-      restoreDefaultFunctions();
     });
     test("empty value interpreted as undefined", () => {
       expect(evaluateCell("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe(true);
@@ -219,13 +207,13 @@ describe("compile functions", () => {
   });
 
   describe("with meta arguments", () => {
-    beforeAll(() => {
-      functionRegistry.add("USEMETAARG", {
+    beforeEach(() => {
+      addToRegistry(functionRegistry, "USEMETAARG", {
         description: "function with a meta argument",
         compute: () => true,
         args: [{ name: "arg", description: "", type: ["META"] }],
       });
-      functionRegistry.add("NOTUSEMETAARG", {
+      addToRegistry(functionRegistry, "NOTUSEMETAARG", {
         description: "any function",
         compute: () => true,
         args: [{ name: "arg", description: "", type: ["ANY"] }],

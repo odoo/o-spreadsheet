@@ -6,16 +6,13 @@ import { Arg, DEFAULT_LOCALE } from "../../src/types";
 import { CellErrorType, EvaluationError } from "../../src/types/errors";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { evaluateCell, restoreDefaultFunctions } from "../test_helpers/helpers";
+import { addToRegistry, evaluateCell } from "../test_helpers/helpers";
 
 describe("functions", () => {
-  afterAll(() => {
-    restoreDefaultFunctions();
-  });
   test("can add a function", () => {
     const val = evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" });
     expect(val).toBe("#NAME?");
-    functionRegistry.add("DOUBLEDOUBLE", {
+    addToRegistry(functionRegistry, "DOUBLEDOUBLE", {
       description: "Double the first argument",
       compute: function (arg) {
         return 2 * toNumber(toScalar(arg), DEFAULT_LOCALE);
@@ -27,7 +24,7 @@ describe("functions", () => {
 
   test("can not add a function with invalid name", () => {
     const createBadFunction = () => {
-      functionRegistry.add("TEST*FUNCTION", {
+      addToRegistry(functionRegistry, "TEST*FUNCTION", {
         description: "Double the first argument",
         compute: () => 0,
         args: [],
@@ -40,7 +37,7 @@ describe("functions", () => {
 
   test("can add a function with underscore", () => {
     const createBadFunction = () => {
-      functionRegistry.add("TEST_FUNCTION", {
+      addToRegistry(functionRegistry, "TEST_FUNCTION", {
         description: "Double the first argument",
         compute: () => 0,
         args: [],
@@ -51,7 +48,7 @@ describe("functions", () => {
 
   test("Function can return value depending on input values", () => {
     const model = new Model();
-    functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
+    addToRegistry(functionRegistry, "RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
       compute: function (arg) {
         return toNumber(toScalar(arg), DEFAULT_LOCALE) * 2;
@@ -68,7 +65,7 @@ describe("functions", () => {
 
   test("Function can return value depending on input error", () => {
     const model = new Model();
-    functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
+    addToRegistry(functionRegistry, "RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg: Arg) {
         return isEvaluationError(toScalar(arg)?.value);
@@ -84,7 +81,7 @@ describe("functions", () => {
 
   test("Function can return error depending on input value", () => {
     const model = new Model();
-    functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.VALUE", {
+    addToRegistry(functionRegistry, "RETURN.ERROR.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input error",
       compute: function (arg) {
         const error = new EvaluationError("Les calculs sont pas bons KEVIN !");
@@ -101,7 +98,7 @@ describe("functions", () => {
 
   test("Function can return error depending on input error", () => {
     const model = new Model();
-    functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
+    addToRegistry(functionRegistry, "RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg) {
         return toScalar(arg)?.value === CellErrorType.BadExpression
@@ -119,7 +116,7 @@ describe("functions", () => {
 
   test("Function can return format depending on input format", () => {
     const model = new Model();
-    functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
+    addToRegistry(functionRegistry, "RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
       compute: function (arg) {
         return { value: 42, format: toScalar(arg)?.format };
@@ -138,7 +135,7 @@ describe("functions", () => {
 
   test("Function can return format depending on input value", () => {
     const model = new Model();
-    functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
+    addToRegistry(functionRegistry, "RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
       compute: function (arg) {
         const value = toNumber(toScalar(arg), DEFAULT_LOCALE);
@@ -166,7 +163,7 @@ describe("functions", () => {
         },
       }
     );
-    functionRegistry.add("GETCOUCOU", {
+    addToRegistry(functionRegistry, "GETCOUCOU", {
       description: "Get coucou's name",
       compute: function () {
         return (this as any).coucou;
@@ -179,7 +176,7 @@ describe("functions", () => {
 
   test("Can use a getter in a function", () => {
     const model = new Model();
-    functionRegistry.add("GETNUMBERCOLS", {
+    addToRegistry(functionRegistry, "GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
         const sheetId = (this as any).getters.getActiveSheetId();
@@ -193,7 +190,7 @@ describe("functions", () => {
   });
 
   test("undefined fallback to the zero value in a function", () => {
-    functionRegistry.add("UNDEFINED", {
+    addToRegistry(functionRegistry, "UNDEFINED", {
       description: "undefined",
       // @ts-expect-error can happen in a vanilla javascript code base
       compute: function () {
@@ -205,11 +202,8 @@ describe("functions", () => {
   });
 
   describe("check type of arguments", () => {
-    afterAll(() => {
-      restoreDefaultFunctions();
-    });
     test("reject non-range argument when expecting only range argument", () => {
-      functionRegistry.add("RANGEEXPECTED", {
+      addToRegistry(functionRegistry, "RANGEEXPECTED", {
         description: "function expect number in 1st arg",
         compute: (arg) => {
           return true;
@@ -217,7 +211,7 @@ describe("functions", () => {
         args: [arg("arg1 (range<any>)", "1st argument")],
       });
 
-      functionRegistry.add("FORMULA_RETURNING_RANGE", {
+      addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE", {
         description: "function returning range",
         compute: () => {
           return [["cucumber"]];
@@ -225,7 +219,7 @@ describe("functions", () => {
         args: [],
       });
 
-      functionRegistry.add("FORMULA_NOT_RETURNING_RANGE", {
+      addToRegistry(functionRegistry, "FORMULA_NOT_RETURNING_RANGE", {
         description: "function returning range",
         compute: () => {
           return "cucumber";
@@ -233,7 +227,7 @@ describe("functions", () => {
         args: [],
       });
 
-      functionRegistry.add("FORMULA_RETURNING_ERROR", {
+      addToRegistry(functionRegistry, "FORMULA_RETURNING_ERROR", {
         description: "function returning ERROR",
         compute: () => {
           return "#ERROR";
@@ -241,7 +235,7 @@ describe("functions", () => {
         args: [],
       });
 
-      functionRegistry.add("FORMULA_TROWING_ERROR", {
+      addToRegistry(functionRegistry, "FORMULA_TROWING_ERROR", {
         description: "function trowing error",
         compute: () => {
           throw new EvaluationError("NOP");
@@ -249,7 +243,7 @@ describe("functions", () => {
         args: [],
       });
 
-      functionRegistry.add("FORMULA_RETURNING_RANGE_WITH_ERROR", {
+      addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE_WITH_ERROR", {
         description: "function returning range",
         compute: () => {
           return [["#ERROR"]];
@@ -257,7 +251,7 @@ describe("functions", () => {
         args: [],
       });
 
-      functionRegistry.add("FORMULA_RETURNING_RANGE_TROWING_ERROR", {
+      addToRegistry(functionRegistry, "FORMULA_RETURNING_RANGE_TROWING_ERROR", {
         description: "function returning range",
         compute: () => {
           throw new EvaluationError("NOP");
@@ -318,7 +312,7 @@ describe("functions", () => {
     test("simple argument value from a single cell or range reference", () => {
       const m = new Model();
 
-      functionRegistry.add("SIMPLE_VALUE_EXPECTED", {
+      addToRegistry(functionRegistry, "SIMPLE_VALUE_EXPECTED", {
         description: "does not accept a range",
         compute: (arg) => {
           return true;

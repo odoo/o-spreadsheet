@@ -29,6 +29,7 @@ import {
 } from "./test_helpers/dom_helper";
 import { getBorder, getCell, getStyle, getTable } from "./test_helpers/getters_helpers";
 import {
+  addToRegistry,
   getFigureIds,
   getNode,
   mountComponent,
@@ -531,7 +532,7 @@ describe("TopBar component", () => {
   test("Can click on a menuItem do execute action and close menus", async () => {
     const menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
     let number = 0;
-    topbarMenuRegistry.add("test", { name: "Test", sequence: 1 });
+    addToRegistry(topbarMenuRegistry, "test", { name: "Test", sequence: 1 });
     topbarMenuRegistry.addChild("testaction", ["test"], {
       name: "TestAction",
       sequence: 1,
@@ -563,7 +564,7 @@ describe("TopBar component", () => {
 
   test("Can add a custom component to topbar", async () => {
     const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
-    topbarComponentRegistry.add("1", { component: Comp, sequence: 1 });
+    addToRegistry(topbarComponentRegistry, "1", { component: Comp, sequence: 1 });
     await mountParent();
     expect(fixture.querySelectorAll(".o-topbar-test")).toHaveLength(1);
     topbarComponentRegistry.content = compDefinitions;
@@ -572,14 +573,14 @@ describe("TopBar component", () => {
   test("Can add multiple components to topbar with different visibilities", async () => {
     const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
     let comp1Visibility = false;
-    topbarComponentRegistry.add("first", {
+    addToRegistry(topbarComponentRegistry, "first", {
       component: Comp1,
       isVisible: () => {
         return comp1Visibility;
       },
       sequence: 1,
     });
-    topbarComponentRegistry.add("second", { component: Comp2, sequence: 2 });
+    addToRegistry(topbarComponentRegistry, "second", { component: Comp2, sequence: 2 });
     const { parent } = await mountParent();
     expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(0);
     expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
@@ -686,12 +687,12 @@ describe("TopBar component", () => {
 
 test("Can show/hide a TopBarComponent based on condition", async () => {
   const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
-  topbarComponentRegistry.add("1", {
+  addToRegistry(topbarComponentRegistry, "1", {
     component: Comp1,
     isVisible: (env) => true,
     sequence: 1,
   });
-  topbarComponentRegistry.add("2", {
+  addToRegistry(topbarComponentRegistry, "2", {
     component: Comp2,
     isVisible: (env) => false,
     sequence: 2,
@@ -910,7 +911,7 @@ test("The composer helper should be closed on toggle topbar context menu", async
 });
 
 test("The menu items are orderer by their sequence", async () => {
-  topbarMenuRegistry.add("test", {
+  addToRegistry(topbarMenuRegistry, "test", {
     sequence: 1,
     name: "test",
   });

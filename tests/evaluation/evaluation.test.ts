@@ -22,12 +22,7 @@ import {
   getCellError,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import {
-  evaluateCell,
-  evaluateGrid,
-  restoreDefaultFunctions,
-  toCellPosition,
-} from "../test_helpers/helpers";
+import { addToRegistry, evaluateCell, evaluateGrid, toCellPosition } from "../test_helpers/helpers";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -121,7 +116,7 @@ describe("evaluateCells", () => {
 
   test("compute cell only once when references multiple times", () => {
     const mock = jest.fn().mockReturnValue(42);
-    functionRegistry.add("MY.FUNC", {
+    addToRegistry(functionRegistry, "MY.FUNC", {
       description: "any function",
       compute: mock,
       args: [],
@@ -139,7 +134,6 @@ describe("evaluateCells", () => {
       ],
     });
     expect(mock).toHaveBeenCalledTimes(1);
-    functionRegistry.remove("MY.FUNC");
   });
 
   test("Percent operator", () => {
@@ -304,7 +298,7 @@ describe("evaluateCells", () => {
   });
 
   test("Evaluate only existing cells from a range partially outside of sheet", () => {
-    functionRegistry.add("RANGE.COUNT.FUNCTION", {
+    addToRegistry(functionRegistry, "RANGE.COUNT.FUNCTION", {
       description: "any function",
       compute: function (range) {
         return toMatrix(range).flat().length;
@@ -320,7 +314,6 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A2").value).toBe(25);
     addColumns(model, "after", "Z", 1);
     expect(getEvaluatedCell(model, "A2").value).toBe(26);
-    functionRegistry.remove("RANGE.COUNT.FUNCTION");
   });
 
   test("range totally outside of sheet", () => {
@@ -1147,10 +1140,6 @@ describe("evaluate formula getter", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  afterAll(() => {
-    restoreDefaultFunctions();
-  });
-
   test("a ref in the current sheet", () => {
     setCellContent(model, "A1", "12");
     expect(model.getters.evaluateFormula(sheetId, "=A1")).toBe(12);
@@ -1179,7 +1168,7 @@ describe("evaluate formula getter", () => {
 
   test("EVALUATE_CELLS with no argument re-evaluate all the cells", () => {
     let value = 1;
-    functionRegistry.add("GETVALUE", {
+    addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
       compute: () => value,
       args: [],
@@ -1204,7 +1193,7 @@ describe("evaluate formula getter", () => {
   test.skip("EVALUATE_CELLS with no argument re-evaluates do not reevaluate the cells if they are not modified", () => {
     const mockCompute = jest.fn();
 
-    functionRegistry.add("GETVALUE", {
+    addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
       compute: mockCompute,
       args: [],
@@ -1218,7 +1207,7 @@ describe("evaluate formula getter", () => {
   test("cells are re-evaluated if one of their dependency changes", () => {
     const mockCompute = jest.fn().mockReturnValue("Hi");
 
-    functionRegistry.add("GETVALUE", {
+    addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
       compute: mockCompute,
       args: [arg("value (any)", "bla")],
@@ -1235,7 +1224,7 @@ describe("evaluate formula getter", () => {
 
   test("cells in error are correctly reset", () => {
     let value: string | number = "LOADING...";
-    functionRegistry.add("GETVALUE", {
+    addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
       compute: () => value,
       args: [],
@@ -1248,12 +1237,11 @@ describe("evaluate formula getter", () => {
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(getEvaluatedCell(model, "A1").value).toBe(-2);
     expect(getEvaluatedCell(model, "A2").value).toBe(-2);
-    functionRegistry.remove("GETVALUE");
   });
 
   test("cells in error and in another sheet are correctly reset", () => {
     let value: string | number = "LOADING...";
-    functionRegistry.add("GETVALUE", {
+    addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
       compute: () => value,
       args: [],
@@ -1266,7 +1254,6 @@ describe("evaluate formula getter", () => {
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(getEvaluatedCell(model, "A1").value).toBe(-2);
     expect(getEvaluatedCell(model, "A2", "sheet2").value).toBe(-2);
-    functionRegistry.remove("GETVALUE");
   });
 
   test("cell is evaluated when changing sheet and coming back", () => {
@@ -1280,7 +1267,7 @@ describe("evaluate formula getter", () => {
 
   test("cells with two consecutive error are correctly evaluated", () => {
     let value: number = 1;
-    functionRegistry.add("GETVALUE", {
+    addToRegistry(functionRegistry, "GETVALUE", {
       description: "Get value",
       compute: () => {
         throw new EvaluationError("Error" + value);
@@ -1294,11 +1281,10 @@ describe("evaluate formula getter", () => {
     model.dispatch("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error2");
-    functionRegistry.remove("GETVALUE");
   });
 
   test("return error message with function name placeholder", () => {
-    functionRegistry.add("GETERR", {
+    addToRegistry(functionRegistry, "GETERR", {
       description: "Get error",
       compute: () => {
         return {
@@ -1313,7 +1299,6 @@ describe("evaluate formula getter", () => {
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Function GETERR failed");
     setCellContent(model, "A1", "=SUM(GETERR())");
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Function GETERR failed");
-    functionRegistry.remove("GETERR");
   });
 
   test("Getter getEvaluatedCells return spreaded cells", () => {

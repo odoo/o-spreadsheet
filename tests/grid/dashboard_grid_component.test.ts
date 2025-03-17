@@ -15,7 +15,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { addToRegistry, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
@@ -123,7 +123,7 @@ describe("Grid component in dashboard mode", () => {
 
   test("Clickable cells actions are properly udpated on viewport scroll", async () => {
     const fn = jest.fn();
-    clickableCellRegistry.add("fake", {
+    addToRegistry(clickableCellRegistry, "fake", {
       condition: (position, getters) => {
         return !!getters.getCell(position)?.content.startsWith("__");
       },
@@ -146,12 +146,11 @@ describe("Grid component in dashboard mode", () => {
     await nextTick();
     await simulateClick("div.o-dashboard-clickable-cell", 10, 10);
     expect(fn).toHaveBeenCalledWith(1, 9);
-    clickableCellRegistry.remove("fake");
   });
 
   test("Triggers clickable cell actions with correct params on left-click and middle-click", async () => {
     const fn = jest.fn();
-    clickableCellRegistry.add("fake", {
+    addToRegistry(clickableCellRegistry, "fake", {
       condition: (position, getters) => {
         return !!getters.getCell(position)?.content.startsWith("__");
       },
@@ -165,11 +164,10 @@ describe("Grid component in dashboard mode", () => {
     expect(fn).toHaveBeenCalledWith(false);
     await simulateClick("div.o-dashboard-clickable-cell", 10, 10, { bubbles: true, button: 1 });
     expect(fn).toHaveBeenCalledWith(true);
-    clickableCellRegistry.remove("fake");
   });
 
   test("Clickable cells actions can have a tooltip", async () => {
-    clickableCellRegistry.add("fake", {
+    addToRegistry(clickableCellRegistry, "fake", {
       condition: () => true,
       execute: () => {},
       title: "hello there",
@@ -180,6 +178,5 @@ describe("Grid component in dashboard mode", () => {
     expect(fixture.querySelector("div.o-dashboard-clickable-cell")?.getAttribute("title")).toBe(
       "hello there"
     );
-    clickableCellRegistry.remove("fake");
   });
 });

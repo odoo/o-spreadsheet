@@ -24,6 +24,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   XCToMergeCellMap,
+  addToRegistry,
   getDataValidationRules,
   getMergeCellMap,
   getPlugin,
@@ -786,7 +787,7 @@ describe("Autofill", () => {
   });
 
   test("Auto-autofill considers formula spreaded value", () => {
-    functionRegistry.add("SPREAD.EMPTY", {
+    addToRegistry(functionRegistry, "SPREAD.EMPTY", {
       description: "spreads empty values",
       args: [],
       compute: function (): null[][] {
