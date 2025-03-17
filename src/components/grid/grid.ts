@@ -43,6 +43,7 @@ import {
   Align,
   CellValueType,
   Client,
+  ClientId,
   ClipboardMIMEType,
   DOMCoordinates,
   DOMDimension,
@@ -463,6 +464,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
     return this.hoveredCell.col === col && this.hoveredCell.row === row;
+  }
+
+  isClientFocused(clientId: ClientId) {
+    return this.env.model.getters.isClientFocused(clientId);
   }
 
   private getGridRect(): Rect {

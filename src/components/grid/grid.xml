@@ -33,7 +33,7 @@
           color="client.color"
           col="client.position.col"
           row="client.position.row"
-          active="isCellHovered(client.position.col, client.position.row)"
+          active="isCellHovered(client.position.col, client.position.row) || isClientFocused(client.id)"
         />
       </t>
       <GridPopover
