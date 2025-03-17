@@ -14,6 +14,7 @@ import {
   ResizeDirection,
   SpreadsheetChildEnv,
   UID,
+  ZoomConfiguration,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
@@ -295,6 +296,42 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       y: y,
     };
     this.openContextMenu(menuPosition);
+  }
+
+  toggleZoom() {
+    if (this.props.figure.tag !== "chart") {
+      return;
+    }
+    const figureId = this.props.figure.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    let zoom: ZoomConfiguration | undefined = undefined;
+    if ("zoom" in definition) {
+      zoom = {
+        ...definition.zoom,
+        sliceable: !definition.zoom?.sliceable,
+      };
+    }
+    this.env.model.dispatch("UPDATE_CHART", {
+      id: figureId,
+      // @ts-ignore
+      definition: { ...definition, zoom },
+      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+    });
+  }
+
+  resetZoom() {
+    //TODO: Maybe find a better way to reset the zoom ?
+    if (this.props.figure.tag !== "chart") {
+      return;
+    }
+    const figureId = this.props.figure.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    this.env.model.dispatch("UPDATE_CHART", {
+      id: figureId,
+      // @ts-ignore
+      definition,
+      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+    });
   }
 
   private openContextMenu(position: DOMCoordinates) {
