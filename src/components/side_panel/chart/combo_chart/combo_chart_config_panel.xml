@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-ScatterConfigPanel">
+  <t t-name="o-spreadsheet-ComboConfigPanel">
     <div>
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"
@@ -17,6 +17,7 @@
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+
       <Section class="'pt-0'">
         <Checkbox
           name="'zoom'"

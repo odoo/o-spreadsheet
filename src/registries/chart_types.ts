@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
 import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
+import { ZoomableChartJsComponent } from "../components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { GaugeChartComponent } from "../components/figures/chart/gauge/gauge_chart_component";
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
@@ -221,12 +222,12 @@ chartRegistry.add("sunburst", {
 });
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
-chartComponentRegistry.add("line", ChartJsComponent);
-chartComponentRegistry.add("bar", ChartJsComponent);
-chartComponentRegistry.add("combo", ChartJsComponent);
+chartComponentRegistry.add("line", ZoomableChartJsComponent);
+chartComponentRegistry.add("bar", ZoomableChartJsComponent);
+chartComponentRegistry.add("combo", ZoomableChartJsComponent);
 chartComponentRegistry.add("pie", ChartJsComponent);
 chartComponentRegistry.add("gauge", GaugeChartComponent);
-chartComponentRegistry.add("scatter", ChartJsComponent);
+chartComponentRegistry.add("scatter", ZoomableChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);
 chartComponentRegistry.add("waterfall", ChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);

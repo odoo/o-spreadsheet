@@ -38,7 +38,6 @@ import {
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getWaterfallChartLegend,
@@ -236,7 +235,6 @@ export function createWaterfallChartRuntime(
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
       scales: getWaterfallChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
