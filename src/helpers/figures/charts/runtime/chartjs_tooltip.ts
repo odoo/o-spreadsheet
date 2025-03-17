@@ -15,7 +15,7 @@ import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { formatValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
-import { TREND_LINE_XAXIS_ID, formatChartDatasetValue } from "../chart_common";
+import { formatChartDatasetValue, isTrendLineAxis } from "../chart_common";
 
 type ChartTooltip = _DeepPartialObject<TooltipOptions<any>>;
 
@@ -26,9 +26,7 @@ export function getBarChartTooltip(
   return {
     callbacks: {
       title: function (tooltipItems) {
-        return tooltipItems.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID)
-          ? undefined
-          : "";
+        return tooltipItems.some((item) => !isTrendLineAxis(item.dataset.xAxisID)) ? undefined : "";
       },
       label: function (tooltipItem) {
         const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
@@ -58,10 +56,9 @@ export function getLineChartTooltip(
   if (axisType === "linear") {
     tooltip.callbacks!.label = (tooltipItem) => {
       const dataSetPoint = tooltipItem.parsed.y as CellValue;
-      let label =
-        tooltipItem.dataset.xAxisID === TREND_LINE_XAXIS_ID
-          ? ""
-          : (tooltipItem.parsed.x as CellValue);
+      let label = isTrendLineAxis(tooltipItem.dataset.xAxisID)
+        ? ""
+        : (tooltipItem.parsed.x as CellValue);
 
       if (typeof label === "string" && isNumber(label, locale)) {
         label = toNumber(label, locale);
@@ -87,8 +84,7 @@ export function getLineChartTooltip(
 
   tooltip.callbacks!.title = function (tooltipItems) {
     const displayTooltipTitle =
-      axisType !== "linear" &&
-      tooltipItems.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID);
+      axisType !== "linear" && tooltipItems.some((item) => !isTrendLineAxis(item.dataset.xAxisID));
     return displayTooltipTitle ? undefined : "";
   };
 

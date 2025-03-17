@@ -3543,7 +3543,7 @@ describe("trending line", () => {
   });
 });
 
-test("moving average trending line", () => {
+test("moving average trend line", () => {
   // prettier-ignore
   setGrid(model, {
       B1: "Label 1", C1: "1",
@@ -3586,6 +3586,97 @@ test("moving average trending line", () => {
     { x: 4, y: 3.5 },
     { x: 5, y: 4.5 },
   ]);
+});
+
+test("Moving average trend line dataset uses the right axis when combined with other datasets", () => {
+  mockChart(); // mock chart.js with luxon time adapter installed
+  // prettier-ignore
+  setGrid(model, {
+    A1: "A", B1: "=DATE(2025,1,1)", C1: "1", D1: "4",
+    A2: "B", B2: "=DATE(2025,1,2)", C2: "4", D2: "12",
+    A3: "C", B3: "=DATE(2025,1,3)", C3: "9", D3: "34",
+    A4: "D", B4: "=DATE(2025,1,4)", C4: "16", D4: "45",
+    A5: "E", B5: "=DATE(2025,1,5)", C5: "36", D5: "51",
+  });
+  setFormat(model, "B1:B5", "m/d/yyyy hh:mm:ss a");
+  // Line chart with date labels
+  createChart(
+    model,
+    {
+      type: "line",
+      dataSets: [
+        { dataRange: "C1:C5", trend: { display: true, type: "polynomial", order: 1 } },
+        { dataRange: "D1:D5", trend: { display: true, type: "trailingMovingAverage", window: 3 } },
+      ],
+      labelRange: "B1:B5",
+      labelsAsText: false,
+      dataSetsHaveTitle: false,
+    },
+    "1"
+  );
+  let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  // @ts-ignore
+  expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
+  const scales = getChartConfiguration(model, "1").options.scales;
+  expect(scales.xMovingAverage!["display"]).toEqual(false);
+  expect(scales.xMovingAverage!["offset"]).toEqual(false);
+  expect(scales.xMovingAverage!["type"]).toEqual("category");
+
+  // Line chart with numerical labels
+  updateChart(model, "1", {
+    labelRange: "C1:C5",
+  });
+  runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  // @ts-ignore
+  expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
+  expect(scales.xMovingAverage!["display"]).toEqual(false);
+  expect(scales.xMovingAverage!["offset"]).toEqual(false);
+  expect(scales.xMovingAverage!["type"]).toEqual("category");
+
+  // Line chart with categorical labels
+  updateChart(model, "1", {
+    labelRange: "A1:A5",
+  });
+  runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  // @ts-ignore
+  expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
+  expect(scales.xMovingAverage!["display"]).toEqual(false);
+  expect(scales.xMovingAverage!["offset"]).toEqual(false);
+  expect(scales.xMovingAverage!["type"]).toEqual("category");
+
+  // Bar chart with date labels
+  updateChart(model, "1", {
+    type: "bar",
+    labelRange: "B1:B5",
+  });
+  runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  // @ts-ignore
+  expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
+  expect(scales.xMovingAverage!["display"]).toEqual(false);
+  expect(scales.xMovingAverage!["offset"]).toEqual(false);
+  expect(scales.xMovingAverage!["type"]).toEqual("category");
+
+  // Bar chart with numerical labels
+  updateChart(model, "1", {
+    labelRange: "C1:C5",
+  });
+  runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  // @ts-ignore
+  expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
+  expect(scales.xMovingAverage!["display"]).toEqual(false);
+  expect(scales.xMovingAverage!["offset"]).toEqual(false);
+  expect(scales.xMovingAverage!["type"]).toEqual("category");
+
+  // Bar chart with categorical labels
+  updateChart(model, "1", {
+    labelRange: "A1:A5",
+  });
+  runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  // @ts-ignore
+  expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
+  expect(scales.xMovingAverage!["display"]).toEqual(false);
+  expect(scales.xMovingAverage!["offset"]).toEqual(false);
+  expect(scales.xMovingAverage!["type"]).toEqual("category");
 });
 
 test("logarithmic trending line", () => {
