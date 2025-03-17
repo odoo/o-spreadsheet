@@ -1,21 +1,6 @@
 <templates>
-  <t t-name="o-spreadsheet-LineConfigPanel">
+  <t t-name="o-spreadsheet-ComboConfigPanel">
     <div>
-      <Section class="'pt-0'">
-        <Checkbox
-          name="'stacked'"
-          label="stackedLabel"
-          value="props.definition.stacked"
-          onChange.bind="onUpdateStacked"
-          className="'mb-2'"
-        />
-        <Checkbox
-          name="'cumulative'"
-          label="chartTerms.CumulativeData"
-          value="props.definition.cumulative"
-          onChange.bind="onUpdateCumulative"
-        />
-      </Section>
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"
         onSelectionChanged.bind="onDataSeriesRangesChanged"
@@ -32,6 +17,7 @@
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+
       <Section class="'pt-0'">
         <Checkbox
           name="'zoom'"

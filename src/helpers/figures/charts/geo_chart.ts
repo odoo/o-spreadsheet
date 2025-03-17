@@ -38,7 +38,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartTitle,
   getGeoChartData,
   getGeoChartDatasets,
@@ -201,7 +200,6 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
       scales: getGeoChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

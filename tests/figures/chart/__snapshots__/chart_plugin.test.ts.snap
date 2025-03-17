@@ -99,6 +99,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -239,6 +240,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -387,6 +389,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -509,6 +512,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -630,6 +634,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -770,6 +775,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -910,6 +916,7 @@ exports[`datasource tests create chart with column datasets with category title 
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -1050,6 +1057,7 @@ exports[`datasource tests create chart with column datasets without series title
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -1173,6 +1181,7 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -1313,6 +1322,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -1453,6 +1463,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -1593,6 +1604,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {
@@ -1733,6 +1745,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
           "enabled": false,
           "external": [Function],
         },
+        "zoom": undefined,
       },
       "responsive": true,
       "scales": {

@@ -203,3 +203,8 @@ export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
 > & {
   dataSets?: Omit<T["dataSets"][number], "dataRange">[];
 };
+
+export interface ZoomConfiguration {
+  readonly enabled?: boolean;
+  readonly sliceable?: boolean;
+}

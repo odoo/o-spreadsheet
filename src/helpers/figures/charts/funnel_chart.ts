@@ -39,7 +39,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getFunnelChartData,
@@ -220,7 +219,6 @@ export function createFunnelChartRuntime(chart: FunnelChart, getters: Getters): 
     options: {
       ...CHART_COMMON_OPTIONS,
       indexAxis: "y",
-      layout: getChartLayout(definition),
       scales: getFunnelChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
