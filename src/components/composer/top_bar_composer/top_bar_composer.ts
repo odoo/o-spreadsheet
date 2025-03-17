@@ -26,7 +26,9 @@ css/* scss */ `
     margin-top: -1px;
     border: 1px solid;
 
-    .o-composer:empty:not(:focus):not(.active)::before {
+    /* In readonly we always show the fx icon if the composer is empty, not matter the focus */
+    .o-composer:empty:not(:focus):not(.active)::before,
+    &.o-topbar-composer-readonly .o-composer:empty::before {
       content: url("data:image/svg+xml,${encodeURIComponent(FX_SVG)}");
       position: relative;
       top: 20%;
