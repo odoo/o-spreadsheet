@@ -8,7 +8,7 @@ import {
 import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { createSheet } from "../test_helpers/commands_helpers";
 import { doubleClick, dragElement, simulateClick } from "../test_helpers/dom_helper";
-import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { addToRegistry, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let spreadsheetWidth = 1000;
@@ -63,7 +63,7 @@ afterEach(() => {
 
 describe("Side Panel", () => {
   test("Can open a custom side panel", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
     });
@@ -76,7 +76,7 @@ describe("Side Panel", () => {
   });
 
   test("Can close a side panel", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
     });
@@ -89,7 +89,7 @@ describe("Side Panel", () => {
   });
 
   test("Can toggle a side panel", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
     });
@@ -102,11 +102,11 @@ describe("Side Panel", () => {
   });
 
   test("Can toggle a side panel when another is already opened", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL_1", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_1", {
       title: "Custom Panel 1",
       Body: Body,
     });
-    sidePanelRegistry.add("CUSTOM_PANEL_2", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", {
       title: "Custom Panel 2",
       Body: Body,
     });
@@ -119,7 +119,7 @@ describe("Side Panel", () => {
   });
 
   test("Can open a custom side panel with custom title and panelProps", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: () => "Computed Title",
       Body: Body,
     });
@@ -133,7 +133,7 @@ describe("Side Panel", () => {
   });
 
   test("Can open a custom side panel with custom title based on props", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: (env, props: any) => `Title: ${props.text}`,
       Body: Body,
     });
@@ -144,7 +144,7 @@ describe("Side Panel", () => {
   });
 
   test("Can open and close a custom side panel without any props", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Title",
       Body: BodyWithoutProps,
       computeState: () => {
@@ -161,11 +161,11 @@ describe("Side Panel", () => {
   });
 
   test("Can open a side panel when another one is open", async () => {
-    sidePanelRegistry.add("PANEL_1", {
+    addToRegistry(sidePanelRegistry, "PANEL_1", {
       title: "PANEL_1",
       Body: Body,
     });
-    sidePanelRegistry.add("PANEL_2", {
+    addToRegistry(sidePanelRegistry, "PANEL_2", {
       title: "PANEL_2",
       Body: Body2,
     });
@@ -182,7 +182,7 @@ describe("Side Panel", () => {
   });
 
   test("Closing a side panel focuses the grid hidden input", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
     });
@@ -195,7 +195,7 @@ describe("Side Panel", () => {
 
   test("Closing a side panel executes the onCloseSidePanel callback", async () => {
     const onCloseSidePanel = jest.fn();
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
     });
@@ -208,11 +208,11 @@ describe("Side Panel", () => {
 
   test("Switching from one sidepanel to another executes the onCloseSidePanel callback", async () => {
     const onCloseSidePanel = jest.fn();
-    sidePanelRegistry.add("CUSTOM_PANEL_1", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_1", {
       title: "Custom Panel 1",
       Body: Body,
     });
-    sidePanelRegistry.add("CUSTOM_PANEL_2", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", {
       title: "Custom Panel 2",
       Body: Body,
     });
@@ -225,7 +225,7 @@ describe("Side Panel", () => {
 
   test("Side panel does not lose focus upon sheet change", async () => {
     createSheet(model, { activate: true });
-    sidePanelRegistry.add("CUSTOM_PANEL_1", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_1", {
       title: "Custom Panel 1",
       Body: Body,
     });
@@ -242,7 +242,7 @@ describe("Side Panel", () => {
   });
 
   test("Can compute side panel props with computeState of the registry", async () => {
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
       computeState: () => ({ isOpen: true, props: { text: "test text" } }),
@@ -254,7 +254,7 @@ describe("Side Panel", () => {
 
   test("Can close the side panel with computeState of the registry", async () => {
     let text = "test text";
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
       computeState: () => (text ? { isOpen: true, props: { text } } : { isOpen: false }),
@@ -272,7 +272,7 @@ describe("Side Panel", () => {
   test("The onCloseSidePanel callback is called when computeState closes the side panel", async () => {
     const onCloseSidePanel = jest.fn();
     let text = "test text";
-    sidePanelRegistry.add("CUSTOM_PANEL", {
+    addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", {
       title: "Custom Panel",
       Body: Body,
       computeState: () =>
@@ -296,7 +296,7 @@ describe("Side Panel", () => {
 
   describe("Side panel resize", () => {
     beforeEach(async () => {
-      sidePanelRegistry.add("CUSTOM_PANEL_2", { title: "title", Body: Body });
+      addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", { title: "title", Body: Body });
       parent.env.openSidePanel("CUSTOM_PANEL_2");
       await nextTick();
     });

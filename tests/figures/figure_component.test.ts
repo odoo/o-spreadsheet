@@ -41,6 +41,7 @@ import {
 } from "../test_helpers/dom_helper";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   getFigureDefinition,
   getFigureIds,
   mockChart,
@@ -121,14 +122,11 @@ mockGetBoundingClientRect({
   "o-figure-menu-item": () => ({ ...mockFigureMenuItemRect }),
 });
 
-beforeAll(() => {
-  figureRegistry.add("text", {
+beforeEach(() => {
+  addToRegistry(figureRegistry, "text", {
     Component: TextFigure,
     menuBuilder: () => [],
   });
-});
-afterAll(() => {
-  figureRegistry.remove("text");
 });
 
 describe("figures", () => {

@@ -28,10 +28,10 @@ import {
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   exportPrettifiedXlsx,
   getExportedExcelData,
   mockChart,
-  restoreDefaultFunctions,
   toRangesData,
 } from "../test_helpers/helpers";
 
@@ -875,36 +875,32 @@ describe("Test XLSX export", () => {
   });
 
   describe("formulas", () => {
-    beforeAll(() => {
-      functionRegistry.add("NOW", {
+    beforeEach(() => {
+      addToRegistry(functionRegistry, "NOW", {
         ...NOW,
         compute: () => 1,
       });
-      functionRegistry.add("RAND", {
+      addToRegistry(functionRegistry, "RAND", {
         ...RAND,
         compute: () => 1,
       });
-      functionRegistry.add("TODAY", {
+      addToRegistry(functionRegistry, "TODAY", {
         ...TODAY,
         compute: () => 1,
       });
-      functionRegistry.add("RANDARRAY", {
+      addToRegistry(functionRegistry, "RANDARRAY", {
         ...RANDARRAY,
         compute: () => [
           [1, 1],
           [1, 1],
         ],
       });
-      // @ts-ignore
-      functionRegistry.add("RANDBETWEEN", {
+      addToRegistry(functionRegistry, "RANDBETWEEN", {
         ...RANDBETWEEN,
         compute: () => 1,
       });
     });
 
-    afterAll(() => {
-      restoreDefaultFunctions();
-    });
     test("All exportable formulas", async () => {
       const model = new Model(allExportableFormulasData);
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
@@ -925,7 +921,7 @@ describe("Test XLSX export", () => {
     test("can export value and format from non-exportable formulas", async () => {
       const model = new Model();
 
-      functionRegistry.add("NON.EXPORTABLE", {
+      addToRegistry(functionRegistry, "NON.EXPORTABLE", {
         description: "a non exportable formula",
         args: [arg('range (any, range<any>, ,default="a")', "")],
         compute: function () {
@@ -951,7 +947,7 @@ describe("Test XLSX export", () => {
     test("can export value and format from non-exportable formulas that spread", async () => {
       const model = new Model();
 
-      functionRegistry.add("NON.EXPORTABLE.ARRAY.FORMULA", {
+      addToRegistry(functionRegistry, "NON.EXPORTABLE.ARRAY.FORMULA", {
         description: "a non exportable formula that spread",
         args: [],
         compute: function () {

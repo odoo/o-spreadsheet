@@ -9,11 +9,11 @@ import { updateLocale } from "../test_helpers/commands_helpers";
 import { click, getTextNodes, keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
   ComposerWrapper,
+  addToRegistry,
   clearFunctions,
   getInputSelection,
   mountComposerWrapper,
   nextTick,
-  restoreDefaultFunctions,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
 
@@ -39,9 +39,9 @@ beforeEach(async () => {
 });
 
 describe("formula assistant", () => {
-  beforeAll(() => {
+  beforeEach(() => {
     clearFunctions();
-    functionRegistry.add("FUNC0", {
+    addToRegistry(functionRegistry, "FUNC0", {
       description: "func without args",
       args: [],
       compute: () => 1,
@@ -50,13 +50,13 @@ describe("formula assistant", () => {
       (str, ...values) => str,
       () => false
     );
-    functionRegistry.add("FUNC1", {
+    addToRegistry(functionRegistry, "FUNC1", {
       description: "func1 def",
       args: [arg("f1Arg1 (any)", "f1 Arg1 def"), arg("f1Arg2 (any)", _t("f1 Arg2 def"))],
       compute: () => 1,
     });
     setTranslationMethod((str, ...values) => str);
-    functionRegistry.add("FUNC2", {
+    addToRegistry(functionRegistry, "FUNC2", {
       description: "func2 def",
       args: [
         arg("f2Arg1 (any)", "f2 Arg1 def"),
@@ -64,7 +64,7 @@ describe("formula assistant", () => {
       ],
       compute: () => 1,
     });
-    functionRegistry.add("FUNC3", {
+    addToRegistry(functionRegistry, "FUNC3", {
       description: "func3 def",
       args: [
         arg("f3Arg1 (any)", "f3 Arg1 def"),
@@ -72,7 +72,7 @@ describe("formula assistant", () => {
       ],
       compute: () => 1,
     });
-    functionRegistry.add("UPTOWNFUNC", {
+    addToRegistry(functionRegistry, "UPTOWNFUNC", {
       description: "a Bruno Mars song ?",
       args: [
         arg("f4Arg1 (any)", "f4 Arg1 def"),
@@ -81,10 +81,6 @@ describe("formula assistant", () => {
       ],
       compute: () => 1,
     });
-  });
-
-  afterAll(() => {
-    restoreDefaultFunctions();
   });
 
   describe("appearance", () => {
@@ -460,22 +456,18 @@ describe("formula assistant", () => {
 });
 
 describe("formula assistant for boolean functions", () => {
-  beforeAll(() => {
+  beforeEach(() => {
     clearFunctions();
-    functionRegistry.add("TRUE", {
+    addToRegistry(functionRegistry, "TRUE", {
       description: "TRUE",
       args: [],
       compute: () => true,
     });
-    functionRegistry.add("FALSE", {
+    addToRegistry(functionRegistry, "FALSE", {
       description: "FALSE",
       args: [],
       compute: () => false,
     });
-  });
-
-  afterAll(() => {
-    restoreDefaultFunctions();
   });
 
   test.each(["=TRUE(", "=true(", "=FALSE(", "=false("])(

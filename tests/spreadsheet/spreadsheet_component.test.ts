@@ -26,12 +26,12 @@ import {
 } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   doAction,
   mockChart,
   mountComponent,
   mountSpreadsheet,
   nextTick,
-  restoreDefaultFunctions,
   startGridComposition,
   typeInComposerGrid,
   typeInComposerTopBar,
@@ -84,8 +84,8 @@ describe("Simple Spreadsheet Component", () => {
   });
 
   describe("Use of env in a function", () => {
-    beforeAll(() => {
-      functionRegistry.add("GETACTIVESHEET", {
+    beforeEach(() => {
+      addToRegistry(functionRegistry, "GETACTIVESHEET", {
         description: "Get the name of the current sheet",
         compute: function () {
           env = this.env;
@@ -93,10 +93,6 @@ describe("Simple Spreadsheet Component", () => {
         },
         args: [],
       });
-    });
-
-    afterAll(() => {
-      restoreDefaultFunctions();
     });
 
     test("Can use  an external dependency in a function", () => {

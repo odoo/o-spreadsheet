@@ -32,6 +32,7 @@ import {
   getEvaluatedGrid,
 } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   createModelFromGrid,
   getNode,
   makeTestEnv,
@@ -167,7 +168,7 @@ describe("formatting values (with formatters)", () => {
   });
 
   test("SET_DECIMAL considers the evaluated format to infer the decimal position", () => {
-    functionRegistry.add("SET.DYN.FORMAT", {
+    addToRegistry(functionRegistry, "SET.DYN.FORMAT", {
       description: "Returns the value set to the provided format",
       args: [arg("value (any)", "value to format"), arg("format (any)", "format to set.")],
       compute: function (value, format) {
@@ -182,7 +183,6 @@ describe("formatting values (with formatters)", () => {
     selectCell(model, "A1");
     setDecimal(model, "A1", 1);
     expect(getCell(model, "A1")?.format).toBe("0.000");
-    functionRegistry.remove("SET.DYN.FORMAT");
   });
 
   test("SET_DECIMAL on long number that are truncated due to default format don't lose truncated digits", () => {

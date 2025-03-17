@@ -5,7 +5,6 @@ import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { autoCompleteProviders } from "../../src/registries";
 import { Store } from "../../src/store_engine";
-import { registerCleanup } from "../setup/jest.setup";
 import { selectCell } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -18,6 +17,7 @@ import {
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
+  addToRegistry,
   clearFunctions,
   getInputSelection,
   mountComposerWrapper,
@@ -65,10 +65,6 @@ beforeEach(() => {
       compute: () => 1,
       hidden: true,
     });
-});
-
-afterEach(() => {
-  restoreDefaultFunctions();
 });
 
 describe("Functions autocomplete", () => {
@@ -190,7 +186,7 @@ describe("Functions autocomplete", () => {
 
     test("autocomplete restrict number of proposition to 10", async () => {
       for (let i = 0; i < 20; i++) {
-        functionRegistry.add(`SUM${i + 1}`, {
+        addToRegistry(functionRegistry, `SUM${i + 1}`, {
           description: "do sum",
           args: [],
           compute: () => 1,
@@ -218,7 +214,7 @@ describe("Functions autocomplete", () => {
 
     test("autocomplete fuzzy search", async () => {
       for (const f of ["TEST_FUZZY", "FUZZY_TEST", "TEST_FUZZY_TEST"]) {
-        functionRegistry.add(f, {
+        addToRegistry(functionRegistry, f, {
           description: "",
           args: [],
           compute: () => 1,
@@ -234,7 +230,7 @@ describe("Functions autocomplete", () => {
     });
 
     test("autocomplete not displayed for exact match", async () => {
-      functionRegistry.add("FUZZY", {
+      addToRegistry(functionRegistry, "FUZZY", {
         description: "",
         args: [],
         compute: () => 1,
@@ -276,13 +272,12 @@ describe("Functions autocomplete", () => {
     });
 
     test("key down or up selects auto-complete proposals instead of reference", async () => {
-      registries.autoCompleteProviders.add("test", {
+      addToRegistry(registries.autoCompleteProviders, "test", {
         getProposals() {
           return [{ text: "option 1" }, { text: "option 2" }];
         },
         selectProposal() {},
       });
-      registerCleanup(() => registries.autoCompleteProviders.remove("test"));
       await typeInComposer("=SUM(");
       const proposals = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
         (el) => el.parentElement
@@ -305,13 +300,12 @@ describe("Functions autocomplete", () => {
     });
 
     test("key left or right selects adjacent cell instead of a proposal", async () => {
-      registries.autoCompleteProviders.add("test", {
+      addToRegistry(registries.autoCompleteProviders, "test", {
         getProposals() {
           return [{ text: "option 1" }];
         },
         selectProposal() {},
       });
-      registerCleanup(() => registries.autoCompleteProviders.remove("test"));
       await typeInComposer("=SUM(");
       expect(composerStore.autocompleteProvider?.proposals).toHaveLength(1);
       expect(composerStore.showSelectionIndicator).toBe(true);
@@ -368,7 +362,7 @@ describe("Functions autocomplete", () => {
     });
 
     test("autocomplete proposal can be automatically expanded", async () => {
-      registries.autoCompleteProviders.add("test", {
+      addToRegistry(registries.autoCompleteProviders, "test", {
         getProposals() {
           return [
             { text: "option 1", description: " descr1", alwaysExpanded: true },
@@ -378,7 +372,6 @@ describe("Functions autocomplete", () => {
         },
         selectProposal() {},
       });
-      registerCleanup(() => registries.autoCompleteProviders.remove("test"));
       await typeInComposer("=SUM(");
       const proposals = [...fixture.querySelectorAll(".o-autocomplete-value")].map(
         (el) => el.parentElement?.textContent
@@ -551,12 +544,12 @@ describe("composer Assistant", () => {
 describe("autocomplete boolean functions", () => {
   beforeEach(async () => {
     clearFunctions();
-    functionRegistry.add("TRUE", {
+    addToRegistry(functionRegistry, "TRUE", {
       description: "TRUE",
       args: [],
       compute: () => true,
     });
-    functionRegistry.add("FALSE", {
+    addToRegistry(functionRegistry, "FALSE", {
       description: "FALSE",
       args: [],
       compute: () => false,
@@ -564,10 +557,6 @@ describe("autocomplete boolean functions", () => {
     ({ model, fixture, parent } = await mountComposerWrapper());
     parent.startComposition();
     await nextTick();
-  });
-
-  afterEach(() => {
-    restoreDefaultFunctions();
   });
 
   test("partial TRUE show autocomplete", async () => {
@@ -648,7 +637,7 @@ describe("composer entries", () => {
 });
 
 test("aucomplete supports values with similar names", async () => {
-  autoCompleteProviders.add("test", {
+  addToRegistry(autoCompleteProviders, "test", {
     sequence: 1,
     getProposals() {
       return [
@@ -667,5 +656,4 @@ test("aucomplete supports values with similar names", async () => {
   composerStore = parent.env.getStore(CellComposerStore);
   await typeInComposer("=s");
   expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
-  autoCompleteProviders.remove("test");
 });

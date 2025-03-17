@@ -13,6 +13,7 @@ import {
   setSelection,
 } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { addToRegistry } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("Aggregate statistic functions", () => {
@@ -153,7 +154,7 @@ describe("Aggregate statistic functions", () => {
   });
 
   test("raise error from compilation with specific error message", () => {
-    functionRegistry.add("TWOARGSNEEDED", {
+    addToRegistry(functionRegistry, "TWOARGSNEEDED", {
       description: "any function",
       compute: () => {
         return true;
@@ -171,7 +172,6 @@ describe("Aggregate statistic functions", () => {
     expect(getCellError(model, "A1")).toBe(
       `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2 minimum, but got 1 instead.`
     );
-    functionRegistry.remove("TWOARGSNEEDED");
   });
 
   test("Statistics are recomputed when switching sheets", () => {

@@ -18,7 +18,7 @@ import {
   unMerge,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { restoreDefaultFunctions } from "../test_helpers/helpers";
+import { addToRegistry } from "../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -27,7 +27,7 @@ describe("evaluate formulas that return an array", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    functionRegistry.add("MFILL", {
+    addToRegistry(functionRegistry, "MFILL", {
       description: "Return an n*n matrix filled with n.",
       args: [
         arg("n (number)", "number of column of the matrix"),
@@ -41,10 +41,6 @@ describe("evaluate formulas that return an array", () => {
         return Array.from({ length: _n }, (_, i) => Array.from({ length: _m }, (_, j) => _v));
       },
     });
-  });
-
-  afterEach(() => {
-    restoreDefaultFunctions();
   });
 
   test("a simple reference to a range cannot return an array", () => {
@@ -107,7 +103,7 @@ describe("evaluate formulas that return an array", () => {
   });
 
   test("can interpolate function name when error is returned", () => {
-    functionRegistry.add("GETERR", {
+    addToRegistry(functionRegistry, "GETERR", {
       description: "Get error",
       compute: () => {
         const error = {
@@ -134,7 +130,7 @@ describe("evaluate formulas that return an array", () => {
 
   describe("spread matrix with format", () => {
     test("can spread matrix of values with matrix of format", () => {
-      functionRegistry.add("MATRIX.2.2", {
+      addToRegistry(functionRegistry, "MATRIX.2.2", {
         description: "Return an 2*2 matrix with some values",
         args: [],
         compute: function () {
@@ -156,7 +152,7 @@ describe("evaluate formulas that return an array", () => {
     });
 
     test("can spread matrix of format depending on matrix of format", () => {
-      functionRegistry.add("MATRIX", {
+      addToRegistry(functionRegistry, "MATRIX", {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
         compute: function (matrix) {
@@ -611,7 +607,7 @@ describe("evaluate formulas that return an array", () => {
 
     test("Spreaded formulas with range deps Do not invalidate themselves on evaluation", () => {
       let c = 0;
-      functionRegistry.add("INCREMENTONEVAL", {
+      addToRegistry(functionRegistry, "INCREMENTONEVAL", {
         description: "returns the input, but fancy. Like transpose(transpose(range))",
         args: [arg("range (any, range<any>)", "The matrix to be transposed.")],
         compute: function (values) {
@@ -635,7 +631,7 @@ describe("evaluate formulas that return an array", () => {
     test("array formula depending on array formula result is evaluated once", () => {
       const mockCompute = jest.fn().mockImplementation((values) => values);
 
-      functionRegistry.add("RANGE_IDENTITY", {
+      addToRegistry(functionRegistry, "RANGE_IDENTITY", {
         description: "returns the input. Like transpose(transpose(range))",
         args: [arg("range (range<any>)", "")],
         compute: mockCompute,
@@ -671,7 +667,7 @@ describe("evaluate formulas that return an array", () => {
 
     test("Spreaded formulas with range deps invalidate only once the dependencies of themselves", () => {
       let c = 0;
-      functionRegistry.add("INCREMENTONEVAL", {
+      addToRegistry(functionRegistry, "INCREMENTONEVAL", {
         description: "",
         args: [arg("range (any, range<any>)", "")],
         compute: function () {
@@ -691,7 +687,7 @@ describe("evaluate formulas that return an array", () => {
 
     test("Spreaded formulas with range deps invalidate only once the dependencies of result", () => {
       let c = 0;
-      functionRegistry.add("INCREMENTONEVAL", {
+      addToRegistry(functionRegistry, "INCREMENTONEVAL", {
         description: "",
         args: [arg("range (any, range<any>)", "")],
         compute: function () {

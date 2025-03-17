@@ -112,7 +112,11 @@ export function addTestPlugin(
   Plugin: CorePluginConstructor | UIPluginConstructor
 ) {
   const key = `test-plugin-${Plugin.name}`;
-  registry.add(key, Plugin);
+  addToRegistry(registry, key, Plugin);
+}
+
+export function addToRegistry<T>(registry: Registry<T>, key: string, value: T) {
+  registry.add(key, value);
   registerCleanup(() => registry.remove(key));
 }
 
@@ -570,6 +574,11 @@ export function checkFunctionDoesntSpreadBeyondRange(
  * Remove all functions from the internal function list.
  */
 export function clearFunctions() {
+  _clearFunctions();
+  registerCleanup(restoreDefaultFunctions);
+}
+
+function _clearFunctions() {
   Object.keys(functionMap).forEach((k) => {
     delete functionMap[k];
   });
@@ -583,7 +592,7 @@ export function restoreDefaultFunctions() {
   for (let f in functionCache) {
     delete functionCache[f];
   }
-  clearFunctions();
+  _clearFunctions();
   Object.keys(functionMapRestore).forEach((k) => {
     functionMap[k] = functionMapRestore[k];
   });

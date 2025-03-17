@@ -43,6 +43,7 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
+  addToRegistry,
   createEqualCF,
   getDataValidationRules,
   target,
@@ -621,7 +622,7 @@ describe("Multi users synchronisation", () => {
 
     test("async computation resolving when in other sheet", () => {
       let value: string | number = "LOADING...";
-      functionRegistry.add("GET.ASYNC.VALUE", {
+      addToRegistry(functionRegistry, "GET.ASYNC.VALUE", {
         description: "Get value",
         compute: () => value,
         args: [],
@@ -641,12 +642,11 @@ describe("Multi users synchronisation", () => {
 
       activateSheet(bob, "sheet2");
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
-      functionRegistry.remove("GET.ASYNC.VALUE");
     });
 
     test("reference to async computation resolving when in other sheet", () => {
       let value: string | number = "LOADING...";
-      functionRegistry.add("GET.ASYNC.VALUE", {
+      addToRegistry(functionRegistry, "GET.ASYNC.VALUE", {
         description: "Get value",
         compute: () => value,
         args: [],
@@ -667,7 +667,6 @@ describe("Multi users synchronisation", () => {
 
       expect(getEvaluatedCell(bob, "A1", firstSheetId).value).toBe(2);
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
-      functionRegistry.remove("GET.ASYNC.VALUE");
     });
 
     test("evaluation is recomputed after command is rejected because of a concurrent update", () => {
@@ -1000,7 +999,7 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
       return CommandResult.Success;
     }
   }
-  featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
+  addToRegistry(featurePluginRegistry, "myUIPlugin", MyUIPlugin);
   const { alice, bob } = setupCollaborativeEnv();
 
   setCellContent(alice, "A1", "hello");

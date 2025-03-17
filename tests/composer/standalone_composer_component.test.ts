@@ -7,7 +7,12 @@ import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";
 import { click, getTextNodes, keyDown, simulateClick } from "../test_helpers/dom_helper";
-import { editStandaloneComposer, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import {
+  addToRegistry,
+  editStandaloneComposer,
+  mountSpreadsheet,
+  nextTick,
+} from "../test_helpers/helpers";
 
 let env: SpreadsheetChildEnv;
 let onConfirm = jest.fn();
@@ -31,10 +36,6 @@ class SidePanelWithComposer extends Component<any, any> {
   static props = { "*": Object };
   static components = { StandaloneComposer };
 }
-sidePanelRegistry.add("SidePanelWithComposer", {
-  title: "SidePanelWithComposer",
-  Body: SidePanelWithComposer,
-});
 
 async function openSidePanelWithComposer(props?: Partial<StandaloneComposer["props"]>) {
   env.openSidePanel("SidePanelWithComposer", {
@@ -52,6 +53,10 @@ const composerSelector = ".o-sidePanel .o-composer";
 
 describe("Spreadsheet integrations tests", () => {
   beforeEach(async () => {
+    addToRegistry(sidePanelRegistry, "SidePanelWithComposer", {
+      title: "SidePanelWithComposer",
+      Body: SidePanelWithComposer,
+    });
     ({ env, fixture, model } = await mountSpreadsheet());
     composerFocusStore = env.getStore(ComposerFocusStore);
   });

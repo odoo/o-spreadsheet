@@ -4,10 +4,10 @@ import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
+  addToRegistry,
   checkFunctionDoesntSpreadBeyondRange,
   createModelFromGrid,
   getRangeValuesAsMatrix,
-  restoreDefaultFunctions,
 } from "../test_helpers/helpers";
 
 describe("vectorization", () => {
@@ -18,8 +18,8 @@ describe("vectorization", () => {
     A3: "A3", B3: "B3", C3: "C3",
   };
 
-  beforeAll(() => {
-    functionRegistry.add("FUNCTION.WITHOUT.RANGE.ARGS", {
+  beforeEach(() => {
+    addToRegistry(functionRegistry, "FUNCTION.WITHOUT.RANGE.ARGS", {
       description: "a function with simple args",
       args: [
         { name: "arg1", description: "", type: ["ANY"] },
@@ -30,7 +30,7 @@ describe("vectorization", () => {
       },
     });
 
-    functionRegistry.add("FUNCTION.THAT.SPREADS", {
+    addToRegistry(functionRegistry, "FUNCTION.THAT.SPREADS", {
       description: "a function that spreads a matrix",
       args: [{ name: "arg1", description: "", type: ["ANY"] }],
       compute: function (arg1) {
@@ -43,9 +43,6 @@ describe("vectorization", () => {
     });
   });
 
-  afterAll(() => {
-    restoreDefaultFunctions();
-  });
   test("scalar arg with vertical arg", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=FUNCTION.WITHOUT.RANGE.ARGS(A1, B1:B2)");
