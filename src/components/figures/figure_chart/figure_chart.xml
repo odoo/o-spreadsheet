@@ -1,11 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-ChartFigure">
-    <div class="o-chart-container w-100 h-100" t-on-dblclick="onDoubleClick">
+    <div class="o-chart-container w-100 h-100 position-relative" t-on-dblclick="onDoubleClick">
       <t
         t-component="chartComponent"
         figureUI="this.props.figureUI"
         t-key="this.props.figureUI.id"
       />
+    </div>
+    <div t-if="zoomEnabled" class="o-figure-menu position-absolute m-2 o-figure-zoom-icons">
+      <div class="d-flex">
+        <div
+          class="o-figure-menu-item o-reset-zoom mx-1"
+          t-if="isZoomResetable"
+          t-on-click="resetZoom">
+          <t t-call="o-spreadsheet-Icon.REFRESH"/>
+        </div>
+      </div>
     </div>
     <div t-if="env.isDashboard()" class="position-absolute top-0 end-0">
       <ChartDashboardMenu figureUI="props.figureUI"/>

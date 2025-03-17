@@ -48,12 +48,12 @@ import {
   getBarChartData,
   getBarChartScales,
   getBarChartTooltip,
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getComboChartDatasets,
   getComboChartLegend,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class ComboChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -67,6 +67,7 @@ export class ComboChart extends AbstractChart {
   readonly type = "combo";
   readonly showValues?: boolean;
   readonly hideDataMarkers?: boolean;
+  readonly zoomable?: boolean;
 
   constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -85,6 +86,7 @@ export class ComboChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
     this.hideDataMarkers = definition.hideDataMarkers;
+    this.zoomable = definition.zoomable;
   }
 
   static transformDefinition(
@@ -150,6 +152,7 @@ export class ComboChart extends AbstractChart {
       axesDesign: this.axesDesign,
       showValues: this.showValues,
       hideDataMarkers: this.hideDataMarkers,
+      zoomable: this.zoomable,
     };
   }
 
@@ -208,6 +211,7 @@ export class ComboChart extends AbstractChart {
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       hideDataMarkers: context.hideDataMarkers,
+      zoomable: context.zoomable,
     };
   }
 

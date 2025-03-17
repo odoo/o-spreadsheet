@@ -8,6 +8,7 @@ import { _t } from "../../../../translation";
 import { ChartDefinition, ChartType, FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
+import { ZoomableChartStore } from "../chartJs/zoomable_chart/zoomable_chart_store";
 
 interface Props {
   figureUI: FigureUI;
@@ -28,12 +29,14 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
 
   private originalChartDefinition!: ChartDefinition;
   private fullScreenFigureStore!: Store<FullScreenChartStore>;
+  private chartZoomStore!: Store<ZoomableChartStore>;
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {
     super.setup();
     this.fullScreenFigureStore = useStore(FullScreenChartStore);
+    this.chartZoomStore = useStore(ZoomableChartStore);
     this.originalChartDefinition = this.env.model.getters.getChartDefinition(
       this.props.figureUI.id
     );
@@ -45,7 +48,11 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getMenuItems(): MenuItem[] {
-    return [this.fullScreenMenuItem, ...this.changeChartTypeMenuItems].filter(isDefined);
+    return [
+      this.fullScreenMenuItem,
+      ...this.zoomMenuItems,
+      ...this.changeChartTypeMenuItems,
+    ].filter(isDefined);
   }
 
   get changeChartTypeMenuItems(): MenuItem[] {
@@ -146,5 +153,39 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
         this.fullScreenFigureStore.toggleFullScreenChart(this.props.figureUI.id);
       },
     };
+  }
+
+  get zoomMenuItems(): MenuItem[] {
+    const figureId = this.props.figureUI.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    if (!("zoomable" in definition) || !definition.zoomable) {
+      return [];
+    }
+    const chartType = this.env.model.getters.getChartType(figureId);
+    const chartId = `${chartType}-${figureId}`;
+    const originalAxisLimits = this.chartZoomStore.originalAxisLimits[chartId]?.x;
+    const currentAxisLimits = this.chartZoomStore.currentAxesLimits[chartId]?.x;
+    if (
+      originalAxisLimits &&
+      currentAxisLimits &&
+      (originalAxisLimits.min !== currentAxisLimits.min ||
+        originalAxisLimits.max !== currentAxisLimits.max)
+    ) {
+      return [
+        {
+          id: "resetZoom",
+          label: _t("Reset zoom"),
+          iconClass: "fa fa-refresh",
+          onClick: () => {
+            this.chartZoomStore.updateAxisLimits(
+              chartId,
+              this.chartZoomStore.originalAxisLimits[chartId].x
+            );
+            this.env.model.dispatch("EVALUATE_CHARTS");
+          },
+        },
+      ];
+    }
+    return [];
   }
 }
