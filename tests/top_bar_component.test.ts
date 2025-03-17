@@ -626,7 +626,9 @@ describe("TopBar component", () => {
   test("Keep focus on the composer when clicked in readonly mode", async () => {
     ({ fixture } = await mountParent(new Model({}, { mode: "readonly" })));
 
-    let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")! as HTMLElement;
+    const topBarComposerEl = fixture.querySelector<HTMLElement>(".o-topbar-composer")!;
+    expect(topBarComposerEl.classList).toContain("o-topbar-composer-readonly");
+    const composerEl = fixture.querySelector<HTMLElement>(".o-spreadsheet-topbar div.o-composer")!;
     expect(document.activeElement).not.toBe(composerEl);
     await simulateClick(composerEl);
     expect(document.activeElement).toBe(composerEl);
