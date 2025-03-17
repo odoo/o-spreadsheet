@@ -2,6 +2,9 @@
   <t t-name="o-spreadsheet-TopBarComposer">
     <div
       class="o-topbar-composer bg-white user-select-text"
+      t-att-class="{
+        'o-topbar-composer-readonly': env.model.getters.isReadonly(),
+      }"
       t-on-click.stop=""
       t-att-style="containerStyle">
       <Composer focus="focus" inputStyle="composerStyle" onComposerContentFocused.bind="onFocus"/>
