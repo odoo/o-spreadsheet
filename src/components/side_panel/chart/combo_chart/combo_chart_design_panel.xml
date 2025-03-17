@@ -7,6 +7,15 @@
           <ChartShowValues t-props="props"/>
           <ChartShowDataMarkers t-props="props"/>
         </Section>
+        <Section class="'pt-0'" title.translate="Zoom">
+          <Checkbox
+            name="'zoomable'"
+            label.translate="Show slicer"
+            value="props.definition.zoomable"
+            onChange.bind="onToggleZoom"
+            className="'mb-2'"
+          />
+        </Section>
       </t>
     </GeneralDesignEditor>
     <SeriesWithAxisDesignEditor t-props="props">

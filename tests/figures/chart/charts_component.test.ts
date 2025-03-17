@@ -2418,7 +2418,7 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
   const spyUnregister = jest.spyOn(window.Chart, "unregister");
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
-  expect(spyRegister).toHaveBeenCalledTimes(6);
+  expect(spyRegister).toHaveBeenCalledTimes(7);
   expect(window.Chart.registry.plugins["items"].map((i) => i.id)).toMatchObject([
     "chartShowValuesPlugin",
     "waterfallLinesPlugin",
@@ -2426,15 +2426,16 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
     "funnel", // Funnel element
     "sunburstLabelsPlugin",
     "sunburstHoverPlugin",
+    "zoomWindowPlugin",
   ]);
 
   createChart(model, { type: "line" }, "chart2");
   await nextTick();
-  expect(spyRegister).toHaveBeenCalledTimes(6);
+  expect(spyRegister).toHaveBeenCalledTimes(7);
 
   app.destroy();
   await nextTick();
-  expect(spyUnregister).toHaveBeenCalledTimes(6);
+  expect(spyUnregister).toHaveBeenCalledTimes(7);
   expect(window.Chart.registry.plugins["items"]).toEqual([]);
 });
 

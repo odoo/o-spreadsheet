@@ -1,19 +1,7 @@
 import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import { ChartType, CSSProperties, FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
-import { css } from "../../helpers/css";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
-
-// -----------------------------------------------------------------------------
-// STYLE
-// -----------------------------------------------------------------------------
-css/* scss */ `
-  .o-chart-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-`;
 
 interface Props {
   // props figure is currently necessary scorecards, we need the chart dimension at render to avoid having to force the

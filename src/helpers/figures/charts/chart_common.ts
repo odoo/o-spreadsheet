@@ -483,12 +483,12 @@ export function getPieColors(colors: ColorGenerator, dataSetsValues: DatasetValu
   return pieColors;
 }
 
-export function truncateLabel(label: string | undefined): string {
+export function truncateLabel(label: string | undefined, maxLen: number = MAX_CHAR_LABEL): string {
   if (!label) {
     return "";
   }
-  if (label.length > MAX_CHAR_LABEL) {
-    return label.substring(0, MAX_CHAR_LABEL) + "…";
+  if (label.length > maxLen) {
+    return label.substring(0, maxLen) + "…";
   }
   return label;
 }

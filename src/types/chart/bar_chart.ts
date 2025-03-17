@@ -10,5 +10,6 @@ export interface BarChartDefinition extends ComboBarChartDefinition {
 
 export type BarChartRuntime = {
   chartJsConfig: ChartConfiguration;
+  masterChartConfig?: ChartConfiguration;
   background: Color;
 };

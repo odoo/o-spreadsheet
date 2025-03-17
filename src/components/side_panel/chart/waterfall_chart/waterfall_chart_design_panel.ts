@@ -111,4 +111,10 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
       verticalAxisPosition: value,
     });
   }
+
+  onToggleZoom(zoomable: boolean) {
+    this.props.updateChart(this.props.chartId, {
+      zoomable,
+    });
+  }
 }
