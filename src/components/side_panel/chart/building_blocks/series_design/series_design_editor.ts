@@ -48,8 +48,8 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
       .map((d) => d.label);
   }
 
-  updateSerieEditor(ev) {
-    this.state.index = ev.target.selectedIndex;
+  updateEditedSeries(ev: Event) {
+    this.state.index = (ev.target as HTMLSelectElement).selectedIndex;
   }
 
   updateDataSeriesColor(color: string) {
@@ -62,7 +62,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     this.props.updateChart(this.props.figureId, { dataSets });
   }
 
-  getDataSerieColor() {
+  getDataSeriesColor() {
     const dataSets = this.props.definition.dataSets;
     if (!dataSets?.[this.state.index]) return "";
     const color = dataSets[this.state.index].backgroundColor;
@@ -71,8 +71,8 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
       : getNthColor(this.state.index, getColorsPalette(this.props.definition.dataSets.length));
   }
 
-  updateDataSeriesLabel(ev) {
-    const label = ev.target.value;
+  updateDataSeriesLabel(ev: Event) {
+    const label = (ev.target as HTMLInputElement).value;
     const dataSets = this.props.definition.dataSets;
     if (!dataSets?.[this.state.index]) return;
     dataSets[this.state.index] = {
@@ -82,7 +82,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     this.props.updateChart(this.props.figureId, { dataSets });
   }
 
-  getDataSerieLabel() {
+  getDataSeriesLabel() {
     const dataSets = this.props.definition.dataSets;
     return dataSets[this.state.index]?.label || this.getDataSeries()[this.state.index];
   }
