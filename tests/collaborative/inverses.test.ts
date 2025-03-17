@@ -33,6 +33,7 @@ describe("Inverses commands", () => {
       quantity: 2,
       base: 1,
       sheetId: "1",
+      sheetName: "Sheet42",
     };
 
     test("Inverse with position = after", () => {
@@ -42,6 +43,7 @@ describe("Inverses commands", () => {
           sheetId: "1",
           elements: [2, 3],
           dimension: "COL",
+          sheetName: "Sheet42",
         },
       ]);
     });
@@ -53,6 +55,7 @@ describe("Inverses commands", () => {
           sheetId: "1",
           elements: [1, 2],
           dimension: "COL",
+          sheetName: "Sheet42",
         },
       ]);
     });
@@ -65,11 +68,18 @@ describe("Inverses commands", () => {
       quantity: 2,
       base: 1,
       sheetId: "1",
+      sheetName: "Sheet42",
     };
 
     test("Inverse with position = after", () => {
       expect(inverseCommand(addRows)).toEqual([
-        { type: "REMOVE_COLUMNS_ROWS", sheetId: "1", elements: [2, 3], dimension: "ROW" },
+        {
+          type: "REMOVE_COLUMNS_ROWS",
+          sheetId: "1",
+          elements: [2, 3],
+          dimension: "ROW",
+          sheetName: "Sheet42",
+        },
       ]);
     });
 
@@ -80,6 +90,7 @@ describe("Inverses commands", () => {
           sheetId: "1",
           elements: [1, 2],
           dimension: "ROW",
+          sheetName: "Sheet42",
         },
       ]);
     });
@@ -108,8 +119,11 @@ describe("Inverses commands", () => {
       type: "CREATE_SHEET",
       position: 1,
       sheetId: "1",
+      name: "SheetName",
     };
-    expect(inverseCommand(createSheet)).toEqual([{ type: "DELETE_SHEET", sheetId: "1" }]);
+    expect(inverseCommand(createSheet)).toEqual([
+      { type: "DELETE_SHEET", sheetId: "1", sheetName: "SheetName" },
+    ]);
   });
 
   test("Duplicate Sheet", () => {
@@ -118,7 +132,9 @@ describe("Inverses commands", () => {
       sheetId: "1",
       sheetIdTo: "2",
     };
-    expect(inverseCommand(duplicateSheet)).toEqual([{ type: "DELETE_SHEET", sheetId: "2" }]);
+    expect(inverseCommand(duplicateSheet)).toEqual([
+      { type: "DELETE_SHEET", sheetId: "2", sheetName: "" },
+    ]);
   });
 
   describe("Remove columns", () => {
@@ -127,6 +143,7 @@ describe("Inverses commands", () => {
       dimension: "COL",
       elements: [0],
       sheetId: "42",
+      sheetName: "Sheet42",
     };
     test("Inverse with column = 0", () => {
       expect(inverseCommand(removeColumns)).toEqual([
@@ -137,6 +154,7 @@ describe("Inverses commands", () => {
           quantity: 1,
           base: 0,
           sheetId: "42",
+          sheetName: "Sheet42",
         },
       ]);
     });
@@ -149,6 +167,7 @@ describe("Inverses commands", () => {
           quantity: 2,
           base: 0,
           sheetId: "42",
+          sheetName: "Sheet42",
         },
         {
           type: "ADD_COLUMNS_ROWS",
@@ -157,6 +176,7 @@ describe("Inverses commands", () => {
           quantity: 2,
           base: 3,
           sheetId: "42",
+          sheetName: "Sheet42",
         },
         {
           type: "ADD_COLUMNS_ROWS",
@@ -165,6 +185,7 @@ describe("Inverses commands", () => {
           quantity: 1,
           base: 8,
           sheetId: "42",
+          sheetName: "Sheet42",
         },
       ]);
     });
@@ -176,6 +197,7 @@ describe("Inverses commands", () => {
       dimension: "ROW",
       elements: [0],
       sheetId: "42",
+      sheetName: "SheetName",
     };
     test("Inverse with row = 0", () => {
       expect(inverseCommand(removeRows)).toEqual([
@@ -186,6 +208,7 @@ describe("Inverses commands", () => {
           quantity: 1,
           base: 0,
           sheetId: "42",
+          sheetName: "SheetName",
         },
       ]);
     });
@@ -198,6 +221,7 @@ describe("Inverses commands", () => {
           quantity: 2,
           base: 0,
           sheetId: "42",
+          sheetName: "SheetName",
         },
         {
           type: "ADD_COLUMNS_ROWS",
@@ -206,6 +230,7 @@ describe("Inverses commands", () => {
           quantity: 2,
           base: 3,
           sheetId: "42",
+          sheetName: "SheetName",
         },
         {
           type: "ADD_COLUMNS_ROWS",
@@ -214,6 +239,7 @@ describe("Inverses commands", () => {
           quantity: 1,
           base: 8,
           sheetId: "42",
+          sheetName: "SheetName",
         },
       ]);
     });
@@ -223,9 +249,10 @@ describe("Inverses commands", () => {
     const deleteSheet: DeleteSheetCommand = {
       type: "DELETE_SHEET",
       sheetId: "42",
+      sheetName: "Sheet42",
     };
     expect(inverseCommand(deleteSheet)).toEqual([
-      { type: "CREATE_SHEET", position: 1, sheetId: "42" },
+      { type: "CREATE_SHEET", position: 1, sheetId: "42", name: "Sheet42" },
     ]);
   });
 

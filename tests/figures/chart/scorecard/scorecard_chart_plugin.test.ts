@@ -192,7 +192,7 @@ describe("datasource tests", function () {
   });
 
   test("Scorecard Chart is deleted on sheet deletion", () => {
-    model.dispatch("CREATE_SHEET", { sheetId: "2", position: 1 });
+    createSheet(model, { sheetId: "2", position: 1 });
     createScorecardChart(
       model,
       {
@@ -202,7 +202,7 @@ describe("datasource tests", function () {
       "2"
     );
     expect(model.getters.getChartRuntime("1")).not.toBeUndefined();
-    model.dispatch("DELETE_SHEET", { sheetId: "2" });
+    deleteSheet(model, "2");
     expect(() => model.getters.getChartRuntime("1")).toThrow();
   });
 

@@ -7,6 +7,7 @@ export interface RangePart {
 
 export interface Range extends Cloneable<Range> {
   readonly zone: Readonly<Zone>;
+  readonly unboundedZone: Readonly<UnboundedZone>;
   readonly parts: readonly RangePart[];
   readonly invalidXc?: string;
   /** true if the user provided the range with the sheet name */
@@ -16,6 +17,17 @@ export interface Range extends Cloneable<Range> {
   /** the sheet on which the range is defined */
   readonly sheetId: UID;
   readonly rangeData: RangeData;
+
+  getRangeString: (
+    forSheetId: UID,
+    getSheetName: (sheetId: UID) => string,
+    options?: RangeStringOptions
+  ) => string;
+}
+
+export interface RangeStringOptions {
+  useBoundedReference?: boolean;
+  useFixedReference?: boolean;
 }
 
 export interface RangeData {

@@ -19,6 +19,7 @@ import {
   createSheet,
   deleteColumns,
   deleteRows,
+  deleteSheet,
   hideColumns,
   hideRows,
   merge,
@@ -388,6 +389,7 @@ describe("simple selection", () => {
             position: "before",
             base: 0,
             quantity: 1,
+            sheetName: "Sheet1",
           },
         ],
         clientId: "1",
@@ -496,7 +498,7 @@ describe("multiple sheets", () => {
     createSheet(model, { sheetId: secondSheetId, activate: true });
     selectCell(model, "C4");
     activateSheet(model, firstSheetId);
-    model.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
+    deleteSheet(model, firstSheetId);
     expect(model.getters.getSelectedZone()).toEqual(toZone("C4"));
     expect(model.getters.getActiveSheetId()).toBe(secondSheetId);
     moveAnchorCell(model, "right");
@@ -1038,6 +1040,7 @@ describe("move elements(s)", () => {
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = model.dispatch("MOVE_COLUMNS_ROWS", {
       sheetId: model.getters.getActiveSheetId(),
+      sheetName: model.getters.getActiveSheetName(),
       base: -1,
       elements: [0],
       position: "after",

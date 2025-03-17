@@ -316,6 +316,7 @@ describe("Repeat command transform specifics", () => {
       dimension: args.dim as Dimension,
       sheetId,
       elements: [0, 1],
+      sheetName: "42",
     };
     activateSheet(model, "42");
     setSelection(model, [args.selection]);
