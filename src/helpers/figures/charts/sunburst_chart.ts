@@ -33,7 +33,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartTitle,
   getHierarchalChartData,
   getSunburstChartDatasets,
@@ -41,6 +40,7 @@ import {
   getSunburstChartTooltip,
   getSunburstShowValues,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class SunburstChart extends AbstractChart {
   readonly dataSets: DataSet[];
