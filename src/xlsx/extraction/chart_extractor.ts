@@ -48,7 +48,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           legendPosition:
             DRAWING_LEGEND_POSITION_CONVERSION_MAP[
               this.extractChildAttr(rootChartElement, "c:legendPos", "val", {
-                default: "b",
+                default: "none",
               }).asString()
             ],
           stacked: barChartGrouping === "stacked",
@@ -105,7 +105,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       legendPosition:
         DRAWING_LEGEND_POSITION_CONVERSION_MAP[
           this.extractChildAttr(chartElement, "c:legendPos", "val", {
-            default: "b",
+            default: "none",
           }).asString()
         ],
       stacked: barChartGrouping === "stacked",
