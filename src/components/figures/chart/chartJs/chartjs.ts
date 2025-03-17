@@ -71,10 +71,10 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     isFullScreen: { type: Boolean, optional: true },
   };
 
-  private canvas = useRef("graphContainer");
-  private chart?: Chart;
-  private currentRuntime!: ChartJSRuntime;
-  private animationStore: Store<ChartAnimationStore> | undefined;
+  protected canvas = useRef("graphContainer");
+  protected chart?: Chart;
+  protected currentRuntime!: ChartJSRuntime;
+  protected animationStore: Store<ChartAnimationStore> | undefined;
 
   private currentDevicePixelRatio = window.devicePixelRatio;
 
@@ -122,7 +122,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private createChart(chartData: ChartConfiguration<any>) {
+  protected createChart(chartData: ChartConfiguration<any>) {
     if (this.env.model.getters.isDashboard() && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationFigureId] !== chartType) {
@@ -136,7 +136,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart = new window.Chart(ctx, chartData);
   }
 
-  private updateChartJs(chartData: ChartConfiguration<any>) {
+  protected updateChartJs(chartData: ChartConfiguration<any>) {
     if (this.env.model.getters.isDashboard()) {
       const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
@@ -164,7 +164,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  private enableAnimationInChartData(chartData: ChartConfiguration<any>) {
+  protected enableAnimationInChartData(chartData: ChartConfiguration<any>) {
     return {
       ...chartData,
       options: { ...chartData.options, animation: { animateRotate: true } },
