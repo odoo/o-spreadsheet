@@ -12,6 +12,7 @@ export interface WaterfallChartDefinition extends CommonChartDefinition {
   readonly positiveValuesColor?: Color;
   readonly negativeValuesColor?: Color;
   readonly subTotalValuesColor?: Color;
+  readonly zoomable?: boolean;
 }
 
 export type WaterfallChartRuntime = {

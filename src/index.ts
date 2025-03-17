@@ -112,6 +112,7 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
+import { ZoomableChartJsComponent } from "./components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { ChartDashboardMenuStore } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu_store";
 import { FullScreenChart } from "./components/full_screen_chart/full_screen_chart";
@@ -125,6 +126,7 @@ import { RadarChartDesignPanel } from "./components/side_panel/chart/radar_chart
 import { SunburstChartDesignPanel } from "./components/side_panel/chart/sunburst_chart/sunburst_chart_design_panel";
 import { TreeMapChartDesignPanel } from "./components/side_panel/chart/treemap_chart/treemap_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfall_chart/waterfall_chart_design_panel";
+import { GenericZoomableChartDesignPanel } from "./components/side_panel/chart/zoomable_chart/design_panel";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
@@ -393,6 +395,7 @@ export const components = {
   ChartPanel,
   ChartFigure,
   ChartJsComponent,
+  ZoomableChartJsComponent,
   Grid,
   GridOverlay,
   ScorecardChart,
@@ -401,6 +404,7 @@ export const components = {
   PieChartDesignPanel,
   GenericChartConfigPanel,
   ChartWithAxisDesignPanel,
+  GenericZoomableChartDesignPanel,
   LineChartDesignPanel,
   GaugeChartConfigPanel,
   GaugeChartDesignPanel,

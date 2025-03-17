@@ -1,3 +1,4 @@
+import { ChartConfiguration } from "chart.js";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -15,6 +16,7 @@ import { AbstractChart } from "./abstract_chart";
 import { createDataSets } from "./chart_common";
 import { LineChart } from "./line_chart";
 import { canChartParseLabels, getData } from "./runtime";
+import { generateMasterChartConfig } from "./runtime/chart_zoom";
 
 /**
  * Create a function used to create a Chart based on the definition
@@ -43,7 +45,13 @@ export function chartRuntimeFactory(getters: Getters) {
     if (!builder) {
       throw new Error("No runtime builder for this chart.");
     }
-    return builder.getChartRuntime(chart, getters);
+    const runtime = builder.getChartRuntime(chart, getters);
+    const definition = chart.getDefinition();
+    if ("chartJsConfig" in runtime && /line|combo|bar|scatter|waterfall/.test(definition.type)) {
+      const chartJsConfig = runtime.chartJsConfig as ChartConfiguration<any>;
+      runtime["masterChartConfig"] = generateMasterChartConfig(chartJsConfig);
+    }
+    return runtime;
   }
   return createRuntimeChart;
 }

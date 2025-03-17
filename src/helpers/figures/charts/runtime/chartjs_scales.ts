@@ -1,4 +1,4 @@
-import { LinearScaleOptions, ScaleChartOptions } from "chart.js";
+import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
@@ -384,7 +384,7 @@ function getChartAxis(
       ticks: {
         padding: 5,
         color: fontColor,
-        callback: function (tickValue: number) {
+        callback: function (tickValue: number, index: number, ticks: Tick[]) {
           // Category axis callback's internal tick value is the index of the label
           // https://www.chartjs.org/docs/latest/axes/labelling.html#creating-custom-tick-formats
           return truncateLabel(this.getLabelForValue(tickValue));

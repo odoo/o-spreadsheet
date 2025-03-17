@@ -141,6 +141,123 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
     },
     "type": "line",
   },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            {
+              "x": "19",
+              "y": 11,
+            },
+            {
+              "x": "18",
+              "y": 12,
+            },
+            {
+              "x": "17",
+              "y": 13,
+            },
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "10",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "19",
+        "18",
+        "17",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#FFFFFF",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+          "type": "linear",
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#FFFFFF",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
+        },
+      },
+    },
+    "type": "line",
+  },
 }
 `;
 
@@ -298,6 +415,136 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
     },
     "type": "line",
   },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            {
+              "x": "1/19/1900",
+              "y": 10,
+            },
+            {
+              "x": "1/18/1900",
+              "y": 11,
+            },
+            {
+              "x": "1/17/1900",
+              "y": 12,
+            },
+            {
+              "x": "1/16/1900",
+              "y": 13,
+            },
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "Series 1",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "1/19/1900",
+        "1/18/1900",
+        "1/17/1900",
+        "1/16/1900",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "maxTicksLimit": 15,
+            "padding": 0,
+          },
+          "time": {
+            "displayFormats": {
+              "day": "M/d/yyyy",
+            },
+            "parser": "M/d/yyyy",
+            "unit": "day",
+          },
+          "title": undefined,
+          "type": "time",
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
+        },
+      },
+    },
+    "type": "line",
+  },
 }
 `;
 
@@ -447,6 +694,128 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
     },
     "type": "line",
   },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            {
+              "x": "20",
+              "y": 10,
+            },
+            {
+              "x": "19",
+              "y": 11,
+            },
+            {
+              "x": "18",
+              "y": 12,
+            },
+            {
+              "x": "17",
+              "y": 13,
+            },
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "Series 1",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "20",
+        "19",
+        "18",
+        "17",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+          "type": "linear",
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
+        },
+      },
+    },
+    "type": "line",
+  },
 }
 `;
 
@@ -571,6 +940,109 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
             "color": "#000000",
           },
           "title": undefined,
+        },
+      },
+    },
+    "type": "bar",
+  },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#FFFFFF",
+          "borderWidth": 1,
+          "data": [
+            30,
+          ],
+          "hidden": false,
+          "label": "P4",
+          "pointRadius": 0,
+          "showLine": true,
+          "xAxisID": "x",
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P4",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "indexAxis": "x",
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": true,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": true,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
         },
       },
     },
@@ -701,6 +1173,109 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
             "color": "#000000",
           },
           "title": undefined,
+        },
+      },
+    },
+    "type": "line",
+  },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            30,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "Series 1",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P4",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
         },
       },
     },
@@ -856,6 +1431,130 @@ exports[`datasource tests create chart with column datasets 1`] = `
     },
     "type": "line",
   },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            10,
+            11,
+            12,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "first column dataset",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+        {
+          "backgroundColor": "#EA6175",
+          "borderColor": "#EA6175",
+          "data": [
+            20,
+            19,
+            18,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "second column dataset",
+          "pointBackgroundColor": "#EA6175",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P1",
+        "P2",
+        "P3",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
+        },
+      },
+    },
+    "type": "line",
+  },
 }
 `;
 
@@ -1001,6 +1700,130 @@ exports[`datasource tests create chart with column datasets with category title 
             "color": "#000000",
           },
           "title": undefined,
+        },
+      },
+    },
+    "type": "line",
+  },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            10,
+            11,
+            12,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "first column dataset",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+        {
+          "backgroundColor": "#EA6175",
+          "borderColor": "#EA6175",
+          "data": [
+            20,
+            19,
+            18,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "second column dataset",
+          "pointBackgroundColor": "#EA6175",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P1",
+        "P2",
+        "P3",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
         },
       },
     },
@@ -1156,6 +1979,130 @@ exports[`datasource tests create chart with column datasets without series title
     },
     "type": "line",
   },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            10,
+            11,
+            12,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "Series 1",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+        {
+          "backgroundColor": "#EA6175",
+          "borderColor": "#EA6175",
+          "data": [
+            20,
+            19,
+            18,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "Series 2",
+          "pointBackgroundColor": "#EA6175",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P1",
+        "P2",
+        "P3",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
+        },
+      },
+    },
+    "type": "line",
+  },
 }
 `;
 
@@ -1283,6 +2230,111 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
             "color": "#000000",
           },
           "title": undefined,
+        },
+      },
+    },
+    "type": "line",
+  },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            null,
+            null,
+          ],
+          "fill": false,
+          "hidden": true,
+          "label": "30",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P5",
+        "P6",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
         },
       },
     },
@@ -1438,6 +2490,130 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
     },
     "type": "line",
   },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            10,
+            11,
+            12,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "first column dataset",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+        {
+          "backgroundColor": "#EA6175",
+          "borderColor": "#EA6175",
+          "data": [
+            20,
+            19,
+            18,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "second column dataset",
+          "pointBackgroundColor": "#EA6175",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P1",
+        "P2",
+        "P3",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
+        },
+      },
+    },
+    "type": "line",
+  },
 }
 `;
 
@@ -1583,6 +2759,130 @@ exports[`datasource tests create chart with row datasets 1`] = `
             "color": "#000000",
           },
           "title": undefined,
+        },
+      },
+    },
+    "type": "line",
+  },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            30,
+            31,
+            32,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "first row dataset",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+        {
+          "backgroundColor": "#EA6175",
+          "borderColor": "#EA6175",
+          "data": [
+            40,
+            41,
+            42,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "second row dataset",
+          "pointBackgroundColor": "#EA6175",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P4",
+        "P5",
+        "P6",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
         },
       },
     },
@@ -1738,6 +3038,130 @@ exports[`datasource tests create chart with row datasets with category title 1`]
     },
     "type": "line",
   },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            30,
+            31,
+            32,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "first row dataset",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+        {
+          "backgroundColor": "#EA6175",
+          "borderColor": "#EA6175",
+          "data": [
+            40,
+            41,
+            42,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "second row dataset",
+          "pointBackgroundColor": "#EA6175",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P4",
+        "P5",
+        "P6",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
+        },
+      },
+    },
+    "type": "line",
+  },
 }
 `;
 
@@ -1883,6 +3307,130 @@ exports[`datasource tests create chart with row datasets without series title 1`
             "color": "#000000",
           },
           "title": undefined,
+        },
+      },
+    },
+    "type": "line",
+  },
+  "masterChartConfig": {
+    "data": {
+      "datasets": [
+        {
+          "backgroundColor": "#4EA7F2",
+          "borderColor": "#4EA7F2",
+          "data": [
+            30,
+            31,
+            32,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "Series 1",
+          "pointBackgroundColor": "#4EA7F2",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+        {
+          "backgroundColor": "#EA6175",
+          "borderColor": "#EA6175",
+          "data": [
+            40,
+            41,
+            42,
+          ],
+          "fill": false,
+          "hidden": false,
+          "label": "Series 2",
+          "pointBackgroundColor": "#EA6175",
+          "pointRadius": 0,
+          "showLine": true,
+          "tension": 0,
+          "yAxisID": "y",
+        },
+      ],
+      "labels": [
+        "P4",
+        "P5",
+        "P6",
+      ],
+    },
+    "options": {
+      "animation": false,
+      "elements": {
+        "line": {
+          "fill": false,
+        },
+        "point": {
+          "hitRadius": 15,
+        },
+      },
+      "events": [
+        "mousemove",
+        "mouseout",
+        "click",
+        "touchstart",
+        "touchmove",
+        "mouseup",
+      ],
+      "hover": {
+        "mode": null,
+      },
+      "layout": {
+        "padding": {
+          "bottom": 10,
+          "left": 20,
+          "right": 20,
+          "top": 5,
+        },
+      },
+      "maintainAspectRatio": false,
+      "plugins": {
+        "chartShowValuesPlugin": undefined,
+        "legend": {
+          "display": false,
+        },
+        "title": {
+          "display": false,
+        },
+        "tooltip": {
+          "enabled": false,
+        },
+      },
+      "responsive": true,
+      "scales": {
+        "x": {
+          "grid": {
+            "display": false,
+          },
+          "stacked": undefined,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+            "font": {
+              "size": 9,
+            },
+            "padding": 0,
+          },
+          "title": undefined,
+        },
+        "y": {
+          "beginAtZero": true,
+          "display": false,
+          "grid": {
+            "display": true,
+          },
+          "position": "left",
+          "stacked": false,
+          "ticks": {
+            "callback": [Function],
+            "color": "#000000",
+          },
+          "title": undefined,
+        },
+        "y1": {
+          "display": false,
         },
       },
     },

@@ -37,13 +37,13 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartTitle,
   getGeoChartData,
   getGeoChartDatasets,
   getGeoChartScales,
   getGeoChartTooltip,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class GeoChart extends AbstractChart {
   readonly dataSets: DataSet[];

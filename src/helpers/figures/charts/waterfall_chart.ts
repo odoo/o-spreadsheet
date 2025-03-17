@@ -37,7 +37,6 @@ import {
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
-  getChartLayout,
   getChartTitle,
   getWaterfallChartLegend,
   getWaterfallChartScales,
@@ -45,6 +44,7 @@ import {
   getWaterfallChartTooltip,
   getWaterfallDatasetAndLabels,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class WaterfallChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -64,6 +64,7 @@ export class WaterfallChart extends AbstractChart {
   readonly dataSetDesign: CustomizedDataSet[];
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  readonly zoomable?: boolean;
 
   constructor(definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -88,6 +89,7 @@ export class WaterfallChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
+    this.zoomable = definition.zoomable;
   }
 
   static transformDefinition(
@@ -121,6 +123,7 @@ export class WaterfallChart extends AbstractChart {
       firstValueAsSubtotal: context.firstValueAsSubtotal ?? false,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      zoomable: context.zoomable ?? false,
     };
   }
 
@@ -197,6 +200,7 @@ export class WaterfallChart extends AbstractChart {
       firstValueAsSubtotal: this.firstValueAsSubtotal,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      zoomable: this.zoomable,
     };
   }
 

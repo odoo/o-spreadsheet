@@ -37,12 +37,12 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartTitle,
   getHierarchalChartData,
   getTreeMapChartDatasets,
   getTreeMapChartTooltip,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class TreeMapChart extends AbstractChart {
   static defaults = {

@@ -71,10 +71,10 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     isFullScreen: { type: Boolean, optional: true },
   };
 
-  private canvas = useRef("graphContainer");
-  private chart?: Chart;
-  private currentRuntime!: ChartJSRuntime;
-  private animationStore: Store<ChartAnimationStore> | undefined;
+  protected canvas = useRef("graphContainer");
+  protected chart?: Chart;
+  protected currentRuntime!: ChartJSRuntime;
+  protected animationStore: Store<ChartAnimationStore> | undefined;
 
   private currentDevicePixelRatio = window.devicePixelRatio;
 
@@ -103,28 +103,37 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
-      this.createChart(deepCopy(runtime.chartJsConfig));
+      this.createChart(deepCopy(runtime));
     });
-    onWillUnmount(() => this.chart?.destroy());
+    onWillUnmount(this.unmount.bind(this));
     useEffect(() => {
       const runtime = this.chartRuntime;
       if (runtime !== this.currentRuntime) {
         if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
           this.chart?.destroy();
-          this.createChart(deepCopy(runtime.chartJsConfig));
+          this.createChart(deepCopy(runtime));
         } else {
-          this.updateChartJs(deepCopy(runtime.chartJsConfig));
+          this.updateChartJs(deepCopy(runtime));
         }
         this.currentRuntime = runtime;
       } else if (this.currentDevicePixelRatio !== window.devicePixelRatio) {
         this.currentDevicePixelRatio = window.devicePixelRatio;
-        this.updateChartJs(deepCopy(this.currentRuntime.chartJsConfig));
+        this.updateChartJs(deepCopy(this.currentRuntime));
       }
     });
   }
 
-  private createChart(chartData: ChartConfiguration<any>) {
-    if (this.env.model.getters.isDashboard() && this.animationStore) {
+  protected unmount() {
+    this.chart?.destroy();
+  }
+
+  protected get shouldAnimate() {
+    return this.env.model.getters.isDashboard();
+  }
+
+  protected createChart(chartRuntime: ChartJSRuntime) {
+    let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
+    if (this.shouldAnimate && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationFigureId] !== chartType) {
         chartData = this.enableAnimationInChartData(chartData);
@@ -137,8 +146,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart = new window.Chart(ctx, chartData);
   }
 
-  private updateChartJs(chartData: ChartConfiguration<any>) {
-    if (this.env.model.getters.isDashboard()) {
+  protected updateChartJs(chartRuntime: ChartJSRuntime) {
+    let chartData = chartRuntime.chartJsConfig as ChartConfiguration<any>;
+    if (this.shouldAnimate) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
         chartData = this.enableAnimationInChartData(chartData);
@@ -165,7 +175,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  private enableAnimationInChartData(chartData: ChartConfiguration<any>) {
+  protected enableAnimationInChartData(chartData: ChartConfiguration<any>) {
     return {
       ...chartData,
       options: { ...chartData.options, animation: { animateRotate: true } },
