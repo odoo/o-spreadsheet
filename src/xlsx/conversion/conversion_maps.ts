@@ -180,6 +180,7 @@ export const ICON_SET_CONVERSION_MAP: Record<ExcelIconSet, IconSetType | undefin
 
 /** Map between legend position in XLSX file and human readable position  */
 export const DRAWING_LEGEND_POSITION_CONVERSION_MAP: Record<string, LegendPosition> = {
+  none: "none",
   b: "bottom",
   t: "top",
   l: "left",

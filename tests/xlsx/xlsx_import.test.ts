@@ -789,6 +789,20 @@ describe("Import xlsx data", () => {
   );
 
   test.each([
+    ["line chart", "top"],
+    ["bar chart", "right"],
+    ["scatter chart", "bottom"],
+    ["scatter chart with textual labels", "none"],
+    ["combo chart", "left"],
+  ])("Can import %s charts with correct legend position", (chartTitle, chartLegendPosition) => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.data.title.text === chartTitle)!;
+    const chartData = figure.data as BarChartDefinition | ComboChartDefinition;
+    expect(chartData.title.text).toEqual(chartTitle);
+    expect(chartData.legendPosition).toEqual(chartLegendPosition);
+  });
+
+  test.each([
     [
       "line chart",
       "line",
