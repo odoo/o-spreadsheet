@@ -6,7 +6,7 @@
           <select
             class="o-input data-series-selector"
             t-model="state.label"
-            t-on-change="(ev) => this.updateSerieEditor(ev)">
+            t-on-change="(ev) => this.updateEditedSeries(ev)">
             <t t-foreach="getDataSeries()" t-as="serie" t-key="serie_index">
               <option
                 t-att-value="serie"
@@ -19,7 +19,7 @@
             <div class="d-flex align-items-center">
               <span class="o-section-title mb-0 pe-2">Series color</span>
               <RoundColorPicker
-                currentColor="getDataSerieColor()"
+                currentColor="getDataSeriesColor()"
                 onColorPicked.bind="updateDataSeriesColor"
               />
             </div>
@@ -28,7 +28,7 @@
             <input
               class="o-input o-serie-label-editor"
               type="text"
-              t-att-value="getDataSerieLabel()"
+              t-att-value="getDataSeriesLabel()"
               t-on-change="(ev) => this.updateDataSeriesLabel(ev)"
             />
           </Section>

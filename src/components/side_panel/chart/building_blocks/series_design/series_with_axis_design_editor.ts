@@ -148,7 +148,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     this.updateTrendLineValue(index, { window });
   }
 
-  getDataSerieColor(index: number) {
+  getDataSeriesColor(index: number) {
     const dataSets = this.props.definition.dataSets;
     if (!dataSets?.[index]) return "";
     const color = dataSets[index].backgroundColor;
@@ -160,7 +160,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
   getTrendLineColor(index: number) {
     return (
       this.getTrendLineConfiguration(index)?.color ??
-      setColorAlpha(this.getDataSerieColor(index), 0.5)
+      setColorAlpha(this.getDataSeriesColor(index), 0.5)
     );
   }
 
