@@ -13,7 +13,7 @@ import {
   ChartWithDataSetDefinition,
   SpreadsheetChildEnv,
 } from "../../../src/types";
-import { PieChartRuntime } from "../../../src/types/chart";
+import { PieChartRuntime, TrendConfiguration } from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
@@ -1946,6 +1946,21 @@ describe("charts", () => {
         expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#EFEFEF");
       }
     );
+
+    test("Trend line is not in the choice of data series to edit", async () => {
+      const trend: TrendConfiguration = { type: "polynomial", order: 3, display: true };
+      createChart(
+        model,
+        { dataSets: [{ dataRange: "E1:E4", trend }], type: "line", dataSetsHaveTitle: false },
+        chartId
+      );
+      await mountChartSidePanel(chartId);
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      const dataSeries = fixture.querySelectorAll(".data-series-selector option");
+      expect(dataSeries.length).toBe(1);
+      expect(dataSeries[0]).toHaveText("Series 1");
+    });
   });
 
   test("When a figure is selected, pressing Ctrl+A will not propagate to the grid to select all cells", async () => {

@@ -1,5 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
+import { isTrendLineAxis } from "../../../../../helpers/figures/charts";
 import {
   ChartWithDataSetDefinition,
   DispatchResult,
@@ -42,7 +43,9 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     if (!runtime || !("chartJsConfig" in runtime)) {
       return [];
     }
-    return runtime.chartJsConfig.data.datasets.map((d) => d.label);
+    return runtime.chartJsConfig.data.datasets
+      .filter((d) => !isTrendLineAxis(d["xAxisID"] ?? ""))
+      .map((d) => d.label);
   }
 
   updateSerieEditor(ev) {
