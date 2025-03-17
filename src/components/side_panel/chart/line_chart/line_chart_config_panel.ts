@@ -56,4 +56,18 @@ export class LineConfigPanel extends GenericChartConfigPanel {
       cumulative,
     });
   }
+
+  onToggleZoom(enabled: boolean) {
+    const definition = this.props.definition as LineChartDefinition;
+    const zoom = {
+      ...definition.zoom,
+      enabled,
+    };
+    if (enabled) {
+      zoom.sliceable = true;
+    }
+    this.props.updateChart(this.props.figureId, {
+      zoom,
+    });
+  }
 }

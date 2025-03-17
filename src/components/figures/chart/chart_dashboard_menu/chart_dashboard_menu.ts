@@ -8,6 +8,7 @@ import { _t } from "../../../../translation";
 import { ChartDefinition, ChartType, FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
 import { Menu, MenuState } from "../../../menu/menu";
+import { ZoomableChartStore } from "../chartJs/zoomable_chart/zoomable_chart_store";
 
 interface Props {
   figureUI: FigureUI;
@@ -28,12 +29,14 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
 
   private originalChartDefinition!: ChartDefinition;
   private fullScreenFigureStore!: Store<FullScreenChartStore>;
+  private chartZoomStore!: Store<ZoomableChartStore>;
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {
     super.setup();
     this.fullScreenFigureStore = useStore(FullScreenChartStore);
+    this.chartZoomStore = useStore(ZoomableChartStore);
     this.originalChartDefinition = this.env.model.getters.getChartDefinition(
       this.props.figureUI.id
     );
@@ -45,7 +48,11 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getMenuItems(): MenuItem[] {
-    return [this.fullScreenMenuItem, ...this.changeChartTypeMenuItems].filter(isDefined);
+    return [
+      this.fullScreenMenuItem,
+      ...this.zoomMenuItems,
+      ...this.changeChartTypeMenuItems,
+    ].filter(isDefined);
   }
 
   get changeChartTypeMenuItems(): MenuItem[] {
@@ -146,5 +153,52 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
         this.fullScreenFigureStore.toggleFullScreenChart(this.props.figureUI.id);
       },
     };
+  }
+
+  get zoomMenuItems(): MenuItem[] {
+    const figureId = this.props.figureUI.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    if (!("zoom" in definition) || !definition.zoom?.enabled) {
+      return [];
+    }
+    const items = [
+      {
+        id: "zoomable",
+        label: _t("Show zoom slider"),
+        iconClass: "fa fa-search",
+        onClick: () => {
+          this.env.model.dispatch("UPDATE_CHART", {
+            definition: {
+              ...definition,
+              zoom: { ...definition.zoom, sliceable: !definition.zoom?.sliceable },
+            },
+            figureId,
+            sheetId: this.env.model.getters.getActiveSheetId(),
+          });
+        },
+      },
+    ];
+    const originalAxisLimits = this.chartZoomStore.originalAxisLimits[figureId]?.x;
+    const currentAxisLimits = this.chartZoomStore.currentAxisLimits[figureId];
+    if (
+      originalAxisLimits &&
+      currentAxisLimits &&
+      (originalAxisLimits.min !== currentAxisLimits.min ||
+        originalAxisLimits.max !== currentAxisLimits.max)
+    ) {
+      items.push({
+        id: "resetZoom",
+        label: _t("Reset zoom"),
+        iconClass: "fa fa-refresh",
+        onClick: () => {
+          this.chartZoomStore.updateAxisLimits(
+            figureId,
+            this.chartZoomStore.originalAxisLimits[figureId].x
+          );
+          this.env.model.dispatch("EVALUATE_CHARTS");
+        },
+      });
+    }
+    return items;
   }
 }

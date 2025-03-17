@@ -1,6 +1,6 @@
 import { canChartParseLabels } from "../../../../helpers/figures/charts/runtime";
 import { ScatterChart } from "../../../../helpers/figures/charts/scatter_chart";
-import { LineChartDefinition } from "../../../../types/chart";
+import { LineChartDefinition, ScatterChartDefinition } from "../../../../types/chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class ScatterConfigPanel extends GenericChartConfigPanel {
@@ -36,5 +36,19 @@ export class ScatterConfigPanel extends GenericChartConfigPanel {
       });
     }
     return options;
+  }
+
+  onToggleZoom(enabled: boolean) {
+    const definition = this.props.definition as ScatterChartDefinition;
+    const zoom = {
+      ...definition.zoom,
+      enabled,
+    };
+    if (enabled) {
+      zoom.sliceable = true;
+    }
+    this.props.updateChart(this.props.figureId, {
+      zoom,
+    });
   }
 }

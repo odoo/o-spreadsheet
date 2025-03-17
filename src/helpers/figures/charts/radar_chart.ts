@@ -41,7 +41,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getRadarChartData,
@@ -50,6 +49,7 @@ import {
   getRadarChartScales,
   getRadarChartTooltip,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class RadarChart extends AbstractChart {
   readonly dataSets: DataSet[];
