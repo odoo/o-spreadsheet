@@ -8,7 +8,7 @@
     <Menu
       t-if="menuState.isOpen"
       menuId="menuId"
-      position="menuState.position"
+      anchorRect="menuState.anchorRect"
       menuItems="menuState.menuItems"
       onClose="() => this.menuState.isOpen=false"
       width="160"

@@ -10,9 +10,10 @@
     <Menu
       t-if="state.isMenuOpen"
       menuItems="props.menuItems"
-      position="menuPosition"
+      anchorRect="menuAnchorRect"
       onClose.bind="onMenuClosed"
       menuId="menuId"
+      popoverPositioning="'BottomLeft'"
     />
   </t>
 </templates>

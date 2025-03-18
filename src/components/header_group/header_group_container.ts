@@ -44,7 +44,7 @@ export class HeaderGroupContainer extends Component<Props, SpreadsheetChildEnv> 
   };
   static components = { RowGroup, ColGroup, Menu };
 
-  menu: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  menu: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
   getLayerOffset(layerIndex: number): number {
     return layerIndex * GROUP_LAYER_WIDTH;
@@ -59,13 +59,13 @@ export class HeaderGroupContainer extends Component<Props, SpreadsheetChildEnv> 
 
   openContextMenu(position: DOMCoordinates, menuItems: Action[]) {
     this.menu.isOpen = true;
-    this.menu.position = position;
+    this.menu.anchorRect = { ...position, width: 0, height: 0 };
     this.menu.menuItems = menuItems;
   }
 
   closeMenu() {
     this.menu.isOpen = false;
-    this.menu.position = null;
+    this.menu.anchorRect = null;
     this.menu.menuItems = [];
   }
 

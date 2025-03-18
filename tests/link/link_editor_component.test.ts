@@ -22,6 +22,7 @@ import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 mockGetBoundingClientRect({
   "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+  "o-special-link": () => ({ top: 100, left: 100, height: 50, width: 50 }),
 });
 
 describe("link editor component", () => {
@@ -156,6 +157,16 @@ describe("link editor component", () => {
     expect(labelInput().value).toBe("Sheet2");
     expect(urlInput().value).toBe("Sheet2");
     expect(urlInput().disabled).toBe(true);
+  });
+
+  test("special link menu position", async () => {
+    const sheetId = "42";
+    createSheet(model, { sheetId });
+    await openLinkEditor(model, "A1");
+    await simulateClick("button.o-special-link");
+    const popover = fixture.querySelector(".o-menu")!.closest<HTMLElement>(".o-popover")!;
+    expect(popover.style.top).toBe("100px");
+    expect(popover.style.left).toBe("150px");
   });
 
   test("label is changed to canonical form in model", async () => {
