@@ -613,7 +613,7 @@ describe("figures", () => {
         await simulateClick(".o-figure-menu-item");
         const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
         expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
-        expect(menuPopover.style.left).toBe(`${500 - 25 - MENU_WIDTH}px`);
+        expect(menuPopover.style.left).toBe(`${500 - 25}px`);
       });
 
       test(`figure menu position is correct when menu button position < MENU_WIDTH for ${type}`, async () => {
@@ -654,7 +654,7 @@ describe("figures", () => {
         await simulateClick(".o-figure-menu-item");
         const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
         expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
-        expect(menuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
+        expect(menuPopover?.style.left).toBe(`${500 - 200}px`);
       });
 
       test("Selecting a figure and hitting Ctrl does not unselect it", async () => {

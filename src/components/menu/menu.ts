@@ -18,7 +18,8 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
-import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
+import { DOMCoordinates, MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { getOpenedMenus, isChildEvent, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
@@ -81,7 +82,8 @@ type MenuItemOrSeparator = Action | "separator";
 const TIMEOUT_DELAY = 250;
 
 interface Props {
-  position: DOMCoordinates;
+  anchorRect: Rect;
+  popoverPositioning: PopoverPropsPosition;
   menuItems: Action[];
   depth: number;
   maxHeight?: Pixel;
@@ -95,7 +97,7 @@ interface Props {
 export interface MenuState {
   isOpen: boolean;
   parentMenu?: Action;
-  position: null | DOMCoordinates;
+  anchorRect: null | Rect;
   scrollOffset?: Pixel;
   menuItems: Action[];
   isHoveringChild?: boolean;
@@ -104,7 +106,8 @@ export interface MenuState {
 export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Menu";
   static props = {
-    position: Object,
+    anchorRect: Object,
+    popoverPositioning: { type: String, optional: true },
     menuItems: Array,
     depth: { type: Number, optional: true },
     maxHeight: { type: Number, optional: true },
@@ -118,10 +121,11 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static components = { Menu, Popover };
   static defaultProps = {
     depth: 1,
+    popoverPositioning: "TopRight",
   };
   private subMenu: MenuState = useState({
     isOpen: false,
-    position: null,
+    anchorRect: null,
     scrollOffset: 0,
     menuItems: [],
     isHoveringChild: false,
@@ -170,22 +174,22 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     return menuItemsAndSeparators;
   }
 
-  get subMenuPosition(): DOMCoordinates {
-    const position = Object.assign({}, this.subMenu.position);
-    position.y -= this.subMenu.scrollOffset || 0;
-    return position;
+  get subMenuAnchorRect(): Rect {
+    const anchorRect = Object.assign({}, this.subMenu.anchorRect);
+    anchorRect.y -= this.subMenu.scrollOffset || 0;
+    return anchorRect;
   }
 
   get popoverProps(): PopoverProps {
     const isRoot = this.props.depth === 1;
     return {
       anchorRect: {
-        x: this.props.position.x,
-        y: this.props.position.y,
-        width: isRoot ? 0 : this.props.width || MENU_WIDTH,
-        height: isRoot ? 0 : MENU_ITEM_HEIGHT,
+        x: this.props.anchorRect.x,
+        y: this.props.anchorRect.y,
+        width: isRoot ? this.props.anchorRect.width : this.props.width || MENU_WIDTH,
+        height: isRoot ? this.props.anchorRect.height : MENU_ITEM_HEIGHT,
       },
-      positioning: "TopRight",
+      positioning: this.props.popoverPositioning,
       verticalOffset: isRoot ? 0 : MENU_VERTICAL_PADDING,
       onPopoverHidden: () => this.closeSubMenu(),
       onPopoverMoved: () => this.closeSubMenu(),
@@ -269,9 +273,11 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     }
     const y = parentMenuEl.getBoundingClientRect().top;
 
-    this.subMenu.position = {
+    this.subMenu.anchorRect = {
       x: this.position.x,
       y: y - (this.subMenu.scrollOffset || 0),
+      width: this.props.width || MENU_WIDTH,
+      height: MENU_ITEM_HEIGHT,
     };
     this.subMenu.menuItems = menu.children(this.env);
     this.subMenu.isOpen = true;

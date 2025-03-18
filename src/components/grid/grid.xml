@@ -54,7 +54,7 @@
       <Menu
         t-if="menuState.isOpen"
         menuItems="menuState.menuItems"
-        position="menuState.position"
+        anchorRect="menuState.anchorRect"
         onClose="() => this.closeMenu()"
       />
       <t t-foreach="staticTables" t-as="table" t-key="table.id">
