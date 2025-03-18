@@ -23759,6 +23759,24 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Conditional f
             </iconSet>
         </cfRule>
     </conditionalFormatting>
+    <conditionalFormatting sqref="B1:B5">
+        <cfRule priority="1" stopIfTrue="0" type="iconSet">
+            <iconSet iconSet="3Arrows" reverse="1">
+                <cfvo type="percent" val="0"/>
+                <cfvo type="percentile" val="33" gte="1"/>
+                <cfvo type="percentile" val="66" gte="0"/>
+            </iconSet>
+        </cfRule>
+    </conditionalFormatting>
+    <conditionalFormatting sqref="B1:B5">
+        <cfRule priority="1" stopIfTrue="0" type="iconSet">
+            <iconSet iconSet="3Arrows">
+                <cfvo type="percent" val="0"/>
+                <cfvo type="percentile" val="33" gte="1"/>
+                <cfvo type="percentile" val="66" gte="0"/>
+            </iconSet>
+        </cfRule>
+    </conditionalFormatting>
     <conditionalFormatting sqref="A1:A5">
         <cfRule priority="1" stopIfTrue="0" type="containsText" text="1" operator="containsText" dxfId="1">
             <formula>
