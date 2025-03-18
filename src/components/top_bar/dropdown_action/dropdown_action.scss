@@ -3,16 +3,16 @@
     position: relative;
     display: flex;
     align-items: center;
+  }
 
-    .o-dropdown-content {
-      background-color: white;
+  .o-dropdown-content {
+    background-color: white;
 
-      .o-dropdown-line {
-        display: flex;
+    .o-dropdown-line {
+      display: flex;
 
-        > span {
-          padding: 4px;
-        }
+      > span {
+        padding: 4px;
       }
     }
   }
