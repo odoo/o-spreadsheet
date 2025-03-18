@@ -1,3 +1,4 @@
+import { ICON_SETS, IconSetType } from "../../components/icons/icons";
 import { colorNumberString } from "../../helpers";
 import {
   CellIsRule,
@@ -248,10 +249,14 @@ function addIconSetRule(cf: ConditionalFormat, rule: IconSetRule): XMLString {
     const cfValueObjectNodes = cfValueObject.map(
       (attrs) => escapeXml/*xml*/ `<cfvo ${formatAttributes(attrs)} />`
     );
+    const iconSetAttrs: XMLAttributes = [["iconSet", getIconSet(rule.icons)]];
+    if (isIconSetReversed(rule.icons)) {
+      iconSetAttrs.push(["reverse", "1"]);
+    }
     conditionalFormats.push(escapeXml/*xml*/ `
       <conditionalFormatting sqref="${range}">
         <cfRule ${formatAttributes(ruleAttributes)}>
-          <iconSet iconSet="${getIconSet(rule.icons)}">
+          <iconSet ${formatAttributes(iconSetAttrs)}>
             ${joinXmlNodes(cfValueObjectNodes)}
           </iconSet>
         </cfRule>
@@ -273,11 +278,26 @@ function commonCfAttributes(cf: ConditionalFormat): XMLAttributes {
   ];
 }
 
+function isIconSetReversed(iconSet: IconSet): boolean {
+  const defaultIconSet = ICON_SETS[detectIconsType(iconSet)];
+  return iconSet.upper === defaultIconSet.bad && iconSet.lower === defaultIconSet.good;
+}
+
 function getIconSet(iconSet: IconSet): ExcelIconSet {
-  return XLSX_ICONSET_MAP[
-    Object.keys(XLSX_ICONSET_MAP).find((key) => iconSet.upper.toLowerCase().startsWith(key)) ||
-      "dots"
-  ];
+  return XLSX_ICONSET_MAP[detectIconsType(iconSet)];
+}
+
+/**
+ * Partial detection based on "upper" point only.
+ * We support any arbitrary icon in the set, while excel doesn't allow
+ * mixing icons from different types.
+ */
+function detectIconsType(iconSet: IconSet): IconSetType {
+  const type =
+    Object.keys(ICON_SETS).find((type: IconSetType) =>
+      Object.values(ICON_SETS[type]).includes(iconSet.upper)
+    ) || "dots";
+  return type as IconSetType;
 }
 
 function thresholdAttributes(
