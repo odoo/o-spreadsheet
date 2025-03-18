@@ -1,4 +1,3 @@
-import { canonicalizeNumberValue } from "../../formulas/formula_locale";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import {
   ClipboardMIMEType,
@@ -8,6 +7,7 @@ import {
   Getters,
   Zone,
 } from "../../types";
+import { canonicalizeNumberValue } from "../locale";
 import { largeMax } from "../misc";
 import { zoneToDimension } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";

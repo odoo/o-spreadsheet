@@ -112,6 +112,13 @@ export function localizeContent(content: string, locale: Locale) {
     : localizeLiteral(content, locale);
 }
 
+/** Change a number string to its canonical form (en_US locale) */
+export function canonicalizeNumberValue(content: string, locale: Locale) {
+  return content.startsWith("=")
+    ? canonicalizeFormula(content, locale)
+    : canonicalizeNumberLiteral(content, locale);
+}
+
 /** Change a formula to its canonical form (en_US locale) */
 function canonicalizeFormula(formula: string, locale: Locale) {
   return _localizeFormula(formula, locale, DEFAULT_LOCALE);
