@@ -1,12 +1,13 @@
+import { IconSetType } from "../components/icons/icons";
 import { ExcelIconSet } from "../types/xlsx";
 
 /** In XLSX color format (no #)  */
 export const AUTO_COLOR = "000000";
 
-export const XLSX_ICONSET_MAP: Record<string, ExcelIconSet> = {
-  arrow: "3Arrows",
+export const XLSX_ICONSET_MAP: Record<IconSetType, ExcelIconSet> = {
+  arrows: "3Arrows",
   smiley: "3Symbols",
-  dot: "3TrafficLights1",
+  dots: "3TrafficLights1",
 };
 
 export const NAMESPACE = {
