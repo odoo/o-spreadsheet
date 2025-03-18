@@ -617,6 +617,50 @@ describe("Test XLSX export", () => {
                 },
               },
               {
+                id: "reversed",
+                ranges: ["B1:B5"],
+                rule: {
+                  type: "IconSetRule",
+                  icons: {
+                    upper: "arrowBad",
+                    middle: "arrowNeutral",
+                    lower: "arrowGood",
+                  },
+                  lowerInflectionPoint: {
+                    operator: "ge",
+                    type: "percentile",
+                    value: "33",
+                  },
+                  upperInflectionPoint: {
+                    operator: "gt",
+                    type: "percentile",
+                    value: "66",
+                  },
+                },
+              },
+              {
+                id: "limitation - reversed but different types",
+                ranges: ["B1:B5"],
+                rule: {
+                  type: "IconSetRule",
+                  icons: {
+                    upper: "arrowBad",
+                    middle: "arrowNeutral",
+                    lower: "smileyGood",
+                  },
+                  lowerInflectionPoint: {
+                    operator: "ge",
+                    type: "percentile",
+                    value: "33",
+                  },
+                  upperInflectionPoint: {
+                    operator: "gt",
+                    type: "percentile",
+                    value: "66",
+                  },
+                },
+              },
+              {
                 id: "full style",
                 ranges: ["A1:A5"],
                 rule: {
