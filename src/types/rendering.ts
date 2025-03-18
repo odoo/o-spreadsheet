@@ -1,4 +1,5 @@
 import { memoize } from "../helpers/misc";
+import { ImageSVG } from "./image";
 import { Alias, Align, Border, DataBarFill, Pixel, Style, VerticalAlign, Zone } from "./misc";
 
 /**
@@ -39,7 +40,7 @@ export interface Image {
   clipIcon: Rect | null;
   size: Pixel;
   type: "icon"; //| "Picture"
-  image: HTMLImageElement;
+  svg: ImageSVG;
 }
 
 /**

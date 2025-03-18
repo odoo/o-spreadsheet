@@ -1,11 +1,12 @@
-import { Alias } from "..";
 import { FigureSize } from "./figure";
 import { XLSXFigureSize } from "./xlsx";
 
-/**
- * Image source given to <img src="..."/>
- */
-export type ImageSrc = string & Alias;
+export type ImageSVG = {
+  path: string;
+  width: number;
+  height: number;
+  fillColor: string;
+};
 
 export interface Image {
   path: string;

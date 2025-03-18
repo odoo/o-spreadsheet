@@ -19,7 +19,7 @@ import {
 import { localizeFormula } from "../../helpers/locale";
 import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
 import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
-import { ImageSrc } from "../../types/image";
+import { ImageSVG } from "../../types/image";
 import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -27,7 +27,7 @@ export class SheetUIPlugin extends UIPlugin {
   static getters = [
     "doesCellHaveGridIcon",
     "getCellWidth",
-    "getCellIconSrc",
+    "getCellIconSvg",
     "getTextWidth",
     "getCellText",
     "getCellMultiLineText",
@@ -95,7 +95,7 @@ export class SheetUIPlugin extends UIPlugin {
       );
     }
 
-    const icon = this.getters.getCellIconSrc(position);
+    const icon = this.getters.getCellIconSvg(position);
     if (icon) {
       contentWidth += computeIconWidth(style);
     }
@@ -117,7 +117,7 @@ export class SheetUIPlugin extends UIPlugin {
     return contentWidth;
   }
 
-  getCellIconSrc(position: CellPosition): ImageSrc | undefined {
+  getCellIconSvg(position: CellPosition): ImageSVG | undefined {
     const callbacks = iconsOnCellRegistry.getAll();
     for (const callback of callbacks) {
       const imageSrc = callback(this.getters, position);
