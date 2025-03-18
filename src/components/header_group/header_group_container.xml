@@ -61,7 +61,7 @@
       <Menu
         t-if="menu.isOpen"
         menuItems="menu.menuItems"
-        position="menu.position"
+        anchorRect="menu.anchorRect"
         onClose.bind="this.closeMenu"
       />
     </div>

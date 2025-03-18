@@ -60,7 +60,7 @@
       <Menu
         t-if="subMenu.isOpen"
         t-key="subMenu.parentMenu.id"
-        position="subMenuPosition"
+        anchorRect="subMenuAnchorRect"
         menuItems="subMenu.menuItems"
         depth="props.depth + 1"
         maxHeight="props.maxHeight"

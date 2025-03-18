@@ -88,7 +88,7 @@
 
       <Menu
         t-if="menuState.isOpen"
-        position="menuState.position"
+        anchorRect="menuState.anchorRect"
         menuItems="menuState.menuItems"
         maxHeight="menuMaxHeight"
         onClose="() => this.closeMenu()"

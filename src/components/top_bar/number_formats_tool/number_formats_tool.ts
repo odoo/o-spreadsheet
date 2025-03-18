@@ -1,8 +1,9 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { Action, createAction } from "../../../actions/action";
 import { formatNumberMenuItemSpec } from "../../../registries";
-import { DOMCoordinates, SpreadsheetChildEnv } from "../../../types";
+import { Rect, SpreadsheetChildEnv } from "../../../types";
 import { ActionButton } from "../../action_button/action_button";
+import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
 import { Menu } from "../../menu/menu";
 
@@ -12,7 +13,7 @@ interface Props {
 
 interface State {
   menuItems: Action[];
-  position: DOMCoordinates;
+  anchorRect: Rect;
 }
 
 export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
@@ -24,7 +25,7 @@ export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
 
   buttonRef = useRef("buttonRef");
   state: State = useState({
-    position: { x: 0, y: 0 },
+    anchorRect: { x: 0, y: 0, width: 0, height: 0 },
     menuItems: [],
   });
 
@@ -38,8 +39,7 @@ export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
     } else {
       const menu = createAction(this.formatNumberMenuItemSpec);
       this.state.menuItems = menu.children(this.env).sort((a, b) => a.sequence - b.sequence);
-      const { x, y, height } = this.buttonRef.el!.getBoundingClientRect();
-      this.state.position = { x, y: y + height };
+      this.state.anchorRect = getBoundingRectAsPOJO(this.buttonRef.el!);
       this.topBarToolStore.openDropdown();
     }
   }

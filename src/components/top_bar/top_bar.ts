@@ -128,7 +128,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   toolsCategories = topBarToolBarRegistry.getCategories();
 
   state: State = useState({
-    menuState: { isOpen: false, position: null, menuItems: [] },
+    menuState: { isOpen: false, anchorRect: null, menuItems: [] },
     invisibleToolsCategories: [],
     toolsPopoverState: { isOpen: false },
   });
@@ -252,9 +252,8 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   private openMenu(menu: Action, ev: MouseEvent) {
     this.topBarToolStore.closeDropdowns();
     this.state.toolsPopoverState.isOpen = false;
-    const { left, top, height } = (ev.currentTarget as HTMLElement).getBoundingClientRect();
     this.state.menuState.isOpen = true;
-    this.state.menuState.position = { x: left, y: top + height };
+    this.state.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
     this.state.menuState.menuItems = menu
       .children(this.env)
       .sort((a, b) => a.sequence - b.sequence);

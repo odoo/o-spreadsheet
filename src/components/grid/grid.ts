@@ -153,7 +153,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.highlightStore = useStore(HighlightStore);
     this.menuState = useState({
       isOpen: false,
-      position: null,
+      anchorRect: null,
       menuItems: [],
     });
     this.gridRef = useRef("grid");
@@ -593,7 +593,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.cellPopovers.close();
     }
     this.menuState.isOpen = true;
-    this.menuState.position = { x, y };
+    this.menuState.anchorRect = { x, y, width: 0, height: 0 };
     this.menuState.menuItems = registries[type].getMenuItems();
   }
 

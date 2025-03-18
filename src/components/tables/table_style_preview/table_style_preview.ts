@@ -60,7 +60,7 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
   };
 
   private canvasRef = useRef<HTMLCanvasElement>("canvas");
-  menu: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  menu: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {
     onWillUpdateProps((nextProps) => {
@@ -89,12 +89,12 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
     }
     this.menu.menuItems = createTableStyleContextMenuActions(this.env, this.props.styleId);
     this.menu.isOpen = true;
-    this.menu.position = { x: event.clientX, y: event.clientY };
+    this.menu.anchorRect = { x: event.clientX, y: event.clientY, width: 0, height: 0 };
   }
 
   closeMenu() {
     this.menu.isOpen = false;
-    this.menu.position = null;
+    this.menu.anchorRect = null;
     this.menu.menuItems = [];
   }
 

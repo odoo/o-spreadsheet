@@ -3,14 +3,12 @@ import { markdownLink } from "../../../helpers";
 import { detectLink, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
-import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../types";
+import { Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
 import { Menu } from "../../menu/menu";
 
-const MENU_OFFSET_X = 320;
-const MENU_OFFSET_Y = 100;
 const PADDING = 12;
 const LINK_EDITOR_WIDTH = 340 + 2 * PADDING;
 
@@ -84,8 +82,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   private menu = useState({
     isOpen: false,
   });
-  private linkEditorRef = useRef("linkEditor");
-  private position: DOMCoordinates = useAbsoluteBoundingRect(this.linkEditorRef);
+  private linkEditorMenuButtonRef = useRef("linkEditorMenuButton");
+  menuButtonRect = useAbsoluteBoundingRect(this.linkEditorMenuButtonRef);
   urlInput = useRef("urlInput");
 
   setup() {
@@ -107,13 +105,6 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
       label: cell.formattedValue,
       url: "",
       isUrlEditable: true,
-    };
-  }
-
-  get menuPosition(): DOMCoordinates {
-    return {
-      x: this.position.x + MENU_OFFSET_X - PADDING - 2,
-      y: this.position.y + MENU_OFFSET_Y,
     };
   }
 
