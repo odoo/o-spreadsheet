@@ -6,12 +6,12 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
 >
   <div>
     <div
-      class="o-filter-menu-item my-2 mb-3"
+      class="o-filter-menu-item py-2 mb-1"
     >
        Sort ascending (A ⟶ Z) 
     </div>
     <div
-      class="o-filter-menu-item my-2"
+      class="o-filter-menu-item py-2"
     >
        Sort descending (Z ⟶ A) 
     </div>
@@ -115,6 +115,7 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
     
     
   </div>
+  
   <div
     class="o-filter-menu-buttons d-flex justify-content-end"
   >
