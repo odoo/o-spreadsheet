@@ -1,6 +1,6 @@
-import { canonicalizeNumberValue } from "../formulas/formula_locale";
 import { deepEquals, formatValue, isZoneInside } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import { canonicalizeNumberValue } from "../helpers/locale";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import {
   CellPosition,
