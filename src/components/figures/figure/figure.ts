@@ -2,15 +2,14 @@ import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl
 import {
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
-  MENU_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
 import {
   CSSProperties,
-  DOMCoordinates,
   Figure,
   Pixel,
+  Rect,
   ResizeDirection,
   SpreadsheetChildEnv,
   UID,
@@ -134,7 +133,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     onClickAnchor: () => {},
   };
 
-  private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private figureRef = useRef("figure");
   private menuButtonRef = useRef("menuButton");
@@ -281,25 +280,16 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   onContextMenu(ev: MouseEvent) {
     if (this.env.isDashboard()) return;
-    const position = {
-      x: ev.clientX,
-      y: ev.clientY,
-    };
-    this.openContextMenu(position);
+    this.openContextMenu({ x: ev.clientX, y: ev.clientY, width: 0, height: 0 });
   }
 
   showMenu() {
-    const { x, y, width } = this.menuButtonRect;
-    const menuPosition = {
-      x: x >= MENU_WIDTH ? x - MENU_WIDTH : x + width,
-      y: y,
-    };
-    this.openContextMenu(menuPosition);
+    this.openContextMenu(this.menuButtonRect);
   }
 
-  private openContextMenu(position: DOMCoordinates) {
+  private openContextMenu(anchorRect: Rect) {
     this.menuState.isOpen = true;
-    this.menuState.position = position;
+    this.menuState.anchorRect = anchorRect;
     this.menuState.menuItems = figureRegistry
       .get(this.props.figure.tag)
       .menuBuilder(this.props.figure.id, this.props.onFigureDeleted, this.env);

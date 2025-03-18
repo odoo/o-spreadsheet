@@ -124,7 +124,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   menuState: BottomBarMenuState = useState({
     isOpen: false,
     menuId: undefined,
-    position: null,
+    anchorRect: null,
     menuItems: [],
   });
 
@@ -192,7 +192,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = true;
     this.menuState.menuId = menuId;
     this.menuState.menuItems = registry.getMenuItems();
-    this.menuState.position = { x, y };
+    this.menuState.anchorRect = { x, y, width: 0, height: 0 };
   }
 
   onSheetContextMenu(sheetId: UID, registry: MenuItemRegistry, ev: MenuMouseEvent) {
@@ -209,7 +209,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = false;
     this.menuState.menuId = undefined;
     this.menuState.menuItems = [];
-    this.menuState.position = null;
+    this.menuState.anchorRect = null;
   }
 
   closeContextMenuWithId(menuId: UID) {
