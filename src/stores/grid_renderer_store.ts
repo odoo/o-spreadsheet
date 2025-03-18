@@ -26,14 +26,12 @@ import {
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
-  memoize,
   numberToLetters,
   overlap,
   positionToZone,
   union,
 } from "../helpers/index";
 import { Get, Store } from "../store_engine";
-import { ImageSrc } from "../types/image";
 import {
   Align,
   Box,
@@ -339,22 +337,23 @@ export class GridRenderer {
   private drawIcon(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
     for (const box of boxes) {
-      if (box.image) {
-        const icon: HTMLImageElement = box.image.image;
+      if (box.image && box.image.svg) {
+        ctx.save();
         if (box.image.clipIcon) {
-          ctx.save();
           ctx.beginPath();
           const { x, y, width, height } = box.image.clipIcon;
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
-
         const iconSize = box.image.size;
         const y = this.computeTextYCoordinate(box, iconSize);
-        ctx.drawImage(icon, box.x + MIN_CF_ICON_MARGIN, y, iconSize, iconSize);
-        if (box.image.clipIcon) {
-          ctx.restore();
-        }
+
+        const svg = box.image.svg;
+        ctx.translate(box.x + MIN_CF_ICON_MARGIN, y);
+        ctx.scale(iconSize / svg.width, iconSize / svg.height);
+        ctx.fillStyle = svg.fillColor;
+        ctx.fill(new Path2D(svg.path));
+        ctx.restore();
       }
     }
   }
@@ -626,16 +625,15 @@ export class GridRenderer {
     };
 
     /** Icon */
-    const iconSrc = this.getters.getCellIconSrc(position);
+    const iconSvg = this.getters.getCellIconSvg(position);
     const fontSizePX = computeTextFontSizeInPixels(box.style);
-    const iconBoxWidth = iconSrc ? MIN_CF_ICON_MARGIN + fontSizePX : 0;
-    if (iconSrc) {
-      const imageHtmlElement = loadIconImage(iconSrc);
+    const iconBoxWidth = iconSvg ? MIN_CF_ICON_MARGIN + fontSizePX : 0;
+    if (iconSvg) {
       box.image = {
         type: "icon",
         size: fontSizePX,
         clipIcon: { x: box.x, y: box.y, width: Math.min(iconBoxWidth, width), height },
-        image: imageHtmlElement,
+        svg: iconSvg,
       };
     }
 
@@ -666,7 +664,7 @@ export class GridRenderer {
 
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizePX > height;
-    if (iconSrc || box.hasIcon) {
+    if (iconSvg || box.hasIcon) {
       box.clipRect = {
         x: box.x + iconBoxWidth,
         y: box.y,
@@ -790,9 +788,3 @@ export class GridRenderer {
     return boxes;
   }
 }
-
-const loadIconImage = memoize(function loadIconImage(src: ImageSrc): HTMLImageElement {
-  const image = new Image();
-  image.src = src;
-  return image;
-});
