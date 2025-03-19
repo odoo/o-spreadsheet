@@ -70,6 +70,7 @@ import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_h
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
+import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
@@ -190,6 +191,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       },
       () => [this.sidePanel.isOpen]
     );
+    useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {
+      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+      return scrollY > 0;
+    });
   }
 
   onCellHovered({ col, row }) {
@@ -455,7 +460,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   private moveCanvas(deltaX: number, deltaY: number) {
     const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    return this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX + deltaX,
       offsetY: scrollY + deltaY,
     });
@@ -494,6 +499,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.selection.selectCell(col, row);
     }
+
+    if (this.env.isMobile()) {
+      return;
+    }
+
     let prevCol = col;
     let prevRow = row;
 
