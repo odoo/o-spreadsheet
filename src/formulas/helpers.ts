@@ -1,4 +1,5 @@
 import { functionRegistry } from "../functions";
+import { EnrichedToken } from "./composer_tokenizer";
 import { AST, ASTFuncall, iterateAstNodes, parseTokens } from "./parser";
 import { Token } from "./tokenizer";
 
@@ -37,4 +38,11 @@ function getFunctionsFromAST(ast: AST, functionNames: string[]) {
       functionName: node.value.toUpperCase(),
       args: node.args,
     }));
+}
+
+export function isSheetAutocomplete(tokenAtCursor: EnrichedToken | undefined): boolean {
+  return (
+    (tokenAtCursor?.type === "SYMBOL" || tokenAtCursor?.type === "UNKNOWN") &&
+    tokenAtCursor?.value.startsWith("'")
+  );
 }

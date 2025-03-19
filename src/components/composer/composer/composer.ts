@@ -3,6 +3,7 @@ import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants"
 import { functionRegistry } from "../../../functions/index";
 import { clip, isFormula, setColorAlpha } from "../../../helpers/index";
 
+import { isSheetAutocomplete } from "../../../formulas";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -743,8 +744,14 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     }
     const token = this.props.composerStore.tokenAtCursor;
 
-    if (isFormula(composerStore.currentContent) && token && token.type !== "SYMBOL") {
-      const tokenContext = token.functionContext;
+    if (
+      (isFormula(composerStore.currentContent) &&
+        token &&
+        token.type !== "SYMBOL" &&
+        !this.props.composerStore.currentTokens.some((t) => t.type === "UNKNOWN")) ||
+      isSheetAutocomplete(this.props.composerStore.tokenAtCursor)
+    ) {
+      const tokenContext = token?.functionContext;
       const parentFunction = tokenContext?.parent.toUpperCase();
       if (
         tokenContext &&

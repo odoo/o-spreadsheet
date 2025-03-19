@@ -1,3 +1,4 @@
+import { isSheetAutocomplete } from "../../../formulas";
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { functionRegistry } from "../../../functions";
@@ -713,9 +714,11 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   get autocompleteProvider(): AutoCompleteProvider | undefined {
     const content = this.currentContent;
-    const tokenAtCursor = isFormula(content)
-      ? this.tokenAtCursor
-      : { type: "STRING", value: content };
+    const tokenAtCursor =
+      (isFormula(content) && !this.currentTokens.some((token) => token.type === "UNKNOWN")) ||
+      isSheetAutocomplete(this.tokenAtCursor)
+        ? this.tokenAtCursor
+        : { type: "STRING", value: content };
     if (
       this.editionMode === "inactive" ||
       !tokenAtCursor ||

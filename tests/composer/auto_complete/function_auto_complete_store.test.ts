@@ -15,4 +15,22 @@ describe("Function auto complete", () => {
     autoComplete?.selectProposal(proposals![0].text);
     expect(composer.currentContent).toEqual("=SUM(");
   });
+
+  test("starting with unknown character should stop autocomplete even when adding a valid character", () => {
+    const { store: composer, model } = makeStore(CellComposerStore);
+    setCellContent(model, "A1", "=éSUM");
+    composer.startEdition();
+    const autoComplete = composer.autocompleteProvider;
+    const proposals = autoComplete?.proposals;
+    expect(proposals).toBeUndefined();
+  });
+
+  test("adding an unknown character in the middle of a function should stop autocomplete", () => {
+    const { store: composer, model } = makeStore(CellComposerStore);
+    setCellContent(model, "A1", "=SéSUM");
+    composer.startEdition();
+    const autoComplete = composer.autocompleteProvider;
+    const proposals = autoComplete?.proposals;
+    expect(proposals).toBeUndefined();
+  });
 });
