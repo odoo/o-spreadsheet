@@ -6,7 +6,7 @@ import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
-import { useDragAndDropListItems } from "../helpers/drag_and_drop_hook";
+import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
 import { Menu, MenuState } from "../menu/menu";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";

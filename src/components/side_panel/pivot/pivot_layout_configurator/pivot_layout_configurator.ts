@@ -20,7 +20,7 @@ import {
 } from "../../../../types/pivot";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { css } from "../../../helpers";
-import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_hook";
+import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { measureDisplayTerms } from "../../../translations_terms";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
