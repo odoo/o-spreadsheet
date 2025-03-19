@@ -57,7 +57,7 @@ interface WorkbookSettings {
 type PivotData = { formulaId: string } & PivotCoreDefinition;
 
 export interface WorkbookData {
-  version: number;
+  version: string;
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };

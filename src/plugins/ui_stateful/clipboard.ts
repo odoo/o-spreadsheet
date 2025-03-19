@@ -6,7 +6,7 @@ import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
 import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
-import { CURRENT_VERSION } from "../../migrations/data";
+import { getCurrentVersion } from "../../migrations/data";
 import { _t } from "../../translation";
 import {
   ClipboardData,
@@ -47,7 +47,7 @@ type MinimalClipboardData = {
 };
 
 export interface SpreadsheetClipboardData extends MinimalClipboardData {
-  version?: number;
+  version?: string;
   clipboardId?: string;
 }
 /**
@@ -528,7 +528,7 @@ export class ClipboardPlugin extends UIPlugin {
 
   private getSheetData(): SpreadsheetClipboardData {
     const data = {
-      version: CURRENT_VERSION,
+      version: getCurrentVersion(),
       clipboardId: this.clipboardId,
     };
     if (this.copiedData && "figureId" in this.copiedData) {
