@@ -323,25 +323,6 @@
         </a:solidFill>
       </c:spPr>
     </c:plotArea>
-    <c:legend>
-      <c:legendPos val="t"/>
-      <c:overlay val="0"/>
-      <c:txPr>
-        <a:bodyPr/>
-        <a:lstStyle/>
-        <a:p>
-          <a:pPr lvl="0">
-            <a:defRPr sz="1000" b="0" i="0">
-              <a:solidFill>
-                <a:srgbClr val="000000"/>
-              </a:solidFill>
-              <a:latin typeface="+mn-lt"/>
-            </a:defRPr>
-          </a:pPr>
-          <a:endParaRPr lang="en-US"/>
-        </a:p>
-      </c:txPr>
-    </c:legend>
     <c:plotVisOnly val="1"/>
     <c:dispBlanksAs val="zero"/>
     <c:showDLblsOverMax val="1"/>
