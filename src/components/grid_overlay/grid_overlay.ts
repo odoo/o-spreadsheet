@@ -121,7 +121,7 @@ function useCellHovered(
   return hoveredPosition;
 }
 
-function useTouchMove(
+export function useTouchMove(
   gridRef: Ref<HTMLElement>,
   handler: (deltaX: Pixel, deltaY: Pixel) => void,
   canMoveUp: () => boolean
@@ -220,10 +220,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       resizeObserver.disconnect();
     });
-    useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
-    });
+    // useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
+    //   const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+    //   return scrollY > 0;
+    // });
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
   }
@@ -243,7 +243,13 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     return this.paintFormatStore.isActive;
   }
 
+  onTouchStart(ev: TouchEvent) {
+    // this.env.notifyUser({ type: "info", text:"touchstart",sticky:true });
+  }
+
   onMouseDown(ev: MouseEvent) {
+    // this.env.notifyUser({ type: "info", text:"mousedown",sticky:true });
+    return;
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;

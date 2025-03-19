@@ -112,9 +112,10 @@ class Demo extends Component {
     });
 
     topbarMenuRegistry.add("notify", {
-      name: "Dummy notifications",
+      name: "s",
       sequence: 1000,
       isReadonlyAllowed: true,
+      isVisible: () => false,
     });
 
     topbarMenuRegistry.addChild("fake_notify_sticky", ["notify"], {

@@ -6,6 +6,7 @@
       t-att-class="{'o-paint-format-cursor': isPaintingFormat}"
       t-att-style="style"
       t-on-pointerdown="onMouseDown"
+      t-on-click="onTouchStart"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
