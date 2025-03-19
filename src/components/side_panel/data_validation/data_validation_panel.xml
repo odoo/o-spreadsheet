@@ -15,7 +15,11 @@
         </div>
       </t>
       <t t-else="">
-        <DataValidationEditor rule="localizeDVRule(state.activeRule)" onExit.bind="onExitEditMode"/>
+        <DataValidationEditor
+          rule="localizeDVRule(state.activeRule)"
+          onExit.bind="onExitEditMode"
+          sheetId="state.sheetId"
+        />
       </t>
     </div>
   </t>
