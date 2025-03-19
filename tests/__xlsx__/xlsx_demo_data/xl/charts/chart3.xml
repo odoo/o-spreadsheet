@@ -576,7 +576,7 @@
       </c:spPr>
     </c:plotArea>
     <c:legend>
-      <c:legendPos val="t"/>
+      <c:legendPos val="b"/>
       <c:overlay val="0"/>
       <c:txPr>
         <a:bodyPr/>
