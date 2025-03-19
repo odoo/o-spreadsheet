@@ -1,12 +1,12 @@
 import { DEFAULT_REVISION_ID } from "../../src/constants";
-import { CURRENT_VERSION, load } from "../../src/migrations/data";
+import { getCurrentVersion, load } from "../../src/migrations/data";
 import { DEFAULT_LOCALE } from "../../src/types";
 
 describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {
     const emptyWorkbook = load({});
     expect(emptyWorkbook).toMatchObject({
-      version: CURRENT_VERSION,
+      version: getCurrentVersion(),
       borders: {},
       styles: {},
       formats: {},
@@ -41,7 +41,7 @@ describe("load data", () => {
         sheets: [{ id: "asdf", merges: ["A1:B2"] }],
       })
     ).toMatchObject({
-      version: CURRENT_VERSION,
+      version: getCurrentVersion(),
       borders: {},
       styles: {},
       formats: {},
@@ -73,7 +73,7 @@ describe("load data", () => {
         sheets: [{ name: "Sheet1", merges: ["A1:B2"] }],
       })
     ).toMatchObject({
-      version: CURRENT_VERSION,
+      version: getCurrentVersion(),
       borders: {},
       styles: {},
       formats: {},
@@ -154,7 +154,7 @@ describe("load data", () => {
         sheets: [{ merges: ["A1:B2"] }],
       })
     ).toMatchObject({
-      version: CURRENT_VERSION,
+      version: getCurrentVersion(),
       borders: {},
       styles: {},
       formats: {},
@@ -205,7 +205,7 @@ describe("load data", () => {
         ],
       })
     ).toMatchObject({
-      version: CURRENT_VERSION,
+      version: getCurrentVersion(),
       sheets: [
         {
           figures: [
