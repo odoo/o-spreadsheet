@@ -163,7 +163,7 @@ export class ContentEditableHelper {
         const span = document.createElement("span");
         span.innerText = content.value;
         span.style.color = content.color || "";
-        span.addEventListener("mouseenter", () => {
+        span.addEventListener("mousemove", () => {
           content.onHover?.(getBoundingRectAsPOJO(span));
         });
         span.addEventListener("mouseleave", () => {

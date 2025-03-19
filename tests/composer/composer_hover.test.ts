@@ -1,37 +1,33 @@
+import { SpreadsheetChildEnv } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
-import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
+import { setCellContent, setFormat, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { getElStyle, triggerMouseEvent } from "../test_helpers/dom_helper";
+import { getElStyle, keyDown, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
   mountComposerWrapper,
+  mountSpreadsheet,
   nextTick,
+  typeInComposerGrid,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
-let parent: ComposerWrapper;
 let composerStore: Store<CellComposerStore>;
+let env: SpreadsheetChildEnv;
 
-async function typeInComposer(text: string, fromScratch: boolean = true) {
-  if (fromScratch) {
-    parent.startComposition();
-  }
-  const composerEl = await typeInComposerHelper("div.o-composer", text, false);
-  return composerEl;
-}
-
-async function hoverComposerContent(content: string) {
+export async function hoverComposerContent(content: string, args = { matchIndex: 0 }) {
   const spans = fixture.querySelectorAll(".o-composer span");
-  const hoveredSpan = Array.from(spans).find((s) => s.textContent === content);
+  const matchingSpans = Array.from(spans).filter((s) => s.textContent === content);
+  const hoveredSpan = matchingSpans[args.matchIndex];
   if (!hoveredSpan) {
     throw new Error(`Span with text ${content} not found`);
   }
-  triggerMouseEvent(hoveredSpan, "mouseenter");
+  triggerMouseEvent(hoveredSpan, "mousemove");
   jest.runAllTimers();
   await nextTick();
 }
@@ -57,17 +53,27 @@ function getHighlightedContent() {
     .join("");
 }
 
-beforeEach(async () => {
-  ({ model, parent, fixture } = await mountComposerWrapper());
-  composerStore = parent.env.getStore(CellComposerStore);
-  jest.useFakeTimers();
-});
-
-afterEach(() => {
-  jest.useRealTimers();
-});
-
 describe("Composer hover", () => {
+  let parent: ComposerWrapper;
+
+  beforeEach(async () => {
+    ({ model, parent, fixture, env } = await mountComposerWrapper());
+    jest.useFakeTimers();
+    composerStore = parent.env.getStore(CellComposerStore);
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  async function typeInComposer(text: string, fromScratch: boolean = true) {
+    if (fromScratch) {
+      parent.startComposition();
+    }
+    const composerEl = await typeInComposerHelper("div.o-composer", text, false);
+    return composerEl;
+  }
+
   test("Hovering a composer token will spawn a speech bubble with the evaluation result", async () => {
     setCellContent(model, "B1", "56");
     await typeInComposer("=B1");
@@ -94,7 +100,19 @@ describe("Composer hover", () => {
     expect(getHighlightedContent()).toEqual("");
 
     await hoverComposerContent("*");
-    expect(getHighlightedContent()).toEqual("SUM(A1+2) * 8");
+    expect(getHighlightedContent()).toEqual("=SUM(A1+2) * 8");
+  });
+
+  test("Hover works with spaces at the start/end", async () => {
+    await typeInComposer("= 2 ");
+    await hoverComposerContent(" ", { matchIndex: 0 });
+    expect(getHighlightedContent()).toEqual("= 2 ");
+
+    await hoverComposerContent(" ", { matchIndex: 1 });
+    expect(getHighlightedContent()).toEqual("= 2 ");
+
+    await hoverComposerContent("2");
+    expect(getHighlightedContent()).toEqual("= 2 ");
   });
 
   test("Can hover primitive types", async () => {
@@ -180,7 +198,7 @@ describe("Composer hover", () => {
     expect(".o-speech-bubble").toHaveText("31");
 
     await hoverComposerContent("-");
-    expect(getHighlightedContent()).toEqual("SUM(5 * 5 + 6) - 12 / SUM(6)");
+    expect(getHighlightedContent()).toEqual("=SUM(5 * 5 + 6) - 12 / SUM(6)");
     expect(".o-speech-bubble").toHaveText("29");
 
     await hoverComposerContent("/");
@@ -188,12 +206,21 @@ describe("Composer hover", () => {
     expect(".o-speech-bubble").toHaveText("2");
   });
 
-  test("Speech bubble numbers are default formatted (remove too many decimals)", async () => {
-    setCellContent(model, "B1", "1.1000000001");
-    expect(getEvaluatedCell(model, "B1").formattedValue).toEqual("1.1");
+  test("Speech bubble content is formatted", async () => {
+    setCellContent(model, "B1", "5");
+    setFormat(model, "B1", "0.0$");
 
-    await typeInComposer("=B1");
-    await hoverComposerContent("=");
+    setCellContent(model, "C1", "1.1000000001");
+    expect(getEvaluatedCell(model, "C1").formattedValue).toEqual("1.1"); // default format
+
+    await typeInComposer("=B1+DATE(2025,1,1)+C1");
+    await hoverComposerContent("B1");
+    expect(".o-speech-bubble").toHaveText("5.0$");
+
+    await hoverComposerContent("DATE");
+    expect(".o-speech-bubble").toHaveText("1/1/2025");
+
+    await hoverComposerContent("C1");
     expect(".o-speech-bubble").toHaveText("1.1");
   });
 
@@ -262,9 +289,9 @@ describe("Composer hover", () => {
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockImplementation(function (this: HTMLElement) {
         if (this.classList.contains("o-speech-bubble")) {
-          return { x: 0, y: 0, width: 100, height: 50 } as DOMRect;
+          return { x: 0, y: 0, width: 100, height: 50 };
         } else if (this.textContent === "=") {
-          return { x: 10, y: 10, width: 20, height: 20 } as DOMRect;
+          return { x: 10, y: 10, width: 20, height: 20 };
         }
         return originalGetBoundingClientRect.call(this);
       });
@@ -276,5 +303,58 @@ describe("Composer hover", () => {
     expect(getElStyle(".o-speech-bubble", "left")).toEqual(10 + 20 / 2 - 100 / 2 + "px");
     // top above the hovered token + BUBBLE_ARROW_SIZE (7px)
     expect(getElStyle(".o-speech-bubble", "top")).toEqual(10 - 50 - 7 + "px");
+    jest.restoreAllMocks();
+  });
+
+  test("Speech bubble do not move if hovering another token within the same evaluation context", async () => {
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+    jest
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        if (this.classList.contains("o-speech-bubble")) {
+          return { x: 0, y: 0, width: 100, height: 50 };
+        } else if (this.textContent === "=") {
+          return { x: 10, y: 10, width: 20, height: 20 };
+        } else if (this.textContent === "50") {
+          return { x: 20, y: 10, width: 20, height: 20 };
+        }
+        return originalGetBoundingClientRect.call(this);
+      });
+
+    await typeInComposer("=50");
+
+    await hoverComposerContent("=");
+    expect(getElStyle(".o-speech-bubble", "left")).toEqual("-30px");
+
+    await hoverComposerContent("50");
+    expect(getElStyle(".o-speech-bubble", "left")).toEqual("-30px");
+    jest.restoreAllMocks();
+  });
+});
+
+describe("Composer hover integration test", () => {
+  beforeEach(async () => {
+    ({ model, fixture, env } = await mountSpreadsheet());
+    composerStore = env.getStore(CellComposerStore);
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test("Speech bubble disappear when opening another grid composer", async () => {
+    await typeInComposerGrid("=12");
+    await hoverComposerContent("=");
+    expect(".o-grid-composer .o-composer.active").toHaveCount(1);
+    expect(".o-speech-bubble").toHaveText("12");
+
+    await keyDown({ key: "Enter" });
+    expect(".o-grid-composer .o-composer.active").toHaveCount(0);
+    expect(".o-speech-bubble").toHaveCount(0);
+
+    await keyDown({ key: "Enter" });
+    expect(".o-grid-composer .o-composer.active").toHaveCount(1);
+    expect(".o-speech-bubble").toHaveCount(0);
   });
 });

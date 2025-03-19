@@ -196,14 +196,18 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   });
   private compositionActive: boolean = false;
   private spreadsheetRect = useSpreadsheetRect();
+  private lastHoveredTokenIndex: number | undefined = undefined;
 
   private debouncedHover = debounce((tokenIndex: number | undefined, hoveredRect?: Rect) => {
     const selection = this.contentHelper.getCurrentSelection();
     if (selection.start !== selection.end) {
       return;
     }
+    const currentHoveredContext = this.props.composerStore.hoveredContent;
     this.props.composerStore.hoverToken(tokenIndex);
-    this.composerState.hoveredRect = hoveredRect;
+    if (this.props.composerStore.hoveredContent !== currentHoveredContext) {
+      this.composerState.hoveredRect = hoveredRect;
+    }
   }, 120);
 
   get assistantStyleProperties(): CSSProperties {
@@ -715,19 +719,25 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         classes.push(selectionIndicatorClass);
       }
 
-      // (content, hoverRect) => this.debouncedHover(content, hoverRect),
-      // () => this.debouncedHover(undefined)
-
       result.push({
         value: token.value,
         color,
         classes,
-        onHover: (rect) => this.debouncedHover(index, rect),
-        onStopHover: () => this.debouncedHover(undefined),
+        onHover: (rect) => this.onTokenHover(index, rect),
+        onStopHover: () => this.onTokenHover(undefined),
       });
     }
 
     return result;
+  }
+
+  private onTokenHover(tokenIndex: number | undefined, hoveredRect?: Rect) {
+    // We want to debounce the hover event to avoid flickering, but we also don't want to keep delaying the debounce timer
+    // if the user keeps moving its mouse over the same token.
+    if (this.lastHoveredTokenIndex !== tokenIndex) {
+      this.lastHoveredTokenIndex = tokenIndex;
+      this.debouncedHover(tokenIndex, hoveredRect);
+    }
   }
 
   /**
