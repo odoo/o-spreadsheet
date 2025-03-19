@@ -756,6 +756,19 @@ describe("Import xlsx data", () => {
     }
   });
 
+  test.each([
+    ["line chart", "top"],
+    ["bar chart", "right"],
+    ["doughnut chart", "bottom"],
+    ["pie chart", "none"],
+  ])("Can import %s charts with correct legend position", (chartTitle, chartLegendPosition) => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.data.title === chartTitle)!;
+    const chartData = figure.data as BarChartDefinition;
+    expect(chartData.title).toEqual(chartTitle);
+    expect(chartData.legendPosition).toEqual(chartLegendPosition);
+  });
+
   describe("Misc tests", () => {
     test("Newlines characters in strings are removed", () => {
       const testSheet = getWorkbookSheet("jestMiscTest", convertedData)!;
