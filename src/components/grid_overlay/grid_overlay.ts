@@ -139,7 +139,7 @@ interface Props {
     col: HeaderIndex,
     row: HeaderIndex,
     modifiers: GridClickModifiers,
-    ev: MouseEvent
+    ev: PointerEvent | MouseEvent
   ) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
   onGridResized: (dimension: Rect) => void;
@@ -193,6 +193,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       resizeObserver.disconnect();
     });
+
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.hoveredIconStore = useStore(HoveredIconStore);
@@ -216,7 +217,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     return this.paintFormatStore.isActive;
   }
 
-  onMouseMove(ev: MouseEvent) {
+  onPointerMove(ev: MouseEvent) {
+    if (this.env.isMobile()) {
+      return;
+    }
     const icon = this.getInteractiveIconAtEvent(ev);
     const hoveredIcon = icon?.type ? { id: icon.type, position: icon.position } : undefined;
     if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
@@ -224,12 +228,23 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onMouseDown(ev: MouseEvent) {
-    if (ev.button > 0) {
+  onPointerDown(ev: PointerEvent) {
+    if (ev.button > 0 || this.env.isMobile()) {
       // not main button, probably a context menu
       return;
     }
+    this.onCellClicked(ev);
+  }
 
+  onClick(ev: MouseEvent) {
+    if (ev.button > 0 || !this.env.isMobile()) {
+      // not main button, probably a context menu
+      return;
+    }
+    this.onCellClicked(ev);
+  }
+
+  onCellClicked(ev: PointerEvent | MouseEvent) {
     const openedPopover = this.cellPopovers.persistentCellPopover;
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellClicked(

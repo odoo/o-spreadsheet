@@ -10,10 +10,11 @@
   <t t-name="o-spreadsheet-RowResizer">
     <div
       class="o-row-resizer"
+      t-ref="rowResizer"
       t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
       t-on-pointerdown.self.prevent="select"
-      t-ref="rowResizer"
+      t-on-click="onClick"
       t-on-pointerup.self="onMouseUp"
       t-on-contextmenu.self="onContextMenu"
       t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving}">
@@ -53,10 +54,11 @@
   <t t-name="o-spreadsheet-ColResizer">
     <div
       class="o-col-resizer d-flex"
+      t-ref="colResizer"
       t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
       t-on-pointerdown.self.prevent="select"
-      t-ref="colResizer"
+      t-on-click="onClick"
       t-on-pointerup.self="onMouseUp"
       t-on-contextmenu.self="onContextMenu"
       t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving, }">
