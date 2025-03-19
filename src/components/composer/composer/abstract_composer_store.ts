@@ -31,11 +31,11 @@ import { NotificationStore } from "../../../stores/notification_store";
 import { _t } from "../../../translation";
 import {
   CellPosition,
-  CellValue,
   Color,
   Command,
   Direction,
   EditionMode,
+  FunctionResultObject,
   HeaderIndex,
   Highlight,
   isMatrix,
@@ -94,6 +94,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   protected initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
 
+  hoveredContent: string = "";
   hoveredContentEvaluation: string = "";
 
   protected notificationStore = this.get(NotificationStore);
@@ -294,6 +295,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const tokens = [...this.currentTokens];
     if (tokenIndex === undefined) {
       this.hoveredContentEvaluation = "";
+      this.hoveredContent = "";
       return;
     }
 
@@ -302,10 +304,18 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       tokens.push(...Array(missingParenthesis).fill({ value: ")", type: "RIGHT_PAREN" }));
     }
 
-    let hoveredContextTokens =
-      tokenIndex === 0 && (tokens[tokenIndex]?.value === "=" || tokens[tokenIndex]?.value === "+")
-        ? tokens
-        : this.getRelatedTokens(tokens, tokenIndex);
+    let hoveredContextTokens: EnrichedToken[];
+    if (tokenIndex === 0) {
+      hoveredContextTokens = tokens;
+    } else {
+      const relatedTokens = this.getRelatedTokens(tokens, tokenIndex);
+      const notHoveredTokens = tokens.filter(
+        (t) => !relatedTokens.includes(t) && t.type !== "SPACE"
+      );
+      // Includes starting "=" if all the other tokens are hovered
+      hoveredContextTokens =
+        notHoveredTokens.length === 1 && notHoveredTokens[0] === tokens[0] ? tokens : relatedTokens;
+    }
 
     hoveredContextTokens.forEach((t) => (t.isInHoverContext = true));
 
@@ -314,7 +324,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       hoveredFormula = `=${hoveredFormula}`;
     }
     const canonicalFormula = canonicalizeNumberContent(hoveredFormula, this.getters.getLocale());
-    const result = this.getters.evaluateFormula(this.sheetId, canonicalFormula);
+    const result = this.getters.evaluateFormulaResult(this.sheetId, canonicalFormula);
+    this.hoveredContent = hoveredFormula;
     this.hoveredContentEvaluation = this.evaluationResultToDisplayString(result);
   }
 
@@ -329,7 +340,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
           break;
         }
       }
-      return match ? tokens.slice(match.tokenStartIndex, match.tokenEndIndex + 1) : [];
+      if (!match) {
+        return tokens; // Happens if we're hovering spaces at the start/end of the formula
+      }
+      return tokens.slice(match.tokenStartIndex, match.tokenEndIndex + 1);
     } catch (e) {
       if (e instanceof EvaluationError) {
         return tokens;
@@ -338,7 +352,9 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
   }
 
-  private evaluationResultToDisplayString(result: CellValue | Matrix<CellValue>): string {
+  private evaluationResultToDisplayString(
+    result: Matrix<FunctionResultObject> | FunctionResultObject
+  ): string {
     const locale = this.getters.getLocale();
     if (isMatrix(result)) {
       const rowSeparator = locale.decimalSeparator === "," ? "/" : ",";
@@ -351,10 +367,11 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     return this.cellValueToDisplayString(result);
   }
 
-  private cellValueToDisplayString(value: CellValue): string {
+  private cellValueToDisplayString(result: FunctionResultObject): string {
+    const value = result.value;
     switch (typeof value) {
       case "number":
-        return formatValue(value, { locale: this.getters.getLocale() });
+        return formatValue(value, { locale: this.getters.getLocale(), format: result.format });
       case "string":
         if (isEvaluationError(value)) {
           return value;
@@ -470,6 +487,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.editionMode = "inactive";
     this.model.selection.release(this);
     this.colorIndexByRange = {};
+    this.hoveredContentEvaluation = "";
   }
 
   /**

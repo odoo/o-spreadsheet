@@ -202,8 +202,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     if (selection.start !== selection.end) {
       return;
     }
+    const currentHoveredContext = this.props.composerStore.hoveredContent;
     this.props.composerStore.hoverToken(tokenIndex);
-    this.composerState.hoveredRect = hoveredRect;
+    if (this.props.composerStore.hoveredContent !== currentHoveredContext) {
+      this.composerState.hoveredRect = hoveredRect;
+    }
   }, 120);
 
   get assistantStyleProperties(): CSSProperties {
@@ -714,9 +717,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
         classes.push(selectionIndicatorClass);
       }
-
-      // (content, hoverRect) => this.debouncedHover(content, hoverRect),
-      // () => this.debouncedHover(undefined)
 
       result.push({
         value: token.value,
