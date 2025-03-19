@@ -454,7 +454,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   private moveCanvas(deltaX: number, deltaY: number) {
     const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-    this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
+    return this.env.model.dispatch("SET_VIEWPORT_OFFSET", {
       offsetX: scrollX + deltaX,
       offsetY: scrollY + deltaY,
     });
@@ -509,6 +509,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.selection.selectCell(col, row);
     }
+
+    if (this.env.isMobile()) {
+      return;
+    }
+
     let prevCol = col;
     let prevRow = row;
 
