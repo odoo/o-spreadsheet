@@ -1253,7 +1253,6 @@ describe("Grid component", () => {
     setCellContent(model, "A1", "5");
     addIconCF(model, "A1", ["3", "7"], "arrows");
     createTableWithFilter(model, "B1:B2");
-
     const overlay = fixture.querySelector<HTMLElement>(".o-grid-overlay")!;
     expect(overlay!.style.cursor).toBe("default");
 

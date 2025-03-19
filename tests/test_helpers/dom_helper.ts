@@ -177,7 +177,7 @@ export async function clickGridIcon(model: Model, xc: string) {
 
 export async function hoverGridIcon(model: Model, xc: string) {
   const { x, y } = getGridIconEventPosition(model, xc);
-  triggerMouseEvent(".o-grid-overlay", "mousemove", x, y);
+  triggerMouseEvent(".o-grid-overlay", "pointermove", x, y);
   await nextTick();
 }
 
