@@ -242,7 +242,7 @@ describe("Grid component", () => {
   });
 
   test("Can touch the grid to move it", async () => {
-    const grid = fixture.querySelector(".o-grid-overlay")!;
+    const grid = fixture.querySelector(".o-grid")!;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
     triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150, identifier: 1 });
