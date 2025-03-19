@@ -10,16 +10,14 @@ import { normalizeV9 } from "./legacy_tools";
 import { WEEK_START } from "./locale";
 
 export interface MigrationStep {
-  versionFrom: string;
   migrate: (data: any) => any;
 }
 
 export const migrationStepRegistry = new Registry<MigrationStep>();
 
 migrationStepRegistry
-  .add("migration_1", {
+  .add("0.1", {
     // add the `activeSheet` field on data
-    versionFrom: "1",
     migrate(data: any): any {
       if (data.sheets && data.sheets[0]) {
         data.activeSheet = data.sheets[0].name;
@@ -27,9 +25,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_2", {
+  .add("0.2", {
     // add an id field in each sheet
-    versionFrom: "2",
     migrate(data: any): any {
       if (data.sheets && data.sheets.length) {
         for (let sheet of data.sheets) {
@@ -39,9 +36,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_3", {
+  .add("0.3", {
     // activeSheet is now an id, not the name of a sheet
-    versionFrom: "3",
     migrate(data: any): any {
       if (data.sheets && data.activeSheet) {
         const activeSheet = data.sheets.find((s) => s.name === data.activeSheet);
@@ -50,9 +46,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_4", {
+  .add("0.4", {
     // add figures object in each sheets
-    versionFrom: "4",
     migrate(data: any): any {
       for (let sheet of data.sheets || []) {
         sheet.figures = sheet.figures || [];
@@ -60,9 +55,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_5", {
+  .add("0.5", {
     // normalize the content of the cell if it is a formula to avoid parsing all the formula that vary only by the cells they use
-    versionFrom: "5",
     migrate(data: any): any {
       for (let sheet of data.sheets || []) {
         for (let xc in sheet.cells || []) {
@@ -75,9 +69,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_6", {
+  .add("0.6", {
     // transform chart data structure
-    versionFrom: "6",
     migrate(data: any): any {
       for (let sheet of data.sheets || []) {
         for (let f in sheet.figures || []) {
@@ -100,9 +93,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_7", {
+  .add("0.7", {
     // remove single quotes in sheet names
-    versionFrom: "7",
     migrate(data: any): any {
       const namesTaken: string[] = [];
       for (let sheet of data.sheets || []) {
@@ -165,9 +157,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_8", {
+  .add("0.8", {
     // transform chart data structure with design attributes
-    versionFrom: "8",
     migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         for (const chart of sheet.figures || []) {
@@ -180,9 +171,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_9", {
+  .add("0.9", {
     // de-normalize formula to reduce exported json size (~30%)
-    versionFrom: "9",
     migrate(data: any): any {
       for (let sheet of data.sheets || []) {
         for (let xc in sheet.cells || []) {
@@ -201,9 +191,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_10", {
+  .add("0.10", {
     // normalize the formats of the cells
-    versionFrom: "10",
     migrate(data: any): any {
       const formats: { [formatId: number]: Format } = {};
       for (let sheet of data.sheets || []) {
@@ -218,9 +207,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_11", {
+  .add("15.4", {
     // Add isVisible to sheets
-    versionFrom: "11",
     migrate(data: any): any {
       for (let sheet of data.sheets || []) {
         sheet.isVisible = true;
@@ -228,16 +216,14 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_12", {
+  .add("15.4.1", {
     // Fix data filter duplication
-    versionFrom: "12",
     migrate(data: any): any {
       return fixOverlappingFilters(data);
     },
   })
-  .add("migration_12_5", {
+  .add("16.3", {
     // Change Border description structure
-    versionFrom: "12.5",
     migrate(data: any): any {
       for (const borderId in data.borders) {
         const border = data.borders[borderId];
@@ -253,9 +239,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_13", {
+  .add("16.4", {
     // Add locale to spreadsheet settings
-    versionFrom: "13",
     migrate(data: any): any {
       if (!data.settings) {
         data.settings = {};
@@ -266,16 +251,14 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_14", {
+  .add("16.4.1", {
     // Fix datafilter duplication (post saas-17.1)
-    versionFrom: "14",
     migrate(data: any): any {
       return fixOverlappingFilters(data);
     },
   })
-  .add("migration_14_5", {
+  .add("17.2", {
     // Rename filterTable to tables
-    versionFrom: "14.5",
     migrate(data: any): any {
       for (const sheetData of data.sheets || []) {
         sheetData.tables = sheetData.tables || sheetData.filterTables || [];
@@ -284,9 +267,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_15", {
+  .add("17.3", {
     // Add pivots
-    versionFrom: "15",
     migrate(data: any): any {
       if (!data.pivots) {
         data.pivots = {};
@@ -297,9 +279,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_16", {
+  .add("17.4", {
     // transform chart data structure (2)
-    versionFrom: "16",
     migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         for (const f in sheet.figures || []) {
@@ -320,18 +301,16 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_17", {
+  .add("18.0", {
     // Empty migration to allow external modules to add their own migration steps
     // before this version
-    versionFrom: "17",
     migrate(data: any): any {
       return data;
     },
   })
-  .add("migration_18", {
+  .add("18.0.1", {
     // Change measures and dimensions `name` to `fieldName`
     // Add id to measures
-    versionFrom: "18",
     migrate(data: any): any {
       interface PivotCoreMeasureV17 {
         name: string;
@@ -362,9 +341,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_19", {
+  .add("18.0.2", {
     // "Add weekStart to locale",
-    versionFrom: "19",
     migrate(data: any): any {
       const locale = data.settings?.locale;
       if (locale) {
@@ -374,9 +352,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_20", {
+  .add("18.0.3", {
     // group style and format into zones,
-    versionFrom: "20",
     migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         sheet.styles = {};
@@ -394,9 +371,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_21", {
+  .add("18.0.4", {
     // "Add operator in gauge inflection points",
-    versionFrom: "21",
     migrate(data: WorkbookData): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
@@ -415,9 +391,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_22", {
+  .add("18.1", {
     // "tables are no longer inserted with filters by default",
-    versionFrom: "22",
     migrate(data: WorkbookData): any {
       for (const sheet of data.sheets || []) {
         for (const table of sheet.tables || []) {
@@ -429,9 +404,8 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_23", {
+  .add("18.1.1", {
     // Flatten cell content: { content: "value" } -> "value"
-    versionFrom: "23",
     migrate(data: WorkbookData): any {
       for (const sheet of data.sheets || []) {
         for (const xc in sheet.cells) {
@@ -444,10 +418,14 @@ migrationStepRegistry
       return data;
     },
   })
-  .add("migration_24", {
+  .add("18.2", {
     // Empty migration to allow odoo migrate pivot custom sorting.
-    versionFrom: "24",
     migrate(data: WorkbookData): any {
+      return data;
+    },
+  })
+  .add("18.3", {
+    migrate(data) {
       return data;
     },
   });

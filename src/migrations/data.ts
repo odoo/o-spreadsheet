@@ -15,11 +15,18 @@ import { XlsxReader } from "../xlsx/xlsx_reader";
 import { migrationStepRegistry } from "./migration_steps";
 
 /**
- * This is the current state version number. It should be incremented each time
- * a breaking change is made in the way the state is handled, and an upgrade
- * function should be defined
+ * Represents the current version of the exported JSON data.
+ * A new version must be created whenever a breaking change is introduced in the export format.
+ * To define a new version, add an upgrade function to `migrationStepRegistry`.
  */
-export const CURRENT_VERSION = 25;
+export function getCurrentVersion() {
+  return getSortedVersions().at(-1)!;
+}
+
+function getSortedVersions() {
+  return migrationStepRegistry.getKeys().sort(compareVersions);
+}
+
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -47,7 +54,10 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
 
   // apply migrations, if needed
   if ("version" in data) {
-    if (data.version < CURRENT_VERSION) {
+    if (isLegacyVersioning(data)) {
+      data.version = LEGACY_VERSION_MAPPING[data.version];
+    }
+    if (data.version !== getCurrentVersion()) {
       console.debug("Migrating data from version", data.version);
       data = migrate(data);
     }
@@ -56,6 +66,44 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
   console.debug("Data loaded in", performance.now() - start, "ms");
   console.debug("###");
   return data;
+}
+
+const LEGACY_VERSION_MAPPING = {
+  25: "18.2",
+  24: "18.1.1",
+  23: "18.1",
+  22: "18.0.4",
+  21: "18.0.3",
+  20: "18.0.2",
+  19: "18.0.1",
+  18: "18.0",
+  17: "17.4",
+  16: "17.3",
+  15: "17.2",
+  14: "16.4",
+  13: "16.3",
+  12: "15.4",
+
+  // not accurate starting at this point
+  11: "0.10",
+  10: "0.9",
+  9: "0.8",
+  8: "0.7",
+  7: "0.6",
+  6: "0.5",
+  5: "0.4",
+  4: "0.3",
+  3: "0.2",
+  2: "0.1",
+  1: "0",
+};
+
+/**
+ * Versions used to be an incremented integer.
+ * This was later changed to match release versions (matching Odoo release names).
+ */
+function isLegacyVersioning(data: { version: number | string }): boolean {
+  return typeof data.version === "number";
 }
 
 // -----------------------------------------------------------------------------
@@ -83,12 +131,11 @@ function compareVersions(v1: string, v2: string): number {
 
 function migrate(data: any): WorkbookData {
   const start = performance.now();
-  const steps = migrationStepRegistry
-    .getAll()
-    .sort((a, b) => compareVersions(a.versionFrom, b.versionFrom));
-  const index = steps.findIndex((step) => step.versionFrom === data.version.toString());
-  for (let i = index; i < steps.length; i++) {
-    data = steps[i].migrate(data);
+  const versions = getSortedVersions();
+  const index = versions.findIndex((v) => v === data.version);
+  for (let i = index + 1; i < versions.length; i++) {
+    const nextVersion = versions[i];
+    data = migrationStepRegistry.get(nextVersion).migrate(data);
   }
   console.debug("Data migrated in", performance.now() - start, "ms");
   return data;
@@ -131,7 +178,7 @@ function forceUnicityOfFigure(data: Partial<WorkbookData>): Partial<WorkbookData
  */
 function setDefaults(partialData: Partial<WorkbookData>): Partial<WorkbookData> {
   const data: WorkbookData = Object.assign(createEmptyWorkbookData(), partialData, {
-    version: CURRENT_VERSION,
+    version: getCurrentVersion(),
   });
   data.sheets = data.sheets
     ? data.sheets.map((s, i) =>
@@ -291,7 +338,7 @@ export function createEmptySheet(sheetId: UID, name: string): SheetData {
 
 export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
   return {
-    version: CURRENT_VERSION,
+    version: getCurrentVersion(),
     sheets: [createEmptySheet(INITIAL_SHEET_ID, sheetName)],
     styles: {},
     formats: {},

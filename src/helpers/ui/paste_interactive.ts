@@ -1,4 +1,4 @@
-import { CURRENT_VERSION } from "../../migrations/data";
+import { getCurrentVersion } from "../../migrations/data";
 import { _t } from "../../translation";
 import {
   ClipboardPasteOptions,
@@ -75,7 +75,7 @@ export async function interactivePasteFromOS(
   } catch (error) {
     const parsedSpreadsheetContent = parsedClipboardContent.data;
 
-    if (parsedSpreadsheetContent?.version !== CURRENT_VERSION) {
+    if (parsedSpreadsheetContent?.version !== getCurrentVersion()) {
       env.raiseError(
         _t(
           "An unexpected error occurred while pasting content.\
