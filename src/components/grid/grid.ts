@@ -516,6 +516,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.selection.selectCell(col, row);
     }
+
+    if (this.env.isMobile()) {
+      return;
+    }
+
     let prevCol = col;
     let prevRow = row;
 
