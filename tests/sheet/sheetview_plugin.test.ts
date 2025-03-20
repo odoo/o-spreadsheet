@@ -158,7 +158,7 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
       right: 10,
-      top: 59,
+      top: 58,
       bottom: 99,
     });
     const { height } = model.getters.getMainViewportRect();
@@ -171,8 +171,8 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
       right: 10,
-      top: 59,
-      bottom: 103,
+      top: 58,
+      bottom: 101,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
       scrollX: 0,
@@ -214,15 +214,15 @@ describe("Viewport of Simple sheet", () => {
       scrollY: 0,
     });
 
-    setViewportOffset(model, DEFAULT_CELL_WIDTH * 16, 0);
+    setViewportOffset(model, DEFAULT_CELL_WIDTH * 14, 0);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 0,
       bottom: 43,
-      left: 16,
-      right: 25,
+      left: 14,
+      right: 24,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      scrollX: DEFAULT_CELL_WIDTH * 16,
+      scrollX: DEFAULT_CELL_WIDTH * 14,
       scrollY: 0,
     });
 
@@ -269,15 +269,15 @@ describe("Viewport of Simple sheet", () => {
       right: 25,
     });
 
-    setViewportOffset(model, DEFAULT_CELL_WIDTH * 16, 0);
+    const { width: sheetViewWidth } = model.getters.getSheetViewDimension();
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 5,
       bottom: 43,
-      left: 20,
+      left: 19,
       right: 25,
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      scrollX: DEFAULT_CELL_WIDTH * 16,
+      scrollX: 26 * DEFAULT_CELL_WIDTH - sheetViewWidth, // fully scrolled
       scrollY: 0,
     });
   });
@@ -429,11 +429,11 @@ describe("Viewport of Simple sheet", () => {
     const nRows = model.getters.getNumberRows(sheetId);
     setViewportOffset(model, nCols * DEFAULT_CELL_WIDTH + 10, nRows * DEFAULT_CELL_HEIGHT + 10);
 
-    const maxOffsetX = DEFAULT_CELL_WIDTH * (nCols - 10 + 1);
-    const maxOffsetY = DEFAULT_CELL_HEIGHT * (nRows - 10 + 1) + 46;
+    const maxOffsetX = DEFAULT_CELL_WIDTH * (nCols - 10);
+    const maxOffsetY = DEFAULT_CELL_HEIGHT * (nRows - 10) + 46;
     expect(model.getters.getActiveSheetScrollInfo()).toEqual({
-      scrollX: maxOffsetX + 1,
-      scrollY: maxOffsetY + 1 + 5,
+      scrollX: maxOffsetX,
+      scrollY: maxOffsetY,
     });
   });
 
@@ -471,13 +471,7 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 0,
       bottom: 43,
-      left: 7,
-      right: 25,
-    });
-    expect(model.getters.getActiveMainViewport()).toMatchObject({
-      top: 0,
-      bottom: 43,
-      left: 7,
+      left: 5,
       right: 25,
     });
     const { width: sheetViewWidth } = model.getters.getSheetViewDimension();
@@ -518,7 +512,7 @@ describe("Viewport of Simple sheet", () => {
     });
     resizeRows(model, [...Array(numberRows).keys()], DEFAULT_CELL_HEIGHT / 2);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
-      top: 22,
+      top: 20,
       bottom: 99,
       left: 0,
       right: 10,
@@ -553,11 +547,11 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: viewport.top,
       bottom: viewport.bottom,
-      left: 3,
-      right: viewport.right,
+      left: 2,
+      right: 12, // stops at the last visible column
     });
     expect(model.getters.getActiveSheetScrollInfo()).toMatchObject({
-      scrollX: DEFAULT_CELL_WIDTH * 14 - model.getters.getSheetViewDimension().width,
+      scrollX: DEFAULT_CELL_WIDTH * 13 - model.getters.getSheetViewDimension().width,
       scrollY: 0,
     });
   });
@@ -582,7 +576,7 @@ describe("Viewport of Simple sheet", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     hideRows(model, range(60, 100));
     expect(model.getters.getActiveMainViewport()).toMatchObject({
-      top: 19,
+      top: 18,
       bottom: 99,
       left: viewport.left,
       right: viewport.right,
@@ -1633,8 +1627,8 @@ describe("shift viewport up/down", () => {
       selectCell(model, selectedCell);
       model.dispatch("SHIFT_VIEWPORT_DOWN");
       expect(model.getters.getSelectedZone()).toEqual({
-        top: toZone(selectedCell).top + 5,
-        bottom: toZone(selectedCell).bottom + 5,
+        top: toZone(selectedCell).top + 4,
+        bottom: toZone(selectedCell).bottom + 4,
         left: 0,
         right: 0,
       });
