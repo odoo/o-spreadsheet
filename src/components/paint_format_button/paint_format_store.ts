@@ -70,7 +70,7 @@ export class PaintFormatStore extends SpreadsheetStore {
 
     const copiedData = {};
     for (const handler of this.clipboardHandlers) {
-      Object.assign(copiedData, handler.copy(getClipboardDataPositions(sheetId, zones)));
+      Object.assign(copiedData, handler.copy(getClipboardDataPositions(sheetId, zones), false));
     }
 
     return copiedData as ClipboardContent;

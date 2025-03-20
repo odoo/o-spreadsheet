@@ -1,6 +1,6 @@
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { getFilteredClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import {
   clip,
   deepCopy,
@@ -552,7 +552,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
     const sheetId = this.getActiveSheetId();
     const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getFilteredClipboardDataPositions(sheetId, target, this.getters));
+    const data = handler.copy(getClipboardDataPositions(sheetId, target));
     if (!data) {
       return;
     }

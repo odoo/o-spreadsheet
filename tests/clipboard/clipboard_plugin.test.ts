@@ -2052,7 +2052,7 @@ describe("clipboard", () => {
     ]);
   });
 
-  test("filtered rows are ignored when copying range", () => {
+  test("filtered rows are ignored when cutting range", () => {
     //prettier-ignore
     const model = createModelFromGrid({
       B2: "b2", C2: "c2", D2: "d2",

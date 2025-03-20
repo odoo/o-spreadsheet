@@ -3,10 +3,7 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { convertImageToPng } from "../../components/helpers/dom_helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import {
-  getClipboardDataPositions,
-  getFilteredClipboardDataPositions,
-} from "../../helpers/clipboard/clipboard_helpers";
+import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
 import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
 import { getCurrentVersion } from "../../migrations/data";
@@ -725,10 +722,11 @@ export class ClipboardPlugin extends UIPlugin {
     if (selectedFigureId) {
       return { figureId: selectedFigureId, sheetId };
     }
-    if (this._isCutOperation) {
-      return getClipboardDataPositions(sheetId, zones);
+    const data = getClipboardDataPositions(sheetId, zones);
+    if (!this._isCutOperation) {
+      data.rowsIndexes = data.rowsIndexes.filter((r) => !this.getters.isRowFiltered(sheetId, r));
     }
-    return getFilteredClipboardDataPositions(sheetId, zones, this.getters);
+    return data;
   }
 
   // ---------------------------------------------------------------------------
