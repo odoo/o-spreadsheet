@@ -136,7 +136,13 @@ function tokenizeString(chars: string[]): Token | null {
   return null;
 }
 
-const separatorRegexp = /\w|\.|!|\$/;
+/**
+  - \p{L} is for any letter (from any language)
+  - \p{N} is for any number
+  - the u flag at the end is for unicode, which enables the `\p{...}` syntax
+ */
+const unicodeSymbolCharRegexp = /\p{L}|\p{N}|_|\.|!|\$/u;
+const SYMBOL_CHARS = new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.!$");
 
 /**
  * A "Symbol" is just basically any word-like element that can appear in a
@@ -177,7 +183,7 @@ function tokenizeSymbol(chars: string[]): Token | null {
       };
     }
   }
-  while (chars[0] && chars[0].match(separatorRegexp)) {
+  while (chars[0] && (SYMBOL_CHARS.has(chars[0]) || chars[0].match(unicodeSymbolCharRegexp))) {
     result += chars.shift();
   }
   if (result.length) {
