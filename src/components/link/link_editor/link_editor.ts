@@ -3,10 +3,10 @@ import { markdownLink } from "../../../helpers";
 import { detectLink, urlRepresentation } from "../../../helpers/links";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
-import { Link, Position, SpreadsheetChildEnv } from "../../../types";
+import { Link, Position, Rect, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
-import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
+import { getRefBoundingRect } from "../../helpers/dom_helpers";
 import { Menu } from "../../menu/menu";
 
 const PADDING = 12;
@@ -83,7 +83,6 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     isOpen: false,
   });
   private linkEditorMenuButtonRef = useRef("linkEditorMenuButton");
-  menuButtonRect = useAbsoluteBoundingRect(this.linkEditorMenuButtonRef);
   urlInput = useRef("urlInput");
 
   setup() {
@@ -106,6 +105,10 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
       url: "",
       isUrlEditable: true,
     };
+  }
+
+  get menuButtonRect(): Rect {
+    return getRefBoundingRect(this.linkEditorMenuButtonRef);
   }
 
   onSpecialLink(ev: CustomEvent<string>) {
