@@ -1,4 +1,5 @@
 import { Model } from "../src";
+import { ClickableCellsStore } from "../src/components/dashboard/clickable_cell_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
@@ -12,8 +13,9 @@ import {
   NEWLINE,
   SELECTION_BORDER_COLOR,
 } from "../src/constants";
-import { fontSizeInPixels, toHex, toZone } from "../src/helpers";
+import { fontSizeInPixels, positionToZone, toHex, toZone } from "../src/helpers";
 import { Mode } from "../src/model";
+import { clickableCellRegistry } from "../src/registries/cell_clickable_registry";
 import { FormulaFingerprintStore } from "../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../src/stores/grid_renderer_store";
 import { RendererStore } from "../src/stores/renderer_store";
@@ -45,7 +47,13 @@ import {
   setZoneBorders,
 } from "./test_helpers/commands_helpers";
 import { getCell } from "./test_helpers/getters_helpers";
-import { createEqualCF, getFingerprint, target, toRangesData } from "./test_helpers/helpers";
+import {
+  addToRegistry,
+  createEqualCF,
+  getFingerprint,
+  target,
+  toRangesData,
+} from "./test_helpers/helpers";
 import { watchClipboardOutline } from "./test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "./test_helpers/stores";
 
@@ -467,6 +475,54 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+  });
+
+  test("fill style of hovered clickable cells goes over regular fill style", () => {
+    const { drawGridRenderer, model, container } = setRenderer(
+      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+    );
+    const background = "#DC6CDF";
+    const hoverColor = "#00000011";
+    addToRegistry(clickableCellRegistry, "test", {
+      condition: (position) => position.col === 0 && position.row === 0,
+      execute() {},
+      sequence: 1,
+      hoverStyle: (position) => [
+        { style: { fillColor: "#00000011" }, zone: positionToZone(position) },
+      ],
+    });
+    setStyle(model, "A1", { fillColor: background });
+    model.updateMode("dashboard");
+
+    let fillStyle = "";
+    let fillStyles: any[] = [];
+    let fillStyleCalled = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle" && [background, hoverColor].includes(value)) {
+          fillStyle = value;
+          fillStyleCalled = true;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "fillRect" && fillStyleCalled) {
+          fillStyles.push({ color: fillStyle, x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleCalled = false;
+        }
+      },
+    });
+
+    drawGridRenderer(ctx);
+    expect(fillStyles).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+
+    fillStyles = [];
+    container.get(ClickableCellsStore).hoverClickableCell({ col: 0, row: 0 });
+    drawGridRenderer(ctx);
+
+    expect(fillStyles).toEqual([
+      { color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 },
+      { color: "#00000011", h: 23, w: 96, x: 0, y: 0 },
+    ]);
   });
 
   test("fillstyle of merge works with CF", () => {

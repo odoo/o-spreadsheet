@@ -1,12 +1,14 @@
-import { markRaw } from "@odoo/owl";
-import { positionToZone, toXC } from "../../helpers";
+import { positionToZone, positions, toXC } from "../../helpers";
+import { PositionMap } from "../../plugins/ui_core_views/cell_evaluation/position_map";
 import { CellClickableItem, clickableCellRegistry } from "../../registries/cell_clickable_registry";
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import {
   CellPosition,
   Command,
+  Position,
   Rect,
   SpreadsheetChildEnv,
+  Style,
   UID,
   invalidateEvaluationCommands,
 } from "../../types";
@@ -19,10 +21,13 @@ export interface ClickableCell {
 }
 
 export class ClickableCellsStore extends SpreadsheetStore {
-  private _clickableCells: Record<UID, Record<string, CellClickableItem>> = markRaw({});
-  private _registryItems: CellClickableItem[] = markRaw(
-    clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
-  );
+  mutators = ["hoverClickableCell"] as const;
+  private _clickableCells: Record<UID, Record<string, CellClickableItem>> = {};
+
+  hoveredCol: number | undefined;
+  hoveredRow: number | undefined;
+
+  hoverStyles: PositionMap<Style> = new PositionMap();
 
   handle(cmd: Command) {
     if (
@@ -30,11 +35,34 @@ export class ClickableCellsStore extends SpreadsheetStore {
       cmd.type === "EVALUATE_CELLS" ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
-      this._clickableCells = markRaw({});
-      this._registryItems = markRaw(
-        clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
-      );
+      this._clickableCells = {};
     }
+  }
+
+  hoverClickableCell({ col, row }: Partial<Position>) {
+    this.hoveredCol = col;
+    this.hoveredRow = row;
+    this.hoverStyles = new PositionMap();
+    if (col === undefined || row === undefined) {
+      return;
+    }
+    const sheetId = this.getters.getActiveSheetId();
+    const position = { sheetId, col, row };
+    const item = this.getClickableItem(position);
+    const hoverStyles = item?.hoverStyle?.(position, this.getters);
+    for (const hoverStyle of hoverStyles || []) {
+      for (const position of positions(hoverStyle.zone)) {
+        const positionWithSheet = { ...position, sheetId };
+        this.hoverStyles.set(positionWithSheet, {
+          ...this.hoverStyles.get(positionWithSheet),
+          ...hoverStyle.style,
+        });
+      }
+    }
+  }
+
+  private getRegistryItems() {
+    return clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
   }
 
   private getClickableItem(position: CellPosition): CellClickableItem | undefined {
@@ -55,7 +83,7 @@ export class ClickableCellsStore extends SpreadsheetStore {
 
   private findClickableItem(position: CellPosition) {
     const getters = this.getters;
-    for (const item of this._registryItems) {
+    for (const item of this.getRegistryItems()) {
       if (item.condition(position, getters)) {
         return item;
       }

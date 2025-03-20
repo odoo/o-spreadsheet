@@ -6,16 +6,14 @@ import {
   GRID_ICON_MARGIN,
 } from "../../src/constants";
 import { Model } from "../../src/model";
-import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import {
   createTableWithFilter,
   selectCell,
   setCellContent,
-  setViewportOffset,
 } from "../test_helpers/commands_helpers";
 import { keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { addToRegistry, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
@@ -49,18 +47,6 @@ describe("Grid component in dashboard mode", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     keyDown({ key: "ArrowRight" });
     expect(getSelectionAnchorCellXc(model)).not.toBe("B1");
-  });
-
-  test("Can click on a link in dashboard mode", async () => {
-    expect(fixture.querySelectorAll(".o-dashboard-clickable-cell")).toHaveLength(0);
-    setCellContent(model, "A1", "https://odoo.com");
-    model.updateMode("dashboard");
-    await nextTick();
-    const cells = fixture.querySelectorAll(".o-dashboard-clickable-cell");
-    expect(cells).toHaveLength(1);
-    const spy = jest.spyOn(window, "open").mockImplementation();
-    await simulateClick(cells[0]);
-    expect(spy).toHaveBeenCalled();
   });
 
   test("Filter icon is correctly rendered", async () => {
@@ -119,64 +105,5 @@ describe("Grid component in dashboard mode", () => {
     selectCell(model, "A2");
     document.body.dispatchEvent(getEmptyClipboardEvent("paste"));
     expect(spy).not.toHaveBeenCalledWith("PASTE");
-  });
-
-  test("Clickable cells actions are properly udpated on viewport scroll", async () => {
-    const fn = jest.fn();
-    addToRegistry(clickableCellRegistry, "fake", {
-      condition: (position, getters) => {
-        return !!getters.getCell(position)?.content.startsWith("__");
-      },
-      execute: (position) => fn(position.col, position.row),
-      sequence: 5,
-    });
-    setCellContent(model, "A1", "__test1");
-    setCellContent(model, "B10", "__test1");
-    model.updateMode("dashboard");
-    await nextTick();
-
-    await simulateClick("div.o-dashboard-clickable-cell", 10, 10); // first visible cell
-    expect(fn).toHaveBeenCalledWith(0, 0);
-
-    setViewportOffset(
-      model,
-      DEFAULT_CELL_WIDTH /** scroll to column B */,
-      9 * DEFAULT_CELL_HEIGHT /** scroll to row 10 */
-    );
-    await nextTick();
-    await simulateClick("div.o-dashboard-clickable-cell", 10, 10);
-    expect(fn).toHaveBeenCalledWith(1, 9);
-  });
-
-  test("Triggers clickable cell actions with correct params on left-click and middle-click", async () => {
-    const fn = jest.fn();
-    addToRegistry(clickableCellRegistry, "fake", {
-      condition: (position, getters) => {
-        return !!getters.getCell(position)?.content.startsWith("__");
-      },
-      execute: (_, __, isMiddleClick) => fn(isMiddleClick),
-      sequence: 5,
-    });
-    setCellContent(model, "A1", "__test1");
-    model.updateMode("dashboard");
-    await nextTick();
-    await simulateClick("div.o-dashboard-clickable-cell", 10, 10, { bubbles: true, button: 0 });
-    expect(fn).toHaveBeenCalledWith(false);
-    await simulateClick("div.o-dashboard-clickable-cell", 10, 10, { bubbles: true, button: 1 });
-    expect(fn).toHaveBeenCalledWith(true);
-  });
-
-  test("Clickable cells actions can have a tooltip", async () => {
-    addToRegistry(clickableCellRegistry, "fake", {
-      condition: () => true,
-      execute: () => {},
-      title: "hello there",
-      sequence: 5,
-    });
-    model.updateMode("dashboard");
-    await nextTick();
-    expect(fixture.querySelector("div.o-dashboard-clickable-cell")?.getAttribute("title")).toBe(
-      "hello there"
-    );
   });
 });

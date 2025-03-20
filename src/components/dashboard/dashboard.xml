@@ -22,6 +22,8 @@
           t-att-title="clickableCell.title"
           t-on-click="(ev) => this.selectClickableCell(ev, clickableCell)"
           t-on-auxclick="(ev) => this.selectClickableCell(ev, clickableCell)"
+          t-on-pointerenter="() => this.clickableCellsStore.hoverClickableCell(clickableCell.position)"
+          t-on-pointerleave="() => this.clickableCellsStore.hoverClickableCell({ col: undefined, row: undefined })"
           t-on-contextmenu.prevent=""
           t-att-style="getCellClickableStyle(clickableCell.coordinates)"
         />
