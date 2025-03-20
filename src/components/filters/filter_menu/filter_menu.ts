@@ -135,26 +135,30 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
       );
 
     const filterValues = this.env.model.getters.getFilterHiddenValues({ sheetId, ...position });
+    const normalizedFilteredValues = new Set(filterValues.map(toLowerCase));
 
-    const strValues = [...cellValues, ...filterValues];
-    const normalizedFilteredValues = filterValues.map(toLowerCase);
+    const set = new Set<string>();
+    const values: (Value & { normalizedValue: string })[] = [];
+    const addValue = (value: string) => {
+      const normalizedValue = toLowerCase(value);
+      if (!set.has(normalizedValue)) {
+        values.push({
+          string: value || "",
+          checked: !normalizedFilteredValues.has(normalizedValue),
+          normalizedValue,
+        });
+        set.add(normalizedValue);
+      }
+    };
+    cellValues.forEach(addValue);
+    filterValues.forEach(addValue);
 
-    // Set with lowercase values to avoid duplicates
-    const normalizedValues = [...new Set(strValues.map(toLowerCase))];
-
-    const sortedValues = normalizedValues.sort((val1, val2) =>
-      val1.localeCompare(val2, undefined, { numeric: true, sensitivity: "base" })
+    return values.sort((val1, val2) =>
+      val1.normalizedValue.localeCompare(val2.normalizedValue, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
     );
-
-    return sortedValues.map((normalizedValue) => {
-      const checked =
-        normalizedFilteredValues.findIndex((filteredValue) => filteredValue === normalizedValue) ===
-        -1;
-      return {
-        checked,
-        string: strValues.find((val) => toLowerCase(val) === normalizedValue) || "",
-      };
-    });
   }
 
   checkValue(value: Value) {
