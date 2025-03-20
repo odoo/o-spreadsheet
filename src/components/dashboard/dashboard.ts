@@ -1,13 +1,12 @@
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
-import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
+import { DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
+import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
@@ -37,13 +36,11 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   protected cellPopovers!: Store<CellPopoverStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
-  canvasPosition!: DOMCoordinates;
+  private gridRef = useRef("grid");
   hoveredCell!: Store<HoveredCellStore>;
   clickableCellsStore!: Store<ClickableCellsStore>;
 
   setup() {
-    const gridRef = useRef("grid");
-    this.canvasPosition = useAbsoluteBoundingRect(gridRef);
     this.hoveredCell = useStore(HoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
 
@@ -120,6 +117,9 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   }
 
   private getGridRect(): Rect {
-    return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
+    return {
+      ...getRefBoundingRect(this.gridRef),
+      ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
+    };
   }
 }
