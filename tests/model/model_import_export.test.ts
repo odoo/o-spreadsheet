@@ -8,7 +8,7 @@ import {
 } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { CURRENT_VERSION } from "../../src/migrations/data";
+import { getCurrentVersion } from "../../src/migrations/data";
 import {
   BorderDescr,
   ColorScaleRule,
@@ -59,7 +59,7 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(CURRENT_VERSION);
+    expect(data.version).toBe(getCurrentVersion());
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1).toBe("=A1");
@@ -82,7 +82,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     const cells = data.sheets[0].cells;
-    expect(data.version).toBe(CURRENT_VERSION);
+    expect(data.version).toBe(getCurrentVersion());
     // formulas are de-normalized with version 9
     expect(cells.A1).toBe("=A1");
     expect(cells.A2).toBe("=1");
@@ -450,8 +450,8 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toEqual(CURRENT_VERSION);
-    expect(CURRENT_VERSION).toBeGreaterThanOrEqual(14.5);
+    expect(data.version).toEqual(getCurrentVersion());
+    expect(Number(getCurrentVersion())).toBeGreaterThanOrEqual(14.5);
     expect(data.sheets[0].tables).toEqual([
       {
         range: "A1:C2",
@@ -473,7 +473,7 @@ describe("Migrations", () => {
     });
     expect(model.getters.getTables("1")).toMatchObject([{ range: { zone: toZone("A1:B2") } }]);
     let data = model.exportData();
-    expect(data.version).toBe(CURRENT_VERSION);
+    expect(data.version).toBe(getCurrentVersion());
     expect(data.sheets[0].tables).toEqual([
       {
         range: "A1:B2",
@@ -504,7 +504,7 @@ describe("Migrations", () => {
     expect(getCell(model, "A1")?.style).toEqual(style);
     expect(getBorder(model, "A1")).toEqual(border);
     const data = model.exportData();
-    expect(data.version).toBe(CURRENT_VERSION);
+    expect(data.version).toBe(getCurrentVersion());
     expect(data.sheets[0].cells).toEqual({ A1: "hi" });
     expect(data.sheets[0].formats).toEqual({ A1: 1 });
     expect(data.sheets[0].styles).toEqual({ A1: 1 });
@@ -565,7 +565,7 @@ describe("Migrations", () => {
     });
     expect(model.getters.getTables("1")).toMatchObject([{ range: { zone: toZone("A1:B2") } }]);
     const data = model.exportData();
-    expect(data.version).toBe(CURRENT_VERSION);
+    expect(data.version).toBe(getCurrentVersion());
     expect(data.sheets[0].tables).toEqual([
       {
         range: "A1:B2",
@@ -715,7 +715,7 @@ describe("Export", () => {
 
 test("complete import, then export", () => {
   const modelData = {
-    version: CURRENT_VERSION,
+    version: getCurrentVersion(),
     revisionId: DEFAULT_REVISION_ID,
     sheets: [
       {
@@ -810,7 +810,7 @@ test("complete import, then export", () => {
 test("can import cells outside sheet size", () => {
   const sheetId = "someuuid";
   const modelData = {
-    version: CURRENT_VERSION,
+    version: getCurrentVersion(),
     sheets: [
       {
         id: sheetId,
@@ -846,7 +846,7 @@ test("Data of a duplicate sheet are correctly duplicated", () => {
 
 test("import then export (figures)", () => {
   const modelData = {
-    version: CURRENT_VERSION,
+    version: getCurrentVersion(),
     revisionId: DEFAULT_REVISION_ID,
     sheets: [
       {
