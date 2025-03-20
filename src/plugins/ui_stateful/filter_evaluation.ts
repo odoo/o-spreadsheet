@@ -147,9 +147,10 @@ export class FilterEvaluationPlugin extends UIPlugin {
       const filteredValues = this.filterValues[sheetId]?.[filter.id]?.map(toLowerCase);
       const filteredZone = filter.filteredRange?.zone;
       if (!filteredValues || !filteredZone) continue;
+      const filteredValuesSet = new Set(filteredValues);
       for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
         const value = this.getCellValueAsString(sheetId, filter.col, row);
-        if (filteredValues.includes(value)) {
+        if (filteredValuesSet.has(value)) {
           hiddenRows.add(row);
         }
       }
