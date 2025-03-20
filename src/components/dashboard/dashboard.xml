@@ -3,7 +3,6 @@
     <div class="o-grid o-two-columns" tabindex="-1" t-on-wheel="onMouseWheel">
       <div class="mx-auto h-100 position-relative" t-ref="grid" t-att-style="gridContainer">
         <GridOverlay
-          onCellHovered.bind="onCellHovered"
           onGridResized.bind="onGridResized"
           onGridMoved.bind="moveCanvas"
           gridOverlayDimensions="gridOverlayDimensions"

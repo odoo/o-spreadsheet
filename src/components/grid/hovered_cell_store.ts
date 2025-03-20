@@ -13,7 +13,7 @@ export class HoveredCellStore extends SpreadsheetStore {
     }
   }
 
-  hover(position: Position) {
+  hover(position: Partial<Position>) {
     this.col = position.col;
     this.row = position.row;
   }
