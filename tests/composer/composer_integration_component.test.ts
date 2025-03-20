@@ -177,6 +177,18 @@ describe("Composer interactions", () => {
     expect(getCell(model, "A1")?.content).toBe("=PIVOT(B3)");
   });
 
+  test("autocomplete disappears when there is no match with an unknown character", async () => {
+    await typeInComposerGrid("=éSUM");
+    await nextTick();
+    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+  });
+
+  test("autocomplete disappear when typing an unknown character", async () => {
+    await typeInComposerGrid("=SéSUM");
+    await nextTick();
+    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+  });
+
   test("focus top bar composer does not resize grid composer when autocomplete is displayed", async () => {
     await keyDown({ key: "Enter" });
     const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
