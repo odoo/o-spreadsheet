@@ -1,3 +1,4 @@
+import { Ref } from "../../types/misc";
 import { Rect } from "./../../types/rendering";
 
 const macRegex = /Mac/i;
@@ -20,6 +21,13 @@ export function gridOverlayPosition() {
     return { top, left };
   }
   throw new Error("Can't find spreadsheet position");
+}
+
+export function getRefBoundingRect(ref: Ref<HTMLElement>): Rect {
+  if (!ref.el) {
+    return { x: 0, y: 0, width: 0, height: 0 };
+  }
+  return getBoundingRectAsPOJO(ref.el);
 }
 
 export function getBoundingRectAsPOJO(el: Element): Rect {
