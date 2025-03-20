@@ -64,6 +64,12 @@ const testColors: { input: Color; hex: Color; rgba: RGBA; hsla: HSLA }[] = [
     rgba: { a: 0.502, r: 30, g: 80, b: 16 },
     hsla: { a: 0.502, h: 107, s: 66.67, l: 18.8 },
   },
+  {
+    input: "rgba(0, 0, 0, 0)",
+    hex: "#00000000",
+    rgba: { a: 0, r: 0, g: 0, b: 0 },
+    hsla: { a: 0, h: 0, s: 0, l: 0 },
+  },
 ];
 
 describe("toHex", () => {
