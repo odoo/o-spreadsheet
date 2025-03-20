@@ -397,8 +397,8 @@ export class SheetViewPlugin extends UIPlugin {
     const { width, height } = this.getMainViewportRect();
     const viewport = this.getMainInternalViewport(sheetId);
     return {
-      maxOffsetX: Math.max(0, width - viewport.viewportWidth + 1),
-      maxOffsetY: Math.max(0, height - viewport.viewportHeight + 1),
+      maxOffsetX: Math.max(0, width - viewport.viewportWidth),
+      maxOffsetY: Math.max(0, height - viewport.viewportHeight),
     };
   }
 
