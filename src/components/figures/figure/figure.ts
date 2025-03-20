@@ -15,8 +15,7 @@ import {
   UID,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
-import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
+import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { Menu, MenuState } from "../../menu/menu";
 
 type ResizeAnchor =
@@ -137,7 +136,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private figureRef = useRef("figure");
   private menuButtonRef = useRef("menuButton");
-  private menuButtonRect = useAbsoluteBoundingRect(this.menuButtonRef);
 
   private borderWidth!: number;
 
@@ -284,7 +282,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   showMenu() {
-    this.openContextMenu(this.menuButtonRect);
+    this.openContextMenu(getRefBoundingRect(this.menuButtonRef));
   }
 
   private openContextMenu(anchorRect: Rect) {

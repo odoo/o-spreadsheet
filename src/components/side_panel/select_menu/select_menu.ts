@@ -2,7 +2,7 @@ import { Component, useRef, useState } from "@odoo/owl";
 import { Action } from "../../../actions/action";
 import { UuidGenerator } from "../../../helpers";
 import { MenuMouseEvent, Rect, SpreadsheetChildEnv } from "../../../types";
-import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
+import { getRefBoundingRect } from "../../helpers/dom_helpers";
 import { Menu } from "../../menu/menu";
 
 export interface SelectMenuProps {
@@ -28,7 +28,6 @@ export class SelectMenu extends Component<SelectMenuProps, SpreadsheetChildEnv> 
   menuId = new UuidGenerator().uuidv4();
 
   selectRef = useRef("select");
-  selectRect = useAbsoluteBoundingRect(this.selectRef);
 
   state = useState<State>({
     isMenuOpen: false,
@@ -46,6 +45,6 @@ export class SelectMenu extends Component<SelectMenuProps, SpreadsheetChildEnv> 
   }
 
   get menuAnchorRect(): Rect {
-    return this.selectRect;
+    return getRefBoundingRect(this.selectRef);
   }
 }
