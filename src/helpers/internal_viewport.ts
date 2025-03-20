@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, FOOTER_HEIGHT } from "../constants";
+import { FOOTER_HEIGHT } from "../constants";
 import {
   DOMCoordinates,
   DOMDimension,
@@ -74,35 +74,17 @@ export class InternalViewport {
       first: this.boundaries.top,
       last: this.boundaries.bottom,
     });
-    const { end: lastColEnd, size: lastColSize } = this.getters.getColDimensions(
-      this.sheetId,
-      lastCol
-    );
-    const { end: lastRowEnd, size: lastRowSize } = this.getters.getRowDimensions(
-      this.sheetId,
-      lastRow
-    );
 
-    const leftColIndex = this.searchHeaderIndex("COL", lastColEnd - this.viewportWidth, 0);
-    const leftColSize = this.getters.getColSize(this.sheetId, leftColIndex);
-    const leftRowIndex = this.searchHeaderIndex("ROW", lastRowEnd - this.viewportHeight, 0);
-    const topRowSize = this.getters.getRowSize(this.sheetId, leftRowIndex);
+    const { end: lastColEnd } = this.getters.getColDimensions(this.sheetId, lastCol);
+    const { end: lastRowEnd } = this.getters.getRowDimensions(this.sheetId, lastRow);
 
     let width = lastColEnd - this.offsetCorrectionX;
     if (this.canScrollHorizontally) {
-      width += Math.max(
-        DEFAULT_CELL_WIDTH, // leave some minimal space to let the user know they scrolled all the way
-        Math.min(leftColSize, this.viewportWidth - lastColSize) // Add pixels that allows the snapping at maximum horizontal scroll
-      );
       width = Math.max(width, this.viewportWidth); // if the viewport grid size is smaller than its client width, return client width
     }
 
     let height = lastRowEnd - this.offsetCorrectionY;
     if (this.canScrollVertically) {
-      height += Math.max(
-        DEFAULT_CELL_HEIGHT + 5, // leave some space to let the user know they scrolled all the way
-        Math.min(topRowSize, this.viewportHeight - lastRowSize) // Add pixels that allows the snapping at maximum vertical scroll
-      );
       height = Math.max(height, this.viewportHeight); // if the viewport grid size is smaller than its client height, return client height
 
       if (lastRowEnd + FOOTER_HEIGHT > height && !this.getters.isReadonly()) {
