@@ -138,7 +138,10 @@ function rgbaStringToHex(color: Color): Color {
     throw new Error("invalid color");
   } else if (stringVals.length === 4) {
     const alpha = parseFloat(stringVals.pop() || "1");
-    alphaHex = Math.round((alpha || 1) * 255);
+    if (isNaN(alpha)) {
+      throw new Error("invalid alpha value");
+    }
+    alphaHex = Math.round(alpha * 255);
   }
   const vals = stringVals.map((val) => parseInt(val, 10));
   if (alphaHex !== 255) {
