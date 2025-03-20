@@ -287,10 +287,38 @@ describe("tokenizer", () => {
     ]);
   });
 
-  test("Unknown characters", () => {
+  test("non-ascii characters", () => {
     expect(tokenize("=ù4")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "UNKNOWN", value: "ù" },
+      { type: "SYMBOL", value: "ù4" },
+    ]);
+    expect(tokenize("=jai_nommé_mon_range")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "jai_nommé_mon_range" },
+    ]);
+    expect(tokenize("=ßabc123")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "ßabc123" },
+    ]);
+    expect(tokenize("=ぁ72")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "ぁ72" },
+    ]);
+    expect(tokenize("=ñôtÁFñ(5, wr_öñg) + šymbøl +4")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "ñôtÁFñ" },
+      { type: "LEFT_PAREN", value: "(" },
+      { type: "NUMBER", value: "5" },
+      { type: "ARG_SEPARATOR", value: "," },
+      { type: "SPACE", value: " " },
+      { type: "SYMBOL", value: "wr_öñg" },
+      { type: "RIGHT_PAREN", value: ")" },
+      { type: "SPACE", value: " " },
+      { type: "OPERATOR", value: "+" },
+      { type: "SPACE", value: " " },
+      { type: "SYMBOL", value: "šymbøl" },
+      { type: "SPACE", value: " " },
+      { type: "OPERATOR", value: "+" },
       { type: "NUMBER", value: "4" },
     ]);
   });
