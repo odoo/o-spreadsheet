@@ -143,6 +143,8 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     tableCells: TableCell[][],
     clipboardOptions?: ClipboardOptions
   ) {
+    const nRows = tableCells.length;
+    const nCols = tableCells[0].length;
     for (let r = 0; r < tableCells.length; r++) {
       const rowCells = tableCells[r];
       for (let c = 0; c < rowCells.length; c++) {
@@ -151,7 +153,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
           continue;
         }
         const position = { col: col + c, row: row + r, sheetId };
-        this.pasteTableCell(sheetId, tableCell, position, clipboardOptions);
+        this.pasteTableCell(sheetId, tableCell, position, nRows, nCols, clipboardOptions);
       }
     }
 
@@ -166,16 +168,27 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     sheetId: UID,
     tableCell: TableCell,
     position: CellPosition,
+    nRows: number,
+    nCols: number,
     options?: ClipboardOptions
   ) {
     if (tableCell.table && !options?.pasteOption) {
       const { range: tableRange } = tableCell.table;
-      const zoneDims = zoneToDimension(this.getters.getRangeFromRangeData(tableRange).zone);
+      const zone = this.getters.getRangeFromRangeData(tableRange).zone;
+      const zoneDims = zoneToDimension(zone);
+      let { numberOfCols, numberOfRows } = zoneDims;
+      if (!options?.isCutOperation) {
+        for (let r = zone.top; r <= zone.bottom; r++) {
+          if (this.getters.isRowFiltered(sheetId, r)) {
+            numberOfRows--;
+          }
+        }
+      }
       const newTableZone = {
         left: position.col,
         top: position.row,
-        right: position.col + zoneDims.numberOfCols - 1,
-        bottom: position.row + zoneDims.numberOfRows - 1,
+        right: position.col + Math.min(numberOfCols, nCols) - 1,
+        bottom: position.row + Math.min(numberOfRows, nRows) - 1,
       };
       this.dispatch("CREATE_TABLE", {
         sheetId: position.sheetId,

@@ -3,7 +3,10 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { convertImageToPng } from "../../components/helpers/dom_helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import {
+  getClipboardDataPositions,
+  getFilteredClipboardDataPositions,
+} from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
 import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
 import { CURRENT_VERSION } from "../../migrations/data";
@@ -138,8 +141,8 @@ export class ClipboardPlugin extends UIPlugin {
         const zones = this.getters.getSelectedZones();
         this.status = "visible";
         this.originSheetId = this.getters.getActiveSheetId();
-        this.copiedData = this.copy(zones);
         this._isCutOperation = cmd.type === "CUT";
+        this.copiedData = this.copy(zones);
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
         this._isCutOperation = false;
@@ -720,7 +723,10 @@ export class ClipboardPlugin extends UIPlugin {
     if (selectedFigureId) {
       return { figureId: selectedFigureId, sheetId };
     }
-    return getClipboardDataPositions(sheetId, zones);
+    if (this._isCutOperation) {
+      return getClipboardDataPositions(sheetId, zones);
+    }
+    return getFilteredClipboardDataPositions(sheetId, zones, this.getters);
   }
 
   // ---------------------------------------------------------------------------
