@@ -54,7 +54,7 @@ function getChartMenu(
       name: _t("Edit"),
       sequence: 1,
       execute: () => {
-        env.model.dispatch("SELECT_FIGURE", { id: figureId });
+        env.model.dispatch("SELECT_FIGURE", { figureId });
         env.openSidePanel("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
@@ -124,7 +124,7 @@ function getImageMenuRegistry(
         const { height, width } = getMaxFigureSize(env.model.getters, size);
         env.model.dispatch("UPDATE_FIGURE", {
           sheetId: env.model.getters.getActiveSheetId(),
-          id: figureId,
+          figureId,
           height,
           width,
         });
@@ -136,7 +136,7 @@ function getImageMenuRegistry(
       name: _t("Download"),
       sequence: 6,
       execute: async () => {
-        env.model.dispatch("SELECT_FIGURE", { id: figureId });
+        env.model.dispatch("SELECT_FIGURE", { figureId });
         const path = env.model.getters.getImagePath(figureId);
         downloadFile(path, "image");
       },
@@ -154,7 +154,7 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     sequence: 2,
     description: "Ctrl+C",
     execute: async () => {
-      env.model.dispatch("SELECT_FIGURE", { id: figureId });
+      env.model.dispatch("SELECT_FIGURE", { figureId });
       env.model.dispatch("COPY");
       const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
@@ -170,7 +170,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     sequence: 3,
     description: "Ctrl+X",
     execute: async () => {
-      env.model.dispatch("SELECT_FIGURE", { id: figureId });
+      env.model.dispatch("SELECT_FIGURE", { figureId });
       env.model.dispatch("CUT");
       await env.clipboard.write(await env.model.getters.getClipboardTextAndImageContent());
     },
@@ -190,7 +190,7 @@ function getDeleteMenuItem(
     execute: () => {
       env.model.dispatch("DELETE_FIGURE", {
         sheetId: env.model.getters.getActiveSheetId(),
-        id: figureId,
+        figureId,
       });
       onFigureDeleted();
     },

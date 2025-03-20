@@ -213,7 +213,7 @@ describe("Repeat command transform specifics", () => {
     const command: CreateChartCommand = {
       ...TEST_COMMANDS.CREATE_CHART,
       type: "CREATE_CHART",
-      id: "chartId",
+      figureId: "chartId",
       sheetId,
     };
     createSheet(model, { sheetId: "42" });
@@ -221,7 +221,7 @@ describe("Repeat command transform specifics", () => {
     const transformed = repeatCoreCommand(model.getters, command);
     expect(transformed).toEqual({
       ...command,
-      id: expect.not.stringMatching("chartId"),
+      figureId: expect.not.stringMatching("chartId"),
       sheetId: "42",
     });
   });
@@ -254,10 +254,7 @@ describe("Repeat command transform specifics", () => {
     expect(transformed).toEqual({
       ...command,
       sheetId: "42",
-      figure: {
-        ...command.figure,
-        id: expect.not.stringMatching(command.figure.id),
-      },
+      figureId: expect.not.stringMatching(command.figureId),
     });
   });
 

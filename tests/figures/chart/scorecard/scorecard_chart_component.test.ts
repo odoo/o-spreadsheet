@@ -33,9 +33,11 @@ const mutedFontColor = chartMutedFontColor("#fff");
 function updateScorecardChartSize(width: Pixel, height: Pixel) {
   model.dispatch("UPDATE_FIGURE", {
     sheetId,
-    id: chartId,
-    x: 0,
-    y: 0,
+    figureId: chartId,
+    offset: {
+      x: 0,
+      y: 0,
+    },
     width,
     height,
   });
@@ -569,7 +571,8 @@ describe("Scorecard charts rendering", () => {
         title: { text: "title" },
         background: "#000000",
       },
-      chartId
+      chartId,
+      sheetId
     );
     renderScorecardChart(model, chartId, sheetId, canvas);
 

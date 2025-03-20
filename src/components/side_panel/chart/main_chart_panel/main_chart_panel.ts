@@ -71,7 +71,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     };
     return this.env.model.dispatch("UPDATE_CHART", {
       definition,
-      id: figureId,
+      figureId,
       sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
     });
   }
@@ -86,7 +86,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     };
     return this.env.model.canDispatch("UPDATE_CHART", {
       definition,
-      id: figureId,
+      figureId,
       sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
     });
   }

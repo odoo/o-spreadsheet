@@ -29,6 +29,7 @@ import {
   Sheet,
   Style,
   UID,
+  UpdateFigureCommand,
   Zone,
 } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
@@ -144,7 +145,7 @@ export class GridSelectionPlugin extends UIPlugin {
         this.selectedFigureId = null;
         break;
       case "DELETE_FIGURE":
-        if (this.selectedFigureId === cmd.id) {
+        if (this.selectedFigureId === cmd.figureId) {
           this.selectedFigureId = null;
         }
         break;
@@ -201,7 +202,7 @@ export class GridSelectionPlugin extends UIPlugin {
         }
         break;
       case "SELECT_FIGURE":
-        this.selectedFigureId = cmd.id;
+        this.selectedFigureId = cmd.figureId;
         break;
       case "ACTIVATE_NEXT_SHEET":
         this.activateNextSheet("right");
@@ -519,6 +520,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
   private onMoveElements(cmd: MoveColumnsRowsCommand) {
     const thickness = cmd.elements.length;
+    const figureUpdateCmds = this.getFiguresUpdates(cmd);
 
     this.dispatch("ADD_COLUMNS_ROWS", {
       dimension: cmd.dimension,
@@ -595,6 +597,41 @@ export class GridSelectionPlugin extends UIPlugin {
       sheetId: cmd.sheetId,
       elements: toRemove,
     });
+    this.applyFigureUpdates(figureUpdateCmds);
+  }
+
+  private getFiguresUpdates(cmd: MoveColumnsRowsCommand): UpdateFigureCommand[] {
+    const cmds: UpdateFigureCommand[] = [];
+    const moveDict = {};
+    const base = cmd.elements[0] < cmd.base ? cmd.base - cmd.elements.length + 1 : cmd.base;
+    for (let index = 0; index < cmd.elements.length; index++) {
+      moveDict[cmd.elements[index]] = base + index;
+    }
+    for (const figure of this.getters.getFigures(cmd.sheetId)) {
+      if (cmd.dimension == "COL" && figure.col in moveDict) {
+        cmds.push({
+          type: "UPDATE_FIGURE",
+          sheetId: cmd.sheetId,
+          figureId: figure.id,
+          col: moveDict[figure.col],
+        });
+      }
+      if (cmd.dimension == "ROW" && figure.row in moveDict) {
+        cmds.push({
+          type: "UPDATE_FIGURE",
+          sheetId: cmd.sheetId,
+          figureId: figure.id,
+          row: moveDict[figure.row],
+        });
+      }
+    }
+    return cmds;
+  }
+
+  private applyFigureUpdates(cmds: UpdateFigureCommand[]) {
+    for (const cmd of cmds) {
+      this.dispatch(cmd.type, { ...cmd });
+    }
   }
 
   private isMoveElementAllowed(cmd: MoveColumnsRowsCommand): CommandResult {

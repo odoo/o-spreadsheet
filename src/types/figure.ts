@@ -1,12 +1,20 @@
-import { Pixel, UID } from ".";
+import { DOMCoordinates, HeaderIndex, Pixel, PixelPosition, UID } from ".";
 
-export interface Figure {
+export interface FigureInfo {
   id: UID;
-  x: Pixel;
-  y: Pixel;
   width: Pixel;
   height: Pixel;
   tag: string;
+}
+
+export interface Figure extends FigureInfo, AnchorOffset {}
+
+export interface FigureUI extends DOMCoordinates, Figure {}
+
+export interface AnchorOffset {
+  col: HeaderIndex;
+  row: HeaderIndex;
+  offset: PixelPosition;
 }
 
 export interface FigureSize {
