@@ -1,13 +1,19 @@
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
-import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
+import {
+  DOMCoordinates,
+  DOMDimension,
+  Pixel,
+  Rect,
+  Ref,
+  SpreadsheetChildEnv,
+} from "../../types/index";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
+import { getRefBoundingRect, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { CellPopoverStore } from "../popover";
@@ -42,9 +48,10 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   hoveredCell!: Store<DelayedHoveredCellStore>;
   clickableCellsStore!: Store<ClickableCellsStore>;
 
+  private gridRef!: Ref<HTMLElement>;
+
   setup() {
-    const gridRef = useRef("grid");
-    this.canvasPosition = useAbsoluteBoundingRect(gridRef);
+    this.gridRef = useRef("grid");
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
 
@@ -56,7 +63,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     });
     this.cellPopovers = useStore(CellPopoverStore);
 
-    useTouchScroll(gridRef, this.moveCanvas.bind(this), () => {
+    useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {
       const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
       return scrollY > 0;
     });
@@ -122,6 +129,9 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   }
 
   private getGridRect(): Rect {
-    return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
+    return {
+      ...getRefBoundingRect(this.gridRef),
+      ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
+    };
   }
 }

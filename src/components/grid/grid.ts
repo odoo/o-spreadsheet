@@ -65,10 +65,9 @@ import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
 import { cssPropertiesToCss } from "../helpers";
-import { keyboardEventToShortcutString } from "../helpers/dom_helpers";
+import { getRefBoundingRect, keyboardEventToShortcutString } from "../helpers/dom_helpers";
 import { useDragAndDropBeyondTheViewport } from "../helpers/drag_and_drop_grid_hook";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
-import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
@@ -148,7 +147,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
   onMouseWheel!: (ev: WheelEvent) => void;
-  canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<DelayedHoveredCellStore>;
   sidePanel!: Store<SidePanelStore>;
 
@@ -160,7 +158,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       menuItems: [],
     });
     this.gridRef = useRef("grid");
-    this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
     this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
@@ -472,7 +469,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getGridRect(): Rect {
-    return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
+    return {
+      ...getRefBoundingRect(this.gridRef),
+      ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
+    };
   }
 
   // ---------------------------------------------------------------------------

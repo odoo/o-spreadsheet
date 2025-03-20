@@ -16,9 +16,13 @@ import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { css } from "../helpers";
-import { getBoundingRectAsPOJO, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
+import {
+  getBoundingRectAsPOJO,
+  getRefBoundingRect,
+  isChildEvent,
+  isCtrlKey,
+} from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
-import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
@@ -169,7 +173,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: () => {},
   };
   private gridOverlay: Ref<HTMLElement> = useRef("gridOverlay");
-  private gridOverlayRect = useAbsoluteBoundingRect(this.gridOverlay);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
 
@@ -240,8 +243,9 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getCartesianCoordinates(ev: MouseEvent): [HeaderIndex, HeaderIndex] {
-    const x = ev.clientX - this.gridOverlayRect.x;
-    const y = ev.clientY - this.gridOverlayRect.y;
+    const gridOverLayRect = getRefBoundingRect(this.gridOverlay);
+    const x = ev.clientX - gridOverLayRect.x;
+    const y = ev.clientY - gridOverLayRect.y;
 
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);
