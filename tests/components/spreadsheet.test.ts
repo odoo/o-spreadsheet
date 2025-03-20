@@ -419,6 +419,22 @@ describe("Composer interactions", () => {
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
   });
 
+  test("autocomplete disappears when there is no match with an unknown character", async () => {
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
+    await typeInComposerGrid("=éSUM");
+    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+  });
+
+  test("autocomplete disappear when typing an unknown character", async () => {
+    document.activeElement!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+    );
+    await typeInComposerGrid("=SéSUM");
+    expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
+  });
+
   test("focus top bar composer does not resize grid composer when autocomplete is displayed", async () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
