@@ -12,7 +12,6 @@
         onCellClicked.bind="onCellClicked"
         onCellDoubleClicked.bind="onCellDoubleClicked"
         onCellRightClicked.bind="onCellRightClicked"
-        onCellHovered.bind="onCellHovered"
         onGridResized.bind="onGridResized"
         onGridMoved.bind="moveCanvas"
         gridOverlayDimensions="gridOverlayDimensions"

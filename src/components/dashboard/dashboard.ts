@@ -56,10 +56,6 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     this.cellPopovers = useStore(CellPopoverStore);
   }
 
-  onCellHovered({ col, row }) {
-    this.hoveredCell.hover({ col, row });
-  }
-
   get gridContainer() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const { right } = this.env.model.getters.getSheetZone(sheetId);

@@ -192,10 +192,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  onCellHovered({ col, row }) {
-    this.hoveredCell.hover({ col, row });
-  }
-
   get highlights() {
     return this.highlightStore.highlights;
   }
