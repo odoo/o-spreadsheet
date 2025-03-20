@@ -64,6 +64,12 @@ const testColors: { input: Color; hex: Color; rgba: RGBA; hsla: HSLA }[] = [
     rgba: { a: 0.502, r: 30, g: 80, b: 16 },
     hsla: { a: 0.502, h: 107, s: 66.67, l: 18.8 },
   },
+  {
+    input: "rgba(0, 0, 0, 0)",
+    hex: "#00000000",
+    rgba: { a: 0, r: 0, g: 0, b: 0 },
+    hsla: { a: 0, h: 0, s: 0, l: 0 },
+  },
 ];
 
 describe("toHex", () => {
@@ -107,6 +113,7 @@ describe("hslaToRGBA", () => {
 describe("isColorValid", () => {
   test("valid colors", () => {
     expect(isColorValid("rgb(255, 255, 255)")).toBe(true);
+    expect(isColorValid("rgba(255, 255, 255, 1)")).toBe(true);
     expect(isColorValid("#000")).toBe(true);
     expect(isColorValid("#000000")).toBe(true);
   });
@@ -115,6 +122,10 @@ describe("isColorValid", () => {
     expect(isColorValid("")).toBe(false);
     expect(isColorValid("#")).toBe(false);
     expect(isColorValid("rgb(256, 255, 255)")).toBe(false);
+    expect(isColorValid("rgb(255, 280, 255)")).toBe(false);
+    expect(isColorValid("rgb(256, 255, -1)")).toBe(false);
+    expect(isColorValid("rgba(256, 255, 255, 6)")).toBe(false);
+    expect(isColorValid("rgba(256, 255, 255, -0.1)")).toBe(false);
     expect(isColorValid("#azazaz")).toBe(false);
   });
 });
