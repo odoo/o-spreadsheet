@@ -18,11 +18,15 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
-import { DOMCoordinates, MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { getOpenedMenus, isChildEvent, isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
-import { useAbsoluteBoundingRect } from "../helpers/position_hook";
+import {
+  getOpenedMenus,
+  getRefBoundingRect,
+  isChildEvent,
+  isMiddleClickOrCtrlClick,
+} from "../helpers/dom_helpers";
 import { useTimeOut } from "../helpers/time_hooks";
 import { Popover, PopoverProps } from "../popover/popover";
 
@@ -132,8 +136,6 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   });
   private menuRef = useRef("menu");
   private hoveredMenu: Action | undefined = undefined;
-
-  private position: DOMCoordinates = useAbsoluteBoundingRect(this.menuRef);
 
   private openingTimeOut = useTimeOut();
 
@@ -274,7 +276,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     const y = parentMenuEl.getBoundingClientRect().top;
 
     this.subMenu.anchorRect = {
-      x: this.position.x,
+      x: getRefBoundingRect(this.menuRef).x,
       y: y - (this.subMenu.scrollOffset || 0),
       width: this.props.width || MENU_WIDTH,
       height: MENU_ITEM_HEIGHT,
