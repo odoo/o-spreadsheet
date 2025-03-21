@@ -13,12 +13,9 @@
           title="title.text"
           updateTitle.bind="updateTitle"
           name="chart_title"
-          toggleItalic.bind="toggleItalicChartTitle"
-          toggleBold.bind="toggleBoldChartTitle"
-          updateAlignment.bind="updateChartTitleAlignment"
-          updateColor.bind="updateChartTitleColor"
-          style="titleStyle"
-          onFontSizeChanged.bind="updateChartTitleFontSize"
+          updateStyle.bind="updateChartTitleStyle"
+          style="title"
+          defaultStyle="{align: 'left', fontSize: this.props.defaultChartTitleFontSize}"
         />
         <t t-slot="general-extension"/>
       </t>

@@ -1,0 +1,59 @@
+<templates>
+  <t t-name="o-spreadsheet-SunburstChartDesignPanel">
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart">
+      <t t-set-slot="general-extension">
+        <ChartLegend
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+      </t>
+    </GeneralDesignEditor>
+
+    <SidePanelCollapsible collapsedAtInit="false" title.translate="Sunburst options">
+      <t t-set-slot="content">
+        <Section class="'pt-0 o-sunburst-colors'" title.translate="Colors">
+          <t t-foreach="groupColors" t-as="item" t-key="item.label">
+            <div class="d-flex align-items-center mb-2" t-att-data-id="item.label">
+              <RoundColorPicker
+                currentColor="item.color"
+                onColorPicked="(color) => this.onGroupColorChanged(item_index, color)"
+              />
+              <span class="ps-2">
+                <span t-esc="'(#' + (item_index +1 ) + ')'" class="o-text-bolder pe-1"/>
+                <span class="text-muted" t-esc="item.label"/>
+              </span>
+            </div>
+          </t>
+        </Section>
+        <Section title.translate="Labels" class="'pt-0 pb-0'">
+          <div class="d-flex flex-row gap-4">
+            <Checkbox
+              name="'showLabels'"
+              label.translate="Show labels"
+              value="showLabels"
+              onChange="(showLabels) => props.updateChart(this.props.figureId, { showLabels })"
+            />
+            <Checkbox
+              name="'showValues'"
+              label.translate="Show values"
+              value="showValues"
+              onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
+            />
+          </div>
+        </Section>
+        <Section class="'pt-0'" t-if="showValues || showLabels">
+          <TextStyler
+            class="'o-values-style'"
+            updateStyle="(valuesDesign) => props.updateChart(this.props.figureId, { valuesDesign })"
+            style="props.definition.valuesDesign || {}"
+            defaultStyle="defaults.valuesDesign"
+          />
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

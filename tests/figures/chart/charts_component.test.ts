@@ -379,7 +379,7 @@ describe("charts", () => {
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
       const alignment_menu = fixture.querySelectorAll(
-        ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
+        ".o-chart-title-designer .o-menu-item-button[title='Horizontal alignment']"
       )[0];
 
       await click(alignment_menu);
@@ -503,7 +503,7 @@ describe("charts", () => {
       await mountChartSidePanel();
       await openChartDesignSidePanel(model, env, fixture, chartId);
       const alignment_menu = fixture.querySelectorAll(
-        ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
+        ".o-chart-title-designer .o-menu-item-button[title='Horizontal alignment']"
       )[1];
 
       await click(alignment_menu);
@@ -2157,6 +2157,8 @@ test("ChartJS charts extensions are loaded when mounting a chart, and are only l
     "waterfallLinesPlugin",
     "funnel",
     "funnel",
+    "sunburstLabelsPlugin",
+    "sunburstHoverPlugin",
   ]);
 
   createChart(model, { type: "line" }, "chart2");

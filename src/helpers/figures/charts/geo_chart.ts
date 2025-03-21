@@ -99,7 +99,6 @@ export class GeoChart extends AbstractChart {
       title: context.title || { text: "" },
       type: "geo",
       labelRange: context.auxiliaryRange || undefined,
-      aggregated: context.aggregated,
     };
   }
 

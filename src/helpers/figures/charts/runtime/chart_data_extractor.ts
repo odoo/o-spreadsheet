@@ -28,6 +28,7 @@ import {
   LineChartDefinition,
   PieChartDefinition,
   PyramidChartDefinition,
+  SunburstChartDefinition,
   TrendConfiguration,
 } from "../../../../types/chart";
 import {
@@ -272,6 +273,34 @@ export function getGeoChartData(
     availableRegions: getters.getGeoChartAvailableRegions(),
     geoFeatureNameToId: getters.geoFeatureNameToId,
     getGeoJsonFeatures: getters.getGeoJsonFeatures,
+  };
+}
+
+export function getSunburstChartData(
+  definition: SunburstChartDefinition,
+  dataSets: DataSet[],
+  labelRange: Range | undefined,
+  getters: Getters
+): ChartRuntimeGenerationArgs {
+  // In Sunburst, labels are the leaf values (numbers), and the hierarchy is defined in the dataSets (strings)
+  let labels = getChartLabelValues(getters, dataSets, labelRange).values;
+  let dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
+  const removeFirstLabel = shouldRemoveFirstLabel(
+    labelRange,
+    dataSets[0],
+    definition.dataSetsHaveTitle || false
+  );
+  if (removeFirstLabel) {
+    labels.shift();
+  }
+  ({ labels, dataSetsValues } = filterValuesWithDifferentSigns(labels, dataSetsValues));
+  ({ labels, dataSetsValues } = filterInvalidHierarchicalPoints(labels, dataSetsValues));
+
+  return {
+    dataSetsValues,
+    axisFormats: { y: getChartLabelFormat(getters, labelRange, removeFirstLabel) },
+    labels,
+    locale: getters.getLocale(),
   };
 }
 
@@ -647,6 +676,69 @@ function filterInvalidDataPoints(
 }
 
 /**
+ * Filter the data points that have either no value, a negative value, no root group or null group values in the middle
+ */
+function filterInvalidHierarchicalPoints(
+  values: string[],
+  hierarchy: DatasetValues[]
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const numberOfDataPoints = Math.max(
+    values.length,
+    ...hierarchy.map((dataset) => dataset.data?.length || 0)
+  );
+  const isEmpty = (value: CellValue) => value === undefined || value === null || value === "";
+  const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
+    const groups = hierarchy.map((dataset) => dataset.data?.[dataPointIndex]);
+    if (isEmpty(groups[0])) {
+      return false;
+    }
+    // Filter points with empty group in the middle
+    let hasFoundEmptyGroup = false;
+    for (const group of groups) {
+      hasFoundEmptyGroup ||= isEmpty(group);
+      if (hasFoundEmptyGroup && !isEmpty(group)) {
+        return false;
+      }
+    }
+    return values[dataPointIndex] && !isNaN(Number(values[dataPointIndex]));
+  });
+  return {
+    labels: dataPointsIndexes.map((i) => values[i]),
+    dataSetsValues: hierarchy.map((dataset) => ({
+      ...dataset,
+      data: dataPointsIndexes.map((i) => dataset.data[i]),
+    })),
+  };
+}
+
+/**
+ * If the values are a mix of positive and negative values, keep only the positive ones
+ */
+function filterValuesWithDifferentSigns(values: string[], hierarchy: DatasetValues[]) {
+  const positivePointsIndexes: number[] = [];
+  const negativePointsIndexes: number[] = [];
+
+  for (let i = 0; i < values.length; i++) {
+    if (Number(values[i]) <= 0) {
+      negativePointsIndexes.push(i);
+    } else if (Number(values[i]) > 0) {
+      positivePointsIndexes.push(i);
+    }
+  }
+  const indexesToKeep = positivePointsIndexes.length
+    ? positivePointsIndexes
+    : negativePointsIndexes;
+
+  return {
+    labels: indexesToKeep.map((i) => values[i]),
+    dataSetsValues: hierarchy.map((dataset) => ({
+      ...dataset,
+      data: indexesToKeep.map((i) => dataset.data[i]),
+    })),
+  };
+}
+
+/**
  * Aggregates data based on labels
  */
 function aggregateDataForLabels(
@@ -794,4 +886,48 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     datasetValues.push({ data, label, hidden });
   }
   return datasetValues;
+}
+
+/**
+ * Get the values for a hierarchical dataset. The values can be defined in a tree-like structure
+ * in the sheet, and this function will fill up the blanks.
+ *
+ * @example the following dataset:
+ *
+ * 2024    Q1    W1    100
+ *               W2    200
+ *
+ * will have the same value as the dataset:
+ * 2024    Q1    W1    100
+ * 2024    Q1    W2    200
+ */
+function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
+  dataSets = dataSets.filter(
+    (ds) => !getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)
+  );
+  const datasetValues: DatasetValues[] = dataSets.map(() => ({ data: [], label: "" }));
+  const dataSetsData = dataSets.map((ds) => getData(getters, ds));
+  if (!dataSetsData.length) {
+    return datasetValues;
+  }
+  const minLength = Math.min(...dataSetsData.map((ds) => ds.length));
+
+  let currentValues: (CellValue | undefined)[] = [];
+  const leafDatasetIndex = dataSets.length - 1;
+
+  for (let i = 0; i < minLength; i++) {
+    for (let dsIndex = 0; dsIndex < dataSetsData.length; dsIndex++) {
+      let value = dataSetsData[dsIndex][i];
+      if ((value === undefined || value === null) && dsIndex !== leafDatasetIndex) {
+        value = currentValues[dsIndex];
+      }
+      if (value !== currentValues[dsIndex]) {
+        currentValues = currentValues.slice(0, dsIndex);
+        currentValues[dsIndex] = value;
+      }
+      datasetValues[dsIndex].data.push(value ?? null);
+    }
+  }
+
+  return datasetValues.filter((ds) => ds.data.some((d) => d !== null));
 }

@@ -11,7 +11,7 @@ import {
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
-import { ChartTitle } from "../title/title";
+import { ChartTitle } from "../chart_title/chart_title";
 
 interface GeneralDesignEditorState {
   activeTool: string;
@@ -70,39 +70,8 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     this.props.updateChart(this.props.figureId, { title });
   }
 
-  get titleStyle(): TitleDesign {
-    return {
-      align: "left",
-      fontSize: this.props.defaultChartTitleFontSize,
-      ...this.title,
-    };
-  }
-
-  updateChartTitleColor(color: Color) {
-    const title = { ...this.title, color };
-    this.props.updateChart(this.props.figureId, { title });
-    this.state.activeTool = "";
-  }
-
-  updateChartTitleFontSize(fontSize: number) {
-    const title = { ...this.title, fontSize };
-    this.props.updateChart(this.props.figureId, { title });
-  }
-
-  toggleBoldChartTitle() {
-    let title = this.title;
-    title = { ...title, bold: !title.bold };
-    this.props.updateChart(this.props.figureId, { title });
-  }
-
-  toggleItalicChartTitle() {
-    let title = this.title;
-    title = { ...title, italic: !title.italic };
-    this.props.updateChart(this.props.figureId, { title });
-  }
-
-  updateChartTitleAlignment(align: "left" | "center" | "right") {
-    const title = { ...this.title, align };
+  updateChartTitleStyle(style: TitleDesign) {
+    const title = { ...this.title, ...style };
     this.props.updateChart(this.props.figureId, { title });
     this.state.activeTool = "";
   }
