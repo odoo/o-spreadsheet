@@ -69,22 +69,20 @@ export function getPieChartLegend(
   const { dataSetsValues } = args;
   const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
   const colors = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
+  const fontColor = chartFontColor(definition.background);
   return {
     ...getLegendDisplayOptions(definition, args),
     labels: {
-      color: chartFontColor(definition.background),
       usePointStyle: true,
-      //@ts-ignore
       generateLabels: (c) =>
-        //@ts-ignore
-        c.data.labels.map((label, index) => ({
-          text: label,
+        c.data.labels?.map((label, index) => ({
+          text: String(label),
           strokeStyle: colors[index],
           fillStyle: colors[index],
           pointStyle: "rect",
-          hidden: false,
           lineWidth: 2,
-        })),
+          fontColor,
+        })) || [],
       filter: (legendItem, data) => {
         return "datasetIndex" in legendItem
           ? !data.datasets[legendItem.datasetIndex!].hidden
