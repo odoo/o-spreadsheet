@@ -1,7 +1,7 @@
 import { SpreadsheetStore } from "../../stores";
 import { Command, Position } from "../../types";
 
-export class HoveredCellStore extends SpreadsheetStore {
+export class DelayedHoveredCellStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;
   col: number | undefined;
   row: number | undefined;

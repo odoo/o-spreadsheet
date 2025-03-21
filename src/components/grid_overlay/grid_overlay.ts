@@ -13,7 +13,7 @@ import {
 import { DataValidationOverlay } from "../data_validation_overlay/data_validation_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
-import { HoveredCellStore } from "../grid/hovered_cell_store";
+import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { css } from "../helpers";
 import { getBoundingRectAsPOJO, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
@@ -22,6 +22,7 @@ import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
+import { HoveredTableStore } from "../tables/hovered_table_store";
 
 const CURSOR_SVG = /*xml*/ `
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="14" height="16"><path d="M6.5.4c1.3-.8 2.9-.1 3.8 1.4l2.9 5.1c.2.4.9 1.6-.4 2.3l-1.6.9 1.8 3.1c.2.4.1 1-.2 1.2l-1.6 1c-.3.1-.9 0-1.1-.4l-1.8-3.1-1.6 1c-.6.4-1.7 0-2.2-.8L0 4.3"/><path fill="#fff" d="M9.1 2a1.4 1.1 60 0 0-1.7-.6L5.5 2.5l.9 1.6-1 .6-.9-1.6-.6.4 1.8 3.1-1.3.7-1.8-3.1-1 .6 3.8 6.6 6.8-3.98M3.9 8.8 10.82 5l.795 1.4-6.81 3.96"/></svg>
@@ -34,7 +35,8 @@ css/* scss */ `
 `;
 
 function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Partial<Position> {
-  const hoveredCell = useStore(HoveredCellStore);
+  const delayedHoveredCell = useStore(DelayedHoveredCellStore);
+  const hoveredTable = useStore(HoveredTableStore);
   let hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
@@ -80,6 +82,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     if (isChildEvent(gridRef.el, e)) {
       ({ x, y } = getOffsetRelativeToOverlay(e));
       lastMoved = Date.now();
+      hoveredTable.hover(getPosition());
     }
   }
 
@@ -119,7 +122,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
       hoveredPosition.col = col;
       hoveredPosition.row = row;
-      hoveredCell.hover({ col, row });
+      delayedHoveredCell.hover({ col, row });
     }
   }
   return hoveredPosition;

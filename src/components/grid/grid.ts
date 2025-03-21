@@ -79,7 +79,7 @@ import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";
-import { HoveredCellStore } from "./hovered_cell_store";
+import { DelayedHoveredCellStore } from "./delayed_hovered_cell_store";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible
@@ -148,7 +148,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
-  hoveredCell!: Store<HoveredCellStore>;
+  hoveredCell!: Store<DelayedHoveredCellStore>;
   sidePanel!: Store<SidePanelStore>;
 
   setup() {
@@ -160,7 +160,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
     this.gridRef = useRef("grid");
     this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
-    this.hoveredCell = useStore(HoveredCellStore);
+    this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
