@@ -12,10 +12,29 @@
         </div>
         <div class="o-separator"/>
       </t>
-      <FilterMenuValueList
-        filterPosition="props.filterPosition"
-        onUpdateHiddenValues.bind="onUpdateHiddenValues"
-      />
+      <SidePanelCollapsible
+        isInitiallyCollapsed="filterValueType !== 'criterion'"
+        title="criterionTitle">
+        <t t-set-slot="content">
+          <FilterMenuCriterion
+            filterPosition="props.filterPosition"
+            onCriterionChanged.bind="onCriterionChanged"
+            criterionOperators="criterionOperators"
+          />
+          <div class="mb-3"/>
+        </t>
+      </SidePanelCollapsible>
+
+      <SidePanelCollapsible
+        isInitiallyCollapsed="filterValueType === 'criterion'"
+        title.translate="Filter by values">
+        <t t-set-slot="content">
+          <FilterMenuValueList
+            filterPosition="props.filterPosition"
+            onUpdateHiddenValues.bind="onUpdateHiddenValues"
+          />
+        </t>
+      </SidePanelCollapsible>
 
       <div class="o-filter-menu-buttons d-flex justify-content-end">
         <button class="o-button o-filter-menu-cancel me-2" t-on-click="cancel">Cancel</button>

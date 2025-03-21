@@ -13,6 +13,7 @@ interface Props {
   onKeyDown?: (ev: KeyboardEvent) => void;
   focused: boolean;
   onBlur: () => void;
+  disableFormulas?: boolean;
 }
 
 css/* scss */ `
@@ -37,6 +38,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
     focused: { type: Boolean, optional: true },
     onBlur: { type: Function, optional: true },
     onFocus: { type: Function, optional: true },
+    disableFormulas: { type: Boolean, optional: true },
   };
   static defaultProps = {
     value: "",
@@ -64,11 +66,9 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
   });
 
   get placeholder(): string {
-    const evaluator = criterionEvaluatorRegistry.get(this.props.criterionType);
-
-    if (evaluator.allowedValues === "onlyFormulas") {
+    if (this.allowedValues === "onlyFormulas") {
       return _t("Formula");
-    } else if (evaluator.allowedValues === "onlyLiterals") {
+    } else if (this.allowedValues === "onlyLiterals") {
       return _t("Value");
     }
 
@@ -77,7 +77,14 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
 
   get allowedValues(): string {
     const evaluator = criterionEvaluatorRegistry.get(this.props.criterionType);
-    return evaluator.allowedValues ?? "any";
+    if (evaluator.allowedValues === "onlyFormulas" && this.props.disableFormulas) {
+      throw new Error(
+        `Cannot disable formulas for criterion type ${this.props.criterionType} that accept only formulas`
+      );
+    }
+
+    const allowedValues = this.props.disableFormulas ? "onlyLiterals" : evaluator.allowedValues;
+    return allowedValues ?? "any";
   }
 
   onInputValueChanged(ev: Event) {
