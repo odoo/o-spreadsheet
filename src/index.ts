@@ -6,8 +6,8 @@ import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
 import { FigureComponent } from "./components/figures/figure/figure";
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
+import { DelayedHoveredCellStore } from "./components/grid/delayed_hovered_cell_store";
 import { Grid } from "./components/grid/grid";
-import { HoveredCellStore } from "./components/grid/hovered_cell_store";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_dom_items_hook";
 import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
@@ -119,6 +119,7 @@ import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfa
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
+import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
 import * as CHART_HELPERS from "./helpers/figures/charts";
@@ -425,7 +426,8 @@ export const stores = {
   CellComposerStore,
   FindAndReplaceStore,
   HighlightStore,
-  HoveredCellStore,
+  DelayedHoveredCellStore,
+  HoveredTableStore,
   ModelStore,
   NotificationStore,
   RendererStore,

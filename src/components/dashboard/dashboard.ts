@@ -1,7 +1,7 @@
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
-import { HoveredCellStore } from "../grid/hovered_cell_store";
+import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -38,13 +38,13 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
-  hoveredCell!: Store<HoveredCellStore>;
+  hoveredCell!: Store<DelayedHoveredCellStore>;
   clickableCellsStore!: Store<ClickableCellsStore>;
 
   setup() {
     const gridRef = useRef("grid");
     this.canvasPosition = useAbsoluteBoundingRect(gridRef);
-    this.hoveredCell = useStore(HoveredCellStore);
+    this.hoveredCell = useStore(DelayedHoveredCellStore);
     this.clickableCellsStore = useStore(ClickableCellsStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });

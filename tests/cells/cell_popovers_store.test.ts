@@ -1,4 +1,4 @@
-import { HoveredCellStore } from "../../src/components/grid/hovered_cell_store";
+import { DelayedHoveredCellStore } from "../../src/components/grid/delayed_hovered_cell_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { toCartesian } from "../../src/helpers";
@@ -8,7 +8,7 @@ import { makeStore } from "../test_helpers/stores";
 describe("cell popover store", () => {
   test("Anchor rect is correct on a merge", () => {
     const { store: cellPopovers, model, container } = makeStore(CellPopoverStore);
-    const hoveredCellStore = container.get(HoveredCellStore);
+    const hoveredCellStore = container.get(DelayedHoveredCellStore);
     merge(model, "A1:B2");
     setCellContent(model, "A1", "=0/0");
     hoveredCellStore.hover(toCartesian("B2"));
