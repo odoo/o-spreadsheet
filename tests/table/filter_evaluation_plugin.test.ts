@@ -1,6 +1,7 @@
 import { Model } from "../../src";
+import { range } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { CommandResult, UID } from "../../src/types";
+import { CommandResult, FilterCriterionType, UID } from "../../src/types";
 import {
   addRows,
   createSheet,
@@ -15,10 +16,11 @@ import {
   setFormat,
   unhideRows,
   updateFilter,
+  updateFilterCriterion,
   updateTableConfig,
   updateTableZone,
 } from "../test_helpers/commands_helpers";
-import { getFilterHiddenValues } from "../test_helpers/helpers";
+import { getFilterHiddenValues, setGrid } from "../test_helpers/helpers";
 
 describe("Simple filter test", () => {
   let model: Model;
@@ -333,4 +335,99 @@ describe("Filter Evaluation", () => {
     createSheet(model, { sheetId: "sh2", activate: true });
     expect(model.getters.isRowFiltered(sheetId, 6)).toEqual(true);
   });
+});
+
+describe("Filter criterion test", () => {
+  let model: Model;
+  let sheetId: UID;
+
+  beforeEach(() => {
+    model = new Model();
+    sheetId = model.getters.getActiveSheetId();
+  });
+
+  function getFilteredRows() {
+    return range(0, 10).filter((row) => model.getters.isRowFiltered(sheetId, row));
+  }
+
+  test.each([
+    ["isEmpty", [], [1, 2]],
+    ["isNotEmpty", [], [3]],
+    ["containsText", ["hello"], [2, 3]],
+    ["notContainsText", ["hello"], [1]],
+    ["isEqualText", ["there"], [1, 3]],
+  ])(
+    "Can filter based on a text criterion %s",
+    (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
+      const grid = {
+        A2: "hello",
+        A3: "there",
+        A4: "",
+      };
+      setGrid(model, grid);
+      createTableWithFilter(model, "A1:A4");
+      updateFilterCriterion(model, "A1", {
+        type: type as FilterCriterionType,
+        values: criterionValues,
+      });
+
+      expect(getFilteredRows()).toEqual(expectedFilteredRows);
+    }
+  );
+
+  test.each([
+    ["isEqual", ["1"], [2, 3]],
+    ["isNotEqual", ["1"], [1]],
+    ["isGreaterThan", ["2"], [1, 2]],
+    ["isGreaterOrEqualTo", ["2"], [1]],
+    ["isLessThan", ["2"], [2, 3]],
+    ["isLessOrEqualTo", ["2"], [3]],
+    ["isBetween", ["2", "3"], [1]],
+    ["isNotBetween", ["2", "3"], [2, 3]],
+  ])(
+    "Can filter based on a number criterion %s",
+    (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
+      const grid = {
+        A2: "1",
+        A3: "2",
+        A4: "3",
+      };
+      setGrid(model, grid);
+      createTableWithFilter(model, "A1:A4");
+      updateFilterCriterion(model, "A1", {
+        type: type as FilterCriterionType,
+        values: criterionValues,
+      });
+
+      expect(getFilteredRows()).toEqual(expectedFilteredRows);
+    }
+  );
+
+  test.each([
+    ["dateIs", ["01/20/2025"], [2, 3]],
+    ["dateIsBefore", ["04/15/2025"], [2, 3]],
+    ["dateIsOnOrBefore", ["04/15/2025"], [3]],
+    ["dateIsAfter", ["04/15/2025"], [1, 2]],
+    ["dateIsOnOrAfter", ["04/15/2025"], [1]],
+    ["dateIsBetween", ["01/01/2025", "05/01/2025"], [3]],
+    ["dateIsNotBetween", ["01/01/2025", "05/01/2025"], [1, 2]],
+  ])(
+    "Can filter based on a date criterion %s",
+    (type: string, criterionValues: string[], expectedFilteredRows: number[]) => {
+      const grid = {
+        A2: "01/20/2025",
+        A3: "04/15/2025",
+        A4: "07/10/2025",
+      };
+      setGrid(model, grid);
+      createTableWithFilter(model, "A1:A4");
+      updateFilterCriterion(model, "A1", {
+        type: type as FilterCriterionType,
+        values: criterionValues,
+        dateValue: "exactDate",
+      });
+
+      expect(getFilteredRows()).toEqual(expectedFilteredRows);
+    }
+  );
 });

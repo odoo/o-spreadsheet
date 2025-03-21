@@ -1,24 +1,63 @@
-import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, onWillUpdateProps } from "@odoo/owl";
 import { BUTTON_ACTIVE_BG } from "../../../constants";
-import { deepEquals } from "../../../helpers";
+import { deepEquals, isDateTimeFormat } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort";
-import { Position, SortDirection, SpreadsheetChildEnv } from "../../../types";
+import { _t } from "../../../translation";
+import {
+  CellValueType,
+  CriterionFilter,
+  DataFilterValue,
+  Position,
+  SortDirection,
+  SpreadsheetChildEnv,
+  filterDateCriterionOperators,
+  filterNumberCriterionOperators,
+  filterTextCriterionOperators,
+} from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
+import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
+import { FilterMenuCriterion } from "../filter_menu_criterion/filter_menu_criterion";
 import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
-
-const FILTER_MENU_HEIGHT = 295;
 
 css/* scss */ `
   .o-filter-menu {
-    padding: 8px 16px;
-    height: ${FILTER_MENU_HEIGHT}px;
-    line-height: 1;
+    width: 245px;
+    padding: 8px 0;
+    user-select: none;
+
+    .o-filter-menu-content {
+      padding: 0 16px;
+    }
+
+    .o-sort-item {
+      padding-left: 34px;
+    }
+
+    .o_side_panel_collapsible_title {
+      font-size: inherit;
+      padding: 0 0 4px 0 !important;
+      font-weight: 400 !important;
+
+      .collapsor .o-icon {
+        opacity: 0.8;
+      }
+
+      .collapsor-arrow {
+        transform-origin: 6px 8px;
+
+        .o-icon {
+          width: 12px;
+          height: 16px;
+        }
+      }
+    }
 
     .o-filter-menu-item {
       display: flex;
       cursor: pointer;
       user-select: none;
+      line-height: 1;
 
       &.selected,
       &:hover {
@@ -41,9 +80,7 @@ interface Props {
   onClosed?: () => void;
 }
 
-interface State {
-  updatedHiddenValue: string[] | undefined;
-}
+type CriterionCategory = "text" | "number" | "date";
 
 export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenu";
@@ -51,18 +88,19 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     filterPosition: Object,
     onClosed: { type: Function, optional: true },
   };
-  static components = { FilterMenuValueList };
+  static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
-  private state: State = useState({
-    updatedHiddenValue: undefined,
-  });
+  private criterionCategory: CriterionCategory = "text";
+  private updatedCriterionValue: DataFilterValue | undefined;
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
-        this.state.updatedHiddenValue = undefined;
+        this.updatedCriterionValue = undefined;
+        this.criterionCategory = this.getCriterionCategory(nextProps.filterPosition);
       }
     });
+    this.criterionCategory = this.getCriterionCategory(this.props.filterPosition);
   }
 
   get isSortable() {
@@ -82,12 +120,55 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getTable({ sheetId, ...position });
   }
 
+  get filterValueType() {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const position = this.props.filterPosition;
+    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
+    return filterValue?.filterType;
+  }
+
+  private getCriterionCategory(position: Position): CriterionCategory {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
+    if (!filter || !filter.filteredRange) {
+      return "text";
+    }
+
+    const cellTypesCount: Record<CriterionCategory, number> = { text: 0, number: 0, date: 0 };
+    const filteredZone = filter.filteredRange.zone;
+
+    for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
+      // 100 rows should be enough to determine the type, let's not loop on 10,000 rows for nothing
+      if (row > 100) {
+        break;
+      }
+      const cell = this.env.model.getters.getEvaluatedCell({ sheetId, row, col: position.col });
+      if (cell.type === CellValueType.text || cell.type === CellValueType.boolean) {
+        cellTypesCount.text++;
+      } else if (cell.type === CellValueType.number) {
+        if (cell.format && isDateTimeFormat(cell.format)) {
+          cellTypesCount.date++;
+        } else {
+          cellTypesCount.number++;
+        }
+      }
+    }
+
+    const max = Math.max(cellTypesCount.text, cellTypesCount.number, cellTypesCount.date);
+    const type = Object.keys(cellTypesCount).find((key) => cellTypesCount[key] === max);
+    return (type || "text") as CriterionCategory;
+  }
+
   onUpdateHiddenValues(values: string[]) {
-    this.state.updatedHiddenValue = values;
+    this.updatedCriterionValue = { filterType: "values", hiddenValues: values };
+  }
+
+  onCriterionChanged(criterion: CriterionFilter) {
+    this.updatedCriterionValue = criterion;
   }
 
   confirm() {
-    if (!this.state.updatedHiddenValue) {
+    if (!this.updatedCriterionValue) {
       this.props.onClosed?.();
       return;
     }
@@ -95,9 +176,27 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_FILTER", {
       ...position,
       sheetId: this.env.model.getters.getActiveSheetId(),
-      hiddenValues: this.state.updatedHiddenValue,
+      value: this.updatedCriterionValue,
     });
     this.props.onClosed?.();
+  }
+
+  get criterionOperators() {
+    if (this.criterionCategory === "date") {
+      return filterDateCriterionOperators;
+    } else if (this.criterionCategory === "number") {
+      return filterNumberCriterionOperators;
+    }
+    return filterTextCriterionOperators;
+  }
+
+  get criterionTitle() {
+    if (this.criterionCategory === "date") {
+      return _t("Filter by date");
+    } else if (this.criterionCategory === "number") {
+      return _t("Filter by number");
+    }
+    return _t("Filter by text");
   }
 
   cancel() {

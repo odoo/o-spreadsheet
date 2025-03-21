@@ -3,23 +3,50 @@
     <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
       <t t-if="isSortable">
         <div>
-          <div class="o-filter-menu-item py-2 mb-1" t-on-click="() => this.sortFilterZone('asc')">
+          <div
+            class="o-filter-menu-item o-sort-item py-2 mb-1"
+            t-on-click="() => this.sortFilterZone('asc')">
             Sort ascending (A ⟶ Z)
           </div>
-          <div class="o-filter-menu-item py-2" t-on-click="() => this.sortFilterZone('desc')">
+          <div
+            class="o-filter-menu-item o-sort-item py-2"
+            t-on-click="() => this.sortFilterZone('desc')">
             Sort descending (Z ⟶ A)
           </div>
         </div>
-        <div class="o-separator"/>
       </t>
-      <FilterMenuValueList
-        filterPosition="props.filterPosition"
-        onUpdateHiddenValues.bind="onUpdateHiddenValues"
-      />
+      <div class="o-filter-menu-content">
+        <div class="o-separator"/>
+        <SidePanelCollapsible
+          isInitiallyCollapsed="filterValueType !== 'criterion'"
+          title="criterionTitle">
+          <t t-set-slot="content">
+            <FilterMenuCriterion
+              filterPosition="props.filterPosition"
+              onCriterionChanged.bind="onCriterionChanged"
+              criterionOperators="criterionOperators"
+            />
+            <div class="mb-3"/>
+          </t>
+        </SidePanelCollapsible>
 
-      <div class="o-filter-menu-buttons d-flex justify-content-end">
-        <button class="o-button o-filter-menu-cancel me-2" t-on-click="cancel">Cancel</button>
-        <button class="o-button primary o-filter-menu-confirm" t-on-click="confirm">Confirm</button>
+        <SidePanelCollapsible
+          isInitiallyCollapsed="filterValueType === 'criterion'"
+          title.translate="Filter by values">
+          <t t-set-slot="content">
+            <FilterMenuValueList
+              filterPosition="props.filterPosition"
+              onUpdateHiddenValues.bind="onUpdateHiddenValues"
+            />
+          </t>
+        </SidePanelCollapsible>
+
+        <div class="o-filter-menu-buttons d-flex justify-content-end">
+          <button class="o-button o-filter-menu-cancel me-2" t-on-click="cancel">Cancel</button>
+          <button class="o-button primary o-filter-menu-confirm" t-on-click="confirm">
+            Confirm
+          </button>
+        </div>
       </div>
     </div>
   </t>

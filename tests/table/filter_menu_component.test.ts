@@ -1,5 +1,10 @@
 import { Model } from "../../src";
-import { UID } from "../../src/types";
+import {
+  filterDateCriterionOperators,
+  filterNumberCriterionOperators,
+  filterTextCriterionOperators,
+  UID,
+} from "../../src/types";
 import {
   createDynamicTable,
   createTableWithFilter,
@@ -7,6 +12,7 @@ import {
   setCellContent,
   setFormat,
   updateFilter,
+  updateFilterCriterion,
 } from "../test_helpers/commands_helpers";
 import {
   focusAndKeyDown,
@@ -14,7 +20,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { getCellsObject, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { getCellsObject, mountSpreadsheet, nextTick, setGrid } from "../test_helpers/helpers";
 
 async function openFilterMenu() {
   await simulateClick(".o-filter-icon");
@@ -140,6 +146,27 @@ describe("Filter menu component", () => {
       expect(values.map((val) => val.value)).toEqual(["(Blanks)", "2"]);
     });
 
+    test("All values are displayed and unchecked if a criterion is active", async () => {
+      updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
+      await openFilterMenu();
+      expect(getFilterMenuValues()).toEqual([
+        { value: "(Blanks)", isChecked: false },
+        { value: "1", isChecked: false },
+        { value: "2", isChecked: false },
+      ]);
+    });
+
+    test("Updating the list of value when a criterion filter is active replace the criterion filter with a value filter", async () => {
+      updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
+      await openFilterMenu();
+      await simulateClick(".o-filter-menu-value .o-checkbox");
+      await simulateClick(".o-filter-menu-confirm");
+      expect(model.getters.getFilterValue({ sheetId, col: 0, row: 0 })).toEqual({
+        filterType: "values",
+        hiddenValues: ["1", "2"],
+      });
+    });
+
     test("Can hover mouse to select items", async () => {
       await openFilterMenu();
       const listItems = fixture.querySelectorAll(".o-filter-menu-value");
@@ -232,6 +259,16 @@ describe("Filter menu component", () => {
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
       await keyDown({ key: "Escape" });
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
+    });
+
+    test("All the values are unchecked if a criterion filter is active", async () => {
+      updateFilterCriterion(model, "A1", { type: "isEmpty", values: [] });
+      await openFilterMenu();
+      expect(getFilterMenuValues()).toEqual([
+        { value: "(Blanks)", isChecked: false },
+        { value: "1", isChecked: false },
+        { value: "2", isChecked: false },
+      ]);
     });
 
     describe("Search bar", () => {
@@ -354,5 +391,86 @@ describe("Filter menu component", () => {
     expect(
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
     ).not.toContain("Sort ascending (A ⟶ Z)");
+  });
+
+  describe("Filter criterion tests", () => {
+    beforeEach(async () => {
+      createTableWithFilter(model, "A1:A5");
+      await nextTick();
+    });
+
+    test("Can edit filter criterion", async () => {
+      await openFilterMenu();
+
+      await simulateClick(".o-filter-criterion-type");
+      await simulateClick(".o-menu-item[data-name='containsText']");
+      await setInputValueAndTrigger(".o-dv-input input", "hello");
+      await simulateClick(".o-filter-menu-confirm");
+
+      expect(model.getters.getFilterValue({ sheetId, col: 0, row: 0 })).toEqual({
+        filterType: "criterion",
+        type: "containsText",
+        values: ["hello"],
+      });
+    });
+
+    test("Criterion type depend on the values in the filtered ranges", async () => {
+      const getAvailableCriterionTypes = () =>
+        [...fixture.querySelectorAll(".o-menu-item")].map((el) => el["dataset"].name).sort();
+
+      setGrid(model, { A2: "Hello", A3: "World" });
+      await openFilterMenu();
+      expect(".collapsor").toHaveText("Filter by text");
+      await simulateClick(".o-filter-criterion-type");
+      expect(getAvailableCriterionTypes()).toEqual(
+        ["none", ...filterTextCriterionOperators].sort()
+      );
+      await simulateClick(".o-filter-menu-confirm");
+
+      setGrid(model, { A2: "1", A3: "2", A4: "string in the minority" });
+      await openFilterMenu();
+      expect(".collapsor").toHaveText("Filter by number");
+      await simulateClick(".o-filter-criterion-type");
+      expect(getAvailableCriterionTypes()).toEqual(
+        ["none", ...filterNumberCriterionOperators].sort()
+      );
+      await simulateClick(".o-filter-menu-confirm");
+
+      setFormat(model, "A1:A4", "m/d/yyyy");
+      await openFilterMenu();
+      expect(".collapsor").toHaveText("Filter by date");
+      await simulateClick(".o-filter-criterion-type");
+      expect(getAvailableCriterionTypes()).toEqual(
+        ["none", ...filterDateCriterionOperators].sort()
+      );
+    });
+
+    test("Only last edited filter type is kept", async () => {
+      await openFilterMenu();
+
+      // Edit criterion then the list of values
+      await simulateClick(".o-filter-criterion-type");
+      await simulateClick(".o-menu-item[data-name='isEmpty']");
+      await simulateClick(".o-filter-menu-value .o-checkbox");
+      await simulateClick(".o-filter-menu-confirm");
+
+      expect(model.getters.getFilterValue({ sheetId, col: 0, row: 0 })).toEqual({
+        filterType: "values",
+        hiddenValues: [""],
+      });
+
+      // Edit the list of values then the criterion
+      await openFilterMenu();
+      await simulateClick(".o-filter-menu-value .o-checkbox");
+      await simulateClick(".o-filter-criterion-type");
+      await simulateClick(".o-menu-item[data-name='isEmpty']");
+      await simulateClick(".o-filter-menu-confirm");
+
+      expect(model.getters.getFilterValue({ sheetId, col: 0, row: 0 })).toEqual({
+        filterType: "criterion",
+        type: "isEmpty",
+        values: [],
+      });
+    });
   });
 });

@@ -4,6 +4,7 @@
       value="props.criterion.values[0]"
       onValueChanged.bind="onValueChanged"
       criterionType="props.criterion.type"
+      disableFormulas="props.disableFormulas"
     />
   </t>
 </templates>

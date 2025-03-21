@@ -54,24 +54,37 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
       return [];
     }
 
-    const cellValues = (filter.filteredRange ? positions(filter.filteredRange.zone) : [])
-      .filter(({ row }) => !this.env.model.getters.isRowHidden(sheetId, row))
-      .map(
-        ({ col, row }) =>
-          this.env.model.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue
-      );
+    const cellValues = (filter.filteredRange ? positions(filter.filteredRange.zone) : []).map(
+      (position) => ({
+        position,
+        cellValue: this.env.model.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue,
+      })
+    );
 
-    const filterValues = this.env.model.getters.getFilterHiddenValues({ sheetId, ...position });
+    const sortFn = (val1: string, val2: string) =>
+      val1.localeCompare(val2, undefined, { numeric: true, sensitivity: "base" });
 
-    const strValues = [...cellValues, ...filterValues];
-    const normalizedFilteredValues = filterValues.map(toLowerCase);
+    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
+    if (filterValue?.filterType === "criterion") {
+      return [...new Set(cellValues.map((val) => toLowerCase(val.cellValue)))]
+        .sort(sortFn)
+        .map((val) => ({
+          checked: false,
+          string: val,
+        }));
+    }
+
+    const nonHiddenValues = cellValues
+      .filter((val) => !this.env.model.getters.isRowHidden(sheetId, val.position.row))
+      .map((val) => val.cellValue);
+    const strValues = [...nonHiddenValues, ...(filterValue?.hiddenValues || [])];
+
+    const normalizedFilteredValues = filterValue?.hiddenValues.map(toLowerCase) || [];
 
     // Set with lowercase values to avoid duplicates
     const normalizedValues = [...new Set(strValues.map(toLowerCase))];
 
-    const sortedValues = normalizedValues.sort((val1, val2) =>
-      val1.localeCompare(val2, undefined, { numeric: true, sensitivity: "base" })
-    );
+    const sortedValues = normalizedValues.sort(sortFn);
 
     return sortedValues.map((normalizedValue) => {
       const checked =
