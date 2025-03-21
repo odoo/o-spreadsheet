@@ -193,7 +193,12 @@ const quarterNumberAdapter: PivotTimeAdapterNotNull<number> = {
 
 const yearAdapter: PivotTimeAdapterNotNull<number> = {
   normalizeFunctionValue(value) {
-    return toNumber(value, DEFAULT_LOCALE);
+    const year = toNumber(value, DEFAULT_LOCALE);
+    if (year > 3000) {
+      // interpret the value as a full date
+      return toJsDate(year, DEFAULT_LOCALE).getFullYear();
+    }
+    return year;
   },
   toValueAndFormat(normalizedValue) {
     return {
