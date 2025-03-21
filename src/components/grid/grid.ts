@@ -59,6 +59,7 @@ import {
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
+import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
@@ -148,6 +149,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<HoveredCellStore>;
   sidePanel!: Store<SidePanelStore>;
+  cellComposerStore!: Store<CellComposerStore>;
 
   setup() {
     this.highlightStore = useStore(HighlightStore);
@@ -159,6 +161,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.gridRef = useRef("grid");
     this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
     this.hoveredCell = useStore(HoveredCellStore);
+    this.cellComposerStore = useStore(CellComposerStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
@@ -475,7 +478,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) {
     if (this.composerFocusStore.activeComposer.editionMode === "editing") {
+      const isEditingCellInOtherSheet =
+        this.env.model.getters.getActiveSheetId() !== this.cellComposerStore.sheetId &&
+        this.cellComposerStore.editionMode === "editing";
       this.composerFocusStore.activeComposer.stopEdition();
+      if (isEditingCellInOtherSheet) {
+        return;
+      }
     }
     if (modifiers.expandZone) {
       this.env.model.selection.setAnchorCorner(col, row);
