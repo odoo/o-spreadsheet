@@ -52,6 +52,7 @@ describe("pie chart", () => {
         labelRange: "Sheet1!A1:A2",
         dataSetsHaveTitle: false,
         type: "pie",
+        background: "#000000",
       },
       "1"
     );
@@ -59,18 +60,18 @@ describe("pie chart", () => {
       {
         text: "P1",
         fillStyle: "#4EA7F2",
-        hidden: false,
         lineWidth: 2,
         pointStyle: "rect",
         strokeStyle: "#4EA7F2",
+        fontColor: "#FFFFFF",
       },
       {
         text: "P2",
         fillStyle: "#EA6175",
-        hidden: false,
         lineWidth: 2,
         pointStyle: "rect",
         strokeStyle: "#EA6175",
+        fontColor: "#FFFFFF",
       },
     ]);
   });
