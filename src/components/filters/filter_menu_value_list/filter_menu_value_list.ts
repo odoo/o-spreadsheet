@@ -53,15 +53,20 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     if (!filter) {
       return [];
     }
+    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
 
-    const cellValues = (filter.filteredRange ? positions(filter.filteredRange.zone) : [])
-      .filter(({ row }) => !this.env.model.getters.isRowHidden(sheetId, row))
-      .map(
-        ({ col, row }) =>
-          this.env.model.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue
-      );
+    let cells = (filter.filteredRange ? positions(filter.filteredRange.zone) : []).map(
+      (position) => ({
+        position,
+        cellValue: this.env.model.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue,
+      })
+    );
+    if (filterValue?.filterType !== "criterion") {
+      cells = cells.filter((val) => !this.env.model.getters.isRowHidden(sheetId, val.position.row));
+    }
 
-    const filterValues = this.env.model.getters.getFilterHiddenValues({ sheetId, ...position });
+    const cellValues = cells.map((val) => val.cellValue);
+    const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
 
     const strValues = [...cellValues, ...filterValues];
     const normalizedFilteredValues = filterValues.map(toLowerCase);
@@ -74,9 +79,10 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     );
 
     return sortedValues.map((normalizedValue) => {
-      const checked =
-        normalizedFilteredValues.findIndex((filteredValue) => filteredValue === normalizedValue) ===
-        -1;
+      let checked = false;
+      if (filterValue?.filterType !== "criterion") {
+        checked = normalizedFilteredValues.findIndex((val) => val === normalizedValue) === -1;
+      }
       return {
         checked,
         string: strValues.find((val) => toLowerCase(val) === normalizedValue) || "",
