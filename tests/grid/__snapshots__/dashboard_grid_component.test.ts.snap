@@ -42,7 +42,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   </div>
   <div
     class="o-scrollbar vertical"
-    style="top:0px; right:0px; width:15px; bottom:0px; "
+    style="top:0px; right:0px; width:15px; bottom:0; "
   >
     <div
       style="width:1px; height:2300px; "
@@ -51,7 +51,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   
   <div
     class="o-scrollbar horizontal"
-    style="left:0px; bottom:0px; height:15px; right:0px; "
+    style="left:0px; bottom:0px; height:15px; right:0; "
   >
     <div
       style="width:2496px; height:1px; "
