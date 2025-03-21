@@ -111,6 +111,7 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
+import { PyramidConfigPanel } from "./components/side_panel/chart/pyramid_chart/pyramid_chart_config_panel";
 import { RadarChartDesignPanel } from "./components/side_panel/chart/radar_chart/radar_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfall_chart/waterfall_chart_design_panel";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
@@ -374,6 +375,7 @@ export const components = {
   ScorecardChart,
   LineConfigPanel,
   BarConfigPanel,
+  PyramidConfigPanel,
   PieChartDesignPanel,
   GenericChartConfigPanel,
   ChartWithAxisDesignPanel,
