@@ -80,6 +80,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     if (isChildEvent(gridRef.el, e)) {
       ({ x, y } = getOffsetRelativeToOverlay(e));
       lastMoved = Date.now();
+      hoveredCell.hover(getPosition());
     }
   }
 
@@ -119,7 +120,7 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
       hoveredPosition.col = col;
       hoveredPosition.row = row;
-      hoveredCell.hover({ col, row });
+      hoveredCell.debouncedHover({ col, row });
     }
   }
   return hoveredPosition;

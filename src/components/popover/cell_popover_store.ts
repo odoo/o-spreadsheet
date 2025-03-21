@@ -61,7 +61,7 @@ export class CellPopoverStore extends SpreadsheetStore {
             anchorRect: this.computePopoverAnchorRect(this.persistentPopover),
           };
     }
-    const { col, row } = this.hoveredCell;
+    const { debouncedCol: col, debouncedRow: row } = this.hoveredCell;
     if (
       col === undefined ||
       row === undefined ||
