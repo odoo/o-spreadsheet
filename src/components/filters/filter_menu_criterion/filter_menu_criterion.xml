@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet-FilterMenuCriterion">
+    <SelectMenu
+      class="'o-filter-criterion-type o-input m-1 mb-2'"
+      menuItems="criterionMenuItems"
+      selectedValue="selectedCriterionName"
+    />
+
+    <t
+      t-if="criterionComponent"
+      t-component="criterionComponent"
+      t-key="selectedCriterionName"
+      criterion="state.criterion"
+      onCriterionChanged.bind="onCriterionChanged"
+      disableFormulas="true"
+    />
+  </t>
+</templates>
