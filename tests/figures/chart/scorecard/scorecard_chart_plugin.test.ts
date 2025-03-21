@@ -45,7 +45,7 @@ describe("datasource tests", function () {
         keyValue: "B8",
         baseline: "B7",
         type: "scorecard",
-        baselineDescr: "Description",
+        baselineDescr: { text: "Description" },
         title: { text: "Title" },
       },
       "1"
@@ -159,14 +159,14 @@ describe("datasource tests", function () {
       keyValue: "A7",
       baseline: "E3",
       baselineMode: "percentage",
-      baselineDescr: "description",
+      baselineDescr: { text: "description" },
       title: { text: "hello1" },
     });
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       keyValue: "A7",
       baseline: "E3",
       baselineMode: "percentage",
-      baselineDescr: "description",
+      baselineDescr: { text: "description" },
       title: { text: "hello1" },
     });
   });
