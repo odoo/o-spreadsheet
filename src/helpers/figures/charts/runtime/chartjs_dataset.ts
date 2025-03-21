@@ -30,7 +30,20 @@ import {
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
+<<<<<<< saas-18.2
 import { TREND_LINE_XAXIS_ID, getPieColors } from "../chart_common";
+||||||| 17e96f235103303db58d889204b5f87871a5df98
+import { TREND_LINE_XAXIS_ID, getPieColors } from "../chart_common";
+import { truncateLabel } from "../chart_ui_common";
+=======
+import {
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
+  TREND_LINE_XAXIS_ID,
+  getPieColors,
+  isTrendLineAxis,
+} from "../chart_common";
+import { truncateLabel } from "../chart_ui_common";
+>>>>>>> 10e6a3650c8f3a60a07518390724fe61e4469b96
 
 export function getBarChartDatasets(
   definition: GenericDefinition<BarChartDefinition>,
@@ -182,7 +195,7 @@ export function getScatterChartDatasets(
 ): ChartDataset[] {
   const dataSets: ChartDataset<"line">[] = getLineChartDatasets(definition, args);
   for (const dataSet of dataSets) {
-    if (dataSet.xAxisID !== TREND_LINE_XAXIS_ID) {
+    if (!isTrendLineAxis(dataSet.xAxisID as string)) {
       dataSet.showLine = false;
     }
   }
@@ -345,7 +358,10 @@ function getTrendingLineDataSet(
 
   return {
     type: "line",
-    xAxisID: TREND_LINE_XAXIS_ID,
+    xAxisID:
+      config.type === "trailingMovingAverage"
+        ? MOVING_AVERAGE_TREND_LINE_XAXIS_ID
+        : TREND_LINE_XAXIS_ID,
     yAxisID: dataset.yAxisID,
     label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
     data,
