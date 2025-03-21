@@ -48,6 +48,7 @@ describe("toNormalizedPivotValue", () => {
       expect(toNormalizedPivotValue(dimension, 2020)).toBe(2020);
       expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
       expect(toNormalizedPivotValue(dimension, false)).toBe(false);
+      expect(toNormalizedPivotValue(dimension, "2020-12-31")).toBe(2020);
 
       dimension.granularity = "day_of_month";
       expect(toNormalizedPivotValue(dimension, "1")).toBe(1);
