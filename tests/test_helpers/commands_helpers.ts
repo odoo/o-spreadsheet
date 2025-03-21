@@ -46,7 +46,7 @@ import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart"
 import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { Image } from "../../src/types/image";
-import { CoreTableType, TableConfig } from "../../src/types/table";
+import { CoreTableType, CriterionFilter, TableConfig } from "../../src/types/table";
 import { FigureSize } from "./../../src/types/figure";
 
 /**
@@ -1238,7 +1238,33 @@ export function updateFilter(
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("UPDATE_FILTER", { col, row, sheetId, hiddenValues });
+  return model.dispatch("UPDATE_FILTER", {
+    col,
+    row,
+    sheetId,
+    value: {
+      filterType: "values",
+      hiddenValues,
+    },
+  });
+}
+
+export function updateFilterCriterion(
+  model: Model,
+  xc: string,
+  criterion: Omit<CriterionFilter, "filterType">,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  const { col, row } = toCartesian(xc);
+  return model.dispatch("UPDATE_FILTER", {
+    col,
+    row,
+    sheetId,
+    value: {
+      filterType: "criterion",
+      ...criterion,
+    },
+  });
 }
 
 export function deleteTable(

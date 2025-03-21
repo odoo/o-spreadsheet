@@ -6,129 +6,230 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
 >
   <div>
     <div
-      class="o-filter-menu-item py-2 mb-1"
+      class="o-filter-menu-item o-sort-item py-2 mb-1"
     >
        Sort ascending (A ⟶ Z) 
     </div>
     <div
-      class="o-filter-menu-item py-2"
+      class="o-filter-menu-item o-sort-item py-2"
     >
        Sort descending (Z ⟶ A) 
     </div>
   </div>
-  <div
-    class="o-separator"
-  />
   
   <div
-    class="o-filter-menu-actions d-flex"
+    class="o-filter-menu-content"
   >
     <div
-      class="o-button-link me-4"
-    >
-      Select all
-    </div>
-    <div
-      class="o-button-link me-4"
-    >
-      Clear
-    </div>
-  </div>
-  <div
-    class="position-relative"
-  >
-    <input
-      class="w-100 o-input my-2"
-      placeholder="Search..."
-      type="text"
+      class="o-separator"
     />
-    <i
-      class="o-search-icon position-absolute"
-    >
+    <div>
       <div
-        class="o-icon"
+        class="o_side_panel_collapsible_title o-fw-bold d-flex align-items-center"
       >
-        <i
-          class="fa fa-search"
-        />
+        <div
+          class="collapsor w-100 d-flex align-items-center ps-1 collapsed"
+        >
+          <span
+            class="collapsor-arrow"
+          >
+            <div
+              class="o-icon"
+            >
+              <svg
+                viewBox="0 0 224 256"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"
+                  transform="translate(0, 9) scale(0.5,0.5)"
+                />
+              </svg>
+            </div>
+          </span>
+          <div
+            class="ps-2"
+          >
+            Filter by number
+          </div>
+        </div>
       </div>
-    </i>
-  </div>
-  <div
-    class="o-filter-menu-list d-flex flex-column"
-  >
-    <div
-      class="o-filter-menu-item o-filter-menu-value"
-    >
-      <!-- toString because t-set with a body creates a LazyValue instead of a string -->
-      <label
-        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
-        role="button"
+      <div
+        class="os-collapse d-none"
       >
-        <input
-          class="me-2"
-          name="(Blanks)"
-          type="checkbox"
-        />
-        (Blanks)
-        
-      </label>
-      
-    </div>
-    <div
-      class="o-filter-menu-item o-filter-menu-value"
-    >
-      <!-- toString because t-set with a body creates a LazyValue instead of a string -->
-      <label
-        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
-        role="button"
-      >
-        <input
-          class="me-2"
-          name="1"
-          type="checkbox"
-        />
-        1
-        
-      </label>
-      
-    </div>
-    <div
-      class="o-filter-menu-item o-filter-menu-value"
-    >
-      <!-- toString because t-set with a body creates a LazyValue instead of a string -->
-      <label
-        class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
-        role="button"
-      >
-        <input
-          class="me-2"
-          name="2"
-          type="checkbox"
-        />
-        2
-        
-      </label>
+        <div
+          class="pt-2"
+        >
+          <select
+            class="o-filter-criterion-type o-input m-1 mb-2"
+          >
+            <option
+              selected="true"
+            >
+              None
+            </option>
+          </select>
+          
+          
+          <div
+            class="mb-3"
+          />
+        </div>
+      </div>
       
     </div>
     
+    <div>
+      <div
+        class="o_side_panel_collapsible_title o-fw-bold d-flex align-items-center"
+      >
+        <div
+          class="collapsor w-100 d-flex align-items-center ps-1"
+        >
+          <span
+            class="collapsor-arrow"
+          >
+            <div
+              class="o-icon"
+            >
+              <svg
+                viewBox="0 0 224 256"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"
+                  transform="translate(0, 9) scale(0.5,0.5)"
+                />
+              </svg>
+            </div>
+          </span>
+          <div
+            class="ps-2"
+          >
+            Filter by values
+          </div>
+        </div>
+      </div>
+      <div
+        class="os-collapse"
+      >
+        <div
+          class="pt-2"
+        >
+          <div
+            class="o-filter-menu-actions d-flex"
+          >
+            <div
+              class="o-button-link me-4"
+            >
+              Select all
+            </div>
+            <div
+              class="o-button-link me-4"
+            >
+              Clear
+            </div>
+          </div>
+          <div
+            class="position-relative"
+          >
+            <input
+              class="w-100 o-input my-2"
+              placeholder="Search..."
+              type="text"
+            />
+            <i
+              class="o-search-icon position-absolute"
+            >
+              <div
+                class="o-icon"
+              >
+                <i
+                  class="fa fa-search"
+                />
+              </div>
+            </i>
+          </div>
+          <div
+            class="o-filter-menu-list d-flex flex-column"
+          >
+            <div
+              class="o-filter-menu-item o-filter-menu-value"
+            >
+              <!-- toString because t-set with a body creates a LazyValue instead of a string -->
+              <label
+                class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+                role="button"
+              >
+                <input
+                  class="me-2"
+                  name="(Blanks)"
+                  type="checkbox"
+                />
+                (Blanks)
+                
+              </label>
+              
+            </div>
+            <div
+              class="o-filter-menu-item o-filter-menu-value"
+            >
+              <!-- toString because t-set with a body creates a LazyValue instead of a string -->
+              <label
+                class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+                role="button"
+              >
+                <input
+                  class="me-2"
+                  name="1"
+                  type="checkbox"
+                />
+                1
+                
+              </label>
+              
+            </div>
+            <div
+              class="o-filter-menu-item o-filter-menu-value"
+            >
+              <!-- toString because t-set with a body creates a LazyValue instead of a string -->
+              <label
+                class="o-checkbox d-flex align-items-center p-2 w-100 pe-auto text-truncate"
+                role="button"
+              >
+                <input
+                  class="me-2"
+                  name="2"
+                  type="checkbox"
+                />
+                2
+                
+              </label>
+              
+            </div>
+            
+            
+            
+          </div>
+        </div>
+      </div>
+      
+    </div>
     
-    
-  </div>
-  
-  <div
-    class="o-filter-menu-buttons d-flex justify-content-end"
-  >
-    <button
-      class="o-button o-filter-menu-cancel me-2"
+    <div
+      class="o-filter-menu-buttons d-flex justify-content-end"
     >
-      Cancel
-    </button>
-    <button
-      class="o-button primary o-filter-menu-confirm"
-    >
-      Confirm
-    </button>
+      <button
+        class="o-button o-filter-menu-cancel me-2"
+      >
+        Cancel
+      </button>
+      <button
+        class="o-button primary o-filter-menu-confirm"
+      >
+         Confirm 
+      </button>
+    </div>
   </div>
 </div>
 `;

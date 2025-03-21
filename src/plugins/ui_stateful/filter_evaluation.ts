@@ -8,28 +8,39 @@ import {
   toZone,
   zoneToDimension,
 } from "../../helpers";
+import { parseLiteral } from "../../helpers/cells";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellPosition,
+  CellValue,
   Command,
   CommandResult,
+  CriterionFilter,
+  DEFAULT_LOCALE,
+  DataFilterValue,
   ExcelFilterData,
   ExcelWorkbookData,
   FilterId,
   Table,
   UID,
+  isMatrix,
 } from "../../types";
 import { LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
+const EMPTY_CRITERION: CriterionFilter = { filterType: "criterion", type: "none", values: [] };
+
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [
+    "getFilterValue",
     "getFilterHiddenValues",
+    "getFilterCriterionValue",
     "getFirstTableInSelection",
     "isRowFiltered",
     "isFilterActive",
   ] as const;
 
-  private filterValues: Record<UID, Record<FilterId, string[]>> = {};
+  private filterValues: Record<UID, Record<FilterId, DataFilterValue>> = {};
 
   hiddenRows: Record<UID, Set<number> | undefined> = {};
   isEvaluationDirty = false;
@@ -103,17 +114,35 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return !!this.hiddenRows[sheetId]?.has(row);
   }
 
+  getFilterValue(position: CellPosition): DataFilterValue | undefined {
+    const id = this.getters.getFilterId(position);
+    const sheetId = position.sheetId;
+    return id ? this.filterValues[sheetId]?.[id] : undefined;
+  }
+
   getFilterHiddenValues(position: CellPosition): string[] {
     const id = this.getters.getFilterId(position);
     const sheetId = position.sheetId;
     if (!id || !this.filterValues[sheetId]) return [];
-    return this.filterValues[sheetId][id] || [];
+    const value = this.filterValues[sheetId][id] || [];
+    return value.filterType === "values" ? value.hiddenValues : [];
+  }
+
+  getFilterCriterionValue(position: CellPosition): CriterionFilter {
+    const id = this.getters.getFilterId(position);
+    const sheetId = position.sheetId;
+    if (!id || !this.filterValues[sheetId]) return EMPTY_CRITERION;
+    const value = this.filterValues[sheetId][id];
+    return value && value.filterType === "criterion" ? value : EMPTY_CRITERION;
   }
 
   isFilterActive(position: CellPosition): boolean {
     const id = this.getters.getFilterId(position);
+    if (!id) return false;
     const sheetId = position.sheetId;
-    return Boolean(id && this.filterValues[sheetId]?.[id]?.length);
+    const value = this.filterValues[sheetId]?.[id];
+    if (!value) return false;
+    return value.filterType === "values" ? value.hiddenValues.length > 0 : value.type !== "none";
   }
 
   getFirstTableInSelection(): Table | undefined {
@@ -122,11 +151,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return this.getters.getTablesOverlappingZones(sheetId, selection)[0];
   }
 
-  private updateFilter({ col, row, hiddenValues, sheetId }: UpdateFilterCommand) {
+  private updateFilter({ col, row, value, sheetId }: UpdateFilterCommand) {
     const id = this.getters.getFilterId({ sheetId, col, row });
     if (!id) return;
     if (!this.filterValues[sheetId]) this.filterValues[sheetId] = {};
-    this.filterValues[sheetId][id] = hiddenValues;
+    this.filterValues[sheetId][id] = value;
   }
 
   private updateHiddenRows(sheetId: UID) {
@@ -139,19 +168,50 @@ export class FilterEvaluationPlugin extends UIPlugin {
     const hiddenRows = new Set<number>();
     for (const filter of filters) {
       // Disable filters whose header are hidden
+      const filterValue = this.filterValues[sheetId]?.[filter.id];
+      const filteredZone = filter.filteredRange?.zone;
       if (
+        !filterValue ||
+        !filteredZone ||
         hiddenRows.has(filter.rangeWithHeaders.zone.top) ||
         this.getters.isRowHiddenByUser(sheetId, filter.rangeWithHeaders.zone.top)
       ) {
         continue;
       }
-      const filteredValues = this.filterValues[sheetId]?.[filter.id]?.map(toLowerCase);
-      const filteredZone = filter.filteredRange?.zone;
-      if (!filteredValues || !filteredZone) continue;
-      for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
-        const value = this.getCellValueAsString(sheetId, filter.col, row);
-        if (filteredValues.includes(value)) {
-          hiddenRows.add(row);
+      if (filterValue.filterType === "values") {
+        const filteredValues = filterValue.hiddenValues?.map(toLowerCase);
+        if (!filteredValues) continue;
+        for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
+          const value = this.getCellValueAsString(sheetId, filter.col, row);
+          if (filteredValues.includes(value)) {
+            hiddenRows.add(row);
+          }
+        }
+      } else {
+        if (filterValue.type === "none") continue;
+        const evaluator = criterionEvaluatorRegistry.get(filterValue.type);
+
+        const evaluatedCriterionValues = filterValue.values.map((value) => {
+          if (!value.startsWith("=")) {
+            return parseLiteral(value, DEFAULT_LOCALE);
+          }
+          return this.getters.evaluateFormula(sheetId, value) ?? "";
+        });
+        if (evaluatedCriterionValues.some(isMatrix)) {
+          continue;
+        }
+
+        const evaluatedCriterion = {
+          type: filterValue.type,
+          values: evaluatedCriterionValues as CellValue[],
+          dateValue: filterValue.dateValue,
+        };
+        for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
+          const position = { sheetId, col: filter.col, row };
+          const value = this.getters.getEvaluatedCell(position).value ?? "";
+          if (!evaluator.isValueValid(value, evaluatedCriterion, this.getters, sheetId)) {
+            hiddenRows.add(row);
+          }
         }
       }
     }
