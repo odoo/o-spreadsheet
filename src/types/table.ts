@@ -1,3 +1,4 @@
+import { DateCriterionValue, GenericCriterionType } from "./generic_criterion";
 import { Border, BorderDescr, Style, TableId, UID } from "./misc";
 import { Range } from "./range";
 
@@ -96,3 +97,82 @@ export type TableStyleTemplateName =
   | "darkNoBorders"
   | "mediumWhiteBorders"
   | "dark";
+
+const filterCriterions: GenericCriterionType[] = [
+  "containsText",
+  "notContainsText",
+  "isEqualText",
+  "dateIs",
+  "dateIsBefore",
+  "dateIsOnOrBefore",
+  "dateIsAfter",
+  "dateIsOnOrAfter",
+  "dateIsBetween",
+  "dateIsNotBetween",
+  "isEqual",
+  "isNotEqual",
+  "isGreaterThan",
+  "isGreaterOrEqualTo",
+  "isLessThan",
+  "isLessOrEqualTo",
+  "isBetween",
+  "isNotBetween",
+  "customFormula",
+  "beginsWithText",
+  "endsWithText",
+  "isNotEmpty",
+  "isEmpty",
+];
+
+export type FilterCriterionType = (typeof filterCriterions)[number];
+
+export const availableFiltersOperators: Set<FilterCriterionType> = new Set(filterCriterions);
+
+export const filterTextCriterionOperators: FilterCriterionType[] = [
+  "containsText",
+  "notContainsText",
+  "isEqualText",
+  "isEmpty",
+  "isNotEmpty",
+  "beginsWithText",
+  "endsWithText",
+];
+
+export const filterNumberCriterionOperators: FilterCriterionType[] = [
+  "isEqual",
+  "isNotEqual",
+  "isGreaterThan",
+  "isGreaterOrEqualTo",
+  "isLessThan",
+  "isLessOrEqualTo",
+  "isBetween",
+  "isNotBetween",
+  "isEmpty",
+  "isNotEmpty",
+];
+
+export const filterDateCriterionOperators: FilterCriterionType[] = [
+  "dateIs",
+  "dateIsBefore",
+  "dateIsOnOrBefore",
+  "dateIsAfter",
+  "dateIsOnOrAfter",
+  "dateIsBetween",
+  "dateIsNotBetween",
+  "isEmpty",
+  "isNotEmpty",
+];
+
+export interface ValuesFilter {
+  filterType: "values";
+  hiddenValues: string[];
+}
+
+export interface CriterionFilter {
+  filterType: "criterion";
+  type: FilterCriterionType | "none";
+  values: string[];
+  dateValue?: DateCriterionValue;
+}
+
+export type DataFilterValue = ValuesFilter | CriterionFilter;
