@@ -52,13 +52,13 @@
         <button class="o-button o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">
           Add range
         </button>
-        <div class="ms-auto" t-if="store.hasFocus">
+        <div class="ms-auto" t-if="store.hasMainFocus">
           <button class="o-button o-selection-ko" t-if="isResettable" t-on-click="reset">
             Reset
           </button>
           <button
             class="o-button primary ms-2 o-selection-ok"
-            t-if="store.hasFocus"
+            t-if="store.hasMainFocus"
             t-att-disabled="!isConfirmable"
             t-on-click="confirm">
             Confirm
