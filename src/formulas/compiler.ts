@@ -77,10 +77,14 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
 function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const { dependencies, constantValues, symbols } = formulaArguments(tokens);
-  const cacheKey = compilationCacheKey(tokens, dependencies, constantValues, symbols);
+  const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
     const ast = parseTokens([...tokens]);
     const scope = new Scope();
+
+    let stringCount = 0;
+    let numberCount = 0;
+    let dependencyCount = 0;
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
       throw new BadExpressionError(_t("Invalid formula"));
@@ -170,19 +174,14 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         case "BOOLEAN":
           return code.return(`{ value: ${ast.value} }`);
         case "NUMBER":
-          return code.return(
-            `{ value: this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}] }`
-          );
+          return code.return(`{ value: this.constantValues.numbers[${numberCount++}] }`);
         case "STRING":
-          return code.return(
-            `{ value: this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}] }`
-          );
+          return code.return(`{ value: this.constantValues.strings[${stringCount++}] }`);
         case "REFERENCE":
-          const referenceIndex = dependencies.indexOf(ast.value);
           if ((!isMeta && ast.value.includes(":")) || hasRange) {
-            return code.return(`range(deps[${referenceIndex}])`);
+            return code.return(`range(deps[${dependencyCount++}])`);
           } else {
-            return code.return(`ref(deps[${referenceIndex}], ${isMeta ? "true" : "false"})`);
+            return code.return(`ref(deps[${dependencyCount++}], ${isMeta ? "true" : "false"})`);
           }
         case "FUNCALL":
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
@@ -230,39 +229,30 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
  * References, numbers and strings are replaced with placeholders because
  * the compiled formula does not depend on their actual value.
  * Both `=A1+1+"2"` and `=A2+2+"3"` are compiled to the exact same function.
- *
  * Spaces are also ignored to compute the cache key.
  *
- * A formula `=A1+A2+SUM(2, 2, "2")` have the cache key `=|0|+|1|+SUM(|N0|,|N0|,|S0|)`
+ * A formula `=A1+A2+SUM(2, 2, "2")` have the cache key `=|C|+|C|+SUM(|N|,|N|,|S|)`
  */
-function compilationCacheKey(
-  tokens: Token[],
-  dependencies: string[],
-  constantValues: ConstantValues,
-  symbols: string[]
-): string {
+function compilationCacheKey(tokens: Token[]): string {
   let cacheKey = "";
   for (const token of tokens) {
     switch (token.type) {
       case "STRING":
-        const value = removeStringQuotes(token.value);
-        cacheKey += `|S${constantValues.strings.indexOf(value)}|`;
+        cacheKey += "|S|";
         break;
       case "NUMBER":
-        cacheKey += `|N${constantValues.numbers.indexOf(
-          parseNumber(token.value, DEFAULT_LOCALE)
-        )}|`;
+        cacheKey += "|N|";
         break;
       case "REFERENCE":
       case "INVALID_REFERENCE":
         if (token.value.includes(":")) {
-          cacheKey += `R|${dependencies.indexOf(token.value)}|`;
+          cacheKey += "|R|";
         } else {
-          cacheKey += `C|${dependencies.indexOf(token.value)}|`;
+          cacheKey += "|C|";
         }
         break;
       case "SPACE":
-        cacheKey += "";
+        // ignore spaces
         break;
       default:
         cacheKey += token.value;
@@ -290,15 +280,11 @@ function formulaArguments(tokens: Token[]) {
         break;
       case "STRING":
         const value = removeStringQuotes(token.value);
-        if (!constantValues.strings.includes(value)) {
-          constantValues.strings.push(value);
-        }
+        constantValues.strings.push(value);
         break;
       case "NUMBER": {
         const value = parseNumber(token.value, DEFAULT_LOCALE);
-        if (!constantValues.numbers.includes(value)) {
-          constantValues.numbers.push(value);
-        }
+        constantValues.numbers.push(value);
         break;
       }
       case "SYMBOL": {
