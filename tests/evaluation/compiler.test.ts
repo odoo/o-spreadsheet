@@ -298,12 +298,12 @@ describe("compile functions", () => {
 
   test("function cache ignore spaces in functions", () => {
     compiledBaseFunction("=SUM(A1)");
-    expect(Object.keys(functionCache)).toEqual(["=SUM(C|0|)"]);
+    expect(Object.keys(functionCache)).toEqual(["=SUM(|C|)"]);
     compile("= SUM(A1)");
     compile("=SUM( A1)");
     compile("= SUM(A1 )");
     compile("= SUM   (    A1    )");
-    expect(Object.keys(functionCache)).toEqual(["=SUM(C|0|)"]);
+    expect(Object.keys(functionCache)).toEqual(["=SUM(|C|)"]);
   });
 
   test("simple symbol", () => {
