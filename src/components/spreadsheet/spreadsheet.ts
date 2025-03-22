@@ -412,7 +412,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       () => [this.env.model.getters.getActiveSheetId()]
     );
 
-    useExternalListener(window as any, "resize", () => this.render(true));
+    useExternalListener(window, "resize", () => this.render(true));
 
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
