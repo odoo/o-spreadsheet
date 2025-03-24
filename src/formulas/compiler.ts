@@ -34,13 +34,13 @@ export const UNARY_OPERATOR_MAP = {
   "%": "UNARY.PERCENT",
 };
 
-interface ConstantValues {
+interface LiteralValues {
   numbers: { value: number }[];
   strings: { value: string }[];
 }
 
 type InternalCompiledFormula = CompiledFormula & {
-  constantValues: ConstantValues;
+  literalValues: LiteralValues;
   symbols: string[];
 };
 
@@ -76,7 +76,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 }
 
 function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
-  const { dependencies, constantValues, symbols } = formulaArguments(tokens);
+  const { dependencies, literalValues, symbols } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens);
   if (!functionCache[cacheKey]) {
     const ast = parseTokens([...tokens]);
@@ -174,9 +174,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         case "BOOLEAN":
           return code.return(`{ value: ${ast.value} }`);
         case "NUMBER":
-          return code.return(`this.constantValues.numbers[${numberCount++}]`);
+          return code.return(`this.literalValues.numbers[${numberCount++}]`);
         case "STRING":
-          return code.return(`this.constantValues.strings[${stringCount++}]`);
+          return code.return(`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
           if ((!isMeta && ast.value.includes(":")) || hasRange) {
             return code.return(`range(deps[${dependencyCount++}])`);
@@ -215,7 +215,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const compiledFormula: InternalCompiledFormula = {
     execute: functionCache[cacheKey],
     dependencies,
-    constantValues,
+    literalValues,
     symbols,
     tokens,
     isBadExpression: false,
@@ -266,7 +266,7 @@ function compilationCacheKey(tokens: Token[]): string {
  * Return formula arguments which are references, strings and numbers.
  */
 function formulaArguments(tokens: Token[]) {
-  const constantValues: ConstantValues = {
+  const literalValues: LiteralValues = {
     numbers: [],
     strings: [],
   };
@@ -280,11 +280,11 @@ function formulaArguments(tokens: Token[]) {
         break;
       case "STRING":
         const value = removeStringQuotes(token.value);
-        constantValues.strings.push({ value });
+        literalValues.strings.push({ value });
         break;
       case "NUMBER": {
         const value = parseNumber(token.value, DEFAULT_LOCALE);
-        constantValues.numbers.push({ value });
+        literalValues.numbers.push({ value });
         break;
       }
       case "SYMBOL": {
@@ -295,7 +295,7 @@ function formulaArguments(tokens: Token[]) {
   }
   return {
     dependencies,
-    constantValues,
+    literalValues,
     symbols,
   };
 }
