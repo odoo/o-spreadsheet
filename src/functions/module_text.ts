@@ -1,6 +1,7 @@
 import { escapeRegExp, formatValue, trimContent } from "../helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
 
@@ -350,29 +351,35 @@ export const SEARCH = {
     searchFor: Maybe<FunctionResultObject>,
     textToSearch: Maybe<FunctionResultObject>,
     startingAt: Maybe<FunctionResultObject> = { value: DEFAULT_STARTING_AT }
-  ): number {
+  ) {
     const _searchFor = toString(searchFor).toLowerCase();
     const _textToSearch = toString(textToSearch).toLowerCase();
     const _startingAt = toNumber(startingAt, this.locale);
-
-    assert(() => _textToSearch !== "", _t("The text_to_search must be non-empty."));
-    assert(
-      () => _startingAt >= 1,
-      _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
-    );
+    if (_textToSearch === "") {
+      return {
+        value: CellErrorType.GenericError,
+        message: _t("The text_to_search must be non-empty."),
+      };
+    }
+    if (_startingAt < 1) {
+      return {
+        value: CellErrorType.GenericError,
+        message: _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt),
+      };
+    }
 
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
-
-    assert(
-      () => result >= 0,
-      _t(
-        "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
-        _searchFor,
-        _textToSearch
-      )
-    );
-
-    return result + 1;
+    if (result === -1) {
+      return {
+        value: CellErrorType.GenericError,
+        message: _t(
+          "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
+          _searchFor,
+          _textToSearch
+        ),
+      };
+    }
+    return { value: result + 1 };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
