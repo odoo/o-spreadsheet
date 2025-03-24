@@ -35,8 +35,8 @@ export const UNARY_OPERATOR_MAP = {
 };
 
 interface ConstantValues {
-  numbers: number[];
-  strings: string[];
+  numbers: { value: number }[];
+  strings: { value: string }[];
 }
 
 type InternalCompiledFormula = CompiledFormula & {
@@ -174,9 +174,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         case "BOOLEAN":
           return code.return(`{ value: ${ast.value} }`);
         case "NUMBER":
-          return code.return(`{ value: this.constantValues.numbers[${numberCount++}] }`);
+          return code.return(`this.constantValues.numbers[${numberCount++}]`);
         case "STRING":
-          return code.return(`{ value: this.constantValues.strings[${stringCount++}] }`);
+          return code.return(`this.constantValues.strings[${stringCount++}]`);
         case "REFERENCE":
           if ((!isMeta && ast.value.includes(":")) || hasRange) {
             return code.return(`range(deps[${dependencyCount++}])`);
@@ -280,11 +280,11 @@ function formulaArguments(tokens: Token[]) {
         break;
       case "STRING":
         const value = removeStringQuotes(token.value);
-        constantValues.strings.push(value);
+        constantValues.strings.push({ value });
         break;
       case "NUMBER": {
         const value = parseNumber(token.value, DEFAULT_LOCALE);
-        constantValues.numbers.push(value);
+        constantValues.numbers.push({ value });
         break;
       }
       case "SYMBOL": {
