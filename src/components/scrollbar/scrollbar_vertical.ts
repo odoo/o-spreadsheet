@@ -46,7 +46,7 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
       top: `${this.props.topOffset + y}px`,
       right: "0px",
       width: `${SCROLLBAR_WIDTH}px`,
-      bottom: `0px`,
+      bottom: `${SCROLLBAR_WIDTH}px`,
     };
   }
 
