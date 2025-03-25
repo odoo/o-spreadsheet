@@ -1,5 +1,4 @@
 import { ICON_EDGE_LENGTH } from "../../constants";
-import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
 import { ImageSVG } from "../../types/image";
 import { css } from "../helpers";
 
@@ -152,11 +151,3 @@ export const ICON_SETS = {
     bad: "dotBad",
   },
 };
-
-iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
-  const icon = getters.getConditionalIcon(position);
-  if (icon) {
-    return ICONS[icon].svg;
-  }
-  return undefined;
-});

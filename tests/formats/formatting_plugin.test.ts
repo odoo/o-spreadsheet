@@ -2,8 +2,8 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
+  GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
-  ICON_EDGE_LENGTH,
   MIN_CELL_TEXT_MARGIN,
   NEWLINE,
   PADDING_AUTORESIZE_HORIZONTAL,
@@ -696,7 +696,7 @@ describe("Autoresize", () => {
     createTableWithFilter(model, "A1");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
-      sizes[0] + hPadding + ICON_EDGE_LENGTH + GRID_ICON_MARGIN
+      sizes[0] + hPadding + GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
   });
 
@@ -704,7 +704,7 @@ describe("Autoresize", () => {
     createTableWithFilter(model, "A1");
     model.dispatch("AUTORESIZE_COLUMNS", { sheetId, cols: [0] });
     expect(model.getters.getColSize(sheetId, 0)).toBe(
-      hPadding + ICON_EDGE_LENGTH + GRID_ICON_MARGIN
+      hPadding + GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN
     );
   });
 
