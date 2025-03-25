@@ -59,7 +59,7 @@ import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
-import { isCtrlKey } from "../helpers/dom_helpers";
+import { isCtrlKey, isMobileOS } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
@@ -401,6 +401,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       askConfirmation: (text, confirm, cancel) =>
         this.notificationStore.askConfirmation(text, confirm, cancel),
       raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
+      isMobile: isMobileOS,
     } satisfies Partial<SpreadsheetChildEnv>);
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
