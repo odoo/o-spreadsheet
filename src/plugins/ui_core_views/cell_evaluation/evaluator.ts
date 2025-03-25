@@ -37,7 +37,7 @@ import {
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionMap } from "./position_map";
-import { PositionSet, SheetSizes } from "./position_set";
+import { AddOnlyPositionSet, FilledPositionSet, PositionSet, SheetSizes } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
@@ -154,6 +154,17 @@ export class Evaluator {
     return new PositionSet(sheetSizes);
   }
 
+  private createFilledPositionSet() {
+    const sheetSizes: SheetSizes = {};
+    for (const sheetId of this.getters.getSheetIds()) {
+      sheetSizes[sheetId] = {
+        rows: this.getters.getNumberRows(sheetId),
+        cols: this.getters.getNumberCols(sheetId),
+      };
+    }
+    return new FilledPositionSet(sheetSizes);
+  }
+
   evaluateCells(positions: CellPosition[]) {
     const start = performance.now();
     const cellsToCompute = this.createEmptyPositionSet();
@@ -256,10 +267,8 @@ export class Evaluator {
     }
   }
 
-  private getAllCells(): PositionSet {
-    const positions = this.createEmptyPositionSet();
-    positions.fillAllPositions();
-    return positions;
+  private getAllCells(): AddOnlyPositionSet {
+    return this.createFilledPositionSet();
   }
 
   /**
@@ -281,18 +290,19 @@ export class Evaluator {
     return arrayFormulaPositions;
   }
 
-  private nextPositionsToUpdate = new PositionSet({});
+  private nextPositionsToUpdate: AddOnlyPositionSet = new PositionSet({});
   private cellsBeingComputed = new Set<UID>();
   private symbolsBeingComputed = new Set<string>();
 
-  private evaluate(positions: PositionSet) {
+  private evaluate(positions: AddOnlyPositionSet) {
     this.cellsBeingComputed = new Set<UID>();
     this.nextPositionsToUpdate = positions;
 
     let currentIteration = 0;
     while (!this.nextPositionsToUpdate.isEmpty() && currentIteration++ < MAX_ITERATION) {
       this.updateCompilationParameters();
-      const positions = this.nextPositionsToUpdate.clear();
+      const positions = [...this.nextPositionsToUpdate];
+      this.nextPositionsToUpdate = this.createEmptyPositionSet();
       for (let i = 0; i < positions.length; ++i) {
         this.evaluatedCells.delete(positions[i]);
       }
