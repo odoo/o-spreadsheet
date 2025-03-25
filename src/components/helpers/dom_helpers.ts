@@ -227,3 +227,27 @@ export function downloadFile(dataUrl: string, fileName: string) {
 export function isBrowserFirefox() {
   return /Firefox/i.test(navigator.userAgent);
 }
+
+// Mobile detection
+function maxTouchPoints() {
+  return navigator.maxTouchPoints || 1;
+}
+
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent);
+}
+
+function isIOS() {
+  return (
+    /(iPad|iPhone|iPod)/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && maxTouchPoints() > 1)
+  );
+}
+
+function isOtherMobileOS() {
+  return /(webOS|BlackBerry|Windows Phone)/i.test(navigator.userAgent);
+}
+
+export function isMobileOS() {
+  return isAndroid() || isIOS() || isOtherMobileOS();
+}
