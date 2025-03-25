@@ -745,9 +745,6 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           
           
           
-          
-          
-          
           <div
             class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
             style="top:2300px; "
@@ -1754,9 +1751,6 @@ exports[`components take the small screen into account 1`] = `
           class="o-grid-overlay overflow-hidden"
           style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); "
         >
-          
-          
-          
           
           
           

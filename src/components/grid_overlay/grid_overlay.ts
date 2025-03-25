@@ -10,11 +10,10 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types";
-import { DataValidationOverlay } from "../data_validation_overlay/data_validation_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
-import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
+import { GridCellIconOverlay } from "../grid_cell_icon_overlay/grid_cell_icon_overlay";
 import { css } from "../helpers";
 import {
   getBoundingRectAsPOJO,
@@ -161,9 +160,8 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = {
     FiguresContainer,
-    DataValidationOverlay,
     GridAddRowsFooter,
-    FilterIconsOverlay,
+    GridCellIconOverlay,
   };
   static defaultProps = {
     onCellDoubleClicked: () => {},

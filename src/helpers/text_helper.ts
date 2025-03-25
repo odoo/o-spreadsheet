@@ -4,7 +4,6 @@ import {
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
   MIN_CELL_TEXT_MARGIN,
-  MIN_CF_ICON_MARGIN,
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
@@ -258,10 +257,6 @@ export function getFontSizeMatchingWidth(
     iterations++;
   }
   return fontSize;
-}
-
-export function computeIconWidth(style: Style) {
-  return computeTextFontSizeInPixels(style) + 2 * MIN_CF_ICON_MARGIN;
 }
 
 /** Transform a string to lower case. If the string is undefined, return an empty string */
