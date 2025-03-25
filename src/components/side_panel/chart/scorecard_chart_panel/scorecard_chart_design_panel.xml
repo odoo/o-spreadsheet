@@ -18,7 +18,7 @@
         </Section>
       </t>
     </GeneralDesignEditor>
-    <SidePanelCollapsible collapsedAtInit="false" title.translate="Baseline">
+    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Baseline">
       <t t-set-slot="content">
         <Section class="'pt-0'" title.translate="Baseline description">
           <input

@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-SeriesDesignEditor">
-    <SidePanelCollapsible collapsedAtInit="true" title.translate="Data Series">
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Data Series">
       <t t-set-slot="content">
         <Section class="'pt-0 pb-0'">
           <select

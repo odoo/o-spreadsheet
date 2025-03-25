@@ -47,13 +47,10 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
       </div>
       <i
         class="fa fa-caret-up px-2 align-self-start collapsed"
-        data-bs-target="#formula-assistant-details"
-        data-bs-toggle="collapse"
       />
     </div>
     <div
-      class="collapse"
-      id="formula-assistant-details"
+      class="os-collapse d-none"
     >
       <div
         class="o-formula-assistant-core pb-3 m-3"
@@ -102,8 +99,8 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         </div>
       </div>
       
-      
     </div>
+    
   </div>
 </div>
 `;

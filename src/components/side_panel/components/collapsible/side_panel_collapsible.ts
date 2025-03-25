@@ -1,5 +1,6 @@
-import { Component } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { css } from "../../../helpers";
+import { Collapse } from "../collapse/collapse";
 
 css/* scss */ `
   .o_side_panel_collapsible_title {
@@ -28,24 +29,23 @@ css/* scss */ `
       transition-property: all;
     }
   }
-
-  .collapsible_section {
-    &.collapsing {
-      transition: height 0.35s, background-color 0.35s !important;
-    }
-  }
 `;
-
-let CURRENT_COLLAPSIBLE_ID = 0;
 
 export class SidePanelCollapsible extends Component {
   static template = "o-spreadsheet-SidePanelCollapsible";
   static props = {
     slots: Object,
     title: { type: String, optional: true },
-    collapsedAtInit: { type: Boolean, optional: true },
+    isInitiallyCollapsed: { type: Boolean, optional: true },
     class: { type: String, optional: true },
   };
+  static components = { Collapse };
 
-  currentId = (CURRENT_COLLAPSIBLE_ID++).toString();
+  private state: { isCollapsed: boolean } = useState({
+    isCollapsed: this.props.isInitiallyCollapsed,
+  });
+
+  toggle() {
+    this.state.isCollapsed = !this.state.isCollapsed;
+  }
 }

@@ -5,7 +5,7 @@
       definition="props.definition"
       updateChart="props.updateChart"
     />
-    <SidePanelCollapsible collapsedAtInit="false" title.translate="Gauge Design">
+    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Gauge Design">
       <t t-set-slot="content">
         <Section class="'pt-0'" title.translate="Range">
           <div class="o-subsection-left">

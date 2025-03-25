@@ -33,7 +33,7 @@
         </Section>
       </t>
     </SeriesWithAxisDesignEditor>
-    <SidePanelCollapsible collapsedAtInit="true" title.translate="Axes">
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
       <t t-set-slot="content">
         <AxisDesignEditor
           axesList="axesList"

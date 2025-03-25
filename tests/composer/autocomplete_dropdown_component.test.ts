@@ -340,7 +340,6 @@ describe("Functions autocomplete", () => {
       await typeInComposer("=PIVOT.VALUE(", true);
       expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeTruthy();
       expect(fixture.querySelector(".o-formula-assistant-container")).toBeTruthy();
-      expect(fixture.querySelector("#formula-assistant-details")?.className).not.toContain("show");
     });
 
     test("cannot auto-complete when it is closed", async () => {

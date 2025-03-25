@@ -1,7 +1,8 @@
-import { Component } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../constants";
 import { FunctionDescription, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
+import { Collapse } from "../../side_panel/components/collapse/collapse";
 
 // -----------------------------------------------------------------------------
 // Formula Assistant component
@@ -50,6 +51,15 @@ export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChi
     functionDescription: Object,
     argsToFocus: Array,
   };
+  static components = { Collapse };
+
+  private state: { isCollapsed: boolean } = useState({
+    isCollapsed: true,
+  });
+
+  toggle() {
+    this.state.isCollapsed = !this.state.isCollapsed;
+  }
 
   getContext(): Props {
     return this.props;
