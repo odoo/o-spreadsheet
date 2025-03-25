@@ -1,15 +1,10 @@
+import { DEFAULT_CELL_HEIGHT, PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
 import {
-  DEFAULT_CELL_HEIGHT,
-  GRID_ICON_MARGIN,
-  ICON_EDGE_LENGTH,
-  PADDING_AUTORESIZE_HORIZONTAL,
-} from "../../constants";
-import {
-  computeIconWidth,
   computeTextWidth,
   formatValue,
   getCellContentHeight,
   groupConsecutive,
+  isDefined,
   isEqual,
   largeMax,
   positions,
@@ -17,9 +12,12 @@ import {
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
-import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
+import {
+  GridIcon,
+  IconsOfCell,
+  iconsOnCellRegistry,
+} from "../../registries/icons_on_cell_registry";
 import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
-import { ImageSVG } from "../../types/image";
 import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -27,7 +25,7 @@ export class SheetUIPlugin extends UIPlugin {
   static getters = [
     "doesCellHaveGridIcon",
     "getCellWidth",
-    "getCellIconSvg",
+    "getCellIcons",
     "getTextWidth",
     "getCellText",
     "getCellMultiLineText",
@@ -35,6 +33,7 @@ export class SheetUIPlugin extends UIPlugin {
   ] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
+  private cellIconsCache: Record<string, Record<number, Record<number, GridIcon[]>>> = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -45,6 +44,9 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
+    if (cmd.type !== "SET_VIEWPORT_OFFSET") {
+      this.cellIconsCache = {};
+    }
     switch (cmd.type) {
       case "AUTORESIZE_COLUMNS":
         for (let col of cmd.cols) {
@@ -95,13 +97,8 @@ export class SheetUIPlugin extends UIPlugin {
       );
     }
 
-    const icon = this.getters.getCellIconSvg(position);
-    if (icon) {
-      contentWidth += computeIconWidth(style);
-    }
-
-    if (this.getters.doesCellHaveGridIcon(position)) {
-      contentWidth += ICON_EDGE_LENGTH + GRID_ICON_MARGIN;
+    for (const icon of this.getCellIcons(position)) {
+      contentWidth += icon.margin + icon.size;
     }
 
     if (contentWidth === 0) {
@@ -117,15 +114,42 @@ export class SheetUIPlugin extends UIPlugin {
     return contentWidth;
   }
 
-  getCellIconSvg(position: CellPosition): ImageSVG | undefined {
+  getCellIcons(position: CellPosition): GridIcon[] {
+    if (!this.cellIconsCache[position.sheetId]) {
+      this.cellIconsCache[position.sheetId] = {};
+    }
+    if (!this.cellIconsCache[position.sheetId][position.col]) {
+      this.cellIconsCache[position.sheetId][position.col] = {};
+    }
+    if (!this.cellIconsCache[position.sheetId][position.col][position.row]) {
+      this.cellIconsCache[position.sheetId][position.col][position.row] =
+        this.computeCellIcons(position);
+    }
+    return this.cellIconsCache[position.sheetId][position.col][position.row];
+  }
+
+  private computeCellIcons(position: CellPosition): GridIcon[] {
+    const icons: IconsOfCell = { left: undefined, right: undefined, center: undefined };
     const callbacks = iconsOnCellRegistry.getAll();
     for (const callback of callbacks) {
-      const imageSrc = callback(this.getters, position);
-      if (imageSrc) {
-        return imageSrc;
+      const icon = callback(this.getters, position);
+      if (
+        icon &&
+        (!icons[icon.horizontalAlign] || icon.priority > icons[icon.horizontalAlign]!.priority)
+      ) {
+        icons[icon.horizontalAlign] = icon;
       }
     }
-    return undefined;
+    if (icons.center && (icons.left || icons.right)) {
+      const sideIconsPriority = Math.max(icons.left?.priority || 0, icons.right?.priority || 0);
+      if (icons.center.priority < sideIconsPriority) {
+        icons.center = undefined;
+      } else {
+        icons.left = undefined;
+        icons.right = undefined;
+      }
+    }
+    return Object.values(icons).filter(isDefined);
   }
 
   getTextWidth(text: string, style: Style): Pixel {
@@ -175,10 +199,7 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   doesCellHaveGridIcon(position: CellPosition): boolean {
-    const isFilterHeader = this.getters.isFilterHeader(position);
-    const hasListIcon =
-      !this.getters.isReadonly() && this.getters.cellHasListDataValidationIcon(position);
-    return isFilterHeader || hasListIcon;
+    return Boolean(this.getCellIcons(position).length);
   }
 
   /**
