@@ -1,4 +1,11 @@
-import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import {
+  Component,
+  onMounted,
+  onWillUnmount,
+  useExternalListener,
+  useRef,
+  useState,
+} from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import {
   DOMCoordinates,
@@ -30,6 +37,34 @@ css/* scss */ `
     cursor: url("data:image/svg+xml,${encodeURIComponent(CURSOR_SVG)}"), auto;
   }
 `;
+
+function useCellHoveredWithoutDelay(
+  env: SpreadsheetChildEnv,
+  gridRef: Ref<HTMLElement>
+): Partial<Position> {
+  const hoveredPosition: Partial<Position> = useState({
+    col: undefined,
+    row: undefined,
+  });
+
+  function updateMousePosition(e: MouseEvent) {
+    if (gridRef.el === e.target) {
+      hoveredPosition.col = env.model.getters.getColIndex(e.offsetX);
+      hoveredPosition.row = env.model.getters.getRowIndex(e.offsetY);
+    }
+  }
+
+  function onMouseLeave(e: MouseEvent) {
+    hoveredPosition.col = undefined;
+    hoveredPosition.row = undefined;
+  }
+
+  useRefListener(gridRef, "pointermove", updateMousePosition);
+  useRefListener(gridRef, "mouseleave", onMouseLeave);
+  useRefListener(gridRef, "mouseenter", updateMousePosition);
+
+  return hoveredPosition;
+}
 
 function useCellHovered(
   env: SpreadsheetChildEnv,
@@ -200,6 +235,8 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private gridOverlayRect = useAbsoluteBoundingRect(this.gridOverlay);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+
+  hoveredCellWithoutDelay = useCellHoveredWithoutDelay(this.env, this.gridOverlay);
 
   setup() {
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);

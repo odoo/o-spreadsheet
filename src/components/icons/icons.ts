@@ -1,4 +1,4 @@
-import { ICON_EDGE_LENGTH } from "../../constants";
+import { ICON_EDGE_LENGTH, TEXT_BODY_MUTED } from "../../constants";
 import { ImageSVG } from "../../types/image";
 import { css } from "../helpers";
 
@@ -87,6 +87,12 @@ const RED_DOT: ImageSVG = {
   height: 512,
   fillColor: "#E06666",
   path: DOT_PATH,
+};
+export const CARET_DOWN: ImageSVG = {
+  width: 512,
+  height: 512,
+  fillColor: TEXT_BODY_MUTED,
+  path: "M96 176 h320 l-160 160",
 };
 
 export const ICONS: Record<

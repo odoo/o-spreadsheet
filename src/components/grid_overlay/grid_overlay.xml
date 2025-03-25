@@ -9,7 +9,7 @@
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
-      <GridCellIconOverlay/>
+      <GridCellIconOverlay hoveredCell="hoveredCellWithoutDelay"/>
       <GridAddRowsFooter
         t-if="!env.model.getters.isReadonly()"
         t-key="env.model.getters.getActiveSheetId()"

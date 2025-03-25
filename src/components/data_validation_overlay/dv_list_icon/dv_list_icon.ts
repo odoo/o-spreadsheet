@@ -3,23 +3,18 @@ import { GRID_ICON_EDGE_LENGTH, TEXT_BODY_MUTED } from "../../../constants";
 import { CellPosition, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 
-const ICON_WIDTH = 13;
-
 css/* scss */ `
   .o-dv-list-icon {
     color: ${TEXT_BODY_MUTED};
     border-radius: 1px;
     height: ${GRID_ICON_EDGE_LENGTH}px;
     width: ${GRID_ICON_EDGE_LENGTH}px;
+    opacity: 0;
 
     &:hover {
+      opacity: 1;
       color: #ffffff;
       background-color: ${TEXT_BODY_MUTED};
-    }
-
-    svg {
-      width: ${ICON_WIDTH}px;
-      height: ${ICON_WIDTH}px;
     }
   }
 `;
