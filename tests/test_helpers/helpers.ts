@@ -431,12 +431,7 @@ export function setGridStyle(model: Model, grid: GridStyleDescr) {
  *   {B5: "5", D8: "2.6", W4: "=round(A2)"} => {B5: 5, D8: 2.6, W4: 3}
  */
 export function evaluateGrid(grid: GridDescr): GridResult {
-  const model = new Model();
-  for (let xc in grid) {
-    if (grid[xc] !== undefined) {
-      setCellContent(model, xc, grid[xc]!);
-    }
-  }
+  const model = new Model({ sheets: [{ cells: grid }] });
   const result = {};
   for (let xc in grid) {
     result[xc] = getEvaluatedCell(model, xc).value;
