@@ -16,7 +16,7 @@
       </t>
     </GeneralDesignEditor>
 
-    <SidePanelCollapsible collapsedAtInit="false" title.translate="Funnel options">
+    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Funnel options">
       <t t-set-slot="content">
         <Section class="'o-funnel-colors pt-0'" title.translate="Funnel colors">
           <t t-foreach="getFunnelColorItems()" t-as="item" t-key="item_index">

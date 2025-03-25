@@ -22,13 +22,13 @@
             )
           </div>
           <i
-            class="fa fa-caret-up px-2 align-self-start collapsed"
-            data-bs-toggle="collapse"
-            data-bs-target="#formula-assistant-details"
+            class="fa fa-caret-up px-2 align-self-start"
+            t-att-class="state.isCollapsed ? 'collapsed' : ''"
+            t-on-click="() => this.toggle()"
           />
         </div>
 
-        <div id="formula-assistant-details" class="collapse">
+        <Collapse isCollapsed="state.isCollapsed">
           <div class="o-formula-assistant-core pb-3 m-3">
             <div class="o-formula-assistant-gray">ABOUT</div>
             <div t-esc="context.functionDescription.description"/>
@@ -54,7 +54,7 @@
               <div class="o-formula-assistant-arg-description" t-esc="arg.description"/>
             </div>
           </t>
-        </div>
+        </Collapse>
       </div>
     </div>
   </t>

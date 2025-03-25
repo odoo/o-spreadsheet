@@ -20,7 +20,7 @@
       </t>
     </GeneralDesignEditor>
 
-    <SidePanelCollapsible collapsedAtInit="false" title.translate="Geo chart options">
+    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Geo chart options">
       <t t-set-slot="content">
         <Section class="'pt-0 o-color-scale'" title.translate="Color Scale">
           <select class="o-input" t-on-change="this.updateColorScaleType">

@@ -28,7 +28,7 @@
         </Section>
       </t>
     </GeneralDesignEditor>
-    <SidePanelCollapsible collapsedAtInit="true" title.translate="Waterfall design">
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Waterfall design">
       <t t-set-slot="content">
         <Section class="'pt-0'" title.translate="Options">
           <t t-set="firstValueAsSubtotal">Use first value as subtotal</t>
@@ -80,7 +80,7 @@
         </Section>
       </t>
     </SidePanelCollapsible>
-    <SidePanelCollapsible collapsedAtInit="true" title.translate="Axes">
+    <SidePanelCollapsible isInitiallyCollapsed="true" title.translate="Axes">
       <t t-set-slot="content">
         <AxisDesignEditor
           axesList="axesList"

@@ -13,7 +13,7 @@
       </t>
     </GeneralDesignEditor>
 
-    <SidePanelCollapsible collapsedAtInit="false" title.translate="Sunburst options">
+    <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Sunburst options">
       <t t-set-slot="content">
         <Section class="'pt-0 o-sunburst-colors'" title.translate="Colors">
           <t t-foreach="groupColors" t-as="item" t-key="item.label">
