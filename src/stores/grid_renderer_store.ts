@@ -353,8 +353,10 @@ export class GridRenderer {
         }
         ctx.translate(x, iconY);
         ctx.scale(iconSize / svg.width, iconSize / svg.height);
-        ctx.fillStyle = svg.fillColor;
-        ctx.fill(new Path2D(svg.path));
+        for (const path of svg.paths) {
+          ctx.fillStyle = path.fillColor;
+          ctx.fill(new Path2D(path.path));
+        }
         ctx.restore();
       }
     }

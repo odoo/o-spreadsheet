@@ -2,7 +2,7 @@ import { ComponentConstructor } from "@odoo/owl";
 import { DataValidationCheckbox } from "../components/data_validation_overlay/dv_checkbox/dv_checkbox";
 import { DataValidationListIcon } from "../components/data_validation_overlay/dv_list_icon/dv_list_icon";
 import { FilterIcon } from "../components/filters/filter_icon/filter_icon";
-import { CARET_DOWN, ICONS } from "../components/icons/icons";
+import { CARET_DOWN, CHECKBOX_CHECKED, CHECKBOX_UNCHECKED, ICONS } from "../components/icons/icons";
 import { GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN, MIN_CF_ICON_MARGIN } from "../constants";
 import { computeTextFontSizeInPixels } from "../helpers";
 import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
@@ -32,14 +32,16 @@ export const iconsOnCellRegistry = new Registry<ImageSvgCallback>();
 iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   const hasIcon = getters.isCellValidCheckbox(position);
   if (hasIcon) {
+    const value = !!getters.getEvaluatedCell(position).value;
     return {
-      svg: undefined,
+      svg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED,
       priority: 2,
       horizontalAlign: "center",
       size: GRID_ICON_EDGE_LENGTH,
       margin: GRID_ICON_MARGIN,
       component: DataValidationCheckbox,
       position,
+      onlyDisplayOnHover: true,
     };
   }
   return undefined;
