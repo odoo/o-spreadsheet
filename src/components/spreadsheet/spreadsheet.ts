@@ -61,6 +61,7 @@ import { FullScreenChart } from "../full_screen_chart/full_screen_chart";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
+import { isMobileOS } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
@@ -385,6 +386,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       askConfirmation: (text, confirm, cancel) =>
         this.notificationStore.askConfirmation(text, confirm, cancel),
       raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
+      isMobile: isMobileOS,
     } satisfies Partial<SpreadsheetChildEnv>);
 
     if (!("isSmall" in this.env)) {
