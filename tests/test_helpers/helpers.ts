@@ -7,7 +7,7 @@ import { ComposerSelection } from "../../src/components/composer/composer/abstra
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
-import { getCurrentSelection } from "../../src/components/helpers/dom_helpers";
+import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
@@ -228,6 +228,7 @@ export function makeTestEnv(
     get isSmall() {
       return mockEnv.isSmall || false;
     },
+    isMobile: mockEnv.isMobile || isMobileOS,
     // @ts-ignore
     __spreadsheet_stores__: container,
   };
