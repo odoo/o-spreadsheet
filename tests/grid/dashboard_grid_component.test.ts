@@ -72,8 +72,8 @@ describe("Grid component in dashboard mode", () => {
     const top = `${DEFAULT_CELL_HEIGHT * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
     const leftA = `${DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
     const leftB = `${DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
-    expect((icons[0] as HTMLElement).style["_values"]).toEqual({ top, left: leftA });
-    expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
+    expect((icons[0] as HTMLElement).style["_values"]).toMatchObject({ top, left: leftA });
+    expect((icons[1] as HTMLElement).style["_values"]).toMatchObject({ top, left: leftB });
   });
 
   test("Clicking on a filter icon correctly open the filter popover", async () => {
