@@ -6,7 +6,7 @@ import {
   PivotDomain,
   PivotNode,
 } from "../../types";
-import { clip, deepCopy } from "../misc";
+import { clip, deepCopy, deepEquals } from "../misc";
 
 export const PREVIOUS_VALUE = "(previous)";
 export const NEXT_VALUE = "(next)";
@@ -51,10 +51,18 @@ function getFieldValueInDomain(
 }
 
 export function isDomainIsInPivot(pivot: Pivot, domain: PivotDomain) {
+  for (const node of domain) {
+    if (
+      pivot.definition.rows.find((row) => row.nameWithGranularity === node.field) === undefined &&
+      pivot.definition.columns.find((col) => col.nameWithGranularity === node.field) === undefined
+    ) {
+      return false;
+    }
+  }
   const { rowDomain, colDomain } = domainToColRowDomain(pivot, domain);
   return (
-    checkIfDomainInInTree(rowDomain, pivot.getTableStructure().getRowTree()) &&
-    checkIfDomainInInTree(colDomain, pivot.getTableStructure().getColTree())
+    checkIfDomainInInTree(rowDomain, pivot.getExpandedTableStructure().getRowTree()) &&
+    checkIfDomainInInTree(colDomain, pivot.getExpandedTableStructure().getColTree())
   );
 }
 
@@ -168,8 +176,8 @@ export function getPreviousOrNextValueDomain(
   const dimension = getFieldDimensionType(pivot, fieldNameWithGranularity);
   const tree =
     dimension === "row"
-      ? pivot.getTableStructure().getRowTree()
-      : pivot.getTableStructure().getColTree();
+      ? pivot.getExpandedTableStructure().getRowTree()
+      : pivot.getExpandedTableStructure().getColTree();
   const dimDomain = getDimensionDomain(pivot, dimension, domain);
 
   const currentTreeNode = walkDomainTree(dimDomain, tree, fieldNameWithGranularity);
@@ -267,4 +275,11 @@ export function sortPivotTree(
     node.children = children;
   }
   return sortedTree;
+}
+
+export function isParentDomain(domain: PivotDomain, parentDomain: PivotDomain) {
+  return (
+    domain.length > parentDomain.length &&
+    parentDomain.every((node, i) => deepEquals(node, domain[i]))
+  );
 }

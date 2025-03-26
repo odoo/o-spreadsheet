@@ -227,7 +227,7 @@ export class PivotUIPlugin extends CoreViewPlugin {
       const shouldIncludeColumnHeaders =
         includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
       const pivotCells = pivot
-        .getTableStructure()
+        .getCollapsedTableStructure()
         .getPivotCells(shouldIncludeTotal, shouldIncludeColumnHeaders);
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;

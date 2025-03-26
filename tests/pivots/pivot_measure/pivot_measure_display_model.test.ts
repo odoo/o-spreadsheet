@@ -1543,7 +1543,7 @@ describe("Measure display", () => {
       col: 0,
       row: 19,
       pivotId,
-      table: pivot.getTableStructure().export(),
+      table: pivot.getCollapsedTableStructure().export(),
     });
 
     expect(getCell(model, "B22")?.content).toContain("PIVOT.VALUE");

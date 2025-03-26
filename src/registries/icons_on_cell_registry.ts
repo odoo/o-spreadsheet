@@ -3,6 +3,7 @@ import { DataValidationCheckbox } from "../components/data_validation_overlay/dv
 import { DataValidationListIcon } from "../components/data_validation_overlay/dv_list_icon/dv_list_icon";
 import { FilterIcon } from "../components/filters/filter_icon/filter_icon";
 import { ICONS } from "../components/icons/icons";
+import { PivotCollapseIcon } from "../components/pivot_collapse_icon/pivot_collapse_icon";
 import {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
@@ -97,16 +98,29 @@ iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
   return undefined;
 });
 
-iconsOnCellRegistry.add("pivot_indent", (getters, position) => {
+iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
+  if (!getters.isSpillPivotFormula(position)) {
+    return undefined;
+  }
   const pivotCell = getters.getPivotCellFromPosition(position);
+  const pivotId = getters.getPivotIdFromPosition(position);
 
-  if (pivotCell.type === "HEADER" && pivotCell.domain.length) {
-    const margin = pivotCell.dimension === "ROW" ? (pivotCell.domain.length - 1) * PIVOT_INDENT : 0;
+  if (pivotCell.type === "HEADER" && pivotId && pivotCell.domain.length) {
+    const definition = getters.getPivotCoreDefinition(pivotId);
+    const isDashboard = getters.isDashboard();
+
+    const fields = pivotCell.dimension === "COL" ? definition.columns : definition.rows;
+    const component =
+      !isDashboard && pivotCell.domain.length !== fields.length ? PivotCollapseIcon : undefined;
     return {
       priority: 4,
       horizontalAlign: "left",
-      size: 0,
-      margin,
+      size:
+        !!component || (!isDashboard && pivotCell.dimension === "ROW" && definition.rows.length > 1)
+          ? GRID_ICON_EDGE_LENGTH
+          : 0,
+      margin: pivotCell.dimension === "ROW" ? (pivotCell.domain.length - 1) * PIVOT_INDENT : 0,
+      component,
       position,
     };
   }

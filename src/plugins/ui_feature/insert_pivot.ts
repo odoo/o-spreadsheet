@@ -86,7 +86,7 @@ export class InsertPivotPlugin extends UIPlugin {
       0,
       0,
       pivotId,
-      pivot.getTableStructure().export(),
+      pivot.getCollapsedTableStructure().export(),
       "dynamic"
     );
   }
@@ -119,7 +119,7 @@ export class InsertPivotPlugin extends UIPlugin {
         0,
         0,
         newPivotId,
-        pivot.getTableStructure().export(),
+        pivot.getCollapsedTableStructure().export(),
         "dynamic"
       );
     }

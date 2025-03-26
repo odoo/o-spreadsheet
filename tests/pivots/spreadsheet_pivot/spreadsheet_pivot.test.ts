@@ -1806,7 +1806,7 @@ describe("Spreadsheet Pivot", () => {
     });
     const pivotId = model.getters.getPivotIds()[0];
     const pivot = model.getters.getPivot(pivotId);
-    const table = pivot.getTableStructure().export();
+    const table = pivot.getCollapsedTableStructure().export();
     model.dispatch("INSERT_PIVOT", {
       pivotId,
       col: 2,

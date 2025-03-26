@@ -2,6 +2,7 @@ import { _t } from "../../translation";
 import { EvaluationError } from "../../types/errors";
 import {
   CommonPivotCoreDefinition,
+  PivotCollapsedDomains,
   PivotCoreDimension,
   PivotCoreMeasure,
   PivotDimension,
@@ -21,12 +22,14 @@ export class PivotRuntimeDefinition {
   readonly columns: PivotDimension[];
   readonly rows: PivotDimension[];
   readonly sortedColumn?: PivotSortedColumn;
+  readonly collapsedDomains?: PivotCollapsedDomains;
 
   constructor(definition: CommonPivotCoreDefinition, fields: PivotFields) {
     this.measures = definition.measures.map((measure) => createMeasure(fields, measure));
     this.columns = definition.columns.map((dimension) => createPivotDimension(fields, dimension));
     this.rows = definition.rows.map((dimension) => createPivotDimension(fields, dimension));
     this.sortedColumn = definition.sortedColumn;
+    this.collapsedDomains = definition.collapsedDomains;
   }
 
   getDimension(nameWithGranularity: string): PivotDimension {
