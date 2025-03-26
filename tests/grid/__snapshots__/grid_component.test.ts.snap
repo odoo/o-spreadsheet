@@ -93,6 +93,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
         <div
           class="o-composer w-100 text-start"
           contenteditable="true"
+          inputmode="none"
           spellcheck="false"
           style=""
           tabindex="1"
