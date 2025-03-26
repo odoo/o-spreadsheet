@@ -2,15 +2,29 @@ import { FunctionResultObject, Lazy } from "../../types";
 import {
   DimensionTree,
   DimensionTreeNode,
+  PivotCollapsedDomains,
   PivotDomain,
   PivotSortedColumn,
   PivotTableCell,
   PivotTableColumn,
   PivotTableRow,
 } from "../../types/pivot";
-import { lazy } from "../misc";
-import { sortPivotTree } from "./pivot_domain_helpers";
+import { deepEquals, lazy } from "../misc";
+import { isParentDomain, sortPivotTree } from "./pivot_domain_helpers";
 import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
+
+// ADRM TODO: option to show or not collapse buttons
+// ADRM TODO: clean collapsed fields when updating col/rows
+// ADRM TODO DISCUSS: collapse & #SPILL
+// ADRM TODO: indent
+// ADRM TODO: remove duplicate getDomain fns if possible
+// ADRM TODO: naming
+// ADRM TODO: no button on static pivot
+// ADRM TODO DISCUSS: no collapse of re-insert static pivot ?
+interface RicherPivotColumn extends PivotTableColumn {
+  collapsedHeader?: boolean;
+  domain?: PivotDomain;
+}
 
 /**
  * Class used to ease the construction of a pivot table.
@@ -56,7 +70,7 @@ import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
  */
 
 export class SpreadsheetPivotTable {
-  readonly columns: PivotTableColumn[][];
+  readonly columns: RicherPivotColumn[][];
   rows: PivotTableRow[];
   readonly measures: string[];
   readonly fieldsType: Record<string, string | undefined>;
@@ -68,27 +82,92 @@ export class SpreadsheetPivotTable {
   isSorted = false;
 
   constructor(
-    columns: PivotTableColumn[][],
+    columns: RicherPivotColumn[][],
     rows: PivotTableRow[],
     measures: string[],
-    fieldsType: Record<string, string | undefined>
+    fieldsType: Record<string, string | undefined>,
+    collapsedDomains: PivotCollapsedDomains = { COL: [], ROW: [] }
   ) {
-    this.columns = columns.map((row) => {
+    this.measures = measures;
+    this.fieldsType = fieldsType;
+
+    if (collapsedDomains.COL.length) {
+      columns = this.removeCollapsedColumns(columns, measures, collapsedDomains.COL);
+    }
+    this.columns = columns.map((cols) => {
       // offset in the pivot table
       // starts at 1 because the first column is the row title
       let offset = 1;
-      return row.map((col) => {
+      return cols.map((col) => {
         col = { ...col, offset };
         offset += col.width;
         return col;
       });
     });
-    this.rows = rows;
-    this.measures = measures;
-    this.fieldsType = fieldsType;
+
+    this.rows = rows.filter((row) => !this.isParentCollapsed(collapsedDomains.ROW, row));
     this.maxIndent = Math.max(...this.rows.map((row) => row.indent));
     this.rowTree = lazy(() => this.buildRowsTree());
     this.colTree = lazy(() => this.buildColumnsTree());
+  }
+
+  private removeCollapsedColumns(
+    columns: RicherPivotColumn[][],
+    measures: string[],
+    collapsedDomains: PivotDomain[]
+  ) {
+    const replaceCollapsedChildrenWithSubTotalColumns = (
+      parentCol: RicherPivotColumn,
+      depth: number
+    ) => {
+      const parentDomain = this.getDomain(parentCol);
+      const cols = columns[depth];
+      const startIndex = cols.findIndex((col) => isParentDomain(this.getDomain(col), parentDomain));
+      const endIndex = cols.findLastIndex((col) =>
+        isParentDomain(this.getDomain(col), parentDomain)
+      );
+      const isLeaf = depth === columns.length - 1;
+      const newColumns = measures.map((measure) => {
+        const fields = isLeaf ? [...parentCol.fields, "measure"] : [];
+        const values = isLeaf ? [...parentCol.values, measure] : [];
+        return { fields, values, width: 1, offset: 0, collapsedHeader: !isLeaf };
+      });
+      cols.splice(startIndex, endIndex - startIndex + 1, ...newColumns);
+    };
+
+    return columns.map((cols, i) => {
+      for (const col of cols) {
+        if (i >= columns.length - 2) {
+          return cols;
+        }
+        const domain = this.getDomain(col);
+        if (!collapsedDomains.some((collapsedDomain) => deepEquals(domain, collapsedDomain))) {
+          continue;
+        }
+        col.width = measures.length;
+        for (let depth = i + 1; depth < columns.length; depth++) {
+          replaceCollapsedChildrenWithSubTotalColumns(col, depth);
+        }
+      }
+      return cols;
+    });
+  }
+
+  private isParentCollapsed(collapsedDomains: PivotDomain[], dim: PivotTableRow) {
+    const domain = this.getDomain(dim);
+    return collapsedDomains.some((collapsedDomain) => isParentDomain(domain, collapsedDomain));
+  }
+
+  private getDomain(dim: PivotTableRow | PivotTableColumn) {
+    return dim.fields.map((field, i) => {
+      const { fieldName, granularity } = parseDimension(field);
+      const type = this.fieldsType[fieldName] || "char";
+      return {
+        type,
+        field,
+        value: toNormalizedPivotValue({ displayName: fieldName, type, granularity }, dim.values[i]),
+      };
+    });
   }
 
   /**
@@ -172,7 +251,7 @@ export class SpreadsheetPivotTable {
     }
     const domain: PivotDomain = [];
     const pivotCol = this.columns[row].find((pivotCol) => pivotCol.offset === col);
-    if (!pivotCol) {
+    if (!pivotCol || pivotCol.collapsedHeader) {
       return undefined;
     }
     for (let i = 0; i < pivotCol.fields.length; i++) {

@@ -3,6 +3,7 @@ import { DataValidationCheckbox } from "../components/data_validation_overlay/dv
 import { DataValidationListIcon } from "../components/data_validation_overlay/dv_list_icon/dv_list_icon";
 import { FilterIcon } from "../components/filters/filter_icon/filter_icon";
 import { ICONS } from "../components/icons/icons";
+import { PivotCollapseIcon } from "../components/pivot_collapse_icon/pivot_collapse_icon";
 import {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
@@ -97,16 +98,23 @@ iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
   return undefined;
 });
 
-iconsOnCellRegistry.add("pivot_indent", (getters, position) => {
+iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
   const pivotCell = getters.getPivotCellFromPosition(position);
+  const pivotId = getters.getPivotIdFromPosition(position);
 
-  if (pivotCell.type === "HEADER" && pivotCell.domain.length) {
+  if (pivotCell.type === "HEADER" && pivotId && pivotCell.domain.length) {
+    const definition = getters.getPivotCoreDefinition(pivotId);
+    const fields = pivotCell.dimension === "COL" ? definition.columns : definition.rows;
+    const component = pivotCell.domain.length !== fields.length ? PivotCollapseIcon : undefined;
     const margin = pivotCell.dimension === "ROW" ? (pivotCell.domain.length - 1) * PIVOT_INDENT : 0;
+    const isIconDisplayed =
+      pivotCell.dimension === "COL" ? !!component : definition.rows.length > 1; // ADRM TODO
     return {
       priority: 4,
       horizontalAlign: "left",
-      size: 0,
+      size: isIconDisplayed ? GRID_ICON_EDGE_LENGTH : 0,
       margin,
+      component,
       position,
     };
   }

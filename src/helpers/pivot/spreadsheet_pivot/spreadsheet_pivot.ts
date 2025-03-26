@@ -88,6 +88,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    * data entries and the pivot definition.
    */
   private table: SpreadsheetPivotTable | undefined;
+  private nonCollapsedTable: SpreadsheetPivotTable | undefined;
   /**
    * This error is set when the range is invalid. It is used to show an error
    * message to the user.
@@ -124,6 +125,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
     if (type >= ReloadType.TABLE) {
       this.table = undefined;
+      this.nonCollapsedTable = undefined;
     }
   }
 
@@ -313,9 +315,27 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       throw new Error("Pivot is not valid !");
     }
     if (!this.table) {
-      this.table = dataEntriesToSpreadsheetPivotTable(this.dataEntries, this.definition);
+      this.table = dataEntriesToSpreadsheetPivotTable(
+        this.dataEntries,
+        this.definition,
+        "collapsed"
+      );
     }
     return this.table;
+  }
+
+  getNonCollapsedTableStructure(): SpreadsheetPivotTable {
+    if (!this.isValid()) {
+      throw new Error("Pivot is not valid !");
+    }
+    if (!this.nonCollapsedTable) {
+      this.nonCollapsedTable = dataEntriesToSpreadsheetPivotTable(
+        this.dataEntries,
+        this.definition,
+        "expanded"
+      );
+    }
+    return this.nonCollapsedTable;
   }
 
   getFields(): PivotFields {
