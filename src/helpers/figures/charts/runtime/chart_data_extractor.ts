@@ -720,7 +720,8 @@ function getChartLabelValues(
       };
     }
   } else if (dataSets.length === 1) {
-    for (let i = 0; i < getData(getters, dataSets[0]).length; i++) {
+    const dataLength = getData(getters, dataSets[0]).length;
+    for (let i = 0; i < dataLength; i++) {
       labels.formattedValues.push("");
       labels.values.push("");
     }
