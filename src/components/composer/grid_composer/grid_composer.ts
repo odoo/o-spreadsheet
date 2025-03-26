@@ -93,7 +93,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get shouldDisplayCellReference(): boolean {
-    return this.isCellReferenceVisible;
+    return !this.env.isMobile() && this.isCellReferenceVisible;
   }
 
   get cellReference(): string {
@@ -143,12 +143,13 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       onInputContextMenu: this.props.onInputContextMenu,
       composerStore: this.composerStore,
       inputStyle: `max-height: ${maxHeight}px;`,
+      inputMode: this.composerStore.editionMode === "inactive" ? "none" : undefined,
     };
   }
 
   get containerStyle(): string {
-    if (this.composerStore.editionMode === "inactive") {
-      return `z-index: -1000;`;
+    if (this.composerStore.editionMode === "inactive" || this.env.isMobile()) {
+      return `z-index: -1000; opacity: 0;`; // opacity 0 for safari on ios
     }
     const _isFormula = isFormula(this.composerStore.currentContent);
     const cell = this.env.model.getters.getActiveCell();

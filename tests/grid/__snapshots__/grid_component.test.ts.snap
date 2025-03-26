@@ -76,7 +76,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
   
   <div
     class="o-grid-composer"
-    style="z-index: -1000;"
+    style="z-index: -1000; opacity: 0;"
   >
     <div
       class="o-composer-container w-100 h-100"
@@ -88,6 +88,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
         <div
           class="o-composer w-100 text-start"
           contenteditable="true"
+          inputmode="none"
           spellcheck="false"
           style="max-height: 1008.6px;"
           tabindex="1"
