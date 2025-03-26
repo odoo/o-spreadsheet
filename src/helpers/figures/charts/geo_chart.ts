@@ -193,7 +193,12 @@ export class GeoChart extends AbstractChart {
 
 export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoChartRuntime {
   const definition = chart.getDefinition();
-  const chartData = getGeoChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getGeoChartData(
+    definition,
+    chart.dataSets.slice(0, 1),
+    chart.labelRange,
+    getters
+  );
 
   const config: ChartConfiguration = {
     type: "choropleth",
