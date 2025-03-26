@@ -9,7 +9,6 @@ import {
   DeleteSheetCommand,
   Getters,
   MoveRangeCommand,
-  Range,
   RangeAdapter,
   RangeData,
   RangePart,
@@ -47,9 +46,9 @@ interface ConstructorArgs {
   readonly sheetId: UID;
 }
 
-export class RangeImpl implements Range {
+export class Range {
   private readonly _zone: Readonly<Zone | UnboundedZone>;
-  readonly parts: Range["parts"];
+  readonly parts: readonly RangePart[];
   readonly invalidXc?: string;
   readonly prefixSheet: boolean = false;
   readonly sheetId: UID; // the sheet on which the range is defined
@@ -71,13 +70,6 @@ export class RangeImpl implements Range {
       _fixedParts.pop();
     }
     this.parts = _fixedParts;
-  }
-
-  static fromRange(range: Range, getSheetSize: (sheetId: UID) => ZoneDimension): RangeImpl {
-    if (range instanceof RangeImpl) {
-      return range;
-    }
-    return new RangeImpl(range, getSheetSize);
   }
 
   get unboundedZone(): UnboundedZone {
@@ -139,7 +131,7 @@ export class RangeImpl implements Range {
    * Left should be smaller than right, top should be smaller than bottom.
    * If it's not the case, simply invert them, and invert the linked parts
    */
-  orderZone(): RangeImpl {
+  orderZone(): Range {
     if (isZoneOrdered(this._zone)) {
       return this;
     }
@@ -183,9 +175,9 @@ export class RangeImpl implements Range {
    *
    * @param rangeParams optional, values to put in the cloned range instead of the current values of the range
    */
-  clone(rangeParams?: Partial<Range>): RangeImpl {
+  clone(rangeParams?: Partial<Range>): Range {
     const unboundedZone = rangeParams?.unboundedZone ?? rangeParams?.zone;
-    return new RangeImpl(
+    return new Range(
       {
         unboundedZone: unboundedZone || this._zone,
         sheetId: rangeParams?.sheetId ? rangeParams.sheetId : this.sheetId,
@@ -239,7 +231,7 @@ export class RangeImpl implements Range {
   getRangeString(
     forSheetId: UID,
     getSheetName: (sheetId: UID) => string,
-    options = { useBoundedReference: false, useFixedReference: false }
+    options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
   ): string {
     if (this.invalidXc) {
       return this.invalidXc;

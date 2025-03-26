@@ -7,7 +7,6 @@ import {
   CommandResult,
   CoreGetters,
   Getters,
-  Range,
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
@@ -24,7 +23,7 @@ import { LegendPosition } from "../../../types/chart/common_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
+import { createValidRange, Range } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,

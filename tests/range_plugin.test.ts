@@ -1,7 +1,7 @@
 import { CorePlugin, coreTypes, Model } from "../src";
-import { duplicateRangeInDuplicatedSheet } from "../src/helpers";
+import { duplicateRangeInDuplicatedSheet, Range } from "../src/helpers";
 import { corePluginRegistry } from "../src/plugins";
-import { ApplyRangeChange, Command, Range, UID } from "../src/types";
+import { ApplyRangeChange, Command, UID } from "../src/types";
 import { CellErrorType } from "../src/types/errors";
 import {
   addColumns,

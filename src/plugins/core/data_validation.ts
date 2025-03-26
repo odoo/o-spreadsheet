@@ -4,6 +4,7 @@ import {
   duplicateRangeInDuplicatedSheet,
   getCellPositionsInRanges,
   isInside,
+  Range,
   recomputeZones,
   toXC,
 } from "../../helpers";
@@ -17,7 +18,6 @@ import {
   CoreCommand,
   DataValidationRule,
   ExcelWorkbookData,
-  Range,
   Style,
   UID,
   WorkbookData,

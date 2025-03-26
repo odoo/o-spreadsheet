@@ -7,7 +7,6 @@ import {
   CommandResult,
   CoreGetters,
   Getters,
-  Range,
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
@@ -26,7 +25,7 @@ import {
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
 import { Validator } from "../../../types/validator";
-import { createValidRange } from "../../range";
+import { createValidRange, Range } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,

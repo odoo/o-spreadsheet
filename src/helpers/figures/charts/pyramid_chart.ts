@@ -7,7 +7,6 @@ import {
   CommandResult,
   CoreGetters,
   Getters,
-  Range,
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
@@ -22,7 +21,7 @@ import {
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "../../../types/chart/pyramid_chart";
 import { Validator } from "../../../types/validator";
-import { createValidRange } from "../../range";
+import { createValidRange, Range } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,

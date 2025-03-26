@@ -1,5 +1,5 @@
+import { Range } from "../helpers";
 import { UID } from "./misc";
-import { Range } from "./range";
 
 export interface DataValidationRule {
   id: UID;

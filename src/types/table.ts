@@ -1,5 +1,5 @@
+import { Range } from "../helpers";
 import { Border, BorderDescr, Style, TableId, UID } from "./misc";
-import { Range } from "./range";
 
 export interface Table {
   readonly id: TableId;

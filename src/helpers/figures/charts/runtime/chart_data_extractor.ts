@@ -16,7 +16,6 @@ import {
   GenericDefinition,
   Getters,
   Locale,
-  Range,
 } from "../../../../types";
 import {
   AxisType,
@@ -40,6 +39,7 @@ import { timeFormatLuxonCompatible } from "../../../chart_date";
 import { isDateTimeFormat } from "../../../format/format";
 import { deepCopy, findNextDefinedValue, range } from "../../../misc";
 import { isNumber } from "../../../numbers";
+import { Range } from "../../../range";
 import { recomputeZones } from "../../../recompute_zones";
 import { positions } from "../../../zones";
 import { shouldRemoveFirstLabel } from "../chart_common";

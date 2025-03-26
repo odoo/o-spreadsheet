@@ -1,6 +1,6 @@
-import { zoneToXc } from "../helpers";
+import { Range, zoneToXc } from "../helpers";
 import { _t } from "../translation";
-import { EvalContext, FunctionResultObject, Getters, Maybe, Range, UID } from "../types";
+import { EvalContext, FunctionResultObject, Getters, Maybe, UID } from "../types";
 import { EvaluationError, InvalidReferenceError } from "../types/errors";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
 

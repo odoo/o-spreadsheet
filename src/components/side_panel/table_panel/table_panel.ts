@@ -4,7 +4,6 @@ import {
   CommandResult,
   CoreTable,
   DispatchResult,
-  Range,
   SpreadsheetChildEnv,
   TableConfig,
   Zone,
@@ -140,7 +139,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
 
   onRangeConfirmed() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    let newRange: Range = this.env.model.getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
+    let newRange = this.env.model.getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
     if (getZoneArea(newRange.zone) === 1) {
       const extendedZone = this.env.model.getters.getContiguousZone(sheetId, newRange.zone);
       newRange = this.env.model.getters.getRangeFromZone(sheetId, extendedZone);

@@ -1,5 +1,5 @@
+import { Range } from "../helpers";
 import { Style, UID } from "./misc";
-import { Range } from "./range";
 
 // -----------------------------------------------------------------------------
 // Conditional Formatting

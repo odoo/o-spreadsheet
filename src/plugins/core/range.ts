@@ -3,7 +3,7 @@ import {
   duplicateRangeInDuplicatedSheet,
   getRangeAdapter,
   isZoneValid,
-  RangeImpl,
+  Range,
   rangeReference,
   recomputeZones,
   splitReference,
@@ -20,7 +20,6 @@ import {
   CoreCommand,
   CoreGetters,
   Dimension,
-  Range,
   RangeData,
   RangeProvider,
   RangeStringOptions,
@@ -84,7 +83,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * direction can be incorrect. This function ensure that an incorrect range gets removed.
    */
   private verifyRangeRemoved(adaptRange: ApplyRangeChange): ApplyRangeChange {
-    return (range: RangeImpl) => {
+    return (range: Range) => {
       const result: ApplyRangeChangeResult = adaptRange(range);
       if (result.changeType !== "NONE" && !isZoneValid(result.range.zone)) {
         return { range: result.range, changeType: "REMOVE" };
@@ -117,8 +116,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   // ---------------------------------------------------------------------------
 
   createAdaptedRanges(ranges: Range[], offsetX: number, offsetY: number, sheetId: UID): Range[] {
-    const rangesImpl = ranges.map((range) => RangeImpl.fromRange(range, this.getters.getSheetSize));
-    return rangesImpl.map((range) => {
+    return ranges.map((range) => {
       if (!isZoneValid(range.zone)) {
         return range;
       }
@@ -155,25 +153,23 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    */
   removeRangesSheetPrefix(sheetId: UID, ranges: Range[]): Range[] {
     return ranges.map((range) => {
-      const rangeImpl = RangeImpl.fromRange(range, this.getters.getSheetSize);
-      if (rangeImpl.prefixSheet && rangeImpl.sheetId === sheetId) {
-        return rangeImpl.clone({ prefixSheet: false });
+      if (range.prefixSheet && range.sheetId === sheetId) {
+        return range.clone({ prefixSheet: false });
       }
-      return rangeImpl;
+      return range;
     });
   }
 
   extendRange(range: Range, dimension: Dimension, quantity: number): Range {
-    const rangeImpl = RangeImpl.fromRange(range, this.getters.getSheetSize);
-    const right = dimension === "COL" ? rangeImpl.zone.right + quantity : rangeImpl.zone.right;
-    const bottom = dimension === "ROW" ? rangeImpl.zone.bottom + quantity : rangeImpl.zone.bottom;
+    const right = dimension === "COL" ? range.zone.right + quantity : range.zone.right;
+    const bottom = dimension === "ROW" ? range.zone.bottom + quantity : range.zone.bottom;
     const unboundedZone = {
-      left: rangeImpl.zone.left,
-      top: rangeImpl.zone.top,
-      right: rangeImpl.isFullRow ? undefined : right,
-      bottom: rangeImpl.isFullCol ? undefined : bottom,
+      left: range.zone.left,
+      top: range.zone.top,
+      right: range.isFullRow ? undefined : right,
+      bottom: range.isFullCol ? undefined : bottom,
     };
-    return new RangeImpl({ ...rangeImpl, unboundedZone }, this.getters.getSheetSize).orderZone();
+    return new Range({ ...range, unboundedZone }, this.getters.getSheetSize).orderZone();
   }
 
   /**
@@ -181,9 +177,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * @param defaultSheetId the sheet to default to if the sheetXC parameter does not contain a sheet reference (usually the active sheet Id)
    * @param sheetXC the string description of a range, in the form SheetName!XC:XC
    */
-  getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): RangeImpl {
+  getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): Range {
     if (!rangeReference.test(sheetXC) || !this.getters.tryGetSheet(defaultSheetId)) {
-      return new RangeImpl(
+      return new Range(
         {
           sheetId: "",
           unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
@@ -205,14 +201,14 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       }
     }
     const unboundedZone = toUnboundedZone(xc);
-    const parts = RangeImpl.getRangeParts(xc, unboundedZone);
+    const parts = Range.getRangeParts(xc, unboundedZone);
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
 
     const rangeInterface = { prefixSheet, unboundedZone, sheetId, invalidSheetName, parts };
 
-    return new RangeImpl(rangeInterface, this.getters.getSheetSize).orderZone();
+    return new Range(rangeInterface, this.getters.getSheetSize).orderZone();
   }
 
   /**
@@ -253,7 +249,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): Range {
-    return new RangeImpl(
+    return new Range(
       {
         sheetId,
         unboundedZone: zone,
@@ -271,12 +267,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * Allows you to recompute ranges from the same sheet
    */
   recomputeRanges(ranges: Range[], rangesToRemove: Range[]): Range[] {
-    const zones = ranges.map(
-      (range) => RangeImpl.fromRange(range, this.getters.getSheetSize).unboundedZone
-    );
-    const zonesToRemove = rangesToRemove.map(
-      (range) => RangeImpl.fromRange(range, this.getters.getSheetSize).unboundedZone
-    );
+    const zones = ranges.map((range) => range.unboundedZone);
+    const zonesToRemove = rangesToRemove.map((range) => range.unboundedZone);
     return recomputeZones(zones, zonesToRemove).map((zone) =>
       this.getRangeFromZone(ranges[0].sheetId, zone)
     );
@@ -294,7 +286,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       ],
     };
 
-    return new RangeImpl(rangeInterface, this.getters.getSheetSize);
+    return new Range(rangeInterface, this.getters.getSheetSize);
   }
 
   isRangeValid(rangeStr: string): boolean {
@@ -309,9 +301,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangesUnion(ranges: Range[]): Range {
-    const zones = ranges.map(
-      (range) => RangeImpl.fromRange(range, this.getters.getSheetSize).unboundedZone
-    );
+    const zones = ranges.map((range) => range.unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
   }

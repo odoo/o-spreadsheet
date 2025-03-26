@@ -1,8 +1,8 @@
 import { DEFAULT_STYLE } from "../../constants";
-import { Token, compile } from "../../formulas";
+import { compile, Token } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
+import { deepEquals, isExcelCompatible, isTextFormat, Range, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import {
   getItemId,
@@ -34,7 +34,6 @@ import {
   HeaderIndex,
   LiteralCell,
   PositionDependentCommand,
-  Range,
   RangeCompiledFormula,
   RangePart,
   Style,

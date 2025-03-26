@@ -1,8 +1,8 @@
+import { Range } from "../helpers";
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
 import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
-import { Range } from "./range";
 
 export type ArgType =
   | "ANY"

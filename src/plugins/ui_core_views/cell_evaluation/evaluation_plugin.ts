@@ -1,6 +1,6 @@
 import { isExportableToExcel } from "../../../formulas/index";
 import { matrixMap } from "../../../functions/helpers";
-import { getItemId, positions, toXC } from "../../../helpers/index";
+import { getItemId, positions, Range, toXC } from "../../../helpers/index";
 import {
   CellPosition,
   CellValue,
@@ -13,13 +13,12 @@ import {
   FormulaCell,
   FunctionResultObject,
   GetSymbolValue,
+  invalidateDependenciesCommands,
+  isMatrix,
   Matrix,
-  Range,
   RangeCompiledFormula,
   UID,
   Zone,
-  invalidateDependenciesCommands,
-  isMatrix,
 } from "../../../types/index";
 import { FormulaCellWithDependencies } from "../../core";
 import { CoreViewPlugin, CoreViewPluginConfig } from "../../core_view_plugin";

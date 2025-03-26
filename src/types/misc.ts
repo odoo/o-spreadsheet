@@ -6,8 +6,8 @@ import { CommandResult } from "./commands";
 // -----------------------------------------------------------------------------
 import { ComponentConstructor } from "@odoo/owl";
 import { Token } from "../formulas";
+import { Range } from "../helpers";
 import { Format } from "./format";
-import { Range } from "./range";
 
 /**
  * The following type is meant to be used in union with other aliases to prevent

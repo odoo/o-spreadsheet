@@ -1,4 +1,5 @@
-import { ApplyRangeChange, Range } from "../../types";
+import { Range } from "../../helpers";
+import { ApplyRangeChange } from "../../types";
 import { CorePlugin } from "../core_plugin";
 
 function adaptPivotRange(

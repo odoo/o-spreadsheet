@@ -2,6 +2,7 @@ import { compile } from "../../../formulas";
 import { handleError, implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
 import {
+  Range,
   aggregatePositionsToZones,
   excludeTopLeft,
   lazy,
@@ -22,7 +23,6 @@ import {
   GetSymbolValue,
   Getters,
   Matrix,
-  Range,
   RangeCompiledFormula,
   UID,
   Zone,

@@ -1,8 +1,9 @@
-import { Border, BorderDescr, CellPosition, Range, Style, UID, Zone } from "../types";
+import { Border, BorderDescr, CellPosition, Style, UID, Zone } from "../types";
 import { CoreTable, Filter, StaticTable, Table, TableConfig, TableStyle } from "../types/table";
 
 import { generateMatrix } from "../functions/helpers";
 import { ComputedTableStyle } from "./../types/table";
+import { Range } from "./range";
 
 type TableElement = keyof Omit<
   TableStyle,

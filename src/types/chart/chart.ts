@@ -1,5 +1,6 @@
 import { Point } from "chart.js";
-import { Align, Color, Format, Locale, Range, VerticalAlign } from "../../types";
+import { Range } from "../../helpers";
+import { Align, Color, Format, Locale, VerticalAlign } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";

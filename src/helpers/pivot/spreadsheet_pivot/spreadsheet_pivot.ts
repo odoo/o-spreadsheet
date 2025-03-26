@@ -8,7 +8,6 @@ import {
   FunctionResultObject,
   Getters,
   Maybe,
-  Range,
   UID,
   Zone,
 } from "../../../types";
@@ -27,6 +26,7 @@ import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
 import { deepEquals, getUniqueText, isDefined } from "../../misc";
+import { Range } from "../../range";
 import {
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,

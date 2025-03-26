@@ -1,4 +1,4 @@
-import { Range } from "./range";
+import { Range } from "../helpers";
 
 export interface SearchOptions {
   matchCase: boolean;

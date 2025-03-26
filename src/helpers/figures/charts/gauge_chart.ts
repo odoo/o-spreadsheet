@@ -16,12 +16,11 @@ import {
   CoreGetters,
   Format,
   Getters,
-  Range,
+  isMatrix,
   RemoveColumnsRowsCommand,
   UID,
   UnboundedZone,
   Validation,
-  isMatrix,
 } from "../../../types";
 import { ChartCreationContext } from "../../../types/chart/chart";
 import {
@@ -34,7 +33,7 @@ import {
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { clip, formatValue } from "../../index";
-import { createValidRange } from "../../range";
+import { createValidRange, Range } from "../../range";
 import { rangeReference } from "../../references";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";

@@ -10,7 +10,6 @@ import {
   DataSet,
   ExcelChartDefinition,
   Getters,
-  Range,
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
@@ -28,7 +27,7 @@ import {
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
+import { createValidRange, Range } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,

@@ -12,7 +12,6 @@ import {
   Getters,
   Locale,
   LocaleFormat,
-  Range,
   RemoveColumnsRowsCommand,
   UID,
   UnboundedZone,
@@ -31,7 +30,7 @@ import { CellErrorType } from "../../../types/errors";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
-import { duplicateRangeInDuplicatedSheet } from "../../range";
+import { duplicateRangeInDuplicatedSheet, Range } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 

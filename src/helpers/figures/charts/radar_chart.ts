@@ -8,7 +8,6 @@ import {
   CoreGetters,
   DatasetDesign,
   Getters,
-  Range,
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
@@ -24,7 +23,7 @@ import { RadarChartDefinition, RadarChartRuntime } from "../../../types/chart/ra
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { createValidRange } from "../../range";
+import { createValidRange, Range } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,

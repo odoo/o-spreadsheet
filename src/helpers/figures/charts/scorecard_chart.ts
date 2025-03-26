@@ -17,7 +17,6 @@ import {
   EvaluatedCell,
   Getters,
   Locale,
-  Range,
   RemoveColumnsRowsCommand,
   UID,
   UnboundedZone,
@@ -32,7 +31,7 @@ import {
 import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";
 import { isNumber } from "../../numbers";
-import { createValidRange } from "../../range";
+import { createValidRange, Range } from "../../range";
 import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { toUnboundedZone, zoneToXc } from "../../zones";

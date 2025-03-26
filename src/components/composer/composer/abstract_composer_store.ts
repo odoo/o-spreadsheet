@@ -10,6 +10,7 @@ import {
   isFormula,
   isNumber,
   positionToZone,
+  Range,
   splitReference,
   zoneToDimension,
 } from "../../../helpers/index";
@@ -33,7 +34,6 @@ import {
   EditionMode,
   HeaderIndex,
   Highlight,
-  Range,
   RangePart,
   UID,
   UnboundedZone,

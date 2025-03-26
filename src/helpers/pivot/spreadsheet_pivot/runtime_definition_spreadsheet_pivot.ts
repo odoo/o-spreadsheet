@@ -1,5 +1,6 @@
-import { Getters, Range } from "../../../types";
+import { Getters } from "../../../types";
 import { PivotFields, SpreadsheetPivotCoreDefinition } from "../../../types/pivot";
+import { Range } from "../../range";
 import { PivotRuntimeDefinition } from "../pivot_runtime_definition";
 
 export class SpreadsheetPivotRuntimeDefinition extends PivotRuntimeDefinition {

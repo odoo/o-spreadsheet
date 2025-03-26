@@ -1,5 +1,5 @@
 import { functionRegistry } from "../../../functions";
-import { getFullReference, intersection, isZoneValid, zoneToXc } from "../../../helpers";
+import { getFullReference, intersection, isZoneValid, Range, zoneToXc } from "../../../helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import {
@@ -10,7 +10,6 @@ import {
   FunctionResultObject,
   Getters,
   Matrix,
-  Range,
   ReferenceDenormalizer,
 } from "../../../types";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";

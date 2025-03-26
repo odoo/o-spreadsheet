@@ -1,6 +1,7 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
+import { Range } from "../../helpers";
 import { chartFontColor, chartRuntimeFactory, chartToImageUrl } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
+import { Color, ExcelWorkbookData, FigureData, UID } from "../../types";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,

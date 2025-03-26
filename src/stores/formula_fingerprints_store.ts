@@ -1,4 +1,4 @@
-import { AlternatingColorGenerator, RangeImpl, reorderZone, setColorAlpha } from "../helpers";
+import { AlternatingColorGenerator, Range, reorderZone, setColorAlpha } from "../helpers";
 import { PositionMap } from "../plugins/ui_core_views/cell_evaluation/position_map";
 import {
   Cell,
@@ -172,7 +172,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
       dy: 0,
       dSheet: 0,
     };
-    for (const range of dependencies as RangeImpl[]) {
+    for (const range of dependencies as Range[]) {
       const zone = range.zone;
       const [left, right] = range.parts;
       const rangeSheetIndex = this.getters.getSheetIds().indexOf(range.sheetId);
