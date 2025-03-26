@@ -685,6 +685,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               <div
                 class="o-composer w-100 text-start"
                 contenteditable="true"
+                inputmode="text"
                 spellcheck="false"
                 style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
                 tabindex="1"
@@ -806,6 +807,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               <div
                 class="o-composer w-100 text-start"
                 contenteditable="true"
+                inputmode="none"
                 spellcheck="false"
                 style=""
                 tabindex="1"
@@ -1689,6 +1691,7 @@ exports[`components take the small screen into account 1`] = `
               <div
                 class="o-composer w-100 text-start"
                 contenteditable="true"
+                inputmode="text"
                 spellcheck="false"
                 style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
                 tabindex="1"
@@ -1810,6 +1813,7 @@ exports[`components take the small screen into account 1`] = `
               <div
                 class="o-composer w-100 text-start"
                 contenteditable="true"
+                inputmode="none"
                 spellcheck="false"
                 style=""
                 tabindex="1"

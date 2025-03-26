@@ -140,6 +140,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
         }),
       onInputContextMenu: this.props.onInputContextMenu,
       composerStore: this.composerStore,
+      inputMode: "none",
     };
   }
 
