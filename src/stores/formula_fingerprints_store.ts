@@ -205,12 +205,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
         }
       }
     }
-    // removes the index placeholders from the normalized formula
-    // =|N0|+|N1|+|N0| -> =|N|+|N|+|N|
-    const normalizedFormula = cell.compiledFormula.normalizedFormula.replace(
-      /(|\w)(\d)(|)/g,
-      "$1$3"
-    );
+    const normalizedFormula = cell.compiledFormula.normalizedFormula;
     return hash(fingerprintVector) + normalizedFormula;
   }
 
