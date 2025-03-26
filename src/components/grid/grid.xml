@@ -20,6 +20,7 @@
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
       <GridComposer
+        t-if="!env.isMobile()"
         gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         onInputContextMenu.bind="onInputContextMenu"
       />
