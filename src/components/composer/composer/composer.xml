@@ -26,6 +26,7 @@
           tabindex="1"
           t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
           t-att-placeHolder="props.placeholder"
+          t-att-inputmode="props.inputMode"
           spellcheck="false"
           t-on-keydown="onKeydown"
           t-on-mousewheel.stop=""
