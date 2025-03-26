@@ -6,7 +6,7 @@ import {
   PivotDomain,
   PivotNode,
 } from "../../types";
-import { clip, deepCopy } from "../misc";
+import { clip, deepCopy, deepEquals } from "../misc";
 
 export const PREVIOUS_VALUE = "(previous)";
 export const NEXT_VALUE = "(next)";
@@ -267,4 +267,11 @@ export function sortPivotTree(
     node.children = children;
   }
   return sortedTree;
+}
+
+export function isParentDomain(domain: PivotDomain, parentDomain: PivotDomain) {
+  return (
+    domain.length > parentDomain.length &&
+    parentDomain.every((node, i) => deepEquals(node, domain[i]))
+  );
 }

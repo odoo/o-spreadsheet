@@ -58,6 +58,7 @@ export interface CommonPivotCoreDefinition {
   name: string;
   deferUpdates?: boolean;
   sortedColumn?: PivotSortedColumn;
+  collapsedDomains?: PivotDomain[];
 }
 
 export interface PivotSortedColumn {

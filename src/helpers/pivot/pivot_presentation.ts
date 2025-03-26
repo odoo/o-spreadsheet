@@ -148,7 +148,7 @@ export default function (PivotClass: PivotUIConstructor) {
 
     private getValuesToAggregate(measure: PivotMeasure, domain: PivotDomain) {
       const { rowDomain, colDomain } = domainToColRowDomain(this, domain);
-      const table = super.getTableStructure();
+      const table = super.getNonCollapsedTableStructure();
       const values: FunctionResultObject[] = [];
       if (
         colDomain.length === 0 &&
