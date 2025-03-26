@@ -148,7 +148,7 @@ export default function (PivotClass: PivotUIConstructor) {
 
     private getValuesToAggregate(measure: PivotMeasure, domain: PivotDomain) {
       const { rowDomain, colDomain } = domainToColRowDomain(this, domain);
-      const table = super.getTableStructure();
+      const table = super.getNonCollapsedTableStructure();
       const values: FunctionResultObject[] = [];
       if (
         colDomain.length === 0 &&
@@ -745,6 +745,12 @@ export default function (PivotClass: PivotUIConstructor) {
 
     getTableStructure(): SpreadsheetPivotTable {
       const table = super.getTableStructure();
+      this.sortTableStructure(table);
+      return table;
+    }
+
+    getNonCollapsedTableStructure(): SpreadsheetPivotTable {
+      const table = super.getNonCollapsedTableStructure();
       this.sortTableStructure(table);
       return table;
     }
