@@ -744,7 +744,7 @@ describe("Table plugin", () => {
       paste(model, "A5");
       expect(model.getters.getTables(sheet1Id)).toHaveLength(0);
       const copiedTable = getTable(model, "A5", "sheet2Id");
-      expect(copiedTable).toMatchObject({ range: { _zone: toZone("A5:B8") } });
+      expect(copiedTable).toMatchObject({ range: { unboundedZone: toZone("A5:B8") } });
     });
 
     test("Can cut and paste multiple tables", () => {

@@ -47,7 +47,7 @@ interface ConstructorArgs {
 }
 
 export class Range {
-  private readonly _zone: Readonly<Zone | UnboundedZone>;
+  readonly unboundedZone: Readonly<UnboundedZone>;
   readonly parts: readonly RangePart[];
   readonly invalidXc?: string;
   readonly prefixSheet: boolean = false;
@@ -56,7 +56,7 @@ export class Range {
   private getSheetSize: (sheetId: UID) => ZoneDimension;
 
   constructor(args: ConstructorArgs, getSheetSize: (sheetId: UID) => ZoneDimension) {
-    this._zone = args.unboundedZone;
+    this.unboundedZone = args.unboundedZone;
     this.prefixSheet = args.prefixSheet;
     this.invalidXc = args.invalidXc;
     this.sheetId = args.sheetId;
@@ -72,14 +72,10 @@ export class Range {
     this.parts = _fixedParts;
   }
 
-  get unboundedZone(): UnboundedZone {
-    return this._zone;
-  }
-
   get zone(): Readonly<Zone> {
-    const { left, top, bottom, right } = this._zone;
+    const { left, top, bottom, right } = this.unboundedZone;
     if (right !== undefined && bottom !== undefined) {
-      return this._zone as Readonly<Zone>;
+      return this.unboundedZone as Readonly<Zone>;
     } else if (bottom === undefined && right !== undefined) {
       return { right, top, left, bottom: this.getSheetSize(this.sheetId).numberOfRows - 1 };
     } else if (right === undefined && bottom !== undefined) {
@@ -112,16 +108,16 @@ export class Range {
   }
 
   get isFullCol(): boolean {
-    return this._zone.bottom === undefined;
+    return this.unboundedZone.bottom === undefined;
   }
 
   get isFullRow(): boolean {
-    return this._zone.right === undefined;
+    return this.unboundedZone.right === undefined;
   }
 
   get rangeData(): RangeData {
     return {
-      _zone: this._zone,
+      _zone: this.unboundedZone,
       _sheetId: this.sheetId,
     };
   }
@@ -132,10 +128,10 @@ export class Range {
    * If it's not the case, simply invert them, and invert the linked parts
    */
   orderZone(): Range {
-    if (isZoneOrdered(this._zone)) {
+    if (isZoneOrdered(this.unboundedZone)) {
       return this;
     }
-    const zone = { ...this._zone };
+    const zone = { ...this.unboundedZone };
     let parts = this.parts;
     if (zone.right !== undefined && zone.right < zone.left) {
       let right = zone.right;
@@ -179,7 +175,7 @@ export class Range {
     const unboundedZone = rangeParams?.unboundedZone ?? rangeParams?.zone;
     return new Range(
       {
-        unboundedZone: unboundedZone || this._zone,
+        unboundedZone: unboundedZone || this.unboundedZone,
         sheetId: rangeParams?.sheetId ? rangeParams.sheetId : this.sheetId,
         invalidSheetName:
           rangeParams && "invalidSheetName" in rangeParams // 'attr in obj' instead of just 'obj.attr' because we accept undefined values
