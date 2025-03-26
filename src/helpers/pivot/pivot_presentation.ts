@@ -148,7 +148,7 @@ export default function (PivotClass: PivotUIConstructor) {
 
     private getValuesToAggregate(measure: PivotMeasure, domain: PivotDomain) {
       const { rowDomain, colDomain } = domainToColRowDomain(this, domain);
-      const table = super.getTableStructure();
+      const table = super.getExpandedTableStructure();
       const values: FunctionResultObject[] = [];
       if (
         colDomain.length === 0 &&
@@ -726,7 +726,7 @@ export default function (PivotClass: PivotUIConstructor) {
     }
 
     private getPivotValueCells(measureId: string): PivotValueCell[][] {
-      return this.getTableStructure()
+      return this.getCollapsedTableStructure()
         .getPivotCells()
         .map((col) => col.filter((cell) => cell.type === "VALUE" && cell.measure === measureId))
         .filter((col) => col.length > 0) as PivotValueCell[][];
@@ -753,8 +753,14 @@ export default function (PivotClass: PivotUIConstructor) {
       throw new Error(`Value ${result.value} is not a number`);
     }
 
-    getTableStructure(): SpreadsheetPivotTable {
-      const table = super.getTableStructure();
+    getCollapsedTableStructure(): SpreadsheetPivotTable {
+      const table = super.getCollapsedTableStructure();
+      this.sortTableStructure(table);
+      return table;
+    }
+
+    getExpandedTableStructure(): SpreadsheetPivotTable {
+      const table = super.getExpandedTableStructure();
       this.sortTableStructure(table);
       return table;
     }

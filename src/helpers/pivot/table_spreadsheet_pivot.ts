@@ -2,15 +2,20 @@ import { FunctionResultObject, Lazy } from "../../types";
 import {
   DimensionTree,
   DimensionTreeNode,
+  PivotCollapsedDomains,
   PivotDomain,
   PivotSortedColumn,
   PivotTableCell,
   PivotTableColumn,
   PivotTableRow,
 } from "../../types/pivot";
-import { lazy } from "../misc";
-import { sortPivotTree } from "./pivot_domain_helpers";
+import { deepEquals, lazy } from "../misc";
+import { isParentDomain, sortPivotTree } from "./pivot_domain_helpers";
 import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
+
+interface CollapsiblePivotTableColumn extends PivotTableColumn {
+  collapsedHeader?: boolean;
+}
 
 /**
  * Class used to ease the construction of a pivot table.
@@ -56,7 +61,7 @@ import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
  */
 
 export class SpreadsheetPivotTable {
-  readonly columns: PivotTableColumn[][];
+  readonly columns: CollapsiblePivotTableColumn[][];
   rows: PivotTableRow[];
   readonly measures: string[];
   readonly fieldsType: Record<string, string | undefined>;
@@ -68,27 +73,80 @@ export class SpreadsheetPivotTable {
   isSorted = false;
 
   constructor(
-    columns: PivotTableColumn[][],
+    columns: CollapsiblePivotTableColumn[][],
     rows: PivotTableRow[],
     measures: string[],
-    fieldsType: Record<string, string | undefined>
+    fieldsType: Record<string, string | undefined>,
+    collapsedDomains: PivotCollapsedDomains = { COL: [], ROW: [] }
   ) {
-    this.columns = columns.map((row) => {
+    this.measures = measures;
+    this.fieldsType = fieldsType;
+
+    if (collapsedDomains.COL.length) {
+      columns = this.removeCollapsedColumns(columns, measures, collapsedDomains.COL);
+    }
+    this.columns = columns.map((cols) => {
       // offset in the pivot table
       // starts at 1 because the first column is the row title
       let offset = 1;
-      return row.map((col) => {
+      return cols.map((col) => {
         col = { ...col, offset };
         offset += col.width;
         return col;
       });
     });
-    this.rows = rows;
-    this.measures = measures;
-    this.fieldsType = fieldsType;
+
+    this.rows = rows.filter((row) => !this.isParentCollapsed(collapsedDomains.ROW, row));
     this.maxIndent = Math.max(...this.rows.map((row) => row.indent));
     this.rowTree = lazy(() => this.buildRowsTree());
     this.colTree = lazy(() => this.buildColumnsTree());
+  }
+
+  private removeCollapsedColumns(
+    columns: CollapsiblePivotTableColumn[][],
+    measures: string[],
+    collapsedDomains: PivotDomain[]
+  ) {
+    const replaceCollapsedChildrenWithSubTotalColumns = (
+      parentCol: CollapsiblePivotTableColumn,
+      depth: number
+    ) => {
+      const parentDomain = this.getDomain(parentCol);
+      const cols = columns[depth];
+      const startIndex = cols.findIndex((col) => isParentDomain(this.getDomain(col), parentDomain));
+      const endIndex = cols.findLastIndex((col) =>
+        isParentDomain(this.getDomain(col), parentDomain)
+      );
+      const isLeaf = depth === columns.length - 1;
+      const newColumns = measures.map((measure) => {
+        const fields = isLeaf ? [...parentCol.fields, "measure"] : [];
+        const values = isLeaf ? [...parentCol.values, measure] : [];
+        return { fields, values, width: 1, offset: 0, collapsedHeader: !isLeaf };
+      });
+      cols.splice(startIndex, endIndex - startIndex + 1, ...newColumns);
+    };
+
+    return columns.map((cols, i) => {
+      for (const col of cols) {
+        if (i >= columns.length - 2) {
+          return cols;
+        }
+        const domain = this.getDomain(col);
+        if (!collapsedDomains.some((collapsedDomain) => deepEquals(domain, collapsedDomain))) {
+          continue;
+        }
+        col.width = measures.length;
+        for (let depth = i + 1; depth < columns.length; depth++) {
+          replaceCollapsedChildrenWithSubTotalColumns(col, depth);
+        }
+      }
+      return cols;
+    });
+  }
+
+  private isParentCollapsed(collapsedDomains: PivotDomain[], dim: PivotTableRow) {
+    const domain = this.getDomain(dim);
+    return collapsedDomains.some((collapsedDomain) => isParentDomain(domain, collapsedDomain));
   }
 
   /**
@@ -153,14 +211,14 @@ export class SpreadsheetPivotTable {
       return domain ? { type: "HEADER", domain, dimension: "COL" } : EMPTY_PIVOT_CELL;
     } else if (col === 0) {
       const rowIndex = row - colHeadersHeight;
-      const domain = this.getRowDomain(rowIndex);
+      const domain = this.getDomain(this.rows[rowIndex]);
       return { type: "HEADER", domain, dimension: "ROW" };
     } else {
       const rowIndex = row - colHeadersHeight;
       if (!includeTotal && this.isTotalRow(rowIndex)) {
         return EMPTY_PIVOT_CELL;
       }
-      const domain = [...this.getRowDomain(rowIndex), ...this.getColDomain(col)];
+      const domain = [...this.getDomain(this.rows[rowIndex]), ...this.getColDomain(col)];
       const measure = this.getColMeasure(col);
       return { type: "VALUE", domain, measure };
     }
@@ -170,36 +228,34 @@ export class SpreadsheetPivotTable {
     if (col === 0) {
       return undefined;
     }
-    const domain: PivotDomain = [];
     const pivotCol = this.columns[row].find((pivotCol) => pivotCol.offset === col);
-    if (!pivotCol) {
+    if (!pivotCol || pivotCol.collapsedHeader) {
       return undefined;
     }
-    for (let i = 0; i < pivotCol.fields.length; i++) {
-      const fieldWithGranularity = pivotCol.fields[i];
+    return this.getDomain(pivotCol);
+  }
+
+  private getDomain(dim: PivotTableRow | PivotTableColumn) {
+    return dim.fields.map((fieldWithGranularity, i) => {
       if (fieldWithGranularity === "measure") {
-        domain.push({
+        return {
           type: "char",
           field: fieldWithGranularity,
-          value: toNormalizedPivotValue(
-            { displayName: "measure", type: "char" },
-            pivotCol.values[i]
-          ),
-        });
+          value: toNormalizedPivotValue({ displayName: "measure", type: "char" }, dim.values[i]),
+        };
       } else {
         const { fieldName, granularity } = parseDimension(fieldWithGranularity);
         const type = this.fieldsType[fieldName] || "char";
-        domain.push({
+        return {
           type,
           field: fieldWithGranularity,
           value: toNormalizedPivotValue(
             { displayName: fieldName, type, granularity },
-            pivotCol.values[i]
+            dim.values[i]
           ),
-        });
+        };
       }
-    }
-    return domain;
+    });
   }
 
   private getColDomain(col: number) {
@@ -214,24 +270,6 @@ export class SpreadsheetPivotTable {
       throw new Error("Measure is missing");
     }
     return measure.toString();
-  }
-
-  private getRowDomain(row: number) {
-    const domain: PivotDomain = [];
-    for (let i = 0; i < this.rows[row].fields.length; i++) {
-      const fieldWithGranularity = this.rows[row].fields[i];
-      const { fieldName, granularity } = parseDimension(fieldWithGranularity);
-      const type = this.fieldsType[fieldName] || "char";
-      domain.push({
-        type,
-        field: fieldWithGranularity,
-        value: toNormalizedPivotValue(
-          { displayName: fieldName, type, granularity },
-          this.rows[row].values[i]
-        ),
-      });
-    }
-    return domain;
   }
 
   buildRowsTree(): DimensionTree {

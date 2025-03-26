@@ -12,12 +12,12 @@ import {
   getPivotId,
 } from "./helper_lookup";
 import {
+  LinearSearchMode,
   dichotomicSearch,
   expectNumberRangeError,
   generateMatrix,
   isEvaluationError,
   linearSearch,
-  LinearSearchMode,
   strictToInteger,
   toBoolean,
   toMatrix,
@@ -877,7 +877,7 @@ export const PIVOT = {
     if (error) {
       return error;
     }
-    const table = pivot.getTableStructure();
+    const table = pivot.getCollapsedTableStructure();
     const cells = table.getPivotCells(_includedTotal, _includeColumnHeaders);
     const headerRows = _includeColumnHeaders ? table.columns.length : 0;
     const pivotTitle = this.getters.getPivotDisplayName(pivotId);
