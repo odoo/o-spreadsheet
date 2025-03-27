@@ -62,7 +62,7 @@ interface RangeArgs {
   sheetId: UID;
 }
 
-export class RangeImpl implements Range {
+class RangeImpl implements Range {
   private readonly _zone: Readonly<Zone | UnboundedZone>;
   readonly zone: Readonly<Zone>;
   readonly parts: Range["parts"];

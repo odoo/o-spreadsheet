@@ -10,7 +10,6 @@ import {
   isFullRowRange,
   isZoneValid,
   orderRange,
-  RangeImpl,
   rangeReference,
   recomputeZones,
   splitReference,
@@ -92,7 +91,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * direction can be incorrect. This function ensure that an incorrect range gets removed.
    */
   private verifyRangeRemoved(adaptRange: ApplyRangeChange): ApplyRangeChange {
-    return (range: RangeImpl) => {
+    return (range: Range) => {
       const result: ApplyRangeChangeResult = adaptRange(range);
       if (result.changeType !== "NONE" && !isZoneValid(result.range.zone)) {
         return { range: result.range, changeType: "REMOVE" };
