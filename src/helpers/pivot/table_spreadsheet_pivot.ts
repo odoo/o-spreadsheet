@@ -150,11 +150,11 @@ export class SpreadsheetPivotTable {
       return { type: "MEASURE_HEADER", domain: domain.slice(0, -1), measure };
     } else if (row <= colHeadersHeight - 1) {
       const domain = this.getColHeaderDomain(col, row);
-      return domain ? { type: "HEADER", domain } : EMPTY_PIVOT_CELL;
+      return domain ? { type: "HEADER", domain, dimension: "COL" } : EMPTY_PIVOT_CELL;
     } else if (col === 0) {
       const rowIndex = row - colHeadersHeight;
       const domain = this.getRowDomain(rowIndex);
-      return { type: "HEADER", domain };
+      return { type: "HEADER", domain, dimension: "ROW" };
     } else {
       const rowIndex = row - colHeadersHeight;
       if (!includeTotal && this.isTotalRow(rowIndex)) {
