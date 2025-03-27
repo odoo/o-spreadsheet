@@ -246,11 +246,22 @@ describe("tokenizer", () => {
     ]);
   });
 
-  test("Unknown characters", () => {
+  test("non-ascii characters", () => {
     expect(tokenize("=ù4")).toEqual([
       { type: "OPERATOR", value: "=" },
-      { type: "UNKNOWN", value: "ù" },
-      { type: "NUMBER", value: "4" },
+      { type: "SYMBOL", value: "ù4" },
+    ]);
+    expect(tokenize("=jai_nommé_mon_range")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "jai_nommé_mon_range" },
+    ]);
+    expect(tokenize("=ßabc123")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "ßabc123" },
+    ]);
+    expect(tokenize("=ぁ72")).toEqual([
+      { type: "OPERATOR", value: "=" },
+      { type: "SYMBOL", value: "ぁ72" },
     ]);
   });
 
