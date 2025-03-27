@@ -306,6 +306,7 @@ export const PIVOT_TABLE_CONFIG = {
   styleId: "TableStyleMedium5",
   automaticAutofill: false,
 };
+export const PIVOT_INDENT = 15;
 
 export const DEFAULT_CURRENCY: Currency = {
   symbol: "$",

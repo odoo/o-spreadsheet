@@ -7,6 +7,7 @@ import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_composer_helpers";
+import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
 import withPivotPresentationLayer from "../../helpers/pivot/pivot_presentation";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
@@ -246,9 +247,11 @@ export class PivotUIPlugin extends CoreViewPlugin {
         const domain = pivot.parseArgsToPivotDomain(
           args.slice(1).map((value) => ({ value } as FunctionResultObject))
         );
+        const colRowDomain = domainToColRowDomain(pivot, domain);
         return {
           type: "HEADER",
           domain,
+          dimension: colRowDomain.colDomain.length ? "COL" : "ROW",
         };
       }
       const [measure, ...domainArgs] = args.slice(1);
