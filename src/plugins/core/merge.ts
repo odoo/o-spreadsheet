@@ -1,5 +1,4 @@
 import {
-  RangeImpl,
   clip,
   deepEquals,
   getFullReference,
@@ -168,17 +167,16 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * Same as `getRangeString` but add all necessary merge to the range to make it a valid selection
    */
   getSelectionRangeString(range: Range, forSheetId: UID): string {
-    const rangeImpl = RangeImpl.fromRange(range, this.getters.getSheetSize);
-    const expandedZone = this.getters.expandZone(rangeImpl.sheetId, rangeImpl.zone);
-    const expandedRange = rangeImpl.clone({
+    const expandedZone = this.getters.expandZone(range.sheetId, range.zone);
+    const expandedRange = range.clone({
       unboundedZone: {
         ...expandedZone,
-        bottom: isFullColRange(rangeImpl) ? undefined : expandedZone.bottom,
-        right: isFullRowRange(rangeImpl) ? undefined : expandedZone.right,
+        bottom: isFullColRange(range) ? undefined : expandedZone.bottom,
+        right: isFullRowRange(range) ? undefined : expandedZone.right,
       },
     });
     const rangeString = this.getters.getRangeString(expandedRange, forSheetId);
-    if (this.isSingleCellOrMerge(rangeImpl.sheetId, rangeImpl.zone)) {
+    if (this.isSingleCellOrMerge(range.sheetId, range.zone)) {
       const { sheetName, xc } = splitReference(rangeString);
       return getFullReference(sheetName, xc.split(":")[0]);
     }
