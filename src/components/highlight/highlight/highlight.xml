@@ -6,7 +6,7 @@
           onMoveHighlight.bind="this.onMoveHighlight"
           isMoving='highlightState.shiftingMode === "isMoving"'
           orientation="orientation"
-          zone="props.zone"
+          zone="props.range.zone"
         />
       </t>
       <t t-foreach="['nw', 'ne', 'sw', 'se']" t-as="orientation" t-key="orientation">
@@ -14,7 +14,7 @@
           onResizeHighlight.bind="onResizeHighlight"
           isResizing='highlightState.shiftingMode === "isResizing"'
           orientation="orientation"
-          zone="props.zone"
+          zone="props.range.zone"
           color="props.color"
         />
       </t>

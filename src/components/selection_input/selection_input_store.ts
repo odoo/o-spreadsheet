@@ -377,9 +377,9 @@ export class SelectionInputStore extends SpreadsheetStore {
       .filter((reference) => this.shouldBeHighlighted(this.inputSheetId, reference));
     return XCs.map((xc) => {
       const { sheetName } = splitReference(xc);
+      const sheetId = (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId;
       return {
-        zone: this.getters.getRangeFromSheetXC(this.inputSheetId, xc).zone,
-        sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId,
+        range: this.getters.getRangeFromSheetXC(sheetId, xc),
         color,
         interactive: true,
       };

@@ -100,11 +100,11 @@ describe("Pivot side panel", () => {
       A5: "=PIVOT(1)"
     });
     const highlightStore = env.getStore(HighlightStore);
-    expect(highlightStore.highlights.map((h) => zoneToXc(h.zone))).toEqual([]);
+    expect(highlightStore.highlights.map((h) => zoneToXc(h.range.zone))).toEqual([]);
 
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
-    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.zone))).toEqual(["A5:A7"]);
+    expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.range.zone))).toEqual(["A5:A7"]);
   });
 
   test("Renaming the computed measure the pivot is sorted on keep the sorting", async () => {
