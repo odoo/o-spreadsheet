@@ -31,7 +31,7 @@ import { CellErrorType } from "../../../types/errors";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, largeMax } from "../../misc";
-import { duplicateRangeInDuplicatedSheet } from "../../range";
+import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
@@ -260,7 +260,7 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
     }
   }
 
-  const dataRange = ds.dataRange.clone({ zone: dataZone });
+  const dataRange = createRange({ ...ds.dataRange, zone: dataZone }, getters.getSheetSize);
   let label = {};
   if (ds.customLabel) {
     label = {
@@ -294,7 +294,7 @@ export function toExcelLabelRange(
   if (shouldRemoveFirstLabel && labelRange.zone.bottom > labelRange.zone.top) {
     zone.top = zone.top + 1;
   }
-  const range = labelRange.clone({ zone });
+  const range = createRange({ ...labelRange, zone: zone }, getters.getSheetSize);
   return getters.getRangeString(range, "forceSheetReference", { useBoundedReference: true });
 }
 

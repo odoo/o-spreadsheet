@@ -155,7 +155,10 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
             ((range.parts[1] || range.parts[0]).rowFixed ? 0 : offsetY),
       };
       return orderRange(
-        range.clone({ sheetId: copySheetId, unboundedZone: unboundZone }),
+        createRange(
+          { ...range, sheetId: copySheetId, zone: unboundZone },
+          this.getters.getSheetSize
+        ),
         this.getters.getSheetSize
       );
     });
@@ -167,7 +170,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   removeRangesSheetPrefix(sheetId: UID, ranges: Range[]): Range[] {
     return ranges.map((range) => {
       if (range.prefixSheet && range.sheetId === sheetId) {
-        return range.clone({ prefixSheet: false });
+        return { ...range, prefixSheet: false };
       }
       return range;
     });
@@ -192,7 +195,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    */
   getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): Range {
     if (!rangeReference.test(sheetXC) || !this.getters.tryGetSheet(defaultSheetId)) {
-      return createInvalidRange(sheetXC, this.getters.getSheetSize);
+      return createInvalidRange(sheetXC);
     }
 
     let sheetName: string | undefined;
@@ -285,7 +288,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   getRangeFromRangeData(data: RangeData): Range {
     if (!this.getters.tryGetSheet(data._sheetId)) {
-      return createInvalidRange(CellErrorType.InvalidReference, this.getters.getSheetSize);
+      return createInvalidRange(CellErrorType.InvalidReference);
     }
     const rangeInterface = {
       prefixSheet: false,

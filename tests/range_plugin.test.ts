@@ -538,7 +538,7 @@ describe("range plugin", () => {
 
     test("requesting a range without parts", () => {
       const r = m.getters.getRangeFromSheetXC("s1", "A1");
-      const rNoParts = r.clone({ parts: [] });
+      const rNoParts = { ...r, parts: [] };
       expect(m.getters.getRangeString(rNoParts, "forceSheetName")).toBe("s1!A1");
     });
 

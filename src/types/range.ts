@@ -1,11 +1,11 @@
-import { Cloneable, UID, UnboundedZone, Zone } from "./misc";
+import { UID, UnboundedZone, Zone } from "./misc";
 
 export interface RangePart {
   readonly colFixed: boolean;
   readonly rowFixed: boolean;
 }
 
-export interface Range extends Cloneable<Range> {
+export interface Range {
   readonly zone: Readonly<Zone>;
   readonly unboundedZone: Readonly<UnboundedZone>;
   readonly parts: readonly RangePart[];

@@ -17,7 +17,6 @@ import {
   RenameSheetCommand,
   UID,
   UnboundedZone,
-  Zone,
   ZoneDimension,
 } from "../types";
 import { CellErrorType } from "../types/errors";
@@ -37,19 +36,6 @@ import {
   zoneToXc,
 } from "./zones";
 
-interface ConstructorArgs {
-  readonly unboundedZone: Readonly<UnboundedZone>;
-  readonly zone: Readonly<Zone>;
-  readonly parts: readonly RangePart[];
-  readonly invalidXc?: string;
-  /** true if the user provided the range with the sheet name */
-  readonly prefixSheet: boolean;
-  /** the name of any sheet that is invalid */
-  readonly invalidSheetName?: string;
-  /** the sheet on which the range is defined */
-  readonly sheetId: UID;
-}
-
 interface RangeArgs {
   zone: Readonly<UnboundedZone>;
   parts: readonly RangePart[];
@@ -62,61 +48,6 @@ interface RangeArgs {
   sheetId: UID;
 }
 
-class RangeImpl implements Range {
-  private readonly _zone: Readonly<Zone | UnboundedZone>;
-  readonly zone: Readonly<Zone>;
-  readonly parts: Range["parts"];
-  readonly invalidXc?: string;
-  readonly prefixSheet: boolean = false;
-  readonly sheetId: UID; // the sheet on which the range is defined
-  readonly invalidSheetName?: string; // the name of any sheet that is invalid
-  private getSheetSize: (sheetId: UID) => ZoneDimension;
-
-  constructor(args: ConstructorArgs, getSheetSize: (sheetId: UID) => ZoneDimension) {
-    this._zone = args.unboundedZone;
-    this.zone = args.zone;
-    this.prefixSheet = args.prefixSheet;
-    this.invalidXc = args.invalidXc;
-    this.sheetId = args.sheetId;
-    this.invalidSheetName = args.invalidSheetName;
-    this.parts = args.parts;
-    this.getSheetSize = getSheetSize;
-  }
-
-  get unboundedZone(): UnboundedZone {
-    return this._zone;
-  }
-
-  /**
-   *
-   * @param rangeParams optional, values to put in the cloned range instead of the current values of the range
-   */
-  clone(rangeParams?: Partial<Range>): Range {
-    const unboundedZone = rangeParams?.unboundedZone ?? rangeParams?.zone ?? this._zone;
-    const sheetId = rangeParams?.sheetId ? rangeParams.sheetId : this.sheetId;
-    return createRange(
-      {
-        zone: unboundedZone,
-        sheetId,
-        invalidSheetName:
-          rangeParams && "invalidSheetName" in rangeParams // 'attr in obj' instead of just 'obj.attr' because we accept undefined values
-            ? rangeParams.invalidSheetName
-            : this.invalidSheetName,
-        invalidXc:
-          rangeParams && "invalidXc" in rangeParams ? rangeParams.invalidXc : this.invalidXc,
-        parts: rangeParams?.parts
-          ? rangeParams.parts
-          : this.parts.map((part) => {
-              return { rowFixed: part.rowFixed, colFixed: part.colFixed };
-            }),
-        prefixSheet:
-          rangeParams?.prefixSheet !== undefined ? rangeParams.prefixSheet : this.prefixSheet,
-      },
-      this.getSheetSize
-    );
-  }
-}
-
 export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
   const unboundedZone = args.zone;
   const zone = boundUnboundedZone(unboundedZone, getSheetSize(args.sheetId));
@@ -126,37 +57,27 @@ export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => Zon
   } else if (args.parts.length === 2 && getZoneArea(zone) === 1) {
     parts.pop();
   }
-  const range = new RangeImpl(
-    {
-      unboundedZone,
-      zone,
-      parts,
-      invalidXc: args.invalidXc,
-      prefixSheet: args.prefixSheet,
-      invalidSheetName: args.invalidSheetName,
-      sheetId: args.sheetId,
-    },
-    getSheetSize
-  );
-  return range;
+  return {
+    unboundedZone,
+    zone,
+    parts,
+    invalidXc: args.invalidXc,
+    prefixSheet: args.prefixSheet,
+    invalidSheetName: args.invalidSheetName,
+    sheetId: args.sheetId,
+  };
 }
 
-export function createInvalidRange(
-  sheetXC: string,
-  getSheetSize: (sheetId: UID) => ZoneDimension
-): Range {
-  const range = new RangeImpl(
-    {
-      sheetId: "",
-      zone: { left: -1, top: -1, right: -1, bottom: -1 },
-      unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
-      parts: [],
-      invalidXc: sheetXC,
-      prefixSheet: false,
-    },
-    getSheetSize
-  );
-  return range;
+export function createInvalidRange(sheetXC: string): Range {
+  const invalidZone = { left: -1, top: -1, right: -1, bottom: -1 };
+  return {
+    sheetId: "",
+    zone: invalidZone,
+    unboundedZone: invalidZone,
+    parts: [],
+    invalidXc: sheetXC,
+    prefixSheet: false,
+  };
 }
 
 export function isFullColRange(range: Range): boolean {
@@ -225,7 +146,7 @@ export function duplicateRangeInDuplicatedSheet(
   range: Range
 ): Range {
   const sheetId = range.sheetId === sheetIdFrom ? sheetIdTo : range.sheetId;
-  return range.clone({ sheetId });
+  return { ...range, sheetId };
 }
 
 /**
@@ -443,7 +364,7 @@ function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRa
         newRange = createAdaptedRange(newRange, dimension, changeType, -toRemove);
       } else if (range.zone[start] >= min && range.zone[end] <= max) {
         changeType = "REMOVE";
-        newRange = range.clone({ ...getInvalidRange() });
+        newRange = createInvalidRange(CellErrorType.InvalidReference);
       } else if (range.zone[start] <= max && range.zone[end] >= max) {
         const toRemove = max - range.zone[start] + 1;
         changeType = "RESIZE";
@@ -507,10 +428,10 @@ function getApplyRangeChangeDeleteSheet(cmd: DeleteSheetCommand): ApplyRangeChan
       return { changeType: "NONE" };
     }
     const invalidSheetName = cmd.sheetName;
-    range = range.clone({
-      ...getInvalidRange(),
+    range = {
+      ...createInvalidRange(CellErrorType.InvalidReference),
       invalidSheetName,
-    });
+    };
     return { changeType: "REMOVE", range };
   };
 }
@@ -523,13 +444,13 @@ function getApplyRangeChangeRenameSheet(cmd: RenameSheetCommand): ApplyRangeChan
     if (cmd.newName && range.invalidSheetName === cmd.newName) {
       const invalidSheetName = undefined;
       const sheetId = cmd.sheetId;
-      const newRange = range.clone({ sheetId, invalidSheetName });
+      const newRange = { ...range, sheetId, invalidSheetName };
       return { changeType: "CHANGE", range: newRange };
     }
     if (cmd.oldName && range.invalidSheetName === cmd.oldName) {
       const invalidSheetName = undefined;
       const sheetId = cmd.sheetId;
-      const newRange = range.clone({ sheetId, invalidSheetName });
+      const newRange = { ...range, sheetId, invalidSheetName };
       return { changeType: "CHANGE", range: newRange };
     }
     return { changeType: "NONE" };
@@ -549,7 +470,7 @@ function getApplyRangeChangeMoveRange(cmd: MoveRangeCommand): ApplyRangeChange {
     const prefixSheet = cmd.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
     return {
       changeType: "MOVE",
-      range: adaptedRange.clone({ sheetId: targetSheetId, prefixSheet }),
+      range: { ...adaptedRange, sheetId: targetSheetId, prefixSheet },
     };
   };
 }
@@ -560,18 +481,10 @@ function createAdaptedRange<Dimension extends "columns" | "rows" | "both">(
   operation: "MOVE" | "RESIZE",
   by: Dimension extends "both" ? [number, number] : number
 ) {
-  const zone = createAdaptedZone(range.unboundedZone, dimension, operation, by);
-  const adaptedRange = range.clone({ unboundedZone: zone });
-  return adaptedRange;
-}
-
-function getInvalidRange() {
   return {
-    parts: [],
-    prefixSheet: false,
-    zone: { left: -1, top: -1, right: -1, bottom: -1 },
-    sheetId: "",
-    invalidXc: CellErrorType.InvalidReference,
+    ...range,
+    unboundedZone: createAdaptedZone(range.unboundedZone, dimension, operation, by),
+    zone: createAdaptedZone(range.zone, dimension, operation, by),
   };
 }
 
