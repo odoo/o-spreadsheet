@@ -1178,3 +1178,16 @@ export function getFilterHiddenValues(model: Model, sheetId = model.getters.getA
     }),
   }));
 }
+
+export function flattenHighlightRange(
+  highlight: Highlight
+): { zone: Zone; sheetId: UID } & Omit<Highlight, "range"> {
+  const flatHighlight: any = {
+    ...highlight,
+    zone: highlight.range.zone,
+    sheetId: highlight.range.sheetId,
+    color: highlight.color,
+  };
+  delete flatHighlight.range;
+  return flatHighlight;
+}

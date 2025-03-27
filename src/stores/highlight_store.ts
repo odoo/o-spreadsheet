@@ -27,16 +27,17 @@ export class HighlightStore extends SpreadsheetStore {
     const activeSheetId = this.getters.getActiveSheetId();
     return this.providers
       .flatMap((h) => h.highlights)
-      .filter((h) => h.sheetId === activeSheetId)
+      .filter((h) => h.range.sheetId === activeSheetId)
       .map((highlight) => {
-        const { numberOfRows, numberOfCols } = zoneToDimension(highlight.zone);
+        const { numberOfRows, numberOfCols } = zoneToDimension(highlight.range.zone);
         const zone =
           numberOfRows * numberOfCols === 1
-            ? this.getters.expandZone(highlight.sheetId, highlight.zone)
-            : highlight.zone;
+            ? this.getters.expandZone(highlight.range.sheetId, highlight.range.zone)
+            : highlight.range.unboundedZone;
+
         return {
           ...highlight,
-          zone,
+          range: this.model.getters.getRangeFromZone(highlight.range.sheetId, zone),
         };
       });
   }
@@ -52,7 +53,7 @@ export class HighlightStore extends SpreadsheetStore {
   drawLayer(ctx: GridRenderingContext, layer: LayerName): void {
     if (layer === "Highlights") {
       for (const highlight of this.highlights) {
-        const rect = this.getters.getVisibleRect(highlight.zone);
+        const rect = this.getters.getVisibleRect(highlight.range.zone);
         drawHighlight(ctx, highlight, rect);
       }
     }

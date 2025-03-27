@@ -222,7 +222,9 @@ describe("UI of conditional formats", () => {
     test("Ranges of hovered previews are highlighted", async () => {
       expect(getHighlightsFromStore(env)).toEqual([]);
       triggerMouseEvent(selectors.listPreview, "mouseenter");
-      expect(getHighlightsFromStore(env)).toMatchObject([{ zone: toZone("A1:A2") }]);
+      expect(getHighlightsFromStore(env)).toMatchObject([
+        { range: model.getters.getRangeFromZone(sheetId, toZone("A1:A2")) },
+      ]);
       triggerMouseEvent(selectors.listPreview, "mouseleave");
       expect(getHighlightsFromStore(env)).toEqual([]);
     });

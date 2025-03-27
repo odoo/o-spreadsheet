@@ -42,6 +42,7 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
+import { flattenHighlightRange } from "../test_helpers/helpers";
 import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
@@ -239,10 +240,13 @@ describe("edition", () => {
 
   test("ranges are highlighted", () => {
     composerStore.startEdition("=SUM(A2:A3, B5)");
-    expect(composerStore.highlights.map((h) => h.zone)).toEqual([toZone("A2:A3"), toZone("B5")]);
+    expect(composerStore.highlights.map((h) => h.range.zone)).toEqual([
+      toZone("A2:A3"),
+      toZone("B5"),
+    ]);
 
     composerStore.setCurrentContent("=SUM(B2:B3, C5, B2:B)");
-    expect(composerStore.highlights.map((h) => h.zone)).toEqual([
+    expect(composerStore.highlights.map((h) => h.range.zone)).toEqual([
       toZone("B2:B3"),
       toZone("C5"),
       model.getters.getRangeFromSheetXC(model.getters.getActiveSheetId(), "B2:B").zone,
@@ -1107,7 +1111,8 @@ describe("edition", () => {
     composerStore.startEdition(`=${fakeSheetName}!A1+A2+ZZZZZZZZZ1000000`);
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(1);
-    expect(highlights[0]).toMatchObject({ zone: toZone("A2"), color: colors[0] });
+    expect(highlights[0].color).toEqual(colors[0]);
+    expect(highlights[0].range.zone).toMatchObject(toZone("A2"));
   });
 
   test("References of non-active sheets are filtered out from the highlights", () => {
@@ -1116,11 +1121,20 @@ describe("edition", () => {
     composerStore.startEdition(`=${secondSheetname}!A1+A2+ZZZZZZZZZ1000000`);
     const gridHighlights = container.get(HighlightStore).highlights;
     expect(gridHighlights).toHaveLength(1);
-    expect(gridHighlights[0]).toMatchObject({ zone: toZone("A2"), color: colors[1] });
+    expect(flattenHighlightRange(gridHighlights[0])).toMatchObject({
+      zone: toZone("A2"),
+      color: colors[1],
+    });
     const composerHighlights = composerStore.highlights;
     expect(composerHighlights).toHaveLength(2);
-    expect(composerHighlights[0]).toMatchObject({ zone: toZone("A1"), color: colors[0] });
-    expect(composerHighlights[1]).toMatchObject({ zone: toZone("A2"), color: colors[1] });
+    expect(flattenHighlightRange(composerHighlights[0])).toMatchObject({
+      zone: toZone("A1"),
+      color: colors[0],
+    });
+    expect(flattenHighlightRange(composerHighlights[1])).toMatchObject({
+      zone: toZone("A2"),
+      color: colors[1],
+    });
   });
 
   describe("Toggling edition", () => {

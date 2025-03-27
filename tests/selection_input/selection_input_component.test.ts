@@ -25,6 +25,7 @@ import {
   simulateClick,
 } from "../test_helpers/dom_helper";
 import {
+  flattenHighlightRange,
   getChildFromComponent,
   mountComponent,
   mountSpreadsheet,
@@ -285,7 +286,7 @@ describe("Selection Input", () => {
     await simulateClick(fixture.querySelectorAll("input")[0]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color:#FF0000; ");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color:#00FF00; ");
-    expect(highlightStore.highlights).toMatchObject([
+    expect(highlightStore.highlights.map(flattenHighlightRange)).toMatchObject([
       { color: "#FF0000", zone: toZone("A1") },
       { color: "#00FF00", zone: toZone("B1") },
     ]);
@@ -293,7 +294,7 @@ describe("Selection Input", () => {
     await simulateClick(fixture.querySelectorAll("input")[1]);
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color:#0000FF; ");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe("color:#FF00FF; ");
-    expect(highlightStore.highlights).toMatchObject([
+    expect(highlightStore.highlights.map(flattenHighlightRange)).toMatchObject([
       { color: "#0000FF", zone: toZone("A1") },
       { color: "#FF00FF", zone: toZone("B1") },
     ]);
