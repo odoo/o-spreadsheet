@@ -79,15 +79,8 @@ class RangeImpl implements Range {
     this.invalidXc = args.invalidXc;
     this.sheetId = args.sheetId;
     this.invalidSheetName = args.invalidSheetName;
+    this.parts = args.parts;
     this.getSheetSize = getSheetSize;
-
-    let _fixedParts = [...args.parts];
-    if (args.parts.length === 1 && getZoneArea(this.zone) > 1) {
-      _fixedParts.push({ ...args.parts[0] });
-    } else if (args.parts.length === 2 && getZoneArea(this.zone) === 1) {
-      _fixedParts.pop();
-    }
-    this.parts = _fixedParts;
   }
 
   get unboundedZone(): UnboundedZone {
@@ -98,13 +91,12 @@ class RangeImpl implements Range {
    *
    * @param rangeParams optional, values to put in the cloned range instead of the current values of the range
    */
-  clone(rangeParams?: Partial<Range>): RangeImpl {
+  clone(rangeParams?: Partial<Range>): Range {
     const unboundedZone = rangeParams?.unboundedZone ?? rangeParams?.zone ?? this._zone;
     const sheetId = rangeParams?.sheetId ? rangeParams.sheetId : this.sheetId;
-    return new RangeImpl(
+    return createRange(
       {
-        unboundedZone,
-        zone: boundUnboundedZone(unboundedZone, this.getSheetSize(sheetId)),
+        zone: unboundedZone,
         sheetId,
         invalidSheetName:
           rangeParams && "invalidSheetName" in rangeParams // 'attr in obj' instead of just 'obj.attr' because we accept undefined values
@@ -127,11 +119,18 @@ class RangeImpl implements Range {
 
 export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
   const unboundedZone = args.zone;
+  const zone = boundUnboundedZone(unboundedZone, getSheetSize(args.sheetId));
+  let parts = [...args.parts];
+  if (args.parts.length === 1 && getZoneArea(zone) > 1) {
+    parts.push({ ...args.parts[0] });
+  } else if (args.parts.length === 2 && getZoneArea(zone) === 1) {
+    parts.pop();
+  }
   const range = new RangeImpl(
     {
       unboundedZone,
-      zone: boundUnboundedZone(unboundedZone, getSheetSize(args.sheetId)),
-      parts: args.parts,
+      zone,
+      parts,
       invalidXc: args.invalidXc,
       prefixSheet: args.prefixSheet,
       invalidSheetName: args.invalidSheetName,
