@@ -250,8 +250,7 @@ export interface Merge extends Zone {
 }
 
 export interface Highlight {
-  zone: Zone;
-  sheetId: UID;
+  range: Range;
   color: Color;
   interactive?: boolean;
   thinLine?: boolean;
