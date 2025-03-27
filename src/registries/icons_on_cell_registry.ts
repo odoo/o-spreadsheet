@@ -3,7 +3,12 @@ import { DataValidationCheckbox } from "../components/data_validation_overlay/dv
 import { DataValidationListIcon } from "../components/data_validation_overlay/dv_list_icon/dv_list_icon";
 import { FilterIcon } from "../components/filters/filter_icon/filter_icon";
 import { ICONS } from "../components/icons/icons";
-import { GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN, MIN_CF_ICON_MARGIN } from "../constants";
+import {
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
+  MIN_CF_ICON_MARGIN,
+  PIVOT_INDENT,
+} from "../constants";
 import { computeTextFontSizeInPixels } from "../helpers";
 import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
 import { ImageSVG } from "../types/image";
@@ -86,6 +91,22 @@ iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
       horizontalAlign: "left",
       size: computeTextFontSizeInPixels(style),
       margin: MIN_CF_ICON_MARGIN,
+      position,
+    };
+  }
+  return undefined;
+});
+
+iconsOnCellRegistry.add("pivot_indent", (getters, position) => {
+  const pivotCell = getters.getPivotCellFromPosition(position);
+
+  if (pivotCell.type === "HEADER" && pivotCell.domain.length) {
+    const margin = pivotCell.dimension === "ROW" ? (pivotCell.domain.length - 1) * PIVOT_INDENT : 0;
+    return {
+      priority: 4,
+      horizontalAlign: "left",
+      size: 0,
+      margin,
       position,
     };
   }
