@@ -25,8 +25,7 @@ export class ArrayFormulaHighlight extends SpreadsheetStore {
     }
     return [
       {
-        sheetId: position.sheetId,
-        zone,
+        range: this.model.getters.getRangeFromZone(position.sheetId, zone),
         dashed: cell.value === CellErrorType.SpilledBlocked,
         color: "#17A2B8",
         noFill: true,
