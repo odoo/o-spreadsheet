@@ -177,6 +177,17 @@ export default function (PivotClass: PivotUIConstructor) {
           values.push(this._getPivotCellValueAndFormat(measure.id, rowDomain.concat(domain)));
         }
         return values;
+      } else if (
+        rowDomain.length === this.definition.rows.length &&
+        colDomain.length &&
+        colDomain.length < this.definition.columns.length
+      ) {
+        const colSubTree = this.getSubTreeMatchingDomain(table.getColTree(), colDomain);
+        const domains = this.treeToLeafDomains(colSubTree, colDomain);
+        for (const domain of domains) {
+          values.push(this._getPivotCellValueAndFormat(measure.id, rowDomain.concat(domain)));
+        }
+        return values;
       } else {
         const tree = table.getRowTree();
         const subTree = this.getSubTreeMatchingDomain(tree, rowDomain);
