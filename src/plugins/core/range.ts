@@ -158,8 +158,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         createRange(
           { ...range, sheetId: copySheetId, zone: unboundZone },
           this.getters.getSheetSize
-        ),
-        this.getters.getSheetSize
+        )
       );
     });
   }
