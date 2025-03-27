@@ -994,4 +994,43 @@ describe("Pivot calculated measure", () => {
     ]);
     expect(getEvaluatedCell(model, "A4", sheetId).value).toEqual("#REF");
   });
+
+  test("Can get subtotal of calculated measure", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: "Year",
+      A2: "Alice",    B2: "10",     C2: "2020",
+      A3: "Alice",    B3: "20",     C3: "2021",
+      A4: "Bob",      B4: "30",     C4: "2020",
+      A5: "Bob",      B5: "40",     C5: "2021",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:C5", {
+      columns: [{ fieldName: "Year" }, { fieldName: "Customer" }],
+      measures: [
+        { id: "Price", fieldName: "Price", aggregator: "sum" },
+        {
+          id: "calculated",
+          fieldName: "calculated",
+          aggregator: "sum",
+          computedBy: { formula: "=Price*1", sheetId },
+        },
+      ],
+    });
+
+    setCellContent(model, "E2", '=PIVOT.VALUE(1, "calculated", "Year", 2020)');
+    expect(getEvaluatedCell(model, "E2").value).toEqual(40);
+
+    setCellContent(model, "E3", '=PIVOT.VALUE(1, "calculated", "Year", 2021)');
+    expect(getEvaluatedCell(model, "E3").value).toEqual(60);
+
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Year" }, { fieldName: "Customer" }],
+    });
+
+    expect(getEvaluatedCell(model, "E2").value).toEqual(40);
+    expect(getEvaluatedCell(model, "E3").value).toEqual(60);
+  });
 });
