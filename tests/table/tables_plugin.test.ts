@@ -773,8 +773,6 @@ describe("Table plugin", () => {
 
     test("Copy tables that are in a bigger selection", () => {
       createTable(model, "A1:B4");
-      updateFilter(model, "A1", ["thisIsAValue"]);
-
       cut(model, "A1:C5");
       paste(model, "A5");
       expect(getTable(model, "A1")).toBeFalsy();
@@ -877,11 +875,35 @@ describe("Table plugin", () => {
         bold: true,
       });
     });
+
+    test("Copy table and adjacent cells", () => {
+      const sheet1Id = model.getters.getActiveSheetId();
+      createTableWithFilter(model, "B2:C4");
+      setCellContent(model, "B3", "4");
+      updateFilter(model, "B2", ["4"]);
+      copy(model, "A1:D5");
+      paste(model, "E6");
+      expect(model.getters.getTables(sheet1Id)).toHaveLength(2);
+      const copiedTable = getTable(model, "F7");
+      expect(copiedTable).toMatchObject({ range: { _zone: toZone("F7:G8") } });
+    });
+
+    test("Cut table and adjacent cells", () => {
+      const sheet1Id = model.getters.getActiveSheetId();
+      createTableWithFilter(model, "B2:C4");
+      setCellContent(model, "B3", "4");
+      updateFilter(model, "B2", ["4"]);
+      cut(model, "A1:D5");
+      paste(model, "E6");
+      expect(model.getters.getTables(sheet1Id)).toHaveLength(1);
+      const copiedTable = getTable(model, "F7");
+      expect(copiedTable).toMatchObject({ range: { _zone: toZone("F7:G9") } });
+    });
   });
 
   describe("Import/Export", () => {
     test("Import/Export tables", () => {
-      createTable(model, "A1:B5");
+      createTableWithFilter(model, "A1:B5");
       updateTableConfig(model, "A1", { bandedColumns: true, styleId: "TableStyleDark2" });
       createTable(model, "C5:C9");
       setCellContent(model, "A2", "5");
@@ -894,7 +916,12 @@ describe("Table plugin", () => {
       expect(exported.sheets[0].tables).toMatchObject([
         {
           range: "A1:B5",
-          config: { ...DEFAULT_TABLE_CONFIG, bandedColumns: true, styleId: "TableStyleDark2" },
+          config: {
+            ...DEFAULT_TABLE_CONFIG,
+            hasFilters: true,
+            bandedColumns: true,
+            styleId: "TableStyleDark2",
+          },
         },
         { range: "C5:C9" }, // default config is not exported
       ]);
@@ -903,7 +930,12 @@ describe("Table plugin", () => {
       expect(imported.getters.getTables(sheetId)).toMatchObject([
         {
           range: { zone: toZone("A1:B5") },
-          config: { ...DEFAULT_TABLE_CONFIG, bandedColumns: true, styleId: "TableStyleDark2" },
+          config: {
+            ...DEFAULT_TABLE_CONFIG,
+            hasFilters: true,
+            bandedColumns: true,
+            styleId: "TableStyleDark2",
+          },
         },
         { range: { zone: toZone("C5:C9") }, config: DEFAULT_TABLE_CONFIG },
       ]);
