@@ -254,14 +254,17 @@ export function getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
  * Left should be smaller than right, top should be smaller than bottom.
  * If it's not the case, simply invert them, and invert the linked parts
  */
-export function orderRange(range: Range, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
+export function orderRange(range: Range): Range {
   if (isZoneOrdered(range.zone)) {
     return range;
   }
-  const zone = { ...range.unboundedZone };
+  const unboundedZone = { ...range.unboundedZone };
+  const zone = { ...range.zone };
   let parts = range.parts;
-  if (zone.right !== undefined && zone.right < zone.left) {
-    let right = zone.right;
+  if (unboundedZone.right !== undefined && unboundedZone.right < unboundedZone.left) {
+    let right = unboundedZone.right;
+    unboundedZone.right = unboundedZone.left;
+    unboundedZone.left = right;
     zone.right = zone.left;
     zone.left = right;
     parts = [
@@ -276,8 +279,10 @@ export function orderRange(range: Range, getSheetSize: (sheetId: UID) => ZoneDim
     ];
   }
 
-  if (zone.bottom !== undefined && zone.bottom < zone.top) {
-    let bottom = zone.bottom;
+  if (unboundedZone.bottom !== undefined && unboundedZone.bottom < unboundedZone.top) {
+    let bottom = unboundedZone.bottom;
+    unboundedZone.bottom = unboundedZone.top;
+    unboundedZone.top = bottom;
     zone.bottom = zone.top;
     zone.top = bottom;
     parts = [
@@ -291,17 +296,15 @@ export function orderRange(range: Range, getSheetSize: (sheetId: UID) => ZoneDim
       },
     ];
   }
-  return createRange(
-    {
-      zone,
-      parts,
-      invalidXc: range.invalidXc,
-      prefixSheet: range.prefixSheet,
-      invalidSheetName: range.invalidSheetName,
-      sheetId: range.sheetId,
-    },
-    getSheetSize
-  );
+  return {
+    unboundedZone,
+    zone,
+    parts,
+    invalidXc: range.invalidXc,
+    prefixSheet: range.prefixSheet,
+    invalidSheetName: range.invalidSheetName,
+    sheetId: range.sheetId,
+  };
 }
 
 export function getRangeAdapter(cmd: Command): RangeAdapter | undefined {
