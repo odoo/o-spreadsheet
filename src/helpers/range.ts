@@ -124,14 +124,6 @@ export class RangeImpl implements Range {
     return parts;
   }
 
-  get isFullCol(): boolean {
-    return this._zone.bottom === undefined;
-  }
-
-  get isFullRow(): boolean {
-    return this._zone.right === undefined;
-  }
-
   /**
    * Check that a zone is valid regarding the order of top-bottom and left-right.
    * Left should be smaller than right, top should be smaller than bottom.
@@ -241,6 +233,14 @@ export function createInvalidRange(
     getSheetSize
   );
   return range;
+}
+
+export function isFullColRange(range: Range): boolean {
+  return isFullCol(range.unboundedZone);
+}
+
+export function isFullRowRange(range: Range): boolean {
+  return isFullRow(range.unboundedZone);
 }
 
 export function getRangeString(
