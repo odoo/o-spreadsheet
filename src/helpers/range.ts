@@ -90,13 +90,6 @@ export class RangeImpl implements Range {
     this.parts = _fixedParts;
   }
 
-  static fromRange(range: Range, getSheetSize: (sheetId: UID) => ZoneDimension): RangeImpl {
-    if (range instanceof RangeImpl) {
-      return range;
-    }
-    return new RangeImpl(range, getSheetSize);
-  }
-
   get unboundedZone(): UnboundedZone {
     return this._zone;
   }
@@ -380,8 +373,7 @@ export function orderRange(range: Range, getSheetSize: (sheetId: UID) => ZoneDim
   }
   return createRange(
     {
-      unboundedZone: zone,
-      zone: boundUnboundedZone(zone, getSheetSize(range.sheetId)),
+      zone,
       parts,
       invalidXc: range.invalidXc,
       prefixSheet: range.prefixSheet,

@@ -124,8 +124,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   // ---------------------------------------------------------------------------
 
   createAdaptedRanges(ranges: Range[], offsetX: number, offsetY: number, sheetId: UID): Range[] {
-    const rangesImpl = ranges.map((range) => RangeImpl.fromRange(range, this.getters.getSheetSize));
-    return rangesImpl.map((range) => {
+    return ranges.map((range) => {
       if (!isZoneValid(range.zone)) {
         return range;
       }
@@ -167,25 +166,23 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    */
   removeRangesSheetPrefix(sheetId: UID, ranges: Range[]): Range[] {
     return ranges.map((range) => {
-      const rangeImpl = RangeImpl.fromRange(range, this.getters.getSheetSize);
-      if (rangeImpl.prefixSheet && rangeImpl.sheetId === sheetId) {
-        return rangeImpl.clone({ prefixSheet: false });
+      if (range.prefixSheet && range.sheetId === sheetId) {
+        return range.clone({ prefixSheet: false });
       }
-      return rangeImpl;
+      return range;
     });
   }
 
   extendRange(range: Range, dimension: Dimension, quantity: number): Range {
-    const rangeImpl = RangeImpl.fromRange(range, this.getters.getSheetSize);
-    const right = dimension === "COL" ? rangeImpl.zone.right + quantity : rangeImpl.zone.right;
-    const bottom = dimension === "ROW" ? rangeImpl.zone.bottom + quantity : rangeImpl.zone.bottom;
+    const right = dimension === "COL" ? range.zone.right + quantity : range.zone.right;
+    const bottom = dimension === "ROW" ? range.zone.bottom + quantity : range.zone.bottom;
     const unboundedZone = {
-      left: rangeImpl.zone.left,
-      top: rangeImpl.zone.top,
-      right: isFullRowRange(rangeImpl) ? undefined : right,
-      bottom: isFullColRange(rangeImpl) ? undefined : bottom,
+      left: range.zone.left,
+      top: range.zone.top,
+      right: isFullRowRange(range) ? undefined : right,
+      bottom: isFullColRange(range) ? undefined : bottom,
     };
-    return createRange({ ...rangeImpl, zone: unboundedZone }, this.getters.getSheetSize);
+    return createRange({ ...range, zone: unboundedZone }, this.getters.getSheetSize);
   }
 
   /**
@@ -279,12 +276,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * Allows you to recompute ranges from the same sheet
    */
   recomputeRanges(ranges: Range[], rangesToRemove: Range[]): Range[] {
-    const zones = ranges.map(
-      (range) => RangeImpl.fromRange(range, this.getters.getSheetSize).unboundedZone
-    );
-    const zonesToRemove = rangesToRemove.map(
-      (range) => RangeImpl.fromRange(range, this.getters.getSheetSize).unboundedZone
-    );
+    const zones = ranges.map((range) => range.unboundedZone);
+    const zonesToRemove = rangesToRemove.map((range) => range.unboundedZone);
     return recomputeZones(zones, zonesToRemove).map((zone) =>
       this.getRangeFromZone(ranges[0].sheetId, zone)
     );
@@ -319,9 +312,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangesUnion(ranges: Range[]): Range {
-    const zones = ranges.map(
-      (range) => RangeImpl.fromRange(range, this.getters.getSheetSize).unboundedZone
-    );
+    const zones = ranges.map((range) => range.unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
   }
