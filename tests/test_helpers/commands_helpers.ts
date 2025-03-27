@@ -15,15 +15,18 @@ import {
   ChartWithDataSetDefinition,
   ClipboardPasteOptions,
   Color,
+  CreateFigureCommand,
   CreateSheetCommand,
   CreateTableStyleCommand,
   DataValidationCriterion,
   Dimension,
   Direction,
   DispatchResult,
+  HeaderIndex,
   Locale,
   ParsedOsClipboardContentWithImageData,
   Pixel,
+  PixelPosition,
   SelectionStep,
   SortDirection,
   SortOptions,
@@ -120,12 +123,50 @@ export function deleteSheet(model: Model, sheetId: UID): DispatchResult {
   });
 }
 
+export function createFigure(
+  model: Model,
+  partialParam: {
+    sheetId?: UID;
+    figureId?: UID;
+    id?: UID;
+    offset?: PixelPosition;
+    col?: HeaderIndex;
+    row?: HeaderIndex;
+    size?: FigureSize;
+    width?: Pixel;
+    height?: Pixel;
+    tag?: string;
+  }
+) {
+  const param = {
+    sheetId: model.getters.getActiveSheetId(),
+    figureId: partialParam.id ?? model.uuidGenerator.uuidv4(),
+    offset: { x: 0, y: 0 },
+    col: 0,
+    row: 0,
+    size: { width: partialParam.width ?? 380, height: partialParam.height ?? 380 },
+    tag: "text",
+    ...partialParam,
+  };
+  return model.dispatch("CREATE_FIGURE", {
+    sheetId: param.sheetId,
+    figureId: param.figureId,
+    col: param.col,
+    row: param.row,
+    offset: param.offset,
+    size: param.size,
+    tag: param.tag,
+  });
+}
+
 export function createImage(
   model: Model,
   partialParam: {
     sheetId?: UID;
     figureId?: UID;
-    position?: { x: number; y: number };
+    offset?: PixelPosition;
+    col?: HeaderIndex;
+    row?: HeaderIndex;
     definition?: Partial<Image>;
     size?: FigureSize;
   }
@@ -133,7 +174,9 @@ export function createImage(
   const param = {
     sheetId: model.getters.getActiveSheetId(),
     figureId: model.uuidGenerator.uuidv4(),
-    position: { x: 0, y: 0 },
+    offset: { x: 0, y: 0 },
+    col: 0,
+    row: 0,
     ...partialParam,
     definition: {
       path: "image path",
@@ -145,7 +188,9 @@ export function createImage(
   return model.dispatch("CREATE_IMAGE", {
     sheetId: param.sheetId,
     figureId: param.figureId,
-    position: param.position,
+    col: param.col,
+    row: param.row,
+    offset: param.offset,
     size,
     definition: { size, ...param.definition },
   });
@@ -159,7 +204,8 @@ export function createChart(
   model: Model,
   data: { type: ChartDefinition["type"] } & Partial<ChartWithDataSetDefinition>,
   chartId?: UID,
-  sheetId?: UID
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
@@ -183,8 +229,13 @@ export function createChart(
     showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
   };
   return model.dispatch("CREATE_CHART", {
-    id,
+    figureId: id,
     sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
     definition,
   });
 }
@@ -193,14 +244,20 @@ export function createComboChart(
   model: Model,
   data: Partial<ComboChartDefinition>,
   chartId?: UID,
-  sheetId?: UID
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    id,
+    figureId: id,
     sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
     definition: {
       title: data.title || { text: "test" },
       dataSets: data.dataSets || [],
@@ -218,14 +275,20 @@ export function createRadarChart(
   model: Model,
   data: Partial<RadarChartDefinition>,
   chartId?: UID,
-  sheetId?: UID
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    id,
+    figureId: id,
     sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
     definition: {
       title: data.title || { text: "test" },
       dataSets: data.dataSets || [],
@@ -262,14 +325,20 @@ export function createScorecardChart(
   model: Model,
   data: Partial<ScorecardChartDefinition>,
   chartId?: UID,
-  sheetId?: UID
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    id,
+    figureId: id,
     sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
     definition: {
       type: "scorecard",
       title: data.title || { text: "" },
@@ -289,14 +358,20 @@ export function createGaugeChart(
   model: Model,
   data: Partial<GaugeChartDefinition>,
   chartId?: UID,
-  sheetId?: UID
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    id,
+    figureId: id,
     sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
     definition: {
       type: "gauge",
       background: data.background,
@@ -329,13 +404,19 @@ export function createGeoChart(
   model: Model,
   data: Partial<GeoChartDefinition>,
   chartId: UID = "chartId",
-  sheetId: UID = model.getters.getActiveSheetId()
+  sheetId: UID = model.getters.getActiveSheetId(),
+  figureData: Partial<CreateFigureCommand> = {}
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
 
   return model.dispatch("CREATE_CHART", {
-    id,
+    figureId: id,
     sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
     definition: {
       title: data.title || { text: "test" },
       dataSets: data.dataSets || [],
@@ -365,7 +446,7 @@ export function updateChart(
     ...definition,
   } as ChartDefinition;
   return model.dispatch("UPDATE_CHART", {
-    id: chartId,
+    figureId: chartId,
     sheetId,
     definition: def,
   });

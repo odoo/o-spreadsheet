@@ -106,7 +106,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
 
   checkValidations<T>(
     command: T,
-    ...validations: Validation<T>[]
+    ...validations: Validation<NoInfer<T>>[]
   ): CommandResult | CommandResult[] {
     return this.batchValidations(...validations)(command);
   }

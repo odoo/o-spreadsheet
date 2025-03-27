@@ -11,11 +11,11 @@ describe("Image component", () => {
     await mountSpreadsheet({ model });
     model.dispatch("UPDATE_FIGURE", {
       sheetId,
-      id: "test",
-      x: 0,
-      y: 0,
+      figureId: "test",
       width: 300,
       height: 300,
+      col: 0,
+      row: 0,
     });
     await simulateClick(".o-figure");
     await simulateClick(".o-figure-menu-item");
