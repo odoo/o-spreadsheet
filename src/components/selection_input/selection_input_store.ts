@@ -85,7 +85,7 @@ export class SelectionInputStore extends SpreadsheetStore {
       if (previousXc) {
         parts = this.getters.getRangeFromSheetXC(inputSheetId, previousXc).parts;
       }
-      const newRange = range.clone({ parts });
+      const newRange = { ...range, parts };
       const xc = this.getters.getSelectionRangeString(newRange, inputSheetId);
       this.setRange(this.focusedRangeIndex, [xc]);
     }
