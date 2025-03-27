@@ -1,8 +1,8 @@
 import { rangeTokenize } from "../formulas";
-import { Range, RangeAdapter, UID, ZoneDimension } from "../types";
+import { Range, RangeAdapter, UID } from "../types";
 import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
-import { createRange, getRangeParts, getRangeString } from "./range";
+import { createInvalidRange, createRange, getRangeParts, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
 import { toUnboundedZone } from "./zones";
 
@@ -69,7 +69,7 @@ function defaultGetSheetSize(sheetId: UID) {
 
 function getRange(sheetXC: string, sheetId: UID): Range {
   if (!rangeReference.test(sheetXC)) {
-    return invalidRange(sheetXC, defaultGetSheetSize);
+    return createInvalidRange(sheetXC);
   }
 
   let sheetName: string | undefined;
@@ -88,17 +88,4 @@ function getRange(sheetXC: string, sheetId: UID): Range {
   const rangeInterface = { prefixSheet, zone: unboundedZone, sheetId, invalidSheetName: "", parts };
 
   return createRange(rangeInterface, defaultGetSheetSize);
-}
-
-function invalidRange(sheetXC: string, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
-  return createRange(
-    {
-      sheetId: "",
-      zone: { left: -1, top: -1, right: -1, bottom: -1 },
-      parts: [],
-      invalidXc: sheetXC,
-      prefixSheet: false,
-    },
-    getSheetSize
-  );
 }
