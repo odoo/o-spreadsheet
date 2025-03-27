@@ -421,8 +421,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       const { width, height } = this.getters.getVisibleRect(zoneWithMerge);
       if (width > 0 && height > 0) {
         highlights.push({
-          sheetId,
-          zone: zoneWithMerge,
+          range: this.model.getters.getRangeFromZone(sheetId, zoneWithMerge),
           color: FIND_AND_REPLACE_HIGHLIGHT_COLOR,
           noBorder: index !== this.selectedMatchIndex,
           thinLine: true,
@@ -435,8 +434,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       const range = this.searchOptions.specificRange;
       if (range && range.sheetId === sheetId) {
         highlights.push({
-          sheetId,
-          zone: range.zone,
+          range,
           color: FIND_AND_REPLACE_HIGHLIGHT_COLOR,
           noFill: true,
           thinLine: true,

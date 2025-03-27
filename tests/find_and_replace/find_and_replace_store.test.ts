@@ -31,7 +31,7 @@ import {
   getCellError,
   getCellText,
 } from "../test_helpers/getters_helpers";
-import { addToRegistry } from "../test_helpers/helpers";
+import { addToRegistry, flattenHighlightRange } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 let model: Model;
@@ -346,7 +346,7 @@ describe("basic search", () => {
       specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:A3"),
     });
 
-    expect(store.highlights).toMatchObject([
+    expect(store.highlights.map(flattenHighlightRange)).toMatchObject([
       { zone: toZone("A2") },
       { zone: toZone("A3"), noBorder: true }, // Not selected, we don't show a border
       { zone: toZone("A1:A3"), noFill: true }, // Searched range

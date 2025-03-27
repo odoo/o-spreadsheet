@@ -6,7 +6,11 @@ export function getPivotHighlights(getters: Getters, pivotId: UID): Highlight[] 
   const sheetId = getters.getActiveSheetId();
   const pivotCellPositions = getVisiblePivotCellPositions(getters, pivotId);
   const mergedZones = mergeContiguousZones(pivotCellPositions.map(positionToZone));
-  return mergedZones.map((zone) => ({ sheetId, zone, noFill: true, color: HIGHLIGHT_COLOR }));
+  return mergedZones.map((zone) => ({
+    range: getters.getRangeFromZone(sheetId, zone),
+    noFill: true,
+    color: HIGHLIGHT_COLOR,
+  }));
 }
 
 function getVisiblePivotCellPositions(getters: Getters, pivotId: UID) {

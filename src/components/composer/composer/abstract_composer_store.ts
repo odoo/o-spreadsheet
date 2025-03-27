@@ -553,12 +553,12 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const refSheet = sheetName ? this.model.getters.getSheetIdByName(sheetName) : this.sheetId;
 
     const highlight = this.highlights.find((highlight) => {
-      if (highlight.sheetId !== refSheet) return false;
+      if (highlight.range.sheetId !== refSheet) return false;
 
       const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
       let zone = range.zone;
       zone = getZoneArea(zone) === 1 ? this.model.getters.expandZone(refSheet, zone) : zone;
-      return isEqual(zone, highlight.zone);
+      return isEqual(zone, highlight.range.zone);
     });
     return highlight && highlight.color ? highlight.color : undefined;
   }
@@ -689,12 +689,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       const zone =
         numberOfRows * numberOfCols === 1
           ? this.getters.expandZone(range.sheetId, range.zone)
-          : range.zone;
-
+          : range.unboundedZone;
       return {
-        zone,
+        range: this.model.getters.getRangeFromZone(range.sheetId, zone),
         color: rangeColor(rangeString),
-        sheetId: range.sheetId,
         interactive: true,
       };
     });
