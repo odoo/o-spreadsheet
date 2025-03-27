@@ -220,6 +220,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.getRangeString = this.range.getRangeString.bind(this.range);
     this.coreGetters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
     this.coreGetters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
+    this.coreGetters.getRangeData = this.range.getRangeData.bind(this.range);
     this.coreGetters.getRangeDataFromXc = this.range.getRangeDataFromXc.bind(this.range);
     this.coreGetters.getRangeDataFromZone = this.range.getRangeDataFromZone.bind(this.range);
     this.coreGetters.getRangeFromRangeData = this.range.getRangeFromRangeData.bind(this.range);

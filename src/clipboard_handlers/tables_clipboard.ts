@@ -70,7 +70,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
         ) {
           copiedTablesIds.add(table.id);
           copiedTable = {
-            range: coreTable.range.rangeData,
+            range: this.getters.getRangeData(coreTable.range),
             config: coreTable.config,
             type: coreTable.type,
           };
