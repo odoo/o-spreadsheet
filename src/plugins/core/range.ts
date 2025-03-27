@@ -4,6 +4,7 @@ import {
   createRange,
   duplicateRangeInDuplicatedSheet,
   getRangeAdapter,
+  getRangeParts,
   getRangeString,
   isFullColRange,
   isFullRowRange,
@@ -206,7 +207,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     }
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
     const unboundedZone = toUnboundedZone(xc);
-    const parts = RangeImpl.getRangeParts(xc, unboundedZone);
+    const parts = getRangeParts(xc, unboundedZone);
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
 

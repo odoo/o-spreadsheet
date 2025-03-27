@@ -94,29 +94,6 @@ export class RangeImpl implements Range {
     return this._zone;
   }
 
-  static getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
-    const parts = xc.split(":").map((p) => {
-      const isFullRow = isRowReference(p);
-      return {
-        colFixed: isFullRow ? false : p.startsWith("$"),
-        rowFixed: isFullRow ? p.startsWith("$") : p.includes("$", 1),
-      };
-    });
-
-    const isFullCol = zone.bottom === undefined;
-    const isFullRow = zone.right === undefined;
-    if (isFullCol) {
-      parts[0].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
-      parts[1].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
-    }
-    if (isFullRow) {
-      parts[0].colFixed = parts[0].colFixed || parts[1].colFixed;
-      parts[1].colFixed = parts[0].colFixed || parts[1].colFixed;
-    }
-
-    return parts;
-  }
-
   /**
    *
    * @param rangeParams optional, values to put in the cloned range instead of the current values of the range
@@ -327,6 +304,29 @@ export function getCellPositionsInRanges(ranges: Range[]): CellPosition[] {
     }
   }
   return cellPositions;
+}
+
+export function getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
+  const parts = xc.split(":").map((p) => {
+    const isFullRow = isRowReference(p);
+    return {
+      colFixed: isFullRow ? false : p.startsWith("$"),
+      rowFixed: isFullRow ? p.startsWith("$") : p.includes("$", 1),
+    };
+  });
+
+  const isFullCol = zone.bottom === undefined;
+  const isFullRow = zone.right === undefined;
+  if (isFullCol) {
+    parts[0].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
+    parts[1].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
+  }
+  if (isFullRow) {
+    parts[0].colFixed = parts[0].colFixed || parts[1].colFixed;
+    parts[1].colFixed = parts[0].colFixed || parts[1].colFixed;
+  }
+
+  return parts;
 }
 
 /**
