@@ -1,7 +1,7 @@
 import { toZone } from "../../src/helpers";
 import { ArrayFormulaHighlight } from "../../src/stores/array_formula_highlight";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { getHighlightsFromStore } from "../test_helpers/helpers";
+import { flattenHighlightRange, getHighlightsFromStore } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 describe("array function highlights", () => {
@@ -18,9 +18,9 @@ describe("array function highlights", () => {
       dashed: false,
     };
     selectCell(model, "A2"); // main cell
-    expect(getHighlightsFromStore(container)).toEqual([highlight]);
+    expect(getHighlightsFromStore(container).map(flattenHighlightRange)).toEqual([highlight]);
     selectCell(model, "A3"); // array function cell
-    expect(getHighlightsFromStore(container)).toEqual([highlight]);
+    expect(getHighlightsFromStore(container).map(flattenHighlightRange)).toEqual([highlight]);
   });
 
   test("Selecting an array formula that cannot spill is still highlighted", () => {
@@ -29,7 +29,7 @@ describe("array function highlights", () => {
     setCellContent(model, "A4", "blocking the spread");
     expect(getHighlightsFromStore(container)).toEqual([]);
     selectCell(model, "A2"); // main cell
-    expect(getHighlightsFromStore(container)).toEqual([
+    expect(getHighlightsFromStore(container).map(flattenHighlightRange)).toEqual([
       {
         sheetId: model.getters.getActiveSheetId(),
         zone: toZone("A2:A4"),

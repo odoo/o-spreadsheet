@@ -151,8 +151,7 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
   get highlights(): Highlight[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
     return this.props.conditionalFormat.ranges.map((range) => ({
-      sheetId,
-      zone: this.env.model.getters.getRangeFromSheetXC(sheetId, range).zone,
+      range: this.env.model.getters.getRangeFromSheetXC(sheetId, range),
       color: HIGHLIGHT_COLOR,
       fillAlpha: 0.06,
     }));
