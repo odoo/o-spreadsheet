@@ -9,7 +9,7 @@ css/* scss */ `
       cursor: pointer;
       width: 11px;
       height: 11px;
-      border: 1px solid #999;
+      border: 1px solid #777;
       background-color: #eee;
       margin: 3px 0 3px 6px;
 
