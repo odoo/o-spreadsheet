@@ -50,6 +50,18 @@ interface ConstructorArgs {
   readonly sheetId: UID;
 }
 
+interface RangeArgs {
+  zone: Readonly<UnboundedZone>;
+  parts: readonly RangePart[];
+  invalidXc?: string;
+  /** true if the user provided the range with the sheet name */
+  prefixSheet: boolean;
+  /** the name of any sheet that is invalid */
+  invalidSheetName?: string;
+  /** the sheet on which the range is defined */
+  sheetId: UID;
+}
+
 export class RangeImpl implements Range {
   private readonly _zone: Readonly<Zone | UnboundedZone>;
   readonly zone: Readonly<Zone>;
@@ -194,6 +206,41 @@ export class RangeImpl implements Range {
       this.getSheetSize
     );
   }
+}
+
+export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
+  const unboundedZone = args.zone;
+  const range = new RangeImpl(
+    {
+      unboundedZone,
+      zone: boundUnboundedZone(unboundedZone, getSheetSize(args.sheetId)),
+      parts: args.parts,
+      invalidXc: args.invalidXc,
+      prefixSheet: args.prefixSheet,
+      invalidSheetName: args.invalidSheetName,
+      sheetId: args.sheetId,
+    },
+    getSheetSize
+  );
+  return range.orderZone();
+}
+
+export function createInvalidRange(
+  sheetXC: string,
+  getSheetSize: (sheetId: UID) => ZoneDimension
+): Range {
+  const range = new RangeImpl(
+    {
+      sheetId: "",
+      zone: { left: -1, top: -1, right: -1, bottom: -1 },
+      unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
+      parts: [],
+      invalidXc: sheetXC,
+      prefixSheet: false,
+    },
+    getSheetSize
+  );
+  return range;
 }
 
 export function getRangeString(

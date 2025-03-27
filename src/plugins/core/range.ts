@@ -1,6 +1,7 @@
 import { compile } from "../../formulas";
 import {
-  boundUnboundedZone,
+  createInvalidRange,
+  createRange,
   duplicateRangeInDuplicatedSheet,
   getRangeAdapter,
   getRangeString,
@@ -176,11 +177,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       right: rangeImpl.isFullRow ? undefined : right,
       bottom: rangeImpl.isFullCol ? undefined : bottom,
     };
-    const zone = boundUnboundedZone(unboundedZone, this.getters.getSheetSize(range.sheetId));
-    return new RangeImpl(
-      { ...rangeImpl, zone, unboundedZone },
-      this.getters.getSheetSize
-    ).orderZone();
+    return createRange({ ...rangeImpl, zone: unboundedZone }, this.getters.getSheetSize);
   }
 
   /**
@@ -188,19 +185,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * @param defaultSheetId the sheet to default to if the sheetXC parameter does not contain a sheet reference (usually the active sheet Id)
    * @param sheetXC the string description of a range, in the form SheetName!XC:XC
    */
-  getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): RangeImpl {
+  getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): Range {
     if (!rangeReference.test(sheetXC) || !this.getters.tryGetSheet(defaultSheetId)) {
-      return new RangeImpl(
-        {
-          sheetId: "",
-          zone: { left: -1, top: -1, right: -1, bottom: -1 },
-          unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
-          parts: [],
-          invalidXc: sheetXC,
-          prefixSheet: false,
-        },
-        this.getters.getSheetSize
-      );
+      return createInvalidRange(sheetXC, this.getters.getSheetSize);
     }
 
     let sheetName: string | undefined;
@@ -214,14 +201,13 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     }
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
     const unboundedZone = toUnboundedZone(xc);
-    const zone = boundUnboundedZone(unboundedZone, this.getters.getSheetSize(sheetId));
     const parts = RangeImpl.getRangeParts(xc, unboundedZone);
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
 
-    const rangeInterface = { prefixSheet, unboundedZone, zone, sheetId, invalidSheetName, parts };
+    const rangeInterface = { prefixSheet, zone: unboundedZone, sheetId, invalidSheetName, parts };
 
-    return new RangeImpl(rangeInterface, this.getters.getSheetSize).orderZone();
+    return createRange(rangeInterface, this.getters.getSheetSize);
   }
 
   /**
@@ -267,11 +253,10 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): Range {
-    return new RangeImpl(
+    return createRange(
       {
         sheetId,
-        unboundedZone: zone,
-        zone: boundUnboundedZone(zone, this.getters.getSheetSize(sheetId)),
+        zone,
         parts: [
           { colFixed: false, rowFixed: false },
           { colFixed: false, rowFixed: false },
@@ -299,22 +284,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   getRangeFromRangeData(data: RangeData): Range {
     if (!this.getters.tryGetSheet(data._sheetId)) {
-      return new RangeImpl(
-        {
-          sheetId: "",
-          zone: { left: -1, top: -1, right: -1, bottom: -1 },
-          unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
-          parts: [],
-          invalidXc: CellErrorType.InvalidReference,
-          prefixSheet: false,
-        },
-        this.getters.getSheetSize
-      );
+      return createInvalidRange(CellErrorType.InvalidReference, this.getters.getSheetSize);
     }
     const rangeInterface = {
       prefixSheet: false,
-      unboundedZone: data._zone,
-      zone: boundUnboundedZone(data._zone, this.getters.getSheetSize(data._sheetId)),
+      zone: data._zone,
       sheetId: data._sheetId,
       invalidSheetName: undefined,
       parts: [
@@ -322,8 +296,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         { colFixed: false, rowFixed: false },
       ],
     };
-
-    return new RangeImpl(rangeInterface, this.getters.getSheetSize);
+    return createRange(rangeInterface, this.getters.getSheetSize);
   }
 
   isRangeValid(rangeStr: string): boolean {
