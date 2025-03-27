@@ -125,51 +125,6 @@ export class RangeImpl implements Range {
   }
 
   /**
-   * Check that a zone is valid regarding the order of top-bottom and left-right.
-   * Left should be smaller than right, top should be smaller than bottom.
-   * If it's not the case, simply invert them, and invert the linked parts
-   */
-  orderZone(): RangeImpl {
-    if (isZoneOrdered(this._zone)) {
-      return this;
-    }
-    const zone = { ...this._zone };
-    let parts = this.parts;
-    if (zone.right !== undefined && zone.right < zone.left) {
-      let right = zone.right;
-      zone.right = zone.left;
-      zone.left = right;
-      parts = [
-        {
-          colFixed: parts[1]?.colFixed || false,
-          rowFixed: parts[0]?.rowFixed || false,
-        },
-        {
-          colFixed: parts[0]?.colFixed || false,
-          rowFixed: parts[1]?.rowFixed || false,
-        },
-      ];
-    }
-
-    if (zone.bottom !== undefined && zone.bottom < zone.top) {
-      let bottom = zone.bottom;
-      zone.bottom = zone.top;
-      zone.top = bottom;
-      parts = [
-        {
-          colFixed: parts[0]?.colFixed || false,
-          rowFixed: parts[1]?.rowFixed || false,
-        },
-        {
-          colFixed: parts[1]?.colFixed || false,
-          rowFixed: parts[0]?.rowFixed || false,
-        },
-      ];
-    }
-    return this.clone({ unboundedZone: zone, parts });
-  }
-
-  /**
    *
    * @param rangeParams optional, values to put in the cloned range instead of the current values of the range
    */
@@ -214,7 +169,7 @@ export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => Zon
     },
     getSheetSize
   );
-  return range.orderZone();
+  return range;
 }
 
 export function createInvalidRange(
@@ -379,6 +334,62 @@ export function getCellPositionsInRanges(ranges: Range[]): CellPosition[] {
     }
   }
   return cellPositions;
+}
+
+/**
+ * Check that a zone is valid regarding the order of top-bottom and left-right.
+ * Left should be smaller than right, top should be smaller than bottom.
+ * If it's not the case, simply invert them, and invert the linked parts
+ */
+export function orderRange(range: Range, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
+  if (isZoneOrdered(range.zone)) {
+    return range;
+  }
+  const zone = { ...range.unboundedZone };
+  let parts = range.parts;
+  if (zone.right !== undefined && zone.right < zone.left) {
+    let right = zone.right;
+    zone.right = zone.left;
+    zone.left = right;
+    parts = [
+      {
+        colFixed: parts[1]?.colFixed || false,
+        rowFixed: parts[0]?.rowFixed || false,
+      },
+      {
+        colFixed: parts[0]?.colFixed || false,
+        rowFixed: parts[1]?.rowFixed || false,
+      },
+    ];
+  }
+
+  if (zone.bottom !== undefined && zone.bottom < zone.top) {
+    let bottom = zone.bottom;
+    zone.bottom = zone.top;
+    zone.top = bottom;
+    parts = [
+      {
+        colFixed: parts[0]?.colFixed || false,
+        rowFixed: parts[1]?.rowFixed || false,
+      },
+      {
+        colFixed: parts[1]?.colFixed || false,
+        rowFixed: parts[0]?.rowFixed || false,
+      },
+    ];
+  }
+  return createRange(
+    {
+      unboundedZone: zone,
+      zone: boundUnboundedZone(zone, getSheetSize(range.sheetId)),
+      parts,
+      invalidXc: range.invalidXc,
+      prefixSheet: range.prefixSheet,
+      invalidSheetName: range.invalidSheetName,
+      sheetId: range.sheetId,
+    },
+    getSheetSize
+  );
 }
 
 export function getRangeAdapter(cmd: Command): RangeAdapter | undefined {

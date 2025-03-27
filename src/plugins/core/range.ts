@@ -8,6 +8,7 @@ import {
   isFullColRange,
   isFullRowRange,
   isZoneValid,
+  orderRange,
   RangeImpl,
   rangeReference,
   recomputeZones,
@@ -154,7 +155,10 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
           : range.unboundedZone.bottom! +
             ((range.parts[1] || range.parts[0]).rowFixed ? 0 : offsetY),
       };
-      return range.clone({ sheetId: copySheetId, unboundedZone: unboundZone }).orderZone();
+      return orderRange(
+        range.clone({ sheetId: copySheetId, unboundedZone: unboundZone }),
+        this.getters.getSheetSize
+      );
     });
   }
 
