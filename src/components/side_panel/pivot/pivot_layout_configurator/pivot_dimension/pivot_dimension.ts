@@ -35,7 +35,8 @@ css/* scss */ `
     &.pivot-dimension-invalid {
       background-color: #ffdddd;
       border-color: red !important;
-      select {
+      select,
+      input {
         background-color: #ffdddd;
       }
     }
