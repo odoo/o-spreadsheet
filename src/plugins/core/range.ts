@@ -1,5 +1,6 @@
 import { compile } from "../../formulas";
 import {
+  boundUnboundedZone,
   duplicateRangeInDuplicatedSheet,
   getRangeAdapter,
   getRangeString,
@@ -175,7 +176,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       right: rangeImpl.isFullRow ? undefined : right,
       bottom: rangeImpl.isFullCol ? undefined : bottom,
     };
-    return new RangeImpl({ ...rangeImpl, unboundedZone }, this.getters.getSheetSize).orderZone();
+    const zone = boundUnboundedZone(unboundedZone, this.getters.getSheetSize(range.sheetId));
+    return new RangeImpl(
+      { ...rangeImpl, zone, unboundedZone },
+      this.getters.getSheetSize
+    ).orderZone();
   }
 
   /**
@@ -188,6 +193,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       return new RangeImpl(
         {
           sheetId: "",
+          zone: { left: -1, top: -1, right: -1, bottom: -1 },
           unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
           parts: [],
           invalidXc: sheetXC,
@@ -206,13 +212,14 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         prefixSheet = true;
       }
     }
+    const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
     const unboundedZone = toUnboundedZone(xc);
+    const zone = boundUnboundedZone(unboundedZone, this.getters.getSheetSize(sheetId));
     const parts = RangeImpl.getRangeParts(xc, unboundedZone);
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
-    const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
 
-    const rangeInterface = { prefixSheet, unboundedZone, sheetId, invalidSheetName, parts };
+    const rangeInterface = { prefixSheet, unboundedZone, zone, sheetId, invalidSheetName, parts };
 
     return new RangeImpl(rangeInterface, this.getters.getSheetSize).orderZone();
   }
@@ -264,6 +271,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       {
         sheetId,
         unboundedZone: zone,
+        zone: boundUnboundedZone(zone, this.getters.getSheetSize(sheetId)),
         parts: [
           { colFixed: false, rowFixed: false },
           { colFixed: false, rowFixed: false },
@@ -290,9 +298,23 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangeFromRangeData(data: RangeData): Range {
+    if (!this.getters.tryGetSheet(data._sheetId)) {
+      return new RangeImpl(
+        {
+          sheetId: "",
+          zone: { left: -1, top: -1, right: -1, bottom: -1 },
+          unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
+          parts: [],
+          invalidXc: CellErrorType.InvalidReference,
+          prefixSheet: false,
+        },
+        this.getters.getSheetSize
+      );
+    }
     const rangeInterface = {
       prefixSheet: false,
       unboundedZone: data._zone,
+      zone: boundUnboundedZone(data._zone, this.getters.getSheetSize(data._sheetId)),
       sheetId: data._sheetId,
       invalidSheetName: undefined,
       parts: [

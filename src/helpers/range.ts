@@ -25,6 +25,7 @@ import { numberToLetters } from "./coordinates";
 import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
 import {
+  boundUnboundedZone,
   createAdaptedZone,
   getZoneArea,
   isFullCol,
@@ -38,6 +39,7 @@ import {
 
 interface ConstructorArgs {
   readonly unboundedZone: Readonly<UnboundedZone>;
+  readonly zone: Readonly<Zone>;
   readonly parts: readonly RangePart[];
   readonly invalidXc?: string;
   /** true if the user provided the range with the sheet name */
@@ -50,6 +52,7 @@ interface ConstructorArgs {
 
 export class RangeImpl implements Range {
   private readonly _zone: Readonly<Zone | UnboundedZone>;
+  readonly zone: Readonly<Zone>;
   readonly parts: Range["parts"];
   readonly invalidXc?: string;
   readonly prefixSheet: boolean = false;
@@ -59,6 +62,7 @@ export class RangeImpl implements Range {
 
   constructor(args: ConstructorArgs, getSheetSize: (sheetId: UID) => ZoneDimension) {
     this._zone = args.unboundedZone;
+    this.zone = args.zone;
     this.prefixSheet = args.prefixSheet;
     this.invalidXc = args.invalidXc;
     this.sheetId = args.sheetId;
@@ -83,18 +87,6 @@ export class RangeImpl implements Range {
 
   get unboundedZone(): UnboundedZone {
     return this._zone;
-  }
-
-  get zone(): Readonly<Zone> {
-    const { left, top, bottom, right } = this._zone;
-    if (right !== undefined && bottom !== undefined) {
-      return this._zone as Readonly<Zone>;
-    } else if (bottom === undefined && right !== undefined) {
-      return { right, top, left, bottom: this.getSheetSize(this.sheetId).numberOfRows - 1 };
-    } else if (right === undefined && bottom !== undefined) {
-      return { bottom, left, top, right: this.getSheetSize(this.sheetId).numberOfCols - 1 };
-    }
-    throw new Error("Bad zone format");
   }
 
   static getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
@@ -178,11 +170,13 @@ export class RangeImpl implements Range {
    * @param rangeParams optional, values to put in the cloned range instead of the current values of the range
    */
   clone(rangeParams?: Partial<Range>): RangeImpl {
-    const unboundedZone = rangeParams?.unboundedZone ?? rangeParams?.zone;
+    const unboundedZone = rangeParams?.unboundedZone ?? rangeParams?.zone ?? this._zone;
+    const sheetId = rangeParams?.sheetId ? rangeParams.sheetId : this.sheetId;
     return new RangeImpl(
       {
-        unboundedZone: unboundedZone || this._zone,
-        sheetId: rangeParams?.sheetId ? rangeParams.sheetId : this.sheetId,
+        unboundedZone,
+        zone: boundUnboundedZone(unboundedZone, this.getSheetSize(sheetId)),
+        sheetId,
         invalidSheetName:
           rangeParams && "invalidSheetName" in rangeParams // 'attr in obj' instead of just 'obj.attr' because we accept undefined values
             ? rangeParams.invalidSheetName
