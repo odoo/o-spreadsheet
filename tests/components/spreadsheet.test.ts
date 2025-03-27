@@ -423,9 +423,8 @@ describe("Composer interactions", () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
-    await nextTick();
+    await keyDown("Enter");
     await typeInComposerGrid("=éSUM");
-    await nextTick();
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
   });
 
@@ -433,9 +432,8 @@ describe("Composer interactions", () => {
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
     );
-    await nextTick();
+    await keyDown("Enter");
     await typeInComposerGrid("=SéSUM");
-    await nextTick();
     expect(fixture.querySelector(".o-grid .o-autocomplete-dropdown")).toBeNull();
   });
 

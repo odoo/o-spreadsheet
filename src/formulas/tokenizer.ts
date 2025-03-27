@@ -136,7 +136,7 @@ function tokenizeString(chars: string[]): Token | null {
   return null;
 }
 
-const separatorRegexp = /\w|\.|!|\$/;
+const separatorRegexp = /[\p{L}\p{N}_]|\.|!|\$/u;
 
 /**
  * A "Symbol" is just basically any word-like element that can appear in a

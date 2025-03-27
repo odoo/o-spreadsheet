@@ -595,18 +595,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       if (tokenAtCursor) {
         const { xc } = splitReference(tokenAtCursor.value);
         if (
-          (tokenAtCursor.type === "FUNCTION" ||
-            (tokenAtCursor.type === "SYMBOL" && !rangeReference.test(xc))) &&
-          !this.env.model.getters.getCurrentTokens().some((t) => t.type === "UNKNOWN")
+          tokenAtCursor.type === "FUNCTION" ||
+          (tokenAtCursor.type === "SYMBOL" && !rangeReference.test(xc))
         ) {
           // initialize Autocomplete Dropdown
           this.autoCompleteState.search = tokenAtCursor.value;
           this.autoCompleteState.showProvider = true;
-        } else if (
-          tokenAtCursor.functionContext &&
-          tokenAtCursor.type !== "UNKNOWN" &&
-          !this.env.model.getters.getCurrentTokens().some((t) => t.type === "UNKNOWN")
-        ) {
+        } else if (tokenAtCursor.functionContext && tokenAtCursor.type !== "UNKNOWN") {
           // initialize Formula Assistant
           const tokenContext = tokenAtCursor.functionContext;
           const parentFunction = tokenContext.parent.toUpperCase();
