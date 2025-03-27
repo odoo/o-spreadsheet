@@ -2,7 +2,7 @@ import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID, ZoneDimension } from "../types";
 import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
-import { createRange, getRangeString, RangeImpl } from "./range";
+import { createRange, getRangeParts, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
 import { toUnboundedZone } from "./zones";
 
@@ -83,7 +83,7 @@ function getRange(sheetXC: string, sheetId: UID): Range {
   }
 
   const unboundedZone = toUnboundedZone(xc);
-  const parts = RangeImpl.getRangeParts(xc, unboundedZone);
+  const parts = getRangeParts(xc, unboundedZone);
 
   const rangeInterface = { prefixSheet, zone: unboundedZone, sheetId, invalidSheetName: "", parts };
 
