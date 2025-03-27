@@ -7,7 +7,12 @@ import { DataValidationRuleData, DEFAULT_LOCALE, SpreadsheetChildEnv } from "../
 import { DataValidationCriterion } from "../../src/types/data_validation";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { getHighlightsFromStore, mountComponent, spyModelDispatch } from "../test_helpers/helpers";
+import {
+  flattenHighlightRange,
+  getHighlightsFromStore,
+  mountComponent,
+  spyModelDispatch,
+} from "../test_helpers/helpers";
 
 const testDataValidationRule: DataValidationRuleData = {
   id: "id",
@@ -73,7 +78,7 @@ describe("Data validation preview", () => {
     await mountDataValidationPreview(rule);
     expect(getHighlightsFromStore(env)).toEqual([]);
     triggerMouseEvent(".o-dv-preview", "mouseenter");
-    expect(getHighlightsFromStore(env)).toMatchObject([
+    expect(getHighlightsFromStore(env).map(flattenHighlightRange)).toMatchObject([
       { zone: toZone("A1") },
       { zone: toZone("A3") },
     ]);

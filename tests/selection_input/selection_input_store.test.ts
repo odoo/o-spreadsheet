@@ -18,13 +18,14 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
+import { flattenHighlightRange } from "../test_helpers/helpers";
 import { makeStore } from "../test_helpers/stores";
 
 /** returns the highlighted zone by the selection input component */
 function highlightedZones(container: DependencyContainer) {
   return container
     .get(HighlightStore)
-    .highlights.map((h) => h.zone)
+    .highlights.map((h) => h.range.zone)
     .map(zoneToXc);
 }
 
@@ -468,7 +469,8 @@ describe("selection input plugin", () => {
     const firstSheetId = model.getters.getActiveSheetId();
     activateSheet(model, "42", firstSheetId);
     expect(highlightedZones(container)).toEqual(["A2"]);
-    expect(store.highlights[0]).toMatchObject({
+    flattenHighlightRange;
+    expect(flattenHighlightRange(store.highlights[0])).toMatchObject({
       sheetId: "42",
       zone: toZone("A2"),
     });

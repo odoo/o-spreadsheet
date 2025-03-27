@@ -91,6 +91,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
+  flattenHighlightRange,
   getPlugin,
   mockChart,
   mountSpreadsheet,
@@ -630,7 +631,7 @@ describe("Grid component", () => {
       expect(composerStore.editionMode).toBe("editing");
       expect(composerStore.composerSelection).toEqual({ start: 5, end: 10 });
       expect(composerStore.currentContent).toBe("=SUM(B2:B4)");
-      expect(composerStore.highlights[0]?.zone).toEqual(toZone("B2:B4"));
+      expect(composerStore.highlights[0]?.range.zone).toEqual(toZone("B2:B4"));
     });
 
     test("can automatically sum in an empty sheet with ALT+=", () => {
@@ -1158,7 +1159,9 @@ describe("Grid component", () => {
     test("zone to paint is highlighted", async () => {
       selectCell(model, "B2");
       paintFormatStore.activate({ persistent: false });
-      expect(highlightStore.highlights).toMatchObject([{ zone: toZone("B2") }]);
+      expect(highlightStore.highlights.map(flattenHighlightRange)).toMatchObject([
+        { zone: toZone("B2") },
+      ]);
 
       paintFormatStore.cancel();
       expect(highlightStore.highlights).toEqual([]);

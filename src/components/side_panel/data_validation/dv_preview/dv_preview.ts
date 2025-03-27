@@ -55,8 +55,7 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
 
   get highlights(): Highlight[] {
     return this.props.rule.ranges.map((range) => ({
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      zone: range.zone,
+      range,
       color: HIGHLIGHT_COLOR,
       fillAlpha: 0.06,
     }));
