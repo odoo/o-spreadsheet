@@ -583,7 +583,7 @@ export function isFullRow(zone: UnboundedZone): boolean {
   return zone.right === undefined;
 }
 
-function isFullCol(zone: UnboundedZone): boolean {
+export function isFullCol(zone: UnboundedZone): boolean {
   return zone.bottom === undefined;
 }
 

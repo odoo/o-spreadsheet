@@ -2,6 +2,7 @@ import { compile } from "../../formulas";
 import {
   duplicateRangeInDuplicatedSheet,
   getRangeAdapter,
+  getRangeString,
   isZoneValid,
   RangeImpl,
   rangeReference,
@@ -241,7 +242,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     if (!this.getters.tryGetSheet(range.sheetId)) {
       return CellErrorType.InvalidReference;
     }
-    return range.getRangeString(forSheetId, this.getters.getSheetName, options);
+    return getRangeString(range, forSheetId, this.getters.getSheetName, options);
   }
 
   getRangeDataFromXc(sheetId: UID, xc: string): RangeData {

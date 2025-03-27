@@ -2,7 +2,7 @@ import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID, ZoneDimension } from "../types";
 import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
-import { RangeImpl } from "./range";
+import { getRangeString, RangeImpl } from "./range";
 import { rangeReference, splitReference } from "./references";
 import { toUnboundedZone } from "./zones";
 
@@ -53,7 +53,7 @@ export function adaptStringRange(
     return sheetXC;
   }
 
-  const newSheetXC = change.range.getRangeString(defaultSheetId, getSheetNameGetter(applyChange));
+  const newSheetXC = getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
   return newSheetXC === CellErrorType.InvalidReference ? sheetXC : newSheetXC;
 }
 

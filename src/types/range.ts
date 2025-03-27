@@ -16,12 +16,6 @@ export interface Range extends Cloneable<Range> {
   readonly invalidSheetName?: string;
   /** the sheet on which the range is defined */
   readonly sheetId: UID;
-
-  getRangeString: (
-    forSheetId: UID,
-    getSheetName: (sheetId: UID) => string,
-    options?: RangeStringOptions
-  ) => string;
 }
 
 export interface RangeStringOptions {
