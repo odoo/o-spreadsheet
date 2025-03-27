@@ -1,4 +1,6 @@
-import { CellErrorType, FunctionResultObject, Model } from "../../../src";
+import { CellErrorType, EvaluatedCell, FunctionResultObject, Model } from "../../../src";
+import { PIVOT_INDENT } from "../../../src/constants";
+import { positions, toZone } from "../../../src/helpers";
 import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { DEFAULT_LOCALES } from "../../../src/types/locale";
 import {
@@ -14,7 +16,6 @@ import {
   getCellContent,
   getCellError,
   getEvaluatedCell,
-  getEvaluatedCells,
   getEvaluatedGrid,
 } from "../../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
@@ -300,12 +301,12 @@ describe("Spreadsheet Pivot", () => {
 
     expect(getEvaluatedGrid(model, "A28:A36")).toEqual([
       ["Alice"],
-      ["    TRUE"],
+      ["TRUE"],
       ["Michel"],
-      ["    TRUE"],
+      ["TRUE"],
       ["(Undefined)"],
-      ["    FALSE"],
-      ["    TRUE"],
+      ["FALSE"],
+      ["TRUE"],
       ["Total"],
       [""],
     ]);
@@ -775,17 +776,24 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
-    expect(getEvaluatedCells(model, "C1:C10").flat()).toMatchObject([
-      { value: "(#1) Pivot", format: undefined },
-      { value: "", format: undefined },
-      { value: 1995, format: "0* " },
-      { value: "Q2", format: "    @* " },
-      { value: 34803, format: "        dd mmm yyyy* " },
-      { value: 2024, format: "0* " },
-      { value: "Q4", format: "    @* " },
-      { value: 45624, format: "        dd mmm yyyy* " },
-      { value: 45654, format: "        dd mmm yyyy* " },
-      { value: "Total", format: undefined },
+    const sheetId = model.getters.getActiveSheetId();
+    const cellsWithMargins: (EvaluatedCell & { iconMargin: number })[] = [];
+    for (const position of positions(toZone("C1:C10"))) {
+      const iconMargin = model.getters.getCellIcons({ sheetId, ...position })[0]?.margin;
+      const cell = model.getters.getEvaluatedCell({ sheetId, ...position });
+      cellsWithMargins.push({ ...cell, iconMargin: iconMargin ?? 0 });
+    }
+    expect(cellsWithMargins).toMatchObject([
+      { value: "(#1) Pivot", format: undefined, iconMargin: 0 },
+      { value: "", format: undefined, iconMargin: 0 },
+      { value: 1995, format: "0* ", iconMargin: 0 },
+      { value: "Q2", format: "@* ", iconMargin: PIVOT_INDENT },
+      { value: 34803, format: "dd mmm yyyy* ", iconMargin: PIVOT_INDENT * 2 },
+      { value: 2024, format: "0* ", iconMargin: 0 },
+      { value: "Q4", format: "@* ", iconMargin: PIVOT_INDENT },
+      { value: 45624, format: "dd mmm yyyy* ", iconMargin: PIVOT_INDENT * 2 },
+      { value: 45654, format: "dd mmm yyyy* ", iconMargin: PIVOT_INDENT * 2 },
+      { value: "Total", format: undefined, iconMargin: 0 },
     ]);
   });
 

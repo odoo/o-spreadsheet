@@ -22,7 +22,6 @@ import {
   PivotSortedColumn,
   PivotTableCell,
 } from "../../types/pivot";
-import { domainToColRowDomain } from "./pivot_domain_helpers";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -271,31 +270,14 @@ export function getFieldDisplayName(field: PivotDimension) {
   return field.displayName + (field.granularity ? ` (${ALL_PERIODS[field.granularity]})` : "");
 }
 
-export function addIndentAndAlignToPivotHeader(
-  pivot: Pivot,
+export function addAlignFormatToPivotHeader(
   domain: PivotDomain,
   functionResult: FunctionResultObject
 ): FunctionResultObject {
-  const { rowDomain, colDomain } = domainToColRowDomain(pivot, domain);
-  if (rowDomain.length === 0 && colDomain.length === 0) {
+  if (domain.length === 0) {
     return functionResult;
   }
-
-  if (rowDomain.length === 0 && colDomain.length > 0) {
-    return {
-      ...functionResult,
-      format: (functionResult.format || "@") + "* ",
-    };
-  }
-
-  const indent = rowDomain.length - 1;
-
-  const format = functionResult.format || "@";
-
-  return {
-    ...functionResult,
-    format: `${"    ".repeat(indent)}${format}* `,
-  };
+  return { ...functionResult, format: (functionResult.format || "@") + "* " };
 }
 
 export function isSortedColumnValid(sortedColumn: PivotSortedColumn, pivot: Pivot): boolean {
