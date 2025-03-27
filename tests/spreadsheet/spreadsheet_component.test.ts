@@ -378,7 +378,7 @@ describe("Composer / selectionInput interactions", () => {
       await typeInComposerGrid(xc);
 
       const highlightStore = env.getStore(HighlightStore);
-      expect(highlightStore.highlights.map((h) => h.zone)).toEqual([toZone("A1")]);
+      expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([toZone("A1")]);
       expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
 
       await dragElement(".o-spreadsheet .o-highlight .o-border-n", {
@@ -387,7 +387,7 @@ describe("Composer / selectionInput interactions", () => {
       });
       await nextTick();
 
-      expect(highlightStore.highlights.map((h) => h.zone)).toEqual([toZone("B3")]);
+      expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([toZone("B3")]);
       expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
     }
   );
@@ -400,14 +400,16 @@ describe("Composer / selectionInput interactions", () => {
     await nextTick();
     await simulateClick(".o-selection-input input");
 
-    expect(env.getStore(HighlightStore).highlights.map((h) => h.zone)).toEqual([toZone("B2:C4")]);
+    expect(env.getStore(HighlightStore).highlights.map((h) => h.range.zone)).toEqual([
+      toZone("B2:C4"),
+    ]);
     expect(composerStore.highlights).toEqual([]);
     expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
 
     // select Composer
     await simulateClick(".o-spreadsheet-topbar .o-composer");
 
-    expect(env.getStore(HighlightStore).highlights.map((h) => h.zone)).toEqual([
+    expect(env.getStore(HighlightStore).highlights.map((h) => h.range.zone)).toEqual([
       toZone("A1"),
       toZone("A2"),
     ]);
@@ -436,13 +438,16 @@ describe("Composer / selectionInput interactions", () => {
     await nextTick();
 
     await simulateClick(".o-spreadsheet-topbar .o-composer");
-    expect(highlightStore.highlights.map((h) => h.zone)).toEqual([toZone("A1"), toZone("A2")]);
+    expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([
+      toZone("A1"),
+      toZone("A2"),
+    ]);
     expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(2);
 
     //open cf sidepanel
     await simulateClick(".o-selection-input input");
 
-    expect(highlightStore.highlights.map((h) => h.zone)).toEqual([toZone("B2:C4")]);
+    expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([toZone("B2:C4")]);
     expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
   });
 
