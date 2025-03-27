@@ -5,9 +5,7 @@ import {
   ChangeType,
   Command,
   CoreGetters,
-  CustomizedDataSet,
   DeleteSheetCommand,
-  Getters,
   MoveRangeCommand,
   Range,
   RangeAdapter,
@@ -24,16 +22,8 @@ import {
 import { CellErrorType } from "../types/errors";
 import { numberToLetters } from "./coordinates";
 import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
-import { isRowReference, splitReference } from "./references";
-import {
-  createAdaptedZone,
-  getZoneArea,
-  isZoneInside,
-  isZoneOrdered,
-  positions,
-  toUnboundedZone,
-  zoneToXc,
-} from "./zones";
+import { isRowReference } from "./references";
+import { createAdaptedZone, getZoneArea, isZoneInside, isZoneOrdered, positions } from "./zones";
 
 interface ConstructorArgs {
   readonly unboundedZone: Readonly<UnboundedZone>;
@@ -308,57 +298,6 @@ export function createValidRange(
   if (!xc) return;
   const range = getters.getRangeFromSheetXC(sheetId, xc);
   return !(range.invalidSheetName || range.invalidXc) ? range : undefined;
-}
-
-/**
- * Spread multiple colrows zone to one row/col zone and add a many new input range as needed.
- * For example, A1:B4 will become [A1:A4, B1:B4]
- */
-export function spreadRange(getters: Getters, dataSets: CustomizedDataSet[]): CustomizedDataSet[] {
-  const postProcessedRanges: CustomizedDataSet[] = [];
-  for (const dataSet of dataSets) {
-    const range = dataSet.dataRange;
-    if (!getters.isRangeValid(range)) {
-      postProcessedRanges.push(dataSet); // ignore invalid range
-      continue;
-    }
-
-    const { sheetName } = splitReference(range);
-    const sheetPrefix = sheetName ? `${sheetName}!` : "";
-    const zone = toUnboundedZone(range);
-    if (zone.bottom !== zone.top && zone.left != zone.right) {
-      if (zone.right) {
-        for (let j = zone.left; j <= zone.right; ++j) {
-          const datasetOptions = j === zone.left ? dataSet : { yAxisId: dataSet.yAxisId };
-          postProcessedRanges.push({
-            ...datasetOptions,
-            dataRange: `${sheetPrefix}${zoneToXc({
-              left: j,
-              right: j,
-              top: zone.top,
-              bottom: zone.bottom,
-            })}`,
-          });
-        }
-      } else {
-        for (let j = zone.top; j <= zone.bottom!; ++j) {
-          const datasetOptions = j === zone.top ? dataSet : { yAxisId: dataSet.yAxisId };
-          postProcessedRanges.push({
-            ...datasetOptions,
-            dataRange: `${sheetPrefix}${zoneToXc({
-              left: zone.left,
-              right: zone.right,
-              top: j,
-              bottom: j,
-            })}`,
-          });
-        }
-      }
-    } else {
-      postProcessedRanges.push(dataSet);
-    }
-  }
-  return postProcessedRanges;
 }
 
 /**
