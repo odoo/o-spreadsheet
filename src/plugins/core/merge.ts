@@ -5,6 +5,8 @@ import {
   getFullReference,
   isDefined,
   isEqual,
+  isFullColRange,
+  isFullRowRange,
   overlap,
   positions,
   splitReference,
@@ -171,8 +173,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const expandedRange = rangeImpl.clone({
       unboundedZone: {
         ...expandedZone,
-        bottom: rangeImpl.isFullCol ? undefined : expandedZone.bottom,
-        right: rangeImpl.isFullRow ? undefined : expandedZone.right,
+        bottom: isFullColRange(rangeImpl) ? undefined : expandedZone.bottom,
+        right: isFullRowRange(rangeImpl) ? undefined : expandedZone.right,
       },
     });
     const rangeString = this.getters.getRangeString(expandedRange, forSheetId);

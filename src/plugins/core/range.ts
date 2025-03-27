@@ -5,6 +5,8 @@ import {
   duplicateRangeInDuplicatedSheet,
   getRangeAdapter,
   getRangeString,
+  isFullColRange,
+  isFullRowRange,
   isZoneValid,
   RangeImpl,
   rangeReference,
@@ -127,25 +129,27 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         return range;
       }
       const copySheetId = range.prefixSheet ? range.sheetId : sheetId;
+      const isFullRow = isFullRowRange(range);
+      const isFullCol = isFullColRange(range);
       const unboundZone = {
         ...range.unboundedZone,
         // Don't shift left if the range is a full row without header
         left:
-          range.isFullRow && !range.unboundedZone.hasHeader
+          isFullRow && !range.unboundedZone.hasHeader
             ? range.unboundedZone.left
             : range.unboundedZone.left + (range.parts[0].colFixed ? 0 : offsetX),
         // Don't shift right if the range is a full row
-        right: range.isFullRow
+        right: isFullRow
           ? range.unboundedZone.right
           : range.unboundedZone.right! +
             ((range.parts[1] || range.parts[0]).colFixed ? 0 : offsetX),
         // Don't shift up if the range is a column row without header
         top:
-          range.isFullCol && !range.unboundedZone.hasHeader
+          isFullCol && !range.unboundedZone.hasHeader
             ? range.unboundedZone.top
             : range.unboundedZone.top + (range.parts[0].rowFixed ? 0 : offsetY),
         // Don't shift down if the range is a full column
-        bottom: range.isFullCol
+        bottom: isFullCol
           ? range.unboundedZone.bottom
           : range.unboundedZone.bottom! +
             ((range.parts[1] || range.parts[0]).rowFixed ? 0 : offsetY),
@@ -174,8 +178,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const unboundedZone = {
       left: rangeImpl.zone.left,
       top: rangeImpl.zone.top,
-      right: rangeImpl.isFullRow ? undefined : right,
-      bottom: rangeImpl.isFullCol ? undefined : bottom,
+      right: isFullRowRange(rangeImpl) ? undefined : right,
+      bottom: isFullColRange(rangeImpl) ? undefined : bottom,
     };
     return createRange({ ...rangeImpl, zone: unboundedZone }, this.getters.getSheetSize);
   }
