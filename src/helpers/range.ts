@@ -27,6 +27,8 @@ import { isRowReference, splitReference } from "./references";
 import {
   createAdaptedZone,
   getZoneArea,
+  isFullCol,
+  isFullRow,
   isZoneInside,
   isZoneOrdered,
   positions,
@@ -198,82 +200,54 @@ export class RangeImpl implements Range {
       this.getSheetSize
     );
   }
+}
 
-  private getRangePartString(
-    part: 0 | 1,
-    options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
-  ): string {
-    const colFixed = this.parts[part]?.colFixed || options.useFixedReference ? "$" : "";
-    const col = part === 0 ? numberToLetters(this.zone.left) : numberToLetters(this.zone.right);
-    const rowFixed = this.parts[part]?.rowFixed || options.useFixedReference ? "$" : "";
-    const row = part === 0 ? String(this.zone.top + 1) : String(this.zone.bottom + 1);
-
-    let str = "";
-    if (this.isFullCol && !options.useBoundedReference) {
-      if (part === 0 && this.unboundedZone.hasHeader) {
-        str = colFixed + col + rowFixed + row;
-      } else {
-        str = colFixed + col;
-      }
-    } else if (this.isFullRow && !options.useBoundedReference) {
-      if (part === 0 && this.unboundedZone.hasHeader) {
-        str = colFixed + col + rowFixed + row;
-      } else {
-        str = rowFixed + row;
-      }
+export function getRangeString(
+  range: Range,
+  forSheetId: UID,
+  getSheetName: (sheetId: UID) => string,
+  options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
+): string {
+  if (range.invalidXc) {
+    return range.invalidXc;
+  }
+  if (range.zone.bottom - range.zone.top < 0 || range.zone.right - range.zone.left < 0) {
+    return CellErrorType.InvalidReference;
+  }
+  if (range.zone.left < 0 || range.zone.top < 0) {
+    return CellErrorType.InvalidReference;
+  }
+  let prefixSheet = range.sheetId !== forSheetId || range.invalidSheetName || range.prefixSheet;
+  let sheetName: string = "";
+  if (prefixSheet) {
+    if (range.invalidSheetName) {
+      sheetName = range.invalidSheetName;
     } else {
-      str = colFixed + col + rowFixed + row;
+      sheetName = getCanonicalSymbolName(getSheetName(range.sheetId));
     }
-
-    return str;
   }
 
-  getRangeString(
-    forSheetId: UID,
-    getSheetName: (sheetId: UID) => string,
-    options = { useBoundedReference: false, useFixedReference: false }
-  ): string {
-    if (this.invalidXc) {
-      return this.invalidXc;
-    }
-    if (this.zone.bottom - this.zone.top < 0 || this.zone.right - this.zone.left < 0) {
-      return CellErrorType.InvalidReference;
-    }
-    if (this.zone.left < 0 || this.zone.top < 0) {
-      return CellErrorType.InvalidReference;
-    }
-    let prefixSheet = this.sheetId !== forSheetId || this.invalidSheetName || this.prefixSheet;
-    let sheetName: string = "";
-    if (prefixSheet) {
-      if (this.invalidSheetName) {
-        sheetName = this.invalidSheetName;
-      } else {
-        sheetName = getCanonicalSymbolName(getSheetName(this.sheetId));
-      }
-    }
-
-    if (prefixSheet && !sheetName) {
-      return CellErrorType.InvalidReference;
-    }
-
-    let rangeString = this.getRangePartString(0, options);
-    if (this.parts && this.parts.length === 2) {
-      // this if converts A2:A2 into A2 except if any part of the original range had fixed row or column (with $)
-      if (
-        this.zone.top !== this.zone.bottom ||
-        this.zone.left !== this.zone.right ||
-        this.parts[0].rowFixed ||
-        this.parts[0].colFixed ||
-        this.parts[1].rowFixed ||
-        this.parts[1].colFixed
-      ) {
-        rangeString += ":";
-        rangeString += this.getRangePartString(1, options);
-      }
-    }
-
-    return `${prefixSheet ? sheetName + "!" : ""}${rangeString}`;
+  if (prefixSheet && !sheetName) {
+    return CellErrorType.InvalidReference;
   }
+
+  let rangeString = getRangePartString(range, 0, options);
+  if (range.parts && range.parts.length === 2) {
+    // range if converts A2:A2 into A2 except if any part of the original range had fixed row or column (with $)
+    if (
+      range.zone.top !== range.zone.bottom ||
+      range.zone.left !== range.zone.right ||
+      range.parts[0].rowFixed ||
+      range.parts[0].colFixed ||
+      range.parts[1].rowFixed ||
+      range.parts[1].colFixed
+    ) {
+      rangeString += ":";
+      rangeString += getRangePartString(range, 1, options);
+    }
+  }
+
+  return `${prefixSheet ? sheetName + "!" : ""}${rangeString}`;
 }
 
 /**
@@ -556,4 +530,34 @@ function getInvalidRange() {
     sheetId: "",
     invalidXc: CellErrorType.InvalidReference,
   };
+}
+
+function getRangePartString(
+  range: Range,
+  part: 0 | 1,
+  options: RangeStringOptions = { useBoundedReference: false, useFixedReference: false }
+): string {
+  const colFixed = range.parts[part]?.colFixed || options.useFixedReference ? "$" : "";
+  const col = part === 0 ? numberToLetters(range.zone.left) : numberToLetters(range.zone.right);
+  const rowFixed = range.parts[part]?.rowFixed || options.useFixedReference ? "$" : "";
+  const row = part === 0 ? String(range.zone.top + 1) : String(range.zone.bottom + 1);
+
+  let str = "";
+  if (isFullCol(range.unboundedZone) && !options.useBoundedReference) {
+    if (part === 0 && range.unboundedZone.hasHeader) {
+      str = colFixed + col + rowFixed + row;
+    } else {
+      str = colFixed + col;
+    }
+  } else if (isFullRow(range.unboundedZone) && !options.useBoundedReference) {
+    if (part === 0 && range.unboundedZone.hasHeader) {
+      str = colFixed + col + rowFixed + row;
+    } else {
+      str = rowFixed + row;
+    }
+  } else {
+    str = colFixed + col + rowFixed + row;
+  }
+
+  return str;
 }
