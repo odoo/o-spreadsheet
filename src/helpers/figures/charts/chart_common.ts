@@ -1,5 +1,5 @@
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
-import { MAX_CHAR_LABEL } from "../../../constants";
+import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
@@ -288,7 +288,7 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
           : SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING[ds.trend.type],
       color: ds.trend.color,
       order: ds.trend.order ? Math.min(ds.trend.order, MAX_XLSX_POLYNOMIAL_DEGREE) : undefined,
-      window: ds.trend.window,
+      window: ds.trend.window || DEFAULT_WINDOW_SIZE,
     };
   }
   return {

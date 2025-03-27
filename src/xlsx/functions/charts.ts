@@ -253,10 +253,7 @@ function extractTrendlineCommonAttributes(
     return escapeXml/*xml*/ ``;
   }
   const attrs: XMLAttributes = [
-    [
-      "val",
-      trend.color ? toXlsxHexColor(trend.color).slice(0, 6) : getTrendlineColor(dataSetColor),
-    ],
+    ["val", trend.color ? toXlsxHexColor(trend.color).slice(-6) : getTrendlineColor(dataSetColor)],
   ];
   return escapeXml/*xml*/ `
     <c:spPr>

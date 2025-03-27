@@ -1,3 +1,4 @@
+import { DEFAULT_WINDOW_SIZE } from "../../constants";
 import {
   getFullReference,
   isDefined,
@@ -142,7 +143,7 @@ function convertExcelTrendline(
         : EXCEL_TO_SPREADSHEET_TRENDLINE_TYPE_MAPPING[trend.type],
     order: trend.type === "linear" ? 1 : trend.order,
     color: trend.color,
-    window: trend.window,
+    window: trend.window || DEFAULT_WINDOW_SIZE,
     display: true,
   };
 }

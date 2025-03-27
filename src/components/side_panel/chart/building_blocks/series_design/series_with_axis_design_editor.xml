@@ -56,7 +56,7 @@
                 <div class="w-50 ms-3" t-if="trendType === 'trailingMovingAverage'">
                   <span class="o-section-subtitle">Window</span>
                   <input
-                    t-att-value="trend.window || this.defaultWindowSize"
+                    t-att-value="trend.window"
                     type="number"
                     class="w-100 o-input trend-window-input"
                     t-on-change="(ev) => this.onChangeMovingAverageWindow(index, ev)"
