@@ -94,7 +94,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
     const result = this.env.model.dispatch("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
-      newTableRange: uiTable.range.rangeData,
+      newTableRange: this.env.model.getters.getRangeData(uiTable.range),
       tableType: newTableType,
     });
     const updatedTable = this.env.model.getters.getCoreTable(getTableTopLeft(this.props.table));
@@ -154,7 +154,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
     const result = this.env.model.dispatch(cmdToCall, {
       sheetId,
       zone: this.props.table.range.zone,
-      newTableRange: newRange.rangeData,
+      newTableRange: this.env.model.getters.getRangeData(newRange),
       tableType: this.getNewTableType(newRange.zone),
     });
 

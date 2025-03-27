@@ -11,7 +11,6 @@ import {
   MoveRangeCommand,
   Range,
   RangeAdapter,
-  RangeData,
   RangePart,
   RangeStringOptions,
   RemoveColumnsRowsCommand,
@@ -125,13 +124,6 @@ export class RangeImpl implements Range {
 
   get isFullRow(): boolean {
     return this._zone.right === undefined;
-  }
-
-  get rangeData(): RangeData {
-    return {
-      _zone: this._zone,
-      _sheetId: this.sheetId,
-    };
   }
 
   /**

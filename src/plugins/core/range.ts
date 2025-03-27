@@ -43,6 +43,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "getRangeString",
     "getRangeFromSheetXC",
     "createAdaptedRanges",
+    "getRangeData",
     "getRangeDataFromXc",
     "getRangeDataFromZone",
     "getRangeFromRangeData",
@@ -244,12 +245,17 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangeDataFromXc(sheetId: UID, xc: string): RangeData {
-    return this.getters.getRangeFromSheetXC(sheetId, xc).rangeData;
+    const range = this.getters.getRangeFromSheetXC(sheetId, xc);
+    return this.getRangeDataFromZone(range.sheetId, range.unboundedZone);
   }
 
   getRangeDataFromZone(sheetId: UID, zone: Zone | UnboundedZone): RangeData {
     zone = this.getters.getUnboundedZone(sheetId, zone);
     return { _sheetId: sheetId, _zone: zone };
+  }
+
+  getRangeData(range: Range): RangeData {
+    return this.getRangeDataFromZone(range.sheetId, range.unboundedZone);
   }
 
   getRangeFromZone(sheetId: UID, zone: Zone | UnboundedZone): Range {
