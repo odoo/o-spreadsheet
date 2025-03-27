@@ -2,7 +2,6 @@ import {
   AlternatingColorGenerator,
   isFullColRange,
   isFullRowRange,
-  RangeImpl,
   reorderZone,
   setColorAlpha,
 } from "../helpers";
@@ -179,7 +178,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
       dy: 0,
       dSheet: 0,
     };
-    for (const range of dependencies as RangeImpl[]) {
+    for (const range of dependencies) {
       const zone = range.zone;
       const [left, right] = range.parts;
       const rangeSheetIndex = this.getters.getSheetIds().indexOf(range.sheetId);

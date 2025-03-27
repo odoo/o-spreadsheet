@@ -1,4 +1,4 @@
-import { RangeImpl, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
+import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
 import { SpreadsheetChildEnv, Table, UID } from "../../src/types";
 import {
   createTable,
@@ -125,7 +125,7 @@ describe("Table side panel", () => {
     await setInputValueAndTrigger(".o-selection input", "D2:E");
     await click(fixture, ".o-selection .o-selection-ok");
     expect(fixture.querySelector<HTMLInputElement>(".o-selection input")?.value).toEqual("D2:E");
-    const tableRange = getTable(model, sheetId).range as RangeImpl;
+    const tableRange = getTable(model, sheetId).range;
     expect(tableRange.unboundedZone).toEqual(toUnboundedZone("D2:E"));
     expect(model.getters.getSelectedZone()).toEqual(toZone("D2"));
   });
