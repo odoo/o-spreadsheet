@@ -4,7 +4,7 @@ import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
 import { getRangeString, RangeImpl } from "./range";
 import { rangeReference, splitReference } from "./references";
-import { toUnboundedZone } from "./zones";
+import { boundUnboundedZone, toUnboundedZone } from "./zones";
 
 export function adaptFormulaStringRanges(
   defaultSheetId: string,
@@ -83,9 +83,10 @@ function getRange(sheetXC: string, sheetId: UID): Range {
   }
 
   const unboundedZone = toUnboundedZone(xc);
+  const zone = boundUnboundedZone(unboundedZone, defaultGetSheetSize(sheetId));
   const parts = RangeImpl.getRangeParts(xc, unboundedZone);
 
-  const rangeInterface = { prefixSheet, unboundedZone, sheetId, invalidSheetName: "", parts };
+  const rangeInterface = { prefixSheet, unboundedZone, zone, sheetId, invalidSheetName: "", parts };
 
   return new RangeImpl(rangeInterface, defaultGetSheetSize).orderZone();
 }
@@ -95,6 +96,7 @@ function invalidRange(sheetXC: string, getSheetSize: (sheetId: UID) => ZoneDimen
     {
       sheetId: "",
       unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
+      zone: { left: -1, top: -1, right: -1, bottom: -1 },
       parts: [],
       invalidXc: sheetXC,
       prefixSheet: false,

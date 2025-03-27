@@ -592,6 +592,21 @@ export function getZoneArea(zone: Zone): number {
   return (zone.bottom - zone.top + 1) * (zone.right - zone.left + 1);
 }
 
+export function boundUnboundedZone(
+  unboundedZone: Readonly<UnboundedZone>,
+  sheetSize: ZoneDimension
+): Readonly<Zone> {
+  const { left, top, bottom, right } = unboundedZone;
+  if (right !== undefined && bottom !== undefined) {
+    return unboundedZone as Readonly<Zone>;
+  } else if (bottom === undefined && right !== undefined) {
+    return { right, top, left, bottom: sheetSize.numberOfRows - 1 };
+  } else if (right === undefined && bottom !== undefined) {
+    return { bottom, left, top, right: sheetSize.numberOfCols - 1 };
+  }
+  throw new Error("Bad zone format");
+}
+
 /**
  * Check if the zones are continuous, ie. if they can be merged into a single zone without
  * including cells outside the zones
