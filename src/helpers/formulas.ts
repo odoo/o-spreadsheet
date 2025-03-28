@@ -2,9 +2,8 @@ import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID } from "../types";
 import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
-import { createInvalidRange, createRange, getRangeParts, getRangeString } from "./range";
+import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
-import { toUnboundedZone } from "./zones";
 
 export function adaptFormulaStringRanges(
   defaultSheetId: string,
@@ -82,10 +81,7 @@ function getRange(sheetXC: string, sheetId: UID): Range {
     }
   }
 
-  const unboundedZone = toUnboundedZone(xc);
-  const parts = getRangeParts(xc, unboundedZone);
+  const rangeInterface = { prefixSheet, xc, sheetId, invalidSheetName: "" };
 
-  const rangeInterface = { prefixSheet, zone: unboundedZone, sheetId, invalidSheetName: "", parts };
-
-  return createRange(rangeInterface, defaultGetSheetSize);
+  return createRangeFromXc(rangeInterface, defaultGetSheetSize);
 }
