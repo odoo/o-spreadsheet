@@ -1,5 +1,5 @@
 import { Model, UIPlugin } from "../../src";
-import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
+import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
@@ -28,6 +28,7 @@ import {
   merge,
   paste,
   redo,
+  selectCell,
   setCellContent,
   setStyle,
   undo,
@@ -993,7 +994,7 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
   class MyUIPlugin extends UIPlugin {
     allowDispatch(cmd: Command) {
       if (cmd.type === "UPDATE_CELL") {
-        return this.getters.getClient().name === "Alice"
+        return this.getters.getCurrentClient().name === "Alice"
           ? CommandResult.Success
           : CommandResult.CancelledForUnknownReason;
       }
@@ -1006,4 +1007,45 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
   setCellContent(alice, "A1", "hello");
   expect([alice, bob]).toHaveSynchronizedValue((user) => getCellContent(user, "A1"), "hello");
   featurePluginRegistry.remove("myUIPlugin");
+});
+
+test("Jump to client switch to correct sheet", () => {
+  jest.useFakeTimers();
+  const { alice, bob, charlie } = setupCollaborativeEnv();
+
+  createSheet(alice, { activate: true, sheetId: "AliceSheet" });
+  selectCell(alice, "I30");
+  createSheet(bob, { activate: true, sheetId: "BobSheet" });
+  selectCell(bob, "C3");
+  jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+
+  charlie.dispatch("JUMP_TO_CLIENT", { clientId: "alice" });
+  expect(charlie.getters.isClientFocused("alice")).toBeTruthy();
+  expect(charlie.getters.getActiveSheetId()).toBe("AliceSheet");
+
+  jest.advanceTimersByTime(3000 + 100);
+  expect(charlie.getters.isClientFocused("alice")).toBeFalsy();
+
+  charlie.dispatch("JUMP_TO_CLIENT", { clientId: "bob" });
+  expect(charlie.getters.isClientFocused("bob")).toBeTruthy();
+  expect(charlie.getters.getActiveSheetId()).toBe("BobSheet");
+
+  jest.advanceTimersByTime(3000 + 100);
+  expect(charlie.getters.isClientFocused("bob")).toBeFalsy();
+});
+
+test("User is focused/unfocused on", async () => {
+  const { network, alice } = setupCollaborativeEnv();
+
+  network.sendMessage({
+    type: "CLIENT_JOINED",
+    version: MESSAGE_VERSION,
+    client: { id: "david", name: "David", position: { sheetId: "Sheet1", col: 1, row: 1 } },
+  });
+
+  alice.dispatch("SHOW_CLIENT_TAG");
+  expect(alice.getters.isClientFocused("david")).toBeTruthy();
+
+  alice.dispatch("HIDE_CLIENT_TAG");
+  expect(alice.getters.isClientFocused("david")).toBeFalsy();
 });

@@ -1,7 +1,7 @@
 import { CoreCommand } from "../commands";
 import { UID } from "../misc";
 import { WorkbookData } from "../workbook_data";
-import { Client, ClientId } from "./session";
+import { ClientId, ClientWithPosition } from "./session";
 
 interface AbstractMessage {
   version: number;
@@ -32,7 +32,7 @@ export interface RevisionRedoneMessage extends AbstractMessage {
 
 export interface ClientJoinedMessage extends AbstractMessage {
   type: "CLIENT_JOINED";
-  client: Required<Client>;
+  client: ClientWithPosition;
 }
 
 export interface ClientLeftMessage extends AbstractMessage {
@@ -42,7 +42,7 @@ export interface ClientLeftMessage extends AbstractMessage {
 
 export interface ClientMovedMessage extends AbstractMessage {
   type: "CLIENT_MOVED";
-  client: Required<Client>;
+  client: ClientWithPosition;
 }
 
 /**
