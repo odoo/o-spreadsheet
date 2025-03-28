@@ -30,6 +30,7 @@ export class GridCellIcon extends Component<GridCellIconProps, SpreadsheetChildE
       left: `${x}px`,
       width: `${this.props.icon.size}px`,
       height: `${this.props.icon.size}px`,
+      "z-index": "1",
     });
   }
 
