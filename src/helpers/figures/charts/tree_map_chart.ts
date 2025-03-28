@@ -45,6 +45,7 @@ import {
   getTreeMapChartTooltip,
 } from "./runtime";
 
+// ADRM TODO: try to type "any" in tree map color plugin
 // ADRM TODO: collapsible overflow
 // ADRM TODO: stop leaking data
 // ADRM TODO: use sunburst config panel
