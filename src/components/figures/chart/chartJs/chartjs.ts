@@ -2,10 +2,12 @@ import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/ow
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { ComponentsImportance } from "../../../../constants";
 import { deepCopy } from "../../../../helpers";
-import { getChartJSConstructor } from "../../../../helpers/figures/charts/chart_ui_common";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
+import { chartJsExtensionRegistry, getChartJSConstructor } from "./chart_js_extension";
+import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
+import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
 interface Props {
   figure: Figure;
@@ -20,6 +22,8 @@ css/* scss */ `
     }
   }
 `;
+chartJsExtensionRegistry.add("chartShowValuesPlugin", chartShowValuesPlugin);
+chartJsExtensionRegistry.add("waterfallLinesPlugin", waterfallLinesPlugin);
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
