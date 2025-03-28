@@ -13,7 +13,7 @@
           zone="props.range.zone"
         />
       </t>
-      <t t-foreach="['nw', 'ne', 'sw', 'se']" t-as="orientation" t-key="orientation">
+      <t t-foreach="cornerOrientations" t-as="orientation" t-key="orientation">
         <Corner
           onResizeHighlight.bind="onResizeHighlight"
           isResizing='highlightState.shiftingMode === "isResizing"'
