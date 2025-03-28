@@ -91,6 +91,25 @@ describe("Pivot plugin", () => {
     expect(creationResult.isSuccessful).toBe(false);
   });
 
+  test("sortedColumn must be in the measures", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "30",
+    };
+    const model = createModelFromGrid(grid);
+    const creationResult = addPivot(model, "A1:A2", {
+      measures: [{ id: "Customer:sum", fieldName: "Customer", aggregator: "sum" }],
+      sortedColumn: {
+        domain: [],
+        order: "asc",
+        measure: "Price",
+      },
+    });
+    expect(creationResult).toBeCancelledBecause(CommandResult.InvalidDefinition);
+  });
+
   test("cannot update a pivot with duplicated measure ids", () => {
     const grid = {
       A1: "Customer",

@@ -587,6 +587,47 @@ describe("Migrations", () => {
     });
     expect(getCellContent(model, "A1")).toBe("Hello");
   });
+
+  test("migration 18.3: drop sorted column if not part of measure", () => {
+    const data = {
+      version: 24,
+      pivots: {
+        1: {
+          type: "SPREADSHEET",
+          columns: [],
+          domain: [],
+          measures: [{ id: "probability:sum", fieldName: "probability", aggregator: "sum" }],
+          model: "partner",
+          rows: [{ fieldName: "bar" }],
+          sortedColumn: {
+            measure: "foo",
+            order: "asc",
+          },
+          name: "A pivot",
+          formulaId: "1",
+        },
+        2: {
+          type: "SPREADSHEET",
+          columns: [],
+          domain: [],
+          measures: [{ id: "probability:sum", fieldName: "probability", aggregator: "sum" }],
+          model: "partner",
+          rows: [{ fieldName: "bar" }],
+          sortedColumn: {
+            measure: "probability:sum",
+            order: "asc",
+          },
+          name: "A pivot",
+          formulaId: "2",
+        },
+      },
+    };
+    const model = new Model(data);
+    expect(model.getters.getPivot("1").definition.sortedColumn).toBe(undefined);
+    expect(model.getters.getPivot("2").definition.sortedColumn).toEqual(
+      data.pivots["2"].sortedColumn
+    ); // unchanged
+  });
 });
 
 describe("Import", () => {
