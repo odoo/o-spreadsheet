@@ -51,6 +51,7 @@
           <Highlight range="highlight.range" color="highlight.color"/>
         </t>
       </t>
+      <Selection t-if="displaySelectionHandler"/>
       <Menu
         t-if="menuState.isOpen"
         menuItems="menuState.menuItems"
