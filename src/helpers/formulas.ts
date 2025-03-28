@@ -70,18 +70,5 @@ function getRange(sheetXC: string, sheetId: UID): Range {
   if (!rangeReference.test(sheetXC)) {
     return createInvalidRange(sheetXC);
   }
-
-  let sheetName: string | undefined;
-  let xc = sheetXC;
-  let prefixSheet = false;
-  if (sheetXC.includes("!")) {
-    ({ xc, sheetName } = splitReference(sheetXC));
-    if (sheetName) {
-      prefixSheet = true;
-    }
-  }
-
-  const rangeInterface = { prefixSheet, xc, sheetId, invalidSheetName: "" };
-
-  return createRangeFromXc(rangeInterface, defaultGetSheetSize);
+  return createRangeFromXc({ xc: sheetXC, sheetId }, defaultGetSheetSize);
 }
