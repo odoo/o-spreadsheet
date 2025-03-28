@@ -51,11 +51,11 @@ interface RangeArgs {
 export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
   const unboundedZone = args.zone;
   const zone = boundUnboundedZone(unboundedZone, getSheetSize(args.sheetId));
-  let parts = [...args.parts];
+  let parts = args.parts;
   if (args.parts.length === 1 && getZoneArea(zone) > 1) {
-    parts.push({ ...args.parts[0] });
+    parts = [args.parts[0], args.parts[0]];
   } else if (args.parts.length === 2 && getZoneArea(zone) === 1) {
-    parts.pop();
+    parts = [args.parts[0]];
   }
   return {
     unboundedZone,
