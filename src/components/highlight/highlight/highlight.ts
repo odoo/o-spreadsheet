@@ -24,7 +24,7 @@ css/*SCSS*/ `
   }
 `;
 
-interface Props {
+export interface HighlightProps {
   range: Range;
   color: Color;
 }
@@ -32,7 +32,7 @@ interface Props {
 interface HighlightState {
   shiftingMode: "isMoving" | "isResizing" | "none";
 }
-export class Highlight extends Component<Props, SpreadsheetChildEnv> {
+export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Highlight";
   static props = {
     range: Object,
