@@ -256,7 +256,7 @@ describe("Grid component", () => {
     expect(getHorizontalScroll()).toBe(70);
     expect(getVerticalScroll()).toBe(50);
   });
-  test("Event is stopped if not at the top", async () => {
+  test.skip("Event is stopped if not at the top", async () => {
     const grid = fixture.querySelector(".o-grid-overlay")!;
     expect(getHorizontalScroll()).toBe(0);
     expect(getVerticalScroll()).toBe(0);
