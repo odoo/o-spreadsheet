@@ -48,6 +48,17 @@ interface RangeArgs {
   sheetId: UID;
 }
 
+interface RangeXcArgs {
+  xc: string;
+  invalidXc?: string;
+  /** true if the user provided the range with the sheet name */
+  prefixSheet: boolean;
+  /** the name of any sheet that is invalid */
+  invalidSheetName?: string;
+  /** the sheet on which the range is defined */
+  sheetId: UID;
+}
+
 export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
   const unboundedZone = args.zone;
   const zone = boundUnboundedZone(unboundedZone, getSheetSize(args.sheetId));
@@ -66,6 +77,25 @@ export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => Zon
     invalidSheetName: args.invalidSheetName,
     sheetId: args.sheetId,
   };
+}
+
+export function createRangeFromXc(
+  args: RangeXcArgs,
+  getSheetSize: (sheetId: UID) => ZoneDimension
+): Range {
+  const unboundedZone = toUnboundedZone(args.xc);
+  const parts = getRangeParts(args.xc, unboundedZone);
+  return createRange(
+    {
+      zone: unboundedZone,
+      parts,
+      invalidXc: args.invalidXc,
+      sheetId: args.sheetId,
+      prefixSheet: args.prefixSheet,
+      invalidSheetName: args.invalidSheetName,
+    },
+    getSheetSize
+  );
 }
 
 export function createInvalidRange(sheetXC: string): Range {
@@ -226,7 +256,7 @@ export function getCellPositionsInRanges(ranges: Range[]): CellPosition[] {
   return cellPositions;
 }
 
-export function getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
+function getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
   const parts = xc.split(":").map((p) => {
     const isFullRow = isRowReference(p);
     return {

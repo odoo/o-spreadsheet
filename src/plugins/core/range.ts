@@ -2,9 +2,9 @@ import { compile } from "../../formulas";
 import {
   createInvalidRange,
   createRange,
+  createRangeFromXc,
   duplicateRangeInDuplicatedSheet,
   getRangeAdapter,
-  getRangeParts,
   getRangeString,
   isFullColRange,
   isFullRowRange,
@@ -13,7 +13,6 @@ import {
   rangeReference,
   recomputeZones,
   splitReference,
-  toUnboundedZone,
   unionUnboundedZones,
 } from "../../helpers/index";
 import { CellErrorType } from "../../types/errors";
@@ -207,14 +206,12 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       }
     }
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
-    const unboundedZone = toUnboundedZone(xc);
-    const parts = getRangeParts(xc, unboundedZone);
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
 
-    const rangeInterface = { prefixSheet, zone: unboundedZone, sheetId, invalidSheetName, parts };
+    const rangeInterface = { prefixSheet, xc, sheetId, invalidSheetName };
 
-    return createRange(rangeInterface, this.getters.getSheetSize);
+    return createRangeFromXc(rangeInterface, this.getters.getSheetSize);
   }
 
   /**
