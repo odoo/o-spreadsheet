@@ -260,6 +260,10 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     if (event.button !== 0 || this.env.model.getters.isReadonly()) return;
     this.closeMenu();
 
+    if (this.env.isMobile()) {
+      return;
+    }
+
     const visibleSheets = this.getVisibleSheets();
     const sheetRects = this.getSheetItemRects();
 

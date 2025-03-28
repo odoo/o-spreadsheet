@@ -28,7 +28,12 @@ import {
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
-import { makeTestEnv, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
+import {
+  makeTestEnv,
+  mountComponentWithPortalTarget,
+  nextTick,
+  setMobileMode,
+} from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
@@ -933,6 +938,21 @@ describe("BottomBar component", () => {
       const sheetId = model.getters.getActiveSheetId();
       await doubleClick(sheetName);
       await nextTick();
+      await dragElement(
+        `.o-sheet[data-id="${sheetId}"] .o-sheet-name`,
+        { x: 10, y: 0 },
+        { x: sheetName.getBoundingClientRect().x, y: 0 },
+        false
+      );
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "position")).toBe("");
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("");
+    });
+
+    test("Cannot drag & drop sheet in mobile mode", async () => {
+      setMobileMode();
+      await nextTick();
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      const sheetId = model.getters.getActiveSheetId();
       await dragElement(
         `.o-sheet[data-id="${sheetId}"] .o-sheet-name`,
         { x: 10, y: 0 },
