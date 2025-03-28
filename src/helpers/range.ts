@@ -39,7 +39,6 @@ import {
 interface RangeArgs {
   zone: Readonly<UnboundedZone>;
   parts: readonly RangePart[];
-  invalidXc?: string;
   /** true if the user provided the range with the sheet name */
   prefixSheet: boolean;
   /** the name of any sheet that is invalid */
@@ -50,7 +49,6 @@ interface RangeArgs {
 
 interface RangeXcArgs {
   xc: string;
-  invalidXc?: string;
   /** true if the user provided the range with the sheet name */
   prefixSheet: boolean;
   /** the name of any sheet that is invalid */
@@ -72,7 +70,6 @@ export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => Zon
     unboundedZone,
     zone,
     parts,
-    invalidXc: args.invalidXc,
     prefixSheet: args.prefixSheet,
     invalidSheetName: args.invalidSheetName,
     sheetId: args.sheetId,
@@ -89,7 +86,6 @@ export function createRangeFromXc(
     {
       zone: unboundedZone,
       parts,
-      invalidXc: args.invalidXc,
       sheetId: args.sheetId,
       prefixSheet: args.prefixSheet,
       invalidSheetName: args.invalidSheetName,
