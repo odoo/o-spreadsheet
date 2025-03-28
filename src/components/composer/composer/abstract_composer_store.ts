@@ -489,7 +489,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
   private getRangeReference(range: Range, fixedParts: Readonly<RangePart[]>) {
     let _fixedParts = [...fixedParts];
-    const newRange = range.clone({ parts: _fixedParts });
+    const newRange = { ...range, parts: _fixedParts };
     return this.getters.getSelectionRangeString(newRange, this.sheetId);
   }
 

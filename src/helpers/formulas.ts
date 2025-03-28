@@ -1,10 +1,9 @@
 import { rangeTokenize } from "../formulas";
-import { Range, RangeAdapter, UID, ZoneDimension } from "../types";
+import { Range, RangeAdapter, UID } from "../types";
 import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
-import { RangeImpl } from "./range";
+import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
-import { toUnboundedZone } from "./zones";
 
 export function adaptFormulaStringRanges(
   defaultSheetId: string,
@@ -53,7 +52,7 @@ export function adaptStringRange(
     return sheetXC;
   }
 
-  const newSheetXC = change.range.getRangeString(defaultSheetId, getSheetNameGetter(applyChange));
+  const newSheetXC = getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
   return newSheetXC === CellErrorType.InvalidReference ? sheetXC : newSheetXC;
 }
 
@@ -69,36 +68,7 @@ function defaultGetSheetSize(sheetId: UID) {
 
 function getRange(sheetXC: string, sheetId: UID): Range {
   if (!rangeReference.test(sheetXC)) {
-    return invalidRange(sheetXC, defaultGetSheetSize);
+    return createInvalidRange(sheetXC);
   }
-
-  let sheetName: string | undefined;
-  let xc = sheetXC;
-  let prefixSheet = false;
-  if (sheetXC.includes("!")) {
-    ({ xc, sheetName } = splitReference(sheetXC));
-    if (sheetName) {
-      prefixSheet = true;
-    }
-  }
-
-  const unboundedZone = toUnboundedZone(xc);
-  const parts = RangeImpl.getRangeParts(xc, unboundedZone);
-
-  const rangeInterface = { prefixSheet, unboundedZone, sheetId, invalidSheetName: "", parts };
-
-  return new RangeImpl(rangeInterface, defaultGetSheetSize).orderZone();
-}
-
-function invalidRange(sheetXC: string, getSheetSize: (sheetId: UID) => ZoneDimension): Range {
-  return new RangeImpl(
-    {
-      sheetId: "",
-      unboundedZone: { left: -1, top: -1, right: -1, bottom: -1 },
-      parts: [],
-      invalidXc: sheetXC,
-      prefixSheet: false,
-    },
-    getSheetSize
-  );
+  return createRangeFromXc({ xc: sheetXC, sheetId }, defaultGetSheetSize);
 }

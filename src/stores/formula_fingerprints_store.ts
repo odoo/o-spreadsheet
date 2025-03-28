@@ -1,4 +1,10 @@
-import { AlternatingColorGenerator, RangeImpl, reorderZone, setColorAlpha } from "../helpers";
+import {
+  AlternatingColorGenerator,
+  isFullColRange,
+  isFullRowRange,
+  reorderZone,
+  setColorAlpha,
+} from "../helpers";
 import { PositionMap } from "../plugins/ui_core_views/cell_evaluation/position_map";
 import {
   Cell,
@@ -172,7 +178,7 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
       dy: 0,
       dSheet: 0,
     };
-    for (const range of dependencies as RangeImpl[]) {
+    for (const range of dependencies) {
       const zone = range.zone;
       const [left, right] = range.parts;
       const rangeSheetIndex = this.getters.getSheetIds().indexOf(range.sheetId);
@@ -180,8 +186,8 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
 
       // in relative mode, we offset the col and row by the cell's position
       // in absolute mode, we offset the col and row relative to the sheet
-      const isLeftUnbounded = range.isFullRow && !range.unboundedZone.hasHeader;
-      const isTopUnbounded = range.isFullCol && !range.unboundedZone.hasHeader;
+      const isLeftUnbounded = isFullRowRange(range) && !range.unboundedZone.hasHeader;
+      const isTopUnbounded = isFullColRange(range) && !range.unboundedZone.hasHeader;
       const leftOffset = isLeftUnbounded || left?.colFixed ? 0 : colCellOffset;
       const topOffset = isTopUnbounded || left?.rowFixed ? 0 : rowCellOffset;
 

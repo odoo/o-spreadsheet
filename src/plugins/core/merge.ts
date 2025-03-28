@@ -1,10 +1,12 @@
 import {
-  RangeImpl,
   clip,
+  createRange,
   deepEquals,
   getFullReference,
   isDefined,
   isEqual,
+  isFullColRange,
+  isFullRowRange,
   overlap,
   positions,
   splitReference,
@@ -166,17 +168,20 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * Same as `getRangeString` but add all necessary merge to the range to make it a valid selection
    */
   getSelectionRangeString(range: Range, forSheetId: UID): string {
-    const rangeImpl = RangeImpl.fromRange(range, this.getters.getSheetSize);
-    const expandedZone = this.getters.expandZone(rangeImpl.sheetId, rangeImpl.zone);
-    const expandedRange = rangeImpl.clone({
-      unboundedZone: {
-        ...expandedZone,
-        bottom: rangeImpl.isFullCol ? undefined : expandedZone.bottom,
-        right: rangeImpl.isFullRow ? undefined : expandedZone.right,
+    const expandedZone = this.getters.expandZone(range.sheetId, range.zone);
+    const expandedRange = createRange(
+      {
+        ...range,
+        zone: {
+          ...expandedZone,
+          bottom: isFullColRange(range) ? undefined : expandedZone.bottom,
+          right: isFullRowRange(range) ? undefined : expandedZone.right,
+        },
       },
-    });
+      this.getters.getSheetSize
+    );
     const rangeString = this.getters.getRangeString(expandedRange, forSheetId);
-    if (this.isSingleCellOrMerge(rangeImpl.sheetId, rangeImpl.zone)) {
+    if (this.isSingleCellOrMerge(range.sheetId, range.zone)) {
       const { sheetName, xc } = splitReference(rangeString);
       return getFullReference(sheetName, xc.split(":")[0]);
     }
