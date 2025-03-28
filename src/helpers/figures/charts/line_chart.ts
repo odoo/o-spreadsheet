@@ -69,6 +69,8 @@ export class LineChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly zoomable?: boolean;
+  readonly panable?: boolean;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -90,6 +92,8 @@ export class LineChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.fillArea = definition.fillArea;
     this.showValues = definition.showValues;
+    this.zoomable = definition.zoomable;
+    this.panable = definition.panable;
   }
 
   static validateChartDefinition(
@@ -158,6 +162,8 @@ export class LineChart extends AbstractChart {
       axesDesign: this.axesDesign,
       fillArea: this.fillArea,
       showValues: this.showValues,
+      zoomable: this.zoomable,
+      panable: this.panable,
     };
   }
 
@@ -254,6 +260,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
         legend: getLineChartLegend(definition, chartData),
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        zoomPlugin: { sliceable: definition.zoomable, panable: definition.panable },
       },
     },
   };

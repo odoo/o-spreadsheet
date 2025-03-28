@@ -18,6 +18,8 @@ export interface LineChartDefinition {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly zoomable?: boolean;
+  readonly panable?: boolean;
 }
 
 export type LineChartRuntime = {

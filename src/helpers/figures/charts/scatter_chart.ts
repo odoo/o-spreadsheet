@@ -64,6 +64,8 @@ export class ScatterChart extends AbstractChart {
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  readonly zoomable?: boolean;
+  readonly panable?: boolean;
 
   constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -82,6 +84,8 @@ export class ScatterChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
+    this.zoomable = definition.zoomable;
+    this.panable = definition.panable;
   }
 
   static validateChartDefinition(
@@ -144,6 +148,8 @@ export class ScatterChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      zoomable: this.zoomable,
+      panable: this.panable,
     };
   }
 
@@ -247,6 +253,7 @@ export function createScatterChartRuntime(
         legend: getScatterChartLegend(definition, chartData),
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        zoomPlugin: { sliceable: definition.zoomable, panable: definition.panable },
       },
     },
   };
