@@ -19,9 +19,9 @@ export function useTouchScroll(
   let lastTime = 0;
   let skipFirst = false;
 
-  useRefListener(ref, "touchstart", onTouchStart, { capture: false });
-  useRefListener(ref, "touchmove", onTouchMove, { capture: false });
-  useRefListener(ref, "touchend", onTouchEnd, { capture: false });
+  useRefListener(ref, "touchstart", onTouchStart, { capture: true });
+  useRefListener(ref, "touchmove", onTouchMove, { capture: true });
+  useRefListener(ref, "touchend", onTouchEnd, { capture: true });
 
   function clientValue(ev: MouseEvent | TouchEvent) {
     const clientX = ev instanceof MouseEvent ? ev.clientX : ev.touches[0].clientX;
@@ -31,7 +31,6 @@ export function useTouchScroll(
 
   function onTouchStart(event: TouchEvent) {
     isMouseDown = true;
-    skipFirst = true;
     ({ clientX: lastX, clientY: lastY } = clientValue(event));
     velocityX = 0;
     velocityY = 0;
@@ -40,11 +39,11 @@ export function useTouchScroll(
   function onTouchMove(event: TouchEvent) {
     if (!isMouseDown) return;
 
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+    event.stopPropagation();
     if (canMoveUp()) {
-      if (event.cancelable) {
-        event.preventDefault();
-      }
-      event.stopPropagation();
     }
 
     const currentTime = Date.now();
@@ -68,6 +67,8 @@ export function useTouchScroll(
   function onTouchEnd(ev: MouseEvent) {
     isMouseDown = false;
     lastX = lastY = 0;
+    velocityX *= 1.1;
+    velocityY *= 1.1;
     requestAnimationFrame(scroll);
   }
 
