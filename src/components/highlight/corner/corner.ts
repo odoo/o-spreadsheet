@@ -1,14 +1,19 @@
 import { Component } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../../constants";
-import { Color, SpreadsheetChildEnv, Zone } from "../../../types";
+import { Color, ResizeDirection, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+
+const MOBILE_HANDLER_WIDTH = 40;
 
 css/* scss */ `
   .o-corner {
     position: absolute;
-    height: 8px;
-    width: 8px;
+  }
+
+  .o-corner-button {
     border: 1px solid white;
+    height: ${AUTOFILL_EDGE_LENGTH}px;
+    width: ${AUTOFILL_EDGE_LENGTH}px;
   }
   .o-corner-nw,
   .o-corner-se {
@@ -27,14 +32,14 @@ css/* scss */ `
   }
 `;
 
-type Orientation = "nw" | "ne" | "sw" | "se";
+type Orientation = "nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w";
 
 interface Props {
   zone: Zone;
   color: Color;
   orientation: Orientation;
   isResizing: boolean;
-  onResizeHighlight: (ev: PointerEvent, isLeft: boolean, isTop: boolean) => void;
+  onResizeHighlight: (ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) => void;
 }
 
 export class Corner extends Component<Props, SpreadsheetChildEnv> {
@@ -46,37 +51,70 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
     isResizing: Boolean,
     onResizeHighlight: Function,
   };
-  private isTop = this.props.orientation[0] === "n";
-  private isLeft = this.props.orientation[1] === "w";
+  private dirX!: ResizeDirection;
+  private dirY!: ResizeDirection;
 
-  get style() {
+  setup(): void {
+    const { dirX, dirY } = orientationToDir(this.props.orientation);
+    this.dirX = dirX;
+    this.dirY = dirY;
+  }
+
+  get handlerStyle() {
     const z = this.props.zone;
-    const col = this.isLeft ? z.left : z.right;
-    const row = this.isTop ? z.top : z.bottom;
 
     const rect = this.env.model.getters.getVisibleRect({
-      left: col,
-      right: col,
-      top: row,
-      bottom: row,
+      left: this.dirX === 1 ? z.right : z.left,
+      right: this.dirX === -1 ? z.left : z.right,
+      top: this.dirY === 1 ? z.bottom : z.top,
+      bottom: this.dirY === -1 ? z.top : z.bottom,
     });
 
     // Don't show if not visible in the viewport
     if (rect.width * rect.height === 0) {
-      return `display:none`;
+      return `display: none !important;`;
     }
 
-    const leftValue = this.isLeft ? rect.x : rect.x + rect.width;
-    const topValue = this.isTop ? rect.y : rect.y + rect.height;
+    const leftValue = rect.x + rect.width / 2 + (this.dirX * rect.width) / 2;
+    const topValue = rect.y + rect.height / 2 + (this.dirY * rect.height) / 2;
 
-    return cssPropertiesToCss({
-      left: `${leftValue - AUTOFILL_EDGE_LENGTH / 2}px`,
-      top: `${topValue - AUTOFILL_EDGE_LENGTH / 2}px`,
+    const edgeLength = this.getHandlerEdgeLength();
+    const css = {
+      left: `${leftValue - edgeLength / 2}px`,
+      top: `${topValue - edgeLength / 2}px`,
+      height: `${edgeLength}px`,
+      width: `${edgeLength}px`,
+    };
+    if (this.env.isMobile()) {
+      css["border-radius"] = `${edgeLength / 2}px`;
+    }
+
+    return cssPropertiesToCss(css);
+  }
+
+  getHandlerEdgeLength() {
+    return this.env.isMobile() ? MOBILE_HANDLER_WIDTH : AUTOFILL_EDGE_LENGTH;
+  }
+
+  get buttonLook() {
+    const css = {
       "background-color": this.props.color,
-    });
+      cursor: `${this.props.orientation}-resize`,
+    };
+    if (this.env.isMobile()) {
+      css["border-radius"] = `${AUTOFILL_EDGE_LENGTH / 2}px`;
+    }
+    return cssPropertiesToCss(css);
   }
 
   onMouseDown(ev: PointerEvent) {
-    this.props.onResizeHighlight(ev, this.isLeft, this.isTop);
+    this.props.onResizeHighlight(ev, this.dirX, this.dirY);
   }
+}
+
+function orientationToDir(or: Orientation): { dirX: ResizeDirection; dirY: ResizeDirection } {
+  const dirX = or.includes("w") ? -1 : or.includes("e") ? 1 : 0;
+  const dirY = or.includes("n") ? -1 : or.includes("s") ? 1 : 0;
+
+  return { dirX, dirY };
 }
