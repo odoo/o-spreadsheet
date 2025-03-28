@@ -40,15 +40,11 @@ import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getChartLayout,
   getChartTitle,
-  getSunburstChartData,
+  getHierarchalChartData,
   getTreeMapChartDatasets,
   getTreeMapChartTooltip,
 } from "./runtime";
 
-// ADRM TODO: collapsible overflow
-// ADRM TODO: stop leaking data
-// ADRM TODO: use sunburst config panel
-// ADRM TODO: maybe hierarchy chart category ?
 export class TreeMapChart extends AbstractChart {
   static defaults = {
     background: BACKGROUND_CHART_COLOR,
@@ -105,11 +101,15 @@ export class TreeMapChart extends AbstractChart {
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): TreeMapChartDefinition {
+    const dataSets: CustomizedDataSet[] = [];
+    if (context.hierarchicalRanges?.length) {
+      dataSets.push(...context.hierarchicalRanges);
+    } else if (context.auxiliaryRange) {
+      dataSets.push({ ...context.range?.[0], dataRange: context.auxiliaryRange });
+    }
     return {
       background: context.background,
-      dataSets: context.auxiliaryRange
-        ? [{ ...context.range?.[0], dataRange: context.auxiliaryRange }]
-        : [],
+      dataSets,
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
@@ -120,7 +120,7 @@ export class TreeMapChart extends AbstractChart {
       headerDesign: context.headerDesign,
       showLabels: context.showLabels,
       valuesDesign: context.valuesDesign,
-      coloringOptions: context.coloringOptions,
+      coloringOptions: context.treemapColoringOptions,
     };
   }
 
@@ -132,6 +132,9 @@ export class TreeMapChart extends AbstractChart {
         ? [{ dataRange: this.getters.getRangeString(this.labelRange, this.sheetId) }]
         : [],
       auxiliaryRange: leafRange ? this.getters.getRangeString(leafRange, this.sheetId) : undefined,
+      hierarchicalRanges: this.dataSets.map((ds: DataSet) => ({
+        dataRange: this.getters.getRangeString(ds.dataRange, this.sheetId),
+      })),
     };
   }
 
@@ -209,8 +212,7 @@ export function createTreeMapChartRuntime(
   getters: Getters
 ): TreeMapChartRuntime {
   const definition = chart.getDefinition();
-  // ADRM TODO: rename
-  const chartData = getSunburstChartData(definition, chart.dataSets, chart.labelRange, getters);
+  const chartData = getHierarchalChartData(definition, chart.dataSets, chart.labelRange, getters);
 
   const config: ChartConfiguration = {
     type: "treemap",

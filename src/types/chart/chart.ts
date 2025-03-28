@@ -173,6 +173,7 @@ export interface ExcelChartDefinition {
 
 export interface ChartCreationContext {
   readonly range?: CustomizedDataSet[];
+  readonly hierarchicalRanges?: CustomizedDataSet[];
   readonly title?: TitleDesign;
   readonly background?: Color;
   readonly auxiliaryRange?: string;
@@ -194,7 +195,7 @@ export interface ChartCreationContext {
   readonly groupColors?: (Color | undefined | null)[];
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
-  readonly coloringOptions?: TreeMapColoringOptions;
+  readonly treemapColoringOptions?: TreeMapColoringOptions;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

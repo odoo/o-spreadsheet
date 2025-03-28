@@ -256,6 +256,7 @@ export const chartCategories = {
   bar: _t("Bar"),
   area: _t("Area"),
   pie: _t("Pie"),
+  hierarchical: _t("Hierarchical"),
   misc: _t("Miscellaneous"),
 };
 
@@ -453,7 +454,7 @@ chartSubtypeRegistry
     displayName: _t("Sunburst"),
     chartSubtype: "sunburst",
     chartType: "sunburst",
-    category: "misc",
+    category: "hierarchical",
     preview: "o-spreadsheet-ChartPreview.SUNBURST_CHART",
   })
   .add("treemap", {
@@ -461,6 +462,6 @@ chartSubtypeRegistry
     displayName: _t("Tree Map"),
     chartType: "treemap",
     chartSubtype: "treemap",
-    category: "misc",
+    category: "hierarchical",
     preview: "o-spreadsheet-ChartPreview.TREE_MAP_CHART",
   });

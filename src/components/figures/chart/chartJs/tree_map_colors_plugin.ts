@@ -39,8 +39,6 @@ export const treeMapColorsPlugin: Plugin = {
       return;
     }
 
-    const maxDepth = Object.keys(tree[0]).length - 2;
-
     for (const dataset of chart.config.data.datasets) {
       dataset.backgroundColor = (ctx: any) => {
         if (ctx.type !== "data") {
@@ -51,11 +49,11 @@ export const treeMapColorsPlugin: Plugin = {
         }
         const coloringOption = definition.coloringOptions || TreeMapChartDefaults.coloringOptions;
         if (coloringOption.type === "colorScale") {
-          const colorScale = getTreeMapColorScale(dataset, coloringOption, maxDepth);
+          const colorScale = getTreeMapColorScale(dataset, coloringOption);
           return colorScale?.(ctx.raw.v) || "#FF0000";
         } else if (coloringOption.type === "categoryColor") {
           const categoryColors = getTreeMapGroupColors(definition, tree);
-          return getTreeMapElementColor(ctx, dataset, coloringOption, maxDepth, categoryColors);
+          return getTreeMapElementColor(ctx, dataset, coloringOption, categoryColors);
         }
         throw new Error(`Unsupported coloring option type}`);
       };
@@ -90,11 +88,7 @@ export function getTreeMapGroupColors(
   return colors;
 }
 
-function getTreeMapColorScale(
-  dataset: any,
-  coloringOption: TreeMapColorScaleOptions,
-  maxDepth: number
-) {
+function getTreeMapColorScale(dataset: any, coloringOption: TreeMapColorScaleOptions) {
   const nodes = dataset.data.filter((node) => node.isLeaf);
   const minValue = Math.min(...nodes.map((node) => Number(node.v) || 0));
   const maxValue = Math.max(...nodes.map((node) => Number(node.v) || 0));
@@ -114,7 +108,6 @@ function getTreeMapElementColor(
   ctx: any,
   dataset: any,
   coloringOption: TreeMapCategoryColorOptions,
-  maxDepth: number,
   categoryColors: TreeMapGroupColor[]
 ) {
   const rootCategory = ctx.raw._data.children[0][0];

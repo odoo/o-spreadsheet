@@ -10,7 +10,6 @@ export interface TreeMapChartDefinition {
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;
-  // readonly axesDesign?: AxesDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly showHeaders?: boolean;

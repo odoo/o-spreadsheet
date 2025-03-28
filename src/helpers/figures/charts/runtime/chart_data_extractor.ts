@@ -277,13 +277,13 @@ export function getGeoChartData(
   };
 }
 
-export function getSunburstChartData(
+export function getHierarchalChartData(
   definition: SunburstChartDefinition | TreeMapChartDefinition,
   dataSets: DataSet[],
   labelRange: Range | undefined,
   getters: Getters
 ): ChartRuntimeGenerationArgs {
-  // In Sunburst, labels are the leaf values (numbers), and the hierarchy is defined in the dataSets (strings)
+  // In hierarchical charts, labels are the leaf values (numbers), and the hierarchy is defined in the dataSets (strings)
   let labels = getChartLabelValues(getters, dataSets, labelRange).values;
   let dataSetsValues = getHierarchicalDatasetValues(getters, dataSets);
   const removeFirstLabel = shouldRemoveFirstLabel(

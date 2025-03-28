@@ -7,7 +7,13 @@ import {
   TreeMapChartDefinition,
   TreeMapChartRuntime,
 } from "../../../../src/types/chart/tree_map_chart";
-import { createTreeMapChart, setCellContent, setFormat, updateChart } from "../../../test_helpers";
+import {
+  createSunburstChart,
+  createTreeMapChart,
+  setCellContent,
+  setFormat,
+  updateChart,
+} from "../../../test_helpers";
 import { GENERAL_CHART_CREATION_CONTEXT } from "../../../test_helpers/chart_helpers";
 import { setGrid } from "../../../test_helpers/helpers";
 
@@ -17,7 +23,8 @@ interface TreeMapElementCtx {
     v: number; // value
     g: string; // group
     l: number; // depth
-    _data: { children: (string | undefined)[][]; path: string };
+    _data: { children: Record<string, number | string | undefined>[]; path: string };
+    isLeaf: boolean;
   };
 }
 
@@ -35,19 +42,24 @@ function getTreeMapElement(args: {
   value?: number;
   group?: string;
   depth?: number;
-  parentGroup?: string;
   path?: string;
+  isLeaf?: boolean;
 }): TreeMapElementCtx {
+  const path = args.path || args.group || "";
+  const child: Record<string, number | string | undefined> = { value: args.value || 0 };
+  path.split(".").forEach((group, index) => (child[index] = group));
+
   return {
     type: "data",
     raw: {
       v: args.value || 0,
-      g: args.group || "",
+      g: args.group || path.split(".")[args.depth || 0] || "",
       l: args.depth || 0,
       _data: {
-        children: [[args.parentGroup]],
-        path: args.path || [args.parentGroup, args.group].join("."),
+        children: [child],
+        path,
       },
+      isLeaf: args.isLeaf || false,
     },
   };
 }
@@ -77,6 +89,20 @@ describe("TreeMap chart", () => {
     });
   });
 
+  test("Labels and datasets are not swapped from a Sunburst chart creation context", () => {
+    const model = new Model();
+    const chartId = createSunburstChart(model, {
+      dataSets: [{ dataRange: "A1:A4" }],
+      labelRange: "B1:B4",
+    });
+    const context = model.getters.getChart(chartId)!.getContextCreation();
+    const definition = TreeMapChart.getDefinitionFromContextCreation(context);
+    expect(definition).toMatchObject({
+      dataSets: [{ dataRange: "A1:A4" }],
+      labelRange: "B1:B4",
+    });
+  });
+
   test("create TreeMap chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       ...GENERAL_CHART_CREATION_CONTEXT,
@@ -91,7 +117,7 @@ describe("TreeMap chart", () => {
       showHeaders: true,
       showLabels: false,
       valuesDesign: { italic: true },
-      coloringOptions: { type: "categoryColor", colors: [], highlightBigValues: true },
+      treemapColoringOptions: { type: "categoryColor", colors: [], highlightBigValues: true },
     };
     const definition = TreeMapChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -156,7 +182,7 @@ describe("TreeMap chart", () => {
         { 0: "2024", 1: "Q1", value: 100 },
         { 0: "2024", 1: "Q2", value: 200 },
         { 0: "2024", 1: "Q3", value: 300 },
-        { 0: "2025", 1: "2025", value: 600 },
+        { 0: "2025", 1: undefined, value: 600 },
       ],
       groups: ["0", "1"],
       key: "value",
@@ -229,6 +255,7 @@ describe("TreeMap chart", () => {
   test("TreeMap header style", () => {
     setCellContent(model, "A1", "45");
     const chartId = createTreeMapChart(model, {
+      dataSetsHaveTitle: false,
       dataSets: [{ dataRange: "A1" }],
       headerDesign: { bold: false, italic: true, align: "right" },
     });
@@ -255,16 +282,19 @@ describe("TreeMap chart", () => {
     });
     const config = getTreeMapConfig(chartId);
 
+    const tooltipBeforeLabel = config.options?.plugins?.tooltip?.callbacks?.beforeLabel;
     const tooltipLabel = config.options?.plugins?.tooltip?.callbacks?.label;
     const tooltipTitle = config.options?.plugins?.tooltip?.callbacks?.title;
 
     const leafItem = getTreeMapElement({ value: 25, depth: 2, path: "2025.Q2.W1", group: "W1" });
-    expect(tooltipTitle([leafItem])).toBe("2025 / Q2");
-    expect(tooltipLabel(leafItem)).toBe("W1: 25€");
+    expect(tooltipTitle([leafItem])).toBe("");
+    expect(tooltipBeforeLabel(leafItem)).toBe("2025 / Q2 / W1");
+    expect(tooltipLabel(leafItem)).toBe("25€");
 
     const parentItem = getTreeMapElement({ value: 100, depth: 1, group: "Q2", path: "2024.Q2" });
-    expect(tooltipTitle([parentItem])).toBe("2024 / Q2");
-    expect(tooltipLabel(parentItem)).toBe("Total: 100€");
+    expect(tooltipTitle([parentItem])).toBe("");
+    expect(tooltipBeforeLabel(parentItem)).toBe("2024 / Q2");
+    expect(tooltipLabel(parentItem)).toBe("100€");
   });
 
   test("TreeMap label & value style", () => {
@@ -333,7 +363,7 @@ describe("TreeMap chart", () => {
       // prettier-ignore
       const grid = {
             A1: "Year", B1: "Quarter", C1: "Sales",
-            A2: "2023", B2: "Q1",      C2: "0",
+            A2: "2023", B2: "Q1",      C2: "20",
             A3: "2024", B3: "Q2",      C3: "100",
             A4: "2025", B4: "Q2",      C4: "200",
       };
@@ -352,32 +382,36 @@ describe("TreeMap chart", () => {
       });
       const data = [
         // Mocked groupBys that are supposed to be generated by the chart
-        getTreeMapElement({ depth: 0, group: "2023" }),
-        getTreeMapElement({ depth: 0, group: "2024" }),
-        getTreeMapElement({ depth: 0, group: "2025" }),
-        getTreeMapElement({ depth: 1, group: "Q1", parentGroup: "2023", value: 0 }),
-        getTreeMapElement({ depth: 1, group: "Q2", parentGroup: "2024", value: 100 }),
-        getTreeMapElement({ depth: 1, group: "Q2", parentGroup: "2025", value: 200 }),
+        getTreeMapElement({ depth: 0, path: "2023", isLeaf: false }).raw,
+        getTreeMapElement({ depth: 0, path: "2024", isLeaf: false }).raw,
+        getTreeMapElement({ depth: 0, path: "2025", isLeaf: false }).raw,
+        getTreeMapElement({ depth: 1, path: "2023.Q1", value: 20, isLeaf: true }).raw,
+        getTreeMapElement({ depth: 1, path: "2024.Q2", value: 100, isLeaf: true }).raw,
+        getTreeMapElement({ depth: 1, path: "2025.Q2", value: 200, isLeaf: true }).raw,
       ];
       const mockedChartCtx = mockChartCtx(chartId, data);
       const getColor = getBackgroundColorCallback(chartId, mockedChartCtx);
 
-      expect(getColor(getTreeMapElement({ depth: 1, parentGroup: "2023" }))).toEqual("#112233");
+      expect(getColor(getTreeMapElement({ depth: 1, path: "2023.Q1", isLeaf: true }))).toEqual(
+        "#112233"
+      );
       const colorGenerator = new ColorGenerator(3);
       colorGenerator.next();
-      expect(getColor(getTreeMapElement({ depth: 1, parentGroup: "2024" }))).toEqual(
+      expect(getColor(getTreeMapElement({ depth: 1, path: "2024.Q2", isLeaf: true }))).toEqual(
         colorGenerator.next()
       );
-      expect(getColor(getTreeMapElement({ depth: 1, parentGroup: "2025" }))).toEqual("#778899");
+      expect(getColor(getTreeMapElement({ depth: 1, path: "2025.Q2", isLeaf: true }))).toEqual(
+        "#778899"
+      );
     });
 
     test("TreeMap category colors with highlight of bigger values", () => {
       // prettier-ignore
       const grid = {
             A1: "Year", B1: "Quarter", C1: "Sales",
-            A2: "2023", B2: "Q1",      C2: "0",
-            A3: "2023", B3: "Q2",      C3: "100",
-            A4: "2023", B4: "Q2",      C4: "200",
+            A2: "2023", B2: "Q1",      C2: "100",
+            A3: "2023", B3: "Q2",      C3: "200",
+            A4: "2023", B4: "Q3",      C4: "300",
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
@@ -391,34 +425,32 @@ describe("TreeMap chart", () => {
       });
       const data = [
         // Mocked groupBys that are supposed to be generated by the chart
-        getTreeMapElement({ depth: 0, group: "2023" }).raw,
-        getTreeMapElement({ depth: 0, group: "2023" }).raw,
-        getTreeMapElement({ depth: 0, group: "2023" }).raw,
-        getTreeMapElement({ depth: 1, group: "Q1", parentGroup: "2023", value: 0 }).raw,
-        getTreeMapElement({ depth: 1, group: "Q2", parentGroup: "2023", value: 100 }).raw,
-        getTreeMapElement({ depth: 1, group: "Q2", parentGroup: "2023", value: 200 }).raw,
+        getTreeMapElement({ depth: 0, path: "2023", isLeaf: false }).raw,
+        getTreeMapElement({ depth: 1, path: "2023.Q1", value: 100, isLeaf: true }).raw,
+        getTreeMapElement({ depth: 1, path: "2023.Q2", value: 200, isLeaf: true }).raw,
+        getTreeMapElement({ depth: 1, path: "2023.Q3", value: 300, isLeaf: true }).raw,
       ];
       const mockedChartCtx = mockChartCtx(chartId, data);
       const getColor = getBackgroundColorCallback(chartId, mockedChartCtx);
 
-      expect(getColor(getTreeMapElement({ depth: 1, parentGroup: "2023", value: 200 }))).toEqual(
-        "#112233"
-      );
-      expect(getColor(getTreeMapElement({ depth: 1, parentGroup: "2023", value: 100 }))).toEqual(
-        lightenColor("#112233", 0.25)
-      );
-      expect(getColor(getTreeMapElement({ depth: 1, parentGroup: "2023", value: 0 }))).toEqual(
-        lightenColor("#112233", 0.5)
-      );
+      expect(
+        getColor(getTreeMapElement({ depth: 1, path: "2023.Q1", value: 100, isLeaf: true }))
+      ).toEqual(lightenColor("#112233", 0.5));
+      expect(
+        getColor(getTreeMapElement({ depth: 1, path: "2023.Q2", value: 200, isLeaf: true }))
+      ).toEqual(lightenColor("#112233", 0.25));
+      expect(
+        getColor(getTreeMapElement({ depth: 1, path: "2023.Q3", value: 300, isLeaf: true }))
+      ).toEqual("#112233");
     });
 
     test("TreeMap color scale", () => {
       // prettier-ignore
       const grid = {
             A1: "Year", B1: "Quarter", C1: "Sales",
-            A2: "2024", B2: "Q1",      C2: "0",
-            A3: "2024", B3: "Q2",      C3: "100",
-            A4: "2025", B4: "Q2",      C4: "200",
+            A2: "2024", B2: "Q1",      C2: "100",
+            A3: "2024", B3: "Q2",      C3: "200",
+            A4: "2025", B4: "Q2",      C4: "300",
       };
       setGrid(model, grid);
       const chartId = createTreeMapChart(model, {
@@ -426,26 +458,32 @@ describe("TreeMap chart", () => {
         labelRange: "C1:C4",
         coloringOptions: {
           type: "colorScale",
-          minColor: "#123",
-          midColor: "#456",
-          maxColor: "#789",
+          minColor: "#112233",
+          midColor: "#445566",
+          maxColor: "#778899",
         },
       });
       const data = [
         // Mocked groupBys that are supposed to be generated by the chart
-        getTreeMapElement({ depth: 0, group: "2024" }).raw,
-        getTreeMapElement({ depth: 0, group: "2024" }).raw,
-        getTreeMapElement({ depth: 0, group: "2025" }).raw,
-        getTreeMapElement({ depth: 1, group: "Q1", parentGroup: "2023", value: 0 }).raw,
-        getTreeMapElement({ depth: 1, group: "Q2", parentGroup: "2024", value: 100 }).raw,
-        getTreeMapElement({ depth: 1, group: "Q2", parentGroup: "2025", value: 200 }).raw,
+        getTreeMapElement({ depth: 0, path: "2023", isLeaf: false }).raw,
+        getTreeMapElement({ depth: 0, path: "2024", isLeaf: false }).raw,
+        getTreeMapElement({ depth: 0, path: "2025", isLeaf: false }).raw,
+        getTreeMapElement({ depth: 1, path: "2023.Q1", value: 100, isLeaf: true }).raw,
+        getTreeMapElement({ depth: 1, path: "2024.Q2", value: 200, isLeaf: true }).raw,
+        getTreeMapElement({ depth: 1, path: "2025.Q2", value: 300, isLeaf: true }).raw,
       ];
       const mockedChartCtx = mockChartCtx(chartId, data);
       const getColor = getBackgroundColorCallback(chartId, mockedChartCtx);
 
-      expect(getColor(getTreeMapElement({ value: 0, depth: 1 }))).toEqual("#112233");
-      expect(getColor(getTreeMapElement({ value: 100, depth: 1 }))).toEqual("#445566");
-      expect(getColor(getTreeMapElement({ value: 200, depth: 1 }))).toEqual("#778899");
+      expect(getColor(getTreeMapElement({ value: 100, depth: 1, isLeaf: true }))).toEqual(
+        "#112233"
+      );
+      expect(getColor(getTreeMapElement({ value: 200, depth: 1, isLeaf: true }))).toEqual(
+        "#445566"
+      );
+      expect(getColor(getTreeMapElement({ value: 3000, depth: 1, isLeaf: true }))).toEqual(
+        "#778899"
+      );
     });
   });
 });
