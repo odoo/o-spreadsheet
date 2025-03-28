@@ -30,6 +30,7 @@ import {
   Style,
   UID,
   UpdateFigureCommand,
+  UnboundedZone,
   Zone,
 } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
@@ -62,6 +63,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "getElementsFromSelection",
     "tryGetActiveSheetId",
     "isGridSelectionActive",
+    "getSelectecUnboundedZone",
   ] as const;
 
   private gridSelection: {
@@ -77,6 +79,7 @@ export class GridSelectionPlugin extends UIPlugin {
   private selectedFigureId: UID | null = null;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
+  private isUnbounded: boolean;
 
   // This flag is used to avoid to historize the ACTIVE_SHEET command when it's
   // the main command.
@@ -86,6 +89,7 @@ export class GridSelectionPlugin extends UIPlugin {
   constructor(config: UIPluginConfig) {
     super(config);
     this.moveClient = config.moveClient;
+    this.isUnbounded = false;
   }
 
   // ---------------------------------------------------------------------------
@@ -113,6 +117,10 @@ export class GridSelectionPlugin extends UIPlugin {
   private handleEvent(event: SelectionEvent) {
     const anchor = event.anchor;
     let zones: Zone[] = [];
+
+    //TODORAR change the selection so that it suppoerts unbounded zones
+    this.isUnbounded = event.options?.unbounded || false;
+
     switch (event.mode) {
       case "overrideSelection":
         zones = [anchor.zone];
@@ -323,6 +331,13 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getSelectedZone(): Zone {
     return deepCopy(this.gridSelection.anchor.zone);
+  }
+
+  getSelectecUnboundedZone(): UnboundedZone {
+    const zone = this.isUnbounded
+      ? this.getters.getUnboundedZone(this.activeSheet.id, this.gridSelection.anchor.zone)
+      : this.gridSelection.anchor.zone;
+    return deepCopy(zone);
   }
 
   getSelection(): Selection {
