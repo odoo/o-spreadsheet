@@ -426,6 +426,18 @@ migrationStepRegistry
   })
   .add("18.3", {
     migrate(data) {
+      if (!data.pivots) {
+        return data;
+      }
+      for (const pivot of Object.values(data.pivots as WorkbookData["pivots"])) {
+        if (!pivot.sortedColumn) {
+          continue;
+        }
+        const measureIds = pivot.measures.map((measure) => measure.id);
+        if (!measureIds.includes(pivot.sortedColumn.measure)) {
+          delete pivot.sortedColumn;
+        }
+      }
       return data;
     },
   });
