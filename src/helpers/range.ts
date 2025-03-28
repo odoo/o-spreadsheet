@@ -49,8 +49,6 @@ interface RangeArgs {
 
 interface RangeXcArgs {
   xc: string;
-  /** true if the user provided the range with the sheet name */
-  prefixSheet: boolean;
   /** the name of any sheet that is invalid */
   invalidSheetName?: string;
   /** the sheet on which the range is defined */
@@ -76,18 +74,24 @@ export function createRange(args: RangeArgs, getSheetSize: (sheetId: UID) => Zon
   };
 }
 
+/**
+ * Create a range from a string XC: A1, Sheet1!A1
+ * The XC is expected to be valid.
+ */
 export function createRangeFromXc(
   args: RangeXcArgs,
   getSheetSize: (sheetId: UID) => ZoneDimension
 ): Range {
-  const unboundedZone = toUnboundedZone(args.xc);
-  const parts = getRangeParts(args.xc, unboundedZone);
+  const fullXc = args.xc;
+  const { xc, sheetName } = splitReference(fullXc);
+  const unboundedZone = toUnboundedZone(xc);
+  const parts = getRangeParts(xc, unboundedZone);
   return createRange(
     {
       zone: unboundedZone,
       parts,
       sheetId: args.sheetId,
-      prefixSheet: args.prefixSheet,
+      prefixSheet: Boolean(sheetName),
       invalidSheetName: args.invalidSheetName,
     },
     getSheetSize

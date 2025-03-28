@@ -196,22 +196,12 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       return createInvalidRange(sheetXC);
     }
 
-    let sheetName: string | undefined;
-    let xc = sheetXC;
-    let prefixSheet = false;
-    if (sheetXC.includes("!")) {
-      ({ xc, sheetName } = splitReference(sheetXC));
-      if (sheetName) {
-        prefixSheet = true;
-      }
-    }
+    const { sheetName } = splitReference(sheetXC);
     const sheetId = this.getters.getSheetIdByName(sheetName) || defaultSheetId;
     const invalidSheetName =
       sheetName && !this.getters.getSheetIdByName(sheetName) ? sheetName : undefined;
 
-    const rangeInterface = { prefixSheet, xc, sheetId, invalidSheetName };
-
-    return createRangeFromXc(rangeInterface, this.getters.getSheetSize);
+    return createRangeFromXc({ xc: sheetXC, sheetId, invalidSheetName }, this.getters.getSheetSize);
   }
 
   /**
