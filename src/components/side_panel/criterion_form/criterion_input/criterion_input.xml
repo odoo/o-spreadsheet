@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-DataValidationInput">
+  <t t-name="o-spreadsheet-CriterionInput">
     <div class="o-dv-input position-relative w-100 p-1">
       <t t-if="allowedValues === 'onlyLiterals'">
         <input

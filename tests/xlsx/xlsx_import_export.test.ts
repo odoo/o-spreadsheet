@@ -159,7 +159,7 @@ describe("Export data to xlsx then import it", () => {
   test.each([
     {
       values: ["42"],
-      operator: "Equal" as const,
+      operator: "isEqual" as const,
       type: "CellIsRule" as const,
       style: {
         fillColor: "#FF9900",

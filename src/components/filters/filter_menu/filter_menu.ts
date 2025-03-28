@@ -1,57 +1,53 @@
-import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { GRAY_300 } from "../../../constants";
-import { deepEquals, positions, toLowerCase } from "../../../helpers";
-import { fuzzyLookup } from "../../../helpers/search";
+import { Component, onWillUpdateProps } from "@odoo/owl";
+import { deepEquals, isDateTimeFormat } from "../../../helpers";
 import { interactiveSort } from "../../../helpers/sort";
-import { Position, SortDirection, SpreadsheetChildEnv } from "../../../types";
+import { _t } from "../../../translation";
+import {
+  CellValueType,
+  CriterionFilter,
+  DataFilterValue,
+  Position,
+  SortDirection,
+  SpreadsheetChildEnv,
+  filterDateCriterionOperators,
+  filterNumberCriterionOperators,
+  filterTextCriterionOperators,
+} from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
-import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
-
-const FILTER_MENU_HEIGHT = 295;
+import { SidePanelCollapsible } from "../../side_panel/components/collapsible/side_panel_collapsible";
+import { FilterMenuCriterion } from "../filter_menu _criterion/filter_menu _criterion";
+import { FilterMenuValueList } from "../filter_menu_value_list/filter_menu_value_list";
 
 const CSS = css/* scss */ `
   .o-filter-menu {
+    width: 245px;
     padding: 8px 16px;
-    height: ${FILTER_MENU_HEIGHT}px;
-    line-height: 1;
+    user-select: none;
+
+    .o_side_panel_collapsible_title {
+      font-size: inherit;
+      padding: 0 0 4px 0 !important;
+
+      .collapsor-arrow {
+        transform-origin: 6px 8px;
+
+        .o-icon {
+          width: 12px;
+          height: 16px;
+        }
+      }
+    }
 
     .o-filter-menu-item {
       display: flex;
       cursor: pointer;
       user-select: none;
+      line-height: 1;
 
-      &.selected {
+      &.selected,
+      &:hover {
         background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
-
-    .o-search-icon {
-      right: 5px;
-      top: 3px;
-      opacity: 0.4;
-
-      svg {
-        height: 16px;
-        width: 16px;
-        vertical-align: middle;
-      }
-    }
-
-    .o-filter-menu-actions {
-      display: flex;
-      flex-direction: row;
-      margin-bottom: 4px;
-    }
-
-    .o-filter-menu-list {
-      flex: auto;
-      overflow-y: auto;
-      border: 1px solid ${GRAY_300};
-
-      .o-filter-menu-no-values {
-        color: #949494;
-        font-style: italic;
       }
     }
 
@@ -70,17 +66,7 @@ interface Props {
   onClosed?: () => void;
 }
 
-interface Value {
-  checked: boolean;
-  string: string;
-  scrolledTo?: "top" | "bottom" | undefined;
-}
-
-interface State {
-  values: Value[];
-  textFilter: string;
-  selectedValue: string | undefined;
-}
+type CriterionCategory = "text" | "number" | "date";
 
 export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenu";
@@ -89,24 +75,19 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     onClosed: { type: Function, optional: true },
   };
   static style = CSS;
-  static components = { FilterMenuValueItem };
+  static components = { FilterMenuValueList, SidePanelCollapsible, FilterMenuCriterion };
 
-  private state: State = useState({
-    values: [],
-    textFilter: "",
-    selectedValue: undefined,
-  });
-
-  private searchBar = useRef("filterMenuSearchBar");
+  private criterionCategory: CriterionCategory = "text";
+  private updatedCriterionValue: DataFilterValue | undefined;
 
   setup() {
     onWillUpdateProps((nextProps: Props) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
-        this.state.values = this.getFilterHiddenValues(nextProps.filterPosition);
+        this.updatedCriterionValue = undefined;
+        this.criterionCategory = this.getCriterionCategory(nextProps.filterPosition);
       }
     });
-
-    this.state.values = this.getFilterHiddenValues(this.props.filterPosition);
+    this.criterionCategory = this.getCriterionCategory(this.props.filterPosition);
   }
 
   get isSortable() {
@@ -120,144 +101,93 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     return !this.env.model.getters.isReadonly() && coreTable?.type !== "dynamic";
   }
 
-  private getFilterHiddenValues(position: Position): Value[] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
-    if (!filter) {
-      return [];
-    }
-
-    const cellValues = (filter.filteredRange ? positions(filter.filteredRange.zone) : [])
-      .filter(({ row }) => !this.env.model.getters.isRowHidden(sheetId, row))
-      .map(
-        ({ col, row }) =>
-          this.env.model.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue
-      );
-
-    const filterValues = this.env.model.getters.getFilterHiddenValues({ sheetId, ...position });
-
-    const strValues = [...cellValues, ...filterValues];
-    const normalizedFilteredValues = filterValues.map(toLowerCase);
-
-    // Set with lowercase values to avoid duplicates
-    const normalizedValues = [...new Set(strValues.map(toLowerCase))];
-
-    const sortedValues = normalizedValues.sort((val1, val2) =>
-      val1.localeCompare(val2, undefined, { numeric: true, sensitivity: "base" })
-    );
-
-    return sortedValues.map((normalizedValue) => {
-      const checked =
-        normalizedFilteredValues.findIndex((filteredValue) => filteredValue === normalizedValue) ===
-        -1;
-      return {
-        checked,
-        string: strValues.find((val) => toLowerCase(val) === normalizedValue) || "",
-      };
-    });
-  }
-
-  checkValue(value: Value) {
-    this.state.selectedValue = value.string;
-    value.checked = !value.checked;
-    this.searchBar.el?.focus();
-  }
-
-  onMouseMove(value: Value) {
-    this.state.selectedValue = value.string;
-  }
-
-  selectAll() {
-    this.displayedValues.forEach((value) => (value.checked = true));
-  }
-
-  clearAll() {
-    this.displayedValues.forEach((value) => (value.checked = false));
-  }
-
   get table() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const position = this.props.filterPosition;
     return this.env.model.getters.getTable({ sheetId, ...position });
   }
 
-  get displayedValues() {
-    if (!this.state.textFilter) {
-      return this.state.values;
+  get filterValueType() {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const position = this.props.filterPosition;
+    const filterValue = this.env.model.getters.getFilterValue({ sheetId, ...position });
+    return filterValue?.filterType;
+  }
+
+  private getCriterionCategory(position: Position): CriterionCategory {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const filter = this.env.model.getters.getFilter({ sheetId, ...position });
+    if (!filter || !filter.filteredRange) {
+      return "text";
     }
-    return fuzzyLookup(this.state.textFilter, this.state.values, (val) => val.string);
+
+    const cellTypesCount: Record<CriterionCategory, number> = { text: 0, number: 0, date: 0 };
+    const filteredZone = filter.filteredRange.zone;
+
+    for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
+      // 100 rows should be enough to determine the type, let's not loop on 10,000 rows for nothing
+      if (row > 100) {
+        break;
+      }
+      const cell = this.env.model.getters.getEvaluatedCell({ sheetId, row, col: position.col });
+      if (cell.type === CellValueType.text || cell.type === CellValueType.boolean) {
+        cellTypesCount.text++;
+      } else if (cell.type === CellValueType.number) {
+        if (cell.format && isDateTimeFormat(cell.format)) {
+          cellTypesCount.date++;
+        } else {
+          cellTypesCount.number++;
+        }
+      }
+    }
+
+    const max = Math.max(cellTypesCount.text, cellTypesCount.number, cellTypesCount.date);
+    const type = Object.keys(cellTypesCount).find((key) => cellTypesCount[key] === max);
+    return (type || "text") as CriterionCategory;
+  }
+
+  onUpdateHiddenValues(values: string[]) {
+    this.updatedCriterionValue = { filterType: "values", hiddenValues: values };
+  }
+
+  onCriterionChanged(criterion: CriterionFilter) {
+    this.updatedCriterionValue = criterion;
   }
 
   confirm() {
+    if (!this.updatedCriterionValue) {
+      this.props.onClosed?.();
+      return;
+    }
     const position = this.props.filterPosition;
     this.env.model.dispatch("UPDATE_FILTER", {
       ...position,
       sheetId: this.env.model.getters.getActiveSheetId(),
-      hiddenValues: this.state.values.filter((val) => !val.checked).map((val) => val.string),
+      value: this.updatedCriterionValue,
     });
     this.props.onClosed?.();
   }
 
+  get criterionOperators() {
+    if (this.criterionCategory === "date") {
+      return filterDateCriterionOperators;
+    } else if (this.criterionCategory === "number") {
+      return filterNumberCriterionOperators;
+    }
+    return filterTextCriterionOperators;
+  }
+
+  get criterionTitle() {
+    if (this.criterionCategory === "date") {
+      return _t("Date filters");
+    } else if (this.criterionCategory === "number") {
+      return _t("Number filters");
+    }
+    return _t("Text filters");
+  }
+
   cancel() {
     this.props.onClosed?.();
-  }
-
-  onKeyDown(ev: KeyboardEvent) {
-    const displayedValues = this.displayedValues;
-
-    if (displayedValues.length === 0) return;
-
-    let selectedIndex: number | undefined = undefined;
-    if (this.state.selectedValue !== undefined) {
-      const index = displayedValues.findIndex((val) => val.string === this.state.selectedValue);
-      selectedIndex = index === -1 ? undefined : index;
-    }
-
-    switch (ev.key) {
-      case "ArrowDown":
-        if (selectedIndex === undefined) {
-          selectedIndex = 0;
-        } else {
-          selectedIndex = Math.min(selectedIndex + 1, displayedValues.length - 1);
-        }
-        ev.preventDefault();
-        ev.stopPropagation();
-        break;
-      case "ArrowUp":
-        if (selectedIndex === undefined) {
-          selectedIndex = displayedValues.length - 1;
-        } else {
-          selectedIndex = Math.max(selectedIndex - 1, 0);
-        }
-        ev.preventDefault();
-        ev.stopPropagation();
-        break;
-      case "Enter":
-        if (selectedIndex !== undefined) {
-          this.checkValue(displayedValues[selectedIndex]);
-        }
-        ev.stopPropagation();
-        ev.preventDefault();
-        break;
-    }
-
-    this.state.selectedValue =
-      selectedIndex !== undefined ? displayedValues[selectedIndex].string : undefined;
-    if (ev.key === "ArrowUp" || ev.key === "ArrowDown") {
-      this.scrollListToSelectedValue(ev.key);
-    }
-  }
-
-  clearScrolledToValue() {
-    this.state.values.forEach((val) => (val.scrolledTo = undefined));
-  }
-
-  private scrollListToSelectedValue(arrow: "ArrowUp" | "ArrowDown") {
-    this.clearScrolledToValue();
-    const selectedValue = this.state.values.find((val) => val.string === this.state.selectedValue);
-    if (selectedValue) {
-      selectedValue.scrolledTo = arrow === "ArrowUp" ? "top" : "bottom";
-    }
   }
 
   sortFilterZone(sortDirection: SortDirection) {

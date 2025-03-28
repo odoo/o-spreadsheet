@@ -225,7 +225,7 @@ export const TEST_COMMANDS: CommandMapping = {
       id: "cfId",
       rule: {
         values: ["1"],
-        operator: "Equal",
+        operator: "isEqual",
         type: "CellIsRule",
         style: { fillColor: "#FF0000" },
       },

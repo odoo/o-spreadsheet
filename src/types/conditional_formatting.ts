@@ -155,17 +155,35 @@ export interface Top10Rule extends SingleColorRule {
 //https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.conditionalformattingoperatorvalues?view=openxml-2.8.1
 // Note: IsEmpty and IsNotEmpty does not exist on the specification
 export type ConditionalFormattingOperatorValues =
-  | "BeginsWith"
-  | "Between"
-  | "ContainsText"
-  | "IsEmpty"
-  | "IsNotEmpty"
-  | "EndsWith"
-  | "Equal"
-  | "GreaterThan"
-  | "GreaterThanOrEqual"
-  | "LessThan"
-  | "LessThanOrEqual"
-  | "NotBetween"
-  | "NotContains"
-  | "NotEqual";
+  | "textBeginsWith"
+  | "isBetween"
+  | "textContains"
+  | "isEmpty"
+  | "isNotEmpty"
+  | "textEndsWith"
+  | "isEqual"
+  | "isGreaterThan"
+  | "isGreaterOrEqualTo"
+  | "isLessThan"
+  | "isLessOrEqualTo"
+  | "isNotBetween"
+  | "textNotContains"
+  | "isNotEqual";
+
+export const availableConditionalFormatOperators: Set<ConditionalFormattingOperatorValues> =
+  new Set([
+    "textContains",
+    "textNotContains",
+    "isGreaterThan",
+    "isGreaterOrEqualTo",
+    "isLessThan",
+    "isLessOrEqualTo",
+    "isBetween",
+    "isNotBetween",
+    "textBeginsWith",
+    "textEndsWith",
+    "isNotEmpty",
+    "isEmpty",
+    "isNotEqual",
+    "isEqual",
+  ]);
