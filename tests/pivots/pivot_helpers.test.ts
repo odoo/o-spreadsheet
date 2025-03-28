@@ -48,6 +48,7 @@ describe("toNormalizedPivotValue", () => {
       expect(toNormalizedPivotValue(dimension, 2020)).toBe(2020);
       expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
       expect(toNormalizedPivotValue(dimension, false)).toBe(false);
+      expect(toNormalizedPivotValue(dimension, "2020-12-31")).toBe(2020);
 
       dimension.granularity = "day_of_month";
       expect(toNormalizedPivotValue(dimension, "1")).toBe(1);
@@ -194,7 +195,7 @@ describe("ToFunctionValue", () => {
   test.each(["date", "datetime"])("Format values of %s fields", (type: string) => {
     const dimension = { type, granularity: "day" };
     // day
-    expect(toFunctionPivotValue("1/11/2020", dimension)).toBe(`"01/11/2020"`);
+    expect(toFunctionPivotValue("1/11/2020", dimension)).toBe("DATE(2020, 1, 11)");
     // year
     dimension.granularity = "year";
     expect(toFunctionPivotValue("2020", dimension)).toBe("2020");
