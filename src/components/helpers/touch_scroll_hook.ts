@@ -17,7 +17,6 @@ export function useTouchScroll(
   let velocityY = 0;
   let isMouseDown = false;
   let lastTime = 0;
-  let skipFirst = false;
 
   useRefListener(ref, "touchstart", onTouchStart, { capture: false });
   useRefListener(ref, "touchmove", onTouchMove, { capture: false });
@@ -57,10 +56,7 @@ export function useTouchScroll(
     lastX = clientX;
     lastY = clientY;
     lastTime = currentTime;
-    if (skipFirst) {
-      skipFirst = false;
-      // return;
-    }
+
     updateScroll(deltaX * HorizontalScrollFactor, deltaY * verticalScrollFactor);
   }
 
