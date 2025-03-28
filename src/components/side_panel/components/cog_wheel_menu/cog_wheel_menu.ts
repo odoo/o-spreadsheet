@@ -2,6 +2,7 @@ import { Component, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
 import { MenuMouseEvent } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/env";
+import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { Menu, MenuState } from "../../../menu/menu";
 
 interface Props {
@@ -16,7 +17,7 @@ export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
   };
 
   private buttonRef = useRef("button");
-  private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
+  private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private menuId = this.env.model.uuidGenerator.uuidv4();
 
@@ -25,9 +26,8 @@ export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
-    const { x, y } = this.buttonRef.el!.getBoundingClientRect();
     this.menuState.isOpen = !this.menuState.isOpen;
-    this.menuState.position = { x, y };
+    this.menuState.anchorRect = getBoundingRectAsPOJO(this.buttonRef.el!);
     this.menuState.menuItems = createActions(this.props.items);
   }
 }

@@ -3,8 +3,7 @@
     <div
       class="o-link-editor"
       t-on-click.stop="() => this.menu.isOpen=false"
-      t-on-keydown="onKeyDown"
-      t-ref="linkEditor">
+      t-on-keydown="onKeyDown">
       <div class="o-section">
         <div class="o-section-title">Text</div>
         <div class="d-flex">
@@ -41,14 +40,18 @@
           <button t-if="link.url" t-on-click="removeLink" class="o-remove-url o-button-icon">
             ✖
           </button>
-          <button t-if="!link.url" t-on-click.stop="openMenu" class="o-special-link o-button-icon">
+          <button
+            t-if="!link.url"
+            t-on-click.stop="openMenu"
+            class="o-special-link o-button-icon"
+            t-ref="linkEditorMenuButton">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </button>
         </div>
       </div>
       <Menu
         t-if="menu.isOpen"
-        position="menuPosition"
+        anchorRect="menuButtonRect"
         menuItems="menuItems"
         onMenuClicked="(ev) => this.onSpecialLink(ev)"
         onClose="() => this.menu.isOpen=false"

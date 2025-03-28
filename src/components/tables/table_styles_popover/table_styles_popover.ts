@@ -5,7 +5,6 @@ import { SpreadsheetChildEnv } from "../../../types";
 import { TableConfig } from "../../../types/table";
 import { css } from "../../helpers";
 import { isChildEvent } from "../../helpers/dom_helpers";
-import { MenuState } from "../../menu/menu";
 import { Popover, PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
 
@@ -85,7 +84,6 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
 
   private tableStyleListRef = useRef("tableStyleList");
   state = useState<State>({ selectedCategory: this.initialSelectedCategory });
-  menu: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   setup(): void {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });

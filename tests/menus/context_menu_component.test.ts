@@ -25,6 +25,8 @@ import {
 } from "../test_helpers/dom_helper";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 
+import { Rect } from "../../src";
+import { PopoverPropsPosition } from "../../src/types/cell_popovers";
 import {
   getStylePropertyInPx,
   makeTestFixture,
@@ -156,6 +158,8 @@ interface ContextMenuTestConfig {
   onClose?: () => void;
   menuItems?: Action[];
   menuWidth?: number;
+  anchorRect?: Rect;
+  popoverPositioning?: PopoverPropsPosition;
 }
 
 async function renderContextMenu(
@@ -198,26 +202,27 @@ class ContextMenuParent extends Component {
     <div class="o-spreadsheet">
       <Menu
         onClose="() => this.onClose()"
-        position="position"
+        anchorRect="anchorRect"
         menuItems="menus"
         width="props.config.menuWidth"
+        popoverPositioning="props.config.popoverPositioning"
       />
     </div>
   `;
   static components = { Menu };
   static props = { x: Number, y: Number, width: Number, height: Number, config: Object };
   menus!: Action[];
-  position!: { x: number; y: number; width: number; height: number };
+  anchorRect: Rect;
   onClose!: () => void;
 
   constructor(props, env, node) {
     super(props, env, node);
     this.onClose = this.props.config.onClose || (() => {});
-    this.position = {
+    this.anchorRect = this.props.config.anchorRect || {
       x: this.props.x,
       y: this.props.y,
-      width: this.props.width,
-      height: this.props.height,
+      width: 0,
+      height: 0,
     };
     this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
@@ -837,6 +842,22 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
     const { width: subMenuWidth } = getSubMenuSize();
     const { width: rootWidth } = getMenuSize();
     expect(secondSubLeft).toBe(clickX + rootWidth + subMenuWidth);
+  });
+
+  test("Can position menu on the bottom left of the anchor", async () => {
+    await renderContextMenu(200, 200, {
+      anchorRect: { x: 200, y: 200, width: 100, height: 100 },
+      popoverPositioning: "BottomLeft",
+    });
+    expect(getMenuPosition()).toEqual({ left: 200, top: 300 });
+  });
+
+  test("Can position menu on the top right of the anchor", async () => {
+    await renderContextMenu(200, 200, {
+      anchorRect: { x: 200, y: 200, width: 100, height: 100 },
+      popoverPositioning: "TopRight",
+    });
+    expect(getMenuPosition()).toEqual({ left: 300, top: 200 });
   });
 });
 
