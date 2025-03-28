@@ -192,10 +192,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  onCellHovered({ col, row }) {
-    this.hoveredCell.hover({ col, row });
-  }
-
   get highlights() {
     return this.highlightStore.highlights;
   }
@@ -466,7 +462,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
-    return this.hoveredCell.col === col && this.hoveredCell.row === row;
+    return this.hoveredCell.debouncedCol === col && this.hoveredCell.debouncedRow === row;
   }
 
   private getGridRect(): Rect {

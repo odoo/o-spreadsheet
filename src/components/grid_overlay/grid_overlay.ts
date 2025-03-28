@@ -13,9 +13,10 @@ import {
 import { DataValidationOverlay } from "../data_validation_overlay/data_validation_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
+import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { css } from "../helpers";
-import { getBoundingRectAsPOJO, isCtrlKey } from "../helpers/dom_helpers";
+import { getBoundingRectAsPOJO, isChildEvent, isCtrlKey } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
@@ -32,11 +33,8 @@ css/* scss */ `
   }
 `;
 
-function useCellHovered(
-  env: SpreadsheetChildEnv,
-  gridRef: Ref<HTMLElement>,
-  callback: (position: Partial<Position>) => void
-): Partial<Position> {
+function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Partial<Position> {
+  const hoveredCell = useStore(HoveredCellStore);
   let hoveredPosition: Partial<Position> = {
     col: undefined,
     row: undefined,
@@ -55,6 +53,14 @@ function useCellHovered(
     return { col, row };
   }
 
+  function getOffsetRelativeToOverlay(ev: MouseEvent): DOMCoordinates {
+    const gridRect = getBoundingRectAsPOJO(gridRef.el!);
+    return {
+      x: ev.clientX - gridRect.x,
+      y: ev.clientY - gridRect.y,
+    };
+  }
+
   const { pause, resume } = useInterval(checkTiming, 200);
 
   function checkTiming() {
@@ -71,10 +77,10 @@ function useCellHovered(
     }
   }
   function updateMousePosition(e: MouseEvent) {
-    if (gridRef.el === e.target) {
-      x = e.offsetX;
-      y = e.offsetY;
+    if (isChildEvent(gridRef.el, e)) {
+      ({ x, y } = getOffsetRelativeToOverlay(e));
       lastMoved = Date.now();
+      hoveredCell.hover(getPosition());
     }
   }
 
@@ -86,8 +92,7 @@ function useCellHovered(
   }
 
   function onMouseLeave(e: MouseEvent) {
-    const x = e.offsetX;
-    const y = e.offsetY;
+    const { x, y } = getOffsetRelativeToOverlay(e);
     const gridRect = getBoundingRectAsPOJO(gridRef.el!);
 
     if (y < 0 || y > gridRect.height || x < 0 || x > gridRect.width) {
@@ -115,7 +120,7 @@ function useCellHovered(
     if (col !== hoveredPosition.col || row !== hoveredPosition.row) {
       hoveredPosition.col = col;
       hoveredPosition.row = row;
-      callback({ col, row });
+      hoveredCell.debouncedHover({ col, row });
     }
   }
   return hoveredPosition;
@@ -162,7 +167,6 @@ function useTouchMove(
 }
 
 interface Props {
-  onCellHovered: (position: Partial<Position>) => void;
   onCellDoubleClicked: (col: HeaderIndex, row: HeaderIndex) => void;
   onCellClicked: (
     col: HeaderIndex,
@@ -180,7 +184,6 @@ interface Props {
 export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
   static props = {
-    onCellHovered: { type: Function, optional: true },
     onCellDoubleClicked: { type: Function, optional: true },
     onCellClicked: { type: Function, optional: true },
     onCellRightClicked: { type: Function, optional: true },
@@ -188,6 +191,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onFigureDeleted: { type: Function, optional: true },
     onGridMoved: Function,
     gridOverlayDimensions: String,
+    slots: { type: Object, optional: true },
   };
   static components = {
     FiguresContainer,
@@ -196,7 +200,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     FilterIconsOverlay,
   };
   static defaultProps = {
-    onCellHovered: () => {},
     onCellDoubleClicked: () => {},
     onCellClicked: () => {},
     onCellRightClicked: () => {},
@@ -209,7 +212,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private paintFormatStore!: Store<PaintFormatStore>;
 
   setup() {
-    useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
+    useCellHovered(this.env, this.gridOverlay);
     const resizeObserver = new ResizeObserver(() => {
       const boundingRect = this.gridOverlayEl.getBoundingClientRect();
       this.props.onGridResized({

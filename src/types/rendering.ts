@@ -1,6 +1,16 @@
 import { memoize } from "../helpers/misc";
 import { ImageSVG } from "./image";
-import { Alias, Align, Border, DataBarFill, Pixel, Style, VerticalAlign, Zone } from "./misc";
+import {
+  Alias,
+  Align,
+  Border,
+  Color,
+  DataBarFill,
+  Pixel,
+  Style,
+  VerticalAlign,
+  Zone,
+} from "./misc";
 
 /**
  * Coordinate in pixels
@@ -35,6 +45,7 @@ export interface Box extends Rect {
   isMerge?: boolean;
   verticalAlign?: VerticalAlign;
   isOverflow?: boolean;
+  overlayColor: Color | undefined;
 }
 export interface Image {
   clipIcon: Rect | null;
