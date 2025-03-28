@@ -117,4 +117,7 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   showLabels: false,
   valuesDesign: {},
   groupColors: [],
+  headerDesign: { bold: false },
+  valuesDesign: { italic: true },
+  coloringOptions: { type: "categoryColor", colors: [], highlightBigValues: true },
 };

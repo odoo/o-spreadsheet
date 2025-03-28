@@ -14,6 +14,11 @@ import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 import { SunburstChartDefinition, SunburstChartRuntime } from "./sunburst_chart";
+import {
+  TreeMapChartDefinition,
+  TreeMapChartRuntime,
+  TreeMapColoringOptions,
+} from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
 export const CHART_TYPES = [
@@ -30,6 +35,7 @@ export const CHART_TYPES = [
   "geo",
   "funnel",
   "sunburst",
+  "treemap",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -46,7 +52,8 @@ export type ChartDefinition =
   | RadarChartDefinition
   | GeoChartDefinition
   | FunnelChartDefinition
-  | SunburstChartDefinition;
+  | SunburstChartDefinition
+  | TreeMapChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
@@ -69,7 +76,8 @@ export type ChartJSRuntime =
   | RadarChartRuntime
   | GeoChartRuntime
   | FunnelChartRuntime
-  | SunburstChartRuntime;
+  | SunburstChartRuntime
+  | TreeMapChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
@@ -166,7 +174,7 @@ export interface ExcelChartDefinition {
 export interface ChartCreationContext {
   readonly range?: CustomizedDataSet[];
   readonly title?: TitleDesign;
-  readonly background?: string;
+  readonly background?: Color;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;
   readonly stacked?: boolean;
@@ -184,6 +192,9 @@ export interface ChartCreationContext {
   readonly showLabels?: boolean;
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
+  readonly showHeaders?: boolean;
+  readonly headerDesign?: TitleDesign;
+  readonly coloringOptions?: TreeMapColoringOptions;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
