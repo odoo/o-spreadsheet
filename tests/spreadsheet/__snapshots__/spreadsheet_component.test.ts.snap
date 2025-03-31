@@ -60,6 +60,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
       </div>
     </div>
+    
     <!-- Toolbar and Cell Content -->
     <div
       class="d-flex o-topbar-responsive"
@@ -870,6 +871,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     </div>
   </div>
   
+  
+  <!-- t-att-class="props.class" -->
   <div
     class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
   >
@@ -1019,57 +1022,7 @@ exports[`components take the small screen into account 1`] = `
   <div
     class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
   >
-    <div
-      class="o-topbar-top d-flex justify-content-between"
-    >
-      <!-- Menus -->
-      <div
-        class="o-topbar-topleft d-flex"
-      >
-        <div
-          class="o-topbar-menu o-hoverable-button text-nowrap rounded"
-          data-id="file"
-        >
-          File
-        </div>
-        <div
-          class="o-topbar-menu o-hoverable-button text-nowrap rounded"
-          data-id="edit"
-        >
-          Edit
-        </div>
-        <div
-          class="o-topbar-menu o-hoverable-button text-nowrap rounded"
-          data-id="view"
-        >
-          View
-        </div>
-        <div
-          class="o-topbar-menu o-hoverable-button text-nowrap rounded"
-          data-id="insert"
-        >
-          Insert
-        </div>
-        <div
-          class="o-topbar-menu o-hoverable-button text-nowrap rounded"
-          data-id="format"
-        >
-          Format
-        </div>
-        <div
-          class="o-topbar-menu o-hoverable-button text-nowrap rounded"
-          data-id="data"
-        >
-          Data
-        </div>
-        
-      </div>
-      <div
-        class="o-topbar-topright d-flex justify-content-end align-items-center"
-      >
-        
-      </div>
-    </div>
+    
     <!-- Toolbar and Cell Content -->
     <div
       class="d-flex o-topbar-responsive"
@@ -1678,34 +1631,6 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
       </div>
-      <div
-        class="o-topbar-composer-container w-100"
-      >
-        <div
-          class="o-topbar-composer position-relative bg-white user-select-text d-flex"
-          style="border-color:#E0E2E4; border-right:none; "
-        >
-          <div
-            class="o-composer-container w-100 h-100"
-          >
-            <div
-              class="d-flex flex-row position-relative"
-            >
-              
-              <div
-                class="o-composer w-100 text-start"
-                contenteditable="true"
-                inputmode="text"
-                spellcheck="false"
-                style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
-                tabindex="1"
-              />
-            </div>
-            
-            
-          </div>
-        </div>
-      </div>
       
     </div>
     
@@ -1881,90 +1806,95 @@ exports[`components take the small screen into account 1`] = `
   </div>
   
   <div
-    class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden mobile"
+    class="o-spreadsheet-small-bottom-bar o-two-columns d-flex flex-column overflow-hidden"
   >
     <div
-      class="o-ripple-container position-relative add-sheet-container"
+      class="o-small-composer px-2 py-2 mx-1"
     >
       <div
-        class="position-absolute w-100 h-100"
-      >
-        
-      </div>
-      <div
-        class="position-relative"
+        class="w-100"
       >
         <div
-          class="o-sheet-item o-add-sheet me-2 p-1"
+          class="o-composer-container w-100 h-100"
         >
-          <svg
-            class="o-icon plus"
-            viewBox="0 0 18 18"
-            xmlns="http://www.w3.org/2000/svg"
+          <div
+            class="d-flex flex-row position-relative"
           >
-            <path
-              d="M8 0h2v8h8v2h-8v8H8v-8H0V8h8"
-              fill="currentColor"
+            
+            <div
+              class="o-composer w-100 text-start"
+              contenteditable="true"
+              inputmode="text"
+              spellcheck="false"
+              style="height:26px; max-height:130px; "
+              tabindex="1"
             />
-          </svg>
+          </div>
+          
+          
         </div>
       </div>
-    </div>
-    
-    <div
-      class="o-ripple-container position-relative"
-    >
-      <div
-        class="position-absolute w-100 h-100"
-      >
-        
-      </div>
-      <div
-        class="position-relative"
-      >
-        <div
-          class="o-sheet-item o-list-sheets me-2 p-1"
-          composerfocusableelement="true"
-          tabindex="-1"
-        >
-          <svg
-            class="o-icon"
-            viewBox="0 0 384 384"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect
-              fill="currentColor"
-              height="42.667"
-              width="384"
-              x="0"
-              y="277.333"
-            />
-            <rect
-              fill="currentColor"
-              height="42.667"
-              width="384"
-              x="0"
-              y="170.667"
-            />
-            <rect
-              fill="currentColor"
-              height="42.667"
-              width="384"
-              x="0"
-              y="64"
-            />
-          </svg>
-        </div>
-      </div>
-    </div>
-    
-    <div
-      class="o-all-sheets position-relative d-flex h-100 flex-fill overflow-hidden"
-    >
       
+    </div>
+    
+    <div
+      class="d-flex flex-fill align-items-center justify-content-between bottom-bar-menu"
+    >
       <div
-        class="o-sheet-list d-flex w-100 px-1"
+        class="o-ripple-container position-relative"
       >
+        <div
+          class="position-absolute w-100 h-100"
+        >
+          
+        </div>
+        <div
+          class="position-relative"
+        >
+          <div
+            class="ribbon py-1 px-1 mx-2"
+          >
+            <span
+              class="o-icon"
+            >
+              🐧
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- t-att-class="props.class" -->
+      <div
+        class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden mobile"
+      >
+        <div
+          class="o-ripple-container position-relative add-sheet-container"
+        >
+          <div
+            class="position-absolute w-100 h-100"
+          >
+            
+          </div>
+          <div
+            class="position-relative"
+          >
+            <div
+              class="o-sheet-item o-add-sheet me-2 p-1"
+            >
+              <svg
+                class="o-icon plus"
+                viewBox="0 0 18 18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 0h2v8h8v2h-8v8H8v-8H0V8h8"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+        
         <div
           class="o-ripple-container position-relative"
         >
@@ -1977,43 +1907,101 @@ exports[`components take the small screen into account 1`] = `
             class="position-relative"
           >
             <div
-              class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
+              class="o-sheet-item o-list-sheets me-2 p-1"
               composerfocusableelement="true"
-              data-id="Sheet1"
-              style=""
               tabindex="-1"
-              title="Sheet1"
             >
-              <span
-                class="o-sheet-name"
-                contenteditable="false"
+              <svg
+                class="o-icon"
+                viewBox="0 0 384 384"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                Sheet1
-              </span>
-              <span
-                class="o-sheet-icon ms-1"
-                tabindex="-1"
-              >
-                <div
-                  class="o-icon fa-small"
-                >
-                  <i
-                    class="fa fa-caret-down"
-                  />
-                </div>
-              </span>
-              
+                <rect
+                  fill="currentColor"
+                  height="42.667"
+                  width="384"
+                  x="0"
+                  y="277.333"
+                />
+                <rect
+                  fill="currentColor"
+                  height="42.667"
+                  width="384"
+                  x="0"
+                  y="170.667"
+                />
+                <rect
+                  fill="currentColor"
+                  height="42.667"
+                  width="384"
+                  x="0"
+                  y="64"
+                />
+              </svg>
             </div>
           </div>
+        </div>
+        
+        <div
+          class="o-all-sheets position-relative d-flex h-100 flex-fill overflow-hidden"
+        >
+          
+          <div
+            class="o-sheet-list d-flex w-100 px-1"
+          >
+            <div
+              class="o-ripple-container position-relative"
+            >
+              <div
+                class="position-absolute w-100 h-100"
+              >
+                
+              </div>
+              <div
+                class="position-relative"
+              >
+                <div
+                  class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
+                  composerfocusableelement="true"
+                  data-id="Sheet1"
+                  style=""
+                  tabindex="-1"
+                  title="Sheet1"
+                >
+                  <span
+                    class="o-sheet-name"
+                    contenteditable="false"
+                  >
+                    Sheet1
+                  </span>
+                  <span
+                    class="o-sheet-icon ms-1"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="o-icon fa-small"
+                    >
+                      <i
+                        class="fa fa-caret-down"
+                      />
+                    </div>
+                  </span>
+                  
+                </div>
+              </div>
+            </div>
+            
+            
+          </div>
+          
         </div>
         
         
       </div>
       
     </div>
-    
-    
   </div>
+  
   
 </div>
 `;
