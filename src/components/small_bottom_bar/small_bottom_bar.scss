@@ -1,0 +1,32 @@
+.o-spreadsheet .o-spreadsheet-small-bottom-bar {
+  .o-selection-button {
+    border-radius: 2px;
+    .o-icon {
+      width: 24px;
+      height: 24px;
+      color: #6aa84f;
+    }
+  }
+  .o-small-composer {
+    border: lightgrey solid 1px;
+    border-radius: 5px;
+    line-height: 24px;
+    display: flex;
+    /* TODORAR move this elsewhere*/
+    z-index: 30;
+  }
+
+  .trucmuch {
+    background-color: $background-gray-color;
+    border-top: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
+  }
+
+  .o-spreadsheet-bottom-bar {
+    border: none;
+  }
+
+  .o-composer-assistant-container {
+    transform: translateY(calc(-24px - 100%));
+  }
+}

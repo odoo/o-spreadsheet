@@ -23,7 +23,8 @@
           </div>
         </div>
         <SidePanel/>
-        <BottomBar onClick="() => this.focusGrid()"/>
+        <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
+        <BottomBar t-else="" onClick="() => this.focusGrid()"/>
       </t>
     </div>
   </t>
