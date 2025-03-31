@@ -53,6 +53,7 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
 
   while (!chars.isOver()) {
     let token =
+      tokenizeNewLine(chars) ||
       tokenizeSpace(chars) ||
       tokenizeArgsSeparator(chars, locale) ||
       tokenizeParenthesis(chars) ||
@@ -204,15 +205,6 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
 }
 
 function tokenizeSpace(chars: TokenizingChars): Token | null {
-  let length = 0;
-  while (chars.current === NEWLINE) {
-    length++;
-    chars.shift();
-  }
-  if (length) {
-    return { type: "SPACE", value: NEWLINE.repeat(length) };
-  }
-
   let spaces = "";
   while (chars.current && chars.current.match(whiteSpaceRegexp)) {
     spaces += chars.shift();
@@ -220,6 +212,18 @@ function tokenizeSpace(chars: TokenizingChars): Token | null {
 
   if (spaces) {
     return { type: "SPACE", value: spaces };
+  }
+  return null;
+}
+
+function tokenizeNewLine(chars: TokenizingChars): Token | null {
+  let length = 0;
+  while (chars.current === NEWLINE) {
+    length++;
+    chars.shift();
+  }
+  if (length) {
+    return { type: "SPACE", value: NEWLINE.repeat(length) };
   }
   return null;
 }
