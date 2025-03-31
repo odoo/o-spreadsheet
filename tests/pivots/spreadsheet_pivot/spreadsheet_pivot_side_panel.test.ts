@@ -553,8 +553,8 @@ describe("Spreadsheet pivot side panel", () => {
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
     expect(mockNotify).toHaveBeenCalledWith({
-      text: "Pivot updates only work with dynamic pivot tables. Use =PIVOT(1) or re-insert the static pivot from the Data menu.",
-      sticky: false,
+      text: "Pivot updates only work with dynamic pivot tables. Use the formula '=PIVOT(1)' or re-insert the static pivot from the Data menu.",
+      sticky: true,
       type: "info",
     });
 
