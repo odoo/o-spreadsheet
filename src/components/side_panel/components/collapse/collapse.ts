@@ -34,6 +34,7 @@ export class Collapse extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     el.classList.remove("d-none");
+    el.classList.add("overflow-hidden");
     const startHeight = isCollapsed ? el.scrollHeight : 0;
     const endHeight = isCollapsed ? 0 : el.scrollHeight;
 
@@ -42,6 +43,7 @@ export class Collapse extends Component<Props, SpreadsheetChildEnv> {
       { duration: 350, easing: "ease" }
     );
     animation.onfinish = () => {
+      el.classList.remove("overflow-hidden");
       if (this.props.isCollapsed) {
         el.classList.add("d-none");
       }
