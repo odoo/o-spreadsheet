@@ -150,6 +150,12 @@ function tokenizeString(chars: TokenizingChars): Token | null {
   return null;
 }
 
+/**
+ - \p{L} is for any letter (from any language)
+ - \p{N} is for any number
+ - the u flag at the end is for unicode, which enables the `\p{...}` syntax
+ */
+const unicodeSymbolCharRegexp = /\p{L}|\p{N}|_|\.|!|\$/u;
 const SYMBOL_CHARS = new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.!$");
 
 /**
@@ -191,7 +197,10 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
       };
     }
   }
-  while (chars.current && SYMBOL_CHARS.has(chars.current)) {
+  while (
+    chars.current &&
+    (SYMBOL_CHARS.has(chars.current) || chars.current.match(unicodeSymbolCharRegexp))
+  ) {
     result += chars.shift();
   }
   if (result.length) {
