@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-small-bottom-bar">
+    <div class="mobile-bottom-bar">
+      <div class="mobile-composer px-2 mt-2" t-if="isComposerVisible">
+        <Composer t-props="composerProps"/>
+        <span
+          class="align-items-center d-flex justify-content-center o-selection-button"
+          title="End Selection"
+          t-on-click="() => this.composerStore.stopEdition()">
+          <span class="d-flex">
+            <t t-call="o-spreadsheet-Icon.CHECK"/>
+          </span>
+        </span>
+      </div>
+    </div>
+  </t>
+</templates>
