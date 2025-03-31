@@ -66,6 +66,8 @@ export class BarChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly horizontal?: boolean;
   readonly showValues?: boolean;
+  readonly zoomable?: boolean;
+  readonly panable?: boolean;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -85,6 +87,8 @@ export class BarChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.horizontal = definition.horizontal;
     this.showValues = definition.showValues;
+    this.zoomable = definition.zoomable;
+    this.panable = definition.panable;
   }
 
   static transformDefinition(
@@ -185,6 +189,8 @@ export class BarChart extends AbstractChart {
       axesDesign: this.axesDesign,
       horizontal: this.horizontal,
       showValues: this.showValues,
+      zoomable: this.zoomable,
+      panable: this.panable,
     };
   }
 
@@ -245,6 +251,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
         legend: getBarChartLegend(definition, chartData),
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        zoomPlugin: { sliceable: definition.zoomable, panable: definition.panable },
       },
     },
   };
