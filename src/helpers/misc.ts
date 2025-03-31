@@ -459,8 +459,7 @@ export function removeFalsyAttributes<T extends Object | undefined | null>(obj: 
  *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes
  */
-const whiteSpaceSpecialCharacters = [
-  " ",
+const specialWhiteSpaceSpecialCharacters = [
   "\t",
   "\f",
   "\v",
@@ -475,7 +474,10 @@ const whiteSpaceSpecialCharacters = [
   String.fromCharCode(parseInt("3000", 16)),
   String.fromCharCode(parseInt("feff", 16)),
 ];
-export const whiteSpaceRegexp = new RegExp(whiteSpaceSpecialCharacters.join("|"), "g");
+export const specialWhiteSpaceRegexp = new RegExp(
+  specialWhiteSpaceSpecialCharacters.join("|"),
+  "g"
+);
 const newLineRegexp = /(\r\n|\r)/g;
 
 /**
