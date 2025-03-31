@@ -439,7 +439,7 @@ describe("Sunburst chart chart", () => {
   test("Sunburst hover plugin is enabled", () => {
     const chartId = createSunburstChart(model);
     const config = getSunburstRuntime(chartId).chartJsConfig;
-    expect(config.options?.plugins?.sunburstHoverPlugin).toMatchObject({
+    expect(config.options?.plugins?.hierarchicalHoverPlugin).toMatchObject({
       enabled: true,
     });
   });

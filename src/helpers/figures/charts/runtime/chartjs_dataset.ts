@@ -562,11 +562,10 @@ export function getTreeMapChartDatasets(
       },
       key: "value",
       groups: range(0, dataSetsValues.length).map((i) => String(i)),
-      // borderColor: definition.background || BACKGROUND_CHART_COLOR,
-      borderColor: "#f00",
+      borderColor: definition.background || BACKGROUND_CHART_COLOR,
       hoverBorderColor: definition.background || BACKGROUND_CHART_COLOR,
-      borderWidth: 0,
-      spacing: 1,
+      borderWidth: 1,
+      spacing: 0,
       displayMode: "headerBoxes",
     },
   ];
@@ -576,6 +575,7 @@ export function getTreeMapChartDatasets(
 
 function getTextStyle(design: TitleDesign | undefined, defaultDesign: TitleDesign) {
   const dynamicColor = (ctx: any) => {
+    // We don't want to take into account the color change of `hierarchicalHoverPlugin`
     const backgroundColor = ctx.element.options.backgroundColor;
     return relativeLuminance(backgroundColor) > 0.7 ? "#666666" : "#FFFFFF";
   };

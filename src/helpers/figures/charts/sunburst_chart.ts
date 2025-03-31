@@ -211,7 +211,7 @@ export function createSunburstChartRuntime(
         legend: getSunburstChartLegend(definition, chartData),
         tooltip: getSunburstChartTooltip(definition, chartData),
         sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
-        sunburstHoverPlugin: { enabled: true },
+        hierarchicalHoverPlugin: { enabled: true },
       },
     },
   };

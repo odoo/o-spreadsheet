@@ -228,6 +228,7 @@ export function createTreeMapChartRuntime(
         legend: { display: false },
         tooltip: getTreeMapChartTooltip(definition, chartData),
         treeMapColorsPlugin: { definition },
+        hierarchicalHoverPlugin: { enabled: true },
       },
     },
   };

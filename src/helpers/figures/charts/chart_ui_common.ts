@@ -4,8 +4,8 @@ import {
   getFunnelChartController,
   getFunnelChartElement,
 } from "../../../components/figures/chart/chartJs/chartjs_funnel_chart";
+import { hierarchicalHoverPlugin } from "../../../components/figures/chart/chartJs/chartjs_hierarchical_hover_plugin";
 import { chartShowValuesPlugin } from "../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
-import { sunburstHoverPlugin } from "../../../components/figures/chart/chartJs/chartjs_sunburst_hover_plugin";
 import { sunburstLabelsPlugin } from "../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
 import { waterfallLinesPlugin } from "../../../components/figures/chart/chartJs/chartjs_waterfall_plugin";
 import { treeMapColorsPlugin } from "../../../components/figures/chart/chartJs/tree_map_colors_plugin";
@@ -128,7 +128,7 @@ export function getChartJSConstructor() {
       getFunnelChartController(),
       getFunnelChartElement(),
       sunburstLabelsPlugin,
-      sunburstHoverPlugin,
+      hierarchicalHoverPlugin,
       treeMapColorsPlugin
     );
     window.Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner;
