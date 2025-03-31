@@ -59,6 +59,7 @@ exports[`TopBar component can set cell format 1`] = `
           
         </div>
       </div>
+      
       <!-- Toolbar and Cell Content -->
       <div
         class="d-flex o-topbar-responsive"
@@ -1174,6 +1175,7 @@ exports[`TopBar component simple rendering 1`] = `
       
     </div>
   </div>
+  
   <!-- Toolbar and Cell Content -->
   <div
     class="d-flex o-topbar-responsive"

@@ -47,7 +47,7 @@ async function mountBottomBar(
   ({ fixture, parent, env } = await mountComponentWithPortalTarget(BottomBar, {
     model,
     env: partialEnv,
-    props: { onClick: () => {} },
+    props: { onClick: () => {}, class: "" },
   }));
   return { parent, model, env };
 }
