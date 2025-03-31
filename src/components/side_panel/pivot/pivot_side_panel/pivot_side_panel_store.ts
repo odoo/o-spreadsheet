@@ -156,7 +156,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
             "Pivot updates only work with dynamic pivot tables. Use %s or re-insert the static pivot from the Data menu.",
             pivotExample
           ),
-          sticky: false,
+          sticky: true,
         });
       }
     }
