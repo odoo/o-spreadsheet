@@ -153,10 +153,10 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         this.notification.notifyUser({
           type: "info",
           text: _t(
-            "Pivot updates only work with dynamic pivot tables. Use %s or re-insert the static pivot from the Data menu.",
+            "Pivot updates only work with dynamic pivot tables. Use the formula '%s' or re-insert the static pivot from the Data menu.",
             pivotExample
           ),
-          sticky: false,
+          sticky: true,
         });
       }
     }
