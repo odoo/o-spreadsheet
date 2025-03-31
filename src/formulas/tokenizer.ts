@@ -3,7 +3,7 @@ import {
   getFormulaNumberRegex,
   rangeReference,
   replaceNewLines,
-  whiteSpaceRegexp,
+  specialWhiteSpaceRegexp,
 } from "../helpers/index";
 import { DEFAULT_LOCALE, Locale } from "../types";
 
@@ -50,6 +50,9 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
   str = replaceNewLines(str);
   const chars = new TokenizingChars(str);
   const result: Token[] = [];
+  const tokenizeSpace = specialWhiteSpaceRegexp.test(str)
+    ? tokenizeSpecialCharacterSpace
+    : tokenizeSimpleSpace;
 
   while (!chars.isOver()) {
     let token =
@@ -204,9 +207,21 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
   return null;
 }
 
-function tokenizeSpace(chars: TokenizingChars): Token | null {
+function tokenizeSpecialCharacterSpace(chars: TokenizingChars): Token | null {
   let spaces = "";
-  while (chars.current && chars.current.match(whiteSpaceRegexp)) {
+  while (chars.current === " " || (chars.current && chars.current.match(specialWhiteSpaceRegexp))) {
+    spaces += chars.shift();
+  }
+
+  if (spaces) {
+    return { type: "SPACE", value: spaces };
+  }
+  return null;
+}
+
+function tokenizeSimpleSpace(chars: TokenizingChars): Token | null {
+  let spaces = "";
+  while (chars.current === " ") {
     spaces += chars.shift();
   }
 
