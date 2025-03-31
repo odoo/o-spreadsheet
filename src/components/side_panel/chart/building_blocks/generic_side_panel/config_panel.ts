@@ -1,15 +1,27 @@
 import { Component, useState } from "@odoo/owl";
-import { createValidRange, spreadRange } from "../../../../../helpers";
+import {
+  createValidRange,
+  isDefined,
+  isXcRepresentation,
+  mergeContiguousZones,
+  numberToLetters,
+  splitReference,
+  toUnboundedZone,
+  toZone,
+  zoneToXc,
+} from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../../../helpers/figures/charts/runtime";
 import { _t } from "../../../../../translation";
 import {
+  ChartDatasetOrientation,
   ChartWithDataSetDefinition,
   CommandResult,
   CustomizedDataSet,
   DispatchResult,
   SpreadsheetChildEnv,
   UID,
+  Zone,
 } from "../../../../../types";
 import { ChartTerms } from "../../../../translations_terms";
 import { Checkbox } from "../../../components/checkbox/checkbox";
@@ -56,12 +68,14 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
 
   protected dataSets: CustomizedDataSet[] = [];
   private labelRange: string | undefined;
+  private datasetOrientation: ChartDatasetOrientation | undefined = undefined;
 
   protected chartTerms = ChartTerms;
 
   setup() {
     this.dataSets = this.props.definition.dataSets;
     this.labelRange = this.props.definition.labelRange;
+    this.datasetOrientation = this.computeDatasetOrientation();
   }
 
   get errorMessages(): string[] {
@@ -83,7 +97,9 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   }
 
   get dataSetsHaveTitleLabel(): string {
-    return _t("Use row %s as headers", this.calculateHeaderPosition() || "");
+    return this.datasetOrientation === "rows"
+      ? _t("Use col %s as headers", numberToLetters(this.calculateHeaderPosition() || 0))
+      : _t("Use row %s as headers", this.calculateHeaderPosition() || "");
   }
 
   getLabelRangeOptions() {
@@ -110,6 +126,101 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     });
   }
 
+  get canChangeDatasetOrientation(): boolean {
+    const sheetNames = new Set<string>();
+    const datasetZones: Zone[] = [];
+    const currentSheetName = this.env.model.getters.getActiveSheet().name;
+    for (const dataSet of this.dataSets) {
+      if (!isXcRepresentation(dataSet.dataRange)) {
+        return false;
+      }
+      const reference = splitReference(dataSet.dataRange);
+      const zone = toUnboundedZone(reference.xc);
+      if (zone.bottom === undefined || zone.right === undefined) {
+        return false;
+      }
+      datasetZones.push(zone as Zone);
+      sheetNames.add(reference.sheetName || currentSheetName);
+    }
+    if (this.labelRange) {
+      if (!isXcRepresentation(this.labelRange)) {
+        return false;
+      }
+      const labelReference = splitReference(this.labelRange);
+      const labelZone = toUnboundedZone(labelReference.xc);
+      if (labelZone.bottom === undefined || labelZone.right === undefined) {
+        return false;
+      }
+      datasetZones.push(labelZone as Zone);
+      sheetNames.add(labelReference.sheetName || currentSheetName);
+    }
+    if (sheetNames.size > 1) {
+      return false;
+    }
+    const mergedZones = mergeContiguousZones(datasetZones);
+    if (mergedZones.length !== 1) {
+      return false;
+    }
+    const { left, right, top, bottom } = mergedZones[0];
+    if (
+      datasetZones.some(
+        (zone) =>
+          (zone.top !== top || zone.bottom !== bottom) &&
+          (zone.left !== left || zone.right !== right)
+      )
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  private computeDatasetOrientation(): ChartDatasetOrientation | undefined {
+    let anyRow = false;
+    let anyColumn = false;
+    for (const dataSet of this.dataSets) {
+      if (!isXcRepresentation(dataSet.dataRange)) {
+        return undefined;
+      }
+      const zone = toUnboundedZone(dataSet.dataRange);
+      if (zone.bottom === undefined || zone.right === undefined) {
+        return undefined;
+      }
+      if (zone.top === zone.bottom) {
+        anyRow = true;
+      }
+      if (zone.left === zone.right) {
+        anyColumn = true;
+      }
+    }
+    if (anyRow && !anyColumn) {
+      return "rows";
+    } else if (!anyRow && anyColumn) {
+      return "columns";
+    }
+    return undefined;
+  }
+
+  setDatasetOrientation(datasetOrientation: ChartDatasetOrientation) {
+    const oldDataSets = this.props.definition.dataSets;
+    const dataRanges = oldDataSets.map((d) => d.dataRange);
+    const dataSets = this.transposeDataSet(
+      [this.props.definition.labelRange, ...dataRanges],
+      datasetOrientation
+    );
+    if (dataSets.length === 0) {
+      return;
+    }
+    const labelRange = dataSets.length > 1 ? dataSets.shift()!.dataRange : "";
+
+    this.props.updateChart(this.props.figureId, {
+      labelRange,
+      dataSets,
+    });
+    this.dataSets = dataSets;
+    this.labelRange = labelRange;
+    this.datasetOrientation = datasetOrientation;
+  }
+
   /**
    * Change the local dataSeriesRanges. The model should be updated when the
    * button "confirm" is clicked
@@ -129,6 +240,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       { dataSets: this.dataSets },
       this.dataSets.length
     );
+    this.datasetOrientation = undefined;
     const colors = this.dataSets.map((ds) => colorGenerator.next());
     this.dataSets = indexes.map((i) => ({
       backgroundColor: colors[i],
@@ -157,7 +269,8 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   }
 
   onDataSeriesConfirmed() {
-    this.dataSets = spreadRange(this.env.model.getters, this.dataSets);
+    this.dataSets = this.splitRanges;
+    this.datasetOrientation = this.computeDatasetOrientation();
     this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
       dataSets: this.dataSets,
     });
@@ -166,6 +279,83 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
         this.env.model.getters.getChartDefinition(this.props.figureId) as ChartWithDataSetDefinition
       ).dataSets;
     }
+  }
+
+  get splitRanges(): CustomizedDataSet[] {
+    const postProcessedRanges: CustomizedDataSet[] = [];
+    for (const dataSet of this.dataSets) {
+      const range = dataSet.dataRange;
+      if (!this.env.model.getters.isRangeValid(range)) {
+        postProcessedRanges.push(dataSet); // ignore invalid range
+        continue;
+      }
+
+      const { sheetName } = splitReference(range);
+      const sheetPrefix = sheetName ? `${sheetName}!` : "";
+      const zone = toUnboundedZone(range);
+      if (zone.bottom !== zone.top && zone.left != zone.right) {
+        if (this.datasetOrientation !== "rows") {
+          if (zone.right) {
+            for (let j = zone.left; j <= zone.right; ++j) {
+              const datasetOptions = j === zone.left ? dataSet : { yAxisId: dataSet.yAxisId };
+              postProcessedRanges.push({
+                ...datasetOptions,
+                dataRange: `${sheetPrefix}${zoneToXc({
+                  left: j,
+                  right: j,
+                  top: zone.top,
+                  bottom: zone.bottom,
+                })}`,
+              });
+            }
+          } else {
+            for (let j = zone.top; j <= zone.bottom!; ++j) {
+              const datasetOptions = j === zone.top ? dataSet : { yAxisId: dataSet.yAxisId };
+              postProcessedRanges.push({
+                ...datasetOptions,
+                dataRange: `${sheetPrefix}${zoneToXc({
+                  left: zone.left,
+                  right: zone.right,
+                  top: j,
+                  bottom: j,
+                })}`,
+              });
+            }
+          }
+        } else {
+          if (zone.bottom) {
+            for (let j = zone.top; j <= zone.bottom; ++j) {
+              const datasetOptions = j === zone.top ? dataSet : { yAxisId: dataSet.yAxisId };
+              postProcessedRanges.push({
+                ...datasetOptions,
+                dataRange: `${sheetPrefix}${zoneToXc({
+                  left: zone.left,
+                  right: zone.right,
+                  top: j,
+                  bottom: j,
+                })}`,
+              });
+            }
+          } else {
+            for (let j = zone.left; j <= zone.right!; ++j) {
+              const datasetOptions = j === zone.left ? dataSet : { yAxisId: dataSet.yAxisId };
+              postProcessedRanges.push({
+                ...datasetOptions,
+                dataRange: `${sheetPrefix}${zoneToXc({
+                  left: j,
+                  right: j,
+                  top: zone.top,
+                  bottom: zone.bottom,
+                })}`,
+              });
+            }
+          }
+        }
+      } else {
+        postProcessedRanges.push(dataSet);
+      }
+    }
+    return postProcessedRanges;
   }
 
   getDataSeriesRanges() {
@@ -213,10 +403,71 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       this.props.definition.dataSetsHaveTitle
     );
     if (dataSets.length) {
-      return dataSets[0].dataRange.zone.top + 1;
+      return this.datasetOrientation === "rows"
+        ? dataSets[0].dataRange.zone.left
+        : dataSets[0].dataRange.zone.top + 1;
     } else if (labelRange) {
       return labelRange.zone.top + 1;
     }
     return undefined;
+  }
+
+  private transposeDataSet(
+    dataRanges: (string | undefined)[],
+    datasetOrientation: ChartDatasetOrientation | undefined
+  ): { dataRange: string }[] {
+    const getters = this.env.model.getters;
+    if (datasetOrientation === undefined) {
+      return dataRanges.filter(isDefined).map((dataRange) => ({ dataRange }));
+    }
+    const zonesBySheetName = {};
+    const transposedDatasets: { dataRange: string }[] = [];
+    const figureSheetId = getters.getFigureSheetId(this.props.figureId);
+    let name = getters.getActiveSheet().name;
+    if (figureSheetId) {
+      name = getters.getSheet(figureSheetId).name;
+    }
+    for (const dataRange of dataRanges) {
+      if (!dataRange) {
+        continue;
+      }
+      if (!isXcRepresentation(dataRange)) {
+        return dataRanges.filter(isDefined).map((dataRange) => ({ dataRange }));
+      }
+      let { sheetName, xc } = splitReference(dataRange);
+      sheetName = sheetName ?? name;
+      if (!zonesBySheetName[sheetName]) {
+        zonesBySheetName[sheetName] = [];
+      }
+      zonesBySheetName[sheetName].push(toZone(xc));
+    }
+    for (const sheetName in zonesBySheetName) {
+      const zones = zonesBySheetName[sheetName];
+      const contiguousZones = mergeContiguousZones(zones);
+      if (datasetOrientation === "columns") {
+        for (const zone of contiguousZones) {
+          for (let col = zone.left; col <= zone.right; col++) {
+            const dataRange = `${sheetName === name ? "" : sheetName + "!"}${zoneToXc({
+              ...zone,
+              left: col,
+              right: col,
+            })}`;
+            transposedDatasets.push({ dataRange });
+          }
+        }
+      } else {
+        for (const zone of contiguousZones) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            const dataRange = `${sheetName === name ? "" : sheetName + "!"}${zoneToXc({
+              ...zone,
+              top: row,
+              bottom: row,
+            })}`;
+            transposedDatasets.push({ dataRange });
+          }
+        }
+      }
+    }
+    return transposedDatasets;
   }
 }
