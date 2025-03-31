@@ -72,8 +72,9 @@ css/* scss */ `
     }
   }
 
+  /* TODORAR Move this to small_bottom_bar.ts ? */
   .mobile.o-spreadsheet-bottom-bar {
-    padding-left: 1rem;
+    padding-left: 0;
 
     .add-sheet-container {
       order: 2;
@@ -96,6 +97,7 @@ interface BottomBarSheetItem {
 
 interface Props {
   onClick: () => void;
+  class: string;
 }
 
 interface BottomBarMenuState extends MenuState {
@@ -106,7 +108,9 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBar";
   static props = {
     onClick: Function,
+    class: { type: String, optional: true },
   };
+
   static components = { Menu, Ripple, BottomBarSheet, BottomBarStatistic };
 
   private bottomBarRef = useRef("bottomBar");

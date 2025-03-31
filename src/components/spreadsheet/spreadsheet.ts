@@ -61,6 +61,7 @@ import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
+import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
@@ -326,6 +327,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     TopBar,
     Grid,
     BottomBar,
+    SmallBottomBar,
     SidePanel,
     SpreadsheetDashboard,
     HeaderGroupContainer,
