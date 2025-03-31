@@ -26076,7 +26076,7 @@ exports[`Test XLSX export Images image larger than the sheet 1`] = `
                 24
             </xdr:col>
             <xdr:colOff>
-                954338325
+                953423925
             </xdr:colOff>
             <xdr:row>
                 24
@@ -26098,7 +26098,7 @@ exports[`Test XLSX export Images image larger than the sheet 1`] = `
             </xdr:blipFill>
             <xdr:spPr>
                 <a:xfrm>
-                    <a:ext cx="976274400" cy="962025000"/>
+                    <a:ext cx="975360000" cy="962025000"/>
                 </a:xfrm>
                 <a:prstGeom prst="rect">
                     <a:avLst/>
