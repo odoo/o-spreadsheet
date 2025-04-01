@@ -99,6 +99,9 @@ iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
 });
 
 iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
+  if (!getters.isSpillPivotFormula(position)) {
+    return undefined;
+  }
   const pivotCell = getters.getPivotCellFromPosition(position);
   const pivotId = getters.getPivotIdFromPosition(position);
 

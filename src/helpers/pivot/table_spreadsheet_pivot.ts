@@ -16,10 +16,7 @@ import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 // ADRM TODO: option to show or not collapse buttons
 // ADRM TODO: clean collapsed fields when updating col/rows
 // ADRM TODO DISCUSS: collapse & #SPILL
-// ADRM TODO: indent
-// ADRM TODO: remove duplicate getDomain fns if possible
 // ADRM TODO: naming
-// ADRM TODO: no button on static pivot
 // ADRM TODO DISCUSS: no collapse of re-insert static pivot ?
 interface RicherPivotColumn extends PivotTableColumn {
   collapsedHeader?: boolean;
@@ -158,18 +155,6 @@ export class SpreadsheetPivotTable {
     return collapsedDomains.some((collapsedDomain) => isParentDomain(domain, collapsedDomain));
   }
 
-  private getDomain(dim: PivotTableRow | PivotTableColumn) {
-    return dim.fields.map((field, i) => {
-      const { fieldName, granularity } = parseDimension(field);
-      const type = this.fieldsType[fieldName] || "char";
-      return {
-        type,
-        field,
-        value: toNormalizedPivotValue({ displayName: fieldName, type, granularity }, dim.values[i]),
-      };
-    });
-  }
-
   /**
    * Get the number of columns leafs (i.e. the number of the last row of columns)
    */
@@ -232,14 +217,14 @@ export class SpreadsheetPivotTable {
       return domain ? { type: "HEADER", domain, dimension: "COL" } : EMPTY_PIVOT_CELL;
     } else if (col === 0) {
       const rowIndex = row - colHeadersHeight;
-      const domain = this.getRowDomain(rowIndex);
+      const domain = this.getDomain(this.rows[rowIndex]);
       return { type: "HEADER", domain, dimension: "ROW" };
     } else {
       const rowIndex = row - colHeadersHeight;
       if (!includeTotal && this.isTotalRow(rowIndex)) {
         return EMPTY_PIVOT_CELL;
       }
-      const domain = [...this.getRowDomain(rowIndex), ...this.getColDomain(col)];
+      const domain = [...this.getDomain(this.rows[rowIndex]), ...this.getColDomain(col)];
       const measure = this.getColMeasure(col);
       return { type: "VALUE", domain, measure };
     }
@@ -249,36 +234,34 @@ export class SpreadsheetPivotTable {
     if (col === 0) {
       return undefined;
     }
-    const domain: PivotDomain = [];
     const pivotCol = this.columns[row].find((pivotCol) => pivotCol.offset === col);
     if (!pivotCol || pivotCol.collapsedHeader) {
       return undefined;
     }
-    for (let i = 0; i < pivotCol.fields.length; i++) {
-      const fieldWithGranularity = pivotCol.fields[i];
+    return this.getDomain(pivotCol);
+  }
+
+  private getDomain(dim: PivotTableRow | PivotTableColumn) {
+    return dim.fields.map((fieldWithGranularity, i) => {
       if (fieldWithGranularity === "measure") {
-        domain.push({
+        return {
           type: "char",
           field: fieldWithGranularity,
-          value: toNormalizedPivotValue(
-            { displayName: "measure", type: "char" },
-            pivotCol.values[i]
-          ),
-        });
+          value: toNormalizedPivotValue({ displayName: "measure", type: "char" }, dim.values[i]),
+        };
       } else {
         const { fieldName, granularity } = parseDimension(fieldWithGranularity);
         const type = this.fieldsType[fieldName] || "char";
-        domain.push({
+        return {
           type,
           field: fieldWithGranularity,
           value: toNormalizedPivotValue(
             { displayName: fieldName, type, granularity },
-            pivotCol.values[i]
+            dim.values[i]
           ),
-        });
+        };
       }
-    }
-    return domain;
+    });
   }
 
   private getColDomain(col: number) {
@@ -293,24 +276,6 @@ export class SpreadsheetPivotTable {
       throw new Error("Measure is missing");
     }
     return measure.toString();
-  }
-
-  private getRowDomain(row: number) {
-    const domain: PivotDomain = [];
-    for (let i = 0; i < this.rows[row].fields.length; i++) {
-      const fieldWithGranularity = this.rows[row].fields[i];
-      const { fieldName, granularity } = parseDimension(fieldWithGranularity);
-      const type = this.fieldsType[fieldName] || "char";
-      domain.push({
-        type,
-        field: fieldWithGranularity,
-        value: toNormalizedPivotValue(
-          { displayName: fieldName, type, granularity },
-          this.rows[row].values[i]
-        ),
-      });
-    }
-    return domain;
   }
 
   buildRowsTree(): DimensionTree {
