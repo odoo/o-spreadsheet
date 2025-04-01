@@ -283,7 +283,7 @@ describe("Functions autocomplete", () => {
         (el) => el.parentElement
       );
 
-      expect(composerStore.autocompleteProvider?.proposals).toHaveLength(2);
+      expect(composerStore.autoCompleteProposals).toHaveLength(2);
       expect(composerStore.showSelectionIndicator).toBe(true);
       expect(proposals[0]?.classList).not.toContain("o-autocomplete-value-focus");
       expect(proposals[1]?.classList).not.toContain("o-autocomplete-value-focus");
@@ -307,7 +307,7 @@ describe("Functions autocomplete", () => {
         selectProposal() {},
       });
       await typeInComposer("=SUM(");
-      expect(composerStore.autocompleteProvider?.proposals).toHaveLength(1);
+      expect(composerStore.autoCompleteProposals).toHaveLength(1);
       expect(composerStore.showSelectionIndicator).toBe(true);
       expect(
         fixture.querySelector(".o-autocomplete-value")?.parentElement?.classList
