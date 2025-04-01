@@ -111,6 +111,7 @@ const registries = {
 
 interface Props {
   exposeFocus: (focus: () => void) => void;
+  getGridSize: () => DOMDimension;
 }
 
 // -----------------------------------------------------------------------------
@@ -120,6 +121,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Grid";
   static props = {
     exposeFocus: Function,
+    getGridSize: Function,
   };
   static components = {
     GridComposer,
@@ -173,8 +175,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(document.body, "paste", this.paste);
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
-    useGridDrawing("canvas", this.env.model, () =>
-      this.env.model.getters.getSheetViewDimensionWithHeaders()
+    useGridDrawing(
+      "canvas",
+      this.env.model,
+      this.props.getGridSize
+      // () =>  this.env.model.getters.getSheetViewDimensionWithHeaders()
     );
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
