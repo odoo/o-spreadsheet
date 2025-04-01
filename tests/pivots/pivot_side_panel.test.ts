@@ -25,17 +25,29 @@ describe("Pivot side panel", () => {
     addPivot(model, "A1:B2", {}, "2");
   });
 
-  test("readonly panel is not clickable and greyed", async () => {
-    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+  test("readonly panel is not clickable and greyed but remains scrollable", async () => {
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
-    const panel = fixture.querySelector(".o-sidePanelBody > div");
-    expect(panel?.classList).not.toContain("pe-none");
-    expect(panel?.classList).not.toContain("opacity-50");
+
+    const sidePanel = fixture.querySelector(".o-sidePanel")!;
+    let interactiveWrapper = sidePanel.querySelector(".o-sidePanelBody div[inert]");
+    expect(interactiveWrapper).toBeNull();
+
     model.updateMode("readonly");
     await nextTick();
-    expect(panel?.classList).toContain("pe-none");
-    expect(panel?.classList).toContain("opacity-50");
-    expect(panel?.getAttribute("inert")).toBe("1");
+
+    const scrollableContainer = sidePanel.querySelector(".overflow-y-auto")!;
+    expect(scrollableContainer).toBeTruthy();
+
+    // The [inert] wrapper with `pe-none` and `opacity-50` is placed inside the scrollable container,
+    // ensuring that user interactions are blocked while still allowing vertical scrolling.
+    interactiveWrapper = scrollableContainer.querySelector("[inert]")!;
+    expect(interactiveWrapper).toBeTruthy();
+    expect(interactiveWrapper.classList).toContain("pe-none");
+    expect(interactiveWrapper.classList).toContain("opacity-50");
+    expect(interactiveWrapper.getAttribute("inert")).toBe("1");
+
+    expect(fixture.querySelector(".pivot-defer-update")).toBeNull();
   });
 
   test("It should open the pivot editor when pivotId is provided", async () => {
