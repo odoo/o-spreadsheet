@@ -14,7 +14,7 @@ import { isParentDomain, sortPivotTree } from "./pivot_domain_helpers";
 import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 
 // ADRM TODO: option to show or not collapse buttons
-// ADRM TODO: clean collapsed fields when updating col/rows
+// ADRM TODO: dashboard ?
 // ADRM TODO DISCUSS: collapse & #SPILL
 // ADRM TODO: naming
 // ADRM TODO DISCUSS: no collapse of re-insert static pivot ?

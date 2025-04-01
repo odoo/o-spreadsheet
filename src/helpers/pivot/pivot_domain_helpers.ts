@@ -51,10 +51,18 @@ function getFieldValueInDomain(
 }
 
 export function isDomainIsInPivot(pivot: Pivot, domain: PivotDomain) {
+  for (const node of domain) {
+    if (
+      pivot.definition.rows.find((row) => row.nameWithGranularity === node.field) === undefined &&
+      pivot.definition.columns.find((col) => col.nameWithGranularity === node.field) === undefined
+    ) {
+      return false;
+    }
+  }
   const { rowDomain, colDomain } = domainToColRowDomain(pivot, domain);
   return (
-    checkIfDomainInInTree(rowDomain, pivot.getTableStructure().getRowTree()) &&
-    checkIfDomainInInTree(colDomain, pivot.getTableStructure().getColTree())
+    checkIfDomainInInTree(rowDomain, pivot.getNonCollapsedTableStructure().getRowTree()) &&
+    checkIfDomainInInTree(colDomain, pivot.getNonCollapsedTableStructure().getColTree())
   );
 }
 
