@@ -5,7 +5,9 @@
         <SpreadsheetDashboard/>
       </t>
       <t t-else="">
-        <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
+        <div class="o-spreadsheet-topbar-wrapper o-two-columns">
+          <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
+        </div>
         <div
           class="o-grid-container"
           t-att-class="{'o-two-columns': !sidePanel.isOpen}"
@@ -19,12 +21,14 @@
             <HeaderGroupContainer layers="rowLayers" dimension="'ROW'"/>
           </div>
           <div class="o-group-grid overflow-hidden">
-            <Grid exposeFocus="(focus) => this._focusGrid = focus"/>
+            <Grid exposeFocus="(focus) => this._focusGrid = focus" getGridSize.bind="getGridSize"/>
           </div>
         </div>
         <SidePanel/>
-        <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
-        <BottomBar t-else="" onClick="() => this.focusGrid()"/>
+        <div class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden">
+          <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
+          <BottomBar t-else="" onClick="() => this.focusGrid()"/>
+        </div>
       </t>
     </div>
   </t>

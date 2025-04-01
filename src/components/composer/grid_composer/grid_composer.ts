@@ -182,12 +182,14 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
      *
      * The +-1 are there to include cell borders in the composer sizing/positioning
      */
+    const minHeight = Math.min(height + 1, maxHeight);
+    const minWidth = Math.min(width + 1, maxWidth);
     return cssPropertiesToCss({
       left: `${left - 1}px`,
       top: `${top}px`,
 
-      "min-width": `${width + 1}px`,
-      "min-height": `${height + 1}px`,
+      "min-width": `${minWidth}px`,
+      "min-height": `${minHeight}px`,
       "max-width": `${maxWidth}px`,
       "max-height": `${maxHeight}px`,
 
