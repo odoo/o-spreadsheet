@@ -62,43 +62,126 @@ function convertPivotTableConfig(pivotTable: XLSXPivotTable): TableConfig {
  * In all the sheets, replace the table-only references in the formula cells with standard references.
  */
 function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets: XLSXWorksheet[]) {
+  const deconstructedSheets = deconstructSheets(convertedSheets);
+
   for (let tableSheet of convertedSheets) {
     const tables = xlsxSheets.find((s) => s.sheetName === tableSheet.name)!.tables;
-
     for (let table of tables) {
-      const tabRef = table.name + "[";
-      for (let sheet of convertedSheets) {
-        for (let xc in sheet.cells) {
-          const cell = sheet.cells[xc];
-          let cellContent = sheet.cells[xc];
+      for (let sheetId in deconstructedSheets) {
+        const sheet = convertedSheets.find((s) => s.id === sheetId)!;
+        for (let xc in deconstructedSheets[sheetId]) {
+          const deconstructedCell = deconstructedSheets[sheetId][xc];
 
-          if (cell && cellContent && cellContent.startsWith("=")) {
-            let refIndex: number;
+          // Example for table1:
+          // Transform cell deconstructContent from:
+          // [ "=AVERAGE(Table1", "ColName1", ")-AVERAGE(Table2", "ColName2", ")"]
+          //    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾    ‾
+          // To:
+          // [ "=AVERAGE(A3:A25)-AVERAGE(Table2", "ColName2", ")"]
+          //    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾    ‾
 
-            while ((refIndex = cellContent.indexOf(tabRef)) !== -1) {
-              let endIndex = refIndex + tabRef.length;
-              let openBrackets = 1;
-              while (openBrackets > 0 && endIndex < cellContent.length) {
-                if (cellContent[endIndex] === "[") {
-                  openBrackets++;
-                } else if (cellContent[endIndex] === "]") {
-                  openBrackets--;
-                }
-                endIndex++;
-              }
-              let reference = cellContent.slice(refIndex + tabRef.length, endIndex - 1);
-
-              const sheetPrefix = tableSheet.id === sheet.id ? "" : tableSheet.name + "!";
-              const convertedRef = convertTableReference(sheetPrefix, reference, table, xc);
-              cellContent =
-                cellContent.slice(0, refIndex) + convertedRef + cellContent.slice(endIndex);
+          for (let i = deconstructedCell.length - 3; i >= 0; i -= 2) {
+            const possibleTable = deconstructedSheets[sheetId][xc][i];
+            if (!possibleTable.endsWith(table.name!)) {
+              continue;
             }
+            const possibleRef = deconstructedSheets[sheetId][xc][i + 1];
+            const sheetPrefix = tableSheet.id === sheet.id ? "" : tableSheet.name + "!";
+            const convertedRef = convertTableReference(sheetPrefix, possibleRef, table, xc);
+            deconstructedSheets[sheetId][xc][i + 2] =
+              possibleTable.slice(0, possibleTable.indexOf(table.name!)) +
+              convertedRef +
+              deconstructedSheets[sheetId][xc][i + 2];
+            deconstructedSheets[sheetId][xc].splice(i, 2);
           }
-          sheet.cells[xc] = cellContent;
         }
       }
     }
   }
+
+  // reconstruct the content of the cells
+
+  for (let sheetId in deconstructedSheets) {
+    const sheet = convertedSheets.find((s) => s.id === sheetId)!;
+    for (let xc in deconstructedSheets[sheetId]) {
+      const deconstructedCell = deconstructedSheets[sheetId][xc];
+
+      // Normal case: All tables referenced in the cell content have been successfully matched.
+      if (deconstructedCell.length === 1) {
+        sheet.cells[xc] = deconstructedCell[0];
+        continue;
+      }
+
+      // Handle the case where there are still unmatched table references in the cell content.
+      // Reconstruct the cell content, including unrecognized table references.
+      let newContent = "";
+      for (let i = 0; i < deconstructedCell.length; i += 2) {
+        newContent += deconstructedCell[i] + "[" + deconstructedCell[i + 1] + "]";
+      }
+      newContent += deconstructedCell.at(-1);
+      sheet.cells[xc] = newContent;
+    }
+  }
+}
+
+type DeconstructedSheets = { [sheetId: string]: { [xc: string]: string[] } };
+
+/**
+ * Deconstruct the content of the cells in the sheets to extract possible table references.
+ * Example from "=AVERAGE(Table1[colName1])-AVERAGE(Table2[colName2])":
+ * return --> ["=AVERAGE(Table1", "colName1", ")-AVERAGE(Table2", "colName2", ")"]
+ */
+function deconstructSheets(convertedSheets: SheetData[]): DeconstructedSheets {
+  const deconstructedSheets: DeconstructedSheets = {};
+  for (let sheet of convertedSheets) {
+    for (let xc in sheet.cells) {
+      const cellContent = sheet.cells[xc];
+      if (!cellContent || !cellContent.startsWith("=")) {
+        continue;
+      }
+
+      const startIndex = cellContent.indexOf("[");
+      if (startIndex === -1) {
+        continue;
+      }
+
+      const deconstructedCell: string[] = [];
+      let possibleTable = cellContent.slice(0, startIndex);
+      let possibleRef = "";
+      let openBrackets = 1;
+      let mainPossibleTableIndex = 0;
+      let mainOpenBracketIndex = startIndex;
+
+      for (let index = startIndex + 1; index < cellContent.length; index++) {
+        if (cellContent[index] === "[") {
+          if (openBrackets === 0) {
+            possibleTable = cellContent.slice(mainPossibleTableIndex, index);
+            mainOpenBracketIndex = index;
+          }
+          openBrackets++;
+          continue;
+        }
+        if (cellContent[index] === "]") {
+          openBrackets--;
+          if (openBrackets === 0) {
+            possibleRef = cellContent.slice(mainOpenBracketIndex + 1, index);
+            deconstructedCell.push(possibleTable);
+            deconstructedCell.push(possibleRef);
+            mainPossibleTableIndex = index + 1;
+          }
+        }
+      }
+
+      if (deconstructedCell.length) {
+        if (!deconstructedSheets[sheet.id]) {
+          deconstructedSheets[sheet.id] = {};
+        }
+        deconstructedCell.push(cellContent.slice(mainPossibleTableIndex));
+        deconstructedSheets[sheet.id][xc] = [...deconstructedCell];
+      }
+    }
+  }
+  return deconstructedSheets;
 }
 
 /**
