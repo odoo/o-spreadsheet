@@ -16,6 +16,7 @@
         onGridMoved.bind="moveCanvas"
         gridOverlayDimensions="gridOverlayDimensions"
         onFigureDeleted.bind="focusDefaultElement"
+        getGridSize="props.getGridSize"
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
       <GridComposer

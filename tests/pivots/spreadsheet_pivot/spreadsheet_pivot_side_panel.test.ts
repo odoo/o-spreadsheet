@@ -27,7 +27,7 @@ import {
   nextTick,
   setGrid,
 } from "../../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
 describe("Spreadsheet pivot side panel", () => {
@@ -508,7 +508,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("should preserve the sorting of the dimension after ordering is changed", async () => {
-    mockGetBoundingClientRect({
+    extendMockGetBoundingClientRect({
       "h-100": () => ({
         height: 100,
         y: 0,
@@ -723,7 +723,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Cannot drag a dimension when clicking its upper right icons", async () => {
-    mockGetBoundingClientRect({
+    extendMockGetBoundingClientRect({
       /**
        * 'pt-1' is the class of the main div of the pivot dimension
        */

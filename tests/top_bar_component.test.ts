@@ -43,7 +43,7 @@ import {
   toRangesData,
   typeInComposerTopBar,
 } from "./test_helpers/helpers";
-import { mockGetBoundingClientRect } from "./test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "./test_helpers/mock_helpers";
 
 jest.mock("../src/helpers/figures/images/image_provider", () =>
   require("./__mocks__/mock_image_provider")
@@ -56,25 +56,27 @@ const moreToolsContainerWidth = 50;
 const moreToolsWidth = 50;
 const toolWidth = 100;
 
-mockGetBoundingClientRect({
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: spreadsheetHeight }),
-  "o-popover": () => ({ width: 50, height: 50 }),
-  "o-topbar-responsive": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
-  "o-toolbar-tools": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: topBarToolsHeight }),
-  "tool-container": () => ({ x: 0, y: 0, width: toolWidth, height: topBarToolsHeight }),
-  "more-tools-container": () => ({
-    x: 0,
-    y: 0,
-    width: moreToolsContainerWidth,
-    height: topBarToolsHeight,
-  }),
-  "more-tools": () => ({
-    x: 0,
-    y: 0,
-    width: moreToolsWidth,
-    height: topBarToolsHeight,
-  }),
-  "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: topBarToolsHeight }),
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: spreadsheetHeight }),
+    "o-popover": () => ({ width: 50, height: 50 }),
+    "o-topbar-responsive": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
+    "o-toolbar-tools": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: topBarToolsHeight }),
+    "tool-container": () => ({ x: 0, y: 0, width: toolWidth, height: topBarToolsHeight }),
+    "more-tools-container": () => ({
+      x: 0,
+      y: 0,
+      width: moreToolsContainerWidth,
+      height: topBarToolsHeight,
+    }),
+    "more-tools": () => ({
+      x: 0,
+      y: 0,
+      width: moreToolsWidth,
+      height: topBarToolsHeight,
+    }),
+    "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: topBarToolsHeight }),
+  });
 });
 
 afterEach(() => {

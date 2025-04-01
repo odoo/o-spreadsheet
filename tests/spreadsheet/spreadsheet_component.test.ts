@@ -43,7 +43,7 @@ import {
   typeInComposerGrid,
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
@@ -60,12 +60,14 @@ afterEach(() => {
 
 let spreadsheetWidth = 1000;
 
-mockGetBoundingClientRect({
-  "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
-  "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
-  "o-spreadsheet": () => {
-    return { x: 0, y: 0, width: spreadsheetWidth, height: 1000 };
-  },
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+    "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
+    "o-spreadsheet": () => {
+      return { x: 0, y: 0, width: spreadsheetWidth, height: 1000 };
+    },
+  });
 });
 
 describe("Simple Spreadsheet Component", () => {
