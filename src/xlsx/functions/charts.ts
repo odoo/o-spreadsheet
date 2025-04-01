@@ -71,6 +71,8 @@ export function createChart(
   let plot = escapeXml``;
   switch (chart.data.type) {
     case "bar":
+    // Excel does not support pyramid charts, therefore we return a bar chart definition with the same data
+    case "pyramid":
       plot = addBarChart(chart.data);
       break;
     case "combo":
@@ -83,7 +85,7 @@ export function createChart(
       plot = addScatterChart(chart.data);
       break;
     case "pie":
-      plot = addDoughnutChart(chart.data, chartSheetIndex, data, { holeSize: 0 });
+      plot = addDoughnutChart(chart.data, chartSheetIndex, data);
       break;
     case "radar":
       plot = addRadarChart(chart.data);
@@ -237,6 +239,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   //
   // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
   // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
+  const chartDirection = chart.horizontal ? "bar" : "col";
   const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
   const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
   const leftDataSetsNodes: XMLString[] = [];
@@ -276,7 +279,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
     leftDataSetsNodes.length
       ? escapeXml/*xml*/ `
         <c:barChart>
-          <c:barDir val="col"/>
+          <c:barDir val="${chartDirection}"/>
           <c:grouping val="${grouping}"/>
           <c:overlap val="${overlap}"/>
           <c:gapWidth val="70"/>
@@ -718,9 +721,9 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
 function addDoughnutChart(
   chart: ExcelChartDefinition,
   chartSheetIndex: string,
-  data: ExcelWorkbookData,
-  { holeSize } = { holeSize: 50 }
+  data: ExcelWorkbookData
 ) {
+  const holeSize = chart.isDoughnut ? 50 : 0;
   const maxLength = largeMax(
     chart.dataSets.map((ds) => getRangeSize(ds.range, chartSheetIndex, data))
   );
