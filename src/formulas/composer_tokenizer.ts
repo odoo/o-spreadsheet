@@ -46,6 +46,7 @@ export interface EnrichedToken extends Token {
   color?: Color;
   isBlurred?: boolean;
   isParenthesisLinkedToCursor?: boolean;
+  isInHoverContext?: boolean;
 }
 
 /**

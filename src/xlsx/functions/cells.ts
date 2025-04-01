@@ -113,7 +113,12 @@ function addMissingRequiredArgs(ast: ASTFuncall): ASTFuncall {
       // We know that we have at least 1 default Value missing
       for (let i = ast.args.length; i < requiredArgs.length; i++) {
         const currentDefaultArg = exportDefaultArgs[i - diffArgs];
-        args.push({ type: currentDefaultArg.type, value: currentDefaultArg.value });
+        args.push({
+          type: currentDefaultArg.type,
+          value: currentDefaultArg.value,
+          tokenEndIndex: 0,
+          tokenStartIndex: 0,
+        });
       }
     }
   }
