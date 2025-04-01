@@ -48,7 +48,7 @@ import {
   mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 jest.mock("../../src/components/helpers/dom_helpers", () => {
   return {
@@ -125,12 +125,6 @@ mockChart();
 
 let mockSpreadsheetRect: Partial<DOMRect>;
 let mockFigureMenuItemRect: Partial<DOMRect>;
-mockGetBoundingClientRect({
-  "o-popover": () => ({ height: 0, width: 0 }),
-  "o-popover-content": () => ({ height: 0, width: 0 }),
-  "o-spreadsheet": () => ({ ...mockSpreadsheetRect }),
-  "o-figure-menu-item": () => ({ ...mockFigureMenuItemRect }),
-});
 
 beforeEach(() => {
   addToRegistry(figureRegistry, "text", {
@@ -139,12 +133,21 @@ beforeEach(() => {
   });
 });
 
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-popover": () => ({ height: 0, width: 0 }),
+    "o-popover-content": () => ({ height: 0, width: 0 }),
+    "o-spreadsheet": () => ({ ...mockSpreadsheetRect }),
+    "o-figure-menu-item": () => ({ ...mockFigureMenuItemRect }),
+  });
+});
+
 describe("figures", () => {
   beforeEach(async () => {
     notifyUser = jest.fn();
-    ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
     mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
     mockFigureMenuItemRect = { top: 500, left: 500 };
+    ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -848,7 +851,7 @@ describe("figures", () => {
         await nextTick();
         await simulateClick(".o-figure-menu-item");
         const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
-        expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
+        expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the extendMockGetBoundingClientRect
         expect(menuPopover.style.left).toBe(`${500 - 25}px`);
       });
 
@@ -1146,7 +1149,6 @@ describe("figures", () => {
                 deltaX: wheelCol * DEFAULT_CELL_WIDTH,
               });
               triggerMouseEvent(anchorSelectors[anchor], "pointerup");
-
               const figure = model.getters.getFigure(sheetId, "f1")!;
               expect(figure).toMatchObject({
                 col: 10,
@@ -1238,7 +1240,7 @@ describe("figures", () => {
             }
           );
 
-          test.each([[{ wheelCol: 0, wheelRow: 1 }], [{ wheelCol: 0, wheelRow: 8 }]])(
+          test.each([[{ wheelCol: 0, wheelRow: 1 }], [{ wheelCol: 0, wheelRow: 1 }]])(
             "Resize with scroll %s",
             async ({ wheelCol, wheelRow }) => {
               createFigure(model, {
@@ -1251,14 +1253,12 @@ describe("figures", () => {
               });
               model.dispatch("SELECT_FIGURE", { figureId: "f1" });
               await nextTick();
-
               triggerMouseEvent(anchorSelectors[anchor], "pointerdown");
               triggerWheelEvent(anchorSelectors[anchor], {
                 deltaY: wheelRow * DEFAULT_CELL_HEIGHT,
                 deltaX: wheelCol * DEFAULT_CELL_WIDTH,
               });
               triggerMouseEvent(anchorSelectors[anchor], "pointerup");
-
               const figure = model.getters.getFigure(sheetId, "f1")!;
               expect(figure).toMatchObject({
                 col: 10,

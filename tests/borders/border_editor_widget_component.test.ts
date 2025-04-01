@@ -4,12 +4,7 @@ import { BorderEditorWidget } from "../../src/components/border_editor/border_ed
 import { toHex, toZone } from "../../src/helpers";
 import { click, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponent } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-
-mockGetBoundingClientRect({
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
-  "border-widget": () => ({ x: 10, y: 10, width: 300, height: 300 }),
-});
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -63,6 +58,11 @@ class BorderWidgetContainer extends Component<Props, SpreadsheetChildEnv> {
 async function mountBorderWidgetContainer() {
   ({ fixture, model } = await mountComponent(BorderWidgetContainer));
 }
+
+extendMockGetBoundingClientRect({
+  "border-widget": () => ({ x: 10, y: 10, width: 300, height: 300 }),
+  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+});
 
 describe("BorderEditorWidget", () => {
   test("Clicking the widget toggles the border editor", async () => {

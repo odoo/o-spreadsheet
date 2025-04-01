@@ -308,7 +308,9 @@ describe("Composer hover", () => {
     jest
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockImplementation(function (this: HTMLElement) {
-        if (this.classList.contains("o-speech-bubble")) {
+        if (this.classList.contains("o-spreadsheet")) {
+          return { left: 0, top: 0, width: 555, height: 555 } as DOMRect;
+        } else if (this.classList.contains("o-speech-bubble")) {
           return { x: 0, y: 0, width: 100, height: 50 } as DOMRect;
         } else if (this.textContent === "SUM") {
           return { x: 10, y: 10, width: 20, height: 20 } as DOMRect;

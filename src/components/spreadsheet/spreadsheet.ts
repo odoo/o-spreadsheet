@@ -32,6 +32,7 @@ import {
   PRIMARY_BUTTON_ACTIVE_BG,
   PRIMARY_BUTTON_BG,
   PRIMARY_BUTTON_HOVER_BG,
+  SCROLLBAR_WIDTH,
   SEPARATOR_COLOR,
   TEXT_BODY,
   TEXT_BODY_MUTED,
@@ -421,7 +422,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     );
 
     useExternalListener(window, "resize", () => this.render(true));
-
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
@@ -532,5 +532,29 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   get colLayers(): HeaderGroup[][] {
     const sheetId = this.env.model.getters.getActiveSheetId();
     return this.env.model.getters.getVisibleGroupLayers(sheetId, "COL");
+  }
+
+  getGridSize() {
+    const topBarHeight =
+      this.spreadsheetRef.el
+        ?.querySelector(".o-spreadsheet-topbar-wrapper")
+        ?.getBoundingClientRect().height || 0;
+    const bottomBarHeight =
+      this.spreadsheetRef.el
+        ?.querySelector(".o-spreadsheet-bottombar-wrapper")
+        ?.getBoundingClientRect().height || 0;
+
+    const gridWidth =
+      this.spreadsheetRef.el?.querySelector(".o-grid")?.getBoundingClientRect().width || 0;
+    const gridHeight =
+      (this.spreadsheetRef.el?.getBoundingClientRect().height || 0) -
+      (this.spreadsheetRef.el?.querySelector(".o-column-groups")?.getBoundingClientRect().height ||
+        0) -
+      topBarHeight -
+      bottomBarHeight;
+    return {
+      width: Math.max(gridWidth - SCROLLBAR_WIDTH, 0),
+      height: Math.max(gridHeight - SCROLLBAR_WIDTH, 0),
+    };
   }
 }

@@ -42,7 +42,7 @@ import {
   textContentAll,
   toRangesData,
 } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 function errorMessages(): string[] {
@@ -137,7 +137,7 @@ describe("UI of conditional formats", () => {
   let sheetId: UID;
   let env: SpreadsheetChildEnv;
 
-  mockGetBoundingClientRect({
+  extendMockGetBoundingClientRect({
     "o-cf-preview-container": (el: HTMLElement) => ({
       y:
         model.getters

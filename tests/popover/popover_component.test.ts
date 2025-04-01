@@ -3,7 +3,7 @@ import { Model } from "../../src";
 import { Popover, PopoverProps } from "../../src/components/popover/popover";
 import { Pixel, Rect } from "../../src/types";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 const POPOVER_HEIGHT = 200;
 const POPOVER_WIDTH = 200;
@@ -56,7 +56,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
 
 beforeEach(async () => {
   model = new Model();
-  mockGetBoundingClientRect({
+  extendMockGetBoundingClientRect({
     "o-popover-content": (el: HTMLElement) => {
       const popover = el.closest<HTMLElement>(".o-popover")!;
       const maxHeight = getStylePropertyInPx(popover, "max-height");
@@ -312,7 +312,7 @@ describe("Popover positioning", () => {
   });
 
   test("The containerRect is the spreadsheet element if it is not explicitly in the popover props", async () => {
-    mockGetBoundingClientRect({
+    extendMockGetBoundingClientRect({
       "o-spreadsheet": () => ({ x: 200, y: 200, width: 1000, height: 1000 }),
     });
     await mountTestPopover({
@@ -347,7 +347,7 @@ describe("Popover positioning", () => {
 
   test("Popover position is updated when its content changes size", async () => {
     let popoverContentBox = { x: 0, y: 0, width: 100, height: 100 };
-    mockGetBoundingClientRect({
+    extendMockGetBoundingClientRect({
       "o-popover": (el: HTMLElement) => ({
         height: Math.min(getStylePropertyInPx(el, "max-height") || 0, popoverContentBox.height),
         width: 100,
@@ -370,7 +370,7 @@ describe("Popover positioning", () => {
 
   test("Popover do not move back and forth if there is multiple content size changes", async () => {
     let popoverContentBox = { x: 0, y: 0, width: 100, height: 100 };
-    mockGetBoundingClientRect({
+    extendMockGetBoundingClientRect({
       "o-popover": (el: HTMLElement) => ({
         height: Math.min(getStylePropertyInPx(el, "max-height") || 0, popoverContentBox.height),
         width: 100,

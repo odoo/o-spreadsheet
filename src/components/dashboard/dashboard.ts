@@ -32,7 +32,7 @@ css/* scss */ `
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
-  static props = {};
+  static props = { getGridSize: Function };
   static components = {
     GridOverlay,
     GridPopover,

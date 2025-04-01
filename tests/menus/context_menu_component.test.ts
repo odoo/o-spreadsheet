@@ -34,7 +34,7 @@ import {
   mountSpreadsheet,
   nextTick,
 } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 const COLUMN_D = { x: 340, y: 10 };
 const ROW_5 = { x: 30, y: 100 };
@@ -64,34 +64,6 @@ function makeTestMenuItem(name: string, params?: Partial<ActionSpec>): ActionSpe
   }
   return item;
 }
-
-mockGetBoundingClientRect({
-  "o-menu": (el) => getElPosition(el),
-  "o-popover": () => getMenuSize(),
-  "o-popover-content": () => getMenuSize(),
-  "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
-  "o-menu-item": (el) => {
-    const parentPosition = getElPosition(el.parentElement!);
-    let offset = MENU_VERTICAL_PADDING;
-    for (const e of el.parentElement!.children) {
-      if (e === el) break;
-
-      if (el.classList.contains("o-menu-item")) {
-        offset += MENU_ITEM_HEIGHT;
-      } else if (el.classList.contains("o-separator")) {
-        offset += MENU_SEPARATOR_HEIGHT;
-      }
-    }
-    return {
-      top: parentPosition.top + offset,
-      left: parentPosition.left,
-      height: MENU_ITEM_HEIGHT,
-      width: MENU_WIDTH,
-    };
-  },
-  "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
-  "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
-});
 
 function getElPosition(element: string | Element): {
   top: number;
@@ -229,6 +201,37 @@ class ContextMenuParent extends Component {
     });
   }
 }
+
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-menu": (el) => getElPosition(el),
+    "o-menu-wrapper": (el) => getElPosition(el),
+    "o-popover": () => getMenuSize(),
+    "o-popover-content": () => getMenuSize(),
+    "o-menu-item": (el) => {
+      const parentPosition = getElPosition(el.parentElement!.parentElement!);
+      let offset = MENU_VERTICAL_PADDING;
+      for (const e of el.parentElement!.children) {
+        if (e === el) break;
+
+        if (el.classList.contains("o-menu-item")) {
+          offset += MENU_ITEM_HEIGHT;
+        } else if (el.classList.contains("o-separator")) {
+          offset += MENU_SEPARATOR_HEIGHT;
+        }
+      }
+      return {
+        top: parentPosition.top + offset,
+        left: parentPosition.left,
+        height: MENU_ITEM_HEIGHT,
+        width: MENU_WIDTH,
+      };
+    },
+    "o-topbar-responsive": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+    "o-dropdown": () => ({ x: 0, y: 0, width: 30, height: 30 }),
+    "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+  });
+});
 
 describe("Context Menu integration tests", () => {
   beforeEach(async () => {
