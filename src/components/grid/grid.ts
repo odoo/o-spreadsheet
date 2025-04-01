@@ -112,6 +112,7 @@ const registries = {
 
 interface Props {
   exposeFocus: (focus: () => void) => void;
+  getGridSize: () => DOMDimension;
 }
 
 // -----------------------------------------------------------------------------
@@ -121,6 +122,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Grid";
   static props = {
     exposeFocus: Function,
+    getGridSize: Function,
   };
   static components = {
     GridComposer,
@@ -450,8 +452,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onGridResized({ height, width }: DOMDimension) {
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
-      width: width,
-      height: height,
+      width: width - HEADER_WIDTH,
+      height: height - HEADER_HEIGHT,
       gridOffsetX: HEADER_WIDTH,
       gridOffsetY: HEADER_HEIGHT,
     });

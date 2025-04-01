@@ -9,11 +9,14 @@ import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_p
 import { createSheet } from "../test_helpers/commands_helpers";
 import { doubleClick, dragElement, simulateClick } from "../test_helpers/dom_helper";
 import { addToRegistry, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let spreadsheetWidth = 1000;
-mockGetBoundingClientRect({
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
+
+beforeEach(() => {
+  extendMockGetBoundingClientRect({
+    "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
+  });
 });
 
 let fixture: HTMLElement;

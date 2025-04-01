@@ -146,6 +146,7 @@ interface Props {
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
   gridOverlayDimensions: string;
   onFigureDeleted: () => void;
+  getGridSize: () => { width: number; height: number };
 }
 
 export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
@@ -159,6 +160,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onGridMoved: Function,
     gridOverlayDimensions: String,
     slots: { type: Object, optional: true },
+    getGridSize: Function,
   };
   static components = {
     FiguresContainer,
@@ -180,11 +182,12 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     useCellHovered(this.env, this.gridOverlay);
     const resizeObserver = new ResizeObserver(() => {
       const boundingRect = this.gridOverlayEl.getBoundingClientRect();
+      const { width, height } = this.props.getGridSize();
       this.props.onGridResized({
         x: boundingRect.left,
         y: boundingRect.top,
-        height: this.gridOverlayEl.clientHeight,
-        width: this.gridOverlayEl.clientWidth,
+        height: height,
+        width: width,
       });
     });
     onMounted(() => {
@@ -291,7 +294,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     const gridOverLayRect = getRefBoundingRect(this.gridOverlay);
     const x = ev.clientX - gridOverLayRect.x;
     const y = ev.clientY - gridOverLayRect.y;
-
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);
     return [colIndex, rowIndex];

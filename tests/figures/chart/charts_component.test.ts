@@ -66,11 +66,10 @@ import {
   spyModelDispatch,
   textContentAll,
 } from "../../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 
-mockGetBoundingClientRect({
+extendMockGetBoundingClientRect({
   "o-popover": () => ({ height: 0, width: 0 }),
-  "o-spreadsheet": () => ({ top: 100, left: 200, height: 1000, width: 1000 }),
   "o-figure-menu-item": () => ({ top: 500, left: 500 }),
 });
 type AllChartType = ChartType | "basicChart";
@@ -903,7 +902,7 @@ describe("charts", () => {
 
   describe("reordering dataseries", () => {
     beforeEach(async () => {
-      mockGetBoundingClientRect({
+      extendMockGetBoundingClientRect({
         "o-selection-input": (el: HTMLElement) => ({
           y: Array.from(el.parentElement!.children).indexOf(el) * 100,
           height: 100,

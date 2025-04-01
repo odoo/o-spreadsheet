@@ -9,11 +9,6 @@ import {
   simulateClick,
 } from "../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-
-mockGetBoundingClientRect({
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
-});
 
 let fixture: HTMLElement;
 
