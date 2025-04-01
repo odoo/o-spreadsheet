@@ -1,4 +1,8 @@
-import { getEvaluatedGrid } from "../test_helpers/getters_helpers";
+import { Model } from "../../src";
+import { GRID_ICON_EDGE_LENGTH, PIVOT_INDENT } from "../../src/constants";
+import { positionToZone, positions, toZone, zoneToXc } from "../../src/helpers";
+import { GridIcon } from "../../src/registries/icons_on_cell_registry";
+import { getCellContent, getEvaluatedGrid } from "../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
@@ -205,5 +209,71 @@ describe("Pivot collapse", () => {
         ["Marc",            "30",     "70",    "100"],
         ["Total",           "30",     "70",    "100"],
     ]);
+  });
+});
+
+describe("Pivot collapse icon", () => {
+  // prettier-ignore
+  const grid = {
+      A1: "Customer", B1: "Price",  C1: "Year",  D1: "Active", E1: "Client",
+      A2: "Alice",    B2: "10",     C2: "2020",  D2: "FALSE",  E2: "Marc",
+      A3: "Alice",    B3: "20",     C3: "2021",  D3: "TRUE",   E3: "Marc",
+      A4: "Bob",      B4: "30",     C4: "2020",  D4: "FALSE",  E4: "Marc",
+      A5: "Bob",      B5: "40",     C5: "2021",  D5: "TRUE",   E5: "Marc",
+      A6: "=PIVOT(1)"
+  };
+
+  function getPivotIconsInZone(model: Model, xc: string) {
+    const result: Record<string, { content: string; icon: GridIcon }> = {};
+    const sheetId = model.getters.getActiveSheetId();
+    for (const position of positions(toZone(xc))) {
+      const icon = model.getters.getCellIcons({ ...position, sheetId });
+      if (!icon[0]) {
+        continue;
+      }
+      const xc = zoneToXc(positionToZone(position));
+      result[xc] = { content: getCellContent(model, xc), icon: icon[0] };
+    }
+    return result;
+  }
+
+  test("Icons are only on non-leaf fields", () => {
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:E5", {
+      columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
+      rows: [{ fieldName: "Client" }, { fieldName: "Active" }],
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    const allIcons = getPivotIconsInZone(model, "A6:G12");
+    const cellsWithIconComponents = Object.entries(allIcons).filter(
+      ([, { icon }]) => icon.component !== undefined
+    );
+    expect(cellsWithIconComponents).toEqual([
+      ["A9", { content: "Marc", icon: expect.any(Object) }],
+      ["B6", { content: "Alice", icon: expect.any(Object) }],
+      ["D6", { content: "Bob", icon: expect.any(Object) }],
+    ]);
+  });
+
+  test("Leaf fields still have an icon size but no icon component to have the correct indent", () => {
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:E5", {
+      rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    const iconSize = GRID_ICON_EDGE_LENGTH;
+    expect(getPivotIconsInZone(model, "A6:A13")).toMatchObject({
+      A11: { content: "Bob", icon: { size: iconSize, margin: 0 } },
+      A12: {
+        content: "2020",
+        icon: { size: iconSize, margin: PIVOT_INDENT, component: undefined },
+      },
+      A13: {
+        content: "2021",
+        icon: { size: iconSize, margin: PIVOT_INDENT, component: undefined },
+      },
+    });
   });
 });
