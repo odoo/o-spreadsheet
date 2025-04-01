@@ -520,8 +520,8 @@ describe("composer Assistant", () => {
     expect(assistantEL).toMatchSnapshot();
     expect(assistantEL.style.width).toBe("300px");
     const containerEL = fixture.querySelector<HTMLElement>(".o-composer-assistant-container")!;
-    const offset = rect.height + 3;
-    expect(containerEL.style.transform).toBe(`translate(0, calc(-100% - ${offset}px))`);
+    const marginsOffset = rect.height + 3; // 3px for the border and margin
+    expect(containerEL.style.transform).toBe(`translate(0, calc(-100% - ${marginsOffset}px))`);
   });
 
   test("composer assistant min-width is the same as the underlying cell", async () => {

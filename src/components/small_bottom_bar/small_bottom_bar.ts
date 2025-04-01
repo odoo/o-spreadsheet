@@ -61,9 +61,6 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
         width,
         height,
       },
-      // assistantStyleProperties: {
-      //   width: ,
-      // },
       focus: this.focus,
       composerStore: this.composerStore,
       onComposerContentFocused: () =>
@@ -71,7 +68,10 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
           focusMode: "contentFocus",
         }),
       isDefaultFocus: false,
-      inputStyle: cssPropertiesToCss({ "max-height": "130px" }),
+      inputStyle: cssPropertiesToCss({
+        height: this.focus === "inactive" ? "24px" : "fit-content",
+        "max-height": `130px`,
+      }),
     };
   }
 
