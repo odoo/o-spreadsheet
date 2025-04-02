@@ -6,7 +6,7 @@
       onClick.bind="toggleMenu"
       class="props.class"
     />
-    <Menu
+    <MenuPopover
       t-if="isActive"
       anchorRect="state.anchorRect"
       menuItems="state.menuItems"

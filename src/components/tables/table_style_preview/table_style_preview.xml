@@ -18,7 +18,7 @@
         <t t-call="o-spreadsheet-Icon.EDIT"/>
       </div>
     </div>
-    <Menu
+    <MenuPopover
       t-if="menu.isOpen"
       menuItems="menu.menuItems"
       anchorRect="menu.anchorRect"

@@ -7,7 +7,7 @@ import { Store, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
 import { ChartDefinition, ChartType, FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
-import { Menu, MenuState } from "../../../menu/menu";
+import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
 interface Props {
   figureUI: FigureUI;
@@ -23,7 +23,7 @@ interface MenuItem {
 
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "spreadsheet.ChartDashboardMenu";
-  static components = { Menu };
+  static components = { MenuPopover };
   static props = { figureUI: Object };
 
   private originalChartDefinition!: ChartDefinition;

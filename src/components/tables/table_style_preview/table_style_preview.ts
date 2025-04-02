@@ -6,7 +6,7 @@ import { createTableStyleContextMenuActions } from "../../../registries/menus/ta
 import { SpreadsheetChildEnv } from "../../../types";
 import { TableConfig, TableStyle } from "../../../types/table";
 import { css } from "../../helpers";
-import { Menu, MenuState } from "../../menu/menu";
+import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 import { drawPreviewTable } from "./table_canvas_helpers";
 
 interface Props {
@@ -49,7 +49,7 @@ css/* scss */ `
 
 export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePreview";
-  static components = { Menu };
+  static components = { MenuPopover };
   static props = {
     tableConfig: Object,
     tableStyle: Object,
