@@ -51,7 +51,7 @@
         </t>
       </t>
       <Selection t-if="displaySelectionHandler"/>
-      <Menu
+      <MenuPopover
         t-if="menuState.isOpen"
         menuItems="menuState.menuItems"
         anchorRect="menuState.anchorRect"

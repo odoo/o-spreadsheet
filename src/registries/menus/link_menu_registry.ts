@@ -2,7 +2,7 @@ import * as ACTION_SHEET from "../../actions/sheet_actions";
 import { MenuItemRegistry } from "../menu_items_registry";
 
 //------------------------------------------------------------------------------
-// Link Menu Registry
+// Link MenuPopover Registry
 //------------------------------------------------------------------------------
 
 export const linkMenuRegistry = new MenuItemRegistry();

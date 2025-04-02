@@ -3,7 +3,7 @@ import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { chartRegistry, chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { ChartDefinition, ChartType, FigureUI, SpreadsheetChildEnv } from "../../../../types";
-import { Menu, MenuState } from "../../../menu/menu";
+import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
 interface Props {
   figureUI: FigureUI;
@@ -11,7 +11,7 @@ interface Props {
 
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "spreadsheet.ChartDashboardMenu";
-  static components = { Menu };
+  static components = { MenuPopover };
   static props = { figureUI: Object };
 
   private originalChartDefinition!: ChartDefinition;
