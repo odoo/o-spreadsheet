@@ -7,13 +7,14 @@ import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { cssPropertiesToCss } from "../helpers";
+import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
 interface Props {
   onClick: () => void;
 }
 
 export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
-  static components = { Composer, BottomBar, Ripple };
+  static components = { Composer, BottomBar, Ripple, RibbonMenu };
   static template = "o-spreadsheet-SmallBottomBar";
   static props = {
     onClick: Function,
@@ -75,8 +76,9 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  showRibbon(): void {
+  toggleRibbon(): void {
     this.composerStore.cancelEdition();
+    this.menuState.isOpen = !this.menuState.isOpen;
   }
 
   get isComposerVisible(): boolean {
