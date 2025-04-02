@@ -256,7 +256,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onScroll(ev) {
-    this.subMenu.scrollOffset = ev.target.scrollTop;
+    // this.subMenu.scrollOffset = ev.target.scrollTop;
   }
 
   /**
