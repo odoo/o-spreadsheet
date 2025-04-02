@@ -65,7 +65,7 @@ const TEST_CURRENCY: Partial<Currency> = {
   position: "before",
 };
 
-describe("Top Bar Menu Item Registry", () => {
+describe("Top Bar MenuPopover Item Registry", () => {
   let registry: MenuItemRegistry;
 
   beforeEach(() => (registry = new MenuItemRegistry()));
@@ -94,7 +94,7 @@ describe("Top Bar Menu Item Registry", () => {
   });
 });
 
-describe("Top Bar Menu Item Registry", () => {
+describe("Top Bar MenuPopover Item Registry", () => {
   let menuDefinitions;
   beforeEach(() => {
     menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
