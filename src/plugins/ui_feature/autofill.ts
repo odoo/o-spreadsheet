@@ -1,6 +1,7 @@
 import {
   clip,
   deepCopy,
+  deepEquals,
   isInside,
   positionToZone,
   recomputeZones,
@@ -23,6 +24,7 @@ import {
   HeaderIndex,
   LocalCommand,
   Tooltip,
+  UpdateCellCommand,
   Zone,
 } from "../../types/index";
 
@@ -137,14 +139,28 @@ export class AutofillPlugin extends UIPlugin {
       case "AUTOFILL_CELL":
         this.autoFillMerge(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
         const sheetId = this.getters.getActiveSheetId();
-        this.dispatch("UPDATE_CELL", {
+        const cell = this.getters.getCell({ sheetId, col: cmd.col, row: cmd.row });
+        let style = cmd.style ?? null;
+        let format = cmd.format ?? "";
+        let content = cmd.content ?? "";
+        const updateCellCmd: Omit<UpdateCellCommand, "type"> = {
           sheetId,
           col: cmd.col,
           row: cmd.row,
-          style: cmd.style || null,
-          content: cmd.content || "",
-          format: cmd.format || "",
-        });
+          style,
+          content,
+          format,
+        };
+        if ((style === null && !cell?.style) || deepEquals(style, cell?.style)) {
+          delete updateCellCmd.style;
+        }
+        if ((format === "" && !cell) || (cell?.format ?? "") === format) {
+          delete updateCellCmd.format;
+        }
+        if ((content === "" && !cell) || cell?.content === content) {
+          delete updateCellCmd.content;
+        }
+        this.dispatch("UPDATE_CELL", updateCellCmd);
         this.dispatch("SET_BORDER", {
           sheetId,
           col: cmd.col,
