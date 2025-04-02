@@ -7,7 +7,7 @@ import { Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
-import { Menu } from "../../menu/menu";
+import { MenuPopover } from "../../menu_popover/menu_popover";
 
 const PADDING = 12;
 const LINK_EDITOR_WIDTH = 340 + 2 * PADDING;
@@ -76,7 +76,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     cellPosition: Object,
     onClosed: { type: Function, optional: true },
   };
-  static components = { Menu };
+  static components = { MenuPopover };
   menuItems = linkMenuRegistry.getMenuItems();
   private link: State = useState(this.defaultState);
   private menu = useState({

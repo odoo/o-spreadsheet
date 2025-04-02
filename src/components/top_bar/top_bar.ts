@@ -28,7 +28,7 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { css } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
-import { Menu, MenuState } from "../menu/menu";
+import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { Popover, PopoverProps } from "../popover";
 import { TopBarToolStore } from "./top_bar_tool_store";
 import { topBarToolBarRegistry } from "./top_bar_tools_registry";
@@ -120,7 +120,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     dropdownMaxHeight: Number,
   };
   static components = {
-    Menu,
+    MenuPopover,
     TopBarComposer,
     Popover,
   };
@@ -221,7 +221,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     // TODO : manage click events better. We need this piece of code
     // otherwise the event opening the menu would close it on the same frame.
     // And we cannot stop the event propagation because it's used in an
-    // external listener of the Menu component to close the context menu when
+    // external listener of the MenuPopover component to close the context menu when
     // clicking on the top bar
     if (this.openedEl === ev.target) {
       return;

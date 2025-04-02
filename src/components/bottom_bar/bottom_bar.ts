@@ -7,7 +7,7 @@ import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../typ
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
-import { Menu, MenuState } from "../menu/menu";
+import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
 
@@ -111,7 +111,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     class: { type: String, optional: true },
   };
 
-  static components = { Menu, Ripple, BottomBarSheet, BottomBarStatistic };
+  static components = { MenuPopover, Ripple, BottomBarSheet, BottomBarStatistic };
 
   private bottomBarRef = useRef("bottomBar");
   private sheetListRef = useRef("sheetList");

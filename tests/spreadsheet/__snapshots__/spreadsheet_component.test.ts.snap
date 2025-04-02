@@ -1849,7 +1849,7 @@ exports[`components take the small screen into account 1`] = `
                 contenteditable="true"
                 inputmode="text"
                 spellcheck="false"
-                style="max-height:130px; "
+                style="height:24px; max-height:130px; "
                 tabindex="1"
               />
             </div>
