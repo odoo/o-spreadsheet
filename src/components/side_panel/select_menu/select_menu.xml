@@ -7,7 +7,7 @@
       t-on-click="onClick">
       <option selected="true" t-esc="props.selectedValue"/>
     </select>
-    <Menu
+    <MenuPopover
       t-if="state.isMenuOpen"
       menuItems="props.menuItems"
       anchorRect="menuAnchorRect"

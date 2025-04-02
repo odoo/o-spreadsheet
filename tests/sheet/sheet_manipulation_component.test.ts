@@ -43,7 +43,7 @@ function simulateContextMenu(selector: string, coord: { x: number; y: number }) 
   triggerMouseEvent(selector, "pointerup", coord.x, coord.y, { button: 1, bubbles: true });
   triggerMouseEvent(selector, "contextmenu", coord.x, coord.y, { button: 1, bubbles: true });
 }
-describe("Context Menu add/remove row/col", () => {
+describe("Context MenuPopover add/remove row/col", () => {
   test("can open contextmenu for columns then click elsewhere to close it", async () => {
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
     simulateContextMenu(".o-col-resizer", COLUMN_D);
@@ -224,7 +224,7 @@ describe("Context Menu add/remove row/col", () => {
   });
 });
 
-describe("Context Menu hide col/row", () => {
+describe("Context MenuPopover hide col/row", () => {
   test("can hide column", async () => {
     simulateContextMenu(".o-col-resizer", COLUMN_D);
     await nextTick();
