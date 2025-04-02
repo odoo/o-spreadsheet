@@ -8,7 +8,7 @@
       t-on-wheel.stop=""
       t-on-pointerdown.prevent=""
       t-on-click.stop=""
-      t-on-mouseover="props.onMouseOverMainMenu"
+      t-on-mouseover="() => props.onMouseOverMainMenu?.()"
       t-on-contextmenu.prevent="">
       <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
         <div t-if="menuItem === 'separator'" class="o-separator"/>
@@ -24,7 +24,7 @@
             t-on-mouseenter="(ev) => this.onMouseEnter?.(menuItem, ev)"
             t-on-mouseleave="(ev) => this.onMouseLeave?.(menuItem)"
             class="o-menu-item d-flex justify-content-between align-items-center"
-            t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': props.isActive(menuItem)}"
+            t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': props.isActive?.(menuItem)}"
             t-att-style="getColor(menuItem)">
             <div class="d-flex w-100">
               <div

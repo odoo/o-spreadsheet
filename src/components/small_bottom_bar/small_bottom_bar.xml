@@ -1,28 +1,33 @@
 <templates>
   <t t-name="o-spreadsheet-SmallBottomBar">
     <div class="o-spreadsheet-small-bottom-bar o-two-columns d-flex flex-column overflow-hidden">
-      <div class="o-small-composer px-2 py-2 mx-1" t-if="isComposerVisible">
-        <div class="w-100" t-ref="bottombarComposer">
-          <Composer t-props="composerProps"/>
-        </div>
-        <span
-          class="align-items-center d-flex justify-content-center o-selection-button"
-          title="confirm edition"
-          t-if="this.composerStore.editionMode!=='inactive'"
-          t-on-click="() => this.composerStore.stopEdition()">
-          <span class="d-flex">
-            <t t-call="o-spreadsheet-Icon.CHECK"/>
-          </span>
-        </span>
-      </div>
-      <div class="d-flex flex-fill align-items-center justify-content-between trucmuch">
-        <Ripple>
-          <div class="ribbon py-1 px-1 mx-2" t-on-click="showRibbon">
-            <span class="o-icon">🐧</span>
+      <t t-if="menuState.isOpen">
+        <RibbonMenu onClose="() => this.menuState.isOpen=false"/>
+      </t>
+      <t t-else="">
+        <div class="o-small-composer px-2 py-2 mx-1" t-if="isComposerVisible">
+          <div class="w-100" t-ref="bottombarComposer">
+            <Composer t-props="composerProps"/>
           </div>
-        </Ripple>
-        <BottomBar onClick="props.onClick" class="'mobile'"/>
-      </div>
+          <span
+            class="align-items-center d-flex justify-content-center o-selection-button"
+            title="confirm edition"
+            t-if="this.composerStore.editionMode!=='inactive'"
+            t-on-click="() => this.composerStore.stopEdition()">
+            <span class="d-flex">
+              <t t-call="o-spreadsheet-Icon.CHECK"/>
+            </span>
+          </span>
+        </div>
+        <div class="d-flex flex-fill align-items-center trucmuch">
+          <Ripple>
+            <div class="py-1 px-1 mx-2" t-on-click="toggleRibbon">
+              <span class="o-icon">🐧</span>
+            </div>
+          </Ripple>
+          <BottomBar onClick="props.onClick" class="'mobile'"/>
+        </div>
+      </t>
     </div>
   </t>
 </templates>
