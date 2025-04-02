@@ -9,7 +9,7 @@ import {
   MENU_ITEM_PADDING_HORIZONTAL,
   MENU_ITEM_PADDING_VERTICAL,
 } from "../../constants";
-import { DOMCoordinates, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
+import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
 
 //------------------------------------------------------------------------------
@@ -64,7 +64,6 @@ css/* scss */ `
 type MenuItemOrSeparator = Action | "separator";
 
 export interface MenuProps {
-  position: DOMCoordinates;
   menuItems: Action[];
   onClose: () => void;
   onScroll?: (ev: CustomEvent) => void;
@@ -79,7 +78,6 @@ export interface MenuProps {
 export interface MenuState {
   isOpen: boolean;
   parentMenu?: Action;
-  anchorRect: null | Rect;
   scrollOffset?: Pixel;
   menuItems: Action[];
   isHoveringChild?: boolean;

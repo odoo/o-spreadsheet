@@ -3,7 +3,7 @@
 exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet h-100 w-100"
-  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto 350px; "
+  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
 >
   
   <div
@@ -881,7 +881,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     
     <!-- t-att-class="props.class" -->
     <div
-      class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
+      class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
     >
       <div
         class="o-ripple-container position-relative add-sheet-container"
@@ -1025,7 +1025,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 exports[`components take the small screen into account 1`] = `
 <div
   class="o-spreadsheet h-100 w-100"
-  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto 350px; "
+  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
 >
   
   <div
@@ -1824,8 +1824,9 @@ exports[`components take the small screen into account 1`] = `
     <div
       class="o-spreadsheet-small-bottom-bar o-two-columns d-flex flex-column overflow-hidden"
     >
+      
       <div
-        class="o-small-composer px-2 py-2 mx-1"
+        class="o-small-composer px-2 py-2"
       >
         <div
           class="w-100"
@@ -1852,9 +1853,8 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
       </div>
-      
       <div
-        class="d-flex flex-fill align-items-center justify-content-between bottom-bar-menu"
+        class="d-flex flex-fill align-items-center bottom-bar-menu"
       >
         <div
           class="o-ripple-container position-relative"
@@ -1868,7 +1868,7 @@ exports[`components take the small screen into account 1`] = `
             class="position-relative"
           >
             <div
-              class="ribbon py-1 px-1 mx-2"
+              class="py-1 px-1 mx-2 ribbon-toggler"
             >
               <span
                 class="o-icon"
@@ -1881,7 +1881,7 @@ exports[`components take the small screen into account 1`] = `
         
         <!-- t-att-class="props.class" -->
         <div
-          class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden mobile"
+          class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden mobile"
         >
           <div
             class="o-ripple-container position-relative add-sheet-container"
@@ -2016,6 +2016,7 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
       </div>
+      
     </div>
     
     

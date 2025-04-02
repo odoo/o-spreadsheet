@@ -1,4 +1,7 @@
 .o-spreadsheet .o-spreadsheet-small-bottom-bar {
+  background-color: $background-gray-color;
+  border-bottom: #f2f2f2;
+
   .o-selection-button {
     border-radius: 2px;
     background-color: #e7e9ed;
@@ -9,6 +12,7 @@
     }
   }
   .o-small-composer {
+    background-color: white;
     border: lightgrey solid 1px;
     line-height: 26px;
     display: flex;
