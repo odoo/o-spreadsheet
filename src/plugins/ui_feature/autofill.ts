@@ -1,5 +1,6 @@
 import {
   clip,
+  deepEquals,
   isInside,
   positionToZone,
   recomputeZones,
@@ -26,6 +27,7 @@ import {
   LocalCommand,
   Tooltip,
   UID,
+  UpdateCellCommand,
   Zone,
 } from "../../types/index";
 
@@ -285,15 +287,29 @@ export class AutofillPlugin extends UIPlugin {
   }
 
   private autofillCell(sheetId: UID, data: AutofillCellData) {
-    this.dispatch("UPDATE_CELL", {
+    const cell = this.getters.getCell({ sheetId, col: data.col, row: data.row });
+    let style = data.style ?? null;
+    let format = data.format ?? "";
+    let content = data.content ?? "";
+    const updateCellCmd: Omit<UpdateCellCommand, "type"> = {
       sheetId,
       col: data.col,
       row: data.row,
-      content: data.content || "",
-      style: data.style || null,
-      format: data.format || "",
-    });
-    // Still usefull in odoo ATM to autofill field sync
+      style,
+      content,
+      format,
+    };
+    if ((style === null && !cell?.style) || deepEquals(style, cell?.style)) {
+      delete updateCellCmd.style;
+    }
+    if ((format === "" && !cell) || (cell?.format ?? "") === format) {
+      delete updateCellCmd.format;
+    }
+    if ((content === "" && !cell) || cell?.content === content) {
+      delete updateCellCmd.content;
+    }
+    this.dispatch("UPDATE_CELL", updateCellCmd);
+    // Still useful in odoo ATM to autofill field sync
     this.dispatch("AUTOFILL_CELL", data);
   }
 

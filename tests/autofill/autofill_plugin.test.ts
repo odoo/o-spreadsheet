@@ -12,7 +12,9 @@ import {
   merge,
   selectCell,
   setCellContent,
+  setFormat,
   setSelection,
+  setStyle,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -950,5 +952,89 @@ describe("Autofill", () => {
   test("link tooltip is formatted", () => {
     setCellContent(model, "A1", "[label](url)");
     expect(autofillTooltip("A1", "A2")).toBe("label");
+  });
+
+  test("dispatch content only if content is different", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "x");
+    const spy = jest.fn();
+    model.on("command-dispatched", null, spy);
+    autofill("A1", "A4");
+    expect(spy).not.toHaveBeenCalledWith({
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 1,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "1",
+    });
+    expect(spy).toHaveBeenCalledWith({
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 2,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "1",
+    });
+    expect(spy).toHaveBeenCalledWith({
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 3,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "1",
+    });
+  });
+
+  test("dispatch format only if format is different", () => {
+    setFormat(model, "A1", "m/d/yyyy");
+    setFormat(model, "A2", "m/d/yyyy");
+    setFormat(model, "A3", "0.0");
+    const spy = jest.fn();
+    model.on("command-dispatched", null, spy);
+    autofill("A1", "A4");
+    expect(spy).not.toHaveBeenCalledWith({
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 1,
+      sheetId: model.getters.getActiveSheetId(),
+      format: "m/d/yyyy",
+    });
+    expect(spy).toHaveBeenCalledWith({
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 2,
+      sheetId: model.getters.getActiveSheetId(),
+      format: "m/d/yyyy",
+    });
+    expect(spy).toHaveBeenCalledWith({
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 3,
+      sheetId: model.getters.getActiveSheetId(),
+      format: "m/d/yyyy",
+    });
+  });
+
+  test("dispatch style only if style is different", () => {
+    setCellContent(model, "A1", "1");
+    setStyle(model, "A1", { bold: true });
+    setStyle(model, "A2", { bold: true });
+    const spy = jest.fn();
+    model.on("command-dispatched", null, spy);
+    autofill("A1", "A3");
+    expect(spy).toHaveBeenCalledWith({
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 1,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "1",
+    });
+    expect(spy).toHaveBeenCalledWith({
+      type: "UPDATE_CELL",
+      col: 0,
+      row: 2,
+      sheetId: model.getters.getActiveSheetId(),
+      content: "1",
+      style: { bold: true },
+    });
   });
 });
