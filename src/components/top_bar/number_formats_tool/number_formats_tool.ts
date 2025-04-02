@@ -4,7 +4,7 @@ import { formatNumberMenuItemSpec } from "../../../registries";
 import { DOMCoordinates, SpreadsheetChildEnv } from "../../../types";
 import { ActionButton } from "../../action_button/action_button";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../../helpers/top_bar_tool_hook";
-import { Menu } from "../../menu/menu";
+import { MenuPopover } from "../../menu_popover/menu_popover";
 
 interface Props {
   class: string;
@@ -17,7 +17,7 @@ interface State {
 
 export class NumberFormatsTool extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-NumberFormatsTool";
-  static components = { Menu, ActionButton };
+  static components = { MenuPopover, ActionButton };
   static props = { class: String };
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   topBarToolStore!: ToolBarDropdownStore;

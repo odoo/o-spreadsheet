@@ -2,7 +2,7 @@ import { Component, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
 import { MenuMouseEvent } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/env";
-import { Menu, MenuState } from "../../../menu/menu";
+import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
 
 interface Props {
   items: ActionSpec[];
@@ -10,7 +10,7 @@ interface Props {
 
 export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CogWheelMenu";
-  static components = { Menu };
+  static components = { MenuPopover };
   static props = {
     items: Array,
   };

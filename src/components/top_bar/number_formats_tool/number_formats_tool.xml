@@ -6,6 +6,11 @@
       onClick.bind="toggleMenu"
       class="props.class"
     />
-    <Menu t-if="isActive" position="state.position" menuItems="state.menuItems" onClose="() => {}"/>
+    <MenuPopover
+      t-if="isActive"
+      position="state.position"
+      menuItems="state.menuItems"
+      onClose="() => {}"
+    />
   </div>
 </templates>

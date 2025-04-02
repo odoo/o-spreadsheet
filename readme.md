@@ -34,7 +34,7 @@ a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
 2. [Custom function](doc/add_function.md)
 3. [Connecting to an external API](doc/add_function.md#connecting-to-an-external-api)
 4. [Business feature](doc/extending/business_feature.md)
-5. Menu items (under construction)
+5. MenuPopover items (under construction)
 6. Side panel (under construction)
 7. Notification (under construction)
 8. Export Excel (under construction)

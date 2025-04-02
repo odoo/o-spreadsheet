@@ -276,7 +276,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
-export const FilterMenuPopoverBuilder: PopoverBuilders = {
+export const FilterMenuBuilder: PopoverBuilders = {
   onOpen: (position, getters): CellPopoverComponent<typeof FilterMenu> => {
     return {
       isOpen: true,

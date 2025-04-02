@@ -611,9 +611,9 @@ describe("figures", () => {
         parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
         await nextTick();
         await simulateClick(".o-figure-menu-item");
-        const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
-        expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
-        expect(menuPopover.style.left).toBe(`${500 - 25 - MENU_WIDTH}px`);
+        const MenuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
+        expect(MenuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
+        expect(MenuPopover.style.left).toBe(`${500 - 25 - MENU_WIDTH}px`);
       });
 
       test(`figure menu position is correct when menu button position < MENU_WIDTH for ${type}`, async () => {
@@ -622,9 +622,9 @@ describe("figures", () => {
         parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
         await nextTick();
         await simulateClick(".o-figure-menu-item");
-        const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
-        expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
-        expect(menuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
+        const MenuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
+        expect(MenuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
+        expect(MenuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
       });
 
       test("Cannot open context menu on right click in dashboard mode", async () => {
@@ -640,7 +640,7 @@ describe("figures", () => {
         expect(document.querySelector(".o-menu")).toBeFalsy();
       });
 
-      test("Click on Menu button open context menu", async () => {
+      test("Click on MenuPopover button open context menu", async () => {
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
         await simulateClick(".o-figure");
         expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
@@ -652,9 +652,9 @@ describe("figures", () => {
       test("Context menu is positioned according to the spreadsheet position", async () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
-        const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
-        expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
-        expect(menuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
+        const MenuPopover = fixture.querySelector(".o-menu-wrapper")?.parentElement;
+        expect(MenuPopover?.style.top).toBe(`${500 - 100}px`);
+        expect(MenuPopover?.style.left).toBe(`${500 - 200 - MENU_WIDTH}px`);
       });
 
       test("Selecting a figure and hitting Ctrl does not unselect it", async () => {

@@ -87,7 +87,7 @@
         />
       </t>
 
-      <Menu
+      <MenuPopover
         t-if="menuState.isOpen"
         position="menuState.position"
         menuItems="menuState.menuItems"

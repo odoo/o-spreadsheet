@@ -7,7 +7,7 @@ import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../ty
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
-import { Menu } from "../../menu/menu";
+import { MenuPopover } from "../../menu_popover/menu_popover";
 
 const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
@@ -78,7 +78,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     cellPosition: Object,
     onClosed: { type: Function, optional: true },
   };
-  static components = { Menu };
+  static components = { MenuPopover };
   menuItems = linkMenuRegistry.getMenuItems();
   private link: State = useState(this.defaultState);
   private menu = useState({
