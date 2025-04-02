@@ -5,7 +5,7 @@
       t-on-click="toggleMenu"
       t-ref="button"
     />
-    <Menu
+    <MenuPopover
       t-if="menuState.isOpen"
       menuId="menuId"
       anchorRect="menuState.anchorRect"

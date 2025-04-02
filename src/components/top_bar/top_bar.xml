@@ -90,7 +90,7 @@
         </div>
       </div>
     </div>
-    <Menu
+    <MenuPopover
       t-if="state.menuState.isOpen"
       anchorRect="state.menuState.anchorRect"
       menuItems="state.menuState.menuItems"

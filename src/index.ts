@@ -11,7 +11,7 @@ import { Grid } from "./components/grid/grid";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_dom_items_hook";
 import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
-import { Menu } from "./components/menu/menu";
+import { MenuPopover } from "./components/menu_popover/menu_popover";
 import { Popover } from "./components/popover";
 import { CellPopoverStore } from "./components/popover/cell_popover_store";
 import { SelectionInput } from "./components/selection_input/selection_input";
@@ -405,7 +405,7 @@ export const components = {
   FunnelChartDesignPanel,
   ChartTypePicker,
   FigureComponent,
-  Menu,
+  MenuPopover,
   Popover,
   SelectionInput,
   ValidationMessages,
