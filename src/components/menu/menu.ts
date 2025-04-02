@@ -9,7 +9,7 @@ import {
   MENU_ITEM_PADDING_HORIZONTAL,
   MENU_ITEM_PADDING_VERTICAL,
 } from "../../constants";
-import { DOMCoordinates, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import { Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
 
 //------------------------------------------------------------------------------
@@ -64,7 +64,6 @@ css/* scss */ `
 type MenuItemOrSeparator = Action | "separator";
 
 export interface MenuProps {
-  position: DOMCoordinates;
   menuItems: Action[];
   onClose: () => void;
   onScroll?: (ev: CustomEvent) => void;
@@ -73,7 +72,7 @@ export interface MenuProps {
   onMouseOver?: (menu: Action, ev: PointerEvent) => void;
   onMouseLeave?: (menu: Action, ev: PointerEvent) => void;
   // TODORAR vraiment pas convaincu du tout ... ca devrait etre défini sur l'appelant a mon avis
-  onMouseOverMainMenu?: (ev: PointerEvent, menu: Action) => void;
+  onMouseOverMainMenu?: () => void;
 
   isActive?: (menu: Action) => boolean;
   // TODORAR je pense que c'est inutile
@@ -84,7 +83,6 @@ export interface MenuProps {
 export interface MenuState {
   isOpen: boolean;
   parentMenu?: Action;
-  anchorRect: null | Rect;
   scrollOffset?: Pixel;
   menuItems: Action[];
   isHoveringChild?: boolean;
