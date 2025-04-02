@@ -73,7 +73,7 @@ import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
-import { Menu, MenuState } from "../menu/menu";
+import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
@@ -129,7 +129,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     GridOverlay,
     GridPopover,
     HeadersOverlay,
-    Menu,
+    MenuPopover,
     Autofill,
     ClientTag,
     Highlight,

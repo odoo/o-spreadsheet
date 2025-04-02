@@ -7,7 +7,7 @@ import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTIONS_PIVOT from "../../helpers/pivot/pivot_menu_items";
 
 //------------------------------------------------------------------------------
-// Context Menu Registry
+// Context MenuPopover Registry
 //------------------------------------------------------------------------------
 
 export const cellMenuRegistry = new MenuItemRegistry();
