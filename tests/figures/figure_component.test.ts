@@ -861,9 +861,9 @@ describe("figures", () => {
         parent.render(true); // force a render to update `useAbsoluteBoundingRect` with new mocked values
         await nextTick();
         await simulateClick(".o-figure-menu-item");
-        const menuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
-        expect(menuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
-        expect(menuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
+        const MenuPopover = fixture.querySelector<HTMLElement>(".o-popover")!;
+        expect(MenuPopover.style.top).toBe(`${500 - 25}px`); // 25 : spreadsheet offset of the mockGetBoundingClientRect
+        expect(MenuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
       });
 
       test("Cannot open context menu on right click in dashboard mode", async () => {
@@ -879,7 +879,7 @@ describe("figures", () => {
         expect(document.querySelector(".o-menu")).toBeFalsy();
       });
 
-      test("Click on Menu button open context menu", async () => {
+      test("Click on MenuPopover button open context menu", async () => {
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
         await simulateClick(".o-figure");
         expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));

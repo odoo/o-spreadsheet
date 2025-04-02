@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
-import { Menu } from "../../src/components/menu/menu";
+import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -90,12 +90,12 @@ function getElPosition(element: string | Element): {
 }
 
 function getMenuPosition() {
-  const { left, top } = getElPosition(".o-menu");
+  const { left, top } = getElPosition(".o-menu-wrapper");
   return { left, top: top };
 }
 
 function getSubMenuPosition(depth = 1) {
-  const { left, top } = getElPosition(fixture.querySelectorAll(".o-menu")[depth]);
+  const { left, top } = getElPosition(fixture.querySelectorAll(".o-menu-wrapper")[depth]);
   return { left, top: top };
 }
 
@@ -168,7 +168,7 @@ const subMenu: Action[] = createActions([
 class ContextMenuParent extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
-      <Menu
+      <MenuPopover
         onClose="() => this.onClose()"
         anchorRect="anchorRect"
         menuItems="menus"
@@ -177,7 +177,7 @@ class ContextMenuParent extends Component {
       />
     </div>
   `;
-  static components = { Menu };
+  static components = { MenuPopover };
   static props = { x: Number, y: Number, width: Number, height: Number, config: Object };
   menus!: Action[];
   anchorRect: Rect;
@@ -233,7 +233,7 @@ beforeEach(() => {
   });
 });
 
-describe("Context Menu integration tests", () => {
+describe("Context MenuPopover integration tests", () => {
   beforeEach(async () => {
     ({ fixture, model } = await mountSpreadsheet());
   });
@@ -254,7 +254,7 @@ describe("Context Menu integration tests", () => {
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
     await rightClickCell(model, "B2");
     expect(getSelectionAnchorCellXc(model)).toBe("B2");
-    expect(getElPosition(".o-menu")).toMatchObject({
+    expect(getElPosition(".o-menu-wrapper")).toMatchObject({
       left: DEFAULT_CELL_WIDTH,
       top: DEFAULT_CELL_HEIGHT,
     });
@@ -421,7 +421,7 @@ describe("Context Menu integration tests", () => {
   });
 });
 
-describe("Context Menu internal tests", () => {
+describe("Context MenuPopover internal tests", () => {
   test("submenu opens and close when (un)hovered", async () => {
     const menuItems = createActions([
       makeTestMenuItem("action"),
@@ -737,7 +737,7 @@ describe("Context Menu internal tests", () => {
   });
 });
 
-describe("Context Menu position on large screen 1000px/1000px", () => {
+describe("Context MenuPopover position on large screen 1000px/1000px", () => {
   test("it renders menu on the bottom right if enough space", async () => {
     const [clickX, clickY] = await renderContextMenu(300, 300);
     const { left, top } = getMenuPosition();

@@ -58,7 +58,7 @@
         </div>
       </div>
 
-      <Menu
+      <MenuPopover
         t-if="menu.isOpen"
         menuItems="menu.menuItems"
         anchorRect="menu.anchorRect"

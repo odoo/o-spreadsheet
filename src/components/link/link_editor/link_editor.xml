@@ -49,7 +49,7 @@
           </button>
         </div>
       </div>
-      <Menu
+      <MenuPopover
         t-if="menu.isOpen"
         anchorRect="menuButtonRect"
         menuItems="menuItems"
