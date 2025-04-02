@@ -361,7 +361,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     } else {
       properties["grid-template-rows"] = `min-content auto min-content`;
     }
-    properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
+    const columnWidth = this.sidePanel.isOpen ? `${this.sidePanel.panelSize}px` : "auto";
+    properties["grid-template-columns"] = `auto ${columnWidth}`;
 
     return cssPropertiesToCss(properties);
   }

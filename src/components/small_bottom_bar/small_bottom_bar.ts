@@ -9,6 +9,7 @@ import { CellComposerProps, Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { css, cssPropertiesToCss } from "../helpers";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
+import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
 interface Props {
   onClick: () => void;
@@ -21,7 +22,7 @@ css`
 `;
 
 export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
-  static components = { Composer, BottomBar, Ripple };
+  static components = { Composer, BottomBar, Ripple, RibbonMenu };
   static template = "o-spreadsheet-SmallBottomBar";
   static props = {
     onClick: Function,
@@ -85,11 +86,8 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  showRibbon(): void {
+  toggleRibbon(): void {
     this.composerStore.cancelEdition();
-  }
-
-  get isComposerVisible(): boolean {
-    return !this.menuState.isOpen;
+    this.menuState.isOpen = !this.menuState.isOpen;
   }
 }
