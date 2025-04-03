@@ -4,6 +4,7 @@
       value="props.criterion.values[0]"
       onValueChanged.bind="onFirstValueChanged"
       criterionType="props.criterion.type"
+      sheetId="props.sheetId"
     />
 
     <div class="o-section-subtitle ms-1 my-2">and</div>
@@ -11,6 +12,7 @@
       value="props.criterion.values[1]"
       onValueChanged.bind="onSecondValueChanged"
       criterionType="props.criterion.type"
+      sheetId="props.sheetId"
     />
   </t>
 </templates>
