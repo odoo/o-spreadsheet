@@ -44,6 +44,7 @@ interface SelectionProcessor {
   moveAnchorCell(direction: Direction, step: SelectionStep): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
   addCellToSelection(col: number, row: number): DispatchResult;
+  updateSelection(): DispatchResult;
   resizeAnchorZone(direction: Direction, step: SelectionStep): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectRow(index: number, mode: SelectionEvent["mode"]): DispatchResult;
@@ -211,6 +212,20 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   }
 
   /**
+   * update the current selection.
+   */
+  updateSelection(): DispatchResult {
+    return this.processEvent({
+      options: {
+        scrollIntoView: false,
+        unbounded: true,
+      },
+      anchor: this.anchor,
+      mode: "updateSelection",
+    });
+  }
+
+  /**
    * Increase or decrease the size of the current anchor zone.
    * The anchor cell remains where it is. It's the opposite side
    * of the anchor zone which moves.
@@ -291,7 +306,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     });
   }
 
-  selectColumn(index: HeaderIndex, mode: SelectionEvent["mode"]): DispatchResult {
+  selectColumn(
+    index: HeaderIndex,
+    mode: Exclude<SelectionEvent["mode"], "updateSelection">
+  ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const bottom = this.getters.getNumberRows(sheetId) - 1;
     let zone = { left: index, right: index, top: 0, bottom };
@@ -318,7 +336,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     });
   }
 
-  selectRow(index: HeaderIndex, mode: SelectionEvent["mode"]): DispatchResult {
+  selectRow(
+    index: HeaderIndex,
+    mode: Exclude<SelectionEvent["mode"], "updateSelection">
+  ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const right = this.getters.getNumberCols(sheetId) - 1;
     let zone = { top: index, bottom: index, left: 0, right };
