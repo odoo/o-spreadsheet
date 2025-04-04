@@ -1,4 +1,5 @@
 import { Model } from "../src";
+import { HoveredTableStore } from "../src/components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
@@ -31,6 +32,7 @@ import {
   addColumns,
   addDataValidation,
   copy,
+  createTable,
   deleteColumns,
   freezeColumns,
   freezeRows,
@@ -467,6 +469,47 @@ describe("renderer", () => {
     drawGridRenderer(ctx);
 
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
+  });
+
+  test("fill style of hovered clickable cells goes over regular fill style", () => {
+    const { drawGridRenderer, model, container } = setRenderer(
+      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+    );
+    const background = "#DC6CDF";
+    const hoverColor = "#017E8414";
+    createTable(model, "A1");
+    setStyle(model, "A1", { fillColor: background });
+    model.updateMode("dashboard");
+
+    let fillStyle = "";
+    let fillStyles: any[] = [];
+    let fillStyleCalled = false;
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        if (key === "fillStyle" && [background, hoverColor].includes(value)) {
+          fillStyle = value;
+          fillStyleCalled = true;
+        }
+      },
+      onFunctionCall: (val, args) => {
+        if (val === "fillRect" && fillStyleCalled) {
+          fillStyles.push({ color: fillStyle, x: args[0], y: args[1], w: args[2], h: args[3] });
+          fillStyleCalled = false;
+        }
+      },
+    });
+
+    drawGridRenderer(ctx);
+    expect(fillStyles).toEqual([{ color: background, h: 23, w: 96, x: 0, y: 0 }]);
+
+    fillStyles = [];
+    container.get(HoveredTableStore).hover({ col: 0, row: 0 });
+    drawGridRenderer(ctx);
+
+    expect(fillStyles).toEqual([
+      { color: background, h: 23, w: 96, x: 0, y: 0 },
+      { color: hoverColor, h: 23, w: 96, x: 0, y: 0 },
+    ]);
   });
 
   test("fillstyle of merge works with CF", () => {

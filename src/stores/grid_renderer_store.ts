@@ -1,4 +1,5 @@
 import { ModelStore } from ".";
+import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -58,11 +59,13 @@ export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
+  private hoveredTables: Store<HoveredTableStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
+    this.hoveredTables = get(HoveredTableStore);
     this.renderer.register(this);
   }
 
@@ -143,6 +146,10 @@ export class GridRenderer {
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
         ctx.fillRect(box.x, box.y, width, box.height);
+      }
+      if (box.overlayColor) {
+        ctx.fillStyle = box.overlayColor;
+        ctx.fillRect(box.x, box.y, box.width, box.height);
       }
       if (box.isError) {
         ctx.fillStyle = "red";
@@ -619,6 +626,7 @@ export class GridRenderer {
       style,
       dataBarFill,
       verticalAlign,
+      overlayColor: this.hoveredTables.overlayColors.get(position),
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
