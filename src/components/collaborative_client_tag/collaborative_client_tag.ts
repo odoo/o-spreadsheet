@@ -33,6 +33,11 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
   get tagStyle(): string {
     const { col, row, color } = this.props;
     const { height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    const visible = this.env.model.getters.isVisibleInViewport({
+      sheetId: this.env.model.getters.getActiveSheetId(),
+      col,
+      row,
+    });
     const { x, y } = this.env.model.getters.getVisibleRect({
       left: col,
       top: row,
@@ -45,6 +50,7 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
       left: `${x - 1}px`,
       border: `1px solid ${color}`,
       "background-color": color,
+      visibility: visible ? "visible" : "hidden",
     });
   }
 }
