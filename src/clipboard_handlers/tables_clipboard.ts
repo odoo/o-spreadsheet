@@ -41,7 +41,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
   TableCell
 > {
-  copy(data: ClipboardCellData): ClipboardContent {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent {
     const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
@@ -69,8 +69,16 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
           zones.some((z) => isZoneInside(tableZone, z))
         ) {
           copiedTablesIds.add(table.id);
+          let { numberOfRows } = zoneToDimension(tableZone);
+          for (let r = tableZone.top; r <= tableZone.bottom; r++) {
+            if (!isCutOperation && !rowsIndexes.includes(r)) {
+              numberOfRows--;
+            }
+          }
+          const range = this.getters.getRangeData(coreTable.range);
+          range._zone = { ...range._zone, bottom: range._zone.top + numberOfRows - 1 };
           copiedTable = {
-            range: this.getters.getRangeData(coreTable.range),
+            range,
             config: coreTable.config,
             type: coreTable.type,
           };
@@ -170,12 +178,14 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     if (tableCell.table && !options?.pasteOption) {
       const { range: tableRange } = tableCell.table;
-      const zoneDims = zoneToDimension(this.getters.getRangeFromRangeData(tableRange).zone);
+      const zone = this.getters.getRangeFromRangeData(tableRange).zone;
+      const zoneDims = zoneToDimension(zone);
+      const { numberOfCols, numberOfRows } = zoneDims;
       const newTableZone = {
         left: position.col,
         top: position.row,
-        right: position.col + zoneDims.numberOfCols - 1,
-        bottom: position.row + zoneDims.numberOfRows - 1,
+        right: position.col + numberOfCols - 1,
+        bottom: position.row + numberOfRows - 1,
       };
       this.dispatch("CREATE_TABLE", {
         sheetId: position.sheetId,
