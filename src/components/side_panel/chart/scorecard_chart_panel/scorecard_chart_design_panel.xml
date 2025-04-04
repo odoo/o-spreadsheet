@@ -18,17 +18,24 @@
         </Section>
       </t>
     </GeneralDesignEditor>
+    <ChartTitle
+      title="this.props.definition.keyDescr?.text ?? ''"
+      updateTitle="(text) => this.setKeyText(text)"
+      name.translate="Key Value Style"
+      placeholder.translate="Add a key value description"
+      updateStyle.bind="updateKeyStyle"
+      style="keyStyle"
+    />
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Baseline">
       <t t-set-slot="content">
-        <Section class="'pt-0'" title.translate="Baseline description">
-          <input
-            type="text"
-            t-att-value="translate(props.definition.baselineDescr)"
-            t-on-change="updateBaselineDescr"
-            class="o-input"
-            placeholder="Baseline description"
-          />
-        </Section>
+        <ChartTitle
+          title="this.props.definition.baselineDescr?.text ?? ''"
+          updateTitle="(text) => this.setBaselineText(text)"
+          name.translate="Baseline Style"
+          placeholder.translate="Add a baseline description"
+          updateStyle.bind="updateBaselineStyle"
+          style="baselineStyle"
+        />
         <Section class="'o-chart-baseline-color pt-0'" title="colorsSectionTitle">
           <div class="d-flex align-items-center mb-2">
             <RoundColorPicker
