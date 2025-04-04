@@ -847,7 +847,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
   test("Can position menu on the bottom left of the anchor", async () => {
     await renderContextMenu(200, 200, {
       anchorRect: { x: 200, y: 200, width: 100, height: 100 },
-      popoverPositioning: "BottomLeft",
+      popoverPositioning: "bottom-left",
     });
     expect(getMenuPosition()).toEqual({ left: 200, top: 300 });
   });
@@ -855,7 +855,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
   test("Can position menu on the top right of the anchor", async () => {
     await renderContextMenu(200, 200, {
       anchorRect: { x: 200, y: 200, width: 100, height: 100 },
-      popoverPositioning: "TopRight",
+      popoverPositioning: "top-right",
     });
     expect(getMenuPosition()).toEqual({ left: 300, top: 200 });
   });

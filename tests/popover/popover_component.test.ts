@@ -76,7 +76,7 @@ describe("Popover sizing", () => {
   test("Prop maxHeight and maxWidth make popover use CSS maxwidth/height", async () => {
     await mountTestPopover({
       anchorRect: { x: 0, y: 0, width: 0, height: 0 },
-      positioning: "TopRight",
+      positioning: "top-right",
       maxWidth: POPOVER_WIDTH,
       maxHeight: POPOVER_HEIGHT,
       childHeight: 100,
@@ -91,7 +91,7 @@ describe("Popover sizing", () => {
   test("Popover use the spreadsheet size to compute its max size", async () => {
     await mountTestPopover({
       anchorRect: { x: 0, y: 0, width: 0, height: 0 },
-      positioning: "TopRight",
+      positioning: "top-right",
       childHeight: 100,
       childWidth: 100,
     });
@@ -107,7 +107,7 @@ describe("Popover positioning", () => {
     test("Popover right of point", async () => {
       await mountTestPopover({
         anchorRect: { x: 0, y: 0, width: 0, height: 0 },
-        positioning: "TopRight",
+        positioning: "top-right",
         childHeight: 100,
         childWidth: 100,
       });
@@ -121,7 +121,7 @@ describe("Popover positioning", () => {
       const box = { x: 0, y: 0, width: 100, height: 100 };
       await mountTestPopover({
         anchorRect: box,
-        positioning: "TopRight",
+        positioning: "top-right",
         childWidth: 50,
         childHeight: 50,
       });
@@ -136,7 +136,7 @@ describe("Popover positioning", () => {
       const box = { x: viewPortDims.width - 50, y: 0, width: 50, height: 50 };
       await mountTestPopover({
         anchorRect: box,
-        positioning: "TopRight",
+        positioning: "top-right",
         childWidth: 100,
         childHeight: 100,
       });
@@ -151,7 +151,7 @@ describe("Popover positioning", () => {
       const box = { x: 0, y: viewPortDims.height - 50, width: 50, height: 50 };
       await mountTestPopover({
         anchorRect: box,
-        positioning: "TopRight",
+        positioning: "top-right",
         childHeight: 100,
         childWidth: 100,
       });
@@ -171,7 +171,7 @@ describe("Popover positioning", () => {
       };
       await mountTestPopover({
         anchorRect: box,
-        positioning: "TopRight",
+        positioning: "top-right",
         childHeight: 100,
         childWidth: 100,
       });
@@ -182,11 +182,11 @@ describe("Popover positioning", () => {
     });
   });
 
-  describe("Popover positioned BottomLeft", () => {
+  describe("Popover positioned bottom-left", () => {
     test("Popover bottom of point", async () => {
       await mountTestPopover({
         anchorRect: { x: 0, y: 0, width: 0, height: 0 },
-        positioning: "BottomLeft",
+        positioning: "bottom-left",
         childHeight: 100,
         childWidth: 100,
       });
@@ -200,7 +200,7 @@ describe("Popover positioning", () => {
       const box = { x: 0, y: 0, width: 100, height: 100 };
       await mountTestPopover({
         anchorRect: box,
-        positioning: "BottomLeft",
+        positioning: "bottom-left",
         childHeight: 100,
         childWidth: 100,
       });
@@ -215,7 +215,7 @@ describe("Popover positioning", () => {
       const box = { x: viewPortDims.width - 50, y: 0, width: 50, height: 50 };
       await mountTestPopover({
         anchorRect: box,
-        positioning: "BottomLeft",
+        positioning: "bottom-left",
         childWidth: 100,
         childHeight: 100,
       });
@@ -230,7 +230,7 @@ describe("Popover positioning", () => {
       const box = { x: 0, y: viewPortDims.height - 50, width: 50, height: 50 };
       await mountTestPopover({
         anchorRect: box,
-        positioning: "BottomLeft",
+        positioning: "bottom-left",
         childHeight: 100,
         childWidth: 100,
       });
@@ -251,7 +251,7 @@ describe("Popover positioning", () => {
       await mountTestPopover({
         anchorRect: box,
         containerRect: { x: 0, y: 0, ...viewPortDims },
-        positioning: "BottomLeft",
+        positioning: "bottom-left",
         childHeight: 100,
         childWidth: 100,
       });
@@ -272,7 +272,7 @@ describe("Popover positioning", () => {
     };
     await mountTestPopover({
       anchorRect,
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       childHeight: 100,
       childWidth: 100,
     });
@@ -292,7 +292,7 @@ describe("Popover positioning", () => {
     };
     await mountTestPopover({
       anchorRect,
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       childHeight: 100,
       childWidth: 100,
     });
@@ -307,7 +307,7 @@ describe("Popover positioning", () => {
     });
     await mountTestPopover({
       anchorRect: { x: 0, y: 0, width: 0, height: 0 },
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       childHeight: 100,
       childWidth: 100,
     });
@@ -317,7 +317,7 @@ describe("Popover positioning", () => {
     app.destroy();
     await mountTestPopover({
       anchorRect: { x: 300, y: 300, width: 0, height: 0 },
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       childHeight: 100,
       childWidth: 100,
     });
@@ -327,7 +327,7 @@ describe("Popover positioning", () => {
     app.destroy();
     await mountTestPopover({
       anchorRect: { x: 1400, y: 1400, width: 0, height: 0 },
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       childHeight: 100,
       childWidth: 100,
     });

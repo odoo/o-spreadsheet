@@ -174,7 +174,7 @@ export const LinkEditorPopoverBuilder: PopoverBuilders = {
       isOpen: true,
       props: { cellPosition: position },
       Component: LinkEditor,
-      cellCorner: "BottomLeft",
+      cellCorner: "bottom-left",
     };
   },
 };

@@ -7,7 +7,7 @@ import { css, cssPropertiesToCss } from "../helpers/css";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
 import { CSSProperties } from "./../../types/misc";
 
-type PopoverPosition = "TopLeft" | "TopRight" | "BottomLeft" | "BottomRight";
+type PopoverPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 type DisplayValue = "none" | "block";
 
 export interface PopoverProps {
@@ -64,7 +64,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     slots: Object,
   };
   static defaultProps = {
-    positioning: "BottomLeft",
+    positioning: "bottom-left",
     verticalOffset: 0,
     onMouseWheel: () => {},
     onPopoverMoved: () => {},
@@ -107,7 +107,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       const spreadsheetRect = this.spreadsheetRect;
 
       const popoverPositionHelper =
-        this.props.positioning === "BottomLeft"
+        this.props.positioning === "bottom-left"
           ? new BottomLeftPopoverContext(anchor, this.containerRect, propsMaxSize, spreadsheetRect)
           : new TopRightPopoverContext(anchor, this.containerRect, propsMaxSize, spreadsheetRect);
 
@@ -217,10 +217,10 @@ abstract class PopoverPositionContext {
     const shouldRenderAtBottom = this.shouldRenderAtBottom(elDims.height);
     const shouldRenderAtRight = this.shouldRenderAtRight(elDims.width);
 
-    if (shouldRenderAtBottom && shouldRenderAtRight) return "BottomRight";
-    if (shouldRenderAtBottom && !shouldRenderAtRight) return "BottomLeft";
-    if (!shouldRenderAtBottom && shouldRenderAtRight) return "TopRight";
-    return "TopLeft";
+    if (shouldRenderAtBottom && shouldRenderAtRight) return "bottom-right";
+    if (shouldRenderAtBottom && !shouldRenderAtRight) return "bottom-left";
+    if (!shouldRenderAtBottom && shouldRenderAtRight) return "top-right";
+    return "top-left";
   }
 }
 

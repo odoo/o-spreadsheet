@@ -13,7 +13,7 @@
       anchorRect="menuAnchorRect"
       onClose.bind="onMenuClosed"
       menuId="menuId"
-      popoverPositioning="'BottomLeft'"
+      popoverPositioning="'bottom-left'"
     />
   </t>
 </templates>

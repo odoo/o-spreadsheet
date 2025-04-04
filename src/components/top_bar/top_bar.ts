@@ -300,7 +300,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
       : { x: 0, y: 0, width: 0, height: 0 };
     return {
       anchorRect: rect,
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       verticalOffset: 0,
       class: "rounded",
       maxWidth: 300,

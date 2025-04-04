@@ -19,7 +19,7 @@ async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {})
     onStylePicked: () => {},
     popoverProps: {
       anchorRect: { x: 0, y: 0, width: 0, height: 0 },
-      positioning: "TopRight",
+      positioning: "top-right",
       verticalOffset: 0,
     },
     ...partialProps,

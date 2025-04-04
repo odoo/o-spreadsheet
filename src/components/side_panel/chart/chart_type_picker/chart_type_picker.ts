@@ -118,7 +118,7 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
     const { bottom, right, width } = target.getBoundingClientRect();
     this.state.popoverProps = {
       anchorRect: { x: right, y: bottom, width: 0, height: 0 },
-      positioning: "TopRight",
+      positioning: "top-right",
       verticalOffset: 0,
     };
 

@@ -121,7 +121,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   static components = { Menu, Popover };
   static defaultProps = {
     depth: 1,
-    popoverPositioning: "TopRight",
+    popoverPositioning: "top-right",
   };
   private subMenu: MenuState = useState({
     isOpen: false,

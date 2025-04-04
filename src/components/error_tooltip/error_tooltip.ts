@@ -89,7 +89,7 @@ export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
           cellPosition: position,
         },
         Component: ErrorToolTip,
-        cellCorner: "TopRight",
+        cellCorner: "top-right",
       };
     }
     return { isOpen: false };

@@ -132,7 +132,7 @@ export const LinkCellPopoverBuilder: PopoverBuilders = {
       isOpen: true,
       Component: LinkDisplay,
       props: { cellPosition: position },
-      cellCorner: "BottomLeft",
+      cellCorner: "bottom-left",
     };
   },
 };

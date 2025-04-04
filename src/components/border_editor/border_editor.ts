@@ -179,7 +179,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
   get lineStylePickerPopoverProps(): PopoverProps {
     return {
       anchorRect: this.lineStylePickerAnchorRect,
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       verticalOffset: 0,
     };
   }
@@ -188,7 +188,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
     return {
       anchorRect: this.props.anchorRect,
       maxHeight: this.props.maxHeight,
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       verticalOffset: 0,
     };
   }

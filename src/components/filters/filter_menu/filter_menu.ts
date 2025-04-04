@@ -282,7 +282,7 @@ export const FilterMenuPopoverBuilder: PopoverBuilders = {
       isOpen: true,
       props: { filterPosition: position },
       Component: FilterMenu,
-      cellCorner: "BottomLeft",
+      cellCorner: "bottom-left",
     };
   },
 };

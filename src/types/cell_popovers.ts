@@ -4,7 +4,7 @@ import { CellPosition, PropsOf } from "./misc";
 import { Rect } from "./rendering";
 
 export type CellPopoverType = "ErrorToolTip" | "LinkDisplay" | "FilterMenu" | "LinkEditor";
-export type PopoverPropsPosition = "TopRight" | "BottomLeft";
+export type PopoverPropsPosition = "top-right" | "bottom-left";
 
 type MaxSizedComponentConstructor = ComponentConstructor & {
   maxSize?: { maxWidth?: number; maxHeight?: number };
