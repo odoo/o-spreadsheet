@@ -250,7 +250,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     return {
       anchorRect: this.props.anchorRect,
       maxHeight: this.props.maxHeight,
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       verticalOffset: 0,
     };
   }

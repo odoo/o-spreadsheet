@@ -11,7 +11,7 @@
       anchorRect="state.anchorRect"
       menuItems="state.menuItems"
       onClose="() => {}"
-      popoverPositioning="'BottomLeft'"
+      popoverPositioning="'bottom-left'"
     />
   </div>
 </templates>

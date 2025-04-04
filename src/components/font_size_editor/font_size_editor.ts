@@ -68,7 +68,7 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
     const { x, y, width, height } = this.rootEditorRef.el!.getBoundingClientRect();
     return {
       anchorRect: { x, y, width, height },
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       verticalOffset: 0,
     };
   }

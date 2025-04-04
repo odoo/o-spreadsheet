@@ -96,7 +96,7 @@
       menuItems="state.menuState.menuItems"
       onClose="() => this.closeMenus()"
       onMenuClicked="() => this.props.onClick()"
-      popoverPositioning="'BottomLeft'"
+      popoverPositioning="'bottom-left'"
     />
     <Popover t-if="state.toolsPopoverState.isOpen" t-props="toolsPopoverProps">
       <div class="d-flex px-2 py-1 flex-wrap" style="background-color:white;">

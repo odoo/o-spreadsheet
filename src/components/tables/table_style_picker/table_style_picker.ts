@@ -85,7 +85,7 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
     const { bottom, right } = target.getBoundingClientRect();
     this.state.popoverProps = {
       anchorRect: { x: right, y: bottom, width: 0, height: 0 },
-      positioning: "TopRight",
+      positioning: "top-right",
       verticalOffset: 0,
     };
   }

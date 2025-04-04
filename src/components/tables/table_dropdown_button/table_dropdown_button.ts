@@ -61,7 +61,7 @@ export class TableDropdownButton extends Component<Props, SpreadsheetChildEnv> {
     this.topBarToolStore.openDropdown();
     this.state.popoverProps = {
       anchorRect: { x: left, y: bottom, width: 0, height: 0 },
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
       verticalOffset: 0,
     };
   }

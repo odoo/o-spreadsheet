@@ -102,7 +102,7 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
     const { x, y, width, height } = this.buttonRef.el!.getBoundingClientRect();
     return {
       anchorRect: { x, y, width, height },
-      positioning: "BottomLeft",
+      positioning: "bottom-left",
     };
   }
 
