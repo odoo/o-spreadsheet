@@ -762,6 +762,10 @@ export function addCellToSelection(model: Model, xc: string): DispatchResult {
   return model.selection.addCellToSelection(col, row);
 }
 
+export function finalizeSelection(model: Model): DispatchResult {
+  return model.selection.finalizeSelection();
+}
+
 /**
  * Move a conditianal formatting rule
  */

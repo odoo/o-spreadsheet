@@ -20,6 +20,7 @@ import {
   deleteColumns,
   deleteRows,
   deleteSheet,
+  finalizeSelection,
   hideColumns,
   hideRows,
   merge,
@@ -1414,5 +1415,135 @@ describe("Multiple selection updates after insertion and deletion", () => {
       { left: 0, right: 9, top: 4, bottom: 4 },
       { left: 0, right: 9, top: 9, bottom: 9 },
     ]);
+  });
+});
+
+describe("Grid Selection - Deselection Logic", () => {
+  let model: Model;
+
+  beforeEach(() => {
+    model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+  });
+
+  test("can deselect a single cell", () => {
+    selectCell(model, "A1");
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+
+    addCellToSelection(model, "B2");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(2);
+    expect(selection.anchor.cell).toEqual(toCartesian("B2"));
+
+    addCellToSelection(model, "B2");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+  });
+
+  test("can deselect a cell from a zone", () => {
+    setSelection(model, ["A1:C3"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+
+    addCellToSelection(model, "B2");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 2, top: 2, bottom: 2 },
+      { left: 2, right: 2, top: 1, bottom: 1 },
+      { left: 0, right: 0, top: 1, bottom: 1 },
+      { left: 0, right: 2, top: 0, bottom: 0 },
+    ]);
+  });
+
+  test("can deselect sub-zone from a larger zone", () => {
+    setSelection(model, ["A1:F8"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+
+    addCellToSelection(model, "B2");
+    setAnchorCorner(model, "D3");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 5, top: 3, bottom: 7 },
+      { left: 4, right: 5, top: 1, bottom: 2 },
+      { left: 0, right: 0, top: 1, bottom: 2 },
+      { left: 0, right: 5, top: 0, bottom: 0 },
+    ]);
+
+    addCellToSelection(model, "C5");
+    setAnchorCorner(model, "E6");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A4"));
+    expect(selection.zones).toEqual([
+      { left: 4, right: 5, top: 1, bottom: 2 },
+      { left: 0, right: 0, top: 1, bottom: 2 },
+      { left: 0, right: 5, top: 0, bottom: 0 },
+      { left: 0, right: 5, top: 6, bottom: 7 },
+      { left: 5, right: 5, top: 4, bottom: 5 },
+      { left: 0, right: 1, top: 4, bottom: 5 },
+      { left: 0, right: 5, top: 3, bottom: 3 },
+    ]);
+  });
+
+  test("can deselect merged cell from selection", () => {
+    merge(model, "A1:B2");
+
+    setSelection(model, ["A1:F8"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+
+    addCellToSelection(model, "A1");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("C1"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 5, top: 2, bottom: 7 },
+      { left: 2, right: 5, top: 0, bottom: 1 },
+    ]);
+  });
+
+  test("re-selecting a row removes it from selection", () => {
+    selectRow(model, 0, "overrideSelection");
+    let selection = model.getters.getSelection();
+    expect(selection.zones[0]).toEqual(toZone("A1:J1"));
+
+    selectRow(model, 1, "newAnchor");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.zones.length).toEqual(2);
+
+    selectRow(model, 0, "newAnchor");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.zones.length).toEqual(1);
+    expect(selection.zones[0]).toEqual(toZone("A2:J2"));
+  });
+
+  test("re-selecting a column removes it from selection", () => {
+    selectColumn(model, 0, "overrideSelection");
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+    expect(selection.zones[0]).toEqual(toZone("A1:A10"));
+
+    selectColumn(model, 1, "newAnchor");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.zones.length).toEqual(2);
+
+    selectColumn(model, 0, "newAnchor");
+    finalizeSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.zones.length).toEqual(1);
+    expect(selection.zones[0]).toEqual(toZone("B1:B10"));
   });
 });

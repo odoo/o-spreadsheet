@@ -4,6 +4,7 @@ import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_hel
 import {
   clip,
   deepCopy,
+  getZonesWithoutOverlap,
   isEqual,
   positionToZone,
   uniqueZones,
@@ -110,24 +111,32 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   private handleEvent(event: SelectionEvent) {
-    const anchor = event.anchor;
-    let zones: Zone[] = [];
+    let anchor = event.anchor;
+    let zones: Zone[] = [...this.gridSelection.zones];
     switch (event.mode) {
       case "overrideSelection":
         zones = [anchor.zone];
         break;
       case "updateAnchor":
-        zones = [...this.gridSelection.zones];
         const index = zones.findIndex((z: Zone) => isEqual(z, event.previousAnchor.zone));
-        if (index >= 0) {
-          zones[index] = anchor.zone;
-        }
+        if (index >= 0) zones[index] = anchor.zone;
+        else zones.push(anchor.zone);
         break;
       case "newAnchor":
-        zones = [...this.gridSelection.zones, anchor.zone];
+        const index1 = zones.findIndex((z: Zone) => isEqual(z, anchor.zone));
+        if (index1 >= 0 && zones.length > 1) zones.splice(index1, 1);
+        else zones.push(anchor.zone);
+        break;
+      case "finalizeSelection":
+        zones = getZonesWithoutOverlap(this.gridSelection.anchor.zone, zones);
+        const updatedZone = zones[zones.length - 1];
+        anchor = {
+          cell: { col: updatedZone.left, row: updatedZone.top },
+          zone: updatedZone,
+        };
         break;
     }
-    this.setSelectionMixin(event.anchor, zones);
+    this.setSelectionMixin(anchor, zones);
     /** Any change to the selection has to be reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
     const { col, row } = this.gridSelection.anchor.cell;

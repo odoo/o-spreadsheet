@@ -691,3 +691,24 @@ export function mergeContiguousZones(zones: Zone[]) {
   }
   return mergedZones;
 }
+
+export function splitZoneBySelection(selection: Zone, base: Zone): Zone[] {
+  const zones: Zone[] = [];
+  const { top, bottom, left, right } = selection;
+  if (bottom < base.bottom) zones.push({ ...base, top: bottom + 1 });
+  if (right < base.right) zones.push({ ...base, left: right + 1, top, bottom });
+  if (left > base.left) zones.push({ ...base, right: left - 1, top, bottom });
+  if (top > base.top) zones.push({ ...base, bottom: top - 1 });
+  return zones;
+}
+
+/**
+ * Splits and updates zones on mouse up if anchor overlaps existing zones.
+ */
+export function getZonesWithoutOverlap(zone: Zone, zones: Zone[]) {
+  const zoneToSplit = zones.find((z) => isZoneInside(zone, z));
+  if (!zoneToSplit) return zones;
+  const resultingZones = splitZoneBySelection(zone, zoneToSplit);
+  if (resultingZones.length === 0) return zones;
+  return zones.filter((z) => !isEqual(z, zone) && !isEqual(z, zoneToSplit)).concat(resultingZones);
+}

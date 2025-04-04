@@ -44,6 +44,7 @@ interface SelectionProcessor {
   moveAnchorCell(direction: Direction, step: SelectionStep): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
   addCellToSelection(col: number, row: number): DispatchResult;
+  finalizeSelection(): DispatchResult;
   resizeAnchorZone(direction: Direction, step: SelectionStep): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectRow(index: number, mode: SelectionEvent["mode"]): DispatchResult;
@@ -211,6 +212,20 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   }
 
   /**
+   * Finalizes the current selection on mouse up.
+   */
+  finalizeSelection(): DispatchResult {
+    return this.processEvent({
+      options: {
+        scrollIntoView: false,
+        unbounded: true,
+      },
+      anchor: this.anchor,
+      mode: "finalizeSelection",
+    });
+  }
+
+  /**
    * Increase or decrease the size of the current anchor zone.
    * The anchor cell remains where it is. It's the opposite side
    * of the anchor zone which moves.
@@ -299,6 +314,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     let col: HeaderIndex, row: HeaderIndex;
     switch (mode) {
       case "overrideSelection":
+      case "finalizeSelection":
       case "newAnchor":
         col = index;
         row = top;
@@ -326,6 +342,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     let col: HeaderIndex, row: HeaderIndex;
     switch (mode) {
       case "overrideSelection":
+      case "finalizeSelection":
       case "newAnchor":
         col = left;
         row = index;
