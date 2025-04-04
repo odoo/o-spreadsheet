@@ -289,15 +289,16 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       }
     };
     const mouseUpSelect = () => {
+      if (this.lastSelectedElementIndex !== null) {
+        const col = this._getType() === "COL" ? this.lastSelectedElementIndex : -1;
+        const row = this._getType() === "ROW" ? this.lastSelectedElementIndex : -1;
+        this.env.model.selection.updateSelection(col, row);
+      }
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
       this._computeGrabDisplay(ev);
     };
     this.dragNDropGrid.start(ev, mouseMoveSelect, mouseUpSelect);
-  }
-
-  onMouseUp(ev: MouseEvent) {
-    this.lastSelectedElementIndex = null;
   }
 
   onContextMenu(ev: MouseEvent) {

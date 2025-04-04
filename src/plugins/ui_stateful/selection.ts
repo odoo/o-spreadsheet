@@ -5,7 +5,10 @@ import {
   clip,
   deepCopy,
   isEqual,
+  isZoneAlreadyInZones,
+  isZoneInside,
   positionToZone,
+  splitZone,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -74,6 +77,7 @@ export class GridSelectionPlugin extends UIPlugin {
     },
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
   };
+  private isAnchorInsideZones: boolean = false;
   private selectedFigureId: UID | null = null;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
@@ -111,24 +115,48 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   private handleEvent(event: SelectionEvent) {
-    const anchor = event.anchor;
-    let zones: Zone[] = [];
+    let anchor = event.anchor;
+    let zones: Zone[] = [...this.gridSelection.zones];
     switch (event.mode) {
       case "overrideSelection":
         zones = [anchor.zone];
         break;
       case "updateAnchor":
-        zones = [...this.gridSelection.zones];
+        this.isAnchorInsideZones = isZoneAlreadyInZones(anchor.zone, zones) && zones.length > 2;
         const index = zones.findIndex((z: Zone) => isEqual(z, event.previousAnchor.zone));
         if (index >= 0) {
           zones[index] = anchor.zone;
         }
         break;
       case "newAnchor":
-        zones = [...this.gridSelection.zones, anchor.zone];
+        this.isAnchorInsideZones = isZoneAlreadyInZones(anchor.zone, zones) && zones.length > 1;
+        zones.push(anchor.zone);
+        break;
+      case "updateSelection":
+        let isAnchorChanged = false;
+        const zoneToSplit = zones.find(
+          (zone) => isZoneInside(anchor.zone, zone) && !isEqual(anchor.zone, zone)
+        );
+        if (this.isAnchorInsideZones) {
+          zones = zones.filter((zone) => !isEqual(zone, anchor.zone));
+          isAnchorChanged = true;
+        } else if (zoneToSplit) {
+          const splittedZones = splitZone(anchor.zone, zoneToSplit);
+          zones = zones
+            .filter((z) => !isEqual(z, anchor.zone) && !isEqual(z, zoneToSplit))
+            .concat(splittedZones);
+          isAnchorChanged = true;
+        }
+        const anchorZone = zones[zones.length - 1];
+        if (isAnchorChanged && anchorZone) {
+          anchor = {
+            cell: { col: anchorZone.left, row: anchorZone.top },
+            zone: anchorZone,
+          };
+        }
         break;
     }
-    this.setSelectionMixin(event.anchor, zones);
+    this.setSelectionMixin(anchor, zones);
     /** Any change to the selection has to be reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
     const { col, row } = this.gridSelection.anchor.cell;

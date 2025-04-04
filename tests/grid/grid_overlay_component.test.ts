@@ -1261,3 +1261,52 @@ describe("move selected element(s)", () => {
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });
 });
+
+describe("Can select de-select headers", () => {
+  beforeEach(async () => {
+    const data = {
+      sheets: [
+        {
+          colNumber: 10,
+          rowNumber: 10,
+        },
+      ],
+    };
+    model = new Model(data);
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+  });
+
+  test("Can't deselect active column", async () => {
+    await selectColumn("A");
+    await selectColumn("B", { ctrlKey: true });
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1]));
+    await selectColumn("B", { ctrlKey: true });
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1]));
+  });
+
+  test("Can't deselect active row", async () => {
+    await selectRow(0);
+    await selectRow(1, { ctrlKey: true });
+    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
+    await selectRow(1, { ctrlKey: true });
+    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
+  });
+
+  test("Can select already selected column remove it from selection", async () => {
+    await selectColumn("A");
+    await selectColumn("D", { shiftKey: true });
+    await selectColumn("E", { ctrlKey: true });
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 3, 4]));
+    await selectColumn("C", { ctrlKey: true });
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 3, 4]));
+  });
+
+  test("Can select already selected row remove it from selection", async () => {
+    await selectRow(0);
+    await selectRow(3, { shiftKey: true });
+    await selectRow(4, { ctrlKey: true });
+    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 3, 4]));
+    await selectRow(2, { ctrlKey: true });
+    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 3, 4]));
+  });
+});

@@ -864,6 +864,15 @@ export function addCellToSelection(model: Model, xc: string): DispatchResult {
 }
 
 /**
+ * updateSelection only called on mouse up.
+ * it will check and update the selection accordingly.
+ */
+export function updateSelection(model: Model, xc: string): DispatchResult {
+  const { col, row } = toCartesian(xc);
+  return model.selection.updateSelection(col, row);
+}
+
+/**
  * Move a conditianal formatting rule
  */
 export function changeCFPriority(
