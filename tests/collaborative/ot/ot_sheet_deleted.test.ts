@@ -99,6 +99,7 @@ describe("OT with DELETE_SHEET", () => {
     const cmd: Omit<DuplicateSheetCommand, "sheetId"> = {
       type: "DUPLICATE_SHEET",
       sheetIdTo: "sheetIdTo",
+      sheetNameTo: "Copy of Sheet1",
     };
 
     test("Delete the sheet on which the command is triggered", () => {
