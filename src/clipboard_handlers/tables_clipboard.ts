@@ -41,7 +41,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
   TableCell
 > {
-  copy(data: ClipboardCellData): ClipboardContent {
+  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent {
     const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
@@ -69,8 +69,20 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
           zones.some((z) => isZoneInside(tableZone, z))
         ) {
           copiedTablesIds.add(table.id);
+          let { numberOfRows } = zoneToDimension(tableZone);
+          for (let rowIndex = tableZone.top; rowIndex <= tableZone.bottom; rowIndex++) {
+            if (!isCutOperation && !rowsIndexes.includes(rowIndex)) {
+              numberOfRows--;
+            }
+          }
+          const range = coreTable.range;
+          const newRange = this.getters.extendRange(
+            coreTable.range,
+            "ROW",
+            range.zone.top + numberOfRows - 1 - range.zone.bottom
+          );
           copiedTable = {
-            range: this.getters.getRangeData(coreTable.range),
+            range: this.getters.getRangeData(newRange),
             config: coreTable.config,
             type: coreTable.type,
           };

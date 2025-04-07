@@ -12,7 +12,7 @@ import {
 export class ClipboardHandler<T> {
   constructor(protected getters: Getters, protected dispatch: CommandDispatcher["dispatch"]) {}
 
-  copy(data: ClipboardData): T | undefined {
+  copy(data: ClipboardData, isCutOperation: boolean): T | undefined {
     return;
   }
 
