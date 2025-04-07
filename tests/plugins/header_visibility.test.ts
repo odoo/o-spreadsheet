@@ -346,7 +346,11 @@ describe("Hide Rows", () => {
     addRows(model, "after", 99, 1);
     const plugin = getPlugin(model, HeaderSizePlugin);
     expect(plugin.sizes[sheetId].ROW.length).toEqual(101);
-    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "sheet2" });
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId,
+      sheetIdTo: "sheet2",
+      sheetNameTo: "Copy of Sheet1",
+    });
     expect(plugin.sizes["sheet2"].ROW.length).toEqual(101);
   });
 });
