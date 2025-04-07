@@ -1,3 +1,4 @@
+import { _lt } from "../translation";
 import { Row } from "../types";
 import { getUnquotedSheetName } from "./misc";
 
@@ -20,4 +21,25 @@ export function isSheetNameEqual(name1: string | undefined, name2: string | unde
     getUnquotedSheetName(name1.trim().toUpperCase()) ===
     getUnquotedSheetName(name2.trim().toUpperCase())
   );
+}
+
+export function getNextSheetName(existingNames: string[], baseName: string = "Sheet"): string {
+  let i = 1;
+  let name = `${baseName}${i}`;
+  while (existingNames.includes(name)) {
+    name = `${baseName}${i}`;
+    i++;
+  }
+  return name;
+}
+
+export function getDuplicateSheetName(nameToDuplicate: string, existingNames: string[]): string {
+  let i = 1;
+  const baseName = _lt("Copy of %s", nameToDuplicate);
+  let name = baseName.toString();
+  while (existingNames.includes(name)) {
+    name = `${baseName} (${i})`;
+    i++;
+  }
+  return name;
 }
