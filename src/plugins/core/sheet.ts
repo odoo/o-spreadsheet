@@ -76,6 +76,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getSheetZone",
     "getPaneDivisions",
     "checkElementsIncludeAllNonFrozenHeaders",
+    "getDuplicateSheetName",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -204,7 +205,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         this.showSheet(cmd.sheetId);
         break;
       case "DUPLICATE_SHEET":
-        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
+        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo, cmd.sheetNameTo);
         break;
       case "DELETE_SHEET":
         this.deleteSheet(this.sheets[cmd.sheetId]!);
@@ -730,9 +731,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("sheets", sheetId, "isVisible", true);
   }
 
-  private duplicateSheet(fromId: UID, toId: UID) {
+  private duplicateSheet(fromId: UID, toId: UID, toName: string) {
     const sheet = this.getSheet(fromId);
-    const toName = this.getDuplicateSheetName(sheet.name);
     const newSheet: Sheet = deepCopy(sheet);
     newSheet.id = toId;
     newSheet.name = toName;
@@ -766,7 +766,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("sheetIdsMapName", sheetIdsMapName);
   }
 
-  private getDuplicateSheetName(sheetName: string) {
+  getDuplicateSheetName(sheetName: string) {
     let i = 1;
     const names = this.orderedSheetIds.map(this.getSheetName.bind(this));
     const baseName = _lt("Copy of %s", sheetName);
