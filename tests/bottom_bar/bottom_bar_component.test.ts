@@ -387,6 +387,7 @@ describe("BottomBar component", () => {
     expect(dispatch).toHaveBeenCalledWith("DUPLICATE_SHEET", {
       sheetId: sheet,
       sheetIdTo: expect.any(String),
+      sheetNameTo: expect.any(String),
     });
   });
 
