@@ -1238,7 +1238,11 @@ export function duplicateSheet(
   sheetId: UID = model.getters.getActiveSheetId(),
   sheetIdTo: UID = model.uuidGenerator.uuidv4()
 ) {
-  return model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo });
+  return model.dispatch("DUPLICATE_SHEET", {
+    sheetId,
+    sheetIdTo,
+    sheetNameTo: model.getters.getDuplicateSheetName(model.getters.getSheetName(sheetId)),
+  });
 }
 
 export function unfoldHeaderGroup(
