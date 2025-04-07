@@ -191,7 +191,11 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A1:A4"),
       sheetId,
     });
-    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "Sheet2" });
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId,
+      sheetIdTo: "Sheet2",
+      sheetNameTo: "Copy of Sheet1",
+    });
     expect(model.getters.getConditionalFormats("Sheet2")).toEqual([
       {
         id: expect.any(String),

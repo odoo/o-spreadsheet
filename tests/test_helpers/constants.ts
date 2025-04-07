@@ -197,6 +197,7 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "DUPLICATE_SHEET",
     sheetId: "Sheet1",
     sheetIdTo: "duplicateSheetId",
+    sheetNameTo: "Copy of Sheet1",
   },
   MOVE_SHEET: {
     type: "MOVE_SHEET",
