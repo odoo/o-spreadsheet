@@ -31,7 +31,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     useEffect(this.createChart.bind(this), () => {
       const canvas = this.canvas.el as HTMLCanvasElement;
       const rect = canvas.getBoundingClientRect();
-      return [rect.width, rect.height, this.runtime, this.canvas.el];
+      return [rect.width, rect.height, this.runtime, this.canvas.el, window.devicePixelRatio];
     });
   }
 

@@ -72,9 +72,11 @@ interface Segment {
 
 export function drawGaugeChart(canvas: HTMLCanvasElement, runtime: GaugeChartRuntime) {
   const canvasBoundingRect = canvas.getBoundingClientRect();
-  canvas.width = canvasBoundingRect.width;
-  canvas.height = canvasBoundingRect.height;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = dpr * canvasBoundingRect.width;
+  canvas.height = dpr * canvasBoundingRect.height;
   const ctx = canvas.getContext("2d")!;
+  ctx.scale(dpr, dpr);
 
   const config = getGaugeRenderingConfig(canvasBoundingRect, runtime, ctx);
   drawBackground(ctx, config);
