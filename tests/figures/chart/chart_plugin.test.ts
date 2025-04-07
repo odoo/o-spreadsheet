@@ -833,12 +833,14 @@ describe("datasource tests", function () {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: "1",
       sheetIdTo: "SheetNoFigure",
+      sheetNameTo: "Copy of Sheet1",
     });
     activateSheet(model, "SheetNoFigure");
     expect(model.getters.getVisibleFigures()).toEqual([]);
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: "2",
       sheetIdTo: "SheetWithFigure",
+      sheetNameTo: "Copy of Sheet1",
     });
     activateSheet(model, "2");
     const { x, y, height, width, tag } = model.getters.getVisibleFigures()[0];
@@ -916,6 +918,7 @@ describe("datasource tests", function () {
     model.dispatch("DUPLICATE_SHEET", {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
@@ -955,12 +958,14 @@ describe("datasource tests", function () {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
 
     const newModel = new Model(model.exportData());
     newModel.dispatch("DUPLICATE_SHEET", {
       sheetId: secondSheetId,
       sheetIdTo: thirdSheetId,
+      sheetNameTo: "Copy of Sheet1 2",
     });
 
     const figuresSh1 = newModel.getters.getFigures(firstSheetId);
@@ -1009,6 +1014,7 @@ describe("datasource tests", function () {
     model.dispatch("DUPLICATE_SHEET", {
       sheetIdTo: thirdSheetId,
       sheetId: firstSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
     const duplicatedFigure = model.getters.getFigures(thirdSheetId)[0];
     const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
@@ -2350,7 +2356,11 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
   // @ts-ignore
   const spyDispatch = jest.spyOn(chartPlugin, "dispatch");
   const sheetId = model.getters.getActiveSheetId();
-  model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "copyOf" + sheetId });
+  model.dispatch("DUPLICATE_SHEET", {
+    sheetId,
+    sheetIdTo: "copyOf" + sheetId,
+    sheetNameTo: "Copy of Sheet1",
+  });
   // first chart duplicated
   expect(spyDispatch).toHaveBeenNthCalledWith(1, "CREATE_CHART", expect.any(Object));
   expect(spyDispatch).toHaveBeenNthCalledWith(2, "CREATE_FIGURE", expect.any(Object));

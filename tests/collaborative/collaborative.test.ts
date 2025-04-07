@@ -466,6 +466,7 @@ describe("Multi users synchronisation", () => {
     alice.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: "42",
+      sheetNameTo: "Copy of Sheet1",
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getActiveSheetId(),
@@ -560,6 +561,7 @@ describe("Multi users synchronisation", () => {
     alice.dispatch("DUPLICATE_SHEET", {
       sheetId: alice.getters.getActiveSheetId(),
       sheetIdTo: "Sheet2",
+      sheetNameTo: "Copy of Sheet1",
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });
@@ -1051,6 +1053,7 @@ describe("Multi users synchronisation", () => {
       alice.dispatch("DUPLICATE_SHEET", {
         sheetId: "Sheet1",
         sheetIdTo: "sheet2",
+        sheetNameTo: "Copy of Sheet1",
       });
       createFilter(charlie, "A1:B4", firstSheetId);
     });
@@ -1072,6 +1075,7 @@ describe("Multi users synchronisation", () => {
       charlie.dispatch("DUPLICATE_SHEET", {
         sheetId: firstSheetId,
         sheetIdTo: "sheet2",
+        sheetNameTo: "Copy of Sheet1",
       });
       charlie.dispatch("DELETE_SHEET", { sheetId: firstSheetId });
     });
