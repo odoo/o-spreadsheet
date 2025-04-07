@@ -90,6 +90,7 @@ describe("Simple filter test", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: sheetId,
       sheetIdTo: sheet2Id,
+      sheetNameTo: "Copy of Sheet1",
     });
     expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
     deleteColumns(model, ["A"], sheet2Id);
@@ -236,6 +237,7 @@ describe("Filter Evaluation", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: "sh1",
       sheetIdTo: "sh2",
+      sheetNameTo: "Copy of Sheet1",
     });
     expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
   });

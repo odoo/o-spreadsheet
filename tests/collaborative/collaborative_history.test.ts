@@ -1037,7 +1037,11 @@ describe("Collaborative local history", () => {
   test("do not transformed revisions with concurrently rejected commands", () => {
     const { network, alice, bob, charlie } = setupCollaborativeEnv();
     const initialCols = alice.getters.getNumberCols("Sheet1");
-    charlie.dispatch("DUPLICATE_SHEET", { sheetId: "Sheet1", sheetIdTo: "duplicateSheetId" });
+    charlie.dispatch("DUPLICATE_SHEET", {
+      sheetId: "Sheet1",
+      sheetIdTo: "duplicateSheetId",
+      sheetNameTo: "Copy of Sheet1",
+    });
     network.concurrent(() => {
       undo(charlie);
 
