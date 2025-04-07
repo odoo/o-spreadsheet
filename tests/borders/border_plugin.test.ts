@@ -446,6 +446,7 @@ describe("Grid manipulation", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
     addColumns(model, "before", "A", 1, secondSheetId);
     expect(getBorder(model, "B2", firstSheetId)).toEqual({
@@ -471,6 +472,7 @@ describe("Grid manipulation", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
     addRows(model, "before", 0, 1, secondSheetId);
     expect(getBorder(model, "B2", firstSheetId)).toEqual({
@@ -615,7 +617,7 @@ describe("Grid manipulation", () => {
     setZoneBorders(model, { position: "external" }, ["B2"]);
     const sheetId = model.getters.getActiveSheetId();
     const sheetIdTo = "42";
-    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo });
+    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo, sheetNameTo: "Copy of Sheet1" });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo });
     expect(getBorder(model, "B2")).toEqual({
       top: DEFAULT_BORDER_DESC,

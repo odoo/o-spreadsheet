@@ -142,6 +142,7 @@ describe("Filters plugin", () => {
       model.dispatch("DUPLICATE_SHEET", {
         sheetId: sheetId,
         sheetIdTo: sheet2Id,
+        sheetNameTo: "Copy of Sheet1",
       });
       expect(getFilterValues(model, sheet2Id)).toMatchObject([{ zone: "A1:A3", value: ["C"] }]);
       updateFilter(model, "A1", ["D"], sheet2Id);
@@ -158,6 +159,7 @@ describe("Filters plugin", () => {
       model.dispatch("DUPLICATE_SHEET", {
         sheetId: sheetId,
         sheetIdTo: sheet2Id,
+        sheetNameTo: "Copy of Sheet1",
       });
       expect(getFilterValues(model, sheet2Id)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
       deleteColumns(model, ["A"], sheet2Id);

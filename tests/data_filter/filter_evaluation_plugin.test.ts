@@ -166,6 +166,7 @@ describe("Filter Evaluation Plugin", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: "sh1",
       sheetIdTo: "sh2",
+      sheetNameTo: "Copy of Sheet1",
     });
     expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
   });
