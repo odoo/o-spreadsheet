@@ -84,7 +84,11 @@ describe("test image in sheet", function () {
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
     const newSheetId = "Sheet2";
-    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: newSheetId });
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId,
+      sheetIdTo: newSheetId,
+      sheetNameTo: "Copy of Sheet1",
+    });
     const original = model.getters.getImage(imageId);
     const newImages = getFigureIds(model, newSheetId);
     expect(newImages).toHaveLength(1);
@@ -112,11 +116,13 @@ describe("test image in sheet", function () {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
     const newModel = new Model(model.exportData());
     newModel.dispatch("DUPLICATE_SHEET", {
       sheetId: secondSheetId,
       sheetIdTo: thirdSheetId,
+      sheetNameTo: "Copy of Copy of Sheet1",
     });
 
     const figuresSh1 = newModel.getters.getFigures(firstSheetId);
@@ -226,7 +232,11 @@ describe("test image undo/redo", () => {
     createImage(model, { sheetId, figureId: imageId });
     const before = model.exportData();
     const newSheetId = "Sheet2";
-    model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: newSheetId });
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId,
+      sheetIdTo: newSheetId,
+      sheetNameTo: "Copy of Sheet1",
+    });
     const after = model.exportData();
     undo(model);
     expect(model).toExport(before);

@@ -131,6 +131,7 @@ describe("Inverses commands", () => {
       type: "DUPLICATE_SHEET",
       sheetId: "1",
       sheetIdTo: "2",
+      sheetNameTo: "Copy of Sheet1",
     };
     expect(inverseCommand(duplicateSheet)).toEqual([
       { type: "DELETE_SHEET", sheetId: "2", sheetName: "" },

@@ -878,7 +878,7 @@ test("Data of a duplicate sheet are correctly duplicated", () => {
   const model = new Model();
   setCellContent(model, "A1", "hello");
   const sheetId = model.getters.getActiveSheetId();
-  model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });
+  model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42", sheetNameTo: "Copy of Sheet1" });
   expect(getCellContent(model, "A1", sheetId)).toBe("hello");
   expect(getCellContent(model, "A1", "42")).toBe("hello");
   const data = model.exportData();
