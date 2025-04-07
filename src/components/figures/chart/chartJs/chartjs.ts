@@ -39,7 +39,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     });
     useEffect(
       () => this.updateChartJs(deepCopy(this.chartRuntime)),
-      () => [this.chartRuntime]
+      () => [this.chartRuntime, window.devicePixelRatio]
     );
   }
 
