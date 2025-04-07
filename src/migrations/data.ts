@@ -13,6 +13,7 @@ import {
   UuidGenerator,
   zoneToXc,
 } from "../helpers/index";
+import { _lt } from "../translation";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
@@ -406,6 +407,7 @@ export function repairInitialMessages(
   initialMessages = dropCommands(initialMessages, "SORT_CELLS");
   initialMessages = dropCommands(initialMessages, "SET_DECIMAL");
   initialMessages = fixChartDefinitions(data, initialMessages);
+  initialMessages = fixTranslatedDuplicateSheetName(data, initialMessages);
   return initialMessages;
 }
 
@@ -508,6 +510,44 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
   return messages;
 }
 
+function fixTranslatedDuplicateSheetName(
+  data: Partial<WorkbookData>,
+  initialMessages: StateUpdateMessage[]
+): StateUpdateMessage[] {
+  const sheetNames = {};
+  for (const sheet of data.sheets || []) {
+    sheetNames[sheet.id] = sheet.name;
+  }
+  const messages: StateUpdateMessage[] = [];
+  for (const message of initialMessages) {
+    if (message.type === "REMOTE_REVISION") {
+      const commands: CoreCommand[] = [];
+      for (const cmd of message.commands) {
+        switch (cmd.type) {
+          case "DUPLICATE_SHEET":
+            cmd.sheetNameTo = getDuplicateSheetName(
+              sheetNames[cmd.sheetId],
+              Object.values(sheetNames)
+            );
+            break;
+          case "CREATE_SHEET":
+          case "RENAME_SHEET":
+            sheetNames[cmd.sheetId] = cmd.name || getNextSheetName(Object.values(sheetNames));
+            break;
+        }
+        commands.push(cmd);
+      }
+      messages.push({
+        ...message,
+        commands,
+      });
+    } else {
+      messages.push(message);
+    }
+  }
+  return initialMessages;
+}
+
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
@@ -554,4 +594,26 @@ export function createEmptyExcelWorkbookData(): ExcelWorkbookData {
     ...createEmptyWorkbookData(),
     sheets: [createEmptyExcelSheet(INITIAL_SHEET_ID, "Sheet1")],
   };
+}
+
+function getDuplicateSheetName(nameToDuplicate: string, names: string[]): string {
+  let i = 1;
+  const baseName = _lt("Copy of %s", nameToDuplicate);
+  let name = baseName.toString();
+  while (names.includes(name)) {
+    name = `${baseName} (${i})`;
+    i++;
+  }
+  return name;
+}
+
+function getNextSheetName(names: string[]): string {
+  const baseName = "Sheet";
+  let i = 1;
+  let name = `${baseName}${i}`;
+  while (names.includes(name)) {
+    name = `${baseName}${i}`;
+    i++;
+  }
+  return name;
 }
