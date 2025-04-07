@@ -82,6 +82,7 @@ describe("merges", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
     merge(model, "B2:B3", secondSheetId);
     expect(model.getters.getMerges(secondSheetId)).toEqual([
@@ -100,6 +101,7 @@ describe("merges", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
     deleteSheet(model, secondSheetId);
     expect(model.getters.getMerges(secondSheetId)).toEqual([]);
@@ -635,6 +637,7 @@ describe("merges", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
     addColumns(model, "before", "A", 1, "42");
     expect(model.getters.getMerges(firstSheetId)).toEqual([
