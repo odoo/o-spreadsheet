@@ -214,6 +214,7 @@ describe("Table plugin", () => {
       model.dispatch("DUPLICATE_SHEET", {
         sheetId: sheetId,
         sheetIdTo: sheet2Id,
+        sheetNameTo: "Copy of Sheet1",
       });
       expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([
         { zone: "A1:A3", value: ["C"] },

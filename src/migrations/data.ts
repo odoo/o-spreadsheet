@@ -1,7 +1,9 @@
 import { BACKGROUND_CHART_COLOR, DEFAULT_REVISION_ID, FORMULA_REF_IDENTIFIER } from "../constants";
 import {
   UuidGenerator,
+  getDuplicateSheetName,
   getItemId,
+  getNextSheetName,
   overlap,
   sanitizeSheetName,
   toXC,
@@ -487,6 +489,7 @@ export function repairInitialMessages(
   initialMessages = dropCommands(initialMessages, "SORT_CELLS");
   initialMessages = dropCommands(initialMessages, "SET_DECIMAL");
   initialMessages = fixChartDefinitions(data, initialMessages);
+  initialMessages = fixTranslatedDuplicateSheetName(data, initialMessages);
   return initialMessages;
 }
 
@@ -610,6 +613,43 @@ function fixOverlappingFilters(data: any): any {
     }));
   }
   return data;
+}
+
+function fixTranslatedDuplicateSheetName(
+  data: Partial<WorkbookData>,
+  initialMessages: StateUpdateMessage[]
+): StateUpdateMessage[] {
+  const sheetNames = {};
+  for (const sheet of data.sheets || []) {
+    sheetNames[sheet.id] = sheet.name;
+  }
+  const messages: StateUpdateMessage[] = [];
+  for (const message of initialMessages) {
+    if (message.type === "REMOTE_REVISION") {
+      const commands: CoreCommand[] = [];
+      for (const cmd of message.commands) {
+        switch (cmd.type) {
+          case "DUPLICATE_SHEET":
+            cmd.sheetNameTo =
+              cmd.sheetNameTo ??
+              getDuplicateSheetName(sheetNames[cmd.sheetId], Object.values(sheetNames));
+            break;
+          case "CREATE_SHEET":
+          case "RENAME_SHEET":
+            sheetNames[cmd.sheetId] = cmd.name || getNextSheetName(Object.values(sheetNames));
+            break;
+        }
+        commands.push(cmd);
+      }
+      messages.push({
+        ...message,
+        commands,
+      });
+    } else {
+      messages.push(message);
+    }
+  }
+  return initialMessages;
 }
 
 // -----------------------------------------------------------------------------
