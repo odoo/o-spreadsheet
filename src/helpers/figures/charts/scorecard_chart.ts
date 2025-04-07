@@ -294,9 +294,12 @@ export class ScorecardChart extends AbstractChart {
 
 export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d")!;
-  canvas.width = structure.canvas.width;
-  const availableWidth = canvas.width - DEFAULT_CHART_PADDING;
-  canvas.height = structure.canvas.height;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = dpr * structure.canvas.width;
+  canvas.height = dpr * structure.canvas.height;
+  ctx.scale(dpr, dpr);
+  const availableWidth = structure.canvas.width - DEFAULT_CHART_PADDING;
 
   ctx.fillStyle = structure.canvas.backgroundColor;
   ctx.fillRect(0, 0, structure.canvas.width, structure.canvas.height);
