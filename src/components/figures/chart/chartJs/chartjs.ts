@@ -89,6 +89,13 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
         this.currentRuntime = runtime;
       }
     });
+    useEffect(
+      () => {
+        this.currentRuntime = this.chartRuntime;
+        this.updateChartJs(deepCopy(this.currentRuntime.chartJsConfig));
+      },
+      () => [window.devicePixelRatio]
+    );
   }
 
   private createChart(chartData: ChartConfiguration<any>) {
