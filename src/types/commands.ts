@@ -424,6 +424,7 @@ export interface DeleteSheetCommand extends SheetDependentCommand {
 export interface DuplicateSheetCommand extends SheetDependentCommand {
   type: "DUPLICATE_SHEET";
   sheetIdTo: UID;
+  sheetNameTo: string;
 }
 
 export interface MoveSheetCommand extends SheetDependentCommand {

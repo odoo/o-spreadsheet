@@ -221,6 +221,7 @@ describe("datasource tests", function () {
     model.dispatch("DUPLICATE_SHEET", {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);

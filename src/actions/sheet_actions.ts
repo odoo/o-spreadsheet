@@ -34,10 +34,13 @@ export const duplicateSheet: ActionSpec = {
   name: _t("Duplicate"),
   execute: (env) => {
     const sheetIdFrom = env.model.getters.getActiveSheetId();
+    const sheetNameFrom = env.model.getters.getSheetName(sheetIdFrom);
     const sheetIdTo = env.model.uuidGenerator.smallUuid();
+    const sheetNameTo = env.model.getters.getDuplicateSheetName(sheetNameFrom);
     env.model.dispatch("DUPLICATE_SHEET", {
       sheetId: sheetIdFrom,
       sheetIdTo,
+      sheetNameTo,
     });
     env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
   },
