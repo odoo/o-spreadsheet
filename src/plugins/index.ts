@@ -14,6 +14,7 @@ import {
   TablePlugin,
 } from "./core";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
+import { HeaderGlobalVisibilityPlugin } from "./core/header_visibility_global";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
 import { SpreadsheetPivotCorePlugin } from "./core/spreadsheet_pivot";
@@ -64,6 +65,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("settings", SettingsPlugin)
   .add("header grouping", HeaderGroupingPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
+  .add("headerSvisibility global", HeaderGlobalVisibilityPlugin)
   .add("cell", CellPlugin)
   .add("dataValidation", DataValidationPlugin)
   .add("merge", MergePlugin)

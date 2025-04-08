@@ -19,7 +19,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   static getters = [
     "getHeaderGroups",
     "getGroupsLayers",
-    "getVisibleGroupLayers",
     "getHeaderGroup",
     "getHeaderGroupsInZone",
     "isGroupFolded",
@@ -61,27 +60,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
         }
         break;
       }
-      case "UNFOLD_HEADER_GROUP":
-      case "FOLD_HEADER_GROUP":
-        if (!this.getters.tryGetSheet(cmd.sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
-        if (!group) {
-          return CommandResult.UnknownHeaderGroup;
-        }
-
-        const numberOfHeaders = this.getters.getNumberHeaders(cmd.sheetId, cmd.dimension);
-        const willHideAllHeaders = range(0, numberOfHeaders).every(
-          (i) =>
-            (i >= group.start && i <= group.end) ||
-            this.getters.isHeaderHiddenByUser(cmd.sheetId, cmd.dimension, i)
-        );
-        if (willHideAllHeaders) {
-          return CommandResult.NotEnoughElements;
-        }
-
-        break;
     }
     return CommandResult.Success;
   }
@@ -213,29 +191,6 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   getGroupsLayers(sheetId: UID, dimension: Dimension): HeaderGroup[][] {
     const groups = this.getHeaderGroups(sheetId, dimension);
     return this.bricksFallingAlgorithm(groups, 0, 0);
-  }
-
-  /**
-   * Get all the groups of a sheet in a dimension, and return an array of layers of those groups,
-   * excluding the groups that are totally hidden.
-   */
-  getVisibleGroupLayers(sheetId: UID, dimension: Dimension): HeaderGroup[][] {
-    const layers: HeaderGroup[][] = this.getGroupsLayers(sheetId, dimension);
-
-    for (const layer of layers) {
-      for (let k = layer.length - 1; k >= 0; k--) {
-        const group = layer[k];
-        if (group.start === 0) {
-          continue;
-        }
-        const headersInGroup = range(group.start - 1, group.end + 1);
-        if (headersInGroup.every((i) => this.getters.isHeaderHiddenByUser(sheetId, dimension, i))) {
-          layer.splice(k, 1);
-        }
-      }
-    }
-
-    return layers.filter((layer) => layer.length > 0);
   }
 
   isGroupFolded(sheetId: UID, dimension: Dimension, start: number, end: number): boolean {

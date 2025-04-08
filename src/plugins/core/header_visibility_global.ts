@@ -1,14 +1,24 @@
-import { deepCopy, getAddHeaderStartIndex, largeMax, largeMin } from "../../helpers";
+import {
+  deepCopy,
+  getAddHeaderStartIndex,
+  includesAll,
+  largeMax,
+  largeMin,
+  range,
+} from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
-import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
+import { ConsecutiveIndexes, Dimension, HeaderGroup, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
-export class HeaderVisibilityPlugin extends CorePlugin {
+export class HeaderGlobalVisibilityPlugin extends CorePlugin {
   static getters = [
-    // "getHiddenColsGroups",
-    // "getHiddenRowsGroups",
-    // "isRowHiddenByUser",
-    // "isColHiddenByUser",
+    "checkElementsIncludeAllVisibleHeaders",
+    "getHiddenColsGroups",
+    "getHiddenRowsGroups",
+    "isHeaderHiddenByUser",
+    "isRowHiddenByUser",
+    "isColHiddenByUser",
+    "getVisibleGroupLayers",
   ] as const;
 
   private readonly hiddenHeaders: Record<UID, Record<Dimension, Array<boolean>>> = {};
@@ -36,6 +46,36 @@ export class HeaderVisibilityPlugin extends CorePlugin {
           return CommandResult.Success;
         }
       }
+      case "REMOVE_COLUMNS_ROWS":
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
+        if (this.checkElementsIncludeAllVisibleHeaders(cmd.sheetId, cmd.dimension, cmd.elements)) {
+          return CommandResult.NotEnoughElements;
+        }
+        return CommandResult.Success;
+
+      case "UNFOLD_HEADER_GROUP":
+      case "FOLD_HEADER_GROUP":
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
+        const group = this.findGroupWithStartEnd(cmd.sheetId, cmd.dimension, cmd.start, cmd.end);
+        if (!group) {
+          return CommandResult.UnknownHeaderGroup;
+        }
+
+        const numberOfHeaders = this.getters.getNumberHeaders(cmd.sheetId, cmd.dimension);
+        const willHideAllHeaders = range(0, numberOfHeaders).every(
+          (i) =>
+            (i >= group.start && i <= group.end) ||
+            this.isHeaderHiddenByUser(cmd.sheetId, cmd.dimension, i)
+        );
+        if (willHideAllHeaders) {
+          return CommandResult.NotEnoughElements;
+        }
+
+        break;
     }
     return CommandResult.Success;
   }
@@ -88,12 +128,63 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return;
   }
 
+  /**
+   * Get all the groups of a sheet in a dimension, and return an array of layers of those groups,
+   * excluding the groups that are totally hidden.
+   */
+  getVisibleGroupLayers(sheetId: UID, dimension: Dimension): HeaderGroup[][] {
+    const layers: HeaderGroup[][] = this.getters.getGroupsLayers(sheetId, dimension);
+
+    for (const layer of layers) {
+      for (let k = layer.length - 1; k >= 0; k--) {
+        const group = layer[k];
+        if (group.start === 0) {
+          continue;
+        }
+        const headersInGroup = range(group.start - 1, group.end + 1);
+        if (headersInGroup.every((i) => this.getters.isHeaderHiddenByUser(sheetId, dimension, i))) {
+          layer.splice(k, 1);
+        }
+      }
+    }
+
+    return layers.filter((layer) => layer.length > 0);
+  }
+
+  private findGroupWithStartEnd(
+    sheetId: UID,
+    dimension: Dimension,
+    start: HeaderIndex,
+    end: HeaderIndex
+  ): HeaderGroup | undefined {
+    return this.getters
+      .getHeaderGroups(sheetId, dimension)
+      .find((group) => group.start === start && group.end === end);
+  }
+
+  checkElementsIncludeAllVisibleHeaders(
+    sheetId: UID,
+    dimension: Dimension,
+    elements: HeaderIndex[]
+  ): boolean {
+    // SHOULD MOVE
+    const visibleHeaders = this.getAllVisibleHeaders(sheetId, dimension);
+    return includesAll(elements, visibleHeaders);
+  }
+
+  isHeaderHiddenByUser(sheetId: UID, dimension: Dimension, index: HeaderIndex): boolean {
+    // SHOULD MOVE
+    return dimension === "COL"
+      ? this.isColHiddenByUser(sheetId, index)
+      : this.isRowHiddenByUser(sheetId, index);
+  }
+
   isRowHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].ROW[index];
+    return this.hiddenHeaders[sheetId].ROW[index] || this.getters.isRowFolded(sheetId, index);
   }
 
   isColHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].COL[index];
+    return this.hiddenHeaders[sheetId].COL[index] || this.getters.isColFolded(sheetId, index);
   }
 
   getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {
@@ -136,20 +227,20 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return consecutiveIndexes;
   }
 
-  // private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
-  //   const headers: HeaderIndex[] = range(0, this.getters.getNumberHeaders(sheetId, dimension));
+  private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
+    const headers: HeaderIndex[] = range(0, this.getters.getNumberHeaders(sheetId, dimension));
 
-  //   const foldedHeaders: HeaderIndex[] = [];
-  //   this.getters.getHeaderGroups(sheetId, dimension).forEach((group) => {
-  //     if (group.isFolded) {
-  //       foldedHeaders.push(...range(group.start, group.end + 1));
-  //     }
-  //   });
+    const foldedHeaders: HeaderIndex[] = [];
+    this.getters.getHeaderGroups(sheetId, dimension).forEach((group) => {
+      if (group.isFolded) {
+        foldedHeaders.push(...range(group.start, group.end + 1));
+      }
+    });
 
-  //   return headers.filter((i) => {
-  //     return !this.hiddenHeaders[sheetId][dimension][i] && !foldedHeaders.includes(i);
-  //   });
-  // }
+    return headers.filter((i) => {
+      return !this.hiddenHeaders[sheetId][dimension][i] && !foldedHeaders.includes(i);
+    });
+  }
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
