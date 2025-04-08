@@ -561,8 +561,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     row: HeaderIndex
   ): { style?: Style; format?: Format } {
     const format: { style?: Style; format?: string } = {};
-    const position = this.getters.getMainCellPosition({ sheetId, col, row });
-    const cell = this.getters.getCell(position);
+    const cell = this.getters.getCell({ sheetId, col, row });
     if (cell) {
       if (cell.style) {
         format["style"] = cell.style;
