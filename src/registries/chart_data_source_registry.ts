@@ -9,7 +9,7 @@ import {
   ExcelChartDefinition,
 } from "../types/chart/chart";
 import { CommandResult } from "../types/commands";
-import { CoreGetters, EvaluationGetters } from "../types/getters";
+import { ChartCoreGetters, EvaluationGetters } from "../types/getters";
 import { RangeAdapterFunctions, UID } from "../types/misc";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
@@ -19,7 +19,7 @@ export interface ChartDataSourceBuilder<TExternal, TInternal> {
   fromExternalDefinition: (
     dataSource: TExternal,
     defaultSheetId: UID,
-    getters: CoreGetters
+    getters: ChartCoreGetters
   ) => TInternal;
   fromContextCreation: (context: ChartCreationContext) => ChartDataSource<string>;
   fromHierarchicalContextCreation: (context: ChartCreationContext) => ChartDataSource<string>;
@@ -40,15 +40,15 @@ export interface ChartDataSourceBuilder<TExternal, TInternal> {
     dataSource: TInternal,
     sheetIdFrom: UID,
     sheetIdTo: UID,
-    getters: CoreGetters
+    getters: ChartCoreGetters
   ): TInternal;
-  getDefinition(dataSource: TInternal, defaultSheetId: UID, getters: CoreGetters): TExternal;
+  getDefinition(dataSource: TInternal, defaultSheetId: UID, getters: ChartCoreGetters): TExternal;
   getContextCreation(dataSource: TExternal): ChartCreationContext;
   getHierarchicalContextCreation(dataSource: TExternal): ChartCreationContext;
   toExcelDataSets(
     dataSource: TInternal,
     dataSetStyles: DataSetStyle,
-    getters: CoreGetters
+    getters: ChartCoreGetters
   ): Pick<ExcelChartDefinition, "dataSets" | "labelRange"> | undefined;
   onDataSetClick?: (
     chartType: ChartType,

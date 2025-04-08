@@ -90,6 +90,10 @@ const enum Status {
  * programmatically a spreadsheet.
  */
 export class Model extends EventBus<any> implements CommandDispatcher {
+  // private corePlugins: CorePlugin<never>[] = [];
+  private corePluginGetters = new Map<CorePluginConstructor, CoreGetters>();
+  private baseGetters: CoreGetters = {} as CoreGetters;
+
   private statefulUIPlugins: UIPlugin[] = [];
 
   private range: RangeAdapterPlugin;
@@ -198,12 +202,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.coreHandlers.push(this.range);
     this.handlers.push(this.range);
+    this.baseGetters = { ...this.coreGetters };
 
     this.corePluginConfig = this.getCorePluginConfig();
     this.evaluationPluginConfig = this.getEvaluationPluginConfig();
     this.uiPluginConfig = this.getUiPluginConfig();
 
-    // registering plugins
     for (const Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
     }
@@ -268,7 +272,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private registerCoreGetter(
-    plugin: CorePlugin | RangeAdapterPlugin | FormulaProviderAggregator,
+    plugin: CorePlugin<CorePluginConstructor, any> | RangeAdapterPlugin | FormulaProviderAggregator,
     name: string
   ) {
     if (!(name in plugin)) {
@@ -277,9 +281,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     if (name in this.coreGetters) {
       throw new Error(`Getter "${name}" is already defined.`);
     }
-    this.coreGetters[name] = plugin[name].bind(plugin);
-    this.evaluationGetters[name] = plugin[name].bind(plugin);
-    this.getters[name] = plugin[name].bind(plugin);
+    const bound = plugin[name].bind(plugin);
+    this.coreGetters[name] = bound;
+    this.evaluationGetters[name] = bound;
+    this.getters[name] = bound;
   }
 
   private registerEvaluationGetter(plugin: EvaluationPlugin, name: string) {
@@ -329,13 +334,24 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * Initialize and properly configure a plugin.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const plugin = new Plugin(this.corePluginConfig);
+    const getters = this.buildDepGetters(Plugin);
+    const plugin = new Plugin({ ...this.corePluginConfig, getters });
     for (const name of Plugin.getters) {
       this.registerCoreGetter(plugin, name);
+      getters[name] = this.coreGetters[name];
     }
+    this.corePluginGetters.set(Plugin, getters);
     plugin.import(data);
     this.coreHandlers.push(plugin);
     this.handlers.push(plugin);
+  }
+
+  private buildDepGetters(Plugin: CorePluginConstructor): CoreGetters {
+    const getters = { ...this.baseGetters } as CoreGetters;
+    for (const Dep of Plugin.dependencies as CorePluginConstructor[]) {
+      Object.assign(getters, this.corePluginGetters.get(Dep));
+    }
+    return getters;
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {

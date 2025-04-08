@@ -11,6 +11,8 @@ import { Position, UID } from "../../types/misc";
 import { Range } from "../../types/range";
 import { NO_CHANGE, SEPARATOR, SquishedContent, SquishedFormula } from "./squisher";
 
+type UnsquishGetters = Pick<CoreGetters, "getLocale" | "getRangeFromSheetXC" | "getRangeString">;
+
 type UnsquishMethod =
   | "NOT_A_FORMULA"
   | "NEW_FORMULA"
@@ -43,7 +45,7 @@ export class Unsquisher {
    */
   *unsquishCommands(
     commands: readonly (CoreCommand | SquishedCoreCommand)[],
-    getters: CoreGetters
+    getters: UnsquishGetters
   ): Generator<CoreCommand> {
     let strategy: UnsquishMethod | undefined;
     for (const command of commands) {
@@ -116,7 +118,7 @@ export class Unsquisher {
   *unsquishSheet(
     squished: { [cellRefOrRange: string]: SquishedContent | undefined },
     sheetId: UID,
-    getters: CoreGetters
+    getters: UnsquishGetters
   ): Generator<{
     position: Position;
     content?: string;
@@ -161,7 +163,7 @@ export class Unsquisher {
     current: SquishedContent,
     previousStrategy: UnsquishMethod | undefined,
     sheetId: UID,
-    getters: CoreGetters
+    getters: UnsquishGetters
   ): UnsquishMethod | undefined {
     let strategy = previousStrategy;
     if (typeof current === "string") {
@@ -238,7 +240,7 @@ export class Unsquisher {
     targetPositions: Iterable<Position>,
     squishedContent: SquishedContent | undefined,
     sheetId: UID,
-    getters: CoreGetters
+    getters: UnsquishGetters
   ): Generator<{ content?: string; compiled?: CompiledFormula; position: Position }> {
     const current = squishedContent;
     switch (strategy) {
@@ -323,7 +325,7 @@ export class Unsquisher {
 
   private parseSquishableLiteral(
     content: string,
-    getters: CoreGetters
+    getters: UnsquishGetters
   ): { value: number; format?: Format } | undefined {
     const cell = createLiteralCell(getters, -1, content, undefined, undefined);
     if (typeof cell.parsedValue !== "number" || cell.parsedValue % 1 !== 0) {
@@ -341,7 +343,7 @@ export class Unsquisher {
   private unsquishFormula(
     squishedFormula: SquishedFormula,
     sheetId: UID,
-    getters: CoreGetters
+    getters: UnsquishGetters
   ): CompiledFormula {
     if (typeof squishedFormula === "object" && this.previousFormula) {
       const current: {

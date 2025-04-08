@@ -110,7 +110,10 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     this.rangeDependencies = dependencies;
   }
 
-  private getTokens(getters: CoreGetters, referenceOption?: RangeStringOptions): readonly Token[] {
+  private getTokens(
+    getters: Pick<CoreGetters, "getRangeString">,
+    referenceOption?: RangeStringOptions
+  ): readonly Token[] {
     let referenceIndex = 0;
     let numberIndex = 0;
     let stringIndex = 0;
@@ -138,7 +141,7 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     return this.tokens;
   }
 
-  getAst(getters: CoreGetters): AST {
+  getAst(getters: Pick<CoreGetters, "getRangeString">): AST {
     return parseTokens(this.getTokens(getters));
   }
 
@@ -146,7 +149,10 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
    * Return the string representation of the formula, with the current dependencies and literal values.
    * This is a heavy operation as it converts the rangeDependencies to string on each call.
    * */
-  toFormulaString(getters: CoreGetters, referenceOption?: RangeStringOptions): string {
+  toFormulaString(
+    getters: Pick<CoreGetters, "getRangeString">,
+    referenceOption?: RangeStringOptions
+  ): string {
     if (this.isBadExpression) {
       return this.normalizedFormula;
     }
@@ -158,7 +164,7 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     );
   }
 
-  getNamedRangesInFormula(getters: CoreGetters): NamedRange[] {
+  getNamedRangesInFormula(getters: Pick<CoreGetters, "getNamedRange">): NamedRange[] {
     const namedRanges: NamedRange[] = [];
     for (let i = 0; i < this.tokens.length; i++) {
       if (canBeNamedRangeToken(this.tokens, i)) {
@@ -185,7 +191,7 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
     return !nonExportableFunctions;
   }
 
-  getFunctionsFromTokens(functionNames: string[], getters: CoreGetters) {
+  getFunctionsFromTokens(functionNames: string[], getters: Pick<CoreGetters, "getRangeString">) {
     if (this.isBadExpression) {
       return [];
     }
@@ -344,7 +350,11 @@ export class CompiledFormula implements Omit<ICompiledFormula, "tokens" | "depen
   /**
    * Make a new instance of CompiledFormula by compiling the formula string as input by the user.
    * */
-  static Compile(formula: string, sheetId: UID, getters: CoreGetters): CompiledFormula {
+  static Compile(
+    formula: string,
+    sheetId: UID,
+    getters: Pick<CoreGetters, "getRangeFromSheetXC">
+  ): CompiledFormula {
     const tokens = rangeTokenize(formula);
     const params = compileTokens(tokens);
 
