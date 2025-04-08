@@ -40,6 +40,7 @@ export class DataValidationPlugin
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
+  coordinateWithContent = new Set<UID>();
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string) {
     const sheetIds = sheetId ? [sheetId] : Object.keys(this.rules);
@@ -132,6 +133,25 @@ export class DataValidationPlugin
     return CommandResult.Success;
   }
 
+  beforeHandle(cmd: CoreCommand): void {
+    switch (cmd.type) {
+      case "DELETE_CONTENT":
+        const zones = recomputeZones(cmd.target);
+        const sheetId = cmd.sheetId;
+        for (const zone of zones) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              const cell = this.getters.getCell({ sheetId, col, row });
+              if (cell?.content) {
+                this.coordinateWithContent.add(`${col}-${row}`);
+              }
+            }
+          }
+        }
+        break;
+    }
+  }
+
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_SHEET":
@@ -175,7 +195,7 @@ export class DataValidationPlugin
               if (
                 dataValidation.criterion.type === "isBoolean" ||
                 (dataValidation.criterion.type === "isValueInList" &&
-                  !this.getters.getCell({ sheetId, col, row })?.content)
+                  !this.coordinateWithContent.has(`${col}-${row}`))
               ) {
                 const rules = this.rules[sheetId];
                 const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
