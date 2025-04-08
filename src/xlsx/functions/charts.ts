@@ -71,12 +71,13 @@ export function createChart(
   let plot = escapeXml``;
   switch (chart.data.type) {
     case "bar":
-    // Excel does not support pyramid charts, therefore we return a bar chart definition with the same data
-    case "pyramid":
       plot = addBarChart(chart.data);
       break;
     case "combo":
       plot = addComboChart(chart.data);
+      break;
+    case "pyramid":
+      plot = addPyramidChart(chart.data);
       break;
     case "line":
       plot = addLineChart(chart.data);
@@ -477,6 +478,122 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
     }
   `;
 }
+function addPyramidChart(chart: ExcelChartDefinition): XMLString {
+  const dataSets = chart.dataSets;
+  const dataSetsColors = dataSets.map((ds) => ds.backgroundColor ?? "");
+  const colors = new ColorGenerator(dataSets.length, dataSetsColors);
+  let dataSet = dataSets[0];
+  const firstColor = toXlsxHexColor(colors.next());
+  const useRightAxisForBarSerie = dataSet.rightYAxis ?? false;
+  const barDataSetNode: XMLString = escapeXml/*xml*/ `
+    <c:ser>
+      <c:idx val="0"/>
+      <c:order val="0"/>
+      ${extractDataSetLabel(dataSet.label)}
+      ${shapeProperty({
+        backgroundColor: firstColor,
+        line: { color: firstColor },
+      })}
+      ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+      <!-- x-coordinate values -->
+      <c:val>
+        ${numberRef(dataSet.range)}
+      </c:val>
+    </c:ser>
+  `;
+  const leftDataSetsNodes: XMLString[] = [];
+  const rightDataSetsNodes: XMLString[] = [];
+  for (let dsIndex = 1; dsIndex < dataSets.length; dsIndex++) {
+    dataSet = dataSets[dsIndex];
+    const color = toXlsxHexColor(colors.next());
+    const dataShapeProperty = shapeProperty({
+      backgroundColor: color,
+      line: { color },
+    });
+
+    const dataSetNode = escapeXml/*xml*/ `
+      <c:ser>
+        <c:idx val="${dsIndex}"/>
+        <c:order val="${dsIndex}"/>
+        <c:smooth val="0"/>
+        <c:marker>
+          <c:symbol val="circle" />
+          <c:size val="5"/>
+          ${dataShapeProperty}
+        </c:marker>
+        ${extractDataSetLabel(dataSet.label)}
+        ${dataShapeProperty}
+        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+        <!-- x-coordinate values -->
+        <c:val>
+          ${numberRef(dataSet.range)}
+        </c:val>
+      </c:ser>
+    `;
+    if (dataSet.rightYAxis) {
+      rightDataSetsNodes.push(dataSetNode);
+    } else {
+      leftDataSetsNodes.push(dataSetNode);
+    }
+  }
+  return escapeXml/*xml*/ `
+    <c:barChart>
+      <c:barDir val="bar"/>
+      <c:grouping val="clustered"/>
+      <c:varyColors val="0" />
+      ${barDataSetNode}
+      <c:axId val="${catAxId}" />
+      <c:axId val="${valAxId}" />
+    </c:barChart>
+    <c:barChart>
+      <c:barDir val="bar"/>
+      <c:grouping val="clustered"/>
+      <c:varyColors val="0" />
+      ${barDataSetNode}
+      <c:axId val="${secondaryCatAxId}" />
+      <c:axId val="${secondaryValAxId}" />
+    </c:barChart>
+    ${addAx(
+      "b",
+      "c:catAx",
+      catAxId,
+      valAxId,
+      chart.axesDesign?.x?.title,
+      chart.fontColor,
+      leftDataSetsNodes.length ? 1 : 0
+    )}
+    ${addAx(
+      "l",
+      "c:valAx",
+      valAxId,
+      catAxId,
+      chart.axesDesign?.y?.title,
+      chart.fontColor,
+      0,
+      "maxMin",
+      chart.maxValue,
+      chart.minValue
+    )}
+    ${addAx(
+      "b",
+      "c:catAx",
+      secondaryCatAxId,
+      secondaryValAxId,
+      chart.axesDesign?.x?.title,
+      chart.fontColor,
+      leftDataSetsNodes.length || !useRightAxisForBarSerie ? 1 : 0
+    )}
+    ${addAx(
+      "r",
+      "c:valAx",
+      secondaryValAxId,
+      secondaryCatAxId,
+      chart.axesDesign?.y1?.title,
+      chart.fontColor
+    )}
+    }
+  `;
+}
 
 function addLineChart(chart: ExcelChartDefinition): XMLString {
   const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
@@ -793,7 +910,10 @@ function addAx(
   crossAxId: number,
   title: TitleDesign | undefined,
   defaultFontColor: XlsxHexColor,
-  deleteAxis: number = 0
+  deleteAxis: number = 0,
+  orientation: "minMax" | "maxMin" = "minMax",
+  maxValue?: number,
+  minValue?: number
 ): XMLString {
   // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
   // I.e. x-axis, will reference y-axis and vice-versa.
@@ -806,7 +926,9 @@ function addAx(
       <c:crosses val="${position === "b" || position === "l" ? "min" : "max"}"/>
       <c:delete val="${deleteAxis}"/> <!-- by default, axis are not displayed -->
       <c:scaling>
-        <c:orientation  val="minMax" />
+        <c:orientation  val="${orientation}" />
+        ${maxValue ? `<c:max val="${maxValue}" />` : ""}
+        ${minValue ? `<c:min val="${minValue}" />` : ""}
       </c:scaling>
       <c:axPos val="${position}" />
       ${insertMajorGridLines()}

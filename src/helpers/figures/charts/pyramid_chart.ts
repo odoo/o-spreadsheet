@@ -201,6 +201,11 @@ export class PyramidChart extends AbstractChart {
       shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
     );
     const definition = this.getDefinition();
+    const chartData = getPyramidChartData(definition, this.dataSets, this.labelRange, this.getters);
+    const { dataSetsValues } = chartData;
+    const maxValue = Math.max(
+      ...dataSetsValues.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+    );
     return {
       ...definition,
       horizontal: true,
@@ -209,6 +214,8 @@ export class PyramidChart extends AbstractChart {
       dataSets,
       labelRange,
       verticalAxis: getDefinedAxis(definition),
+      maxValue,
+      minValue: -maxValue,
     };
   }
 

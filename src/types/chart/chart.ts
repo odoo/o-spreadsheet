@@ -163,6 +163,8 @@ export interface ExcelChartDefinition {
   readonly axesDesign?: AxesDesign;
   readonly isDoughnut?: boolean;
   readonly horizontal?: boolean;
+  readonly maxValue?: number;
+  readonly minValue?: number;
 }
 
 export interface ChartCreationContext {
