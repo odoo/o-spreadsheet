@@ -168,7 +168,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         !filterValue ||
         !filteredZone ||
         hiddenRows.has(filter.rangeWithHeaders.zone.top) ||
-        this.getters.isRowHiddenByUser(sheetId, filter.rangeWithHeaders.zone.top)
+        this.getters.isRowHiddenOrFoldedByUser(sheetId, filter.rangeWithHeaders.zone.top)
       ) {
         continue;
       }

@@ -16,12 +16,13 @@ export class HeaderVisibilityUIPlugin extends UIPlugin {
 
   isRowHidden(sheetId: UID, index: number): boolean {
     return (
-      this.getters.isRowHiddenByUser(sheetId, index) || this.getters.isRowFiltered(sheetId, index)
+      this.getters.isRowHiddenOrFoldedByUser(sheetId, index) ||
+      this.getters.isRowFiltered(sheetId, index)
     );
   }
 
   isColHidden(sheetId: UID, index: number): boolean {
-    return this.getters.isColHiddenByUser(sheetId, index);
+    return this.getters.isColHiddenOrFoldedByUser(sheetId, index);
   }
 
   isHeaderHidden(sheetId: UID, dimension: Dimension, index: number) {

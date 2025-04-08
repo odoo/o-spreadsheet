@@ -10,6 +10,7 @@ import { FigurePlugin } from "./core/figures";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
+import { HiddenHeaderPlugin } from "./core/hidden_headers";
 import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
 import { NamedRangesPlugin } from "./core/named_range";
@@ -68,8 +69,9 @@ import { SheetViewPlugin } from "./ui_stateful/sheetview";
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
   .add("settings", SettingsPlugin)
-  .add("header grouping", HeaderGroupingPlugin)
-  .add("header visibility", HeaderVisibilityPlugin)
+  .add("header_grouping", HeaderGroupingPlugin)
+  .add("hidden_header", HiddenHeaderPlugin)
+  .add("header_visibility", HeaderVisibilityPlugin)
   .add("cell", CellPlugin)
   .add("default", DefaultPlugin)
   .add("dataValidation", DataValidationPlugin)
