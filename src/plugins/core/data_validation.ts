@@ -16,15 +16,17 @@ import { CellPosition, RangeAdapterFunctions, Style, UID } from "../../types/mis
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { CellPlugin } from "./cell";
 
 interface DataValidationState {
   readonly rules: { [sheet: string]: DataValidationRule[] };
 }
 
 export class DataValidationPlugin
-  extends CorePlugin<DataValidationState>
+  extends CorePlugin<typeof DataValidationPlugin, DataValidationState>
   implements DataValidationState
 {
+  static readonly dependencies = [CellPlugin] as const;
   static getters = [
     "cellHasListDataValidationIcon",
     "getDataValidationRule",

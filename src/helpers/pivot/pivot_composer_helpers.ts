@@ -3,7 +3,7 @@ import { tokenColors } from "../../constants";
 import { CompiledFormula } from "../../formulas/compiler";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { AutoCompleteProposal } from "../../registries/auto_completes/auto_complete_registry";
-import { CoreGetters } from "../../types/getters";
+import { RangeAdapterGetters } from "../../types/getters";
 import { Granularity, PivotField, PivotMeasure } from "../../types/pivot";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
@@ -11,11 +11,14 @@ const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 /**
  * Get the first Pivot function description of the given formula.
  */
-export function getFirstPivotFunction(compiledFormula: CompiledFormula, getters: CoreGetters) {
+export function getFirstPivotFunction(
+  compiledFormula: CompiledFormula,
+  getters: RangeAdapterGetters
+) {
   return getPivotFunctions(compiledFormula, getters)[0];
 }
 
-export function getPivotFunctions(compiledFormula: CompiledFormula, getters: CoreGetters) {
+export function getPivotFunctions(compiledFormula: CompiledFormula, getters: RangeAdapterGetters) {
   return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters);
 }
 
@@ -25,7 +28,7 @@ export function getPivotFunctions(compiledFormula: CompiledFormula, getters: Cor
  */
 export function getNumberOfPivotFunctions(
   compiledFormula: CompiledFormula,
-  getters: CoreGetters
+  getters: RangeAdapterGetters
 ): number {
   return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters).length;
 }
