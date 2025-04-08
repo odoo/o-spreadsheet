@@ -10,6 +10,7 @@ import { FormulaProviderAggregator } from "../plugins/core/formulas_provider";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
+import { HiddenHeaderPlugin } from "../plugins/core/hidden_headers";
 import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { NamedRangesPlugin } from "../plugins/core/named_range";
@@ -113,6 +114,7 @@ type FormulasGetters = Pick<
 
 export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
+  PluginGetters<typeof HiddenHeaderPlugin> &
   PluginGetters<typeof HeaderVisibilityPlugin> &
   PluginGetters<typeof CellPlugin> &
   PluginGetters<typeof DefaultPlugin> &
