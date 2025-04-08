@@ -195,8 +195,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
-    // registering plugins
-    for (const Plugin of corePluginRegistry.getAll()) {
+    // registering plugins in dependency order so each plugin's getters
+    // are available when plugins that depend on it are instantiated
+    for (const Plugin of sortByDependencies(corePluginRegistry.getAll())) {
       this.setupCorePlugin(Plugin, workbookData);
     }
     Object.assign(this.getters, this.coreGetters);
@@ -298,7 +299,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const plugin = new Plugin(this.corePluginConfig);
+    const getters = { ...this.coreGetters };
+    const plugin = new Plugin({ ...this.corePluginConfig, getters });
     for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -307,6 +309,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         throw new Error(`Getter "${name}" is already defined.`);
       }
       this.coreGetters[name] = plugin[name].bind(plugin);
+      getters[name] = plugin[name].bind(plugin);
     }
     plugin.import(data);
     this.corePlugins.push(plugin);
@@ -705,4 +708,26 @@ function createCommand(type: string, payload: any = {}): Command {
   const command = deepCopy(payload);
   command.type = type;
   return command;
+}
+
+export function sortByDependencies(plugins: CorePluginConstructor[]): CorePluginConstructor[] {
+  const inRegistry = new Set<CorePluginConstructor>(plugins);
+  const result = new Set<CorePluginConstructor>();
+
+  function visit(plugin: CorePluginConstructor) {
+    if (result.has(plugin)) {
+      return;
+    }
+    for (const dep of plugin.dependencies as CorePluginConstructor[]) {
+      if (inRegistry.has(dep)) {
+        visit(dep);
+      }
+    }
+    result.add(plugin);
+  }
+
+  for (const plugin of plugins) {
+    visit(plugin);
+  }
+  return [...result];
 }

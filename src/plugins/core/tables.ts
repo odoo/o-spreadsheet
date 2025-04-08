@@ -40,13 +40,15 @@ import {
 } from "../../types/table";
 import { ExcelWorkbookData, TableData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { MergePlugin } from "./merge";
 
 interface TableState {
   tables: Record<UID, Record<TableId, CoreTable | undefined>>;
   nextTableId: number;
 }
 
-export class TablePlugin extends CorePlugin<TableState> implements TableState {
+export class TablePlugin extends CorePlugin<TableState, typeof TablePlugin> implements TableState {
+  static readonly dependencies = [MergePlugin] as const;
   static getters = ["getCoreTable", "getCoreTables", "getCoreTableMatchingTopLeft"] as const;
 
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};

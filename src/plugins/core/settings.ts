@@ -4,7 +4,12 @@ import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
-export class SettingsPlugin extends CorePlugin {
+interface SettingsState {
+  locale: Locale;
+}
+
+export class SettingsPlugin extends CorePlugin<SettingsState, typeof SettingsPlugin> {
+  static readonly dependencies = [] as const;
   static getters = ["getLocale"] as const;
   private locale: Locale = DEFAULT_LOCALE;
 

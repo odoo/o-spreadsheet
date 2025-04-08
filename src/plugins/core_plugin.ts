@@ -1,11 +1,66 @@
 import { StateObserver } from "../state_observer";
 import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
+import { CoreGetters, PluginGetters, RangeAdapterGetters } from "../types/core_getters";
 import { RangeAdapterFunctions, RangeProvider } from "../types/misc";
 import { ModelConfig } from "../types/model";
 import { WorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapterPlugin } from "./core/range";
+
+/**
+ * Type machinery for `DepsGetters<CorePlugin>` — the type of `this.getters` inside a core plugin.
+ *
+ * Goal: given a plugin class `CorePlugin`, produce an intersection of the getter types of every
+ * plugin reachable through its `static dependencies` DAG, plus `RangeAdapterGetters`.
+ *
+ * Pipeline (example: `MergePlugin` depends on `CellPlugin` which depends on `SheetPlugin`):
+ *
+ *   1. _Reach<typeof MergePlugin>
+ *        → typeof MergePlugin | typeof CellPlugin | typeof SheetPlugin   (union of all reachable ctors)
+ *
+ *   2. DistGetters<typeof MergePlugin | typeof CellPlugin | typeof SheetPlugin>
+ *        → MergeGetters | CellGetters | SheetGetters                     (map each ctor to its getter type)
+ *        The distributive conditional `T extends … ? PluginGetters<T> : never` is what makes
+ *        TypeScript apply PluginGetters to each union member separately rather than to the whole union.
+ *
+ *   3. UnionToIntersection<MergeGetters | CellGetters | SheetGetters>
+ *        → MergeGetters & CellGetters & SheetGetters                     (flip union → intersection)
+ *        Achieved via contravariance of function parameters: a union of `(x: A) => void` types
+ *        can only be inferred as `(x: A & B & C) => void`, so `infer I` gives the intersection.
+ *
+ *   4. RangeAdapterGetters & …                                           (always included)
+ */
+
+/** Converts a union `A | B | C` into an intersection `A & B & C` via function-parameter contravariance. */
+type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void
+  ? I
+  : never;
+
+/** Minimal structural constraint for a constructor that can appear in a `dependencies` array.
+ * Allow typescript not to resolve the full CorePlugin structure
+ */
+export type AnyPluginConstructor = {
+  new (...args: unknown[]): any;
+  getters: readonly string[];
+  dependencies: readonly AnyPluginConstructor[];
+};
+
+/** Transitive closure of the dependency DAG: the plugin itself plus every dependency, recursively. Depth-capped at 8. */
+type _Reach<P extends AnyPluginConstructor, D extends unknown[] = []> = D extends { length: 8 }
+  ? P
+  : P | _Reach<P["dependencies"][number], [...D, unknown]>;
+
+/** Distributive map: turns a union of plugin constructors into a union of their getter types. */
+type DistGetters<T extends AnyPluginConstructor> = T extends AnyPluginConstructor
+  ? PluginGetters<T>
+  : never;
+
+/**
+ * The type of `this.getters` inside a core plugin.
+ * Automatically includes the getters of every plugin declared in `Class.dependencies`, transitively.
+ */
+export type DepsGetters<Plugin extends AnyPluginConstructor> = RangeAdapterGetters &
+  UnionToIntersection<DistGetters<_Reach<Plugin>>>;
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
@@ -20,6 +75,7 @@ export interface CorePluginConfig {
 export interface CorePluginConstructor {
   new (config: CorePluginConfig): CorePlugin;
   getters: readonly string[];
+  readonly dependencies: readonly AnyPluginConstructor[];
 }
 
 /**
@@ -28,18 +84,20 @@ export interface CorePluginConstructor {
  * persisted state.
  * They should not be concerned about UI parts or transient state.
  */
-export class CorePlugin<State = any>
+export class CorePlugin<State = any, Self extends AnyPluginConstructor = any>
   extends BasePlugin<State, CoreCommand>
   implements RangeProvider
 {
-  protected getters: CoreGetters;
+  static readonly dependencies: readonly AnyPluginConstructor[] = [];
+
+  protected getters: DepsGetters<Self>;
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
   constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
     super(stateObserver);
     range.addRangeProvider(this.adaptRanges.bind(this));
-    this.getters = getters;
+    this.getters = getters as unknown as DepsGetters<Self>;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
   }

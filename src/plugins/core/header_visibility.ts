@@ -9,8 +9,10 @@ import {
 import { Command, CommandResult } from "../../types/commands";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
+import { SheetPlugin } from "./sheet";
 
-export class HeaderVisibilityPlugin extends CorePlugin {
+export class HeaderVisibilityPlugin extends CorePlugin<any, typeof HeaderVisibilityPlugin> {
+  static readonly dependencies = [SheetPlugin] as const;
   static getters = [
     "getHiddenColsGroups",
     "getHiddenRowsGroups",

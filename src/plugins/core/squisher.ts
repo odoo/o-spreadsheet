@@ -34,7 +34,10 @@ export const SEPARATOR = "|";
 export const NO_CHANGE = "=";
 
 export class Squisher {
-  private readonly getters: CoreGetters;
+  private readonly getters: Pick<
+    CoreGetters,
+    "getCell" | "getSheetName" | "getRangeString" | "getLocale" | "getRangeFromSheetXC"
+  >;
   // the base formula to compare against
   private baseFormula: CompiledFormula | undefined;
   // for each number in the base formula, how much offset has already been applied
@@ -46,7 +49,12 @@ export class Squisher {
 
   private baseNumber: number | undefined = undefined;
 
-  constructor(getters: CoreGetters) {
+  constructor(
+    getters: Pick<
+      CoreGetters,
+      "getCell" | "getSheetName" | "getRangeString" | "getLocale" | "getRangeFromSheetXC"
+    >
+  ) {
     this.getters = getters;
   }
 

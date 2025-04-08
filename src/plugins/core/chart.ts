@@ -13,7 +13,9 @@ import {
 import { HeaderIndex, PixelPosition, RangeAdapterFunctions, UID } from "../../types/misc";
 import { DOMDimension } from "../../types/rendering";
 import { FigureData, WorkbookData } from "../../types/workbook_data";
+import type { DepsGetters } from "../core_plugin";
 import { CorePlugin } from "../core_plugin";
+import { FigurePlugin } from "./figures";
 
 interface FigureChart {
   figureId: UID;
@@ -24,7 +26,8 @@ interface ChartState {
   readonly charts: Record<UID, FigureChart | undefined>;
 }
 
-export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
+export class ChartPlugin extends CorePlugin<ChartState, typeof ChartPlugin> implements ChartState {
+  static readonly dependencies = [FigurePlugin] as const;
   static getters = [
     "isChartDefined",
     "getChartDefinition",
@@ -346,3 +349,5 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       : CommandResult.MissingFigureArguments;
   }
 }
+
+export type ChartCoreGetters = DepsGetters<typeof ChartPlugin>;

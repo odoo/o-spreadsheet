@@ -1,10 +1,15 @@
-
 import { includesAll, range } from "../../helpers/misc";
 import { Command, CommandResult } from "../../types/commands";
 import { Dimension, HeaderGroup, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
+import { HeaderGroupingPlugin } from "./header_grouping";
+import { HeaderVisibilityPlugin } from "./header_visibility";
 
-export class HeaderGlobalVisibilityPlugin extends CorePlugin {
+export class HeaderGlobalVisibilityPlugin extends CorePlugin<
+  any,
+  typeof HeaderGlobalVisibilityPlugin
+> {
+  static readonly dependencies = [HeaderGroupingPlugin, HeaderVisibilityPlugin] as const;
   static getters = [
     "checkElementsIncludeAllVisibleHeaders",
     "isHeaderHiddenByUser",

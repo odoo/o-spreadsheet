@@ -9,6 +9,8 @@ import { deepEquals, range, replaceNewLines } from "../../helpers/misc";
 
 import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
+import { SettingsPlugin } from "./settings";
+import { SheetPlugin } from "./sheet";
 
 import { getDateTimeFormat } from "../../helpers/locale";
 import { isInside } from "../../helpers/zones";
@@ -32,13 +34,13 @@ import {
 import { isExcelCompatible } from "../../helpers/format/format";
 import { isNumber } from "../../helpers/numbers";
 import { recomputeZones } from "../../helpers/recompute_zones";
+import { Format } from "../../types/format";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { SquishedContent, Squisher } from "./squisher";
 import { Unsquisher } from "./unsquisher";
-import { Format } from "../../types/format";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -53,7 +55,8 @@ interface CoreState {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
+export class CellPlugin extends CorePlugin<CoreState, typeof CellPlugin> implements CoreState {
+  static readonly dependencies = [SheetPlugin, SettingsPlugin] as const;
   static getters = [
     "getCells",
     "getTranslatedCellFormula",
@@ -632,7 +635,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.getters.getCellById(cellId);
   }
 
-private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
+  private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
     for (const sheetId of this.getters.getSheetIds()) {
       for (const cell of this.getters.getCells(sheetId)) {
         let formatToApply: Format | undefined;
