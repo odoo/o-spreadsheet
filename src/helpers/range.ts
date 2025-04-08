@@ -9,7 +9,7 @@ import {
   RenameSheetCommand,
 } from "../types/commands";
 import { CellErrorType } from "../types/errors";
-import { CoreGetters } from "../types/getters";
+import { RangeAdapterGetters } from "../types/getters";
 import {
   ApplyRangeChange,
   CellPosition,
@@ -184,7 +184,7 @@ export function duplicateRangeInDuplicatedSheet(
  * Create a range from a xc. If the xc is empty, this function returns undefined.
  */
 export function createValidRange(
-  getters: CoreGetters,
+  getters: RangeAdapterGetters,
   sheetId: UID,
   xc?: string
 ): Range | undefined {

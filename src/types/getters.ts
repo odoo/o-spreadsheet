@@ -20,6 +20,7 @@ import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
 import { TableStylePlugin } from "../plugins/core/table_style";
 import { TablePlugin } from "../plugins/core/tables";
+import { DepsGetters } from "../plugins/core_plugin";
 import { CellComputedStylePlugin } from "../plugins/evaluation/cell_computed_style";
 import { CellEvaluationPlugin } from "../plugins/evaluation/cell_evaluation/cell_evaluation_plugin";
 import { CustomColorsPlugin } from "../plugins/evaluation/custom_colors";
@@ -106,7 +107,7 @@ type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getter
 export type PluginGetters<
   Plugin extends { new (...args: unknown[]): any; getters: readonly string[] }
 > = Pick<InstanceType<Plugin>, GetterNames<Plugin>>;
-type RangeAdapterGetters = Pick<RangeAdapterPlugin, GetterNames<typeof RangeAdapterPlugin>>;
+export type RangeAdapterGetters = Pick<RangeAdapterPlugin, GetterNames<typeof RangeAdapterPlugin>>;
 type FormulasGetters = Pick<
   FormulaProviderAggregator,
   GetterNames<typeof FormulaProviderAggregator>
@@ -205,3 +206,8 @@ export interface ViewportsGetters {
   getSheetZone: Getters["getSheetZone"];
   getFigures: Getters["getFigures"];
 }
+
+export type CellCoreGetters = DepsGetters<typeof CellPlugin>;
+export type ChartCoreGetters = DepsGetters<typeof ChartPlugin>;
+export type PivotCoreGetters = DepsGetters<typeof PivotCorePlugin>;
+export type SettingsCoreGetters = DepsGetters<typeof SettingsPlugin>;

@@ -79,7 +79,43 @@ export class PluginRegistry<T extends new (config: any) => any> extends Registry
   }
 }
 
-export const corePluginRegistry = new PluginRegistry<CorePluginConstructor>(CorePlugin)
+export class CorePluginRegistry extends PluginRegistry<CorePluginConstructor> {
+  constructor() {
+    super(CorePlugin);
+  }
+  override add(key: string, plugin: CorePluginConstructor): this {
+    this.checkDepCycle(plugin);
+    return super.add(key, plugin);
+  }
+
+  /**
+   * Walks the dependency graph of `plugin` and throws if any cycle is
+   * reachable from it, even one that does not go through `plugin` itself.
+   */
+  private checkDepCycle(
+    plugin: CorePluginConstructor,
+    dependencyPath: CorePluginConstructor[] = [],
+    checked = new Set<CorePluginConstructor>()
+  ) {
+    const cycleStart = dependencyPath.indexOf(plugin);
+    if (cycleStart !== -1) {
+      const cycle = [...dependencyPath.slice(cycleStart), plugin]
+        .reverse()
+        .map((p) => p.prototype.constructor.name)
+        .join(" → ");
+      throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
+    }
+    if (checked.has(plugin)) {
+      return;
+    }
+    for (const dep of plugin.dependencies || []) {
+      this.checkDepCycle(dep, [...dependencyPath, plugin], checked);
+    }
+    checked.add(plugin);
+  }
+}
+
+export const corePluginRegistry = new CorePluginRegistry()
   .add("sheet", SheetPlugin)
   .add("settings", SettingsPlugin)
   .add("header_grouping", HeaderGroupingPlugin)

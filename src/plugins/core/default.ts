@@ -12,6 +12,7 @@ import { getZoneArea } from "../../helpers/zones";
 import { CoreCommand } from "../../types/commands";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { SheetPlugin } from "./sheet";
 
 export type defaultValue<T> = {
   sheetDefault?: T | undefined;
@@ -32,7 +33,11 @@ interface defaultState {
   readonly format: defaultValues<Format>;
 }
 
-export class DefaultPlugin extends CorePlugin<defaultState> implements defaultState {
+export class DefaultPlugin
+  extends CorePlugin<typeof DefaultPlugin, defaultState>
+  implements defaultState
+{
+  static readonly dependencies = [SheetPlugin] as const;
   static getters = [
     "getSheetDefaultStyle",
     "getSheetDefaultFormat",

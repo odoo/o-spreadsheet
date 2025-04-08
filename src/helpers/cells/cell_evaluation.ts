@@ -13,7 +13,7 @@ import {
   NumberCell,
 } from "../../types/cells";
 import { Format, LocaleFormat } from "../../types/format";
-import { CoreGetters } from "../../types/getters";
+import type { RangeAdapterGetters, SettingsCoreGetters } from "../../types/getters";
 import { DEFAULT_LOCALE, Locale } from "../../types/locale";
 import { CellPosition, FunctionResultObject, Style, UID } from "../../types/misc";
 import { parseDateTime } from "../dates";
@@ -42,7 +42,7 @@ export function evaluateLiteral(
 }
 
 export function createCell(
-  getters: CoreGetters,
+  getters: SettingsCoreGetters,
   id: number,
   content: string,
   format: Format | undefined,
@@ -57,7 +57,7 @@ export function createCell(
 }
 
 export function createLiteralCell(
-  getters: CoreGetters,
+  getters: SettingsCoreGetters,
   id: number,
   content: string,
   format: Format | undefined,
@@ -96,7 +96,7 @@ export function createLiteralCell(
 }
 
 export function createFormulaCell(
-  getters: CoreGetters,
+  getters: RangeAdapterGetters,
   id: number,
   content: string,
   format: Format | undefined,
