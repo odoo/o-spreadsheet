@@ -79,8 +79,8 @@ export class PluginRegistry<T extends new (config: any) => any> extends Registry
 }
 
 export const corePluginRegistry = new PluginRegistry<CorePluginConstructor>(CorePlugin)
-  .add("settings", SettingsPlugin)
   .add("sheet", SheetPlugin)
+  .add("settings", SettingsPlugin)
   .add("header grouping", HeaderGroupingPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
   .add("tables", TablePlugin)
