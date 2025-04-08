@@ -144,6 +144,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "CREATE_NAMED_RANGE",
   "UPDATE_NAMED_RANGE",
   "DELETE_NAMED_RANGE",
+  "UPDATE_LOCALE",
 ]);
 
 export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
