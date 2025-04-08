@@ -9,12 +9,15 @@ type ToolBarItem<C extends ComponentConstructor = ComponentConstructor> = {
 
 export class ToolBarRegistry {
   content: { [key: string]: ToolBarItem[] } = {};
-  add(key: string): ToolBarRegistry {
+  add(key: string): this {
+    if (key in this.content) {
+      throw new Error(`${key} is already present in this registry!`);
+    }
     this.content[key] = [];
     return this;
   }
 
-  addChild(key: string, value: ToolBarItem): ToolBarRegistry {
+  addChild(key: string, value: ToolBarItem): this {
     this.content[key].push(value);
     return this;
   }

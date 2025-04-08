@@ -67,7 +67,6 @@ repeatCommandTransformRegistry.add("CREATE_CHART", repeatCreateChartCommand);
 repeatCommandTransformRegistry.add("CREATE_IMAGE", repeatCreateImageCommand);
 repeatCommandTransformRegistry.add("GROUP_HEADERS", repeatGroupHeadersCommand);
 repeatCommandTransformRegistry.add("UNGROUP_HEADERS", repeatGroupHeadersCommand);
-repeatCommandTransformRegistry.add("UNGROUP_HEADERS", repeatGroupHeadersCommand);
 repeatCommandTransformRegistry.add("UNFOLD_HEADER_GROUPS_IN_ZONE", repeatZoneDependantCommand);
 repeatCommandTransformRegistry.add("FOLD_HEADER_GROUPS_IN_ZONE", repeatZoneDependantCommand);
 
