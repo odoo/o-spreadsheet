@@ -12,8 +12,9 @@ import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {
   static getters = [
+    "checkElementsIncludeAllVisibleHeaders",
     "getHiddenColsGroups",
-    "getHiddenRowsGroups",
+    "isHeaderHiddenByUser",
     "isRowHiddenByUser",
     "isColHiddenByUser",
   ] as const;
@@ -43,6 +44,14 @@ export class HeaderVisibilityPlugin extends CorePlugin {
           return CommandResult.Success;
         }
       }
+      case "REMOVE_COLUMNS_ROWS":
+        if (!this.getters.tryGetSheet(cmd.sheetId)) {
+          return CommandResult.InvalidSheetId;
+        }
+        if (this.checkElementsIncludeAllVisibleHeaders(cmd.sheetId, cmd.dimension, cmd.elements)) {
+          return CommandResult.NotEnoughElements;
+        }
+        return CommandResult.Success;
     }
     return CommandResult.Success;
   }
@@ -95,12 +104,29 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return;
   }
 
+  checkElementsIncludeAllVisibleHeaders(
+    sheetId: UID,
+    dimension: Dimension,
+    elements: HeaderIndex[]
+  ): boolean {
+    SHOULD MOVE
+    const visibleHeaders = this.getAllVisibleHeaders(sheetId, dimension);
+    return includesAll(elements, visibleHeaders);
+  }
+
+  isHeaderHiddenByUser(sheetId: UID, dimension: Dimension, index: HeaderIndex): boolean {
+    SHOULD MOVE
+    return dimension === "COL"
+      ? this.isColHiddenByUser(sheetId, index)
+      : this.isRowHiddenByUser(sheetId, index);
+  }
+
   isRowHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].ROW[index];
+    return this.hiddenHeaders[sheetId].ROW[index] || this.getters.isRowFolded(sheetId, index);
   }
 
   isColHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].COL[index];
+    return this.hiddenHeaders[sheetId].COL[index] || this.getters.isColFolded(sheetId, index);
   }
 
   getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {
@@ -123,25 +149,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return consecutiveIndexes;
   }
 
-  getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {
-    const consecutiveIndexes: ConsecutiveIndexes[] = [[]];
-    const hiddenCols = this.hiddenHeaders[sheetId].ROW;
-    for (let row = 0; row < hiddenCols.length; row++) {
-      const isRowHidden = hiddenCols[row];
-      if (isRowHidden) {
-        consecutiveIndexes[consecutiveIndexes.length - 1].push(row);
-      } else {
-        if (consecutiveIndexes[consecutiveIndexes.length - 1].length !== 0) {
-          consecutiveIndexes.push([]);
-        }
-      }
-    }
 
-    if (consecutiveIndexes[consecutiveIndexes.length - 1].length === 0) {
-      consecutiveIndexes.pop();
-    }
-    return consecutiveIndexes;
-  }
 
   private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
     const headers: HeaderIndex[] = range(0, this.getters.getNumberHeaders(sheetId, dimension));

@@ -63,6 +63,7 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
       }
       case "UNFOLD_HEADER_GROUP":
       case "FOLD_HEADER_GROUP":
+        RAR SHOULD MOVE
         if (!this.getters.tryGetSheet(cmd.sheetId)) {
           return CommandResult.InvalidSheetId;
         }
