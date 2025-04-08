@@ -8,6 +8,7 @@ import { FigurePlugin } from "../plugins/core/figures";
 import { HeaderGroupingPlugin } from "../plugins/core/header_grouping";
 import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
+import { HeaderGlobalVisibilityPlugin } from "../plugins/core/header_visibility_global";
 import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
 import { NamedRangesPlugin } from "../plugins/core/named_range";
@@ -71,6 +72,7 @@ type RangeAdapterGetters = Pick<RangeAdapterPlugin, GetterNames<typeof RangeAdap
 export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof HeaderSizePlugin> &
   PluginGetters<typeof HeaderVisibilityPlugin> &
+  PluginGetters<typeof HeaderGlobalVisibilityPlugin> &
   PluginGetters<typeof CellPlugin> &
   PluginGetters<typeof MergePlugin> &
   PluginGetters<typeof BordersPlugin> &

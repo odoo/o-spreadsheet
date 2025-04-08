@@ -9,6 +9,7 @@ import { FigurePlugin } from "./core/figures";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { HeaderSizePlugin } from "./core/header_size";
 import { HeaderVisibilityPlugin } from "./core/header_visibility";
+import { HeaderGlobalVisibilityPlugin } from "./core/header_visibility_global";
 import { ImagePlugin } from "./core/image";
 import { MergePlugin } from "./core/merge";
 import { NamedRangesPlugin } from "./core/named_range";
@@ -69,6 +70,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("settings", SettingsPlugin)
   .add("header grouping", HeaderGroupingPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
+  .add("headerSvisibility global", HeaderGlobalVisibilityPlugin)
   .add("cell", CellPlugin)
   .add("dataValidation", DataValidationPlugin)
   .add("merge", MergePlugin)

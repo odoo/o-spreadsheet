@@ -1,25 +1,21 @@
+import { ExcelWorkbookData, WorkbookData } from "../..";
 import {
   deepCopy,
   getAddHeaderStartIndex,
-  includesAll,
   insertItemsAtIndex,
   largeMax,
   largeMin,
-  range,
 } from "../../helpers/misc";
 import { Command, CommandResult } from "../../types/commands";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
-import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {
   static getters = [
-    "checkElementsIncludeAllVisibleHeaders",
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
-    "isHeaderHiddenByUser",
-    "isRowHiddenByUser",
-    "isColHiddenByUser",
+    "isRowExplicitlyHidden",
+    "isColExplicitlyHidden",
   ] as const;
 
   private readonly hiddenHeaders: Record<UID, Record<Dimension, Array<boolean>>> = {};
@@ -47,14 +43,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
           return CommandResult.Success;
         }
       }
-      case "REMOVE_COLUMNS_ROWS":
-        if (!this.getters.tryGetSheet(cmd.sheetId)) {
-          return CommandResult.InvalidSheetId;
-        }
-        if (this.checkElementsIncludeAllVisibleHeaders(cmd.sheetId, cmd.dimension, cmd.elements)) {
-          return CommandResult.NotEnoughElements;
-        }
-        return CommandResult.Success;
     }
     return CommandResult.Success;
   }
@@ -110,27 +98,12 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return;
   }
 
-  checkElementsIncludeAllVisibleHeaders(
-    sheetId: UID,
-    dimension: Dimension,
-    elements: HeaderIndex[]
-  ): boolean {
-    const visibleHeaders = this.getAllVisibleHeaders(sheetId, dimension);
-    return includesAll(elements, visibleHeaders);
+  isRowExplicitlyHidden(sheetId: UID, index: HeaderIndex): boolean {
+    return this.hiddenHeaders[sheetId].ROW[index];
   }
 
-  isHeaderHiddenByUser(sheetId: UID, dimension: Dimension, index: HeaderIndex): boolean {
-    return dimension === "COL"
-      ? this.isColHiddenByUser(sheetId, index)
-      : this.isRowHiddenByUser(sheetId, index);
-  }
-
-  isRowHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].ROW[index] || this.getters.isRowFolded(sheetId, index);
-  }
-
-  isColHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].COL[index] || this.getters.isColFolded(sheetId, index);
+  isColExplicitlyHidden(sheetId: UID, index: HeaderIndex): boolean {
+    return this.hiddenHeaders[sheetId].COL[index];
   }
 
   getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {
@@ -171,21 +144,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
       consecutiveIndexes.pop();
     }
     return consecutiveIndexes;
-  }
-
-  private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
-    const headers: HeaderIndex[] = range(0, this.getters.getNumberHeaders(sheetId, dimension));
-
-    const foldedHeaders: HeaderIndex[] = [];
-    this.getters.getHeaderGroups(sheetId, dimension).forEach((group) => {
-      if (group.isFolded) {
-        foldedHeaders.push(...range(group.start, group.end + 1));
-      }
-    });
-
-    return headers.filter((i) => {
-      return !this.hiddenHeaders[sheetId][dimension][i] && !foldedHeaders.includes(i);
-    });
   }
 
   import(data: WorkbookData) {
