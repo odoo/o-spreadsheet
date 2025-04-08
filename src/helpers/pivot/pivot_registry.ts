@@ -1,5 +1,5 @@
 import { Registry } from "../../registries/registry";
-import { CoreGetters, EvaluationGetters } from "../../types/getters";
+import { CoreGetters, EvaluationGetters, PivotCoreGetters } from "../../types/getters";
 import { ApplyRangeChange, UID } from "../../types/misc";
 import { ModelConfig } from "../../types/model";
 import { PivotCoreDefinition, PivotField, PivotFields } from "../../types/pivot";
@@ -37,7 +37,7 @@ export interface PivotRegistryItem {
   canHaveCustomGroup: (field: PivotField) => boolean;
   isPivotUnused: (getters: EvaluationGetters, pivotId: UID) => boolean;
   adaptRanges?: (
-    getters: CoreGetters,
+    getters: PivotCoreGetters,
     definition: PivotCoreDefinition,
     applyChange: ApplyRangeChange
   ) => PivotCoreDefinition;

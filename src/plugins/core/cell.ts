@@ -15,7 +15,9 @@ import {
 import { DEFAULT_STYLE } from "../../constants";
 import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
-import { defaultStyle, defaultValue } from "./default";
+import { DefaultPlugin, defaultStyle, defaultValue } from "./default";
+import { SettingsPlugin } from "./settings";
+import { SheetPlugin } from "./sheet";
 
 import { getDateTimeFormat } from "../../helpers/locale";
 import { cellPositions, getZoneArea, isInside } from "../../helpers/zones";
@@ -59,7 +61,8 @@ interface CoreState {
  * This is the most fundamental of all plugins. It defines how to interact with
  * cell and sheet content.
  */
-export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
+export class CellPlugin extends CorePlugin<typeof CellPlugin, CoreState> implements CoreState {
+  static readonly dependencies = [SheetPlugin, SettingsPlugin, DefaultPlugin] as const;
   static getters = [
     "getCells",
     "getTranslatedCellFormula",
