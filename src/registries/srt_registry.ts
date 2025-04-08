@@ -24,6 +24,11 @@ export class SpecificRangeTransformRegistry extends Registry<
     return this;
   }
 
+  replace<C extends CoreCommand>(cmdType: C["type"], fn: CommandAdaptRangeFunction<C>): this {
+    super.replace(cmdType, fn);
+    return this;
+  }
+
   get<C extends CoreCommand>(cmdType: C["type"]): CommandAdaptRangeFunction<CoreCommand> {
     return this.content[cmdType];
   }
