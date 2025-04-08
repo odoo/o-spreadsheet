@@ -66,8 +66,8 @@ import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { SheetViewPlugin } from "./ui_stateful/sheetview";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
-  .add("settings", SettingsPlugin)
   .add("sheet", SheetPlugin)
+  .add("settings", SettingsPlugin)
   .add("header grouping", HeaderGroupingPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
   .add("tables", TablePlugin)
