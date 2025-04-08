@@ -354,7 +354,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const plugin = new Plugin(this.corePluginConfig);
+    const getters = { ...this.coreGetters };
+    const plugin = new Plugin({ ...this.corePluginConfig, getters });
     for (let name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -363,6 +364,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         throw new Error(`Getter "${name}" is already defined.`);
       }
       this.coreGetters[name] = plugin[name].bind(plugin);
+      getters[name] = plugin[name].bind(plugin);
     }
     plugin.import(data);
     this.corePlugins.push(plugin);
