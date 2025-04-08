@@ -171,6 +171,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         this.history.update("cells", cmd.sheetId, undefined);
         break;
       }
+      case "DUPLICATE_SHEET":
+        this.duplicateSheet(cmd.sheetId, cmd.sheetIdTo);
+        break;
       case "UPDATE_LOCALE": {
         this.changeCellsDateFormatWithLocale(this.previousLocale, cmd.locale);
         this.history.update("previousLocale", cmd.locale);
@@ -271,6 +274,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       styleReference = cmd.base;
     }
     fn(cmd.sheetId, styleReference, insertedElements);
+  }
+
+  private duplicateSheet(sheetIdFrom: UID, sheetIdTo: UID) {
+    for (const cell of Object.values(this.getters.getCells(sheetIdFrom))) {
+      const { col, row } = this.getters.getCellPosition(cell.id);
+      this.dispatch("UPDATE_CELL", {
+        sheetId: sheetIdTo,
+        col,
+        row,
+        content: cell.content,
+        format: cell.format,
+        style: cell.style,
+      });
+    }
   }
 
   // ---------------------------------------------------------------------------

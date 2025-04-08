@@ -703,18 +703,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("orderedSheetIds", orderedSheetIds);
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
-    for (const cell of Object.values(this.getters.getCells(fromId))) {
-      const { col, row } = this.getCellPosition(cell.id);
-      this.dispatch("UPDATE_CELL", {
-        sheetId: newSheet.id,
-        col,
-        row,
-        content: cell.content,
-        format: cell.format,
-        style: cell.style,
-      });
-    }
-
     const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
     sheetIdsMapName[newSheet.name] = newSheet.id;
     this.history.update("sheetIdsMapName", sheetIdsMapName);
