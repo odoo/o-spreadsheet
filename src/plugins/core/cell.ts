@@ -68,6 +68,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
+    "getCell",
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
@@ -711,6 +712,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (!sheet) return CommandResult.InvalidSheetId;
     const sheetZone = this.getters.getSheetZone(sheetId);
     return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
+  }
+
+  getCell({ sheetId, col, row }: CellPosition): Cell | undefined {
+    const sheet = this.getters.tryGetSheet(sheetId);
+    const cellId = sheet?.rows[row]?.cells[col];
+    if (cellId === undefined) {
+      return undefined;
+    }
+    return this.getters.getCellById(cellId);
   }
 
   private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {

@@ -17,7 +17,6 @@ import {
 } from "../../helpers/index";
 import { _t } from "../../translation";
 import {
-  Cell,
   CellPosition,
   Command,
   CommandResult,
@@ -61,7 +60,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "isSheetVisible",
     "doesHeaderExist",
     "doesHeadersExist",
-    "getCell",
     "getCellPosition",
     "getColsZone",
     "getRowCells",
@@ -379,15 +377,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   doesHeadersExist(sheetId: UID, dimension: Dimension, headerIndexes: HeaderIndex[]): boolean {
     return headerIndexes.every((index) => this.doesHeaderExist(sheetId, dimension, index));
-  }
-
-  getCell({ sheetId, col, row }: CellPosition): Cell | undefined {
-    const sheet = this.tryGetSheet(sheetId);
-    const cellId = sheet?.rows[row]?.cells[col];
-    if (cellId === undefined) {
-      return undefined;
-    }
-    return this.getters.getCellById(cellId);
   }
 
   getColsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
