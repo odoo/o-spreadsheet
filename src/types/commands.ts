@@ -145,6 +145,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "RENAME_PIVOT",
   "REMOVE_PIVOT",
   "DUPLICATE_PIVOT",
+  "UPDATE_LOCALE",
 ]);
 
 export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
