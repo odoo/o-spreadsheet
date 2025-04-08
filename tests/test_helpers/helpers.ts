@@ -116,8 +116,14 @@ export function addTestPlugin(
 }
 
 export function addToRegistry<T>(registry: Registry<T>, key: string, value: T) {
-  registry.add(key, value);
-  registerCleanup(() => registry.remove(key));
+  if (registry.contains(key)) {
+    const oldValue = registry.get(key);
+    registry.replace(key, value);
+    registerCleanup(() => registry.replace(key, oldValue));
+  } else {
+    registry.add(key, value);
+    registerCleanup(() => registry.remove(key));
+  }
 }
 
 const realTimeSetTimeout = window.setTimeout.bind(window);

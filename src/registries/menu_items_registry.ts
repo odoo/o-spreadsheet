@@ -9,7 +9,7 @@ export class MenuItemRegistry extends Registry<ActionSpec> {
   /**
    * @override
    */
-  add(key: string, value: ActionSpec): MenuItemRegistry {
+  replace(key: string, value: ActionSpec): this {
     if (value.id === undefined) {
       value.id = key;
     }
