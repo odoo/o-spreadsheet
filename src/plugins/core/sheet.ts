@@ -147,20 +147,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           return CommandResult.Success;
         }
       }
-      case "FREEZE_ROWS": {
-        return this.checkValidations(
-          cmd,
-          this.checkRowFreezeQuantity,
-          this.checkRowFreezeOverlapMerge
-        );
-      }
-      case "FREEZE_COLUMNS": {
-        return this.checkValidations(
-          cmd,
-          this.checkColFreezeQuantity,
-          this.checkColFreezeOverlapMerge
-        );
-      }
+      case "FREEZE_ROWS":
+        return this.checkRowFreezeQuantity(cmd);
+      case "FREEZE_COLUMNS":
+        return this.checkColFreezeQuantity(cmd);
       default:
         return CommandResult.Success;
     }
@@ -667,26 +657,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return cmd.quantity >= 1 && cmd.quantity < this.getNumberCols(cmd.sheetId)
       ? CommandResult.Success
       : CommandResult.InvalidFreezeQuantity;
-  }
-
-  private checkRowFreezeOverlapMerge(cmd: FreezeRowsCommand): CommandResult {
-    const merges = this.getters.getMerges(cmd.sheetId);
-    for (let merge of merges) {
-      if (merge.top < cmd.quantity && cmd.quantity <= merge.bottom) {
-        return CommandResult.MergeOverlap;
-      }
-    }
-    return CommandResult.Success;
-  }
-
-  private checkColFreezeOverlapMerge(cmd: FreezeColumnsCommand): CommandResult {
-    const merges = this.getters.getMerges(cmd.sheetId);
-    for (let merge of merges) {
-      if (merge.left < cmd.quantity && cmd.quantity <= merge.right) {
-        return CommandResult.MergeOverlap;
-      }
-    }
-    return CommandResult.Success;
   }
 
   private isRenameAllowed(cmd: RenameSheetCommand): CommandResult {

@@ -23,6 +23,8 @@ import {
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
+  FreezeColumnsCommand,
+  FreezeRowsCommand,
   HeaderIndex,
   Merge,
   Range,
@@ -87,6 +89,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
         return this.checkMergedContentUpdate(cmd);
       case "REMOVE_MERGE":
         return this.checkMergeExists(cmd);
+
+      case "FREEZE_COLUMNS":
+        return this.checkColFreezeOverlapMerge(cmd);
+
+      case "FREEZE_ROWS":
+        return this.checkRowFreezeOverlapMerge(cmd);
       default:
         return CommandResult.Success;
     }
@@ -372,6 +380,25 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return CommandResult.Success;
   }
 
+  private checkColFreezeOverlapMerge(cmd: FreezeColumnsCommand): CommandResult {
+    const merges = this.getters.getMerges(cmd.sheetId);
+    for (let merge of merges) {
+      if (merge.left < cmd.quantity && cmd.quantity <= merge.right) {
+        return CommandResult.MergeOverlap;
+      }
+    }
+    return CommandResult.Success;
+  }
+
+  private checkRowFreezeOverlapMerge(cmd: FreezeRowsCommand): CommandResult {
+    const merges = this.getters.getMerges(cmd.sheetId);
+    for (let merge of merges) {
+      if (merge.top < cmd.quantity && cmd.quantity <= merge.bottom) {
+        return CommandResult.MergeOverlap;
+      }
+    }
+    return CommandResult.Success;
+  }
   /**
    * The content of a merged cell should always be empty.
    * Except for the top-left cell.
