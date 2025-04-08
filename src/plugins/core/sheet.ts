@@ -774,22 +774,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("orderedSheetIds", orderedSheetIds);
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
-    // FIXME: probably a bad idea to dispatch UPDATE_CELL here. All the plugins try to handle an UPDATE_CELL on the new
-    // sheet before they receive the DUPLICATE_SHEET and have a chance to add this new sheet to their state.
-    for (const cell of Object.values(this.getters.getCells(fromId))) {
-      const { col, row } = this.getCellPosition(cell.id);
-      this.dispatch("UPDATE_CELL", {
-        sheetId: newSheet.id,
-        col,
-        row,
-        content: !cell.isFormula
-          ? cell.content
-          : cell.compiledFormula.toFormulaString(this.getters),
-        format: cell.format,
-        style: cell.style,
-      });
-    }
-
     const sheetIdsMapName = Object.assign({}, this.sheetIdsMapName);
     sheetIdsMapName[toStandardizedSheetName(newSheet.name)] = newSheet.id;
     this.history.update("sheetIdsMapName", sheetIdsMapName);
