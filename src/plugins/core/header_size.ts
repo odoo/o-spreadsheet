@@ -10,11 +10,16 @@ import { Command } from "../../types/commands";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
+import { SheetPlugin } from "./sheet";
 
 interface HeaderSizeState {
   sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>>;
 }
-export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements HeaderSizeState {
+export class HeaderSizePlugin
+  extends CorePlugin<typeof HeaderSizePlugin, HeaderSizeState>
+  implements HeaderSizeState
+{
+  static readonly dependencies = [SheetPlugin] as const;
   static getters = ["getUserRowSize", "getColSize"] as const;
 
   readonly sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>> = {};

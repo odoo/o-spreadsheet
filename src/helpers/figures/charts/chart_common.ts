@@ -1,3 +1,4 @@
+import { ChartCoreGetters } from "../../..";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import {
@@ -12,7 +13,6 @@ import {
 } from "../../../types/chart/chart";
 import { CommandResult } from "../../../types/commands";
 import { LocaleFormat } from "../../../types/format";
-import { CoreGetters } from "../../../types/getters";
 import { Locale } from "../../../types/locale";
 import { Color, RangeAdapterFunctions, UID, UnboundedZone, Zone } from "../../../types/misc";
 import { Range } from "../../../types/range";
@@ -75,7 +75,7 @@ export function adaptChartRange(
  * Create the dataSet objects from xcs
  */
 export function createDataSets(
-  getters: CoreGetters,
+  getters: ChartCoreGetters,
   sheetId: UID,
   dataSource: ChartRangeDataSource<string>
 ): DataSet[] {
@@ -141,7 +141,7 @@ export function createDataSets(
 }
 
 function createDataSet(
-  getters: CoreGetters,
+  getters: ChartCoreGetters,
   sheetId: UID,
   fullZone: Zone | UnboundedZone,
   titleZone: Zone | UnboundedZone | undefined
@@ -168,7 +168,7 @@ function createDataSet(
  * Transform a dataSet to a ExcelDataSet
  */
 export function toExcelDataset(
-  getters: CoreGetters,
+  getters: ChartCoreGetters,
   dataSetStyles: DataSetStyle,
   ds: DataSet
 ): ExcelChartDataset {
@@ -222,7 +222,7 @@ export function toExcelDataset(
 }
 
 export function toExcelLabelRange(
-  getters: CoreGetters,
+  getters: ChartCoreGetters,
   labelRange: Range | undefined,
   shouldRemoveFirstLabel?: boolean
 ) {

@@ -43,7 +43,7 @@ coreTypes.add("USE_RANGE");
 //@ts-ignore
 coreTypes.add("USE_TRANSIENT_RANGE");
 
-class PluginTestRange extends CorePlugin {
+class PluginTestRange extends CorePlugin<typeof PluginTestRange> {
   static getters = ["getUsedRanges", "getRanges", "getRangeZoneEdge"];
 
   ranges: Range[] = [];
@@ -807,7 +807,7 @@ test.each([
 });
 
 test("Plugins cannot dispatch a command during adaptRanges", () => {
-  class PluginDispatchInAdaptRanges extends CorePlugin {
+  class PluginDispatchInAdaptRanges extends CorePlugin<typeof PluginDispatchInAdaptRanges> {
     adaptRanges() {
       this.dispatch("DELETE_SHEET", { sheetId: "s1", sheetName: "coucou" });
     }

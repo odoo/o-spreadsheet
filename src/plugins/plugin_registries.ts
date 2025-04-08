@@ -79,7 +79,38 @@ export class PluginRegistry<T extends new (config: any) => any> extends Registry
   }
 }
 
-export const corePluginRegistry = new PluginRegistry<CorePluginConstructor>(CorePlugin)
+export class CorePluginRegistry extends PluginRegistry<CorePluginConstructor> {
+  constructor() {
+    super(CorePlugin);
+  }
+  override add(key: string, plugin: CorePluginConstructor): this {
+    // if (key in this.content) {
+    //   throw new Error(`${key} is already present in this registry!`);
+    // }
+    this.checkDepCycle(plugin);
+    return super.add(key, plugin);
+    // this.content = { ...this.content, [key]: plugin };
+    // return this;
+  }
+
+  private checkDepCycle(
+    plugin: CorePluginConstructor,
+    dependencyChain: CorePluginConstructor[] = []
+  ) {
+    if (dependencyChain.includes(plugin)) {
+      const cycle = [plugin, ...dependencyChain]
+        .reverse()
+        .map((p) => p.prototype.constructor.name)
+        .join(" → ");
+      throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
+    }
+    for (const dep of dependencyChain.at(-1)?.dependencies || plugin.dependencies) {
+      this.checkDepCycle(plugin, dependencyChain.concat(dep));
+    }
+  }
+}
+
+export const corePluginRegistry = new CorePluginRegistry()
   .add("sheet", SheetPlugin)
   .add("settings", SettingsPlugin)
   .add("header_grouping", HeaderGroupingPlugin)
