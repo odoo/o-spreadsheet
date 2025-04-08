@@ -1,0 +1,122 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`sortByDependencies Core plugin order is unchanged 1`] = `
+[
+  "SheetPlugin",
+  "SettingsPlugin",
+  "HeaderGroupingPlugin",
+  "HiddenHeaderPlugin",
+  "HeaderVisibilityPlugin",
+  "CellPlugin",
+  "DataValidationPlugin",
+  "MergePlugin",
+  "TablePlugin",
+  "HeaderSizePlugin",
+  "BordersPlugin",
+  "ConditionalFormatPlugin",
+  "FigurePlugin",
+  "ChartPlugin",
+  "CarouselPlugin",
+  "ImagePlugin",
+  "NamedRangesPlugin",
+  "PivotCorePlugin",
+  "SpreadsheetPivotCorePlugin",
+  "TableStylePlugin",
+]
+`;
+
+exports[`sortByDependencies core plugins dependency tree 1`] = `
+{
+  "BordersPlugin": Set {
+    "MergePlugin",
+    "CellPlugin",
+    "SheetPlugin",
+    "SettingsPlugin",
+    "HeaderVisibilityPlugin",
+    "HiddenHeaderPlugin",
+    "HeaderGroupingPlugin",
+  },
+  "CarouselPlugin": Set {
+    "FigurePlugin",
+    "HeaderSizePlugin",
+    "SheetPlugin",
+  },
+  "CellPlugin": Set {
+    "SheetPlugin",
+    "SettingsPlugin",
+  },
+  "ChartPlugin": Set {
+    "FigurePlugin",
+    "HeaderSizePlugin",
+    "SheetPlugin",
+  },
+  "ConditionalFormatPlugin": Set {
+    "SheetPlugin",
+  },
+  "DataValidationPlugin": Set {
+    "CellPlugin",
+    "SheetPlugin",
+    "SettingsPlugin",
+  },
+  "FigurePlugin": Set {
+    "HeaderSizePlugin",
+    "SheetPlugin",
+  },
+  "HeaderGroupingPlugin": Set {
+    "SheetPlugin",
+  },
+  "HeaderSizePlugin": Set {
+    "SheetPlugin",
+  },
+  "HeaderVisibilityPlugin": Set {
+    "HiddenHeaderPlugin",
+    "SheetPlugin",
+    "HeaderGroupingPlugin",
+  },
+  "HiddenHeaderPlugin": Set {
+    "SheetPlugin",
+  },
+  "ImagePlugin": Set {
+    "FigurePlugin",
+    "HeaderSizePlugin",
+    "SheetPlugin",
+  },
+  "MergePlugin": Set {
+    "CellPlugin",
+    "SheetPlugin",
+    "SettingsPlugin",
+    "HeaderVisibilityPlugin",
+    "HiddenHeaderPlugin",
+    "HeaderGroupingPlugin",
+  },
+  "NamedRangesPlugin": Set {},
+  "PivotCorePlugin": Set {
+    "SheetPlugin",
+    "NamedRangesPlugin",
+  },
+  "SettingsPlugin": Set {},
+  "SheetPlugin": Set {},
+  "SpreadsheetPivotCorePlugin": Set {
+    "SheetPlugin",
+  },
+  "TablePlugin": Set {
+    "MergePlugin",
+    "CellPlugin",
+    "SheetPlugin",
+    "SettingsPlugin",
+    "HeaderVisibilityPlugin",
+    "HiddenHeaderPlugin",
+    "HeaderGroupingPlugin",
+  },
+  "TableStylePlugin": Set {
+    "TablePlugin",
+    "MergePlugin",
+    "CellPlugin",
+    "SheetPlugin",
+    "SettingsPlugin",
+    "HeaderVisibilityPlugin",
+    "HiddenHeaderPlugin",
+    "HeaderGroupingPlugin",
+  },
+}
+`;

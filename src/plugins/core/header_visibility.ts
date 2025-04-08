@@ -2,8 +2,11 @@ import { includesAll, range } from "../../helpers/misc";
 import { Command, CommandResult } from "../../types/commands";
 import { Dimension, HeaderGroup, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
+import { HeaderGroupingPlugin } from "./header_grouping";
+import { HiddenHeaderPlugin } from "./hidden_headers";
 
-export class HeaderVisibilityPlugin extends CorePlugin {
+export class HeaderVisibilityPlugin extends CorePlugin<typeof HeaderVisibilityPlugin, never> {
+  static readonly dependencies = [HiddenHeaderPlugin, HeaderGroupingPlugin] as const;
   static getters = [
     "checkElementsIncludeAllVisibleHeaders",
     "isRowHiddenOrFoldedByUser",

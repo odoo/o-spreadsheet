@@ -11,7 +11,12 @@ import {
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers/zones";
 import { Model } from "../../src/model";
-import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/plugin_registries";
+import { CorePluginConstructor } from "../../src/plugins/core_plugin";
+import {
+  CorePluginRegistry,
+  corePluginRegistry,
+  featurePluginRegistry,
+} from "../../src/plugins/plugin_registries";
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { ModelConfig } from "../../src/types/model";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -28,7 +33,7 @@ import { addTestPlugin } from "../test_helpers/helpers";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
-    class MyCorePlugin extends CorePlugin {
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "UPDATE_CELL") {
           return CommandResult.CancelledForUnknownReason;
@@ -58,7 +63,7 @@ describe("Model", () => {
 
   test("core plugin cannot refuse command from core plugin", () => {
     let result: DispatchResult | undefined = undefined;
-    class MyCorePlugin extends CorePlugin {
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "UPDATE_CELL") {
           return CommandResult.CancelledForUnknownReason;
@@ -126,7 +131,7 @@ describe("Model", () => {
 
   test("Core plugins allowDispatch don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
-    class MyCorePlugin extends CorePlugin {
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       allowDispatch(cmd: CoreCommand): CommandResult {
         receivedCommands.push(cmd.type);
         return CommandResult.Success;
@@ -140,7 +145,7 @@ describe("Model", () => {
 
   test("Core plugins handle don't receive UI commands", () => {
     const receivedCommands: CommandTypes[] = [];
-    class MyCorePlugin extends CorePlugin {
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       handle(cmd: CoreCommand) {
         receivedCommands.push(cmd.type);
       }
@@ -152,7 +157,7 @@ describe("Model", () => {
   });
 
   test("canDispatch method is exposed and works", () => {
-    class MyCorePlugin extends CorePlugin {
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       allowDispatch(cmd: CoreCommand) {
         if (cmd.type === "CREATE_SHEET") {
           return CommandResult.CancelledForUnknownReason;
@@ -211,13 +216,13 @@ describe("Model", () => {
   });
 
   test("Cannot add an already existing core getters", () => {
-    class MyCorePlugin1 extends CorePlugin {
+    class MyCorePlugin1 extends CorePlugin<typeof MyCorePlugin1> {
       static getters = ["getSomething"];
 
       getSomething() {}
     }
 
-    class MyCorePlugin2 extends CorePlugin {
+    class MyCorePlugin2 extends CorePlugin<typeof MyCorePlugin2> {
       static getters = ["getSomething"];
 
       getSomething() {}
@@ -264,7 +269,7 @@ describe("Model", () => {
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
-    class MyCorePlugin extends CorePlugin {
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       public readonly state: number = 0;
       handle(cmd: CoreCommand) {
         //@ts-ignore
@@ -323,7 +328,7 @@ describe("Model", () => {
   test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
     //@ts-ignore
     coreTypes.add("MY_CMD_1");
-    class MyCorePlugin extends CorePlugin {
+    class MyCorePlugin extends CorePlugin<typeof MyCorePlugin> {
       handle(cmd: CoreCommand) {
         //@ts-ignore
         if (cmd.type === "MY_CMD_1") {
@@ -419,5 +424,121 @@ describe("Model", () => {
     expect(spy).not.toHaveBeenCalledWith({
       type: "SNAPSHOT",
     });
+  });
+});
+
+function makePlugin(name: string, deps: CorePluginConstructor[] = []): CorePluginConstructor {
+  return class {
+    static getters = [] as const;
+    static readonly dependencies = deps;
+    static readonly name = name;
+  } as unknown as CorePluginConstructor;
+}
+
+describe("sortByDependencies", () => {
+  test("dependencies sorting", () => {
+    const A = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [B]);
+    const newCorePluginRegistry = new CorePluginRegistry();
+    newCorePluginRegistry.add("A", A);
+    newCorePluginRegistry.add("B", B);
+    newCorePluginRegistry.add("C", C);
+    expect(newCorePluginRegistry.getAll()).toEqual([A, B, C]);
+  });
+
+  test("handles diamond dependency", () => {
+    const A = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [A]);
+    const D = makePlugin("D", [B, C]);
+    const newCorePluginRegistry = new CorePluginRegistry();
+    newCorePluginRegistry.add("A", A);
+    newCorePluginRegistry.add("B", B);
+    newCorePluginRegistry.add("C", C);
+    newCorePluginRegistry.add("D", D);
+    const sorted = newCorePluginRegistry.getAll();
+    expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(B));
+    expect(sorted.indexOf(A)).toBeLessThan(sorted.indexOf(C));
+    expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(D));
+    expect(sorted.indexOf(C)).toBeLessThan(sorted.indexOf(D));
+  });
+
+  test("throws on direct cycle (A → B → A)", () => {
+    const A: CorePluginConstructor = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    (A as any).dependencies = [B];
+    const newCorePluginRegistry = new CorePluginRegistry();
+    expect(() => newCorePluginRegistry.add("A", A)).toThrow(
+      "Cyclic plugin dependency detected: A → B → A"
+    );
+    expect(() => newCorePluginRegistry.add("B", B)).toThrow(
+      "Cyclic plugin dependency detected: B → A → B"
+    );
+  });
+
+  test("throws on indirect cycle (A → B → C → A)", () => {
+    const A: CorePluginConstructor = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [B]);
+    (A as any).dependencies = [C];
+    const D = makePlugin("D", []);
+    const newCorePluginRegistry = new CorePluginRegistry();
+    expect(() => newCorePluginRegistry.add("A", A)).toThrow(
+      "Cyclic plugin dependency detected: A → B → C → A"
+    );
+    expect(() => newCorePluginRegistry.add("B", B)).toThrow(
+      "Cyclic plugin dependency detected: B → C → A → B"
+    );
+    expect(() => newCorePluginRegistry.add("C", C)).toThrow(
+      "Cyclic plugin dependency detected: C → A → B → C"
+    );
+    expect(() => newCorePluginRegistry.add("D", D)).not.toThrow();
+  });
+
+  test("all registered core plugins satisfy their declared dependencies", () => {
+    const plugins = corePluginRegistry.getAll();
+    const position = new Map(plugins.map((p, i) => [p, i] as [CorePluginConstructor, number]));
+    for (const plugin of plugins) {
+      for (const dep of plugin.dependencies) {
+        const depInRegistry = plugins.find((p) => p === dep);
+        if (depInRegistry) {
+          expect(position.get(depInRegistry)!).toBeLessThan(position.get(plugin)!);
+        }
+      }
+    }
+  });
+
+  test("plugins with the same dependency are in registration order", () => {
+    const A = makePlugin("A");
+    const B = makePlugin("B", [A]);
+    const C = makePlugin("C", [A]);
+    const newCorePluginRegistry = new CorePluginRegistry();
+    newCorePluginRegistry.add("A", A);
+    newCorePluginRegistry.add("B", B);
+    newCorePluginRegistry.add("C", C);
+    const sorted = newCorePluginRegistry.getAll();
+    expect(sorted.indexOf(B)).toBeLessThan(sorted.indexOf(C));
+  });
+
+  test("Core plugin order is unchanged", () => {
+    const plugins = corePluginRegistry.getAll().map((p) => p.prototype.constructor.name);
+    expect(plugins).toMatchSnapshot();
+  });
+
+  test("core plugins dependency tree", () => {
+    const plugins = corePluginRegistry.getAll();
+    const depsTree: Record<string, Set<string>> = {};
+    function aggregateDeps(plugin: CorePluginConstructor, set: Set<string>): Set<string> {
+      for (const dep of plugin.dependencies) {
+        set.add(dep.prototype.constructor.name);
+        aggregateDeps(dep, set);
+      }
+      return set;
+    }
+    for (const plugin of plugins) {
+      depsTree[plugin.prototype.constructor.name] = aggregateDeps(plugin, new Set());
+    }
+    expect(depsTree).toMatchSnapshot();
   });
 });

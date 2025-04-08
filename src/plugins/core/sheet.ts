@@ -51,7 +51,8 @@ interface SheetState {
   readonly cellPosition: Record<number, CellPosition | undefined>;
 }
 
-export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
+export class SheetPlugin extends CorePlugin<typeof SheetPlugin, SheetState> implements SheetState {
+  static readonly dependencies = [] as const;
   static getters = [
     "getSheetName",
     "tryGetSheetName",

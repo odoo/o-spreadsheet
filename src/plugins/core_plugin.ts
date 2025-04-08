@@ -1,11 +1,52 @@
 import { StateObserver } from "../state_observer";
 import { CoreCommand, CoreCommandDispatcher } from "../types/commands";
-import { CoreGetters } from "../types/core_getters";
+import { CoreGetters, PluginGetters, RangeAdapterGetters } from "../types/core_getters";
 import { RangeAdapterFunctions, RangeProvider } from "../types/misc";
 import { ModelConfig } from "../types/model";
+import { UnionToIntersection } from "../types/utility";
 import { WorkbookData } from "../types/workbook_data";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapterPlugin } from "./core/range";
+
+/**
+ * Type machinery for `DepsGetters<CorePlugin>` — the type of `this.getters` inside a core plugin.
+ *
+ * Goal: given a plugin class `CorePlugin`, produce an intersection of the getter types of every
+ * plugin reachable through its `static dependencies` graph, plus `RangeAdapterGetters`.
+ *
+ * Pipeline (example: `MergePlugin` depends on `CellPlugin` which depends on `SheetPlugin`):
+ *
+ *   1. Reach<typeof MergePlugin>
+ *        → typeof MergePlugin | typeof CellPlugin | typeof SheetPlugin   (union of all reachable ctors)
+ *
+ *   2. DistGetters<typeof MergePlugin | typeof CellPlugin | typeof SheetPlugin>
+ *        → MergeGetters | CellGetters | SheetGetters                     (map each ctor to its getter type)
+ *        The distributive conditional `T extends … ? PluginGetters<T> : never` is what makes
+ *        TypeScript apply PluginGetters to each union member separately rather than to the whole union.
+ *
+ *   3. UnionToIntersection<MergeGetters | CellGetters | SheetGetters>
+ *        → MergeGetters & CellGetters & SheetGetters                     (flip union → intersection)
+ *
+ *   4. RangeAdapterGetters & …                                           (always included)
+ */
+
+/** Transitive closure of the dependency graph: the plugin itself plus every dependency, recursively.
+ *  D caps the recursivity to a given threshold. Resolves to `any` without it */
+type Reach<P extends CorePluginConstructor, D extends unknown[] = []> = D extends { length: 8 }
+  ? P
+  : P | Reach<P["dependencies"][number], [...D, unknown]>;
+
+/** Distributive map: turns a union of plugin constructors into a union of their getter types. */
+type DistGetters<T extends CorePluginConstructor> = T extends CorePluginConstructor
+  ? PluginGetters<T>
+  : never;
+
+/**
+ * The type of `this.getters` inside a core plugin.
+ * Automatically includes the getters of every plugin declared in `Class.dependencies`, transitively.
+ */
+export type DepsGetters<Plugin extends CorePluginConstructor> = RangeAdapterGetters &
+  UnionToIntersection<DistGetters<Reach<Plugin>>>;
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
@@ -18,9 +59,16 @@ export interface CorePluginConfig {
 }
 
 export interface CorePluginConstructor {
-  new (config: CorePluginConfig): CorePlugin;
+  new (config: CorePluginConfig): any;
   getters: readonly string[];
+  readonly dependencies: readonly CorePluginConstructor[];
 }
+
+type MissingDependency = { readonly brand: unique symbol };
+
+type ScopedGetters<Plugin extends CorePluginConstructor> = DepsGetters<Plugin> & {
+  [key in Exclude<keyof CoreGetters, keyof DepsGetters<Plugin>>]: MissingDependency;
+};
 
 /**
  * Core plugins handle spreadsheet data.
@@ -28,18 +76,20 @@ export interface CorePluginConstructor {
  * persisted state.
  * They should not be concerned about UI parts or transient state.
  */
-export class CorePlugin<State = any>
+export class CorePlugin<Self extends CorePluginConstructor, State = any>
   extends BasePlugin<State, CoreCommand>
   implements RangeProvider
 {
-  protected getters: CoreGetters;
+  static readonly dependencies: readonly CorePluginConstructor[] = [];
+
+  protected getters: ScopedGetters<Self>;
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
   constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
     super(stateObserver);
     range.addRangeProvider(this.adaptRanges.bind(this));
-    this.getters = getters;
+    this.getters = getters as unknown as ScopedGetters<Self>;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
   }

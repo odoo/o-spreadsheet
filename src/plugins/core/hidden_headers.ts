@@ -9,8 +9,12 @@ import {
 import { Command, CommandResult } from "../../types/commands";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
+import { SheetPlugin } from "./sheet";
 
-export class HiddenHeaderPlugin extends CorePlugin {
+type State = { hiddenHeaders: Record<UID, Record<Dimension, Array<boolean>>> };
+
+export class HiddenHeaderPlugin extends CorePlugin<typeof HiddenHeaderPlugin, State> {
+  static readonly dependencies = [SheetPlugin] as const;
   static getters = [
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
@@ -63,9 +67,12 @@ export class HiddenHeaderPlugin extends CorePlugin {
           deepCopy(this.hiddenHeaders[cmd.sheetId])
         );
         break;
-      case "DELETE_SHEET":
-        this.history.update("hiddenHeaders", cmd.sheetId, undefined);
+      case "DELETE_SHEET": {
+        const hiddenHeaders = { ...this.hiddenHeaders };
+        delete hiddenHeaders[cmd.sheetId];
+        this.history.update("hiddenHeaders", hiddenHeaders);
         break;
+      }
       case "REMOVE_COLUMNS_ROWS": {
         const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
         for (const el of [...cmd.elements].sort((a, b) => b - a)) {

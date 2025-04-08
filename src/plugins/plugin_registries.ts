@@ -66,7 +66,34 @@ import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 import { GridSelectionPlugin } from "./ui_stateful/selection";
 import { SheetViewPlugin } from "./ui_stateful/sheetview";
 
-export const corePluginRegistry = new Registry<CorePluginConstructor>()
+export class CorePluginRegistry extends Registry<CorePluginConstructor> {
+  override add(key: string, plugin: CorePluginConstructor): this {
+    if (key in this.content) {
+      throw new Error(`${key} is already present in this registry!`);
+    }
+    this.checkDepCycle(plugin);
+    this.content = { ...this.content, [key]: plugin };
+    return this;
+  }
+
+  private checkDepCycle(
+    plugin: CorePluginConstructor,
+    dependencyChain: CorePluginConstructor[] = []
+  ) {
+    if (dependencyChain.includes(plugin)) {
+      const cycle = [plugin, ...dependencyChain]
+        .reverse()
+        .map((p) => p.prototype.constructor.name)
+        .join(" → ");
+      throw new Error(`Cyclic plugin dependency detected: ${cycle}`);
+    }
+    for (const dep of dependencyChain.at(-1)?.dependencies || plugin.dependencies) {
+      this.checkDepCycle(plugin, dependencyChain.concat(dep));
+    }
+  }
+}
+
+export const corePluginRegistry = new CorePluginRegistry()
   .add("sheet", SheetPlugin)
   .add("settings", SettingsPlugin)
   .add("header_grouping", HeaderGroupingPlugin)

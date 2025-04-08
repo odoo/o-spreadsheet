@@ -183,7 +183,7 @@ export function duplicateRangeInDuplicatedSheet(
  * Create a range from a xc. If the xc is empty, this function returns undefined.
  */
 export function createValidRange(
-  getters: CoreGetters,
+  getters: Pick<CoreGetters, "getRangeFromSheetXC">,
   sheetId: UID,
   xc?: string
 ): Range | undefined {

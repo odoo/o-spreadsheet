@@ -82,7 +82,9 @@ const enum Status {
  * programmatically a spreadsheet.
  */
 export class Model extends EventBus<any> implements CommandDispatcher {
-  private corePlugins: CorePlugin[] = [];
+  private corePlugins: CorePlugin<never>[] = [];
+  private corePluginGetters = new Map<CorePluginConstructor, CoreGetters>();
+  private baseGetters: CoreGetters = {} as CoreGetters;
 
   private statefulUIPlugins: UIPlugin[] = [];
 
@@ -190,12 +192,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.coreHandlers.push(this.range);
     this.handlers.push(this.range);
+    this.baseGetters = { ...this.coreGetters };
 
     this.corePluginConfig = this.setupCorePluginConfig();
     this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
-    // registering plugins
     for (const Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
     }
@@ -298,7 +300,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * reason why the model could not add dynamically a plugin while it is running.
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const plugin = new Plugin(this.corePluginConfig);
+    const getters = this.buildDepGetters(Plugin);
+    const plugin = new Plugin({ ...this.corePluginConfig, getters });
     for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -306,12 +309,23 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       if (name in this.coreGetters) {
         throw new Error(`Getter "${name}" is already defined.`);
       }
-      this.coreGetters[name] = plugin[name].bind(plugin);
+      const bound = plugin[name].bind(plugin);
+      this.coreGetters[name] = bound;
+      getters[name] = bound;
     }
+    this.corePluginGetters.set(Plugin, getters);
     plugin.import(data);
     this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
     this.handlers.push(plugin);
+  }
+
+  private buildDepGetters(Plugin: CorePluginConstructor): CoreGetters {
+    const getters = { ...this.baseGetters } as CoreGetters;
+    for (const Dep of Plugin.dependencies as CorePluginConstructor[]) {
+      Object.assign(getters, this.corePluginGetters.get(Dep));
+    }
+    return getters;
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {

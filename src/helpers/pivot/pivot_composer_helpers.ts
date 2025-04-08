@@ -11,7 +11,10 @@ const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 /**
  * Get the first Pivot function description of the given formula.
  */
-export function getFirstPivotFunction(compiledFormula: CompiledFormula, getters: CoreGetters) {
+export function getFirstPivotFunction(
+  compiledFormula: CompiledFormula,
+  getters: Pick<CoreGetters, "getRangeString">
+) {
   return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters)[0];
 }
 
@@ -25,7 +28,7 @@ export function getPivotFunctions(compiledFormula: CompiledFormula, getters: Cor
  */
 export function getNumberOfPivotFunctions(
   compiledFormula: CompiledFormula,
-  getters: CoreGetters
+  getters: Pick<CoreGetters, "getRangeString">
 ): number {
   return compiledFormula.getFunctionsFromTokens(PIVOT_FUNCTIONS, getters).length;
 }
