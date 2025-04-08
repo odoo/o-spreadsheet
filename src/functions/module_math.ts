@@ -1421,7 +1421,7 @@ export const SUBTOTAL = {
         if (this.getters.isRowFiltered(sheetId, row)) {
           continue;
         }
-        if (!acceptHiddenCells && this.getters.isRowHiddenByUser(sheetId, row)) {
+        if (!acceptHiddenCells && this.getters.isRowHiddenOrFoldedByUser(sheetId, row)) {
           continue;
         }
 
