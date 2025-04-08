@@ -9,6 +9,7 @@ import { deepEquals, isObjectEmptyRecursive, range, replaceNewLines } from "../.
 import { toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
 
+import { getDateTimeFormat } from "../../helpers/locale";
 import { isInside } from "../../helpers/zones";
 import { Cell } from "../../types/cells";
 import {
@@ -29,6 +30,7 @@ import {
 import { isExcelCompatible } from "../../helpers/format/format";
 import { recomputeZones } from "../../helpers/recompute_zones";
 import { Format } from "../../types/format";
+import { Locale } from "../../types/locale";
 import { Style, UpdateCellData, Zone } from "../../types/misc";
 import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
@@ -39,6 +41,7 @@ interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
   cells: Record<UID, Record<number, Cell | undefined> | undefined>;
   nextId: number;
+  previousLocale: Locale;
 }
 
 /**
@@ -59,6 +62,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  previousLocale: Locale = this.getters.getLocale();
 
   adaptRanges(adapters: RangeAdapterFunctions) {
     for (const sheet of Object.keys(this.cells)) {
@@ -131,6 +135,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
       case "DELETE_SHEET": {
         this.history.update("cells", cmd.sheetId, undefined);
+        break;
+      }
+      case "UPDATE_LOCALE": {
+        this.changeCellsDateFormatWithLocale(this.previousLocale, cmd.locale);
+        this.history.update("previousLocale", cmd.locale);
       }
     }
   }
@@ -592,6 +601,32 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return undefined;
     }
     return this.getters.getCellById(cellId);
+  }
+
+  private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
+    for (const sheetId of this.getters.getSheetIds()) {
+      for (const cell of this.getters.getCells(sheetId)) {
+        let formatToApply: Format | undefined;
+        if (cell.format === oldLocale.dateFormat) {
+          formatToApply = newLocale.dateFormat;
+        }
+        if (cell.format === oldLocale.timeFormat) {
+          formatToApply = newLocale.timeFormat;
+        }
+        if (cell.format === getDateTimeFormat(oldLocale)) {
+          formatToApply = getDateTimeFormat(newLocale);
+        }
+        if (formatToApply) {
+          const { col, row, sheetId } = this.getters.getCellPosition(cell.id);
+          this.dispatch("UPDATE_CELL", {
+            col,
+            row,
+            sheetId,
+            format: formatToApply,
+          });
+        }
+      }
+    }
   }
 
   private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {
