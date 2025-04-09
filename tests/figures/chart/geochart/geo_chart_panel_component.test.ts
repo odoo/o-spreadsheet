@@ -2,14 +2,14 @@ import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
 import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
 import { GeoChartDefinition } from "../../../../src/types/chart/geo_chart";
 import {
+  changeRoundColorPickerColor,
   createGeoChart,
   getHTMLCheckboxValue,
+  getRoundColorPickerValue,
   setInputValueAndTrigger,
   simulateClick,
 } from "../../../test_helpers";
 import {
-  editColorPicker,
-  getColorPickerValue,
   openChartConfigSidePanel,
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
@@ -94,7 +94,7 @@ describe("Geo chart side panel", () => {
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      expect(getColorPickerValue(fixture, ".o-chart-background-color")).toEqual("#000000");
+      expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#000000");
       expect(".o-chart-title input").toHaveValue("Title");
       expect(".o-chart-legend-position").toHaveValue("right");
       expect("span[title=Bold]").toHaveClass("active");
@@ -115,9 +115,9 @@ describe("Geo chart side panel", () => {
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await setInputValueAndTrigger(".o-color-scale select", "custom");
-      await editColorPicker(fixture, ".o-min-color", "#FF0000");
-      await editColorPicker(fixture, ".o-mid-color", "#00FF00");
-      await editColorPicker(fixture, ".o-max-color", "#0000FF");
+      await changeRoundColorPickerColor(".o-min-color", "#FF0000");
+      await changeRoundColorPickerColor(".o-mid-color", "#00FF00");
+      await changeRoundColorPickerColor(".o-max-color", "#0000FF");
 
       expect(getGeoChartDefinition(chartId)?.colorScale).toMatchObject({
         minColor: "#FF0000",
@@ -130,9 +130,9 @@ describe("Geo chart side panel", () => {
       createGeoChart(model, { missingValueColor: "#f00" });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      await editColorPicker(fixture, ".o-missing-value", "#FF9900");
+      await changeRoundColorPickerColor(".o-missing-value", "#FF9900");
       expect(getGeoChartDefinition(chartId)?.missingValueColor).toEqual("#FF9900");
-      expect(getColorPickerValue(fixture, ".o-missing-value")).toEqual("#FF9900");
+      expect(getRoundColorPickerValue(".o-missing-value")).toEqual("#FF9900");
     });
   });
 });
