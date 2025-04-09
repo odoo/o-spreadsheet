@@ -1,5 +1,4 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { getChartJSConstructor } from "../../../components/figures/chart/chartJs/chart_js_extension";
 import { Figure } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -42,8 +41,7 @@ export function chartToImage(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const Chart = getChartJSConstructor();
-    const chart = new Chart(canvas, config as ChartConfiguration);
+    const chart = new window.Chart(canvas, config as ChartConfiguration);
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();

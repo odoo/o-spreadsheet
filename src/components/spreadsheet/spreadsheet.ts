@@ -54,6 +54,10 @@ import {
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
+import {
+  registerChartJSExtensions,
+  unregisterChartJsExtensions,
+} from "../figures/chart/chartJs/chart_js_extension";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -427,11 +431,13 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);
+      registerChartJSExtensions();
     });
     onWillUnmount(() => {
       this.unbindModelEvents();
       stores.off("store-updated", this);
       resizeObserver.disconnect();
+      unregisterChartJsExtensions();
     });
     onPatched(() => {
       this.checkViewportSize();
