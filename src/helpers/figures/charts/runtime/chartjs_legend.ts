@@ -213,6 +213,9 @@ export const INTERACTIVE_LEGEND_CONFIG = {
     target.style.cursor = "default";
   },
   onClick: (event, legendItem, legend) => {
+    if (event.type !== "click") {
+      return;
+    }
     const index = legendItem.datasetIndex;
     if (!legend.legendItems || index === undefined) {
       return;
