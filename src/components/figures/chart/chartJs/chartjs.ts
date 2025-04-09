@@ -5,7 +5,7 @@ import { deepCopy } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
-import { chartJsExtensionRegistry, getChartJSConstructor } from "./chart_js_extension";
+import { chartJsExtensionRegistry } from "./chart_js_extension";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
@@ -22,9 +22,15 @@ css/* scss */ `
     }
   }
 `;
-chartJsExtensionRegistry.add("chartShowValuesPlugin", chartShowValuesPlugin);
-chartJsExtensionRegistry.add("waterfallLinesPlugin", waterfallLinesPlugin);
 
+chartJsExtensionRegistry.add("chartShowValuesPlugin", {
+  register: (Chart) => Chart.register(chartShowValuesPlugin),
+  unregister: (Chart) => Chart.unregister(chartShowValuesPlugin),
+});
+chartJsExtensionRegistry.add("waterfallLinesPlugin", {
+  register: (Chart) => Chart.register(waterfallLinesPlugin),
+  unregister: (Chart) => Chart.unregister(waterfallLinesPlugin),
+});
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
   static props = {
@@ -81,8 +87,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private createChart(chartData: ChartConfiguration<any>) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    const Chart = getChartJSConstructor();
-    this.chart = new Chart(ctx, chartData);
+    this.chart = new window.Chart(ctx, chartData);
   }
 
   private updateChartJs(chartData: ChartConfiguration<any>) {

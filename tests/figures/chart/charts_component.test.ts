@@ -1,3 +1,4 @@
+import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ChartTerms } from "../../../src/components/translations_terms";
@@ -99,12 +100,13 @@ async function mountChartSidePanel(figureId = chartId) {
 }
 
 async function mountSpreadsheet() {
-  ({ env, model, fixture, parent } = await mountSpreadsheetHelper({ model }));
+  ({ env, model, fixture, parent, app } = await mountSpreadsheetHelper({ model }));
 }
 
 let fixture: HTMLElement;
 let model: Model;
 let mockChartData = mockChart();
+let app: App;
 const chartId = "someuuid";
 let sheetId: string;
 let parent: Spreadsheet;
@@ -2179,13 +2181,14 @@ test("ChartJS charts are correctly destroyed and re-created when runtime change 
   expect(spyConstructor).toHaveBeenCalled();
 });
 
-test("ChartJS charts extensions are loaded when mounting a chart, and are only loaded once", async () => {
+test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only loaded once, and removed on unmount", async () => {
   window.Chart.registry.plugins["items"] = [];
   model = new Model();
   const spyRegister = jest.spyOn(window.Chart, "register");
+  const spyUnregister = jest.spyOn(window.Chart, "unregister");
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
-  expect(spyRegister).toHaveBeenCalledTimes(1);
+  expect(spyRegister).toHaveBeenCalledTimes(2);
   expect(window.Chart.registry.plugins["items"]).toMatchObject([
     { id: "chartShowValuesPlugin" },
     { id: "waterfallLinesPlugin" },
@@ -2193,7 +2196,11 @@ test("ChartJS charts extensions are loaded when mounting a chart, and are only l
 
   createChart(model, { type: "line" }, "chart2");
   await nextTick();
-  expect(spyRegister).toHaveBeenCalledTimes(1);
+
+  app.destroy();
+  await nextTick();
+  expect(spyUnregister).toHaveBeenCalledTimes(2);
+  expect(window.Chart.registry.plugins["items"]).toEqual([]);
 });
 
 describe("Change chart type", () => {
