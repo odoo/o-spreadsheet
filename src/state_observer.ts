@@ -1,9 +1,10 @@
 import { createEmptyStructure } from "./helpers/state_manager_helpers";
-import { CoreCommand, HistoryChange } from "./types";
+import { AddConditionalFormatCommand, CoreCommand, HistoryChange } from "./types";
 
 export class StateObserver {
   private changes: HistoryChange[] | undefined;
   private commands: CoreCommand[] = [];
+  private commandsByType: Set<string> = new Set();
 
   /**
    * Record the changes which could happen in the given callback, save them in a
@@ -12,12 +13,33 @@ export class StateObserver {
   recordChanges(callback: () => void): { changes: HistoryChange[]; commands: CoreCommand[] } {
     this.changes = [];
     this.commands = [];
+    this.commandsByType = new Set<string>();
     callback();
     return { changes: this.changes, commands: this.commands };
   }
 
   addCommand(command: CoreCommand) {
+    if (this.commandsByType.has(command.type)) {
+      switch (command.type) {
+        case "ADD_CONDITIONAL_FORMAT":
+          let similarCmd = this.commands.find(
+            (cmd) =>
+              cmd.type === "ADD_CONDITIONAL_FORMAT" &&
+              cmd.cf.id === command.cf.id &&
+              cmd.sheetId === command.sheetId
+          ) as AddConditionalFormatCommand | undefined;
+
+          // this works because the command ADD_CONDITIONAL_FORMAT always contains the full definition of the CF
+          if (similarCmd) {
+            similarCmd.ranges = [...command.ranges];
+            similarCmd.cf.rule = command.cf.rule;
+            similarCmd.cf.stopIfTrue = command.cf.stopIfTrue;
+          }
+          return;
+      }
+    }
     this.commands.push(command);
+    this.commandsByType.add(command.type);
   }
 
   addChange(...args: [...HistoryChange["path"], any]) {
