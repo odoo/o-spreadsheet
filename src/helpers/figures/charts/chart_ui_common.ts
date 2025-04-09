@@ -20,6 +20,7 @@ export const CHART_COMMON_OPTIONS: ChartOptions = {
     },
   },
   animation: false,
+  events: ["mousemove", "mouseout", "click", "touchstart", "touchmove", "mouseup"],
 };
 
 export function chartToImageUrl(
