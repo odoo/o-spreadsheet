@@ -5,7 +5,7 @@ import { deepCopy } from "../../../../helpers";
 import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
-import { chartJsExtensionRegistry, getChartJSConstructor } from "./chart_js_extension";
+import { chartJsExtensionRegistry } from "./chart_js_extension";
 import {
   funnelTooltipPositioner,
   getFunnelChartController,
@@ -30,18 +30,36 @@ css/* scss */ `
   }
 `;
 
-chartJsExtensionRegistry.add("chartShowValuesPlugin", chartShowValuesPlugin);
-chartJsExtensionRegistry.add("waterfallLinesPlugin", waterfallLinesPlugin);
-chartJsExtensionRegistry.add("funnelController", (Chart) =>
-  Chart.register(getFunnelChartController())
-);
-chartJsExtensionRegistry.add("funnelElement", (Chart) => Chart.register(getFunnelChartElement()));
-chartJsExtensionRegistry.add(
-  "funnelTooltipPositioner",
-  (Chart) => (Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner)
-);
-chartJsExtensionRegistry.add("sunburstLabelsPlugin", sunburstLabelsPlugin);
-chartJsExtensionRegistry.add("sunburstHoverPlugin", sunburstHoverPlugin);
+chartJsExtensionRegistry.add("chartShowValuesPlugin", {
+  register: (Chart) => Chart.register(chartShowValuesPlugin),
+  unregister: (Chart) => Chart.unregister(chartShowValuesPlugin),
+});
+chartJsExtensionRegistry.add("waterfallLinesPlugin", {
+  register: (Chart) => Chart.register(waterfallLinesPlugin),
+  unregister: (Chart) => Chart.unregister(waterfallLinesPlugin),
+});
+chartJsExtensionRegistry.add("funnelController", {
+  register: (Chart) => Chart.register(getFunnelChartController()),
+  unregister: (Chart) => Chart.unregister(getFunnelChartController()),
+});
+chartJsExtensionRegistry.add("funnelElement", {
+  register: (Chart) => Chart.register(getFunnelChartElement()),
+  unregister: (Chart) => Chart.unregister(getFunnelChartElement()),
+});
+chartJsExtensionRegistry.add("funnelTooltipPositioner", {
+  register: (Chart) =>
+    (Chart.Tooltip.positioners.funnelTooltipPositioner = funnelTooltipPositioner),
+  // @ts-expect-error
+  unregister: (Chart) => (Chart.Tooltip.positioners.funnelTooltipPositioner = undefined),
+});
+chartJsExtensionRegistry.add("sunburstLabelsPlugin", {
+  register: (Chart) => Chart.register(sunburstLabelsPlugin),
+  unregister: (Chart) => Chart.unregister(sunburstLabelsPlugin),
+});
+chartJsExtensionRegistry.add("sunburstHoverPlugin", {
+  register: (Chart) => Chart.register(sunburstHoverPlugin),
+  unregister: (Chart) => Chart.unregister(sunburstHoverPlugin),
+});
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
@@ -99,8 +117,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private createChart(chartData: ChartConfiguration<any>) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    const Chart = getChartJSConstructor();
-    this.chart = new Chart(ctx, chartData);
+    this.chart = new window.Chart(ctx, chartData);
   }
 
   private updateChartJs(chartData: ChartConfiguration<any>) {

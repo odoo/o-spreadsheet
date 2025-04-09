@@ -1,5 +1,4 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { getChartJSConstructor } from "../../../components/figures/chart/chartJs/chart_js_extension";
 import { Figure } from "../../../types";
 import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -78,8 +77,7 @@ export async function chartToImageFile(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const Chart = getChartJSConstructor();
-    const chart = new Chart(canvas, config as ChartConfiguration);
+    const chart = new window.Chart(canvas, config as ChartConfiguration);
     chartBlob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     chart.destroy();
   } else if (type === "scorecard") {

@@ -1,21 +1,28 @@
-import { Plugin as ChartJSPlugin } from "chart.js";
 import { Registry } from "../../../../registries/registry";
 
-export const chartJsExtensionRegistry = new Registry<
-  ChartJSPlugin | ((chart: typeof window.Chart) => void)
->();
+export const chartJsExtensionRegistry = new Registry<{
+  register: (chart: typeof window.Chart) => void;
+  unregister: (chart: typeof window.Chart) => void;
+}>();
 
-/** Return window.Chart, making sure all our extensions are loaded in ChartJS */
-export function getChartJSConstructor() {
-  if (window.Chart && !window.Chart?.registry.plugins.get("chartShowValuesPlugin")) {
-    const extensions = chartJsExtensionRegistry.getAll();
-    for (const extension of extensions) {
-      if (typeof extension === "function") {
-        extension(window.Chart);
-      } else {
-        window.Chart.register(extension);
-      }
-    }
+export function areChartJSExtensionsLoaded() {
+  return !!window.Chart.registry.plugins.get("chartShowValuesPlugin");
+}
+
+export function registerChartJSExtensions() {
+  if (!window.Chart || areChartJSExtensionsLoaded()) {
+    return;
   }
-  return window.Chart;
+  for (const registryItem of chartJsExtensionRegistry.getAll()) {
+    registryItem.register(window.Chart);
+  }
+}
+
+export function unregisterChartJsExtensions() {
+  if (!window.Chart) {
+    return;
+  }
+  for (const registryItem of chartJsExtensionRegistry.getAll()) {
+    registryItem.unregister(window.Chart);
+  }
 }
