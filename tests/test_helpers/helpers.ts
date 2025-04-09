@@ -871,6 +871,11 @@ export const mockChart = () => {
     static register = (...items: any[]) => {
       ChartMock.registry.plugins.items.push(...items);
     };
+    static unregister = (...items: any[]) => {
+      ChartMock.registry.plugins.items = ChartMock.registry.plugins.items.filter((item) =>
+        items.some((i) => i.id === item.id)
+      );
+    };
     static _adapters = { _date: MockLuxonTimeAdapter };
     static registry = {
       plugins: {
