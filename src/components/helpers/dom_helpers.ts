@@ -185,3 +185,10 @@ export function isMacOS(): boolean {
 export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
   return isMacOS() ? ev.metaKey : ev.ctrlKey;
 }
+
+/**
+ * Detects if the current browser is Firefox
+ */
+export function isBrowserFirefox() {
+  return /Firefox/i.test(navigator.userAgent);
+}

@@ -1,6 +1,7 @@
 import { Component, xml } from "@odoo/owl";
 import { SCROLLBAR_WIDTH } from "../../constants";
 import { SpreadsheetChildEnv } from "../../types";
+import { isBrowserFirefox } from "../helpers/dom_helpers";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {
@@ -46,7 +47,7 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
       left: `${this.props.leftOffset + x}px`,
       bottom: "0px",
       height: `${SCROLLBAR_WIDTH}px`,
-      right: `0px`,
+      right: isBrowserFirefox() ? `${SCROLLBAR_WIDTH}px` : "0",
     };
   }
 
