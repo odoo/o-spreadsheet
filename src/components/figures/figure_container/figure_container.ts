@@ -306,6 +306,10 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
+    if (this.env.isMobile()) {
+      return;
+    }
+
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     const initialMousePosition = { x: ev.clientX, y: ev.clientY };
