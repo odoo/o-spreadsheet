@@ -227,7 +227,15 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseDown(ev: MouseEvent) {
-    this.props.onMouseDown(ev);
+    if (!this.env.isMobile()) {
+      this.props.onMouseDown(ev);
+    }
+  }
+
+  onClick(ev: MouseEvent) {
+    if (this.env.isMobile()) {
+      this.props.onMouseDown(ev);
+    }
   }
 
   onKeyDown(ev: KeyboardEvent) {
