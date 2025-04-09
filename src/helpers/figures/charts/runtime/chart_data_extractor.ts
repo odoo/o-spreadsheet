@@ -1,5 +1,4 @@
 import { Point } from "chart.js";
-import { getChartJSConstructor } from "../../../../components/figures/chart/chartJs/chart_js_extension";
 import { ChartTerms } from "../../../../components/translations_terms";
 import {
   evaluatePolynomial,
@@ -544,12 +543,11 @@ function canBeLinearChart(
 let missingTimeAdapterAlreadyWarned = false;
 
 function isLuxonTimeAdapterInstalled() {
-  const Chart = getChartJSConstructor();
-  if (!Chart) {
+  if (!window.Chart) {
     return false;
   }
   // @ts-ignore
-  const adapter = new Chart._adapters._date({});
+  const adapter = new window.Chart._adapters._date({});
   const isInstalled = adapter._id === "luxon";
   if (!isInstalled && !missingTimeAdapterAlreadyWarned) {
     missingTimeAdapterAlreadyWarned = true;
