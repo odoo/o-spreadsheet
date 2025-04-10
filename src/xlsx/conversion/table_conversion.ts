@@ -1,4 +1,4 @@
-import { toCartesian, toZone, zoneToXc } from "../../helpers";
+import { isSheetNameEqual, toCartesian, toZone, zoneToXc } from "../../helpers";
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../helpers/table_presets";
 import { TableConfig, WorkbookData } from "../../types";
 import { CellErrorType } from "../../types/errors";
@@ -63,7 +63,7 @@ function convertPivotTableConfig(pivotTable: XLSXPivotTable): TableConfig {
  */
 function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets: XLSXWorksheet[]) {
   for (const tableSheet of convertedSheets) {
-    const tables = xlsxSheets.find((s) => s.sheetName === tableSheet.name)!.tables;
+    const tables = xlsxSheets.find((s) => isSheetNameEqual(s.sheetName, tableSheet.name))!.tables;
 
     for (const table of tables) {
       const tabRef = table.name + "[";
