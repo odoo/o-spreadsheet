@@ -1,6 +1,11 @@
 import { Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
-import { DEBOUNCE_TIME, getDefaultSheetViewSize } from "../../src/constants";
+import {
+  DEBOUNCE_TIME,
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  getDefaultSheetViewSize,
+} from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { SpreadsheetChildEnv } from "../../src/types";
@@ -15,6 +20,7 @@ import {
 import {
   click,
   clickCell,
+  dragElement,
   getElComputedStyle,
   hoverCell,
   keyDown,
@@ -374,6 +380,27 @@ describe("Composer / selectionInput interactions", () => {
       model: new Model(modelDataCf),
     }));
   });
+
+  test.each(["=A1", "=Sheet1!A1", "=SHEET1!A1", "=sheet1!A1"])(
+    "Moving Highlight update composer",
+    async (xc) => {
+      selectCell(model, "D2");
+      await nextTick();
+      await typeInComposerGrid(xc);
+
+      expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("A1")]);
+      expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+
+      await dragElement(".o-spreadsheet .o-highlight .o-border-n", {
+        x: DEFAULT_CELL_WIDTH,
+        y: DEFAULT_CELL_HEIGHT * 2,
+      });
+      await nextTick();
+
+      expect(model.getters.getHighlights().map((h) => h.zone)).toEqual([toZone("B3")]);
+      expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
+    }
+  );
 
   test("Switching from selection input to composer should update the highlihts", async () => {
     //open cf sidepanel
