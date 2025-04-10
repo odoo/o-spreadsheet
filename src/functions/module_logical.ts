@@ -1,6 +1,6 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { boolAnd, boolOr } from "./helper_logical";
 import { assert, conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
@@ -172,7 +172,10 @@ export const IFS = {
         return result;
       }
     }
-    throw new EvaluationError(_t("No match."));
+    throw {
+      value: CellErrorType.GenericError,
+      message: _t("No match."),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

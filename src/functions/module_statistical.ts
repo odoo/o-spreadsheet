@@ -10,7 +10,7 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assertSameDimensions } from "./helper_assert";
 import {
@@ -82,11 +82,10 @@ function covariance(dataY: Arg, dataX: Arg, isSample: boolean): number {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
   const count = flatDataY.length;
 
-  assert(
-    () => count !== 0 && (!isSample || count !== 1),
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
-    CellErrorType.DivisionByZero
-  );
+  assertNotZero(count);
+  if (isSample) {
+    assertNotZero(count - 1);
+  }
 
   let sumY = 0;
   let sumX = 0;
@@ -121,11 +120,10 @@ function variance(args: Arg[], isSample: boolean, textAs0: boolean, locale: Loca
     locale
   );
 
-  assert(
-    () => count !== 0 && (!isSample || count !== 1),
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
-    CellErrorType.DivisionByZero
-  );
+  assertNotZero(count);
+  if (isSample) {
+    assertNotZero(count - 1);
+  }
 
   const average = sum / count;
   return (
@@ -754,9 +752,10 @@ export const MATTHEWS: AddFunctionDescription = {
     const flatY = dataY.flat();
     assertSameNumberOfElements(flatX, flatY);
     if (flatX.length === 0) {
-      throw new EvaluationError(
-        _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters.")
-      );
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."),
+      };
     }
     const n = flatX.length;
 
@@ -1005,14 +1004,16 @@ export const MINIFS = {
 function pearson(dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>): number {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
   if (flatDataX.length === 0) {
-    throw new EvaluationError(
-      _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters.")
-    );
+    throw {
+      value: CellErrorType.GenericError,
+      message: _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."),
+    };
   }
   if (flatDataX.length < 2) {
-    throw new EvaluationError(
-      _t("[[FUNCTION_NAME]] needs at least two values for both parameters.")
-    );
+    throw {
+      value: CellErrorType.GenericError,
+      message: _t("[[FUNCTION_NAME]] needs at least two values for both parameters."),
+    };
   }
   const n = flatDataX.length;
 
@@ -1288,7 +1289,10 @@ export const RANK: AddFunctionDescription = {
       }
     }
     if (!found) {
-      throw new NotAvailableError(_t("Value not found in the given data."));
+      throw {
+        value: CellErrorType.NotAvailable,
+        message: _t("Value not found in the given data."),
+      };
     }
     return rank;
   },
