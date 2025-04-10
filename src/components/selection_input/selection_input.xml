@@ -3,6 +3,7 @@
     <div class="o-selection" t-ref="o-selection">
       <div
         t-foreach="ranges"
+        t-if="!range.disabled"
         t-as="range"
         t-key="range.id"
         class="o-selection-input d-flex flex-row"
@@ -29,7 +30,7 @@
             t-att-class="{
               'o-focused' : range.isFocused,
               'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
-              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
+              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range',
             }"
             t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
           />
@@ -47,7 +48,55 @@
           <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
         </button>
       </div>
-
+      <t t-if="hasDisabledRanges">
+        <div class="o-disabled-ranges">Excluded data ranges</div>
+        <div
+          t-foreach="ranges"
+          t-if="range.disabled"
+          t-as="range"
+          t-key="range.id"
+          class="o-selection-input d-flex flex-row"
+          t-att-style="dragAndDrop.itemsStyle[range.id]"
+          t-att-class="props.class">
+          <span
+            t-if="ranges.length > 1 and props.onSelectionReordered"
+            title="Reorder range"
+            t-on-pointerdown="(ev) => this.startDragAndDrop(range.id, ev)"
+            class="o-drag-handle d-flex align-items-center mb-2 o-button-icon">
+            <t t-call="o-spreadsheet-Icon.SHORT_THIN_DRAG_HANDLE"/>
+          </span>
+          <div class="position-relative w-100">
+            <input
+              type="text"
+              spellcheck="false"
+              placeholder="e.g. A1:A2"
+              t-on-input="(ev) => this.onInputChanged(range.id, ev)"
+              t-on-focus="() => this.focus(range.id)"
+              t-on-keydown="onKeydown"
+              t-att-value="range.xc"
+              t-att-style="getColor(range)"
+              class="o-input mb-2 ps-1 pt-1"
+              t-att-class="{
+              'o-disabled-ranges' : !range.isFocused,
+              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range',
+            }"
+              t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
+            />
+            <span
+              t-if="isInvalid || !range.isValidRange"
+              class="error-icon text-danger position-absolute d-flex align-items-center"
+              title="This range is invalid">
+              <t t-call="o-spreadsheet-Icon.ERROR"/>
+            </span>
+          </div>
+          <button
+            class="border-0 bg-transparent fw-bold o-remove-selection o-disabled-ranges pe-0"
+            t-if="ranges.length > 1"
+            t-on-click="() => this.removeInput(range.id)">
+            <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
+          </button>
+        </div>
+      </t>
       <div class="d-flex flex-row w-100 o-selection-input">
         <button class="o-button o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">
           Add range

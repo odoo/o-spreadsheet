@@ -30,6 +30,7 @@ export class SelectionInputStore extends SpreadsheetStore {
     "reset",
     "confirm",
     "updateColors",
+    "updateDisabledRanges",
   ] as const;
   private ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
@@ -41,7 +42,8 @@ export class SelectionInputStore extends SpreadsheetStore {
     get: Get,
     private initialRanges: string[] = [],
     private readonly inputHasSingleRange: boolean = false,
-    public colors: Color[] = []
+    public colors: Color[] = [],
+    public disabledRanges: boolean[] = []
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -173,6 +175,10 @@ export class SelectionInputStore extends SpreadsheetStore {
     }));
   }
 
+  updateDisabledRanges(disabledRanges: boolean[]) {
+    this.disabledRanges = disabledRanges;
+  }
+
   confirm() {
     for (const range of this.selectionInputs) {
       if (range.xc === "") {
@@ -210,7 +216,11 @@ export class SelectionInputStore extends SpreadsheetStore {
    * Return a list of all valid XCs.
    * e.g. ["A1", "Sheet2!B3", "E12"]
    */
-  get selectionInputs(): (RangeInputValue & { isFocused: boolean; isValidRange: boolean })[] {
+  get selectionInputs(): (RangeInputValue & {
+    isFocused: boolean;
+    isValidRange: boolean;
+    disabled?: boolean;
+  })[] {
     return this.ranges.map((input, index) =>
       Object.assign({}, input, {
         color:
@@ -221,6 +231,7 @@ export class SelectionInputStore extends SpreadsheetStore {
             : null,
         isFocused: this.hasMainFocus && this.focusedRangeIndex === index,
         isValidRange: input.xc === "" || this.getters.isRangeValid(input.xc),
+        disabled: this.disabledRanges?.[index],
       })
     );
   }

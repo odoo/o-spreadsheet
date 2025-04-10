@@ -53,19 +53,18 @@ describe("Geo chart side panel", () => {
       expect(".o-geo-region select").toHaveValue("usa");
     });
 
-    test("Can only select a single data range", async () => {
+    test("Only one data range is enabled", async () => {
       createGeoChart(model, {
-        dataSets: [{ dataRange: "A1:A3" }, { dataRange: "B1:B3" }],
+        dataSets: [{ dataRange: "A1:A3" }],
       });
       await openChartConfigSidePanel(model, env, chartId);
       expect(".o-data-series input").toHaveCount(1);
-      expect(".o-data-series input").toHaveValue("A1:A3");
 
       await setInputValueAndTrigger(".o-data-series input", "A1:D3");
       await simulateClick(".o-data-series .o-selection-ok");
 
-      expect(".o-data-series input").toHaveValue("A1:A3");
-      expect(getGeoChartDefinition(chartId)?.dataSets).toMatchObject([{ dataRange: "A1:A3" }]);
+      expect(".o-data-series input").toHaveCount(4);
+      expect(".o-data-series input.o-disabled-ranges").toHaveCount(3);
     });
 
     test("Can change the displayed region", async () => {

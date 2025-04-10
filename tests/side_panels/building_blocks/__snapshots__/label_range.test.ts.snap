@@ -36,6 +36,7 @@ exports[`Label range Can add options to the label range component 1`] = `
       </div>
       
       
+      
       <div
         class="d-flex flex-row w-100 o-selection-input"
       >
@@ -95,6 +96,7 @@ exports[`Label range Can render a label range component 1`] = `
         </div>
         
       </div>
+      
       
       
       <div

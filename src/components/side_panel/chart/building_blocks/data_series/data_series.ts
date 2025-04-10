@@ -12,6 +12,8 @@ interface Props {
   onSelectionRemoved?: (index: number) => void;
   onSelectionConfirmed: () => void;
   title?: string;
+  disabledRanges?: boolean[];
+  disabledRangeTitle?: string;
 }
 
 export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
@@ -25,6 +27,8 @@ export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
     onSelectionRemoved: { type: Function, optional: true },
     onSelectionConfirmed: Function,
     title: { type: String, optional: true },
+    disabledRanges: { type: Array, optional: true, default: [] },
+    disabledRangeTitle: { type: String, optional: true },
   };
 
   get ranges(): string[] {
