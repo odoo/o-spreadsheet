@@ -630,6 +630,7 @@ describe("datasource tests", function () {
       definition: model.getters.getChartDefinition("1"),
       sheetId: model.getters.getActiveSheetId(),
       id: "2",
+      sheetMap: model.getters.getSheetMap(),
     });
 
     updateChart(model, "1", { legendPosition: "left" });

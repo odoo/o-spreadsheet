@@ -171,12 +171,14 @@ export const TEST_COMMANDS: CommandMapping = {
     size: { width: 200, height: 200 },
     id: "figureId",
     sheetId: "Sheet1",
+    sheetMap: { Sheet1: "Sheet1" },
   },
   UPDATE_CHART: {
     type: "UPDATE_CHART",
     definition: TEST_CHART_DATA.basicChart,
     id: "figureId",
     sheetId: "Sheet1",
+    sheetMap: { Sheet1: "Sheet1" },
   },
   RESIZE_COLUMNS_ROWS: {
     type: "RESIZE_COLUMNS_ROWS",

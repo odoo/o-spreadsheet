@@ -100,6 +100,7 @@ describe("custom colors are correctly handled when editing charts", () => {
         legendPosition: "none",
         background: "#112233",
       },
+      sheetMap: model.getters.getSheetMap(),
     });
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
     model.dispatch("DELETE_FIGURE", {
@@ -136,6 +137,7 @@ describe("custom colors are correctly handled when editing charts", () => {
           },
         },
       },
+      sheetMap: model.getters.getSheetMap(),
     });
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#112233", "#123456"]);
   });
