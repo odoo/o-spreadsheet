@@ -14,6 +14,7 @@ css/* scss */ `
 
 interface Props {
   title?: string;
+  placeholder?: string;
   updateTitle: (title: string) => void;
   name?: string;
   style: TitleDesign;
@@ -26,6 +27,7 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static components = { Section, TextStyler };
   static props = {
     title: { type: String, optional: true },
+    placeholder: { type: String, optional: true },
     updateTitle: Function,
     name: { type: String, optional: true },
     style: Object,
@@ -34,6 +36,7 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   };
   static defaultProps = {
     title: "",
+    placeholder: "",
   };
 
   updateTitle(ev: InputEvent) {

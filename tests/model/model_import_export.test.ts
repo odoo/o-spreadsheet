@@ -451,7 +451,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     expect(data.version).toEqual(getCurrentVersion());
-    expect(Number(getCurrentVersion())).toBeGreaterThanOrEqual(14.5);
+    expect(getCurrentVersion().localeCompare("14.5")).toBeGreaterThanOrEqual(0);
     expect(data.sheets[0].tables).toEqual([
       {
         range: "A1:C2",
