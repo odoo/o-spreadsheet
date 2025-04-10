@@ -80,7 +80,7 @@ export const CHOOSECOLS = {
 
     const argOutOfRange = _columns.filter((col) => col === 0 || _array.length < Math.abs(col));
     assert(
-      () => argOutOfRange.length === 0,
+      argOutOfRange.length === 0,
       _t(
         "The columns arguments must be between -%s and %s (got %s), excluding 0.",
         _array.length.toString(),
@@ -123,7 +123,7 @@ export const CHOOSEROWS = {
 
     const argOutOfRange = _rows.filter((row) => row === 0 || _array[0].length < Math.abs(row));
     assert(
-      () => argOutOfRange.length === 0,
+      argOutOfRange.length === 0,
       _t(
         "The rows arguments must be between -%s and %s (got %s), excluding 0.",
         _array[0].length.toString(),
@@ -171,14 +171,14 @@ export const EXPAND = {
       columns !== undefined ? toInteger(columns.value, this.locale) : _array.length;
 
     assert(
-      () => _nbRows >= _array[0].length,
+      _nbRows >= _array[0].length,
       _t(
         "The rows arguments (%s) must be greater or equal than the number of rows of the array.",
         _nbRows.toString()
       )
     );
     assert(
-      () => _nbColumns >= _array.length,
+      _nbColumns >= _array.length,
       _t(
         "The columns arguments (%s) must be greater or equal than the number of columns of the array.",
         _nbColumns.toString()
@@ -369,7 +369,7 @@ export const MMULT = {
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
     assert(
-      () => _matrix1.length === _matrix2[0].length,
+      _matrix1.length === _matrix2[0].length,
       _t(
         "In [[FUNCTION_NAME]], the number of columns of the first matrix (%s) must be equal to the \
         number of rows of the second matrix (%s).",

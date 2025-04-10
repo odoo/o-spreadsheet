@@ -23,7 +23,7 @@ export const CELL = {
   compute: function (info: Maybe<FunctionResultObject>, reference: Maybe<{ value: string }>) {
     const _info = toString(info).toLowerCase();
     assert(
-      () => CELL_INFO_TYPES.includes(_info),
+      CELL_INFO_TYPES.includes(_info),
       _t("The info_type should be one of %s.", CELL_INFO_TYPES.join(", "))
     );
 
