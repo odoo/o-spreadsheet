@@ -128,46 +128,6 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
   return hoveredPosition;
 }
 
-function useTouchMove(
-  gridRef: Ref<HTMLElement>,
-  handler: (deltaX: Pixel, deltaY: Pixel) => void,
-  canMoveUp: () => boolean
-) {
-  let x = null as number | null;
-  let y = null as number | null;
-
-  function onTouchStart(ev: TouchEvent) {
-    if (ev.touches.length !== 1) return;
-    x = ev.touches[0].clientX;
-    y = ev.touches[0].clientY;
-  }
-
-  function onTouchEnd() {
-    x = null;
-    y = null;
-  }
-
-  function onTouchMove(ev: TouchEvent) {
-    if (ev.touches.length !== 1) return;
-    // On mobile browsers, swiping down is often associated with "pull to refresh".
-    // We only want this behavior if the grid is already at the top.
-    // Otherwise we only want to move the canvas up, without triggering any refresh.
-    if (canMoveUp()) {
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-    const currentX = ev.touches[0].clientX;
-    const currentY = ev.touches[0].clientY;
-    handler(x! - currentX, y! - currentY);
-    x = currentX;
-    y = currentY;
-  }
-
-  useRefListener(gridRef, "touchstart", onTouchStart);
-  useRefListener(gridRef, "touchend", onTouchEnd);
-  useRefListener(gridRef, "touchmove", onTouchMove);
-}
-
 interface Props {
   onCellDoubleClicked: (col: HeaderIndex, row: HeaderIndex) => void;
   onCellClicked: (
@@ -229,10 +189,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     });
     onWillUnmount(() => {
       resizeObserver.disconnect();
-    });
-    useTouchMove(this.gridOverlay, this.props.onGridMoved, () => {
-      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
-      return scrollY > 0;
     });
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);

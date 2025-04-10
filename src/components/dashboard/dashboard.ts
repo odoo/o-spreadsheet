@@ -8,6 +8,7 @@ import { css, cssPropertiesToCss } from "../helpers/css";
 import { isMiddleClickOrCtrlClick } from "../helpers/dom_helpers";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
+import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
@@ -54,6 +55,11 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
       this.hoveredCell.clear();
     });
     this.cellPopovers = useStore(CellPopoverStore);
+
+    useTouchScroll(gridRef, this.moveCanvas.bind(this), () => {
+      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+      return scrollY > 0;
+    });
   }
 
   get gridContainer() {
