@@ -10,3 +10,10 @@ export function createDefaultRows(rowNumber: number): Row[] {
   }
   return rows;
 }
+
+export function isSheetNameEqual(name1: string | undefined, name2: string | undefined): boolean {
+  if (name1 === undefined || name2 === undefined) {
+    return false;
+  }
+  return name1.trim().toUpperCase() === name2.trim().toUpperCase();
+}
