@@ -14,6 +14,7 @@ import {
   toUnboundedZone,
   unionUnboundedZones,
 } from "../../helpers/index";
+import { isSheetNameEqual } from "../../helpers/sheet";
 import { CellErrorType } from "../../types/errors";
 import {
   ApplyRangeChange,
@@ -181,7 +182,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
           if (range.sheetId === cmd.sheetId) {
             return { changeType: "CHANGE", range };
           }
-          if (cmd.name && range.invalidSheetName === cmd.name) {
+          if (isSheetNameEqual(range.invalidSheetName, cmd.name)) {
             const invalidSheetName = undefined;
             const sheetId = cmd.sheetId;
             const newRange = range.clone({ sheetId, invalidSheetName });
