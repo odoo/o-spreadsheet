@@ -9,6 +9,7 @@ import {
   isDateTimeFormat,
   isEqual,
   isNumber,
+  isSheetNameEqual,
   markdownLink,
   numberToString,
   parseDateTime,
@@ -616,7 +617,7 @@ export class ComposerStore extends SpreadsheetStore {
         const { xc, sheetName: sheet } = splitReference(token.value);
         const sheetName = sheet || this.getters.getSheetName(this.sheetId);
 
-        if (this.getters.getSheetName(activeSheetId) !== sheetName) {
+        if (!isSheetNameEqual(this.getters.getSheetName(activeSheetId), sheetName)) {
           return false;
         }
         const refRange = this.getters.getRangeFromSheetXC(activeSheetId, xc);

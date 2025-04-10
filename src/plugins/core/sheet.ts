@@ -15,6 +15,7 @@ import {
   range,
   toCartesian,
 } from "../../helpers/index";
+import { isSheetNameEqual } from "../../helpers/sheet";
 import { _t } from "../../translation";
 import {
   Cell,
@@ -346,7 +347,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (name) {
       const unquotedName = getUnquotedSheetName(name);
       for (const key in this.sheetIdsMapName) {
-        if (key.toUpperCase() === unquotedName.toUpperCase()) {
+        if (isSheetNameEqual(key, unquotedName)) {
           return this.sheetIdsMapName[key];
         }
       }
@@ -636,8 +637,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
     const { orderedSheetIds, sheets } = this;
     const name = cmd.name && cmd.name.trim().toLowerCase();
+
     if (
-      orderedSheetIds.find((id) => sheets[id]?.name.toLowerCase() === name && id !== cmd.sheetId)
+      orderedSheetIds.find((id) => isSheetNameEqual(sheets[id]?.name, name) && id !== cmd.sheetId)
     ) {
       return CommandResult.DuplicatedSheetName;
     }
