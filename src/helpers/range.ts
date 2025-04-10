@@ -23,6 +23,7 @@ import { CellErrorType } from "../types/errors";
 import { numberToLetters } from "./coordinates";
 import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
+import { isSheetNameEqual } from "./sheet";
 import {
   boundUnboundedZone,
   createAdaptedZone,
@@ -383,7 +384,7 @@ function getApplyRangeChangeRemoveColRow(cmd: RemoveColumnsRowsCommand): ApplyRa
 
   const groups = groupConsecutive(elements);
   return (range: Range) => {
-    if (range.sheetId !== cmd.sheetId) {
+    if (!isSheetNameEqual(range.sheetId, cmd.sheetId)) {
       return { changeType: "NONE" };
     }
     let newRange = range;
