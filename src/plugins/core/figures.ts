@@ -1,13 +1,20 @@
+import { DEFAULT_CELL_HEIGHT } from "../../constants";
+import { clip } from "../../helpers/index";
+import { AnchorOffset } from "../../types/figure";
 import {
+  ApplyRangeChange,
   CommandResult,
   CoreCommand,
+  CreateFigureCommand,
+  DeleteFigureCommand,
   ExcelWorkbookData,
   Figure,
+  PixelPosition,
   UID,
+  UpdateFigureCommand,
   WorkbookData,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
-import { DEFAULT_CELL_HEIGHT } from "./../../constants";
 
 interface FigureState {
   readonly figures: { [sheet: string]: Record<UID, Figure | undefined> | undefined };
@@ -24,13 +31,52 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // Command Handling
   // ---------------------------------------------------------------------------
 
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    if (!sheetId) {
+      return;
+    }
+    for (const figure of this.getFigures(sheetId)) {
+      const change = applyChange(
+        this.getters.getRangeFromZone(sheetId, {
+          left: figure.col,
+          right: figure.col,
+          top: figure.row,
+          bottom: figure.row,
+        })
+      );
+      if (change.changeType === "MOVE") {
+        this.history.update("figures", sheetId, figure.id, "col", change.range.zone.right);
+        this.history.update("figures", sheetId, figure.id, "row", change.range.zone.bottom);
+      } else if (change.changeType === "REMOVE") {
+        const fullchange = applyChange(
+          this.getters.getRangeFromZone(sheetId, {
+            left: 0,
+            right: figure.col - 1,
+            top: 0,
+            bottom: figure.row - 1,
+          })
+        );
+        let { offset, col, row } = figure;
+        if (fullchange.changeType !== "NONE") {
+          col = fullchange.range.zone.right + 1;
+          row = fullchange.range.zone.bottom + 1;
+        }
+        ({ offset, col, row } = this.getPositionInSheet(sheetId, { ...figure, col, row }));
+        this.history.update("figures", sheetId, figure.id, "offset", offset);
+        this.history.update("figures", sheetId, figure.id, "col", col);
+        this.history.update("figures", sheetId, figure.id, "row", row);
+      }
+    }
+  }
+
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_FIGURE":
-        return this.checkFigureDuplicate(cmd.figure.id);
+        return this.checkValidations(cmd, this.checkFigureDuplicate, this.checkFigureAnchorOffset);
       case "UPDATE_FIGURE":
+        return this.checkValidations(cmd, this.checkFigureExists, this.checkFigureAnchorOffset);
       case "DELETE_FIGURE":
-        return this.checkFigureExists(cmd.sheetId, cmd.id);
+        return this.checkFigureExists(cmd);
       default:
         return CommandResult.Success;
     }
@@ -40,7 +86,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     switch (cmd.type) {
       case "DELETE_SHEET":
         this.getters.getFigures(cmd.sheetId).forEach((figure) => {
-          this.dispatch("DELETE_FIGURE", { id: figure.id, sheetId: cmd.sheetId });
+          this.dispatch("DELETE_FIGURE", { figureId: figure.id, sheetId: cmd.sheetId });
         });
         break;
     }
@@ -55,73 +101,164 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         this.deleteSheet(cmd.sheetId);
         break;
       case "CREATE_FIGURE":
-        this.addFigure(cmd.figure, cmd.sheetId);
+        const figure: Figure = {
+          id: cmd.figureId,
+          col: cmd.col,
+          row: cmd.row,
+          offset: cmd.offset,
+          width: cmd.size.width,
+          height: cmd.size.height,
+          tag: cmd.tag,
+        };
+        this.addFigure(figure, cmd.sheetId);
         break;
       case "UPDATE_FIGURE":
-        const { type, sheetId, ...update } = cmd;
-        const figure: Partial<Figure> = update;
-        this.updateFigure(sheetId, figure);
+        this.updateFigure(cmd);
         break;
       case "DELETE_FIGURE":
-        this.removeFigure(cmd.id, cmd.sheetId);
+        this.removeFigure(cmd.figureId, cmd.sheetId);
         break;
       case "REMOVE_COLUMNS_ROWS":
-        this.onRowColDelete(cmd.sheetId, cmd.dimension);
+        if (cmd.dimension === "COL") {
+          this.onColRemove(cmd.sheetId);
+        } else {
+          this.onRowRemove(cmd.sheetId);
+        }
+        break;
     }
   }
 
-  private onRowColDelete(sheetId: string, dimension: string) {
-    dimension === "ROW" ? this.onRowDeletion(sheetId) : this.onColDeletion(sheetId);
+  private onColRemove(sheetId: UID) {
+    const numHeader = this.getters.getNumberCols(sheetId);
+    const remainingSize: number[] = new Array(numHeader + 1);
+    remainingSize[numHeader] = 0;
+    for (let i = numHeader - 1; i >= 0; i--) {
+      remainingSize[i] = remainingSize[i + 1] + this.getters.getColSize(sheetId, i);
+    }
+
+    for (const figure of this.getFigures(sheetId)) {
+      if (figure.offset.x + figure.width > remainingSize[figure.col]) {
+        let x = figure.offset.x;
+        let col = figure.col;
+
+        x = Math.min(x, remainingSize[col] - figure.width);
+        while (x < 0 && col > 0) {
+          col--;
+          x = remainingSize[col] - figure.width;
+        }
+
+        if (x !== figure.offset.x) {
+          this.history.update("figures", sheetId, figure.id, "offset", {
+            x: Math.max(x, 0),
+            y: figure.offset.y,
+          } as PixelPosition);
+        }
+        if (col !== figure.col) {
+          this.history.update("figures", sheetId, figure.id, "col", col);
+        }
+      }
+    }
   }
 
-  private onRowDeletion(sheetId: string) {
+  private onRowRemove(sheetId: UID) {
     const numHeader = this.getters.getNumberRows(sheetId);
-    let gridHeight = 0;
-    for (let i = 0; i < numHeader; i++) {
+    const remainingSize: number[] = new Array(numHeader + 1);
+    remainingSize[numHeader] = 0;
+    for (let i = numHeader - 1; i >= 0; i--) {
       // TODO : since the row size is an UI value now, this doesn't work anymore. Using the default cell height is
       // a temporary solution at best, but is broken.
-      gridHeight += this.getters.getUserRowSize(sheetId, i) || DEFAULT_CELL_HEIGHT;
+      remainingSize[i] =
+        remainingSize[i + 1] + (this.getters.getUserRowSize(sheetId, i) ?? DEFAULT_CELL_HEIGHT);
     }
-    const figures = this.getters.getFigures(sheetId);
-    for (const figure of figures) {
-      const newY = Math.min(figure.y, gridHeight - figure.height);
-      if (newY !== figure.y) {
-        this.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, y: newY });
+
+    for (const figure of this.getFigures(sheetId)) {
+      if (figure.offset.y + figure.height > remainingSize[figure.row]) {
+        let y = figure.offset.y;
+        let row = figure.row;
+        for (
+          let row_size = this.getters.getUserRowSize(sheetId, row) ?? DEFAULT_CELL_HEIGHT;
+          row_size < y;
+          row_size = this.getters.getUserRowSize(sheetId, row) ?? DEFAULT_CELL_HEIGHT
+        ) {
+          row += 1;
+          y -= row_size;
+        }
+
+        y = Math.min(y, remainingSize[row] - figure.height);
+        while (y < 0 && row > 0) {
+          row--;
+          y = remainingSize[row] - figure.height;
+        }
+
+        if (y !== figure.offset.y) {
+          this.history.update("figures", sheetId, figure.id, "offset", {
+            x: figure.offset.x,
+            y: Math.max(0, y),
+          } as PixelPosition);
+        }
+        if (row !== figure.row) {
+          this.history.update("figures", sheetId, figure.id, "row", row);
+        }
+      } else if (figure.offset.y + figure.height > remainingSize[0]) {
+        this.history.update("figures", sheetId, figure.id, "offset", {
+          x: figure.offset.x,
+          y: Math.max(remainingSize[0] - figure.height, 0),
+        } as PixelPosition);
       }
     }
   }
 
-  private onColDeletion(sheetId: string) {
-    const numHeader = this.getters.getNumberCols(sheetId);
-    let gridWidth = 0;
-    for (let i = 0; i < numHeader; i++) {
-      gridWidth += this.getters.getColSize(sheetId, i);
+  private getPositionInSheet(sheetId: UID, figure: Figure): AnchorOffset {
+    const { numberOfRows, numberOfCols } = this.getters.getSheetSize(sheetId);
+    let availableHeight = 0,
+      availableWidth = 0;
+    let rowNum, colNum;
+    let { col, row } = figure,
+      offset = { ...figure.offset };
+
+    // Check figure is inside the sheet vertical boundaries
+    // This can be wrong if the offset of the figure is greater than the size of it's anchor cell
+    for (rowNum = numberOfRows; availableHeight < figure.height && rowNum > 0; rowNum--) {
+      availableHeight += this.getters.getUserRowSize(sheetId, rowNum - 1) ?? DEFAULT_CELL_HEIGHT;
     }
-    const figures = this.getters.getFigures(sheetId);
-    for (const figure of figures) {
-      const newX = Math.min(figure.x, gridWidth - figure.width);
-      if (newX !== figure.x) {
-        this.dispatch("UPDATE_FIGURE", { sheetId, id: figure.id, x: newX });
-      }
+    if (row > rowNum) {
+      row = rowNum;
+      offset.y = Math.max(availableHeight - figure.height, 0);
+    } else if (row === rowNum) {
+      offset.y = clip(offset.y, 0, Math.max(availableHeight - figure.height, 0));
     }
+
+    // Check figure is inside horinzontal sheet boundaries
+    // This can be wrong if the offset of the figure is greater than the size of it's anchor cell
+    for (colNum = numberOfCols; availableWidth < figure.width && colNum > 0; colNum--) {
+      availableWidth += this.getters.getColSize(sheetId, colNum - 1);
+    }
+    if (col > colNum) {
+      col = colNum;
+      offset.x = Math.max(availableWidth - figure.width, 0);
+    } else if (colNum === col) {
+      offset.x = clip(offset.x, 0, Math.max(availableWidth - figure.width, 0));
+    }
+    return { col, row, offset };
   }
 
-  private updateFigure(sheetId: string, figure: Partial<Figure>) {
-    if (!("id" in figure)) {
+  private updateFigure(cmd: UpdateFigureCommand) {
+    if (!("figureId" in cmd) || !("sheetId" in cmd)) {
       return;
     }
-    for (const [key, value] of Object.entries(figure)) {
+    const { figureId, sheetId, ...update } = cmd;
+    const figure: Figure = { ...this.getFigure(sheetId, figureId)!, ...update };
+    for (const [key, value] of Object.entries(update)) {
       switch (key) {
-        case "x":
-        case "y":
-          if (value !== undefined) {
-            this.history.update("figures", sheetId, figure.id!, key, Math.max(value as number, 0));
-          }
+        case "offset":
+          this.history.update("figures", sheetId, figure.id, key, value as PixelPosition);
           break;
+        case "col":
+        case "row":
         case "width":
         case "height":
           if (value !== undefined) {
-            this.history.update("figures", sheetId, figure.id!, key, value as number);
+            this.history.update("figures", sheetId, figure.id, key, value as number);
           }
           break;
       }
@@ -149,16 +286,23 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     this.history.update("figures", sheetId, id, undefined);
   }
 
-  private checkFigureExists(sheetId: UID, figureId: UID): CommandResult {
-    if (this.figures[sheetId]?.[figureId] === undefined) {
+  private checkFigureExists(cmd: UpdateFigureCommand | DeleteFigureCommand): CommandResult {
+    if (this.figures[cmd.sheetId]?.[cmd.figureId] === undefined) {
       return CommandResult.FigureDoesNotExist;
     }
     return CommandResult.Success;
   }
 
-  private checkFigureDuplicate(figureId: UID): CommandResult {
-    if (Object.values(this.figures).find((sheet) => sheet?.[figureId])) {
+  private checkFigureDuplicate(cmd: CreateFigureCommand): CommandResult {
+    if (Object.values(this.figures).find((sheet) => sheet?.[cmd.figureId])) {
       return CommandResult.DuplicatedFigureId;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkFigureAnchorOffset(cmd: UpdateFigureCommand | CreateFigureCommand): CommandResult {
+    if (cmd.col < 0 || cmd.row < 0 || (cmd.offset && (cmd.offset.x < 0 || cmd.offset.y < 0))) {
+      return CommandResult.WrongSheetPosition;
     }
     return CommandResult.Success;
   }
@@ -178,7 +322,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     return figures;
   }
 
-  getFigure(sheetId: string, figureId: string): Figure | undefined {
+  getFigure(sheetId: UID, figureId: string): Figure | undefined {
     return this.figures[sheetId]?.[figureId];
   }
 
@@ -209,6 +353,6 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    return this.export(data);
   }
 }

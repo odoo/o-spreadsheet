@@ -218,7 +218,7 @@ describe("Simple Spreadsheet Component", () => {
     const topBarComposerZIndex = getZIndex(".o-topbar-composer");
 
     createChart(model, { type: "bar" }, "thisIsAnId");
-    model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
+    model.dispatch("SELECT_FIGURE", { figureId: "thisIsAnId" });
     await nextTick();
     const figureZIndex = getZIndex(".o-figure-wrapper");
     const figureAnchorZIndex = getZIndex(".o-fig-anchor");

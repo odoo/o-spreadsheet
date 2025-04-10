@@ -9,7 +9,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
-import { CreateFigureCommand, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
+import { Figure, Pixel, Position, SpreadsheetChildEnv, UID } from "../../src/types";
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
@@ -68,21 +68,29 @@ let env: SpreadsheetChildEnv;
 
 function createFigure(
   model: Model,
-  figureParameters: Partial<CreateFigureCommand["figure"]> = {},
+  figureParameters: Partial<Figure & { anchor: Position }> = {},
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  const defaultParameters: CreateFigureCommand["figure"] = {
+  const params: Figure = {
     id: "someuuid",
-    x: 1,
-    y: 1,
+    col: 0,
+    row: 0,
+    offset: { x: 1, y: 1 },
     height: 100,
     width: 100,
     tag: "text",
+    ...figureParameters,
+    ...figureParameters.anchor,
   };
 
   return model.dispatch("CREATE_FIGURE", {
     sheetId,
-    figure: { ...defaultParameters, ...figureParameters },
+    col: params.col,
+    row: params.row,
+    size: { height: params.height, width: params.width },
+    offset: params.offset,
+    figureId: params.id,
+    tag: params.tag,
   });
 }
 
@@ -140,9 +148,18 @@ describe("figures", () => {
   test("can create a figure with some data", () => {
     createFigure(model);
     expect(model.getters.getFigures(sheetId)).toEqual([
-      { id: "someuuid", height: 100, tag: "text", width: 100, x: 1, y: 1 },
+      {
+        id: "someuuid",
+        height: 100,
+        tag: "text",
+        width: 100,
+        col: 0,
+        row: 0,
+        offset: { x: 1, y: 1 },
+      },
     ]);
   });
+
   test("focus a figure", async () => {
     createFigure(model);
     await nextTick();
@@ -161,6 +178,7 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-figure")).toBeNull();
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
+
   test("deleting a figure doesn't delete selection", async () => {
     createFigure(model);
     setCellContent(model, "A1", "content");
@@ -194,43 +212,68 @@ describe("figures", () => {
   test("Can move a figure with keyboard", async () => {
     createFigure(model);
     let figure = model.getters.getFigure(sheetId, "someuuid");
-    expect(figure).toMatchObject({ id: "someuuid", x: 1, y: 1 });
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 1, y: 1 },
+    });
     await nextTick();
     await simulateClick(".o-figure");
     await nextTick();
     const selectedFigure = model.getters.getSelectedFigureId();
     expect(selectedFigure).toBe("someuuid");
     //down
-    keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowDown" });
     await keyDown({ key: "ArrowDown" });
     figure = model.getters.getFigure(sheetId, "someuuid");
-    expect(figure).toMatchObject({ id: "someuuid", x: 1, y: 3 });
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 1, y: 3 },
+    });
     //right
-    keyDown({ key: "ArrowRight" });
+    await keyDown({ key: "ArrowRight" });
     await keyDown({ key: "ArrowRight" });
     figure = model.getters.getFigure(sheetId, "someuuid");
-    expect(figure).toMatchObject({ id: "someuuid", x: 3, y: 3 });
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 3, y: 3 },
+    });
     //left
     await keyDown({ key: "ArrowLeft" });
     figure = model.getters.getFigure(sheetId, "someuuid");
-    expect(figure).toMatchObject({ id: "someuuid", x: 2, y: 3 });
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 2, y: 3 },
+    });
     //up
     await keyDown({ key: "ArrowUp" });
     figure = model.getters.getFigure(sheetId, "someuuid");
-    expect(figure).toMatchObject({ id: "someuuid", x: 2, y: 2 });
+    expect(figure).toMatchObject({
+      id: "someuuid",
+      col: 0,
+      row: 0,
+      offset: { x: 2, y: 2 },
+    });
   });
 
   test("figure is focused after a SELECT_FIGURE", async () => {
     createFigure(model);
     await nextTick();
-    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     expect(document.activeElement?.classList).toContain("o-figure");
   });
 
   test("select a figure, it should have the  resize handles", async () => {
     createFigure(model);
-    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     const anchors = fixture.querySelectorAll(".o-fig-anchor");
     expect(anchors).toHaveLength(8);
@@ -238,7 +281,7 @@ describe("figures", () => {
 
   test("selected figure snapshot", async () => {
     createFigure(model);
-    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     expect(fixture.querySelector(".o-figure-wrapper")).toMatchSnapshot();
   });
@@ -263,8 +306,15 @@ describe("figures", () => {
     ["topLeft", { mouseOffsetX: -50, mouseOffsetY: -50 }, { width: 150, height: 150 }],
   ])("Can resize a figure through its anchors", async (anchor: string, mouseMove, expectedSize) => {
     const figureId = "someuuid";
-    createFigure(model, { id: figureId, y: 200, x: 200, width: 100, height: 100 });
-    model.dispatch("SELECT_FIGURE", { id: figureId });
+    createFigure(model, {
+      id: figureId,
+      col: 0,
+      row: 0,
+      offset: { x: 200, y: 200 },
+      width: 100,
+      height: 100,
+    });
+    model.dispatch("SELECT_FIGURE", { figureId });
     await nextTick();
     await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
     expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
@@ -279,8 +329,14 @@ describe("figures", () => {
     async (anchor: string, mouseMove: { mouseOffsetX: number; mouseOffsetY: number }) => {
       const figureId = "someuuid";
       const figure = { width: 100, height: 100 };
-      createFigure(model, { id: figureId, y: 0, x: 0, ...figure });
-      model.dispatch("SELECT_FIGURE", { id: figureId });
+      createFigure(model, {
+        id: figureId,
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        ...figure,
+      });
+      model.dispatch("SELECT_FIGURE", { figureId });
       await nextTick();
       await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
       expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(figure);
@@ -296,7 +352,13 @@ describe("figures", () => {
     async (anchor: string, mouseMove: { mouseOffsetX: number; mouseOffsetY: number }) => {
       const figureId = "someuuid";
       const figure = { width: 200, height: 200 };
-      createFigure(model, { id: figureId, y: 0, x: 0, ...figure });
+      createFigure(model, {
+        id: figureId,
+        col: 0,
+        row: 0,
+        offset: { x: 0, y: 0 },
+        ...figure,
+      });
       await nextTick();
       setViewportOffset(model, 100, 100);
       await simulateClick(".o-figure");
@@ -312,12 +374,23 @@ describe("figures", () => {
 
   describe("Move a figure with drag & drop ", () => {
     test("Can move a figure with drag & drop", async () => {
-      createFigure(model, { id: "someuuid", x: 200, y: 100 });
+      createFigure(model, {
+        id: "someuuid",
+        col: 2,
+        row: 3,
+        offset: { x: 20, y: 10 },
+      });
       await nextTick();
-      await dragElement(".o-figure", { x: 150, y: 100 }, undefined, true);
+      await dragElement(
+        ".o-figure",
+        { x: DEFAULT_CELL_WIDTH * 2 + 20, y: DEFAULT_CELL_HEIGHT * 3 + 10 },
+        undefined,
+        true
+      );
       expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject({
-        x: 350,
-        y: 200,
+        col: 4,
+        row: 6,
+        offset: { x: 40, y: 20 },
       });
     });
 
@@ -336,98 +409,173 @@ describe("figures", () => {
       });
 
       test("Figure in frozen rows can be dragged to main viewport", async () => {
-        createFigure(model, { id, x: 16 * cellWidth, y: 4 * cellHeight });
+        createFigure(model, { id, anchor: { col: 16, row: 4 } });
         await nextTick();
         await dragElement(figureSelector, { x: 0, y: 3 * cellHeight }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
-          x: 16 * cellWidth,
-          y: 17 * cellHeight, // initial position + drag offset + scroll offset
+          col: 16,
+          row: 17, // initial position + drag offset + scroll offset
         });
       });
 
       test("Figure in main viewport can be dragged to frozen rows", async () => {
-        createFigure(model, { id, x: 16 * cellWidth, y: 16 * cellHeight });
+        createFigure(model, { id, anchor: { col: 16, row: 16 } });
         await nextTick();
         await dragElement(figureSelector, { x: 0, y: -3 * cellHeight }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
-          x: 16 * cellWidth,
-          y: 3 * cellHeight, // initial position + drag offset - scroll offset
+          col: 16,
+          row: 3, // initial position + drag offset - scroll offset
         });
       });
 
       test("Dragging figure that is half hidden by frozen rows will put in on top of the freeze pane", async () => {
-        createFigure(model, { id, x: 16 * cellWidth, y: 14 * cellHeight, height: 5 * cellHeight });
+        createFigure(model, {
+          id,
+          col: 16,
+          row: 14,
+          height: 5 * cellHeight,
+        });
         await nextTick();
         await dragElement(figureSelector, { x: 1, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
-          x: 16 * cellWidth + 1,
-          y: 4 * cellHeight, // initial position - scroll offset
+          col: 16,
+          row: 4, // initial position - scroll offset
         });
       });
 
       test("Figure in frozen cols can be dragged to main viewport", async () => {
-        createFigure(model, { id, x: 4 * cellWidth, y: 16 * cellHeight });
+        createFigure(model, { id, anchor: { col: 4, row: 16 } });
         await nextTick();
         await dragElement(figureSelector, { x: 3 * cellWidth, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
-          x: 17 * cellWidth, // initial position + drag offset + scroll offset
-          y: 16 * cellHeight,
+          col: 17, // initial position + drag offset + scroll offset
+          row: 16,
         });
       });
 
       test("Figure in main viewport can be dragged to frozen cols", async () => {
-        createFigure(model, { id, x: 16 * cellWidth, y: 16 * cellHeight });
+        createFigure(model, { id, anchor: { col: 16, row: 16 } });
         await nextTick();
         await dragElement(figureSelector, { x: -3 * cellWidth, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
-          x: 3 * cellWidth, // initial position + drag offset - scroll offset
-          y: 16 * cellHeight,
+          col: 3, // initial position + drag offset - scroll offset
+          row: 16,
         });
       });
 
       test("Dragging figure that is half hidden by frozen cols will put in on top of the freeze pane", async () => {
-        createFigure(model, { id, x: 14 * cellWidth, y: 16 * cellHeight, width: 5 * cellWidth });
+        createFigure(model, {
+          id,
+          col: 14,
+          row: 16,
+          width: 5 * cellWidth,
+        });
         await nextTick();
         await dragElement(figureSelector, { x: 0, y: 1 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
-          x: 4 * cellWidth, // initial position - scroll offset
-          y: 16 * cellHeight + 1,
+          col: 4, // initial position - scroll offset
+          row: 16,
         });
       });
     });
 
     test.each([
-      [{ wheelX: 0, wheelY: 10 * DEFAULT_CELL_HEIGHT }],
-      [{ wheelX: 10 * DEFAULT_CELL_WIDTH, wheelY: 0 }],
-      [{ wheelX: 0, wheelY: 50 * DEFAULT_CELL_HEIGHT }], // scroll out of original viewport
-      [{ wheelX: 40 * DEFAULT_CELL_WIDTH, wheelY: 0 }], // scroll out of original viewport
+      [{ wheelCol: 0, wheelRow: 10 }],
+      [{ wheelCol: 10, wheelRow: 0 }],
+      [{ wheelCol: 0, wheelRow: 50 }], // scroll out of original viewport
+      [{ wheelCol: 40, wheelRow: 0 }], // scroll out of original viewport
     ])(
       "Can scroll while dragging a figure",
-      async ({ wheelX, wheelY }: { wheelX: number; wheelY: number }) => {
+      async ({ wheelCol, wheelRow }: { wheelCol: number; wheelRow: number }) => {
         addColumns(model, "after", "A", 50);
-        createFigure(model, { id: "someuuid", x: 200, y: 100 });
+        createFigure(model, {
+          id: "someuuid",
+          col: 5,
+          row: 6,
+          offset: { x: 0, y: 0 },
+        });
         await nextTick();
         const figureEl = fixture.querySelector(".o-figure")!;
 
         triggerMouseEvent(figureEl, "pointerdown");
-        triggerWheelEvent(figureEl, { deltaY: wheelY, deltaX: wheelX });
+        triggerWheelEvent(figureEl, {
+          deltaY: wheelRow * DEFAULT_CELL_HEIGHT + 7,
+          deltaX: wheelCol * DEFAULT_CELL_WIDTH + 8,
+        });
         triggerMouseEvent(figureEl, "pointerup");
         await nextTick();
-
         expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject(
           {
-            x: 200 + wheelX,
-            y: 100 + wheelY,
+            col: 5 + wheelCol,
+            row: 6 + wheelRow,
           }
         );
+        expect(
+          model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")!.offset
+        ).toMatchObject({
+          x: 8,
+          y: 7,
+        });
+      }
+    );
+
+    test.each([
+      [{ wheelCol: 0, wheelRow: 10 }],
+      [{ wheelCol: 10, wheelRow: 0 }],
+      [{ wheelCol: 0, wheelRow: 50 }], // scroll out of original viewport
+      [{ wheelCol: 40, wheelRow: 0 }], // scroll out of original viewport
+    ])(
+      "Snap when scrolling while dragging a figure",
+      async ({ wheelCol, wheelRow }: { wheelCol: number; wheelRow: number }) => {
+        addColumns(model, "after", "A", 50);
+        createFigure(model, {
+          id: "someuuid",
+          col: 5,
+          row: 6,
+          offset: { x: 0, y: 0 },
+        });
+
+        createFigure(model, {
+          id: "someuuid2",
+          col: 5 + wheelCol,
+          row: 6 + wheelRow,
+          offset: { x: 5, y: 5 },
+        });
+        await nextTick();
+        const figureEl = fixture.querySelector(".o-figure")!;
+
+        triggerMouseEvent(figureEl, "pointerdown");
+        triggerWheelEvent(figureEl, {
+          deltaY: wheelRow * DEFAULT_CELL_HEIGHT + 8,
+          deltaX: wheelCol * DEFAULT_CELL_WIDTH + 8,
+        });
+        triggerMouseEvent(figureEl, "pointerup");
+        await nextTick();
+        expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject(
+          {
+            col: 5 + wheelCol,
+            row: 6 + wheelRow,
+          }
+        );
+        expect(
+          model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")!.offset
+        ).toMatchObject({
+          x: 5,
+          y: 5,
+        });
       }
     );
 
     test("Deleting a figure during drag and drop does not crash", async () => {
-      createFigure(model, { id: "someuuid", x: 200, y: 100 });
+      createFigure(model, {
+        id: "someuuid",
+        col: 5,
+        row: 6,
+        offset: { x: 7, y: 8 },
+      });
       await nextTick();
       await dragElement(".o-figure", { x: 150, y: 100 }, undefined, false);
-      model.dispatch("DELETE_FIGURE", { id: "someuuid", sheetId });
+      model.dispatch("DELETE_FIGURE", { figureId: "someuuid", sheetId });
       await nextTick();
       expect(model.getters.getFigure(sheetId, "someuuid")).toEqual(undefined);
     });
@@ -435,7 +583,7 @@ describe("figures", () => {
 
   test("Cannot select/move figure in readonly mode", async () => {
     const figureId = "someuuid";
-    createFigure(model, { id: figureId, y: 200 });
+    createFigure(model, { id: figureId, offset: { x: 0, y: 200 } });
     model.updateMode("readonly");
     await nextTick();
     const figure = fixture.querySelector(".o-figure")!;
@@ -457,7 +605,7 @@ describe("figures", () => {
 
     test("Border for selected figure", async () => {
       createFigure(model, { id: "figureId" });
-      model.dispatch("SELECT_FIGURE", { id: "figureId" });
+      model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
       expect(getElStyle(".o-figure-border", "border")).toEqual(
         `2px solid ${SELECTION_BORDER_COLOR}`
@@ -472,7 +620,7 @@ describe("figures", () => {
 
     test("Border for selected image figure", async () => {
       createImage(model, { figureId: "figureId" });
-      model.dispatch("SELECT_FIGURE", { id: "figureId" });
+      model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
       expect(getElStyle(".o-figure-border", "border")).toEqual(
         `2px solid ${SELECTION_BORDER_COLOR}`
@@ -491,7 +639,7 @@ describe("figures", () => {
 
   test("Selected figure isn't removed by scroll", async () => {
     createFigure(model);
-    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
     triggerWheelEvent(".o-grid", { deltaY: 1500 });
     fixture.querySelector(".o-scrollbar.vertical")!.dispatchEvent(new Event("scroll"));
@@ -685,12 +833,14 @@ describe("figures", () => {
 
   test("Figure container is properly computed based on the sheetView size", async () => {
     createFigure(model, { id: "topLeft" }); // topLeft
-    createFigure(model, { id: "topRight", x: 4 * DEFAULT_CELL_WIDTH }); // topRight
-    createFigure(model, { id: "bottomLeft", y: 4 * DEFAULT_CELL_HEIGHT }); // bottomLeft
+    createFigure(model, { id: "topRight", offset: { x: 4 * DEFAULT_CELL_WIDTH, y: 0 } }); // topRight
+    createFigure(model, { id: "bottomLeft", offset: { x: 0, y: 4 * DEFAULT_CELL_HEIGHT } }); // bottomLeft
     createFigure(model, {
       id: "bottomRight",
-      x: 4 * DEFAULT_CELL_WIDTH,
-      y: 4 * DEFAULT_CELL_HEIGHT,
+      offset: {
+        x: 4 * DEFAULT_CELL_WIDTH,
+        y: 4 * DEFAULT_CELL_HEIGHT,
+      },
     }); // bottomRight
     freezeRows(model, 2);
     freezeColumns(model, 2);
@@ -737,11 +887,32 @@ describe("figures", () => {
       ])(
         "Snap x with horizontal mouseMove %s when moving figure",
         async (mouseMove: Pixel, expectedResult: Pixel) => {
-          createFigure(model, { id: "f1", x: 0, y: 0, width: 20, height: 20 });
-          createFigure(model, { id: "f2", x: 50, y: 50, width: 50, height: 50 });
+          createFigure(model, {
+            id: "f1",
+            col: 5,
+            row: 6,
+            offset: { x: 0, y: 0 },
+            width: 20,
+            height: 20,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 5,
+            row: 6,
+            offset: { x: 50, y: 50 },
+            width: 50,
+            height: 50,
+          });
           await nextTick();
           await dragElement(".o-figure[data-id=f1]", { x: mouseMove, y: 0 }, undefined, true);
-          expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ x: expectedResult, y: 0 });
+          expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
+            col: 5 + Math.floor(expectedResult / DEFAULT_CELL_WIDTH),
+            row: 6,
+          });
+          expect(model.getters.getFigure(sheetId, "f1")?.offset).toMatchObject({
+            x: expectedResult % DEFAULT_CELL_WIDTH,
+            y: 0,
+          });
         }
       );
 
@@ -758,11 +929,32 @@ describe("figures", () => {
       ])(
         "Snap y with vertical mouseMove %s when moving figure",
         async (mouseMove: Pixel, expectedResult: Pixel) => {
-          createFigure(model, { id: "f1", x: 0, y: 0, width: 20, height: 20 });
-          createFigure(model, { id: "f2", x: 50, y: 50, width: 50, height: 50 });
+          createFigure(model, {
+            id: "f1",
+            col: 5,
+            row: 6,
+            offset: { x: 0, y: 0 },
+            width: 20,
+            height: 20,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 5,
+            row: 6,
+            offset: { x: 50, y: 50 },
+            width: 50,
+            height: 50,
+          });
           await nextTick();
           await dragElement(".o-figure[data-id=f1]", { x: 0, y: mouseMove }, undefined, true);
-          expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ x: 0, y: expectedResult });
+          expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
+            col: 5,
+            row: 6 + Math.floor(expectedResult / DEFAULT_CELL_HEIGHT),
+          });
+          expect(model.getters.getFigure(sheetId, "f1")?.offset).toMatchObject({
+            x: 0,
+            y: expectedResult % DEFAULT_CELL_HEIGHT,
+          });
         }
       );
     });
@@ -775,12 +967,35 @@ describe("figures", () => {
             [-48, { x: 150 - FIGURE_BORDER_WIDTH, width: 150 + FIGURE_BORDER_WIDTH }], // left border snaps with right border of other figure
             [-151, { x: 50, width: 250 }], // left border snaps with left border of other figure
           ])("snap with mouseMove %s", async (mouseMove: Pixel, expectedResult) => {
-            createFigure(model, { id: "f1", x: 200, y: 200, width: 100, height: 100 });
-            createFigure(model, { id: "f2", x: 50, y: 50, width: 100, height: 100 });
-            model.dispatch("SELECT_FIGURE", { id: "f1" });
+            createFigure(model, {
+              id: "f1",
+              col: 0,
+              row: 0,
+              offset: { x: 200, y: 200 },
+              width: 100,
+              height: 100,
+            });
+            createFigure(model, {
+              id: "f2",
+              col: 0,
+              row: 0,
+              offset: { x: 50, y: 50 },
+              width: 100,
+              height: 100,
+            });
+            model.dispatch("SELECT_FIGURE", { figureId: "f1" });
             await nextTick();
             await dragAnchor(anchor, mouseMove, 0, true);
-            expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ ...expectedResult });
+            const figure = model.getters.getFigure(sheetId, "f1")!;
+            expect({
+              x: figure.offset.x,
+              col: figure.col,
+              width: figure.width,
+            }).toMatchObject({
+              x: expectedResult.x % DEFAULT_CELL_WIDTH,
+              col: Math.floor(expectedResult.x / DEFAULT_CELL_WIDTH),
+              width: expectedResult.width,
+            });
           });
         }
       );
@@ -792,13 +1007,68 @@ describe("figures", () => {
             [47, { x: 50, width: 150 + FIGURE_BORDER_WIDTH }], // right border snaps with left border of other figure
             [152, { x: 50, width: 250 }], // right border snaps with right border of other figure
           ])("snap with mouseMove %s", async (mouseMove: Pixel, expectedResult) => {
-            createFigure(model, { id: "f1", x: 50, y: 50, width: 100, height: 100 });
-            createFigure(model, { id: "f2", x: 200, y: 200, width: 100, height: 100 });
-            model.dispatch("SELECT_FIGURE", { id: "f1" });
+            createFigure(model, {
+              id: "f1",
+              col: 0,
+              row: 0,
+              offset: { x: 50, y: 50 },
+              width: 100,
+              height: 100,
+            });
+            createFigure(model, {
+              id: "f2",
+              col: 0,
+              row: 0,
+              offset: { x: 200, y: 200 },
+              width: 100,
+              height: 100,
+            });
+            model.dispatch("SELECT_FIGURE", { figureId: "f1" });
             await nextTick();
             await dragAnchor(anchor, mouseMove, 0, true);
-            expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ ...expectedResult });
+            const figure = model.getters.getFigure(sheetId, "f1")!;
+            expect({
+              x: figure.offset.x,
+              col: figure.col,
+              width: figure.width,
+            }).toMatchObject({
+              x: expectedResult.x % DEFAULT_CELL_WIDTH,
+              col: Math.floor(expectedResult.x / DEFAULT_CELL_WIDTH),
+              width: expectedResult.width,
+            });
           });
+
+          test.each([[{ wheelCol: 1, wheelRow: 0 }], [{ wheelCol: 8, wheelRow: 0 }]])(
+            "Resize with scroll %s",
+            async ({ wheelCol, wheelRow }) => {
+              createFigure(model, {
+                id: "f1",
+                col: 10,
+                row: 10,
+                offset: { x: 0, y: 0 },
+                width: 120,
+                height: 120,
+              });
+              model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+              await nextTick();
+
+              triggerMouseEvent(anchorSelectors[anchor], "pointerdown");
+              triggerWheelEvent(anchorSelectors[anchor], {
+                deltaY: wheelRow * DEFAULT_CELL_HEIGHT,
+                deltaX: wheelCol * DEFAULT_CELL_WIDTH,
+              });
+              triggerMouseEvent(anchorSelectors[anchor], "pointerup");
+
+              const figure = model.getters.getFigure(sheetId, "f1")!;
+              expect(figure).toMatchObject({
+                col: 10,
+                row: 10,
+                offset: { x: 0, y: 0 },
+                width: 120 + wheelCol * DEFAULT_CELL_WIDTH,
+                height: 120 + wheelRow * DEFAULT_CELL_HEIGHT,
+              });
+            }
+          );
         }
       );
 
@@ -809,13 +1079,108 @@ describe("figures", () => {
             [46, { y: 50, height: 150 + FIGURE_BORDER_WIDTH }], // bottom border snaps with top border of other figure
             [154, { y: 50, height: 250 }], // bottom border snaps with bottom border of other figure
           ])("snap with mouseMove %s", async (mouseMove: Pixel, expectedResult) => {
-            createFigure(model, { id: "f1", x: 50, y: 50, width: 100, height: 100 });
-            createFigure(model, { id: "f2", x: 200, y: 200, width: 100, height: 100 });
-            model.dispatch("SELECT_FIGURE", { id: "f1" });
+            createFigure(model, {
+              id: "f1",
+              col: 0,
+              row: 0,
+              offset: { x: 50, y: 50 },
+              width: 100,
+              height: 100,
+            });
+            createFigure(model, {
+              id: "f2",
+              col: 0,
+              row: 0,
+              offset: { x: 200, y: 200 },
+              width: 100,
+              height: 100,
+            });
+            model.dispatch("SELECT_FIGURE", { figureId: "f1" });
             await nextTick();
             await dragAnchor(anchor, 0, mouseMove, true);
-            expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ ...expectedResult });
+            const figure = model.getters.getFigure(sheetId, "f1")!;
+            expect({
+              y: figure.offset.y,
+              row: figure.row,
+              height: figure.height,
+            }).toMatchObject({
+              y: expectedResult.y % DEFAULT_CELL_HEIGHT,
+              row: Math.floor(expectedResult.y / DEFAULT_CELL_HEIGHT),
+              height: expectedResult.height,
+            });
           });
+
+          test.each([[{ wheelCol: 0, wheelRow: 1 }], [{ wheelCol: 0, wheelRow: 8 }]])(
+            "snap with scroll %s",
+            async ({ wheelCol, wheelRow }) => {
+              createFigure(model, {
+                id: "f1",
+                col: 10,
+                row: 10,
+                offset: { x: 0, y: 0 },
+                width: 120,
+                height: 120,
+              });
+              createFigure(model, {
+                id: "f2",
+                col: 10 + wheelCol,
+                row: 10 + wheelRow,
+                offset: { x: 0, y: 2 },
+                width: 120,
+                height: 120,
+              });
+              model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+              await nextTick();
+
+              triggerMouseEvent(anchorSelectors[anchor], "pointerdown");
+              triggerWheelEvent(anchorSelectors[anchor], {
+                deltaY: wheelRow * DEFAULT_CELL_HEIGHT,
+                deltaX: wheelCol * DEFAULT_CELL_WIDTH,
+              });
+              triggerMouseEvent(anchorSelectors[anchor], "pointerup");
+
+              const figure = model.getters.getFigure(sheetId, "f1")!;
+              expect(figure).toMatchObject({
+                col: 10,
+                row: 10,
+                offset: { x: 0, y: 0 },
+                width: 120 + wheelCol * DEFAULT_CELL_WIDTH,
+                height: 120 + wheelRow * DEFAULT_CELL_HEIGHT + 2,
+              });
+            }
+          );
+
+          test.each([[{ wheelCol: 0, wheelRow: 1 }], [{ wheelCol: 0, wheelRow: 8 }]])(
+            "Resize with scroll %s",
+            async ({ wheelCol, wheelRow }) => {
+              createFigure(model, {
+                id: "f1",
+                col: 10,
+                row: 10,
+                offset: { x: 0, y: 0 },
+                width: 120,
+                height: 120,
+              });
+              model.dispatch("SELECT_FIGURE", { figureId: "f1" });
+              await nextTick();
+
+              triggerMouseEvent(anchorSelectors[anchor], "pointerdown");
+              triggerWheelEvent(anchorSelectors[anchor], {
+                deltaY: wheelRow * DEFAULT_CELL_HEIGHT,
+                deltaX: wheelCol * DEFAULT_CELL_WIDTH,
+              });
+              triggerMouseEvent(anchorSelectors[anchor], "pointerup");
+
+              const figure = model.getters.getFigure(sheetId, "f1")!;
+              expect(figure).toMatchObject({
+                col: 10,
+                row: 10,
+                offset: { x: 0, y: 0 },
+                width: 120 + wheelCol * DEFAULT_CELL_WIDTH,
+                height: 120 + wheelRow * DEFAULT_CELL_HEIGHT,
+              });
+            }
+          );
         }
       );
 
@@ -826,12 +1191,35 @@ describe("figures", () => {
             [-54, { y: 150 - FIGURE_BORDER_WIDTH, height: 150 + FIGURE_BORDER_WIDTH }], // top border snaps with bottom border of other figure
             [-153, { y: 50, height: 250 }], // top border snaps with top border of other figure
           ])("snap with mouseMove %s", async (mouseMove: Pixel, expectedResult) => {
-            createFigure(model, { id: "f1", x: 200, y: 200, width: 100, height: 100 });
-            createFigure(model, { id: "f2", x: 50, y: 50, width: 100, height: 100 });
-            model.dispatch("SELECT_FIGURE", { id: "f1" });
+            createFigure(model, {
+              id: "f1",
+              col: 0,
+              row: 0,
+              offset: { x: 200, y: 200 },
+              width: 100,
+              height: 100,
+            });
+            createFigure(model, {
+              id: "f2",
+              col: 0,
+              row: 0,
+              offset: { x: 50, y: 50 },
+              width: 100,
+              height: 100,
+            });
+            model.dispatch("SELECT_FIGURE", { figureId: "f1" });
             await nextTick();
             await dragAnchor(anchor, 0, mouseMove, true);
-            expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ ...expectedResult });
+            const figure = model.getters.getFigure(sheetId, "f1")!;
+            expect({
+              y: figure.offset.y,
+              row: figure.row,
+              height: figure.height,
+            }).toMatchObject({
+              y: expectedResult.y % DEFAULT_CELL_HEIGHT,
+              row: Math.floor(expectedResult.y / DEFAULT_CELL_HEIGHT),
+              height: expectedResult.height,
+            });
           });
         }
       );
@@ -840,8 +1228,22 @@ describe("figures", () => {
     describe("Snap lines display", () => {
       describe("Snap lines are displayed during the drag & drop", () => {
         test("If the figure is snapping horizontally left of the other figure", async () => {
-          createFigure(model, { id: "f1", x: 50, y: 0, width: 20, height: 20 });
-          createFigure(model, { id: "f2", x: 0, y: 0, width: 50, height: 50 });
+          createFigure(model, {
+            id: "f1",
+            col: 0,
+            row: 0,
+            offset: { x: 50, y: 0 },
+            width: 20,
+            height: 20,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 0 },
+            width: 50,
+            height: 50,
+          });
           await nextTick();
           const selector = ".o-figure-container[data-id=HorizontalSnapContainer]";
           expect(fixture.querySelectorAll(selector)).toHaveLength(0);
@@ -855,8 +1257,22 @@ describe("figures", () => {
         });
 
         test("If the figure is snapping horizontally right of the other figure", async () => {
-          createFigure(model, { id: "f1", x: 0, y: 0, width: 20, height: 20 });
-          createFigure(model, { id: "f2", x: 50, y: 0, width: 50, height: 50 });
+          createFigure(model, {
+            id: "f1",
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 0 },
+            width: 20,
+            height: 20,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 0,
+            row: 0,
+            offset: { x: 50, y: 0 },
+            width: 50,
+            height: 50,
+          });
           await nextTick();
           const selector = ".o-figure-container[data-id=HorizontalSnapContainer]";
           expect(fixture.querySelectorAll(selector)).toHaveLength(0);
@@ -870,8 +1286,22 @@ describe("figures", () => {
         });
 
         test("If the figure is snapping vertically above the other figure", async () => {
-          createFigure(model, { id: "f1", x: 0, y: 50, width: 20, height: 20 });
-          createFigure(model, { id: "f2", x: 0, y: 0, width: 50, height: 50 });
+          createFigure(model, {
+            id: "f1",
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 50 },
+            width: 20,
+            height: 20,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 0 },
+            width: 50,
+            height: 50,
+          });
           await nextTick();
           const selector = ".o-figure-container[data-id=VerticalSnapContainer]";
           expect(fixture.querySelectorAll(selector)).toHaveLength(0);
@@ -885,8 +1315,22 @@ describe("figures", () => {
         });
 
         test("If the figure is snapping vertically below the other figure", async () => {
-          createFigure(model, { id: "f1", x: 0, y: 0, width: 20, height: 20 });
-          createFigure(model, { id: "f2", x: 0, y: 50, width: 50, height: 50 });
+          createFigure(model, {
+            id: "f1",
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 0 },
+            width: 20,
+            height: 20,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 50 },
+            width: 50,
+            height: 50,
+          });
           await nextTick();
           const selector = ".o-figure-container[data-id=VerticalSnapContainer]";
           expect(fixture.querySelectorAll(selector)).toHaveLength(0);
@@ -900,9 +1344,30 @@ describe("figures", () => {
         });
 
         test("If there are multiple horizontal matches, the snap line include all of them", async () => {
-          createFigure(model, { id: "f1", x: 0, y: 50, width: 20, height: 20 });
-          createFigure(model, { id: "f2", x: 50, y: 50, width: 50, height: 50 });
-          createFigure(model, { id: "f3", x: 200, y: 50, width: 50, height: 50 });
+          createFigure(model, {
+            id: "f1",
+            col: 0,
+            row: 0,
+            offset: { x: 0, y: 50 },
+            width: 20,
+            height: 20,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 0,
+            row: 0,
+            offset: { x: 50, y: 50 },
+            width: 50,
+            height: 50,
+          });
+          createFigure(model, {
+            id: "f3",
+            col: 0,
+            row: 0,
+            offset: { x: 200, y: 50 },
+            width: 50,
+            height: 50,
+          });
           await nextTick();
 
           await dragElement(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
@@ -914,9 +1379,30 @@ describe("figures", () => {
         });
 
         test("If there are multiple vertical matches, the snap line include all of them", async () => {
-          createFigure(model, { id: "f1", x: 50, y: 0, width: 20, height: 20 });
-          createFigure(model, { id: "f2", x: 50, y: 50, width: 50, height: 50 });
-          createFigure(model, { id: "f3", x: 50, y: 200, width: 50, height: 50 });
+          createFigure(model, {
+            id: "f1",
+            col: 0,
+            row: 0,
+            offset: { x: 50, y: 0 },
+            width: 20,
+            height: 20,
+          });
+          createFigure(model, {
+            id: "f2",
+            col: 0,
+            row: 0,
+            offset: { x: 50, y: 50 },
+            width: 50,
+            height: 50,
+          });
+          createFigure(model, {
+            id: "f3",
+            col: 0,
+            row: 0,
+            offset: { x: 50, y: 200 },
+            width: 50,
+            height: 50,
+          });
           await nextTick();
 
           await dragElement(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
@@ -929,8 +1415,22 @@ describe("figures", () => {
       });
 
       test("Snap lines disappear after the drag & drop ends", async () => {
-        createFigure(model, { id: "f1", x: 0, y: 0, width: 20, height: 20 });
-        createFigure(model, { id: "f2", x: 50, y: 50, width: 50, height: 50 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 20,
+          height: 20,
+        });
+        createFigure(model, {
+          id: "f2",
+          col: 0,
+          row: 0,
+          offset: { x: 50, y: 50 },
+          width: 50,
+          height: 50,
+        });
         await nextTick();
         expect(fixture.querySelectorAll(".o-figure-snap-line")).toHaveLength(0);
         await dragElement(".o-figure[data-id=f1]", { x: 50, y: 50 }, undefined, false);
@@ -948,8 +1448,22 @@ describe("figures", () => {
         { figHeight: 6 * cellHeight, scrollY: 2 * cellHeight }, // Figure half in frozen pane, with scroll
       ])("Can snap with figure in frozen row, %s ", async (params) => {
         freezeRows(model, 5);
-        createFigure(model, { id: "f1", x: 0, y: 0, width: 50, height: params.figHeight });
-        createFigure(model, { id: "f2", x: 0, y: 0, width: 50, height: params.figHeight });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 50,
+          height: params.figHeight,
+        });
+        createFigure(model, {
+          id: "f2",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 50,
+          height: params.figHeight,
+        });
         setViewportOffset(model, 0, params.scrollY);
         await nextTick();
 
@@ -977,8 +1491,22 @@ describe("figures", () => {
         { figWidth: 6 * cellWidth, scrollX: 2 * cellWidth }, // Figure half in frozen pane, with scroll
       ])("Can snap with figure in frozen cols, %s ", async (params) => {
         freezeColumns(model, 5);
-        createFigure(model, { id: "f1", x: 0, y: 0, width: params.figWidth, height: 50 });
-        createFigure(model, { id: "f2", x: 0, y: 0, width: params.figWidth, height: 50 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: params.figWidth,
+          height: 50,
+        });
+        createFigure(model, {
+          id: "f2",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: params.figWidth,
+          height: 50,
+        });
         setViewportOffset(model, params.scrollX, 0);
         await nextTick();
 
@@ -1003,89 +1531,187 @@ describe("figures", () => {
       test("Snap that makes the figure change pane in Y apply the right offset", async () => {
         freezeRows(model, 2);
         setViewportOffset(model, 0, 2 * cellHeight);
-        createFigure(model, { id: "f1", x: 0, y: 0, width: 50, height: 50 });
-        createFigure(model, { id: "f2", x: 0, y: 4 * cellHeight + 1, width: 50, height: 20 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 50,
+          height: 50,
+        });
+        createFigure(model, {
+          id: "f2",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 4 * cellHeight + 1 },
+          width: 50,
+          height: 20,
+        });
         await nextTick();
 
         const selector = ".o-figure[data-id=f1]";
         await dragElement(selector, { x: 0, y: 2 * cellHeight - 1 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
-          x: 0,
-          y: 4 * cellHeight + 1,
+          col: 0,
+          row: 4,
+          offset: { x: 0, y: 1 },
         });
       });
 
       test("Snap that makes the figure change pane in X apply the right offset", async () => {
         freezeColumns(model, 2);
         setViewportOffset(model, 2 * cellWidth, 0);
-        createFigure(model, { id: "f1", x: 0, y: 0, width: 50, height: 50 });
-        createFigure(model, { id: "f2", x: 4 * cellWidth + 1, y: 0, width: 20, height: 50 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 50,
+          height: 50,
+        });
+        createFigure(model, {
+          id: "f2",
+          col: 0,
+          row: 0,
+          offset: { x: 4 * cellWidth + 1, y: 0 },
+          width: 20,
+          height: 50,
+        });
         await nextTick();
 
         await dragElement(".o-figure[data-id=f1]", { x: 2 * cellWidth - 1, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
-          x: 4 * cellWidth + 1,
-          y: 0,
+          col: 4,
+          row: 0,
+          offset: { x: 1, y: 0 },
         });
       });
     });
 
     describe("Snap doesn't happen with borders that aren't visible", () => {
       test("No Y snap with top border above the viewport", async () => {
-        createFigure(model, { id: "f1", x: 50, y: 50, width: 100, height: 100 });
-        createFigure(model, { id: "f2", x: 0, y: 0, width: 20, height: 20 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 50, y: 50 },
+          width: 100,
+          height: 100,
+        });
+        createFigure(model, {
+          id: "f2",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 20,
+          height: 20,
+        });
         setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
         await nextTick();
         await dragElement(".o-figure[data-id=f1]", { x: 0, y: -49 }, undefined, true);
-        expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ x: 50, y: 1 });
+        expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
+          col: Math.floor(50 / DEFAULT_CELL_WIDTH),
+          row: 0,
+          offset: { x: 50 % DEFAULT_CELL_WIDTH, y: 1 },
+        });
       });
 
       test("No X snap with left border left of the viewport", async () => {
-        createFigure(model, { id: "f1", x: 50, y: 50, width: 100, height: 100 });
-        createFigure(model, { id: "f2", x: 0, y: 0, width: 20, height: 20 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 50, y: 50 },
+          width: 100,
+          height: 100,
+        });
+        createFigure(model, {
+          id: "f2",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
+          width: 20,
+          height: 20,
+        });
         setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
         await nextTick();
         await dragElement(".o-figure[data-id=f1]", { x: -49, y: 0 }, undefined, true);
-        expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ x: 1, y: 50 });
+        expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
+          col: 0,
+          row: Math.floor(50 / DEFAULT_CELL_HEIGHT),
+          offset: { x: 1, y: 50 % DEFAULT_CELL_HEIGHT },
+        });
       });
 
       test("No Y snap with bottom border below the viewport", async () => {
         const { height: viewportHeight } = model.getters.getMainViewportRect();
-        createFigure(model, { id: "f1", x: 0, y: 100, width: 100, height: 0.85 * viewportHeight });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 100 },
+          width: 100,
+          height: 0.85 * viewportHeight,
+        });
         createFigure(model, {
           id: "f2",
-          x: 0,
-          y: 0,
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
           width: 100,
           height: 0.85 * viewportHeight + 100,
         });
         await nextTick();
         await dragElement(".o-figure[data-id=f1]", { x: 0, y: 1 }, undefined, true);
-        expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ x: 0, y: 101 });
+        expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
+          col: 0,
+          row: Math.floor(101 / DEFAULT_CELL_HEIGHT),
+          offset: { x: 0, y: 101 % DEFAULT_CELL_HEIGHT },
+        });
       });
 
       test("No X snap with right border right of the viewport", async () => {
         const { width: viewportWidth } = model.getters.getMainViewportRect();
-        createFigure(model, { id: "f1", x: 100, y: 0, width: 0.85 * viewportWidth, height: 100 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 100, y: 0 },
+          width: 0.85 * viewportWidth,
+          height: 100,
+        });
         createFigure(model, {
           id: "f2",
-          x: 0,
-          y: 0,
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 0 },
           width: 0.85 * viewportWidth + 100,
           height: 100,
         });
         await nextTick();
         await dragElement(".o-figure[data-id=f1]", { x: 1, y: 0 }, undefined, true);
-        expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({ x: 101, y: 0 });
+        expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
+          col: Math.floor(101 / DEFAULT_CELL_WIDTH),
+          row: 0,
+          offset: { x: 101 % DEFAULT_CELL_WIDTH, y: 0 },
+        });
       });
 
       test("No Y snap with top border below a frozen pane", async () => {
         freezeRows(model, 3);
-        createFigure(model, { id: "f1", x: 50, y: 0, width: 20, height: 20 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 50, y: 0 },
+          width: 20,
+          height: 20,
+        });
         createFigure(model, {
           id: "f2",
-          x: 50,
-          y: 4 * DEFAULT_CELL_HEIGHT,
+          col: 0,
+          row: 0,
+          offset: { x: 50, y: 4 * DEFAULT_CELL_HEIGHT },
           width: 100,
           height: 100,
         });
@@ -1098,32 +1724,46 @@ describe("figures", () => {
           true
         );
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
-          x: 50,
-          y: 2 * DEFAULT_CELL_HEIGHT - 1,
+          col: 0,
+          row: 1,
+          offset: { x: 50, y: DEFAULT_CELL_HEIGHT - 1 },
         });
       });
 
       test("No X snap with left border below a frozen pane", async () => {
         freezeColumns(model, 3);
-        createFigure(model, { id: "f1", x: 0, y: 50, width: 20, height: 20 });
+        createFigure(model, {
+          id: "f1",
+          col: 0,
+          row: 0,
+          offset: { x: 0, y: 50 },
+          width: 20,
+          height: 20,
+        });
         createFigure(model, {
           id: "f2",
-          x: 4 * DEFAULT_CELL_WIDTH,
-          y: 50,
+          offset: {
+            x: 4 * DEFAULT_CELL_WIDTH,
+            y: 50,
+          },
           width: 100,
           height: 100,
         });
         setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 0);
         await nextTick();
         await dragElement(
-          ".o-figure[data-id=f1]",
+          '.o-figure[data-id="f1"]',
           { x: 2 * DEFAULT_CELL_WIDTH - 1, y: 0 },
           undefined,
           true
         );
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
-          x: 2 * DEFAULT_CELL_WIDTH - 1,
-          y: 50,
+          col: 1,
+          row: Math.floor(50 / DEFAULT_CELL_HEIGHT),
+          offset: {
+            x: DEFAULT_CELL_WIDTH - 1,
+            y: 50 % DEFAULT_CELL_HEIGHT,
+          },
         });
       });
     });
