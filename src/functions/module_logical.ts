@@ -24,7 +24,7 @@ export const AND = {
   ],
   compute: function (...logicalExpressions: Arg[]): boolean {
     const { result, foundBoolean } = boolAnd(logicalExpressions);
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    assert(foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
     return result;
   },
   isExported: true,
@@ -157,7 +157,7 @@ export const IFS = {
   ],
   compute: function (...values: Maybe<FunctionResultObject>[]): FunctionResultObject {
     assert(
-      () => values.length % 2 === 0,
+      values.length % 2 === 0,
       _t("Wrong number of arguments. Expected an even number of arguments.")
     );
     for (let n = 0; n < values.length - 1; n += 2) {
@@ -218,7 +218,7 @@ export const OR = {
   ],
   compute: function (...logicalExpressions: Arg[]): boolean {
     const { result, foundBoolean } = boolOr(logicalExpressions);
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    assert(foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
     return result;
   },
   isExported: true,
@@ -261,7 +261,7 @@ export const XOR = {
       acc = acc ? !arg : arg;
       return true; // no stop condition
     });
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    assert(foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
     return acc;
   },
   isExported: true,

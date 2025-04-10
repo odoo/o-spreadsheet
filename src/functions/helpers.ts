@@ -18,8 +18,8 @@ import { LookupCaches } from "../types/functions";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
-export function assert(condition: () => boolean, message = _t("Error")): void {
-  if (!condition()) {
+export function assert(condition: boolean, message = _t("Error")): void {
+  if (!condition) {
     throw { value: CellErrorType.GenericError, message };
   }
 }
@@ -142,7 +142,7 @@ export function strictToInteger(
 
 export function assertNumberGreaterThanOrEqualToOne(value: number) {
   assert(
-    () => value >= 1,
+    value >= 1,
     _t(
       "The function [[FUNCTION_NAME]] expects a number value to be greater than or equal to 1, but receives %s.",
       value.toString()
@@ -670,7 +670,7 @@ export function visitMatchingRanges(
   const countArg = args.length;
 
   assert(
-    () => countArg % 2 !== 1,
+    countArg % 2 !== 1,
     _t("Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.")
   );
 

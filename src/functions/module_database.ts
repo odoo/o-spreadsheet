@@ -234,7 +234,7 @@ export const DGET = {
     criteria: Matrix<FunctionResultObject>
   ): FunctionResultObject {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    assert(() => cells.length === 1, _t("More than one match found in DGET evaluation."));
+    assert(cells.length === 1, _t("More than one match found in DGET evaluation."));
     return cells[0];
   },
   isExported: true,

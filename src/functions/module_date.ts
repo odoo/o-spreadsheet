@@ -66,7 +66,7 @@ export const DATE = {
 
     // For years less than 0 or greater than 10000, return #ERROR.
     assert(
-      () => 0 <= _year && _year <= 9999,
+      0 <= _year && _year <= 9999,
       _t("The year (%s) must be between 0 and 9999 inclusive.", _year.toString())
     );
 
@@ -79,7 +79,7 @@ export const DATE = {
     const result = jsDateToRoundNumber(jsDate);
 
     assert(
-      () => result >= 0,
+      result >= 0,
       _t("The function [[FUNCTION_NAME]] result must be greater than or equal 01/01/1900.")
     );
 
@@ -123,7 +123,7 @@ export const DATEDIF = {
   ): number {
     const _unit = toString(unit).toUpperCase() as TIME_UNIT;
     assert(
-      () => Object.values(TIME_UNIT).includes(_unit),
+      Object.values(TIME_UNIT).includes(_unit),
       expectStringSetError(Object.values(TIME_UNIT), toString(unit))
     );
     const _startDate = Math.trunc(toNumber(startDate, this.locale));
@@ -131,7 +131,7 @@ export const DATEDIF = {
     const jsStartDate = numberToJsDate(_startDate);
     const jsEndDate = numberToJsDate(_endDate);
     assert(
-      () => _endDate >= _startDate,
+      _endDate >= _startDate,
       _t(
         "start_date (%s) should be on or before end_date (%s).",
         jsStartDate.toLocaleDateString(),
@@ -198,7 +198,7 @@ export const DATEVALUE = {
     const internalDate = parseDateTime(_dateString, this.locale);
 
     assert(
-      () => internalDate !== null,
+      internalDate !== null,
       _t("The date_string (%s) cannot be parsed to date/time.", _dateString.toString())
     );
 
@@ -510,17 +510,10 @@ function weekendToDayNumber(data: Maybe<FunctionResultObject>): number[] {
   const weekend = data?.value;
   // case "string"
   if (typeof weekend === "string") {
-    assert(() => {
-      if (weekend.length !== 7) {
-        return false;
-      }
-      for (let day of weekend) {
-        if (day !== "0" && day !== "1") {
-          return false;
-        }
-      }
-      return true;
-    }, _t('When weekend is a string (%s) it must be composed of "0" or "1".', weekend));
+    assert(
+      weekend.length === 7 && [...weekend].every((c) => c === "0" || c === "1"),
+      _t('When weekend is a string (%s) it must be composed of "0" or "1".', weekend)
+    );
 
     let result: number[] = [];
     for (let i = 0; i < 7; i++) {
@@ -535,7 +528,7 @@ function weekendToDayNumber(data: Maybe<FunctionResultObject>): number[] {
   //case "number"
   if (typeof weekend === "number") {
     assert(
-      () => (1 <= weekend && weekend <= 7) || (11 <= weekend && weekend <= 17),
+      (1 <= weekend && weekend <= 7) || (11 <= weekend && weekend <= 17),
       _t(
         "The weekend (%s) must be a string or a number in the range 1-7 or 11-17.",
         weekend.toString()
@@ -681,7 +674,7 @@ export const TIME = {
 
     _hour %= 24;
 
-    assert(() => _hour >= 0, _t("The function [[FUNCTION_NAME]] result cannot be negative"));
+    assert(_hour >= 0, _t("The function [[FUNCTION_NAME]] result cannot be negative"));
 
     return {
       value: _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60),
@@ -702,7 +695,7 @@ export const TIMEVALUE = {
     const internalDate = parseDateTime(_timeString, this.locale);
 
     assert(
-      () => internalDate !== null,
+      internalDate !== null,
       _t("The time_string (%s) cannot be parsed to date/time.", _timeString)
     );
     const result = internalDate!.value - Math.trunc(internalDate!.value);
@@ -755,10 +748,7 @@ export const WEEKDAY = {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
     const m = _date.getDay();
-    assert(
-      () => [1, 2, 3].includes(_type),
-      _t("The type (%s) must be 1, 2 or 3.", _type.toString())
-    );
+    assert([1, 2, 3].includes(_type), _t("The type (%s) must be 1, 2 or 3.", _type.toString()));
 
     if (_type === 1) return m + 1;
     if (_type === 2) return m === 0 ? 7 : m;
@@ -791,7 +781,7 @@ export const WEEKNUM = {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
     assert(
-      () => _type === 1 || _type === 2 || (11 <= _type && _type <= 17) || _type === 21,
+      _type === 1 || _type === 2 || (11 <= _type && _type <= 17) || _type === 21,
       _t("The type (%s) is out of range.", _type.toString())
     );
 
@@ -882,10 +872,7 @@ export const WORKDAY_INTL = {
     let _startDate = toJsDate(startDate, this.locale);
     let _numDays = Math.trunc(toNumber(numDays, this.locale));
     if (typeof weekend.value === "string") {
-      assert(
-        () => weekend.value !== "1111111",
-        _t("The weekend must be different from '1111111'.")
-      );
+      assert(weekend.value !== "1111111", _t("The weekend must be different from '1111111'."));
     }
 
     const daysWeekend = weekendToDayNumber(weekend);
@@ -968,15 +955,12 @@ export const YEARFRAC = {
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assert(
-      () => _startDate >= 0,
+      _startDate >= 0,
       _t("The start_date (%s) must be positive or null.", _startDate.toString())
     );
+    assert(_endDate >= 0, _t("The end_date (%s) must be positive or null.", _endDate.toString()));
     assert(
-      () => _endDate >= 0,
-      _t("The end_date (%s) must be positive or null.", _endDate.toString())
-    );
-    assert(
-      () => 0 <= _dayCountConvention && _dayCountConvention <= 4,
+      0 <= _dayCountConvention && _dayCountConvention <= 4,
       _t(
         "The day_count_convention (%s) must be between 0 and 4 inclusive.",
         _dayCountConvention.toString()

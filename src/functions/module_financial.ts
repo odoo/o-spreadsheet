@@ -115,7 +115,7 @@ function newtonMethod(
     y = func(x);
     if (isNaN(y)) {
       assert(
-        () => count < maxIterations && nanFallback !== undefined,
+        count < maxIterations && nanFallback !== undefined,
         _t("Function [[FUNCTION_NAME]] didn't find any result.")
       );
       count++;
@@ -127,7 +127,7 @@ function newtonMethod(
     xDelta = Math.abs(newX - x);
     x = newX;
     yEqual0 = xDelta < epsMax || Math.abs(y) < epsMax;
-    assert(() => count < maxIterations, _t("Function [[FUNCTION_NAME]] didn't find any result."));
+    assert(count < maxIterations, _t("Function [[FUNCTION_NAME]] didn't find any result."));
     count++;
   } while (!yEqual0);
   return x;
@@ -219,7 +219,7 @@ export const AMORLINC = {
     assertRateStrictlyPositive(_rate);
     assertDayCountConventionIsValid(_dayCountConvention);
     assert(
-      () => _purchaseDate <= _firstPeriodEnd,
+      _purchaseDate <= _firstPeriodEnd,
       _t(
         "The purchase_date (%s) must be before the first_period_end (%s).",
         _purchaseDate.toString(),
@@ -678,11 +678,11 @@ export const DB = {
     assertPeriodStrictlyPositive(_period);
     assertLifeStrictlyPositive(_life);
     assert(
-      () => 1 <= _month && _month <= 12,
+      1 <= _month && _month <= 12,
       _t("The month (%s) must be between 1 and 12 inclusive.", _month.toString())
     );
     assert(
-      () => _period <= lifeLimit,
+      _period <= lifeLimit,
       _t(
         "The period (%s) must be less than or equal to %s.",
         _period.toString(),
@@ -856,7 +856,7 @@ export const DOLLARDE = {
     const price = toNumber(fractionalPrice, this.locale);
     const _unit = Math.trunc(toNumber(unit, this.locale));
 
-    assert(() => _unit > 0, _t("The unit (%s) must be strictly positive.", _unit.toString()));
+    assert(_unit > 0, _t("The unit (%s) must be strictly positive.", _unit.toString()));
 
     const truncatedPrice = Math.trunc(price);
     const priceFractionalPart = price - truncatedPrice;
@@ -887,7 +887,7 @@ export const DOLLARFR = {
     const price = toNumber(decimalPrice, this.locale);
     const _unit = Math.trunc(toNumber(unit, this.locale));
 
-    assert(() => _unit > 0, _t("The unit (%s) must be strictly positive.", _unit.toString()));
+    assert(_unit > 0, _t("The unit (%s) must be strictly positive.", _unit.toString()));
 
     const truncatedPrice = Math.trunc(price);
     const priceFractionalPart = price - truncatedPrice;
@@ -945,8 +945,8 @@ export const DURATION = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
-    assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
+    assert(_rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
+    assert(_yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
 
     const years = getYearFrac(start, end, _dayCountConvention);
     const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
@@ -990,11 +990,11 @@ export const EFFECT = {
     const periods = Math.trunc(toNumber(periods_per_year, this.locale));
 
     assert(
-      () => nominal > 0,
+      nominal > 0,
       _t("The nominal rate (%s) must be strictly greater than 0.", nominal.toString())
     );
     assert(
-      () => periods > 0,
+      periods > 0,
       _t("The number of periods by year (%s) must strictly greater than 0.", periods.toString())
     );
 
@@ -1218,7 +1218,7 @@ export const IRR = {
     );
 
     assert(
-      () => positive && negative,
+      positive && negative,
       _t("The cashflow_amounts must include negative and positive values.")
     );
 
@@ -1286,7 +1286,7 @@ export const ISPMT = {
     const investment = toNumber(presentValue, this.locale);
 
     assert(
-      () => nOfPeriods !== 0,
+      nOfPeriods !== 0,
       _t("The number of periods must be different than 0.", nOfPeriods.toString())
     );
 
@@ -1409,7 +1409,7 @@ export const MIRR = {
     }
 
     assert(
-      () => pv !== 0 && fv !== 0,
+      pv !== 0 && fv !== 0,
       _t("There must be both positive and negative values in cashflow_amounts.")
     );
 
@@ -1437,11 +1437,11 @@ export const NOMINAL = {
     const periods = Math.trunc(toNumber(periods_per_year, this.locale));
 
     assert(
-      () => effective > 0,
+      effective > 0,
       _t("The effective rate (%s) must must strictly greater than 0.", effective.toString())
     );
     assert(
-      () => periods > 0,
+      periods > 0,
       _t("The number of periods by year (%s) must strictly greater than 0.", periods.toString())
     );
 
@@ -1541,7 +1541,7 @@ export const NPV = {
     const _discount = toNumber(discount, this.locale);
 
     assert(
-      () => _discount !== -1,
+      _discount !== -1,
       _t("The discount (%s) must be different from -1.", _discount.toString())
     );
 
@@ -1574,11 +1574,11 @@ export const PDURATION = {
 
     assertRateStrictlyPositive(_rate);
     assert(
-      () => _presentValue > 0,
+      _presentValue > 0,
       _t("The present_value (%s) must be strictly positive.", _presentValue.toString())
     );
     assert(
-      () => _futureValue > 0,
+      _futureValue > 0,
       _t("The future_value (%s) must be strictly positive.", _futureValue.toString())
     );
 
@@ -1653,10 +1653,7 @@ function ppmt(
   t: number
 ): number {
   assertNumberOfPeriodsStrictlyPositive(n);
-  assert(
-    () => per > 0 && per <= n,
-    _t("The period must be between 1 and number_of_periods (%s)", n)
-  );
+  assert(per > 0 && per <= n, _t("The period must be between 1 and number_of_periods (%s)", n));
   const payment = pmt(r, n, pValue, fValue, t);
   if (t === 1 && per === 1) return payment;
   const eqPeriod = t === 0 ? per - 1 : per - 2;
@@ -1798,8 +1795,8 @@ export const PRICE = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
-    assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
+    assert(_rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
+    assert(_yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
     assertRedemptionStrictlyPositive(_redemption);
 
     const years = getYearFrac(_settlement, _maturity, _dayCountConvention);
@@ -1936,8 +1933,8 @@ export const PRICEMAT = {
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertDayCountConventionIsValid(_dayCount);
 
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
-    assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
+    assert(_rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
+    assert(_yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
 
     /**
      * https://support.microsoft.com/en-us/office/pricemat-function-52c3b4da-bc7e-476a-989f-a95f675cae77
@@ -2017,7 +2014,7 @@ export const RATE = {
 
     assertNumberOfPeriodsStrictlyPositive(n);
     assert(
-      () => [payment, pv, fv].some((val) => val > 0) && [payment, pv, fv].some((val) => val < 0),
+      [payment, pv, fv].some((val) => val > 0) && [payment, pv, fv].some((val) => val < 0),
       _t(
         "There must be both positive and negative values in [payment_amount, present_value, future_value].",
         n.toString()
@@ -2615,7 +2612,7 @@ export const XNPV = {
       assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
     } else {
       assert(
-        () => _cashFlows.length === _dates.length,
+        _cashFlows.length === _dates.length,
         _t("There must be the same number of values in cashflow_amounts and cashflow_dates.")
       );
     }
@@ -2709,7 +2706,7 @@ export const YIELD = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
+    assert(_rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
     assertPriceStrictlyPositive(_price);
     assertRedemptionStrictlyPositive(_redemption);
 
@@ -2895,14 +2892,14 @@ export const YIELDMAT = {
     assertDayCountConventionIsValid(_dayCountConvention);
 
     assert(
-      () => _settlement >= _issue,
+      _settlement >= _issue,
       _t(
         "The settlement (%s) must be greater than or equal to the issue (%s).",
         _settlement.toString(),
         _issue.toString()
       )
     );
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
+    assert(_rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
     assertPriceStrictlyPositive(_price);
 
     const issueToMaturity = getYearFrac(_issue, _maturity, _dayCountConvention);

@@ -3,7 +3,7 @@ import { CellErrorType } from "../types/errors";
 import { assert } from "./helpers";
 
 export function assertSingleColOrRow(errorStr: string, arg: Matrix) {
-  assert(() => arg.length === 1 || arg[0].length === 1, errorStr);
+  assert(arg.length === 1 || arg[0].length === 1, errorStr);
 }
 
 export function assertSameDimensions(errorStr: string, ...args: Arg[]) {
@@ -11,7 +11,7 @@ export function assertSameDimensions(errorStr: string, ...args: Arg[]) {
     const cols = args[0].length;
     const rows = args[0][0].length;
     for (const arg of args) {
-      assert(() => arg.length === cols && arg[0].length === rows, errorStr);
+      assert(arg.length === cols && arg[0].length === rows, errorStr);
     }
     return;
   }
@@ -21,11 +21,11 @@ export function assertSameDimensions(errorStr: string, ...args: Arg[]) {
 }
 
 export function assertPositive(errorStr: string, arg: number) {
-  assert(() => arg > 0, errorStr);
+  assert(arg > 0, errorStr);
 }
 
 export function assertSquareMatrix(errorStr: string, arg: Matrix) {
-  assert(() => arg.length === arg[0].length, errorStr);
+  assert(arg.length === arg[0].length, errorStr);
 }
 
 export function isNumberMatrix(

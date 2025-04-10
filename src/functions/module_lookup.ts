@@ -81,7 +81,7 @@ export const ADDRESS = {
     assertNumberGreaterThanOrEqualToOne(colNumber);
     const _absoluteRelativeMode = strictToInteger(absoluteRelativeMode, this.locale);
     assert(
-      () => [1, 2, 3, 4].includes(_absoluteRelativeMode),
+      [1, 2, 3, 4].includes(_absoluteRelativeMode),
       expectNumberRangeError(1, 4, _absoluteRelativeMode)
     );
     const _useA1Notation = toBoolean(useA1Notation);
@@ -128,7 +128,7 @@ export const COLUMN = {
         ? this.__originCellPosition?.col
         : toZone(cellReference.value).left;
     assert(
-      () => column !== undefined,
+      column !== undefined,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
     );
     return column! + 1;
@@ -191,7 +191,7 @@ export const HLOOKUP = {
     const _range = toMatrix(range);
 
     assert(
-      () => 1 <= _index && _index <= _range[0].length,
+      1 <= _index && _index <= _range[0].length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
@@ -243,8 +243,7 @@ export const INDEX: AddFunctionDescription = {
     const _row = toNumber(row.value, this.locale);
     const _column = toNumber(column.value, this.locale);
     assert(
-      () =>
-        _column >= 0 &&
+      _column >= 0 &&
         _column - 1 < _reference.length &&
         _row >= 0 &&
         _row - 1 < _reference[0].length,
@@ -394,20 +393,20 @@ export const LOOKUP = {
     nbCol = _resultRange.length;
     nbRow = _resultRange[0].length;
     assert(
-      () => nbCol === 1 || nbRow === 1,
+      nbCol === 1 || nbRow === 1,
       _t("The result_range must be a single row or a single column.")
     );
 
     if (nbCol > 1) {
       assert(
-        () => index <= nbCol - 1,
+        index <= nbCol - 1,
         _t("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
       );
       return _resultRange[index][0];
     }
 
     assert(
-      () => index <= nbRow - 1,
+      index <= nbRow - 1,
       _t("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
     );
 
@@ -445,10 +444,7 @@ export const MATCH = {
     const nbCol = _range.length;
     const nbRow = _range[0].length;
 
-    assert(
-      () => nbCol === 1 || nbRow === 1,
-      _t("The range must be a single row or a single column.")
-    );
+    assert(nbCol === 1 || nbRow === 1, _t("The range must be a single row or a single column."));
 
     let index = -1;
 
@@ -511,7 +507,7 @@ export const ROW = {
         ? this.__originCellPosition?.row
         : toZone(cellReference.value).top;
     assert(
-      () => row !== undefined,
+      row !== undefined,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
     );
     return row! + 1;
@@ -575,7 +571,7 @@ export const VLOOKUP = {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
     const _range = toMatrix(range);
     assert(
-      () => 1 <= _index && _index <= _range.length,
+      1 <= _index && _index <= _range.length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
@@ -669,30 +665,29 @@ export const XLOOKUP = {
     const _lookupRange = toMatrix(lookupRange);
     const _returnRange = toMatrix(returnRange);
     assert(
-      () => _lookupRange.length === 1 || _lookupRange[0].length === 1,
+      _lookupRange.length === 1 || _lookupRange[0].length === 1,
       _t("lookup_range should be either a single row or single column.")
     );
     assert(
-      () => [-1, 1, -2, 2].includes(_searchMode),
+      [-1, 1, -2, 2].includes(_searchMode),
       _t("search_mode should be a value in [-1, 1, -2, 2].")
     );
     assert(
-      () => [-1, 0, 1, 2].includes(_matchMode),
+      [-1, 0, 1, 2].includes(_matchMode),
       _t("match_mode should be a value in [-1, 0, 1, 2].")
     );
 
     const lookupDirection = _lookupRange.length === 1 ? "col" : "row";
 
     assert(
-      () => !(_matchMode === 2 && [-2, 2].includes(_searchMode)),
+      !(_matchMode === 2 && [-2, 2].includes(_searchMode)),
       _t("the search and match mode combination is not supported for XLOOKUP evaluation.")
     );
 
     assert(
-      () =>
-        lookupDirection === "col"
-          ? _returnRange[0].length === _lookupRange[0].length
-          : _returnRange.length === _lookupRange.length,
+      lookupDirection === "col"
+        ? _returnRange[0].length === _lookupRange[0].length
+        : _returnRange.length === _lookupRange.length,
       _t("return_range should have the same dimensions as lookup_range.")
     );
 

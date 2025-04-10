@@ -24,7 +24,7 @@ export const CHAR = {
   compute: function (tableNumber: Maybe<FunctionResultObject>): string {
     const _tableNumber = Math.trunc(toNumber(tableNumber, this.locale));
     assert(
-      () => _tableNumber >= 1,
+      _tableNumber >= 1,
       _t("The table_number (%s) is out of range.", _tableNumber.toString())
     );
     return String.fromCharCode(_tableNumber);
@@ -109,16 +109,16 @@ export const FIND = {
     const _textToSearch = toString(textToSearch);
     const _startingAt = toNumber(startingAt, this.locale);
 
-    assert(() => _textToSearch !== "", _t("The text_to_search must be non-empty."));
+    assert(_textToSearch !== "", _t("The text_to_search must be non-empty."));
     assert(
-      () => _startingAt >= 1,
+      _startingAt >= 1,
       _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
     );
 
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
 
     assert(
-      () => result >= 0,
+      result >= 0,
       _t(
         "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
         _searchFor.toString(),
@@ -174,7 +174,7 @@ export const LEFT = {
   ): string {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
-      () => _numberOfCharacters >= 0,
+      _numberOfCharacters >= 0,
       _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
     );
     return toString(text).substring(0, _numberOfCharacters);
@@ -231,14 +231,14 @@ export const MID = {
     const _extract_length = toNumber(extract_length, this.locale);
 
     assert(
-      () => _starting_at >= 1,
+      _starting_at >= 1,
       _t(
         "The starting_at argument (%s) must be positive greater than one.",
         _starting_at.toString()
       )
     );
     assert(
-      () => _extract_length >= 0,
+      _extract_length >= 0,
       _t("The extract_length argument (%s) must be positive or null.", _extract_length.toString())
     );
 
@@ -291,7 +291,7 @@ export const REPLACE = {
   ): string {
     const _position = toNumber(position, this.locale);
     assert(
-      () => _position >= 1,
+      _position >= 1,
       _t("The position (%s) must be greater than or equal to 1.", _position.toString())
     );
 
@@ -321,7 +321,7 @@ export const RIGHT = {
   ): string {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
-      () => _numberOfCharacters >= 0,
+      _numberOfCharacters >= 0,
       _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
     );
     const _text = toString(text);
@@ -417,10 +417,7 @@ export const SPLIT = {
     const _splitByEach = toBoolean(splitByEach);
     const _removeEmptyText = toBoolean(removeEmptyText);
 
-    assert(
-      () => _delimiter.length > 0,
-      _t("The _delimiter (%s) must be not be empty.", _delimiter)
-    );
+    assert(_delimiter.length > 0, _t("The _delimiter (%s) must be not be empty.", _delimiter));
 
     const regex = _splitByEach ? new RegExp(`[${_delimiter}]`, "g") : new RegExp(_delimiter, "g");
     let result = _text.split(regex);
@@ -459,7 +456,7 @@ export const SUBSTITUTE = {
     const _occurrenceNumber = toNumber(occurrenceNumber, this.locale);
 
     assert(
-      () => _occurrenceNumber >= 0,
+      _occurrenceNumber >= 0,
       _t("The occurrenceNumber (%s) must be positive or null.", _occurrenceNumber.toString())
     );
 

@@ -61,7 +61,7 @@ function filterAndFlatData(dataY: Arg, dataX: Arg): { flatDataY: number[]; flatD
   });
 
   assert(
-    () => lenY === lenX,
+    lenY === lenX,
     _t("[[FUNCTION_NAME]] has mismatched argument count %s vs %s.", lenY, lenX)
   );
   const flatDataX: number[] = [];
@@ -140,7 +140,7 @@ function centile(
 ): number {
   const _percent = toNumber(percent, locale);
   assert(
-    () => (isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1),
+    isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1,
     _t("Function [[FUNCTION_NAME]] parameter 2 value is out of range.")
   );
   let sortedArray: number[] = [];
@@ -161,12 +161,12 @@ function centile(
       count++;
     }
   });
-  assert(() => count !== 0, _t("[[FUNCTION_NAME]] has no valid input data."));
+  assert(count !== 0, _t("[[FUNCTION_NAME]] has no valid input data."));
 
   if (!isInclusive) {
     // 2nd argument must be between 1/(n+1) and n/(n+1) with n the number of data
     assert(
-      () => 1 / (count + 1) <= _percent && _percent <= count / (count + 1),
+      1 / (count + 1) <= _percent && _percent <= count / (count + 1),
       _t("Function [[FUNCTION_NAME]] parameter 2 value is out of range.")
     );
   }
@@ -264,13 +264,13 @@ export const AVERAGE_WEIGHTED = {
             const weightIsNumber = typeof weight === "number";
 
             if (valueIsNumber && weightIsNumber) {
-              assert(() => weight >= 0, negativeWeightError);
+              assert(weight >= 0, negativeWeightError);
               sum += value * weight;
               count += weight;
               continue;
             }
             assert(
-              () => valueIsNumber === weightIsNumber,
+              valueIsNumber === weightIsNumber,
               _t("[[FUNCTION_NAME]] expects number values.")
             );
           }
@@ -279,7 +279,7 @@ export const AVERAGE_WEIGHTED = {
         const value = toNumber(argN, this.locale);
         const weight = isMatrix(argN1) ? argN1?.[0][0].value : toNumber(argN1, this.locale);
         if (typeof weight === "number") {
-          assert(() => weight >= 0, negativeWeightError);
+          assert(weight >= 0, negativeWeightError);
           sum += value * weight;
           count += weight;
         }
@@ -635,9 +635,9 @@ export const LARGE = {
       }
     });
     const result = largests.shift();
-    assert(() => result !== undefined, _t("[[FUNCTION_NAME]] has no valid input data."));
+    assert(result !== undefined, _t("[[FUNCTION_NAME]] has no valid input data."));
     assert(
-      () => count >= _n,
+      count >= _n,
       _t("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n)
     );
     return result!;
@@ -1384,9 +1384,9 @@ export const SMALL = {
       }
     });
     const result = largests.pop();
-    assert(() => result !== undefined, _t("[[FUNCTION_NAME]] has no valid input data."));
+    assert(result !== undefined, _t("[[FUNCTION_NAME]] has no valid input data."));
     assert(
-      () => count >= _n,
+      count >= _n,
       _t("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n)
     );
     return result!;
