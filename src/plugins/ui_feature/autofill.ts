@@ -1,4 +1,4 @@
-import { clip, isInside, positionToZone, toCartesian, toXC } from "../../helpers/index";
+import { clip, isInside, positionToZone, toCartesian, toXC, toZone } from "../../helpers/index";
 import { futureRecomputeZones } from "../../helpers/recompute_zones";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
@@ -313,15 +313,15 @@ export class AutofillPlugin extends UIPlugin {
       if (!cf) {
         continue;
       }
-      const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, changes, []);
-      if (newCfRanges) {
+      const newCfZones = this.getters.getAdaptedCfRanges(sheetId, cf, changes.map(toZone), []);
+      if (newCfZones) {
         this.dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: {
             id: cf.id,
             rule: cf.rule,
             stopIfTrue: cf.stopIfTrue,
           },
-          ranges: newCfRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+          ranges: newCfZones.map((xc) => this.getters.getRangeDataFromZone(sheetId, xc)),
           sheetId,
         });
       }

@@ -1,5 +1,6 @@
 import { compile } from "../../formulas/index";
-import { isInside, recomputeZones } from "../../helpers/index";
+import { isInside, toUnboundedZone } from "../../helpers/index";
+import { futureRecomputeZones } from "../../helpers/recompute_zones";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -18,6 +19,7 @@ import {
   IconSetRule,
   IconThreshold,
   UID,
+  UnboundedZone,
   Validation,
   WorkbookData,
   Zone,
@@ -239,19 +241,21 @@ export class ConditionalFormatPlugin
   /**
    * Add or remove cells to a given conditional formatting rule and return the adapted CF's XCs.
    */
-  getAdaptedCfRanges(sheetId: UID, cf: ConditionalFormat, toAdd: string[], toRemove: string[]) {
+  getAdaptedCfRanges(sheetId: UID, cf: ConditionalFormat, toAdd: Zone[], toRemove: Zone[]) {
     if (toAdd.length === 0 && toRemove.length === 0) {
       return;
     }
     const rules = this.getters.getConditionalFormats(sheetId);
     const replaceIndex = rules.findIndex((c) => c.id === cf.id);
-    let currentRanges: string[] = [];
+    let currentRanges: UnboundedZone[] = [];
     if (replaceIndex > -1) {
-      currentRanges = rules[replaceIndex].ranges;
+      currentRanges = rules[replaceIndex].ranges.map(toUnboundedZone);
     }
 
     currentRanges = currentRanges.concat(toAdd);
-    return recomputeZones(currentRanges, toRemove);
+    // Remove the zones first in case the same position is in toAdd and toRemove
+    const withRemovedZones = futureRecomputeZones(currentRanges, toRemove);
+    return futureRecomputeZones([...toAdd, ...withRemovedZones], []);
   }
 
   // ---------------------------------------------------------------------------
