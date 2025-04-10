@@ -4,7 +4,6 @@ import {
   DateTime,
   areDatesSameDay,
   formatValue,
-  getCriterionValuesAsNumber,
   getDateCriterionFormattedValues,
   getDateNumberCriterionValues,
   isDateAfter,
@@ -17,15 +16,13 @@ import {
   jsDateToRoundNumber,
   valueToDateNumber,
 } from "../helpers";
-import { parseLiteral } from "../helpers/cells";
 import { detectLink } from "../helpers/links";
 import { localizeContent } from "../helpers/locale";
+import { rangeReference } from "../helpers/references";
 import { _t } from "../translation";
 import {
   CellValue,
   DEFAULT_LOCALE,
-  DataValidationCriterion,
-  DataValidationCriterionType,
   DateIsAfterCriterion,
   DateIsBeforeCriterion,
   DateIsBetweenCriterion,
@@ -33,28 +30,19 @@ import {
   DateIsNotBetweenCriterion,
   DateIsOnOrAfterCriterion,
   DateIsOnOrBeforeCriterion,
+  EvaluatedCriterion,
+  EvaluatedDateCriterion,
+  GenericCriterion,
+  GenericCriterionType,
   Getters,
-  IsBetweenCriterion,
-  IsEqualCriterion,
-  IsGreaterOrEqualToCriterion,
-  IsGreaterThanCriterion,
-  IsLessOrEqualToCriterion,
-  IsLessThanCriterion,
-  IsNotBetweenCriterion,
-  IsNotEqualCriterion,
-  IsValueInListCriterion,
-  IsValueInRangeCriterion,
   Locale,
-  TextContainsCriterion,
-  TextNotContainsCriterion,
   UID,
 } from "../types";
 import { CellErrorType } from "../types/errors";
-import { rangeReference } from "./../helpers/references";
 import { Registry } from "./registry";
 
-export type DataValidationCriterionEvaluator = {
-  type: DataValidationCriterionType;
+export type CriterionEvaluator = {
+  type: GenericCriterionType;
   /**
    * Checks if a value is valid for the given criterion.
    *
@@ -63,7 +51,7 @@ export type DataValidationCriterionEvaluator = {
    */
   isValueValid: (
     value: CellValue,
-    criterion: DataValidationCriterion,
+    criterion: EvaluatedCriterion,
     getters: Getters,
     sheetId: UID
   ) => boolean;
@@ -72,7 +60,7 @@ export type DataValidationCriterionEvaluator = {
    *
    * The criterion values should be in canonical form (non-localized), and formulas should be evaluated.
    */
-  getErrorString: (criterion: DataValidationCriterion, getters: Getters, sheetId: UID) => string;
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters, sheetId: UID) => string;
   /**
    * Checks if a criterion value is valid.
    *
@@ -80,24 +68,24 @@ export type DataValidationCriterionEvaluator = {
    */
   isCriterionValueValid: (value: string) => boolean;
   /** Return the number of values that the criterion must contains. Return undefined if the criterion can have any number of values */
-  numberOfValues: (criterion: DataValidationCriterion) => number | undefined;
+  numberOfValues: (criterion: GenericCriterion) => number | undefined;
   name: string;
-  getPreview: (criterion: DataValidationCriterion, getters: Getters) => string;
+  getPreview: (criterion: GenericCriterion, getters: Getters) => string;
 
   /** Error string when a criterion value is invalid */
   criterionValueErrorString: string;
   allowedValues?: "onlyLiterals" | "onlyFormulas";
 };
 
-export const dataValidationEvaluatorRegistry = new Registry<DataValidationCriterionEvaluator>();
-dataValidationEvaluatorRegistry.add("textContains", {
+export const criterionEvaluatorRegistry = new Registry<CriterionEvaluator>();
+criterionEvaluatorRegistry.add("textContains", {
   type: "textContains",
-  isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     const strValue = String(value);
-    return strValue.toLowerCase().includes(criterion.values[0].toLowerCase());
+    return strValue.toLowerCase().includes(String(criterion.values[0]).toLowerCase());
   },
-  getErrorString: (criterion: TextContainsCriterion) => {
-    return _t('The value must be a text that contains "%s"', criterion.values[0]);
+  getErrorString: (criterion: EvaluatedCriterion) => {
+    return _t('The value must be a text that contains "%s"', String(criterion.values[0]));
   },
   isCriterionValueValid: (value: string) => !!value,
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
@@ -106,14 +94,14 @@ dataValidationEvaluatorRegistry.add("textContains", {
   getPreview: (criterion) => _t('Text contains "%s"', criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("textNotContains", {
+criterionEvaluatorRegistry.add("textNotContains", {
   type: "textNotContains",
-  isValueValid: (value: CellValue, criterion: TextNotContainsCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     const strValue = String(value);
-    return !strValue.toLowerCase().includes(criterion.values[0].toLowerCase());
+    return !strValue.toLowerCase().includes(String(criterion.values[0]).toLowerCase());
   },
-  getErrorString: (criterion: TextNotContainsCriterion) => {
-    return _t('The value must be a text that does not contain "%s"', criterion.values[0]);
+  getErrorString: (criterion: EvaluatedCriterion) => {
+    return _t('The value must be a text that does not contain "%s"', String(criterion.values[0]));
   },
   isCriterionValueValid: (value: string) => !!value,
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
@@ -122,14 +110,14 @@ dataValidationEvaluatorRegistry.add("textNotContains", {
   getPreview: (criterion) => _t('Text does not contain "%s"', criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("textIs", {
+criterionEvaluatorRegistry.add("textIs", {
   type: "textIs",
-  isValueValid: (value: CellValue, criterion: TextContainsCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     const strValue = String(value);
-    return strValue.toLowerCase() === criterion.values[0].toLowerCase();
+    return strValue.toLowerCase() === String(criterion.values[0]).toLowerCase();
   },
-  getErrorString: (criterion: TextContainsCriterion) => {
-    return _t('The value must be exactly "%s"', criterion.values[0]);
+  getErrorString: (criterion: EvaluatedCriterion) => {
+    return _t('The value must be exactly "%s"', String(criterion.values[0]));
   },
   isCriterionValueValid: (value: string) => !!value,
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
@@ -140,9 +128,10 @@ dataValidationEvaluatorRegistry.add("textIs", {
 
 /** Note: this regex doesn't allow for all the RFC-compliant mail addresses but should be enough for our purpose. */
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/;
-dataValidationEvaluatorRegistry.add("textIsEmail", {
+criterionEvaluatorRegistry.add("textIsEmail", {
   type: "textIsEmail",
-  isValueValid: (value: CellValue) => typeof value === "string" && emailRegex.test(value),
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) =>
+    typeof value === "string" && emailRegex.test(value),
   getErrorString: () => _t("The value must be a valid email address"),
   isCriterionValueValid: () => true,
   criterionValueErrorString: "",
@@ -151,9 +140,10 @@ dataValidationEvaluatorRegistry.add("textIsEmail", {
   getPreview: () => _t("Text is valid email"),
 });
 
-dataValidationEvaluatorRegistry.add("textIsLink", {
+criterionEvaluatorRegistry.add("textIsLink", {
   type: "textIsLink",
-  isValueValid: (value: CellValue) => detectLink(value) !== undefined,
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) =>
+    detectLink(value) !== undefined,
   getErrorString: () => _t("The value must be a valid link"),
   isCriterionValueValid: () => true,
   criterionValueErrorString: "",
@@ -162,9 +152,9 @@ dataValidationEvaluatorRegistry.add("textIsLink", {
   getPreview: () => _t("Text is valid link"),
 });
 
-dataValidationEvaluatorRegistry.add("dateIs", {
+criterionEvaluatorRegistry.add("dateIs", {
   type: "dateIs",
-  isValueValid: (value: CellValue, criterion: DateIsCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedDateCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
     const dateValue = valueToDateNumber(value, DEFAULT_LOCALE);
 
@@ -179,7 +169,7 @@ dataValidationEvaluatorRegistry.add("dateIs", {
 
     return areDatesSameDay(dateValue, criterionValue);
   },
-  getErrorString: (criterion: DateIsCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion<DateIsCriterion>, getters: Getters) => {
     const locale = getters.getLocale();
     return criterion.dateValue === "exactDate"
       ? _t("The value must be the date %s", getDateCriterionLocalizedValues(criterion, locale)[0])
@@ -196,9 +186,9 @@ dataValidationEvaluatorRegistry.add("dateIs", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsBefore", {
+criterionEvaluatorRegistry.add("dateIsBefore", {
   type: "dateIsBefore",
-  isValueValid: (value: CellValue, criterion: DateIsBeforeCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedDateCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
     const dateValue = valueToDateNumber(value, DEFAULT_LOCALE);
     return (
@@ -207,7 +197,7 @@ dataValidationEvaluatorRegistry.add("dateIsBefore", {
       isDateStrictlyBefore(dateValue, criterionValue)
     );
   },
-  getErrorString: (criterion: DateIsBeforeCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion<DateIsBeforeCriterion>, getters: Getters) => {
     const locale = getters.getLocale();
     return criterion.dateValue === "exactDate"
       ? _t(
@@ -230,9 +220,9 @@ dataValidationEvaluatorRegistry.add("dateIsBefore", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsOnOrBefore", {
+criterionEvaluatorRegistry.add("dateIsOnOrBefore", {
   type: "dateIsOnOrBefore",
-  isValueValid: (value: CellValue, criterion: DateIsOnOrBeforeCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedDateCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
     const dateValue = valueToDateNumber(value, DEFAULT_LOCALE);
     return (
@@ -241,7 +231,7 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrBefore", {
       isDateBefore(dateValue, criterionValue)
     );
   },
-  getErrorString: (criterion: DateIsOnOrBeforeCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion<DateIsOnOrBeforeCriterion>, getters: Getters) => {
     const locale = getters.getLocale();
     return criterion.dateValue === "exactDate"
       ? _t(
@@ -254,7 +244,7 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrBefore", {
   criterionValueErrorString: DVTerms.CriterionError.dateValue,
   numberOfValues: (criterion: DateIsCriterion) => (criterion.dateValue === "exactDate" ? 1 : 0),
   name: _t("Date is on or before"),
-  getPreview: (criterion: DateIsOnOrBeforeCriterion, getters: Getters) => {
+  getPreview: (criterion: DateIsBeforeCriterion, getters: Getters) => {
     return criterion.dateValue === "exactDate"
       ? _t(
           "Date is on or before %s",
@@ -264,9 +254,9 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrBefore", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsAfter", {
+criterionEvaluatorRegistry.add("dateIsAfter", {
   type: "dateIsAfter",
-  isValueValid: (value: CellValue, criterion: DateIsAfterCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedDateCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
     const dateValue = valueToDateNumber(value, DEFAULT_LOCALE);
     return (
@@ -275,7 +265,7 @@ dataValidationEvaluatorRegistry.add("dateIsAfter", {
       isDateStrictlyAfter(dateValue, criterionValue)
     );
   },
-  getErrorString: (criterion: DateIsAfterCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion<DateIsAfterCriterion>, getters: Getters) => {
     const locale = getters.getLocale();
     return criterion.dateValue === "exactDate"
       ? _t(
@@ -298,9 +288,9 @@ dataValidationEvaluatorRegistry.add("dateIsAfter", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsOnOrAfter", {
+criterionEvaluatorRegistry.add("dateIsOnOrAfter", {
   type: "dateIsOnOrAfter",
-  isValueValid: (value: CellValue, criterion: DateIsOnOrAfterCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedDateCriterion) => {
     const criterionValue = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE)[0];
     const dateValue = valueToDateNumber(value, DEFAULT_LOCALE);
     return (
@@ -309,7 +299,7 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrAfter", {
       isDateAfter(dateValue, criterionValue)
     );
   },
-  getErrorString: (criterion: DateIsOnOrAfterCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion<DateIsOnOrAfterCriterion>, getters: Getters) => {
     const locale = getters.getLocale();
     return criterion.dateValue === "exactDate"
       ? _t(
@@ -332,9 +322,9 @@ dataValidationEvaluatorRegistry.add("dateIsOnOrAfter", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsBetween", {
+criterionEvaluatorRegistry.add("dateIsBetween", {
   type: "dateIsBetween",
-  isValueValid: (value: CellValue, criterion: DateIsBetweenCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedDateCriterion) => {
     const criterionValues = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE);
     const dateValue = valueToDateNumber(value, DEFAULT_LOCALE);
     if (
@@ -346,7 +336,7 @@ dataValidationEvaluatorRegistry.add("dateIsBetween", {
     }
     return isDateBetween(dateValue, criterionValues[0], criterionValues[1]);
   },
-  getErrorString: (criterion: DateIsBetweenCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedDateCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const criterionValues = getDateCriterionLocalizedValues(criterion, locale);
     return _t("The value must be a date between %s and %s", criterionValues[0], criterionValues[1]);
@@ -361,9 +351,9 @@ dataValidationEvaluatorRegistry.add("dateIsBetween", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsNotBetween", {
+criterionEvaluatorRegistry.add("dateIsNotBetween", {
   type: "dateIsNotBetween",
-  isValueValid: (value: CellValue, criterion: DateIsNotBetweenCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedDateCriterion) => {
     const criterionValues = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE);
     const dateValue = valueToDateNumber(value, DEFAULT_LOCALE);
 
@@ -376,7 +366,7 @@ dataValidationEvaluatorRegistry.add("dateIsNotBetween", {
     }
     return !isDateBetween(dateValue, criterionValues[0], criterionValues[1]);
   },
-  getErrorString: (criterion: DateIsNotBetweenCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedDateCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const criterionValues = getDateCriterionLocalizedValues(criterion, locale);
     return _t(
@@ -395,9 +385,9 @@ dataValidationEvaluatorRegistry.add("dateIsNotBetween", {
   },
 });
 
-dataValidationEvaluatorRegistry.add("dateIsValid", {
+criterionEvaluatorRegistry.add("dateIsValid", {
   type: "dateIsValid",
-  isValueValid: (value: CellValue) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     return valueToDateNumber(value, DEFAULT_LOCALE) !== undefined;
   },
   getErrorString: () => _t("The value must be a valid date"),
@@ -408,20 +398,12 @@ dataValidationEvaluatorRegistry.add("dateIsValid", {
   getPreview: () => _t("Date is valid"),
 });
 
-dataValidationEvaluatorRegistry.add("isEqual", {
+criterionEvaluatorRegistry.add("isEqual", {
   type: "isEqual",
-  isValueValid: (value: CellValue, criterion: IsEqualCriterion) => {
-    if (typeof value !== "number") {
-      return false;
-    }
-    const criterionValue = getCriterionValuesAsNumber(criterion, DEFAULT_LOCALE)[0];
-
-    if (criterionValue === undefined) {
-      return false;
-    }
-    return value === criterionValue;
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
+    return value === criterion.values[0];
   },
-  getErrorString: (criterion: IsEqualCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const values = getNumberCriterionlocalizedValues(criterion, locale);
     return _t("The value must be equal to %s", values[0]);
@@ -433,20 +415,12 @@ dataValidationEvaluatorRegistry.add("isEqual", {
   getPreview: (criterion) => _t("Value is equal to %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isNotEqual", {
+criterionEvaluatorRegistry.add("isNotEqual", {
   type: "isNotEqual",
-  isValueValid: (value: CellValue, criterion: IsNotEqualCriterion) => {
-    if (typeof value !== "number") {
-      return false;
-    }
-    const criterionValue = getCriterionValuesAsNumber(criterion, DEFAULT_LOCALE)[0];
-
-    if (criterionValue === undefined) {
-      return false;
-    }
-    return value !== criterionValue;
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
+    return value !== criterion.values[0];
   },
-  getErrorString: (criterion: IsNotEqualCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const values = getNumberCriterionlocalizedValues(criterion, locale);
     return _t("The value must not be equal to %s", values[0]);
@@ -458,20 +432,20 @@ dataValidationEvaluatorRegistry.add("isNotEqual", {
   getPreview: (criterion) => _t("Value is not equal to %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isGreaterThan", {
+criterionEvaluatorRegistry.add("isGreaterThan", {
   type: "isGreaterThan",
-  isValueValid: (value: CellValue, criterion: IsGreaterThanCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     if (typeof value !== "number") {
       return false;
     }
-    const criterionValue = getCriterionValuesAsNumber(criterion, DEFAULT_LOCALE)[0];
+    const criterionValue = criterion.values[0];
 
-    if (criterionValue === undefined) {
+    if (typeof criterionValue !== "number") {
       return false;
     }
     return value > criterionValue;
   },
-  getErrorString: (criterion: IsGreaterThanCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const values = getNumberCriterionlocalizedValues(criterion, locale);
     return _t("The value must be greater than %s", values[0]);
@@ -483,20 +457,20 @@ dataValidationEvaluatorRegistry.add("isGreaterThan", {
   getPreview: (criterion) => _t("Value is greater than %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isGreaterOrEqualTo", {
+criterionEvaluatorRegistry.add("isGreaterOrEqualTo", {
   type: "isGreaterOrEqualTo",
-  isValueValid: (value: CellValue, criterion: IsGreaterOrEqualToCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     if (typeof value !== "number") {
       return false;
     }
-    const criterionValue = getCriterionValuesAsNumber(criterion, DEFAULT_LOCALE)[0];
+    const criterionValue = criterion.values[0];
 
-    if (criterionValue === undefined) {
+    if (typeof criterionValue !== "number") {
       return false;
     }
     return value >= criterionValue;
   },
-  getErrorString: (criterion: IsGreaterOrEqualToCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const values = getNumberCriterionlocalizedValues(criterion, locale);
     return _t("The value must be greater or equal to %s", values[0]);
@@ -508,20 +482,20 @@ dataValidationEvaluatorRegistry.add("isGreaterOrEqualTo", {
   getPreview: (criterion) => _t("Value is greater or equal to %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isLessThan", {
+criterionEvaluatorRegistry.add("isLessThan", {
   type: "isLessThan",
-  isValueValid: (value: CellValue, criterion: IsLessThanCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     if (typeof value !== "number") {
       return false;
     }
-    const criterionValue = getCriterionValuesAsNumber(criterion, DEFAULT_LOCALE)[0];
+    const criterionValue = criterion.values[0];
 
-    if (criterionValue === undefined) {
+    if (typeof criterionValue !== "number") {
       return false;
     }
     return value < criterionValue;
   },
-  getErrorString: (criterion: IsLessThanCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const values = getNumberCriterionlocalizedValues(criterion, locale);
     return _t("The value must be less than %s", values[0]);
@@ -533,20 +507,20 @@ dataValidationEvaluatorRegistry.add("isLessThan", {
   getPreview: (criterion) => _t("Value is less than %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isLessOrEqualTo", {
+criterionEvaluatorRegistry.add("isLessOrEqualTo", {
   type: "isLessOrEqualTo",
-  isValueValid: (value: CellValue, criterion: IsLessOrEqualToCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     if (typeof value !== "number") {
       return false;
     }
-    const criterionValue = getCriterionValuesAsNumber(criterion, DEFAULT_LOCALE)[0];
+    const criterionValue = criterion.values[0];
 
-    if (criterionValue === undefined) {
+    if (typeof criterionValue !== "number") {
       return false;
     }
     return value <= criterionValue;
   },
-  getErrorString: (criterion: IsLessOrEqualToCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const values = getNumberCriterionlocalizedValues(criterion, locale);
     return _t("The value must be less or equal to %s", values[0]);
@@ -558,20 +532,19 @@ dataValidationEvaluatorRegistry.add("isLessOrEqualTo", {
   getPreview: (criterion) => _t("Value is less or equal to %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("isBetween", {
+criterionEvaluatorRegistry.add("isBetween", {
   type: "isBetween",
-  isValueValid: (value: CellValue, criterion: IsBetweenCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     if (typeof value !== "number") {
       return false;
     }
-    const criterionValues = getCriterionValuesAsNumber(criterion, DEFAULT_LOCALE);
 
-    if (criterionValues[0] === undefined || criterionValues[1] === undefined) {
+    if (typeof criterion.values[0] !== "number" || typeof criterion.values[1] !== "number") {
       return false;
     }
-    return isNumberBetween(value, criterionValues[0], criterionValues[1]);
+    return isNumberBetween(value, criterion.values[0], criterion.values[1]);
   },
-  getErrorString: (criterion: IsBetweenCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const values = getNumberCriterionlocalizedValues(criterion, locale);
     return _t("The value must be between %s and %s", values[0], values[1]);
@@ -584,20 +557,19 @@ dataValidationEvaluatorRegistry.add("isBetween", {
     _t("Value is between %s and %s", criterion.values[0], criterion.values[1]),
 });
 
-dataValidationEvaluatorRegistry.add("isNotBetween", {
+criterionEvaluatorRegistry.add("isNotBetween", {
   type: "isNotBetween",
-  isValueValid: (value: CellValue, criterion: IsNotBetweenCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     if (typeof value !== "number") {
       return false;
     }
-    const criterionValues = getCriterionValuesAsNumber(criterion, DEFAULT_LOCALE);
 
-    if (criterionValues[0] === undefined || criterionValues[1] === undefined) {
+    if (typeof criterion.values[0] !== "number" || typeof criterion.values[1] !== "number") {
       return false;
     }
-    return !isNumberBetween(value, criterionValues[0], criterionValues[1]);
+    return !isNumberBetween(value, criterion.values[0], criterion.values[1]);
   },
-  getErrorString: (criterion: IsNotBetweenCriterion, getters: Getters) => {
+  getErrorString: (criterion: EvaluatedCriterion, getters: Getters) => {
     const locale = getters.getLocale();
     const values = getNumberCriterionlocalizedValues(criterion, locale);
     return _t("The value must not be between %s and %s", values[0], values[1]);
@@ -610,9 +582,10 @@ dataValidationEvaluatorRegistry.add("isNotBetween", {
     _t("Value is not between %s and %s", criterion.values[0], criterion.values[1]),
 });
 
-dataValidationEvaluatorRegistry.add("isBoolean", {
+criterionEvaluatorRegistry.add("isBoolean", {
   type: "isBoolean",
-  isValueValid: (value: CellValue) => value === "" || typeof value === "boolean",
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) =>
+    value === "" || typeof value === "boolean",
   getErrorString: () => _t("The value must be a boolean"),
   isCriterionValueValid: () => true,
   criterionValueErrorString: "",
@@ -621,17 +594,17 @@ dataValidationEvaluatorRegistry.add("isBoolean", {
   getPreview: () => _t("Checkbox"),
 });
 
-dataValidationEvaluatorRegistry.add("isValueInList", {
+criterionEvaluatorRegistry.add("isValueInList", {
   type: "isValueInList",
-  isValueValid: (value: CellValue, criterion: IsValueInListCriterion) => {
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
     if (value === null) {
       return false;
     }
     return criterion.values
-      .map((str) => str.toLowerCase())
+      .map((str) => String(str).toLowerCase())
       .includes(value.toString().toLowerCase());
   },
-  getErrorString: (criterion: IsValueInListCriterion) =>
+  getErrorString: (criterion: EvaluatedCriterion) =>
     _t("The value must be one of: %s", criterion.values.join(", ")),
   isCriterionValueValid: () => true,
   criterionValueErrorString: "",
@@ -641,26 +614,26 @@ dataValidationEvaluatorRegistry.add("isValueInList", {
   getPreview: (criterion) => _t("Value one of: %s", criterion.values.join(", ")),
 });
 
-dataValidationEvaluatorRegistry.add("isValueInRange", {
+criterionEvaluatorRegistry.add("isValueInRange", {
   type: "isValueInList",
   isValueValid: (
     value: CellValue,
-    criterion: IsValueInListCriterion,
+    criterion: EvaluatedCriterion,
     getters: Getters,
     sheetId: UID
   ) => {
     if (!value) {
       return false;
     }
-    const range = getters.getRangeFromSheetXC(sheetId, criterion.values[0]);
+    const range = getters.getRangeFromSheetXC(sheetId, String(criterion.values[0]));
     const criterionValues = getters.getRangeValues(range);
     return criterionValues
       .filter(isNotNull)
       .map((value) => value.toString().toLowerCase())
       .includes(value.toString().toLowerCase());
   },
-  getErrorString: (criterion: IsValueInRangeCriterion) =>
-    _t("The value must be a value in the range %s", criterion.values[0]),
+  getErrorString: (criterion: EvaluatedCriterion) =>
+    _t("The value must be a value in the range %s", String(criterion.values[0])),
   isCriterionValueValid: (value) => rangeReference.test(value),
   criterionValueErrorString: DVTerms.CriterionError.validRange,
   numberOfValues: () => 1,
@@ -669,10 +642,10 @@ dataValidationEvaluatorRegistry.add("isValueInRange", {
   getPreview: (criterion) => _t("Value in range %s", criterion.values[0]),
 });
 
-dataValidationEvaluatorRegistry.add("customFormula", {
+criterionEvaluatorRegistry.add("customFormula", {
   type: "customFormula",
-  isValueValid: (value: CellValue, criterion: IsValueInListCriterion) => {
-    const parsedValue = parseLiteral(criterion.values[0], DEFAULT_LOCALE);
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
+    const parsedValue = criterion.values[0];
     if (typeof parsedValue === "number" || typeof parsedValue === "boolean") {
       return !!parsedValue;
     }
@@ -687,17 +660,75 @@ dataValidationEvaluatorRegistry.add("customFormula", {
   getPreview: (criterion) => _t("Custom formula %s", criterion.values[0]),
 });
 
+criterionEvaluatorRegistry.add("textBeginsWith", {
+  type: "textBeginsWith",
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
+    const strValue = String(value);
+    return strValue.toLowerCase().startsWith(String(criterion.values[0]).toLowerCase());
+  },
+  getErrorString: (criterion: EvaluatedCriterion) => {
+    return _t('The value must be a text that begins with "%s"', String(criterion.values[0]));
+  },
+  isCriterionValueValid: (value: string) => !!value,
+  criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
+  numberOfValues: () => 1,
+  name: _t("Text begins with"),
+  getPreview: (criterion) => _t('Text begins with "%s"', criterion.values[0]),
+});
+
+criterionEvaluatorRegistry.add("textEndsWith", {
+  type: "textEndsWith",
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) => {
+    const strValue = String(value);
+    return strValue.toLowerCase().endsWith(String(criterion.values[0]).toLowerCase());
+  },
+  getErrorString: (criterion: EvaluatedCriterion) => {
+    return _t('The value must be a text that ends with "%s"', String(criterion.values[0]));
+  },
+  isCriterionValueValid: (value: string) => !!value,
+  criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
+  numberOfValues: () => 1,
+  name: _t("Text ends with"),
+  getPreview: (criterion) => _t('Text ends with "%s"', criterion.values[0]),
+});
+
+criterionEvaluatorRegistry.add("isEmpty", {
+  type: "isEmpty",
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) =>
+    (value ?? "").toString().trim() === "",
+  getErrorString: () => _t("The value must be empty"),
+  isCriterionValueValid: () => true,
+  criterionValueErrorString: "",
+  numberOfValues: () => 0,
+  name: _t("Is empty"),
+  getPreview: () => _t("Is empty"),
+});
+
+criterionEvaluatorRegistry.add("isNotEmpty", {
+  type: "isNotEmpty",
+  isValueValid: (value: CellValue, criterion: EvaluatedCriterion) =>
+    (value ?? "").toString().trim() !== "",
+  getErrorString: () => _t("The value must not be empty"),
+  isCriterionValueValid: () => true,
+  criterionValueErrorString: "",
+  numberOfValues: () => 0,
+  name: _t("Is not empty"),
+  getPreview: () => _t("Is not empty"),
+});
+
 function getNumberCriterionlocalizedValues(
-  criterion: DataValidationCriterion,
+  criterion: EvaluatedCriterion,
   locale: Locale
 ): string[] {
-  return criterion.values.map((value) =>
-    value !== undefined ? localizeContent(value, locale) : CellErrorType.InvalidReference
-  );
+  return criterion.values.map((value) => {
+    return value !== undefined
+      ? localizeContent(String(value), locale)
+      : CellErrorType.InvalidReference;
+  });
 }
 
 function getDateCriterionLocalizedValues(
-  criterion: DataValidationCriterion,
+  criterion: EvaluatedDateCriterion,
   locale: Locale
 ): string[] {
   const values = getDateNumberCriterionValues(criterion, DEFAULT_LOCALE);

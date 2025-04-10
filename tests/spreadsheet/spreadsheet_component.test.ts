@@ -349,7 +349,7 @@ describe("Composer / selectionInput interactions", () => {
         conditionalFormats: [
           {
             id: "42",
-            rule: { type: "CellIsRule", operator: "Equal", values: ["1"], style: { bold: true } },
+            rule: { type: "CellIsRule", operator: "isEqual", values: ["1"], style: { bold: true } },
             ranges: ["B2:C4"],
           },
         ],

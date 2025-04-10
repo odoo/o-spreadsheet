@@ -1,19 +1,21 @@
 import { Component, onMounted } from "@odoo/owl";
-import { useStore } from "../../../../store_engine";
-import { DataValidationCriterion, SpreadsheetChildEnv } from "../../../../types";
-import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+import { useStore } from "../../../store_engine";
+import { GenericCriterion, SpreadsheetChildEnv } from "../../../types";
+import { ComposerFocusStore } from "../../composer/composer_focus_store";
 
-interface Props<T extends DataValidationCriterion> {
+interface Props<T extends GenericCriterion> {
   criterion: T;
-  onCriterionChanged: (criterion: DataValidationCriterion) => void;
+  onCriterionChanged: (criterion: T) => void;
+  disableFormulas?: boolean;
 }
 
-export abstract class DataValidationCriterionForm<
-  T extends DataValidationCriterion = DataValidationCriterion
+export abstract class CriterionForm<
+  T extends GenericCriterion = GenericCriterion
 > extends Component<Props<T>, SpreadsheetChildEnv> {
   static props = {
     criterion: Object,
     onCriterionChanged: Function,
+    disableFormulas: { type: Boolean, optional: true },
   };
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);
