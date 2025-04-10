@@ -37,9 +37,15 @@ export interface ChartBuilder {
   ): CommandResult | CommandResult[];
   transformDefinition(
     definition: ChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
+  getDataSheetMapFromDefinition(
+    getters: CoreGetters,
+    definition: ChartDefinition
+  ): Record<string, UID>;
   name: string;
 }
 

@@ -2,6 +2,7 @@ import { CommandResult, Model, Spreadsheet } from "../../src";
 import { ChartTerms } from "../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
+import { getChartSheetMap } from "../../src/helpers/charts";
 import { ChartDefinition } from "../../src/types";
 import { PieChartRuntime } from "../../src/types/chart";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
@@ -385,13 +386,15 @@ describe("figures", () => {
         case "basicChart":
           const hasTitle = dataSeries.querySelector("input[type=checkbox]") as HTMLInputElement;
           triggerMouseEvent(hasTitle, "click");
+          const definition = model.getters.getChartDefinition(chartId);
           expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
             id: chartId,
             sheetId,
             definition: {
-              ...model.getters.getChartDefinition(chartId),
+              ...definition,
               dataSetsHaveTitle: false,
             },
+            sheetMap: getChartSheetMap(model.getters, definition),
           });
           break;
         case "scorecard":
@@ -405,13 +408,15 @@ describe("figures", () => {
       }
       await simulateClick(".o-panel .inactive");
       setInputValueAndTrigger(".o-chart-title input", "hello", "change");
+      const definition = model.getters.getChartDefinition(chartId);
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
         id: chartId,
         sheetId,
         definition: {
-          ...model.getters.getChartDefinition(chartId),
+          ...definition,
           title: "hello",
         },
+        sheetMap: getChartSheetMap(model.getters, definition),
       });
     }
   );
@@ -519,13 +524,15 @@ describe("figures", () => {
           break;
         }
       }
+      const definition = model.getters.getChartDefinition(chartId);
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
         id: chartId,
         sheetId,
         definition: {
-          ...model.getters.getChartDefinition(chartId),
+          ...definition,
           background: "#000000",
         },
+        sheetMap: getChartSheetMap(model.getters, definition),
       });
       if (chartType === "basicChart") {
         const figureCanvas = fixture.querySelector(".o-figure-canvas");
@@ -1134,13 +1141,15 @@ describe("figures", () => {
           break;
         }
       }
+      let definition = model.getters.getChartDefinition(chartId);
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
         id: chartId,
         sheetId,
         definition: {
-          ...model.getters.getChartDefinition(chartId),
+          ...definition,
           baselineColorUp: "#0000FF",
         },
+        sheetMap: getChartSheetMap(model.getters, definition),
       });
 
       // Change color of "down" value of baseline
@@ -1156,13 +1165,15 @@ describe("figures", () => {
           break;
         }
       }
+      definition = model.getters.getChartDefinition(chartId);
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
         id: chartId,
         sheetId,
         definition: {
-          ...model.getters.getChartDefinition(chartId),
+          ...definition,
           baselineColorDown: "#FF0000",
         },
+        sheetMap: getChartSheetMap(model.getters, definition),
       });
     });
   });

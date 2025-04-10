@@ -39,6 +39,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getSheetMapFromChartDefinitionWithDatasetsWithZone,
   toExcelDataset,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -61,10 +62,14 @@ chartRegistry.add("line", {
     LineChart.validateChartDefinition(validator, definition as LineChartDefinition),
   transformDefinition: (
     definition: LineChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => LineChart.transformDefinition(definition, executed),
+  ) => LineChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     LineChart.getDefinitionFromContextCreation(context),
+  getDataSheetMapFromDefinition: (getters: CoreGetters, def: LineChartDefinition) =>
+    LineChart.getDataSheetMap(getters, def),
   name: _lt("Line"),
 });
 
@@ -105,9 +110,11 @@ export class LineChart extends AbstractChart {
 
   static transformDefinition(
     definition: LineChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): LineChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
+    return transformChartDefinitionWithDataSetsWithZone(definition, sheetId, sheetMap, executed);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {
@@ -152,6 +159,12 @@ export class LineChart extends AbstractChart {
       stacked: this.stacked,
       cumulative: this.cumulative,
     };
+  }
+  static getDataSheetMap(
+    getters: CoreGetters,
+    definition: LineChartDefinition
+  ): Record<string, UID> {
+    return getSheetMapFromChartDefinitionWithDatasetsWithZone(getters, definition);
   }
 
   getContextCreation(): ChartCreationContext {

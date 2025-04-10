@@ -31,7 +31,7 @@ import {
 import { Validator } from "../../types/validator";
 import { clip } from "../index";
 import { createValidRange } from "../range";
-import { rangeReference } from "../references";
+import { mergeReference, rangeReference, splitReference } from "../references";
 import { toUnboundedZone, zoneToXc } from "../zones";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, chartFontColor, copyLabelRangeWithNewSheetId } from "./chart_common";
@@ -46,10 +46,14 @@ chartRegistry.add("gauge", {
     GaugeChart.validateChartDefinition(validator, definition as GaugeChartDefinition),
   transformDefinition: (
     definition: GaugeChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => GaugeChart.transformDefinition(definition, executed),
+  ) => GaugeChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     GaugeChart.getDefinitionFromContextCreation(context),
+  getDataSheetMapFromDefinition: (getters: CoreGetters, def: GaugeChartDefinition) =>
+    GaugeChart.getDataSheetMap(getters, def),
   name: _lt("Gauge"),
 });
 
@@ -179,16 +183,23 @@ export class GaugeChart extends AbstractChart {
 
   static transformDefinition(
     definition: GaugeChartDefinition,
+    chartSheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): GaugeChartDefinition {
     let dataRangeZone: UnboundedZone | undefined;
+    let sheetName: string | undefined;
     if (definition.dataRange) {
-      dataRangeZone = transformZone(toUnboundedZone(definition.dataRange), executed);
+      ({ sheetName } = splitReference(definition.dataRange));
+      const sheetId = sheetName ? sheetMap[sheetName] : chartSheetId;
+      if (sheetId === executed.sheetId) {
+        dataRangeZone = transformZone(toUnboundedZone(definition.dataRange), executed);
+      }
     }
 
     return {
       ...definition,
-      dataRange: dataRangeZone ? zoneToXc(dataRangeZone) : undefined,
+      dataRange: dataRangeZone ? mergeReference(zoneToXc(dataRangeZone), sheetName) : undefined,
     };
   }
 
@@ -246,6 +257,21 @@ export class GaugeChart extends AbstractChart {
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
     };
+  }
+
+  static getDataSheetMap(
+    getters: CoreGetters,
+    definition: GaugeChartDefinition
+  ): Record<string, UID> {
+    const sheetMap: Record<string, UID> = {};
+    if (definition.dataRange) {
+      const { sheetName } = splitReference(definition.dataRange);
+      const rangeSheetId = getters.getSheetIdByName(sheetName);
+      if (sheetName && rangeSheetId) {
+        sheetMap[sheetName] = rangeSheetId;
+      }
+    }
+    return sheetMap;
   }
 
   getDefinitionForExcel() {

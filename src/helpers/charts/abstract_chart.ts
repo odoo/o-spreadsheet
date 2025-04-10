@@ -47,6 +47,8 @@ export abstract class AbstractChart {
    */
   static transformDefinition(
     definition: ChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): ChartDefinition {
     throw new Error("This method should be implemented by sub class");

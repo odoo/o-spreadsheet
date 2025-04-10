@@ -1,4 +1,5 @@
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
+import { getChartSheetMap } from "../../src/helpers/charts";
 import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import {
@@ -101,23 +102,24 @@ export function createChart(
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
-
+  const def: ChartDefinition = {
+    title: data.title || "test",
+    dataSets: data.dataSets || [],
+    dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
+    labelRange: data.labelRange,
+    type: data.type || "bar",
+    background: data.background,
+    verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
+    legendPosition: data.legendPosition || "top",
+    stacked: ("stacked" in data && data.stacked) || false,
+    labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
+    cumulative: ("cumulative" in data && data.cumulative) || false,
+  };
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
-    definition: {
-      title: data.title || "test",
-      dataSets: data.dataSets || [],
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
-      type: data.type || "bar",
-      background: data.background,
-      verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
-      legendPosition: data.legendPosition || "top",
-      stacked: ("stacked" in data && data.stacked) || false,
-      labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
-      cumulative: ("cumulative" in data && data.cumulative) || false,
-    },
+    definition: def,
+    sheetMap: getChartSheetMap(model.getters, def),
   });
 }
 
@@ -130,20 +132,23 @@ export function createScorecardChart(
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
+  const def: ScorecardChartDefinition = {
+    type: "scorecard",
+    title: data.title || "",
+    baseline: data.baseline || "",
+    keyValue: data.keyValue || "",
+    baselineDescr: data.baselineDescr || "",
+    baselineMode: data.baselineMode || "difference",
+    baselineColorDown: data.baselineColorDown || "#DC6965",
+    baselineColorUp: data.baselineColorUp || "#00A04A",
+    background: data.background,
+  };
+
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
-    definition: {
-      type: "scorecard",
-      title: data.title || "",
-      baseline: data.baseline || "",
-      keyValue: data.keyValue || "",
-      baselineDescr: data.baselineDescr || "",
-      baselineMode: data.baselineMode || "difference",
-      baselineColorDown: data.baselineColorDown || "#DC6965",
-      baselineColorUp: data.baselineColorUp || "#00A04A",
-      background: data.background,
-    },
+    definition: def,
+    sheetMap: getChartSheetMap(model.getters, def),
   });
 }
 
@@ -156,32 +161,35 @@ export function createGaugeChart(
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
 
+  const def: GaugeChartDefinition = {
+    type: "gauge",
+    background: data.background,
+    title: data.title || "",
+    dataRange: data.dataRange || "",
+    sectionRule: data.sectionRule || {
+      rangeMin: "0",
+      rangeMax: "100",
+      colors: {
+        lowerColor: "#6aa84f",
+        middleColor: "#f1c232",
+        upperColor: "#cc0000",
+      },
+      lowerInflectionPoint: {
+        type: "number",
+        value: "33",
+      },
+      upperInflectionPoint: {
+        type: "number",
+        value: "66",
+      },
+    },
+  };
+
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
-    definition: {
-      type: "gauge",
-      background: data.background,
-      title: data.title || "",
-      dataRange: data.dataRange || "",
-      sectionRule: data.sectionRule || {
-        rangeMin: "0",
-        rangeMax: "100",
-        colors: {
-          lowerColor: "#6aa84f",
-          middleColor: "#f1c232",
-          upperColor: "#cc0000",
-        },
-        lowerInflectionPoint: {
-          type: "number",
-          value: "33",
-        },
-        upperInflectionPoint: {
-          type: "number",
-          value: "66",
-        },
-      },
-    },
+    definition: def,
+    sheetMap: getChartSheetMap(model.getters, def),
   });
 }
 
@@ -202,6 +210,7 @@ export function updateChart(
     id: chartId,
     sheetId,
     definition: def,
+    sheetMap: getChartSheetMap(model.getters, def),
   });
 }
 

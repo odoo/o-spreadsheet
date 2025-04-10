@@ -1,4 +1,4 @@
-import { getUnquotedSheetName } from "./misc";
+import { getComposerSheetName, getUnquotedSheetName } from "./misc";
 
 /** Reference of a cell (eg. A1, $B$5) */
 export const cellReference = new RegExp(/\$?([A-Z]{1,3})\$?([0-9]{1,7})/, "i");
@@ -69,4 +69,8 @@ export function splitReference(ref: string): { sheetName?: string; xc: string } 
   const xc = parts.pop()!;
   const sheetName = getUnquotedSheetName(parts.join("!")) || undefined;
   return { sheetName, xc };
+}
+
+export function mergeReference(xc: string, sheetName: string | undefined) {
+  return sheetName ? `${getComposerSheetName(sheetName)}!${xc}` : xc;
 }

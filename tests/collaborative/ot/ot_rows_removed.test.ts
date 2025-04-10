@@ -6,6 +6,7 @@ import {
   AddMergeCommand,
   ClearCellCommand,
   ClearFormattingCommand,
+  CreateChartCommand,
   CreateFilterTableCommand,
   DeleteContentCommand,
   FreezeColumnsCommand,
@@ -18,7 +19,9 @@ import {
   SetFormattingCommand,
   UpdateCellCommand,
   UpdateCellPositionCommand,
+  UpdateChartCommand,
 } from "../../../src/types";
+import { BarChartDefinition } from "../../../src/types/chart";
 import { createEqualCF, target, toRangesData } from "../../test_helpers/helpers";
 
 describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
@@ -466,6 +469,51 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       const command = { ...toTransform, quantity: 3 };
       const result = transform(command, removeRows);
       expect(result).toEqual({ ...command });
+    });
+  });
+
+  describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
+    const definition: BarChartDefinition = {
+      type: "bar",
+      dataSets: ["sheet1!A1:A10", "sheet2!A1:A10"],
+      dataSetsHaveTitle: false,
+      labelRange: "sheet1!A1:A10",
+      verticalAxisPosition: "left",
+      legendPosition: "top",
+      stacked: false,
+      title: "test",
+    };
+
+    test("CREATE_CHART ranges are updated on the same sheet as removeRows", () => {
+      const toTransform: CreateChartCommand = {
+        type: "CREATE_CHART",
+        sheetId,
+        id: "chart1",
+        definition,
+        sheetMap: { sheet1: sheetId, sheet2: sheetId + "_" },
+      };
+      const result = transform(toTransform, removeRows) as CreateChartCommand;
+      expect(result.definition).toEqual({
+        ...definition,
+        dataSets: ["sheet1!A1:A7", "sheet2!A1:A10"],
+        labelRange: "sheet1!A1:A7",
+      });
+    });
+
+    test("UPDATE_CHART ranges are updated on the same sheet as removeRows", () => {
+      const toTransform: UpdateChartCommand = {
+        type: "UPDATE_CHART",
+        sheetId,
+        id: "chart1",
+        definition,
+        sheetMap: { sheet1: sheetId, sheet2: sheetId + "_" },
+      };
+      const result = transform(toTransform, removeRows) as UpdateChartCommand;
+      expect(result.definition).toEqual({
+        ...definition,
+        dataSets: ["sheet1!A1:A7", "sheet2!A1:A10"],
+        labelRange: "sheet1!A1:A7",
+      });
     });
   });
 });

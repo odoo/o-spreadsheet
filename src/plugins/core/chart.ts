@@ -1,6 +1,10 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
 import { AbstractChart } from "../../helpers/charts/abstract_chart";
-import { chartFactory, validateChartDefinition } from "../../helpers/charts/chart_factory";
+import {
+  chartFactory,
+  getChartSheetMap,
+  validateChartDefinition,
+} from "../../helpers/charts/chart_factory";
 import {
   ChartCreationContext,
   ChartDefinition,
@@ -94,12 +98,14 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
             const chart = this.charts[fig.id]?.copyForSheetId(cmd.sheetIdTo);
             if (chart) {
+              const definition = chart.getDefinition();
               this.dispatch("CREATE_CHART", {
                 id: duplicatedFigureId,
                 position: { x: fig.x, y: fig.y },
                 size: { width: fig.width, height: fig.height },
-                definition: chart.getDefinition(),
+                definition: definition,
                 sheetId: cmd.sheetIdTo,
+                sheetMap: getChartSheetMap(this.getters, definition),
               });
             }
           }

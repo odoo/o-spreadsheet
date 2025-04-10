@@ -62,13 +62,15 @@ export function validateChartDefinition(
  */
 export function transformDefinition(
   definition: ChartDefinition,
+  sheetId: UID,
+  sheetMap: Record<string, UID>,
   executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
 ): ChartDefinition {
   const transformation = chartRegistry.getAll().find((factory) => factory.match(definition.type));
   if (!transformation) {
     throw new Error("Unknown chart type.");
   }
-  return transformation.transformDefinition(definition, executed);
+  return transformation.transformDefinition(definition, sheetId, sheetMap, executed);
 }
 
 /**
@@ -80,6 +82,14 @@ export function getChartDefinitionFromContextCreation(
 ) {
   const chartClass = chartRegistry.get(type);
   return chartClass.getChartDefinitionFromContextCreation(context);
+}
+
+/**
+ * Get an empty definition based on the given context and the given type
+ */
+export function getChartSheetMap(getters: CoreGetters, definition: ChartDefinition) {
+  const chartClass = chartRegistry.get(definition.type);
+  return chartClass.getDataSheetMapFromDefinition(getters, definition);
 }
 
 export function getChartTypes(): Record<string, string> {

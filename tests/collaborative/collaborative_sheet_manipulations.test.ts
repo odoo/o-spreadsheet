@@ -927,4 +927,16 @@ describe("Collaborative Sheet manipulation", () => {
       }
     );
   });
+
+  test("Concurrently create a chart and add a row in another sheet", () => {
+    createSheet(bob, { sheetId: "sheet2", name: "Sheet2" });
+    network.concurrent(() => {
+      addRows(alice, "after", 1, 1);
+      createChart(charlie, { dataSets: ["Sheet1!A1:A5", "Sheet2!A1:A5"] }, "chartId", "sheet2");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => (user.getters.getChartDefinition("chartId") as BarChartDefinition).dataSets,
+      ["Sheet1!A1:A6", "A1:A5"]
+    );
+  });
 });

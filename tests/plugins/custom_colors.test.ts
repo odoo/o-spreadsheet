@@ -1,5 +1,6 @@
 import { Model } from "../../src";
-import { UID } from "../../src/types";
+import { getChartSheetMap } from "../../src/helpers/charts";
+import { ChartDefinition, UID } from "../../src/types";
 import { createChart, createScorecardChart, setStyle } from "../test_helpers/commands_helpers";
 import { createColorScale, createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
@@ -87,19 +88,21 @@ describe("custom colors are correctly handled when editing charts", () => {
       sheetId
     );
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
+    const definition: ChartDefinition = {
+      title: "a title",
+      dataSets: [],
+      type: "bar",
+      stacked: false,
+      dataSetsHaveTitle: false,
+      verticalAxisPosition: "left",
+      legendPosition: "none",
+      background: "#112233",
+    };
     model.dispatch("UPDATE_CHART", {
       sheetId,
       id: "1",
-      definition: {
-        title: "a title",
-        dataSets: [],
-        type: "bar",
-        stacked: false,
-        dataSetsHaveTitle: false,
-        verticalAxisPosition: "left",
-        legendPosition: "none",
-        background: "#112233",
-      },
+      definition: definition,
+      sheetMap: getChartSheetMap(model.getters, definition),
     });
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
     model.dispatch("DELETE_FIGURE", {
@@ -111,31 +114,33 @@ describe("custom colors are correctly handled when editing charts", () => {
 
   test("Gauge colors are taken into account", () => {
     expect(model.getters.getCustomColors()).toEqual([]);
+    const definition: ChartDefinition = {
+      title: "a title",
+      type: "gauge",
+      dataRange: "B1:B4",
+      sectionRule: {
+        rangeMin: "0",
+        rangeMax: "100",
+        colors: {
+          lowerColor: "#112233",
+          middleColor: "#123456",
+          upperColor: "#2468BD",
+        },
+        lowerInflectionPoint: {
+          type: "number" as const,
+          value: "33",
+        },
+        upperInflectionPoint: {
+          type: "number" as const,
+          value: "66",
+        },
+      },
+    };
     model.dispatch("CREATE_CHART", {
       sheetId,
       id: "1",
-      definition: {
-        title: "a title",
-        type: "gauge",
-        dataRange: "B1:B4",
-        sectionRule: {
-          rangeMin: "0",
-          rangeMax: "100",
-          colors: {
-            lowerColor: "#112233",
-            middleColor: "#123456",
-            upperColor: "#2468BD",
-          },
-          lowerInflectionPoint: {
-            type: "number" as const,
-            value: "33",
-          },
-          upperInflectionPoint: {
-            type: "number" as const,
-            value: "66",
-          },
-        },
-      },
+      definition: definition,
+      sheetMap: getChartSheetMap(model.getters, definition),
     });
     expect(model.getters.getCustomColors()).toEqual(["#2468BD", "#112233", "#123456"]);
   });

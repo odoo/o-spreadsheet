@@ -33,6 +33,7 @@ otRegistry.addTransformation(
   ["CREATE_CHART", "UPDATE_CHART"],
   updateChartRangesTransformation
 );
+
 otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetSheetId);
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
@@ -84,7 +85,12 @@ function updateChartRangesTransformation(
 ): UpdateChartCommand | CreateChartCommand {
   return {
     ...toTransform,
-    definition: transformDefinition(toTransform.definition, executed),
+    definition: transformDefinition(
+      toTransform.definition,
+      toTransform.sheetId,
+      toTransform.sheetMap,
+      executed
+    ),
   };
 }
 

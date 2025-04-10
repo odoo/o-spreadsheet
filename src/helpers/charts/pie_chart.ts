@@ -41,6 +41,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getSheetMapFromChartDefinitionWithDatasetsWithZone,
   toExcelDataset,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -61,10 +62,14 @@ chartRegistry.add("pie", {
     PieChart.validateChartDefinition(validator, definition),
   transformDefinition: (
     definition: PieChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => PieChart.transformDefinition(definition, executed),
+  ) => PieChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     PieChart.getDefinitionFromContextCreation(context),
+  getDataSheetMapFromDefinition: (getters: CoreGetters, def: PieChartDefinition) =>
+    PieChart.getDataSheetMap(getters, def),
   name: _lt("Pie"),
 });
 
@@ -90,9 +95,11 @@ export class PieChart extends AbstractChart {
 
   static transformDefinition(
     definition: PieChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): PieChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
+    return transformChartDefinitionWithDataSetsWithZone(definition, sheetId, sheetMap, executed);
   }
 
   static validateChartDefinition(
@@ -112,6 +119,13 @@ export class PieChart extends AbstractChart {
       type: "pie",
       labelRange: context.auxiliaryRange || undefined,
     };
+  }
+
+  static getDataSheetMap(
+    getters: CoreGetters,
+    definition: PieChartDefinition
+  ): Record<string, UID> {
+    return getSheetMapFromChartDefinitionWithDatasetsWithZone(getters, definition);
   }
 
   getDefinition(): PieChartDefinition {

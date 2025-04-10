@@ -24,7 +24,7 @@ import { relativeLuminance } from "../color";
 import { formatValue } from "../format";
 import { isDefined } from "../misc";
 import { copyRangeWithNewSheetId } from "../range";
-import { rangeReference } from "../references";
+import { mergeReference, rangeReference, splitReference } from "../references";
 import { isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../zones";
 
 /**
@@ -259,22 +259,65 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
  */
 export function transformChartDefinitionWithDataSetsWithZone<
   T extends LineChartDefinition | BarChartDefinition | PieChartDefinition
->(definition: T, executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand): T {
+>(
+  definition: T,
+  chartSheetId: UID,
+  sheetMap: Record<string, UID>,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+): T {
   let labelRange: string | undefined;
   if (definition.labelRange) {
-    const labelZone = transformZone(toUnboundedZone(definition.labelRange), executed);
-    labelRange = labelZone ? zoneToXc(labelZone) : undefined;
+    const { sheetName } = splitReference(definition.labelRange);
+    const sheetId = sheetName ? sheetMap[sheetName] : chartSheetId;
+    if (sheetId === executed.sheetId) {
+      const labelZone = transformZone(toUnboundedZone(definition.labelRange), executed);
+      labelRange = labelZone ? mergeReference(zoneToXc(labelZone), sheetName) : undefined;
+    }
   }
-  const dataSets = definition.dataSets
-    .map(toUnboundedZone)
-    .map((zone) => transformZone(zone, executed))
-    .filter(isDefined)
-    .map(zoneToXc);
+
+  const dataSets: string[] = [];
+  for (const dataSet of definition.dataSets) {
+    const { sheetName } = splitReference(dataSet);
+    const sheetId = sheetName ? sheetMap[sheetName] : chartSheetId;
+    if (sheetId === executed.sheetId) {
+      const dataZone = transformZone(toUnboundedZone(dataSet), executed);
+
+      if (dataZone) {
+        dataSets.push(mergeReference(zoneToXc(dataZone), sheetName));
+      }
+    } else {
+      dataSets.push(dataSet);
+    }
+  }
+
   return {
     ...definition,
     labelRange,
     dataSets,
   };
+}
+
+export function getSheetMapFromChartDefinitionWithDatasetsWithZone<
+  T extends LineChartDefinition | BarChartDefinition | PieChartDefinition
+>(getters: CoreGetters, definition: T): Record<string, UID> {
+  const sheetMap: Record<string, UID> = {};
+  definition.dataSets.forEach((ds) => {
+    const { sheetName } = splitReference(ds);
+    const rangeSheetId = getters.getSheetIdByName(sheetName);
+    if (sheetName && rangeSheetId) {
+      sheetMap[sheetName] = rangeSheetId;
+    }
+  });
+
+  if (definition.labelRange) {
+    const { sheetName } = splitReference(definition.labelRange);
+    const rangeSheetId = getters.getSheetIdByName(sheetName);
+    if (sheetName && rangeSheetId) {
+      sheetMap[sheetName] = rangeSheetId;
+    }
+  }
+
+  return sheetMap;
 }
 
 const GraphColors = [
