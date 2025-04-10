@@ -5,9 +5,8 @@ import {
   FunctionResultObject,
   Maybe,
 } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, isEvaluationError, toNumber, toString } from "./helpers";
+import { assertNotZero, isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -62,11 +61,7 @@ export const DIVIDE = {
     divisor: Maybe<FunctionResultObject>
   ): FunctionResultNumber {
     const _divisor = toNumber(divisor, this.locale);
-    assert(
-      () => _divisor !== 0,
-      _t("The divisor must be different from zero."),
-      CellErrorType.DivisionByZero
-    );
+    assertNotZero(_divisor, _t("The divisor must be different from zero."));
     return {
       value: toNumber(dividend, this.locale) / _divisor,
       format: dividend?.format || divisor?.format,

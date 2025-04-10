@@ -1,6 +1,6 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
-import { EvaluationError, NotAvailableError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assertPositive,
@@ -342,7 +342,7 @@ export const MINVERSE = {
     );
     const { inverted } = invertMatrix(_matrix);
     if (!inverted) {
-      throw new EvaluationError(_t("The matrix is not invertible."));
+      throw { value: CellErrorType.GenericError, message: _t("The matrix is not invertible.") };
     }
     return inverted;
   },
@@ -458,9 +458,10 @@ function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => num
   }
 
   if (!validPairFound) {
-    throw new EvaluationError(
-      _t("The arguments array_x and array_y must contain at least one pair of numbers.")
-    );
+    throw {
+      value: CellErrorType.GenericError,
+      message: _t("The arguments array_x and array_y must contain at least one pair of numbers."),
+    };
   }
 
   return result;
@@ -576,7 +577,10 @@ function shouldKeepValue(ignore: number): (data: FunctionResultObject) => boolea
   if (_ignore === 3) {
     return (data) => data.value !== null && !isEvaluationError(data.value);
   }
-  throw new EvaluationError(_t("Argument ignore must be between 0 and 3"));
+  throw {
+    value: CellErrorType.GenericError,
+    message: _t("Argument ignore must be between 0 and 3"),
+  };
 }
 
 export const TOCOL = {
@@ -595,7 +599,10 @@ export const TOCOL = {
       .flat()
       .filter(shouldKeepValue(_ignore));
     if (result.length === 0) {
-      throw new NotAvailableError(_t("No results for the given arguments of TOCOL."));
+      throw {
+        value: CellErrorType.NotAvailable,
+        message: _t("No results for the given arguments of TOCOL."),
+      };
     }
     return [result];
   },
@@ -622,7 +629,10 @@ export const TOROW = {
       .map((item) => [item]);
 
     if (result.length === 0 || result[0].length === 0) {
-      throw new NotAvailableError(_t("No results for the given arguments of TOROW."));
+      throw {
+        value: CellErrorType.NotAvailable,
+        message: _t("No results for the given arguments of TOROW."),
+      };
     }
     return result;
   },

@@ -2,7 +2,7 @@ import { getFullReference, range, splitReference, toXC, toZone } from "../helper
 import { addIndentAndAlignToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
-import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
+import { CellErrorType, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
 import {
@@ -284,11 +284,17 @@ export const INDIRECT: AddFunctionDescription = {
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     let _reference = reference?.value?.toString();
     if (!_reference) {
-      throw new InvalidReferenceError(_t("Reference should be defined."));
+      throw {
+        value: CellErrorType.InvalidReference,
+        message: _t("Reference should be defined."),
+      };
     }
     const _useA1Notation = toBoolean(useA1Notation);
     if (!_useA1Notation) {
-      throw new EvaluationError(_t("R1C1 notation is not supported."));
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("R1C1 notation is not supported."),
+      };
     }
     const sheetId = this.__originSheetId;
     const originPosition = this.__originCellPosition;
@@ -301,7 +307,10 @@ export const INDIRECT: AddFunctionDescription = {
 
     const range = this.getters.getRangeFromSheetXC(sheetId, _reference);
     if (range === undefined || range.invalidXc || range.invalidSheetName) {
-      throw new InvalidReferenceError();
+      throw {
+        value: CellErrorType.InvalidReference,
+        message: _t("Invalid reference"),
+      };
     }
     if (originPosition) {
       this.addDependencies?.(originPosition, [range]);
@@ -854,11 +863,17 @@ export const PIVOT = {
     const _pivotFormulaId = toString(pivotFormulaId);
     const _rowCount = toNumber(rowCount, this.locale);
     if (_rowCount < 0) {
-      throw new EvaluationError(_t("The number of rows must be positive."));
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("The number of rows must be positive."),
+      };
     }
     const _columnCount = toNumber(columnCount, this.locale);
     if (_columnCount < 0) {
-      throw new EvaluationError(_t("The number of columns must be positive."));
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("The number of columns must be positive."),
+      };
     }
     const _includeColumnHeaders = toBoolean(includeColumnHeaders);
     const _includedTotal = toBoolean(includeTotal);
@@ -949,9 +964,12 @@ export const OFFSET = {
 
     const _cellReference = cellReference?.value;
     if (!_cellReference) {
-      throw new Error(
-        "In this context, the function OFFSET needs to have a cell or range in parameter."
-      );
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t(
+          "In this context, the function OFFSET needs to have a cell or range in parameter."
+        ),
+      };
     }
     const zone = toZone(_cellReference);
 

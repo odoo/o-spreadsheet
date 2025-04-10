@@ -18,9 +18,9 @@ import { LookupCaches } from "../types/functions";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
-export function assert(condition: () => boolean, message: string, value?: string): void {
+export function assert(condition: () => boolean, message = _t("Error")): void {
   if (!condition()) {
-    throw new EvaluationError(message, value);
+    throw { value: CellErrorType.GenericError, message };
   }
 }
 
@@ -150,12 +150,16 @@ export function assertNumberGreaterThanOrEqualToOne(value: number) {
   );
 }
 
-export function assertNotZero(value: number) {
-  assert(
-    () => value !== 0,
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
-    CellErrorType.DivisionByZero
-  );
+export function assertNotZero(
+  value: number,
+  message = _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+) {
+  if (value === 0) {
+    throw {
+      value: CellErrorType.DivisionByZero,
+      message,
+    };
+  }
 }
 
 export function toString(data: FunctionResultObject | CellValue | undefined): string {
@@ -208,7 +212,7 @@ export function toBoolean(data: FunctionResultObject | CellValue | undefined): b
         if (uppercaseVal === "FALSE") {
           return false;
         }
-        throw new EvaluationError(expectBooleanValueError(value));
+        throw { value: CellErrorType.GenericError, message: expectBooleanValueError(value) };
       } else {
         return false;
       }
@@ -222,7 +226,7 @@ export function toBoolean(data: FunctionResultObject | CellValue | undefined): b
 function strictToBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
   const value = toValue(data);
   if (value === "") {
-    throw new EvaluationError(expectBooleanValueError(value));
+    throw { value: CellErrorType.GenericError, message: expectBooleanValueError(value) };
   }
   return toBoolean(value);
 }
@@ -243,7 +247,7 @@ function toValue(data: FunctionResultObject | CellValue | undefined): CellValue 
     return data.value;
   }
   if (isEvaluationError(data)) {
-    throw new EvaluationError("", data as string);
+    throw { value: data };
   }
   return data;
 }
@@ -665,11 +669,10 @@ export function visitMatchingRanges(
 ): void {
   const countArg = args.length;
 
-  if (countArg % 2 === 1) {
-    throw new EvaluationError(
-      _t("Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.")
-    );
-  }
+  assert(
+    () => countArg % 2 !== 1,
+    _t("Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.")
+  );
 
   const firstArg = toMatrix(args[0]);
   const dimRow = firstArg.length;
@@ -681,9 +684,10 @@ export function visitMatchingRanges(
     const criteriaRange = toMatrix(args[i]);
 
     if (criteriaRange.length !== dimRow || criteriaRange[0].length !== dimCol) {
-      throw new EvaluationError(
-        _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension")
-      );
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension"),
+      };
     }
 
     const description = toString(args[i + 1] as Maybe<FunctionResultObject>);

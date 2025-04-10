@@ -8,7 +8,6 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
@@ -207,11 +206,9 @@ export const ATAN2 = {
   compute: function (x: Maybe<FunctionResultObject>, y: Maybe<FunctionResultObject>): number {
     const _x = toNumber(x, this.locale);
     const _y = toNumber(y, this.locale);
-    assert(
-      () => _x !== 0 || _y !== 0,
-      _t("Function [[FUNCTION_NAME]] caused a divide by zero error."),
-      CellErrorType.DivisionByZero
-    );
+    if (_x === 0) {
+      assertNotZero(_y);
+    }
     return Math.atan2(_y, _x);
   },
   isExported: true,
@@ -871,11 +868,7 @@ export const LOG: AddFunctionDescription = {
 // MOD
 // -----------------------------------------------------------------------------
 function mod(dividend: number, divisor: number): number {
-  assert(
-    () => divisor !== 0,
-    _t("The divisor must be different from 0."),
-    CellErrorType.DivisionByZero
-  );
+  assertNotZero(divisor, _t("The divisor must be different from 0."));
   const modulus = dividend % divisor;
   // -42 % 10 = -2 but we want 8, so need the code below
   if ((modulus > 0 && divisor < 0) || (modulus < 0 && divisor > 0)) {
