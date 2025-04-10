@@ -61,7 +61,8 @@ const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 //------------------------------------------------------------------------------
 
 export interface FunctionRegistry extends Registry<FunctionDescription> {
-  add(functionName: string, addDescr: AddFunctionDescription): FunctionRegistry;
+  add(functionName: string, addDescr: AddFunctionDescription): this;
+  replace(functionName: string, addDescr: AddFunctionDescription): this;
   get(functionName: string): FunctionDescription;
   mapping: {
     [functionName: string]: ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>;
@@ -75,6 +76,12 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
 
   add(name: string, addDescr: AddFunctionDescription) {
     name = name.toUpperCase();
+    // @ts-ignore
+    return super.add(name, addDescr);
+  }
+
+  replace(name: string, addDescr: AddFunctionDescription) {
+    name = name.toUpperCase();
     if (!functionNameRegex.test(name)) {
       throw new Error(
         _t(
@@ -86,7 +93,7 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
     const descr = addMetaInfoFromArg(name, addDescr);
     validateArguments(descr);
     this.mapping[name] = createComputeFunction(descr);
-    super.add(name, descr);
+    super.replace(name, descr);
     return this;
   }
 }
