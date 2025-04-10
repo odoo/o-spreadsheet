@@ -13,7 +13,14 @@ import {
   range,
   toCartesian,
 } from "../../helpers/index";
+<<<<<<< 31788df3c62e9e5416b2dcd7722bb0a49141cc05
 import { _t } from "../../translation";
+||||||| e2c1da20fff3c6ad2d39e320af543f66fe8beb16
+import { _lt, _t } from "../../translation";
+=======
+import { isSheetNameEqual } from "../../helpers/sheet";
+import { _lt, _t } from "../../translation";
+>>>>>>> ee1ac74a1d56b5a9942e80b87afc3e454852a264
 import {
   Cell,
   CellPosition,
@@ -344,7 +351,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (name) {
       const unquotedName = getUnquotedSheetName(name);
       for (const key in this.sheetIdsMapName) {
-        if (key.toUpperCase() === unquotedName.toUpperCase()) {
+        if (isSheetNameEqual(key, unquotedName)) {
           return this.sheetIdsMapName[key];
         }
       }
@@ -667,9 +674,17 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
     const { orderedSheetIds, sheets } = this;
     const name = cmd.name && cmd.name.trim().toLowerCase();
+<<<<<<< 31788df3c62e9e5416b2dcd7722bb0a49141cc05
     if (
       orderedSheetIds.find((id) => sheets[id]?.name.toLowerCase() === name && id !== cmd.sheetId)
     ) {
+||||||| e2c1da20fff3c6ad2d39e320af543f66fe8beb16
+
+    if (orderedSheetIds.find((id) => sheets[id]?.name.toLowerCase() === name)) {
+=======
+
+    if (orderedSheetIds.find((id) => isSheetNameEqual(sheets[id]?.name, name))) {
+>>>>>>> ee1ac74a1d56b5a9942e80b87afc3e454852a264
       return CommandResult.DuplicatedSheetName;
     }
     if (FORBIDDEN_IN_EXCEL_REGEX.test(name!)) {

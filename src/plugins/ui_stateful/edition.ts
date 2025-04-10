@@ -24,7 +24,18 @@ import {
   localizeFormula,
 } from "../../helpers/locale";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
+<<<<<<< 31788df3c62e9e5416b2dcd7722bb0a49141cc05:src/plugins/ui_stateful/edition.ts
 import { _t } from "../../translation";
+||||||| e2c1da20fff3c6ad2d39e320af543f66fe8beb16:src/plugins/ui/edition.ts
+import { _lt } from "../../translation";
+import { Highlight, Range, RangePart, UID, Zone } from "../../types";
+import { SelectionEvent } from "../../types/event_stream";
+=======
+import { isSheetNameEqual } from "../../helpers/sheet";
+import { _lt } from "../../translation";
+import { Highlight, Range, RangePart, UID, Zone } from "../../types";
+import { SelectionEvent } from "../../types/event_stream";
+>>>>>>> ee1ac74a1d56b5a9942e80b87afc3e454852a264:src/plugins/ui/edition.ts
 import {
   AddColumnsRowsCommand,
   CellPosition,
@@ -188,12 +199,76 @@ export class EditionPlugin extends UIPlugin {
         }
         break;
       case "START_CHANGE_HIGHLIGHT":
+<<<<<<< 31788df3c62e9e5416b2dcd7722bb0a49141cc05:src/plugins/ui_stateful/edition.ts
         const { left, top } = cmd.zone;
         // changing the highlight can conflit with the 'selecting' mode
         if (this.isSelectingForComposer()) {
           this.mode = "editing";
         }
         this.selection.resetAnchor(this, { cell: { col: left, row: top }, zone: cmd.zone });
+||||||| e2c1da20fff3c6ad2d39e320af543f66fe8beb16:src/plugins/ui/edition.ts
+        this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+        const range = this.getters.getRangeFromRangeData(cmd.range);
+        const previousRefToken = this.currentTokens
+          .filter((token) => token.type === "REFERENCE")
+          .find((token) => {
+            const { xc, sheetName: sheet } = splitReference(token.value);
+            const sheetName = sheet || this.getters.getSheetName(this.sheetId);
+            const activeSheetId = this.getters.getActiveSheetId();
+            if (this.getters.getSheetName(activeSheetId) !== sheetName) {
+              return false;
+            }
+            const refRange = this.getters.getRangeFromSheetXC(activeSheetId, xc);
+            return isEqual(this.getters.expandZone(activeSheetId, refRange.zone), range.zone);
+          });
+        this.previousRef = previousRefToken!.value;
+        this.previousRange = this.getters.getRangeFromSheetXC(
+          this.getters.getActiveSheetId(),
+          this.previousRef
+        );
+        this.selectionInitialStart = previousRefToken!.start;
+        break;
+      case "CHANGE_HIGHLIGHT":
+        const cmdRange = this.getters.getRangeFromRangeData(cmd.range);
+        const newRef = this.getRangeReference(cmdRange, this.previousRange!.parts);
+        this.selectionStart = this.selectionInitialStart;
+        this.selectionEnd = this.selectionInitialStart + this.previousRef.length;
+        this.replaceSelection(newRef);
+        this.previousRef = newRef;
+        this.selectionStart = this.currentContent.length;
+        this.selectionEnd = this.currentContent.length;
+=======
+        this.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+        const range = this.getters.getRangeFromRangeData(cmd.range);
+        const previousRefToken = this.currentTokens
+          .filter((token) => token.type === "REFERENCE")
+          .find((token) => {
+            const { xc, sheetName: sheet } = splitReference(token.value);
+            const sheetName = sheet || this.getters.getSheetName(this.sheetId);
+            const activeSheetId = this.getters.getActiveSheetId();
+            if (!isSheetNameEqual(this.getters.getSheetName(activeSheetId), sheetName)) {
+              return false;
+            }
+            const refRange = this.getters.getRangeFromSheetXC(activeSheetId, xc);
+            return isEqual(this.getters.expandZone(activeSheetId, refRange.zone), range.zone);
+          });
+        this.previousRef = previousRefToken!.value;
+        this.previousRange = this.getters.getRangeFromSheetXC(
+          this.getters.getActiveSheetId(),
+          this.previousRef
+        );
+        this.selectionInitialStart = previousRefToken!.start;
+        break;
+      case "CHANGE_HIGHLIGHT":
+        const cmdRange = this.getters.getRangeFromRangeData(cmd.range);
+        const newRef = this.getRangeReference(cmdRange, this.previousRange!.parts);
+        this.selectionStart = this.selectionInitialStart;
+        this.selectionEnd = this.selectionInitialStart + this.previousRef.length;
+        this.replaceSelection(newRef);
+        this.previousRef = newRef;
+        this.selectionStart = this.currentContent.length;
+        this.selectionEnd = this.currentContent.length;
+>>>>>>> ee1ac74a1d56b5a9942e80b87afc3e454852a264:src/plugins/ui/edition.ts
         break;
       case "ACTIVATE_SHEET":
         if (!this.currentContent.startsWith("=")) {

@@ -1,5 +1,12 @@
+<<<<<<< 31788df3c62e9e5416b2dcd7722bb0a49141cc05
 import { HeaderIndex, Row } from "../types";
 import { isDefined } from "./misc";
+||||||| e2c1da20fff3c6ad2d39e320af543f66fe8beb16
+import { Row } from "../types";
+=======
+import { Row } from "../types";
+import { getUnquotedSheetName } from "./misc";
+>>>>>>> ee1ac74a1d56b5a9942e80b87afc3e454852a264
 
 export function createDefaultRows(rowNumber: number): Row[] {
   const rows: Row[] = [];
@@ -12,6 +19,7 @@ export function createDefaultRows(rowNumber: number): Row[] {
   return rows;
 }
 
+<<<<<<< 31788df3c62e9e5416b2dcd7722bb0a49141cc05
 export function moveHeaderIndexesOnHeaderAddition(
   indexHeaderAdded: HeaderIndex,
   numberAdded: number,
@@ -42,4 +50,15 @@ export function moveHeaderIndexesOnHeaderDeletion(
       return header;
     })
     .filter(isDefined);
+||||||| e2c1da20fff3c6ad2d39e320af543f66fe8beb16
+=======
+export function isSheetNameEqual(name1: string | undefined, name2: string | undefined): boolean {
+  if (name1 === undefined || name2 === undefined) {
+    return false;
+  }
+  return (
+    getUnquotedSheetName(name1.trim().toUpperCase()) ===
+    getUnquotedSheetName(name2.trim().toUpperCase())
+  );
+>>>>>>> ee1ac74a1d56b5a9942e80b87afc3e454852a264
 }
