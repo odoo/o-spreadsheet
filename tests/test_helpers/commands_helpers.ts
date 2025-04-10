@@ -118,6 +118,7 @@ export function createChart(
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
       cumulative: ("cumulative" in data && data.cumulative) || false,
     },
+    sheetMap: model.getters.getSheetMap(),
   });
 }
 
@@ -144,6 +145,7 @@ export function createScorecardChart(
       baselineColorUp: data.baselineColorUp || "#00A04A",
       background: data.background,
     },
+    sheetMap: model.getters.getSheetMap(),
   });
 }
 
@@ -182,6 +184,7 @@ export function createGaugeChart(
         },
       },
     },
+    sheetMap: model.getters.getSheetMap(),
   });
 }
 
@@ -202,6 +205,7 @@ export function updateChart(
     id: chartId,
     sheetId,
     definition: def,
+    sheetMap: model.getters.getSheetMap(),
   });
 }
 

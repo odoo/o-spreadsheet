@@ -392,6 +392,7 @@ describe("figures", () => {
               ...model.getters.getChartDefinition(chartId),
               dataSetsHaveTitle: false,
             },
+            sheetMap: model.getters.getSheetMap(),
           });
           break;
         case "scorecard":
@@ -412,6 +413,7 @@ describe("figures", () => {
           ...model.getters.getChartDefinition(chartId),
           title: "hello",
         },
+        sheetMap: model.getters.getSheetMap(),
       });
     }
   );
@@ -526,6 +528,7 @@ describe("figures", () => {
           ...model.getters.getChartDefinition(chartId),
           background: "#000000",
         },
+        sheetMap: model.getters.getSheetMap(),
       });
       if (chartType === "basicChart") {
         const figureCanvas = fixture.querySelector(".o-figure-canvas");
@@ -1141,6 +1144,7 @@ describe("figures", () => {
           ...model.getters.getChartDefinition(chartId),
           baselineColorUp: "#0000FF",
         },
+        sheetMap: model.getters.getSheetMap(),
       });
 
       // Change color of "down" value of baseline
@@ -1163,6 +1167,7 @@ describe("figures", () => {
           ...model.getters.getChartDefinition(chartId),
           baselineColorDown: "#FF0000",
         },
+        sheetMap: model.getters.getSheetMap(),
       });
     });
   });

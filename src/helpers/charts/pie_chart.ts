@@ -61,8 +61,10 @@ chartRegistry.add("pie", {
     PieChart.validateChartDefinition(validator, definition),
   transformDefinition: (
     definition: PieChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => PieChart.transformDefinition(definition, executed),
+  ) => PieChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     PieChart.getDefinitionFromContextCreation(context),
   name: _lt("Pie"),
@@ -90,9 +92,11 @@ export class PieChart extends AbstractChart {
 
   static transformDefinition(
     definition: PieChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): PieChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
+    return transformChartDefinitionWithDataSetsWithZone(definition, sheetId, sheetMap, executed);
   }
 
   static validateChartDefinition(

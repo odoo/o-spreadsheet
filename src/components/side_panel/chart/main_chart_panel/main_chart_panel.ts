@@ -90,6 +90,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       definition,
       id: figureId,
       sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+      sheetMap: this.env.model.getters.getSheetMap(),
     });
   }
 
@@ -103,6 +104,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       definition,
       id: this.figureId,
       sheetId: this.env.model.getters.getFigureSheetId(this.figureId)!,
+      sheetMap: this.env.model.getters.getSheetMap(),
     });
   }
 

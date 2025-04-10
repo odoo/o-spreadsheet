@@ -78,6 +78,7 @@ export class ClipboardFigureState implements ClipboardState {
       position,
       size: { height: this.copiedFigure.height, width: this.copiedFigure.width },
       definition: newChart.getDefinition(),
+      sheetMap: this.getters.getSheetMap(),
     });
 
     if (this.operation === "CUT") {

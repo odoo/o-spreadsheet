@@ -61,8 +61,10 @@ chartRegistry.add("line", {
     LineChart.validateChartDefinition(validator, definition as LineChartDefinition),
   transformDefinition: (
     definition: LineChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => LineChart.transformDefinition(definition, executed),
+  ) => LineChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     LineChart.getDefinitionFromContextCreation(context),
   name: _lt("Line"),
@@ -105,9 +107,11 @@ export class LineChart extends AbstractChart {
 
   static transformDefinition(
     definition: LineChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): LineChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
+    return transformChartDefinitionWithDataSetsWithZone(definition, sheetId, sheetMap, executed);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {

@@ -651,6 +651,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
       verticalAxisPosition: "left",
       legendPosition: newLegendPos,
     },
+    sheetMap: env.model.getters.getSheetMap(),
   });
   env.model.dispatch("SELECT_FIGURE", { id });
   env.openSidePanel("ChartPanel");

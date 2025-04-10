@@ -1149,6 +1149,7 @@ describe("Menu Item actions", () => {
         x: (width - DEFAULT_FIGURE_WIDTH) / 2,
         y: (height - DEFAULT_FIGURE_HEIGHT) / 2,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1174,6 +1175,7 @@ describe("Menu Item actions", () => {
         x: (width - DEFAULT_FIGURE_WIDTH) / 2,
         y: (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1190,6 +1192,7 @@ describe("Menu Item actions", () => {
         x: (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
         y: (height - DEFAULT_FIGURE_HEIGHT) / 2,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1208,6 +1211,7 @@ describe("Menu Item actions", () => {
         x: (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
         y: (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1226,6 +1230,7 @@ describe("Menu Item actions", () => {
         x: 0,
         y: 0,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1251,6 +1256,7 @@ describe("Menu Item actions", () => {
         x: offsetCorrectionX,
         y: offsetCorrectionY,
       }; // Position at the top of the bottom pane of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1270,6 +1276,7 @@ describe("Menu Item actions", () => {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT) / 2,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1292,6 +1299,7 @@ describe("Menu Item actions", () => {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1314,6 +1322,7 @@ describe("Menu Item actions", () => {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT) / 2,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1338,6 +1347,7 @@ describe("Menu Item actions", () => {
         x: 2 * DEFAULT_CELL_WIDTH + (width - DEFAULT_FIGURE_WIDTH + offsetCorrectionX) / 2,
         y: 4 * DEFAULT_CELL_HEIGHT + (height - DEFAULT_FIGURE_HEIGHT + offsetCorrectionY) / 2,
       }; // Position at the center of the viewport
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1347,6 +1357,7 @@ describe("Menu Item actions", () => {
       const payload = { ...defaultPayload };
       payload.definition.dataSets = ["B2:B5"];
       payload.definition.labelRange = undefined;
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1357,6 +1368,7 @@ describe("Menu Item actions", () => {
       payload.definition.dataSets = ["B1:B5"];
       payload.definition.labelRange = undefined;
       payload.definition.dataSetsHaveTitle = true;
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1366,6 +1378,7 @@ describe("Menu Item actions", () => {
       const payload = { ...defaultPayload };
       payload.definition.dataSets = ["B2:B5"];
       payload.definition.labelRange = "A2:A5";
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1376,6 +1389,7 @@ describe("Menu Item actions", () => {
       payload.definition.dataSets = ["B1:B5"];
       payload.definition.labelRange = "A2:A5";
       payload.definition.dataSetsHaveTitle = true;
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
 
@@ -1388,6 +1402,7 @@ describe("Menu Item actions", () => {
       payload.definition.title = "";
       payload.definition.dataSetsHaveTitle = false;
       payload.definition.labelRange = "B1:B4";
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
     test("Chart title should only generate string and numerical values", async () => {
@@ -1399,6 +1414,7 @@ describe("Menu Item actions", () => {
       payload.definition.title = "Title1 and 3";
       payload.definition.dataSetsHaveTitle = true;
       payload.definition.labelRange = "C2:C4";
+      payload.sheetMap = model.getters.getSheetMap();
       await nextTick();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
@@ -1411,6 +1427,7 @@ describe("Menu Item actions", () => {
       payload.definition.title = "Title1, 3 and Title2";
       payload.definition.dataSetsHaveTitle = true;
       payload.definition.labelRange = "C2:C4";
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
     test("[Case 1] Chart is inserted with proper legend position", () => {
@@ -1421,6 +1438,7 @@ describe("Menu Item actions", () => {
       payload.definition.labelRange = "A2:A5";
       payload.definition.dataSetsHaveTitle = true;
       payload.definition.legendPosition = "none";
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
     test("[Case 2] Chart is inserted with proper legend position", () => {
@@ -1431,6 +1449,7 @@ describe("Menu Item actions", () => {
       payload.definition.dataSetsHaveTitle = true;
       payload.definition.labelRange = "F2:F5";
       payload.definition.legendPosition = "top";
+      payload.sheetMap = model.getters.getSheetMap();
       expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     });
   });
