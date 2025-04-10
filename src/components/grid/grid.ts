@@ -69,6 +69,7 @@ import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
+import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
@@ -187,6 +188,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       },
       () => [this.sidePanel.isOpen]
     );
+
+    useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {
+      const { scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
+      return scrollY > 0;
+    });
   }
 
   onCellHovered({ col, row }) {
