@@ -1,6 +1,7 @@
 import { _t } from "../translation";
 import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, isMatrix } from "../types";
 import { CellErrorType } from "../types/errors";
+import { isEvaluationError } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // MAIN ASSERTS (ASSERT BY ERROR TYPE)
@@ -27,8 +28,14 @@ export function assertNotZero(
   }
 }
 
+export function assertNotError(data: FunctionResultObject | undefined) {
+  if (data && isEvaluationError(data.value)) {
+    throw data;
+  }
+}
+
 // -----------------------------------------------------------------------------
-// OTHER ASSERTS
+// OTHER ASSERTS (BASED ON MAIN ASSERTS)
 // -----------------------------------------------------------------------------
 
 export function assertSingleColOrRow(errorStr: string, arg: Matrix) {
