@@ -173,10 +173,7 @@ export const IFS = {
         return result;
       }
     }
-    throw {
-      value: CellErrorType.GenericError,
-      message: _t("No match."),
-    };
+    assert(false, _t("No match."));
   },
   isExported: true,
 } satisfies AddFunctionDescription;

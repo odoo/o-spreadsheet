@@ -10,9 +10,8 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, assertNotZero, assertSameDimensions } from "./helper_assert";
+import { assert, assertAvailable, assertNotZero, assertSameDimensions } from "./helper_assert";
 import {
   assertSameNumberOfElements,
   average,
@@ -749,12 +748,7 @@ export const MATTHEWS: AddFunctionDescription = {
     const flatX = dataX.flat();
     const flatY = dataY.flat();
     assertSameNumberOfElements(flatX, flatY);
-    if (flatX.length === 0) {
-      throw {
-        value: CellErrorType.GenericError,
-        message: _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."),
-      };
-    }
+    assert(flatX.length > 0, _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."));
     const n = flatX.length;
 
     let trueN = 0,
@@ -1282,12 +1276,7 @@ export const RANK: AddFunctionDescription = {
         }
       }
     }
-    if (!found) {
-      throw {
-        value: CellErrorType.NotAvailable,
-        message: _t("Value not found in the given data."),
-      };
-    }
+    assertAvailable(found, _t("Value not found in the given data."));
     return rank;
   },
   isExported: true,

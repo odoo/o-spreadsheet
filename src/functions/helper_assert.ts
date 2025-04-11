@@ -13,7 +13,10 @@ export function assert(condition: boolean, message = _t("Error")): asserts condi
   }
 }
 
-export function assertReference(condition: boolean, message = _t("Invalid reference")): void {
+export function assertReference(
+  condition: boolean,
+  message = _t("Invalid reference")
+): asserts condition {
   if (!condition) {
     throw { value: CellErrorType.InvalidReference, message };
   }
@@ -25,6 +28,15 @@ export function assertNotZero(
 ) {
   if (value === 0) {
     throw { value: CellErrorType.DivisionByZero, message };
+  }
+}
+
+export function assertAvailable(
+  condition: boolean,
+  message = _t("Data not available")
+): asserts condition {
+  if (!condition) {
+    throw { value: CellErrorType.NotAvailable, message };
   }
 }
 

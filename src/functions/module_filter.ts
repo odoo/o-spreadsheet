@@ -14,7 +14,12 @@ import {
 } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
+import {
+  assert,
+  assertAvailable,
+  assertSameDimensions,
+  assertSingleColOrRow,
+} from "./helper_assert";
 import { toScalar } from "./helper_matrices";
 import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
@@ -152,13 +157,7 @@ export const FILTER = {
         result.push(row);
       }
     }
-
-    if (!result.length) {
-      throw {
-        value: CellErrorType.NotAvailable,
-        message: _t("No match found in FILTER evaluation"),
-      };
-    }
+    assertAvailable(result.length > 0, _t("No match found in FILTER evaluation"));
 
     return mode === "row" ? transposeMatrix(result) : result;
   },
