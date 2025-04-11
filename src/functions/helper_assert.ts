@@ -1,9 +1,57 @@
+import { _t } from "../translation";
 import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, isMatrix } from "../types";
-import { EvaluationError } from "../types/errors";
-import { assert } from "./helpers";
+import { CellErrorType } from "../types/errors";
+import { isEvaluationError } from "./helpers";
+
+// -----------------------------------------------------------------------------
+// MAIN ASSERTS (ASSERT BY ERROR TYPE)
+// -----------------------------------------------------------------------------
+
+export function assert(condition: boolean, message = _t("Error")): asserts condition {
+  if (!condition) {
+    throw { value: CellErrorType.GenericError, message };
+  }
+}
+
+export function assertReference(
+  condition: boolean,
+  message = _t("Invalid reference")
+): asserts condition {
+  if (!condition) {
+    throw { value: CellErrorType.InvalidReference, message };
+  }
+}
+
+export function assertNotZero(
+  value: number,
+  message = _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+) {
+  if (value === 0) {
+    throw { value: CellErrorType.DivisionByZero, message };
+  }
+}
+
+export function assertAvailable(
+  condition: boolean,
+  message = _t("Data not available")
+): asserts condition {
+  if (!condition) {
+    throw { value: CellErrorType.NotAvailable, message };
+  }
+}
+
+export function assertNotError(data: FunctionResultObject | undefined) {
+  if (data && isEvaluationError(data.value)) {
+    throw data;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// OTHER ASSERTS (BASED ON MAIN ASSERTS)
+// -----------------------------------------------------------------------------
 
 export function assertSingleColOrRow(errorStr: string, arg: Matrix) {
-  assert(() => arg.length === 1 || arg[0].length === 1, errorStr);
+  assert(arg.length === 1 || arg[0].length === 1, errorStr);
 }
 
 export function assertSameDimensions(errorStr: string, ...args: Arg[]) {
@@ -11,25 +59,38 @@ export function assertSameDimensions(errorStr: string, ...args: Arg[]) {
     const cols = args[0].length;
     const rows = args[0][0].length;
     for (const arg of args) {
-      assert(() => arg.length === cols && arg[0].length === rows, errorStr);
+      assert(arg.length === cols && arg[0].length === rows, errorStr);
     }
     return;
   }
-  if (args.some((arg) => Array.isArray(arg) && (arg.length !== 1 || arg[0].length !== 1))) {
-    throw new EvaluationError(errorStr);
+
+  for (const arg of args) {
+    if (Array.isArray(arg)) {
+      assert(arg.length === 1 && arg[0].length === 1, errorStr);
+    }
   }
 }
 
 export function assertPositive(errorStr: string, arg: number) {
-  assert(() => arg > 0, errorStr);
+  assert(arg > 0, errorStr);
 }
 
 export function assertSquareMatrix(errorStr: string, arg: Matrix) {
-  assert(() => arg.length === arg[0].length, errorStr);
+  assert(arg.length === arg[0].length, errorStr);
 }
 
 export function isNumberMatrix(
   arg: Matrix<FunctionResultObject>
 ): arg is Matrix<FunctionResultNumber> {
   return arg.every((row) => row.every((data) => typeof data.value === "number"));
+}
+
+export function assertNumberGreaterThanOrEqualToOne(value: number) {
+  assert(
+    value >= 1,
+    _t(
+      "The function [[FUNCTION_NAME]] expects a number value to be greater than or equal to 1, but receives %s.",
+      value.toString()
+    )
+  );
 }

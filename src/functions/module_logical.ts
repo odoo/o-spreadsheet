@@ -1,9 +1,10 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
+import { assert } from "./helper_assert";
 import { boolAnd, boolOr } from "./helper_logical";
-import { assert, conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
+import { conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // AND
@@ -24,7 +25,7 @@ export const AND = {
   ],
   compute: function (...logicalExpressions: Arg[]): boolean {
     const { result, foundBoolean } = boolAnd(logicalExpressions);
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    assert(foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
     return result;
   },
   isExported: true,
@@ -157,7 +158,7 @@ export const IFS = {
   ],
   compute: function (...values: Maybe<FunctionResultObject>[]): FunctionResultObject {
     assert(
-      () => values.length % 2 === 0,
+      values.length % 2 === 0,
       _t("Wrong number of arguments. Expected an even number of arguments.")
     );
     for (let n = 0; n < values.length - 1; n += 2) {
@@ -172,7 +173,7 @@ export const IFS = {
         return result;
       }
     }
-    throw new EvaluationError(_t("No match."));
+    assert(false, _t("No match."));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -215,7 +216,7 @@ export const OR = {
   ],
   compute: function (...logicalExpressions: Arg[]): boolean {
     const { result, foundBoolean } = boolOr(logicalExpressions);
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    assert(foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
     return result;
   },
   isExported: true,
@@ -258,7 +259,7 @@ export const XOR = {
       acc = acc ? !arg : arg;
       return true; // no stop condition
     });
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    assert(foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
     return acc;
   },
   isExported: true,

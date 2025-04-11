@@ -8,9 +8,9 @@ import {
   Matrix,
   Maybe,
 } from "../types";
-import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, toString, visitMatchingRanges } from "./helpers";
+import { assert } from "./helper_assert";
+import { toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
@@ -47,36 +47,35 @@ function getMatchingCells(
   // where the first column has the value 1.
   const fieldValue = field?.value;
 
-  if (typeof fieldValue !== "number" && typeof fieldValue !== "string") {
-    throw new EvaluationError(_t("The field must be a number or a string"));
-  }
+  assert(
+    typeof fieldValue === "number" || typeof fieldValue === "string",
+    _t("The field must be a number or a string")
+  );
 
   let index: number;
   if (typeof fieldValue === "number") {
     index = Math.trunc(fieldValue) - 1;
-    if (index < 0 || dimRowDB - 1 < index) {
-      throw new EvaluationError(
-        _t(
-          "The field (%(fieldValue)s) must be one of %(dimRowDB)s or must be a number between 1 and %s inclusive.",
-          {
-            fieldValue: fieldValue.toString(),
-            dimRowDB: dimRowDB.toString(),
-          }
-        )
-      );
-    }
+    assert(
+      index >= 0 && dimRowDB - 1 >= index,
+      _t(
+        "The field (%(fieldValue)s) must be one of %(dimRowDB)s or must be a number between 1 and %s inclusive.",
+        {
+          fieldValue: fieldValue.toString(),
+          dimRowDB: dimRowDB.toString(),
+        }
+      )
+    );
   } else {
     const colName = toString(field).toUpperCase();
     index = indexColNameDB.get(colName) ?? -1;
-    if (index === -1) {
-      throw new EvaluationError(
-        _t(
-          "The field (%s) must be one of %s.",
-          toString(field),
-          [...indexColNameDB.keys()].toString()
-        )
-      );
-    }
+    assert(
+      index !== -1,
+      _t(
+        "The field (%s) must be one of %s.",
+        toString(field),
+        [...indexColNameDB.keys()].toString()
+      )
+    );
   }
 
   // Example continuation: index = 2
@@ -85,14 +84,10 @@ function getMatchingCells(
 
   const dimColCriteria = criteria[0].length;
 
-  if (dimColCriteria < 2) {
-    throw new EvaluationError(
-      _t(
-        "The criteria range contains %s row, it must be at least 2 rows.",
-        dimColCriteria.toString()
-      )
-    );
-  }
+  assert(
+    dimColCriteria >= 2,
+    _t("The criteria range contains %s row, it must be at least 2 rows.", dimColCriteria.toString())
+  );
 
   let matchingRows: Set<number> = new Set();
   const dimColDB = database[0].length;
@@ -228,7 +223,7 @@ export const DGET = {
     criteria: Matrix<FunctionResultObject>
   ): FunctionResultObject {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    assert(() => cells.length === 1, _t("More than one match found in DGET evaluation."));
+    assert(cells.length === 1, _t("More than one match found in DGET evaluation."));
     return cells[0];
   },
   isExported: true,

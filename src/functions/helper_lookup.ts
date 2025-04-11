@@ -1,38 +1,48 @@
 import { zoneToXc } from "../helpers";
+import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
 import { _t } from "../translation";
-import { EvalContext, FunctionResultObject, Getters, Maybe, Range, UID } from "../types";
-import { EvaluationError, InvalidReferenceError } from "../types/errors";
+import { EvalContext, FunctionResultObject, Getters, Maybe, Pivot, Range, UID } from "../types";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
+import { assert, assertReference } from "./helper_assert";
 
 /**
  * Get the pivot ID from the formula pivot ID.
  */
 export function getPivotId(pivotFormulaId: string, getters: Getters) {
   const pivotId = getters.getPivotId(pivotFormulaId);
-  if (!pivotId) {
-    throw new EvaluationError(_t('There is no pivot with id "%s"', pivotFormulaId));
-  }
+  assert(pivotId !== undefined, _t('There is no pivot with id "%s"', pivotFormulaId));
   return pivotId;
 }
 
 export function assertMeasureExist(pivotId: UID, measure: string, getters: Getters) {
   const { measures } = getters.getPivotCoreDefinition(pivotId);
-  if (!measures.find((m) => m.id === measure)) {
-    const validMeasures = `(${measures.map((m) => m.id).join(", ")})`;
-    throw new EvaluationError(
-      _t(
-        "The argument %s is not a valid measure. Here are the measures: %s",
-        measure,
-        validMeasures
-      )
-    );
-  }
+  assert(
+    measures.find((m) => m.id === measure) !== undefined,
+    _t(
+      "The argument %s is not a valid measure. Here are the measures: %s",
+      measure,
+      `(${measures.map((m) => m.id).join(", ")})`
+    )
+  );
 }
 
 export function assertDomainLength(domain: Maybe<FunctionResultObject>[]) {
-  if (domain.length % 2 !== 0) {
-    throw new EvaluationError(_t("Function PIVOT takes an even number of arguments."));
-  }
+  assert(domain.length % 2 === 0, _t("Function PIVOT takes an even number of arguments."));
+}
+
+export function assertPivotDomainArgsValid(
+  pivot: Pivot<PivotRuntimeDefinition>,
+  domainArgs: Maybe<FunctionResultObject>[],
+  pivotFormulaId: string
+) {
+  const suggestion = _t(
+    "Consider using a dynamic pivot formula: %s. Or re-insert the static pivot from the Data menu.",
+    `=PIVOT(${pivotFormulaId})`
+  );
+  assert(
+    pivot.areDomainArgsFieldsValid(domainArgs),
+    _t("Dimensions don't match the pivot definition") + ". " + suggestion
+  );
 }
 
 export function addPivotDependencies(
@@ -47,9 +57,7 @@ export function addPivotDependencies(
     const { sheetId, zone } = coreDefinition.dataSet;
     const xc = zoneToXc(zone);
     const range = evalContext.getters.getRangeFromSheetXC(sheetId, xc);
-    if (range === undefined || range.invalidXc || range.invalidSheetName) {
-      throw new InvalidReferenceError();
-    }
+    assertReference(!(range === undefined || range.invalidXc || range.invalidSheetName));
     dependencies.push(range);
   }
 

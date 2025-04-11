@@ -4,7 +4,8 @@ import { _t } from "../translation";
 import { AddFunctionDescription, CellValueType, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, isEvaluationError, toString } from "./helpers";
+import { assert, assertAvailable } from "./helper_assert";
+import { isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL
@@ -23,7 +24,7 @@ export const CELL = {
   compute: function (info: Maybe<FunctionResultObject>, reference: Maybe<{ value: string }>) {
     const _info = toString(info).toLowerCase();
     assert(
-      () => CELL_INFO_TYPES.includes(_info),
+      CELL_INFO_TYPES.includes(_info),
       _t("The info_type should be one of %s.", CELL_INFO_TYPES.join(", "))
     );
 
@@ -175,7 +176,7 @@ export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
   compute: function (): FunctionResultObject {
-    return { value: CellErrorType.NotAvailable };
+    assertAvailable(false, "");
   },
   isExported: true,
 } satisfies AddFunctionDescription;

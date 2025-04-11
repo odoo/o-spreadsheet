@@ -12,11 +12,16 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { EvaluationError, NotAvailableError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
+import {
+  assert,
+  assertAvailable,
+  assertSameDimensions,
+  assertSingleColOrRow,
+} from "./helper_assert";
 import { toScalar } from "./helper_matrices";
-import { assert, matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
+import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
 function sortMatrix(
   matrix: Matrix<FunctionResultObject>,
@@ -25,7 +30,7 @@ function sortMatrix(
 ): Matrix<FunctionResultObject> {
   for (const [i, value] of criteria.entries()) {
     assert(
-      () => value !== undefined,
+      value !== undefined,
       _t(
         "Value for parameter %d is missing, while the function [[FUNCTION_NAME]] expect a number or a range.",
         i + 1
@@ -40,7 +45,7 @@ function sortMatrix(
     const sortColumn = criteria[i];
     if (isMatrix(sortColumn) && (sortColumn.length > 1 || sortColumn[0].length > 1)) {
       assert(
-        () => sortColumn.length === 1 && sortColumn[0].length === nRows,
+        sortColumn.length === 1 && sortColumn[0].length === nRows,
         _t(
           "Wrong size for %s. Expected a range of size 1x%s. Got %sx%s.",
           `sort_column${i + 1}`,
@@ -139,7 +144,7 @@ export const FILTER = {
     const mode = _conditionsMatrices[0].length === 1 ? "row" : "col";
     _array = mode === "row" ? transposeMatrix(_array) : _array;
     assert(
-      () => _conditions.every((cond) => cond.length === _array.length),
+      _conditions.every((cond) => cond.length === _array.length),
       _t("FILTER has mismatched sizes on the range and conditions.")
     );
 
@@ -152,10 +157,7 @@ export const FILTER = {
         result.push(row);
       }
     }
-
-    if (!result.length) {
-      throw new NotAvailableError(_t("No match found in FILTER evaluation"));
-    }
+    assertAvailable(result.length > 0, _t("No match found in FILTER evaluation"));
 
     return mode === "row" ? transposeMatrix(result) : result;
   },
@@ -224,10 +226,10 @@ export const SORTN: AddFunctionDescription = {
     ...sortingCriteria: (FunctionResultObject | Matrix<FunctionResultObject>)[]
   ): any {
     const _n = toNumber(n?.value ?? 1, this.locale);
-    assert(() => _n >= 0, _t("Wrong value of 'n'. Expected a positive number. Got %s.", _n));
+    assert(_n >= 0, _t("Wrong value of 'n'. Expected a positive number. Got %s.", _n));
     const _displayTiesMode = toNumber(displayTiesMode?.value ?? 0, this.locale);
     assert(
-      () => _displayTiesMode >= 0 && _displayTiesMode <= 3,
+      _displayTiesMode >= 0 && _displayTiesMode <= 3,
       _t(
         "Wrong value of 'display_ties_mode'. Expected a positive number between 0 and 3. Got %s.",
         _displayTiesMode
@@ -338,8 +340,12 @@ export const UNIQUE = {
       result.push(row.data);
     }
 
-    if (!result.length) throw new EvaluationError(_t("No unique values found"));
-
+    if (!result.length) {
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("No unique values found"),
+      };
+    }
     return _byColumn ? result : transposeMatrix(result);
   },
   isExported: true,
