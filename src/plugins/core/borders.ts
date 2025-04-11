@@ -81,6 +81,15 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
       case "SET_BORDER":
         this.setBorder(cmd.sheetId, cmd.col, cmd.row, cmd.border);
         break;
+      case "SET_BORDERS_ON_TARGET":
+        for (const zone of cmd.target) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              this.setBorder(cmd.sheetId, col, row, cmd.border);
+            }
+          }
+        }
+        break;
       case "SET_ZONE_BORDERS":
         if (cmd.border) {
           const target = cmd.target.map((zone) => this.getters.expandZone(cmd.sheetId, zone));
