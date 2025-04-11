@@ -1,6 +1,7 @@
 import { _t } from "../translation";
 import { Locale } from "../types";
-import { assert, toJsDate } from "./helpers";
+import { assert } from "./helper_assert";
+import { toJsDate } from "./helpers";
 
 /** Assert maturity date > settlement date */
 export function assertMaturityAndSettlementDatesAreValid(settlement: number, maturity: number) {

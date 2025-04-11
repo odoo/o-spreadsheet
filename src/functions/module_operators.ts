@@ -6,7 +6,8 @@ import {
   Maybe,
 } from "../types";
 import { arg } from "./arguments";
-import { assertNotZero, isEvaluationError, toNumber, toString } from "./helpers";
+import { assertNotZero } from "./helper_assert";
+import { isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------

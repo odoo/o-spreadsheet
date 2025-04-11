@@ -3,6 +3,7 @@ import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import {
+  assert,
   assertPositive,
   assertSameDimensions,
   assertSingleColOrRow,
@@ -10,7 +11,6 @@ import {
 } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
-  assert,
   flattenRowFirst,
   generateMatrix,
   isEvaluationError,

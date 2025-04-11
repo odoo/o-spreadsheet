@@ -17,6 +17,7 @@ import {
   isMatrix,
 } from "../types";
 import { arg } from "./arguments";
+import { assert } from "./helper_assert";
 import {
   assertCashFlowsAndDatesHaveSameDimension,
   assertCashFlowsHavePositiveAndNegativesValues,
@@ -50,7 +51,6 @@ import {
   assertStartAndEndPeriodAreValid,
 } from "./helper_financial";
 import {
-  assert,
   reduceAny,
   reduceNumbers,
   strictToNumber,

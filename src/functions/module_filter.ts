@@ -14,9 +14,9 @@ import {
 } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
+import { assert, assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
 import { toScalar } from "./helper_matrices";
-import { assert, matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
+import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
 function sortMatrix(
   matrix: Matrix<FunctionResultObject>,

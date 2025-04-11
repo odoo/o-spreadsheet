@@ -3,7 +3,8 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
+import { assert } from "./helper_assert";
+import { reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
 
 const DEFAULT_STARTING_AT = 1;
 
