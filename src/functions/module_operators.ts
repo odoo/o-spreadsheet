@@ -6,8 +6,8 @@ import {
   Maybe,
 } from "../types";
 import { arg } from "./arguments";
-import { assertNotZero } from "./helper_assert";
-import { isEvaluationError, toNumber, toString } from "./helpers";
+import { assertNotError, assertNotZero } from "./helper_assert";
+import { toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -109,14 +109,10 @@ function applyRelationalOperator(
   value2: Maybe<FunctionResultObject>,
   cb: (v1: string | number, v2: string | number) => boolean
 ): boolean {
+  assertNotError(value1);
+  assertNotError(value2);
   let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
   let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
-  if (isEvaluationError(_value1)) {
-    throw value1;
-  }
-  if (isEvaluationError(_value2)) {
-    throw value2;
-  }
   if (typeof _value1 !== "number") {
     _value1 = toString(_value1).toUpperCase();
   }

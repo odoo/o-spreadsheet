@@ -13,9 +13,9 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType, errorTypes } from "../types/errors";
+import { errorTypes } from "../types/errors";
 import { LookupCaches } from "../types/functions";
-import { assert } from "./helper_assert";
+import { assert, assertNotError } from "./helper_assert";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
@@ -209,13 +209,11 @@ export function toJsDate(
 
 function toValue(data: FunctionResultObject | CellValue | undefined): CellValue | undefined {
   if (typeof data === "object" && data !== null && "value" in data) {
-    if (isEvaluationError(data.value)) {
-      throw data;
-    }
+    assertNotError(data);
     return data.value;
   }
-  if (isEvaluationError(data)) {
-    throw { value: data };
+  if (data !== undefined) {
+    assertNotError({ value: data });
   }
   return data;
 }
@@ -248,15 +246,11 @@ export function visitAny(args: Arg[], cb: (a: Maybe<FunctionResultObject>) => vo
   visitArgs(
     args,
     (cell) => {
-      if (isEvaluationError(cell.value)) {
-        throw cell;
-      }
+      assertNotError(cell);
       cb(cell);
     },
     (arg) => {
-      if (isEvaluationError(arg?.value)) {
-        throw arg;
-      }
+      assertNotError(arg);
       cb(arg);
     }
   );
@@ -273,9 +267,7 @@ export function visitNumbers(
       if (typeof cell?.value === "number") {
         cb(cell as FunctionResultNumber);
       }
-      if (isEvaluationError(cell?.value)) {
-        throw cell;
-      }
+      assertNotError(cell);
     },
     (arg) => {
       cb({ value: strictToNumber(arg, locale), format: arg?.format });
@@ -340,11 +332,10 @@ export function reduceNumbers(
   return reduceArgs(
     args,
     (acc, arg) => {
+      assertNotError(arg);
       const argValue = arg?.value;
       if (typeof argValue === "number") {
         return cb(acc, argValue);
-      } else if (isEvaluationError(argValue)) {
-        throw arg;
       }
       return acc;
     },
@@ -364,14 +355,13 @@ export function reduceNumbersTextAs0(
   return reduceArgs(
     args,
     (acc, arg) => {
+      assertNotError(arg);
       const argValue = arg?.value;
       if (argValue !== undefined && argValue !== null) {
         if (typeof argValue === "number") {
           return cb(acc, argValue);
         } else if (typeof argValue === "boolean") {
           return cb(acc, toNumber(argValue, locale));
-        } else if (isEvaluationError(argValue)) {
-          throw arg;
         } else {
           return cb(acc, 0);
         }
@@ -465,15 +455,13 @@ export function conditionalVisitBoolean(args: Arg[], cb: (a: boolean) => boolean
   return conditionalVisitArgs(
     args,
     (arg) => {
+      assertNotError(arg);
       const argValue = arg?.value;
       if (typeof argValue === "boolean") {
         return cb(argValue);
       }
       if (typeof argValue === "number") {
         return cb(argValue ? true : false);
-      }
-      if (isEvaluationError(argValue)) {
-        throw arg;
       }
       return true;
     },
@@ -651,12 +639,10 @@ export function visitMatchingRanges(
   for (let i = 0; i < countArg - 1; i += 2) {
     const criteriaRange = toMatrix(args[i]);
 
-    if (criteriaRange.length !== dimRow || criteriaRange[0].length !== dimCol) {
-      throw {
-        value: CellErrorType.GenericError,
-        message: _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension"),
-      };
-    }
+    assert(
+      criteriaRange.length === dimRow && criteriaRange[0].length === dimCol,
+      _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension")
+    );
 
     const description = toString(args[i + 1] as Maybe<FunctionResultObject>);
     const predicate = getPredicate(description, locale);
@@ -714,9 +700,7 @@ export function dichotomicSearch<T>(
   if (target === undefined || target.value === null) {
     return -1;
   }
-  if (isEvaluationError(target.value)) {
-    throw target;
-  }
+  assertNotError(target);
   const _target = normalizeValue(target.value);
   const targetType = typeof _target;
 
@@ -827,9 +811,7 @@ export function linearSearch<T>(
   if (target === undefined || target.value === null) {
     return -1;
   }
-  if (isEvaluationError(target.value)) {
-    throw target;
-  }
+  assertNotError(target);
 
   const _target = normalizeValue(target.value);
   const getValue = reverseSearch
