@@ -22,7 +22,6 @@ import {
   FunctionResultObject,
   Maybe,
 } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assert } from "./helper_assert";
 import { expectStringSetError, toBoolean, toJsDate, toNumber, toString, visitAny } from "./helpers";
@@ -545,10 +544,7 @@ function weekendToDayNumber(data: Maybe<FunctionResultObject>): number[] {
     return [weekend - 11];
   }
 
-  throw {
-    value: CellErrorType.GenericError,
-    message: _t("The weekend must be a number or a string."),
-  };
+  assert(false, _t("The weekend must be a number or a string."));
 }
 
 export const NETWORKDAYS_INTL = {

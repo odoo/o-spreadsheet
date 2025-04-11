@@ -6,9 +6,15 @@ import { CellErrorType } from "../types/errors";
 // MAIN ASSERTS (ASSERT BY ERROR TYPE)
 // -----------------------------------------------------------------------------
 
-export function assert(condition: boolean, message = _t("Error")): void {
+export function assert(condition: boolean, message = _t("Error")): asserts condition {
   if (!condition) {
     throw { value: CellErrorType.GenericError, message };
+  }
+}
+
+export function assertReference(condition: boolean, message = _t("Invalid reference")): void {
+  if (!condition) {
+    throw { value: CellErrorType.InvalidReference, message };
   }
 }
 
@@ -17,10 +23,7 @@ export function assertNotZero(
   message = _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
 ) {
   if (value === 0) {
-    throw {
-      value: CellErrorType.DivisionByZero,
-      message,
-    };
+    throw { value: CellErrorType.DivisionByZero, message };
   }
 }
 
@@ -41,8 +44,11 @@ export function assertSameDimensions(errorStr: string, ...args: Arg[]) {
     }
     return;
   }
-  if (args.some((arg) => Array.isArray(arg) && (arg.length !== 1 || arg[0].length !== 1))) {
-    throw { value: CellErrorType.GenericError, message: errorStr };
+
+  for (const arg of args) {
+    if (Array.isArray(arg)) {
+      assert(arg.length === 1 && arg[0].length === 1, errorStr);
+    }
   }
 }
 

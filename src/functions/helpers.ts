@@ -13,7 +13,7 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType, EvaluationError, errorTypes } from "../types/errors";
+import { CellErrorType, errorTypes } from "../types/errors";
 import { LookupCaches } from "../types/functions";
 import { assert } from "./helper_assert";
 
@@ -38,12 +38,6 @@ export function isEvaluationError(error: Maybe<CellValue>): error is string {
 // FORMAT FUNCTIONS
 // -----------------------------------------------------------------------------
 
-const expectNumberValueError = (value: string) =>
-  _t(
-    "The function [[FUNCTION_NAME]] expects a number value, but '%s' is a string, and cannot be coerced to a number.",
-    value
-  );
-
 export const expectNumberRangeError = (lowerBound: number, upperBound: number, value: number) =>
   _t(
     "The function [[FUNCTION_NAME]] expects a number value between %s and %s inclusive, but receives %s.",
@@ -61,7 +55,7 @@ export const expectStringSetError = (stringSet: string[], value: string) => {
   );
 };
 
-export function toNumber(
+export function strictToNumber(
   data: FunctionResultObject | CellValue | undefined,
   locale: Locale
 ): number {
@@ -72,14 +66,20 @@ export function toNumber(
     case "boolean":
       return value ? 1 : 0;
     case "string":
-      if (isNumber(value, locale) || value === "") {
+      if (isNumber(value, locale)) {
         return parseNumber(value, locale);
       }
       const internalDate = parseDateTime(value, locale);
-      if (internalDate) {
+      if (internalDate !== null) {
         return internalDate.value;
       }
-      throw new EvaluationError(expectNumberValueError(value));
+      assert(
+        false,
+        _t(
+          "The function [[FUNCTION_NAME]] expects a number value, but '%s' is a string, and cannot be coerced to a number.",
+          value
+        )
+      );
     default:
       return 0;
   }
@@ -99,29 +99,28 @@ export function tryToNumber(
 export function toNumberMatrix(data: Arg, argName: string): Matrix<number> {
   return toMatrix(data).map((row) => {
     return row.map((cell) => {
-      if (typeof cell.value !== "number") {
-        throw new EvaluationError(
-          _t(
-            "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
-            argName,
-            typeof cell.value
-          )
-        );
-      }
+      assert(
+        typeof cell.value === "number",
+        _t(
+          "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
+          argName,
+          typeof cell.value
+        )
+      );
       return cell.value;
     });
   });
 }
 
-export function strictToNumber(
+export function toNumber(
   data: FunctionResultObject | CellValue | undefined,
   locale: Locale
 ): number {
   const value = toValue(data);
   if (value === "") {
-    throw new EvaluationError(expectNumberValueError(value));
+    return 0;
   }
-  return toNumber(value, locale);
+  return strictToNumber(value, locale);
 }
 
 export function toInteger(value: FunctionResultObject | CellValue | undefined, locale: Locale) {
@@ -165,30 +164,26 @@ const normalizeString = memoize(function normalizeString(str: string) {
     .replace(/[\u0300-\u036f]/g, "");
 });
 
-const expectBooleanValueError = (value: string) =>
-  _t(
-    "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a boolean.",
-    value
-  );
-
-export function toBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
+function strictToBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
   const value = toValue(data);
   switch (typeof value) {
     case "boolean":
       return value;
     case "string":
-      if (value) {
-        let uppercaseVal = value.toUpperCase();
-        if (uppercaseVal === "TRUE") {
-          return true;
-        }
-        if (uppercaseVal === "FALSE") {
-          return false;
-        }
-        throw { value: CellErrorType.GenericError, message: expectBooleanValueError(value) };
-      } else {
+      const uppercaseVal = value.toUpperCase();
+      if (uppercaseVal === "FALSE") {
         return false;
       }
+      if (uppercaseVal === "TRUE") {
+        return true;
+      }
+      assert(
+        false,
+        _t(
+          "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a boolean.",
+          value
+        )
+      );
     case "number":
       return value ? true : false;
     default:
@@ -196,12 +191,12 @@ export function toBoolean(data: FunctionResultObject | CellValue | undefined): b
   }
 }
 
-function strictToBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
+export function toBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
   const value = toValue(data);
   if (value === "") {
-    throw { value: CellErrorType.GenericError, message: expectBooleanValueError(value) };
+    return false;
   }
-  return toBoolean(value);
+  return strictToBoolean(value);
 }
 
 export function toJsDate(
