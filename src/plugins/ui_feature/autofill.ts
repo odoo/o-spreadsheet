@@ -1,9 +1,12 @@
-import { clip, deepCopy, isInside, recomputeZones, toCartesian, toXC } from "../../helpers/index";
+import { clip, isInside, positionToZone, toCartesian, toXC } from "../../helpers/index";
+import { futureRecomputeZones } from "../../helpers/recompute_zones";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
+  AutoFillCellCommand,
   AutofillData,
   AutofillModifier,
   AutofillResult,
+  Border,
   Cell,
   Command,
   CommandResult,
@@ -15,9 +18,12 @@ import {
   LAYERS,
   LocalCommand,
   Tooltip,
+  UID,
   Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+
+type AutofillCellData = Omit<AutoFillCellCommand, "type">;
 
 /**
  * This plugin manage the autofill.
@@ -130,25 +136,6 @@ export class AutofillPlugin extends UIPlugin {
       case "AUTOFILL_AUTO":
         this.autofillAuto();
         break;
-      case "AUTOFILL_CELL":
-        this.autoFillMerge(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
-        const sheetId = this.getters.getActiveSheetId();
-        this.dispatch("UPDATE_CELL", {
-          sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          style: cmd.style || null,
-          content: cmd.content || "",
-          format: cmd.format || "",
-        });
-        this.dispatch("SET_BORDER", {
-          sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          border: cmd.border,
-        });
-        this.autofillCF(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
-        this.autofillDV(cmd.originCol, cmd.originRow, cmd.col, cmd.row);
     }
   }
 
@@ -176,6 +163,7 @@ export class AutofillPlugin extends UIPlugin {
     }
     const source = this.getters.getSelectedZone();
     const target = this.autofillZone;
+    const autofillCellsData: AutofillCellData[] = [];
 
     switch (this.direction) {
       case DIRECTION.DOWN:
@@ -186,7 +174,7 @@ export class AutofillPlugin extends UIPlugin {
           }
           const generator = this.createGenerator(xcs);
           for (let row = target.top; row <= target.bottom; row++) {
-            this.computeNewCell(generator, col, row, apply);
+            autofillCellsData.push(this.computeNewCell(generator, col, row));
           }
         }
         break;
@@ -198,7 +186,7 @@ export class AutofillPlugin extends UIPlugin {
           }
           const generator = this.createGenerator(xcs);
           for (let row = target.bottom; row >= target.top; row--) {
-            this.computeNewCell(generator, col, row, apply);
+            autofillCellsData.push(this.computeNewCell(generator, col, row));
           }
         }
         break;
@@ -210,7 +198,7 @@ export class AutofillPlugin extends UIPlugin {
           }
           const generator = this.createGenerator(xcs);
           for (let col = target.right; col >= target.left; col--) {
-            this.computeNewCell(generator, col, row, apply);
+            autofillCellsData.push(this.computeNewCell(generator, col, row));
           }
         }
         break;
@@ -222,19 +210,138 @@ export class AutofillPlugin extends UIPlugin {
           }
           const generator = this.createGenerator(xcs);
           for (let col = target.left; col <= target.right; col++) {
-            this.computeNewCell(generator, col, row, apply);
+            autofillCellsData.push(this.computeNewCell(generator, col, row));
           }
         }
         break;
     }
 
     if (apply) {
+      const bordersZones: Record<string, Zone[]> = {};
+      const cfNewRanges: Record<UID, string[]> = {};
+      const dvNewZones: Record<UID, Zone[]> = {};
+      const sheetId = this.getters.getActiveSheetId();
+      for (const data of autofillCellsData) {
+        this.collectBordersData(data, bordersZones);
+        this.autofillMerge(sheetId, data);
+        this.autofillCell(sheetId, data);
+        this.collectConditionalFormatsData(sheetId, data, cfNewRanges);
+        this.collectDataValidationsData(sheetId, data, dvNewZones);
+      }
+      this.autofillBorders(sheetId, bordersZones);
+      this.autofillConditionalFormats(sheetId, cfNewRanges);
+      this.autofillDataValidations(sheetId, dvNewZones);
       this.autofillZone = undefined;
       this.selection.resizeAnchorZone(this.direction, this.steps);
       this.lastCellSelected = {};
       this.direction = undefined;
       this.steps = 0;
       this.tooltip = undefined;
+    }
+  }
+
+  private collectBordersData(data: AutofillCellData, bordersPositions: Record<string, Zone[]>) {
+    const key = JSON.stringify(data.border);
+    if (!(key in bordersPositions)) {
+      bordersPositions[key] = [];
+    }
+    bordersPositions[key].push(positionToZone({ col: data.col, row: data.row }));
+  }
+
+  private collectConditionalFormatsData(
+    sheetId: UID,
+    data: AutofillCellData,
+    cfNewRanges: Record<UID, string[]>
+  ) {
+    const { originCol, originRow, col, row } = data;
+    const cfsAtOrigin = this.getters.getRulesByCell(sheetId, originCol, originRow);
+    const xc = toXC(col, row);
+    for (const cf of cfsAtOrigin) {
+      if (!(cf.id in cfNewRanges)) {
+        cfNewRanges[cf.id] = [];
+      }
+      cfNewRanges[cf.id].push(xc);
+    }
+  }
+
+  private collectDataValidationsData(
+    sheetId: UID,
+    data: AutofillCellData,
+    dvNewZones: Record<UID, Zone[]>
+  ) {
+    const { originCol, originRow, col, row } = data;
+    const cellPosition = { sheetId, col: originCol, row: originRow };
+    const dvsAtOrigin = this.getters.getValidationRuleForCell(cellPosition);
+    if (!dvsAtOrigin) {
+      return;
+    }
+    if (!(dvsAtOrigin.id in dvNewZones)) {
+      dvNewZones[dvsAtOrigin.id] = [];
+    }
+    dvNewZones[dvsAtOrigin.id].push(positionToZone({ col, row }));
+  }
+
+  private autofillCell(sheetId: UID, data: AutofillCellData) {
+    this.dispatch("UPDATE_CELL", {
+      sheetId,
+      col: data.col,
+      row: data.row,
+      content: data.content || "",
+      style: data.style || null,
+      format: data.format || "",
+    });
+    // Still usefull in odoo ATM to autofill field sync
+    this.dispatch("AUTOFILL_CELL", data);
+  }
+
+  private autofillBorders(sheetId: UID, bordersPositions: Record<string, Zone[]>) {
+    for (const stringifiedBorder in bordersPositions) {
+      const border =
+        stringifiedBorder === "undefined" ? undefined : (JSON.parse(stringifiedBorder) as Border);
+      this.dispatch("SET_BORDERS_ON_TARGET", {
+        sheetId,
+        border,
+        target: futureRecomputeZones(bordersPositions[stringifiedBorder]),
+      });
+    }
+  }
+
+  private autofillConditionalFormats(sheetId: UID, cfNewRanges: Record<UID, string[]>) {
+    for (const cfId in cfNewRanges) {
+      const changes = cfNewRanges[cfId];
+      const cf = this.getters.getConditionalFormats(sheetId).find((cf) => cf.id === cfId);
+      if (!cf) {
+        continue;
+      }
+      const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, changes, []);
+      if (newCfRanges) {
+        this.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            id: cf.id,
+            rule: cf.rule,
+            stopIfTrue: cf.stopIfTrue,
+          },
+          ranges: newCfRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+          sheetId,
+        });
+      }
+    }
+  }
+
+  private autofillDataValidations(sheetId: UID, dvNewZones: Record<UID, Zone[]>) {
+    for (const dvId in dvNewZones) {
+      const changes = dvNewZones[dvId];
+      const dvOrigin = this.getters.getDataValidationRule(sheetId, dvId);
+      if (!dvOrigin) {
+        continue;
+      }
+      const dvRangesXcs = dvOrigin.ranges.map((range) => range.zone);
+      const newDvRanges = futureRecomputeZones(dvRangesXcs.concat(changes), []);
+      this.dispatch("ADD_DATA_VALIDATION_RULE", {
+        rule: dvOrigin,
+        ranges: newDvRanges.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
+        sheetId,
+      });
     }
   }
 
@@ -313,24 +420,21 @@ export class AutofillPlugin extends UIPlugin {
   private computeNewCell(
     generator: AutofillGenerator,
     col: HeaderIndex,
-    row: HeaderIndex,
-    apply: boolean
-  ) {
+    row: HeaderIndex
+  ): AutofillCellData {
     const { cellData, tooltip, origin } = generator.next();
     const { content, style, border, format } = cellData;
     this.tooltip = tooltip;
-    if (apply) {
-      this.dispatch("AUTOFILL_CELL", {
-        originCol: origin.col,
-        originRow: origin.row,
-        col,
-        row,
-        content,
-        style,
-        border,
-        format,
-      });
-    }
+    return {
+      originCol: origin.col,
+      originRow: origin.row,
+      col,
+      row,
+      content,
+      style,
+      border,
+      format,
+    };
   }
 
   /**
@@ -407,13 +511,8 @@ export class AutofillPlugin extends UIPlugin {
       : position[second].value;
   }
 
-  private autoFillMerge(
-    originCol: HeaderIndex,
-    originRow: HeaderIndex,
-    col: HeaderIndex,
-    row: HeaderIndex
-  ) {
-    const sheetId = this.getters.getActiveSheetId();
+  private autofillMerge(sheetId: UID, data: AutofillCellData) {
+    const { originCol, originRow, col, row } = data;
     const position = { sheetId, col, row };
     const originPosition = { sheetId, col: originCol, row: originRow };
     if (this.getters.isInMerge(position) && !this.getters.isInMerge(originPosition)) {
@@ -439,38 +538,6 @@ export class AutofillPlugin extends UIPlugin {
         ],
       });
     }
-  }
-
-  private autofillCF(originCol: number, originRow: number, col: number, row: number) {
-    const sheetId = this.getters.getActiveSheetId();
-    const cfOrigin = this.getters.getRulesByCell(sheetId, originCol, originRow);
-    for (const cf of cfOrigin) {
-      const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, [toXC(col, row)], []);
-      if (newCfRanges) {
-        this.dispatch("ADD_CONDITIONAL_FORMAT", {
-          cf: deepCopy(cf),
-          ranges: newCfRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
-          sheetId,
-        });
-      }
-    }
-  }
-
-  private autofillDV(originCol: number, originRow: number, col: number, row: number) {
-    const sheetId = this.getters.getActiveSheetId();
-    const cellPosition = { sheetId, col: originCol, row: originRow };
-    const dvOrigin = this.getters.getValidationRuleForCell(cellPosition);
-    if (!dvOrigin) {
-      return;
-    }
-
-    const dvRangesXcs = dvOrigin.ranges.map((range) => this.getters.getRangeString(range, sheetId));
-    const newDvRanges = recomputeZones(dvRangesXcs.concat(toXC(col, row)), []);
-    this.dispatch("ADD_DATA_VALIDATION_RULE", {
-      rule: dvOrigin,
-      ranges: newDvRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
-      sheetId,
-    });
   }
 
   // ---------------------------------------------------------------------------

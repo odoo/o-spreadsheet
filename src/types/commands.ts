@@ -222,6 +222,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "CLEAR_FORMATTING",
   "SET_BORDER",
   "SET_ZONE_BORDERS",
+  "SET_BORDERS_ON_TARGET",
 
   /** CHART */
   "CREATE_CHART",
@@ -526,6 +527,11 @@ export interface SetZoneBordersCommand extends TargetDependentCommand {
 
 export interface SetBorderCommand extends PositionDependentCommand {
   type: "SET_BORDER";
+  border: Border | undefined;
+}
+
+export interface SetBorderTargetCommand extends TargetDependentCommand {
+  type: "SET_BORDERS_ON_TARGET";
   border: Border | undefined;
 }
 
@@ -1080,6 +1086,7 @@ export type CoreCommand =
   | ClearFormattingCommand
   | SetZoneBordersCommand
   | SetBorderCommand
+  | SetBorderTargetCommand
 
   /** CHART */
   | CreateChartCommand

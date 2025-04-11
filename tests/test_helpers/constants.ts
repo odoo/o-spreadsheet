@@ -109,6 +109,12 @@ export const TEST_COMMANDS: CommandMapping = {
     border: { top: DEFAULT_BORDER_DESC },
     sheetId: "Sheet1",
   },
+  SET_BORDERS_ON_TARGET: {
+    type: "SET_BORDERS_ON_TARGET",
+    target: target("A1"),
+    border: { top: DEFAULT_BORDER_DESC },
+    sheetId: "Sheet1",
+  },
   CREATE_FILTER_TABLE: {
     type: "CREATE_FILTER_TABLE",
     target: target("A1"),
@@ -382,6 +388,7 @@ export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.CREATE_FILTER_TABLE,
   TEST_COMMANDS.REMOVE_FILTER_TABLE,
   TEST_COMMANDS.CLEAR_CELLS,
+  TEST_COMMANDS.SET_BORDERS_ON_TARGET,
 ];
 
 export const OT_TESTS_ZONE_DEPENDANT_COMMANDS = [
