@@ -150,10 +150,10 @@ describe("Pivot calculated measure", () => {
         ["(#1) Pivot",      "Total",          "",],
         ["",                "calc Customer",  "calc Category"],
         ["Alice",           "1",              "2"],
-        ["    Food",        "Alice",          "Food"],
-        ["    Drink",       "Alice",          "Drink"],
+        ["Food",            "Alice",          "Food"],
+        ["Drink",           "Alice",          "Drink"],
         ["Bob",             "1",              "1"],
-        ["    Food",        "Bob",            "Food"],
+        ["Food",            "Bob",            "Food"],
         ["Total",           "2",              "2"],
       ]
     );
@@ -262,8 +262,8 @@ describe("Pivot calculated measure", () => {
         ["(#1) Pivot",      "10",             "Total"],
         ["",                "calc Category",  "calc Category"],
         ["Alice",           "2",              "2"],
-        ["    Food",        "Food",           "1"],
-        ["    Drink",       "Drink",          "1"],
+        ["Food",            "Food",           "1"],
+        ["Drink",           "Drink",          "1"],
         ["Total",           "2",              "2" ],
       ]
     );
@@ -357,10 +357,10 @@ describe("Pivot calculated measure", () => {
         ["(#1) Pivot",      "Total",  ""],
         ["",                "Price",  "Commission"],
         ["Alice",           "30",             "3"],
-        ["    Food",        "10",             "1"],
-        ["    Drink",       "20",             "2"],
+        ["Food",            "10",             "1"],
+        ["Drink",           "20",             "2"],
         ["Bob",             "10",             "3"],
-        ["    Food",        "10",             "3"],
+        ["Food",            "10",             "3"],
         ["Total",           "40",             "6" ],
       ]
     );
@@ -601,8 +601,8 @@ describe("Pivot calculated measure", () => {
       ["(#1) Pivot",      "Total", ""],
       ["",                "Price", "calculated"],
       ["Alice",           "30",    "50"], // 50 = 20 + 30
-      ["    2020",        "10",    "20"], // 20 = 10 + 10
-      ["    2021",        "20",    "30"], // 30 = 20 + 10
+      ["2020",            "10",    "20"], // 20 = 10 + 10
+      ["2021",            "20",    "30"], // 30 = 20 + 10
       ["Total",           "30",    "50"],
     ]);
   });
@@ -795,8 +795,8 @@ describe("Pivot calculated measure", () => {
       ["(#1) Pivot",      "Total",  ""],
       ["",                "Price",  "calculated"],
       ["Alice",           "1",      "11"],
-      ["    2020",        "10",     "20"],
-      ["    2021",        "1",      "11"],
+      ["2020",            "10",     "20"],
+      ["2021",            "1",      "11"],
       ["Total",           "1",      "11"],
     ]);
   });
@@ -993,5 +993,44 @@ describe("Pivot calculated measure", () => {
       },
     ]);
     expect(getEvaluatedCell(model, "A4", sheetId).value).toEqual("#REF");
+  });
+
+  test("Can get subtotal of calculated measure", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: "Year",
+      A2: "Alice",    B2: "10",     C2: "2020",
+      A3: "Alice",    B3: "20",     C3: "2021",
+      A4: "Bob",      B4: "30",     C4: "2020",
+      A5: "Bob",      B5: "40",     C5: "2021",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:C5", {
+      columns: [{ fieldName: "Year" }, { fieldName: "Customer" }],
+      measures: [
+        { id: "Price", fieldName: "Price", aggregator: "sum" },
+        {
+          id: "calculated",
+          fieldName: "calculated",
+          aggregator: "sum",
+          computedBy: { formula: "=Price*1", sheetId },
+        },
+      ],
+    });
+
+    setCellContent(model, "E2", '=PIVOT.VALUE(1, "calculated", "Year", 2020)');
+    expect(getEvaluatedCell(model, "E2").value).toEqual(40);
+
+    setCellContent(model, "E3", '=PIVOT.VALUE(1, "calculated", "Year", 2021)');
+    expect(getEvaluatedCell(model, "E3").value).toEqual(60);
+
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Year" }, { fieldName: "Customer" }],
+    });
+
+    expect(getEvaluatedCell(model, "E2").value).toEqual(40);
+    expect(getEvaluatedCell(model, "E3").value).toEqual(60);
   });
 });

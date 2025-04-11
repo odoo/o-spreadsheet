@@ -148,7 +148,7 @@ export default function (PivotClass: PivotUIConstructor) {
 
     private getValuesToAggregate(measure: PivotMeasure, domain: PivotDomain) {
       const { rowDomain, colDomain } = domainToColRowDomain(this, domain);
-      const table = super.getTableStructure();
+      const table = super.getNonCollapsedTableStructure();
       const values: FunctionResultObject[] = [];
       if (
         colDomain.length === 0 &&
@@ -175,6 +175,17 @@ export default function (PivotClass: PivotUIConstructor) {
         const tree = table.getColTree();
         const subTree = this.getSubTreeMatchingDomain(tree, colDomain);
         const domains = this.treeToLeafDomains(subTree, colDomain);
+        for (const domain of domains) {
+          values.push(this._getPivotCellValueAndFormat(measure.id, rowDomain.concat(domain)));
+        }
+        return values;
+      } else if (
+        rowDomain.length === this.definition.rows.length &&
+        colDomain.length &&
+        colDomain.length < this.definition.columns.length
+      ) {
+        const colSubTree = this.getSubTreeMatchingDomain(table.getColTree(), colDomain);
+        const domains = this.treeToLeafDomains(colSubTree, colDomain);
         for (const domain of domains) {
           values.push(this._getPivotCellValueAndFormat(measure.id, rowDomain.concat(domain)));
         }
@@ -734,6 +745,12 @@ export default function (PivotClass: PivotUIConstructor) {
 
     getTableStructure(): SpreadsheetPivotTable {
       const table = super.getTableStructure();
+      this.sortTableStructure(table);
+      return table;
+    }
+
+    getNonCollapsedTableStructure(): SpreadsheetPivotTable {
+      const table = super.getNonCollapsedTableStructure();
       this.sortTableStructure(table);
       return table;
     }

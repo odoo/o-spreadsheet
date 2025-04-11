@@ -20,6 +20,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   onDefinitionChange(nextDefinition: PivotCoreDefinition): void;
 
   getTableStructure(): SpreadsheetPivotTable;
+  getNonCollapsedTableStructure(): SpreadsheetPivotTable;
   getFields(): PivotFields;
 
   getPivotHeaderValueAndFormat(domain: PivotDomain): FunctionResultObject;

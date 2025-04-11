@@ -9,8 +9,10 @@ import { _t } from "../../../../translation";
 import { Command, UID } from "../../../../types";
 import {
   PivotCoreDefinition,
+  PivotCoreDimension,
   PivotCoreMeasure,
   PivotDimension,
+  PivotDomain,
   PivotField,
   PivotFields,
   PivotMeasure,
@@ -198,6 +200,14 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       })),
       sortedColumn: this.shouldKeepSortedColumn(definition) ? definition.sortedColumn : undefined,
     };
+    if (cleanedDefinition.collapsedDomains) {
+      const { COL, ROW } = cleanedDefinition.collapsedDomains;
+      cleanedDefinition.collapsedDomains = {
+        COL: COL.filter((domain) => this.areDomainFieldsValid(domain, cleanedDefinition.columns)),
+        ROW: ROW.filter((domain) => this.areDomainFieldsValid(domain, cleanedDefinition.rows)),
+      };
+    }
+
     if (!this.draft && deepEquals(coreDefinition, cleanedDefinition)) {
       return;
     }
@@ -300,5 +310,17 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       newDefinition.measures.find((measure) => measure.id === sortedColumn.measure) &&
       deepEquals(oldDefinition.columns, newDefinition.columns)
     );
+  }
+
+  private areDomainFieldsValid(domain: PivotDomain, dims: PivotCoreDimension[]) {
+    const fieldsNameWithGranularity = dims.map(
+      ({ fieldName, granularity }) => fieldName + (granularity ? `:${granularity}` : "")
+    );
+    for (let i = 0; i < domain.length; i++) {
+      if (domain[i].field !== fieldsNameWithGranularity[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 }

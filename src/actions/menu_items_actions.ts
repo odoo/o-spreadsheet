@@ -452,7 +452,7 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
     sequence: index,
     execute: (env: SpreadsheetChildEnv) => {
       const zone = env.model.getters.getSelectedZone();
-      const table = env.model.getters.getPivot(pivotId).getTableStructure().export();
+      const table = env.model.getters.getPivot(pivotId).getNonCollapsedTableStructure().export();
       env.model.dispatch("INSERT_PIVOT_WITH_TABLE", {
         pivotId,
         table,

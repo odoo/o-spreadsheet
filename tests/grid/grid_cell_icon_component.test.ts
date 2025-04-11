@@ -10,7 +10,7 @@ import {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
 } from "../../src/constants";
-import { SpreadsheetChildEnv, UID } from "../../src/types";
+import { Align, CellPosition, SpreadsheetChildEnv, UID, VerticalAlign } from "../../src/types";
 import { merge, resizeColumns, resizeRows, setStyle } from "../test_helpers/commands_helpers";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
 
@@ -21,11 +21,7 @@ class ParentComponent extends Component<GridCellIconProps, SpreadsheetChildEnv> 
       <div class="my-icon"></div>
     </GridCellIcon>
   `;
-  static props = {
-    cellPosition: Object,
-    horizontalAlign: { type: String, optional: true },
-    verticalAlign: { type: String, optional: true },
-  };
+  static props = { "*": Object };
 }
 
 describe("Grid cell icon component", () => {
@@ -39,10 +35,20 @@ describe("Grid cell icon component", () => {
     sheetId = model.getters.getActiveSheetId();
   });
 
-  async function mountGridIcon(partialProps: Partial<GridCellIconProps>) {
+  async function mountGridIcon(args: {
+    cellPosition?: CellPosition;
+    horizontalAlign?: Align;
+    verticalAlign?: VerticalAlign;
+  }) {
     const props: GridCellIconProps = {
-      cellPosition: { sheetId, col: 1, row: 1 },
-      ...partialProps,
+      icon: {
+        position: args.cellPosition || { sheetId, col: 1, row: 1 },
+        horizontalAlign: args.horizontalAlign || "left",
+        size: GRID_ICON_EDGE_LENGTH,
+        margin: GRID_ICON_MARGIN,
+        priority: 1,
+      },
+      verticalAlign: args.verticalAlign,
     };
 
     ({ fixture } = await mountComponent(ParentComponent, { model, props }));
