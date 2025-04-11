@@ -3,7 +3,7 @@
 exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet h-100 w-100"
-  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
+  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto ; "
 >
   
   <div
@@ -1028,7 +1028,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 exports[`components take the small screen into account 1`] = `
 <div
   class="o-spreadsheet h-100 w-100"
-  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
+  style="grid-template-rows:min-content auto min-content; grid-template-columns:auto ; "
 >
   
   <div
@@ -1828,6 +1828,7 @@ exports[`components take the small screen into account 1`] = `
   <div
     class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden"
   >
+    <!-- TODORAR no better idea atm to avoid the flickering (t-if) -->
     <div
       class="o-spreadsheet-small-bottom-bar o-two-columns d-flex flex-column overflow-hidden"
     >
