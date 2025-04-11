@@ -1,7 +1,6 @@
 import { isNumber, parseDateTime, range } from "../helpers";
 import { _t } from "../translation";
 import { Arg, Locale, Matrix, isMatrix } from "../types";
-import { CellErrorType } from "../types/errors";
 import { assert, assertNotZero } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
@@ -163,9 +162,7 @@ export function fullLinearRegression(
   }
   const dot1 = multiplyMatrices(redX, transposeMatrix(redX));
   const { inverted: dotInv } = invertMatrix(dot1);
-  if (dotInv === undefined) {
-    throw { value: CellErrorType.GenericError, message: _t("Matrix is not invertible") };
-  }
+  assert(dotInv !== undefined, _t("Matrix is not invertible"));
   let SSE = 0,
     SSR = 0;
   for (let i = 0; i < n; i++) {
@@ -245,9 +242,7 @@ function getLMSCoefficients(xMatrix: Matrix<number>, yMatrix: Matrix<number>): M
   const xMatrixT = transposeMatrix(xMatrix);
   const dot1 = multiplyMatrices(xMatrix, xMatrixT);
   const { inverted: dotInv } = invertMatrix(dot1);
-  if (dotInv === undefined) {
-    throw { value: CellErrorType.GenericError, message: _t("Matrix is not invertible") };
-  }
+  assert(dotInv !== undefined, _t("Matrix is not invertible"));
   const dot2 = multiplyMatrices(xMatrix, yMatrix);
   return transposeMatrix(multiplyMatrices(dotInv, dot2));
 }

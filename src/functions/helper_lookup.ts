@@ -1,45 +1,32 @@
 import { zoneToXc } from "../helpers";
 import { _t } from "../translation";
 import { EvalContext, FunctionResultObject, Getters, Maybe, Range, UID } from "../types";
-import { CellErrorType } from "../types/errors";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
+import { assert, assertReference } from "./helper_assert";
 
 /**
  * Get the pivot ID from the formula pivot ID.
  */
 export function getPivotId(pivotFormulaId: string, getters: Getters) {
   const pivotId = getters.getPivotId(pivotFormulaId);
-  if (!pivotId) {
-    throw {
-      value: CellErrorType.GenericError,
-      message: _t('There is no pivot with id "%s"', pivotFormulaId),
-    };
-  }
+  assert(pivotId !== undefined, _t('There is no pivot with id "%s"', pivotFormulaId));
   return pivotId;
 }
 
 export function assertMeasureExist(pivotId: UID, measure: string, getters: Getters) {
   const { measures } = getters.getPivotCoreDefinition(pivotId);
-  if (!measures.find((m) => m.id === measure)) {
-    const validMeasures = `(${measures.map((m) => m.id).join(", ")})`;
-    throw {
-      value: CellErrorType.GenericError,
-      message: _t(
-        "The argument %s is not a valid measure. Here are the measures: %s",
-        measure,
-        validMeasures
-      ),
-    };
-  }
+  assert(
+    measures.find((m) => m.id === measure) !== undefined,
+    _t(
+      "The argument %s is not a valid measure. Here are the measures: %s",
+      measure,
+      `(${measures.map((m) => m.id).join(", ")})`
+    )
+  );
 }
 
 export function assertDomainLength(domain: Maybe<FunctionResultObject>[]) {
-  if (domain.length % 2 !== 0) {
-    throw {
-      value: CellErrorType.GenericError,
-      message: _t("Function PIVOT takes an even number of arguments."),
-    };
-  }
+  assert(domain.length % 2 === 0, _t("Function PIVOT takes an even number of arguments."));
 }
 
 export function addPivotDependencies(
@@ -54,12 +41,7 @@ export function addPivotDependencies(
     const { sheetId, zone } = coreDefinition.dataSet;
     const xc = zoneToXc(zone);
     const range = evalContext.getters.getRangeFromSheetXC(sheetId, xc);
-    if (range === undefined || range.invalidXc || range.invalidSheetName) {
-      throw {
-        value: CellErrorType.InvalidReference,
-        message: _t("Invalid reference"),
-      };
-    }
+    assertReference(!(range === undefined || range.invalidXc || range.invalidSheetName));
     dependencies.push(range);
   }
 

@@ -1001,18 +1001,14 @@ export const MINIFS = {
 // -----------------------------------------------------------------------------
 function pearson(dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>): number {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
-  if (flatDataX.length === 0) {
-    throw {
-      value: CellErrorType.GenericError,
-      message: _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."),
-    };
-  }
-  if (flatDataX.length < 2) {
-    throw {
-      value: CellErrorType.GenericError,
-      message: _t("[[FUNCTION_NAME]] needs at least two values for both parameters."),
-    };
-  }
+  assert(
+    flatDataX.length !== 0,
+    _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters.")
+  );
+  assert(
+    flatDataX.length >= 2,
+    _t("[[FUNCTION_NAME]] needs at least two values for both parameters.")
+  );
   const n = flatDataX.length;
 
   let sumX = 0,

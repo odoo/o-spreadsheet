@@ -457,12 +457,10 @@ function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => num
     }
   }
 
-  if (!validPairFound) {
-    throw {
-      value: CellErrorType.GenericError,
-      message: _t("The arguments array_x and array_y must contain at least one pair of numbers."),
-    };
-  }
+  assert(
+    validPairFound,
+    _t("The arguments array_x and array_y must contain at least one pair of numbers.")
+  );
 
   return result;
 }
@@ -577,10 +575,7 @@ function shouldKeepValue(ignore: number): (data: FunctionResultObject) => boolea
   if (_ignore === 3) {
     return (data) => data.value !== null && !isEvaluationError(data.value);
   }
-  throw {
-    value: CellErrorType.GenericError,
-    message: _t("Argument ignore must be between 0 and 3"),
-  };
+  assert(false, _t("Argument ignore must be between 0 and 3"));
 }
 
 export const TOCOL = {
