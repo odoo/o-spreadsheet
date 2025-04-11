@@ -12,6 +12,7 @@ import {
   selectCell,
   setAnchorCorner,
   setBorders,
+  setBordersOnTarget,
   setCellContent,
   setZoneBorders,
   undo,
@@ -120,6 +121,26 @@ describe("borders", () => {
     expect(setBorders(model, "A1", { top: undefined })).toBeCancelledBecause(
       CommandResult.NoChanges
     );
+  });
+
+  test("Can set border on a target", () => {
+    const model = new Model();
+    const border = { top: DEFAULT_BORDER_DESC };
+    setBordersOnTarget(model, ["A1:A2", "B2:B3"], border);
+    expect(getBorder(model, "A1")).toEqual({
+      top: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "A2")).toEqual({
+      top: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "B2")).toEqual({
+      top: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+    });
+    expect(getBorder(model, "B3")).toEqual({
+      top: DEFAULT_BORDER_DESC,
+    });
   });
 
   test("can set all borders in a zone", () => {
