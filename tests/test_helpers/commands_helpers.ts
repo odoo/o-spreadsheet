@@ -595,6 +595,19 @@ export function setBorders(
   });
 }
 
+export function setBordersOnTarget(
+  model: Model,
+  xcs: string[],
+  border?: Border,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("SET_BORDERS_ON_TARGET", {
+    sheetId,
+    target: xcs.map(toZone),
+    border,
+  });
+}
+
 /**
  * Clear a cell
  */
