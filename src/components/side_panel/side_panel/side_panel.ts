@@ -1,9 +1,9 @@
-import { Component, useEffect } from "@odoo/owl";
+import { Component, useEffect, useRef } from "@odoo/owl";
 import { GRAY_300, TEXT_BODY } from "../../../constants";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { Store, useStore } from "../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers/css";
+import { css, cssPropertiesToCss } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { SidePanelStore } from "./side_panel_store";
@@ -18,6 +18,17 @@ css/* scss */ `
     border-width: 1px 0 0 1px;
     user-select: none;
     color: ${TEXT_BODY};
+
+    &.mobile {
+      position: absolute;
+      z-index: 31; /*TODORAR change to respect the mapping*/
+      top: 0;
+      transition: top 0.5s ease-in-out;
+    }
+
+    &.hidden {
+      top: 100%;
+    }
 
     .o-sidePanelTitle {
       line-height: 20px;
@@ -117,6 +128,7 @@ export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
   static props = {};
   sidePanelStore!: Store<SidePanelStore>;
   spreadsheetRect = useSpreadsheetRect();
+  sidePanelRef = useRef("sidePanel");
 
   setup() {
     this.sidePanelStore = useStore(SidePanelStore);
@@ -124,10 +136,22 @@ export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
       (isOpen) => {
         if (!isOpen) {
           this.sidePanelStore.close();
+        } else {
+          if (this.sidePanelRef.el?.classList.contains("hidden")) {
+            this.sidePanelRef.el.classList.remove("hidden");
+          }
         }
       },
       () => [this.sidePanelStore.isOpen]
     );
+  }
+
+  get style() {
+    const style = {};
+    if (this.env.isSmall) {
+      style["top"] = "0";
+    }
+    return cssPropertiesToCss(style);
   }
 
   get panel() {

@@ -1,6 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-SmallBottomBar">
-    <div class="o-spreadsheet-small-bottom-bar o-two-columns d-flex flex-column overflow-hidden">
+    <!-- TODORAR no better idea atm to avoid the flickering (t-if) -->
+    <div
+      class="o-spreadsheet-small-bottom-bar o-two-columns d-flex flex-column overflow-hidden"
+      t-if="!sidepanelStore.isOpen">
       <t t-if="menuState.isOpen">
         <RibbonMenu onClose="() => this.menuState.isOpen=false"/>
       </t>

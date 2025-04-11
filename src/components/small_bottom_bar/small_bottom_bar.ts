@@ -7,6 +7,7 @@ import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { cssPropertiesToCss } from "../helpers";
+import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
 interface Props {
@@ -24,12 +25,14 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
   private composerStore!: Store<CellComposerStore>;
   private composerInterface!: ComposerInterface;
   private composerRef = useRef("bottombarComposer");
+  sidepanelStore!: Store<SidePanelStore>;
 
   private menuState = useState({
     isOpen: false,
   });
 
   setup(): void {
+    this.sidepanelStore = useStore(SidePanelStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     const composerStore = useStore(CellComposerStore);
     this.composerStore = composerStore;
