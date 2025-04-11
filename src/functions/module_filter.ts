@@ -12,9 +12,13 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
+import {
+  assert,
+  assertAvailable,
+  assertSameDimensions,
+  assertSingleColOrRow,
+} from "./helper_assert";
 import { toScalar } from "./helper_matrices";
 import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
@@ -152,13 +156,7 @@ export const FILTER = {
         result.push(row);
       }
     }
-
-    if (!result.length) {
-      throw {
-        value: CellErrorType.NotAvailable,
-        message: _t("No match found in FILTER evaluation"),
-      };
-    }
+    assertAvailable(result.length > 0, _t("No match found in FILTER evaluation"));
 
     return mode === "row" ? transposeMatrix(result) : result;
   },
@@ -341,12 +339,7 @@ export const UNIQUE = {
       result.push(row.data);
     }
 
-    if (!result.length) {
-      throw {
-        value: CellErrorType.GenericError,
-        message: _t("No unique values found"),
-      };
-    }
+    assert(result.length > 0, _t("No unique values found"));
     return _byColumn ? result : transposeMatrix(result);
   },
   isExported: true,

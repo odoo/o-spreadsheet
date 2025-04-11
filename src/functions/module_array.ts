@@ -1,9 +1,9 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
+  assertAvailable,
   assertPositive,
   assertSameDimensions,
   assertSingleColOrRow,
@@ -341,9 +341,7 @@ export const MINVERSE = {
       _matrix
     );
     const { inverted } = invertMatrix(_matrix);
-    if (!inverted) {
-      throw { value: CellErrorType.GenericError, message: _t("The matrix is not invertible.") };
-    }
+    assert(inverted !== undefined, _t("The matrix is not invertible."));
     return inverted;
   },
   isExported: true,
@@ -593,12 +591,7 @@ export const TOCOL = {
     const result = (_scanByColumn ? _array : transposeMatrix(_array))
       .flat()
       .filter(shouldKeepValue(_ignore));
-    if (result.length === 0) {
-      throw {
-        value: CellErrorType.NotAvailable,
-        message: _t("No results for the given arguments of TOCOL."),
-      };
-    }
+    assertAvailable(result.length > 0, _t("No results for the given arguments of TOCOL."));
     return [result];
   },
   isExported: true,
@@ -623,12 +616,11 @@ export const TOROW = {
       .filter(shouldKeepValue(_ignore))
       .map((item) => [item]);
 
-    if (result.length === 0 || result[0].length === 0) {
-      throw {
-        value: CellErrorType.NotAvailable,
-        message: _t("No results for the given arguments of TOROW."),
-      };
-    }
+    assertAvailable(
+      result.length > 0 && result[0].length > 0,
+      _t("No results for the given arguments of TOROW.")
+    );
+
     return result;
   },
   isExported: true,

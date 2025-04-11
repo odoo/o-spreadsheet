@@ -4,7 +4,12 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
 import { CellErrorType, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, assertNumberGreaterThanOrEqualToOne, assertPositive } from "./helper_assert";
+import {
+  assert,
+  assertNumberGreaterThanOrEqualToOne,
+  assertPositive,
+  assertReference,
+} from "./helper_assert";
 import {
   addPivotDependencies,
   assertDomainLength,
@@ -280,19 +285,9 @@ export const INDIRECT: AddFunctionDescription = {
     useA1Notation: Maybe<FunctionResultObject> = { value: true }
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     let _reference = reference?.value?.toString();
-    if (!_reference) {
-      throw {
-        value: CellErrorType.InvalidReference,
-        message: _t("Reference should be defined."),
-      };
-    }
+    assertReference(_reference !== undefined, _t("Reference should be defined."));
     const _useA1Notation = toBoolean(useA1Notation);
-    if (!_useA1Notation) {
-      throw {
-        value: CellErrorType.GenericError,
-        message: _t("R1C1 notation is not supported."),
-      };
-    }
+    assert(_useA1Notation, _t("R1C1 notation is not supported."));
     const sheetId = this.__originSheetId;
     const originPosition = this.__originCellPosition;
     if (originPosition) {
@@ -303,12 +298,7 @@ export const INDIRECT: AddFunctionDescription = {
     }
 
     const range = this.getters.getRangeFromSheetXC(sheetId, _reference);
-    if (range === undefined || range.invalidXc || range.invalidSheetName) {
-      throw {
-        value: CellErrorType.InvalidReference,
-        message: _t("Invalid reference"),
-      };
-    }
+    assertReference(!(range === undefined || range.invalidXc || range.invalidSheetName));
     if (originPosition) {
       this.addDependencies?.(originPosition, [range]);
     }
@@ -855,19 +845,9 @@ export const PIVOT = {
   ) {
     const _pivotFormulaId = toString(pivotFormulaId);
     const _rowCount = toNumber(rowCount, this.locale);
-    if (_rowCount < 0) {
-      throw {
-        value: CellErrorType.GenericError,
-        message: _t("The number of rows must be positive."),
-      };
-    }
+    assert(_rowCount >= 0, _t("The number of rows must be positive."));
     const _columnCount = toNumber(columnCount, this.locale);
-    if (_columnCount < 0) {
-      throw {
-        value: CellErrorType.GenericError,
-        message: _t("The number of columns must be positive."),
-      };
-    }
+    assert(_columnCount >= 0, _t("The number of columns must be positive."));
     const _includeColumnHeaders = toBoolean(includeColumnHeaders);
     const _includedTotal = toBoolean(includeTotal);
 
@@ -956,14 +936,10 @@ export const OFFSET = {
     }
 
     const _cellReference = cellReference?.value;
-    if (!_cellReference) {
-      throw {
-        value: CellErrorType.GenericError,
-        message: _t(
-          "In this context, the function OFFSET needs to have a cell or range in parameter."
-        ),
-      };
-    }
+    assert(
+      _cellReference !== undefined,
+      _t("In this context, the function OFFSET needs to have a cell or range in parameter.")
+    );
     const zone = toZone(_cellReference);
 
     let offsetHeight = zone.bottom - zone.top + 1;
