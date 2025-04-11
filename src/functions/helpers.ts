@@ -15,14 +15,9 @@ import {
 } from "../types";
 import { CellErrorType, EvaluationError, errorTypes } from "../types/errors";
 import { LookupCaches } from "../types/functions";
+import { assert } from "./helper_assert";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
-
-export function assert(condition: boolean, message = _t("Error")): void {
-  if (!condition) {
-    throw { value: CellErrorType.GenericError, message };
-  }
-}
 
 export function inferFormat(data: Arg | undefined): string | undefined {
   if (data === undefined) {
@@ -138,28 +133,6 @@ export function strictToInteger(
   locale: Locale
 ) {
   return Math.trunc(strictToNumber(value, locale));
-}
-
-export function assertNumberGreaterThanOrEqualToOne(value: number) {
-  assert(
-    value >= 1,
-    _t(
-      "The function [[FUNCTION_NAME]] expects a number value to be greater than or equal to 1, but receives %s.",
-      value.toString()
-    )
-  );
-}
-
-export function assertNotZero(
-  value: number,
-  message = _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-) {
-  if (value === 0) {
-    throw {
-      value: CellErrorType.DivisionByZero,
-      message,
-    };
-  }
 }
 
 export function toString(data: FunctionResultObject | CellValue | undefined): string {

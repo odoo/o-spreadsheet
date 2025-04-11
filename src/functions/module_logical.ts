@@ -2,8 +2,9 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
+import { assert } from "./helper_assert";
 import { boolAnd, boolOr } from "./helper_logical";
-import { assert, conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
+import { conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // AND

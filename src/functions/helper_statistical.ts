@@ -2,10 +2,9 @@ import { isNumber, parseDateTime, range } from "../helpers";
 import { _t } from "../translation";
 import { Arg, Locale, Matrix, isMatrix } from "../types";
 import { CellErrorType } from "../types/errors";
+import { assert, assertNotZero } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
-  assert,
-  assertNotZero,
   isEvaluationError,
   reduceAny,
   reduceNumbers,

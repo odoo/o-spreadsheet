@@ -9,12 +9,10 @@ import {
   isMatrix,
 } from "../types";
 import { arg } from "./arguments";
-import { assertPositive } from "./helper_assert";
+import { assert, assertNotZero, assertPositive } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
-  assert,
-  assertNotZero,
   generateMatrix,
   inferFormat,
   isDataNonEmpty,

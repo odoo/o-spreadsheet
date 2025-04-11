@@ -4,7 +4,7 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
 import { CellErrorType, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
-import { assertPositive } from "./helper_assert";
+import { assert, assertNumberGreaterThanOrEqualToOne, assertPositive } from "./helper_assert";
 import {
   addPivotDependencies,
   assertDomainLength,
@@ -13,8 +13,6 @@ import {
 } from "./helper_lookup";
 import {
   LinearSearchMode,
-  assert,
-  assertNumberGreaterThanOrEqualToOne,
   dichotomicSearch,
   expectNumberRangeError,
   generateMatrix,

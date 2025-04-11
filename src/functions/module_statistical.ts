@@ -12,7 +12,7 @@ import {
 } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assertSameDimensions } from "./helper_assert";
+import { assert, assertNotZero, assertSameDimensions } from "./helper_assert";
 import {
   assertSameNumberOfElements,
   average,
@@ -28,8 +28,6 @@ import {
   predictLinearValues,
 } from "./helper_statistical";
 import {
-  assert,
-  assertNotZero,
   dichotomicSearch,
   inferFormat,
   matrixMap,

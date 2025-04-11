@@ -4,7 +4,8 @@ import { _t } from "../translation";
 import { AddFunctionDescription, CellValueType, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, isEvaluationError, toString } from "./helpers";
+import { assert } from "./helper_assert";
+import { isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL
