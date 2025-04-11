@@ -2,7 +2,7 @@ import { getFullReference, range, splitReference, toXC, toZone } from "../helper
 import { addIndentAndAlignToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
-import { CellErrorType, InvalidReferenceError } from "../types/errors";
+import { InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
@@ -16,6 +16,7 @@ import {
   addPivotDependencies,
   assertDomainLength,
   assertMeasureExist,
+  assertPivotDomainArgsValid,
   getPivotId,
 } from "./helper_lookup";
 import {
@@ -751,17 +752,7 @@ export const PIVOT_VALUE = {
     if (error) {
       return error;
     }
-
-    if (!pivot.areDomainArgsFieldsValid(domainArgs)) {
-      const suggestion = _t(
-        "Consider using a dynamic pivot formula: %s. Or re-insert the static pivot from the Data menu.",
-        `=PIVOT(${_pivotFormulaId})`
-      );
-      return {
-        value: CellErrorType.GenericError,
-        message: _t("Dimensions don't match the pivot definition") + ". " + suggestion,
-      };
-    }
+    assertPivotDomainArgsValid(pivot, domainArgs, _pivotFormulaId);
     const domain = pivot.parseArgsToPivotDomain(domainArgs);
     return pivot.getPivotCellValueAndFormat(_measure, domain);
   },
@@ -791,16 +782,7 @@ export const PIVOT_HEADER = {
     if (error) {
       return error;
     }
-    if (!pivot.areDomainArgsFieldsValid(domainArgs)) {
-      const suggestion = _t(
-        "Consider using a dynamic pivot formula: %s. Or re-insert the static pivot from the Data menu.",
-        `=PIVOT(${_pivotFormulaId})`
-      );
-      return {
-        value: CellErrorType.GenericError,
-        message: _t("Dimensions don't match the pivot definition") + ". " + suggestion,
-      };
-    }
+    assertPivotDomainArgsValid(pivot, domainArgs, _pivotFormulaId);
     const domain = pivot.parseArgsToPivotDomain(domainArgs);
     const lastNode = domain.at(-1);
     if (lastNode?.field === "measure") {

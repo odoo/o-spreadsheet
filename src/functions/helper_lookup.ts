@@ -1,6 +1,7 @@
 import { zoneToXc } from "../helpers";
+import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
 import { _t } from "../translation";
-import { EvalContext, FunctionResultObject, Getters, Maybe, Range, UID } from "../types";
+import { EvalContext, FunctionResultObject, Getters, Maybe, Pivot, Range, UID } from "../types";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
 import { assert, assertReference } from "./helper_assert";
 
@@ -27,6 +28,21 @@ export function assertMeasureExist(pivotId: UID, measure: string, getters: Gette
 
 export function assertDomainLength(domain: Maybe<FunctionResultObject>[]) {
   assert(domain.length % 2 === 0, _t("Function PIVOT takes an even number of arguments."));
+}
+
+export function assertPivotDomainArgsValid(
+  pivot: Pivot<PivotRuntimeDefinition>,
+  domainArgs: Maybe<FunctionResultObject>[],
+  pivotFormulaId: string
+) {
+  const suggestion = _t(
+    "Consider using a dynamic pivot formula: %s. Or re-insert the static pivot from the Data menu.",
+    `=PIVOT(${pivotFormulaId})`
+  );
+  assert(
+    pivot.areDomainArgsFieldsValid(domainArgs),
+    _t("Dimensions don't match the pivot definition") + ". " + suggestion
+  );
 }
 
 export function addPivotDependencies(

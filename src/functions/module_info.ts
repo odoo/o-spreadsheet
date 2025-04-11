@@ -4,7 +4,7 @@ import { _t } from "../translation";
 import { AddFunctionDescription, CellValueType, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert } from "./helper_assert";
+import { assert, assertAvailable } from "./helper_assert";
 import { isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
@@ -176,7 +176,7 @@ export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
   compute: function (): FunctionResultObject {
-    return { value: CellErrorType.NotAvailable };
+    assertAvailable(false, "");
   },
   isExported: true,
 } satisfies AddFunctionDescription;
