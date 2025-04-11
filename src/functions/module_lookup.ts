@@ -7,6 +7,7 @@ import { arg } from "./arguments";
 import {
   assert,
   assertAvailable,
+  assertNotError,
   assertNumberGreaterThanOrEqualToOne,
   assertPositive,
   assertReference,
@@ -127,9 +128,7 @@ export const COLUMN = {
     ),
   ],
   compute: function (cellReference: Maybe<{ value: string }>): number {
-    if (isEvaluationError(cellReference?.value)) {
-      throw cellReference;
-    }
+    assertNotError(cellReference);
     const column =
       cellReference === undefined
         ? this.__originCellPosition?.col
@@ -151,9 +150,7 @@ export const COLUMNS = {
   description: _t("Number of columns in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose column count will be returned."))],
   compute: function (range: { value: string }): number {
-    if (isEvaluationError(range?.value)) {
-      throw range;
-    }
+    assertNotError(range);
     const zone = toZone(range.value);
     return zone.right - zone.left + 1;
   },
@@ -491,9 +488,7 @@ export const ROW = {
     ),
   ],
   compute: function (cellReference: Maybe<{ value: string }>): number {
-    if (isEvaluationError(cellReference?.value)) {
-      throw cellReference;
-    }
+    assertNotError(cellReference);
     const row =
       cellReference === undefined
         ? this.__originCellPosition?.row
@@ -515,9 +510,7 @@ export const ROWS = {
   description: _t("Number of rows in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose row count will be returned."))],
   compute: function (range: { value: string }): number {
-    if (isEvaluationError(range?.value)) {
-      throw range;
-    }
+    assertNotError(range);
     const zone = toZone(range.value);
     return zone.bottom - zone.top + 1;
   },

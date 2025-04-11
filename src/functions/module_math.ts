@@ -9,14 +9,13 @@ import {
   isMatrix,
 } from "../types";
 import { arg } from "./arguments";
-import { assert, assertNotZero, assertPositive } from "./helper_assert";
+import { assert, assertNotError, assertNotZero, assertPositive } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
   generateMatrix,
   inferFormat,
   isDataNonEmpty,
-  isEvaluationError,
   reduceAny,
   strictToNumber,
   toBoolean,
@@ -991,13 +990,10 @@ export const PRODUCT = {
       if (isMatrix(n)) {
         for (let i of n) {
           for (let j of i) {
-            const f = j.value;
-            if (typeof f === "number") {
-              acc *= f;
+            assertNotError(j);
+            if (typeof j.value === "number") {
+              acc *= j.value;
               count += 1;
-            }
-            if (isEvaluationError(f)) {
-              throw j;
             }
           }
         }
