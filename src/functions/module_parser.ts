@@ -1,7 +1,7 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
+import { assert } from "./helper_assert";
 import { getTransformation, getTranslatedCategory } from "./helper_parser";
 import { toNumber, toString } from "./helpers";
 
@@ -25,28 +25,16 @@ export const CONVERT = {
     const _endUnit = toString(endUnit);
     const startConversion = getTransformation(_startUnit);
     const endConversion = getTransformation(_endUnit);
-    if (!startConversion) {
-      return {
-        value: CellErrorType.GenericError,
-        message: _t("Invalid units of measure ('%s')", _startUnit),
-      };
-    }
-    if (!endConversion) {
-      return {
-        value: CellErrorType.GenericError,
-        message: _t("Invalid units of measure ('%s')", _endUnit),
-      };
-    }
-    if (startConversion.category !== endConversion.category) {
-      return {
-        value: CellErrorType.GenericError,
-        message: _t(
-          "Incompatible units of measure ('%s' vs '%s')",
-          getTranslatedCategory(startConversion.category),
-          getTranslatedCategory(endConversion.category)
-        ),
-      };
-    }
+    assert(startConversion !== undefined, _t("Invalid units of measure ('%s')", _startUnit));
+    assert(endConversion !== undefined, _t("Invalid units of measure ('%s')", _endUnit));
+    assert(
+      startConversion.category === endConversion.category,
+      _t(
+        "Incompatible units of measure ('%s' vs '%s')",
+        getTranslatedCategory(startConversion.category),
+        getTranslatedCategory(endConversion.category)
+      )
+    );
     return {
       value:
         endConversion.inverseTransform(startConversion.factor * startConversion.transform(_value)) /
