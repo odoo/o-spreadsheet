@@ -6,6 +6,7 @@ import { CellErrorType, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
+  assertAvailable,
   assertNumberGreaterThanOrEqualToOne,
   assertPositive,
   assertReference,
@@ -35,11 +36,14 @@ const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
 const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
 
-function valueNotAvailable(searchKey: Maybe<FunctionResultObject>): FunctionResultObject {
-  return {
-    value: CellErrorType.NotAvailable,
-    message: _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey)),
-  };
+function assertAvailableLookup(
+  condition: boolean,
+  searchKey: Maybe<FunctionResultObject>
+): asserts condition {
+  assertAvailable(
+    condition,
+    _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
+  );
 }
 
 // -----------------------------------------------------------------------------
@@ -213,9 +217,7 @@ export const HLOOKUP = {
           this.lookupCaches
         );
     const col = _range[colIndex];
-    if (col === undefined) {
-      return valueNotAvailable(searchKey);
-    }
+    assertAvailableLookup(col !== undefined, searchKey);
     return col[_index - 1];
   },
   isExported: true,
@@ -366,13 +368,14 @@ export const LOOKUP = {
       getElement
     );
 
-    if (
-      index === -1 ||
-      (verticalSearch && _searchArray[0][index] === undefined) ||
-      (!verticalSearch && _searchArray[index][nbRow - 1] === undefined)
-    ) {
-      return valueNotAvailable(searchKey);
-    }
+    assertAvailableLookup(
+      !(
+        index === -1 ||
+        (verticalSearch && _searchArray[0][index] === undefined) ||
+        (!verticalSearch && _searchArray[index][nbRow - 1] === undefined)
+      ),
+      searchKey
+    );
 
     if (_resultRange[0].length === 0) {
       return verticalSearch ? _searchArray[nbCol - 1][index] : _searchArray[index][nbRow - 1];
@@ -461,12 +464,13 @@ export const MATCH = {
         index = dichotomicSearch(_range, searchKey, "nextGreater", "desc", rangeLen, getElement);
         break;
     }
-    if (
-      (nbCol === 1 && _range[0][index] === undefined) ||
-      (nbCol !== 1 && _range[index] === undefined)
-    ) {
-      return valueNotAvailable(searchKey);
-    }
+    assertAvailableLookup(
+      !(
+        (nbCol === 1 && _range[0][index] === undefined) ||
+        (nbCol !== 1 && _range[index] === undefined)
+      ),
+      searchKey
+    );
     return index + 1;
   },
   isExported: true,
@@ -586,9 +590,7 @@ export const VLOOKUP = {
         );
 
     const value = _range[_index - 1][rowIndex];
-    if (value === undefined) {
-      return valueNotAvailable(searchKey);
-    }
+    assertAvailableLookup(value !== undefined, searchKey);
     return value;
   },
   isExported: true,
@@ -713,9 +715,7 @@ export const XLOOKUP = {
         ? _returnRange.map((col) => [col[index]])
         : [_returnRange[index]];
     }
-    if (defaultValue === undefined) {
-      return valueNotAvailable(searchKey);
-    }
+    assertAvailableLookup(defaultValue !== undefined, searchKey);
     return [[defaultValue]];
   },
   isExported: true,
