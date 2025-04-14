@@ -1,5 +1,6 @@
-import { Model } from "../../src";
-import { DataValidationCriterion, UID } from "../../src/types";
+import { Model, UIPlugin } from "../../src";
+import { featurePluginRegistry } from "../../src/plugins";
+import { Command, DataValidationCriterion, UID } from "../../src/types";
 import {
   activateSheet,
   addDataValidation,
@@ -10,7 +11,7 @@ import {
   paste,
   removeDataValidation,
 } from "../test_helpers/commands_helpers";
-import { getDataValidationRules } from "../test_helpers/helpers";
+import { addTestPlugin, getDataValidationRules } from "../test_helpers/helpers";
 
 describe("Data validation", () => {
   let model: Model;
@@ -200,5 +201,23 @@ describe("Data validation", () => {
       { criterion: criterion1, ranges: ["E1:E5"] },
       { criterion: criterion2, ranges: ["G1:G5"] },
     ]);
+  });
+
+  test("copy/paste a DV zone only dispatch a singled ADD_DATA_VALIDATION_RULE", () => {
+    const commands: Command[] = [];
+    class MyUIPlugin extends UIPlugin {
+      handle = (cmd: Command) => commands.push(cmd);
+    }
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+
+    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const sheetId = model.getters.getActiveSheetId();
+    addDataValidation(model, "A1:A2", "id", { type: "textContains", values: ["1"] });
+
+    copy(model, "A1:A2");
+    paste(model, "B1");
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([{ ranges: ["A1:B2"] }]);
+    expect(commands.filter((c) => c.type === "ADD_DATA_VALIDATION_RULE")).toHaveLength(2);
   });
 });
