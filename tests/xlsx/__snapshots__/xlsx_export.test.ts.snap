@@ -148,12 +148,14 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -210,12 +212,15 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -273,24 +278,6 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                 </a:solidFill>
             </c:spPr>
         </c:plotArea>
-        <c:legend>
-            <c:legendPos val="t"/>
-            <c:overlay val="0"/>
-            <c:txPr>
-                <a:bodyPr/>
-                <a:lstStyle/>
-                <a:p>
-                    <a:pPr lvl="0">
-                        <a:defRPr b="0" i="0" sz="1000">
-                            <a:solidFill>
-                                <a:srgbClr val="000000"/>
-                            </a:solidFill>
-                            <a:latin typeface="+mn-lt"/>
-                        </a:defRPr>
-                    </a:pPr>
-                </a:p>
-            </c:txPr>
-        </c:legend>
     </c:chart>
 </c:chartSpace>",
       "contentType": "chart",
@@ -763,12 +750,14 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -825,12 +814,15 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -1378,12 +1370,14 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -1440,12 +1434,15 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2008,12 +2005,14 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2070,12 +2069,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2524,12 +2526,14 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2586,12 +2590,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2918,12 +2925,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2980,12 +2990,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -3224,12 +3237,14 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -3286,12 +3301,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -4160,12 +4178,14 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -4222,12 +4242,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -4617,12 +4640,14 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -4679,12 +4704,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -5037,6 +5065,1220 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
 }
 `;
 
+exports[`Test XLSX export Charts doughnut chart 1`] = `
+{
+  "files": [
+    {
+      "content": "<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheets>
+        <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
+    </sheets>
+</workbook>",
+      "contentType": "workbook",
+      "path": "xl/workbook.xml",
+    },
+    {
+      "content": "<c:chartSpace xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+    <c:roundedCorners val="0"/>
+    <!-- <manualLayout/> to manually position the chart in the figure container -->
+    <c:spPr>
+        <a:solidFill>
+            <a:srgbClr val="FFFFFF"/>
+        </a:solidFill>
+        <a:ln cmpd="sng">
+            <a:solidFill>
+                <a:srgbClr val="000000"/>
+            </a:solidFill>
+        </a:ln>
+    </c:spPr>
+    <c:chart>
+        <c:title>
+            <c:tx>
+                <c:rich>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0">
+                                <a:solidFill>
+                                    <a:srgbClr val="666666"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                        <a:r>
+                            <!-- Runs -->
+                            <a:rPr b="0" i="0" sz="1600"/>
+                            <a:t>
+                                test
+                            </a:t>
+                        </a:r>
+                    </a:p>
+                </c:rich>
+            </c:tx>
+            <c:overlay val="0"/>
+        </c:title>
+        <c:autoTitleDeleted val="0"/>
+        <c:plotArea>
+            <!-- how the chart element is placed on the chart -->
+            <c:layout/>
+            <c:doughnutChart>
+                <c:varyColors val="1"/>
+                <c:holeSize val="50"/>
+                <dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </dLbls>
+                <c:ser>
+                    <c:idx val="1"/>
+                    <c:order val="1"/>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!C1
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:dPt>
+                        <c:idx val="0"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="1"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="EA6175"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="2"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="43C5B1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="1"/>
+                    </dLbls>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A2:A4
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <c:val>
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!C2:C4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:ser>
+                    <c:idx val="0"/>
+                    <c:order val="0"/>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!B1
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:dPt>
+                        <c:idx val="0"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="1"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="EA6175"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="2"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="43C5B1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="1"/>
+                    </dLbls>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A2:A4
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <c:val>
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!B2:B4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+            </c:doughnutChart>
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val="FFFFFF"/>
+                </a:solidFill>
+            </c:spPr>
+        </c:plotArea>
+        <c:legend>
+            <c:legendPos val="t"/>
+            <c:overlay val="0"/>
+            <c:txPr>
+                <a:bodyPr/>
+                <a:lstStyle/>
+                <a:p>
+                    <a:pPr lvl="0">
+                        <a:defRPr b="0" i="0" sz="1000">
+                            <a:solidFill>
+                                <a:srgbClr val="000000"/>
+                            </a:solidFill>
+                            <a:latin typeface="+mn-lt"/>
+                        </a:defRPr>
+                    </a:pPr>
+                </a:p>
+            </c:txPr>
+        </c:legend>
+    </c:chart>
+</c:chartSpace>",
+      "contentType": "chart",
+      "path": "xl/charts/chart2.xml",
+    },
+    {
+      "content": "<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+    <xdr:twoCellAnchor>
+        <xdr:from>
+            <xdr:col>
+                0
+            </xdr:col>
+            <xdr:colOff>
+                9525
+            </xdr:colOff>
+            <xdr:row>
+                0
+            </xdr:row>
+            <xdr:rowOff>
+                9525
+            </xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>
+                5
+            </xdr:col>
+            <xdr:colOff>
+                542925
+            </xdr:colOff>
+            <xdr:row>
+                14
+            </xdr:row>
+            <xdr:rowOff>
+                133350
+            </xdr:rowOff>
+        </xdr:to>
+        <xdr:graphicFrame>
+            <xdr:nvGraphicFramePr>
+                <xdr:cNvPr id="2" name="Chart 2" title="Chart"/>
+                <xdr:cNvGraphicFramePr/>
+            </xdr:nvGraphicFramePr>
+            <xdr:xfrm>
+                <a:off x="0" y="0"/>
+                <a:ext cx="0" cy="0"/>
+            </xdr:xfrm>
+            <a:graphic>
+                <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
+                    <c:chart r:id="rId1"/>
+                </a:graphicData>
+            </a:graphic>
+        </xdr:graphicFrame>
+        <xdr:clientData fLocksWithSheet="0"/>
+    </xdr:twoCellAnchor>
+</xdr:wsDr>",
+      "contentType": "drawing",
+      "path": "xl/drawings/drawing0.xml",
+    },
+    {
+      "content": "<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetViews>
+        <sheetView showGridLines="1" workbookViewId="0">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
+    <cols>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="0"/>
+        <col min="2" max="2" width="13.73" customWidth="1" hidden="0"/>
+        <col min="3" max="3" width="13.73" customWidth="1" hidden="0"/>
+        <col min="4" max="4" width="13.73" customWidth="1" hidden="0"/>
+        <col min="5" max="5" width="13.73" customWidth="1" hidden="0"/>
+        <col min="6" max="6" width="13.73" customWidth="1" hidden="0"/>
+        <col min="7" max="7" width="13.73" customWidth="1" hidden="0"/>
+        <col min="8" max="8" width="13.73" customWidth="1" hidden="0"/>
+        <col min="9" max="9" width="13.73" customWidth="1" hidden="0"/>
+        <col min="10" max="10" width="13.73" customWidth="1" hidden="0"/>
+        <col min="11" max="11" width="13.73" customWidth="1" hidden="0"/>
+        <col min="12" max="12" width="13.73" customWidth="1" hidden="0"/>
+        <col min="13" max="13" width="13.73" customWidth="1" hidden="0"/>
+        <col min="14" max="14" width="13.73" customWidth="1" hidden="0"/>
+        <col min="15" max="15" width="13.73" customWidth="1" hidden="0"/>
+        <col min="16" max="16" width="13.73" customWidth="1" hidden="0"/>
+        <col min="17" max="17" width="13.73" customWidth="1" hidden="0"/>
+        <col min="18" max="18" width="13.73" customWidth="1" hidden="0"/>
+        <col min="19" max="19" width="13.73" customWidth="1" hidden="0"/>
+        <col min="20" max="20" width="13.73" customWidth="1" hidden="0"/>
+        <col min="21" max="21" width="13.73" customWidth="1" hidden="0"/>
+        <col min="22" max="22" width="13.73" customWidth="1" hidden="0"/>
+        <col min="23" max="23" width="13.73" customWidth="1" hidden="0"/>
+        <col min="24" max="24" width="13.73" customWidth="1" hidden="0"/>
+        <col min="25" max="25" width="13.73" customWidth="1" hidden="0"/>
+    </cols>
+    <sheetData>
+        <row r="1">
+            <c r="B1" t="s">
+                <v>
+                    0
+                </v>
+            </c>
+            <c r="C1" t="s">
+                <v>
+                    1
+                </v>
+            </c>
+        </row>
+        <row r="2">
+            <c r="A2" t="s">
+                <v>
+                    2
+                </v>
+            </c>
+            <c r="B2">
+                <v>
+                    10
+                </v>
+            </c>
+            <c r="C2">
+                <v>
+                    20
+                </v>
+            </c>
+        </row>
+        <row r="3">
+            <c r="A3" t="s">
+                <v>
+                    3
+                </v>
+            </c>
+            <c r="B3">
+                <v>
+                    11
+                </v>
+            </c>
+            <c r="C3">
+                <v>
+                    19
+                </v>
+            </c>
+        </row>
+        <row r="4">
+            <c r="A4" t="s">
+                <v>
+                    4
+                </v>
+            </c>
+            <c r="B4">
+                <v>
+                    12
+                </v>
+            </c>
+            <c r="C4">
+                <v>
+                    18
+                </v>
+            </c>
+        </row>
+        <row r="5">
+            <c r="A5" t="s">
+                <v>
+                    5
+                </v>
+            </c>
+            <c r="B5">
+                <v>
+                    13
+                </v>
+            </c>
+            <c r="C5">
+                <v>
+                    17
+                </v>
+            </c>
+        </row>
+    </sheetData>
+    <drawing r:id="rId1"/>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet0.xml",
+    },
+    {
+      "content": "<metadata xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xda="http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray">
+    <metadataTypes count="1">
+        <metadataType name="XLDAPR" minSupportedVersion="120000" copy="1" pasteAll="1" pasteValues="1" merge="1" splitFirst="1" rowColShift="1" clearFormats="1" clearComments="1" assign="1" coerce="1" cellMeta="1"/>
+    </metadataTypes>
+    <futureMetadata name="XLDAPR" count="1">
+        <bk>
+            <extLst>
+                <ext uri="{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}">
+                    <xda:dynamicArrayProperties fDynamic="1" fCollapsed="0"/>
+                </ext>
+            </extLst>
+        </bk>
+    </futureMetadata>
+    <cellMetadata count="1">
+        <bk>
+            <rc t="1" v="0"/>
+        </bk>
+    </cellMetadata>
+</metadata>",
+      "contentType": "metadata",
+      "path": "xl/metadata.xml",
+    },
+    {
+      "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <numFmts count="0">
+    </numFmts>
+    <fonts count="1">
+        <font>
+            <sz val="10"/>
+            <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+    </fonts>
+    <fills count="2">
+        <fill>
+            <patternFill patternType="none"/>
+        </fill>
+        <fill>
+            <patternFill patternType="gray125"/>
+        </fill>
+    </fills>
+    <borders count="1">
+        <border>
+            <left>
+            </left>
+            <right>
+            </right>
+            <top>
+            </top>
+            <bottom>
+            </bottom>
+            <diagonal>
+            </diagonal>
+        </border>
+    </borders>
+    <cellXfs count="1">
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+    </cellXfs>
+    <dxfs count="0">
+    </dxfs>
+</styleSheet>",
+      "contentType": "styles",
+      "path": "xl/styles.xml",
+    },
+    {
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="6" uniqueCount="6">
+    <si>
+        <t>
+            first column dataset
+        </t>
+    </si>
+    <si>
+        <t>
+            second column dataset
+        </t>
+    </si>
+    <si>
+        <t>
+            P1
+        </t>
+    </si>
+    <si>
+        <t>
+            P2
+        </t>
+    </si>
+    <si>
+        <t>
+            P3
+        </t>
+    </si>
+    <si>
+        <t>
+            P4
+        </t>
+    </si>
+</sst>",
+      "contentType": "sharedStrings",
+      "path": "xl/sharedStrings.xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="worksheets/sheet0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+    <Relationship Id="rId2" Target="sharedStrings.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"/>
+    <Relationship Id="rId3" Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>
+    <Relationship Id="rId4" Target="metadata.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/_rels/workbook.xml.rels",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="../charts/chart2.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/drawings/_rels/drawing0.xml.rels",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="../drawings/drawing0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/worksheets/_rels/sheet0.xml.rels",
+    },
+    {
+      "content": "<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="avif" ContentType="image/avif"/>
+    <Default Extension="bmp" ContentType="image/bmp"/>
+    <Default Extension="gif" ContentType="image/gif"/>
+    <Default Extension="ico" ContentType="image/vnd.microsoft.icon"/>
+    <Default Extension="jpeg" ContentType="image/jpeg"/>
+    <Default Extension="png" ContentType="image/png"/>
+    <Default Extension="tiff" ContentType="image/tiff"/>
+    <Default Extension="webp" ContentType="image/webp"/>
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart2.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawing+xml" PartName="/xl/drawings/drawing0.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml" PartName="/xl/metadata.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
+</Types>",
+      "contentType": undefined,
+      "path": "[Content_Types].xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "_rels/.rels",
+    },
+  ],
+  "name": "my_spreadsheet.xlsx",
+}
+`;
+
+exports[`Test XLSX export Charts horizontal bar chart 1`] = `
+{
+  "files": [
+    {
+      "content": "<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheets>
+        <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
+    </sheets>
+</workbook>",
+      "contentType": "workbook",
+      "path": "xl/workbook.xml",
+    },
+    {
+      "content": "<c:chartSpace xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+    <c:roundedCorners val="0"/>
+    <!-- <manualLayout/> to manually position the chart in the figure container -->
+    <c:spPr>
+        <a:solidFill>
+            <a:srgbClr val="FFFFFF"/>
+        </a:solidFill>
+        <a:ln cmpd="sng">
+            <a:solidFill>
+                <a:srgbClr val="000000"/>
+            </a:solidFill>
+        </a:ln>
+    </c:spPr>
+    <c:chart>
+        <c:title>
+            <c:tx>
+                <c:rich>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0">
+                                <a:solidFill>
+                                    <a:srgbClr val="666666"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                        <a:r>
+                            <!-- Runs -->
+                            <a:rPr b="0" i="0" sz="1600"/>
+                            <a:t>
+                                test
+                            </a:t>
+                        </a:r>
+                    </a:p>
+                </c:rich>
+            </c:tx>
+            <c:overlay val="0"/>
+        </c:title>
+        <c:autoTitleDeleted val="0"/>
+        <c:plotArea>
+            <!-- how the chart element is placed on the chart -->
+            <c:layout/>
+            <c:barChart>
+                <c:barDir val="bar"/>
+                <c:grouping val="clustered"/>
+                <c:overlap val="-20"/>
+                <c:gapWidth val="70"/>
+                <!-- each data marker in the series does not have a different color -->
+                <c:varyColors val="0"/>
+                <c:ser>
+                    <c:idx val="0"/>
+                    <c:order val="0"/>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!B1
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:spPr>
+                        <a:solidFill>
+                            <a:srgbClr val="4EA7F2"/>
+                        </a:solidFill>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A2:A4
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <!-- x-coordinate values -->
+                    <c:val>
+                        <!-- x-coordinate values -->
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!B2:B4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:ser>
+                    <c:idx val="1"/>
+                    <c:order val="1"/>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!C1
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:spPr>
+                        <a:solidFill>
+                            <a:srgbClr val="EA6175"/>
+                        </a:solidFill>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="EA6175"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A2:A4
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <!-- x-coordinate values -->
+                    <c:val>
+                        <!-- x-coordinate values -->
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!C2:C4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:axId val="17781237"/>
+                <c:axId val="88853993"/>
+            </c:barChart>
+            <c:catAx>
+                <c:axId val="17781237"/>
+                <c:crossAx val="88853993"/>
+                <!-- reference to the other axe of the chart -->
+                <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:delete val="0"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val="maxMin"/>
+                </c:scaling>
+                <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="B7B7B7"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val="out"/>
+                <c:minorTickMark val="none"/>
+                <c:numFmt formatCode="General" sourceLinked="1"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl="0">
+                                    <a:defRPr b="0" i="0">
+                                        <a:solidFill>
+                                            <a:srgbClr val="000000"/>
+                                        </a:solidFill>
+                                        <a:latin typeface="+mn-lt"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr b="0" i="0" sz="1200"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0" sz="1000">
+                                <a:solidFill>
+                                    <a:srgbClr val="000000"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:catAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:valAx>
+                <c:axId val="88853993"/>
+                <c:crossAx val="17781237"/>
+                <!-- reference to the other axe of the chart -->
+                <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
+                <c:delete val="0"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val="minMax"/>
+                </c:scaling>
+                <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="B7B7B7"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val="out"/>
+                <c:minorTickMark val="none"/>
+                <c:numFmt formatCode="General" sourceLinked="1"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl="0">
+                                    <a:defRPr b="0" i="0">
+                                        <a:solidFill>
+                                            <a:srgbClr val="000000"/>
+                                        </a:solidFill>
+                                        <a:latin typeface="+mn-lt"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr b="0" i="0" sz="1200"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0" sz="1000">
+                                <a:solidFill>
+                                    <a:srgbClr val="000000"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:valAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val="FFFFFF"/>
+                </a:solidFill>
+            </c:spPr>
+        </c:plotArea>
+        <c:legend>
+            <c:legendPos val="t"/>
+            <c:overlay val="0"/>
+            <c:txPr>
+                <a:bodyPr/>
+                <a:lstStyle/>
+                <a:p>
+                    <a:pPr lvl="0">
+                        <a:defRPr b="0" i="0" sz="1000">
+                            <a:solidFill>
+                                <a:srgbClr val="000000"/>
+                            </a:solidFill>
+                            <a:latin typeface="+mn-lt"/>
+                        </a:defRPr>
+                    </a:pPr>
+                </a:p>
+            </c:txPr>
+        </c:legend>
+    </c:chart>
+</c:chartSpace>",
+      "contentType": "chart",
+      "path": "xl/charts/chart2.xml",
+    },
+    {
+      "content": "<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+    <xdr:twoCellAnchor>
+        <xdr:from>
+            <xdr:col>
+                0
+            </xdr:col>
+            <xdr:colOff>
+                9525
+            </xdr:colOff>
+            <xdr:row>
+                0
+            </xdr:row>
+            <xdr:rowOff>
+                9525
+            </xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>
+                5
+            </xdr:col>
+            <xdr:colOff>
+                542925
+            </xdr:colOff>
+            <xdr:row>
+                14
+            </xdr:row>
+            <xdr:rowOff>
+                133350
+            </xdr:rowOff>
+        </xdr:to>
+        <xdr:graphicFrame>
+            <xdr:nvGraphicFramePr>
+                <xdr:cNvPr id="2" name="Chart 2" title="Chart"/>
+                <xdr:cNvGraphicFramePr/>
+            </xdr:nvGraphicFramePr>
+            <xdr:xfrm>
+                <a:off x="0" y="0"/>
+                <a:ext cx="0" cy="0"/>
+            </xdr:xfrm>
+            <a:graphic>
+                <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
+                    <c:chart r:id="rId1"/>
+                </a:graphicData>
+            </a:graphic>
+        </xdr:graphicFrame>
+        <xdr:clientData fLocksWithSheet="0"/>
+    </xdr:twoCellAnchor>
+</xdr:wsDr>",
+      "contentType": "drawing",
+      "path": "xl/drawings/drawing0.xml",
+    },
+    {
+      "content": "<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetViews>
+        <sheetView showGridLines="1" workbookViewId="0">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
+    <cols>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="0"/>
+        <col min="2" max="2" width="13.73" customWidth="1" hidden="0"/>
+        <col min="3" max="3" width="13.73" customWidth="1" hidden="0"/>
+        <col min="4" max="4" width="13.73" customWidth="1" hidden="0"/>
+        <col min="5" max="5" width="13.73" customWidth="1" hidden="0"/>
+        <col min="6" max="6" width="13.73" customWidth="1" hidden="0"/>
+        <col min="7" max="7" width="13.73" customWidth="1" hidden="0"/>
+        <col min="8" max="8" width="13.73" customWidth="1" hidden="0"/>
+        <col min="9" max="9" width="13.73" customWidth="1" hidden="0"/>
+        <col min="10" max="10" width="13.73" customWidth="1" hidden="0"/>
+        <col min="11" max="11" width="13.73" customWidth="1" hidden="0"/>
+        <col min="12" max="12" width="13.73" customWidth="1" hidden="0"/>
+        <col min="13" max="13" width="13.73" customWidth="1" hidden="0"/>
+        <col min="14" max="14" width="13.73" customWidth="1" hidden="0"/>
+        <col min="15" max="15" width="13.73" customWidth="1" hidden="0"/>
+        <col min="16" max="16" width="13.73" customWidth="1" hidden="0"/>
+        <col min="17" max="17" width="13.73" customWidth="1" hidden="0"/>
+        <col min="18" max="18" width="13.73" customWidth="1" hidden="0"/>
+        <col min="19" max="19" width="13.73" customWidth="1" hidden="0"/>
+        <col min="20" max="20" width="13.73" customWidth="1" hidden="0"/>
+        <col min="21" max="21" width="13.73" customWidth="1" hidden="0"/>
+        <col min="22" max="22" width="13.73" customWidth="1" hidden="0"/>
+        <col min="23" max="23" width="13.73" customWidth="1" hidden="0"/>
+        <col min="24" max="24" width="13.73" customWidth="1" hidden="0"/>
+        <col min="25" max="25" width="13.73" customWidth="1" hidden="0"/>
+    </cols>
+    <sheetData>
+        <row r="1">
+            <c r="B1" t="s">
+                <v>
+                    0
+                </v>
+            </c>
+            <c r="C1" t="s">
+                <v>
+                    1
+                </v>
+            </c>
+        </row>
+        <row r="2">
+            <c r="A2" t="s">
+                <v>
+                    2
+                </v>
+            </c>
+            <c r="B2">
+                <v>
+                    10
+                </v>
+            </c>
+            <c r="C2">
+                <v>
+                    20
+                </v>
+            </c>
+        </row>
+        <row r="3">
+            <c r="A3" t="s">
+                <v>
+                    3
+                </v>
+            </c>
+            <c r="B3">
+                <v>
+                    11
+                </v>
+            </c>
+            <c r="C3">
+                <v>
+                    19
+                </v>
+            </c>
+        </row>
+        <row r="4">
+            <c r="A4" t="s">
+                <v>
+                    4
+                </v>
+            </c>
+            <c r="B4">
+                <v>
+                    12
+                </v>
+            </c>
+            <c r="C4">
+                <v>
+                    18
+                </v>
+            </c>
+        </row>
+        <row r="5">
+            <c r="A5" t="s">
+                <v>
+                    5
+                </v>
+            </c>
+            <c r="B5">
+                <v>
+                    13
+                </v>
+            </c>
+            <c r="C5">
+                <v>
+                    17
+                </v>
+            </c>
+        </row>
+    </sheetData>
+    <drawing r:id="rId1"/>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet0.xml",
+    },
+    {
+      "content": "<metadata xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xda="http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray">
+    <metadataTypes count="1">
+        <metadataType name="XLDAPR" minSupportedVersion="120000" copy="1" pasteAll="1" pasteValues="1" merge="1" splitFirst="1" rowColShift="1" clearFormats="1" clearComments="1" assign="1" coerce="1" cellMeta="1"/>
+    </metadataTypes>
+    <futureMetadata name="XLDAPR" count="1">
+        <bk>
+            <extLst>
+                <ext uri="{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}">
+                    <xda:dynamicArrayProperties fDynamic="1" fCollapsed="0"/>
+                </ext>
+            </extLst>
+        </bk>
+    </futureMetadata>
+    <cellMetadata count="1">
+        <bk>
+            <rc t="1" v="0"/>
+        </bk>
+    </cellMetadata>
+</metadata>",
+      "contentType": "metadata",
+      "path": "xl/metadata.xml",
+    },
+    {
+      "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <numFmts count="0">
+    </numFmts>
+    <fonts count="1">
+        <font>
+            <sz val="10"/>
+            <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+    </fonts>
+    <fills count="2">
+        <fill>
+            <patternFill patternType="none"/>
+        </fill>
+        <fill>
+            <patternFill patternType="gray125"/>
+        </fill>
+    </fills>
+    <borders count="1">
+        <border>
+            <left>
+            </left>
+            <right>
+            </right>
+            <top>
+            </top>
+            <bottom>
+            </bottom>
+            <diagonal>
+            </diagonal>
+        </border>
+    </borders>
+    <cellXfs count="1">
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+    </cellXfs>
+    <dxfs count="0">
+    </dxfs>
+</styleSheet>",
+      "contentType": "styles",
+      "path": "xl/styles.xml",
+    },
+    {
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="6" uniqueCount="6">
+    <si>
+        <t>
+            first column dataset
+        </t>
+    </si>
+    <si>
+        <t>
+            second column dataset
+        </t>
+    </si>
+    <si>
+        <t>
+            P1
+        </t>
+    </si>
+    <si>
+        <t>
+            P2
+        </t>
+    </si>
+    <si>
+        <t>
+            P3
+        </t>
+    </si>
+    <si>
+        <t>
+            P4
+        </t>
+    </si>
+</sst>",
+      "contentType": "sharedStrings",
+      "path": "xl/sharedStrings.xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="worksheets/sheet0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+    <Relationship Id="rId2" Target="sharedStrings.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"/>
+    <Relationship Id="rId3" Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>
+    <Relationship Id="rId4" Target="metadata.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/_rels/workbook.xml.rels",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="../charts/chart2.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/drawings/_rels/drawing0.xml.rels",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="../drawings/drawing0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/worksheets/_rels/sheet0.xml.rels",
+    },
+    {
+      "content": "<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="avif" ContentType="image/avif"/>
+    <Default Extension="bmp" ContentType="image/bmp"/>
+    <Default Extension="gif" ContentType="image/gif"/>
+    <Default Extension="ico" ContentType="image/vnd.microsoft.icon"/>
+    <Default Extension="jpeg" ContentType="image/jpeg"/>
+    <Default Extension="png" ContentType="image/png"/>
+    <Default Extension="tiff" ContentType="image/tiff"/>
+    <Default Extension="webp" ContentType="image/webp"/>
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart2.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawing+xml" PartName="/xl/drawings/drawing0.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml" PartName="/xl/metadata.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
+</Types>",
+      "contentType": undefined,
+      "path": "[Content_Types].xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "_rels/.rels",
+    },
+  ],
+  "name": "my_spreadsheet.xlsx",
+}
+`;
+
 exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
 {
   "files": [
@@ -5208,12 +6450,14 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -5270,12 +6514,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -5492,12 +6739,14 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -5554,12 +6803,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -6344,6 +7596,778 @@ exports[`Test XLSX export Charts pie chart with only title dataset 1`] = `
 }
 `;
 
+exports[`Test XLSX export Charts pyramid chart 1`] = `
+{
+  "files": [
+    {
+      "content": "<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheets>
+        <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
+    </sheets>
+</workbook>",
+      "contentType": "workbook",
+      "path": "xl/workbook.xml",
+    },
+    {
+      "content": "<c:chartSpace xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+    <c:roundedCorners val="0"/>
+    <!-- <manualLayout/> to manually position the chart in the figure container -->
+    <c:spPr>
+        <a:solidFill>
+            <a:srgbClr val="FFFFFF"/>
+        </a:solidFill>
+        <a:ln cmpd="sng">
+            <a:solidFill>
+                <a:srgbClr val="000000"/>
+            </a:solidFill>
+        </a:ln>
+    </c:spPr>
+    <c:chart>
+        <c:title>
+            <c:tx>
+                <c:rich>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0">
+                                <a:solidFill>
+                                    <a:srgbClr val="666666"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                        <a:r>
+                            <!-- Runs -->
+                            <a:rPr b="0" i="0" sz="1600"/>
+                            <a:t>
+                                test
+                            </a:t>
+                        </a:r>
+                    </a:p>
+                </c:rich>
+            </c:tx>
+            <c:overlay val="0"/>
+        </c:title>
+        <c:autoTitleDeleted val="0"/>
+        <c:plotArea>
+            <!-- how the chart element is placed on the chart -->
+            <c:layout/>
+            <c:barChart>
+                <c:barDir val="bar"/>
+                <c:grouping val="clustered"/>
+                <c:varyColors val="0"/>
+                <c:ser>
+                    <c:idx val="0"/>
+                    <c:order val="0"/>
+                    <c:invertIfNegative val="0"/>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!B1
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:spPr>
+                        <a:solidFill>
+                            <a:srgbClr val="4EA7F2"/>
+                        </a:solidFill>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A2:A4
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <!-- x-coordinate values -->
+                    <c:val>
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!B2:B4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:gapWidth val="50"/>
+                <c:axId val="17781237"/>
+                <c:axId val="88853993"/>
+            </c:barChart>
+            <c:barChart>
+                <c:barDir val="bar"/>
+                <c:grouping val="clustered"/>
+                <c:varyColors val="0"/>
+                <c:ser>
+                    <c:idx val="1"/>
+                    <c:order val="1"/>
+                    <c:invertIfNegative val="0"/>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!C1
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:spPr>
+                        <a:solidFill>
+                            <a:srgbClr val="EA6175"/>
+                        </a:solidFill>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="EA6175"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A2:A4
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <!-- x-coordinate values -->
+                    <c:val>
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!C2:C4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:gapWidth val="50"/>
+                <c:axId val="17781238"/>
+                <c:axId val="88853994"/>
+            </c:barChart>
+            <c:catAx>
+                <c:axId val="17781237"/>
+                <c:crossAx val="88853993"/>
+                <!-- reference to the other axe of the chart -->
+                <c:crosses val="autoZero"/>
+                <c:auto val="1"/>
+                <c:delete val="0"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val="maxMin"/>
+                </c:scaling>
+                <c:axPos val="r"/>
+                <c:tickLblPos val="high"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="B7B7B7"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val="out"/>
+                <c:minorTickMark val="none"/>
+                <c:numFmt formatCode="General" sourceLinked="1"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl="0">
+                                    <a:defRPr b="0" i="0">
+                                        <a:solidFill>
+                                            <a:srgbClr val="000000"/>
+                                        </a:solidFill>
+                                        <a:latin typeface="+mn-lt"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr b="0" i="0" sz="1200"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0" sz="1000">
+                                <a:solidFill>
+                                    <a:srgbClr val="000000"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:catAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:valAx>
+                <c:axId val="88853993"/>
+                <c:crossAx val="17781237"/>
+                <!-- reference to the other axe of the chart -->
+                <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
+                <c:delete val="0"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val="maxMin"/>
+                    <c:max val="21"/>
+                    <c:min val="-21"/>
+                </c:scaling>
+                <c:majorUnit val="7"/>
+                <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="B7B7B7"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val="out"/>
+                <c:minorTickMark val="none"/>
+                <c:numFmt formatCode="#0;#0" sourceLinked="0"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl="0">
+                                    <a:defRPr b="0" i="0">
+                                        <a:solidFill>
+                                            <a:srgbClr val="000000"/>
+                                        </a:solidFill>
+                                        <a:latin typeface="+mn-lt"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr b="0" i="0" sz="1200"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0" sz="1000">
+                                <a:solidFill>
+                                    <a:srgbClr val="000000"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:valAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:valAx>
+                <c:axId val="88853994"/>
+                <c:crossAx val="17781238"/>
+                <!-- reference to the other axe of the chart -->
+                <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
+                <c:delete val="1"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val="minMax"/>
+                </c:scaling>
+                <c:axPos val="t"/>
+                <c:tickLblPos val="nextTo"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="B7B7B7"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val="out"/>
+                <c:minorTickMark val="none"/>
+                <c:numFmt formatCode="General" sourceLinked="1"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl="0">
+                                    <a:defRPr b="0" i="0">
+                                        <a:solidFill>
+                                            <a:srgbClr val="000000"/>
+                                        </a:solidFill>
+                                        <a:latin typeface="+mn-lt"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr b="0" i="0" sz="1200"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0" sz="1000">
+                                <a:solidFill>
+                                    <a:srgbClr val="000000"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:valAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:catAx>
+                <c:axId val="17781238"/>
+                <c:crossAx val="88853994"/>
+                <!-- reference to the other axe of the chart -->
+                <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:delete val="1"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val="maxMin"/>
+                </c:scaling>
+                <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="B7B7B7"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val="out"/>
+                <c:minorTickMark val="none"/>
+                <c:numFmt formatCode="General" sourceLinked="1"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl="0">
+                                    <a:defRPr b="0" i="0">
+                                        <a:solidFill>
+                                            <a:srgbClr val="000000"/>
+                                        </a:solidFill>
+                                        <a:latin typeface="+mn-lt"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr b="0" i="0" sz="1200"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0" sz="1000">
+                                <a:solidFill>
+                                    <a:srgbClr val="000000"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:catAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val="FFFFFF"/>
+                </a:solidFill>
+            </c:spPr>
+        </c:plotArea>
+        <c:legend>
+            <c:legendPos val="t"/>
+            <c:overlay val="0"/>
+            <c:txPr>
+                <a:bodyPr/>
+                <a:lstStyle/>
+                <a:p>
+                    <a:pPr lvl="0">
+                        <a:defRPr b="0" i="0" sz="1000">
+                            <a:solidFill>
+                                <a:srgbClr val="000000"/>
+                            </a:solidFill>
+                            <a:latin typeface="+mn-lt"/>
+                        </a:defRPr>
+                    </a:pPr>
+                </a:p>
+            </c:txPr>
+        </c:legend>
+    </c:chart>
+</c:chartSpace>",
+      "contentType": "chart",
+      "path": "xl/charts/chart2.xml",
+    },
+    {
+      "content": "<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+    <xdr:twoCellAnchor>
+        <xdr:from>
+            <xdr:col>
+                0
+            </xdr:col>
+            <xdr:colOff>
+                9525
+            </xdr:colOff>
+            <xdr:row>
+                0
+            </xdr:row>
+            <xdr:rowOff>
+                9525
+            </xdr:rowOff>
+        </xdr:from>
+        <xdr:to>
+            <xdr:col>
+                5
+            </xdr:col>
+            <xdr:colOff>
+                542925
+            </xdr:colOff>
+            <xdr:row>
+                14
+            </xdr:row>
+            <xdr:rowOff>
+                133350
+            </xdr:rowOff>
+        </xdr:to>
+        <xdr:graphicFrame>
+            <xdr:nvGraphicFramePr>
+                <xdr:cNvPr id="2" name="Chart 2" title="Chart"/>
+                <xdr:cNvGraphicFramePr/>
+            </xdr:nvGraphicFramePr>
+            <xdr:xfrm>
+                <a:off x="0" y="0"/>
+                <a:ext cx="0" cy="0"/>
+            </xdr:xfrm>
+            <a:graphic>
+                <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
+                    <c:chart r:id="rId1"/>
+                </a:graphicData>
+            </a:graphic>
+        </xdr:graphicFrame>
+        <xdr:clientData fLocksWithSheet="0"/>
+    </xdr:twoCellAnchor>
+</xdr:wsDr>",
+      "contentType": "drawing",
+      "path": "xl/drawings/drawing0.xml",
+    },
+    {
+      "content": "<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetViews>
+        <sheetView showGridLines="1" workbookViewId="0">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
+    <cols>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="0"/>
+        <col min="2" max="2" width="13.73" customWidth="1" hidden="0"/>
+        <col min="3" max="3" width="13.73" customWidth="1" hidden="0"/>
+        <col min="4" max="4" width="13.73" customWidth="1" hidden="0"/>
+        <col min="5" max="5" width="13.73" customWidth="1" hidden="0"/>
+        <col min="6" max="6" width="13.73" customWidth="1" hidden="0"/>
+        <col min="7" max="7" width="13.73" customWidth="1" hidden="0"/>
+        <col min="8" max="8" width="13.73" customWidth="1" hidden="0"/>
+        <col min="9" max="9" width="13.73" customWidth="1" hidden="0"/>
+        <col min="10" max="10" width="13.73" customWidth="1" hidden="0"/>
+        <col min="11" max="11" width="13.73" customWidth="1" hidden="0"/>
+        <col min="12" max="12" width="13.73" customWidth="1" hidden="0"/>
+        <col min="13" max="13" width="13.73" customWidth="1" hidden="0"/>
+        <col min="14" max="14" width="13.73" customWidth="1" hidden="0"/>
+        <col min="15" max="15" width="13.73" customWidth="1" hidden="0"/>
+        <col min="16" max="16" width="13.73" customWidth="1" hidden="0"/>
+        <col min="17" max="17" width="13.73" customWidth="1" hidden="0"/>
+        <col min="18" max="18" width="13.73" customWidth="1" hidden="0"/>
+        <col min="19" max="19" width="13.73" customWidth="1" hidden="0"/>
+        <col min="20" max="20" width="13.73" customWidth="1" hidden="0"/>
+        <col min="21" max="21" width="13.73" customWidth="1" hidden="0"/>
+        <col min="22" max="22" width="13.73" customWidth="1" hidden="0"/>
+        <col min="23" max="23" width="13.73" customWidth="1" hidden="0"/>
+        <col min="24" max="24" width="13.73" customWidth="1" hidden="0"/>
+        <col min="25" max="25" width="13.73" customWidth="1" hidden="0"/>
+    </cols>
+    <sheetData>
+        <row r="1">
+            <c r="B1" t="s">
+                <v>
+                    0
+                </v>
+            </c>
+            <c r="C1" t="s">
+                <v>
+                    1
+                </v>
+            </c>
+        </row>
+        <row r="2">
+            <c r="A2" t="s">
+                <v>
+                    2
+                </v>
+            </c>
+            <c r="B2">
+                <v>
+                    10
+                </v>
+            </c>
+            <c r="C2">
+                <v>
+                    20
+                </v>
+            </c>
+        </row>
+        <row r="3">
+            <c r="A3" t="s">
+                <v>
+                    3
+                </v>
+            </c>
+            <c r="B3">
+                <v>
+                    11
+                </v>
+            </c>
+            <c r="C3">
+                <v>
+                    19
+                </v>
+            </c>
+        </row>
+        <row r="4">
+            <c r="A4" t="s">
+                <v>
+                    4
+                </v>
+            </c>
+            <c r="B4">
+                <v>
+                    12
+                </v>
+            </c>
+            <c r="C4">
+                <v>
+                    18
+                </v>
+            </c>
+        </row>
+        <row r="5">
+            <c r="A5" t="s">
+                <v>
+                    5
+                </v>
+            </c>
+            <c r="B5">
+                <v>
+                    13
+                </v>
+            </c>
+            <c r="C5">
+                <v>
+                    17
+                </v>
+            </c>
+        </row>
+    </sheetData>
+    <drawing r:id="rId1"/>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet0.xml",
+    },
+    {
+      "content": "<metadata xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xda="http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray">
+    <metadataTypes count="1">
+        <metadataType name="XLDAPR" minSupportedVersion="120000" copy="1" pasteAll="1" pasteValues="1" merge="1" splitFirst="1" rowColShift="1" clearFormats="1" clearComments="1" assign="1" coerce="1" cellMeta="1"/>
+    </metadataTypes>
+    <futureMetadata name="XLDAPR" count="1">
+        <bk>
+            <extLst>
+                <ext uri="{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}">
+                    <xda:dynamicArrayProperties fDynamic="1" fCollapsed="0"/>
+                </ext>
+            </extLst>
+        </bk>
+    </futureMetadata>
+    <cellMetadata count="1">
+        <bk>
+            <rc t="1" v="0"/>
+        </bk>
+    </cellMetadata>
+</metadata>",
+      "contentType": "metadata",
+      "path": "xl/metadata.xml",
+    },
+    {
+      "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <numFmts count="0">
+    </numFmts>
+    <fonts count="1">
+        <font>
+            <sz val="10"/>
+            <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+    </fonts>
+    <fills count="2">
+        <fill>
+            <patternFill patternType="none"/>
+        </fill>
+        <fill>
+            <patternFill patternType="gray125"/>
+        </fill>
+    </fills>
+    <borders count="1">
+        <border>
+            <left>
+            </left>
+            <right>
+            </right>
+            <top>
+            </top>
+            <bottom>
+            </bottom>
+            <diagonal>
+            </diagonal>
+        </border>
+    </borders>
+    <cellXfs count="1">
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
+    </cellXfs>
+    <dxfs count="0">
+    </dxfs>
+</styleSheet>",
+      "contentType": "styles",
+      "path": "xl/styles.xml",
+    },
+    {
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="6" uniqueCount="6">
+    <si>
+        <t>
+            first column dataset
+        </t>
+    </si>
+    <si>
+        <t>
+            second column dataset
+        </t>
+    </si>
+    <si>
+        <t>
+            P1
+        </t>
+    </si>
+    <si>
+        <t>
+            P2
+        </t>
+    </si>
+    <si>
+        <t>
+            P3
+        </t>
+    </si>
+    <si>
+        <t>
+            P4
+        </t>
+    </si>
+</sst>",
+      "contentType": "sharedStrings",
+      "path": "xl/sharedStrings.xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="worksheets/sheet0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+    <Relationship Id="rId2" Target="sharedStrings.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"/>
+    <Relationship Id="rId3" Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>
+    <Relationship Id="rId4" Target="metadata.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/_rels/workbook.xml.rels",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="../charts/chart2.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/drawings/_rels/drawing0.xml.rels",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="../drawings/drawing0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/worksheets/_rels/sheet0.xml.rels",
+    },
+    {
+      "content": "<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="avif" ContentType="image/avif"/>
+    <Default Extension="bmp" ContentType="image/bmp"/>
+    <Default Extension="gif" ContentType="image/gif"/>
+    <Default Extension="ico" ContentType="image/vnd.microsoft.icon"/>
+    <Default Extension="jpeg" ContentType="image/jpeg"/>
+    <Default Extension="png" ContentType="image/png"/>
+    <Default Extension="tiff" ContentType="image/tiff"/>
+    <Default Extension="webp" ContentType="image/webp"/>
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart2.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawing+xml" PartName="/xl/drawings/drawing0.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml" PartName="/xl/metadata.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
+</Types>",
+      "contentType": undefined,
+      "path": "[Content_Types].xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "_rels/.rels",
+    },
+  ],
+  "name": "my_spreadsheet.xlsx",
+}
+`;
+
 exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
 {
   "files": [
@@ -6454,12 +8478,14 @@ exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
                 <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -6518,12 +8544,15 @@ exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
                 <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="r"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -7047,12 +9076,14 @@ exports[`Test XLSX export Charts simple bar chart with customized dataset 1`] = 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -7109,12 +9140,15 @@ exports[`Test XLSX export Charts simple bar chart with customized dataset 1`] = 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -7638,12 +9672,14 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -7700,12 +9736,15 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8229,12 +10268,14 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8291,12 +10332,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8858,12 +10902,14 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8920,12 +10966,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -9448,12 +11497,14 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                 <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -9512,12 +11563,15 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                 <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="r"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10040,12 +12094,14 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10102,12 +12158,15 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10630,12 +12689,14 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10692,12 +12753,15 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -11220,12 +13284,14 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -11282,12 +13348,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -11869,12 +13938,14 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
-                <c:delete val="1"/>
+                <c:auto val="1"/>
+                <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -11931,12 +14002,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -12470,12 +14544,14 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
                 <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -12534,12 +14610,15 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
                 <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="r"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -13073,12 +15152,14 @@ exports[`Test XLSX export Charts simple line chart with customized dataset 1`] =
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -13135,12 +15216,15 @@ exports[`Test XLSX export Charts simple line chart with customized dataset 1`] =
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -13674,12 +15758,14 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -13736,12 +15822,15 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -14275,12 +16364,14 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -14337,12 +16428,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -14927,12 +17021,14 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -14989,12 +17085,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -16613,12 +18712,14 @@ exports[`Test XLSX export Charts simple radar chart with customized axis 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -16675,12 +18776,15 @@ exports[`Test XLSX export Charts simple radar chart with customized axis 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -17211,12 +19315,14 @@ exports[`Test XLSX export Charts simple radar chart with customized dataset 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -17273,12 +19379,15 @@ exports[`Test XLSX export Charts simple radar chart with customized dataset 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -17811,12 +19920,14 @@ exports[`Test XLSX export Charts simple radar chart with customized title 1`] = 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -17873,12 +19984,15 @@ exports[`Test XLSX export Charts simple radar chart with customized title 1`] = 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -18411,12 +20525,14 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object] ] 1`
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -18473,12 +20589,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object] ] 1`
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -19062,12 +21181,14 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -19124,12 +21245,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -19663,12 +21787,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
                 <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -19727,12 +21854,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
                 <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="r"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -20266,12 +22396,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized dataset 1`
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -20328,12 +22461,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized dataset 1`
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -20867,12 +23003,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -20929,12 +23068,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -21468,12 +23610,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -21530,12 +23675,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -22120,12 +24268,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -22182,12 +24333,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -22749,12 +24903,14 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -22811,12 +24967,15 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -34551,12 +36710,14 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -34613,12 +36774,15 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35154,12 +37318,14 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35216,12 +37382,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35466,12 +37635,14 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35528,12 +37699,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -37533,12 +39707,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -37595,12 +39772,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -37839,12 +40019,14 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -37901,12 +40083,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">

@@ -865,7 +865,6 @@ describe("Test XLSX export", () => {
         },
         "3"
       );
-
       createChart(
         model,
         {
@@ -1279,6 +1278,51 @@ describe("Test XLSX export", () => {
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
           labelRange: "Sheet1!A2:A4",
           type: "bar",
+        },
+        "2"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("horizontal bar chart", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          type: "bar",
+          horizontal: true,
+        },
+        "2"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("doughnut chart", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          type: "pie",
+          isDoughnut: true,
+          pieHolePercentage: 50,
+        },
+        "2"
+      );
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("pyramid chart", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          type: "pyramid",
         },
         "2"
       );

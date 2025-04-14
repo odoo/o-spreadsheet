@@ -118,6 +118,9 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     aggregated: false,
     cumulative: chartData.cumulative || false,
     labelsAsText: false,
+    horizontal: chartData.horizontal,
+    isDoughnut: chartData.isDoughnut,
+    pieHolePercentage: chartData.pieHolePercentage,
   };
   try {
     const ChartClass = chartRegistry.get(chartData.type);

@@ -102,7 +102,7 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
           continue;
         }
         const figureId = figure.id;
-        const figureData = this.getters.getChart(figureId)?.getDefinitionForExcel();
+        const figureData = this.getters.getChart(figureId)?.getDefinitionForExcel(this.getters);
         if (figureData) {
           figures.push({
             ...figure,
