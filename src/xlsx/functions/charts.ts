@@ -76,6 +76,9 @@ export function createChart(
     case "combo":
       plot = addComboChart(chart.data);
       break;
+    case "pyramid":
+      plot = addPyramidChart(chart.data);
+      break;
     case "line":
       plot = addLineChart(chart.data);
       break;
@@ -83,7 +86,7 @@ export function createChart(
       plot = addScatterChart(chart.data);
       break;
     case "pie":
-      plot = addDoughnutChart(chart.data, chartSheetIndex, data, { holeSize: 0 });
+      plot = addDoughnutChart(chart.data, chartSheetIndex, data);
       break;
     case "radar":
       plot = addRadarChart(chart.data);
@@ -300,6 +303,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   //
   // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
   // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
+  const chartDirection = chart.horizontal ? "bar" : "col";
   const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
   const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
   const leftDataSetsNodes: XMLString[] = [];
@@ -340,7 +344,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
     leftDataSetsNodes.length
       ? escapeXml/*xml*/ `
         <c:barChart>
-          <c:barDir val="col"/>
+          <c:barDir val="${chartDirection}"/>
           <c:grouping val="${grouping}"/>
           <c:overlap val="${overlap}"/>
           <c:gapWidth val="70"/>
@@ -350,8 +354,35 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
           <c:axId val="${catAxId}" />
           <c:axId val="${valAxId}" />
         </c:barChart>
-        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)}
-        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+        ${
+          chartDirection === "col"
+            ? addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)
+            : addAx(
+                "b",
+                "c:catAx",
+                catAxId,
+                valAxId,
+                chart.axesDesign?.y?.title,
+                chart.fontColor,
+                undefined,
+                "maxMin"
+              )
+        }
+        ${
+          chartDirection === "col"
+            ? addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)
+            : addAx(
+                "l",
+                "c:valAx",
+                valAxId,
+                catAxId,
+                chart.axesDesign?.x?.title,
+                chart.fontColor,
+                undefined,
+                undefined,
+                "max"
+              )
+        }
       `
       : ""
   }
@@ -502,15 +533,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
     ${
       !useRightAxisForBarSerie || leftDataSetsNodes.length
         ? escapeXml/*xml*/ `
-        ${addAx(
-          "b",
-          "c:catAx",
-          catAxId,
-          valAxId,
-          chart.axesDesign?.x?.title,
-          chart.fontColor,
-          leftDataSetsNodes.length ? 1 : 0
-        )}
+        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor, 0)}
         ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
       `
         : ""
@@ -539,6 +562,143 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         : ""
     }
   `;
+}
+
+function addPyramidChart(chart: ExcelChartDefinition): XMLString {
+  const dataSets = chart.dataSets;
+  const dataSetsColors = dataSets.map((ds) => ds.backgroundColor ?? "");
+  const colors = new ColorGenerator(dataSets.length, dataSetsColors);
+  const leftDataSet = dataSets[0];
+  const rightDataSet = dataSets[1];
+  const firstColor = toXlsxHexColor(colors.next());
+  const secondColor = toXlsxHexColor(colors.next());
+  const { minValue, maxValue, majorUnit } = getPyramidChartHorizontalAxisConfig(chart.maxValue!);
+  const leftBarDataSetNode: XMLString = escapeXml/*xml*/ `
+  <c:ser>
+    <c:idx val="0"/>
+    <c:order val="0"/>
+    <c:invertIfNegative val="0" />
+    ${extractDataSetLabel(leftDataSet.label)}
+    ${shapeProperty({
+      backgroundColor: firstColor,
+      line: { color: firstColor },
+    })}
+    ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+    <!-- x-coordinate values -->
+    <c:val>
+      ${numberRef(leftDataSet.range)}
+    </c:val>
+  </c:ser>
+`;
+  const rightBarDataSetNode: XMLString = escapeXml/*xml*/ `
+  <c:ser>
+    <c:idx val="1"/>
+    <c:order val="1"/>
+    <c:invertIfNegative val="0" />
+    ${extractDataSetLabel(rightDataSet.label)}
+    ${shapeProperty({
+      backgroundColor: secondColor,
+      line: { color: secondColor },
+    })}
+    ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+    <!-- x-coordinate values -->
+    <c:val>
+      ${numberRef(rightDataSet.range)}
+    </c:val>
+  </c:ser>
+`;
+  return escapeXml/*xml*/ `
+    <c:barChart>
+      <c:barDir val="bar"/>
+      <c:grouping val="clustered"/>
+      <c:varyColors val="0" />
+      ${leftBarDataSetNode}
+      <c:gapWidth val="50" />
+      <c:axId val="${catAxId}" />
+      <c:axId val="${valAxId}" />
+    </c:barChart>
+    <c:barChart>
+      <c:barDir val="bar"/>
+      <c:grouping val="clustered"/>
+      <c:varyColors val="0" />
+      ${rightBarDataSetNode}
+      <c:gapWidth val="50" />
+      <c:axId val="${secondaryCatAxId}" />
+      <c:axId val="${secondaryValAxId}" />
+    </c:barChart>
+    ${addAx(
+      "r",
+      "c:catAx",
+      catAxId,
+      valAxId,
+      chart.axesDesign?.y?.title,
+      chart.fontColor,
+      0,
+      "maxMin",
+      "autoZero",
+      "high"
+    )}
+    ${addAx(
+      "b",
+      "c:valAx",
+      valAxId,
+      catAxId,
+      chart.axesDesign?.x?.title,
+      chart.fontColor,
+      0,
+      "maxMin",
+      "max",
+      "nextTo",
+      maxValue,
+      minValue,
+      majorUnit,
+      "#0;#0"
+    )}
+    ${addAx("t", "c:valAx", secondaryValAxId, secondaryCatAxId, undefined, chart.fontColor, 1)}
+    ${addAx(
+      "l",
+      "c:catAx",
+      secondaryCatAxId,
+      secondaryValAxId,
+      undefined,
+      chart.fontColor,
+      1,
+      "maxMin"
+    )}
+  `;
+}
+
+function getPyramidChartHorizontalAxisConfig(maxValue: number): {
+  minValue: number;
+  maxValue: number;
+  majorUnit: number;
+} {
+  const getLargestFactor = (n: number): number => {
+    for (let i = Math.floor(n / 2); i >= 1; i--) {
+      if (n % i === 0) return i;
+    }
+    return 1;
+  };
+  const isPrimeNumber = (n: number): boolean => {
+    if (n < 2) return false;
+    for (let i = 2; i <= Math.sqrt(n); i++) {
+      if (n % i === 0) return false;
+    }
+    return true;
+  };
+  const adjustMax = (max: number): number => {
+    while (isPrimeNumber(max)) {
+      max++;
+    }
+    return max;
+  };
+  const adjustedMax = adjustMax(Math.ceil(maxValue));
+  const majorUnit = getLargestFactor(adjustedMax);
+  return {
+    minValue: -adjustedMax,
+    maxValue: adjustedMax,
+    majorUnit,
+  };
 }
 
 function addLineChart(chart: ExcelChartDefinition): XMLString {
@@ -786,8 +946,7 @@ function addRadarChart(chart: ExcelChartDefinition): XMLString {
 function addDoughnutChart(
   chart: ExcelChartDefinition,
   chartSheetIndex: string,
-  data: ExcelWorkbookData,
-  { holeSize } = { holeSize: 50 }
+  data: ExcelWorkbookData
 ) {
   const maxLength = largeMax(
     chart.dataSets.map((ds) => getRangeSize(ds.range, chartSheetIndex, data))
@@ -830,7 +989,7 @@ function addDoughnutChart(
   return escapeXml/*xml*/ `
     <c:doughnutChart>
       <c:varyColors val="1" />
-      <c:holeSize val="${holeSize}" />
+      <c:holeSize val="${chart.pieHolePercentage}" />
       ${insertDataLabels()}
       ${joinXmlNodes(dataSetsNodes)}
     </c:doughnutChart>
@@ -858,7 +1017,14 @@ function addAx(
   crossAxId: number,
   title: TitleDesign | undefined,
   defaultFontColor: XlsxHexColor,
-  deleteAxis: number = 0
+  deleteAxis: number = 0,
+  orientation: "minMax" | "maxMin" = "minMax",
+  crossPosition?: string,
+  tickLabelPosition: "nextTo" | "high" = "nextTo",
+  maxValue?: number,
+  minValue?: number,
+  majorUnit?: number,
+  format: "General" | "#0;#0" = "General"
 ): XMLString {
   // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
   // I.e. x-axis, will reference y-axis and vice-versa.
@@ -868,16 +1034,26 @@ function addAx(
     <${axisName}>
       <c:axId val="${axId}"/>
       <c:crossAx val="${crossAxId}"/> <!-- reference to the other axe of the chart -->
-      <c:crosses val="${position === "b" || position === "l" ? "min" : "max"}"/>
+      <c:crosses val="${crossPosition || (position === "b" || position === "l" ? "min" : "max")}"/>
+      <c:auto val="1"/>
+      ${
+        axisName === "c:valAx"
+          ? escapeXml/*xml*/ `<c:crossBetween val="between" />`
+          : escapeXml/*xml*/ ``
+      }
       <c:delete val="${deleteAxis}"/> <!-- by default, axis are not displayed -->
       <c:scaling>
-        <c:orientation  val="minMax" />
+        <c:orientation  val="${orientation}" />
+        ${maxValue ? escapeXml/*xml*/ `<c:max val="${maxValue}" />` : escapeXml/*xml*/ ``}
+        ${minValue ? escapeXml/*xml*/ `<c:min val="${minValue}" />` : escapeXml/*xml*/ ``}
       </c:scaling>
+      ${majorUnit ? escapeXml/*xml*/ `<c:majorUnit val="${majorUnit}" />` : ""}
       <c:axPos val="${position}" />
+      <c:tickLblPos val="${tickLabelPosition}" />
       ${insertMajorGridLines()}
       <c:majorTickMark val="out" />
       <c:minorTickMark val="none" />
-      <c:numFmt formatCode="General" sourceLinked="1" />
+      <c:numFmt formatCode="${format}" sourceLinked="${format === "General" ? "1" : "0"}" />
       <c:title>
         ${insertText(title?.text ?? "", color, fontSize, title)}
       </c:title>
