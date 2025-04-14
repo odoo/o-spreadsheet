@@ -21,14 +21,18 @@ import {
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "../../../types/chart/pyramid_chart";
 import { Validator } from "../../../types/validator";
+import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  chartFontColor,
   checkDataset,
   checkLabelRange,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
+  getDefinedAxis,
+  shouldRemoveFirstLabel,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -179,8 +183,28 @@ export class PyramidChart extends AbstractChart {
     };
   }
 
-  getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    return undefined;
+  getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined {
+    const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
+      this.labelRange,
+      this.dataSets,
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+    );
+    const definition = this.getDefinition();
+    const chartData = getPyramidChartData(definition, this.dataSets, this.labelRange, getters);
+    const { dataSetsValues } = chartData;
+    const maxValue = Math.max(
+      ...dataSetsValues.map((dataSet) => Math.max(...dataSet.data.map(Math.abs)))
+    );
+    return {
+      ...definition,
+      horizontal: true,
+      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      dataSets,
+      labelRange,
+      verticalAxis: getDefinedAxis(definition),
+      maxValue,
+    };
   }
 
   updateRanges(applyChange: ApplyRangeChange): PyramidChart {

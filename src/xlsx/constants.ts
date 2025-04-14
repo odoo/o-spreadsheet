@@ -87,6 +87,8 @@ export const MAX_XLSX_POLYNOMIAL_DEGREE = 6;
 
 export const FIRST_NUMFMT_ID = 164;
 
+export const DEFAULT_DOUGHNUT_CHART_HOLE_SIZE = 50;
+
 interface functionDefaultArg {
   type: "NUMBER";
   value: number;

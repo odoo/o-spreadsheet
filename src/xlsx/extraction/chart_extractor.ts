@@ -34,6 +34,13 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           default: "clustered",
         }).asString();
 
+        const chartDirection = this.extractChildAttr(rootChartElement, "c:barDir", "val", {
+          default: "col",
+        }).asString();
+        const chartHoleSize = this.extractChildAttr(rootChartElement, "c:holeSize", "val", {
+          default: "0",
+        }).asNum();
+
         return {
           title: { text: chartTitle },
           type: CHART_TYPE_CONVERSION_MAP[chartType]!,
@@ -58,6 +65,9 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
             ],
           stacked: barChartGrouping === "stacked",
           fontColor: "000000",
+          horizontal: chartDirection === "bar",
+          isDoughnut: chartHoleSize > 0,
+          pieHolePercentage: chartHoleSize,
         };
       }
     )[0];

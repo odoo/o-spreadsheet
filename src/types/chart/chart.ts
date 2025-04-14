@@ -165,7 +165,7 @@ export interface ExcelChartTrendConfiguration {
 
 export type ExcelTrendlineType = "poly" | "exp" | "log" | "movingAvg" | "linear";
 
-export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar";
+export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar" | "pyramid";
 
 export interface ExcelChartDefinition {
   readonly title?: TitleDesign;
@@ -182,6 +182,10 @@ export interface ExcelChartDefinition {
     useRightAxis?: boolean;
   };
   readonly axesDesign?: AxesDesign;
+  readonly horizontal?: boolean;
+  readonly isDoughnut?: boolean;
+  readonly pieHolePercentage?: number;
+  readonly maxValue?: number;
 }
 
 export interface ChartCreationContext {
@@ -207,6 +211,9 @@ export interface ChartCreationContext {
   readonly hideDataMarkers?: boolean;
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
+  readonly horizontal?: boolean;
+  readonly isDoughnut?: boolean;
+  readonly pieHolePercentage?: number;
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
   readonly treemapColoringOptions?: TreeMapColoringOptions;

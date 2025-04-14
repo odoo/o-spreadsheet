@@ -36,6 +36,7 @@ describe("bar chart", () => {
       stacked: true,
       axesDesign: {},
       showValues: false,
+      horizontal: false,
     });
   });
 
