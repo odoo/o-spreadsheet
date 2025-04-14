@@ -2,6 +2,7 @@ import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import {
+  Border,
   CellPosition,
   ClipboardCell,
   CommandDispatcher,
@@ -20,11 +21,13 @@ import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { toXC } from "../coordinates";
 import { formatValue } from "../format";
 import { deepEquals, range } from "../misc";
+import { futureRecomputeZones } from "../recompute_zones";
 import { UuidGenerator } from "../uuid";
 import {
   createAdaptedZone,
   isInside,
   mergeOverlappingZones,
+  positionToZone,
   positions,
   recomputeZones,
   union,
@@ -42,6 +45,8 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private readonly copiedTables: CopiedTable[];
   private readonly zones: Zone[];
   private readonly uuidGenerator = new UuidGenerator();
+
+  private queuedBordersToAdd: Record<string, Zone[]> = {};
 
   constructor(
     zones: Zone[],
@@ -186,6 +191,8 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     if (options?.selectTarget) {
       this.selectPastedZone(width, height, isCutOperation, target);
     }
+
+    this.executeQueuedChanges(this.getters.getActiveSheetId());
   }
 
   private pasteFromCopy(target: Zone[], options?: ClipboardOptions) {
@@ -386,7 +393,11 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       left: targetBorders?.left || originBorders?.left,
       right: targetBorders?.right || originBorders?.right,
     };
-    this.dispatch("SET_BORDER", { sheetId, col, row, border });
+    const borderKey = JSON.stringify(border);
+    if (!this.queuedBordersToAdd[borderKey]) {
+      this.queuedBordersToAdd[borderKey] = [];
+    }
+    this.queuedBordersToAdd[borderKey].push(positionToZone(target));
 
     if (clipboardOption?.pasteOption === "onlyFormat") {
       this.dispatch("UPDATE_CELL", {
@@ -681,5 +692,15 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       ranges: newRangesXC.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
       sheetId,
     });
+  }
+
+  private executeQueuedChanges(pasteSheetTarget: UID) {
+    for (const borderKey in this.queuedBordersToAdd) {
+      const zones = this.queuedBordersToAdd[borderKey];
+      const border = JSON.parse(borderKey) as Border;
+      const target = futureRecomputeZones(zones, []);
+      this.dispatch("SET_BORDERS_ON_TARGET", { sheetId: pasteSheetTarget, target, border });
+    }
+    this.queuedBordersToAdd = {};
   }
 }
