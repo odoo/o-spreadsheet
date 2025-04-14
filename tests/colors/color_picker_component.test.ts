@@ -176,7 +176,11 @@ describe("Color Picker buttons", () => {
 
   test.each([
     "#fff",
+    "##fff",
     "fff",
+    "#ffffff",
+    "##ffffff",
+    "ffffff",
     "#FFFFFF00", // Hex + alpha
   ])("Can input a custom HEX code, alpha is ignored", async (hexCode) => {
     await mountColorPicker();
@@ -184,12 +188,15 @@ describe("Color Picker buttons", () => {
 
     const inputTarget = fixture.querySelector(".o-custom-input-preview input")!;
     await setInputValueAndTrigger(inputTarget, hexCode as Color);
-    expect((inputTarget as HTMLInputElement).value).toBeSameColorAs(hexCode.slice(0, 7));
+    expect((inputTarget as HTMLInputElement).value).toBeSameColorAs(
+      hexCode.replace("##", "#").slice(0, 7)
+    );
     const addButton = fixture.querySelector(".o-add-button")!;
     expect(addButton.classList).not.toContain("o-disabled");
   });
 
   test.each([
+    "#fff#000",
     "rgb(1,1,1)", // rgb
     "rgb(1,1,1,0.5)", // rgba
   ])("refuse non strictly HEX codes", async (hexCode) => {
