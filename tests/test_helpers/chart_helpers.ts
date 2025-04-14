@@ -117,4 +117,6 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   showLabels: false,
   valuesDesign: {},
   groupColors: [],
+  horizontal: false,
+  isDoughnut: false,
 };

@@ -3,6 +3,7 @@ import {
   ApplyRangeChange,
   CommandResult,
   CoreGetters,
+  Getters,
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
@@ -69,7 +70,7 @@ export abstract class AbstractChart {
    * Get the definition of the chart that will be used for excel export.
    * If the chart is not supported by Excel, this function returns undefined.
    */
-  abstract getDefinitionForExcel(): ExcelChartDefinition | undefined;
+  abstract getDefinitionForExcel(getters: Getters): ExcelChartDefinition | undefined;
 
   /**
    * This function should be used to update all the ranges of the chart after
