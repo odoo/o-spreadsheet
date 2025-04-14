@@ -373,7 +373,7 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
 
   setHexColor(ev: InputEvent) {
     // only support HEX code input
-    const val = (ev.target as HTMLInputElement).value.slice(0, 7);
+    const val = (ev.target as HTMLInputElement).value.replace("##", "#").slice(0, 7);
     this.state.customHexColor = val;
     if (!isColorValid(val)) {
     } else {
