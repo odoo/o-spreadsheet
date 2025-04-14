@@ -112,6 +112,7 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
+import { FunnelChartDesignPanel } from "./components/side_panel/chart/funnel_chart_panel/funnel_chart_design_panel";
 import { GeoChartDesignPanel } from "./components/side_panel/chart/geo_chart_panel/geo_chart_design_panel";
 import { GeoChartRegionSelectSection } from "./components/side_panel/chart/geo_chart_panel/geo_chart_region_select_section";
 import { RadarChartDesignPanel } from "./components/side_panel/chart/radar_chart/radar_chart_design_panel";
@@ -391,6 +392,7 @@ export const components = {
   RadarChartDesignPanel,
   WaterfallChartDesignPanel,
   ComboChartDesignPanel,
+  FunnelChartDesignPanel,
   ChartTypePicker,
   FigureComponent,
   Menu,

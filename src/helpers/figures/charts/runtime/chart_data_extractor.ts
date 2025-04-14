@@ -958,7 +958,10 @@ function getHierarchicalDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   return datasetValues.filter((ds) => ds.data.some((d) => d !== null));
 }
 
-function makeDatasetsCumulative(datasets: DatasetValues[], order: "asc" | "desc"): DatasetValues[] {
+export function makeDatasetsCumulative(
+  datasets: DatasetValues[],
+  order: "asc" | "desc"
+): DatasetValues[] {
   return datasets.map((dataset) => {
     const data: number[] = [];
     let accumulator = 0;
