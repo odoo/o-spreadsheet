@@ -21,7 +21,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
       () => {
         const canvas = this.canvas.el as HTMLCanvasElement;
         const rect = canvas.getBoundingClientRect();
-        return [rect.width, rect.height, this.runtime, this.canvas.el];
+        return [rect.width, rect.height, this.runtime, this.canvas.el, window.devicePixelRatio];
       }
     );
   }
