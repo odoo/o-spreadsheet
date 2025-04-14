@@ -20,20 +20,18 @@ export class TokenList {
   private tokens: RichToken[];
   currentIndex: number = 0;
   current: RichToken | undefined;
+  length: number;
 
   constructor(tokens: RichToken[]) {
     this.tokens = tokens;
     this.current = tokens[0];
+    this.length = tokens.length;
   }
 
   shift() {
     const current = this.tokens[this.currentIndex];
     this.current = this.tokens[++this.currentIndex];
     return current;
-  }
-
-  get length() {
-    return this.tokens.length;
   }
 
   get next(): RichToken | undefined {

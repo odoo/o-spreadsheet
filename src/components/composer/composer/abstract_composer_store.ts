@@ -94,7 +94,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   protected initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
 
-  hoveredContent: string = "";
+  hoveredTokenIndex: number | undefined = undefined;
+  hoveredTokens: EnrichedToken[] = [];
   hoveredContentEvaluation: string = "";
 
   protected notificationStore = this.get(NotificationStore);
@@ -291,11 +292,12 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   hoverToken(tokenIndex: number | undefined) {
+    this.hoveredTokenIndex = tokenIndex;
     this.currentTokens.forEach((t) => (t.isInHoverContext = undefined));
     const tokens = [...this.currentTokens];
     if (tokenIndex === undefined) {
       this.hoveredContentEvaluation = "";
-      this.hoveredContent = "";
+      this.hoveredTokens = [];
       return;
     }
 
@@ -304,18 +306,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       tokens.push(...Array(missingParenthesis).fill({ value: ")", type: "RIGHT_PAREN" }));
     }
 
-    let hoveredContextTokens: EnrichedToken[];
-    if (tokenIndex === 0) {
-      hoveredContextTokens = tokens;
-    } else {
-      const relatedTokens = this.getRelatedTokens(tokens, tokenIndex);
-      const notHoveredTokens = tokens.filter(
-        (t) => !relatedTokens.includes(t) && t.type !== "SPACE"
-      );
-      // Includes starting "=" if all the other tokens are hovered
-      hoveredContextTokens =
-        notHoveredTokens.length === 1 && notHoveredTokens[0] === tokens[0] ? tokens : relatedTokens;
-    }
+    let hoveredContextTokens =
+      tokenIndex === 0 && (tokens[tokenIndex]?.value === "=" || tokens[tokenIndex]?.value === "+")
+        ? tokens
+        : this.getRelatedTokens(tokens, tokenIndex);
 
     hoveredContextTokens.forEach((t) => (t.isInHoverContext = true));
 
@@ -325,7 +319,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
     const canonicalFormula = canonicalizeNumberContent(hoveredFormula, this.getters.getLocale());
     const result = this.getters.evaluateFormulaResult(this.sheetId, canonicalFormula);
-    this.hoveredContent = hoveredFormula;
+    this.hoveredTokens = hoveredContextTokens;
     this.hoveredContentEvaluation = this.evaluationResultToDisplayString(result);
   }
 
@@ -487,6 +481,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.editionMode = "inactive";
     this.model.selection.release(this);
     this.colorIndexByRange = {};
+    this.hoveredTokens = [];
     this.hoveredContentEvaluation = "";
   }
 

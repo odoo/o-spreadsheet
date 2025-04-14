@@ -100,7 +100,7 @@ describe("Composer hover", () => {
     expect(getHighlightedContent()).toEqual("");
 
     await hoverComposerContent("*");
-    expect(getHighlightedContent()).toEqual("=SUM(A1+2) * 8");
+    expect(getHighlightedContent()).toEqual("SUM(A1+2) * 8");
   });
 
   test("Hover works with spaces at the start/end", async () => {
@@ -109,9 +109,6 @@ describe("Composer hover", () => {
     expect(getHighlightedContent()).toEqual("= 2 ");
 
     await hoverComposerContent(" ", { matchIndex: 1 });
-    expect(getHighlightedContent()).toEqual("= 2 ");
-
-    await hoverComposerContent("2");
     expect(getHighlightedContent()).toEqual("= 2 ");
   });
 
@@ -198,7 +195,7 @@ describe("Composer hover", () => {
     expect(".o-speech-bubble").toHaveText("31");
 
     await hoverComposerContent("-");
-    expect(getHighlightedContent()).toEqual("=SUM(5 * 5 + 6) - 12 / SUM(6)");
+    expect(getHighlightedContent()).toEqual("SUM(5 * 5 + 6) - 12 / SUM(6)");
     expect(".o-speech-bubble").toHaveText("29");
 
     await hoverComposerContent("/");
@@ -289,9 +286,9 @@ describe("Composer hover", () => {
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockImplementation(function (this: HTMLElement) {
         if (this.classList.contains("o-speech-bubble")) {
-          return { x: 0, y: 0, width: 100, height: 50 };
+          return { x: 0, y: 0, width: 100, height: 50 } as DOMRect;
         } else if (this.textContent === "=") {
-          return { x: 10, y: 10, width: 20, height: 20 };
+          return { x: 10, y: 10, width: 20, height: 20 } as DOMRect;
         }
         return originalGetBoundingClientRect.call(this);
       });
@@ -312,21 +309,21 @@ describe("Composer hover", () => {
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockImplementation(function (this: HTMLElement) {
         if (this.classList.contains("o-speech-bubble")) {
-          return { x: 0, y: 0, width: 100, height: 50 };
-        } else if (this.textContent === "=") {
-          return { x: 10, y: 10, width: 20, height: 20 };
-        } else if (this.textContent === "50") {
-          return { x: 20, y: 10, width: 20, height: 20 };
+          return { x: 0, y: 0, width: 100, height: 50 } as DOMRect;
+        } else if (this.textContent === "SUM") {
+          return { x: 10, y: 10, width: 20, height: 20 } as DOMRect;
+        } else if (this.textContent === "(") {
+          return { x: 20, y: 10, width: 20, height: 20 } as DOMRect;
         }
         return originalGetBoundingClientRect.call(this);
       });
 
-    await typeInComposer("=50");
+    await typeInComposer("=SUM(A1)");
 
-    await hoverComposerContent("=");
+    await hoverComposerContent("SUM");
     expect(getElStyle(".o-speech-bubble", "left")).toEqual("-30px");
 
-    await hoverComposerContent("50");
+    await hoverComposerContent("(");
     expect(getElStyle(".o-speech-bubble", "left")).toEqual("-30px");
     jest.restoreAllMocks();
   });

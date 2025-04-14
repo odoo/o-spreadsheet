@@ -1,7 +1,7 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, debounce, isFormula, setColorAlpha } from "../../../helpers/index";
+import { clip, debounce, deepEquals, isFormula, setColorAlpha } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { argTargeting } from "../../../functions/arguments";
@@ -202,9 +202,9 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     if (selection.start !== selection.end) {
       return;
     }
-    const currentHoveredContext = this.props.composerStore.hoveredContent;
+    const currentHoveredContext = this.props.composerStore.hoveredTokens;
     this.props.composerStore.hoverToken(tokenIndex);
-    if (this.props.composerStore.hoveredContent !== currentHoveredContext) {
+    if (!deepEquals(currentHoveredContext, this.props.composerStore.hoveredTokens)) {
       this.composerState.hoveredRect = hoveredRect;
     }
   }, 120);
@@ -302,6 +302,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     });
     onWillUnmount(() => {
       this.env.model.selection.detachObserver(this);
+      this.debouncedHover.stopDebounce();
     });
     useEffect(() => {
       this.processContent();
