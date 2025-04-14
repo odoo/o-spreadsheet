@@ -119,6 +119,8 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   showLabels: false,
   valuesDesign: {},
   groupColors: [],
+  horizontal: false,
+  isDoughnut: false,
   headerDesign: { bold: false },
   treemapColoringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
   showHeaders: true,
