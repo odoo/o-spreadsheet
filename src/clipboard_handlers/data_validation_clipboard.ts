@@ -26,6 +26,10 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   Maybe<ClipboardDataValidationRule>
 > {
   private readonly uuidGenerator = new UuidGenerator();
+  private queuedChanges: Record<
+    UID,
+    { toAdd: Zone[]; toRemove: Zone[]; rule: DataValidationRule }[]
+  > = {};
 
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     const { rowsIndexes, columnsIndexes } = data;
@@ -45,6 +49,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+    this.queuedChanges = {};
     if (options.pasteOption) {
       return;
     }
@@ -56,6 +61,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);
     }
+    this.executeQueuedChanges();
   }
 
   private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
@@ -87,6 +93,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   ) {
     if (origin) {
       const zone = positionToZone(target);
+      const originZone = positionToZone(origin.position);
       const rule = origin.rule;
       if (!rule) {
         const targetRule = this.getters.getValidationRuleForCell(target);
@@ -98,7 +105,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       }
       const toRemoveZone: Zone[] = [];
       if (isCutOperation) {
-        toRemoveZone.push(positionToZone(origin.position));
+        toRemoveZone.push(originZone);
       }
       if (origin.position.sheetId === target.sheetId) {
         const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule, false);
@@ -119,7 +126,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     originRule: DataValidationRule,
     newId = true
   ): DataValidationRule {
-    const ruleInTargetSheet = this.getters
+    let targetRule = this.getters
       .getDataValidationRules(targetSheetId)
       .find(
         (rule) =>
@@ -127,9 +134,22 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
           originRule.isBlocking === rule.isBlocking
       );
 
-    return ruleInTargetSheet
-      ? ruleInTargetSheet
-      : { ...originRule, id: newId ? this.uuidGenerator.smallUuid() : originRule.id, ranges: [] };
+    const queuedRules = this.queuedChanges[targetSheetId];
+    if (!targetRule && queuedRules) {
+      targetRule = queuedRules.find(
+        (queued) =>
+          deepEquals(originRule.criterion, queued.rule.criterion) &&
+          originRule.isBlocking === queued.rule.isBlocking
+      )?.rule;
+    }
+
+    return (
+      targetRule || {
+        ...originRule,
+        id: newId ? this.uuidGenerator.uuidv4() : originRule.id,
+        ranges: [],
+      }
+    );
   }
 
   /**
@@ -141,16 +161,36 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     toAdd: Zone[],
     toRemove: Zone[]
   ) {
-    const dvZones = rule.ranges.map((range) => range.zone);
-    const newDvZones = recomputeZones([...dvZones, ...toAdd], toRemove);
-    if (newDvZones.length === 0) {
-      this.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: rule.id });
-      return;
+    if (!this.queuedChanges[sheetId]) {
+      this.queuedChanges[sheetId] = [];
     }
-    this.dispatch("ADD_DATA_VALIDATION_RULE", {
-      rule,
-      ranges: newDvZones.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
-      sheetId,
-    });
+    const queuedChange = this.queuedChanges[sheetId].find((queued) => queued.rule.id === rule.id);
+    if (!queuedChange) {
+      this.queuedChanges[sheetId].push({ toAdd, toRemove, rule });
+    } else {
+      queuedChange.toAdd.push(...toAdd);
+      queuedChange.toRemove.push(...toRemove);
+    }
+  }
+
+  private executeQueuedChanges() {
+    for (const sheetId in this.queuedChanges) {
+      for (const { toAdd, toRemove, rule: dv } of this.queuedChanges[sheetId]) {
+        // Remove the zones first in case the same position is in toAdd and toRemove
+        const dvZones = dv.ranges.map((range) => range.zone);
+        const withRemovedZones = recomputeZones(dvZones, toRemove);
+        const newDvZones = recomputeZones([...withRemovedZones, ...toAdd], []);
+
+        if (newDvZones.length === 0) {
+          this.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: dv.id });
+          continue;
+        }
+        this.dispatch("ADD_DATA_VALIDATION_RULE", {
+          rule: { id: dv.id, criterion: dv.criterion, isBlocking: dv.isBlocking },
+          ranges: newDvZones.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
+          sheetId,
+        });
+      }
+    }
   }
 }
