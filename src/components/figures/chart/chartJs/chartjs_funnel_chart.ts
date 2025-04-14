@@ -77,11 +77,11 @@ export function getFunnelChartElement() {
     }
 
     /** Check if the mouse is inside the trapezoid */
-    inRange(mouseX: number, mouseY: number, useFinalPosition: boolean) {
-      const { x, y, width, height, nextElementWidth, base } = this.getProps(
-        ["x", "y", "width", "height", "nextElementWidth", "base"],
-        useFinalPosition
-      ) as any;
+    inRange(mouseX: number, mouseY: number) {
+      const props = ["x", "y", "width", "height", "nextElement", "base", "options"];
+      let { x, y, height, nextElement, base } = this.getProps(props) as any;
+      const width = getElementWidth(this);
+      const nextElementWidth = nextElement ? getElementWidth(nextElement) : 0;
 
       const startX = Math.min(x, base);
       const startY = y - height / 2;
