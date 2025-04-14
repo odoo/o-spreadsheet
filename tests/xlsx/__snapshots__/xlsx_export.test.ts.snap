@@ -148,12 +148,14 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -210,12 +212,15 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -763,12 +768,14 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -825,12 +832,15 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -1378,12 +1388,14 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -1440,12 +1452,15 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2008,12 +2023,14 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2070,12 +2087,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2524,12 +2544,14 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2586,12 +2608,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2918,12 +2943,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -2980,12 +3008,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -3224,12 +3255,14 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -3286,12 +3319,15 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -4160,12 +4196,14 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -4222,12 +4260,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -4617,12 +4658,14 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -4679,12 +4722,15 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -5208,12 +5254,14 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -5270,12 +5318,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -5492,12 +5543,14 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -5554,12 +5607,15 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -6454,12 +6510,14 @@ exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
                 <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -6518,12 +6576,15 @@ exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
                 <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="r"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -7047,12 +7108,14 @@ exports[`Test XLSX export Charts simple bar chart with customized dataset 1`] = 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -7109,12 +7172,15 @@ exports[`Test XLSX export Charts simple bar chart with customized dataset 1`] = 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -7638,12 +7704,14 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -7700,12 +7768,15 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8229,12 +8300,14 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8291,12 +8364,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8858,12 +8934,14 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8920,12 +8998,15 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -9448,12 +9529,14 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                 <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -9512,12 +9595,15 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                 <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="r"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10040,12 +10126,14 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10102,12 +10190,15 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10630,12 +10721,14 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10692,12 +10785,15 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -11220,12 +11316,14 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -11282,12 +11380,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -11869,12 +11970,14 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
-                <c:delete val="1"/>
+                <c:auto val="1"/>
+                <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -11931,12 +12034,15 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -12470,12 +12576,14 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
                 <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -12534,12 +12642,15 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
                 <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="r"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -13073,12 +13184,14 @@ exports[`Test XLSX export Charts simple line chart with customized dataset 1`] =
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -13135,12 +13248,15 @@ exports[`Test XLSX export Charts simple line chart with customized dataset 1`] =
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -13674,12 +13790,14 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -13736,12 +13854,15 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -14275,12 +14396,14 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -14337,12 +14460,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -14927,12 +15053,14 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -14989,12 +15117,15 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -16613,12 +16744,14 @@ exports[`Test XLSX export Charts simple radar chart with customized axis 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -16675,12 +16808,15 @@ exports[`Test XLSX export Charts simple radar chart with customized axis 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -17211,12 +17347,14 @@ exports[`Test XLSX export Charts simple radar chart with customized dataset 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -17273,12 +17411,15 @@ exports[`Test XLSX export Charts simple radar chart with customized dataset 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -17811,12 +17952,14 @@ exports[`Test XLSX export Charts simple radar chart with customized title 1`] = 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -17873,12 +18016,15 @@ exports[`Test XLSX export Charts simple radar chart with customized title 1`] = 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -18411,12 +18557,14 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object] ] 1`
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -18473,12 +18621,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object] ] 1`
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -19062,12 +19213,14 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -19124,12 +19277,15 @@ exports[`Test XLSX export Charts simple radar chart with dataset [ [Object], [Ob
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -19663,12 +19819,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
                 <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -19727,12 +19886,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
                 <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="max"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="r"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -20266,12 +20428,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized dataset 1`
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -20328,12 +20493,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized dataset 1`
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -20867,12 +21035,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -20929,12 +21100,15 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -21468,12 +21642,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -21530,12 +21707,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -22120,12 +22300,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -22182,12 +22365,15 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -22749,12 +22935,14 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -22811,12 +22999,15 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -34551,12 +34742,14 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -34613,12 +34806,15 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35125,12 +35321,14 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35187,12 +35385,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35409,12 +35610,14 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35471,12 +35674,15 @@ exports[`Test XLSX export references with headers should be converted to referen
                 <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
                 <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -35556,6 +35762,295 @@ exports[`Test XLSX export references with headers should be converted to referen
 </c:chartSpace>",
       "contentType": "chart",
       "path": "xl/charts/chart2.xml",
+    },
+    {
+      "content": "<c:chartSpace xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
+    <c:roundedCorners val="0"/>
+    <!-- <manualLayout/> to manually position the chart in the figure container -->
+    <c:spPr>
+        <a:solidFill>
+            <a:srgbClr val="FFFFFF"/>
+        </a:solidFill>
+        <a:ln cmpd="sng">
+            <a:solidFill>
+                <a:srgbClr val="000000"/>
+            </a:solidFill>
+        </a:ln>
+    </c:spPr>
+    <c:chart>
+        <c:title>
+            <c:tx>
+                <c:rich>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0">
+                                <a:solidFill>
+                                    <a:srgbClr val="666666"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                        <a:r>
+                            <!-- Runs -->
+                            <a:rPr b="0" i="0" sz="1600"/>
+                            <a:t>
+                                test
+                            </a:t>
+                        </a:r>
+                    </a:p>
+                </c:rich>
+            </c:tx>
+            <c:overlay val="0"/>
+        </c:title>
+        <c:autoTitleDeleted val="0"/>
+        <c:plotArea>
+            <!-- how the chart element is placed on the chart -->
+            <c:layout/>
+            <c:barChart>
+                <c:barDir val="bar"/>
+                <c:grouping val="clustered"/>
+                <c:overlap val="-20"/>
+                <c:gapWidth val="70"/>
+                <!-- each data marker in the series does not have a different color -->
+                <c:varyColors val="0"/>
+                <c:ser>
+                    <c:idx val="0"/>
+                    <c:order val="0"/>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!B2
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:spPr>
+                        <a:solidFill>
+                            <a:srgbClr val="4EA7F2"/>
+                        </a:solidFill>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A3:A100
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <!-- x-coordinate values -->
+                    <c:val>
+                        <!-- x-coordinate values -->
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!B3:B100
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:ser>
+                    <c:idx val="1"/>
+                    <c:order val="1"/>
+                    <c:tx>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!C4
+                            </c:f>
+                        </c:strRef>
+                    </c:tx>
+                    <c:spPr>
+                        <a:solidFill>
+                            <a:srgbClr val="EA6175"/>
+                        </a:solidFill>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="EA6175"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A3:A100
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <!-- x-coordinate values -->
+                    <c:val>
+                        <!-- x-coordinate values -->
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!D4:Z4
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+                <c:axId val="17781237"/>
+                <c:axId val="88853993"/>
+            </c:barChart>
+            <c:catAx>
+                <c:axId val="17781237"/>
+                <c:crossAx val="88853993"/>
+                <!-- reference to the other axe of the chart -->
+                <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:delete val="0"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val="minMax"/>
+                </c:scaling>
+                <c:axPos val="b"/>
+                <c:tickLblPos val="nextTo"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="B7B7B7"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val="out"/>
+                <c:minorTickMark val="none"/>
+                <c:numFmt formatCode="General" sourceLinked="1"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl="0">
+                                    <a:defRPr b="0" i="0">
+                                        <a:solidFill>
+                                            <a:srgbClr val="000000"/>
+                                        </a:solidFill>
+                                        <a:latin typeface="+mn-lt"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr b="0" i="0" sz="1200"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0" sz="1000">
+                                <a:solidFill>
+                                    <a:srgbClr val="000000"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:catAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:valAx>
+                <c:axId val="88853993"/>
+                <c:crossAx val="17781237"/>
+                <!-- reference to the other axe of the chart -->
+                <c:crosses val="min"/>
+                <c:auto val="1"/>
+                <c:crossBetween val="between"/>
+                <c:delete val="0"/>
+                <!-- by default, axis are not displayed -->
+                <c:scaling>
+                    <c:orientation val="minMax"/>
+                </c:scaling>
+                <c:axPos val="l"/>
+                <c:tickLblPos val="nextTo"/>
+                <c:majorGridlines>
+                    <c:spPr>
+                        <a:ln cmpd="sng">
+                            <a:solidFill>
+                                <a:srgbClr val="B7B7B7"/>
+                            </a:solidFill>
+                        </a:ln>
+                    </c:spPr>
+                </c:majorGridlines>
+                <c:majorTickMark val="out"/>
+                <c:minorTickMark val="none"/>
+                <c:numFmt formatCode="General" sourceLinked="1"/>
+                <c:title>
+                    <c:tx>
+                        <c:rich>
+                            <a:bodyPr/>
+                            <a:lstStyle/>
+                            <a:p>
+                                <a:pPr lvl="0">
+                                    <a:defRPr b="0" i="0">
+                                        <a:solidFill>
+                                            <a:srgbClr val="000000"/>
+                                        </a:solidFill>
+                                        <a:latin typeface="+mn-lt"/>
+                                    </a:defRPr>
+                                </a:pPr>
+                                <a:r>
+                                    <!-- Runs -->
+                                    <a:rPr b="0" i="0" sz="1200"/>
+                                    <a:t/>
+                                </a:r>
+                            </a:p>
+                        </c:rich>
+                    </c:tx>
+                </c:title>
+                <c:txPr>
+                    <a:bodyPr/>
+                    <a:lstStyle/>
+                    <a:p>
+                        <a:pPr lvl="0">
+                            <a:defRPr b="0" i="0" sz="1000">
+                                <a:solidFill>
+                                    <a:srgbClr val="000000"/>
+                                </a:solidFill>
+                                <a:latin typeface="+mn-lt"/>
+                            </a:defRPr>
+                        </a:pPr>
+                    </a:p>
+                </c:txPr>
+            </c:valAx>
+            <!-- <tickLblPos/> omitted -->
+            <c:spPr>
+                <a:solidFill>
+                    <a:srgbClr val="FFFFFF"/>
+                </a:solidFill>
+            </c:spPr>
+        </c:plotArea>
+        <c:legend>
+            <c:legendPos val="t"/>
+            <c:overlay val="0"/>
+            <c:txPr>
+                <a:bodyPr/>
+                <a:lstStyle/>
+                <a:p>
+                    <a:pPr lvl="0">
+                        <a:defRPr b="0" i="0" sz="1000">
+                            <a:solidFill>
+                                <a:srgbClr val="000000"/>
+                            </a:solidFill>
+                            <a:latin typeface="+mn-lt"/>
+                        </a:defRPr>
+                    </a:pPr>
+                </a:p>
+            </c:txPr>
+        </c:legend>
+    </c:chart>
+</c:chartSpace>",
+      "contentType": "chart",
+      "path": "xl/charts/chart3.xml",
     },
     {
       "content": "<c:chartSpace xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
@@ -37285,313 +37780,6 @@ exports[`Test XLSX export references with headers should be converted to referen
     </c:chart>
 </c:chartSpace>",
       "contentType": "chart",
-      "path": "xl/charts/chart3.xml",
-    },
-    {
-      "content": "<c:chartSpace xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
-    <c:roundedCorners val="0"/>
-    <!-- <manualLayout/> to manually position the chart in the figure container -->
-    <c:spPr>
-        <a:solidFill>
-            <a:srgbClr val="FFFFFF"/>
-        </a:solidFill>
-        <a:ln cmpd="sng">
-            <a:solidFill>
-                <a:srgbClr val="000000"/>
-            </a:solidFill>
-        </a:ln>
-    </c:spPr>
-    <c:chart>
-        <c:title>
-            <c:tx>
-                <c:rich>
-                    <a:bodyPr/>
-                    <a:lstStyle/>
-                    <a:p>
-                        <a:pPr lvl="0">
-                            <a:defRPr b="0" i="0">
-                                <a:solidFill>
-                                    <a:srgbClr val="666666"/>
-                                </a:solidFill>
-                                <a:latin typeface="+mn-lt"/>
-                            </a:defRPr>
-                        </a:pPr>
-                        <a:r>
-                            <!-- Runs -->
-                            <a:rPr b="0" i="0" sz="1600"/>
-                            <a:t>
-                                test
-                            </a:t>
-                        </a:r>
-                    </a:p>
-                </c:rich>
-            </c:tx>
-            <c:overlay val="0"/>
-        </c:title>
-        <c:autoTitleDeleted val="0"/>
-        <c:plotArea>
-            <!-- how the chart element is placed on the chart -->
-            <c:layout/>
-            <c:scatterChart>
-                <!-- each data marker in the series does not have a different color -->
-                <c:varyColors val="0"/>
-                <c:scatterStyle val="lineMarker"/>
-                <c:ser>
-                    <c:idx val="0"/>
-                    <c:order val="0"/>
-                    <c:smooth val="0"/>
-                    <c:spPr>
-                        <a:ln w="19050" cap="rnd">
-                            <a:noFill/>
-                            <a:round/>
-                        </a:ln>
-                        <a:effectLst/>
-                    </c:spPr>
-                    <c:marker>
-                        <c:symbol val="circle"/>
-                        <c:size val="5"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val="4EA7F2"/>
-                            </a:solidFill>
-                            <a:ln cmpd="sng">
-                                <a:solidFill>
-                                    <a:srgbClr val="4EA7F2"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:marker>
-                    <c:tx>
-                        <c:strRef>
-                            <c:f>
-                                Sheet1!B2
-                            </c:f>
-                        </c:strRef>
-                    </c:tx>
-                    <c:xVal>
-                        <!-- x-coordinate values -->
-                        <c:numRef>
-                            <c:f>
-                                Sheet1!A3:A100
-                            </c:f>
-                            <c:numCache/>
-                        </c:numRef>
-                    </c:xVal>
-                    <c:yVal>
-                        <!-- y-coordinate values -->
-                        <c:numRef>
-                            <c:f>
-                                Sheet1!B3:B100
-                            </c:f>
-                            <c:numCache/>
-                        </c:numRef>
-                    </c:yVal>
-                </c:ser>
-                <c:ser>
-                    <c:idx val="1"/>
-                    <c:order val="1"/>
-                    <c:smooth val="0"/>
-                    <c:spPr>
-                        <a:ln w="19050" cap="rnd">
-                            <a:noFill/>
-                            <a:round/>
-                        </a:ln>
-                        <a:effectLst/>
-                    </c:spPr>
-                    <c:marker>
-                        <c:symbol val="circle"/>
-                        <c:size val="5"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val="EA6175"/>
-                            </a:solidFill>
-                            <a:ln cmpd="sng">
-                                <a:solidFill>
-                                    <a:srgbClr val="EA6175"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:marker>
-                    <c:tx>
-                        <c:strRef>
-                            <c:f>
-                                Sheet1!C4
-                            </c:f>
-                        </c:strRef>
-                    </c:tx>
-                    <c:xVal>
-                        <!-- x-coordinate values -->
-                        <c:numRef>
-                            <c:f>
-                                Sheet1!A3:A100
-                            </c:f>
-                            <c:numCache/>
-                        </c:numRef>
-                    </c:xVal>
-                    <c:yVal>
-                        <!-- y-coordinate values -->
-                        <c:numRef>
-                            <c:f>
-                                Sheet1!D4:Z4
-                            </c:f>
-                            <c:numCache/>
-                        </c:numRef>
-                    </c:yVal>
-                </c:ser>
-                <c:axId val="17781237"/>
-                <c:axId val="88853993"/>
-            </c:scatterChart>
-            <c:valAx>
-                <c:axId val="17781237"/>
-                <c:crossAx val="88853993"/>
-                <!-- reference to the other axe of the chart -->
-                <c:crosses val="min"/>
-                <c:delete val="0"/>
-                <!-- by default, axis are not displayed -->
-                <c:scaling>
-                    <c:orientation val="minMax"/>
-                </c:scaling>
-                <c:axPos val="b"/>
-                <c:majorGridlines>
-                    <c:spPr>
-                        <a:ln cmpd="sng">
-                            <a:solidFill>
-                                <a:srgbClr val="B7B7B7"/>
-                            </a:solidFill>
-                        </a:ln>
-                    </c:spPr>
-                </c:majorGridlines>
-                <c:majorTickMark val="out"/>
-                <c:minorTickMark val="none"/>
-                <c:numFmt formatCode="General" sourceLinked="1"/>
-                <c:title>
-                    <c:tx>
-                        <c:rich>
-                            <a:bodyPr/>
-                            <a:lstStyle/>
-                            <a:p>
-                                <a:pPr lvl="0">
-                                    <a:defRPr b="0" i="0">
-                                        <a:solidFill>
-                                            <a:srgbClr val="000000"/>
-                                        </a:solidFill>
-                                        <a:latin typeface="+mn-lt"/>
-                                    </a:defRPr>
-                                </a:pPr>
-                                <a:r>
-                                    <!-- Runs -->
-                                    <a:rPr b="0" i="0" sz="1200"/>
-                                    <a:t/>
-                                </a:r>
-                            </a:p>
-                        </c:rich>
-                    </c:tx>
-                </c:title>
-                <c:txPr>
-                    <a:bodyPr/>
-                    <a:lstStyle/>
-                    <a:p>
-                        <a:pPr lvl="0">
-                            <a:defRPr b="0" i="0" sz="1000">
-                                <a:solidFill>
-                                    <a:srgbClr val="000000"/>
-                                </a:solidFill>
-                                <a:latin typeface="+mn-lt"/>
-                            </a:defRPr>
-                        </a:pPr>
-                    </a:p>
-                </c:txPr>
-            </c:valAx>
-            <!-- <tickLblPos/> omitted -->
-            <c:valAx>
-                <c:axId val="88853993"/>
-                <c:crossAx val="17781237"/>
-                <!-- reference to the other axe of the chart -->
-                <c:crosses val="min"/>
-                <c:delete val="0"/>
-                <!-- by default, axis are not displayed -->
-                <c:scaling>
-                    <c:orientation val="minMax"/>
-                </c:scaling>
-                <c:axPos val="l"/>
-                <c:majorGridlines>
-                    <c:spPr>
-                        <a:ln cmpd="sng">
-                            <a:solidFill>
-                                <a:srgbClr val="B7B7B7"/>
-                            </a:solidFill>
-                        </a:ln>
-                    </c:spPr>
-                </c:majorGridlines>
-                <c:majorTickMark val="out"/>
-                <c:minorTickMark val="none"/>
-                <c:numFmt formatCode="General" sourceLinked="1"/>
-                <c:title>
-                    <c:tx>
-                        <c:rich>
-                            <a:bodyPr/>
-                            <a:lstStyle/>
-                            <a:p>
-                                <a:pPr lvl="0">
-                                    <a:defRPr b="0" i="0">
-                                        <a:solidFill>
-                                            <a:srgbClr val="000000"/>
-                                        </a:solidFill>
-                                        <a:latin typeface="+mn-lt"/>
-                                    </a:defRPr>
-                                </a:pPr>
-                                <a:r>
-                                    <!-- Runs -->
-                                    <a:rPr b="0" i="0" sz="1200"/>
-                                    <a:t/>
-                                </a:r>
-                            </a:p>
-                        </c:rich>
-                    </c:tx>
-                </c:title>
-                <c:txPr>
-                    <a:bodyPr/>
-                    <a:lstStyle/>
-                    <a:p>
-                        <a:pPr lvl="0">
-                            <a:defRPr b="0" i="0" sz="1000">
-                                <a:solidFill>
-                                    <a:srgbClr val="000000"/>
-                                </a:solidFill>
-                                <a:latin typeface="+mn-lt"/>
-                            </a:defRPr>
-                        </a:pPr>
-                    </a:p>
-                </c:txPr>
-            </c:valAx>
-            <!-- <tickLblPos/> omitted -->
-            <c:spPr>
-                <a:solidFill>
-                    <a:srgbClr val="FFFFFF"/>
-                </a:solidFill>
-            </c:spPr>
-        </c:plotArea>
-        <c:legend>
-            <c:legendPos val="t"/>
-            <c:overlay val="0"/>
-            <c:txPr>
-                <a:bodyPr/>
-                <a:lstStyle/>
-                <a:p>
-                    <a:pPr lvl="0">
-                        <a:defRPr b="0" i="0" sz="1000">
-                            <a:solidFill>
-                                <a:srgbClr val="000000"/>
-                            </a:solidFill>
-                            <a:latin typeface="+mn-lt"/>
-                        </a:defRPr>
-                    </a:pPr>
-                </a:p>
-            </c:txPr>
-        </c:legend>
-    </c:chart>
-</c:chartSpace>",
-      "contentType": "chart",
       "path": "xl/charts/chart4.xml",
     },
     {
@@ -37639,78 +37827,21 @@ exports[`Test XLSX export references with headers should be converted to referen
         <c:plotArea>
             <!-- how the chart element is placed on the chart -->
             <c:layout/>
-            <c:radarChart>
-                <c:radarStyle val="marker"/>
-                <c:varyColors val="0"/>
-                <c:ser>
-                    <c:idx val="0"/>
-                    <c:order val="0"/>
-                    <c:smooth val="0"/>
-                    <c:marker>
-                        <c:symbol val="circle"/>
-                        <c:size val="5"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val="4EA7F2"/>
-                            </a:solidFill>
-                            <a:ln cmpd="sng">
-                                <a:solidFill>
-                                    <a:srgbClr val="4EA7F2"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:marker>
-                    <c:tx>
-                        <c:strRef>
-                            <c:f>
-                                Sheet1!B2
-                            </c:f>
-                        </c:strRef>
-                    </c:tx>
-                    <c:spPr>
-                        <a:ln cmpd="sng" w="23813">
-                            <a:solidFill>
-                                <a:srgbClr val="4EA7F2"/>
-                            </a:solidFill>
-                            <a:prstDash val="solid"/>
-                        </a:ln>
-                    </c:spPr>
-                    <c:cat>
-                        <c:strRef>
-                            <c:f>
-                                Sheet1!A3:A100
-                            </c:f>
-                        </c:strRef>
-                    </c:cat>
-                    <!-- x-coordinate values -->
-                    <c:val>
-                        <!-- x-coordinate values -->
-                        <c:numRef>
-                            <c:f>
-                                Sheet1!B3:B100
-                            </c:f>
-                            <c:numCache/>
-                        </c:numRef>
-                    </c:val>
-                </c:ser>
+            <c:doughnutChart>
+                <c:varyColors val="1"/>
+                <c:holeSize val="50"/>
+                <dLbls>
+                    <c:showLegendKey val="0"/>
+                    <c:showVal val="0"/>
+                    <c:showCatName val="0"/>
+                    <c:showSerName val="0"/>
+                    <c:showPercent val="0"/>
+                    <c:showBubbleSize val="0"/>
+                    <c:showLeaderLines val="0"/>
+                </dLbls>
                 <c:ser>
                     <c:idx val="1"/>
                     <c:order val="1"/>
-                    <c:smooth val="0"/>
-                    <c:marker>
-                        <c:symbol val="circle"/>
-                        <c:size val="5"/>
-                        <c:spPr>
-                            <a:solidFill>
-                                <a:srgbClr val="EA6175"/>
-                            </a:solidFill>
-                            <a:ln cmpd="sng">
-                                <a:solidFill>
-                                    <a:srgbClr val="EA6175"/>
-                                </a:solidFill>
-                            </a:ln>
-                        </c:spPr>
-                    </c:marker>
                     <c:tx>
                         <c:strRef>
                             <c:f>
@@ -37718,14 +37849,314 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:tx>
-                    <c:spPr>
-                        <a:ln cmpd="sng" w="23813">
+                    <c:dPt>
+                        <c:idx val="0"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="1"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3188E6"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="2"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="056BD9"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="3"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="155193"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="4"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="A76DBC"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="5"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7F4295"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="6"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="6D2387"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="7"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4F1565"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="8"/>
+                        <c:spPr>
                             <a:solidFill>
                                 <a:srgbClr val="EA6175"/>
                             </a:solidFill>
-                            <a:prstDash val="solid"/>
-                        </a:ln>
-                    </c:spPr>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="9"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="CE4257"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="10"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="982738"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="11"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="791B29"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="12"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="43C5B1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="13"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="00A78D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="14"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="0E8270"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="15"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="105F53"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="16"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="F4A261"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="17"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="F48935"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="18"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="BE5D10"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="19"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7D380D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="20"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="8481DD"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="21"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="5752D1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="22"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3A3580"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="1"/>
+                    </dLbls>
                     <c:cat>
                         <c:strRef>
                             <c:f>
@@ -37733,9 +38164,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                             </c:f>
                         </c:strRef>
                     </c:cat>
-                    <!-- x-coordinate values -->
                     <c:val>
-                        <!-- x-coordinate values -->
                         <c:numRef>
                             <c:f>
                                 Sheet1!D4:Z4
@@ -37744,133 +38173,1316 @@ exports[`Test XLSX export references with headers should be converted to referen
                         </c:numRef>
                     </c:val>
                 </c:ser>
-                <c:axId val="17781237"/>
-                <c:axId val="88853993"/>
-            </c:radarChart>
-            <c:catAx>
-                <c:axId val="17781237"/>
-                <c:crossAx val="88853993"/>
-                <!-- reference to the other axe of the chart -->
-                <c:crosses val="min"/>
-                <c:delete val="0"/>
-                <!-- by default, axis are not displayed -->
-                <c:scaling>
-                    <c:orientation val="minMax"/>
-                </c:scaling>
-                <c:axPos val="b"/>
-                <c:majorGridlines>
-                    <c:spPr>
-                        <a:ln cmpd="sng">
-                            <a:solidFill>
-                                <a:srgbClr val="B7B7B7"/>
-                            </a:solidFill>
-                        </a:ln>
-                    </c:spPr>
-                </c:majorGridlines>
-                <c:majorTickMark val="out"/>
-                <c:minorTickMark val="none"/>
-                <c:numFmt formatCode="General" sourceLinked="1"/>
-                <c:title>
+                <c:ser>
+                    <c:idx val="0"/>
+                    <c:order val="0"/>
                     <c:tx>
-                        <c:rich>
-                            <a:bodyPr/>
-                            <a:lstStyle/>
-                            <a:p>
-                                <a:pPr lvl="0">
-                                    <a:defRPr b="0" i="0">
-                                        <a:solidFill>
-                                            <a:srgbClr val="000000"/>
-                                        </a:solidFill>
-                                        <a:latin typeface="+mn-lt"/>
-                                    </a:defRPr>
-                                </a:pPr>
-                                <a:r>
-                                    <!-- Runs -->
-                                    <a:rPr b="0" i="0" sz="1200"/>
-                                    <a:t/>
-                                </a:r>
-                            </a:p>
-                        </c:rich>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!B2
+                            </c:f>
+                        </c:strRef>
                     </c:tx>
-                </c:title>
-                <c:txPr>
-                    <a:bodyPr/>
-                    <a:lstStyle/>
-                    <a:p>
-                        <a:pPr lvl="0">
-                            <a:defRPr b="0" i="0" sz="1000">
-                                <a:solidFill>
-                                    <a:srgbClr val="000000"/>
-                                </a:solidFill>
-                                <a:latin typeface="+mn-lt"/>
-                            </a:defRPr>
-                        </a:pPr>
-                    </a:p>
-                </c:txPr>
-            </c:catAx>
-            <!-- <tickLblPos/> omitted -->
-            <c:valAx>
-                <c:axId val="88853993"/>
-                <c:crossAx val="17781237"/>
-                <!-- reference to the other axe of the chart -->
-                <c:crosses val="min"/>
-                <c:delete val="0"/>
-                <!-- by default, axis are not displayed -->
-                <c:scaling>
-                    <c:orientation val="minMax"/>
-                </c:scaling>
-                <c:axPos val="l"/>
-                <c:majorGridlines>
-                    <c:spPr>
-                        <a:ln cmpd="sng">
+                    <c:dPt>
+                        <c:idx val="0"/>
+                        <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="B7B7B7"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
-                        </a:ln>
-                    </c:spPr>
-                </c:majorGridlines>
-                <c:majorTickMark val="out"/>
-                <c:minorTickMark val="none"/>
-                <c:numFmt formatCode="General" sourceLinked="1"/>
-                <c:title>
-                    <c:tx>
-                        <c:rich>
-                            <a:bodyPr/>
-                            <a:lstStyle/>
-                            <a:p>
-                                <a:pPr lvl="0">
-                                    <a:defRPr b="0" i="0">
-                                        <a:solidFill>
-                                            <a:srgbClr val="000000"/>
-                                        </a:solidFill>
-                                        <a:latin typeface="+mn-lt"/>
-                                    </a:defRPr>
-                                </a:pPr>
-                                <a:r>
-                                    <!-- Runs -->
-                                    <a:rPr b="0" i="0" sz="1200"/>
-                                    <a:t/>
-                                </a:r>
-                            </a:p>
-                        </c:rich>
-                    </c:tx>
-                </c:title>
-                <c:txPr>
-                    <a:bodyPr/>
-                    <a:lstStyle/>
-                    <a:p>
-                        <a:pPr lvl="0">
-                            <a:defRPr b="0" i="0" sz="1000">
+                            <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
-                                    <a:srgbClr val="000000"/>
+                                    <a:srgbClr val="FFFFFF"/>
                                 </a:solidFill>
-                                <a:latin typeface="+mn-lt"/>
-                            </a:defRPr>
-                        </a:pPr>
-                    </a:p>
-                </c:txPr>
-            </c:valAx>
-            <!-- <tickLblPos/> omitted -->
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="1"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3188E6"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="2"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="056BD9"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="3"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="155193"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="4"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="A76DBC"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="5"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7F4295"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="6"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="6D2387"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="7"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4F1565"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="8"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="EA6175"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="9"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="CE4257"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="10"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="982738"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="11"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="791B29"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="12"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="43C5B1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="13"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="00A78D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="14"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="0E8270"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="15"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="105F53"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="16"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="F4A261"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="17"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="F48935"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="18"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="BE5D10"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="19"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7D380D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="20"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="8481DD"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="21"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="5752D1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="22"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3A3580"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="23"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="26235F"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="24"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="A4A8B6"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="25"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7E8290"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="26"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="545B70"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="27"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3F4250"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="28"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="FFD86D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="29"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="FFBC2C"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="30"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="C08A16"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="31"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="936A12"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="32"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="33"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3188E6"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="34"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="056BD9"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="35"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="155193"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="36"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="A76DBC"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="37"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7F4295"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="38"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="6D2387"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="39"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4F1565"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="40"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="EA6175"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="41"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="CE4257"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="42"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="982738"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="43"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="791B29"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="44"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="43C5B1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="45"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="00A78D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="46"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="0E8270"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="47"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="105F53"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="48"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="F4A261"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="49"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="F48935"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="50"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="BE5D10"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="51"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7D380D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="52"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="8481DD"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="53"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="5752D1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="54"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3A3580"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="55"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="26235F"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="56"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="A4A8B6"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="57"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7E8290"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="58"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="545B70"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="59"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3F4250"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="60"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="FFD86D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="61"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="FFBC2C"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="62"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="C08A16"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="63"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="936A12"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="64"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="65"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3188E6"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="66"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="056BD9"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="67"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="155193"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="68"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="A76DBC"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="69"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7F4295"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="70"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="6D2387"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="71"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4F1565"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="72"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="EA6175"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="73"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="CE4257"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="74"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="982738"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="75"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="791B29"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="76"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="43C5B1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="77"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="00A78D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="78"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="0E8270"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="79"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="105F53"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="80"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="F4A261"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="81"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="F48935"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="82"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="BE5D10"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="83"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7D380D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="84"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="8481DD"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="85"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="5752D1"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="86"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3A3580"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="87"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="26235F"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="88"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="A4A8B6"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="89"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="7E8290"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="90"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="545B70"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="91"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3F4250"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="92"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="FFD86D"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="93"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="FFBC2C"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="94"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="C08A16"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="95"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="936A12"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="96"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="4EA7F2"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <c:dPt>
+                        <c:idx val="97"/>
+                        <c:spPr>
+                            <a:solidFill>
+                                <a:srgbClr val="3188E6"/>
+                            </a:solidFill>
+                            <a:ln cmpd="sng" w="14288">
+                                <a:solidFill>
+                                    <a:srgbClr val="FFFFFF"/>
+                                </a:solidFill>
+                            </a:ln>
+                        </c:spPr>
+                    </c:dPt>
+                    <dLbls>
+                        <c:showLegendKey val="0"/>
+                        <c:showVal val="0"/>
+                        <c:showCatName val="0"/>
+                        <c:showSerName val="0"/>
+                        <c:showPercent val="0"/>
+                        <c:showBubbleSize val="0"/>
+                        <c:showLeaderLines val="1"/>
+                    </dLbls>
+                    <c:cat>
+                        <c:strRef>
+                            <c:f>
+                                Sheet1!A3:A100
+                            </c:f>
+                        </c:strRef>
+                    </c:cat>
+                    <c:val>
+                        <c:numRef>
+                            <c:f>
+                                Sheet1!B3:B100
+                            </c:f>
+                            <c:numCache/>
+                        </c:numRef>
+                    </c:val>
+                </c:ser>
+            </c:doughnutChart>
             <c:spPr>
                 <a:solidFill>
                     <a:srgbClr val="FFFFFF"/>

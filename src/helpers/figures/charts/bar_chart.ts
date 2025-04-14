@@ -114,6 +114,7 @@ export class BarChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      horizontal: context.horizontal,
     };
   }
 

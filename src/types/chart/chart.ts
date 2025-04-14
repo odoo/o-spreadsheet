@@ -144,7 +144,7 @@ export interface ExcelChartDataset {
   readonly rightYAxis?: boolean;
 }
 
-export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar";
+export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar" | "pyramid";
 
 export interface ExcelChartDefinition {
   readonly title?: TitleDesign;
@@ -161,6 +161,10 @@ export interface ExcelChartDefinition {
     useRightAxis?: boolean;
   };
   readonly axesDesign?: AxesDesign;
+  readonly horizontal?: boolean;
+  readonly isDoughnut?: boolean;
+  readonly maxValue?: number;
+  readonly minValue?: number;
 }
 
 export interface ChartCreationContext {
@@ -184,6 +188,8 @@ export interface ChartCreationContext {
   readonly showLabels?: boolean;
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
+  readonly horizontal?: boolean;
+  readonly isDoughnut?: boolean;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

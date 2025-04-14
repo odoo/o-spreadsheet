@@ -100,7 +100,7 @@ export class PieChart extends AbstractChart {
       type: "pie",
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
-      isDoughnut: false,
+      isDoughnut: context.isDoughnut,
       showValues: context.showValues,
     };
   }
