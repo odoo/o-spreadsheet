@@ -500,7 +500,6 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       class="o-custom-input-preview"
     >
       <input
-        maxlength="7"
         type="text"
       />
       <div
