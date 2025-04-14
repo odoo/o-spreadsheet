@@ -24,6 +24,7 @@ import {
   mockChart,
   mountSpreadsheet,
   nextTick,
+  setGrid,
   spyModelDispatch,
 } from "../../test_helpers/helpers";
 
@@ -554,6 +555,44 @@ describe("Insert chart menu item", () => {
       },
     };
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+  });
+
+  test("Chart with multiple string columns is a sunburst chart (without headers)", () => {
+    // prettier-ignore
+    const grid = {
+      K1: "Group1",    L1: "SubGroup1",    M1: "40",
+      K2: "Group1",    L2: "SubGroup2",    M2: "20",
+      K3: "Group2",    L3: "SubGroup1",    M3: "10",
+    };
+    setGrid(model, grid);
+    setSelection(model, ["K1"]);
+    insertChart();
+    const chartId = model.getters.getFigures(model.getters.getActiveSheetId()).at(-1)!.id;
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      type: "sunburst",
+      dataSets: [{ dataRange: "K1:K3" }, { dataRange: "L1:L3" }],
+      dataSetsHaveTitle: false,
+      labelRange: "M1:M3",
+    });
+  });
+
+  test("Chart with multiple string columns is a sunburst chart (with headers)", () => {
+    // prettier-ignore
+    const grid = {
+      K1: "Header1",   L1: "Header2",      M1: "Header3",
+      K2: "Group1",    L2: "SubGroup1",    M2: "20",
+                       L3: "SubGroup2",    M3: "10",
+    };
+    setGrid(model, grid);
+    setSelection(model, ["K1"]);
+    insertChart();
+    const chartId = model.getters.getFigures(model.getters.getActiveSheetId()).at(-1)!.id;
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      type: "sunburst",
+      dataSets: [{ dataRange: "K1:K3" }, { dataRange: "L1:L3" }],
+      dataSetsHaveTitle: true,
+      labelRange: "M1:M3",
+    });
   });
 
   test("Chart can be inserted with unbounded ranges", () => {

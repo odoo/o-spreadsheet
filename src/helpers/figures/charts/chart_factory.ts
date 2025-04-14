@@ -13,7 +13,7 @@ import {
   UID,
   Zone,
 } from "../../../types";
-import { LineChartDefinition } from "../../../types/chart";
+import { LineChartDefinition, SunburstChartDefinition } from "../../../types/chart";
 import { ChartDefinition, ChartRuntime } from "../../../types/chart/chart";
 import { CoreGetters, Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
@@ -92,10 +92,15 @@ export function transformDefinition(
  *
  * The type of chart will be :
  * - If the zone is a single non-empty cell, returns a scorecard
+ * - If the dataset starts with multiple string columns, returns a sunburst chart
  * - If the all the labels are numbers/date, returns a line chart
  * - Else returns a bar chart
  */
 export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefinition {
+  const hierarchicalDefinition = tryToMakeHierarchicalChart(getters, zone);
+  if (hierarchicalDefinition) {
+    return hierarchicalDefinition;
+  }
   const sheetId = getters.getActiveSheetId();
   let dataSetZone = zone;
   const singleColumn = zoneToDimension(zone).numberOfCols === 1;
@@ -173,5 +178,58 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     aggregated: false,
     dataSetsHaveTitle,
     legendPosition: newLegendPos,
+  };
+}
+
+/**
+ * Return a sunburst chart definition if the data in the zone looks like hierarchical data.
+ */
+function tryToMakeHierarchicalChart(
+  getters: Getters,
+  zone: Zone
+): SunburstChartDefinition | undefined {
+  const sheetId = getters.getActiveSheetId();
+  const numberOfCols = zoneToDimension(zone).numberOfCols;
+  if (zone.top === zone.bottom || numberOfCols <= 2) {
+    return undefined;
+  }
+
+  const firstCellOfValues = getters.getEvaluatedCell({ sheetId, col: zone.right, row: zone.top });
+  const dataSetsHaveTitle = firstCellOfValues.type !== CellValueType.number;
+
+  const getColumnType = (col: number) => {
+    const cells = getters.getEvaluatedCellsInZone(sheetId, {
+      ...zone,
+      left: col,
+      right: col,
+      top: zone.top + (dataSetsHaveTitle ? 1 : 0),
+    });
+    if (cells.every((cell) => cell.type !== CellValueType.number)) {
+      return "string";
+    } else if (cells.every((cell) => cell.type !== CellValueType.text)) {
+      return "number";
+    }
+    return undefined;
+  };
+
+  for (let col = zone.left; col < zone.right; col++) {
+    const columnType = getColumnType(col);
+    if (col !== zone.right && columnType !== "string") {
+      return undefined;
+    } else if (col === zone.right && columnType !== "number") {
+      return undefined;
+    }
+  }
+
+  const dataSetZone = { ...zone, right: zone.right - 1 };
+  const labelsZone = { ...zone, left: zone.right };
+
+  return {
+    title: {},
+    dataSets: [{ dataRange: zoneToXc(dataSetZone) }],
+    type: "sunburst",
+    legendPosition: "none",
+    labelRange: zoneToXc(labelsZone),
+    dataSetsHaveTitle: dataSetsHaveTitle,
   };
 }
