@@ -93,6 +93,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   ) {
     if (origin) {
       const zone = positionToZone(target);
+      const originZone = positionToZone(origin.position);
       const rule = origin.rule;
       if (!rule) {
         const targetRule = this.getters.getValidationRuleForCell(target);
@@ -104,7 +105,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       }
       const toRemoveZone: Zone[] = [];
       if (isCutOperation) {
-        toRemoveZone.push(positionToZone(origin.position));
+        toRemoveZone.push(originZone);
       }
       if (origin.position.sheetId === target.sheetId) {
         const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule, false);
@@ -185,7 +186,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
           continue;
         }
         this.dispatch("ADD_DATA_VALIDATION_RULE", {
-          rule: dv,
+          rule: { id: dv.id, criterion: dv.criterion, isBlocking: dv.isBlocking },
           ranges: newDvZones.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
           sheetId,
         });
