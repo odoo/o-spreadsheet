@@ -95,6 +95,9 @@ function getCopyMenuItem(
       }
       const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
+      if (type === "image") {
+        env.notifyUser({ sticky: false, type: "success", text: _t("Image copied to clipboard") });
+      }
     },
     icon: "o-spreadsheet-Icon.CLIPBOARD",
     isReadonlyAllowed: type === "image",
@@ -168,6 +171,7 @@ function getCopyChartAsImageMenuItem(figureId: UID, env: SpreadsheetChildEnv): A
         "text/html": innerHTML,
         "image/png": blob,
       });
+      env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
     },
     isReadonlyAllowed: true,
   };
