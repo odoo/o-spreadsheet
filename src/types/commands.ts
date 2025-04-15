@@ -1014,6 +1014,15 @@ export interface PaintFormat extends TargetDependentCommand {
   type: "PAINT_FORMAT";
 }
 
+export interface PivotStartPresenceTracking {
+  type: "PIVOT_START_PRESENCE_TRACKING";
+  pivotId: UID;
+}
+
+export interface PivotStopPresenceTracking {
+  type: "PIVOT_STOP_PRESENCE_TRACKING";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1163,7 +1172,9 @@ export type LocalCommand =
   | DuplicatePivotInNewSheetCommand
   | InsertPivotWithTableCommand
   | SplitPivotFormulaCommand
-  | PaintFormat;
+  | PaintFormat
+  | PivotStartPresenceTracking
+  | PivotStopPresenceTracking;
 
 export type Command = CoreCommand | LocalCommand;
 

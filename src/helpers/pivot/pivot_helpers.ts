@@ -132,7 +132,11 @@ export function isDateOrDatetimeField(field: PivotField) {
   return DATE_FIELDS.includes(field.type);
 }
 
-function generatePivotArgs(formulaId: string, domain: PivotDomain, measure?: string): string[] {
+export function generatePivotArgs(
+  formulaId: string,
+  domain: PivotDomain,
+  measure?: string
+): string[] {
   const args: string[] = [formulaId];
   if (measure) {
     args.push(`"${measure}"`);

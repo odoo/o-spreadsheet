@@ -121,6 +121,7 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import { TextInput } from "./components/text_input/text_input";
@@ -407,6 +408,7 @@ export const components = {
   PivotDimensionOrder,
   PivotDimension,
   PivotLayoutConfigurator,
+  PivotHTMLRenderer,
   EditableName,
   PivotDeferUpdate,
   PivotTitleSection,
