@@ -6,10 +6,15 @@
       t-att-class="{'o-paint-format-cursor': isPaintingFormat}"
       t-att-style="style"
       t-on-pointerdown="onMouseDown"
+      t-on-mousemove="onMouseMove"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>
-      <GridCellIconOverlay/>
+      <t t-foreach="icons" t-as="icon" t-key="icon_index">
+        <GridCellIcon cellPosition="icon.position" horizontalAlign="icon.horizontalAlign">
+          <t t-component="icon.component" cellPosition="icon.position"/>
+        </GridCellIcon>
+      </t>
       <GridAddRowsFooter
         t-if="!env.model.getters.isReadonly()"
         t-key="env.model.getters.getActiveSheetId()"

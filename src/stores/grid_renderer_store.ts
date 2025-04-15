@@ -1,4 +1,5 @@
 import { ModelStore } from ".";
+import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -20,6 +21,7 @@ import {
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
+  deepEquals,
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
@@ -52,11 +54,13 @@ export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
+  private hoveredIcon: Store<HoveredIconStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
+    this.hoveredIcon = get(HoveredIconStore);
     this.renderer.register(this);
   }
 
@@ -331,7 +335,15 @@ export class GridRenderer {
     const { ctx } = renderingContext;
     for (const box of boxes) {
       for (const icon of Object.values(box.icons)) {
-        if (!icon || !icon.svg) {
+        if (!icon) {
+          continue;
+        }
+        const isHovered = deepEquals(
+          { id: icon.id, position: icon.position },
+          this.hoveredIcon.hoveredIcon
+        );
+        const svg = isHovered ? icon.hoverSvg || icon.svg : icon.svg;
+        if (!svg) {
           continue;
         }
         ctx.save();
@@ -342,7 +354,6 @@ export class GridRenderer {
         const iconSize = icon.size;
         const iconY = this.computeTextYCoordinate(box, iconSize);
 
-        const svg = icon.svg;
         let x: number;
         if (icon.horizontalAlign === "left") {
           x = box.x + icon.margin;
@@ -353,8 +364,10 @@ export class GridRenderer {
         }
         ctx.translate(x, iconY);
         ctx.scale(iconSize / svg.width, iconSize / svg.height);
-        ctx.fillStyle = svg.fillColor;
-        ctx.fill(new Path2D(svg.path));
+        for (const path of svg.paths) {
+          ctx.fillStyle = path.fillColor;
+          ctx.fill(new Path2D(path.path));
+        }
         ctx.restore();
       }
     }

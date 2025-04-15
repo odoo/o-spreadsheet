@@ -582,9 +582,9 @@
     </div>
   </t>
   <t t-name="o-spreadsheet-Icon.CARET_DOWN">
-    <div class="o-icon fa-small">
-      <i class="fa fa-caret-down"/>
-    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <path fill="currentColor" d="M96 176 h320 l-160 160"/>
+    </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.CARET_RIGHT">
     <div class="o-icon fa-small">
