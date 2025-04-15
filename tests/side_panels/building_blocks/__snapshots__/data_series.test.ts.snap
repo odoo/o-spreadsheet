@@ -36,6 +36,7 @@ exports[`Data Series Can render a data series component 1`] = `
       </div>
       
       
+      
       <div
         class="d-flex flex-row w-100 o-selection-input"
       >

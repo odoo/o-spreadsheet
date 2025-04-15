@@ -115,6 +115,7 @@ import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart
 import { FunnelChartDesignPanel } from "./components/side_panel/chart/funnel_chart_panel/funnel_chart_design_panel";
 import { GeoChartDesignPanel } from "./components/side_panel/chart/geo_chart_panel/geo_chart_design_panel";
 import { GeoChartRegionSelectSection } from "./components/side_panel/chart/geo_chart_panel/geo_chart_region_select_section";
+import { PyramidConfigPanel } from "./components/side_panel/chart/pyramid_chart/pyramid_chart_config_panel";
 import { RadarChartDesignPanel } from "./components/side_panel/chart/radar_chart/radar_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfall_chart/waterfall_chart_design_panel";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
@@ -382,6 +383,7 @@ export const components = {
   ScorecardChart,
   LineConfigPanel,
   BarConfigPanel,
+  PyramidConfigPanel,
   PieChartDesignPanel,
   GenericChartConfigPanel,
   ChartWithAxisDesignPanel,
