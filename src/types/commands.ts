@@ -1035,6 +1035,15 @@ export interface DeleteUnfilteredContentCommand extends TargetDependentCommand {
   type: "DELETE_UNFILTERED_CONTENT";
 }
 
+export interface PivotStartPresenceTracking {
+  type: "PIVOT_START_PRESENCE_TRACKING";
+  pivotId: UID;
+}
+
+export interface PivotStopPresenceTracking {
+  type: "PIVOT_STOP_PRESENCE_TRACKING";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1186,7 +1195,9 @@ export type LocalCommand =
   | InsertPivotWithTableCommand
   | SplitPivotFormulaCommand
   | PaintFormat
-  | DeleteUnfilteredContentCommand;
+  | DeleteUnfilteredContentCommand
+  | PivotStartPresenceTracking
+  | PivotStopPresenceTracking;
 
 export type Command = CoreCommand | LocalCommand;
 
