@@ -23,7 +23,7 @@ export function getChartMenuActions(
       },
       icon: "o-spreadsheet-Icon.EDIT",
     },
-    getCopyMenuItem(figureId, env),
+    getCopyMenuItem(figureId, env, "chart"),
     getCutMenuItem(figureId, env),
     {
       id: "copy_as_image",
@@ -43,6 +43,7 @@ export function getChartMenuActions(
           "text/html": innerHTML,
           "image/png": blob,
         });
+        env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
       },
     },
     {
@@ -70,7 +71,7 @@ export function getImageMenuActions(
   env: SpreadsheetChildEnv
 ): Action[] {
   const menuItemSpecs: ActionSpec[] = [
-    getCopyMenuItem(figureId, env),
+    getCopyMenuItem(figureId, env, "image"),
     getCutMenuItem(figureId, env),
     {
       id: "reset_size",
@@ -119,7 +120,11 @@ export function getImageMenuActions(
   return createActions(menuItemSpecs);
 }
 
-function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+function getCopyMenuItem(
+  figureId: UID,
+  env: SpreadsheetChildEnv,
+  type: "chart" | "image"
+): ActionSpec {
   return {
     id: "copy",
     name: _t("Copy"),
@@ -130,6 +135,9 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       env.model.dispatch("COPY");
       const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
+      if (type === "image") {
+        env.notifyUser({ sticky: false, type: "success", text: _t("Image copied to clipboard") });
+      }
     },
     icon: "o-spreadsheet-Icon.CLIPBOARD",
   };

@@ -5,7 +5,6 @@ import { BACKGROUND_CHART_COLOR, DEBOUNCE_TIME } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
-import { ClipboardPlugin } from "../../../src/plugins/ui_stateful";
 import {
   CHART_TYPES,
   ChartDefinition,
@@ -53,7 +52,6 @@ import {
 } from "../../test_helpers/dom_helper";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import {
-  getPlugin,
   mockChart,
   mockGeoJsonService,
   mountComponentWithPortalTarget,
@@ -114,8 +112,8 @@ async function mountChartSidePanel(figureId = chartId) {
   ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
 }
 
-async function mountSpreadsheet() {
-  ({ env, model, fixture, parent } = await mountSpreadsheetHelper({ model }));
+async function mountSpreadsheet(partialEnv?: Partial<SpreadsheetChildEnv>) {
+  ({ env, model, fixture, parent } = await mountSpreadsheetHelper({ model }, partialEnv));
 }
 
 let fixture: HTMLElement;
@@ -344,7 +342,8 @@ describe("charts", () => {
   test.each([TEST_CHART_TYPES])(
     "Copy a chart as a figure pushes it in the clipboard as a File",
     async (chartType) => {
-      await mountSpreadsheet();
+      const notifyUser = jest.fn();
+      await mountSpreadsheet({ notifyUser });
       createTestChart(chartType);
       await nextTick();
       await simulateClick(".o-figure");
@@ -357,14 +356,16 @@ describe("charts", () => {
       }
       const clipboardContent = clipboard.content;
 
-      const cbPlugin = getPlugin(model, ClipboardPlugin);
-      //@ts-ignore
-      const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
       const imgData = new window.Chart("test", mockChartData).toBase64Image();
 
       expect(clipboardContent).toMatchObject({
         "text/html": `<img src="${xmlEscape(imgData)}" />`,
         "image/png": expect.any(Blob),
+      });
+      expect(notifyUser).toHaveBeenCalledWith({
+        sticky: false,
+        type: "success",
+        text: "Chart copied to clipboard",
       });
     }
   );
