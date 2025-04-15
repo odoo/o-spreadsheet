@@ -65,6 +65,7 @@ let model: Model;
 let parent: Spreadsheet;
 let sheetId: UID;
 let env: SpreadsheetChildEnv;
+let notifyUser: jest.Mock;
 
 function createFigure(
   model: Model,
@@ -139,7 +140,8 @@ beforeEach(() => {
 
 describe("figures", () => {
   beforeEach(async () => {
-    ({ model, parent, fixture, env } = await mountSpreadsheet());
+    notifyUser = jest.fn();
+    ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
     mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
     mockFigureMenuItemRect = { top: 500, left: 500 };
     sheetId = model.getters.getActiveSheetId();
@@ -697,6 +699,15 @@ describe("figures", () => {
         const figureIds = getFigureIds(model, sheetId);
         expect(getFigureDefinition(model, figureIds[0], type)).toEqual(figureDef);
         expect(getFigureDefinition(model, figureIds[1], type)).toEqual(figureDef);
+        if (type === "image") {
+          expect(notifyUser).toHaveBeenCalledWith({
+            text: "Image copied to clipboard",
+            type: "success",
+            sticky: false,
+          });
+        } else {
+          expect(notifyUser).not.toHaveBeenCalled();
+        }
       });
 
       test(`Can cut/paste a figure ${type} with its context menu`, async () => {

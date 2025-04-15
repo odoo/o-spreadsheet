@@ -43,6 +43,7 @@ export function getChartMenuActions(
           "text/html": innerHTML,
           "image/png": blob,
         });
+        env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
       },
     },
     {
@@ -70,7 +71,7 @@ export function getImageMenuActions(
   env: SpreadsheetChildEnv
 ): Action[] {
   const menuItemSpecs: ActionSpec[] = [
-    getCopyMenuItem(figureId, env),
+    getCopyMenuItem(figureId, env, _t("Image copied to clipboard")),
     getCutMenuItem(figureId, env),
     {
       id: "reset_size",
@@ -119,7 +120,11 @@ export function getImageMenuActions(
   return createActions(menuItemSpecs);
 }
 
-function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
+function getCopyMenuItem(
+  figureId: UID,
+  env: SpreadsheetChildEnv,
+  copiedNotificationMessage?: string
+): ActionSpec {
   return {
     id: "copy",
     name: _t("Copy"),
@@ -130,6 +135,9 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
       env.model.dispatch("COPY");
       const osClipboardContent = await env.model.getters.getClipboardTextAndImageContent();
       await env.clipboard.write(osClipboardContent);
+      if (copiedNotificationMessage) {
+        env.notifyUser({ sticky: false, type: "success", text: copiedNotificationMessage });
+      }
     },
     icon: "o-spreadsheet-Icon.CLIPBOARD",
   };
