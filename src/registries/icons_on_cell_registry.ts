@@ -1,8 +1,13 @@
 import { ComponentConstructor } from "@odoo/owl";
-import { DataValidationCheckbox } from "../components/data_validation_overlay/dv_checkbox/dv_checkbox";
-import { DataValidationListIcon } from "../components/data_validation_overlay/dv_list_icon/dv_list_icon";
 import { FilterIcon } from "../components/filters/filter_icon/filter_icon";
-import { ICONS } from "../components/icons/icons";
+import {
+  CARET_DOWN,
+  CHECKBOX_CHECKED,
+  CHECKBOX_UNCHECKED,
+  CHECKBOX_UNCHECKED_HOVERED,
+  HOVERED_CARET_DOWN,
+  ICONS,
+} from "../components/icons/icons";
 import { GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN, MIN_CF_ICON_MARGIN } from "../constants";
 import { computeTextFontSizeInPixels } from "../helpers";
 import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
@@ -18,7 +23,10 @@ export interface GridIcon {
   margin: number;
   component?: ComponentConstructor<{ cellPosition: CellPosition }, SpreadsheetChildEnv>;
   svg?: ImageSVG;
+  hoverSvg?: ImageSVG;
   priority: number;
+  onClick?: (position: CellPosition, env: SpreadsheetChildEnv) => void;
+  id?: string;
 }
 
 type ImageSvgCallback = (getters: Getters, position: CellPosition) => GridIcon | undefined;
@@ -31,14 +39,26 @@ export const iconsOnCellRegistry = new Registry<ImageSvgCallback>();
 iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   const hasIcon = getters.isCellValidCheckbox(position);
   if (hasIcon) {
+    const value = !!getters.getEvaluatedCell(position).value;
     return {
-      svg: undefined,
+      svg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED,
+      hoverSvg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED_HOVERED,
       priority: 2,
       horizontalAlign: "center",
       size: GRID_ICON_EDGE_LENGTH,
       margin: GRID_ICON_MARGIN,
-      component: DataValidationCheckbox,
       position,
+      id: "data_validation_checkbox",
+      onClick: (position, env) => {
+        const cell = env.model.getters.getCell(position);
+        const isDisabled = env.model.getters.isReadonly() || !!cell?.isFormula;
+        if (isDisabled) {
+          return;
+        }
+
+        const cellContent = value ? "FALSE" : "TRUE";
+        env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
+      },
     };
   }
   return undefined;
@@ -48,13 +68,19 @@ iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
   const hasIcon = !getters.isReadonly() && getters.cellHasListDataValidationIcon(position);
   if (hasIcon) {
     return {
-      svg: undefined,
+      svg: CARET_DOWN,
+      hoverSvg: HOVERED_CARET_DOWN,
       priority: 2,
       horizontalAlign: "right",
       size: GRID_ICON_EDGE_LENGTH,
       margin: GRID_ICON_MARGIN,
-      component: DataValidationListIcon,
       position,
+      onClick: (position, env) => {
+        const { col, row } = position;
+        env.model.selection.selectCell(col, row);
+        env.startCellEdition();
+      },
+      id: "data_validation_list_icon",
     };
   }
   return undefined;

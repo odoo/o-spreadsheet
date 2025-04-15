@@ -38,6 +38,7 @@ export class CellComposerStore extends AbstractComposerStore {
   }
 
   stopEdition(direction?: Direction) {
+    console.log("stopEdition", direction);
     const canStopEdition = this.canStopEdition();
     if (canStopEdition) {
       this._stopEdition();
