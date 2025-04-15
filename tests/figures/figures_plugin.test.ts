@@ -127,6 +127,15 @@ describe("figure plugin", () => {
       row: 1,
       offset: { x: 5, y: 10 },
     },
+    {
+      id: "someuuid",
+      tag: "hey",
+      width: 20,
+      height: 20,
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 0 },
+    },
   ])("getVisibleFigures only returns visible figures", (figure) => {
     const model = new Model();
     createFigure(model, { sheetId: model.getters.getActiveSheetId(), ...figure });
