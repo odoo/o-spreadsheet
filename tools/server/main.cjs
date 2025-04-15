@@ -115,8 +115,10 @@ app.post("/upload-image", function (req, res) {
         // This opens up the writeable stream to `output`
         const writeStream = fs.createWriteStream(output);
         // This pipes the POST data to the file
+        writeStream.on("finish", () => {
+          res.send("../" + output);
+        });
         readStream.pipe(writeStream);
-        res.send("../" + output);
       }
     });
   } catch (err) {
