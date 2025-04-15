@@ -297,6 +297,29 @@ export function transformChartDefinitionWithDataSetsWithZone<
   };
 }
 
+export function getSheetMapFromChartDefinitionWithDatasetsWithZone<
+  T extends LineChartDefinition | BarChartDefinition | PieChartDefinition
+>(getters: CoreGetters, definition: T): Record<string, UID> {
+  const sheetMap: Record<string, UID> = {};
+  definition.dataSets.forEach((ds) => {
+    const { sheetName } = splitReference(ds);
+    const rangeSheetId = getters.getSheetIdByName(sheetName);
+    if (sheetName && rangeSheetId) {
+      sheetMap[sheetName] = rangeSheetId;
+    }
+  });
+
+  if (definition.labelRange) {
+    const { sheetName } = splitReference(definition.labelRange);
+    const rangeSheetId = getters.getSheetIdByName(sheetName);
+    if (sheetName && rangeSheetId) {
+      sheetMap[sheetName] = rangeSheetId;
+    }
+  }
+
+  return sheetMap;
+}
+
 const GraphColors = [
   // the same colors as those used in odoo reporting
   "rgb(31,119,180)",

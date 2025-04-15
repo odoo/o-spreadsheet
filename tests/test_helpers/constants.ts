@@ -6,7 +6,7 @@ type CommandMapping = {
   [key in CoreCommandTypes]: Extract<CoreCommand, { type: key }>;
 };
 
-const TEST_CHART_DATA = {
+export const TEST_CHART_DATA = {
   basicChart: {
     type: "bar" as const,
     dataSets: ["B1:B4"],

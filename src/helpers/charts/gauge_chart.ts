@@ -52,6 +52,8 @@ chartRegistry.add("gauge", {
   ) => GaugeChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     GaugeChart.getDefinitionFromContextCreation(context),
+  getDataSheetMapFromDefinition: (getters: CoreGetters, def: GaugeChartDefinition) =>
+    GaugeChart.getDataSheetMap(getters, def),
   name: _lt("Gauge"),
 });
 
@@ -255,6 +257,21 @@ export class GaugeChart extends AbstractChart {
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
     };
+  }
+
+  static getDataSheetMap(
+    getters: CoreGetters,
+    definition: GaugeChartDefinition
+  ): Record<string, UID> {
+    const sheetMap: Record<string, UID> = {};
+    if (definition.dataRange) {
+      const { sheetName } = splitReference(definition.dataRange);
+      const rangeSheetId = getters.getSheetIdByName(sheetName);
+      if (sheetName && rangeSheetId) {
+        sheetMap[sheetName] = rangeSheetId;
+      }
+    }
+    return sheetMap;
   }
 
   getDefinitionForExcel() {

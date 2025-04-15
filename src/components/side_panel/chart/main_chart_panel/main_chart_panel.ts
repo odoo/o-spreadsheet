@@ -1,7 +1,11 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
 import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
-import { getChartDefinitionFromContextCreation, getChartTypes } from "../../../../helpers/charts";
+import {
+  getChartDefinitionFromContextCreation,
+  getChartSheetMap,
+  getChartTypes,
+} from "../../../../helpers/charts";
 import { _lt } from "../../../../translation";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
@@ -90,7 +94,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       definition,
       id: figureId,
       sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
-      sheetMap: this.env.model.getters.getSheetMap(),
+      sheetMap: getChartSheetMap(this.env.model.getters, definition),
     });
   }
 
@@ -100,11 +104,12 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       throw new Error("Chart not defined.");
     }
     const definition = getChartDefinitionFromContextCreation(context, type);
+    const sheetId = this.env.model.getters.getFigureSheetId(this.figureId)!;
     this.env.model.dispatch("UPDATE_CHART", {
       definition,
       id: this.figureId,
-      sheetId: this.env.model.getters.getFigureSheetId(this.figureId)!,
-      sheetMap: this.env.model.getters.getSheetMap(),
+      sheetId,
+      sheetMap: getChartSheetMap(this.env.model.getters, definition),
     });
   }
 

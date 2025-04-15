@@ -327,7 +327,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.model.dispatch("UNFOCUS_SELECTION_INPUT");
     this.composer.topBarFocus = "inactive";
     this.composer.gridFocusMode = "cellFocus";
-    this.setComposerContent({ content, selection } || {});
+    this.setComposerContent({ content, selection });
   }
 
   /**

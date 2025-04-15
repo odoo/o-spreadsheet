@@ -42,6 +42,10 @@ export interface ChartBuilder {
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
+  getDataSheetMapFromDefinition(
+    getters: CoreGetters,
+    definition: ChartDefinition
+  ): Record<string, UID>;
   name: string;
 }
 

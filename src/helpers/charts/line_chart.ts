@@ -39,6 +39,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getSheetMapFromChartDefinitionWithDatasetsWithZone,
   toExcelDataset,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -67,6 +68,8 @@ chartRegistry.add("line", {
   ) => LineChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     LineChart.getDefinitionFromContextCreation(context),
+  getDataSheetMapFromDefinition: (getters: CoreGetters, def: LineChartDefinition) =>
+    LineChart.getDataSheetMap(getters, def),
   name: _lt("Line"),
 });
 
@@ -156,6 +159,12 @@ export class LineChart extends AbstractChart {
       stacked: this.stacked,
       cumulative: this.cumulative,
     };
+  }
+  static getDataSheetMap(
+    getters: CoreGetters,
+    definition: LineChartDefinition
+  ): Record<string, UID> {
+    return getSheetMapFromChartDefinitionWithDatasetsWithZone(getters, definition);
   }
 
   getContextCreation(): ChartCreationContext {

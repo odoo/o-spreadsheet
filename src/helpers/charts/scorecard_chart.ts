@@ -48,6 +48,8 @@ chartRegistry.add("scorecard", {
   ) => ScorecardChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     ScorecardChart.getDefinitionFromContextCreation(context),
+  getDataSheetMapFromDefinition: (getters: CoreGetters, def: ScorecardChartDefinition) =>
+    ScorecardChart.getDataSheetMap(getters, def),
   name: _lt("Scorecard"),
 });
 
@@ -139,6 +141,28 @@ export class ScorecardChart extends AbstractChart {
         ? mergeReference(zoneToXc(keyValueZone), keyValueSheetName)
         : undefined,
     };
+  }
+
+  static getDataSheetMap(
+    getters: CoreGetters,
+    definition: ScorecardChartDefinition
+  ): Record<string, UID> {
+    const sheetMap: Record<string, UID> = {};
+    if (definition.baseline) {
+      const { sheetName } = splitReference(definition.baseline);
+      const baselineSheetId = getters.getSheetIdByName(sheetName);
+      if (sheetName && baselineSheetId) {
+        sheetMap[sheetName] = baselineSheetId;
+      }
+    }
+    if (definition.keyValue) {
+      const { sheetName } = splitReference(definition.keyValue);
+      const keyValueSheetId = getters.getSheetIdByName(sheetName);
+      if (sheetName && keyValueSheetId) {
+        sheetMap[sheetName] = keyValueSheetId;
+      }
+    }
+    return sheetMap;
   }
 
   copyForSheetId(sheetId: UID): ScorecardChart {

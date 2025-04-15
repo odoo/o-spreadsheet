@@ -84,6 +84,14 @@ export function getChartDefinitionFromContextCreation(
   return chartClass.getChartDefinitionFromContextCreation(context);
 }
 
+/**
+ * Get an empty definition based on the given context and the given type
+ */
+export function getChartSheetMap(getters: CoreGetters, definition: ChartDefinition) {
+  const chartClass = chartRegistry.get(definition.type);
+  return chartClass.getDataSheetMapFromDefinition(getters, definition);
+}
+
 export function getChartTypes(): Record<string, string> {
   const result = {};
   for (const key of chartRegistry.getKeys()) {

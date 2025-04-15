@@ -33,6 +33,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getSheetMapFromChartDefinitionWithDatasetsWithZone,
   toExcelDataset,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -59,6 +60,8 @@ chartRegistry.add("bar", {
   ) => BarChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     BarChart.getDefinitionFromContextCreation(context),
+  getDataSheetMapFromDefinition: (getters: CoreGetters, def: BarChartDefinition) =>
+    BarChart.getDataSheetMap(getters, def),
   name: _lt("Bar"),
 });
 
@@ -114,6 +117,13 @@ export class BarChart extends AbstractChart {
       verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
     };
+  }
+
+  static getDataSheetMap(
+    getters: CoreGetters,
+    definition: BarChartDefinition
+  ): Record<string, UID> {
+    return getSheetMapFromChartDefinitionWithDatasetsWithZone(getters, definition);
   }
 
   getContextCreation(): ChartCreationContext {
