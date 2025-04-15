@@ -772,6 +772,9 @@ export const PIVOT_VALUE = {
       };
     }
     const domain = pivot.parseArgsToPivotDomain(domainArgs);
+    if (this.getters.getActiveSheetId() === this.__originSheetId) {
+      this.getters.getPivotPresenceTracker(pivotId)?.trackValue(_measure, domain);
+    }
     return pivot.getPivotCellValueAndFormat(_measure, domain);
   },
 } satisfies AddFunctionDescription;
@@ -811,6 +814,9 @@ export const PIVOT_HEADER = {
       };
     }
     const domain = pivot.parseArgsToPivotDomain(domainArgs);
+    if (this.getters.getActiveSheetId() === this.__originSheetId) {
+      this.getters.getPivotPresenceTracker(_pivotId)?.trackHeader(domain);
+    }
     const lastNode = domain.at(-1);
     if (lastNode?.field === "measure") {
       return pivot.getPivotMeasureValue(toString(lastNode.value), domain);
