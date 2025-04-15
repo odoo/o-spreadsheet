@@ -877,12 +877,12 @@ export class SheetViewPlugin extends UIPlugin {
       const figureUI = this.getFigureUI(sheetId, figure);
       const { x, y } = figureUI;
       if (
-        x > offsetCorrectionX &&
+        x >= offsetCorrectionX &&
         (x + figure.width < scrollX + offsetCorrectionX || x > width + scrollX + offsetCorrectionX)
       ) {
         continue;
       } else if (
-        y > offsetCorrectionY &&
+        y >= offsetCorrectionY &&
         (y + figure.height < scrollY + offsetCorrectionY ||
           y > height + scrollY + offsetCorrectionY)
       ) {
