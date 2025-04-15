@@ -1,4 +1,5 @@
 import { ModelStore } from ".";
+import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -9,20 +10,18 @@ import {
   DEFAULT_VERTICAL_ALIGN,
   FROZEN_PANE_BORDER_COLOR,
   FROZEN_PANE_HEADER_BORDER_COLOR,
-  GRID_ICON_EDGE_LENGTH,
-  GRID_ICON_MARGIN,
   HEADER_BORDER_COLOR,
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
-  MIN_CF_ICON_MARGIN,
   TEXT_HEADER_COLOR,
 } from "../constants";
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
+  deepEquals,
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
@@ -48,9 +47,6 @@ import {
 } from "../types/index";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
 import { RendererStore } from "./renderer_store";
-// -----------------------------------------------------------------------------
-// Constants, types, helpers, ...
-// -----------------------------------------------------------------------------
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
@@ -58,11 +54,13 @@ export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
+  private hoveredIcon: Store<HoveredIconStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
+    this.hoveredIcon = get(HoveredIconStore);
     this.renderer.register(this);
   }
 
@@ -287,12 +285,11 @@ export class GridRenderer {
         // compute horizontal align start point parameter
         let x = box.x;
         if (align === "left") {
-          x += MIN_CELL_TEXT_MARGIN + (box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0);
+          const leftIconSize = box.icons.left ? box.icons.left.size + box.icons.left.margin : 0;
+          x += MIN_CELL_TEXT_MARGIN + leftIconSize;
         } else if (align === "right") {
-          x +=
-            box.width -
-            MIN_CELL_TEXT_MARGIN -
-            (box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0);
+          const rightIconSize = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
+          x += box.width - MIN_CELL_TEXT_MARGIN - rightIconSize;
         } else {
           x += box.width / 2;
         }
@@ -337,22 +334,40 @@ export class GridRenderer {
   private drawIcon(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
     for (const box of boxes) {
-      if (box.image && box.image.svg) {
-        ctx.save();
-        if (box.image.clipIcon) {
-          ctx.beginPath();
-          const { x, y, width, height } = box.image.clipIcon;
-          ctx.rect(x, y, width, height);
-          ctx.clip();
+      for (const icon of Object.values(box.icons)) {
+        if (!icon) {
+          continue;
         }
-        const iconSize = box.image.size;
-        const y = this.computeTextYCoordinate(box, iconSize);
+        const isHovered = deepEquals(
+          { id: icon.id, position: icon.position },
+          this.hoveredIcon.hoveredIcon
+        );
+        const svg = isHovered ? icon.hoverSvg || icon.svg : icon.svg;
+        if (!svg) {
+          continue;
+        }
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(box.x, box.y, box.width, box.height);
+        ctx.clip();
 
-        const svg = box.image.svg;
-        ctx.translate(box.x + MIN_CF_ICON_MARGIN, y);
+        const iconSize = icon.size;
+        const iconY = this.computeTextYCoordinate(box, iconSize);
+
+        let x: number;
+        if (icon.horizontalAlign === "left") {
+          x = box.x + icon.margin;
+        } else if (icon.horizontalAlign === "right") {
+          x = box.x + box.width - iconSize - icon.margin;
+        } else {
+          x = box.x + (box.width - iconSize) / 2;
+        }
+        ctx.translate(x, iconY);
         ctx.scale(iconSize / svg.width, iconSize / svg.height);
-        ctx.fillStyle = svg.fillColor;
-        ctx.fill(new Path2D(svg.path));
+        for (const path of svg.paths) {
+          ctx.fillStyle = path.fillColor;
+          ctx.fill(new Path2D(path.path));
+        }
         ctx.restore();
       }
     }
@@ -541,14 +556,12 @@ export class GridRenderer {
       const position = { sheetId, col: col + 1, row };
       const nextCell = this.getters.getEvaluatedCell(position);
       const nextCellBorder = this.getters.getCellComputedBorder(position);
-      const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
-      const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
+      const doesCellHaveGridIcon = this.getters.doesCellHaveGridIcon(position);
       if (
         nextCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
         nextCellBorder?.left ||
-        cellHasIcon ||
-        cellHasCheckbox
+        doesCellHaveGridIcon
       ) {
         return col;
       }
@@ -564,14 +577,12 @@ export class GridRenderer {
       const position = { sheetId, col: col - 1, row };
       const previousCell = this.getters.getEvaluatedCell(position);
       const previousCellBorder = this.getters.getCellComputedBorder(position);
-      const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
-      const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
+      const doesCellHaveGridIcon = this.getters.doesCellHaveGridIcon(position);
       if (
         previousCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
         previousCellBorder?.right ||
-        cellHasIcon ||
-        cellHasCheckbox
+        doesCellHaveGridIcon
       ) {
         return col;
       }
@@ -610,6 +621,13 @@ export class GridRenderer {
     const dataBarFill = this.fingerprints.isEnabled
       ? undefined
       : this.getters.getConditionalDataBar(position);
+    const iconsList = this.getters.getCellIcons(position);
+    const cellIcons = {
+      left: iconsList.find((icon) => icon?.horizontalAlign === "left"),
+      right: iconsList.find((icon) => icon?.horizontalAlign === "right"),
+      center: iconsList.find((icon) => icon?.horizontalAlign === "center"),
+    };
+
     const box: Box = {
       x,
       y,
@@ -622,28 +640,14 @@ export class GridRenderer {
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
+      icons: cellIcons,
     };
 
-    /** Icon */
-    const iconSvg = this.getters.getCellIconSvg(position);
     const fontSizePX = computeTextFontSizeInPixels(box.style);
-    const iconBoxWidth = iconSvg ? MIN_CF_ICON_MARGIN + fontSizePX : 0;
-    if (iconSvg) {
-      box.image = {
-        type: "icon",
-        size: fontSizePX,
-        clipIcon: { x: box.x, y: box.y, width: Math.min(iconBoxWidth, width), height },
-        svg: iconSvg,
-      };
-    }
 
-    if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
+    if (cell.type === CellValueType.empty || box.icons.center) {
       return box;
     }
-
-    /** Filter Header or data validation icon */
-    box.hasIcon = this.getters.doesCellHaveGridIcon(position);
-    const headerIconWidth = box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0;
 
     /** Content */
     const wrapping = style.wrapping || "overflow";
@@ -654,7 +658,9 @@ export class GridRenderer {
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
     );
 
-    const contentWidth = iconBoxWidth + textWidth + headerIconWidth;
+    const leftIconWidth = box.icons.left ? box.icons.left.size + box.icons.left.margin : 0;
+    const rightIconWidth = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
+    const contentWidth = leftIconWidth + textWidth + rightIconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);
     box.content = {
       textLines: multiLineText,
@@ -664,11 +670,11 @@ export class GridRenderer {
 
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizePX > height;
-    if (iconSvg || box.hasIcon) {
+    if (box.icons.left || box.icons.right) {
       box.clipRect = {
-        x: box.x + iconBoxWidth,
+        x: box.x + leftIconWidth,
         y: box.y,
-        width: Math.max(0, width - iconBoxWidth - headerIconWidth),
+        width: Math.max(0, width - leftIconWidth - rightIconWidth),
         height,
       };
     } else if (isOverflowing && wrapping === "overflow") {

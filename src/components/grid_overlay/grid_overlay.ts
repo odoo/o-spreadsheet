@@ -1,6 +1,10 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import { DEFAULT_VERTICAL_ALIGN, GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "../../constants";
+import { deepEquals, positionToZone } from "../../helpers";
+import { GridIcon } from "../../registries/icons_on_cell_registry";
 import { Store, useStore } from "../../store_engine";
 import {
+  Align,
   DOMCoordinates,
   GridClickModifiers,
   HeaderIndex,
@@ -9,11 +13,11 @@ import {
   Rect,
   Ref,
   SpreadsheetChildEnv,
+  VerticalAlign,
 } from "../../types";
-import { DataValidationOverlay } from "../data_validation_overlay/data_validation_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
-import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
+import { GridCellIcon } from "../grid_cell_icon/grid_cell_icon";
 import { css } from "../helpers";
 import { getBoundingRectAsPOJO, isCtrlKey } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
@@ -21,6 +25,7 @@ import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
+import { HoveredIconStore } from "./hovered_icon_store";
 
 const CURSOR_SVG = /*xml*/ `
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="14" height="16"><path d="M6.5.4c1.3-.8 2.9-.1 3.8 1.4l2.9 5.1c.2.4.9 1.6-.4 2.3l-1.6.9 1.8 3.1c.2.4.1 1-.2 1.2l-1.6 1c-.3.1-.9 0-1.1-.4l-1.8-3.1-1.6 1c-.6.4-1.7 0-2.2-.8L0 4.3"/><path fill="#fff" d="M9.1 2a1.4 1.1 60 0 0-1.7-.6L5.5 2.5l.9 1.6-1 .6-.9-1.6-.6.4 1.8 3.1-1.3.7-1.8-3.1-1 .6 3.8 6.6 6.8-3.98M3.9 8.8 10.82 5l.795 1.4-6.81 3.96"/></svg>
@@ -191,9 +196,8 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = {
     FiguresContainer,
-    DataValidationOverlay,
     GridAddRowsFooter,
-    FilterIconsOverlay,
+    GridCellIcon,
   };
   static defaultProps = {
     onCellHovered: () => {},
@@ -207,6 +211,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private gridOverlayRect = useAbsoluteBoundingRect(this.gridOverlay);
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+  private hoveredIconStore!: Store<HoveredIconStore>;
 
   setup() {
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
@@ -231,6 +236,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     });
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
+    this.hoveredIconStore = useStore(HoveredIconStore);
   }
 
   get gridOverlayEl(): HTMLElement {
@@ -248,6 +254,14 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     return this.paintFormatStore.isActive;
   }
 
+  onMouseMove(ev: MouseEvent) {
+    const icon = this.getIconAtEvent(ev);
+    const hoveredIcon = icon?.id ? { id: icon.id, position: icon.position } : undefined;
+    if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
+      this.hoveredIconStore.setHoveredIcon(hoveredIcon);
+    }
+  }
+
   onMouseDown(ev: MouseEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
@@ -255,6 +269,11 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     }
     if (ev.target === this.gridOverlay.el && this.cellPopovers.isOpen) {
       this.cellPopovers.close();
+    }
+    const clickedIcon = this.getIconAtEvent(ev);
+    if (clickedIcon?.onClick) {
+      clickedIcon.onClick(clickedIcon.position, this.env);
+      return;
     }
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellClicked(
@@ -285,5 +304,80 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);
     return [colIndex, rowIndex];
+  }
+
+  get icons() {
+    const icons: GridIcon[] = [];
+    for (const position of this.env.model.getters.getVisibleCellPositions()) {
+      const cellIcons = this.env.model.getters.getCellIcons(position);
+      icons.push(...cellIcons.filter((icon) => icon.component));
+    }
+
+    return icons;
+  }
+
+  private getIconAtEvent(ev: MouseEvent) {
+    const x = ev.clientX - this.gridOverlayRect.x;
+    const y = ev.clientY - this.gridOverlayRect.y;
+
+    const [col, row] = this.getCartesianCoordinates(ev);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const cellPosition = { col, row, sheetId };
+
+    const icons = this.env.model.getters.getCellIcons(cellPosition);
+    const icon = icons.find((icon) => {
+      const rect = this.getIconRect(icon);
+      return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
+    });
+    return icon;
+  }
+
+  getIconRect(icon: GridIcon): Rect {
+    const cellPosition = icon.position;
+    const merge = this.env.model.getters.getMerge(cellPosition);
+    const zone = merge || positionToZone(cellPosition);
+    const cellRect = this.env.model.getters.getVisibleRectWithoutHeaders(zone);
+    const cell = this.env.model.getters.getCell(cellPosition);
+
+    const verticalAlign = cell?.style?.verticalAlign || DEFAULT_VERTICAL_ALIGN;
+
+    const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign);
+    const y = this.getIconVerticalPosition(cellRect, verticalAlign);
+    return {
+      x,
+      y,
+      width: GRID_ICON_EDGE_LENGTH,
+      height: GRID_ICON_EDGE_LENGTH,
+    };
+  }
+
+  private getIconVerticalPosition(rect: Rect, align: VerticalAlign): number {
+    const start = rect.y;
+    const end = rect.y + rect.height;
+
+    switch (align) {
+      case "bottom":
+        return end - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH;
+      case "top":
+        return start + GRID_ICON_MARGIN;
+      default:
+        const centeringOffset = Math.floor((end - start - GRID_ICON_EDGE_LENGTH) / 2);
+        return end - GRID_ICON_EDGE_LENGTH - centeringOffset;
+    }
+  }
+
+  private getIconHorizontalPosition(rect: Rect, align: Align): number {
+    const start = rect.x;
+    const end = rect.x + rect.width;
+
+    switch (align) {
+      case "right":
+        return end - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH;
+      case "left":
+        return start + GRID_ICON_MARGIN;
+      default:
+        const centeringOffset = Math.floor((end - start - GRID_ICON_EDGE_LENGTH) / 2);
+        return end - GRID_ICON_EDGE_LENGTH - centeringOffset;
+    }
   }
 }
