@@ -110,6 +110,7 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
+import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { RadarChartDesignPanel } from "./components/side_panel/chart/radar_chart/radar_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfall_chart/waterfall_chart_design_panel";
@@ -393,6 +394,7 @@ export const components = {
   PivotDimensionOrder,
   PivotDimension,
   PivotLayoutConfigurator,
+  PivotHTMLRenderer,
   PivotDeferUpdate,
   PivotTitleSection,
   CogWheelMenu,

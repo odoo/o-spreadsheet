@@ -45,6 +45,7 @@ import {
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_insertion";
 import { HistoryPlugin } from "./ui_feature/local_history";
+import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { TableAutofillPlugin } from "./ui_feature/table_autofill";
 import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
@@ -86,6 +87,7 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
   .add("insert_pivot", InsertPivotPlugin)
+  .add("pivot_presence", PivotPresencePlugin)
   .add("split_to_columns", SplitToColumnsPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
