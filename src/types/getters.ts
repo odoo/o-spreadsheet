@@ -30,6 +30,7 @@ import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_sty
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
+import { PivotPresencePlugin } from "../plugins/ui_feature/pivot_presence_plugin";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
 import { TableComputedStylePlugin } from "../plugins/ui_feature/table_computed_style";
@@ -144,4 +145,6 @@ export type Getters = {
   PluginGetters<typeof DynamicTablesPlugin> &
   PluginGetters<typeof PivotUIPlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
-  PluginGetters<typeof GeoFeaturePlugin>;
+  PluginGetters<typeof GeoFeaturePlugin> &
+  PluginGetters<typeof PivotPresencePlugin> &
+  PluginGetters<typeof TableComputedStylePlugin>;
