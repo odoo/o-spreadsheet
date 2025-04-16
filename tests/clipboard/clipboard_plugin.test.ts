@@ -2932,6 +2932,30 @@ describe("cross spreadsheet copy/paste", () => {
     expect(getCell(modelA, "A1")?.content).toBe(escapableString);
     expect(getCell(modelB, "D2")?.content).toBe(escapableString);
   });
+
+  test("wrongly placed o-spreadsheet data in the clipboard is ignored", () => {
+    const modelA = new Model();
+    const modelB = new Model();
+
+    setCellContent(modelA, "A1", "oldContent");
+    copy(modelA, "A1");
+    const clipboardContent = modelA.getters.getClipboardContent();
+    const oldHTML = clipboardContent["text/html"];
+
+    let content = parseOSClipboardContent({
+      "text/html": `<html>${oldHTML}<body><div>randomContent</div></body></html>`,
+      "text/plain": "newContent",
+    });
+    pasteFromOSClipboard(modelB, "D2", content);
+    expect(getCellContent(modelB, "D2")).toBe("newContent");
+
+    content = parseOSClipboardContent({
+      "text/html": `<html><body>${oldHTML}<div>ThatsNotWhatWeGenerate</div></body></html>`,
+      "text/plain": "newContent2",
+    });
+    pasteFromOSClipboard(modelB, "D2", content);
+    expect(getCellContent(modelB, "D2")).toBe("newContent2");
+  });
 });
 
 test("Can use clipboard handlers to paste in a sheet other than the active sheet", () => {

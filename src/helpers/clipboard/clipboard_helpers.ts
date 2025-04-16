@@ -72,12 +72,17 @@ export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSCl
     content[ClipboardMIMEType.Html],
     "text/html"
   );
-  const oSheetClipboardData = htmlDocument
-    .querySelector("div")
-    ?.getAttribute("data-osheet-clipboard");
-  const spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
   return {
     text: content[ClipboardMIMEType.PlainText],
-    data: spreadsheetContent,
+    data: getOSheetDataFromHTML(htmlDocument),
   };
+}
+
+function getOSheetDataFromHTML(htmlDocument: Document) {
+  if (htmlDocument.body.children.length !== 1) {
+    return undefined;
+  }
+  const oSheetClipboardData =
+    htmlDocument.body.firstElementChild?.getAttribute("data-osheet-clipboard");
+  return oSheetClipboardData && JSON.parse(oSheetClipboardData);
 }
