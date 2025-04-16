@@ -295,7 +295,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.hoveredTokenIndex = tokenIndex;
     this.currentTokens.forEach((t) => (t.isInHoverContext = undefined));
     const tokens = [...this.currentTokens];
-    if (tokenIndex === undefined) {
+    if (tokenIndex === undefined || ["ARG_SEPARATOR", "SPACE"].includes(tokens[tokenIndex].type)) {
       this.hoveredContentEvaluation = "";
       this.hoveredTokens = [];
       return;
@@ -306,10 +306,16 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       tokens.push(...Array(missingParenthesis).fill({ value: ")", type: "RIGHT_PAREN" }));
     }
 
-    let hoveredContextTokens =
-      tokenIndex === 0 && (tokens[tokenIndex]?.value === "=" || tokens[tokenIndex]?.value === "+")
-        ? tokens
-        : this.getRelatedTokens(tokens, tokenIndex);
+    let hoveredContextTokens = tokens;
+    if (tokenIndex !== 0) {
+      const relatedTokens = this.getRelatedTokens(tokens, tokenIndex);
+      const notHoveredTokens = tokens.filter(
+        (t) => !relatedTokens.includes(t) && t.type !== "SPACE"
+      );
+      // Includes starting "=" if all the other tokens are hovered
+      hoveredContextTokens =
+        notHoveredTokens.length === 1 && notHoveredTokens[0] === tokens[0] ? tokens : relatedTokens;
+    }
 
     hoveredContextTokens.forEach((t) => (t.isInHoverContext = true));
 

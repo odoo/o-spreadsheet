@@ -3,6 +3,7 @@ import { ComponentsImportance } from "../../../constants";
 import { Rect, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
+import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { Popover } from "../../popover";
 
 const BUBBLE_ARROW_SIZE = 7;
@@ -48,7 +49,8 @@ export class SpeechBubble extends Component<Props, SpreadsheetChildEnv> {
   static props = { content: String, anchorRect: Object };
   static components = { Popover };
 
-  bubbleRef = useRef("bubble");
+  private spreadsheetRect = useSpreadsheetRect();
+  private bubbleRef = useRef("bubble");
 
   setup(): void {
     useEffect(() => {
@@ -58,8 +60,10 @@ export class SpeechBubble extends Component<Props, SpreadsheetChildEnv> {
       }
       const anchorRect = this.props.anchorRect;
       const rect = getBoundingRectAsPOJO(el);
-      el.style.left = `${anchorRect.x + anchorRect.width / 2 - rect.width / 2}px`;
-      el.style.top = `${anchorRect.y - rect.height - BUBBLE_ARROW_SIZE}px`;
+      const x = anchorRect.x + anchorRect.width / 2 - rect.width / 2 - this.spreadsheetRect.x;
+      const y = anchorRect.y - rect.height - BUBBLE_ARROW_SIZE - this.spreadsheetRect.y;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
     });
   }
 }

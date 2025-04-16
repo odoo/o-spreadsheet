@@ -20,10 +20,10 @@ let fixture: HTMLElement;
 let composerStore: Store<CellComposerStore>;
 let env: SpreadsheetChildEnv;
 
-export async function hoverComposerContent(content: string, args = { matchIndex: 0 }) {
+export async function hoverComposerContent(content: string) {
   const spans = fixture.querySelectorAll(".o-composer span");
   const matchingSpans = Array.from(spans).filter((s) => s.textContent === content);
-  const hoveredSpan = matchingSpans[args.matchIndex];
+  const hoveredSpan = matchingSpans[0];
   if (!hoveredSpan) {
     throw new Error(`Span with text ${content} not found`);
   }
@@ -100,16 +100,16 @@ describe("Composer hover", () => {
     expect(getHighlightedContent()).toEqual("");
 
     await hoverComposerContent("*");
-    expect(getHighlightedContent()).toEqual("SUM(A1+2) * 8");
+    expect(getHighlightedContent()).toEqual("=SUM(A1+2) * 8");
   });
 
-  test("Hover works with spaces at the start/end", async () => {
-    await typeInComposer("= 2 ");
-    await hoverComposerContent(" ", { matchIndex: 0 });
-    expect(getHighlightedContent()).toEqual("= 2 ");
+  test("Hovering a space or a argument separator does nothing", async () => {
+    await typeInComposer("=SUM(8, 2)");
+    await hoverComposerContent(" ");
+    expect(".o-speech-bubble").toHaveCount(0);
 
-    await hoverComposerContent(" ", { matchIndex: 1 });
-    expect(getHighlightedContent()).toEqual("= 2 ");
+    await hoverComposerContent(",");
+    expect(".o-speech-bubble").toHaveCount(0);
   });
 
   test("Can hover primitive types", async () => {
@@ -170,9 +170,6 @@ describe("Composer hover", () => {
     await hoverComposerContent("(");
     expect(".o-speech-bubble").toHaveText("20");
 
-    await hoverComposerContent(" ");
-    expect(".o-speech-bubble").toHaveText("20");
-
     await hoverComposerContent("B1");
     expect(".o-speech-bubble").toHaveText("10");
 
@@ -195,7 +192,7 @@ describe("Composer hover", () => {
     expect(".o-speech-bubble").toHaveText("31");
 
     await hoverComposerContent("-");
-    expect(getHighlightedContent()).toEqual("SUM(5 * 5 + 6) - 12 / SUM(6)");
+    expect(getHighlightedContent()).toEqual("=SUM(5 * 5 + 6) - 12 / SUM(6)");
     expect(".o-speech-bubble").toHaveText("29");
 
     await hoverComposerContent("/");
@@ -285,6 +282,9 @@ describe("Composer hover", () => {
     jest
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")
       .mockImplementation(function (this: HTMLElement) {
+        if (this.classList.contains("o-spreadsheet")) {
+          return { left: 66, top: 66, width: 555, height: 555 } as DOMRect;
+        }
         if (this.classList.contains("o-speech-bubble")) {
           return { x: 0, y: 0, width: 100, height: 50 } as DOMRect;
         } else if (this.textContent === "=") {
@@ -297,9 +297,9 @@ describe("Composer hover", () => {
     await hoverComposerContent("=");
 
     // center of bubble at the center of the hovered token
-    expect(getElStyle(".o-speech-bubble", "left")).toEqual(10 + 20 / 2 - 100 / 2 + "px");
+    expect(getElStyle(".o-speech-bubble", "left")).toEqual(10 + 20 / 2 - 100 / 2 - 66 + "px");
     // top above the hovered token + BUBBLE_ARROW_SIZE (7px)
-    expect(getElStyle(".o-speech-bubble", "top")).toEqual(10 - 50 - 7 + "px");
+    expect(getElStyle(".o-speech-bubble", "top")).toEqual(10 - 50 - 7 - 66 + "px");
     jest.restoreAllMocks();
   });
 
