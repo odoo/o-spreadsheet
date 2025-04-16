@@ -182,7 +182,7 @@ export type FormulaToExecute = (
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   getSymbolValue: GetSymbolValue,
-  ctx: {}
+  ctx: object
 ) => Matrix<FunctionResultObject> | FunctionResultObject;
 
 export interface CompiledFormula {
