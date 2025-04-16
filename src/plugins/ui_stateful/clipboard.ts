@@ -75,7 +75,7 @@ export class ClipboardPlugin extends UIPlugin {
         const zones = this.getters.getSelectedZones();
         return this.isCutAllowedOn(zones);
       case "PASTE_FROM_OS_CLIPBOARD": {
-        const copiedData = this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
+        const copiedData = this.convertTextToClipboardData(cmd.clipboardContent.text ?? []);
         const pasteOption = cmd.pasteOption;
         return this.isPasteAllowed(cmd.target, copiedData, { pasteOption, isCutOperation: false });
       }
@@ -132,7 +132,7 @@ export class ClipboardPlugin extends UIPlugin {
 
         this.copiedData =
           cmd.clipboardContent.data ||
-          this.convertTextToClipboardData(cmd.clipboardContent.text ?? "");
+          this.convertTextToClipboardData(cmd.clipboardContent.text ?? []);
 
         const pasteOption = cmd.pasteOption;
         this.paste(cmd.target, this.copiedData, {
@@ -270,7 +270,7 @@ export class ClipboardPlugin extends UIPlugin {
     }
   }
 
-  private convertTextToClipboardData(clipboardData: string): {} {
+  private convertTextToClipboardData(clipboardData: string[][]): {} {
     const handlers = this.selectClipboardHandlers({ figureId: true }).concat(
       this.selectClipboardHandlers({})
     );
