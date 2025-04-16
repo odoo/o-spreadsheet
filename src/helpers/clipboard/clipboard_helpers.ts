@@ -77,14 +77,22 @@ export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSCl
     content[ClipboardMIMEType.Html],
     "text/html"
   );
+  return {
+    text: content[ClipboardMIMEType.PlainText],
+    data: getOSheetDataFromHTML(htmlDocument),
+  };
+}
+
+function getOSheetDataFromHTML(htmlDocument: Document) {
+  const attributes = [...htmlDocument.documentElement.attributes];
+  // Check if it's a Microsoft Office clipboard data (it will have some namespaces defined in the root element)
+  if (attributes.some((attr) => attr.value.includes("microsoft"))) {
+    return undefined;
+  }
   const oSheetClipboardData = htmlDocument
     .querySelector("div")
     ?.getAttribute("data-osheet-clipboard");
-  const spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
-  return {
-    text: content[ClipboardMIMEType.PlainText],
-    data: spreadsheetContent,
-  };
+  return oSheetClipboardData && JSON.parse(oSheetClipboardData);
 }
 
 /**
