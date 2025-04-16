@@ -65,6 +65,7 @@ let model: Model;
 let parent: Spreadsheet;
 let sheetId: UID;
 let env: SpreadsheetChildEnv;
+let notifyUser: jest.Mock;
 
 function createFigure(
   model: Model,
@@ -139,7 +140,8 @@ beforeEach(() => {
 
 describe("figures", () => {
   beforeEach(async () => {
-    ({ model, parent, fixture, env } = await mountSpreadsheet());
+    notifyUser = jest.fn();
+    ({ model, parent, fixture, env } = await mountSpreadsheet(undefined, { notifyUser }));
     mockSpreadsheetRect = { top: 100, left: 200, height: 1000, width: 1000 };
     mockFigureMenuItemRect = { top: 500, left: 500 };
     sheetId = model.getters.getActiveSheetId();
@@ -697,6 +699,15 @@ describe("figures", () => {
         const figureIds = getFigureIds(model, sheetId);
         expect(getFigureDefinition(model, figureIds[0], type)).toEqual(figureDef);
         expect(getFigureDefinition(model, figureIds[1], type)).toEqual(figureDef);
+        if (type === "image") {
+          expect(notifyUser).toHaveBeenCalledWith({
+            text: "Image copied to clipboard",
+            type: "success",
+            sticky: false,
+          });
+        } else {
+          expect(notifyUser).not.toHaveBeenCalled();
+        }
       });
 
       test(`Can cut/paste a figure ${type} with its context menu`, async () => {
@@ -775,17 +786,22 @@ describe("figures", () => {
         expect(menuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
       });
 
-      test("Cannot open context menu on right click in dashboard mode", async () => {
+      test("Can only copy/download figures in dashboard mode", async () => {
         model.updateMode("dashboard");
+        await nextTick();
+
         triggerMouseEvent(".o-figure", "contextmenu");
         await nextTick();
-        expect(document.querySelector(".o-menu")).toBeFalsy();
-      });
 
-      test("Cannot open context menu on right click in readonly mode", async () => {
-        model.updateMode("readonly");
-        triggerMouseEvent(".o-figure", "contextmenu");
-        expect(document.querySelector(".o-menu")).toBeFalsy();
+        const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")].map(
+          (item) => item.dataset.name
+        );
+
+        if (type === "image") {
+          expect(menuItems).toEqual(["copy", "download"]);
+        } else {
+          expect(menuItems).toEqual(["copy_as_image", "download"]);
+        }
       });
 
       test("Click on Menu button open context menu", async () => {

@@ -318,7 +318,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onContextMenu(ev: MouseEvent) {
-    if (this.env.isDashboard()) return;
     this.openContextMenu({ x: ev.clientX, y: ev.clientY, width: 0, height: 0 });
   }
 
