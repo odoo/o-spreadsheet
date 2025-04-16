@@ -79,10 +79,7 @@ export function parseOSClipboardContent(
       content[ClipboardMIMEType.Html],
       "text/html"
     );
-    const oSheetClipboardData = htmlDocument
-      .querySelector("div")
-      ?.getAttribute("data-osheet-clipboard");
-    spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
+    spreadsheetContent = getOSheetDataFromHTML(htmlDocument);
   }
   const textContent = content[ClipboardMIMEType.PlainText] || "";
 
@@ -101,6 +98,18 @@ export function parseOSClipboardContent(
     imageBlob,
   };
   return osClipboardContent;
+}
+
+function getOSheetDataFromHTML(htmlDocument: Document) {
+  const attributes = [...htmlDocument.documentElement.attributes];
+  // Check if it's a Microsoft Office clipboard data (it will have some namespaces defined in the root element)
+  if (attributes.some((attr) => attr.value.includes("microsoft"))) {
+    return undefined;
+  }
+  const oSheetClipboardData = htmlDocument
+    .querySelector("div")
+    ?.getAttribute("data-osheet-clipboard");
+  return oSheetClipboardData && JSON.parse(oSheetClipboardData);
 }
 
 /**
