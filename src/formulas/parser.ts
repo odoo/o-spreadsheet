@@ -12,11 +12,40 @@ const UNARY_OPERATORS_POSTFIX = ["%"];
 
 const ASSOCIATIVE_OPERATORS = ["*", "+", "&"];
 
+interface RichToken extends Token {
+  tokenIndex: number;
+}
+
+export class TokenList {
+  private tokens: RichToken[];
+  currentIndex: number = 0;
+  current: RichToken | undefined;
+  length: number;
+
+  constructor(tokens: RichToken[]) {
+    this.tokens = tokens;
+    this.current = tokens[0];
+    this.length = tokens.length;
+  }
+
+  shift() {
+    const current = this.tokens[this.currentIndex];
+    this.current = this.tokens[++this.currentIndex];
+    return current;
+  }
+
+  get next(): RichToken | undefined {
+    return this.tokens[this.currentIndex + 1];
+  }
+}
+
 // -----------------------------------------------------------------------------
 // PARSER
 // -----------------------------------------------------------------------------
 interface ASTBase {
   debug?: boolean;
+  tokenStartIndex: number;
+  tokenEndIndex: number;
 }
 
 interface ASTNumber extends ASTBase {
@@ -103,7 +132,7 @@ const OP_PRIORITY = {
  *  for (1+2)*3, the next operand is (1+2)
  *  for SUM(1,2)+3, the next operand is SUM(1,2)
  */
-function parseOperand(tokens: Token[]): AST {
+function parseOperand(tokens: TokenList): AST {
   const current = tokens.shift();
   if (!current) {
     throw new BadExpressionError();
@@ -114,55 +143,94 @@ function parseOperand(tokens: Token[]): AST {
       next.debug = true;
       return next;
     case "NUMBER":
-      return { type: "NUMBER", value: parseNumber(current.value, DEFAULT_LOCALE) };
+      return {
+        type: "NUMBER",
+        value: parseNumber(current.value, DEFAULT_LOCALE),
+        tokenStartIndex: current.tokenIndex,
+        tokenEndIndex: current.tokenIndex,
+      };
     case "STRING":
-      return { type: "STRING", value: removeStringQuotes(current.value) };
+      return {
+        type: "STRING",
+        value: removeStringQuotes(current.value),
+        tokenStartIndex: current.tokenIndex,
+        tokenEndIndex: current.tokenIndex,
+      };
     case "INVALID_REFERENCE":
       return {
         type: "REFERENCE",
         value: CellErrorType.InvalidReference,
+        tokenStartIndex: current.tokenIndex,
+        tokenEndIndex: current.tokenIndex,
       };
 
     case "REFERENCE":
-      if (tokens[0]?.value === ":" && tokens[1]?.type === "REFERENCE") {
+      if (tokens.current?.value === ":" && tokens.next?.type === "REFERENCE") {
         tokens.shift();
         const rightReference = tokens.shift();
         return {
           type: "REFERENCE",
           value: `${current.value}:${rightReference?.value}`,
+          tokenStartIndex: current.tokenIndex,
+          tokenEndIndex: rightReference.tokenIndex,
         };
       }
       return {
         type: "REFERENCE",
         value: current.value,
+        tokenStartIndex: current.tokenIndex,
+        tokenEndIndex: current.tokenIndex,
       };
     case "SYMBOL":
       const value = current.value;
-      const nextToken = tokens[0];
+      const nextToken = tokens.current;
       if (
         nextToken?.type === "LEFT_PAREN" &&
         functionRegex.test(current.value) &&
         value === unquote(value, "'")
       ) {
-        const args = parseFunctionArgs(tokens);
-        return { type: "FUNCALL", value: value, args };
+        const { args, rightParen } = parseFunctionArgs(tokens);
+        return {
+          type: "FUNCALL",
+          value: value,
+          args,
+          tokenStartIndex: current.tokenIndex,
+          tokenEndIndex: rightParen.tokenIndex,
+        };
       }
       const upperCaseValue = value.toUpperCase();
       if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
-        return { type: "BOOLEAN", value: upperCaseValue === "TRUE" };
+        return {
+          type: "BOOLEAN",
+          value: upperCaseValue === "TRUE",
+          tokenStartIndex: current.tokenIndex,
+          tokenEndIndex: current.tokenIndex,
+        };
       }
-      return { type: "SYMBOL", value: unquote(current.value, "'") };
+      return {
+        type: "SYMBOL",
+        value: unquote(current.value, "'"),
+        tokenStartIndex: current.tokenIndex,
+        tokenEndIndex: current.tokenIndex,
+      };
     case "LEFT_PAREN":
       const result = parseExpression(tokens);
-      consumeOrThrow(tokens, "RIGHT_PAREN", _t("Missing closing parenthesis"));
-      return result;
+      const rightParen = consumeOrThrow(tokens, "RIGHT_PAREN", _t("Missing closing parenthesis"));
+      return {
+        ...result,
+        tokenStartIndex: current.tokenIndex,
+        tokenEndIndex: rightParen.tokenIndex,
+      };
     case "OPERATOR":
       const operator = current.value;
       if (UNARY_OPERATORS_PREFIX.includes(operator)) {
+        const operand = parseExpression(tokens, OP_PRIORITY[operator]);
         return {
           type: "UNARY_OPERATION",
           value: operator,
-          operand: parseExpression(tokens, OP_PRIORITY[operator]),
+          operand,
+          tokenStartIndex: current.tokenIndex,
+          tokenEndIndex: operand.tokenEndIndex,
         };
       }
       throw new BadExpressionError(_t("Unexpected token: %s", current.value));
@@ -171,54 +239,66 @@ function parseOperand(tokens: Token[]): AST {
   }
 }
 
-function parseFunctionArgs(tokens: Token[]): AST[] {
+function parseFunctionArgs(tokens: TokenList) {
   consumeOrThrow(tokens, "LEFT_PAREN", _t("Missing opening parenthesis"));
-  const nextToken = tokens[0];
+  const nextToken = tokens.current;
   if (nextToken?.type === "RIGHT_PAREN") {
-    consumeOrThrow(tokens, "RIGHT_PAREN");
-    return [];
+    const rightParen = consumeOrThrow(tokens, "RIGHT_PAREN");
+    return { args: [], rightParen };
   }
   const args: AST[] = [];
   args.push(parseOneFunctionArg(tokens));
-  while (tokens[0]?.type !== "RIGHT_PAREN") {
+  while (tokens.current?.type !== "RIGHT_PAREN") {
     consumeOrThrow(tokens, "ARG_SEPARATOR", _t("Wrong function call"));
     args.push(parseOneFunctionArg(tokens));
   }
-  consumeOrThrow(tokens, "RIGHT_PAREN");
-  return args;
+  const rightParen = consumeOrThrow(tokens, "RIGHT_PAREN");
+  return { args, rightParen };
 }
 
-function parseOneFunctionArg(tokens: Token[]): AST {
-  const nextToken = tokens[0];
+function parseOneFunctionArg(tokens: TokenList): AST {
+  const nextToken = tokens.current;
   if (nextToken?.type === "ARG_SEPARATOR" || nextToken?.type === "RIGHT_PAREN") {
     // arg is empty: "sum(1,,2)" "sum(,1)" "sum(1,)"
-    return { type: "EMPTY", value: "" };
+    return {
+      type: "EMPTY",
+      value: "",
+      tokenStartIndex: nextToken.tokenIndex,
+      tokenEndIndex: nextToken.tokenIndex,
+    };
   }
   return parseExpression(tokens);
 }
 
-function consumeOrThrow(tokens, type, message?) {
+function consumeOrThrow(tokens: TokenList, type, message?: string) {
   const token = tokens.shift();
   if (!token || token.type !== type) {
     throw new BadExpressionError(message);
   }
+  return token;
 }
 
-function parseExpression(tokens: Token[], parent_priority: number = 0): AST {
+function parseExpression(tokens: TokenList, parent_priority: number = 0): AST {
   if (tokens.length === 0) {
     throw new BadExpressionError();
   }
   let left = parseOperand(tokens);
   // as long as we have operators with higher priority than the parent one,
   // continue parsing the expression because it is a child sub-expression
-  while (tokens[0]?.type === "OPERATOR" && OP_PRIORITY[tokens[0].value] > parent_priority) {
-    const operator = tokens.shift()!.value;
+  while (
+    tokens.current?.type === "OPERATOR" &&
+    OP_PRIORITY[tokens.current.value] > parent_priority
+  ) {
+    const operatorToken = tokens.shift();
+    const operator = operatorToken.value;
     if (UNARY_OPERATORS_POSTFIX.includes(operator)) {
       left = {
         type: "UNARY_OPERATION",
         value: operator,
         operand: left,
         postfix: true,
+        tokenStartIndex: left.tokenStartIndex,
+        tokenEndIndex: operatorToken.tokenIndex,
       };
     } else {
       const right = parseExpression(tokens, OP_PRIORITY[operator]);
@@ -227,6 +307,8 @@ function parseExpression(tokens: Token[], parent_priority: number = 0): AST {
         value: operator,
         left,
         right,
+        tokenStartIndex: left.tokenStartIndex,
+        tokenEndIndex: right.tokenEndIndex,
       };
     }
   }
@@ -241,12 +323,14 @@ export function parse(str: string): AST {
 }
 
 export function parseTokens(tokens: Token[]): AST {
-  tokens = tokens.filter((x) => x.type !== "SPACE");
-  if (tokens[0]?.value === "=") {
-    tokens.splice(0, 1);
+  const richTokens = tokens.map((token, index) => ({ ...token, tokenIndex: index }));
+  const tokensToParse = richTokens.filter((x) => x.type !== "SPACE");
+  const tokenList = new TokenList(tokensToParse);
+  if (tokenList.current?.value === "=") {
+    tokenList.shift();
   }
-  const result = parseExpression(tokens);
-  if (tokens.length) {
+  const result = parseExpression(tokenList);
+  if (tokenList.current) {
     throw new BadExpressionError();
   }
   return result;

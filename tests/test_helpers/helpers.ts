@@ -1024,6 +1024,7 @@ type ComposerWrapperProps = {
 export class ComposerWrapper extends Component<ComposerWrapperProps, SpreadsheetChildEnv> {
   static components = { Composer };
   static template = xml/*xml*/ `
+    <div class="o-spreadsheet"/>
     <Composer t-props="composerProps"/>
   `;
   static props = { composerProps: Object, focusComposer: String };

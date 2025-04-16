@@ -1,9 +1,9 @@
-import { astToFormula, parse } from "../../src";
+import { astToFormula, parse, tokenize } from "../../src";
 import { CellErrorType } from "../../src/types/errors";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {
-    expect(parse("RAND()")).toEqual({ type: "FUNCALL", value: "RAND", args: [] });
+    expect(parse("RAND()")).toMatchObject({ type: "FUNCALL", value: "RAND", args: [] });
   });
 
   test("cannot parse a quoted function call", () => {
@@ -11,7 +11,7 @@ describe("parser", () => {
   });
 
   test("can parse a function call with one argument", () => {
-    expect(parse("SUM(1)")).toEqual({
+    expect(parse("SUM(1)")).toMatchObject({
       type: "FUNCALL",
       value: "SUM",
       args: [{ type: "NUMBER", value: 1 }],
@@ -19,7 +19,7 @@ describe("parser", () => {
   });
 
   test("can parse a function call with sub expressions as argument", () => {
-    expect(parse("IF(A1 > 0, 1, 2)")).toEqual({
+    expect(parse("IF(A1 > 0, 1, 2)")).toMatchObject({
       type: "FUNCALL",
       value: "IF",
       args: [
@@ -56,7 +56,7 @@ describe("parser", () => {
   });
 
   test("add a EMPTY token for empty arguments", () => {
-    expect(parse("SUM(1,)")).toEqual({
+    expect(parse("SUM(1,)")).toMatchObject({
       type: "FUNCALL",
       value: "SUM",
       args: [
@@ -64,7 +64,7 @@ describe("parser", () => {
         { type: "EMPTY", value: "" },
       ],
     });
-    expect(parse("SUM(,1)")).toEqual({
+    expect(parse("SUM(,1)")).toMatchObject({
       type: "FUNCALL",
       value: "SUM",
       args: [
@@ -72,7 +72,7 @@ describe("parser", () => {
         { type: "NUMBER", value: 1 },
       ],
     });
-    expect(parse("SUM(,)")).toEqual({
+    expect(parse("SUM(,)")).toMatchObject({
       type: "FUNCALL",
       value: "SUM",
       args: [
@@ -80,7 +80,7 @@ describe("parser", () => {
         { type: "EMPTY", value: "" },
       ],
     });
-    expect(parse("SUM(,,)")).toEqual({
+    expect(parse("SUM(,,)")).toMatchObject({
       type: "FUNCALL",
       value: "SUM",
       args: [
@@ -89,7 +89,7 @@ describe("parser", () => {
         { type: "EMPTY", value: "" },
       ],
     });
-    expect(parse("SUM(,,,1)")).toEqual({
+    expect(parse("SUM(,,,1)")).toMatchObject({
       type: "FUNCALL",
       value: "SUM",
       args: [
@@ -102,12 +102,12 @@ describe("parser", () => {
   });
 
   test("can parse unary operations", () => {
-    expect(parse("-1")).toEqual({
+    expect(parse("-1")).toMatchObject({
       type: "UNARY_OPERATION",
       value: "-",
       operand: { type: "NUMBER", value: 1 },
     });
-    expect(parse("+1")).toEqual({
+    expect(parse("+1")).toMatchObject({
       type: "UNARY_OPERATION",
       value: "+",
       operand: { type: "NUMBER", value: 1 },
@@ -115,13 +115,13 @@ describe("parser", () => {
   });
 
   test("can parse % operator", () => {
-    expect(parse("1%")).toEqual({
+    expect(parse("1%")).toMatchObject({
       type: "UNARY_OPERATION",
       value: "%",
       operand: { type: "NUMBER", value: 1 },
       postfix: true,
     });
-    expect(parse("100 %")).toEqual({
+    expect(parse("100 %")).toMatchObject({
       type: "UNARY_OPERATION",
       value: "%",
       operand: { type: "NUMBER", value: 100 },
@@ -130,18 +130,18 @@ describe("parser", () => {
   });
 
   test("can parse numeric values", () => {
-    expect(parse("1")).toEqual({ type: "NUMBER", value: 1 });
-    expect(parse("1.5")).toEqual({ type: "NUMBER", value: 1.5 });
-    expect(parse("1.")).toEqual({ type: "NUMBER", value: 1 });
-    expect(parse(".5")).toEqual({ type: "NUMBER", value: 0.5 });
+    expect(parse("1")).toMatchObject({ type: "NUMBER", value: 1 });
+    expect(parse("1.5")).toMatchObject({ type: "NUMBER", value: 1.5 });
+    expect(parse("1.")).toMatchObject({ type: "NUMBER", value: 1 });
+    expect(parse(".5")).toMatchObject({ type: "NUMBER", value: 0.5 });
   });
 
   test("can parse string without ending double quotes", () => {
-    expect(parse('"hello')).toEqual({ type: "STRING", value: "hello" });
+    expect(parse('"hello')).toMatchObject({ type: "STRING", value: "hello" });
   });
 
   test("can parse binary operations", () => {
-    expect(parse("2-3")).toEqual({
+    expect(parse("2-3")).toMatchObject({
       type: "BIN_OPERATION",
       value: "-",
       left: { type: "NUMBER", value: 2 },
@@ -150,7 +150,7 @@ describe("parser", () => {
   });
 
   test("can parse expression with parenthesis", () => {
-    expect(parse("(2+3)")).toEqual({
+    expect(parse("(2+3)")).toMatchObject({
       type: "BIN_OPERATION",
       value: "+",
       left: { type: "NUMBER", value: 2 },
@@ -163,7 +163,7 @@ describe("parser", () => {
   });
 
   test("can parse concat operator", () => {
-    expect(parse("A1&A2")).toEqual({
+    expect(parse("A1&A2")).toMatchObject({
       type: "BIN_OPERATION",
       value: "&",
       left: { type: "REFERENCE", value: "A1" },
@@ -172,7 +172,7 @@ describe("parser", () => {
   });
 
   test("Can parse invalid references", () => {
-    expect(parse("#REF")).toEqual({
+    expect(parse("#REF")).toMatchObject({
       type: "REFERENCE",
       value: CellErrorType.InvalidReference,
     });
@@ -183,7 +183,7 @@ describe("parser", () => {
   });
 
   test("AND", () => {
-    expect(parse("=AND(true, false)")).toEqual({
+    expect(parse("=AND(true, false)")).toMatchObject({
       type: "FUNCALL",
       value: "AND",
       args: [
@@ -191,7 +191,7 @@ describe("parser", () => {
         { type: "BOOLEAN", value: false },
       ],
     });
-    expect(parse("=AND(0, tRuE)")).toEqual({
+    expect(parse("=AND(0, tRuE)")).toMatchObject({
       type: "FUNCALL",
       value: "AND",
       args: [
@@ -202,14 +202,14 @@ describe("parser", () => {
   });
 
   test("can parse simple symbol", () => {
-    expect(parse("Hello")).toEqual({
+    expect(parse("Hello")).toMatchObject({
       type: "SYMBOL",
       value: "Hello",
     });
   });
 
   test("can parse quoted symbol", () => {
-    expect(parse("'Hello world'")).toEqual({
+    expect(parse("'Hello world'")).toMatchObject({
       type: "SYMBOL",
       value: "Hello world",
     });
@@ -217,6 +217,212 @@ describe("parser", () => {
 
   test("cannot parse unquoted symbol with space", () => {
     expect(() => parse("Hello world")).toThrow("Invalid expression");
+  });
+
+  describe("Parser saves the token indexes in the AST", () => {
+    test("Simple formula", () => {
+      const formula = "SUM(A1)";
+      const tokens = tokenize(formula);
+
+      expect(parse(formula)).toMatchObject({
+        type: "FUNCALL",
+        value: "SUM",
+        tokenStartIndex: 0,
+        tokenEndIndex: tokens.findIndex((t) => t.value === ")"),
+        args: [
+          {
+            type: "REFERENCE",
+            value: "A1",
+            tokenStartIndex: tokens.findIndex((t) => t.value === "A1"),
+            tokenEndIndex: tokens.findIndex((t) => t.value === "A1"),
+          },
+        ],
+      });
+    });
+
+    test("Simple prefix unary operator", () => {
+      const formula = "-A1";
+      const tokens = tokenize(formula);
+
+      expect(parse(formula)).toMatchObject({
+        type: "UNARY_OPERATION",
+        value: "-",
+        tokenStartIndex: 0,
+        tokenEndIndex: tokens.findIndex((t) => t.value === "A1"),
+        operand: {
+          type: "REFERENCE",
+          value: "A1",
+          tokenStartIndex: tokens.findIndex((t) => t.value === "A1"),
+          tokenEndIndex: tokens.findIndex((t) => t.value === "A1"),
+        },
+      });
+    });
+
+    test("Simple suffix unary operator", () => {
+      const formula = "12%";
+      const tokens = tokenize(formula);
+
+      expect(parse(formula)).toMatchObject({
+        type: "UNARY_OPERATION",
+        value: "%",
+        tokenStartIndex: 0,
+        tokenEndIndex: tokens.findIndex((t) => t.value === "%"),
+        operand: {
+          type: "NUMBER",
+          value: 12,
+          tokenStartIndex: 0,
+          tokenEndIndex: 0,
+        },
+        postfix: true,
+      });
+    });
+
+    test("Simple binary operator", () => {
+      const formula = "A1+B2";
+      const tokens = tokenize(formula);
+
+      expect(parse(formula)).toMatchObject({
+        type: "BIN_OPERATION",
+        value: "+",
+        tokenStartIndex: tokens.findIndex((t) => t.value === "A1"),
+        tokenEndIndex: tokens.findIndex((t) => t.value === "B2"),
+        left: {
+          type: "REFERENCE",
+          value: "A1",
+          tokenStartIndex: tokens.findIndex((t) => t.value === "A1"),
+          tokenEndIndex: tokens.findIndex((t) => t.value === "A1"),
+        },
+        right: {
+          type: "REFERENCE",
+          value: "B2",
+          tokenStartIndex: tokens.findIndex((t) => t.value === "B2"),
+          tokenEndIndex: tokens.findIndex((t) => t.value === "B2"),
+        },
+      });
+    });
+
+    test("With parenthesis", () => {
+      const formula = "((A1+B2))";
+      const tokens = tokenize(formula);
+
+      expect(parse(formula)).toMatchObject({
+        type: "BIN_OPERATION",
+        value: "+",
+        tokenStartIndex: 0,
+        tokenEndIndex: 6,
+        left: {
+          type: "REFERENCE",
+          value: "A1",
+          tokenStartIndex: tokens.findIndex((t) => t.value === "A1"),
+          tokenEndIndex: tokens.findIndex((t) => t.value === "A1"),
+        },
+        right: {
+          type: "REFERENCE",
+          value: "B2",
+          tokenStartIndex: tokens.findIndex((t) => t.value === "B2"),
+          tokenEndIndex: tokens.findIndex((t) => t.value === "B2"),
+        },
+      });
+    });
+
+    test("Complex formula", () => {
+      const formula = "SUM(A1+(-B2),12%)+15";
+      const tokens = tokenize(formula);
+
+      expect(parse(formula)).toMatchObject({
+        type: "BIN_OPERATION",
+        value: "+",
+        tokenStartIndex: 0,
+        tokenEndIndex: tokens.length - 1,
+        left: {
+          type: "FUNCALL",
+          value: "SUM",
+          tokenStartIndex: 0,
+          tokenEndIndex: 11,
+          args: [
+            {
+              type: "BIN_OPERATION",
+              value: "+",
+              tokenStartIndex: 2,
+              tokenEndIndex: 7,
+              left: {
+                type: "REFERENCE",
+                value: "A1",
+                tokenStartIndex: 2,
+                tokenEndIndex: 2,
+              },
+              right: {
+                type: "UNARY_OPERATION",
+                value: "-",
+                tokenStartIndex: 4,
+                tokenEndIndex: 7,
+                operand: {
+                  type: "REFERENCE",
+                  value: "B2",
+                  tokenStartIndex: 6,
+                  tokenEndIndex: 6,
+                },
+              },
+            },
+            {
+              type: "UNARY_OPERATION",
+              value: "%",
+              tokenStartIndex: 9,
+              tokenEndIndex: 10,
+              operand: {
+                type: "NUMBER",
+                value: 12,
+                tokenStartIndex: 9,
+                tokenEndIndex: 9,
+              },
+              postfix: true,
+            },
+          ],
+        },
+        right: {
+          type: "NUMBER",
+          value: 15,
+          tokenStartIndex: 13,
+          tokenEndIndex: 13,
+        },
+      });
+    });
+
+    test("With = at the start", () => {
+      const formula = "=A1";
+      const tokens = tokenize(formula);
+
+      expect(parse(formula)).toMatchObject({
+        type: "REFERENCE",
+        value: "A1",
+        tokenStartIndex: tokens.findIndex((t) => t.value === "A1"),
+        tokenEndIndex: tokens.findIndex((t) => t.value === "A1"),
+      });
+    });
+
+    test("With spaces", () => {
+      const formula = "  A1  +  B2  ";
+      const tokens = tokenize(formula);
+
+      expect(parse(formula)).toMatchObject({
+        type: "BIN_OPERATION",
+        value: "+",
+        tokenStartIndex: tokens.findIndex((t) => t.value === "A1"),
+        tokenEndIndex: tokens.findIndex((t) => t.value === "B2"),
+        left: {
+          type: "REFERENCE",
+          value: "A1",
+          tokenStartIndex: tokens.findIndex((t) => t.value === "A1"),
+          tokenEndIndex: tokens.findIndex((t) => t.value === "A1"),
+        },
+        right: {
+          type: "REFERENCE",
+          value: "B2",
+          tokenStartIndex: tokens.findIndex((t) => t.value === "B2"),
+          tokenEndIndex: tokens.findIndex((t) => t.value === "B2"),
+        },
+      });
+    });
   });
 });
 

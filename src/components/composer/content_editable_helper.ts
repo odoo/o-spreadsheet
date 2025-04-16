@@ -1,5 +1,9 @@
 import { deepEquals, toHex } from "../../helpers";
-import { getCurrentSelection, iterateChildren } from "../helpers/dom_helpers";
+import {
+  getBoundingRectAsPOJO,
+  getCurrentSelection,
+  iterateChildren,
+} from "../helpers/dom_helpers";
 import { NEWLINE } from "./../../constants";
 import { HtmlContent } from "./composer/composer";
 
@@ -152,16 +156,21 @@ export class ContentEditableHelper {
           continue;
         }
         // this is an empty line in the content
-        if (!content.value && !content.class) {
+        if (!content.value && !content.classes?.length) {
           if (child) p.removeChild(child);
           continue;
         }
         const span = document.createElement("span");
         span.innerText = content.value;
         span.style.color = content.color || "";
-        if (content.class) {
-          span.classList.add(content.class);
-        }
+        span.addEventListener("mousemove", () => {
+          content.onHover?.(getBoundingRectAsPOJO(span));
+        });
+        span.addEventListener("mouseleave", () => {
+          content.onStopHover?.();
+        });
+        span.classList.add(...(content.classes || []));
+
         if (child) {
           p.replaceChild(span, child);
         } else {
@@ -259,7 +268,7 @@ function compareContentToSpanElement(content: HtmlContent, node: HTMLElement): b
   const nodeColor = node.style?.color ? toHex(node.style.color) : "";
 
   const sameColor = contentColor === nodeColor;
-  const sameClass = deepEquals([content.class], [...node.classList]);
+  const sameClass = deepEquals(content.classes, [...node.classList]);
   const sameContent = node.innerText === content.value;
   return sameColor && sameClass && sameContent;
 }
