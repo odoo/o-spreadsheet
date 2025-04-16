@@ -16,6 +16,7 @@ fi
 if [ "$HUSKY_PRE_COMMIT" != 0 ]; then
     $npx lint-staged
 
+    # Check console and debugger leftover statements
     consoleregexp='console\.|debugger'
     if test $(git diff --cached | grep -nE $consoleregexp | wc -l) != 0
     then
