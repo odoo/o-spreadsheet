@@ -1,5 +1,4 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { getChartJSConstructor } from "../../../components/figures/chart/chartJs/chart_js_extension";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { Figure } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
@@ -22,6 +21,7 @@ export const CHART_COMMON_OPTIONS: ChartOptions = {
     },
   },
   animation: false,
+  events: ["mousemove", "mouseout", "click", "touchstart", "touchmove", "mouseup"],
 };
 
 export function truncateLabel(label: string | undefined): string {
@@ -53,8 +53,7 @@ export function chartToImage(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    const Chart = getChartJSConstructor();
-    const chart = new Chart(canvas, config as ChartConfiguration);
+    const chart = new window.Chart(canvas, config as ChartConfiguration);
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();
