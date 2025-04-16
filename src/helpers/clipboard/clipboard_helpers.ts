@@ -1,3 +1,4 @@
+import { NEWLINE } from "../../constants";
 import {
   ClipboardCellData,
   ClipboardMIMEType,
@@ -66,10 +67,13 @@ export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSCl
   if (!content[ClipboardMIMEType.Html]) {
     return { text: splitPlainTextContent(content[ClipboardMIMEType.PlainText]) };
   }
-  const htmlDocument = new DOMParser().parseFromString(
-    content[ClipboardMIMEType.Html],
-    "text/html"
-  );
+
+  let htmlString = content[ClipboardMIMEType.Html];
+  htmlString = htmlString.replaceAll(/(\n|\r) */g, "");
+  htmlString = htmlString.replaceAll(/<br\s*\/?>/gi, NEWLINE);
+  console.log("htmlString", htmlString);
+
+  const htmlDocument = new DOMParser().parseFromString(htmlString, "text/html");
   const oSheetClipboardData = htmlDocument
     .querySelector("div")
     ?.getAttribute("data-osheet-clipboard");
@@ -89,10 +93,11 @@ function splitPlainTextContent(content: string | undefined): string[][] {
     .map((vals) => vals.split("\t"));
 }
 
-function getContentFromHTMLTable(document: Document): string[][] | undefined {
-  const table = document.querySelector("table");
+function getContentFromHTMLTable(doc: Document): string[][] | undefined {
+  const table = doc.querySelector("table");
   if (!table) {
-    return undefined;
+    const spans = doc.querySelectorAll("span");
+    return spans.length === 1 ? [[spans[0].innerText]] : undefined;
   }
   const rows = Array.from(table.rows);
   return rows.map((row) => Array.from(row.cells).map((cell) => cell.innerText));

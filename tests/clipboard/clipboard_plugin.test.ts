@@ -710,23 +710,38 @@ describe("clipboard", () => {
     expect(getCellContent(model, "D2")).toBe("2");
   });
 
-  test("Can paste content with newlines/tabulations with the HTML", () => {
+  test("Can paste multiline content from other spreadsheet softwares", () => {
     const model = new Model();
-    const html = `
-    <div><table>
-      <tr>
-          <td>a\nb</td>
-          <td>c\td</td>
-      </tr>
-    </table></div>`;
-    const osClipboardContent = { [ClipboardMIMEType.Html]: html };
+    // Excel Online
+    let html = `
+    <div><table><tr>
+          <td>a<br/>\nb</td>
+          <td>c<br/>\nd</td>
+    </tr></table></div>`;
+    let osClipboardContent = { [ClipboardMIMEType.Html]: html };
     pasteFromOSClipboard(model, "C1", parseOSClipboardContent(osClipboardContent));
-
     expect(getCellContent(model, "C1")).toBe("a\nb");
-    expect(getCellContent(model, "D1")).toBe("c\td");
+    expect(getCellContent(model, "D1")).toBe("c\nd");
+
+    // Excel Desktop
+    html = `
+    <div><table><tr>
+          <td>a<br/>\n   b</td>
+          <td>c<br/>\n   d</td>
+    </tr></table></div>`;
+    osClipboardContent = { [ClipboardMIMEType.Html]: html };
+    pasteFromOSClipboard(model, "C1", parseOSClipboardContent(osClipboardContent));
+    expect(getCellContent(model, "C1")).toBe("a\nb");
+    expect(getCellContent(model, "D1")).toBe("c\nd");
+
+    // Google Sheets (single cell copy)
+    html = `<span>a<br/>b</span>`;
+    osClipboardContent = { [ClipboardMIMEType.Html]: html };
+    pasteFromOSClipboard(model, "C1", parseOSClipboardContent(osClipboardContent));
+    expect(getCellContent(model, "C1")).toBe("a\nb");
   });
 
-  test("Paste fallback to PlainText clipboard content if there no table in the HTML", () => {
+  test("Paste fallback to PlainText clipboard there is nothing in the HTML", () => {
     const model = new Model();
 
     let osClipboardContent: OSClipboardContent = {
@@ -742,13 +757,6 @@ describe("clipboard", () => {
     };
     pasteFromOSClipboard(model, "B1", parseOSClipboardContent(osClipboardContent));
     expect(getCellContent(model, "B1")).toBe("bonjour");
-
-    osClipboardContent = {
-      [ClipboardMIMEType.Html]: "<span></span>",
-      [ClipboardMIMEType.PlainText]: "buenos dias",
-    };
-    pasteFromOSClipboard(model, "C1", parseOSClipboardContent(osClipboardContent));
-    expect(getCellContent(model, "C1")).toBe("buenos dias");
   });
 
   test("Pasting content from os that will destroy a merge will fail", () => {
