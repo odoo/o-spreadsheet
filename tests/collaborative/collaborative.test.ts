@@ -29,6 +29,7 @@ import {
   paste,
   redo,
   setCellContent,
+  setFormat,
   setStyle,
   undo,
   ungroupHeaders,
@@ -592,6 +593,24 @@ describe("Multi users synchronisation", () => {
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "hello"
+    );
+  });
+
+  test("autofill overwrite style and format", () => {
+    setCellContent(alice, "A1", "hello");
+    network.concurrent(() => {
+      setStyle(alice, "A2", { bold: true });
+      setFormat(alice, "A2", "0.0%");
+      bob.dispatch("AUTOFILL_SELECT", { col: 0, row: 1 });
+      bob.dispatch("AUTOFILL");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "A2")?.style,
+      undefined
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getCell(user, "A2")?.format,
+      undefined
     );
   });
 
