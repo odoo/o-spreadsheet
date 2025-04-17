@@ -81,4 +81,8 @@ export class PivotMeasureEditor extends Component<Props> {
       measure: this.props.measure,
     });
   }
+
+  get isCalculatedMeasureInvalid(): boolean {
+    return this.env.model.getters.getMeasureCompiledFormula(this.props.measure).isBadExpression;
+  }
 }
