@@ -102,6 +102,7 @@ describe("Single cell chart background color", () => {
     model.dispatch("DUPLICATE_SHEET", {
       sheetIdTo: secondSheetId,
       sheetId: firstSheetId,
+      sheetNameTo: "Copy of Sheet1",
     });
     const secondSheetFigures = model.getters.getFigures(secondSheetId);
     expect(secondSheetFigures.length).toBe(1);
