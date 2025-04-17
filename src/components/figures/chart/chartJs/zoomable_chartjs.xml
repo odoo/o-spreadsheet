@@ -1,0 +1,28 @@
+<templates>
+  <t t-name="o-spreadsheet-ZoomableChartJsComponent">
+    <div t-att-style="globalDivStyle">
+      <div t-att-style="containerStyle">
+        <canvas
+          class="o-figure-canvas w-100 h-100"
+          t-att-style="canvasStyle"
+          t-ref="graphContainer"
+          t-on-wheel.stop="onWheelOnDetailChart"
+          t-on-pointerdown="onPointerDownInDetailChart"
+          t-on-pointerup="onPointerUpInDetailChart"
+          t-on-pointermove="onPointerMoveInDetailChart"
+        />
+      </div>
+      <div t-att-style="sliderStyle">
+        <canvas
+          id="smallChart"
+          class="o-figure-canvas w-100 h-100"
+          t-ref="graphSlider"
+          t-on-pointerdown.stop="onPointerDownInMasterChart"
+          t-on-pointerup.stop="onPointerUpInMasterChart"
+          t-on-pointermove="onPointerMoveInMasterChart"
+          t-on-mouseleave="onMouseLeaveInMasterChart"
+        />
+      </div>
+    </div>
+  </t>
+</templates>

@@ -78,6 +78,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         this.addChart(cmd.figureId, cmd.definition);
         break;
       case "UPDATE_CHART": {
+        console.log("update_chart : ", cmd.definition);
         this.addChart(cmd.figureId, cmd.definition);
         break;
       }
