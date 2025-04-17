@@ -1,8 +1,5 @@
-import { onMounted, onPatched, useComponent, useRef, useState } from "@odoo/owl";
+import { onMounted, onPatched, useComponent, useState } from "@odoo/owl";
 import { Rect } from "../../types";
-
-// type Ref is not exported by owl :(
-type Ref = ReturnType<typeof useRef>;
 
 /**
  * Return the o-spreadsheet element position relative
@@ -26,31 +23,6 @@ export function useSpreadsheetRect(): Rect {
   onMounted(updatePosition);
   onPatched(updatePosition);
   return position;
-}
-
-/**
- * Return the component (or ref's component) BoundingRect, relative
- * to the upper left corner of the screen (<body> element).
- *
- * Note: when used with a <Portal/> component, it will
- * return the portal position, not the teleported position.
- */
-export function useAbsoluteBoundingRect(ref: Ref): Rect {
-  const rect = useState({ x: 0, y: 0, width: 0, height: 0 });
-  function updateElRect() {
-    const el = ref.el;
-    if (el === null) {
-      return;
-    }
-    const { top, left, width, height } = el.getBoundingClientRect();
-    rect.x = left;
-    rect.y = top;
-    rect.width = width;
-    rect.height = height;
-  }
-  onMounted(updateElRect);
-  onPatched(updateElRect);
-  return rect;
 }
 
 /**

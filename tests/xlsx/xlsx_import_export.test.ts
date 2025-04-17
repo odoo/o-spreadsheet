@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { FIGURE_BORDER_WIDTH } from "../../src/constants";
 import { buildSheetLink, toZone } from "../../src/helpers";
 import {
   Align,
@@ -158,7 +159,7 @@ describe("Export data to xlsx then import it", () => {
   test.each([
     {
       values: ["42"],
-      operator: "Equal" as const,
+      operator: "isEqual" as const,
       type: "CellIsRule" as const,
       style: {
         fillColor: "#FF9900",
@@ -279,8 +280,8 @@ describe("Export data to xlsx then import it", () => {
     expect(importedFigure.height).toEqual(figure.height);
     expect(importedFigure.width).toBeBetween(figure.width - 1, figure.width + 1);
     expect(importedFigure.offset).toEqual({
-      x: figure.offset.x,
-      y: figure.offset.y,
+      x: figure.offset.x + FIGURE_BORDER_WIDTH,
+      y: figure.offset.y + FIGURE_BORDER_WIDTH,
     });
   });
 

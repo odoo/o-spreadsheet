@@ -11,11 +11,12 @@
       />
     </select>
 
-    <DataValidationInput
+    <CriterionInput
       t-if="props.criterion.dateValue === 'exactDate'"
       value="props.criterion.values[0]"
       onValueChanged.bind="onValueChanged"
       criterionType="props.criterion.type"
+      disableFormulas="props.disableFormulas"
     />
   </t>
 </templates>

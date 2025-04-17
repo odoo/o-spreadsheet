@@ -29,7 +29,7 @@ import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import { PivotCoreDefinition, PivotTableData } from "./pivot";
 import { RangeData } from "./range";
-import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
+import { CoreTableType, DataFilterValue, TableConfig, TableStyleTemplateName } from "./table";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -606,7 +606,7 @@ export interface RemoveTableStyleCommand {
 
 export interface UpdateFilterCommand extends PositionDependentCommand {
   type: "UPDATE_FILTER";
-  hiddenValues: string[];
+  value: DataFilterValue;
 }
 
 export interface SetFormattingCommand extends TargetDependentCommand {

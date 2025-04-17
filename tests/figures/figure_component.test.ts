@@ -126,6 +126,7 @@ let mockSpreadsheetRect: Partial<DOMRect>;
 let mockFigureMenuItemRect: Partial<DOMRect>;
 mockGetBoundingClientRect({
   "o-popover": () => ({ height: 0, width: 0 }),
+  "o-popover-content": () => ({ height: 0, width: 0 }),
   "o-spreadsheet": () => ({ ...mockSpreadsheetRect }),
   "o-figure-menu-item": () => ({ ...mockFigureMenuItemRect }),
 });
@@ -800,7 +801,7 @@ describe("figures", () => {
       test("Context menu is positioned according to the spreadsheet position", async () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
-        const menuPopover = fixture.querySelector(".o-menu")?.parentElement;
+        const menuPopover = fixture.querySelector<HTMLElement>(".o-popover");
         expect(menuPopover?.style.top).toBe(`${500 - 100}px`);
         expect(menuPopover?.style.left).toBe(`${500 - 200}px`);
       });
