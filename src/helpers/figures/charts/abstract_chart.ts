@@ -4,6 +4,7 @@ import {
   CommandResult,
   CoreGetters,
   Getters,
+  Range,
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
@@ -11,10 +12,14 @@ import {
   ChartCreationContext,
   ChartDefinition,
   ChartType,
+  DataSet,
+  ExcelChartDataset,
   ExcelChartDefinition,
   TitleDesign,
 } from "../../../types/chart/chart";
+import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
+import { toExcelDataset, toExcelLabelRange } from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.
@@ -94,4 +99,19 @@ export abstract class AbstractChart {
    * Extract the ChartCreationContext of the chart
    */
   abstract getContextCreation(): ChartCreationContext;
+
+  protected getCommonAttributesForExcel(
+    labelRange: Range | undefined,
+    dataSets: DataSet[],
+    shouldRemoveFirstLabel: boolean
+  ) {
+    const excelDataSets: ExcelChartDataset[] = dataSets
+      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
+      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
+    const excelLabelRange = toExcelLabelRange(this.getters, labelRange, shouldRemoveFirstLabel);
+    return {
+      dataSets: excelDataSets,
+      labelRange: excelLabelRange,
+    };
+  }
 }
