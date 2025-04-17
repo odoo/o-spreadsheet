@@ -1,5 +1,6 @@
 import { Token, rangeTokenize } from "../../../formulas";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { localizeContent } from "../../../helpers/locale";
 import { AutoCompleteProviderDefinition } from "../../../registries";
 import { Get } from "../../../store_engine";
 import { Color, UID } from "../../../types";
@@ -33,12 +34,13 @@ export class StandaloneComposerStore extends AbstractComposerStore {
   }
 
   protected getComposerContent(): string {
+    let content = this._currentContent;
     if (this.editionMode === "inactive") {
       // References in the content might not be linked to the current active sheet
       // We here force the sheet name prefix for all references that are not in
       // the current active sheet
       const defaultRangeSheetId = this.args().defaultRangeSheetId;
-      return rangeTokenize(this.args().content)
+      content = rangeTokenize(this.args().content)
         .map((token) => {
           if (token.type === "REFERENCE") {
             const range = this.getters.getRangeFromSheetXC(defaultRangeSheetId, token.value);
@@ -48,7 +50,8 @@ export class StandaloneComposerStore extends AbstractComposerStore {
         })
         .join("");
     }
-    return this._currentContent;
+
+    return localizeContent(content, this.getters.getLocale());
   }
 
   stopEdition() {
