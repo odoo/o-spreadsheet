@@ -150,6 +150,14 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
   });
 
+  test("Invalid calculated measure formula have an invalid class on the composer", async () => {
+    await click(fixture.querySelectorAll(".add-dimension")[2]);
+    expect(fixture.querySelector(".o-popover")).toBeDefined();
+    await click(fixture, ".add-calculated-measure");
+    await editStandaloneComposer(".pivot-dimension .o-composer", "=abcdefg()");
+    expect(fixture.querySelector(".o-standalone-composer")).toHaveClass("o-invalid");
+  });
+
   test("can select a cell in the grid in several sheets", async () => {
     setCellContent(model, "A1", "amount");
     setCellContent(model, "A2", "10");
