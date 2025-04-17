@@ -25,6 +25,7 @@
             defaultRangeSheetId="measure.computedBy.sheetId"
             contextualAutocomplete="getMeasureAutocomplete()"
             getContextualColoredSymbolToken.bind="getColoredSymbolToken"
+            invalid="isCalculatedMeasureInvalid"
           />
         </div>
       </div>
