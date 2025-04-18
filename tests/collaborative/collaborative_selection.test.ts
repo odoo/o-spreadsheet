@@ -269,6 +269,32 @@ describe("Collaborative selection", () => {
     );
   });
 
+  test("Client positions are updated when changing their active sheet", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "42", activate: true });
+    jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getConnectedClients(),
+      new Set([
+        {
+          id: "alice",
+          name: "Alice",
+          position: { col: 0, row: 0, sheetId: "42" },
+        },
+        {
+          id: "bob",
+          name: "Bob",
+          position: { col: 0, row: 0, sheetId },
+        },
+        {
+          id: "charlie",
+          name: "Charlie",
+          position: { col: 0, row: 0, sheetId },
+        },
+      ])
+    );
+  });
+
   test("Can send custom data in client", () => {
     const sheetId = alice.getters.getActiveSheetId();
     new Model(alice.exportData(), {
