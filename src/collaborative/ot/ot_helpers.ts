@@ -21,7 +21,7 @@ export function transformZone<Z extends Zone | UnboundedZone>(
       executed.quantity
     );
   }
-  return { ...zone };
+  return zone;
 }
 
 export function transformRangeData(range: RangeData, executed: CoreCommand): RangeData | undefined {
