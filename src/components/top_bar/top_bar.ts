@@ -251,7 +251,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private openMenu(menu: Action, ev: MouseEvent) {
-    this.topBarToolStore.closeDropdowns();
+    if (this.topBarToolStore.currentDropdown) {
+      this.topBarToolStore.closeDropdowns();
+    }
     this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = true;
     this.state.menuState.anchorRect = getBoundingRectAsPOJO(ev.currentTarget as HTMLElement);
@@ -265,7 +267,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   closeMenus() {
-    this.topBarToolStore.closeDropdowns();
+    if (this.topBarToolStore.currentDropdown) {
+      this.topBarToolStore.closeDropdowns();
+    }
     this.state.toolsPopoverState.isOpen = false;
     this.state.menuState.isOpen = false;
     this.state.menuState.parentMenu = undefined;
@@ -291,7 +295,9 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleMoreTools() {
-    this.topBarToolStore.closeDropdowns();
+    if (this.topBarToolStore.currentDropdown) {
+      this.topBarToolStore.closeDropdowns();
+    }
     this.state.toolsPopoverState.isOpen = !this.state.toolsPopoverState.isOpen;
   }
 
