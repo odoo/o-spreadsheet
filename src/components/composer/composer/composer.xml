@@ -42,7 +42,7 @@
         />
       </div>
       <div
-        class="o-composer-assistant-container shadow position-absolute"
+        class="o-composer-assistant-container shadow position-absolute z-1"
         t-att-style="assistantContainerStyle"
         t-if="props.focus !== 'inactive' and !assistant.forcedClosed and assistantIsAvailable">
         <span
