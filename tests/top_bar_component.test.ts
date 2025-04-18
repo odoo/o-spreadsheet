@@ -959,7 +959,7 @@ describe("Topbar svg icon", () => {
   });
 });
 
-test("Clicking on a topbar button triggers three renders", async () => {
+test("Clicking on a topbar button triggers two renders", async () => {
   jest.useFakeTimers();
   const transportService = new MockTransportService();
 
@@ -975,10 +975,10 @@ test("Clicking on a topbar button triggers three renders", async () => {
 
   await click(fixture, ".o-spreadsheet-topbar [title='Bold (Ctrl+B)']");
 
-  // two renders from the collaboration session
+  // one renders from the collaboration session
   // one from the top bar interaction
   expect(modelRender).toHaveBeenCalledTimes(2);
-  expect(storeRender).toHaveBeenCalledTimes(1);
+  expect(storeRender).toHaveBeenCalledTimes(0);
 });
 
 describe("Responsive Top bar behaviour", () => {
