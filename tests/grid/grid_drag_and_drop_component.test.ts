@@ -7,6 +7,8 @@ import { SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   addColumns,
   addRows,
+  createSheet,
+  deleteSheet,
   freezeColumns,
   freezeRows,
   hideColumns,
@@ -414,4 +416,53 @@ test("Drag&drop is stopped when the calling component is unmounted", async () =>
   expect(selectedCol).toEqual(1);
   expect(mouseUpFn).toHaveBeenCalledTimes(1);
   expect(spyRemoveEventListener).toHaveBeenCalledTimes(4);
+});
+
+test("drag And Drop is based on the current active sheet", async () => {
+  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  hideColumns(model, [numberToLetters(5)]);
+  createSheet(model, { sheetId: "sh2", activate: true });
+  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  await nextTick();
+
+  expect(model.getters.getActiveMainViewport()).toMatchObject({
+    left: 6,
+    right: 16,
+  });
+  const { height } = model.getters.getSheetViewDimension();
+  triggerMouseEvent(".o-fake-grid", "pointerdown", DEFAULT_CELL_WIDTH, 0.5 * height);
+  triggerMouseEvent(".o-fake-grid", "pointermove", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
+  const advanceTimer = edgeScrollDelay(0.5 * DEFAULT_CELL_WIDTH, 1);
+
+  jest.advanceTimersByTime(advanceTimer);
+  triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
+  expect(model.getters.getActiveMainViewport()).toMatchObject({
+    left: 4,
+    right: 14,
+  });
+});
+
+test("drag And Drop is stopped if the current sheet is deleted", async () => {
+  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  createSheet(model, { sheetId: "sh2", activate: true });
+  setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
+  await nextTick();
+
+  expect(model.getters.getActiveMainViewport()).toMatchObject({
+    left: 6,
+    right: 16,
+  });
+  const { height } = model.getters.getSheetViewDimension();
+  triggerMouseEvent(".o-fake-grid", "pointerdown", DEFAULT_CELL_WIDTH, 0.5 * height);
+  deleteSheet(model, "sh2");
+  await nextTick();
+  triggerMouseEvent(".o-fake-grid", "pointermove", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
+  const advanceTimer = edgeScrollDelay(0.5 * DEFAULT_CELL_WIDTH, 1);
+
+  jest.advanceTimersByTime(advanceTimer);
+  triggerMouseEvent(".o-fake-grid", "pointerup", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
+  expect(model.getters.getActiveMainViewport()).toMatchObject({
+    left: 6,
+    right: 16,
+  });
 });
