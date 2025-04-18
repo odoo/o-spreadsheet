@@ -61,6 +61,11 @@ describe("OT with ADD_MERGE", () => {
         const result = transform(command, addMerge);
         expect(result).toBeUndefined();
       });
+      test("some overlapping merges and some distinct merges", () => {
+        const command = { ...cmd, target: target("A1:A3,E1:F2") };
+        const result = transform(command, { ...addMerge, target: target("A2:A4,G1:G2") });
+        expect(result).toEqual({ ...cmd, target: target("E1:F2") });
+      });
       test("two overlapping merges in different sheets", () => {
         const command = { ...cmd, target: target("C3:D5"), sheetId: "another sheet" };
         const result = transform(command, addMerge);
