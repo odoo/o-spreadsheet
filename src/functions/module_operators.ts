@@ -5,9 +5,9 @@ import {
   FunctionResultObject,
   Maybe,
 } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, isEvaluationError, toNumber, toString } from "./helpers";
+import { assertNotError, assertNotZero } from "./helper_assert";
+import { toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -62,11 +62,7 @@ export const DIVIDE = {
     divisor: Maybe<FunctionResultObject>
   ): FunctionResultNumber {
     const _divisor = toNumber(divisor, this.locale);
-    assert(
-      () => _divisor !== 0,
-      _t("The divisor must be different from zero."),
-      CellErrorType.DivisionByZero
-    );
+    assertNotZero(_divisor, _t("The divisor must be different from zero."));
     return {
       value: toNumber(dividend, this.locale) / _divisor,
       format: dividend?.format || divisor?.format,
@@ -113,14 +109,10 @@ function applyRelationalOperator(
   value2: Maybe<FunctionResultObject>,
   cb: (v1: string | number, v2: string | number) => boolean
 ): boolean {
+  assertNotError(value1);
+  assertNotError(value2);
   let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
   let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
-  if (isEvaluationError(_value1)) {
-    throw value1;
-  }
-  if (isEvaluationError(_value2)) {
-    throw value2;
-  }
   if (typeof _value1 !== "number") {
     _value1 = toString(_value1).toUpperCase();
   }

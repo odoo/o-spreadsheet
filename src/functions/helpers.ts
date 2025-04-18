@@ -13,16 +13,11 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType, EvaluationError, errorTypes } from "../types/errors";
+import { errorTypes } from "../types/errors";
 import { LookupCaches } from "../types/functions";
+import { assert, assertNotError } from "./helper_assert";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
-
-export function assert(condition: () => boolean, message: string, value?: string): void {
-  if (!condition()) {
-    throw new EvaluationError(message, value);
-  }
-}
 
 export function inferFormat(data: Arg | undefined): string | undefined {
   if (data === undefined) {
@@ -43,12 +38,6 @@ export function isEvaluationError(error: Maybe<CellValue>): error is string {
 // FORMAT FUNCTIONS
 // -----------------------------------------------------------------------------
 
-const expectNumberValueError = (value: string) =>
-  _t(
-    "The function [[FUNCTION_NAME]] expects a number value, but '%s' is a string, and cannot be coerced to a number.",
-    value
-  );
-
 export const expectNumberRangeError = (lowerBound: number, upperBound: number, value: number) =>
   _t(
     "The function [[FUNCTION_NAME]] expects a number value between %s and %s inclusive, but receives %s.",
@@ -66,7 +55,7 @@ export const expectStringSetError = (stringSet: string[], value: string) => {
   );
 };
 
-export function toNumber(
+export function strictToNumber(
   data: FunctionResultObject | CellValue | undefined,
   locale: Locale
 ): number {
@@ -77,14 +66,20 @@ export function toNumber(
     case "boolean":
       return value ? 1 : 0;
     case "string":
-      if (isNumber(value, locale) || value === "") {
+      if (isNumber(value, locale)) {
         return parseNumber(value, locale);
       }
       const internalDate = parseDateTime(value, locale);
-      if (internalDate) {
+      if (internalDate !== null) {
         return internalDate.value;
       }
-      throw new EvaluationError(expectNumberValueError(value));
+      assert(
+        false,
+        _t(
+          "The function [[FUNCTION_NAME]] expects a number value, but '%s' is a string, and cannot be coerced to a number.",
+          value
+        )
+      );
     default:
       return 0;
   }
@@ -104,29 +99,28 @@ export function tryToNumber(
 export function toNumberMatrix(data: Arg, argName: string): Matrix<number> {
   return toMatrix(data).map((row) => {
     return row.map((cell) => {
-      if (typeof cell.value !== "number") {
-        throw new EvaluationError(
-          _t(
-            "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
-            argName,
-            typeof cell.value
-          )
-        );
-      }
+      assert(
+        typeof cell.value === "number",
+        _t(
+          "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
+          argName,
+          typeof cell.value
+        )
+      );
       return cell.value;
     });
   });
 }
 
-export function strictToNumber(
+export function toNumber(
   data: FunctionResultObject | CellValue | undefined,
   locale: Locale
 ): number {
   const value = toValue(data);
   if (value === "") {
-    throw new EvaluationError(expectNumberValueError(value));
+    return 0;
   }
-  return toNumber(value, locale);
+  return strictToNumber(value, locale);
 }
 
 export function toInteger(value: FunctionResultObject | CellValue | undefined, locale: Locale) {
@@ -138,24 +132,6 @@ export function strictToInteger(
   locale: Locale
 ) {
   return Math.trunc(strictToNumber(value, locale));
-}
-
-export function assertNumberGreaterThanOrEqualToOne(value: number) {
-  assert(
-    () => value >= 1,
-    _t(
-      "The function [[FUNCTION_NAME]] expects a number value to be greater than or equal to 1, but receives %s.",
-      value.toString()
-    )
-  );
-}
-
-export function assertNotZero(value: number) {
-  assert(
-    () => value !== 0,
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
-    CellErrorType.DivisionByZero
-  );
 }
 
 export function toString(data: FunctionResultObject | CellValue | undefined): string {
@@ -188,30 +164,26 @@ const normalizeString = memoize(function normalizeString(str: string) {
     .replace(/[\u0300-\u036f]/g, "");
 });
 
-const expectBooleanValueError = (value: string) =>
-  _t(
-    "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a boolean.",
-    value
-  );
-
-export function toBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
+function strictToBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
   const value = toValue(data);
   switch (typeof value) {
     case "boolean":
       return value;
     case "string":
-      if (value) {
-        let uppercaseVal = value.toUpperCase();
-        if (uppercaseVal === "TRUE") {
-          return true;
-        }
-        if (uppercaseVal === "FALSE") {
-          return false;
-        }
-        throw new EvaluationError(expectBooleanValueError(value));
-      } else {
+      const uppercaseVal = value.toUpperCase();
+      if (uppercaseVal === "FALSE") {
         return false;
       }
+      if (uppercaseVal === "TRUE") {
+        return true;
+      }
+      assert(
+        false,
+        _t(
+          "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a boolean.",
+          value
+        )
+      );
     case "number":
       return value ? true : false;
     default:
@@ -219,12 +191,12 @@ export function toBoolean(data: FunctionResultObject | CellValue | undefined): b
   }
 }
 
-function strictToBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
+export function toBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
   const value = toValue(data);
   if (value === "") {
-    throw new EvaluationError(expectBooleanValueError(value));
+    return false;
   }
-  return toBoolean(value);
+  return strictToBoolean(value);
 }
 
 export function toJsDate(
@@ -237,13 +209,11 @@ export function toJsDate(
 
 function toValue(data: FunctionResultObject | CellValue | undefined): CellValue | undefined {
   if (typeof data === "object" && data !== null && "value" in data) {
-    if (isEvaluationError(data.value)) {
-      throw data;
-    }
+    assertNotError(data);
     return data.value;
   }
-  if (isEvaluationError(data)) {
-    throw new EvaluationError("", data as string);
+  if (data !== undefined) {
+    assertNotError({ value: data });
   }
   return data;
 }
@@ -276,15 +246,11 @@ export function visitAny(args: Arg[], cb: (a: Maybe<FunctionResultObject>) => vo
   visitArgs(
     args,
     (cell) => {
-      if (isEvaluationError(cell.value)) {
-        throw cell;
-      }
+      assertNotError(cell);
       cb(cell);
     },
     (arg) => {
-      if (isEvaluationError(arg?.value)) {
-        throw arg;
-      }
+      assertNotError(arg);
       cb(arg);
     }
   );
@@ -301,9 +267,7 @@ export function visitNumbers(
       if (typeof cell?.value === "number") {
         cb(cell as FunctionResultNumber);
       }
-      if (isEvaluationError(cell?.value)) {
-        throw cell;
-      }
+      assertNotError(cell);
     },
     (arg) => {
       cb({ value: strictToNumber(arg, locale), format: arg?.format });
@@ -368,11 +332,10 @@ export function reduceNumbers(
   return reduceArgs(
     args,
     (acc, arg) => {
+      assertNotError(arg);
       const argValue = arg?.value;
       if (typeof argValue === "number") {
         return cb(acc, argValue);
-      } else if (isEvaluationError(argValue)) {
-        throw arg;
       }
       return acc;
     },
@@ -392,14 +355,13 @@ export function reduceNumbersTextAs0(
   return reduceArgs(
     args,
     (acc, arg) => {
+      assertNotError(arg);
       const argValue = arg?.value;
       if (argValue !== undefined && argValue !== null) {
         if (typeof argValue === "number") {
           return cb(acc, argValue);
         } else if (typeof argValue === "boolean") {
           return cb(acc, toNumber(argValue, locale));
-        } else if (isEvaluationError(argValue)) {
-          throw arg;
         } else {
           return cb(acc, 0);
         }
@@ -493,15 +455,13 @@ export function conditionalVisitBoolean(args: Arg[], cb: (a: boolean) => boolean
   return conditionalVisitArgs(
     args,
     (arg) => {
+      assertNotError(arg);
       const argValue = arg?.value;
       if (typeof argValue === "boolean") {
         return cb(argValue);
       }
       if (typeof argValue === "number") {
         return cb(argValue ? true : false);
-      }
-      if (isEvaluationError(argValue)) {
-        throw arg;
       }
       return true;
     },
@@ -665,11 +625,10 @@ export function visitMatchingRanges(
 ): void {
   const countArg = args.length;
 
-  if (countArg % 2 === 1) {
-    throw new EvaluationError(
-      _t("Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.")
-    );
-  }
+  assert(
+    countArg % 2 !== 1,
+    _t("Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.")
+  );
 
   const firstArg = toMatrix(args[0]);
   const dimRow = firstArg.length;
@@ -680,11 +639,10 @@ export function visitMatchingRanges(
   for (let i = 0; i < countArg - 1; i += 2) {
     const criteriaRange = toMatrix(args[i]);
 
-    if (criteriaRange.length !== dimRow || criteriaRange[0].length !== dimCol) {
-      throw new EvaluationError(
-        _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension")
-      );
-    }
+    assert(
+      criteriaRange.length === dimRow && criteriaRange[0].length === dimCol,
+      _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension")
+    );
 
     const description = toString(args[i + 1] as Maybe<FunctionResultObject>);
     const predicate = getPredicate(description, locale);
@@ -742,9 +700,7 @@ export function dichotomicSearch<T>(
   if (target === undefined || target.value === null) {
     return -1;
   }
-  if (isEvaluationError(target.value)) {
-    throw target;
-  }
+  assertNotError(target);
   const _target = normalizeValue(target.value);
   const targetType = typeof _target;
 
@@ -855,9 +811,7 @@ export function linearSearch<T>(
   if (target === undefined || target.value === null) {
     return -1;
   }
-  if (isEvaluationError(target.value)) {
-    throw target;
-  }
+  assertNotError(target);
 
   const _target = normalizeValue(target.value);
   const getValue = reverseSearch

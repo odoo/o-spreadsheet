@@ -8,18 +8,14 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assertPositive } from "./helper_assert";
+import { assert, assertNotError, assertNotZero, assertPositive } from "./helper_assert";
 import { countUnique, sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
-  assert,
-  assertNotZero,
   generateMatrix,
   inferFormat,
   isDataNonEmpty,
-  isEvaluationError,
   reduceAny,
   strictToNumber,
   toBoolean,
@@ -64,7 +60,7 @@ export const ACOS = {
   compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
-      () => Math.abs(_value) <= 1,
+      Math.abs(_value) <= 1,
       _t("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
     );
     return Math.acos(_value);
@@ -88,7 +84,7 @@ export const ACOSH = {
   compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
-      () => _value >= 1,
+      _value >= 1,
       _t("The value (%s) must be greater than or equal to 1.", _value.toString())
     );
     return Math.acosh(_value);
@@ -129,7 +125,7 @@ export const ACOTH = {
   compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
-      () => Math.abs(_value) > 1,
+      Math.abs(_value) > 1,
       _t("The value (%s) cannot be between -1 and 1 inclusive.", _value.toString())
     );
     return Math.log((_value + 1) / (_value - 1)) / 2;
@@ -151,7 +147,7 @@ export const ASIN = {
   compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
-      () => Math.abs(_value) <= 1,
+      Math.abs(_value) <= 1,
       _t("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
     );
     return Math.asin(_value);
@@ -207,11 +203,9 @@ export const ATAN2 = {
   compute: function (x: Maybe<FunctionResultObject>, y: Maybe<FunctionResultObject>): number {
     const _x = toNumber(x, this.locale);
     const _y = toNumber(y, this.locale);
-    assert(
-      () => _x !== 0 || _y !== 0,
-      _t("Function [[FUNCTION_NAME]] caused a divide by zero error."),
-      CellErrorType.DivisionByZero
-    );
+    if (_x === 0) {
+      assertNotZero(_y);
+    }
     return Math.atan2(_y, _x);
   },
   isExported: true,
@@ -233,7 +227,7 @@ export const ATANH = {
   compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
-      () => Math.abs(_value) < 1,
+      Math.abs(_value) < 1,
       _t("The value (%s) must be between -1 and 1 exclusive.", _value.toString())
     );
     return Math.atanh(_value);
@@ -260,7 +254,7 @@ export const CEILING = {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
     assert(
-      () => _factor >= 0 || _value <= 0,
+      _factor >= 0 || _value <= 0,
       _t(
         "The factor (%s) must be positive when the value (%s) is positive.",
         _factor.toString(),
@@ -603,7 +597,7 @@ export const DECIMAL = {
     _base = Math.floor(_base);
 
     assert(
-      () => 2 <= _base && _base <= 36,
+      2 <= _base && _base <= 36,
       _t("The base (%s) must be between 2 and 36 inclusive.", _base.toString())
     );
 
@@ -618,13 +612,13 @@ export const DECIMAL = {
      * Remove '-?' in the next regex to catch this error.
      */
     assert(
-      () => !!DECIMAL_REPRESENTATION.test(_value),
+      !!DECIMAL_REPRESENTATION.test(_value),
       _t("The value (%s) must be a valid base %s representation.", _value, _base.toString())
     );
 
     const deci = parseInt(_value, _base);
     assert(
-      () => !isNaN(deci),
+      !isNaN(deci),
       _t("The value (%s) must be a valid base %s representation.", _value, _base.toString())
     );
     return deci;
@@ -675,7 +669,7 @@ export const FLOOR = {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
     assert(
-      () => _factor >= 0 || _value <= 0,
+      _factor >= 0 || _value <= 0,
       _t(
         "The factor (%s) must be positive when the value (%s) is positive.",
         _factor.toString(),
@@ -838,7 +832,7 @@ export const LN = {
   args: [arg("value (number)", _t("The value for which to calculate the logarithm, base e."))],
   compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
-    assert(() => _value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
+    assert(_value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
     return Math.log(_value);
   },
   isExported: true,
@@ -859,9 +853,9 @@ export const LOG: AddFunctionDescription = {
   ): number {
     const _value = toNumber(value, this.locale);
     const _base = toNumber(base, this.locale);
-    assert(() => _value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
-    assert(() => _base > 0, _t("The base (%s) must be strictly positive.", _base.toString()));
-    assert(() => _base !== 1, _t("The base must be different from 1."));
+    assert(_value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
+    assert(_base > 0, _t("The base (%s) must be strictly positive.", _base.toString()));
+    assert(_base !== 1, _t("The base must be different from 1."));
     return Math.log10(_value) / Math.log10(_base);
   },
   isExported: true,
@@ -871,11 +865,7 @@ export const LOG: AddFunctionDescription = {
 // MOD
 // -----------------------------------------------------------------------------
 function mod(dividend: number, divisor: number): number {
-  assert(
-    () => divisor !== 0,
-    _t("The divisor must be different from 0."),
-    CellErrorType.DivisionByZero
-  );
+  assertNotZero(divisor, _t("The divisor must be different from 0."));
   const modulus = dividend % divisor;
   // -42 % 10 = -2 but we want 8, so need the code below
   if ((modulus > 0 && divisor < 0) || (modulus < 0 && divisor > 0)) {
@@ -970,7 +960,7 @@ export const POWER = {
     const _base = toNumber(base, this.locale);
     const _exponent = toNumber(exponent, this.locale);
     assert(
-      () => _base >= 0 || Number.isInteger(_exponent),
+      _base >= 0 || Number.isInteger(_exponent),
       _t("The exponent (%s) must be an integer when the base is negative.", _exponent.toString())
     );
     return { value: Math.pow(_base, _exponent), format: base?.format };
@@ -1000,13 +990,10 @@ export const PRODUCT = {
       if (isMatrix(n)) {
         for (let i of n) {
           for (let j of i) {
-            const f = j.value;
-            if (typeof f === "number") {
-              acc *= f;
+            assertNotError(j);
+            if (typeof j.value === "number") {
+              acc *= j.value;
               count += 1;
-            }
-            if (isEvaluationError(f)) {
-              throw j;
             }
           }
         }
@@ -1063,7 +1050,7 @@ export const RANDARRAY = {
     assertPositive(_t("The number of columns (%s) must be positive.", _cols.toString()), _cols);
     assertPositive(_t("The number of rows (%s) must be positive.", _rows.toString()), _rows);
     assert(
-      () => _min <= _max,
+      _min <= _max,
       _t(
         "The maximum (%s) must be greater than or equal to the minimum (%s).",
         _max.toString(),
@@ -1072,7 +1059,7 @@ export const RANDARRAY = {
     );
     if (_whole_number) {
       assert(
-        () => Number.isInteger(_min) && Number.isInteger(_max),
+        Number.isInteger(_min) && Number.isInteger(_max),
         _t(
           "The maximum (%s) and minimum (%s) must be integers when whole_number is TRUE.",
           _max.toString(),
@@ -1121,7 +1108,7 @@ export const RANDBETWEEN = {
     }
 
     assert(
-      () => _low <= _high,
+      _low <= _high,
       _t(
         "The high (%s) must be greater than or equal to the low (%s).",
         _high.toString(),
@@ -1341,7 +1328,7 @@ export const SQRT = {
   args: [arg("value (number)", _t("The number for which to calculate the positive square root."))],
   compute: function (value: Maybe<FunctionResultObject>): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
-    assert(() => _value >= 0, _t("The value (%s) must be positive or null.", _value.toString()));
+    assert(_value >= 0, _t("The value (%s) must be positive or null.", _value.toString()));
     return { value: Math.sqrt(_value), format: value?.format };
   },
   isExported: true,

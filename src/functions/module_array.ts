@@ -1,8 +1,9 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
-import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
+  assert,
+  assertAvailable,
   assertPositive,
   assertSameDimensions,
   assertSingleColOrRow,
@@ -10,7 +11,6 @@ import {
 } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
-  assert,
   flattenRowFirst,
   generateMatrix,
   isEvaluationError,
@@ -80,7 +80,7 @@ export const CHOOSECOLS = {
 
     const argOutOfRange = _columns.filter((col) => col === 0 || _array.length < Math.abs(col));
     assert(
-      () => argOutOfRange.length === 0,
+      argOutOfRange.length === 0,
       _t(
         "The columns arguments must be between -%s and %s (got %s), excluding 0.",
         _array.length.toString(),
@@ -123,7 +123,7 @@ export const CHOOSEROWS = {
 
     const argOutOfRange = _rows.filter((row) => row === 0 || _array[0].length < Math.abs(row));
     assert(
-      () => argOutOfRange.length === 0,
+      argOutOfRange.length === 0,
       _t(
         "The rows arguments must be between -%s and %s (got %s), excluding 0.",
         _array[0].length.toString(),
@@ -171,14 +171,14 @@ export const EXPAND = {
       columns !== undefined ? toInteger(columns.value, this.locale) : _array.length;
 
     assert(
-      () => _nbRows >= _array[0].length,
+      _nbRows >= _array[0].length,
       _t(
         "The rows arguments (%s) must be greater or equal than the number of rows of the array.",
         _nbRows.toString()
       )
     );
     assert(
-      () => _nbColumns >= _array.length,
+      _nbColumns >= _array.length,
       _t(
         "The columns arguments (%s) must be greater or equal than the number of columns of the array.",
         _nbColumns.toString()
@@ -341,9 +341,7 @@ export const MINVERSE = {
       _matrix
     );
     const { inverted } = invertMatrix(_matrix);
-    if (!inverted) {
-      throw new EvaluationError(_t("The matrix is not invertible."));
-    }
+    assert(inverted !== undefined, _t("The matrix is not invertible."));
     return inverted;
   },
   isExported: true,
@@ -369,7 +367,7 @@ export const MMULT = {
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
     assert(
-      () => _matrix1.length === _matrix2[0].length,
+      _matrix1.length === _matrix2[0].length,
       _t(
         "In [[FUNCTION_NAME]], the number of columns of the first matrix (%s) must be equal to the \
         number of rows of the second matrix (%s).",
@@ -457,11 +455,10 @@ function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => num
     }
   }
 
-  if (!validPairFound) {
-    throw new EvaluationError(
-      _t("The arguments array_x and array_y must contain at least one pair of numbers.")
-    );
-  }
+  assert(
+    validPairFound,
+    _t("The arguments array_x and array_y must contain at least one pair of numbers.")
+  );
 
   return result;
 }
@@ -576,7 +573,7 @@ function shouldKeepValue(ignore: number): (data: FunctionResultObject) => boolea
   if (_ignore === 3) {
     return (data) => data.value !== null && !isEvaluationError(data.value);
   }
-  throw new EvaluationError(_t("Argument ignore must be between 0 and 3"));
+  assert(false, _t("Argument ignore must be between 0 and 3"));
 }
 
 export const TOCOL = {
@@ -594,9 +591,7 @@ export const TOCOL = {
     const result = (_scanByColumn ? _array : transposeMatrix(_array))
       .flat()
       .filter(shouldKeepValue(_ignore));
-    if (result.length === 0) {
-      throw new NotAvailableError(_t("No results for the given arguments of TOCOL."));
-    }
+    assertAvailable(result.length > 0, _t("No results for the given arguments of TOCOL."));
     return [result];
   },
   isExported: true,
@@ -621,9 +616,11 @@ export const TOROW = {
       .filter(shouldKeepValue(_ignore))
       .map((item) => [item]);
 
-    if (result.length === 0 || result[0].length === 0) {
-      throw new NotAvailableError(_t("No results for the given arguments of TOROW."));
-    }
+    assertAvailable(
+      result.length > 0 && result[0].length > 0,
+      _t("No results for the given arguments of TOROW.")
+    );
+
     return result;
   },
   isExported: true,
