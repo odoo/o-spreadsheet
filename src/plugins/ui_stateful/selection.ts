@@ -418,6 +418,8 @@ export class GridSelectionPlugin extends UIPlugin {
       });
       this.selectCell(col, row);
     }
+    const { col, row } = this.gridSelection.anchor.cell;
+    this.moveClient({ sheetId: this.activeSheet.id, col, row });
   }
 
   /**
