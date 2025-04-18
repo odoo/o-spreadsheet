@@ -1,7 +1,7 @@
 import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
-import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/helpers";
+import { getDefaultCellHeight, range, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { featurePluginRegistry } from "../../src/plugins";
 import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
@@ -30,6 +30,7 @@ import {
   selectCell,
   setCellContent,
   setStyle,
+  unMerge,
   undo,
   ungroupHeaders,
 } from "../test_helpers/commands_helpers";
@@ -377,6 +378,20 @@ describe("Multi users synchronisation", () => {
           },
         },
       ]
+    );
+  });
+
+  test("concurrent overlapping and non overlapping merge operations", () => {
+    const sheetId = alice.getters.getActiveSheetId();
+    merge(alice, "A2:A3");
+    merge(alice, "F1:F2");
+    network.concurrent(() => {
+      merge(alice, "A1:A3, C1:C2");
+      unMerge(bob, "A2:A3, F1:F2");
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getMerges(sheetId).map(zoneToXc),
+      ["A1:A3", "C1:C2"]
     );
   });
 
