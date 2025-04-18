@@ -1,4 +1,4 @@
-import { onWillUnmount } from "@odoo/owl";
+import { onWillUnmount, useEffect } from "@odoo/owl";
 import { MAX_DELAY } from "../../helpers";
 import { SpreadsheetChildEnv } from "../../types/env";
 import { HeaderIndex, Pixel } from "../../types/misc";
@@ -21,7 +21,6 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let startingX: number;
   let startingY: number;
   const getters = env.model.getters;
-  const sheetId = getters.getActiveSheetId();
 
   let cleanUpFns: (() => void)[] = [];
 
@@ -40,9 +39,9 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     if (timeOutId) {
       return;
     }
+    const sheetId = getters.getActiveSheetId();
 
     const position = gridOverlayPosition();
-
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
     let { top, left, bottom, right } = getters.getActiveMainViewport();
     let { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
@@ -149,6 +148,13 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   onWillUnmount(() => {
     cleanUp();
   });
+
+  useEffect(
+    () => {
+      cleanUp();
+    },
+    () => [getters.getActiveSheetId()]
+  );
 
   return { start: startFn };
 }
