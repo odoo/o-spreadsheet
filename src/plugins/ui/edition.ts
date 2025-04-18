@@ -14,6 +14,7 @@ import {
   updateSelectionOnInsertion,
 } from "../../helpers/index";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
+import { isSheetNameEqual } from "../../helpers/sheet";
 import { _lt } from "../../translation";
 import { Highlight, Range, RangePart, UID, Zone } from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
@@ -162,7 +163,7 @@ export class EditionPlugin extends UIPlugin {
             const { xc, sheetName: sheet } = splitReference(token.value);
             const sheetName = sheet || this.getters.getSheetName(this.sheetId);
             const activeSheetId = this.getters.getActiveSheetId();
-            if (this.getters.getSheetName(activeSheetId) !== sheetName) {
+            if (!isSheetNameEqual(this.getters.getSheetName(activeSheetId), sheetName)) {
               return false;
             }
             const refRange = this.getters.getRangeFromSheetXC(activeSheetId, xc);
