@@ -71,7 +71,6 @@
               t-on-click.stop=""
               t-att-value="state.customHexColor"
               t-on-input="setHexColor"
-              maxlength="7"
             />
             <div class="o-color-preview" t-att-style="colorPreviewStyle"/>
           </div>
