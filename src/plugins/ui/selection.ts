@@ -235,6 +235,8 @@ export class GridSelectionPlugin extends UIPlugin {
           const { col, row } = this.getters.getNextVisibleCellPosition(cmd.sheetIdTo, 0, 0);
           this.selectCell(col, row);
         }
+        const { col, row } = this.gridSelection.anchor.cell;
+        this.moveClient({ sheetId: this.activeSheet.id, col, row });
         break;
       }
       case "REMOVE_COLUMNS_ROWS": {
