@@ -14,18 +14,12 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import {
-  AxesDesign,
-  CustomizedDataSet,
-  ExcelChartDataset,
-  LegendPosition,
-} from "../../../types/chart";
+import { AxesDesign, CustomizedDataSet, LegendPosition } from "../../../types/chart";
 import {
   ComboChartDataSet,
   ComboChartDefinition,
   ComboChartRuntime,
 } from "../../../types/chart/combo_chart";
-import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createValidRange } from "../../range";
@@ -39,8 +33,6 @@ import {
   duplicateLabelRangeInDuplicatedSheet,
   getDefinedAxis,
   shouldRemoveFirstLabel,
-  toExcelDataset,
-  toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -155,12 +147,9 @@ export class ComboChart extends AbstractChart {
     if (this.aggregated) {
       return undefined;
     }
-    const dataSets: ExcelChartDataset[] = this.dataSets
-      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
-    const labelRange = toExcelLabelRange(
-      this.getters,
+    const { dataSets, labelRange } = this.getCommonAttributesForExcel(
       this.labelRange,
+      this.dataSets,
       shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
     );
     const definition = this.getDefinition();
