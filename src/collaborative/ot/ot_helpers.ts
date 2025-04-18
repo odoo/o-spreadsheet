@@ -21,5 +21,5 @@ export function transformZone<Z extends Zone | UnboundedZone>(
       executed.quantity
     );
   }
-  return { ...zone };
+  return zone;
 }
