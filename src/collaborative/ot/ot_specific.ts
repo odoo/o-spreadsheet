@@ -210,10 +210,8 @@ function mergeTransformation(
 
   const target: Zone[] = [];
   for (const zone1 of toTransform.target) {
-    for (const zone2 of executed.target) {
-      if (!overlap(zone1, zone2)) {
-        target.push({ ...zone1 });
-      }
+    if (executed.target.every((zone2) => !overlap(zone1, zone2))) {
+      target.push(zone1);
     }
   }
   if (target.length) {
