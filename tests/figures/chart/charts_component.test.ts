@@ -1,7 +1,7 @@
 import { CommandResult, Model } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ChartTerms } from "../../../src/components/translations_terms";
-import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
+import { BACKGROUND_CHART_COLOR, DEBOUNCE_TIME } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
@@ -157,7 +157,10 @@ describe("charts", () => {
         },
       ],
     };
+    jest.useFakeTimers();
     model = new Model(data, { external: { geoJsonService: mockGeoJsonService } });
+    jest.advanceTimersByTime(DEBOUNCE_TIME + 10); // wait for the debounce of session.move
+    jest.useRealTimers();
   });
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
@@ -324,6 +327,17 @@ describe("charts", () => {
         title: { text: "hello" },
       },
     });
+  });
+
+  test("Clicking in the input does not reset the title", async () => {
+    createChart(model, { type: "bar", title: { text: "Title" } }, chartId);
+    await mountSpreadsheet();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    setInputValueAndTrigger(".o-chart-title input", "Another Title", "onlyInput");
+    expect(".o-chart-title input").toHaveValue("Another Title");
+    await click(fixture.querySelector(".o-chart-title input")!);
+    expect(".o-chart-title input").toHaveValue("Another Title");
   });
 
   test.each([TEST_CHART_TYPES])(
