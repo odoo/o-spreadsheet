@@ -45,6 +45,13 @@ import {
   getTreeMapChartTooltip,
 } from "./runtime";
 
+// ADRM TODO: coloring options. Having map <groupName, color> is no good. Group values can be different for different
+// users (eg. list translation). So we should do like sunburst, ie. set a color for biggest value, then second biggest, etc.
+// BUT. We don't have access to the groupBy of treemap. this is done by the chart, and is not in the runtime. So how can we know
+// which group is the biggest to edit them in the side panel ?
+// 1) let chartJS modify runtimes in place
+// 2) create a new window.Chart in the side panel
+// 3) do groupBy manually (using sunburst helpers). But we're not 100% sure that it's the same groupBy as the one used by chartJS.
 export class TreeMapChart extends AbstractChart {
   static defaults = {
     background: BACKGROUND_CHART_COLOR,
