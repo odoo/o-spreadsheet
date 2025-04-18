@@ -14,9 +14,10 @@ export interface PieChartDefinition {
   readonly aggregated?: boolean;
   readonly isDoughnut?: boolean;
   readonly showValues?: boolean;
+  readonly doughnutPercentage?: number;
 }
 
 export type PieChartRuntime = {
-  chartJsConfig: ChartConfiguration;
+  chartJsConfig: ChartConfiguration<"pie" | "doughnut">;
   background: Color;
 };

@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet.PieHoleSize">
+    <Section class="'pt-0'" title="props.title">
+      <div class="d-flex flex-row">
+        <input
+          t-att-value="props.value"
+          type="number"
+          class="o-input o-pie-hole-size-input"
+          t-on-change="(ev) => props.onValueChange(ev.target.value)"
+        />
+        %
+      </div>
+    </Section>
+  </t>
+</templates>

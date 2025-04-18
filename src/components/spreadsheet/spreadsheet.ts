@@ -433,6 +433,16 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      const chartId = this.env.model.getters.getFigures(sheetId)[0]?.id;
+      if (chartId) {
+        this.env.model.dispatch("SELECT_FIGURE", { figureId: chartId });
+        this.sidePanel.open("ChartPanel");
+      }
+      // this.sidePanel.open("PivotSidePanel", { pivotId: "1" });
+      setTimeout(() => {
+        document.querySelector<HTMLElement>(".o-panel-design")?.click();
+      }, 60);
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);

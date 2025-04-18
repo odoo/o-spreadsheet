@@ -18,6 +18,12 @@
             onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
           />
         </Section>
+        <PieHoleSize
+          t-if="props.definition.isDoughnut"
+          title.translate="Doughnut hole"
+          value="props.definition.doughnutPercentage ?? 50"
+          onValueChange.bind="onPieHoleSizeChange"
+        />
       </t>
     </GeneralDesignEditor>
   </t>
