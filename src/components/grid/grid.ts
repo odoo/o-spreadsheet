@@ -514,6 +514,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       if (this.paintFormatStore.isActive) {
         this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }
+      this.env.model.selection.updateSelection();
     };
     this.dragNDropGrid.start(ev, onMouseMove, onMouseUp);
   }

@@ -292,6 +292,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
       this._computeGrabDisplay(ev);
+      this.env.model.selection.updateSelection();
     };
     this.dragNDropGrid.start(ev, mouseMoveSelect, mouseUpSelect);
   }
