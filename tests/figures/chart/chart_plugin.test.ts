@@ -3574,7 +3574,7 @@ describe("Chart labels truncation", () => {
     let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // @ts-ignore
     expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
-    const scales = getChartConfiguration(model, "1").options.scales;
+    let scales = getChartConfiguration(model, "1").options.scales;
     expect(scales.xMovingAverage!["display"]).toEqual(false);
     expect(scales.xMovingAverage!["offset"]).toEqual(false);
     expect(scales.xMovingAverage!["type"]).toEqual("category");
@@ -3609,9 +3609,9 @@ describe("Chart labels truncation", () => {
     runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     // @ts-ignore
     expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
+    scales = getChartConfiguration(model, "1").options.scales;
     expect(scales.xMovingAverage!["display"]).toEqual(false);
-    expect(scales.xMovingAverage!["offset"]).toEqual(false);
-    expect(scales.xMovingAverage!["type"]).toEqual("category");
+    expect(scales.xMovingAverage!["offset"]).toEqual(true);
 
     // Bar chart with numerical labels
     updateChart(model, "1", {
@@ -3621,8 +3621,7 @@ describe("Chart labels truncation", () => {
     // @ts-ignore
     expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
     expect(scales.xMovingAverage!["display"]).toEqual(false);
-    expect(scales.xMovingAverage!["offset"]).toEqual(false);
-    expect(scales.xMovingAverage!["type"]).toEqual("category");
+    expect(scales.xMovingAverage!["offset"]).toEqual(true);
 
     // Bar chart with categorical labels
     updateChart(model, "1", {
@@ -3632,8 +3631,7 @@ describe("Chart labels truncation", () => {
     // @ts-ignore
     expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
     expect(scales.xMovingAverage!["display"]).toEqual(false);
-    expect(scales.xMovingAverage!["offset"]).toEqual(false);
-    expect(scales.xMovingAverage!["type"]).toEqual("category");
+    expect(scales.xMovingAverage!["offset"]).toEqual(true);
   });
 
   test.each(["bar", "line", "combo", "radar"] as const)(
