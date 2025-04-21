@@ -49,7 +49,7 @@ const dayAdapter: PivotTimeAdapterNotNull<number> = {
   },
   toFunctionValue(normalizedValue) {
     const jsDate = toJsDate(normalizedValue, DEFAULT_LOCALE);
-    return `DATE(${jsDate.getFullYear()}, ${jsDate.getMonth() + 1}, ${jsDate.getDate()})`;
+    return `DATE(${jsDate.getFullYear()},${jsDate.getMonth() + 1},${jsDate.getDate()})`;
   },
 };
 

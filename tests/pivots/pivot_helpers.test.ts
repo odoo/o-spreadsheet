@@ -195,7 +195,7 @@ describe("ToFunctionValue", () => {
   test.each(["date", "datetime"])("Format values of %s fields", (type: string) => {
     const dimension = { type, granularity: "day" };
     // day
-    expect(toFunctionPivotValue("1/11/2020", dimension)).toBe("DATE(2020, 1, 11)");
+    expect(toFunctionPivotValue("1/11/2020", dimension)).toBe("DATE(2020,1,11)");
     // year
     dimension.granularity = "year";
     expect(toFunctionPivotValue("2020", dimension)).toBe("2020");
