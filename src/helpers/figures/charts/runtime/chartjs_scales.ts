@@ -73,7 +73,7 @@ export function getBarChartScales(
     };
     scales[MOVING_AVERAGE_TREND_LINE_XAXIS_ID] = {
       ...(scales!.x as any),
-      offset: false,
+      offset: true,
       display: false,
     };
   }

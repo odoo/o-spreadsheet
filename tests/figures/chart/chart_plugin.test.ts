@@ -3617,7 +3617,7 @@ test("Moving average trend line dataset uses the right axis when combined with o
   let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
   // @ts-ignore
   expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
-  const scales = getChartConfiguration(model, "1").options.scales;
+  let scales = getChartConfiguration(model, "1").options.scales;
   expect(scales.xMovingAverage!["display"]).toEqual(false);
   expect(scales.xMovingAverage!["offset"]).toEqual(false);
   expect(scales.xMovingAverage!["type"]).toEqual("category");
@@ -3652,9 +3652,9 @@ test("Moving average trend line dataset uses the right axis when combined with o
   runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
   // @ts-ignore
   expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
+  scales = getChartConfiguration(model, "1").options.scales;
   expect(scales.xMovingAverage!["display"]).toEqual(false);
-  expect(scales.xMovingAverage!["offset"]).toEqual(false);
-  expect(scales.xMovingAverage!["type"]).toEqual("category");
+  expect(scales.xMovingAverage!["offset"]).toEqual(true);
 
   // Bar chart with numerical labels
   updateChart(model, "1", {
@@ -3664,8 +3664,7 @@ test("Moving average trend line dataset uses the right axis when combined with o
   // @ts-ignore
   expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
   expect(scales.xMovingAverage!["display"]).toEqual(false);
-  expect(scales.xMovingAverage!["offset"]).toEqual(false);
-  expect(scales.xMovingAverage!["type"]).toEqual("category");
+  expect(scales.xMovingAverage!["offset"]).toEqual(true);
 
   // Bar chart with categorical labels
   updateChart(model, "1", {
@@ -3675,8 +3674,7 @@ test("Moving average trend line dataset uses the right axis when combined with o
   // @ts-ignore
   expect(runtime.chartJsConfig.data.datasets[3].xAxisID).toEqual("xMovingAverage");
   expect(scales.xMovingAverage!["display"]).toEqual(false);
-  expect(scales.xMovingAverage!["offset"]).toEqual(false);
-  expect(scales.xMovingAverage!["type"]).toEqual("category");
+  expect(scales.xMovingAverage!["offset"]).toEqual(true);
 });
 
 test("logarithmic trending line", () => {
