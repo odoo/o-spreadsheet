@@ -1,7 +1,7 @@
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
-import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { debounce, isDefined } from "../helpers/misc";
+import { UuidGenerator } from "../helpers/uuid";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
 import { CoreCommand, HistoryChange, Lazy, UID, WorkbookData } from "../types";
 import {
@@ -40,6 +40,12 @@ export class Session extends EventBus<CollaborativeEvent> {
    */
   private debouncedMove: Session["move"];
   private pendingMessages: StateUpdateMessage[] = [];
+
+  /**
+   * Stored position of the client, if session.move is called while the client is not in a session.
+   * Will be used to send the position to the server when the client joins.
+   */
+  private awaitingClientPosition: ClientPosition | undefined;
 
   private waitingAck: boolean = false;
   /**
@@ -155,6 +161,10 @@ export class Session extends EventBus<CollaborativeEvent> {
       this.clientId = "local";
     }
     this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
+    if (this.awaitingClientPosition) {
+      this._move(this.awaitingClientPosition);
+      this.awaitingClientPosition = undefined;
+    }
   }
 
   loadInitialMessages(messages: StateUpdateMessage[]) {
@@ -237,9 +247,11 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   private _move(position: ClientPosition) {
-    // this method is debounced and might be called after the client
-    // left the session.
-    if (!this.clients[this.clientId]) return;
+    // this method could be called before the client joins the session, or after he left (because of the debounce)
+    if (!this.clients[this.clientId]) {
+      this.awaitingClientPosition = position;
+      return;
+    }
     const currentPosition = this.clients[this.clientId]?.position;
     if (
       currentPosition?.col === position.col &&
