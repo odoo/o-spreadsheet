@@ -8,6 +8,7 @@ import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { SpreadsheetChildEnv } from "../../src/types";
+import { unPatchSessionMove } from "../setup/session_debounce_mock";
 import {
   addRows,
   createChart,
@@ -247,6 +248,7 @@ describe("Simple Spreadsheet Component", () => {
 });
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
+  unPatchSessionMove();
   const client = { id: "alice", name: "Alice" };
   ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
   expect(model.getters.getClient()).toEqual(client);

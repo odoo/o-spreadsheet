@@ -5,6 +5,7 @@ import { lazy } from "../../src/helpers";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { unPatchSessionMove } from "../setup/session_debounce_mock";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
 
@@ -31,6 +32,7 @@ describe("Collaborative session", () => {
   });
 
   test("local client move", () => {
+    unPatchSessionMove();
     session.move({ sheetId: "sheetId", col: 0, row: 0 });
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
     const spy = jest.spyOn(transport, "sendMessage");

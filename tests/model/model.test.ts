@@ -1,4 +1,4 @@
-import { CommandResult, CorePlugin } from "../../src";
+import { CollaborationMessage, CommandResult, CorePlugin } from "../../src";
 import { MESSAGE_VERSION } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { Model, ModelConfig } from "../../src/model";
@@ -388,14 +388,15 @@ describe("Model", () => {
   });
 
   test("it should not snapshot when importing xlsx file in readonly mode", async () => {
+    const messages: CollaborationMessage[] = [];
     const transport = new MockTransportService();
-    const spy = jest.spyOn(transport, "sendMessage");
+    transport.onNewMessage("listener", (message) => messages.push(message));
     const xlsxData = await getTextXlsxFiles();
     new Model(xlsxData, {
       transportService: transport,
       client: { id: "test", name: "Test" },
       mode: "readonly",
     });
-    expect(spy).not.toHaveBeenCalled();
+    expect(messages.map((m) => m.type)).not.toContain("SNAPSHOT_CREATED");
   });
 });

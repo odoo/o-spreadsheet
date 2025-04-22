@@ -10,6 +10,7 @@ import "./jest_extend";
 import "./polyfill";
 import "./resize_observer.mock";
 import { Resizers } from "./resize_observer.mock";
+import { patchSessionMove } from "./session_debounce_mock";
 
 window.Chart = Object.assign(Chart.Chart, Chart);
 
@@ -67,6 +68,7 @@ beforeEach(() => {
       const blob = new window.Blob([data], { type });
       setTimeout(() => callback(blob), 0);
     });
+  patchSessionMove();
 });
 
 afterEach(() => {
