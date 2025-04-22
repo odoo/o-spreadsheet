@@ -153,33 +153,35 @@ import {
   statefulUIPluginRegistry,
 } from "./plugins/index";
 import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/ui_core_views/pivot_ui";
+import { autoCompleteProviders } from "./registries/auto_completes";
+import { autofillModifiersRegistry } from "./registries/autofill_modifiers";
+import { autofillRulesRegistry } from "./registries/autofill_rules";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
-import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
+import { cellPopoverRegistry } from "./registries/cell_popovers_registry";
 import {
-  autoCompleteProviders,
-  autofillModifiersRegistry,
-  autofillRulesRegistry,
-  cellMenuRegistry,
-  cellPopoverRegistry,
   chartComponentRegistry,
   chartRegistry,
   chartSubtypeRegistry,
+} from "./registries/chart_types";
+import { figureRegistry } from "./registries/figure_registry";
+import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
+import { inverseCommandRegistry } from "./registries/inverse_command_registry";
+import {
+  cellMenuRegistry,
   colMenuRegistry,
-  figureRegistry,
-  inverseCommandRegistry,
   linkMenuRegistry,
   numberFormatMenuRegistry,
-  otRegistry,
   rowMenuRegistry,
-  topbarComponentRegistry,
   topbarMenuRegistry,
-} from "./registries/index";
+} from "./registries/menus";
+import { otRegistry } from "./registries/ot_registry";
 import {
   genericRepeat,
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
 import { sidePanelRegistry } from "./registries/side_panel_registry";
+import { topbarComponentRegistry } from "./registries/topbar_component_registry";
 import { useLocalStore, useStore, useStoreProvider } from "./store_engine";
 import { DependencyContainer } from "./store_engine/dependency_container";
 import { SpreadsheetStore } from "./stores";

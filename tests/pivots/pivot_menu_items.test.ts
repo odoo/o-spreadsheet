@@ -2,7 +2,7 @@ import { Model, SortDirection, SpreadsheetChildEnv } from "../../src";
 import { Action } from "../../src/actions/action";
 import { PIVOT_TABLE_CONFIG } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
-import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries";
+import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries/menus";
 import {
   createSheet,
   createTable,

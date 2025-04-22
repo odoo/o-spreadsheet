@@ -1,4 +1,4 @@
-import { AutoCompleteProposal, AutoCompleteProvider } from "../../../registries";
+import { AutoCompleteProposal, AutoCompleteProvider } from "../../../registries/auto_completes";
 import { SpreadsheetStore } from "../../../stores";
 
 export class AutoCompleteStore extends SpreadsheetStore {

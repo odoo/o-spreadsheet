@@ -7,7 +7,8 @@ import {
   toXC,
   toZone,
 } from "../../helpers/index";
-import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
+import { autofillModifiersRegistry } from "../../registries/autofill_modifiers";
+import { autofillRulesRegistry } from "../../registries/autofill_rules";
 import {
   AutoFillCellCommand,
   AutofillData,

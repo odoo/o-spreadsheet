@@ -2,7 +2,7 @@ import { Model, PivotSortedColumn, SpreadsheetChildEnv } from "../../../src";
 import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "../../../src/constants";
 import { toXC, toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { topbarMenuRegistry } from "../../../src/registries";
+import { topbarMenuRegistry } from "../../../src/registries/menus";
 import { NotificationStore } from "../../../src/stores/notification_store";
 import {
   activateSheet,

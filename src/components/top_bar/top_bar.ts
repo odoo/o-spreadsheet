@@ -18,8 +18,9 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
-import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registries/index";
+import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
+import { topbarComponentRegistry } from "../../registries/topbar_component_registry";
 import { Store, useStore } from "../../store_engine";
 import { FormulaFingerprintStore } from "../../stores/formula_fingerprints_store";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";

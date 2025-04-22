@@ -1,10 +1,4 @@
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import {
-  cellMenuRegistry,
-  colMenuRegistry,
-  rowMenuRegistry,
-  topbarMenuRegistry,
-} from "../../src/registries/index";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   copy,
@@ -56,6 +50,12 @@ import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import {
+  cellMenuRegistry,
+  colMenuRegistry,
+  rowMenuRegistry,
+  topbarMenuRegistry,
+} from "../../src/registries/menus";
 import { DEFAULT_LOCALES } from "../../src/types/locale";
 import { FR_LOCALE } from "../test_helpers/constants";
 
