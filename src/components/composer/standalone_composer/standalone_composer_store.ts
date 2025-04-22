@@ -1,7 +1,7 @@
 import { Token, rangeTokenize } from "../../../formulas";
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { setXcToFixedReferenceType } from "../../../helpers/reference_type";
-import { AutoCompleteProviderDefinition } from "../../../registries";
+import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Get } from "../../../store_engine";
 import { Color, UID, UnboundedZone, Zone } from "../../../types";
 import { AbstractComposerStore } from "../composer/abstract_composer_store";

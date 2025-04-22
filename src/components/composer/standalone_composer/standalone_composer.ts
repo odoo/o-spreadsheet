@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { ACTION_COLOR, GRAY_300 } from "../../../constants";
 import { Token } from "../../../formulas";
-import { AutoCompleteProviderDefinition } from "../../../registries";
+import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { Color, ComposerFocusType, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";

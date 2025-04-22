@@ -1,8 +1,8 @@
 import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import { ACTION_COLOR, BOTTOMBAR_HEIGHT } from "../../../constants";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
-import { getSheetMenuRegistry } from "../../../registries";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
+import { getSheetMenuRegistry } from "../../../registries/menus";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { Rect, SpreadsheetChildEnv } from "../../../types";

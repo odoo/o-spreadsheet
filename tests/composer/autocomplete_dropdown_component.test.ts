@@ -3,7 +3,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
-import { autoCompleteProviders } from "../../src/registries";
+import { autoCompleteProviders } from "../../src/registries/auto_completes";
 import { Store } from "../../src/store_engine";
 import { selectCell } from "../test_helpers/commands_helpers";
 import {

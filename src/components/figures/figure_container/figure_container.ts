@@ -2,7 +2,7 @@ import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
 import { ComponentsImportance, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectUnion } from "../../../helpers/rectangle";
-import { figureRegistry } from "../../../registries";
+import { figureRegistry } from "../../../registries/figure_registry";
 import {
   AnchorOffset,
   Figure,

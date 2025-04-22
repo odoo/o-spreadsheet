@@ -1,7 +1,10 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers";
-import { AutoCompleteProposal, AutoCompleteProvider } from "../../../../../registries";
+import {
+  AutoCompleteProposal,
+  AutoCompleteProvider,
+} from "../../../../../registries/auto_completes";
 import { Store, useLocalStore } from "../../../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../../../types";
 import { PivotField } from "../../../../../types/pivot";

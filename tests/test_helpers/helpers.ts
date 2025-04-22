@@ -29,8 +29,8 @@ import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
 import { SheetUIPlugin } from "../../src/plugins/ui_feature";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
-import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import { topbarMenuRegistry } from "../../src/registries/menus";
 import { Registry } from "../../src/registries/registry";
 import {
   DependencyContainer,

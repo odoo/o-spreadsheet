@@ -8,11 +8,11 @@ import {
   MENU_WIDTH,
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
-import { figureRegistry } from "../../src/registries";
 import { Figure, Pixel, Position, SpreadsheetChildEnv, UID } from "../../src/types";
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
+import { figureRegistry } from "../../src/registries/figure_registry";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import {
   activateSheet,

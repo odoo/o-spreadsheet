@@ -1,5 +1,5 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
-import { AutoCompleteProposal } from "../../../registries";
+import { AutoCompleteProposal } from "../../../registries/auto_completes";
 import { css } from "../../helpers/css";
 
 css/* scss */ `

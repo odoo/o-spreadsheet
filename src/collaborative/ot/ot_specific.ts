@@ -7,7 +7,7 @@ import {
 } from "../../helpers";
 import { transformDefinition } from "../../helpers/figures/charts";
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
-import { otRegistry } from "../../registries";
+import { otRegistry } from "../../registries/ot_registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
