@@ -1,5 +1,8 @@
 import { Token } from "../../src/formulas";
-import { loopThroughReferenceType } from "../../src/helpers/reference_type";
+import {
+  loopThroughReferenceType,
+  setXcToFixedReferenceType,
+} from "../../src/helpers/reference_type";
 
 function refToken(referenceString: string): Token {
   return { type: "REFERENCE", value: referenceString };
@@ -67,5 +70,32 @@ describe("loopThroughReferenceType", () => {
       refToken("Sheet2!$A1:$B1")
     );
     expect(loopThroughReferenceType(refToken("Sheet2!$A1:$B1"))).toEqual(refToken("Sheet2!A1:B1"));
+  });
+
+  describe("setXcToFixedReferenceType", () => {
+    test.each(["A1", "$A1", "A$1", "$A$1"])("simple ref", (ref) => {
+      expect(setXcToFixedReferenceType(ref, "none")).toBe("A1");
+      expect(setXcToFixedReferenceType(ref, "col")).toBe("$A1");
+      expect(setXcToFixedReferenceType(ref, "row")).toBe("A$1");
+      expect(setXcToFixedReferenceType(ref, "colrow")).toBe("$A$1");
+    });
+
+    test.each(["Sheet!A1", "Sheet!$A1", "Sheet!A$1", "Sheet!$A$1"])("with sheetName", (ref) => {
+      expect(setXcToFixedReferenceType(ref, "none")).toBe("Sheet!A1");
+      expect(setXcToFixedReferenceType(ref, "col")).toBe("Sheet!$A1");
+      expect(setXcToFixedReferenceType(ref, "row")).toBe("Sheet!A$1");
+      expect(setXcToFixedReferenceType(ref, "colrow")).toBe("Sheet!$A$1");
+    });
+
+    // ranges = [A1:C3, $A1:C3 ... A1:$C3 ... $A$1:$C$3]
+    const ranges = ["A1", "$A1", "A$1", "$A$1"].flatMap((topLeft) =>
+      ["C3", "$C3", "C$3", "$C$3"].map((bottomRight) => `${topLeft}:${bottomRight}`)
+    );
+    test.each(ranges)("ranges", (ref) => {
+      expect(setXcToFixedReferenceType(ref, "none")).toBe("A1:C3");
+      expect(setXcToFixedReferenceType(ref, "col")).toBe("$A1:$C3");
+      expect(setXcToFixedReferenceType(ref, "row")).toBe("A$1:C$3");
+      expect(setXcToFixedReferenceType(ref, "colrow")).toBe("$A$1:$C$3");
+    });
   });
 });
