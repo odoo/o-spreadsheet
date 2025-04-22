@@ -16,6 +16,7 @@ import {
   DataSet,
   ExcelChartDataset,
   ExcelChartDefinition,
+  TitleDesign,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_chart";
@@ -28,6 +29,7 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
+  copyChartTitleWithNewSheetId,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -106,7 +108,7 @@ export class PieChart extends AbstractChart {
   }
 
   getDefinition(): PieChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecifiedProperties(this.dataSets, this.labelRange, this.title);
   }
 
   getContextCreation(): ChartCreationContext {
@@ -121,9 +123,10 @@ export class PieChart extends AbstractChart {
     };
   }
 
-  private getDefinitionWithSpecificDataSets(
+  private getDefinitionWithSpecifiedProperties(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: TitleDesign,
     targetSheetId?: UID
   ): PieChartDefinition {
     return {
@@ -137,7 +140,7 @@ export class PieChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title,
       aggregated: this.aggregated,
       isDoughnut: this.isDoughnut,
       showValues: this.showValues,
@@ -151,14 +154,34 @@ export class PieChart extends AbstractChart {
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      updatedChartTitle,
+      newSheetId
+    );
     return new PieChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): PieChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
       this.dataSets,
       this.labelRange,
+      updatedChartTitle,
       sheetId
     );
     return new PieChart(definition, sheetId, this.getters);
@@ -185,16 +208,19 @@ export class PieChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): PieChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, chartTitle, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
       this.dataSets,
+      this.title,
+      undefined,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecifiedProperties(dataSets, labelRange, chartTitle);
     return new PieChart(definition, this.sheetId, this.getters);
   }
 }
@@ -213,7 +239,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
       ...CHART_COMMON_OPTIONS,
       layout: getChartLayout(definition),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, chartData),
         legend: getPieChartLegend(definition, chartData),
         tooltip: getPieChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),

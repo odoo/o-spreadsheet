@@ -1,5 +1,11 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { chartFontColor, chartRuntimeFactory, chartToImageUrl } from "../../helpers/figures/charts";
+import {
+  chartFontColor,
+  chartRuntimeFactory,
+  chartToImageUrl,
+  getEvaluatedAxesDesign,
+  getEvaluatedChartTitle,
+} from "../../helpers/figures/charts";
 import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
@@ -106,7 +112,13 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
         if (figureData) {
           figures.push({
             ...figure,
-            data: figureData,
+            data: {
+              ...figureData,
+              title: figureData.title && getEvaluatedChartTitle(this.getters, figureData.title),
+              axesDesign:
+                figureData.axesDesign &&
+                getEvaluatedAxesDesign(this.getters, figureData.axesDesign),
+            },
           });
         } else {
           const chart = this.getters.getChart(figureId);
