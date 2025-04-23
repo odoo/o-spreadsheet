@@ -142,6 +142,23 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
+  test("Values aren't detected as date if they have a date format but a non-numeric value", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "Col1");
+    setFormat(model, "A2", "dd/mm/yyyy");
+    addPivot(model, "A1:A2", {});
+    setCellContent(model, "B1", "=PIVOT(1)");
+
+    setCellContent(model, "A2", "notADate");
+    expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "char" } });
+
+    setCellContent(model, "A2", "TRUE");
+    expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "boolean" } });
+
+    setCellContent(model, "A2", "125");
+    expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "datetime" } });
+  });
+
   test("Pivot fields are not loaded if a cell is in error", () => {
     const model = new Model({
       sheets: [
