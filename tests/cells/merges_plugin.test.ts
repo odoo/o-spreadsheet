@@ -16,8 +16,8 @@ import {
   setCellContent,
   setStyle,
   setZoneBorders,
-  unMerge,
   undo,
+  unMerge,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -29,10 +29,10 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import {
-  XCToMergeCellMap,
   getMergeCellMap,
   makeTestComposerStore,
   target,
+  XCToMergeCellMap,
 } from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {

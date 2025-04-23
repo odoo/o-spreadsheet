@@ -1,4 +1,4 @@
-import { isEqual, positionToZone } from "../helpers";
+import { doesAnyZoneCrossFrozenPane, getZoneArea, hasOverlappingZones } from "../helpers";
 import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
@@ -147,7 +147,7 @@ export const deleteCellShiftLeft: ActionSpec = {
 export const mergeCells: ActionSpec = {
   name: _t("Merge cells"),
   isEnabled: (env) => !cannotMerge(env),
-  isActive: (env) => isInMerge(env),
+  isActive: (env) => hasMergeInAnySelectedZone(env),
   execute: (env) => toggleMerge(env),
   icon: "o-spreadsheet-Icon.MERGE_CELL",
 };
@@ -166,36 +166,39 @@ export const deleteTable: ActionSpec = {
 
 function cannotMerge(env: SpreadsheetChildEnv): boolean {
   const zones = env.model.getters.getSelectedZones();
-  const { top, left, right, bottom } = env.model.getters.getSelectedZone();
   const { sheetId } = env.model.getters.getActivePosition();
   const { xSplit, ySplit } = env.model.getters.getPaneDivisions(sheetId);
   return (
-    zones.length > 1 ||
-    (top === bottom && left === right) ||
-    (left < xSplit && xSplit <= right) ||
-    (top < ySplit && ySplit <= bottom)
+    zones.every((zone) => getZoneArea(zone) === 1) ||
+    doesAnyZoneCrossFrozenPane(zones, xSplit, ySplit) ||
+    hasOverlappingZones(zones)
   );
 }
 
-function isInMerge(env: SpreadsheetChildEnv): boolean {
-  if (!cannotMerge(env)) {
-    const zones = env.model.getters.getSelectedZones();
-    const { col, row, sheetId } = env.model.getters.getActivePosition();
-    const zone = env.model.getters.expandZone(sheetId, positionToZone({ col, row }));
-    return isEqual(zones[0], zone);
+function hasMergeInAnySelectedZone(env: SpreadsheetChildEnv): boolean {
+  if (cannotMerge(env)) {
+    return false;
   }
-  return false;
+
+  const sheetId = env.model.getters.getActiveSheetId();
+  const zones = env.model.getters.getSelectedZones();
+  return zones.some((zone) => {
+    return env.model.getters.getMergesInZone(sheetId, zone).length > 0;
+  });
 }
 
 function toggleMerge(env: SpreadsheetChildEnv) {
   if (cannotMerge(env)) {
     return;
   }
-  const zones = env.model.getters.getSelectedZones();
-  const target = [zones[zones.length - 1]];
+
+  const target = env.model.getters.getSelectedZones();
   const sheetId = env.model.getters.getActiveSheetId();
-  if (isInMerge(env)) {
-    env.model.dispatch("REMOVE_MERGE", { sheetId, target });
+  if (hasMergeInAnySelectedZone(env)) {
+    const mergesToRemove = target.flatMap((zone) =>
+      env.model.getters.getMergesInZone(sheetId, zone)
+    );
+    env.model.dispatch("REMOVE_MERGE", { sheetId, target: mergesToRemove });
   } else {
     interactiveAddMerge(env, sheetId, target);
   }
