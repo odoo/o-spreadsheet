@@ -51,7 +51,7 @@ export function invertMatrix(M: Matrix<number>): {
       //look through every row below the i'th row
       for (let row = pivot + 1; row < dim; row++) {
         //if the ii'th row has a non-0 in the i'th col, swap it with that row
-        if (C[pivot][row] != 0) {
+        if (C[pivot][row] !== 0) {
           swapMatrixRows(C, pivot, row);
           swapMatrixRows(I, pivot, row);
           determinant *= -1;

@@ -28,7 +28,7 @@ export class ImageProvider implements ImageProviderInterface {
       input.setAttribute("type", "file");
       input.setAttribute("accept", "image/*");
       input.addEventListener("change", async () => {
-        if (input.files === null || input.files.length != 1) {
+        if (input.files === null || input.files.length !== 1) {
           reject();
         } else {
           resolve(input.files[0]);

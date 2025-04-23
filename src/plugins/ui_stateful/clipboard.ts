@@ -567,7 +567,7 @@ export class ClipboardPlugin extends UIPlugin {
         const figureId = this.copiedData.figureId;
         const figureSheetId = this.getters.getFigureSheetId(figureId)!;
         const figure = this.getters.getFigure(figureSheetId, figureId)!;
-        if (figure.tag == "image") {
+        if (figure.tag === "image") {
           innerHTML = await this.craftImageHTML(figureId);
         } else {
           innerHTML = "\t";
@@ -634,7 +634,7 @@ export class ClipboardPlugin extends UIPlugin {
     const figureSheetId = this.getters.getFigureSheetId(figureId)!;
     const figure = this.getters.getFigure(figureSheetId, figureId)!;
     let file: File | Blob | null | undefined;
-    if (figure.tag == "image") {
+    if (figure.tag === "image") {
       if (!this.fileStore) {
         return;
       }
