@@ -251,7 +251,7 @@ export function updateSelectionOnDeletion(
   const end = start === "left" ? "right" : "bottom";
   let newStart = zone[start];
   let newEnd = zone[end];
-  for (let removedElement of elements.sort((a, b) => b - a)) {
+  for (const removedElement of elements.sort((a, b) => b - a)) {
     if (zone[start] > removedElement) {
       newStart--;
       newEnd--;
@@ -275,7 +275,7 @@ export function reduceZoneOnDeletion<Z extends UnboundedZone | Zone>(
   let newStart = zone[start];
   let newEnd = zone[end];
   const zoneEnd = zone[end];
-  for (let removedElement of elements.sort((a, b) => b - a)) {
+  for (const removedElement of elements.sort((a, b) => b - a)) {
     if (zone[start] > removedElement) {
       newStart--;
       if (newEnd !== undefined) newEnd--;
@@ -619,8 +619,8 @@ export function areZonesContinuous(zones: Zone[]): boolean {
 /** Return all the columns in the given list of zones */
 export function getZonesCols(zones: Zone[]): Set<number> {
   const set = new Set<number>();
-  for (let zone of recomputeZones(zones)) {
-    for (let col of range(zone.left, zone.right + 1)) {
+  for (const zone of recomputeZones(zones)) {
+    for (const col of range(zone.left, zone.right + 1)) {
       set.add(col);
     }
   }
@@ -630,8 +630,8 @@ export function getZonesCols(zones: Zone[]): Set<number> {
 /** Return all the rows in the given list of zones */
 export function getZonesRows(zones: Zone[]): Set<number> {
   const set = new Set<number>();
-  for (let zone of recomputeZones(zones)) {
-    for (let row of range(zone.top, zone.bottom + 1)) {
+  for (const zone of recomputeZones(zones)) {
+    for (const row of range(zone.top, zone.bottom + 1)) {
       set.add(row);
     }
   }

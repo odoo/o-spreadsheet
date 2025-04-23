@@ -234,7 +234,7 @@ function freezeTransformation(
   let quantity = toTransform["quantity"];
   if (executed.type === "REMOVE_COLUMNS_ROWS") {
     const executedElements = [...executed.elements].sort((a, b) => b - a);
-    for (let removedElement of executedElements) {
+    for (const removedElement of executedElements) {
       if (quantity > removedElement) {
         quantity--;
       }

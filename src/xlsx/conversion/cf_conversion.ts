@@ -25,7 +25,7 @@ export function convertConditionalFormats(
 ): ConditionalFormat[] {
   const cfs: ConditionalFormat[] = [];
   let cfId = 1;
-  for (let cf of xlsxCfs) {
+  for (const cf of xlsxCfs) {
     if (cf.cfRules.length === 0) continue;
 
     addCfConversionWarnings(cf, dxfs, warningManager);
@@ -223,7 +223,7 @@ function convertIconSet(
   }
 
   // We don't support empty icons in an IconSet, put a dot icon instead
-  for (let key of Object.keys(icons)) {
+  for (const key of Object.keys(icons)) {
     if (!icons[key]) {
       warningManager.generateNotSupportedWarning(WarningTypes.CfIconSetEmptyIconNotSupported);
       switch (key) {

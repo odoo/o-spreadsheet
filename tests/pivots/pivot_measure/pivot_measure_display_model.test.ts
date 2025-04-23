@@ -1025,7 +1025,7 @@ describe("Measure display", () => {
     });
 
     test("Can display measure as ascending ranking on multi-level row fields", () => {
-      let display: PivotMeasureDisplay = {
+      const display: PivotMeasureDisplay = {
         type: "rank_asc",
         fieldNameWithGranularity: "Created on:month_number",
       };
@@ -1153,7 +1153,7 @@ describe("Measure display", () => {
     });
 
     test("Can display measure as descending ranking on multi-level row fields", () => {
-      let display: PivotMeasureDisplay = {
+      const display: PivotMeasureDisplay = {
         type: "rank_desc",
         fieldNameWithGranularity: "Active",
       };
@@ -1227,7 +1227,7 @@ describe("Measure display", () => {
     });
 
     test("Can display measure as running total of multi-level row fields", () => {
-      let display: PivotMeasureDisplay = {
+      const display: PivotMeasureDisplay = {
         type: "running_total",
         fieldNameWithGranularity: "Created on:month_number",
       };
@@ -1338,7 +1338,7 @@ describe("Measure display", () => {
     });
 
     test("Running total with row sorted in descending order", () => {
-      let display: PivotMeasureDisplay = {
+      const display: PivotMeasureDisplay = {
         type: "running_total",
         fieldNameWithGranularity: "Created on:month_number",
       };
@@ -1410,7 +1410,7 @@ describe("Measure display", () => {
     });
 
     test("Can display measure as percentage of running total of multi-level row fields", () => {
-      let display: PivotMeasureDisplay = {
+      const display: PivotMeasureDisplay = {
         type: "%_running_total",
         fieldNameWithGranularity: "Created on:month_number",
       };

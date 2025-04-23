@@ -38,7 +38,7 @@ export class XlsxReader {
 
     this.xmls = {};
     this.images = [];
-    for (let key of Object.keys(files)) {
+    for (const key of Object.keys(files)) {
       // Random files can be in xlsx (like a bin file for printer settings)
       if (key.endsWith(".xml") || key.endsWith(".rels")) {
         const contentString = escapeTagNamespaces(files[key] as string);

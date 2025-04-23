@@ -21,9 +21,9 @@ type LegacyNormalizedFormula = {
 export function normalizeV9(formula: string): LegacyNormalizedFormula {
   const tokens = rangeTokenize(formula);
 
-  let dependencies: string[] = [];
+  const dependencies: string[] = [];
 
-  let noRefFormula = "".concat(
+  const noRefFormula = "".concat(
     ...tokens.map<string>((token) => {
       if (token.type === "REFERENCE" && cellReference.test(token.value)) {
         const value = token.value.trim();

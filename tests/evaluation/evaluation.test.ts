@@ -382,7 +382,7 @@ describe("evaluateCells", () => {
   });
 
   test("evaluate formula returns the cell error value when we pass an invalid formula", () => {
-    let model = new Model();
+    const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.evaluateFormula(sheetId, "=min(abc)")).toBe("#BAD_EXPR");
   });

@@ -50,7 +50,7 @@ export class OTRegistry extends Registry<
     toTransforms: V[],
     fn: TransformationFunction<CoreCommandTypes, CoreCommandTypes>
   ): this {
-    for (let toTransform of toTransforms) {
+    for (const toTransform of toTransforms) {
       if (!this.content[toTransform]) {
         this.content[toTransform] = new Map<
           CoreCommandTypes,

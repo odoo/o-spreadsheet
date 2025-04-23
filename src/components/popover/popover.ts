@@ -119,7 +119,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
         height: el.getBoundingClientRect().height,
       };
 
-      let style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
+      const style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
       for (const property of Object.keys(style)) {
         el.style[property] = style[property];
       }

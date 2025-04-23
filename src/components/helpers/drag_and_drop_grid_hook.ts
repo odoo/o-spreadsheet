@@ -43,7 +43,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
 
     const position = gridOverlayPosition();
     const { x: offsetCorrectionX, y: offsetCorrectionY } = getters.getMainViewportCoordinates();
-    let { top, left, bottom, right } = getters.getActiveMainViewport();
+    const { top, left, bottom, right } = getters.getActiveMainViewport();
     let { scrollX, scrollY } = getters.getActiveSheetScrollInfo();
     const { xSplit, ySplit } = getters.getPaneDivisions(sheetId);
     let canEdgeScroll = false;

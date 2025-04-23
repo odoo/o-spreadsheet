@@ -149,7 +149,7 @@ describe("Import xlsx data", () => {
     const expectedBorderStyle = BORDER_STYLE_CONVERSION_MAP[cellContentSplit[0]];
     const expectedBorderColor =
       cellContentSplit.length === 2 ? standardizeColor(cellContentSplit[1]) : "#000000FF";
-    for (let side of ["top", "bottom", "left", "right"]) {
+    for (const side of ["top", "bottom", "left", "right"]) {
       expect(cellBorders[side].style).toEqual(expectedBorderStyle);
       expect(standardizeColor(cellBorders[side].color)).toEqual(expectedBorderColor);
     }
@@ -205,7 +205,7 @@ describe("Import xlsx data", () => {
   ])("Can import format %s", (format, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
     const cellFormat = getWorkbookCellFormat(testSheet.formats[cellXc], convertedData);
-    let expectedFormat: string | undefined = format;
+    const expectedFormat: string | undefined = format;
     expect(cellFormat).toEqual(expectedFormat);
   });
 
@@ -482,7 +482,7 @@ describe("Import xlsx data", () => {
     const iconSetName = split[0];
     const thresholdType = split.length > 1 ? split[1] : "percent";
 
-    let iconSet = {
+    const iconSet = {
       upper: ICON_SETS[ICON_SET_CONVERSION_MAP[iconSetName]]["good"],
       middle: ICON_SETS[ICON_SET_CONVERSION_MAP[iconSetName]]["neutral"],
       lower: ICON_SETS[ICON_SET_CONVERSION_MAP[iconSetName]]["bad"],

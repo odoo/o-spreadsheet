@@ -168,7 +168,7 @@ export function addRelsToFile(
   path: string,
   rel: Omit<XLSXRel, "id">
 ): string {
-  let relsFile = relsFiles.find((file) => file.path === path);
+  const relsFile = relsFiles.find((file) => file.path === path);
   // the id is a one-based int casted as string
   let id: string;
   if (!relsFile) {

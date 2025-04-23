@@ -261,7 +261,7 @@ function transformPositionWithGrid(
     if (elements.includes(base)) {
       return "IGNORE_COMMAND";
     }
-    for (let removedElement of elements) {
+    for (const removedElement of elements) {
       if (base >= removedElement) {
         base--;
       }

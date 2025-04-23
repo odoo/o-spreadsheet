@@ -38,7 +38,7 @@ export function getBoundingRectAsPOJO(el: Element): Rect {
 export function* iterateChildren(el: Node): Generator<Node> {
   yield el;
   if (el.hasChildNodes()) {
-    for (let child of el.childNodes) {
+    for (const child of el.childNodes) {
       yield* iterateChildren(child);
     }
   }
@@ -49,10 +49,10 @@ export function getOpenedMenus(): HTMLElement[] {
 }
 
 export function getCurrentSelection(el: HTMLElement) {
-  let { startElement, endElement, startSelectionOffset, endSelectionOffset } =
+  const { startElement, endElement, startSelectionOffset, endSelectionOffset } =
     getStartAndEndSelection(el);
-  let startSizeBefore = findSelectionIndex(el, startElement!, startSelectionOffset);
-  let endSizeBefore = findSelectionIndex(el, endElement!, endSelectionOffset);
+  const startSizeBefore = findSelectionIndex(el, startElement!, startSelectionOffset);
+  const endSizeBefore = findSelectionIndex(el, endElement!, endSelectionOffset);
 
   return {
     start: startSizeBefore,
@@ -91,7 +91,7 @@ function getStartAndEndSelection(el: HTMLElement) {
 function findSelectionIndex(el: HTMLElement, nodeToFind: Node, nodeOffset: number): number {
   let usedCharacters = 0;
 
-  let it = iterateChildren(el);
+  const it = iterateChildren(el);
   let current = it.next();
   let isFirstParagraph = true;
   while (!current.done && current.value !== nodeToFind) {

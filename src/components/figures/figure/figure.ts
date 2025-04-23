@@ -174,7 +174,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   getResizerPosition(resizer: ResizeAnchor): string {
     const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
-    let style: CSSProperties = {};
+    const style: CSSProperties = {};
     if (resizer.includes("top")) {
       style.top = `${-anchorCenteringOffset}px`;
     } else if (resizer.includes("bottom")) {
@@ -248,7 +248,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       case "ArrowLeft":
       case "ArrowRight":
       case "ArrowUp":
-        let { col, row, offset } = this.postionInBoundary(this.props.figureUI, ev.key);
+        const { col, row, offset } = this.postionInBoundary(this.props.figureUI, ev.key);
         this.env.model.dispatch("UPDATE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           figureId: this.props.figureUI.id,

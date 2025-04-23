@@ -16,7 +16,7 @@ import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helper
 
 export function addNumberFormats(numFmts: XLSXNumFormat[]): XMLString {
   const numFmtNodes: XMLString[] = [];
-  for (let [index, numFmt] of Object.entries(numFmts)) {
+  for (const [index, numFmt] of Object.entries(numFmts)) {
     const numFmtAttrs: XMLAttributes = [
       ["numFmtId", parseInt(index) + FIRST_NUMFMT_ID],
       ["formatCode", numFmt.format],
@@ -63,7 +63,7 @@ export function addFonts(fonts: XLSXFont[]): XMLString {
 
 export function addFills(fills: XLSXFill[]): XMLString {
   const fillNodes: XMLString[] = [];
-  for (let fill of Object.values(fills)) {
+  for (const fill of Object.values(fills)) {
     if (fill.reservedAttribute !== undefined) {
       fillNodes.push(escapeXml/*xml*/ `
         <fill>
@@ -90,7 +90,7 @@ export function addFills(fills: XLSXFill[]): XMLString {
 
 export function addBorders(borders: XLSXBorder[]): XMLString {
   const borderNodes: XMLString[] = [];
-  for (let border of Object.values(borders)) {
+  for (const border of Object.values(borders)) {
     borderNodes.push(escapeXml/*xml*/ `
       <border>
         <left ${formatBorderAttribute(border["left"])}>
@@ -136,7 +136,7 @@ function addBorderColor(description: XLSXBorderDescr | undefined): XMLString {
 
 export function addStyles(styles: XLSXStyle[]): XMLString {
   const styleNodes: XMLString[] = [];
-  for (let style of styles) {
+  for (const style of styles) {
     const attributes: XMLAttributes = [
       ["numFmtId", style.numFmtId],
       ["fillId", style.fillId],

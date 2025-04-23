@@ -35,7 +35,7 @@ export class MenuItemRegistry extends Registry<ActionSpec> {
     if (!node) {
       throw new Error(`Path ${root + ":" + path.join(":")} not found`);
     }
-    for (let p of path) {
+    for (const p of path) {
       const children = node.children;
       if (!children || typeof children === "function") {
         throw new Error(`${p} is either not a node or it's dynamically computed`);

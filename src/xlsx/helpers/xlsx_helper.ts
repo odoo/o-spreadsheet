@@ -23,7 +23,7 @@ export function isXLSXExportXMLFile(file: XLSXExportFile): file is XLSXExportXML
  */
 function getXlsxFile(files: string[], xmls: XLSXXmlDocuments): XLSXImportFile[] {
   const ret: XLSXImportFile[] = [];
-  for (let file of files) {
+  for (const file of files) {
     const rels = getRelationFile(file, xmls);
     ret.push({
       file: { fileName: file, xml: xmls[file] },
@@ -42,7 +42,7 @@ function getPathsOfContent(contentType: string, xmls: XLSXXmlDocuments): string[
   const sheetItems = xml.querySelectorAll(`Override[ContentType="${contentType}"]`);
 
   const paths: string[] = [];
-  for (let item of sheetItems) {
+  for (const item of sheetItems) {
     const file = item?.attributes["PartName"].value;
     paths.push(file.substring(1)); // Remove the heading "/"
   }

@@ -140,7 +140,7 @@ function splitWordToSpecificWidth(
 
   const splitWord: string[] = [];
   let wordPart = "";
-  for (let l of word) {
+  for (const l of word) {
     const wordPartWidth = computeTextWidth(ctx, wordPart + l, style);
     if (wordPartWidth > width) {
       splitWord.push(wordPart);
@@ -180,7 +180,7 @@ export function splitTextToWidth(
     let textLine = "";
     let availableWidth = width;
 
-    for (let word of words) {
+    for (const word of words) {
       const splitWord = splitWordToSpecificWidth(ctx, word, width, style);
       const lastPart = splitWord.pop()!;
       const lastPartWidth = computeTextWidth(ctx, lastPart, style);

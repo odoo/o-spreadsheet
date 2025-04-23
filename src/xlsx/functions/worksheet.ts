@@ -33,7 +33,7 @@ export function addColumns(cols: { [key: number]: ExcelHeaderData }): XMLString 
     return escapeXml``;
   }
   const colNodes: XMLString[] = [];
-  for (let [id, col] of Object.entries(cols)) {
+  for (const [id, col] of Object.entries(cols)) {
     // Always force our own col width
     const attributes: XMLAttributes = [
       ["min", parseInt(id) + 1],

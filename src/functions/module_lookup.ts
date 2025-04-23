@@ -276,7 +276,7 @@ export const INDIRECT: AddFunctionDescription = {
     reference: Maybe<FunctionResultObject>,
     useA1Notation: Maybe<FunctionResultObject> = { value: true }
   ): FunctionResultObject | Matrix<FunctionResultObject> {
-    let _reference = reference?.value?.toString();
+    const _reference = reference?.value?.toString();
     if (!_reference) {
       return new InvalidReferenceError(_t("Reference should be defined."));
     }

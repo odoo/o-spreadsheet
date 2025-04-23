@@ -27,7 +27,7 @@ describe("trim whitespace", () => {
       A3: "  Space Cowboys   ",
       A4: "   Space Cake  ???    ",
     });
-    let notifyUserTextSpy = jest.fn();
+    const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A2", "A2:A3", "A4"]);
     model.dispatch("TRIM_WHITESPACE");
@@ -78,7 +78,7 @@ describe("notify user", () => {
       A2: "  SPACES   INVADERS   !  ",
       A3: "NO SPACES INVADERS",
     });
-    let notifyUserTextSpy = jest.fn();
+    const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A3"]);
     model.dispatch("TRIM_WHITESPACE");
@@ -95,7 +95,7 @@ describe("notify user", () => {
       A2: "Space invaders",
       A3: "Space mountain",
     });
-    let notifyUserTextSpy = jest.fn();
+    const notifyUserTextSpy = jest.fn();
     jest.spyOn(model.config, "notifyUI").mockImplementation(notifyUserTextSpy);
     setSelection(model, ["A1:A3"]);
     model.dispatch("TRIM_WHITESPACE");

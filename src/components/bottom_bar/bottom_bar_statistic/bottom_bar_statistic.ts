@@ -62,7 +62,7 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   listSelectionStatistics(ev: MouseEvent) {
     const registry = new MenuItemRegistry();
     let i = 0;
-    for (let [fnName] of Object.entries(this.store.statisticFnResults)) {
+    for (const [fnName] of Object.entries(this.store.statisticFnResults)) {
       registry.add(fnName, {
         name: () => this.getComposedFnName(fnName),
         sequence: i,

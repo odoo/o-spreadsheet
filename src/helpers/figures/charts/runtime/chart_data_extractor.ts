@@ -648,7 +648,7 @@ function fixEmptyLabelsForDateCharts(
   for (let i = 0; i < newLabels.length; i++) {
     if (!newLabels[i]) {
       newLabels[i] = findNextDefinedValue(newLabels, i);
-      for (let ds of newDatasets) {
+      for (const ds of newDatasets) {
         ds.data[i] = undefined;
       }
     }
@@ -894,7 +894,7 @@ function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetVa
     } else {
       label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
     }
-    let data = ds.dataRange ? getData(getters, ds) : [];
+    const data = ds.dataRange ? getData(getters, ds) : [];
     if (
       data.every((e) => typeof e === "string" && !isEvaluationError(e)) &&
       data.some((e) => e !== "")

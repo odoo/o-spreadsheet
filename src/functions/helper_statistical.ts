@@ -47,10 +47,10 @@ export function average(values: Arg[], locale: Locale) {
 
 export function countNumbers(values: Arg[], locale: Locale) {
   let count = 0;
-  for (let n of values) {
+  for (const n of values) {
     if (isMatrix(n)) {
-      for (let i of n) {
-        for (let j of i) {
+      for (const i of n) {
+        for (const j of i) {
           if (typeof j.value === "number") {
             count += 1;
           }
@@ -136,7 +136,7 @@ export function fullLinearRegression(
   const nDeg = n - nVar - (computeIntercept ? 1 : 0);
   const yMatrix = [y];
   const xMatrix: Matrix<number> = transposeMatrix(_X.reverse());
-  let avgX: number[] = [];
+  const avgX: number[] = [];
   for (let i = 0; i < nVar; i++) {
     avgX.push(0);
     if (computeIntercept) {

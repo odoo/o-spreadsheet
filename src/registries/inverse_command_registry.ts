@@ -97,7 +97,7 @@ function inverseDuplicateSheet(cmd: DuplicateSheetCommand): DeleteSheetCommand[]
 function inverseRemoveColumnsRows(cmd: RemoveColumnsRowsCommand): AddColumnsRowsCommand[] {
   const commands: AddColumnsRowsCommand[] = [];
   const elements = [...cmd.elements].sort((a, b) => a - b);
-  for (let group of groupConsecutive(elements)) {
+  for (const group of groupConsecutive(elements)) {
     const column = group[0] === 0 ? 0 : group[0] - 1;
     const position = group[0] === 0 ? "before" : "after";
     commands.push({

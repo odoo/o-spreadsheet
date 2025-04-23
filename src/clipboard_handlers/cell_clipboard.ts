@@ -38,9 +38,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
     const clippedCells: ClipboardCell[][] = [];
     const isCopyingOneCell = rowsIndexes.length == 1 && columnsIndexes.length == 1;
-    for (let row of rowsIndexes) {
-      let cellsInRow: ClipboardCell[] = [];
-      for (let col of columnsIndexes) {
+    for (const row of rowsIndexes) {
+      const cellsInRow: ClipboardCell[] = [];
+      for (const col of columnsIndexes) {
         const position = { col, row, sheetId };
         let cell = this.getters.getCell(position);
         const evaluatedCell = this.getters.getEvaluatedCell(position);

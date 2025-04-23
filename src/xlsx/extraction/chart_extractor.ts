@@ -219,7 +219,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       throw new Error("Missing plot area in the chart definition.");
     }
     let globalTag: XLSXChartType | undefined = undefined;
-    for (let child of plotAreaElement.children) {
+    for (const child of plotAreaElement.children) {
       const tag = removeTagEscapedNamespaces(child.tagName);
       if (XLSX_CHART_TYPES.some((chartType) => chartType === tag)) {
         if (!globalTag) {

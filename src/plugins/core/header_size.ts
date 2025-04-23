@@ -36,7 +36,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        let sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
+        const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
         const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
         const baseSize = sizes[cmd.base];
         sizes.splice(addIndex, 0, ...Array(cmd.quantity).fill(baseSize));
@@ -69,18 +69,18 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
   }
 
   import(data: WorkbookData) {
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       const sizes: Record<Dimension, Array<Pixel | undefined>> = {
         COL: Array(sheet.colNumber).fill(undefined),
         ROW: Array(sheet.rowNumber).fill(undefined),
       };
-      for (let [rowIndex, row] of Object.entries(sheet.rows)) {
+      for (const [rowIndex, row] of Object.entries(sheet.rows)) {
         if (row.size) {
           sizes["ROW"][rowIndex] = row.size;
         }
       }
 
-      for (let [colIndex, col] of Object.entries(sheet.cols)) {
+      for (const [colIndex, col] of Object.entries(sheet.cols)) {
         if (col.size) {
           sizes["COL"][colIndex] = col.size;
         }
@@ -105,7 +105,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
    * @param exportDefaults : if true, export column/row sizes even if they have the default size
    */
   exportData(data: WorkbookData, exportDefaults = false) {
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       // Export row sizes
       if (sheet.rows === undefined) {
         sheet.rows = {};
@@ -123,7 +123,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
       if (sheet.cols === undefined) {
         sheet.cols = {};
       }
-      for (let col of range(0, this.getters.getNumberCols(sheet.id))) {
+      for (const col of range(0, this.getters.getNumberCols(sheet.id))) {
         if (exportDefaults || this.sizes[sheet.id]["COL"][col]) {
           sheet.cols[col] = { ...sheet.cols[col], size: this.getColSize(sheet.id, col) };
         }

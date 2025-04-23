@@ -144,7 +144,7 @@ function centile(
     () => (isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1),
     _t("Function [[FUNCTION_NAME]] parameter 2 value is out of range.")
   );
-  let sortedArray: number[] = [];
+  const sortedArray: number[] = [];
   let index: number;
   let count = 0;
   visitAny(data, (d) => {
@@ -614,7 +614,7 @@ export const LARGE = {
   ],
   compute: function (data: Arg, n: Maybe<FunctionResultObject>): FunctionResultObject {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
-    let largests: FunctionResultObject[] = [];
+    const largests: FunctionResultObject[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
@@ -890,7 +890,7 @@ export const MEDIAN = {
     ),
   ],
   compute: function (...values: Arg[]): FunctionResultNumber {
-    let data: FunctionResultNumber[] = [];
+    const data: FunctionResultNumber[] = [];
     visitNumbers(
       values,
       (value) => {
@@ -1354,7 +1354,7 @@ export const SMALL = {
   ],
   compute: function (data: Arg, n: Maybe<FunctionResultObject>): FunctionResultObject {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
-    let largests: FunctionResultObject[] = [];
+    const largests: FunctionResultObject[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {

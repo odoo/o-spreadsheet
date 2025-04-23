@@ -136,7 +136,7 @@ export function joinXmlNodes(xmlNodes: XMLString[]): XMLString {
  * ```
  */
 export function escapeXml(strings: TemplateStringsArray, ...expressions): XMLString {
-  let str = [strings[0]];
+  const str = [strings[0]];
   for (let i = 0; i < expressions.length; i++) {
     const value = expressions[i] instanceof XMLString ? expressions[i] : xmlEscape(expressions[i]);
     str.push(value + strings[i + 1]);
