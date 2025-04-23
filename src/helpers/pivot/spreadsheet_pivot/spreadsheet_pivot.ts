@@ -328,7 +328,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (nonEmptyCells.length === 0) {
       return "integer";
     }
-    if (nonEmptyCells.every((cell) => cell.format && isDateTimeFormat(cell.format))) {
+    if (
+      nonEmptyCells.every(
+        (cell) => cell.type === CellValueType.number && cell.format && isDateTimeFormat(cell.format)
+      )
+    ) {
       return "date";
     }
     if (nonEmptyCells.every((cell) => cell.type === CellValueType.boolean)) {
