@@ -232,6 +232,7 @@ function createComputeFunction(
     ...args: Arg[]
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     if (this.debug) {
+      // eslint-disable-next-line no-debugger
       debugger;
     }
     const result = descr.compute.apply(this, args);
