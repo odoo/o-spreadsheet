@@ -639,7 +639,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (!clipboardData) {
       return;
     }
-    const image = [...clipboardData?.files]?.find((file) =>
+    const image = [...clipboardData.files]?.find((file) =>
       AllowedImageMimeTypes.includes(file.type as (typeof AllowedImageMimeTypes)[number])
     );
     const osClipboard = {

@@ -8,7 +8,7 @@ import {
 } from "chart.js";
 
 export function getFunnelChartController() {
-  return class FunnelChartController extends window.Chart?.BarController {
+  return class FunnelChartController extends window.Chart.BarController {
     static id = "funnel";
     static defaults = {
       ...window.Chart?.BarController.defaults,
@@ -42,7 +42,7 @@ export function getFunnelChartElement() {
    * Similar to a bar chart element, but it's a trapezoid rather than a rectangle. The top is of width
    * `width`, and the bottom is of width `nextElementWidth`.
    */
-  return class FunnelChartElement extends window.Chart?.BarElement {
+  return class FunnelChartElement extends window.Chart.BarElement {
     static id = "funnel";
 
     /** Overwrite this to draw a trapezoid rather then a rectangle */
