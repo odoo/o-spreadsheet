@@ -75,9 +75,14 @@ function getChartMenu(
         const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
         const blob = await chartToImageFile(runtime, figure, chartType)!;
 
-        env.clipboard.write({
+        await env.clipboard.write({
           "text/html": innerHTML,
           "image/png": blob,
+        });
+        env.notifyUser({
+          text: _t("The chart was copied to your clipboard"),
+          sticky: false,
+          type: "info",
         });
       },
     },
