@@ -85,7 +85,7 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
 
 export const functionRegistry: FunctionRegistry = new FunctionRegistry();
 
-for (let category of categories) {
+for (const category of categories) {
   const fns = category.functions;
   for (let name in fns) {
     const addDescr = fns[name];

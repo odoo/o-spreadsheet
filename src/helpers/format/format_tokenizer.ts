@@ -70,7 +70,7 @@ export function tokenizeFormat(str: string): FormatToken[][] {
       chars.shift();
       continue;
     }
-    let token =
+    const token =
       tokenizeDigit(chars) ||
       tokenizeString(chars) ||
       tokenizeEscapedChars(chars) ||

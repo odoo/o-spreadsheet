@@ -612,7 +612,7 @@ describe("TopBar component", () => {
     ({ fixture, parent } = await mountParent(model));
     const composerStore = parent.env.getStore(CellComposerStore);
 
-    let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
+    const composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
     expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
     await simulateClick(composerEl);
 

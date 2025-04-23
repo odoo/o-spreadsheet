@@ -24,19 +24,19 @@ export function arg(definition: string, description: string = ""): ArgDefinition
 }
 
 function makeArg(str: string, description: string): ArgDefinition {
-  let parts = str.match(ARG_REGEXP)!;
-  let name = parts[1].trim();
+  const parts = str.match(ARG_REGEXP)!;
+  const name = parts[1].trim();
   if (!name) {
     throw new Error(`Function argument definition is missing a name: '${str}'.`);
   }
-  let types: ArgType[] = [];
+  const types: ArgType[] = [];
   let isOptional = false;
   let isRepeating = false;
   let defaultValue;
 
-  for (let param of parts[2].split(",")) {
+  for (const param of parts[2].split(",")) {
     const key = param.trim().toUpperCase();
-    let type = ARG_TYPES.find((t) => key === t);
+    const type = ARG_TYPES.find((t) => key === t);
     if (type) {
       types.push(type);
     } else if (key === "RANGE<ANY>") {
@@ -91,7 +91,7 @@ export function addMetaInfoFromArg(
   let minArg = 0;
   let repeatingArg = 0;
   let optionalArg = 0;
-  for (let arg of addDescr.args) {
+  for (const arg of addDescr.args) {
     countArg++;
     if (!arg.optional && !arg.repeating && !arg.default) {
       minArg++;
@@ -273,7 +273,7 @@ export function validateArguments(descr: FunctionDescription) {
 
   let foundRepeating = false;
   let consecutiveRepeating = false;
-  for (let current of descr.args) {
+  for (const current of descr.args) {
     if (current.type.includes("META") && current.type.length > 1) {
       throw new Error(
         `Function ${descr.name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone.`

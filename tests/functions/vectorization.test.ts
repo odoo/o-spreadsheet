@@ -171,7 +171,7 @@ describe("vectorization", () => {
 
   test("binary operators should always accept vectors", () => {
     // mean binary operators args should always be simple args
-    for (let op in OPERATOR_MAP) {
+    for (const op in OPERATOR_MAP) {
       const functionDefinition = functionRegistry.content[OPERATOR_MAP[op]];
       expect(
         functionDefinition.args.every((arg) =>

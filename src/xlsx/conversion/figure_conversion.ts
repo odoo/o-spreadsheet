@@ -123,7 +123,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
 }
 
 function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): string {
-  let { sheetName, xc } = splitReference(range);
+  const { sheetName, xc } = splitReference(range);
   let zone = toUnboundedZone(xc);
   if (dataSetsHaveTitle && zone.bottom !== undefined && zone.right !== undefined) {
     const height = zone.bottom - zone.top + 1;

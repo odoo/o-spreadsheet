@@ -62,13 +62,13 @@ function convertPivotTableConfig(pivotTable: XLSXPivotTable): TableConfig {
  * In all the sheets, replace the table-only references in the formula cells with standard references.
  */
 function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets: XLSXWorksheet[]) {
-  for (let tableSheet of convertedSheets) {
+  for (const tableSheet of convertedSheets) {
     const tables = xlsxSheets.find((s) => s.sheetName === tableSheet.name)!.tables;
 
-    for (let table of tables) {
+    for (const table of tables) {
       const tabRef = table.name + "[";
-      for (let sheet of convertedSheets) {
-        for (let xc in sheet.cells) {
+      for (const sheet of convertedSheets) {
+        for (const xc in sheet.cells) {
           const cell = sheet.cells[xc];
           let cellContent = sheet.cells[xc];
 
@@ -86,7 +86,7 @@ function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets:
                 }
                 endIndex++;
               }
-              let reference = cellContent.slice(refIndex + tabRef.length, endIndex - 1);
+              const reference = cellContent.slice(refIndex + tabRef.length, endIndex - 1);
 
               const sheetPrefix = tableSheet.id === sheet.id ? "" : tableSheet.name + "!";
               const convertedRef = convertTableReference(sheetPrefix, reference, table, xc);

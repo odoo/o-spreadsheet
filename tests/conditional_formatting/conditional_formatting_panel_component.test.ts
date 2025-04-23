@@ -111,7 +111,7 @@ const selectors = {
 };
 
 function isInputInvalid(target: DOMTarget): boolean {
-  let el = getTarget(target) as HTMLElement;
+  const el = getTarget(target) as HTMLElement;
   if (el.className.includes("o-composer")) {
     const standaloneComposer = el.closest<HTMLElement>(".o-standalone-composer")!;
     return standaloneComposer.className.includes("o-invalid");
@@ -172,7 +172,7 @@ describe("UI of conditional formats", () => {
     });
     test("the list of CF has a correct preview", () => {
       // check the html of the list (especially the colors)
-      let previews = document.querySelectorAll(selectors.listPreview);
+      const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews).toHaveLength(2);
 
       // --> should be the style for CellIsRule
@@ -201,7 +201,7 @@ describe("UI of conditional formats", () => {
       });
       await nextTick();
 
-      let previews = document.querySelectorAll(selectors.listPreview);
+      const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[2].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
         "Is equal to 1,5"
       );
@@ -318,8 +318,8 @@ describe("UI of conditional formats", () => {
 
       await nextTick();
 
-      let previews = document.querySelectorAll(selectors.listPreview);
-      let line = previews[2].querySelector(selectors.previewImage);
+      const previews = document.querySelectorAll(selectors.listPreview);
+      const line = previews[2].querySelector(selectors.previewImage);
       expect(line!.getAttribute("style")).toMatch("font-weight:bold;");
     });
 
@@ -485,7 +485,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("Drag & drop is canceled on right click", async () => {
-      let previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
+      const previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
       await dragElement(previewEl, { x: 0, y: 200 });
 
       expect(previewEl!.classList).toContain("o-cf-dragging");

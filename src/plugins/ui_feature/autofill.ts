@@ -470,7 +470,7 @@ export class AutofillPlugin extends UIPlugin {
 
     const cellsData: AutofillData[] = [];
     const sheetId = this.getters.getActiveSheetId();
-    for (let xc of source) {
+    for (const xc of source) {
       const { col, row } = toCartesian(xc);
       const cell = this.getters.getCell({ sheetId, col, row });
       cellsData.push({
@@ -481,7 +481,7 @@ export class AutofillPlugin extends UIPlugin {
       });
     }
     const cells = cellsData.map((cellData) => cellData.cell);
-    for (let cellData of cellsData) {
+    for (const cellData of cellsData) {
       let rule: AutofillModifier = { type: "COPY_MODIFIER" };
       if (cellData && cellData.cell) {
         const newRule = this.getRule(cellData.cell, cells);

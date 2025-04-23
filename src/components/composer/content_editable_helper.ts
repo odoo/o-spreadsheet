@@ -22,7 +22,7 @@ export class ContentEditableHelper {
    * select the text at position start to end, no matter the children
    */
   selectRange(start: number, end: number) {
-    let selection = window.getSelection()!;
+    const selection = window.getSelection()!;
     const { start: currentStart, end: currentEnd } = this.getCurrentSelection();
 
     if (currentStart === start && currentEnd === end) {
@@ -54,8 +54,8 @@ export class ContentEditableHelper {
         if (end > textLength) end = textLength;
         if (start > textLength) start = textLength;
       }
-      let startNode = this.findChildAtCharacterIndex(start);
-      let endNode = this.findChildAtCharacterIndex(end);
+      const startNode = this.findChildAtCharacterIndex(start);
+      const endNode = this.findChildAtCharacterIndex(end);
 
       // setEnd (setStart) will result in a collapsed range if the end point is before the start point
       // https://developer.mozilla.org/en-US/docs/Web/API/Range/setEnd
@@ -73,7 +73,7 @@ export class ContentEditableHelper {
    * finds the dom element that contains the character at `offset`
    */
   private findChildAtCharacterIndex(offset: number): { node: Node; offset: number } {
-    let it = iterateChildren(this.el);
+    const it = iterateChildren(this.el);
     let current, previous;
     let usedCharacters = offset;
     let isFirstParagraph = true;
@@ -218,7 +218,7 @@ export class ContentEditableHelper {
    * remove the current selection of the user
    * */
   removeSelection() {
-    let selection = window.getSelection()!;
+    const selection = window.getSelection()!;
     selection.removeAllRanges();
   }
 
@@ -240,7 +240,7 @@ export class ContentEditableHelper {
   getText(): string {
     let text = "";
 
-    let it = iterateChildren(this.el);
+    const it = iterateChildren(this.el);
     let current = it.next();
     let isFirstParagraph = true;
     while (!current.done) {

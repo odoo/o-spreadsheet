@@ -35,7 +35,7 @@ export class XlsxExternalBookExtractor extends XlsxBaseExtractor {
         );
 
         const dataMap = {};
-        for (let cell of cellsData) {
+        for (const cell of cellsData) {
           dataMap[cell.xc] = cell.value;
         }
 

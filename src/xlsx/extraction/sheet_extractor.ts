@@ -111,7 +111,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
     // Having a namespace in the attributes names mess with the querySelector, and the behavior is not the same
     // for every XML parser. So we'll search manually instead of using a querySelector to search for an attribute value.
-    for (let sheetElement of this.querySelectorAll(
+    for (const sheetElement of this.querySelectorAll(
       this.xlsxFileStructure.workbook.file.xml,
       "sheet"
     )) {
@@ -342,7 +342,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
   private extractSharedFormulas(worksheet: Element): string[] {
     const sfElements = this.querySelectorAll(worksheet, `f[si][ref]`);
     const sfMap: Record<number, string> = {};
-    for (let sfElement of sfElements) {
+    for (const sfElement of sfElements) {
       const index = this.extractAttr(sfElement, "si", { required: true }).asNum();
       const formula = this.extractTextContent(sfElement, { required: true });
       sfMap[index] = formula;

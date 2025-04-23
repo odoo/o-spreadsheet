@@ -110,7 +110,7 @@ function tokenizeArgsSeparator(chars: TokenizingChars, locale: Locale): Token | 
 }
 
 function tokenizeOperator(chars: TokenizingChars): Token | null {
-  for (let op of OPERATORS) {
+  for (const op of OPERATORS) {
     if (chars.currentStartsWith(op)) {
       chars.advanceBy(op.length);
       return { type: "OPERATOR", value: op };

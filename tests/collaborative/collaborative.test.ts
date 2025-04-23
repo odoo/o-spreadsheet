@@ -150,7 +150,7 @@ describe("Multi users synchronisation", () => {
   });
 
   test("The server response to our own message is signaled", () => {
-    let notif = jest.fn();
+    const notif = jest.fn();
     alice["session"].on("collaborative-event-received", alice, notif);
     setCellContent(alice, "A1", "salut");
     expect(notif).toHaveBeenCalled();

@@ -44,8 +44,7 @@ export function addFormula(
   // We treat all formulas as array formulas (a simple formula
   // is an array formula that spills on only one cell) to avoid
   // trying to detect spilling sub-formulas which is not a trivial task.
-  let node: XMLString;
-  node = escapeXml/*xml*/ `<f t="array" ref="${formulaSpillRange}">${XlsxFormula}</f><v>${exportedValue}</v>`;
+  const node = escapeXml/*xml*/ `<f t="array" ref="${formulaSpillRange}">${XlsxFormula}</f><v>${exportedValue}</v>`;
   return { attrs, node };
 }
 
@@ -145,7 +144,7 @@ function convertDateFormat(ast: ASTString): ASTString {
   const value = ast.value.replace(new RegExp('"', "g"), "");
   const internalDate = parseDateTime(value, DEFAULT_LOCALE);
   if (internalDate) {
-    let format: Format[] = [];
+    const format: Format[] = [];
     if (mdyDateRegexp.test(value) || ymdDateRegexp.test(value)) {
       format.push("yyyy-mm-dd");
     }

@@ -78,7 +78,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         break;
       case "REMOVE_COLUMNS_ROWS": {
         const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
-        for (let el of [...cmd.elements].sort((a, b) => b - a)) {
+        for (const el of [...cmd.elements].sort((a, b) => b - a)) {
           hiddenHeaders.splice(el, 1);
         }
         this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
@@ -92,12 +92,12 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         break;
       }
       case "HIDE_COLUMNS_ROWS":
-        for (let el of cmd.elements) {
+        for (const el of cmd.elements) {
           this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, true);
         }
         break;
       case "UNHIDE_COLUMNS_ROWS":
-        for (let el of cmd.elements) {
+        for (const el of cmd.elements) {
           this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, false);
         }
         break;
@@ -184,7 +184,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   }
 
   import(data: WorkbookData) {
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       this.hiddenHeaders[sheet.id] = { COL: [], ROW: [] };
       for (let row = 0; row < sheet.rowNumber; row++) {
         this.hiddenHeaders[sheet.id].ROW[row] = Boolean(sheet.rows[row]?.isHidden);
@@ -205,7 +205,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   }
 
   exportData(data: WorkbookData, exportDefaults = false) {
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       if (sheet.rows === undefined) {
         sheet.rows = {};
       }

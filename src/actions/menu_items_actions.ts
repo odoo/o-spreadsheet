@@ -176,7 +176,7 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
 };
 
 export const REMOVE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
-  let rows = [...env.model.getters.getActiveRows()];
+  const rows = [...env.model.getters.getActiveRows()];
   if (!rows.length) {
     const zone = env.model.getters.getSelectedZones()[0];
     for (let i = zone.top; i <= zone.bottom; i++) {
@@ -240,7 +240,7 @@ export const NOT_ALL_VISIBLE_ROWS_SELECTED = (env: SpreadsheetChildEnv) => {
 };
 
 export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
-  let columns = [...env.model.getters.getActiveCols()];
+  const columns = [...env.model.getters.getActiveCols()];
   if (!columns.length) {
     const zone = env.model.getters.getSelectedZones()[0];
     for (let i = zone.left; i <= zone.right; i++) {
@@ -351,8 +351,8 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
 
 export const HIDE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   const cols = env.model.getters.getElementsFromSelection("COL");
-  let first = cols[0];
-  let last = cols[cols.length - 1];
+  const first = cols[0];
+  const last = cols[cols.length - 1];
   if (cols.length === 1) {
     return _t("Hide column %s", numberToLetters(first).toString());
   } else if (last - first + 1 === cols.length) {
@@ -368,8 +368,8 @@ export const HIDE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
 
 export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   const rows = env.model.getters.getElementsFromSelection("ROW");
-  let first = rows[0];
-  let last = rows[rows.length - 1];
+  const first = rows[0];
+  const last = rows[rows.length - 1];
   if (rows.length === 1) {
     return _t("Hide row %s", (first + 1).toString());
   } else if (last - first + 1 === rows.length) {
@@ -513,7 +513,7 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
 };
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
-  let { col, row } = env.model.getters.getActivePosition();
+  const { col, row } = env.model.getters.getActivePosition();
   env.getStore(CellPopoverStore).open({ col, row }, "LinkEditor");
 };
 

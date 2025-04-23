@@ -1228,7 +1228,7 @@ describe("clipboard", () => {
     setCellContent(model, "C1", "1");
     setCellContent(model, "C2", "2");
     const sheetId = model.getters.getActiveSheetId();
-    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
       ranges: toRangesData(sheetId, "A1,A2"),
       sheetId,

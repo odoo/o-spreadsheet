@@ -1,4 +1,3 @@
-import { Component } from "@odoo/owl";
 import { AddDimensionButton } from "../../src/components/side_panel/pivot/pivot_layout_configurator/add_dimension_button/add_dimension_button";
 import { click, keyDown } from "../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
@@ -6,16 +5,14 @@ import { mountComponentWithPortalTarget } from "../test_helpers/helpers";
 async function mountAddDimensionButton(
   props: Partial<AddDimensionButton["props"]>
 ): Promise<{ component: AddDimensionButton; fixture: HTMLElement }> {
-  let parent: Component;
-  let fixture: HTMLElement;
-  ({ parent, fixture } = await mountComponentWithPortalTarget(AddDimensionButton, {
+  const { parent, fixture } = await mountComponentWithPortalTarget(AddDimensionButton, {
     props: {
       fields: [],
       onFieldPicked: () => {},
       ...props,
     },
-  }));
-  return { component: parent as AddDimensionButton, fixture };
+  });
+  return { component: parent as unknown as AddDimensionButton, fixture };
 }
 
 describe("Add dimension button", () => {

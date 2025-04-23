@@ -234,7 +234,7 @@ describe("Selection Input", () => {
     // This kind of update can comes when removing a range from the selectionInput for the
     // data series of a chart, as the color of the removed range won't be passed anymore to
     // the colors function in the chart's side panel's props.
-    let colors = ["#FF0000", "#00FF00"];
+    const colors = ["#FF0000", "#00FF00"];
     const { parent, env } = await createSelectionInput({
       initialRanges: ["A1", "B1"],
       colors: colors,

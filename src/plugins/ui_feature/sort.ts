@@ -63,10 +63,10 @@ export class SortPlugin extends UIPlugin {
     const merges = this.getters.getMerges(sheetId).filter((merge) => overlap(merge, zone));
     /*Test the presence of merges of different sizes*/
     const mergeDimension = zoneToDimension(merges[0]);
-    let [widthFirst, heightFirst] = [mergeDimension.numberOfCols, mergeDimension.numberOfRows];
+    const [widthFirst, heightFirst] = [mergeDimension.numberOfCols, mergeDimension.numberOfRows];
     if (
       !merges.every((merge) => {
-        let [widthCurrent, heightCurrent] = [
+        const [widthCurrent, heightCurrent] = [
           merge.right - merge.left + 1,
           merge.bottom - merge.top + 1,
         ];
@@ -122,12 +122,12 @@ export class SortPlugin extends UIPlugin {
     options: SortOptions
   ) {
     const [stepX, stepY] = this.mainCellsSteps(sheetId, zone);
-    let sortingCol: HeaderIndex = this.getters.getMainCellPosition({
+    const sortingCol: HeaderIndex = this.getters.getMainCellPosition({
       sheetId,
       col: anchor.col,
       row: anchor.row,
     }).col; // fetch anchor
-    let sortZone = Object.assign({}, zone);
+    const sortZone = Object.assign({}, zone);
     // Update in case of merges in the zone
     let cellPositions = this.mainCells(sheetId, zone);
 
@@ -149,11 +149,11 @@ export class SortPlugin extends UIPlugin {
     const updateCellCommands: Omit<UpdateCellCommand, "type">[] = [];
     for (let c: HeaderIndex = 0; c < width; c++) {
       for (let r: HeaderIndex = 0; r < height; r++) {
-        let { col, row, sheetId } = cellPositions[c][sortedIndex[r]];
+        const { col, row, sheetId } = cellPositions[c][sortedIndex[r]];
         const cell = this.getters.getCell({ sheetId, col, row });
-        let newCol: HeaderIndex = sortZone.left + c * stepX;
-        let newRow: HeaderIndex = sortZone.top + r * stepY;
-        let newCellValues: Omit<UpdateCellCommand, "type"> = {
+        const newCol: HeaderIndex = sortZone.left + c * stepX;
+        const newRow: HeaderIndex = sortZone.top + r * stepY;
+        const newCellValues: Omit<UpdateCellCommand, "type"> = {
           sheetId: sheetId,
           col: newCol,
           row: newRow,

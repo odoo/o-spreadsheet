@@ -54,7 +54,7 @@ export function updateChartRangesWithDataSets(
 ) {
   let isStale = false;
   const dataSetsWithUndefined: (DataSet | undefined)[] = [];
-  for (let index in chartDataSets) {
+  for (const index in chartDataSets) {
     let ds: DataSet | undefined = chartDataSets[index]!;
     if (ds.labelCell) {
       const labelCell = adaptChartRange(ds.labelCell, applyChange);
@@ -288,7 +288,7 @@ export function toExcelLabelRange(
   shouldRemoveFirstLabel?: boolean
 ) {
   if (!labelRange) return undefined;
-  let zone = {
+  const zone = {
     ...labelRange.zone,
   };
   if (shouldRemoveFirstLabel && labelRange.zone.bottom > labelRange.zone.top) {

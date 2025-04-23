@@ -91,7 +91,7 @@ export function formatValue(
         return value;
       }
       const internalFormat = parseFormat(format);
-      let formatToApply = internalFormat.text || internalFormat.positive;
+      const formatToApply = internalFormat.text || internalFormat.positive;
       if (!formatToApply || formatToApply.type !== "text") {
         return value;
       }
@@ -249,7 +249,7 @@ function applyIntegerFormat(
     const token = tokens[i];
     switch (token.type) {
       case "DIGIT":
-        let digit = integerDigits[indexInIntegerString];
+        const digit = integerDigits[indexInIntegerString];
         appendDigitToFormattedValue(digit, token.value);
 
         indexInIntegerString--;
@@ -389,7 +389,7 @@ function limitDecimalDigits(
 
   // Note : we'd want to simply use number.toFixed() to handle the max digits & rounding,
   // but it has very strange behaviour. Ex: 12.345.toFixed(2) => "12.35", but 1.345.toFixed(2) => "1.34"
-  let slicedDecimalDigits = decimalDigits.slice(0, maxDecimals);
+  const slicedDecimalDigits = decimalDigits.slice(0, maxDecimals);
   const i = maxDecimals;
 
   if (Number(decimalDigits[i]) < 5) {

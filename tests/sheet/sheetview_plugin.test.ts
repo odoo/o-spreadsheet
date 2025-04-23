@@ -1413,7 +1413,7 @@ describe("shift viewport up/down", () => {
   test("move all the way down and up again", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
-    let { bottom } = model.getters.getActiveMainViewport();
+    const { bottom } = model.getters.getActiveMainViewport();
     model.dispatch("SHIFT_VIEWPORT_DOWN");
     expect(model.getters.getActiveMainViewport().top).toBe(bottom);
     model.dispatch("SHIFT_VIEWPORT_DOWN");
@@ -1421,7 +1421,7 @@ describe("shift viewport up/down", () => {
     model.dispatch("SHIFT_VIEWPORT_DOWN");
     expect(model.getters.getActiveMainViewport().bottom).toBe(numberOfRows - 1);
 
-    let { top } = model.getters.getActiveMainViewport();
+    const { top } = model.getters.getActiveMainViewport();
     model.dispatch("SHIFT_VIEWPORT_UP");
     expect(model.getters.getActiveMainViewport().bottom).toBe(top);
     model.dispatch("SHIFT_VIEWPORT_UP");

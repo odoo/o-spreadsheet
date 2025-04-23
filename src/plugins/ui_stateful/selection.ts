@@ -285,7 +285,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
-    for (let zone of this.gridSelection.zones) {
+    for (const zone of this.gridSelection.zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
@@ -301,7 +301,7 @@ export class GridSelectionPlugin extends UIPlugin {
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
     const sheetId = this.getters.getActiveSheetId();
-    for (let zone of this.gridSelection.zones) {
+    for (const zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);

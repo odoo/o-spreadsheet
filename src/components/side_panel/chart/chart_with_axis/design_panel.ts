@@ -55,7 +55,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
 
   get axesList(): AxisDefinition[] {
     const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);
-    let axes: AxisDefinition[] = [{ id: "x", name: _t("Horizontal axis") }];
+    const axes: AxisDefinition[] = [{ id: "x", name: _t("Horizontal axis") }];
     if (useLeftAxis) {
       axes.push({ id: "y", name: useRightAxis ? _t("Left axis") : _t("Vertical axis") });
     }

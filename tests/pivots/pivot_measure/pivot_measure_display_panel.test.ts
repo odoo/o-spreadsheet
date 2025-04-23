@@ -8,7 +8,7 @@ import { mountComponent, mountSpreadsheet, nextTick } from "../../test_helpers/h
 import { addPivot, removePivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
 let model: Model;
-let pivotId: UID = "pivotId";
+const pivotId: UID = "pivotId";
 let sheetId: UID;
 let fixture: HTMLElement;
 let openSidePanelSpy: jest.Mock;
