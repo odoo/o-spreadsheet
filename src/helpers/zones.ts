@@ -361,6 +361,20 @@ export function overlap(z1: Zone, z2: Zone): boolean {
   return true;
 }
 
+/**
+ * Returns true if any two zones in the given list overlap.
+ */
+export function hasOverlappingZones(zones: Zone[]): boolean {
+  for (let i = 0; i < zones.length - 1; i++) {
+    for (let j = i + 1; j < zones.length; j++) {
+      if (overlap(zones[i], zones[j])) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function isInside(col: number, row: number, zone: Zone): boolean {
   const { left, right, top, bottom } = zone;
   return col >= left && col <= right && row >= top && row <= bottom;

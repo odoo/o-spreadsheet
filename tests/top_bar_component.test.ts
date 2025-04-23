@@ -14,6 +14,9 @@ import { MockTransportService } from "./__mocks__/transport_service";
 import {
   addCellToSelection,
   createTableWithFilter,
+  freezeColumns,
+  freezeRows,
+  merge,
   selectCell,
   setAnchorCorner,
   setCellContent,
@@ -154,47 +157,130 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
   });
 
-  test("merging cell button state is correct", async () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 10,
-          rowNumber: 10,
-          cells: { B2: "b2" },
-          merges: ["A1:B1"],
-        },
-      ],
-    });
-    await mountParent(model);
-    const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
-    expect(mergeTool.classList.contains("active")).toBeTruthy();
+  test("merge button is active only when the first selected zone contains merged cells", async () => {
+    const { model } = await mountParent();
+    const mergeTool = () => fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
 
-    // increase the selection to A2 (so, it is now A1:B2) => merge tool
-    // should not be active
-    setAnchorCorner(model, "A2");
+    // Case 1: First zone is merged → should be active
+    merge(model, "A1:B2");
+    setSelection(model, ["A1:C3", "D1:F3"]);
     await nextTick();
+
+    expect(mergeTool().classList.contains("active")).toBeTruthy();
+
+    // Case 2: First zone is not merged → should not be active
+    setSelection(model, ["D1:F3", "A1:C3"]);
+    await nextTick();
+
+    expect(mergeTool().classList.contains("active")).toBeFalsy();
+  });
+
+  test("disables the merge button when selected zones share overlapping cells", async () => {
+    const { model } = await mountParent();
+
+    setSelection(model, ["A1:B2", "C1:D2"]);
+    await nextTick();
+
+    const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
+    expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
+
+    setSelection(model, ["A1:B2", "B1:C2"]);
+    await nextTick();
+
+    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+  });
+
+  test("disables the merge button when any one zone crosses a frozen pane", async () => {
+    const { model } = await mountParent();
+
+    freezeColumns(model, 2);
+    freezeRows(model, 2);
+
+    const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
+
+    setSelection(model, ["B1:C1"]);
+    await nextTick();
+    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+
+    setSelection(model, ["A2:A3"]);
+    await nextTick();
+    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+
+    setSelection(model, ["D5:E7", "B1:C1"]);
+    await nextTick();
+    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+
+    setSelection(model, ["D5:E7", "A2:A3"]);
+    await nextTick();
+    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+  });
+
+  test("allows merging multiple non-overlapping zones", async () => {
+    const { model } = await mountParent();
+    const sheetId = model.getters.getActiveSheetId();
+
+    setSelection(model, ["A1:B2", "C1:D2"]);
+    await nextTick();
+
+    const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
+    expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
+    expect(model.getters.getMerges(sheetId)).toEqual([]);
+
+    await click(mergeTool);
+    expect(model.getters.getMerges(sheetId)).toEqual([
+      { id: 1, top: 0, left: 0, bottom: 1, right: 1 },
+      { id: 2, top: 0, left: 2, bottom: 1, right: 3 },
+    ]);
+  });
+
+  test("unmerges all selected zones only if the first selected zone contains merged cells", async () => {
+    const { model } = await mountParent();
+    const sheetId = model.getters.getActiveSheetId();
+
+    // First zone is pre-merged
+    merge(model, "A1:B2");
+
+    setSelection(model, ["A1:C3", "D1:E2"]);
+    await nextTick();
+
+    const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
+    expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
+    expect(mergeTool.classList.contains("active")).toBeTruthy();
+    expect(model.getters.getMerges(sheetId)).toEqual([
+      { top: 0, left: 0, bottom: 1, right: 1, id: 1 },
+    ]);
+
+    await click(mergeTool);
+    expect(model.getters.getMerges(sheetId)).toEqual([]);
+    expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
     expect(mergeTool.classList.contains("active")).toBeFalsy();
   });
 
-  test("multiple selection zones => merge tools is disabled", async () => {
-    const model = new Model();
-    setCellContent(model, "B2", "b2");
+  test("merges all selected zones only if the first selected zone does not contain any merged cells", async () => {
+    const { model } = await mountParent();
+    const sheetId = model.getters.getActiveSheetId();
 
-    await mountParent(model);
+    // Second zone is pre-merged
+    merge(model, "D1:E2");
+    await nextTick();
+
+    setSelection(model, ["A1:C3", "D1:E2"]);
+    await nextTick();
+
     const mergeTool = fixture.querySelector('.o-menu-item-button[title="Merge cells"]')!;
-
-    // should be disabled, because the selection is just one cell
-    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
-
-    setAnchorCorner(model, "B1");
-    await nextTick();
-    // should be enabled, because two cells are selected
     expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
-    selectCell(model, "D4");
+    expect(mergeTool.classList.contains("active")).toBeFalsy();
+    expect(model.getters.getMerges(sheetId)).toEqual([
+      { top: 0, left: 3, bottom: 1, right: 4, id: 1 },
+    ]);
 
-    await nextTick();
-    // should be disabled, because multiple zones are selected
-    expect(mergeTool.classList.contains("o-disabled")).toBeTruthy();
+    await click(mergeTool);
+    expect(model.getters.getMerges(sheetId)).toEqual([
+      { top: 0, left: 0, bottom: 2, right: 2, id: 2 },
+      { top: 0, left: 3, bottom: 1, right: 4, id: 3 },
+    ]);
+    expect(mergeTool.classList.contains("o-disabled")).toBeFalsy();
+    expect(mergeTool.classList.contains("active")).toBeTruthy();
   });
 
   test("undo/redo tools", async () => {
