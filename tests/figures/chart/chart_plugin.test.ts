@@ -462,7 +462,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const title = getChartConfiguration(model, "1").options!.plugins?.tooltip!.callbacks!.title!;
+    const title = getChartConfiguration(model, "1").options?.plugins?.tooltip?.callbacks?.title;
     // @ts-ignore `title` should be binded to the TooltipModel
     expect(title([{ dataset: { label: "dataset 1" } }])).toBe("dataset 1");
     // @ts-ignore `title` should be binded to the TooltipModel
@@ -2014,7 +2014,7 @@ describe("Chart design configuration", () => {
         setCellFormat(model, "B1", "0%");
 
         const config = model.getters.getChartRuntime("42") as any;
-        const scales = config.chartJsConfig?.options?.scales!;
+        const scales = config.chartJsConfig?.options?.scales;
         expect(scales.y?.ticks.callback!(60000000)).toEqual("$60,000,000");
         expect(scales.y1?.ticks.callback!(0.5)).toEqual("50%");
 
