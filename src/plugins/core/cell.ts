@@ -491,7 +491,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       row: zone.bottom,
     });
     const sameCell = cellTopLeft.col === cellBotRight.col && cellTopLeft.row === cellBotRight.row;
-    if (topLeft != botRight && !sameCell) {
+    if (topLeft !== botRight && !sameCell) {
       return topLeft + ":" + botRight;
     }
 

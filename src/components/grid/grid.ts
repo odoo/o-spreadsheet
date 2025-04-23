@@ -504,7 +504,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       // browser behaviour that will select the text inside the composer
       // (see related commit msg for more information)
       ev.preventDefault();
-      if ((col !== prevCol && col != -1) || (row !== prevRow && row != -1)) {
+      if ((col !== prevCol && col !== -1) || (row !== prevRow && row !== -1)) {
         prevCol = col === -1 ? prevCol : col;
         prevRow = row === -1 ? prevRow : row;
         this.env.model.selection.setAnchorCorner(prevCol, prevRow);

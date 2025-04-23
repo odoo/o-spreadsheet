@@ -15,7 +15,7 @@ export function adaptFormulaStringRanges(
   }
   const tokens = rangeTokenize(formula);
   for (let tokenIdx = 1; tokenIdx < tokens.length; tokenIdx++) {
-    if (tokens[tokenIdx].type != "REFERENCE") {
+    if (tokens[tokenIdx].type !== "REFERENCE") {
       continue;
     }
     const sheetXC = tokens[tokenIdx].value;

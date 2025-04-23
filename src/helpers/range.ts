@@ -208,7 +208,7 @@ export function spreadRange(getters: Getters, dataSets: CustomizedDataSet[]): Cu
     const { sheetName } = splitReference(range);
     const sheetPrefix = sheetName ? `${sheetName}!` : "";
     const zone = toUnboundedZone(range);
-    if (zone.bottom !== zone.top && zone.left != zone.right) {
+    if (zone.bottom !== zone.top && zone.left !== zone.right) {
       if (zone.right) {
         for (let j = zone.left; j <= zone.right; ++j) {
           const datasetOptions = j === zone.left ? dataSet : { yAxisId: dataSet.yAxisId };

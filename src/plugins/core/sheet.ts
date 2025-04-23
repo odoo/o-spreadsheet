@@ -621,7 +621,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private findIndexOfTargetSheet(currentIndex: HeaderIndex, deltaIndex: number): number {
-    while (deltaIndex != 0 && 0 <= currentIndex && currentIndex <= this.orderedSheetIds.length) {
+    while (deltaIndex !== 0 && 0 <= currentIndex && currentIndex <= this.orderedSheetIds.length) {
       if (deltaIndex > 0) {
         currentIndex++;
         if (this.isSheetVisible(this.orderedSheetIds[currentIndex])) {

@@ -551,17 +551,17 @@ export function findCellInNewZone(oldZone: Zone, currentZone: Zone): Position {
   let col: number, row: number;
   const { left: oldLeft, right: oldRight, top: oldTop, bottom: oldBottom } = oldZone!;
   const { left, right, top, bottom } = currentZone;
-  if (left != oldLeft) {
+  if (left !== oldLeft) {
     col = left;
-  } else if (right != oldRight) {
+  } else if (right !== oldRight) {
     col = right;
   } else {
     // left and right don't change
     col = left;
   }
-  if (top != oldTop) {
+  if (top !== oldTop) {
     row = top;
-  } else if (bottom != oldBottom) {
+  } else if (bottom !== oldBottom) {
     row = bottom;
   } else {
     // top and bottom don't change
