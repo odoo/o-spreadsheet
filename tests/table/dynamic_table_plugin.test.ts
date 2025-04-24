@@ -10,6 +10,7 @@ import {
   duplicateSheet,
   paste,
   setCellContent,
+  setFormat,
   updateFilter,
   updateTableConfig,
   updateTableZone,
@@ -164,6 +165,15 @@ describe("Dynamic tables", () => {
 
     setCellContent(model, "C10", "=0/0");
     expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A1" });
+  });
+
+  test("Dynamic tables are updated when format changes", () => {
+    setCellContent(model, "A2", '=MUNIT(IF(CELL("format",A1)="0.00%",3,2))');
+    createDynamicTable(model, "A2");
+    expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A2:B3" });
+
+    setFormat(model, "A1", "0.00%");
+    expect(getTables(model, sheetId)[0]).toMatchObject({ zone: "A2:C4" });
   });
 
   test("Can copy/paste a dynamic table", () => {
