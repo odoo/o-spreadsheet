@@ -253,7 +253,7 @@ describe("Spreadsheet pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
     expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
-      "=A1+Sheet2!A1"
+      "=Sheet1!A1+Sheet2!A1"
     );
   });
 

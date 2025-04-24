@@ -6,6 +6,7 @@ import { setXcToFixedReferenceType } from "../../../helpers/references";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes/auto_complete_registry";
 import { Color, UID, UnboundedZone, Zone } from "../../../types/misc";
 import { Get } from "../../../types/store_engine";
+import { adaptFormulaToSheet } from "../../helpers/formula";
 import { AbstractComposerStore } from "../composer/abstract_composer_store";
 
 export interface StandaloneComposerArgs {
@@ -65,11 +66,13 @@ export class StandaloneComposerStore extends AbstractComposerStore {
   }
 
   stopEdition() {
-    this._stopEdition();
+    this._stopEdition({ activateSheet: false });
   }
 
   protected confirmEdition(content: string) {
-    this.args().onConfirm(content);
+    this.args().onConfirm(
+      adaptFormulaToSheet(this.getters, content, this.getters.getActiveSheetId(), this.sheetId)
+    );
   }
 
   protected getTokenColor(token: EnrichedToken): string {
