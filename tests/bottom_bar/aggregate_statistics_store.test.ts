@@ -10,6 +10,7 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setFormat,
   setSelection,
 } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
@@ -192,5 +193,16 @@ describe("Aggregate statistic functions", () => {
     activateSheet(model, sId1);
     selectAll(model);
     expect(store.statisticFnResults["Count"]?.()).toBe(3);
+  });
+
+  test("statistic is updated when a cell format changes", () => {
+    const { store, model } = makeStore(AggregateStatisticsStore);
+    setCellContent(model, "A1", '=IF(CELL("format",B1)="0.00%",3,0)');
+    setSelection(model, ["A1"]);
+
+    expect(store.statisticFnResults["Sum"]?.()).toBe(0);
+
+    setFormat(model, "B1", "0.00%");
+    expect(store.statisticFnResults["Sum"]?.()).toBe(3);
   });
 });
