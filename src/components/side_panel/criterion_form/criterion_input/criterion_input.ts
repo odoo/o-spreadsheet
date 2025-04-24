@@ -5,7 +5,7 @@ import { _t } from "../../../../translation";
 import { DataValidationCriterionType, SpreadsheetChildEnv, UID } from "../../../../types";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { css } from "../../../helpers";
-import { adaptFormulaToSheet } from '../../../helpers/formulas';
+import { adaptFormulaToSheet } from "../../../helpers/formulas";
 
 interface Props {
   value: string;

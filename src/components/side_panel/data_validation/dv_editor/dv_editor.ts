@@ -190,7 +190,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
     const sheetId = this.props.sheetId;
     return this.state.rule.ranges.filter((xc) => {
       const range = this.env.model.getters.getRangeDataFromXc(sheetId, xc);
-      return range._sheetId != sheetId || !this.env.model.getters.isRangeValid(xc);
+      return range._sheetId !== sheetId || !this.env.model.getters.isRangeValid(xc);
     });
   }
 }

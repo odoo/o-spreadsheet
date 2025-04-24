@@ -34,8 +34,8 @@ import {
   IconThreshold,
   SpreadsheetChildEnv,
   ThresholdType,
-  availableConditionalFormatOperators,
   UID,
+  availableConditionalFormatOperators,
 } from "../../../../types";
 import { hexaToInt } from "../../../../xlsx/conversion";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
@@ -260,7 +260,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     const sheetId = this.props.sheetId;
     return this.state.ranges.filter((xc) => {
       const range = this.env.model.getters.getRangeFromSheetXC(sheetId, xc);
-      return range.sheetId != sheetId;
+      return range.sheetId !== sheetId;
     });
   }
 
