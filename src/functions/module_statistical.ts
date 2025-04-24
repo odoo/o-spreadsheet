@@ -746,15 +746,12 @@ export const MATTHEWS: AddFunctionDescription = {
     arg("data_x (range)", _t("The range representing the array or matrix of observed data.")),
     arg("data_y (range)", _t("The range representing the array or matrix of predicted data.")),
   ],
-  compute: function (
-    dataX: Matrix<FunctionResultObject>,
-    dataY: Matrix<FunctionResultObject>
-  ): number {
+  compute: function (dataX: Matrix<FunctionResultObject>, dataY: Matrix<FunctionResultObject>) {
     const flatX = dataX.flat();
     const flatY = dataY.flat();
     assertSameNumberOfElements(flatX, flatY);
     if (flatX.length === 0) {
-      throw new EvaluationError(
+      return new EvaluationError(
         _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters.")
       );
     }
@@ -1269,7 +1266,7 @@ export const RANK: AddFunctionDescription = {
     value: Maybe<FunctionResultObject>,
     data: Matrix<FunctionResultObject>,
     isAscending: Maybe<FunctionResultObject> = { value: false }
-  ): number {
+  ) {
     const _isAscending = toBoolean(isAscending);
     const _value = toNumber(value, this.locale);
     let rank = 1;
@@ -1288,7 +1285,7 @@ export const RANK: AddFunctionDescription = {
       }
     }
     if (!found) {
-      throw new NotAvailableError(_t("Value not found in the given data."));
+      return new NotAvailableError(_t("Value not found in the given data."));
     }
     return rank;
   },

@@ -119,9 +119,9 @@ export const COLUMN = {
       )
     ),
   ],
-  compute: function (cellReference: Maybe<{ value: string }>): number {
+  compute: function (cellReference: Maybe<{ value: string }>) {
     if (isEvaluationError(cellReference?.value)) {
-      throw cellReference;
+      return cellReference;
     }
     const column =
       cellReference === undefined
@@ -143,9 +143,9 @@ export const COLUMN = {
 export const COLUMNS = {
   description: _t("Number of columns in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose column count will be returned."))],
-  compute: function (range: { value: string }): number {
+  compute: function (range: { value: string }) {
     if (isEvaluationError(range?.value)) {
-      throw range;
+      return range;
     }
     const zone = toZone(range.value);
     return zone.right - zone.left + 1;
@@ -284,11 +284,11 @@ export const INDIRECT: AddFunctionDescription = {
   ): FunctionResultObject | Matrix<FunctionResultObject> {
     let _reference = reference?.value?.toString();
     if (!_reference) {
-      throw new InvalidReferenceError(_t("Reference should be defined."));
+      return new InvalidReferenceError(_t("Reference should be defined."));
     }
     const _useA1Notation = toBoolean(useA1Notation);
     if (!_useA1Notation) {
-      throw new EvaluationError(_t("R1C1 notation is not supported."));
+      return new EvaluationError(_t("R1C1 notation is not supported."));
     }
     const sheetId = this.__originSheetId;
     const originPosition = this.__originCellPosition;
@@ -301,7 +301,7 @@ export const INDIRECT: AddFunctionDescription = {
 
     const range = this.getters.getRangeFromSheetXC(sheetId, _reference);
     if (range === undefined || range.invalidXc || range.invalidSheetName) {
-      throw new InvalidReferenceError();
+      return new InvalidReferenceError();
     }
     if (originPosition) {
       this.addDependencies?.(originPosition, [range]);
@@ -493,9 +493,9 @@ export const ROW = {
       )
     ),
   ],
-  compute: function (cellReference: Maybe<{ value: string }>): number {
+  compute: function (cellReference: Maybe<{ value: string }>) {
     if (isEvaluationError(cellReference?.value)) {
-      throw cellReference;
+      return cellReference;
     }
     const row =
       cellReference === undefined
@@ -517,9 +517,9 @@ export const ROW = {
 export const ROWS = {
   description: _t("Number of rows in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose row count will be returned."))],
-  compute: function (range: { value: string }): number {
+  compute: function (range: { value: string }) {
     if (isEvaluationError(range?.value)) {
-      throw range;
+      return range;
     }
     const zone = toZone(range.value);
     return zone.bottom - zone.top + 1;
@@ -854,11 +854,11 @@ export const PIVOT = {
     const _pivotFormulaId = toString(pivotFormulaId);
     const _rowCount = toNumber(rowCount, this.locale);
     if (_rowCount < 0) {
-      throw new EvaluationError(_t("The number of rows must be positive."));
+      return new EvaluationError(_t("The number of rows must be positive."));
     }
     const _columnCount = toNumber(columnCount, this.locale);
     if (_columnCount < 0) {
-      throw new EvaluationError(_t("The number of columns must be positive."));
+      return new EvaluationError(_t("The number of columns must be positive."));
     }
     const _includeColumnHeaders = toBoolean(includeColumnHeaders);
     const _includedTotal = toBoolean(includeTotal);
@@ -949,7 +949,7 @@ export const OFFSET = {
 
     const _cellReference = cellReference?.value;
     if (!_cellReference) {
-      throw new Error(
+      return new EvaluationError(
         "In this context, the function OFFSET needs to have a cell or range in parameter."
       );
     }

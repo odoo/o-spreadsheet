@@ -334,7 +334,7 @@ export const MINVERSE = {
       )
     ),
   ],
-  compute: function (matrix: Arg): Matrix<number> {
+  compute: function (matrix: Arg) {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
     assertSquareMatrix(
       _t("The argument square_matrix must have the same number of columns and rows."),
@@ -342,7 +342,7 @@ export const MINVERSE = {
     );
     const { inverted } = invertMatrix(_matrix);
     if (!inverted) {
-      throw new EvaluationError(_t("The matrix is not invertible."));
+      return new EvaluationError(_t("The matrix is not invertible."));
     }
     return inverted;
   },
@@ -595,7 +595,7 @@ export const TOCOL = {
       .flat()
       .filter(shouldKeepValue(_ignore));
     if (result.length === 0) {
-      throw new NotAvailableError(_t("No results for the given arguments of TOCOL."));
+      return new NotAvailableError(_t("No results for the given arguments of TOCOL."));
     }
     return [result];
   },
@@ -612,7 +612,7 @@ export const TOROW = {
     array: Arg,
     ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
-  ): Matrix<FunctionResultObject> {
+  ) {
     const _array = toMatrix(array);
     const _ignore = toNumber(ignore.value, this.locale);
     const _scanByColumn = toBoolean(scanByColumn.value);
@@ -622,7 +622,7 @@ export const TOROW = {
       .map((item) => [item]);
 
     if (result.length === 0 || result[0].length === 0) {
-      throw new NotAvailableError(_t("No results for the given arguments of TOROW."));
+      return new NotAvailableError(_t("No results for the given arguments of TOROW."));
     }
     return result;
   },
