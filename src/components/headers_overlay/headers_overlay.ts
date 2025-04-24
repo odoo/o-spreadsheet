@@ -306,7 +306,7 @@ css/* scss */ `
     position: absolute;
     top: 0;
     left: ${HEADER_WIDTH}px;
-    right: 0;
+    right: ${SCROLLBAR_WIDTH}px;
     height: ${HEADER_HEIGHT}px;
     &.o-dragging {
       cursor: grabbing;
@@ -506,9 +506,8 @@ css/* scss */ `
     position: absolute;
     top: ${HEADER_HEIGHT}px;
     left: 0;
-    right: 0;
+    bottom: ${SCROLLBAR_WIDTH}px;
     width: ${HEADER_WIDTH}px;
-    height: calc(100% - ${HEADER_HEIGHT + SCROLLBAR_WIDTH}px);
     &.o-dragging {
       cursor: grabbing;
     }
