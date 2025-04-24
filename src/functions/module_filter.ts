@@ -308,7 +308,7 @@ export const UNIQUE = {
     range: Arg = { value: "" },
     byColumn: Maybe<FunctionResultObject>,
     exactlyOnce: Maybe<FunctionResultObject>
-  ): Matrix<FunctionResultObject> {
+  ) {
     if (!isMatrix(range)) {
       return [[range]];
     }
@@ -339,7 +339,7 @@ export const UNIQUE = {
       result.push(row.data);
     }
 
-    if (!result.length) throw new EvaluationError(_t("No unique values found"));
+    if (!result.length) return new EvaluationError(_t("No unique values found"));
 
     return _byColumn ? result : transposeMatrix(result);
   },
