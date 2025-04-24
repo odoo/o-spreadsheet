@@ -5,6 +5,7 @@ import { localizeContent } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { AutoCompleteProviderDefinition } from "../../../registries/auto_completes";
 import { Get } from "../../../store_engine";
 import { Color, UID, UnboundedZone, Zone } from "../../../types";
+import { adaptFormulaToSheet } from "../../helpers/formulas";
 import { AbstractComposerStore } from "../composer/abstract_composer_store";
 
 export interface StandaloneComposerArgs {
@@ -71,6 +72,12 @@ export class StandaloneComposerStore extends AbstractComposerStore {
   }
 
   protected confirmEdition(content: string) {
+    content = adaptFormulaToSheet(
+      this.getters,
+      content,
+      this.getters.getActiveSheetId(),
+      this.sheetId
+    );
     this.args().onConfirm(content);
   }
 
