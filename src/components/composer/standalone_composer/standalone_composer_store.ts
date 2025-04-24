@@ -65,7 +65,7 @@ export class StandaloneComposerStore extends AbstractComposerStore {
   }
 
   stopEdition() {
-    this._stopEdition();
+    this._stopEdition({ activateSheet: false });
   }
 
   protected confirmEdition(content: string) {
