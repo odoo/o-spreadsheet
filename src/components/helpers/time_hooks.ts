@@ -11,21 +11,30 @@ interface IntervalTimer {
 export function useInterval(callback: () => void, delay: number): IntervalTimer {
   let intervalId: number | undefined;
   const { setInterval, clearInterval } = window;
+  const pause = () => {
+    clearInterval(intervalId);
+    intervalId = undefined;
+  };
+  const safeCallback = () => {
+    try {
+      callback();
+    } catch (e) {
+      pause();
+      throw e;
+    }
+  };
   useEffect(
     () => {
-      intervalId = setInterval(callback, delay);
+      intervalId = setInterval(safeCallback, delay);
       return () => clearInterval(intervalId);
     },
     () => [delay]
   );
   return {
-    pause: () => {
-      clearInterval(intervalId);
-      intervalId = undefined;
-    },
+    pause,
     resume: () => {
       if (intervalId === undefined) {
-        intervalId = setInterval(callback, delay);
+        intervalId = setInterval(safeCallback, delay);
       }
     },
   };
