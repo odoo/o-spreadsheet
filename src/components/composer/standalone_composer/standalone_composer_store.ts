@@ -9,7 +9,7 @@ import { Get } from "../../../types/store_engine";
 import { AbstractComposerStore } from "../composer/abstract_composer_store";
 
 export interface StandaloneComposerArgs {
-  onConfirm: (content: string) => void;
+  onConfirm: (content: string, sheetId: UID) => void;
   content: string;
   /**
    * the sheet id to which unqualified references (A1 vs Sheet1!A1)
@@ -65,11 +65,11 @@ export class StandaloneComposerStore extends AbstractComposerStore {
   }
 
   stopEdition() {
-    this._stopEdition();
+    this._stopEdition({ activateSheet: false });
   }
 
   protected confirmEdition(content: string) {
-    this.args().onConfirm(content);
+    this.args().onConfirm(content, this.sheetId);
   }
 
   protected getTokenColor(token: EnrichedToken): string {
