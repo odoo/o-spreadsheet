@@ -949,7 +949,7 @@ export const OFFSET = {
 
     const _cellReference = cellReference?.value;
     if (!_cellReference) {
-      throw new Error(
+      return new EvaluationError(
         "In this context, the function OFFSET needs to have a cell or range in parameter."
       );
     }
