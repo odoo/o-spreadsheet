@@ -1265,7 +1265,7 @@ export const RANK: AddFunctionDescription = {
     value: Maybe<FunctionResultObject>,
     data: Matrix<FunctionResultObject>,
     isAscending: Maybe<FunctionResultObject> = { value: false }
-  ): number {
+  ) {
     const _isAscending = toBoolean(isAscending);
     const _value = toNumber(value, this.locale);
     let rank = 1;
@@ -1284,7 +1284,7 @@ export const RANK: AddFunctionDescription = {
       }
     }
     if (!found) {
-      throw new NotAvailableError(_t("Value not found in the given data."));
+      return new NotAvailableError(_t("Value not found in the given data."));
     }
     return rank;
   },
