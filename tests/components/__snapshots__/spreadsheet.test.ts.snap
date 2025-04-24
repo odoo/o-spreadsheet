@@ -432,9 +432,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       class="o-overlay"
     >
       <div
-        class="o-col-resizer overflow-hidden"
+        class="o-col-resizer d-flex"
       >
-        
         
         
         
@@ -442,9 +441,8 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       </div>
       
       <div
-        class="o-row-resizer overflow-hidden"
+        class="o-row-resizer"
       >
-        
         
         
         
