@@ -1,7 +1,8 @@
 import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_types";
-import { ChartType, FigureUI, SpreadsheetChildEnv } from "../../../types";
+import { ChartType, FigureUI, Rect, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
+import { ChartTypeSwitcherMenu } from "../chart/chart_type_switcher/chart_type_switcher";
 
 // -----------------------------------------------------------------------------
 // STYLE
@@ -19,6 +20,7 @@ interface Props {
   // style by hand in the useEffect()
   figureUI: FigureUI;
   onFigureDeleted: () => void;
+  openContextMenu: (rect: Rect) => void;
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -26,8 +28,9 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     figureUI: Object,
     onFigureDeleted: Function,
+    openContextMenu: Function,
   };
-  static components = {};
+  static components = { ChartTypeSwitcherMenu };
 
   onDoubleClick() {
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });

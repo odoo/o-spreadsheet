@@ -16,6 +16,7 @@
           t-key="props.figureUI.id"
           onFigureDeleted="props.onFigureDeleted"
           figureUI="props.figureUI"
+          openContextMenu.bind="openContextMenu"
         />
         <div class="o-figure-menu position-absolute m-2" t-if="!env.isDashboard()">
           <div

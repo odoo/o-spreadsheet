@@ -1,9 +1,10 @@
 import { Component } from "@odoo/owl";
-import { FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
+import { FigureUI, Rect, SpreadsheetChildEnv, UID } from "../../../types";
 
 interface Props {
   figureUI: FigureUI;
   onFigureDeleted: () => void;
+  openContextMenu: (rect: Rect) => void;
 }
 
 export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -11,6 +12,7 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     figureUI: Object,
     onFigureDeleted: Function,
+    openContextMenu: Function,
   };
   static components = {};
 

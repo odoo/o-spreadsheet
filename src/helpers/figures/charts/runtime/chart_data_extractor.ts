@@ -90,6 +90,7 @@ export function getBarChartData(
     axisFormats,
     labels,
     locale: getters.getLocale(),
+    topPadding: getExtraTopPaddingForDashboard(definition, getters),
   };
 }
 
@@ -174,6 +175,7 @@ export function getLineChartData(
     locale: getters.getLocale(),
     trendDataSetsValues,
     axisType,
+    topPadding: getExtraTopPaddingForDashboard(definition, getters),
   };
 }
 
@@ -205,6 +207,7 @@ export function getPieChartData(
     axisFormats: { y: dataSetFormat },
     labels,
     locale: getters.getLocale(),
+    topPadding: getExtraTopPaddingForDashboard(definition, getters),
   };
 }
 
@@ -974,4 +977,13 @@ function makeDatasetsCumulative(datasets: DatasetValues[], order: "asc" | "desc"
     }
     return { ...dataset, data };
   });
+}
+
+export function getExtraTopPaddingForDashboard(
+  definition: GenericDefinition<PieChartDefinition | LineChartDefinition | BarChartDefinition>,
+  getters: Getters
+) {
+  const { title, legendPosition } = definition;
+  const hasTitleOrLegendTop = (title && title.text) || legendPosition === "top";
+  return getters.isDashboard() && !hasTitleOrLegendTop ? 30 : 0;
 }

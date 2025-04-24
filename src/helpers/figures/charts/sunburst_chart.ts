@@ -197,7 +197,7 @@ export function createSunburstChartRuntime(
     options: {
       cutout: "25%",
       ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
         legend: getSunburstChartLegend(definition, chartData),

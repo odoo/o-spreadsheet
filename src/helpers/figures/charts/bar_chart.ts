@@ -238,7 +238,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     options: {
       ...CHART_COMMON_OPTIONS,
       indexAxis: chart.horizontal ? "y" : "x",
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       scales: getBarChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
