@@ -1,5 +1,5 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
-import { deepEquals, toCartesian, toXC, toZone, zoneToXc } from "../../helpers";
+import { deepEquals, isSheetNameEqual, toCartesian, toXC, toZone, zoneToXc } from "../../helpers";
 import { BorderDescr, CellData, Style, WorkbookData, Zone } from "../../types";
 import { SheetData } from "../../types/workbook_data";
 import { XLSXImportData, XLSXTable, XLSXWorksheet } from "../../types/xlsx";
@@ -163,7 +163,7 @@ function applyStyleToZone(appliedStyle: Style, zone: Zone, cells: CellMap, style
  */
 function convertTableFormulaReferences(convertedSheets: SheetData[], xlsxSheets: XLSXWorksheet[]) {
   for (let tableSheet of convertedSheets) {
-    const tables = xlsxSheets.find((s) => s.sheetName === tableSheet.name)!.tables;
+    const tables = xlsxSheets.find((s) => isSheetNameEqual(s.sheetName, tableSheet.name))!.tables;
 
     for (let table of tables) {
       const tabRef = table.name + "[";

@@ -1,4 +1,4 @@
-import { cellReference, toCartesian, toXC } from "../../helpers";
+import { cellReference, isSheetNameEqual, toCartesian, toXC } from "../../helpers";
 import { RangePart } from "../../types";
 import { XLSXImportData, XLSXSharedFormula, XLSXWorksheet } from "../../types/xlsx";
 import { SUBTOTAL_FUNCTION_CONVERSION_MAP } from "./conversion_maps";
@@ -66,8 +66,8 @@ function convertFormula(formula: string, data: XLSXImportData): string {
     externalRefId = Number(externalRefId) - 1;
     cellRef = cellRef.replace(/\$/g, "");
 
-    const sheetIndex = data.externalBooks[externalRefId].sheetNames.findIndex(
-      (name) => name === sheetName
+    const sheetIndex = data.externalBooks[externalRefId].sheetNames.findIndex((name) =>
+      isSheetNameEqual(name, sheetName)
     );
     if (sheetIndex === -1) {
       return match;

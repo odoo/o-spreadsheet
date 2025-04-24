@@ -1,5 +1,17 @@
+<<<<<<< 31788df3c62e9e5416b2dcd7722bb0a49141cc05
 import { DEFAULT_FONT_SIZE, NEWLINE } from "../../constants";
 import { deepEquals, splitReference, toUnboundedZone } from "../../helpers";
+||||||| e2c1da20fff3c6ad2d39e320af543f66fe8beb16
+import { DEFAULT_FONT_SIZE } from "../../constants";
+import { tokenize } from "../../formulas";
+import { functionRegistry } from "../../functions";
+import { deepEquals, splitReference, toUnboundedZone } from "../../helpers";
+=======
+import { DEFAULT_FONT_SIZE } from "../../constants";
+import { tokenize } from "../../formulas";
+import { functionRegistry } from "../../functions";
+import { deepEquals, isSheetNameEqual, splitReference, toUnboundedZone } from "../../helpers";
+>>>>>>> ee1ac74a1d56b5a9942e80b87afc3e454852a264
 import {
   ConditionalFormattingOperatorValues,
   ExcelCellData,
@@ -249,7 +261,7 @@ export function getRangeSize(
   ({ xc, sheetName } = splitReference(reference));
   let rangeSheetIndex: number;
   if (sheetName) {
-    const index = data.sheets.findIndex((sheet) => sheet.name === sheetName);
+    const index = data.sheets.findIndex((sheet) => isSheetNameEqual(sheet.name, sheetName));
     if (index < 0) {
       throw new Error("Unable to find a sheet with the name " + sheetName);
     }
