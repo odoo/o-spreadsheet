@@ -70,7 +70,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
   handle(cmd: Command) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && "content" in cmd)
+      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
       this.isDirty = true;
     }
