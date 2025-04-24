@@ -44,7 +44,7 @@ export class DynamicTablesPlugin extends CoreViewPlugin {
   handle(cmd: Command) {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && "content" in cmd) ||
+      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd)) ||
       cmd.type === "EVALUATE_CELLS"
     ) {
       this.tables = {};
