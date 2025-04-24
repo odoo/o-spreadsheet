@@ -16,9 +16,12 @@ export type ErrorValue = (typeof CellErrorType)[keyof typeof CellErrorType];
 
 export const errorTypes: Set<string> = new Set(Object.values(CellErrorType));
 
-export class EvaluationError extends Error {
-  constructor(message = _t("Error"), readonly value: string = CellErrorType.GenericError) {
-    super(message);
+export class EvaluationError {
+  constructor(
+    readonly message: string = _t("Error"),
+    readonly value: string = CellErrorType.GenericError
+  ) {
+    this.message = message.toString();
   }
 }
 
