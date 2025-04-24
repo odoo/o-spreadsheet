@@ -172,7 +172,7 @@ export const IFS = {
         return result;
       }
     }
-    throw new EvaluationError(_t("No match."));
+    return new EvaluationError(_t("No match."));
   },
   isExported: true,
 } satisfies AddFunctionDescription;

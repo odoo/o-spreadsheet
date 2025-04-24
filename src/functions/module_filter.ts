@@ -122,7 +122,7 @@ export const FILTER = {
       _t("Additional column or row containing true or false values.")
     ),
   ],
-  compute: function (range: Arg, ...conditions: Arg[]): Matrix<FunctionResultObject> {
+  compute: function (range: Arg, ...conditions: Arg[]) {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -154,7 +154,7 @@ export const FILTER = {
     }
 
     if (!result.length) {
-      throw new NotAvailableError(_t("No match found in FILTER evaluation"));
+      return new NotAvailableError(_t("No match found in FILTER evaluation"));
     }
 
     return mode === "row" ? transposeMatrix(result) : result;
@@ -307,7 +307,7 @@ export const UNIQUE = {
     range: Arg = { value: "" },
     byColumn: Maybe<FunctionResultObject>,
     exactlyOnce: Maybe<FunctionResultObject>
-  ): Matrix<FunctionResultObject> {
+  ) {
     if (!isMatrix(range)) {
       return [[range]];
     }
@@ -338,7 +338,7 @@ export const UNIQUE = {
       result.push(row.data);
     }
 
-    if (!result.length) throw new EvaluationError(_t("No unique values found"));
+    if (!result.length) return new EvaluationError(_t("No unique values found"));
 
     return _byColumn ? result : transposeMatrix(result);
   },
