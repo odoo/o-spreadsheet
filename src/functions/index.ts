@@ -60,14 +60,6 @@ const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 // Function registry
 //------------------------------------------------------------------------------
 
-export interface FunctionRegistry extends Registry<FunctionDescription> {
-  add(functionName: string, addDescr: AddFunctionDescription): FunctionRegistry;
-  get(functionName: string): FunctionDescription;
-  mapping: {
-    [functionName: string]: ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>;
-  };
-}
-
 export class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: {
     [key: string]: ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>;
