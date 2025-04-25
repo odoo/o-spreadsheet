@@ -1,31 +1,42 @@
+import { _t } from "../translation";
 import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, isMatrix } from "../types";
-import { EvaluationError } from "../types/errors";
-import { assert } from "./helpers";
+import { DivisionByZeroError, EvaluationError } from "../types/errors";
 
-export function assertSingleColOrRow(errorStr: string, arg: Matrix) {
-  assert(() => arg.length === 1 || arg[0].length === 1, errorStr);
+export function assert(condition: boolean, message: string): asserts condition {
+  if (!condition) {
+    throw new EvaluationError(message);
+  }
 }
 
-export function assertSameDimensions(errorStr: string, ...args: Arg[]) {
+export function assertNotZero(
+  value: number,
+  message = _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+) {
+  if (value === 0) {
+    throw new DivisionByZeroError(message);
+  }
+}
+
+export function isSingleColOrRow(arg: Matrix) {
+  return arg.length === 1 || arg[0].length === 1;
+}
+
+export function areSameDimensions(...args: Arg[]) {
   if (args.every(isMatrix)) {
     const cols = args[0].length;
     const rows = args[0][0].length;
     for (const arg of args) {
-      assert(() => arg.length === cols && arg[0].length === rows, errorStr);
+      if (arg.length !== cols || arg[0].length !== rows) {
+        return false;
+      }
     }
-    return;
+    return true;
   }
-  if (args.some((arg) => Array.isArray(arg) && (arg.length !== 1 || arg[0].length !== 1))) {
-    throw new EvaluationError(errorStr);
-  }
+  return !args.some((arg) => Array.isArray(arg) && (arg.length !== 1 || arg[0].length !== 1));
 }
 
-export function assertPositive(errorStr: string, arg: number) {
-  assert(() => arg > 0, errorStr);
-}
-
-export function assertSquareMatrix(errorStr: string, arg: Matrix) {
-  assert(() => arg.length === arg[0].length, errorStr);
+export function isSquareMatrix(arg: Matrix) {
+  return arg.length === arg[0].length;
 }
 
 export function isNumberMatrix(
@@ -33,3 +44,9 @@ export function isNumberMatrix(
 ): arg is Matrix<FunctionResultNumber> {
   return arg.every((row) => row.every((data) => typeof data.value === "number"));
 }
+
+export const expectNumberGreaterThanOrEqualToOne = (value: number) =>
+  _t(
+    "The function [[FUNCTION_NAME]] expects a number value to be greater than or equal to 1, but receives %s.",
+    value
+  );

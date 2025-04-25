@@ -15,9 +15,9 @@ import {
 } from "../types";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
-import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
+import { areSameDimensions, assert, isSingleColOrRow } from "./helper_assert";
 import { toScalar } from "./helper_matrices";
-import { assert, matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
+import { matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
 function sortMatrix(
   matrix: Matrix<FunctionResultObject>,
@@ -26,7 +26,7 @@ function sortMatrix(
 ): Matrix<FunctionResultObject> {
   for (const [i, value] of criteria.entries()) {
     assert(
-      () => value !== undefined,
+      value !== undefined,
       _t(
         "Value for parameter %d is missing, while the function [[FUNCTION_NAME]] expect a number or a range.",
         i + 1
@@ -41,7 +41,7 @@ function sortMatrix(
     const sortColumn = criteria[i];
     if (isMatrix(sortColumn) && (sortColumn.length > 1 || sortColumn[0].length > 1)) {
       assert(
-        () => sortColumn.length === 1 && sortColumn[0].length === nRows,
+        sortColumn.length === 1 && sortColumn[0].length === nRows,
         _t(
           "Wrong size for %s. Expected a range of size 1x%s. Got %sx%s.",
           `sort_column${i + 1}`,
@@ -128,21 +128,21 @@ export const FILTER = {
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
     );
-    _conditionsMatrices.map((c) =>
-      assertSingleColOrRow(_t("The arguments condition must be a single column or row."), c)
-    );
-    assertSameDimensions(
-      _t("The arguments conditions must have the same dimensions."),
-      ...conditions
-    );
+    for (const c of _conditionsMatrices) {
+      if (!isSingleColOrRow(c)) {
+        return new EvaluationError(_t("The arguments condition must be a single column or row."));
+      }
+    }
+    if (!areSameDimensions(...conditions)) {
+      return new EvaluationError(_t("The arguments conditions must have the same dimensions."));
+    }
     const _conditions = _conditionsMatrices.map((c) => c.flat());
 
     const mode = _conditionsMatrices[0].length === 1 ? "row" : "col";
     _array = mode === "row" ? transposeMatrix(_array) : _array;
-    assert(
-      () => _conditions.every((cond) => cond.length === _array.length),
-      _t("FILTER has mismatched sizes on the range and conditions.")
-    );
+    if (_conditions.some((cond) => cond.length !== _array.length)) {
+      return new EvaluationError(_t("FILTER has mismatched sizes on the range and conditions."));
+    }
 
     const result: Matrix<FunctionResultObject> = [];
     for (let i = 0; i < _array.length; i++) {
@@ -234,14 +234,18 @@ export const SORTN: AddFunctionDescription = {
         ? displayTiesMode_sortingCriteria
         : displayTiesMode_sortingCriteria.slice(1);
 
-    assert(() => _n >= 0, _t("Wrong value of 'n'. Expected a positive number. Got %s.", _n));
-    assert(
-      () => _displayTiesMode >= 0 && _displayTiesMode <= 3,
-      _t(
-        "Wrong value of 'display_ties_mode'. Expected a positive number between 0 and 3. Got %s.",
-        _displayTiesMode
-      )
-    );
+    if (_n < 0) {
+      return new EvaluationError(_t("Wrong value of 'n'. Expected a positive number. Got %s.", _n));
+    }
+
+    if (_displayTiesMode < 0 || _displayTiesMode > 3) {
+      return new EvaluationError(
+        _t(
+          "Wrong value of 'display_ties_mode'. Expected a positive number between 0 and 3. Got %s.",
+          _displayTiesMode
+        )
+      );
+    }
     const sortedData = sortMatrix(transposeMatrix(range), this.locale, ...sortingCriteria);
     const sameRows = (i: number, j: number) =>
       JSON.stringify(sortedData[i].map((c) => c.value)) ===

@@ -4,10 +4,9 @@ import { isNumber, parseDateTime, range } from "../helpers";
 import { _t } from "../translation";
 import { Arg, Locale, Matrix, isMatrix } from "../types";
 import { EvaluationError } from "../types/errors";
+import { assert, assertNotZero } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
-  assert,
-  assertNotZero,
   isEvaluationError,
   reduceAny,
   reduceNumbers,
@@ -19,7 +18,7 @@ export function assertSameNumberOfElements(...args: any[][]) {
   const dims = args[0].length;
   args.forEach((arg, i) =>
     assert(
-      () => arg.length === dims,
+      arg.length === dims,
       _t(
         "[[FUNCTION_NAME]] has mismatched dimensions for argument %s (%s vs %s).",
         i.toString(),
@@ -225,7 +224,7 @@ export function polynomialRegression(
 ): Matrix<number> {
   assertSameNumberOfElements(flatX, flatY);
   assert(
-    () => order >= 1,
+    order >= 1,
     _t("Function [[FUNCTION_NAME]] A regression of order less than 1 cannot be possible.")
   );
 

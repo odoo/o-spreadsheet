@@ -59,3 +59,9 @@ export class SplillBlockedError extends EvaluationError {
     super(message, CellErrorType.SpilledBlocked);
   }
 }
+
+export class DivisionByZeroError extends EvaluationError {
+  constructor(message = _t("Division by zero")) {
+    super(message, CellErrorType.DivisionByZero);
+  }
+}

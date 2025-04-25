@@ -19,12 +19,6 @@ import { LookupCaches } from "../types/functions";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
-export function assert(condition: () => boolean, message: string, value?: string): void {
-  if (!condition()) {
-    throw new EvaluationError(message, value);
-  }
-}
-
 export function inferFormat(data: Arg | undefined): string | undefined {
   if (data === undefined) {
     return undefined;
@@ -146,24 +140,6 @@ export function strictToInteger(
   locale: Locale
 ) {
   return Math.trunc(strictToNumber(value, locale));
-}
-
-export function assertNumberGreaterThanOrEqualToOne(value: number) {
-  assert(
-    () => value >= 1,
-    _t(
-      "The function [[FUNCTION_NAME]] expects a number value to be greater than or equal to 1, but receives %s.",
-      value.toString()
-    )
-  );
-}
-
-export function assertNotZero(value: number) {
-  assert(
-    () => value !== 0,
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
-    CellErrorType.DivisionByZero
-  );
 }
 
 export function toString(data: FunctionResultObject | CellValue | undefined): string {

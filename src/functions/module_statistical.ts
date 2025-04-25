@@ -10,9 +10,9 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
+import { DivisionByZeroError, EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
-import { assertSameDimensions } from "./helper_assert";
+import { areSameDimensions, assert, assertNotZero } from "./helper_assert";
 import {
   assertSameNumberOfElements,
   average,
@@ -28,8 +28,6 @@ import {
   predictLinearValues,
 } from "./helper_statistical";
 import {
-  assert,
-  assertNotZero,
   dichotomicSearch,
   inferFormat,
   matrixMap,
@@ -61,7 +59,7 @@ function filterAndFlatData(dataY: Arg, dataX: Arg): { flatDataY: number[]; flatD
   });
 
   assert(
-    () => lenY === lenX,
+    lenY === lenX,
     _t("[[FUNCTION_NAME]] has mismatched argument count %s vs %s.", lenY, lenX)
   );
   const flatDataX: number[] = [];
@@ -82,11 +80,10 @@ function covariance(dataY: Arg, dataX: Arg, isSample: boolean): number {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
   const count = flatDataY.length;
 
-  assert(
-    () => count !== 0 && (!isSample || count !== 1),
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
-    CellErrorType.DivisionByZero
-  );
+  assertNotZero(count);
+  if (isSample) {
+    assertNotZero(count - 1);
+  }
 
   let sumY = 0;
   let sumX = 0;
@@ -120,11 +117,10 @@ function variance(args: Arg[], isSample: boolean, textAs0: boolean, locale: Loca
     locale
   );
 
-  assert(
-    () => count !== 0 && (!isSample || count !== 1),
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
-    CellErrorType.DivisionByZero
-  );
+  assertNotZero(count);
+  if (isSample) {
+    assertNotZero(count - 1);
+  }
 
   const average = sum / count;
   return (
@@ -141,7 +137,7 @@ function centile(
 ): number {
   const _percent = toNumber(percent, locale);
   assert(
-    () => (isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1),
+    isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1,
     _t("Function [[FUNCTION_NAME]] parameter 2 value is out of range.")
   );
   const sortedArray: number[] = [];
@@ -162,12 +158,12 @@ function centile(
       count++;
     }
   });
-  assert(() => count !== 0, _t("[[FUNCTION_NAME]] has no valid input data."));
+  assert(count !== 0, _t("[[FUNCTION_NAME]] has no valid input data."));
 
   if (!isInclusive) {
     // 2nd argument must be between 1/(n+1) and n/(n+1) with n the number of data
     assert(
-      () => 1 / (count + 1) <= _percent && _percent <= count / (count + 1),
+      1 / (count + 1) <= _percent && _percent <= count / (count + 1),
       _t("Function [[FUNCTION_NAME]] parameter 2 value is out of range.")
     );
   }
@@ -187,7 +183,7 @@ export const AVEDEV = {
       _t("Additional values or ranges to include in the sample.")
     ),
   ],
-  compute: function (...values: Arg[]): number {
+  compute: function (...values: Arg[]) {
     let count = 0;
     const sum = reduceNumbers(
       values,
@@ -198,7 +194,11 @@ export const AVEDEV = {
       0,
       this.locale
     );
-    assertNotZero(count);
+    if (count === 0) {
+      return new DivisionByZeroError(
+        _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+      );
+    }
     const average = sum / count;
     return reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0, this.locale) / count;
   },
@@ -248,13 +248,15 @@ export const AVERAGE_WEIGHTED = {
     ),
     arg("additional_weights (number, range<number>, repeating)", _t("Additional weights.")),
   ],
-  compute: function (...args: Arg[]): FunctionResultNumber {
+  compute: function (...args: Arg[]) {
     let sum = 0;
     let count = 0;
     for (let n = 0; n < args.length - 1; n += 2) {
       const argN = args[n];
       const argN1 = args[n + 1];
-      assertSameDimensions(rangeError, argN, argN1);
+      if (!areSameDimensions(argN, argN1)) {
+        return new EvaluationError(rangeError);
+      }
 
       if (isMatrix(argN)) {
         for (let i = 0; i < argN.length; i++) {
@@ -265,28 +267,35 @@ export const AVERAGE_WEIGHTED = {
             const weightIsNumber = typeof weight === "number";
 
             if (valueIsNumber && weightIsNumber) {
-              assert(() => weight >= 0, negativeWeightError);
+              if (weight < 0) {
+                return new EvaluationError(negativeWeightError);
+              }
               sum += value * weight;
               count += weight;
               continue;
             }
-            assert(
-              () => valueIsNumber === weightIsNumber,
-              _t("[[FUNCTION_NAME]] expects number values.")
-            );
+            if (valueIsNumber !== weightIsNumber) {
+              return new EvaluationError(_t("[[FUNCTION_NAME]] expects number values."));
+            }
           }
         }
       } else {
         const value = toNumber(argN, this.locale);
         const weight = isMatrix(argN1) ? argN1?.[0][0].value : toNumber(argN1, this.locale);
         if (typeof weight === "number") {
-          assert(() => weight >= 0, negativeWeightError);
+          if (weight < 0) {
+            return new EvaluationError(negativeWeightError);
+          }
           sum += value * weight;
           count += weight;
         }
       }
     }
-    assertNotZero(count);
+    if (count === 0) {
+      return new DivisionByZeroError(
+        _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+      );
+    }
     return { value: sum / count, format: inferFormat(args[0]) };
   },
 } satisfies AddFunctionDescription;
@@ -306,7 +315,7 @@ export const AVERAGEA = {
       _t("Additional values or ranges to consider when calculating the average value.")
     ),
   ],
-  compute: function (...args: Arg[]): FunctionResultNumber {
+  compute: function (...args: Arg[]) {
     let count = 0;
     const sum = reduceNumbersTextAs0(
       args,
@@ -317,7 +326,11 @@ export const AVERAGEA = {
       0,
       this.locale
     );
-    assertNotZero(count);
+    if (count === 0) {
+      return new DivisionByZeroError(
+        _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+      );
+    }
     return {
       value: sum / count,
       format: inferFormat(args[0]),
@@ -343,7 +356,7 @@ export const AVERAGEIF = {
     criteriaRange: Arg,
     criterion: Maybe<FunctionResultObject>,
     averageRange: Arg
-  ): number {
+  ) {
     const _averageRange =
       averageRange === undefined ? toMatrix(criteriaRange) : toMatrix(averageRange);
 
@@ -361,7 +374,11 @@ export const AVERAGEIF = {
       },
       this.locale
     );
-    assertNotZero(count);
+    if (count === 0) {
+      return new DivisionByZeroError(
+        _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+      );
+    }
     return sum / count;
   },
   isExported: true,
@@ -382,7 +399,7 @@ export const AVERAGEIFS = {
     ),
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
-  compute: function (averageRange: Matrix<FunctionResultObject>, ...args: Arg[]): number {
+  compute: function (averageRange: Matrix<FunctionResultObject>, ...args: Arg[]) {
     const _averageRange = toMatrix(averageRange);
     let count = 0;
     let sum = 0;
@@ -397,7 +414,11 @@ export const AVERAGEIFS = {
       },
       this.locale
     );
-    assertNotZero(count);
+    if (count === 0) {
+      return new DivisionByZeroError(
+        _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+      );
+    }
     return sum / count;
   },
   isExported: true,
@@ -636,11 +657,14 @@ export const LARGE = {
       }
     });
     const result = largests.shift();
-    assert(() => result !== undefined, _t("[[FUNCTION_NAME]] has no valid input data."));
-    assert(
-      () => count >= _n,
-      _t("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n)
-    );
+    if (result === undefined) {
+      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+    }
+    if (count < _n) {
+      return new EvaluationError(
+        _t("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n)
+      );
+    }
     return result!;
   },
   isExported: true,
@@ -1376,11 +1400,14 @@ export const SMALL = {
       }
     });
     const result = largests.pop();
-    assert(() => result !== undefined, _t("[[FUNCTION_NAME]] has no valid input data."));
-    assert(
-      () => count >= _n,
-      _t("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n)
-    );
+    if (result === undefined) {
+      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+    }
+    if (count < _n) {
+      return new EvaluationError(
+        _t("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n)
+      );
+    }
     return result!;
   },
   isExported: true,

@@ -10,7 +10,7 @@ import {
 } from "../types";
 import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, toString, visitMatchingRanges } from "./helpers";
+import { toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
@@ -226,7 +226,9 @@ export const DGET = {
     criteria: Matrix<FunctionResultObject>
   ): FunctionResultObject {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    assert(() => cells.length === 1, _t("More than one match found in DGET evaluation."));
+    if (cells.length !== 1) {
+      return new EvaluationError(_t("More than one match found in DGET evaluation."));
+    }
     return cells[0];
   },
   isExported: true,

@@ -1,9 +1,9 @@
 import { escapeRegExp, formatValue, trimContent } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
-import { CellErrorType } from "../types/errors";
+import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
+import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
+import { reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
 
 const DEFAULT_STARTING_AT = 1;
 
@@ -21,12 +21,11 @@ export const CHAR = {
       _t("The number of the character to look up from the current Unicode table in decimal format.")
     ),
   ],
-  compute: function (tableNumber: Maybe<FunctionResultObject>): string {
+  compute: function (tableNumber: Maybe<FunctionResultObject>) {
     const _tableNumber = Math.trunc(toNumber(tableNumber, this.locale));
-    assert(
-      () => _tableNumber >= 1,
-      _t("The table_number (%s) is out of range.", _tableNumber.toString())
-    );
+    if (_tableNumber < 1) {
+      return new EvaluationError(_t("The table_number (%s) is out of range.", _tableNumber));
+    }
     return String.fromCharCode(_tableNumber);
   },
   isExported: true,
@@ -104,27 +103,31 @@ export const FIND = {
     searchFor: Maybe<FunctionResultObject>,
     textToSearch: Maybe<FunctionResultObject>,
     startingAt: Maybe<FunctionResultObject> = { value: DEFAULT_STARTING_AT }
-  ): number {
+  ) {
     const _searchFor = toString(searchFor);
     const _textToSearch = toString(textToSearch);
     const _startingAt = toNumber(startingAt, this.locale);
 
-    assert(() => _textToSearch !== "", _t("The text_to_search must be non-empty."));
-    assert(
-      () => _startingAt >= 1,
-      _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
-    );
+    if (_textToSearch === "") {
+      return new EvaluationError(_t("The text_to_search must be non-empty."));
+    }
+    if (_startingAt < 1) {
+      return new EvaluationError(
+        _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt)
+      );
+    }
 
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
 
-    assert(
-      () => result >= 0,
-      _t(
-        "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
-        _searchFor.toString(),
-        _textToSearch
-      )
-    );
+    if (result === -1) {
+      return new EvaluationError(
+        _t(
+          "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
+          _searchFor,
+          _textToSearch
+        )
+      );
+    }
 
     return result + 1;
   },
@@ -168,15 +171,14 @@ export const LEFT = {
       _t("The number of characters to return from the left side of string.")
     ),
   ],
-  compute: function (
-    text: Maybe<FunctionResultObject>,
-    ...args: Maybe<FunctionResultObject>[]
-  ): string {
+  compute: function (text: Maybe<FunctionResultObject>, ...args: Maybe<FunctionResultObject>[]) {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
-    assert(
-      () => _numberOfCharacters >= 0,
-      _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
-    );
+
+    if (_numberOfCharacters < 0) {
+      return new EvaluationError(
+        _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters)
+      );
+    }
     return toString(text).substring(0, _numberOfCharacters);
   },
   isExported: true,
@@ -225,22 +227,24 @@ export const MID = {
     text: Maybe<FunctionResultObject>,
     starting_at: Maybe<FunctionResultObject>,
     extract_length: Maybe<FunctionResultObject>
-  ): string {
+  ) {
     const _text = toString(text);
     const _starting_at = toNumber(starting_at, this.locale);
     const _extract_length = toNumber(extract_length, this.locale);
 
-    assert(
-      () => _starting_at >= 1,
-      _t(
-        "The starting_at argument (%s) must be positive greater than one.",
-        _starting_at.toString()
-      )
-    );
-    assert(
-      () => _extract_length >= 0,
-      _t("The extract_length argument (%s) must be positive or null.", _extract_length.toString())
-    );
+    if (_starting_at < 1) {
+      return new EvaluationError(
+        _t(
+          "The starting_at argument (%s) must be positive greater than one.",
+          _starting_at.toString()
+        )
+      );
+    }
+    if (_extract_length < 0) {
+      return new EvaluationError(
+        _t("The extract_length argument (%s) must be positive or null.", _extract_length)
+      );
+    }
 
     return _text.slice(_starting_at - 1, _starting_at + _extract_length - 1);
   },
@@ -288,12 +292,13 @@ export const REPLACE = {
     position: Maybe<FunctionResultObject>,
     length: Maybe<FunctionResultObject>,
     newText: Maybe<FunctionResultObject>
-  ): string {
+  ) {
     const _position = toNumber(position, this.locale);
-    assert(
-      () => _position >= 1,
-      _t("The position (%s) must be greater than or equal to 1.", _position.toString())
-    );
+    if (_position < 1) {
+      return new EvaluationError(
+        _t("The position (%s) must be greater than or equal to 1.", _position)
+      );
+    }
 
     const _text = toString(text);
     const _length = toNumber(length, this.locale);
@@ -315,15 +320,13 @@ export const RIGHT = {
       _t("The number of characters to return from the right side of string.")
     ),
   ],
-  compute: function (
-    text: Maybe<FunctionResultObject>,
-    ...args: Maybe<FunctionResultObject>[]
-  ): string {
+  compute: function (text: Maybe<FunctionResultObject>, ...args: Maybe<FunctionResultObject>[]) {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
-    assert(
-      () => _numberOfCharacters >= 0,
-      _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
-    );
+    if (_numberOfCharacters < 0) {
+      return new EvaluationError(
+        _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters)
+      );
+    }
     const _text = toString(text);
     const stringLength = _text.length;
     return _text.substring(stringLength - _numberOfCharacters, stringLength);
@@ -411,16 +414,15 @@ export const SPLIT = {
     delimiter: Maybe<FunctionResultObject>,
     splitByEach: Maybe<FunctionResultObject> = { value: SPLIT_DEFAULT_SPLIT_BY_EACH },
     removeEmptyText: Maybe<FunctionResultObject> = { value: SPLIT_DEFAULT_REMOVE_EMPTY_TEXT }
-  ): Matrix<string> {
+  ) {
     const _text = toString(text);
     const _delimiter = escapeRegExp(toString(delimiter));
     const _splitByEach = toBoolean(splitByEach);
     const _removeEmptyText = toBoolean(removeEmptyText);
 
-    assert(
-      () => _delimiter.length > 0,
-      _t("The _delimiter (%s) must be not be empty.", _delimiter)
-    );
+    if (_delimiter.length <= 0) {
+      return new EvaluationError(_t("The delimiter (%s) must be not be empty.", _delimiter));
+    }
 
     const regex = _splitByEach ? new RegExp(`[${_delimiter}]`, "g") : new RegExp(_delimiter, "g");
     let result = _text.split(regex);
@@ -455,13 +457,14 @@ export const SUBSTITUTE = {
     searchFor: Maybe<FunctionResultObject>,
     replaceWith: Maybe<FunctionResultObject>,
     occurrenceNumber: Maybe<FunctionResultObject>
-  ): string {
+  ) {
     const _occurrenceNumber = toNumber(occurrenceNumber, this.locale);
 
-    assert(
-      () => _occurrenceNumber >= 0,
-      _t("The occurrenceNumber (%s) must be positive or null.", _occurrenceNumber.toString())
-    );
+    if (_occurrenceNumber < 0) {
+      return new EvaluationError(
+        _t("The occurrenceNumber (%s) must be positive or null.", _occurrenceNumber)
+      );
+    }
 
     const _textToSearch = toString(textToSearch);
     const _searchFor = toString(searchFor);

@@ -5,9 +5,9 @@ import {
   FunctionResultObject,
   Maybe,
 } from "../types";
-import { CellErrorType } from "../types/errors";
+import { DivisionByZeroError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, isEvaluationError, toNumber, toString } from "./helpers";
+import { isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -57,16 +57,11 @@ export const DIVIDE = {
     arg("dividend (number)", _t("The number to be divided.")),
     arg("divisor (number)", _t("The number to divide by.")),
   ],
-  compute: function (
-    dividend: Maybe<FunctionResultObject>,
-    divisor: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (dividend: Maybe<FunctionResultObject>, divisor: Maybe<FunctionResultObject>) {
     const _divisor = toNumber(divisor, this.locale);
-    assert(
-      () => _divisor !== 0,
-      _t("The divisor must be different from zero."),
-      CellErrorType.DivisionByZero
-    );
+    if (_divisor === 0) {
+      return new DivisionByZeroError(_t("The divisor must be different from zero."));
+    }
     return {
       value: toNumber(dividend, this.locale) / _divisor,
       format: dividend?.format || divisor?.format,
@@ -279,10 +274,7 @@ export const POW = {
     arg("base (number)", _t("The number to raise to the exponent power.")),
     arg("exponent (number)", _t("The exponent to raise base to.")),
   ],
-  compute: function (
-    base: Maybe<FunctionResultObject>,
-    exponent: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  compute: function (base: Maybe<FunctionResultObject>, exponent: Maybe<FunctionResultObject>) {
     return POWER.compute.bind(this)(base, exponent);
   },
 } satisfies AddFunctionDescription;

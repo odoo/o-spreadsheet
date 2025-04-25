@@ -4,7 +4,6 @@ import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { boolAnd, boolOr } from "./helper_logical";
 import {
-  assert,
   conditionalVisitBoolean,
   isEvaluationError,
   toBoolean,
@@ -28,9 +27,11 @@ export const AND = {
       _t("More expressions that represent logical values.")
     ),
   ],
-  compute: function (...logicalExpressions: Arg[]): boolean {
+  compute: function (...logicalExpressions: Arg[]) {
     const { result, foundBoolean } = boolAnd(logicalExpressions);
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    if (!foundBoolean) {
+      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+    }
     return result;
   },
   isExported: true,
@@ -162,10 +163,11 @@ export const IFS = {
     ),
   ],
   compute: function (...values: Maybe<FunctionResultObject>[]): FunctionResultObject {
-    assert(
-      () => values.length % 2 === 0,
-      _t("Wrong number of arguments. Expected an even number of arguments.")
-    );
+    if (values.length % 2 !== 0) {
+      return new EvaluationError(
+        _t("Wrong number of arguments. Expected an even number of arguments.")
+      );
+    }
     for (let n = 0; n < values.length - 1; n += 2) {
       if (toBoolean(values[n]?.value)) {
         const result = values[n + 1];
@@ -219,9 +221,11 @@ export const OR = {
       _t("More expressions that evaluate to logical values.")
     ),
   ],
-  compute: function (...logicalExpressions: Arg[]): boolean {
+  compute: function (...logicalExpressions: Arg[]) {
     const { result, foundBoolean } = boolOr(logicalExpressions);
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    if (!foundBoolean) {
+      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+    }
     return result;
   },
   isExported: true,
@@ -303,7 +307,7 @@ export const XOR = {
       _t("More expressions that evaluate to logical values.")
     ),
   ],
-  compute: function (...logicalExpressions: Arg[]): boolean {
+  compute: function (...logicalExpressions: Arg[]) {
     let foundBoolean = false;
     let acc = false;
     conditionalVisitBoolean(logicalExpressions, (arg) => {
@@ -311,7 +315,9 @@ export const XOR = {
       acc = acc ? !arg : arg;
       return true; // no stop condition
     });
-    assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
+    if (!foundBoolean) {
+      return new EvaluationError(_t("[[FUNCTION_NAME]] has no valid input data."));
+    }
     return acc;
   },
   isExported: true,
