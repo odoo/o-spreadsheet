@@ -72,7 +72,7 @@ function drawLineOrBarOrRadarChartValues(
   const textsPositions: Record<number, number[]> = {};
 
   for (const dataset of chart._metasets) {
-    if (isTrendLineAxis(dataset.axisID) || dataset.hidden) {
+    if (isTrendLineAxis(dataset.xAxisID) || dataset.hidden) {
       continue;
     }
 
@@ -126,7 +126,7 @@ function drawHorizontalBarChartValues(
   const textsPositions: Record<number, number[]> = {};
 
   for (const dataset of chart._metasets) {
-    if (isTrendLineAxis(dataset.axisID)) {
+    if (isTrendLineAxis(dataset.xAxisID)) {
       return; // ignore trend lines
     }
 
