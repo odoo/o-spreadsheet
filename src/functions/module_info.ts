@@ -2,9 +2,9 @@ import { getFullReference, splitReference } from "../helpers";
 import { setXcToFixedReferenceType } from "../helpers/reference_type";
 import { _t } from "../translation";
 import { AddFunctionDescription, CellValueType, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType } from "../types/errors";
+import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, isEvaluationError, toString } from "./helpers";
+import { isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL
@@ -22,10 +22,11 @@ export const CELL = {
   ],
   compute: function (info: Maybe<FunctionResultObject>, reference: Maybe<{ value: string }>) {
     const _info = toString(info).toLowerCase();
-    assert(
-      () => CELL_INFO_TYPES.includes(_info),
-      _t("The info_type should be one of %s.", CELL_INFO_TYPES.join(", "))
-    );
+    if (!CELL_INFO_TYPES.includes(_info)) {
+      return new EvaluationError(
+        _t("The info_type should be one of %s.", CELL_INFO_TYPES.join(", "))
+      );
+    }
 
     const sheetId = this.__originSheetId;
     const _reference = toString(reference);

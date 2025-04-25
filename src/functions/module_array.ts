@@ -2,15 +2,9 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
-import {
-  assertPositive,
-  assertSameDimensions,
-  assertSingleColOrRow,
-  assertSquareMatrix,
-} from "./helper_assert";
+import { areSameDimensions, isSingleColOrRow, isSquareMatrix } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
-  assert,
   flattenRowFirst,
   generateMatrix,
   isEvaluationError,
@@ -36,19 +30,21 @@ export const ARRAY_CONSTRAIN = {
     array: Arg,
     rows: Maybe<FunctionResultObject>,
     columns: Maybe<FunctionResultObject>
-  ): Matrix<FunctionResultObject> {
+  ) {
     const _array = toMatrix(array);
     const _rowsArg = toInteger(rows?.value, this.locale);
     const _columnsArg = toInteger(columns?.value, this.locale);
 
-    assertPositive(
-      _t("The rows argument (%s) must be strictly positive.", _rowsArg.toString()),
-      _rowsArg
-    );
-    assertPositive(
-      _t("The columns argument (%s) must be strictly positive.", _rowsArg.toString()),
-      _columnsArg
-    );
+    if (_rowsArg <= 0) {
+      return new EvaluationError(
+        _t("The rows argument (%s) must be strictly positive.", _rowsArg.toString())
+      );
+    }
+    if (_columnsArg <= 0) {
+      return new EvaluationError(
+        _t("The columns argument (%s) must be strictly positive.", _columnsArg.toString())
+      );
+    }
 
     const _nbRows = Math.min(_rowsArg, _array[0].length);
     const _nbColumns = Math.min(_columnsArg, _array.length);
@@ -74,20 +70,21 @@ export const CHOOSECOLS = {
       _t("The columns indexes of the columns to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...columns: Arg[]): Matrix<FunctionResultObject> {
+  compute: function (array: Arg, ...columns: Arg[]) {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
     const argOutOfRange = _columns.filter((col) => col === 0 || _array.length < Math.abs(col));
-    assert(
-      () => argOutOfRange.length === 0,
-      _t(
-        "The columns arguments must be between -%s and %s (got %s), excluding 0.",
-        _array.length.toString(),
-        _array.length.toString(),
-        argOutOfRange.join(",")
-      )
-    );
+    if (argOutOfRange.length !== 0) {
+      return new EvaluationError(
+        _t(
+          "The columns arguments must be between -%s and %s (got %s), excluding 0.",
+          _array.length.toString(),
+          _array.length.toString(),
+          argOutOfRange.join(",")
+        )
+      );
+    }
 
     const result: Matrix<FunctionResultObject> = Array(_columns.length);
     for (let col = 0; col < _columns.length; col++) {
@@ -116,21 +113,22 @@ export const CHOOSEROWS = {
       _t("The rows indexes of the rows to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...rows: Arg[]): Matrix<FunctionResultObject> {
+  compute: function (array: Arg, ...rows: Arg[]) {
     const _array = toMatrix(array);
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
 
     const argOutOfRange = _rows.filter((row) => row === 0 || _array[0].length < Math.abs(row));
-    assert(
-      () => argOutOfRange.length === 0,
-      _t(
-        "The rows arguments must be between -%s and %s (got %s), excluding 0.",
-        _array[0].length.toString(),
-        _array[0].length.toString(),
-        argOutOfRange.join(",")
-      )
-    );
+    if (argOutOfRange.length !== 0) {
+      return new EvaluationError(
+        _t(
+          "The rows arguments must be between -%s and %s (got %s), excluding 0.",
+          _array[0].length.toString(),
+          _array[0].length.toString(),
+          argOutOfRange.join(",")
+        )
+      );
+    }
 
     return generateMatrix(_nbColumns, _rows.length, (col, row) => {
       if (_rows[row] > 0) {
@@ -164,26 +162,29 @@ export const EXPAND = {
     rows: Maybe<FunctionResultObject>,
     columns?: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 } // TODO : Replace with #N/A errors once it's supported
-  ): Matrix<FunctionResultObject> {
+  ) {
     const _array = toMatrix(arg);
     const _nbRows = toInteger(rows?.value, this.locale);
     const _nbColumns =
       columns !== undefined ? toInteger(columns.value, this.locale) : _array.length;
 
-    assert(
-      () => _nbRows >= _array[0].length,
-      _t(
-        "The rows arguments (%s) must be greater or equal than the number of rows of the array.",
-        _nbRows.toString()
-      )
-    );
-    assert(
-      () => _nbColumns >= _array.length,
-      _t(
-        "The columns arguments (%s) must be greater or equal than the number of columns of the array.",
-        _nbColumns.toString()
-      )
-    );
+    if (_nbRows < _array[0].length) {
+      return new EvaluationError(
+        _t(
+          "The rows arguments (%s) must be greater or equal than the number of rows of the array.",
+          _nbRows.toString()
+        )
+      );
+    }
+
+    if (_nbColumns < _array.length) {
+      return new EvaluationError(
+        _t(
+          "The columns arguments (%s) must be greater or equal than the number of columns of the array.",
+          _nbColumns.toString()
+        )
+      );
+    }
 
     return generateMatrix(_nbColumns, _nbRows, (col, row) =>
       col >= _array.length || row >= _array[col].length ? padWith : _array[col][row]
@@ -310,12 +311,13 @@ export const MDETERM = {
       )
     ),
   ],
-  compute: function (matrix: Arg): number {
+  compute: function (matrix: Arg) {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
-    assertSquareMatrix(
-      _t("The argument square_matrix must have the same number of columns and rows."),
-      _matrix
-    );
+    if (!isSquareMatrix(_matrix)) {
+      return new EvaluationError(
+        _t("The argument square_matrix must have the same number of columns and rows.")
+      );
+    }
     return invertMatrix(_matrix).determinant;
   },
   isExported: true,
@@ -336,10 +338,11 @@ export const MINVERSE = {
   ],
   compute: function (matrix: Arg) {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
-    assertSquareMatrix(
-      _t("The argument square_matrix must have the same number of columns and rows."),
-      _matrix
-    );
+    if (!isSquareMatrix(_matrix)) {
+      return new EvaluationError(
+        _t("The argument square_matrix must have the same number of columns and rows.")
+      );
+    }
     const { inverted } = invertMatrix(_matrix);
     if (!inverted) {
       return new EvaluationError(_t("The matrix is not invertible."));
@@ -364,19 +367,20 @@ export const MMULT = {
       _t("The second matrix in the matrix multiplication operation.")
     ),
   ],
-  compute: function (matrix1: Arg, matrix2: Arg): Matrix<number> {
+  compute: function (matrix1: Arg, matrix2: Arg) {
     const _matrix1 = toNumberMatrix(matrix1, "matrix1");
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
 
-    assert(
-      () => _matrix1.length === _matrix2[0].length,
-      _t(
-        "In [[FUNCTION_NAME]], the number of columns of the first matrix (%s) must be equal to the \
-        number of rows of the second matrix (%s).",
-        _matrix1.length.toString(),
-        _matrix2[0].length.toString()
-      )
-    );
+    if (_matrix1.length !== _matrix2[0].length) {
+      return new EvaluationError(
+        _t(
+          "In [[FUNCTION_NAME]], the number of columns of the first matrix (%s) must be equal to the \
+          number of rows of the second matrix (%s).",
+          _matrix1.length.toString(),
+          _matrix2[0].length.toString()
+        )
+      );
+    }
 
     return multiplyMatrices(_matrix1, _matrix2);
   },
@@ -404,8 +408,10 @@ export const SUMPRODUCT = {
       )
     ),
   ],
-  compute: function (...args: Arg[]): number {
-    assertSameDimensions(_t("All the ranges must have the same dimensions."), ...args);
+  compute: function (...args: Arg[]) {
+    if (!areSameDimensions(...args)) {
+      return new EvaluationError(_t("All the ranges must have the same dimensions."));
+    }
     const _args = args.map(toMatrix);
     let result = 0;
     for (let col = 0; col < _args[0].length; col++) {
@@ -435,11 +441,11 @@ export const SUMPRODUCT = {
  * Ignore the pairs X,Y where one of the value isn't a number. Throw an error if no pair of numbers is found.
  */
 function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => number) {
-  assertSameDimensions(
-    "The arguments array_x and array_y must have the same dimensions.",
-    arrayX,
-    arrayY
-  );
+  if (!areSameDimensions(arrayX, arrayY)) {
+    return new EvaluationError(
+      _t("The arguments array_x and array_y must have the same dimensions.")
+    );
+  }
   const _arrayX = toMatrix(arrayX);
   const _arrayY = toMatrix(arrayY);
 
@@ -700,11 +706,13 @@ export const WRAPCOLS = {
     range: Arg,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
-  ): Matrix<FunctionResultObject> {
+  ) {
     const _array = toMatrix(range);
     const nbRows = toInteger(wrapCount?.value, this.locale);
 
-    assertSingleColOrRow(_t("Argument range must be a single row or column."), _array);
+    if (!isSingleColOrRow(_array)) {
+      return new EvaluationError(_t("Argument range must be a single row or column."));
+    }
 
     const array = _array.flat();
     const nbColumns = Math.ceil(array.length / nbRows);
@@ -739,11 +747,13 @@ export const WRAPROWS = {
     range: Arg,
     wrapCount: Maybe<FunctionResultObject>,
     padWith: Maybe<FunctionResultObject> = { value: 0 }
-  ): Matrix<FunctionResultObject> {
+  ) {
     const _array = toMatrix(range);
     const nbColumns = toInteger(wrapCount?.value, this.locale);
 
-    assertSingleColOrRow(_t("Argument range must be a single row or column."), _array);
+    if (!isSingleColOrRow(_array)) {
+      return new EvaluationError(_t("Argument range must be a single row or column."));
+    }
 
     const array = _array.flat();
     const nbRows = Math.ceil(array.length / nbColumns);

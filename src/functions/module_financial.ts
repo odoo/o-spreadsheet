@@ -6,56 +6,73 @@ import {
   range,
 } from "../helpers";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  Arg,
-  FunctionResultNumber,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-  Maybe,
-  isMatrix,
-} from "../types";
+import { AddFunctionDescription, Arg, FunctionResultObject, Locale, Matrix, Maybe } from "../types";
+import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
+import { areSameDimensions, assert } from "./helper_assert";
 import {
-  assertCashFlowsAndDatesHaveSameDimension,
-  assertCashFlowsHavePositiveAndNegativesValues,
-  assertCostPositiveOrZero,
-  assertCostStrictlyPositive,
-  assertCouponFrequencyIsValid,
-  assertDayCountConventionIsValid,
-  assertDeprecationFactorStrictlyPositive,
-  assertDiscountStrictlyPositive,
-  assertDiscountStrictlySmallerThanOne,
-  assertEveryDateGreaterThanFirstDateOfCashFlowDates,
-  assertFirstAndLastPeriodsAreValid,
-  assertInvestmentStrictlyPositive,
-  assertIssuePositiveOrZero,
-  assertLifeStrictlyPositive,
-  assertMaturityAndSettlementDatesAreValid,
-  assertNumberOfPeriodsStrictlyPositive,
-  assertPeriodPositiveOrZero,
-  assertPeriodSmallerOrEqualToLife,
-  assertPeriodStrictlyPositive,
-  assertPresentValueStrictlyPositive,
-  assertPriceStrictlyPositive,
-  assertPurchaseDatePositiveOrZero,
-  assertRateGuessStrictlyGreaterThanMinusOne,
-  assertRateStrictlyPositive,
-  assertRedemptionStrictlyPositive,
-  assertSalvagePositiveOrZero,
-  assertSalvageSmallerOrEqualThanCost,
-  assertSettlementAndIssueDatesAreValid,
-  assertSettlementLessThanOneYearBeforeMaturity,
-  assertStartAndEndPeriodAreValid,
+  expectCashFlowsAndDatesHaveSameDimension,
+  expectCashFlowsHavePositiveAndNegativesValues,
+  expectCostPositiveOrZero,
+  expectCostStrictlyPositive,
+  expectCouponFrequencyIsValid,
+  expectDayCountConventionIsValid,
+  expectDeprecationFactorStrictlyPositive,
+  expectDiscountDifferentFromMinusOne,
+  expectDiscountStrictlyPositive,
+  expectDiscountStrictlySmallerThanOne,
+  expectEffectiveRateStrictlyPositive,
+  expectEndPeriodPositiveOrZero,
+  expectEndPeriodSmallerOrEqualToLife,
+  expectEveryDateGreaterThanFirstDateOfCashFlowDates,
+  expectFirstPeriodSmallerOrEqualLastPeriod,
+  expectFirstPeriodStrictlyPositive,
+  expectFutureValueStrictlyPositive,
+  expectInvestmentStrictlyPositive,
+  expectIssuePositiveOrZero,
+  expectLastPeriodSmallerOrEqualNumberOfPeriods,
+  expectLastPeriodStrictlyPositive,
+  expectLifeStrictlyPositive,
+  expectMaturityStrictlyGreaterThanSettlement,
+  expectMonthBetweenOneAndTwelve,
+  expectNominalRateStrictlyPositive,
+  expectNumberOfPeriodDifferentFromZero,
+  expectNumberOfPeriodsStrictlyPositive,
+  expectPeriodBetweenOneAndNumberOfPeriods,
+  expectPeriodLessOrEqualToLifeLimit,
+  expectPeriodPositiveOrZero,
+  expectPeriodsByYearStrictlyPositive,
+  expectPeriodSmallerOrEqualToLife,
+  expectPeriodStrictlyPositive,
+  expectPresentValueStrictlyPositive,
+  expectPriceStrictlyPositive,
+  expectPurchaseDateBeforeFirstPeriodEnd,
+  expectPurchaseDatePositiveOrZero,
+  expectRateGuessStrictlyGreaterThanMinusOne,
+  expectRatePositiveOrZero,
+  expectRateStrictlyPositive,
+  expectRedemptionStrictlyPositive,
+  expectSalvagePositiveOrZero,
+  expectSalvageSmallerOrEqualThanCost,
+  expectSettlementGreaterOrEqualToIssue,
+  expectSettlementLessThanOneYearBeforeMaturity,
+  expectSettlementStrictlyGreaterThanIssue,
+  expectStartPeriodPositiveOrZero,
+  expectStartPeriodSmallerOrEqualEndPeriod,
+  expectUnitStrictlyPositive,
+  expectYieldPositiveOrZero,
+  havePositiveAndNegativeValues,
+  isInvalidDayCountConvention,
+  isInvalidFrequency,
+  isSettlementLessThanOneYearBeforeMaturity,
 } from "./helper_financial";
 import {
-  assert,
   reduceAny,
   reduceNumbers,
   strictToNumber,
   toBoolean,
   toJsDate,
+  toMatrix,
   toNumber,
   transposeMatrix,
   visitNumbers,
@@ -115,7 +132,7 @@ function newtonMethod(
     y = func(x);
     if (isNaN(y)) {
       assert(
-        () => count < maxIterations && nanFallback !== undefined,
+        count < maxIterations && nanFallback !== undefined,
         _t("Function [[FUNCTION_NAME]] didn't find any result.")
       );
       count++;
@@ -127,7 +144,7 @@ function newtonMethod(
     xDelta = Math.abs(newX - x);
     x = newX;
     yEqual0 = xDelta < epsMax || Math.abs(y) < epsMax;
-    assert(() => count < maxIterations, _t("Function [[FUNCTION_NAME]] didn't find any result."));
+    assert(count < maxIterations, _t("Function [[FUNCTION_NAME]] didn't find any result."));
     count++;
   } while (!yEqual0);
   return x;
@@ -154,18 +171,28 @@ export const ACCRINTM = {
     rate: Maybe<FunctionResultObject>,
     redemption: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     const start = Math.trunc(toNumber(issue, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _redemption = toNumber(redemption, this.locale);
     const _rate = toNumber(rate, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertIssuePositiveOrZero(start);
-    assertSettlementAndIssueDatesAreValid(end, start);
-    assertDayCountConventionIsValid(_dayCountConvention);
-    assertRedemptionStrictlyPositive(_redemption);
-    assertRateStrictlyPositive(_rate);
+    if (start < 0) {
+      return new EvaluationError(expectIssuePositiveOrZero(start));
+    }
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_redemption <= 0) {
+      return new EvaluationError(expectRedemptionStrictlyPositive(_redemption));
+    }
+    if (_rate <= 0) {
+      return new EvaluationError(expectRateStrictlyPositive(_rate));
+    }
 
     const yearFrac = getYearFrac(start, end, _dayCountConvention);
     return _redemption * _rate * yearFrac;
@@ -201,7 +228,7 @@ export const AMORLINC = {
     period: Maybe<FunctionResultObject>,
     rate: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _cost = toNumber(cost, this.locale);
     const _purchaseDate = Math.trunc(toNumber(purchaseDate, this.locale));
@@ -211,21 +238,33 @@ export const AMORLINC = {
     const _rate = toNumber(rate, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertCostStrictlyPositive(_cost);
-    assertPurchaseDatePositiveOrZero(_purchaseDate);
-    assertSalvagePositiveOrZero(_salvage);
-    assertSalvageSmallerOrEqualThanCost(_salvage, _cost);
-    assertPeriodPositiveOrZero(_period);
-    assertRateStrictlyPositive(_rate);
-    assertDayCountConventionIsValid(_dayCountConvention);
-    assert(
-      () => _purchaseDate <= _firstPeriodEnd,
-      _t(
-        "The purchase_date (%s) must be before the first_period_end (%s).",
-        _purchaseDate.toString(),
-        _firstPeriodEnd.toString()
-      )
-    );
+    if (_cost <= 0) {
+      return new EvaluationError(expectCostStrictlyPositive(_cost));
+    }
+    if (_purchaseDate < 0) {
+      return new EvaluationError(expectPurchaseDatePositiveOrZero(_purchaseDate));
+    }
+    if (_salvage < 0) {
+      return new EvaluationError(expectSalvagePositiveOrZero(_salvage));
+    }
+    if (_salvage > _cost) {
+      return new EvaluationError(expectSalvageSmallerOrEqualThanCost(_salvage, _cost));
+    }
+    if (_period < 0) {
+      return new EvaluationError(expectPeriodPositiveOrZero(_period));
+    }
+    if (_rate <= 0) {
+      return new EvaluationError(expectRateStrictlyPositive(_rate));
+    }
+
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_purchaseDate > _firstPeriodEnd) {
+      return new EvaluationError(
+        expectPurchaseDateBeforeFirstPeriodEnd(_purchaseDate, _firstPeriodEnd)
+      );
+    }
 
     /**
      * https://wiki.documentfoundation.org/Documentation/Calc_Functions/AMORLINC
@@ -268,16 +307,22 @@ export const COUPDAYS = {
     maturity: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
 
     // https://wiki.documentfoundation.org/Documentation/Calc_Functions/COUPDAYS
     if (_dayCountConvention === 1) {
@@ -293,7 +338,7 @@ export const COUPDAYS = {
         frequency,
         dayCountConvention
       ).value;
-      return after - before;
+      return toNumber(after, this.locale) - toNumber(before, this.locale);
     }
 
     const daysInYear = _dayCountConvention === 3 ? 365 : 360;
@@ -313,16 +358,22 @@ export const COUPDAYBS = {
     maturity: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
 
     const couponBeforeStart = COUPPCD.compute.bind(this)(
       settlement,
@@ -330,17 +381,18 @@ export const COUPDAYBS = {
       frequency,
       dayCountConvention
     ).value;
+    const _couponBeforeStart = toNumber(couponBeforeStart, this.locale);
     if ([1, 2, 3].includes(_dayCountConvention)) {
-      return start - couponBeforeStart;
+      return start - _couponBeforeStart;
     }
 
     if (_dayCountConvention === 4) {
-      const yearFrac = getYearFrac(couponBeforeStart, start, _dayCountConvention);
+      const yearFrac = getYearFrac(_couponBeforeStart, start, _dayCountConvention);
       return Math.round(yearFrac * 360);
     }
 
     const startDate = toJsDate(start, this.locale);
-    const dateCouponBeforeStart = toJsDate(couponBeforeStart, this.locale);
+    const dateCouponBeforeStart = toJsDate(_couponBeforeStart, this.locale);
 
     const y1 = dateCouponBeforeStart.getFullYear();
     const y2 = startDate.getFullYear();
@@ -389,16 +441,22 @@ export const COUPDAYSNC = {
     maturity: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
 
     const couponAfterStart = COUPNCD.compute.bind(this)(
       settlement,
@@ -406,12 +464,13 @@ export const COUPDAYSNC = {
       frequency,
       dayCountConvention
     ).value;
+    const _couponAfterStart = toNumber(couponAfterStart, this.locale);
     if ([1, 2, 3].includes(_dayCountConvention)) {
-      return couponAfterStart - start;
+      return _couponAfterStart - start;
     }
 
     if (_dayCountConvention === 4) {
-      const yearFrac = getYearFrac(start, couponAfterStart, _dayCountConvention);
+      const yearFrac = getYearFrac(start, _couponAfterStart, _dayCountConvention);
       return Math.round(yearFrac * 360);
     }
 
@@ -427,7 +486,7 @@ export const COUPDAYSNC = {
       frequency,
       dayCountConvention
     );
-    return coupDays - coupDayBs;
+    return toNumber(coupDays, this.locale) - toNumber(coupDayBs, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -443,23 +502,29 @@ export const COUPNCD = {
     maturity: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): FunctionResultNumber {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
 
     const monthsPerPeriod = 12 / _frequency;
 
     const coupNum = COUPNUM.compute.bind(this)(settlement, maturity, frequency, dayCountConvention);
     const date = addMonthsToDate(
       toJsDate(end, this.locale),
-      -(coupNum - 1) * monthsPerPeriod,
+      -(toNumber(coupNum, this.locale) - 1) * monthsPerPeriod,
       true
     );
     return {
@@ -481,16 +546,22 @@ export const COUPNUM = {
     maturity: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
 
     let num = 1;
     let currentDate = end;
@@ -518,16 +589,22 @@ export const COUPPCD = {
     maturity: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): FunctionResultNumber {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
 
     const monthsPerPeriod = 12 / _frequency;
 
@@ -570,7 +647,7 @@ export const CUMIPMT = {
     firstPeriod: Maybe<FunctionResultObject>,
     lastPeriod: Maybe<FunctionResultObject>,
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING }
-  ): number {
+  ) {
     const first = toNumber(firstPeriod, this.locale);
     const last = toNumber(lastPeriod, this.locale);
     const r = toNumber(rate, this.locale);
@@ -578,9 +655,27 @@ export const CUMIPMT = {
     const n = toNumber(numberOfPeriods, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
 
-    assertFirstAndLastPeriodsAreValid(first, last, n);
-    assertRateStrictlyPositive(r);
-    assertPresentValueStrictlyPositive(pv);
+    if (n <= 0) {
+      return new EvaluationError(expectNumberOfPeriodsStrictlyPositive(n));
+    }
+    if (first <= 0) {
+      return new EvaluationError(expectFirstPeriodStrictlyPositive(first));
+    }
+    if (last <= 0) {
+      return new EvaluationError(expectLastPeriodStrictlyPositive(last));
+    }
+    if (first > last) {
+      return new EvaluationError(expectFirstPeriodSmallerOrEqualLastPeriod(first, last));
+    }
+    if (last > n) {
+      return new EvaluationError(expectLastPeriodSmallerOrEqualNumberOfPeriods(last, n));
+    }
+    if (r <= 0) {
+      return new EvaluationError(expectRateStrictlyPositive(r));
+    }
+    if (pv <= 0) {
+      return new EvaluationError(expectPresentValueStrictlyPositive(pv));
+    }
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
@@ -621,7 +716,7 @@ export const CUMPRINC = {
     firstPeriod: Maybe<FunctionResultObject>,
     lastPeriod: Maybe<FunctionResultObject>,
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING }
-  ): number {
+  ) {
     const first = toNumber(firstPeriod, this.locale);
     const last = toNumber(lastPeriod, this.locale);
     const r = toNumber(rate, this.locale);
@@ -629,9 +724,27 @@ export const CUMPRINC = {
     const n = toNumber(numberOfPeriods, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
 
-    assertFirstAndLastPeriodsAreValid(first, last, n);
-    assertRateStrictlyPositive(r);
-    assertPresentValueStrictlyPositive(pv);
+    if (n <= 0) {
+      return new EvaluationError(expectNumberOfPeriodsStrictlyPositive(n));
+    }
+    if (first <= 0) {
+      return new EvaluationError(expectFirstPeriodStrictlyPositive(first));
+    }
+    if (last <= 0) {
+      return new EvaluationError(expectLastPeriodStrictlyPositive(last));
+    }
+    if (first > last) {
+      return new EvaluationError(expectFirstPeriodSmallerOrEqualLastPeriod(first, last));
+    }
+    if (last > n) {
+      return new EvaluationError(expectLastPeriodSmallerOrEqualNumberOfPeriods(last, n));
+    }
+    if (r <= 0) {
+      return new EvaluationError(expectRateStrictlyPositive(r));
+    }
+    if (pv <= 0) {
+      return new EvaluationError(expectPresentValueStrictlyPositive(pv));
+    }
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
@@ -665,7 +778,7 @@ export const DB = {
     life: Maybe<FunctionResultObject>,
     period: Maybe<FunctionResultObject>,
     ...args: Maybe<FunctionResultObject>[]
-  ): FunctionResultNumber {
+  ) {
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
     const _life = toNumber(life, this.locale);
@@ -673,22 +786,24 @@ export const DB = {
     const _month = args.length ? Math.trunc(toNumber(args[0], this.locale)) : 12;
     const lifeLimit = _life + (_month === 12 ? 0 : 1);
 
-    assertCostPositiveOrZero(_cost);
-    assertSalvagePositiveOrZero(_salvage);
-    assertPeriodStrictlyPositive(_period);
-    assertLifeStrictlyPositive(_life);
-    assert(
-      () => 1 <= _month && _month <= 12,
-      _t("The month (%s) must be between 1 and 12 inclusive.", _month.toString())
-    );
-    assert(
-      () => _period <= lifeLimit,
-      _t(
-        "The period (%s) must be less than or equal to %s.",
-        _period.toString(),
-        lifeLimit.toString()
-      )
-    );
+    if (_cost < 0) {
+      return new EvaluationError(expectCostPositiveOrZero(_cost));
+    }
+    if (_salvage < 0) {
+      return new EvaluationError(expectSalvagePositiveOrZero(_salvage));
+    }
+    if (_period <= 0) {
+      return new EvaluationError(expectPeriodStrictlyPositive(_period));
+    }
+    if (_life <= 0) {
+      return new EvaluationError(expectLifeStrictlyPositive(_life));
+    }
+    if (1 > _month || _month > 12) {
+      return new EvaluationError(expectMonthBetweenOneAndTwelve(_month));
+    }
+    if (_period > lifeLimit) {
+      return new EvaluationError(expectPeriodLessOrEqualToLifeLimit(_period, lifeLimit));
+    }
 
     const monthPart = _month / 12;
 
@@ -719,31 +834,7 @@ export const DB = {
 // DDB
 // -----------------------------------------------------------------------------
 const DEFAULT_DDB_DEPRECIATION_FACTOR = 2;
-function ddb(cost: number, salvage: number, life: number, period: number, factor: number): number {
-  assertCostPositiveOrZero(cost);
-  assertSalvagePositiveOrZero(salvage);
-  assertPeriodStrictlyPositive(period);
-  assertLifeStrictlyPositive(life);
-  assertPeriodSmallerOrEqualToLife(period, life);
-  assertDeprecationFactorStrictlyPositive(factor);
-
-  if (cost === 0 || salvage >= cost) return 0;
-
-  const deprecFactor = factor / life;
-  if (deprecFactor > 1) {
-    return period === 1 ? cost - salvage : 0;
-  }
-
-  if (period <= 1) {
-    return cost * deprecFactor;
-  }
-
-  const previousCost = cost * Math.pow(1 - deprecFactor, period - 1);
-  const nextCost = cost * Math.pow(1 - deprecFactor, period);
-
-  const deprec = nextCost < salvage ? previousCost - salvage : previousCost - nextCost;
-  return Math.max(deprec, 0);
-}
+const DEFAULT_DDB_FORMAT = "#,##0.00";
 export const DDB = {
   description: _t("Depreciation via double-declining balance method."),
   args: [
@@ -765,15 +856,55 @@ export const DDB = {
     life: Maybe<FunctionResultObject>,
     period: Maybe<FunctionResultObject>,
     factor: Maybe<FunctionResultObject> = { value: DEFAULT_DDB_DEPRECIATION_FACTOR }
-  ): FunctionResultNumber {
+  ) {
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
     const _life = toNumber(life, this.locale);
     const _period = toNumber(period, this.locale);
     const _factor = toNumber(factor, this.locale);
+
+    if (_cost < 0) {
+      return new EvaluationError(expectCostPositiveOrZero(_cost));
+    }
+    if (_salvage < 0) {
+      return new EvaluationError(expectSalvagePositiveOrZero(_salvage));
+    }
+    if (_period <= 0) {
+      return new EvaluationError(expectPeriodStrictlyPositive(_period));
+    }
+    if (_life <= 0) {
+      return new EvaluationError(expectLifeStrictlyPositive(_life));
+    }
+    if (_period > _life) {
+      return new EvaluationError(expectPeriodSmallerOrEqualToLife(_period, _life));
+    }
+    if (_factor <= 0) {
+      return new EvaluationError(expectDeprecationFactorStrictlyPositive(_factor));
+    }
+
+    if (_cost === 0 || _salvage >= _cost) {
+      return { value: 0, format: DEFAULT_DDB_FORMAT };
+    }
+
+    const deprecFactor = _factor / _life;
+    if (deprecFactor > 1) {
+      return { value: _period === 1 ? _cost - _salvage : 0, format: DEFAULT_DDB_FORMAT };
+    }
+
+    if (_period <= 1) {
+      return {
+        value: _cost * deprecFactor,
+        format: DEFAULT_DDB_FORMAT,
+      };
+    }
+
+    const previousCost = _cost * Math.pow(1 - deprecFactor, _period - 1);
+    const nextCost = _cost * Math.pow(1 - deprecFactor, _period);
+
+    const deprec = nextCost < _salvage ? previousCost - _salvage : previousCost - nextCost;
     return {
-      value: ddb(_cost, _salvage, _life, _period, _factor),
-      format: "#,##0.00",
+      value: Math.max(deprec, 0),
+      format: DEFAULT_DDB_FORMAT,
     };
   },
   isExported: true,
@@ -808,7 +939,7 @@ export const DISC = {
     price: Maybe<FunctionResultObject>,
     redemption: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
@@ -816,10 +947,20 @@ export const DISC = {
     const _redemption = toNumber(redemption, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertDayCountConventionIsValid(_dayCountConvention);
-    assertPriceStrictlyPositive(_price);
-    assertRedemptionStrictlyPositive(_redemption);
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_price <= 0) {
+      return new EvaluationError(expectPriceStrictlyPositive(_price));
+    }
+    if (_redemption <= 0) {
+      return new EvaluationError(expectRedemptionStrictlyPositive(_redemption));
+    }
 
     /**
      * https://support.microsoft.com/en-us/office/disc-function-71fce9f3-3f05-4acf-a5a3-eac6ef4daa53
@@ -852,11 +993,13 @@ export const DOLLARDE = {
   compute: function (
     fractionalPrice: Maybe<FunctionResultObject>,
     unit: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const price = toNumber(fractionalPrice, this.locale);
     const _unit = Math.trunc(toNumber(unit, this.locale));
 
-    assert(() => _unit > 0, _t("The unit (%s) must be strictly positive.", _unit.toString()));
+    if (_unit <= 0) {
+      return new EvaluationError(expectUnitStrictlyPositive(_unit));
+    }
 
     const truncatedPrice = Math.trunc(price);
     const priceFractionalPart = price - truncatedPrice;
@@ -880,14 +1023,13 @@ export const DOLLARFR = {
       _t("The units of the desired fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")
     ),
   ],
-  compute: function (
-    decimalPrice: Maybe<FunctionResultObject>,
-    unit: Maybe<FunctionResultObject>
-  ): number {
+  compute: function (decimalPrice: Maybe<FunctionResultObject>, unit: Maybe<FunctionResultObject>) {
     const price = toNumber(decimalPrice, this.locale);
     const _unit = Math.trunc(toNumber(unit, this.locale));
 
-    assert(() => _unit > 0, _t("The unit (%s) must be strictly positive.", _unit.toString()));
+    if (_unit <= 0) {
+      return new EvaluationError(expectUnitStrictlyPositive(_unit));
+    }
 
     const truncatedPrice = Math.trunc(price);
     const priceFractionalPart = price - truncatedPrice;
@@ -933,7 +1075,7 @@ export const DURATION = {
     securityYield: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _rate = toNumber(rate, this.locale);
@@ -941,12 +1083,21 @@ export const DURATION = {
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
-
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
-    assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_rate < 0) {
+      return new EvaluationError(expectRatePositiveOrZero(_rate));
+    }
+    if (_yield < 0) {
+      return new EvaluationError(expectYieldPositiveOrZero(_yield));
+    }
 
     const years = getYearFrac(start, end, _dayCountConvention);
     const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
@@ -985,18 +1136,16 @@ export const EFFECT = {
   compute: function (
     nominal_rate: Maybe<FunctionResultObject>,
     periods_per_year: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const nominal = toNumber(nominal_rate, this.locale);
     const periods = Math.trunc(toNumber(periods_per_year, this.locale));
 
-    assert(
-      () => nominal > 0,
-      _t("The nominal rate (%s) must be strictly greater than 0.", nominal.toString())
-    );
-    assert(
-      () => periods > 0,
-      _t("The number of periods by year (%s) must strictly greater than 0.", periods.toString())
-    );
+    if (nominal <= 0) {
+      return new EvaluationError(expectNominalRateStrictlyPositive(nominal));
+    }
+    if (periods <= 0) {
+      return new EvaluationError(expectPeriodsByYearStrictlyPositive(periods));
+    }
 
     // https://en.wikipedia.org/wiki/Nominal_interest_rate#Nominal_versus_effective_interest_rate
     return Math.pow(1 + nominal / periods, periods) - 1;
@@ -1038,7 +1187,7 @@ export const FV = {
     paymentAmount: Maybe<FunctionResultObject>,
     presentValue: Maybe<FunctionResultObject> = { value: DEFAULT_PRESENT_VALUE },
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING }
-  ): FunctionResultNumber {
+  ) {
     presentValue = presentValue || 0;
     endOrBeginning = endOrBeginning || 0;
     const r = toNumber(rate, this.locale);
@@ -1066,7 +1215,7 @@ export const FVSCHEDULE = {
       _t("A series of interest rates to compound against the principal.")
     ),
   ],
-  compute: function (principalAmount: Maybe<FunctionResultObject>, rateSchedule: Arg): number {
+  compute: function (principalAmount: Maybe<FunctionResultObject>, rateSchedule: Arg) {
     const principal = toNumber(principalAmount, this.locale);
     return reduceAny(
       [rateSchedule],
@@ -1106,17 +1255,27 @@ export const INTRATE = {
     investment: Maybe<FunctionResultObject>,
     redemption: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
     const _redemption = toNumber(redemption, this.locale);
     const _investment = toNumber(investment, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertInvestmentStrictlyPositive(_investment);
-    assertRedemptionStrictlyPositive(_redemption);
-    assertDayCountConventionIsValid(_dayCountConvention);
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (_investment <= 0) {
+      return new EvaluationError(expectInvestmentStrictlyPositive(_investment));
+    }
+    if (_redemption <= 0) {
+      return new EvaluationError(expectRedemptionStrictlyPositive(_redemption));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
 
     /**
      * https://wiki.documentfoundation.org/Documentation/Calc_Functions/INTRATE
@@ -1134,7 +1293,7 @@ export const INTRATE = {
 // -----------------------------------------------------------------------------
 // IPMT
 // -----------------------------------------------------------------------------
-function impt(r: number, per: number, n: number, pv: number, fv: number, type: number): number {
+function impt(r: number, per: number, n: number, pv: number, fv: number, type: number) {
   return pmt(r, n, pv, fv, type) - ppmt(r, per, n, pv, fv, type);
 }
 
@@ -1161,7 +1320,7 @@ export const IPMT = {
     presentValue: Maybe<FunctionResultObject>,
     futureValue: Maybe<FunctionResultObject> = { value: DEFAULT_FUTURE_VALUE },
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING }
-  ): FunctionResultNumber {
+  ) {
     const r = toNumber(rate, this.locale);
     const period = toNumber(currentPeriod, this.locale);
     const n = toNumber(numberOfPeriods, this.locale);
@@ -1195,10 +1354,12 @@ export const IRR = {
   compute: function (
     cashFlowAmounts: Matrix<FunctionResultObject>,
     rateGuess: Maybe<FunctionResultObject> = { value: DEFAULT_RATE_GUESS }
-  ): FunctionResultNumber {
+  ) {
     const _rateGuess = toNumber(rateGuess, this.locale);
 
-    assertRateGuessStrictlyGreaterThanMinusOne(_rateGuess);
+    if (_rateGuess <= -1) {
+      return new EvaluationError(expectRateGuessStrictlyGreaterThanMinusOne(_rateGuess));
+    }
 
     // check that values contains at least one positive value and one negative value
     // and extract number present in the cashFlowAmount argument
@@ -1217,10 +1378,9 @@ export const IRR = {
       this.locale
     );
 
-    assert(
-      () => positive && negative,
-      _t("The cashflow_amounts must include negative and positive values.")
-    );
+    if (!positive || !negative) {
+      return new EvaluationError(expectCashFlowsHavePositiveAndNegativesValues);
+    }
 
     const firstAmount = amounts.shift();
 
@@ -1279,16 +1439,15 @@ export const ISPMT = {
     currentPeriod: Maybe<FunctionResultObject>,
     numberOfPeriods: Maybe<FunctionResultObject>,
     presentValue: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const interestRate = toNumber(rate, this.locale);
     const period = toNumber(currentPeriod, this.locale);
     const nOfPeriods = toNumber(numberOfPeriods, this.locale);
     const investment = toNumber(presentValue, this.locale);
 
-    assert(
-      () => nOfPeriods !== 0,
-      _t("The number of periods must be different than 0.", nOfPeriods.toString())
-    );
+    if (nOfPeriods === 0) {
+      return new EvaluationError(expectNumberOfPeriodDifferentFromZero(nOfPeriods));
+    }
 
     const currentInvestment = investment - investment * (period / nOfPeriods);
     return -1 * currentInvestment * interestRate;
@@ -1330,7 +1489,7 @@ export const MDURATION = {
     securityYield: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     const duration = DURATION.compute.bind(this)(
       settlement,
       maturity,
@@ -1341,7 +1500,7 @@ export const MDURATION = {
     );
     const y = toNumber(securityYield, this.locale);
     const k = Math.trunc(toNumber(frequency, this.locale));
-    return duration / (1 + y / k);
+    return toNumber(duration, this.locale) / (1 + y / k);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1370,7 +1529,7 @@ export const MIRR = {
     cashflowAmount: Matrix<FunctionResultObject>,
     financingRate: Maybe<FunctionResultObject>,
     reinvestmentRate: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const fRate = toNumber(financingRate, this.locale);
     const rRate = toNumber(reinvestmentRate, this.locale);
     const cashFlow = transposeMatrix(cashflowAmount)
@@ -1408,11 +1567,9 @@ export const MIRR = {
       }
     }
 
-    assert(
-      () => pv !== 0 && fv !== 0,
-      _t("There must be both positive and negative values in cashflow_amounts.")
-    );
-
+    if (pv === 0 || fv === 0) {
+      return new EvaluationError(expectCashFlowsHavePositiveAndNegativesValues);
+    }
     const exponent = 1 / (n - 1);
 
     return (-fv / pv) ** exponent - 1;
@@ -1432,18 +1589,16 @@ export const NOMINAL = {
   compute: function (
     effective_rate: Maybe<FunctionResultObject>,
     periods_per_year: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const effective = toNumber(effective_rate, this.locale);
     const periods = Math.trunc(toNumber(periods_per_year, this.locale));
 
-    assert(
-      () => effective > 0,
-      _t("The effective rate (%s) must must strictly greater than 0.", effective.toString())
-    );
-    assert(
-      () => periods > 0,
-      _t("The number of periods by year (%s) must strictly greater than 0.", periods.toString())
-    );
+    if (effective <= 0) {
+      return new EvaluationError(expectEffectiveRateStrictlyPositive(effective));
+    }
+    if (periods <= 0) {
+      return new EvaluationError(expectPeriodsByYearStrictlyPositive(periods));
+    }
 
     // https://en.wikipedia.org/wiki/Nominal_interest_rate#Nominal_versus_effective_interest_rate
     return (Math.pow(effective + 1, 1 / periods) - 1) * periods;
@@ -1475,7 +1630,7 @@ export const NPER = {
     presentValue: Maybe<FunctionResultObject>,
     futureValue: Maybe<FunctionResultObject> = { value: DEFAULT_FUTURE_VALUE },
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING }
-  ): number {
+  ) {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
     const r = toNumber(rate, this.locale);
@@ -1511,7 +1666,7 @@ export const NPER = {
 // NPV
 // -----------------------------------------------------------------------------
 
-function npvResult(r: number, startValue: number, values: Arg[], locale: Locale): number {
+function npvResult(r: number, startValue: number, values: Arg[], locale: Locale) {
   let i = 0;
   return reduceNumbers(
     values,
@@ -1534,16 +1689,12 @@ export const NPV = {
     arg("cashflow2 (number, range<number>, repeating)", _t("Additional future cash flows.")),
   ],
   // to do: replace by dollar format
-  compute: function (
-    discount: Maybe<FunctionResultObject>,
-    ...values: Arg[]
-  ): FunctionResultNumber {
+  compute: function (discount: Maybe<FunctionResultObject>, ...values: Arg[]) {
     const _discount = toNumber(discount, this.locale);
 
-    assert(
-      () => _discount !== -1,
-      _t("The discount (%s) must be different from -1.", _discount.toString())
-    );
+    if (_discount === -1) {
+      return new EvaluationError(expectDiscountDifferentFromMinusOne(_discount));
+    }
 
     return {
       value: npvResult(_discount, 0, values, this.locale),
@@ -1567,20 +1718,20 @@ export const PDURATION = {
     rate: Maybe<FunctionResultObject>,
     presentValue: Maybe<FunctionResultObject>,
     futureValue: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const _rate = toNumber(rate, this.locale);
     const _presentValue = toNumber(presentValue, this.locale);
     const _futureValue = toNumber(futureValue, this.locale);
 
-    assertRateStrictlyPositive(_rate);
-    assert(
-      () => _presentValue > 0,
-      _t("The present_value (%s) must be strictly positive.", _presentValue.toString())
-    );
-    assert(
-      () => _futureValue > 0,
-      _t("The future_value (%s) must be strictly positive.", _futureValue.toString())
-    );
+    if (_rate <= 0) {
+      return new EvaluationError(expectRateStrictlyPositive(_rate));
+    }
+    if (_presentValue <= 0) {
+      return new EvaluationError(expectPresentValueStrictlyPositive(_presentValue));
+    }
+    if (_futureValue <= 0) {
+      return new EvaluationError(expectFutureValueStrictlyPositive(_futureValue));
+    }
 
     return (Math.log(_futureValue) - Math.log(_presentValue)) / Math.log(1 + _rate);
   },
@@ -1591,7 +1742,9 @@ export const PDURATION = {
 // PMT
 // -----------------------------------------------------------------------------
 function pmt(r: number, n: number, pv: number, fv: number, t: number): number {
-  assertNumberOfPeriodsStrictlyPositive(n);
+  if (n <= 0) {
+    throw new EvaluationError(expectNumberOfPeriodsStrictlyPositive(n));
+  }
   /**
    * https://wiki.documentfoundation.org/Documentation/Calc_Functions/PMT
    *
@@ -1629,7 +1782,7 @@ export const PMT = {
     presentValue: Maybe<FunctionResultObject>,
     futureValue: Maybe<FunctionResultObject> = { value: DEFAULT_FUTURE_VALUE },
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING }
-  ): FunctionResultNumber {
+  ) {
     const n = toNumber(numberOfPeriods, this.locale);
     const r = toNumber(rate, this.locale);
     const t = toBoolean(endOrBeginning) ? 1 : 0;
@@ -1652,11 +1805,12 @@ function ppmt(
   fValue: number,
   t: number
 ): number {
-  assertNumberOfPeriodsStrictlyPositive(n);
-  assert(
-    () => per > 0 && per <= n,
-    _t("The period must be between 1 and number_of_periods (%s)", n)
-  );
+  if (n <= 0) {
+    throw new EvaluationError(expectNumberOfPeriodsStrictlyPositive(n));
+  }
+  if (per <= 0 || per > n) {
+    throw new EvaluationError(expectPeriodBetweenOneAndNumberOfPeriods(n));
+  }
   const payment = pmt(r, n, pValue, fValue, t);
   if (t === 1 && per === 1) return payment;
   const eqPeriod = t === 0 ? per - 1 : per - 2;
@@ -1689,7 +1843,7 @@ export const PPMT = {
     presentValue: Maybe<FunctionResultObject>,
     futureValue: Maybe<FunctionResultObject> = { value: DEFAULT_FUTURE_VALUE },
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING }
-  ): FunctionResultNumber {
+  ) {
     const n = toNumber(numberOfPeriods, this.locale);
     const r = toNumber(rate, this.locale);
     const period = toNumber(currentPeriod, this.locale);
@@ -1729,7 +1883,7 @@ export const PV = {
     paymentAmount: Maybe<FunctionResultObject>,
     futureValue: Maybe<FunctionResultObject> = { value: DEFAULT_FUTURE_VALUE },
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING }
-  ): FunctionResultNumber {
+  ) {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
     const r = toNumber(rate, this.locale);
@@ -1784,7 +1938,7 @@ export const PRICE = {
     redemption: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
@@ -1794,13 +1948,26 @@ export const PRICE = {
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
-
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
-    assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
-    assertRedemptionStrictlyPositive(_redemption);
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_rate < 0) {
+      return new EvaluationError(expectRatePositiveOrZero(_rate));
+    }
+    if (_yield < 0) {
+      return new EvaluationError(expectYieldPositiveOrZero(_yield));
+    }
+    if (_redemption <= 0) {
+      return new EvaluationError(expectRedemptionStrictlyPositive(_redemption));
+    }
 
     const years = getYearFrac(_settlement, _maturity, _dayCountConvention);
     const nbrRealCoupons = years * _frequency;
@@ -1862,7 +2029,7 @@ export const PRICEDISC = {
     discount: Maybe<FunctionResultObject>,
     redemption: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
@@ -1870,11 +2037,21 @@ export const PRICEDISC = {
     const _redemption = toNumber(redemption, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertDayCountConventionIsValid(_dayCountConvention);
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
 
-    assertDiscountStrictlyPositive(_discount);
-    assertRedemptionStrictlyPositive(_redemption);
+    if (_discount <= 0) {
+      return new EvaluationError(expectDiscountStrictlyPositive(_discount));
+    }
+    if (_redemption <= 0) {
+      return new EvaluationError(expectRedemptionStrictlyPositive(_redemption));
+    }
 
     /**
      * https://support.microsoft.com/en-us/office/pricedisc-function-d06ad7c1-380e-4be7-9fd9-75e3079acfd3
@@ -1923,7 +2100,7 @@ export const PRICEMAT = {
     rate: Maybe<FunctionResultObject>,
     securityYield: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
@@ -1932,12 +2109,23 @@ export const PRICEMAT = {
     const _yield = toNumber(securityYield, this.locale);
     const _dayCount = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertSettlementAndIssueDatesAreValid(_settlement, _issue);
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertDayCountConventionIsValid(_dayCount);
-
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
-    assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
+    if (_settlement <= _issue) {
+      return new EvaluationError(expectSettlementStrictlyGreaterThanIssue(_settlement, _issue));
+    }
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (isInvalidDayCountConvention(_dayCount)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCount));
+    }
+    if (_rate < 0) {
+      return new EvaluationError(expectRatePositiveOrZero(_rate));
+    }
+    if (_yield < 0) {
+      return new EvaluationError(expectYieldPositiveOrZero(_yield));
+    }
 
     /**
      * https://support.microsoft.com/en-us/office/pricemat-function-52c3b4da-bc7e-476a-989f-a95f675cae77
@@ -2007,7 +2195,7 @@ export const RATE = {
     futureValue: Maybe<FunctionResultObject> = { value: DEFAULT_FUTURE_VALUE },
     endOrBeginning: Maybe<FunctionResultObject> = { value: DEFAULT_END_OR_BEGINNING },
     rateGuess: Maybe<FunctionResultObject> = { value: RATE_GUESS_DEFAULT }
-  ): FunctionResultNumber {
+  ) {
     const n = toNumber(numberOfPeriods, this.locale);
     const payment = toNumber(paymentPerPeriod, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
@@ -2015,15 +2203,19 @@ export const RATE = {
     let fv = toNumber(futureValue, this.locale);
     let pv = toNumber(presentValue, this.locale);
 
-    assertNumberOfPeriodsStrictlyPositive(n);
-    assert(
-      () => [payment, pv, fv].some((val) => val > 0) && [payment, pv, fv].some((val) => val < 0),
-      _t(
-        "There must be both positive and negative values in [payment_amount, present_value, future_value].",
-        n.toString()
-      )
-    );
-    assertRateGuessStrictlyGreaterThanMinusOne(guess);
+    if (n <= 0) {
+      return new EvaluationError(expectNumberOfPeriodsStrictlyPositive(n));
+    }
+    if (!havePositiveAndNegativeValues([payment, pv, fv])) {
+      return new EvaluationError(
+        _t(
+          "There must be both positive and negative values in [payment_amount, present_value, future_value]."
+        )
+      );
+    }
+    if (guess <= -1) {
+      return new EvaluationError(expectRateGuessStrictlyGreaterThanMinusOne(guess));
+    }
 
     fv -= payment * type;
     pv += payment * type;
@@ -2083,7 +2275,7 @@ export const RECEIVED = {
     investment: Maybe<FunctionResultObject>,
     discount: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
@@ -2091,10 +2283,20 @@ export const RECEIVED = {
     const _discount = toNumber(discount, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertDayCountConventionIsValid(_dayCountConvention);
-    assertInvestmentStrictlyPositive(_investment);
-    assertDiscountStrictlyPositive(_discount);
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_investment <= 0) {
+      return new EvaluationError(expectInvestmentStrictlyPositive(_investment));
+    }
+    if (_discount <= 0) {
+      return new EvaluationError(expectDiscountStrictlyPositive(_discount));
+    }
 
     /**
      * https://support.microsoft.com/en-us/office/received-function-7a3f8b93-6611-4f81-8576-828312c9b5e5
@@ -2129,12 +2331,14 @@ export const RRI = {
     numberOfPeriods: Maybe<FunctionResultObject>,
     presentValue: Maybe<FunctionResultObject>,
     futureValue: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const n = toNumber(numberOfPeriods, this.locale);
     const pv = toNumber(presentValue, this.locale);
     const fv = toNumber(futureValue, this.locale);
 
-    assertNumberOfPeriodsStrictlyPositive(n);
+    if (n <= 0) {
+      return new EvaluationError(expectNumberOfPeriodsStrictlyPositive(n));
+    }
 
     /**
      * https://support.microsoft.com/en-us/office/rri-function-6f5822d8-7ef1-4233-944c-79e8172930f4
@@ -2160,7 +2364,7 @@ export const SLN = {
     cost: Maybe<FunctionResultObject>,
     salvage: Maybe<FunctionResultObject>,
     life: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  ) {
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
     const _life = toNumber(life, this.locale);
@@ -2195,15 +2399,21 @@ export const SYD = {
     salvage: Maybe<FunctionResultObject>,
     life: Maybe<FunctionResultObject>,
     period: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  ) {
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
     const _life = toNumber(life, this.locale);
     const _period = toNumber(period, this.locale);
 
-    assertPeriodStrictlyPositive(_period);
-    assertLifeStrictlyPositive(_life);
-    assertPeriodSmallerOrEqualToLife(_period, _life);
+    if (_period <= 0) {
+      return new EvaluationError(expectPeriodStrictlyPositive(_period));
+    }
+    if (_life <= 0) {
+      return new EvaluationError(expectLifeStrictlyPositive(_life));
+    }
+    if (_period > _life) {
+      return new EvaluationError(expectPeriodSmallerOrEqualToLife(_period, _life));
+    }
 
     /**
      * This deprecation method use the sum of digits of the periods of the life as the deprecation factor.
@@ -2262,15 +2472,23 @@ export const TBILLPRICE = {
     settlement: Maybe<FunctionResultObject>,
     maturity: Maybe<FunctionResultObject>,
     discount: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const disc = toNumber(discount, this.locale);
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertSettlementLessThanOneYearBeforeMaturity(start, end, this.locale);
-    assertDiscountStrictlyPositive(disc);
-    assertDiscountStrictlySmallerThanOne(disc);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (!isSettlementLessThanOneYearBeforeMaturity(start, end, this.locale)) {
+      return new EvaluationError(expectSettlementLessThanOneYearBeforeMaturity(start, end));
+    }
+    if (disc <= 0) {
+      return new EvaluationError(expectDiscountStrictlyPositive(disc));
+    }
+    if (disc >= 1) {
+      return new EvaluationError(expectDiscountStrictlySmallerThanOne(disc));
+    }
 
     return tBillPrice(start, end, disc);
   },
@@ -2299,15 +2517,23 @@ export const TBILLEQ = {
     settlement: Maybe<FunctionResultObject>,
     maturity: Maybe<FunctionResultObject>,
     discount: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const disc = toNumber(discount, this.locale);
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertSettlementLessThanOneYearBeforeMaturity(start, end, this.locale);
-    assertDiscountStrictlyPositive(disc);
-    assertDiscountStrictlySmallerThanOne(disc);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (!isSettlementLessThanOneYearBeforeMaturity(start, end, this.locale)) {
+      return new EvaluationError(expectSettlementLessThanOneYearBeforeMaturity(start, end));
+    }
+    if (disc <= 0) {
+      return new EvaluationError(expectDiscountStrictlyPositive(disc));
+    }
+    if (disc >= 1) {
+      return new EvaluationError(expectDiscountStrictlySmallerThanOne(disc));
+    }
 
     /**
      * https://support.microsoft.com/en-us/office/tbilleq-function-2ab72d90-9b4d-4efe-9fc2-0f81f2c19c8c
@@ -2375,14 +2601,20 @@ export const TBILLYIELD = {
     settlement: Maybe<FunctionResultObject>,
     maturity: Maybe<FunctionResultObject>,
     price: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const p = toNumber(price, this.locale);
 
-    assertMaturityAndSettlementDatesAreValid(start, end);
-    assertSettlementLessThanOneYearBeforeMaturity(start, end, this.locale);
-    assertPriceStrictlyPositive(p);
+    if (start >= end) {
+      return new EvaluationError(expectMaturityStrictlyGreaterThanSettlement(start, end));
+    }
+    if (!isSettlementLessThanOneYearBeforeMaturity(start, end, this.locale)) {
+      return new EvaluationError(expectSettlementLessThanOneYearBeforeMaturity(start, end));
+    }
+    if (p <= 0) {
+      return new EvaluationError(expectPriceStrictlyPositive(p));
+    }
 
     /**
      * https://support.microsoft.com/en-us/office/tbillyield-function-6d381232-f4b0-4cd5-8e97-45b9c03468ba
@@ -2434,7 +2666,7 @@ export const VDB = {
     endPeriod: Maybe<FunctionResultObject>,
     factor: Maybe<FunctionResultObject> = { value: DEFAULT_DDB_DEPRECIATION_FACTOR },
     noSwitch: Maybe<FunctionResultObject> = { value: DEFAULT_VDB_NO_SWITCH }
-  ): number {
+  ) {
     factor = factor || 0;
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
@@ -2448,10 +2680,32 @@ export const VDB = {
     const _factor = toNumber(factor, this.locale);
     const _noSwitch = toBoolean(noSwitch);
 
-    assertCostPositiveOrZero(_cost);
-    assertSalvagePositiveOrZero(_salvage);
-    assertStartAndEndPeriodAreValid(_startPeriod, _endPeriod, _life);
-    assertDeprecationFactorStrictlyPositive(_factor);
+    if (_cost < 0) {
+      return new EvaluationError(expectCostPositiveOrZero(_cost));
+    }
+    if (_salvage < 0) {
+      return new EvaluationError(expectSalvagePositiveOrZero(_salvage));
+    }
+    if (_life <= 0) {
+      return new EvaluationError(expectLifeStrictlyPositive(_life));
+    }
+    if (_startPeriod < 0) {
+      return new EvaluationError(expectStartPeriodPositiveOrZero(_startPeriod));
+    }
+    if (_endPeriod < 0) {
+      return new EvaluationError(expectEndPeriodPositiveOrZero(_endPeriod));
+    }
+    if (_startPeriod > _endPeriod) {
+      return new EvaluationError(
+        expectStartPeriodSmallerOrEqualEndPeriod(_startPeriod, _endPeriod)
+      );
+    }
+    if (_endPeriod > _life) {
+      return new EvaluationError(expectEndPeriodSmallerOrEqualToLife(_endPeriod, _life));
+    }
+    if (_factor <= 0) {
+      return new EvaluationError(expectDeprecationFactorStrictlyPositive(_factor));
+    }
 
     if (_cost === 0) return 0;
     if (_salvage >= _cost) {
@@ -2518,16 +2772,25 @@ export const XIRR = {
     cashflowAmounts: Matrix<FunctionResultObject>,
     cashflowDates: Matrix<FunctionResultObject>,
     rateGuess: Maybe<FunctionResultObject> = { value: RATE_GUESS_DEFAULT }
-  ): number {
+  ) {
     const guess = toNumber(rateGuess, this.locale);
+
+    if (!areSameDimensions(cashflowAmounts, cashflowDates)) {
+      return new EvaluationError(expectCashFlowsAndDatesHaveSameDimension);
+    }
 
     const _cashFlows = cashflowAmounts.flat().map((val) => toNumber(val, this.locale));
     const _dates = cashflowDates.flat().map((val) => toNumber(val, this.locale));
 
-    assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
-    assertCashFlowsHavePositiveAndNegativesValues(_cashFlows);
-    assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
-    assertRateGuessStrictlyGreaterThanMinusOne(guess);
+    if (!havePositiveAndNegativeValues(_cashFlows)) {
+      return new EvaluationError(expectCashFlowsHavePositiveAndNegativesValues);
+    }
+    if (_dates.some((date) => date < _dates[0])) {
+      return new EvaluationError(expectEveryDateGreaterThanFirstDateOfCashFlowDates(_dates[0]));
+    }
+    if (guess <= -1) {
+      return new EvaluationError(expectRateGuessStrictlyGreaterThanMinusOne(guess));
+    }
 
     const map = new Map<number, number>();
     for (const i of range(0, _dates.length)) {
@@ -2601,26 +2864,26 @@ export const XNPV = {
     discount: Maybe<FunctionResultObject>,
     cashflowAmounts: Arg,
     cashflowDates: Arg
-  ): number {
+  ) {
     const rate = toNumber(discount, this.locale);
 
-    const _cashFlows = isMatrix(cashflowAmounts)
-      ? cashflowAmounts.flat().map((data) => strictToNumber(data, this.locale))
-      : [strictToNumber(cashflowAmounts, this.locale)];
-    const _dates = isMatrix(cashflowDates)
-      ? cashflowDates.flat().map((data) => strictToNumber(data, this.locale))
-      : [strictToNumber(cashflowDates, this.locale)];
-
-    if (isMatrix(cashflowDates) && isMatrix(cashflowAmounts)) {
-      assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
-    } else {
-      assert(
-        () => _cashFlows.length === _dates.length,
-        _t("There must be the same number of values in cashflow_amounts and cashflow_dates.")
-      );
+    if (!areSameDimensions(cashflowAmounts, cashflowDates)) {
+      return new EvaluationError(expectCashFlowsAndDatesHaveSameDimension);
     }
-    assertEveryDateGreaterThanFirstDateOfCashFlowDates(_dates);
-    assertRateStrictlyPositive(rate);
+
+    const _cashFlows = toMatrix(cashflowAmounts)
+      .flat()
+      .map((val) => strictToNumber(val, this.locale));
+    const _dates = toMatrix(cashflowDates)
+      .flat()
+      .map((val) => strictToNumber(val, this.locale));
+
+    if (_dates.some((date) => date < _dates[0])) {
+      return new EvaluationError(expectEveryDateGreaterThanFirstDateOfCashFlowDates(_dates[0]));
+    }
+    if (rate <= 0) {
+      return new EvaluationError(expectRateStrictlyPositive(rate));
+    }
 
     if (_cashFlows.length === 1) return _cashFlows[0];
 
@@ -2695,7 +2958,7 @@ export const YIELD = {
     redemption: Maybe<FunctionResultObject>,
     frequency: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
@@ -2705,13 +2968,26 @@ export const YIELD = {
     const _frequency = Math.trunc(toNumber(frequency, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertCouponFrequencyIsValid(_frequency);
-    assertDayCountConventionIsValid(_dayCountConvention);
-
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
-    assertPriceStrictlyPositive(_price);
-    assertRedemptionStrictlyPositive(_redemption);
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (isInvalidFrequency(_frequency)) {
+      return new EvaluationError(expectCouponFrequencyIsValid(_frequency));
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_rate < 0) {
+      return new EvaluationError(expectRatePositiveOrZero(_rate));
+    }
+    if (_price <= 0) {
+      return new EvaluationError(expectPriceStrictlyPositive(_price));
+    }
+    if (_redemption <= 0) {
+      return new EvaluationError(expectRedemptionStrictlyPositive(_redemption));
+    }
 
     const years = getYearFrac(_settlement, _maturity, _dayCountConvention);
     const nbrRealCoupons = years * _frequency;
@@ -2824,7 +3100,7 @@ export const YIELDDISC = {
     price: Maybe<FunctionResultObject>,
     redemption: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
@@ -2832,10 +3108,20 @@ export const YIELDDISC = {
     const _redemption = toNumber(redemption, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertDayCountConventionIsValid(_dayCountConvention);
-    assertPriceStrictlyPositive(_price);
-    assertRedemptionStrictlyPositive(_redemption);
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_price <= 0) {
+      return new EvaluationError(expectPriceStrictlyPositive(_price));
+    }
+    if (_redemption <= 0) {
+      return new EvaluationError(expectRedemptionStrictlyPositive(_redemption));
+    }
 
     /**
      * https://wiki.documentfoundation.org/Documentation/Calc_Functions/YIELDDISC
@@ -2882,7 +3168,7 @@ export const YIELDMAT = {
     rate: Maybe<FunctionResultObject>,
     price: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
@@ -2891,19 +3177,23 @@ export const YIELDMAT = {
     const _price = toNumber(price, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
-    assertDayCountConventionIsValid(_dayCountConvention);
-
-    assert(
-      () => _settlement >= _issue,
-      _t(
-        "The settlement (%s) must be greater than or equal to the issue (%s).",
-        _settlement.toString(),
-        _issue.toString()
-      )
-    );
-    assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
-    assertPriceStrictlyPositive(_price);
+    if (_settlement >= _maturity) {
+      return new EvaluationError(
+        expectMaturityStrictlyGreaterThanSettlement(_settlement, _maturity)
+      );
+    }
+    if (isInvalidDayCountConvention(_dayCountConvention)) {
+      return new EvaluationError(expectDayCountConventionIsValid(_dayCountConvention));
+    }
+    if (_settlement < _issue) {
+      return new EvaluationError(expectSettlementGreaterOrEqualToIssue(_settlement, _issue));
+    }
+    if (_rate < 0) {
+      return new EvaluationError(expectRatePositiveOrZero(_rate));
+    }
+    if (_price <= 0) {
+      return new EvaluationError(expectPriceStrictlyPositive(_price));
+    }
 
     const issueToMaturity = getYearFrac(_issue, _maturity, _dayCountConvention);
     const issueToSettlement = getYearFrac(_issue, _settlement, _dayCountConvention);

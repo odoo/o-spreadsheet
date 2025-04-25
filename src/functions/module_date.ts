@@ -24,15 +24,8 @@ import {
 } from "../types";
 import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
-import {
-  assert,
-  expectStringSetError,
-  toBoolean,
-  toJsDate,
-  toNumber,
-  toString,
-  visitAny,
-} from "./helpers";
+import { assert } from "./helper_assert";
+import { expectStringSetError, toBoolean, toJsDate, toNumber, toString, visitAny } from "./helpers";
 
 const DEFAULT_TYPE = 1;
 const DEFAULT_WEEKEND = 1;
@@ -59,16 +52,17 @@ export const DATE = {
     year: Maybe<FunctionResultObject>,
     month: Maybe<FunctionResultObject>,
     day: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  ) {
     let _year = Math.trunc(toNumber(year, this.locale));
     const _month = Math.trunc(toNumber(month, this.locale));
     const _day = Math.trunc(toNumber(day, this.locale));
 
     // For years less than 0 or greater than 10000, return #ERROR.
-    assert(
-      () => 0 <= _year && _year <= 9999,
-      _t("The year (%s) must be between 0 and 9999 inclusive.", _year.toString())
-    );
+    if (_year < 0 || _year > 9999) {
+      return new EvaluationError(
+        _t("The year (%s) must be between 0 and 9999 inclusive.", _year.toString())
+      );
+    }
 
     // Between 0 and 1899, we add that value to 1900 to calculate the year
     if (_year < 1900) {
@@ -78,10 +72,11 @@ export const DATE = {
     const jsDate = new DateTime(_year, _month - 1, _day);
     const result = jsDateToRoundNumber(jsDate);
 
-    assert(
-      () => result >= 0,
-      _t("The function [[FUNCTION_NAME]] result must be greater than or equal 01/01/1900.")
-    );
+    if (result < 0) {
+      return new EvaluationError(
+        _t("The function [[FUNCTION_NAME]] result must be greater than or equal 01/01/1900.")
+      );
+    }
 
     return {
       value: result,
@@ -120,24 +115,25 @@ export const DATEDIF = {
     startDate: Maybe<FunctionResultObject>,
     endDate: Maybe<FunctionResultObject>,
     unit: Maybe<FunctionResultObject>
-  ): number {
+  ) {
     const _unit = toString(unit).toUpperCase() as TIME_UNIT;
-    assert(
-      () => Object.values(TIME_UNIT).includes(_unit),
-      expectStringSetError(Object.values(TIME_UNIT), toString(unit))
-    );
+    if (!Object.values(TIME_UNIT).includes(_unit)) {
+      return new EvaluationError(expectStringSetError(Object.values(TIME_UNIT), toString(unit)));
+    }
     const _startDate = Math.trunc(toNumber(startDate, this.locale));
     const _endDate = Math.trunc(toNumber(endDate, this.locale));
     const jsStartDate = numberToJsDate(_startDate);
     const jsEndDate = numberToJsDate(_endDate);
-    assert(
-      () => _endDate >= _startDate,
-      _t(
-        "start_date (%s) should be on or before end_date (%s).",
-        jsStartDate.toLocaleDateString(),
-        jsEndDate.toLocaleDateString()
-      )
-    );
+
+    if (_endDate < _startDate) {
+      return new EvaluationError(
+        _t(
+          "start_date (%s) should be on or before end_date (%s).",
+          jsStartDate.toLocaleDateString(),
+          jsEndDate.toLocaleDateString()
+        )
+      );
+    }
     switch (_unit) {
       case TIME_UNIT.WHOLE_YEARS:
         return getTimeDifferenceInWholeYears(jsStartDate, jsEndDate);
@@ -193,14 +189,15 @@ export const DATEDIF = {
 export const DATEVALUE = {
   description: _t("Converts a date string to a date value."),
   args: [arg("date_string (string)", _t("The string representing the date."))],
-  compute: function (dateString: Maybe<FunctionResultObject>): number {
+  compute: function (dateString: Maybe<FunctionResultObject>) {
     const _dateString = toString(dateString);
     const internalDate = parseDateTime(_dateString, this.locale);
 
-    assert(
-      () => internalDate !== null,
-      _t("The date_string (%s) cannot be parsed to date/time.", _dateString.toString())
-    );
+    if (internalDate === null) {
+      return new EvaluationError(
+        _t("The date_string (%s) cannot be parsed to date/time.", _dateString.toString())
+      );
+    }
 
     return Math.trunc(internalDate!.value);
   },
@@ -510,17 +507,10 @@ function weekendToDayNumber(data: Maybe<FunctionResultObject>): number[] {
   const weekend = data?.value;
   // case "string"
   if (typeof weekend === "string") {
-    assert(() => {
-      if (weekend.length !== 7) {
-        return false;
-      }
-      for (const day of weekend) {
-        if (day !== "0" && day !== "1") {
-          return false;
-        }
-      }
-      return true;
-    }, _t('When weekend is a string (%s) it must be composed of "0" or "1".', weekend));
+    assert(
+      weekend.length === 7 && [...weekend].every((c) => c === "0" || c === "1"),
+      _t('When weekend is a string (%s) it must be composed of "0" or "1".', weekend)
+    );
 
     const result: number[] = [];
     for (let i = 0; i < 7; i++) {
@@ -535,7 +525,7 @@ function weekendToDayNumber(data: Maybe<FunctionResultObject>): number[] {
   //case "number"
   if (typeof weekend === "number") {
     assert(
-      () => (1 <= weekend && weekend <= 7) || (11 <= weekend && weekend <= 17),
+      (1 <= weekend && weekend <= 7) || (11 <= weekend && weekend <= 17),
       _t(
         "The weekend (%s) must be a string or a number in the range 1-7 or 11-17.",
         weekend.toString()
@@ -665,7 +655,7 @@ export const TIME = {
     hour: Maybe<FunctionResultObject>,
     minute: Maybe<FunctionResultObject>,
     second: Maybe<FunctionResultObject>
-  ): FunctionResultNumber {
+  ) {
     let _hour = Math.trunc(toNumber(hour, this.locale));
     let _minute = Math.trunc(toNumber(minute, this.locale));
     let _second = Math.trunc(toNumber(second, this.locale));
@@ -678,7 +668,9 @@ export const TIME = {
 
     _hour %= 24;
 
-    assert(() => _hour >= 0, _t("The function [[FUNCTION_NAME]] result cannot be negative"));
+    if (_hour < 0) {
+      return new EvaluationError(_t("The function [[FUNCTION_NAME]] result cannot be negative"));
+    }
 
     return {
       value: _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60),
@@ -694,14 +686,15 @@ export const TIME = {
 export const TIMEVALUE = {
   description: _t("Converts a time string into its serial number representation."),
   args: [arg("time_string (string)", _t("The string that holds the time representation."))],
-  compute: function (timeString: Maybe<FunctionResultObject>): number {
+  compute: function (timeString: Maybe<FunctionResultObject>) {
     const _timeString = toString(timeString);
     const internalDate = parseDateTime(_timeString, this.locale);
 
-    assert(
-      () => internalDate !== null,
-      _t("The time_string (%s) cannot be parsed to date/time.", _timeString)
-    );
+    if (internalDate === null) {
+      return new EvaluationError(
+        _t("The time_string (%s) cannot be parsed to date/time.", _timeString)
+      );
+    }
     const result = internalDate!.value - Math.trunc(internalDate!.value);
 
     return result < 0 ? 1 + result : result;
@@ -748,14 +741,13 @@ export const WEEKDAY = {
   compute: function (
     date: Maybe<FunctionResultObject>,
     type: Maybe<FunctionResultObject> = { value: DEFAULT_TYPE }
-  ): number {
+  ) {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
     const m = _date.getDay();
-    assert(
-      () => [1, 2, 3].includes(_type),
-      _t("The type (%s) must be 1, 2 or 3.", _type.toString())
-    );
+    if (![1, 2, 3].includes(_type)) {
+      return new EvaluationError(_t("The type (%s) must be 1, 2 or 3.", _type));
+    }
 
     if (_type === 1) return m + 1;
     if (_type === 2) return m === 0 ? 7 : m;
@@ -784,13 +776,12 @@ export const WEEKNUM = {
   compute: function (
     date: Maybe<FunctionResultObject>,
     type: Maybe<FunctionResultObject> = { value: DEFAULT_TYPE }
-  ): number {
+  ) {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
-    assert(
-      () => _type === 1 || _type === 2 || (11 <= _type && _type <= 17) || _type === 21,
-      _t("The type (%s) is out of range.", _type.toString())
-    );
+    if (![1, 2, 11, 12, 13, 14, 15, 16, 17, 21].includes(_type)) {
+      return new EvaluationError(_t("The type (%s) is out of range.", _type.toString()));
+    }
 
     if (_type === 21) {
       return ISOWEEKNUM.compute.bind(this)(date);
@@ -844,7 +835,7 @@ export const WORKDAY = {
     startDate: Maybe<FunctionResultObject>,
     numDays: Maybe<FunctionResultObject>,
     holidays: Arg = { value: null }
-  ): FunctionResultNumber {
+  ) {
     return WORKDAY_INTL.compute.bind(this)(startDate, numDays, { value: 1 }, holidays);
   },
   isExported: true,
@@ -875,14 +866,11 @@ export const WORKDAY_INTL = {
     numDays: Maybe<FunctionResultObject>,
     weekend: Maybe<FunctionResultObject> = { value: DEFAULT_WEEKEND },
     holidays: Arg
-  ): FunctionResultNumber {
+  ) {
     const _startDate = toJsDate(startDate, this.locale);
     const _numDays = Math.trunc(toNumber(numDays, this.locale));
-    if (typeof weekend.value === "string") {
-      assert(
-        () => weekend.value !== "1111111",
-        _t("The weekend must be different from '1111111'.")
-      );
+    if (weekend.value === "1111111") {
+      return new EvaluationError(_t("The weekend must be different from '1111111'."));
     }
 
     const daysWeekend = weekendToDayNumber(weekend);
@@ -959,26 +947,22 @@ export const YEARFRAC = {
     startDate: Maybe<FunctionResultObject>,
     endDate: Maybe<FunctionResultObject>,
     dayCountConvention: Maybe<FunctionResultObject> = { value: DEFAULT_DAY_COUNT_CONVENTION }
-  ): number {
+  ) {
     const _startDate = Math.trunc(toNumber(startDate, this.locale));
     const _endDate = Math.trunc(toNumber(endDate, this.locale));
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
-    assert(
-      () => _startDate >= 0,
-      _t("The start_date (%s) must be positive or null.", _startDate.toString())
-    );
-    assert(
-      () => _endDate >= 0,
-      _t("The end_date (%s) must be positive or null.", _endDate.toString())
-    );
-    assert(
-      () => 0 <= _dayCountConvention && _dayCountConvention <= 4,
-      _t(
-        "The day_count_convention (%s) must be between 0 and 4 inclusive.",
-        _dayCountConvention.toString()
-      )
-    );
+    if (_startDate < 0) {
+      return new EvaluationError(_t("The start_date (%s) must be positive or null.", _startDate));
+    }
+    if (_endDate < 0) {
+      return new EvaluationError(_t("The end_date (%s) must be positive or null.", _endDate));
+    }
+    if (0 > _dayCountConvention || _dayCountConvention > 4) {
+      return new EvaluationError(
+        _t("The day_count_convention (%s) must be between 0 and 4 inclusive.", _dayCountConvention)
+      );
+    }
 
     return getYearFrac(_startDate, _endDate, _dayCountConvention);
   },

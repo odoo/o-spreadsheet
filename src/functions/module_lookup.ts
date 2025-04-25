@@ -4,7 +4,7 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
-import { assertPositive } from "./helper_assert";
+import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
 import {
   addPivotDependencies,
   assertDomainLength,
@@ -12,14 +12,12 @@ import {
   getPivotId,
 } from "./helper_lookup";
 import {
-  LinearSearchMode,
-  assert,
-  assertNumberGreaterThanOrEqualToOne,
   dichotomicSearch,
   expectNumberRangeError,
   generateMatrix,
   isEvaluationError,
   linearSearch,
+  LinearSearchMode,
   strictToInteger,
   toBoolean,
   toMatrix,
@@ -68,16 +66,19 @@ export const ADDRESS = {
     absoluteRelativeMode: Maybe<FunctionResultObject> = { value: DEFAULT_ABSOLUTE_RELATIVE_MODE },
     useA1Notation: Maybe<FunctionResultObject> = { value: true },
     sheet: Maybe<FunctionResultObject> | undefined
-  ): string {
+  ) {
     const rowNumber = strictToInteger(row, this.locale);
     const colNumber = strictToInteger(column, this.locale);
-    assertNumberGreaterThanOrEqualToOne(rowNumber);
-    assertNumberGreaterThanOrEqualToOne(colNumber);
+    if (rowNumber < 1) {
+      return new EvaluationError(expectNumberGreaterThanOrEqualToOne(rowNumber));
+    }
+    if (colNumber < 1) {
+      return new EvaluationError(expectNumberGreaterThanOrEqualToOne(colNumber));
+    }
     const _absoluteRelativeMode = strictToInteger(absoluteRelativeMode, this.locale);
-    assert(
-      () => [1, 2, 3, 4].includes(_absoluteRelativeMode),
-      expectNumberRangeError(1, 4, _absoluteRelativeMode)
-    );
+    if (![1, 2, 3, 4].includes(_absoluteRelativeMode)) {
+      return new EvaluationError(expectNumberRangeError(1, 4, _absoluteRelativeMode));
+    }
     const _useA1Notation = toBoolean(useA1Notation);
     let cellReference: string;
     if (_useA1Notation) {
@@ -121,10 +122,13 @@ export const COLUMN = {
       cellReference === undefined
         ? this.__originCellPosition?.col
         : toZone(cellReference.value).left;
-    assert(
-      () => column !== undefined,
-      "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
-    );
+    if (column === undefined) {
+      return new EvaluationError(
+        _t(
+          "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
+        )
+      );
+    }
     return column! + 1;
   },
   isExported: true,
@@ -184,10 +188,9 @@ export const HLOOKUP = {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
     const _range = toMatrix(range);
 
-    assert(
-      () => 1 <= _index && _index <= _range[0].length,
-      _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
-    );
+    if (1 > _index || _index > _range[0].length) {
+      return new EvaluationError(_t("[[FUNCTION_NAME]] evaluates to an out of bounds range."));
+    }
 
     const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
       range[index][0].value;
@@ -236,14 +239,14 @@ export const INDEX: AddFunctionDescription = {
     const _reference = toMatrix(reference);
     const _row = toNumber(row.value, this.locale);
     const _column = toNumber(column.value, this.locale);
-    assert(
-      () =>
-        _column >= 0 &&
-        _column - 1 < _reference.length &&
-        _row >= 0 &&
-        _row - 1 < _reference[0].length,
-      _t("Index out of range.")
-    );
+    if (
+      _column < 0 ||
+      _column - 1 >= _reference.length ||
+      _row < 0 ||
+      _row - 1 >= _reference[0].length
+    ) {
+      return new EvaluationError(_t("Index out of range."));
+    }
     if (_row === 0 && _column === 0) {
       return _reference;
     }
@@ -378,24 +381,24 @@ export const LOOKUP = {
 
     nbCol = _resultRange.length;
     nbRow = _resultRange[0].length;
-    assert(
-      () => nbCol === 1 || nbRow === 1,
-      _t("The result_range must be a single row or a single column.")
-    );
+    if (nbCol !== 1 && nbRow !== 1) {
+      return new EvaluationError(_t("The result_range must be a single row or a single column."));
+    }
 
     if (nbCol > 1) {
-      assert(
-        () => index <= nbCol - 1,
-        _t("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
-      );
+      if (index > nbCol - 1) {
+        return new EvaluationError(
+          _t("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", index + 1)
+        );
+      }
       return _resultRange[index][0];
     }
 
-    assert(
-      () => index <= nbRow - 1,
-      _t("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
-    );
-
+    if (index > nbRow - 1) {
+      return new EvaluationError(
+        _t("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", index + 1)
+      );
+    }
     return _resultRange[0][index];
   },
   isExported: true,
@@ -430,10 +433,9 @@ export const MATCH = {
     const nbCol = _range.length;
     const nbRow = _range[0].length;
 
-    assert(
-      () => nbCol === 1 || nbRow === 1,
-      _t("The range must be a single row or a single column.")
-    );
+    if (nbCol !== 1 && nbRow !== 1) {
+      return new EvaluationError(_t("The range must be a single row or a single column."));
+    }
 
     let index = -1;
 
@@ -495,10 +497,13 @@ export const ROW = {
       cellReference === undefined
         ? this.__originCellPosition?.row
         : toZone(cellReference.value).top;
-    assert(
-      () => row !== undefined,
-      "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
-    );
+    if (row === undefined) {
+      return new EvaluationError(
+        _t(
+          "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
+        )
+      );
+    }
     return row! + 1;
   },
   isExported: true,
@@ -559,10 +564,9 @@ export const VLOOKUP = {
   ): FunctionResultObject {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
     const _range = toMatrix(range);
-    assert(
-      () => 1 <= _index && _index <= _range.length,
-      _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
-    );
+    if (1 > _index || _index > _range.length) {
+      return new EvaluationError(_t("[[FUNCTION_NAME]] evaluates to an out of bounds range."));
+    }
 
     const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
       range[0][index].value;
@@ -653,34 +657,35 @@ export const XLOOKUP = {
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
     const _lookupRange = toMatrix(lookupRange);
     const _returnRange = toMatrix(returnRange);
-    assert(
-      () => _lookupRange.length === 1 || _lookupRange[0].length === 1,
-      _t("lookup_range should be either a single row or single column.")
-    );
-    assert(
-      () => [-1, 1, -2, 2].includes(_searchMode),
-      _t("search_mode should be a value in [-1, 1, -2, 2].")
-    );
-    assert(
-      () => [-1, 0, 1, 2].includes(_matchMode),
-      _t("match_mode should be a value in [-1, 0, 1, 2].")
-    );
+    if (_lookupRange.length !== 1 && _lookupRange[0].length !== 1) {
+      return new EvaluationError(
+        _t("lookup_range should be either a single row or single column.")
+      );
+    }
+    if (![1, -1, 2, -2].includes(_searchMode)) {
+      return new EvaluationError(_t("search_mode should be a value in [-1, 1, -2, 2]."));
+    }
+    if (![-1, 0, 1, 2].includes(_matchMode)) {
+      return new EvaluationError(_t("match_mode should be a value in [-1, 0, 1, 2]."));
+    }
 
     const lookupDirection = _lookupRange.length === 1 ? "col" : "row";
 
-    assert(
-      () => !(_matchMode === 2 && [-2, 2].includes(_searchMode)),
-      _t("the search and match mode combination is not supported for XLOOKUP evaluation.")
-    );
+    if (_matchMode === 2 && [-2, 2].includes(_searchMode)) {
+      return new EvaluationError(
+        _t("The search and match mode combination is not supported for XLOOKUP evaluation.")
+      );
+    }
 
-    assert(
-      () =>
-        lookupDirection === "col"
-          ? _returnRange[0].length === _lookupRange[0].length
-          : _returnRange.length === _lookupRange.length,
-      _t("return_range should have the same dimensions as lookup_range.")
-    );
-
+    if (
+      lookupDirection === "col"
+        ? _returnRange[0].length !== _lookupRange[0].length
+        : _returnRange.length !== _lookupRange.length
+    ) {
+      return new EvaluationError(
+        _t("return_range should have the same dimensions as lookup_range.")
+      );
+    }
     const getElement =
       lookupDirection === "col"
         ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
@@ -954,19 +959,21 @@ export const OFFSET = {
 
     if (height) {
       const _height = toNumber(height, this.locale);
-      assertPositive(
-        _t("Height value is %(_height)s. It should be greater than or equal to 1.", { _height }),
-        _height
-      );
+      if (_height < 1) {
+        return new EvaluationError(
+          _t("Height value is %(_height)s. It should be greater than or equal to 1.", { _height })
+        );
+      }
       offsetHeight = _height;
     }
 
     if (width) {
       const _width = toNumber(width, this.locale);
-      assertPositive(
-        _t("Width value is %(_width)s. It should be greater than or equal to 1.", { _width }),
-        _width
-      );
+      if (_width < 1) {
+        return new EvaluationError(
+          _t("Width value is %(_width)s. It should be greater than or equal to 1.", { _width })
+        );
+      }
       offsetWidth = _width;
     }
 
