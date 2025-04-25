@@ -1,13 +1,20 @@
 import {
+  BarController,
   BarControllerChartOptions,
   BarControllerDatasetOptions,
   BarElement,
   CartesianParsedData,
   CartesianScaleTypeRegistry,
+  Chart,
+  ChartComponent,
   TooltipPositionerFunction,
 } from "chart.js";
+import { AnyObject } from "chart.js/dist/types/basic";
 
-export function getFunnelChartController() {
+export function getFunnelChartController(): ChartComponent & {
+  prototype: BarController;
+  new (chart: Chart, datasetIndex: number): BarController;
+} {
   return class FunnelChartController extends window.Chart?.BarController {
     static id = "funnel";
     static defaults = {
@@ -37,7 +44,10 @@ export function getFunnelChartController() {
   };
 }
 
-export function getFunnelChartElement() {
+export function getFunnelChartElement(): ChartComponent & {
+  prototype: BarElement;
+  new (cfg: AnyObject): BarElement;
+} {
   /**
    * Similar to a bar chart element, but it's a trapezoid rather than a rectangle. The top is of width
    * `width`, and the bottom is of width `nextElementWidth`.
