@@ -6,7 +6,11 @@
       t-att-style="cellReferenceStyle"
       t-esc="cellReference"
     />
-    <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
+    <div
+      class="o-grid-composer"
+      t-on-wheel.stop=""
+      t-att-style="containerStyle"
+      t-ref="gridComposer">
       <Composer t-props="composerProps"/>
     </div>
   </t>

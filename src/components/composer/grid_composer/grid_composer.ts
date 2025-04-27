@@ -121,6 +121,8 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get composerProps(): CellComposerProps {
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    // remove the wrapper border width
+    const maxHeight = this.props.gridDims.height - this.rect.y - 2 * COMPOSER_BORDER_WIDTH;
     return {
       rect: { ...this.rect },
       delimitation: {
@@ -140,6 +142,8 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
         }),
       onInputContextMenu: this.props.onInputContextMenu,
       composerStore: this.composerStore,
+      // remove the border of the wrapper
+      inputStyle: `max-height: ${maxHeight}px;`,
     };
   }
 
@@ -181,10 +185,14 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
      *
      * The +-1 are there to include cell borders in the composer sizing/positioning
      */
+    // const minHeight = Math.min(height + 1, maxHeight);
+    // const minWidth = Math.min(width + 1, maxWidth);
     return cssPropertiesToCss({
       left: `${left - 1}px`,
       top: `${top}px`,
 
+      // "min-width": `${minWidth}px`,
+      // "min-height": `${minHeight}px`,
       "min-width": `${width + 1}px`,
       "min-height": `${height + 1}px`,
       "max-width": `${maxWidth}px`,
@@ -197,6 +205,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       "font-style": fontStyle,
       "text-decoration": textDecoration,
       "text-align": textAlign,
+      // "box-sizing": "content-box",
     });
   }
 
