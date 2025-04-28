@@ -627,6 +627,16 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     this.assistant.forcedClosed = false;
   }
 
+  onWheel(event: WheelEvent) {
+    // detect if scrollbar is available
+    if (
+      this.composerRef.el &&
+      this.composerRef.el.scrollHeight > this.composerRef.el.clientHeight
+    ) {
+      event.stopPropagation();
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
