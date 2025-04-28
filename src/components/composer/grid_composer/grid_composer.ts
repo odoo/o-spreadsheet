@@ -123,6 +123,8 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get composerProps(): CellComposerProps {
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
+    // Remove the wrapper border width
+    const maxHeight = this.props.gridDims.height - this.rect.y - 2 * COMPOSER_BORDER_WIDTH;
     return {
       rect: { ...this.rect },
       delimitation: {
@@ -142,6 +144,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
         }),
       onInputContextMenu: this.props.onInputContextMenu,
       composerStore: this.composerStore,
+      inputStyle: `max-height: ${maxHeight}px;`,
     };
   }
 
