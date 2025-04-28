@@ -814,7 +814,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 class="o-composer w-100 text-start"
                 contenteditable="true"
                 spellcheck="false"
-                style=""
+                style="max-height: 1008.6px;"
                 tabindex="1"
               />
             </div>
@@ -1826,7 +1826,7 @@ exports[`components take the small screen into account 1`] = `
                 class="o-composer w-100 text-start"
                 contenteditable="true"
                 spellcheck="false"
-                style=""
+                style="max-height: 1008.6px;"
                 tabindex="1"
               />
             </div>
