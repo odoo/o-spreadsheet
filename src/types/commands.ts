@@ -1338,6 +1338,7 @@ export const enum CommandResult {
   ValueCellIsInvalidFormula = "ValueCellIsInvalidFormula",
   InvalidDefinition = "InvalidDefinition",
   InvalidColor = "InvalidColor",
+  InvalidPivotDataSet = "InvalidPivotDataSet",
 }
 
 export interface CommandHandler<T> {
