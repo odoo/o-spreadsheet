@@ -1300,6 +1300,7 @@ export const enum CommandResult {
   InvalidTableResize = "InvalidTableResize",
   PivotIdNotFound = "PivotIdNotFound",
   EmptyName = "EmptyName",
+  InvalidPivotDataSet = "InvalidPivotDataSet",
 }
 
 export interface CommandHandler<T> {

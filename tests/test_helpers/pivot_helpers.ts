@@ -36,6 +36,9 @@ export function addPivot(
     pivot.dataSet!.zone = toZone(zone);
   }
   const result = model.dispatch("ADD_PIVOT", { pivot, pivotId });
+  if (!result.isSuccessful) {
+    return result;
+  }
   const instance = model.getters.getPivot(pivotId);
   init && instance?.init();
   return result;
