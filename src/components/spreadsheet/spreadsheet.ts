@@ -437,6 +437,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);
+      this.sidePanel.open("PivotSidePanel", { pivotId: "1" });
     });
     onWillUnmount(() => {
       this.unbindModelEvents();

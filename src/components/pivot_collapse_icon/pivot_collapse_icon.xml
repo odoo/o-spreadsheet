@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotCollapseIcon">
+    <div
+      class="o-pivot-collapse-icon o-hoverable-button d-flex align-items-center justify-content-center"
+      t-on-click="onClick">
+      <t t-if="isCollapsed" t-call="o-spreadsheet-Icon.PLUS"/>
+      <t t-else="" t-call="o-spreadsheet-Icon.MINUS"/>
+    </div>
+  </t>
+</templates>

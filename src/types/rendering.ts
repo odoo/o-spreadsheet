@@ -1,4 +1,5 @@
 import { memoize } from "../helpers/misc";
+import { GridIcon } from "../registries/icons_on_cell_registry";
 import { ImageSVG } from "./image";
 import {
   Alias,
@@ -38,14 +39,13 @@ export interface Box extends Rect {
   style: Style;
   dataBarFill?: DataBarFill;
   border?: Border;
-  hasIcon?: boolean;
   clipRect?: Rect;
   isError?: boolean;
-  image?: Image;
   isMerge?: boolean;
   verticalAlign?: VerticalAlign;
   isOverflow?: boolean;
   overlayColor: Color | undefined;
+  icons: { left?: GridIcon; right?: GridIcon; center?: GridIcon };
 }
 export interface Image {
   clipIcon: Rect | null;

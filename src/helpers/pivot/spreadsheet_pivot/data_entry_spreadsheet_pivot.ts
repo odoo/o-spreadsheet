@@ -19,7 +19,8 @@ export type DataEntries = DataEntry[];
  */
 export function dataEntriesToSpreadsheetPivotTable(
   dataEntries: DataEntries,
-  definition: SpreadsheetPivotRuntimeDefinition
+  definition: SpreadsheetPivotRuntimeDefinition,
+  mode: "collapsed" | "expanded"
 ) {
   const measureIds = definition.measures.filter((measure) => !measure.isHidden).map((m) => m.id);
   const columnsTree = dataEntriesToColumnsTree(dataEntries, definition.columns, 0);
@@ -41,7 +42,8 @@ export function dataEntriesToSpreadsheetPivotTable(
   for (const row of definition.rows) {
     fieldsType[row.fieldName] = row.type;
   }
-  return new SpreadsheetPivotTable(cols, rows, measureIds, fieldsType);
+  const collapsedDomains = mode === "collapsed" ? definition.collapsedDomains : undefined;
+  return new SpreadsheetPivotTable(cols, rows, measureIds, fieldsType, collapsedDomains);
 }
 
 // -----------------------------------------------------------------------------
