@@ -2228,6 +2228,25 @@ describe("clipboard", () => {
     expect(getEvaluatedCell(model, "G5").format).toBe("#,##0.0");
   });
 
+  test("copy spread pivot from a referenced id", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "1",
+      A2: "Alice",    B2: "10",    C2: "=PIVOT(C1)",
+      A3: "Bob",      B3: "30"
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    copy(model, "D4");
+    paste(model, "G4");
+    expect(getCell(model, "G4")?.content).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Alice")');
+  });
+
   test("copying a spread pivot cell with (Undefined)", () => {
     // prettier-ignore
     const grid = {

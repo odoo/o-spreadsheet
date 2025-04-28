@@ -323,7 +323,11 @@ export function parse(str: string): AST {
 }
 
 export function parseTokens(tokens: Token[]): AST {
-  const richTokens = tokens.map((token, index) => ({ ...token, tokenIndex: index }));
+  const richTokens = tokens.map((token, index) => ({
+    type: token.type,
+    value: token.value,
+    tokenIndex: index,
+  }));
   const tokensToParse = richTokens.filter((x) => x.type !== "SPACE");
   const tokenList = new TokenList(tokensToParse);
   if (tokenList.current?.value === "=") {
