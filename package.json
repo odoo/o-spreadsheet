@@ -35,7 +35,8 @@
     "watch:scss": "node tools/bundle_scss/watch_scss_files.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
     "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
-    "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_scss/main.cjs --out build"
+    "build": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir build\" && node tools/bundle_scss/main.cjs --out build",
+    "lint": "eslint --fix"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -140,7 +141,10 @@
     ]
   },
   "lint-staged": {
-    "*": "prettier --write"
+    "*": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   },
   "publishConfig": {
     "tag": "alpha"
