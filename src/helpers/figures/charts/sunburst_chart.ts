@@ -54,6 +54,7 @@ export class SunburstChart extends AbstractChart {
   readonly showLabels?: boolean;
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
+  readonly pieHolePercentage?: number;
 
   constructor(definition: SunburstChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -71,6 +72,7 @@ export class SunburstChart extends AbstractChart {
     this.showLabels = definition.showLabels;
     this.valuesDesign = definition.valuesDesign;
     this.groupColors = definition.groupColors;
+    this.pieHolePercentage = definition.pieHolePercentage;
   }
 
   static transformDefinition(
@@ -148,6 +150,7 @@ export class SunburstChart extends AbstractChart {
       showLabels: this.showLabels,
       valuesDesign: this.valuesDesign,
       groupColors: this.groupColors,
+      pieHolePercentage: this.pieHolePercentage,
     };
   }
 
@@ -203,7 +206,7 @@ export function createSunburstChartRuntime(
       datasets: getSunburstChartDatasets(definition, chartData),
     },
     options: {
-      cutout: "25%",
+      cutout: chart.pieHolePercentage === undefined ? "25%" : `${chart.pieHolePercentage}%`,
       ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
       layout: getChartLayout(definition),
       plugins: {

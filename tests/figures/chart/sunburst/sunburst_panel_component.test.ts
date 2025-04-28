@@ -172,4 +172,17 @@ describe("Sunburst chart side panel", () => {
       expect(getRoundColorPickerValue("[data-id='G2'] ")).toBeSameColorAs("#00FF00");
     });
   });
+
+  test("Can change sunburst chart hole size, and input is debounced", async () => {
+    const chartId = createSunburstChart(model, {});
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    expect(".o-pie-hole-size-input").toHaveValue("25");
+    jest.useFakeTimers();
+    await setInputValueAndTrigger(".o-pie-hole-size-input", "50");
+    expect(getSunburstDefinition(chartId).pieHolePercentage).toEqual(undefined); // debounced
+    jest.advanceTimersByTime(1000);
+    expect(getSunburstDefinition(chartId).pieHolePercentage).toEqual(50);
+    jest.useRealTimers();
+  });
 });

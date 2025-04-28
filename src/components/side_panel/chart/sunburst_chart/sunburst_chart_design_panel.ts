@@ -13,6 +13,7 @@ import { RoundColorPicker } from "../../components/round_color_picker/round_colo
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
+import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
 
 interface Props {
@@ -32,6 +33,7 @@ export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildE
     TextStyler,
     RoundColorPicker,
     ChartLegend,
+    PieHoleSize,
   };
   static props = {
     figureId: String,
@@ -61,5 +63,12 @@ export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildE
     const colors = deepCopy(this.props.definition.groupColors) ?? [];
     colors[index] = color;
     this.props.updateChart(this.props.figureId, { groupColors: colors });
+  }
+
+  onPieHoleSizeChange(pieHolePercentage: number) {
+    this.props.updateChart(this.props.figureId, {
+      ...this.props.definition,
+      pieHolePercentage,
+    });
   }
 }

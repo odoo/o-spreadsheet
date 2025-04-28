@@ -1,5 +1,6 @@
-import { ChartCreationContext } from "../../../src";
+import { ChartCreationContext, Model } from "../../../src";
 import { PieChart } from "../../../src/helpers/figures/charts";
+import { PieChartRuntime } from "../../../src/types/chart";
 import { createChart } from "../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
@@ -63,5 +64,13 @@ describe("pie chart", () => {
         fontColor: "#FFFFFF",
       },
     ]);
+  });
+
+  test("Pie chart hole size", () => {
+    const model = new Model();
+    createChart(model, { type: "pie", isDoughnut: true, pieHolePercentage: 15 }, "1");
+
+    const runtime = model.getters.getChartRuntime("1") as PieChartRuntime;
+    expect(runtime.chartJsConfig.options?.cutout).toEqual("15%");
   });
 });
