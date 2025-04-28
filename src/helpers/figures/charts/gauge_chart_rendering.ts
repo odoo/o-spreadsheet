@@ -346,7 +346,7 @@ function getInflectionValues(
       labelWidth + 2, // width of the text + some margin
       GAUGE_LABELS_FONT_SIZE // height of the text
     );
-    let offset = inflectionValuesTextRects.some((rect) => doRectanglesIntersect(rect, textRect))
+    const offset = inflectionValuesTextRects.some((rect) => doRectanglesIntersect(rect, textRect))
       ? GAUGE_LABELS_FONT_SIZE
       : 0;
     inflectionValuesTextRects.push(textRect);

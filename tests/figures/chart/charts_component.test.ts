@@ -821,7 +821,7 @@ describe("charts", () => {
       expect(fixture.querySelector(".o-chart")).toBeTruthy();
       await simulateClick(".o-round-color-picker-button");
       const colorpickerItems = fixture.querySelectorAll<HTMLElement>(".o-color-picker-line-item");
-      for (let el of colorpickerItems) {
+      for (const el of colorpickerItems) {
         if (toHex(el.style.backgroundColor) === "#000000") {
           await simulateClick(el);
           break;
@@ -1163,7 +1163,7 @@ describe("charts", () => {
     updateChart(model, chartId, {
       dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
     });
-    let definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    const definition = model.getters.getChartDefinition(chartId) as BarChartDefinition;
     const colorsGenerator = getChartColorsGenerator(definition, 2);
     colorsGenerator.next(); // Skip the first color as it should be removed
     const secondColor = colorsGenerator.next();
@@ -1430,7 +1430,7 @@ describe("charts", () => {
       const colorpickerUpItems = fixture.querySelectorAll(
         ".o-color-picker-line-item"
       ) as NodeListOf<HTMLElement>;
-      for (let el of colorpickerUpItems) {
+      for (const el of colorpickerUpItems) {
         if (toHex(el.style.backgroundColor) === "#0000FF") {
           await simulateClick(el);
           break;
@@ -1453,7 +1453,7 @@ describe("charts", () => {
       const colorpickerDownItems = fixture.querySelectorAll(
         ".o-color-picker-line-item"
       ) as NodeListOf<HTMLElement>;
-      for (let el of colorpickerDownItems) {
+      for (const el of colorpickerDownItems) {
         if (toHex(el.style.backgroundColor) === "#FF0000") {
           await simulateClick(el);
           break;
@@ -1951,7 +1951,7 @@ describe("charts", () => {
         let runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
         expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#FF8080");
 
-        let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[2];
+        const color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[2];
         await click(color_menu);
         await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
 

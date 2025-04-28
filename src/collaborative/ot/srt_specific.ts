@@ -25,7 +25,7 @@ function addConditionalFormatCommandAdaptRange(
 ): AddConditionalFormatCommand {
   const rule = cmd.cf.rule;
   cmd = { ...cmd, cf: { ...cmd.cf } };
-  if (rule.type == "CellIsRule") {
+  if (rule.type === "CellIsRule") {
     cmd.cf.rule = {
       ...rule,
       values: rule.values.map((val) => adaptFormulaStringRanges(cmd.sheetId, val, applyChange)),

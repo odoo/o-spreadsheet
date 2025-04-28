@@ -251,7 +251,7 @@ export function updateSelectionOnDeletion(
   const end = start === "left" ? "right" : "bottom";
   let newStart = zone[start];
   let newEnd = zone[end];
-  for (let removedElement of elements.sort((a, b) => b - a)) {
+  for (const removedElement of elements.sort((a, b) => b - a)) {
     if (zone[start] > removedElement) {
       newStart--;
       newEnd--;
@@ -275,7 +275,7 @@ export function reduceZoneOnDeletion<Z extends UnboundedZone | Zone>(
   let newStart = zone[start];
   let newEnd = zone[end];
   const zoneEnd = zone[end];
-  for (let removedElement of elements.sort((a, b) => b - a)) {
+  for (const removedElement of elements.sort((a, b) => b - a)) {
     if (zone[start] > removedElement) {
       newStart--;
       if (newEnd !== undefined) newEnd--;
@@ -551,17 +551,17 @@ export function findCellInNewZone(oldZone: Zone, currentZone: Zone): Position {
   let col: number, row: number;
   const { left: oldLeft, right: oldRight, top: oldTop, bottom: oldBottom } = oldZone!;
   const { left, right, top, bottom } = currentZone;
-  if (left != oldLeft) {
+  if (left !== oldLeft) {
     col = left;
-  } else if (right != oldRight) {
+  } else if (right !== oldRight) {
     col = right;
   } else {
     // left and right don't change
     col = left;
   }
-  if (top != oldTop) {
+  if (top !== oldTop) {
     row = top;
-  } else if (bottom != oldBottom) {
+  } else if (bottom !== oldBottom) {
     row = bottom;
   } else {
     // top and bottom don't change
@@ -619,8 +619,8 @@ export function areZonesContinuous(zones: Zone[]): boolean {
 /** Return all the columns in the given list of zones */
 export function getZonesCols(zones: Zone[]): Set<number> {
   const set = new Set<number>();
-  for (let zone of recomputeZones(zones)) {
-    for (let col of range(zone.left, zone.right + 1)) {
+  for (const zone of recomputeZones(zones)) {
+    for (const col of range(zone.left, zone.right + 1)) {
       set.add(col);
     }
   }
@@ -630,8 +630,8 @@ export function getZonesCols(zones: Zone[]): Set<number> {
 /** Return all the rows in the given list of zones */
 export function getZonesRows(zones: Zone[]): Set<number> {
   const set = new Set<number>();
-  for (let zone of recomputeZones(zones)) {
-    for (let row of range(zone.top, zone.bottom + 1)) {
+  for (const zone of recomputeZones(zones)) {
+    for (const row of range(zone.top, zone.bottom + 1)) {
       set.add(row);
     }
   }

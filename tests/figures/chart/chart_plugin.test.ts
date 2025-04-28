@@ -462,7 +462,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const title = getChartConfiguration(model, "1").options!.plugins?.tooltip!.callbacks!.title!;
+    const title = getChartConfiguration(model, "1").options?.plugins?.tooltip?.callbacks?.title;
     // @ts-ignore `title` should be binded to the TooltipModel
     expect(title([{ dataset: { label: "dataset 1" } }])).toBe("dataset 1");
     // @ts-ignore `title` should be binded to the TooltipModel
@@ -2014,7 +2014,7 @@ describe("Chart design configuration", () => {
         setCellFormat(model, "B1", "0%");
 
         const config = model.getters.getChartRuntime("42") as any;
-        const scales = config.chartJsConfig?.options?.scales!;
+        const scales = config.chartJsConfig?.options?.scales;
         expect(scales.y?.ticks.callback!(60000000)).toEqual("$60,000,000");
         expect(scales.y1?.ticks.callback!(0.5)).toEqual("50%");
 
@@ -2629,7 +2629,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    let config = getChartConfiguration(model, chartId);
+    const config = getChartConfiguration(model, chartId);
     expect(config.options?.scales?.x?.type).toEqual("time");
   });
 
@@ -2648,7 +2648,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    let chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
+    const chart = model.getters.getChartRuntime(chartId) as LineChartRuntime;
     expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
   });
 
@@ -3716,7 +3716,7 @@ test("logarithmic trending line", () => {
   function roundToFourDecimals(value) {
     return Math.round(value * 10000) / 10000;
   }
-  let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
   // We round up to 4 decimals to avoid floating point errors
   expect(
     // @ts-ignore
@@ -3754,7 +3754,7 @@ test("logarithmic trending line with negative values", () => {
   function roundToFourDecimals(value) {
     return Math.round(value * 10000) / 10000;
   }
-  let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
   // We round up to 4 decimals to avoid floating point errors
   expect(
     // @ts-ignore
@@ -3792,7 +3792,7 @@ test("logarithmic trending line with values between 0 and 1", () => {
   function roundToFourDecimals(value) {
     return Math.round(value * 10000) / 10000;
   }
-  let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
   // We round up to 4 decimals to avoid floating point errors
   expect(
     // @ts-ignore

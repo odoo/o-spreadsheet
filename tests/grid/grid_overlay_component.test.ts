@@ -693,14 +693,14 @@ describe("Hide/show columns", () => {
   test("hide  A, B, D:E and unhide A-B", async () => {
     hideColumns(model, ["A", "B", "D", "E"]);
     await nextTick();
-    let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
+    const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='0']", "click", x, 10);
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([[3, 4]]);
   });
   test("hide A, C, E:F and unhide C", async () => {
     hideColumns(model, ["A", "C", "E", "F"]);
     await nextTick();
-    let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 2)!.end + 10;
+    const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), 2)!.end + 10;
     triggerMouseEvent(".o-overlay .o-col-resizer .o-unhide[data-index='1']", "click", x, 10);
     expect(model.getters.getHiddenColsGroups(model.getters.getActiveSheetId())).toEqual([
       [0],
@@ -805,7 +805,7 @@ describe("Hide/show rows", () => {
   test("hide  0,1,3,4  and unhide 0", async () => {
     hideRows(model, [0, 1, 3, 4]);
     await nextTick();
-    let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
+    const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 1)!.end + 10;
     triggerMouseEvent(
       ".o-overlay .o-row-resizer .o-unhide[data-index='0']",
       "click",
@@ -817,7 +817,7 @@ describe("Hide/show rows", () => {
   test("hide 0, 2, 4,5 and unhide 2", async () => {
     hideRows(model, [0, 2, 4, 5]);
     await nextTick();
-    let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 2)!.end + 10;
+    const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), 2)!.end + 10;
     triggerMouseEvent(
       ".o-overlay .o-row-resizer .o-unhide[data-index='1']",
       "click",

@@ -80,7 +80,7 @@ export function interactiveSortSelection(
     for (let row = zone.top; row <= zone.bottom; row++) {
       table = [];
       for (let col = zone.left; col <= zone.right; col++) {
-        let merge = env.model.getters.getMerge({ sheetId, col, row });
+        const merge = env.model.getters.getMerge({ sheetId, col, row });
         if (merge && !table.includes(merge.id.toString())) {
           table.push(merge.id.toString());
         }

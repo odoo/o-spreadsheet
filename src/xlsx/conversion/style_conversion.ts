@@ -115,7 +115,7 @@ export function convertFormats(
 ): { [key: number]: string } {
   const formats: string[] = [];
 
-  for (let style of data.styles) {
+  for (const style of data.styles) {
     const format = convertXlsxFormat(style.numFmtId, data.numFmts, warningManager);
     if (format) {
       formats[style.numFmtId] = format;

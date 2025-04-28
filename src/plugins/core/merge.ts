@@ -231,10 +231,10 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * Add all necessary merge to the current selection to make it valid
    */
   expandZone(sheetId: UID, zone: Zone): Zone {
-    let { left, right, top, bottom } = zone;
+    const { left, right, top, bottom } = zone;
     let result: Zone = { left, right, top, bottom };
 
-    for (let id in this.merges[sheetId]) {
+    for (const id in this.merges[sheetId]) {
       const merge = this.getMergeById(sheetId, parseInt(id));
       if (merge && overlap(merge, result)) {
         result = union(merge, result);
@@ -278,12 +278,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const hiddenColsGroups = this.getters.getHiddenColsGroups(sheetId);
     const hiddenRowsGroups = this.getters.getHiddenRowsGroups(sheetId);
 
-    for (let group of hiddenColsGroups) {
+    for (const group of hiddenColsGroups) {
       if (merge.left >= group[0] && merge.right <= group[group.length - 1]) {
         return true;
       }
     }
-    for (let group of hiddenRowsGroups) {
+    for (const group of hiddenRowsGroups) {
       if (merge.top >= group[0] && merge.bottom <= group[group.length - 1]) {
         return true;
       }
@@ -417,14 +417,14 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     }
     const topLeft = this.getters.getCell({ sheetId, col: left, row: top });
 
-    let id = this.nextId++;
+    const id = this.nextId++;
     this.history.update(
       "merges",
       sheetId,
       id,
       this.getters.getRangeFromSheetXC(sheetId, zoneToXc({ left, top, right, bottom }))
     );
-    let previousMerges: Set<number> = new Set();
+    const previousMerges: Set<number> = new Set();
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {
         if (col !== left || row !== top) {
@@ -444,7 +444,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       }
     }
 
-    for (let mergeId of previousMerges) {
+    for (const mergeId of previousMerges) {
       const { top, bottom, left, right } = this.getMergeById(sheetId, mergeId)!;
       for (let row = top; row <= bottom; row++) {
         for (let col = left; col <= right; col++) {
@@ -514,7 +514,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   import(data: WorkbookData) {
     const sheets = data.sheets || [];
-    for (let sheetData of sheets) {
+    for (const sheetData of sheets) {
       this.history.update("merges", sheetData.id, {});
       this.history.update("mergeCellMap", sheetData.id, {});
       if (sheetData.merges) {
@@ -524,12 +524,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   }
 
   private importMerges(sheetId: string, merges: string[]) {
-    for (let merge of merges) {
+    for (const merge of merges) {
       this.addMerge(sheetId, toZone(merge));
     }
   }
   export(data: WorkbookData) {
-    for (let sheetData of data.sheets) {
+    for (const sheetData of data.sheets) {
       const merges = this.merges[sheetData.id];
       if (merges) {
         sheetData.merges.push(...exportMerges(merges));

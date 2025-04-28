@@ -169,7 +169,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private clearZones(sheetId: UID, zones: Zone[]) {
-    for (let zone of recomputeZones(zones)) {
+    for (const zone of recomputeZones(zones)) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = this.getters.getCell({ sheetId, col, row });
@@ -190,7 +190,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Set a format to all the cells in a zone
    */
   private setFormatter(sheetId: UID, zones: Zone[], format: Format) {
-    for (let zone of recomputeZones(zones)) {
+    for (const zone of recomputeZones(zones)) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         for (let col = zone.left; col <= zone.right; col++) {
           this.dispatch("UPDATE_CELL", {
@@ -208,7 +208,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Clear the styles and format of zones
    */
   private clearFormatting(sheetId: UID, zones: Zone[]) {
-    for (let zone of recomputeZones(zones)) {
+    for (const zone of recomputeZones(zones)) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           this.dispatch("UPDATE_CELL", {
@@ -268,7 +268,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       const sheetId = sheet.id;
       const cellsData = new PositionMap<{ content?: string; style?: number; format?: number }>();
       // cells content
@@ -316,7 +316,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const styles: { [styleId: number]: Style } = {};
     const formats: { [formatId: number]: string } = {};
 
-    for (let _sheet of data.sheets) {
+    for (const _sheet of data.sheets) {
       const positionsByStyle: Record<number, CellPosition[]> = [];
       const positionsByFormat: Record<number, CellPosition[]> = [];
       const cells: { [key: string]: string } = {};
@@ -491,7 +491,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       row: zone.bottom,
     });
     const sameCell = cellTopLeft.col === cellBotRight.col && cellTopLeft.row === cellBotRight.row;
-    if (topLeft != botRight && !sameCell) {
+    if (topLeft !== botRight && !sameCell) {
       return topLeft + ":" + botRight;
     }
 
@@ -499,7 +499,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private setStyle(sheetId: UID, target: Zone[], style: Style | undefined) {
-    for (let zone of recomputeZones(target)) {
+    for (const zone of recomputeZones(target)) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = this.getters.getCell({ sheetId, col, row });
@@ -521,7 +521,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
       const format = this.getFormat(sheetId, refColumn, row);
       if (format.style || format.format) {
-        for (let col of targetCols) {
+        for (const col of targetCols) {
           this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
         }
       }
@@ -535,7 +535,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
       const format = this.getFormat(sheetId, col, refRow);
       if (format.style || format.format) {
-        for (let row of targetRows) {
+        for (const row of targetRows) {
           this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
         }
       }

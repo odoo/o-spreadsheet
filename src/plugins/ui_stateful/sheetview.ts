@@ -391,7 +391,7 @@ export class SheetViewPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const viewport = this.getMainInternalViewport(sheetId);
     const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
-    let { width, height } = viewport.getMaxSize();
+    const { width, height } = viewport.getMaxSize();
     const x = this.getters.getColDimensions(sheetId, xSplit).start;
     const y = this.getters.getRowDimensions(sheetId, ySplit).start;
     return { x, y, width, height };

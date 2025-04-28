@@ -87,7 +87,7 @@ function enrichTokens(tokens: Token[]): EnrichedToken[] {
  * |`)`      | 2                |
  */
 function mapParenthesisCode(tokens: EnrichedToken[]): EnrichedToken[] {
-  let code: number[] = [];
+  const code: number[] = [];
   let nextLevel = 0;
   return tokens.map((token, i) => {
     if (token.type === "LEFT_PAREN") {
@@ -126,7 +126,7 @@ function mapParenthesisCode(tokens: EnrichedToken[]): EnrichedToken[] {
  * - the argument position of the token correspond to number 3 is 1
  */
 function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
-  let stack: FunctionContext[] = [];
+  const stack: FunctionContext[] = [];
   let functionStarted = "";
 
   function pushTokenToFunctionContext(token: Token) {

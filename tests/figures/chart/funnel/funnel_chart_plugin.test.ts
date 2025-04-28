@@ -96,7 +96,7 @@ describe("Funnel chart", () => {
       dataSets: [{ dataRange: "B1:B2" }],
       dataSetsHaveTitle: false,
     });
-    const scales = getFunnelRuntime(chartId).chartJsConfig.options?.scales! as any;
+    const scales = getFunnelRuntime(chartId).chartJsConfig.options?.scales as any;
 
     expect(scales.x?.display).toEqual(false);
     expect(scales.y).toMatchObject({

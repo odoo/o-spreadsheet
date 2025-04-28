@@ -47,7 +47,7 @@ export function arrayToObject<T>(array: T[], indexOffset = 0): { [key: number]: 
  */
 export function objectToArray<T>(obj: { [key: number]: T }): T[] {
   const arr: T[] = [];
-  for (let key of Object.keys(obj).map(Number)) {
+  for (const key of Object.keys(obj).map(Number)) {
     arr[key] = obj[key];
   }
   return arr;

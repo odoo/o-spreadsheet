@@ -87,7 +87,7 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
   }
 
   getNewCustomTableStyleName(): string {
-    let name = _t("Custom Table Style");
+    const name = _t("Custom Table Style");
     const styleNames = Object.values(this.styles).map((style) => style.displayName);
     return getUniqueText(name, styleNames, { compute: (name, i) => `${name} ${i}`, start: 2 });
   }

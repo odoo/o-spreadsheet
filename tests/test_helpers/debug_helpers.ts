@@ -28,7 +28,7 @@ export function getDebugInfo(tree: Tree) {
     if (level > 0) {
       stringArray.push(">".padEnd(10));
     }
-    for (let instruction of branch.getOperations()) {
+    for (const instruction of branch.getOperations()) {
       const idToShow = `${instruction.id.toString().substring(0, 4)}(${id})`;
       stringArray.push(idToShow.padEnd(10));
       instructionsIds[id++] = {
@@ -56,7 +56,7 @@ export function getDebugInfo(tree: Tree) {
   }
   allStrings.push("");
   allStrings.push("Instructions:");
-  for (let [id, instruction] of Object.entries(instructionsIds)) {
+  for (const [id, instruction] of Object.entries(instructionsIds)) {
     const data = instruction.data._commands
       ? JSON.stringify(instruction.data._commands)
       : JSON.stringify(instruction.data);

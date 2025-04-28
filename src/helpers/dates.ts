@@ -308,7 +308,7 @@ function getLocaleDateFormatType(locale: Locale): DateFormatType {
 }
 
 function parseDate(parts: DateParts, separator: string): InternalDate | null {
-  let { year: yearStr, month: monthStr, day: dayStr } = parts;
+  const { year: yearStr, month: monthStr, day: dayStr } = parts;
   const month = inferMonth(monthStr);
   const day = inferDay(dayStr);
   const year = inferYear(yearStr);
@@ -451,7 +451,7 @@ function parseTime(str: string): InternalDate | null {
 
 export function numberToJsDate(value: number): DateTime {
   const truncValue = Math.trunc(value);
-  let date = DateTime.fromTimestamp(truncValue * MS_PER_DAY - DATE_JS_1900_OFFSET);
+  const date = DateTime.fromTimestamp(truncValue * MS_PER_DAY - DATE_JS_1900_OFFSET);
 
   let time = value - truncValue;
   time = time < 0 ? 1 + time : time;
@@ -513,7 +513,7 @@ export function addMonthsToDate(date: DateTime, months: number, keepEndOfMonth: 
 
 function isLeapYear(year: number): boolean {
   const _year = Math.trunc(year);
-  return (_year % 4 === 0 && _year % 100 != 0) || _year % 400 === 0;
+  return (_year % 4 === 0 && _year % 100 !== 0) || _year % 400 === 0;
 }
 
 export function getYearFrac(startDate: number, endDate: number, _dayCountConvention: number) {

@@ -37,8 +37,8 @@ export function useTouchScroll(
 
     const currentTime = Date.now();
     const { clientX, clientY } = event.touches[0];
-    let deltaX = lastX - clientX;
-    let deltaY = lastY - clientY;
+    const deltaX = lastX - clientX;
+    const deltaY = lastY - clientY;
 
     const elapsedTime = currentTime - lastTime;
     velocityX = deltaX / elapsedTime;

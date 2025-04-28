@@ -385,8 +385,7 @@ describe("Composer interactions", () => {
   });
 
   test("Arrow keys will not move to neighbor cell when a formula", async () => {
-    let composerEl: Element;
-    composerEl = await startComposition("=");
+    const composerEl = await startComposition("=");
     await typeInComposerGrid(`"`, false);
     await typeInComposerGrid(`"`, false);
     expect(composerEl.textContent).toBe(`=""`);
@@ -653,8 +652,8 @@ describe("Grid composer", () => {
       resizeColumns(model, ["A"], 50);
       await typeInComposerGrid("A");
 
-      let expectedMinHeight = 40 + 1; // +1 to include cell border
-      let expectedMinWidth = 50 + 1;
+      const expectedMinHeight = 40 + 1; // +1 to include cell border
+      const expectedMinWidth = 50 + 1;
 
       expect(getElComputedStyle(composerContainerSelector, "min-height")).toBe(
         expectedMinHeight + "px"

@@ -107,7 +107,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         this.history.update("charts", cmd.figureId, undefined);
         break;
       case "DELETE_SHEET":
-        for (let id of this.getChartIds(cmd.sheetId)) {
+        for (const id of this.getChartIds(cmd.sheetId)) {
           this.history.update("charts", id, undefined);
         }
         break;
@@ -157,9 +157,9 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       if (sheet.figures) {
-        for (let figure of sheet.figures) {
+        for (const figure of sheet.figures) {
           // TODO:
           // figure data should be external IMO => chart should be in sheet.chart
           // instead of in figure.data
@@ -173,11 +173,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   export(data: WorkbookData) {
     if (data.sheets) {
-      for (let sheet of data.sheets) {
+      for (const sheet of data.sheets) {
         // TODO This code is false, if two plugins want to insert figures on the sheet, it will crash !
         const sheetFigures = this.getters.getFigures(sheet.id);
         const figures: FigureData<any>[] = [];
-        for (let sheetFigure of sheetFigures) {
+        for (const sheetFigure of sheetFigures) {
           const figure = sheetFigure as FigureData<any>;
           if (figure && figure.tag === "chart") {
             const data = this.charts[figure.id]?.getDefinition();

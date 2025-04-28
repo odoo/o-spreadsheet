@@ -8,7 +8,7 @@ import {
 } from "chart.js";
 
 export function getFunnelChartController() {
-  return class FunnelChartController extends window.Chart?.BarController {
+  return class FunnelChartController extends window.Chart.BarController {
     static id = "funnel";
     static defaults = {
       ...window.Chart?.BarController.defaults,
@@ -42,7 +42,7 @@ export function getFunnelChartElement() {
    * Similar to a bar chart element, but it's a trapezoid rather than a rectangle. The top is of width
    * `width`, and the bottom is of width `nextElementWidth`.
    */
-  return class FunnelChartElement extends window.Chart?.BarElement {
+  return class FunnelChartElement extends window.Chart.BarElement {
     static id = "funnel";
 
     /** Overwrite this to draw a trapezoid rather then a rectangle */
@@ -50,7 +50,7 @@ export function getFunnelChartElement() {
       ctx.save();
 
       const props = ["x", "y", "width", "height", "nextElement", "base", "options"];
-      let { x, y, height, nextElement, base, options } = this.getProps(props) as any;
+      const { x, y, height, nextElement, base, options } = this.getProps(props) as any;
       const width = getElementWidth(this);
       const nextElementWidth = nextElement ? getElementWidth(nextElement) : 0;
       const offset = (width - nextElementWidth) / 2;
@@ -79,7 +79,7 @@ export function getFunnelChartElement() {
     /** Check if the mouse is inside the trapezoid */
     inRange(mouseX: number, mouseY: number) {
       const props = ["x", "y", "width", "height", "nextElement", "base", "options"];
-      let { x, y, height, nextElement, base } = this.getProps(props) as any;
+      const { x, y, height, nextElement, base } = this.getProps(props) as any;
       const width = getElementWidth(this);
       const nextElementWidth = nextElement ? getElementWidth(nextElement) : 0;
 
@@ -106,7 +106,7 @@ export function getFunnelChartElement() {
  * The property width is undefined during animations, we need to compute it manually.
  */
 function getElementWidth(element: BarElement) {
-  let { x, base } = element.getProps(["x", "base"]) as any;
+  const { x, base } = element.getProps(["x", "base"]) as any;
   const left = Math.min(x, base);
   const right = Math.max(x, base);
   return right - left;

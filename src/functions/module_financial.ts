@@ -1205,7 +1205,7 @@ export const IRR = {
 
     let positive = false;
     let negative = false;
-    let amounts: number[] = [];
+    const amounts: number[] = [];
 
     visitNumbers(
       [cashFlowAmounts],

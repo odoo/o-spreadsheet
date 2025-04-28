@@ -252,26 +252,26 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.uiPluginConfig = this.setupUiPluginConfig();
 
     // registering plugins
-    for (let Plugin of corePluginRegistry.getAll()) {
+    for (const Plugin of corePluginRegistry.getAll()) {
       this.setupCorePlugin(Plugin, workbookData);
     }
     Object.assign(this.getters, this.coreGetters);
 
     this.session.loadInitialMessages(stateUpdateMessages);
 
-    for (let Plugin of coreViewsPluginRegistry.getAll()) {
+    for (const Plugin of coreViewsPluginRegistry.getAll()) {
       const plugin = this.setupCoreViewPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
     }
-    for (let Plugin of statefulUIPluginRegistry.getAll()) {
+    for (const Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
-    for (let Plugin of featurePluginRegistry.getAll()) {
+    for (const Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
@@ -315,7 +315,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
     const plugin = new Plugin(this.uiPluginConfig);
-    for (let name of Plugin.getters) {
+    for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
@@ -335,7 +335,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupCoreViewPlugin(Plugin: CoreViewPluginConstructor) {
     const plugin = new Plugin(this.coreViewPluginConfig);
-    for (let name of Plugin.getters) {
+    for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
@@ -355,7 +355,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
     const plugin = new Plugin(this.corePluginConfig);
-    for (let name of Plugin.getters) {
+    for (const name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
       }
@@ -371,7 +371,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
-    for (let command of commands) {
+    for (const command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
       this.dispatchToHandlers(this.statefulUIPlugins, command);
@@ -556,7 +556,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
     const command: Command = createCommand(type, payload);
-    let status: Status = this.status;
+    const status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
     }
@@ -679,7 +679,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   exportData(): WorkbookData {
     let data = createEmptyWorkbookData();
-    for (let handler of this.handlers) {
+    for (const handler of this.handlers) {
       if (handler instanceof CorePlugin) {
         handler.export(data);
       }
@@ -707,7 +707,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   exportXLSX(): XLSXExport {
     this.dispatch("EVALUATE_CELLS");
     let data = createEmptyExcelWorkbookData();
-    for (let handler of this.handlers) {
+    for (const handler of this.handlers) {
       if (handler instanceof BasePlugin) {
         handler.exportForExcel(data);
       }

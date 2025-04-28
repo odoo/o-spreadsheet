@@ -48,10 +48,10 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
 
     const copiedTablesIds = new Set<UID>();
     const tableCells: TableCell[][] = [];
-    for (let row of rowsIndexes) {
-      let tableCellsInRow: TableCell[] = [];
+    for (const row of rowsIndexes) {
+      const tableCellsInRow: TableCell[] = [];
       tableCells.push(tableCellsInRow);
-      for (let col of columnsIndexes) {
+      for (const col of columnsIndexes) {
         const position = { col, row, sheetId };
         const table = this.getters.getTable(position);
         if (!table) {

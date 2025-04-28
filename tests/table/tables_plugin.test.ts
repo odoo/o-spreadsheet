@@ -154,7 +154,7 @@ describe("Table plugin", () => {
         CommandResult.InvalidTableConfig
       );
 
-      let configUpdate = { numberOfHeaders: 0, hasFilters: true };
+      const configUpdate = { numberOfHeaders: 0, hasFilters: true };
       expect(updateTableConfig(model, "A1", configUpdate)).toBeCancelledBecause(
         CommandResult.InvalidTableConfig
       );

@@ -111,7 +111,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
     // Having a namespace in the attributes names mess with the querySelector, and the behavior is not the same
     // for every XML parser. So we'll search manually instead of using a querySelector to search for an attribute value.
-    for (let sheetElement of this.querySelectorAll(
+    for (const sheetElement of this.querySelectorAll(
       this.xlsxFileStructure.workbook.file.xml,
       "sheet"
     )) {
@@ -191,7 +191,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
     return this.mapOnElements(
       { query: "tablePart", parent: worksheet },
       (tablePartElement): XLSXTable => {
-        const tableId = this.extractAttr(tablePartElement, "r:id", { required: true })?.asString()!;
+        const tableId = this.extractAttr(tablePartElement, "r:id", { required: true })?.asString();
         const tableFile = this.getTargetXmlFile(this.relationships[tableId])!;
 
         const tableExtractor = new XlsxTableExtractor(
@@ -272,8 +272,8 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           customWidth: this.extractAttr(colElement, "customWidth")?.asBool(),
           bestFit: this.extractAttr(colElement, "bestFit")?.asBool(),
           hidden: this.extractAttr(colElement, "hidden")?.asBool(),
-          min: this.extractAttr(colElement, "min", { required: true })?.asNum()!,
-          max: this.extractAttr(colElement, "max", { required: true })?.asNum()!,
+          min: this.extractAttr(colElement, "min", { required: true })?.asNum(),
+          max: this.extractAttr(colElement, "max", { required: true })?.asNum(),
           styleIndex: this.extractAttr(colElement, "style")?.asNum(),
           outlineLevel: this.extractAttr(colElement, "outlineLevel")?.asNum(),
           collapsed: this.extractAttr(colElement, "collapsed")?.asBool(),
@@ -287,7 +287,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
       { parent: worksheet, query: "sheetData row" },
       (rowElement): XLSXRow => {
         return {
-          index: this.extractAttr(rowElement, "r", { required: true })?.asNum()!,
+          index: this.extractAttr(rowElement, "r", { required: true })?.asNum(),
           cells: this.extractCells(rowElement),
           height: this.extractAttr(rowElement, "ht")?.asNum(),
           customHeight: this.extractAttr(rowElement, "customHeight")?.asBool(),
@@ -303,10 +303,10 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
   private extractCells(row: Element): XLSXCell[] {
     return this.mapOnElements({ parent: row, query: "c" }, (cellElement): XLSXCell => {
       return {
-        xc: this.extractAttr(cellElement, "r", { required: true })?.asString()!,
+        xc: this.extractAttr(cellElement, "r", { required: true })?.asString(),
         styleIndex: this.extractAttr(cellElement, "s")?.asNum(),
         type: CELL_TYPE_CONVERSION_MAP[
-          this.extractAttr(cellElement, "t", { default: "n" })?.asString()!
+          this.extractAttr(cellElement, "t", { default: "n" })?.asString()
         ],
         value: this.extractChildTextContent(cellElement, "v"),
         formula: this.extractCellFormula(cellElement),
@@ -330,7 +330,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
       (linkElement): XLSXHyperLink => {
         const relId = this.extractAttr(linkElement, "r:id")?.asString();
         return {
-          xc: this.extractAttr(linkElement, "ref", { required: true })?.asString()!,
+          xc: this.extractAttr(linkElement, "ref", { required: true })?.asString(),
           location: this.extractAttr(linkElement, "location")?.asString(),
           display: this.extractAttr(linkElement, "display")?.asString(),
           relTarget: relId ? this.relationships[relId].target : undefined,
@@ -342,7 +342,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
   private extractSharedFormulas(worksheet: Element): string[] {
     const sfElements = this.querySelectorAll(worksheet, `f[si][ref]`);
     const sfMap: Record<number, string> = {};
-    for (let sfElement of sfElements) {
+    for (const sfElement of sfElements) {
       const index = this.extractAttr(sfElement, "si", { required: true }).asNum();
       const formula = this.extractTextContent(sfElement, { required: true });
       sfMap[index] = formula;

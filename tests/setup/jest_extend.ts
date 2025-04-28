@@ -76,7 +76,7 @@ expect.extend({
     return { pass: !this.isNot, message: () => "" };
   },
   toHaveSynchronizedValue(users: Model[], callback: (model: Model) => any, expected: any) {
-    for (let user of users) {
+    for (const user of users) {
       const result = callback(user);
       if (!this.equals(result, expected, [this.utils.iterableEquality])) {
         const userId = user.getters.getClient().name;

@@ -153,7 +153,7 @@ export function getChildFromComponent<T extends new (...args: any) => any>(
 }
 
 export function makeTestFixture() {
-  let fixture = document.createElement("div");
+  const fixture = document.createElement("div");
   document.body.appendChild(fixture);
   return fixture;
 }
@@ -433,7 +433,7 @@ export function setGridStyle(model: Model, grid: GridStyleDescr) {
 export function evaluateGrid(grid: GridDescr): GridResult {
   const model = new Model({ sheets: [{ cells: grid }] });
   const result = {};
-  for (let xc in grid) {
+  for (const xc in grid) {
     result[xc] = getEvaluatedCell(model, xc).value;
   }
   return result;
@@ -441,13 +441,13 @@ export function evaluateGrid(grid: GridDescr): GridResult {
 
 export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
   const model = new Model();
-  for (let xc in grid) {
+  for (const xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);
     }
   }
   const result = {};
-  for (let xc in grid) {
+  for (const xc in grid) {
     result[xc] = getCellContent(model, xc);
   }
   return result;
@@ -455,13 +455,13 @@ export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
 
 export function evaluateGridFormat(grid: GridDescr): FormattedGridDescr {
   const model = new Model();
-  for (let xc in grid) {
+  for (const xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);
     }
   }
   const result = {};
-  for (let xc in grid) {
+  for (const xc in grid) {
     result[xc] = getEvaluatedCell(model, xc).format || "";
   }
   return result;
@@ -516,7 +516,7 @@ export function getRangeCellsAsMatrix(
 
 export function createModelFromGrid(grid: GridDescr): Model {
   const model = new Model();
-  for (let xc in grid) {
+  for (const xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);
     }
@@ -584,7 +584,7 @@ function _clearFunctions() {
 }
 
 export function restoreDefaultFunctions() {
-  for (let f in functionCache) {
+  for (const f in functionCache) {
     delete functionCache[f];
   }
   _clearFunctions();
@@ -718,7 +718,7 @@ export async function editStandaloneComposer(
   text: string,
   { confirm = true, fromScratch = true }: EditStandaloneComposerOptions = {}
 ) {
-  let composerEl = getTarget(target) as HTMLElement;
+  const composerEl = getTarget(target) as HTMLElement;
 
   composerEl.focus();
   await click(composerEl);
@@ -844,7 +844,7 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
 export function getExportedExcelData(model: Model): ExcelWorkbookData {
   model.dispatch("EVALUATE_CELLS");
   let data = createEmptyExcelWorkbookData();
-  for (let handler of model["handlers"]) {
+  for (const handler of model["handlers"]) {
     if (handler instanceof BasePlugin) {
       handler.exportForExcel(data);
     }

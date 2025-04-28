@@ -321,7 +321,7 @@ function internalFormatPartToFormat(
     internalFormat.type !== "number"
       ? internalFormat.tokens
       : numberInternalFormatToTokenList(internalFormat);
-  for (let token of tokens) {
+  for (const token of tokens) {
     switch (token.type) {
       case "STRING":
         format += `[$${token.value}]`;
@@ -340,7 +340,7 @@ function internalFormatPartToFormat(
 }
 
 function numberInternalFormatToTokenList(internalFormat: NumberInternalFormat): FormatToken[] {
-  let tokens: FormatToken[] = [...internalFormat.integerPart];
+  const tokens: FormatToken[] = [...internalFormat.integerPart];
 
   if (internalFormat.decimalPart) {
     tokens.push({ type: "DECIMAL_POINT", value: "." });

@@ -522,7 +522,7 @@ describe("selection input plugin", () => {
     createSheet(model, { sheetId: "42", position: 1 });
     expect(model.getters.getActiveSheet()).not.toBe("42");
     store.changeRange(idOfRange(store, 0), "A1, Sheet2!B3");
-    let [range1, range2] = store.selectionInputs;
+    const [range1, range2] = store.selectionInputs;
     expect(highlightedZones(container)).toEqual(["A1"]);
     expect(range1.xc).toBe("A1");
     expect(range2.xc).toBe("Sheet2!B3");
@@ -532,7 +532,7 @@ describe("selection input plugin", () => {
     const { store, model, container } = makeStore(SelectionInputStore);
     createSheet(model, { sheetId: "42", activate: true });
     store.changeRange(idOfRange(store, 0), "Sheet2!B3, A1");
-    let [range1, range2] = store.selectionInputs;
+    const [range1, range2] = store.selectionInputs;
     expect(highlightedZones(container)).toEqual(["B3"]);
     expect(store.selectionInputs).toHaveLength(2);
     expect(range1.xc).toBe("Sheet2!B3");

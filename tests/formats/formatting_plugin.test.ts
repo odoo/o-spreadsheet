@@ -576,7 +576,7 @@ describe("formatting values (when change decimal)", () => {
   });
 
   test("Check multiple format in selected zone", async () => {
-    let model = new Model();
+    const model = new Model();
     setCellContent(model, "A1", "100%");
     setCellContent(model, "B1", "$190.12");
     setCellContent(model, "C1", "$21");
@@ -587,7 +587,7 @@ describe("formatting values (when change decimal)", () => {
   });
 
   test("Check multiple format in multiple zone", async () => {
-    let model = new Model();
+    const model = new Model();
     setCellContent(model, "A1", "100%");
     setCellContent(model, "B1", "$190.12");
     setCellContent(model, "C1", "$21");

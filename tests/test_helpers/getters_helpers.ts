@@ -37,7 +37,7 @@ export function getCell(
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): Cell | undefined {
-  let { col, row } = toCartesian(xc);
+  const { col, row } = toCartesian(xc);
   return model.getters.getCell({ sheetId, col, row });
 }
 
