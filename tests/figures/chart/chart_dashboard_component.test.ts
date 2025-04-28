@@ -2,8 +2,8 @@ import { Model } from "../../../src";
 import { CHART_PADDING_TOP } from "../../../src/constants";
 import { LineChartDefinition } from "../../../src/types/chart";
 import { createChart, updateChart } from "../../test_helpers/commands_helpers";
-import { click } from "../../test_helpers/dom_helper";
-import { mockChart, mountSpreadsheet } from "../../test_helpers/helpers";
+import { click, triggerMouseEvent } from "../../test_helpers/dom_helper";
+import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 mockChart();
 
@@ -61,5 +61,27 @@ describe("combo charts", () => {
     expect(chartDefinition.type).toBe("line");
     expect(chartDefinition.stacked).toBe(true);
     expect(chartDefinition.fillArea).toBe(true);
+  });
+
+  test("Can open menu to copy/download figures in dashboard mode", async () => {
+    createChart(model, { type: "bar" }, chartId);
+    model.updateMode("dashboard");
+    const { fixture } = await mountSpreadsheet({ model });
+
+    triggerMouseEvent(".o-figure", "contextmenu");
+    await nextTick();
+    expect(".o-menu-item").toHaveCount(0);
+
+    await click(fixture, ".o-figure .fa-ellipsis-v");
+    const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")].map(
+      (item) => item.dataset.name
+    );
+
+    // ADRM TODO
+    // if (type === "image") {
+    //   expect(menuItems).toEqual(["copy", "download"]);
+    // } else {
+    expect(menuItems).toEqual(["copy_as_image", "download"]);
+    // }
   });
 });

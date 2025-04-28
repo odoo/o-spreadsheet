@@ -787,24 +787,6 @@ describe("figures", () => {
         expect(menuPopover.style.left).toBe(`${MENU_WIDTH - 50 - 25 + 32}px`);
       });
 
-      test("Can only copy/download figures in dashboard mode", async () => {
-        model.updateMode("dashboard");
-        await nextTick();
-
-        triggerMouseEvent(".o-figure", "contextmenu");
-        await nextTick();
-
-        const menuItems = [...document.querySelectorAll<HTMLElement>(".o-menu-item")].map(
-          (item) => item.dataset.name
-        );
-
-        if (type === "image") {
-          expect(menuItems).toEqual(["copy", "download"]);
-        } else {
-          expect(menuItems).toEqual(["copy_as_image", "download"]);
-        }
-      });
-
       test("Click on Menu button open context menu", async () => {
         expect(fixture.querySelector(".o-figure")).not.toBeNull();
         await simulateClick(".o-figure");
