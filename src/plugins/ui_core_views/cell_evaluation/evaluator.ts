@@ -106,6 +106,25 @@ export class Evaluator {
     return Array.from(arrayFormulas).find((position) => !this.blockedArrayFormulas.has(position));
   }
 
+  getArrayFormulasSpreadingOn(position: CellPosition): CellPosition[] {
+    const positions: CellPosition[] = [];
+
+    const hasArrayFormulaResult =
+      this.getEvaluatedCell(position).type !== CellValueType.empty &&
+      !this.getters.getCell(position)?.isFormula;
+    if (!hasArrayFormulaResult && this.spreadingRelations.isArrayFormula(position)) {
+      positions.push(position);
+    }
+    const arrayFormulas = this.spreadingRelations.searchFormulaPositionsSpreadingOn(
+      position.sheetId,
+      positionToZone(position)
+    );
+    positions.push(
+      ...Array.from(arrayFormulas).filter((position) => !this.blockedArrayFormulas.has(position))
+    );
+    return positions;
+  }
+
   updateDependencies(position: CellPosition) {
     // removing dependencies is slow because it requires
     // to traverse the entire r-tree.
@@ -173,11 +192,8 @@ export class Evaluator {
 
     for (const position of positions) {
       const content = this.getters.getCell(position)?.content;
-      const arrayFormulaPosition = this.getArrayFormulaSpreadingOn(position);
-      if (arrayFormulaPosition !== undefined) {
-        // take into account new collisions.
-        impactedPositions.add(arrayFormulaPosition);
-      }
+      const arrayFormulaPosition = this.getArrayFormulasSpreadingOn(position);
+      impactedPositions.addMany(arrayFormulaPosition);
       if (!content) {
         // The previous content could have blocked some array formulas
         impactedPositions.add(position);
