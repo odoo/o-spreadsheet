@@ -1,5 +1,6 @@
 import { CommandResult, Model } from "../../src";
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
 import { renameSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
@@ -234,6 +235,46 @@ describe("Pivot plugin", () => {
       pivotId: "9999",
     });
     expect(updateResult).toBeCancelledBecause(CommandResult.PivotIdNotFound);
+  });
+
+  test("cannot create a pivot with and invalid dataset sheetId or zone", () => {
+    const model = new Model();
+    const createResult1 = addPivot(model, "", {
+      dataSet: { sheetId: "BADSHEETID", zone: toZone("A1:A2") },
+    });
+    expect(createResult1).toBeCancelledBecause(CommandResult.InvalidDataSet);
+    const sheetId = model.getters.getActiveSheetId();
+    const createResult2 = addPivot(model, "", {
+      dataSet: { sheetId, zone: { top: -1, left: 1, bottom: 2, right: 2 } },
+    });
+    expect(createResult2).toBeCancelledBecause(CommandResult.InvalidDataSet);
+
+    // Out of bounds zone
+    const createResult3 = addPivot(model, "", {
+      dataSet: { sheetId, zone: { top: 1, left: 1, bottom: 200, right: 200 } },
+    });
+    expect(createResult3).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+  });
+
+  test("cannot update a pivot with and invalid dataset sheetId or zone", () => {
+    const model = new Model();
+    addPivot(model, "A1:A2");
+
+    const updateResult1 = updatePivot(model, "1", {
+      dataSet: { sheetId: "BADSHEETID", zone: toZone("A1:A2") },
+    });
+    expect(updateResult1).toBeCancelledBecause(CommandResult.InvalidDataSet);
+    const sheetId = model.getters.getActiveSheetId();
+    const updateResult2 = updatePivot(model, "1", {
+      dataSet: { sheetId, zone: { top: -1, left: 1, bottom: 2, right: 2 } },
+    });
+    expect(updateResult2).toBeCancelledBecause(CommandResult.InvalidDataSet);
+
+    // Out of bounds zone
+    const updateResult3 = updatePivot(model, "1", {
+      dataSet: { sheetId, zone: { top: 1, left: 1, bottom: 200, right: 200 } },
+    });
+    expect(updateResult3).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
   test("forbidden characters are removed from new sheet name when duplicating a pivot", () => {
