@@ -631,6 +631,28 @@ describe("Grid composer", () => {
     expect(getCellContent(model, "B2")).toBe("");
   });
 
+  test("Wheel event on the composer should not scroll the viewport if the composer has a scrollbar", async () => {
+    const viewport = model.getters.getActiveMainViewport();
+    // Describes a div that has a scrollbar - the scrollHeight is greater than the clientHeight
+    jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
+    jest.spyOn(HTMLDivElement.prototype, "scrollHeight", "get").mockImplementation(() => 150);
+    await startComposition("5");
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
+    await nextTick();
+    expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
+
+    // Describes a div without a scrollbar, the scrollHeight matches the clientheight
+    jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 50);
+    jest.spyOn(HTMLDivElement.prototype, "scrollHeight", "get").mockImplementation(() => 50);
+    await nextTick();
+    triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
+    expect(model.getters.getActiveMainViewport()).toMatchObject({
+      ...viewport,
+      top: viewport.top + 4,
+      bottom: viewport.bottom + 4,
+    });
+  });
+
   describe("grid composer basic style", () => {
     const composerContainerSelector = ".o-grid .o-grid-composer";
 

@@ -39,6 +39,7 @@
           t-on-dblclick="onDblClick"
           t-on-contextmenu="onContextMenu"
           t-on-blur="onBlur"
+          t-on-wheel="onWheel"
         />
       </div>
       <div
