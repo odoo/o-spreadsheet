@@ -458,7 +458,7 @@ export class AutofillPlugin extends UIPlugin {
    */
   private getRule(cell: Cell, cells: (Cell | undefined)[]): AutofillModifier | undefined {
     const rules = autofillRulesRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
-    const rule = rules.find((rule) => rule.condition(cell, cells));
+    const rule = rules.find((rule) => rule.condition(cell, cells, this.direction));
     return rule && this.direction && rule.generateRule(cell, cells, this.direction);
   }
 
