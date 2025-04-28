@@ -81,7 +81,7 @@ describe("Top Bar Menu Item Registry", () => {
     addToRegistry(registry, "root", { name: "rootNode" });
     registry.addChild("child", ["root"], { id: "unique", name: "child" });
     expect(() =>
-      registry.addChild("child", ["root"], { id: "unique", name: "child" }, { force: true })
+      registry.replaceChild("child", ["root"], { id: "unique", name: "child" })
     ).not.toThrowError();
   });
   test("Menu items can have the same id with different parent nodes", () => {
