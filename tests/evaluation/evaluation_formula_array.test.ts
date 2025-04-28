@@ -740,6 +740,16 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "A3").value).toBe("#SPILL!");
     });
 
+    test("recompute when spread if filled by a formula", () => {
+      setCellContent(model, "A1", "=MFILL(1,2,42)");
+      expect(getEvaluatedCell(model, "A1").value).toBe(42);
+      expect(getEvaluatedCell(model, "A2").value).toBe(42);
+      setCellContent(model, "A2", "=MFILL(1,2,421)");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
+      expect(getEvaluatedCell(model, "A2").value).toBe(421);
+      expect(getEvaluatedCell(model, "A3").value).toBe(421);
+    });
+
     test("recompute cell depending on spread values computed in between", () => {
       const model = new Model({
         sheets: [
