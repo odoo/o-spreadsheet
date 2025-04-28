@@ -103,6 +103,8 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get composerProps(): ComposerProps {
+    // Remove the wrapper border width
+    const maxHeight = this.props.gridDims.height - this.rect.y - 2 * COMPOSER_BORDER_WIDTH;
     return {
       focus: this.composerFocusStore.gridComposerFocus,
       isDefaultFocus: true,
@@ -110,6 +112,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       onComposerCellFocused: (content: string) =>
         this.composerFocusStore.focusGridComposerCell(content),
       onInputContextMenu: this.props.onInputContextMenu,
+      inputStyle: `max-height: ${maxHeight}px;`,
     };
   }
 
