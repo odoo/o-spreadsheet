@@ -717,7 +717,7 @@ function getTreeMapElementColor(
   }
 
   const rootNode = tree.find((node) => node.label === rootCategory);
-  if (!rootNode) {
+  if (!rootNode || !rootNode.children.length) {
     return baseColor;
   }
   const treeNodesByLevel = pyramidizeTree(rootNode.children);

@@ -430,5 +430,32 @@ describe("TreeMap chart", () => {
         "#778899"
       );
     });
+
+    test("TreeMap category colors with single level", () => {
+      // prettier-ignore
+      const grid = {
+            A1: "Year", C1: "Sales",
+            A2: "2023", C2: "20",
+            A3: "2024", C3: "100",
+      };
+      setGrid(model, grid);
+      const chartId = createTreeMapChart(model, {
+        dataSets: [{ dataRange: "A1:A3" }],
+        labelRange: "C1:C3",
+        coloringOptions: {
+          type: "categoryColor",
+          useValueBasedGradient: true,
+          colors: ["#778899", "#112233"],
+        },
+      });
+      const getColor = getBackgroundColorCallback(chartId);
+
+      expect(getColor(getTreeMapElement({ depth: 0, path: "2023", isLeaf: true }))).toEqual(
+        "#112233"
+      );
+      expect(getColor(getTreeMapElement({ depth: 0, path: "2024", isLeaf: true }))).toEqual(
+        "#778899"
+      );
+    });
   });
 });
