@@ -21,12 +21,20 @@ export class MenuItemRegistry extends Registry<ActionSpec> {
    * @param path Path of items to add this subitem
    * @param value Subitem to add
    */
-  addChild(
+  addChild(key: string, path: string[], value: ActionSpec | ActionBuilder): this {
+    return this._replaceChild(key, path, value, { force: false });
+  }
+
+  replaceChild(key: string, path: string[], value: ActionSpec | ActionBuilder): this {
+    return this._replaceChild(key, path, value, { force: true });
+  }
+
+  private _replaceChild(
     key: string,
     path: string[],
     value: ActionSpec | ActionBuilder,
-    options: { force: boolean } = { force: false }
-  ): MenuItemRegistry {
+    options: { force: boolean } = { force: true }
+  ): this {
     if (typeof value !== "function" && value.id === undefined) {
       value.id = key;
     }
