@@ -428,4 +428,12 @@ describe("Sunburst chart chart", () => {
       enabled: true,
     });
   });
+
+  test("Sunburst chart hole size", () => {
+    const model = new Model();
+    const chartId = createSunburstChart(model, { pieHolePercentage: 80 });
+
+    const runtime = model.getters.getChartRuntime(chartId) as SunburstChartRuntime;
+    expect(runtime.chartJsConfig.options?.cutout).toEqual("80%");
+  });
 });

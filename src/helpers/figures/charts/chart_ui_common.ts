@@ -8,7 +8,7 @@ import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 
-export const CHART_COMMON_OPTIONS: ChartOptions = {
+export const CHART_COMMON_OPTIONS = {
   // https://www.chartjs.org/docs/latest/general/responsive.html
   responsive: true, // will resize when its container is resized
   maintainAspectRatio: false, // doesn't maintain the aspect ratio (width/height =2 by default) so the user has the choice of the exact layout
@@ -21,7 +21,7 @@ export const CHART_COMMON_OPTIONS: ChartOptions = {
     },
   },
   animation: false,
-};
+} satisfies ChartOptions;
 
 export function chartToImageUrl(
   runtime: ChartRuntime,

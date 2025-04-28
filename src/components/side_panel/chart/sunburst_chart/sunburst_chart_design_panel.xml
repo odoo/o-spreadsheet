@@ -53,6 +53,10 @@
             defaultStyle="defaults.valuesDesign"
           />
         </Section>
+        <PieHoleSize
+          value="props.definition.pieHolePercentage ?? 25"
+          onValueChange.bind="onPieHoleSizeChange"
+        />
       </t>
     </SidePanelCollapsible>
   </t>

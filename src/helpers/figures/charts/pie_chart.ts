@@ -58,6 +58,7 @@ export class PieChart extends AbstractChart {
   readonly dataSetsHaveTitle: boolean;
   readonly isDoughnut?: boolean;
   readonly showValues?: boolean;
+  readonly pieHolePercentage?: number;
 
   constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -74,6 +75,7 @@ export class PieChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.isDoughnut = definition.isDoughnut;
     this.showValues = definition.showValues;
+    this.pieHolePercentage = definition.pieHolePercentage;
   }
 
   static transformDefinition(
@@ -141,6 +143,7 @@ export class PieChart extends AbstractChart {
       aggregated: this.aggregated,
       isDoughnut: this.isDoughnut,
       showValues: this.showValues,
+      pieHolePercentage: this.pieHolePercentage,
     };
   }
 
@@ -203,7 +206,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const definition = chart.getDefinition();
   const chartData = getPieChartData(definition, chart.dataSets, chart.labelRange, getters);
 
-  const config: ChartConfiguration = {
+  const config: ChartConfiguration<"doughnut" | "pie"> = {
     type: chart.isDoughnut ? "doughnut" : "pie",
     data: {
       labels: chartData.labels,
@@ -211,6 +214,10 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
     },
     options: {
       ...CHART_COMMON_OPTIONS,
+      cutout:
+        chart.isDoughnut && definition.pieHolePercentage !== undefined
+          ? definition.pieHolePercentage + "%"
+          : undefined,
       layout: getChartLayout(definition),
       plugins: {
         title: getChartTitle(definition),
