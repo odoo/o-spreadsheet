@@ -240,7 +240,7 @@ export function createScatterChartRuntime(
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       scales: getScatterChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

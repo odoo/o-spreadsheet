@@ -2,6 +2,7 @@ import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_types";
 import { ChartType, FigureUI, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
+import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
 // -----------------------------------------------------------------------------
 // STYLE
@@ -27,7 +28,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     figureUI: Object,
     onFigureDeleted: Function,
   };
-  static components = {};
+  static components = { ChartDashboardMenu };
 
   onDoubleClick() {
     this.env.model.dispatch("SELECT_FIGURE", { figureId: this.props.figureUI.id });

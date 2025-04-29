@@ -214,7 +214,7 @@ export function createPyramidChartRuntime(
     options: {
       ...CHART_COMMON_OPTIONS,
       indexAxis: "y",
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       scales: getPyramidChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

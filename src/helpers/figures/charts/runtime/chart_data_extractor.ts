@@ -91,6 +91,7 @@ export function getBarChartData(
     axisFormats,
     labels,
     locale: getters.getLocale(),
+    topPadding: getTopPaddingForDashboard(definition, getters),
   };
 }
 
@@ -175,6 +176,7 @@ export function getLineChartData(
     locale: getters.getLocale(),
     trendDataSetsValues,
     axisType,
+    topPadding: getTopPaddingForDashboard(definition, getters),
   };
 }
 
@@ -206,6 +208,7 @@ export function getPieChartData(
     axisFormats: { y: dataSetFormat },
     labels,
     locale: getters.getLocale(),
+    topPadding: getTopPaddingForDashboard(definition, getters),
   };
 }
 
@@ -978,4 +981,13 @@ export function makeDatasetsCumulative(
     }
     return { ...dataset, data };
   });
+}
+
+export function getTopPaddingForDashboard(
+  definition: GenericDefinition<PieChartDefinition | LineChartDefinition | BarChartDefinition>,
+  getters: Getters
+) {
+  const { title, legendPosition } = definition;
+  const hasTitleOrLegendTop = (title && title.text) || legendPosition === "top";
+  return getters.isDashboard() && !hasTitleOrLegendTop ? 30 : 0;
 }

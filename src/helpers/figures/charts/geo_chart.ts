@@ -201,7 +201,7 @@ export function createGeoChartRuntime(chart: GeoChart, getters: Getters): GeoCha
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       scales: getGeoChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

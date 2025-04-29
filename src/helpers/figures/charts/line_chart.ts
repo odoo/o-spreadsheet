@@ -245,7 +245,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       scales: getLineChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
