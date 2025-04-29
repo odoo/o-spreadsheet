@@ -321,6 +321,82 @@ describe("figures", () => {
   });
 
   test.each([
+    ["top", { mouseOffsetX: 0, mouseOffsetY: -50 }, { width: 100, height: 150 }],
+    ["topRight", { mouseOffsetX: 50, mouseOffsetY: -50 }, { width: 150, height: 150 }],
+    ["topRight", { mouseOffsetX: 50, mouseOffsetY: 0 }, { width: 150, height: 150 }],
+    ["topRight", { mouseOffsetX: 0, mouseOffsetY: -50 }, { width: 150, height: 150 }],
+    ["right", { mouseOffsetX: 50, mouseOffsetY: 0 }, { width: 150, height: 100 }],
+    ["bottomRight", { mouseOffsetX: 50, mouseOffsetY: 50 }, { width: 150, height: 150 }],
+    ["bottomRight", { mouseOffsetX: 0, mouseOffsetY: 50 }, { width: 150, height: 150 }],
+    ["bottomRight", { mouseOffsetX: 50, mouseOffsetY: 0 }, { width: 150, height: 150 }],
+    ["bottom", { mouseOffsetX: 0, mouseOffsetY: 50 }, { width: 100, height: 150 }],
+    ["bottomLeft", { mouseOffsetX: -50, mouseOffsetY: 50 }, { width: 150, height: 150 }],
+    ["bottomLeft", { mouseOffsetX: 0, mouseOffsetY: 50 }, { width: 150, height: 150 }],
+    ["bottomLeft", { mouseOffsetX: -50, mouseOffsetY: 0 }, { width: 150, height: 150 }],
+    ["left", { mouseOffsetX: -50, mouseOffsetY: 0 }, { width: 150, height: 100 }],
+    ["topLeft", { mouseOffsetX: -50, mouseOffsetY: -50 }, { width: 150, height: 150 }],
+    ["topLeft", { mouseOffsetX: 0, mouseOffsetY: -50 }, { width: 150, height: 150 }],
+    ["topLeft", { mouseOffsetX: -50, mouseOffsetY: 0 }, { width: 150, height: 150 }],
+  ])(
+    "Can resize a figure through its anchors with keepSize",
+    async (anchor: string, mouseMove, expectedSize) => {
+      const figureId = "someuuid";
+      createImage(model, {
+        figureId,
+        col: 5,
+        row: 5,
+        offset: { x: 10, y: 10 },
+        size: {
+          width: 100,
+          height: 100,
+        },
+      });
+      model.dispatch("SELECT_FIGURE", { figureId });
+      await nextTick();
+      await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
+      expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
+    }
+  );
+
+  test.each([
+    ["top", { mouseOffsetX: 0, mouseOffsetY: -5 }, { offset: { x: 10, y: 5 } }],
+    ["topRight", { mouseOffsetX: 5, mouseOffsetY: -5 }, { offset: { x: 10, y: 5 } }],
+    ["topRight", { mouseOffsetX: 5, mouseOffsetY: 0 }, { offset: { x: 10, y: 5 } }],
+    ["topRight", { mouseOffsetX: 0, mouseOffsetY: -5 }, { offset: { x: 10, y: 5 } }],
+    ["right", { mouseOffsetX: 5, mouseOffsetY: 0 }, { offset: { x: 10, y: 10 } }],
+    ["bottomRight", { mouseOffsetX: 5, mouseOffsetY: 5 }, { offset: { x: 10, y: 10 } }],
+    ["bottomRight", { mouseOffsetX: 0, mouseOffsetY: 5 }, { offset: { x: 10, y: 10 } }],
+    ["bottomRight", { mouseOffsetX: 5, mouseOffsetY: 0 }, { offset: { x: 10, y: 10 } }],
+    ["bottom", { mouseOffsetX: 0, mouseOffsetY: 5 }, { offset: { x: 10, y: 10 } }],
+    ["bottomLeft", { mouseOffsetX: -5, mouseOffsetY: 5 }, { offset: { x: 5, y: 10 } }],
+    ["bottomLeft", { mouseOffsetX: 0, mouseOffsetY: 5 }, { offset: { x: 5, y: 10 } }],
+    ["bottomLeft", { mouseOffsetX: -5, mouseOffsetY: 0 }, { offset: { x: 5, y: 10 } }],
+    ["left", { mouseOffsetX: -5, mouseOffsetY: 0 }, { offset: { x: 5, y: 10 } }],
+    ["topLeft", { mouseOffsetX: -5, mouseOffsetY: -5 }, { offset: { x: 5, y: 5 } }],
+    ["topLeft", { mouseOffsetX: 0, mouseOffsetY: -5 }, { offset: { x: 5, y: 5 } }],
+    ["topLeft", { mouseOffsetX: -5, mouseOffsetY: 0 }, { offset: { x: 5, y: 5 } }],
+  ])(
+    "Resize a figure through its anchors with keepSize correctly adapt anchor",
+    async (anchor: string, mouseMove, expectedSize) => {
+      const figureId = "someuuid";
+      createImage(model, {
+        figureId,
+        col: 5,
+        row: 5,
+        offset: { x: 10, y: 10 },
+        size: {
+          width: 20,
+          height: 20,
+        },
+      });
+      model.dispatch("SELECT_FIGURE", { figureId });
+      await nextTick();
+      await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
+      expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(expectedSize);
+    }
+  );
+
+  test.each([
     ["top", { mouseOffsetX: 0, mouseOffsetY: -100 }],
     ["left", { mouseOffsetX: -100, mouseOffsetY: 0 }],
     ["topLeft", { mouseOffsetX: -100, mouseOffsetY: -100 }],

@@ -40,14 +40,14 @@ export function dragFigureForResize(
       height - minFigSize
     );
     const fraction = Math.min(deltaX / width, deltaY / height);
-    width = width * (1 - fraction);
-    height = height * (1 - fraction);
     if (dirX < 0) {
       x = x + width * fraction;
     }
     if (dirY < 0) {
       y = y + height * fraction;
     }
+    width = width * (1 - fraction);
+    height = height * (1 - fraction);
   } else {
     const deltaX = Math.max(
       dirX * (mouseX - mouseInitialX + scrollX - initialScrollX),
