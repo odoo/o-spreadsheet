@@ -232,7 +232,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       scales: getRadarChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

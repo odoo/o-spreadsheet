@@ -1,17 +1,22 @@
 import { ChartOptions } from "chart.js";
 import { CHART_PADDING, CHART_PADDING_BOTTOM, CHART_PADDING_TOP } from "../../../../constants";
-import { ChartWithDataSetDefinition, GenericDefinition } from "../../../../types/chart";
+import {
+  ChartRuntimeGenerationArgs,
+  ChartWithDataSetDefinition,
+  GenericDefinition,
+} from "../../../../types/chart";
 
 type ChartLayout = ChartOptions["layout"];
 
 export function getChartLayout(
-  definition: GenericDefinition<ChartWithDataSetDefinition>
+  definition: GenericDefinition<ChartWithDataSetDefinition>,
+  args: ChartRuntimeGenerationArgs
 ): ChartLayout {
   return {
     padding: {
       left: CHART_PADDING,
       right: CHART_PADDING,
-      top: CHART_PADDING_TOP,
+      top: Math.max(CHART_PADDING_TOP, args.topPadding || 0),
       bottom: CHART_PADDING_BOTTOM,
     },
   };

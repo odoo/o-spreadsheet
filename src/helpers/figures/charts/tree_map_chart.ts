@@ -222,7 +222,7 @@ export function createTreeMapChartRuntime(
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
         legend: { display: false },

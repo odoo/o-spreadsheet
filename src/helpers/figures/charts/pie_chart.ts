@@ -216,7 +216,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
         chart.isDoughnut && definition.pieHolePercentage !== undefined
           ? definition.pieHolePercentage + "%"
           : undefined,
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
         legend: getPieChartLegend(definition, chartData),

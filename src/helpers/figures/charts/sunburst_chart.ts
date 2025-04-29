@@ -208,7 +208,7 @@ export function createSunburstChartRuntime(
     options: {
       cutout: chart.pieHolePercentage === undefined ? "25%" : `${chart.pieHolePercentage}%`,
       ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
-      layout: getChartLayout(definition),
+      layout: getChartLayout(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
         legend: getSunburstChartLegend(definition, chartData),
