@@ -388,4 +388,25 @@ describe("Export data to xlsx then import it", () => {
     expect(newFigure.width).toBe(300);
     expect(newFigure.height).toBe(400);
   });
+
+  test.each([
+    { offset: { x: 0, y: 0 }, col: 5, row: 5 },
+    { offset: { x: 10, y: 10 }, col: 10, row: 10 },
+    { offset: { x: 0, y: 10 }, col: 5, row: 0 },
+    { offset: { x: 10, y: 0 }, col: 0, row: 5 },
+  ])("Figure Position", (position) => {
+    createImage(model, {
+      figureId: "1",
+      size: {
+        width: 300,
+        height: 400,
+      },
+      ...position,
+    });
+
+    const figure = model.getters.getFigures(sheetId)[0];
+    const importedModel = exportToXlsxThenImport(model);
+    const newFigure = importedModel.getters.getFigures(sheetId)[0];
+    expect(newFigure).toMatchObject(figure);
+  });
 });
