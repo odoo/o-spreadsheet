@@ -12,7 +12,7 @@ import { Figure, Pixel, Position, SpreadsheetChildEnv, UID } from "../../src/typ
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
-import { figureRegistry } from "../../src/registries/figure_registry";
+import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
 import {
   activateSheet,
