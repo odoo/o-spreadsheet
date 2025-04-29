@@ -315,7 +315,7 @@ export function getColPosition(colIndex: number, sheetData: XLSXWorksheet): numb
 export function getRowPosition(rowIndex: number, sheetData: XLSXWorksheet) {
   let position = 0;
   for (let i = 0; i < rowIndex; i++) {
-    const rowAtIndex = sheetData.rows[i];
+    const rowAtIndex = sheetData.rows.find((row) => row.index - 1 === i);
     if (rowAtIndex?.height) {
       position += rowAtIndex.height;
     } else if (sheetData.sheetFormat?.defaultRowHeight) {

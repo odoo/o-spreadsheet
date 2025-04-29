@@ -388,4 +388,56 @@ describe("Export data to xlsx then import it", () => {
     expect(newFigure.width).toBe(300);
     expect(newFigure.height).toBe(400);
   });
+
+  test.each([
+    { offset: { x: 0, y: 0 }, col: 5, row: 5 },
+    { offset: { x: 10, y: 10 }, col: 10, row: 10 },
+    { offset: { x: 0, y: 10 }, col: 5, row: 0 },
+    { offset: { x: 10, y: 0 }, col: 0, row: 5 },
+  ])("Figure Position", (position) => {
+    createImage(model, {
+      figureId: "1",
+      size: {
+        width: 300,
+        height: 400,
+      },
+      ...position,
+    });
+
+    const figure = model.getters.getFigures(sheetId)[0];
+    const importedModel = exportToXlsxThenImport(model);
+    const newFigure = importedModel.getters.getFigures(sheetId)[0];
+    expect(newFigure).toMatchObject(figure);
+  });
+
+  test.each([
+    { offset: { x: 0, y: 0 }, col: 5, row: 5 },
+    { offset: { x: 10, y: 10 }, col: 10, row: 10 },
+    { offset: { x: 0, y: 10 }, col: 5, row: 0 },
+    { offset: { x: 10, y: 0 }, col: 0, row: 5 },
+  ])("Figure Position with custom row length", (position) => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1",
+      sheetId,
+      {
+        figureId: "1",
+        size: {
+          width: 300,
+          height: 400,
+        },
+        ...position,
+      }
+    );
+    resizeRows(model, [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60], 100);
+    const figure = model.getters.getFigures(sheetId)[0];
+    const importedModel = exportToXlsxThenImport(model);
+    const newFigure = importedModel.getters.getFigures(sheetId)[0];
+    expect(newFigure.height).toBe(figure.height);
+  });
 });
