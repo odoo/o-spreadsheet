@@ -163,7 +163,7 @@ import {
   chartRegistry,
   chartSubtypeRegistry,
 } from "./registries/chart_types";
-import { figureRegistry } from "./registries/figure_registry";
+import { figureRegistry } from "./registries/figures_registry";
 import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
 import { inverseCommandRegistry } from "./registries/inverse_command_registry";
 import {
