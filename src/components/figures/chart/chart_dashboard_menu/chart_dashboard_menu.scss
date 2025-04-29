@@ -1,0 +1,18 @@
+.o-spreadsheet .o-figure {
+  &:not(:hover) .o-dashboard-chart-select {
+    display: none !important;
+  }
+
+  .o-dashboard-chart-select {
+    cursor: default;
+
+    .o-chart-dashboard-item {
+      opacity: 0.3;
+
+      &.active,
+      &:hover {
+        background: $os-button-active-bg;
+      }
+    }
+  }
+}

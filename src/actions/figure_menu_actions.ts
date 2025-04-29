@@ -45,6 +45,7 @@ export function getChartMenuActions(
         });
         env.notifyUser({ sticky: false, type: "success", text: _t("Chart copied to clipboard") });
       },
+      isReadonlyAllowed: true,
     },
     {
       id: "download",
@@ -59,10 +60,13 @@ export function getChartMenuActions(
         const url = chartToImageUrl(runtime, figure, chartType)!;
         downloadFile(url, "chart");
       },
+      isReadonlyAllowed: true,
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
   ];
-  return createActions(menuItemSpecs);
+  return createActions(menuItemSpecs).filter((action) =>
+    env.model.getters.isReadonly() ? action.isReadonlyAllowed : true
+  );
 }
 
 export function getImageMenuActions(
