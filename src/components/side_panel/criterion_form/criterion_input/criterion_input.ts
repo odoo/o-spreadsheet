@@ -105,6 +105,7 @@ export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
       class: "o-sidePanel-composer",
       defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
       invalid: this.state.shouldDisplayError && !!this.errorMessage,
+      defaultStatic: true,
     };
   }
 
