@@ -140,8 +140,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
                 label = { text };
               }
             }
-            let colorElements: NodeListOf<Element>;
-            colorElements = this.querySelectorAll(chartDataElement, "c:spPr a:solidFill");
+            const colorElements = this.querySelectorAll(chartDataElement, "c:spPr a:solidFill");
             const datasetColorElement = colorElements.length
               ? this.querySelector(colorElements[0], "a:srgbClr")
               : undefined;

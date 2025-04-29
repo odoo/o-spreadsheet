@@ -26,7 +26,7 @@
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "test:watch": "jest --watch",
     "prettier": "prettier . --write",
-    "check-formatting": "prettier . --check",
+    "check-formatting": "prettier . --check && eslint",
     "prepare": "husky install",
     "watch": "npm-run-all -p watch:*",
     "watch:bundle": "npm run bundle:iife -- --watch",
