@@ -1,4 +1,4 @@
-import { DEFAULT_WINDOW_SIZE } from "../../constants";
+import { DEFAULT_WINDOW_SIZE, FIGURE_BORDER_WIDTH } from "../../constants";
 import {
   getFullReference,
   isDefined,
@@ -163,8 +163,8 @@ function convertExcelTrendline(
 
 function convertAnchor(XLSXanchor: XLSXFigureAnchor): AnchorOffset {
   const offset = {
-    x: convertEMUToDotValue(XLSXanchor.colOffset),
-    y: convertEMUToDotValue(XLSXanchor.rowOffset),
+    x: convertEMUToDotValue(XLSXanchor.colOffset) - FIGURE_BORDER_WIDTH,
+    y: convertEMUToDotValue(XLSXanchor.rowOffset) - FIGURE_BORDER_WIDTH,
   };
   return { col: XLSXanchor.col, row: XLSXanchor.row, offset };
 }
