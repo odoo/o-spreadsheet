@@ -4,7 +4,7 @@ import {
   FIGURE_BORDER_COLOR,
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
-import { figureRegistry } from "../../../registries/figure_registry";
+import { figureRegistry } from "../../../registries/figures_registry";
 import {
   AnchorOffset,
   CSSProperties,

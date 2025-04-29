@@ -1,49 +1,13 @@
-import { Action, ActionSpec, createActions } from "../actions/action";
-import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
-import { ImageFigure } from "../components/figures/figure_image/figure_image";
+import { UID } from "..";
 import { downloadFile } from "../components/helpers/dom_helpers";
 import { chartToImageFile, chartToImageUrl } from "../helpers/figures/charts";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { _t } from "../translation";
-import { SpreadsheetChildEnv, UID } from "../types";
+import { SpreadsheetChildEnv } from "../types";
 import { xmlEscape } from "../xlsx/helpers/xml_helpers";
-import { Registry } from "./registry";
+import { Action, ActionSpec, createActions } from "./action";
 
-//------------------------------------------------------------------------------
-// Figure Registry
-//------------------------------------------------------------------------------
-
-/**
- * This registry is intended to map a type of figure (tag) to a class of
- * component, that will be used in the UI to represent the figure.
- *
- * The most important type of figure will be the Chart
- */
-
-export interface FigureContent {
-  Component: any;
-  menuBuilder: (figureId: UID, onFigureDeleted: () => void, env: SpreadsheetChildEnv) => Action[];
-  SidePanelComponent?: string;
-  keepRatio?: boolean;
-  minFigSize?: number;
-  borderWidth?: number;
-}
-
-export const figureRegistry = new Registry<FigureContent>();
-figureRegistry.add("chart", {
-  Component: ChartFigure,
-  SidePanelComponent: "ChartPanel",
-  menuBuilder: getChartMenu,
-});
-figureRegistry.add("image", {
-  Component: ImageFigure,
-  keepRatio: true,
-  minFigSize: 20,
-  borderWidth: 0,
-  menuBuilder: getImageMenuRegistry,
-});
-
-function getChartMenu(
+export function getChartMenuActions(
   figureId: UID,
   onFigureDeleted: () => void,
   env: SpreadsheetChildEnv
@@ -100,7 +64,7 @@ function getChartMenu(
   return createActions(menuItemSpecs);
 }
 
-function getImageMenuRegistry(
+export function getImageMenuActions(
   figureId: UID,
   onFigureDeleted: () => void,
   env: SpreadsheetChildEnv
