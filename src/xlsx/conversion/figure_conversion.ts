@@ -1,3 +1,4 @@
+import { FIGURE_BORDER_WIDTH } from "../../constants";
 import {
   getFullReference,
   isDefined,
@@ -140,8 +141,8 @@ function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): 
 
 function convertAnchor(XLSXanchor: XLSXFigureAnchor): AnchorOffset {
   const offset = {
-    x: convertEMUToDotValue(XLSXanchor.colOffset),
-    y: convertEMUToDotValue(XLSXanchor.rowOffset),
+    x: convertEMUToDotValue(XLSXanchor.colOffset) - FIGURE_BORDER_WIDTH,
+    y: convertEMUToDotValue(XLSXanchor.rowOffset) - FIGURE_BORDER_WIDTH,
   };
   return { col: XLSXanchor.col, row: XLSXanchor.row, offset };
 }
