@@ -330,8 +330,6 @@ export class ClipboardPlugin extends UIPlugin {
       "figureId" in data
         ? clipboardHandlersRegistries.figureHandlers
         : clipboardHandlersRegistries.cellHandlers;
-    if ("figureId" in data) {
-    }
     return handlersRegistry.getKeys().map((handlerName) => {
       const Handler = handlersRegistry.get(handlerName);
       return { handlerName, handler: new Handler(this.getters, this.dispatch) };
