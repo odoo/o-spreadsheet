@@ -1,11 +1,21 @@
 import { zoneToDimension } from "../helpers";
 import { drawHighlight } from "../helpers/rendering";
 import { Get } from "../store_engine";
-import { GridRenderingContext, Highlight, LayerName } from "../types";
+import { GridRenderingContext, Highlight, LayerName, SpreadsheetChildEnv } from "../types";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export interface HighlightProvider {
   highlights: Highlight[];
+}
+
+export function highlightOnMenuHover(
+  env: SpreadsheetChildEnv,
+  highlightProvider: HighlightProvider
+) {
+  env.getStore(HighlightStore).register(highlightProvider);
+  return () => {
+    env.getStore(HighlightStore).unRegister(highlightProvider);
+  };
 }
 
 export class HighlightStore extends SpreadsheetStore {
