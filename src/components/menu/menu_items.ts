@@ -78,11 +78,11 @@ export class MenuItems extends Component<Props, SpreadsheetChildEnv> {
 
   static components = {};
 
-  private hoveredMenu: Action | undefined = undefined;
+  private hoveredMenuCleanFn: (() => void) | void = undefined;
 
   setup() {
     onWillUnmount(() => {
-      this.hoveredMenu?.onStopHover?.(this.env);
+      this.hoveredMenuCleanFn?.();
     });
   }
 
@@ -139,15 +139,14 @@ export class MenuItems extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseEnter(menu: Action) {
-    this.hoveredMenu = menu;
     this.props.onMouseEnter?.(menu);
-    menu.onStartHover?.(this.env);
+    this.hoveredMenuCleanFn = menu.onStartHover?.(this.env);
   }
 
   onMouseLeave(menu: Action) {
     this.props.onMouseLeave?.(menu);
-    menu.onStopHover?.(this.env);
-    this.hoveredMenu = undefined;
+    this.hoveredMenuCleanFn?.();
+    this.hoveredMenuCleanFn = undefined;
   }
 
   onMouseOver(menu: Action, ev: MouseEvent) {

@@ -674,14 +674,13 @@ describe("Context Menu internal tests", () => {
   });
 
   test("Menu hover callbacks are called", async () => {
-    const onStartHover = jest.fn(() => {});
     const onStopHover = jest.fn(() => {});
+    const onStartHover = jest.fn(() => onStopHover);
     const menuItems: Action[] = createActions([
       {
         id: "menuItem",
         name: "menuItem",
         onStartHover,
-        onStopHover,
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
@@ -698,7 +697,7 @@ describe("Context Menu internal tests", () => {
       {
         id: "menuItem",
         name: "menuItem",
-        onStopHover,
+        onStartHover: () => onStopHover,
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
