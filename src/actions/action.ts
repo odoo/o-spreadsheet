@@ -61,8 +61,11 @@ export interface ActionSpec {
    */
   separator?: boolean;
   textColor?: Color;
-  onStartHover?: (env: SpreadsheetChildEnv) => void;
-  onStopHover?: (env: SpreadsheetChildEnv) => void;
+  /**
+   * Can be defined to trigger effects when the user hovers the item.
+   * Can return a cleaning function.
+   */
+  onStartHover?: (env: SpreadsheetChildEnv) => (() => void) | void;
 }
 
 export interface Action {
@@ -81,8 +84,7 @@ export interface Action {
   children: (env: SpreadsheetChildEnv) => Action[];
   separator: boolean;
   textColor?: Color;
-  onStartHover?: (env: SpreadsheetChildEnv) => void;
-  onStopHover?: (env: SpreadsheetChildEnv) => void;
+  onStartHover?: (env: SpreadsheetChildEnv) => (() => void) | void;
 }
 
 export type ActionBuilder = (env: SpreadsheetChildEnv) => ActionSpec[];
@@ -125,6 +127,5 @@ export function createAction(item: ActionSpec): Action {
     textColor: item.textColor,
     sequence: item.sequence || 0,
     onStartHover: item.onStartHover,
-    onStopHover: item.onStopHover,
   };
 }
