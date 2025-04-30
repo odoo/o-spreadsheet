@@ -17,13 +17,15 @@ describe("numberToLetter", () => {
 describe("toCartesian", () => {
   test("basic functionality", () => {
     expect(toCartesian("A1")).toEqual(toPosition(0, 0));
+    expect(toCartesian("A01")).toEqual(toPosition(0, 0));
     expect(toCartesian("B1")).toEqual(toPosition(1, 0));
     expect(toCartesian("C5")).toEqual(toPosition(2, 4));
     expect(toCartesian("AA55")).toEqual(toPosition(26, 54));
     expect(toCartesian("c5")).toEqual(toPosition(2, 4));
     expect(toCartesian(" C5 ")).toEqual(toPosition(2, 4));
     expect(toCartesian("AAA1")).toEqual(toPosition(702, 0));
-    expect(toCartesian("A999999")).toEqual(toPosition(0, 999998));
+    expect(toCartesian("ZZZ1")).toEqual(toPosition(18277, 0));
+    expect(toCartesian("A9999999")).toEqual(toPosition(0, 9999998));
   });
 
   test("invalid ranges", () => {
@@ -35,6 +37,7 @@ describe("toCartesian", () => {
     expect(() => toCartesian("")).toThrow("Invalid cell description: ");
     expect(() => toCartesian(" ")).toThrow("Invalid cell description: ");
     expect(() => toCartesian("AAAA1")).toThrow("Invalid cell description: AAAA1");
+    expect(() => toCartesian("ZZZA1")).toThrow("Invalid cell description: ZZZA1");
     expect(() => toCartesian("A10000000")).toThrow("Invalid cell description: A10000000");
   });
 });
