@@ -35,6 +35,8 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private chart?: Chart;
   private currentRuntime!: ChartJSRuntime;
 
+  private currentDevicePixelRatio = window.devicePixelRatio;
+
   get background(): string {
     return this.chartRuntime.background;
   }
@@ -69,15 +71,11 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
           this.updateChartJs(deepCopy(runtime.chartJsConfig));
         }
         this.currentRuntime = runtime;
+      } else if (this.currentDevicePixelRatio !== window.devicePixelRatio) {
+        this.currentDevicePixelRatio = window.devicePixelRatio;
+        this.updateChartJs(deepCopy(this.currentRuntime.chartJsConfig));
       }
     });
-    useEffect(
-      () => {
-        this.currentRuntime = this.chartRuntime;
-        this.updateChartJs(deepCopy(this.currentRuntime.chartJsConfig));
-      },
-      () => [window.devicePixelRatio]
-    );
   }
 
   private createChart(chartData: ChartConfiguration<any>) {
