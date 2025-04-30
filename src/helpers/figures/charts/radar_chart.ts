@@ -41,7 +41,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getRadarChartData,
@@ -232,7 +231,6 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
       scales: getRadarChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

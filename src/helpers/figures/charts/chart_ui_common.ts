@@ -1,5 +1,6 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { getChartJSConstructor } from "../../../components/figures/chart/chartJs/chart_js_extension";
+import { CHART_PADDING, CHART_PADDING_BOTTOM, CHART_PADDING_TOP } from "../../../constants";
 import { Figure } from "../../../types";
 import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime } from "../../../types/chart/chart";
@@ -21,6 +22,14 @@ export const CHART_COMMON_OPTIONS: ChartOptions = {
     },
   },
   animation: false,
+  layout: {
+    padding: {
+      left: CHART_PADDING,
+      right: CHART_PADDING,
+      top: CHART_PADDING_TOP,
+      bottom: CHART_PADDING_BOTTOM,
+    },
+  },
 };
 
 export function chartToImageUrl(

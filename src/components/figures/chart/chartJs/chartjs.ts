@@ -49,9 +49,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     figureUI: Object,
   };
 
-  private canvas = useRef("graphContainer");
-  private chart?: Chart;
-  private currentRuntime!: ChartJSRuntime;
+  protected canvas = useRef("graphContainer");
+  protected chart?: Chart;
+  protected currentRuntime!: ChartJSRuntime;
 
   get background(): string {
     return this.chartRuntime.background;
@@ -98,14 +98,14 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  private createChart(chartData: ChartConfiguration<any>) {
+  protected createChart(chartData: ChartConfiguration<any>) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     const Chart = getChartJSConstructor();
     this.chart = new Chart(ctx, chartData);
   }
 
-  private updateChartJs(chartData: ChartConfiguration<any>) {
+  protected updateChartJs(chartData: ChartConfiguration<any>) {
     if (chartData.data && chartData.data.datasets) {
       this.chart!.data = chartData.data;
       if (chartData.options?.plugins?.title) {

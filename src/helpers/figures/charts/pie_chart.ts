@@ -39,7 +39,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getPieChartData,
@@ -209,7 +208,6 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
       plugins: {
         title: getChartTitle(definition),
         legend: getPieChartLegend(definition, chartData),

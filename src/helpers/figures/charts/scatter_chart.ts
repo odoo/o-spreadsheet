@@ -19,6 +19,7 @@ import {
   DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
+  ZoomConfiguration,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
@@ -42,7 +43,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getLineChartData,
@@ -51,6 +51,7 @@ import {
   getScatterChartLegend,
   getScatterChartScales,
 } from "./runtime";
+import { getChartZoom } from "./runtime/chartjs_zoom";
 
 export class ScatterChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -64,6 +65,7 @@ export class ScatterChart extends AbstractChart {
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  readonly zoom?: ZoomConfiguration;
 
   constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -82,6 +84,7 @@ export class ScatterChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
+    this.zoom = definition.zoom;
   }
 
   static validateChartDefinition(
@@ -144,6 +147,7 @@ export class ScatterChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      zoom: this.zoom,
     };
   }
 
@@ -240,13 +244,13 @@ export function createScatterChartRuntime(
     },
     options: {
       ...CHART_COMMON_OPTIONS,
-      layout: getChartLayout(definition),
       scales: getScatterChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
         legend: getScatterChartLegend(definition, chartData),
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        zoom: getChartZoom(definition, chartData),
       },
     },
   };

@@ -37,7 +37,6 @@ import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartDatasets,
   getBarChartLegend,
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getPyramidChartData,
@@ -214,7 +213,6 @@ export function createPyramidChartRuntime(
     options: {
       ...CHART_COMMON_OPTIONS,
       indexAxis: "y",
-      layout: getChartLayout(definition),
       scales: getPyramidChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),

@@ -34,7 +34,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartTitle,
   getHierarchalChartData,
   getSunburstChartDatasets,
@@ -205,7 +204,6 @@ export function createSunburstChartRuntime(
     options: {
       cutout: "25%",
       ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
-      layout: getChartLayout(definition),
       plugins: {
         title: getChartTitle(definition),
         legend: getSunburstChartLegend(definition, chartData),

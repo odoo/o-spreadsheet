@@ -20,6 +20,7 @@ import {
   DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
+  ZoomConfiguration,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { CellErrorType } from "../../../types/errors";
@@ -48,10 +49,10 @@ import {
   getBarChartLegend,
   getBarChartScales,
   getBarChartTooltip,
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
 } from "./runtime";
+import { getChartZoom } from "./runtime/chartjs_zoom";
 
 export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -66,6 +67,7 @@ export class BarChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly horizontal?: boolean;
   readonly showValues?: boolean;
+  readonly zoom?: ZoomConfiguration;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -85,6 +87,7 @@ export class BarChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.horizontal = definition.horizontal;
     this.showValues = definition.showValues;
+    this.zoom = definition.zoom;
   }
 
   static transformDefinition(
@@ -185,6 +188,7 @@ export class BarChart extends AbstractChart {
       axesDesign: this.axesDesign,
       horizontal: this.horizontal,
       showValues: this.showValues,
+      zoom: this.zoom,
     };
   }
 
@@ -236,13 +240,13 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     options: {
       ...CHART_COMMON_OPTIONS,
       indexAxis: chart.horizontal ? "y" : "x",
-      layout: getChartLayout(definition),
       scales: getBarChartScales(definition, chartData),
       plugins: {
         title: getChartTitle(definition),
         legend: getBarChartLegend(definition, chartData),
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        zoom: getChartZoom(definition, chartData),
       },
     },
   };
