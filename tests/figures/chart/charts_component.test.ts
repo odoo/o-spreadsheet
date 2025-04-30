@@ -1,4 +1,4 @@
-import { CommandResult, Model } from "../../../src";
+import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
@@ -98,7 +98,7 @@ async function mountChartSidePanel(figureId = chartId) {
 }
 
 async function mountSpreadsheet() {
-  ({ env, model, fixture } = await mountSpreadsheetHelper({ model }));
+  ({ env, model, fixture, parent } = await mountSpreadsheetHelper({ model }));
 }
 
 let fixture: HTMLElement;
@@ -106,6 +106,7 @@ let model: Model;
 let mockChartData = mockChart();
 const chartId = "someuuid";
 let sheetId: string;
+let parent: Spreadsheet;
 
 let env: SpreadsheetChildEnv;
 
@@ -1658,6 +1659,18 @@ describe("charts", () => {
     createTestChart("basicChart");
     await nextTick();
     setCellFormat(model, "B2", "#.##0.00");
+    await nextTick();
+    expect(updateChart).toHaveBeenCalled();
+  });
+
+  test("Chart is re-rendered once if window.devicePixelRatio changes", async () => {
+    await mountSpreadsheet();
+    const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
+    createTestChart("basicChart");
+    await nextTick();
+    expect(updateChart).not.toHaveBeenCalled();
+    window.devicePixelRatio = 2;
+    parent.render(true);
     await nextTick();
     expect(updateChart).toHaveBeenCalled();
   });
