@@ -1,5 +1,6 @@
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { SpreadsheetStore } from "../../../stores";
+import { ScreenWidthStore } from "../../../stores/screen_width_store";
 
 interface SidePanelProps {
   onCloseSidePanel?: () => void;
@@ -26,6 +27,7 @@ export class SidePanelStore extends SpreadsheetStore {
   initialPanelProps: SidePanelProps = {};
   componentTag: string = "";
   panelSize = DEFAULT_SIDE_PANEL_SIZE;
+  screenWidthStore = this.get(ScreenWidthStore);
 
   get isOpen() {
     if (!this.componentTag) {
@@ -51,6 +53,9 @@ export class SidePanelStore extends SpreadsheetStore {
   }
 
   open(componentTag: string, panelProps: SidePanelProps = {}) {
+    if (this.screenWidthStore.isSmall) {
+      return;
+    }
     const state = this.computeState(componentTag, panelProps);
     if (!state.isOpen) {
       return;
