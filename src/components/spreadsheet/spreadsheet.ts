@@ -43,6 +43,7 @@ import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore, NotificationStoreMethods } from "../../stores/notification_store";
+import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { _t } from "../../translation";
 import {
   CSSProperties,
@@ -362,8 +363,23 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   setup() {
+    if (!("isSmall" in this.env)) {
+      const screenSize = useScreenWidth();
+      useSubEnv({
+        get isSmall() {
+          return screenSize.isSmall;
+        },
+      } satisfies Partial<SpreadsheetChildEnv>);
+    }
+
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.model);
+
+    const self = this;
+    stores.get(ScreenWidthStore).setSmallThreshhold(() => {
+      return self.env.isSmall;
+    });
+
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
@@ -386,15 +402,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
       isMobile: isMobileOS,
     } satisfies Partial<SpreadsheetChildEnv>);
-
-    if (!("isSmall" in this.env)) {
-      const screenSize = useScreenWidth();
-      useSubEnv({
-        get isSmall() {
-          return screenSize.isSmall;
-        },
-      } satisfies Partial<SpreadsheetChildEnv>);
-    }
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
