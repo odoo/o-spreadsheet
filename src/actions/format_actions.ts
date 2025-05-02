@@ -115,7 +115,7 @@ export const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCAL
 
 export const formatCustomCurrency: ActionSpec = {
   name: _t("Custom currency"),
-  isVisible: (env) => env.loadCurrencies !== undefined,
+  isVisible: (env) => env.loadCurrencies !== undefined && !env.isSmall,
   execute: (env) => env.openSidePanel("CustomCurrency", {}),
 };
 
