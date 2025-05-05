@@ -17,8 +17,11 @@ interface Value {
 
 interface State {
   values: Value[];
+  displayedValues: Value[];
   textFilter: string;
   selectedValue: string | undefined;
+  numberOfDisplayedValues: number;
+  hasMoreValues: boolean;
 }
 
 export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
@@ -31,8 +34,11 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
 
   private state: State = useState({
     values: [],
+    displayedValues: [],
     textFilter: "",
     selectedValue: undefined,
+    numberOfDisplayedValues: 50,
+    hasMoreValues: false,
   });
 
   private searchBar = useRef("filterMenuSearchBar");
@@ -41,10 +47,12 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     onWillUpdateProps((nextProps: Props) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
         this.state.values = this.getFilterHiddenValues(nextProps.filterPosition);
+        this.computeDisplayedValues();
       }
     });
 
     this.state.values = this.getFilterHiddenValues(this.props.filterPosition);
+    this.computeDisplayedValues();
   }
 
   private getFilterHiddenValues(position: Position): Value[] {
@@ -67,27 +75,33 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
 
     const cellValues = cells.map((val) => val.cellValue);
     const filterValues = filterValue?.filterType === "values" ? filterValue.hiddenValues : [];
+    const normalizedFilteredValues = new Set(filterValues.map(toLowerCase));
 
-    const strValues = [...cellValues, ...filterValues];
-    const normalizedFilteredValues = filterValues.map(toLowerCase);
-
-    // Set with lowercase values to avoid duplicates
-    const normalizedValues = [...new Set(strValues.map(toLowerCase))];
-
-    const sortedValues = normalizedValues.sort((val1, val2) =>
-      val1.localeCompare(val2, undefined, { numeric: true, sensitivity: "base" })
-    );
-
-    return sortedValues.map((normalizedValue) => {
-      let checked = false;
-      if (filterValue?.filterType !== "criterion") {
-        checked = normalizedFilteredValues.findIndex((val) => val === normalizedValue) === -1;
+    const set = new Set<string>();
+    const values: (Value & { normalizedValue: string })[] = [];
+    const addValue = (value: string) => {
+      const normalizedValue = toLowerCase(value);
+      if (!set.has(normalizedValue)) {
+        values.push({
+          string: value || "",
+          checked:
+            filterValue?.filterType !== "criterion"
+              ? !normalizedFilteredValues.has(normalizedValue)
+              : false,
+          normalizedValue,
+        });
+        set.add(normalizedValue);
       }
-      return {
-        checked,
-        string: strValues.find((val) => toLowerCase(val) === normalizedValue) || "",
-      };
-    });
+    };
+    cellValues.forEach(addValue);
+    filterValues.forEach(addValue);
+
+    return values.sort((val1, val2) =>
+      val1.normalizedValue.localeCompare(val2.normalizedValue, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      })
+    );
   }
 
   checkValue(value: Value) {
@@ -102,13 +116,14 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
   }
 
   selectAll() {
-    this.displayedValues.forEach((value) => (value.checked = true));
-    this.updateHiddenValues();
+    this.state.displayedValues.forEach((value) => (value.checked = true));
+    this.props.onUpdateHiddenValues([]);
   }
 
   clearAll() {
-    this.displayedValues.forEach((value) => (value.checked = false));
-    this.updateHiddenValues();
+    this.state.displayedValues.forEach((value) => (value.checked = false));
+    const hiddenValues = this.state.values.map((val) => val.string);
+    this.props.onUpdateHiddenValues(hiddenValues);
   }
 
   updateHiddenValues() {
@@ -116,15 +131,28 @@ export class FilterMenuValueList extends Component<Props, SpreadsheetChildEnv> {
     this.props.onUpdateHiddenValues(hiddenValues);
   }
 
-  get displayedValues() {
-    if (!this.state.textFilter) {
-      return this.state.values;
-    }
-    return fuzzyLookup(this.state.textFilter, this.state.values, (val) => val.string);
+  updateSearch(ev: Event) {
+    const target = ev.target as HTMLInputElement;
+    this.state.textFilter = target.value;
+    this.state.selectedValue = undefined;
+    this.computeDisplayedValues();
+  }
+
+  computeDisplayedValues() {
+    const values = !this.state.textFilter
+      ? this.state.values
+      : fuzzyLookup(this.state.textFilter, this.state.values, (val) => val.string);
+    this.state.displayedValues = values.slice(0, this.state.numberOfDisplayedValues);
+    this.state.hasMoreValues = values.length > this.state.numberOfDisplayedValues;
+  }
+
+  loadMoreValues() {
+    this.state.numberOfDisplayedValues += 100;
+    this.computeDisplayedValues();
   }
 
   onKeyDown(ev: KeyboardEvent) {
-    const displayedValues = this.displayedValues;
+    const displayedValues = this.state.displayedValues;
 
     if (displayedValues.length === 0) return;
 

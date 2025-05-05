@@ -393,6 +393,46 @@ describe("Filter menu component", () => {
     ).not.toContain("Sort ascending (A ⟶ Z)");
   });
 
+  test("Only the first 50 values are displayed by default", async () => {
+    for (let i = 1; i < 61; i++) {
+      setCellContent(model, `A${i}`, `${i}`);
+    }
+    createTableWithFilter(model, "A1:A61");
+    await nextTick();
+    await openFilterMenu();
+
+    expect(fixture.querySelectorAll(".o-filter-menu-value")).toHaveLength(50);
+
+    await simulateClick(".o-filter-load-more");
+    expect(fixture.querySelectorAll(".o-filter-menu-value")).toHaveLength(60);
+  });
+
+  test("Search/Clear/Select all all works when some values are not displayed", async () => {
+    for (let i = 1; i < 61; i++) {
+      setCellContent(model, `A${i}`, `${i}`);
+    }
+    createTableWithFilter(model, "A1:A61");
+    await nextTick();
+    await openFilterMenu();
+    expect(fixture.querySelectorAll(".o-filter-menu-value")).toHaveLength(50); // Only 50 values are displayed
+
+    await simulateClick(".o-filter-menu-actions .o-button-link:nth-of-type(2)");
+    expect(getFilterMenuValues().every((val) => !val.isChecked)).toBe(true);
+    await simulateClick(".o-filter-menu-confirm");
+    expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toHaveLength(60);
+
+    await openFilterMenu();
+    expect(getFilterMenuValues().every((val) => !val.isChecked)).toBe(true);
+    await simulateClick(".o-filter-menu-actions .o-button-link:nth-of-type(1)");
+    expect(getFilterMenuValues().every((val) => val.isChecked)).toBe(true);
+    await simulateClick(".o-filter-menu-confirm");
+    expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toHaveLength(0);
+
+    await openFilterMenu();
+    await setInputValueAndTrigger(".o-filter-menu input", "59");
+    expect(getFilterMenuValues().map((val) => val.value)).toEqual(["59"]);
+  });
+
   describe("Filter criterion tests", () => {
     beforeEach(async () => {
       createTableWithFilter(model, "A1:A5");
