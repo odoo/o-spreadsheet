@@ -1,4 +1,4 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import { ComposerFocusType, Rect, SpreadsheetChildEnv } from "../../types";
 import { Ripple } from "../animation/ripple";
@@ -42,6 +42,18 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
       setCurrentContent: this.composerStore.setCurrentContent,
       stopEdition: this.composerStore.stopEdition,
     };
+
+    useEffect(() => {
+      if (
+        !this.menuState.isOpen &&
+        this.composerStore.editionMode !== "inactive" &&
+        this.composerFocusStore.activeComposer !== this.composerInterface
+      ) {
+        this.composerFocusStore.focusComposer(this.composerInterface, {
+          focusMode: "contentFocus",
+        });
+      }
+    });
   }
 
   get focus(): ComposerFocusType {
