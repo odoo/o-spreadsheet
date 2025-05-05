@@ -1,7 +1,7 @@
 import { ActionSpec } from "../../actions/action";
 import { ACTION_COLOR } from "../../constants";
 import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
-import { canSortPivot, sortPivot } from "../../helpers/pivot/pivot_menu_items";
+import { canSortPivot, sortPivot, sortPivotHeader } from "../../helpers/pivot/pivot_menu_items";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import { CellPosition, Getters, SpreadsheetChildEnv, Zone } from "../../types";
@@ -36,7 +36,6 @@ export function registerColumnHighlightProvider(
     },
   };
   env.getStore(HighlightStore).register(highlightProvider);
-  // TODO make this return required! It's too easy to forget to unregister
   return () => {
     env.getStore(HighlightStore).unRegister(highlightProvider);
   };
@@ -44,6 +43,11 @@ export function registerColumnHighlightProvider(
 
 function isPivotSortingVisible(getters: Getters, position: CellPosition) {
   return canSortPivot(getters, position) && getters.getEvaluatedCell(position).value !== "";
+}
+
+function isPivotHeaderSortingVisible(getters: Getters, position: CellPosition) {
+  const pivotCell = getters.getPivotCellFromPosition(position);
+  return pivotCell.type === "HEADER" && pivotCell.domain.length > 0;
 }
 
 function growColumnZone(
@@ -81,6 +85,24 @@ function registerPivotHighlightProvider(env: SpreadsheetChildEnv, startingPositi
   });
 }
 
+function registerPivotHeaderHighlightProvider(
+  env: SpreadsheetChildEnv,
+  startingPosition: CellPosition
+) {
+  const pivotId = env.model.getters.getPivotIdFromPosition(startingPosition);
+  if (!pivotId) {
+    return;
+  }
+  const pivot = env.model.getters.getPivot(pivotId);
+  return registerColumnHighlightProvider(env, startingPosition, (position) => {
+    const pivotCell = env.model.getters.getPivotCellFromPosition(position);
+    return (
+      pivotCell.type === "HEADER" &&
+      domainToColRowDomain(pivot, pivotCell.domain).rowDomain.length !== 0
+    );
+  });
+}
+
 dashboardGridMenuRegistry
   .add("sort_pivot_ascending", {
     name: _t("Sort ascending (0 ⟶ 100)"),
@@ -99,4 +121,22 @@ dashboardGridMenuRegistry
       sortPivot(env, position, "desc");
     },
     onStartHover: registerPivotHighlightProvider,
+  })
+  .add("sort_pivot_header_ascending", {
+    name: _t("Sort ascending (A ⟶ Z)"),
+    icon: "o-spreadsheet-Icon.SORT_ASCENDING",
+    isVisible: isPivotHeaderSortingVisible,
+    execute(env, position) {
+      sortPivotHeader(env, position, "asc");
+    },
+    onStartHover: registerPivotHeaderHighlightProvider,
+  })
+  .add("sort_pivot_header_descending", {
+    name: _t("Sort descending (Z ⟶ A)"),
+    icon: "o-spreadsheet-Icon.SORT_DESCENDING",
+    isVisible: isPivotHeaderSortingVisible,
+    execute(env, position) {
+      sortPivotHeader(env, position, "desc");
+    },
+    onStartHover: registerPivotHeaderHighlightProvider,
   });

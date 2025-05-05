@@ -28,7 +28,7 @@ describe("Pivot sorting tooltip", () => {
     expect(".o-dashboard-menu").toHaveCount(0);
 
     await hoverCell(model, "A6", 200); // row header
-    expect(".o-dashboard-menu").toHaveCount(0);
+    expect(".o-dashboard-menu").toHaveCount(1);
 
     await hoverCell(model, "B6", 200); // pivot value
     expect(".o-dashboard-menu").toHaveCount(1);
@@ -102,5 +102,52 @@ describe("Pivot sorting tooltip", () => {
       measure: "Age:sum",
       order: "desc",
     });
+  });
+
+  test("clicking the headers buttons sort", async () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Age",
+      A2: "2022-04-01", B2: "10",
+      A3: "2021-02-01", B3: "30",
+      A4: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    const row = { fieldName: "Date", granularity: "year" };
+    const column = { fieldName: "Date", granularity: "month_number" };
+    addPivot(model, "A1:B3", {
+      rows: [row],
+      columns: [column],
+      measures: [{ fieldName: "Age", id: "Age:sum", aggregator: "sum" }],
+    });
+    const pivotId = "1";
+    model.updateMode("dashboard");
+    const { fixture } = await mountSpreadsheet({ model });
+
+    // sort row ascending
+    await hoverCell(model, "A6", 200);
+    await click(fixture, ".o-dashboard-menu");
+    await click(fixture, ".fa-sort-alpha-asc");
+    expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ order: "asc", ...row }]);
+    expect(model.getters.getPivotCoreDefinition(pivotId).columns).toEqual([column]);
+    // sort row descending
+    await click(fixture, ".fa-sort-alpha-desc");
+    expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ order: "desc", ...row }]);
+    expect(model.getters.getPivotCoreDefinition(pivotId).columns).toEqual([column]);
+
+    // sort col ascending
+    await hoverCell(model, "B4", 200);
+    await click(fixture, ".o-dashboard-menu");
+    await click(fixture, ".fa-sort-alpha-asc");
+    expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ order: "desc", ...row }]);
+    expect(model.getters.getPivotCoreDefinition(pivotId).columns).toEqual([
+      { order: "asc", ...column },
+    ]);
+    // sort col descending
+    await click(fixture, ".fa-sort-alpha-desc");
+    expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ order: "desc", ...row }]);
+    expect(model.getters.getPivotCoreDefinition(pivotId).columns).toEqual([
+      { order: "desc", ...column },
+    ]);
   });
 });

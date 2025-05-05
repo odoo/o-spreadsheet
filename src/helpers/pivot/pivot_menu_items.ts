@@ -143,6 +143,40 @@ export function sortPivot(
   });
 }
 
+export function sortPivotHeader(
+  env: SpreadsheetChildEnv,
+  position: CellPosition,
+  order: SortDirection | undefined
+) {
+  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
+  const pivotId = env.model.getters.getPivotIdFromPosition(position);
+  if (pivotCell.type !== "HEADER" || !pivotId) {
+    return;
+  }
+  const definition = env.model.getters.getPivot(pivotId).definition;
+  const sortedDimension = pivotCell.domain.at(-1);
+  const { rows, columns } = definition;
+  env.model.dispatch("UPDATE_PIVOT", {
+    pivotId,
+    pivot: {
+      ...env.model.getters.getPivotCoreDefinition(pivotId),
+      sortedColumn: undefined,
+      rows: rows.map((row) => {
+        if (row.nameWithGranularity === sortedDimension?.field) {
+          return { fieldName: row.fieldName, granularity: row.granularity, order };
+        }
+        return { fieldName: row.fieldName, granularity: row.granularity, order: row.order };
+      }),
+      columns: columns.map((col) => {
+        if (col.nameWithGranularity === sortedDimension?.field) {
+          return { fieldName: col.fieldName, granularity: col.granularity, order };
+        }
+        return { fieldName: col.fieldName, granularity: col.granularity, order: col.order };
+      }),
+    },
+  });
+}
+
 export function isPivotSortMenuItemActive(
   getters: Getters,
   position: CellPosition,
