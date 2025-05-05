@@ -211,6 +211,55 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
   });
 
+  test("Can add date dimension", async () => {
+    setCellContent(model, "A1", "Date");
+    setCellContent(model, "A2", "2023-01-01");
+    setCellContent(model, "A3", "2023-01-02");
+    updatePivot(model, "1", {
+      columns: [],
+      measures: [{ name: "Amount", aggregator: "sum" }],
+    });
+    await nextTick();
+
+    await click(fixture.querySelector(".add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(model.getters.getPivotCoreDefinition("1").columns).toMatchObject([
+      { name: "Date", granularity: "year" },
+    ]);
+
+    await click(fixture.querySelector(".add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(model.getters.getPivotCoreDefinition("1").columns).toMatchObject([
+      { name: "Date", granularity: "year" },
+      { name: "Date", granularity: "quarter_number" },
+    ]);
+  });
+
+  test("Date dimensions with undefined granularity is correctly displayed as month", async () => {
+    setCellContent(model, "A1", "Date");
+    setCellContent(model, "A2", "2023-01-01");
+    setCellContent(model, "A3", "2023-01-02");
+    updatePivot(model, "1", {
+      columns: [{ name: "Date" }],
+      measures: [{ name: "Amount", aggregator: "sum" }],
+    });
+    await nextTick();
+
+    expect(fixture.querySelector<HTMLSelectElement>(".pivot-dimension select")?.value).toEqual(
+      "month"
+    );
+
+    // Note:  this behaviour is somewhat buggy. The granularity was set to undefined (=month), but adding a new
+    // dimension with the same name will set the granularity to year. We decided that the additional
+    // code complexity to fix this wasn't worth it.
+    await click(fixture.querySelector(".add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(model.getters.getPivotCoreDefinition("1").columns).toMatchObject([
+      { name: "Date", granularity: "year" },
+      { name: "Date", granularity: "quarter_number" },
+    ]);
+  });
+
   test("should preserve the sorting of the dimension after ordering is changed", async () => {
     mockGetBoundingClientRect({
       "h-100": () => ({

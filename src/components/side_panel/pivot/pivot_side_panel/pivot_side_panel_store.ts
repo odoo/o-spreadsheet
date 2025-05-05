@@ -243,7 +243,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       granularitiesPerFields[field.name] = new Set(granularities);
     }
     for (const field of dateFields) {
-      granularitiesPerFields[field.name].delete(field.granularity);
+      granularitiesPerFields[field.name].delete(field.granularity || "month");
     }
     return granularitiesPerFields;
   }
