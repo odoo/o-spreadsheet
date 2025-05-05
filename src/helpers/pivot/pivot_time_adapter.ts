@@ -4,7 +4,7 @@ import { _t } from "../../translation";
 import { CellValue, DEFAULT_LOCALE } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import { Granularity, PivotTimeAdapter, PivotTimeAdapterNotNull } from "../../types/pivot";
-import { DAYS, MONTHS } from "../format/format";
+import { DAYS, formatValue, MONTHS } from "../format/format";
 
 export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<CellValue>>();
 
@@ -168,6 +168,25 @@ const monthNumberAdapter: PivotTimeAdapterNotNull<number> = {
 };
 
 /**
+ * normalizes month number + year
+ */
+const monthAdapter: PivotTimeAdapterNotNull<string> = {
+  normalizeFunctionValue(value) {
+    const date = toNumber(value, DEFAULT_LOCALE);
+    return formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/yyyy" });
+  },
+  toValueAndFormat(normalizedValue) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "mmmm yyyy",
+    };
+  },
+  toFunctionValue(normalizedValue) {
+    return `"${normalizedValue}"`;
+  },
+};
+
+/**
  * normalizes quarter number
  */
 const quarterNumberAdapter: PivotTimeAdapterNotNull<number> = {
@@ -316,6 +335,7 @@ pivotTimeAdapterRegistry
   .add("day_of_month", nullHandlerDecorator(dayOfMonthAdapter))
   .add("iso_week_number", nullHandlerDecorator(isoWeekNumberAdapter))
   .add("month_number", nullHandlerDecorator(monthNumberAdapter))
+  .add("month", nullHandlerDecorator(monthAdapter))
   .add("quarter_number", nullHandlerDecorator(quarterNumberAdapter))
   .add("day_of_week", nullHandlerDecorator(dayOfWeekAdapter))
   .add("hour_number", nullHandlerDecorator(hourNumberAdapter))
