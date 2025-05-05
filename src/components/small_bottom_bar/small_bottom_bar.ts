@@ -1,4 +1,4 @@
-import { Component, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { ComponentsImportance } from "../../constants";
 import { Store, useStore } from "../../store_engine";
 import { ComposerFocusType, Rect, SpreadsheetChildEnv } from "../../types";
@@ -50,6 +50,20 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
       setCurrentContent: this.composerStore.setCurrentContent,
       stopEdition: this.composerStore.stopEdition,
     };
+
+    useEffect(() => {
+      if (
+        // we hide the grid composer on mobile so we need to autofocus this composer
+        this.env.isMobile() &&
+        !this.menuState.isOpen &&
+        this.composerStore.editionMode !== "inactive" &&
+        this.composerFocusStore.activeComposer !== this.composerInterface
+      ) {
+        this.composerFocusStore.focusComposer(this.composerInterface, {
+          focusMode: "contentFocus",
+        });
+      }
+    });
   }
 
   get focus(): ComposerFocusType {
