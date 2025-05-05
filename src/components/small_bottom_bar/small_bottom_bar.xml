@@ -12,7 +12,7 @@
           <span
             class="align-items-center d-flex justify-content-center o-selection-button"
             title="confirm edition"
-            t-if="this.composerStore.editionMode!=='inactive'"
+            t-if="this.focus !== 'inactive'"
             t-on-click="() => this.composerStore.stopEdition()">
             <span class="d-flex">
               <t t-call="o-spreadsheet-Icon.CHECK"/>

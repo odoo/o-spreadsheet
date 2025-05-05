@@ -4,6 +4,7 @@ import { getCellText } from "../test_helpers/getters_helpers";
 import {
   mountSpreadsheet,
   nextTick,
+  setMobileMode,
   typeInComposerGrid,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
@@ -65,5 +66,16 @@ describe("Small Bottom Bar", () => {
     await click(fixture, ".o-ribbon-menu .o-menu-item[title='Edit']");
     await click(fixture, ".o-ribbon-menu .o-menu-item[title='Copy']");
     expect(fixture.querySelector(".o-ribbon-menu")).toBeNull();
+  });
+});
+
+describe("Small Bottom Bar - Mobile Mode", () => {
+  test("the bottombar composer is auto focused on edition in mobile mode", async () => {
+    setMobileMode();
+    await nextTick();
+    await typeInComposerGrid(`=SUM(`);
+    expect(fixture.querySelector(".o-spreadsheet-small-bottom-bar .o-composer")).toBe(
+      document.activeElement
+    );
   });
 });
