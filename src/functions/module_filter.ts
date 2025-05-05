@@ -160,7 +160,7 @@ export const FILTER = {
 
     return mode === "row" ? transposeMatrix(result) : result;
   },
-  isExported: true,
+  isExported: false,
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
