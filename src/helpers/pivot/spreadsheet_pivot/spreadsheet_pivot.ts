@@ -253,7 +253,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     const cells = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     const finalCell = cells[0]?.[dimension.nameWithGranularity];
     if (dimension.type === "datetime") {
-      const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
+      const adapter = pivotTimeAdapter((dimension.granularity || "month") as Granularity);
       return adapter.toValueAndFormat(lastNode.value, this.getters.getLocale());
     }
     if (!finalCell) {
@@ -501,7 +501,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
             entry[dimension.fieldName]?.value || null,
             this.getters.getLocale()
           );
-          const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
+          const adapter = pivotTimeAdapter((dimension.granularity || "month") as Granularity);
           const { format, value: valueToFormat } = adapter.toValueAndFormat(value, locale);
 
           entry[dimension.nameWithGranularity] = {

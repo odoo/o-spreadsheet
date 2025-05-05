@@ -281,7 +281,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       );
     }
     for (const field of dateFields) {
-      granularitiesPerFields[field.fieldName].delete(field.granularity);
+      granularitiesPerFields[field.fieldName].delete(field.granularity || "month");
     }
     return granularitiesPerFields;
   }
