@@ -46,6 +46,7 @@ pivotRegistry.add("SPREADSHEET", {
     "year",
     "quarter_number",
     "month_number",
+    "month",
     "iso_week_number",
     "day_of_month",
     "day",
