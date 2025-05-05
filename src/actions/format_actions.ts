@@ -169,6 +169,12 @@ export const formatNumberFullDateTime = createFormatActionSpec({
   descriptionValue: EXAMPLE_DATE,
 });
 
+export const formatNumberISODate = createFormatActionSpec({
+  name: _t("ISO Date"),
+  format: "yyyy-mm-dd",
+  descriptionValue: EXAMPLE_DATE,
+});
+
 export const formatNumberFullWeekDayAndMonth = createFormatActionSpec({
   name: _t("Full week day and month"),
   format: "dddd d mmmm yyyy",
