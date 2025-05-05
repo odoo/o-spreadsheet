@@ -6,8 +6,8 @@ import { toNormalizedPivotValue } from "../pivot_helpers";
 const NULL_SYMBOL = Symbol("NULL");
 
 export function createDate(dimension: PivotDimension, value: CellValue, locale: Locale): CellValue {
-  const granularity = dimension.granularity;
-  if (!granularity || !(granularity in MAP_VALUE_DIMENSION_DATE)) {
+  const granularity = dimension.granularity || "month";
+  if (!(granularity in MAP_VALUE_DIMENSION_DATE)) {
     throw new Error(`Unknown date granularity: ${granularity}`);
   }
   const keyInMap = typeof value === "number" || typeof value === "string" ? value : NULL_SYMBOL;

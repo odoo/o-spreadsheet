@@ -222,10 +222,7 @@ export function toNormalizedPivotValue(
 }
 
 function normalizeDateTime(value: CellValue, granularity: Granularity) {
-  if (!granularity) {
-    throw new Error("Missing granularity");
-  }
-  return pivotTimeAdapter(granularity).normalizeFunctionValue(value);
+  return pivotTimeAdapter(granularity ?? "month").normalizeFunctionValue(value);
 }
 
 export function toFunctionPivotValue(
@@ -242,10 +239,7 @@ export function toFunctionPivotValue(
 }
 
 function toFunctionValueDateTime(value: CellValue, granularity: Granularity) {
-  if (!granularity) {
-    throw new Error("Missing granularity");
-  }
-  return pivotTimeAdapter(granularity).toFunctionValue(value);
+  return pivotTimeAdapter(granularity ?? "month").toFunctionValue(value);
 }
 
 export const pivotNormalizationValueRegistry = new Registry<
