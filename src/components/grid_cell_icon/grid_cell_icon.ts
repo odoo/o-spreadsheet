@@ -8,6 +8,7 @@ css/* scss */ `
   .o-grid-cell-icon {
     width: ${GRID_ICON_EDGE_LENGTH}px;
     height: ${GRID_ICON_EDGE_LENGTH}px;
+    z-index: 1;
   }
 `;
 
