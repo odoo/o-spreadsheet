@@ -463,6 +463,19 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  private processSpaceKey(ev: KeyboardEvent) {
+    if (
+      this.env.model.getters.hasBooleanValidationInZones(this.env.model.getters.getSelectedZones())
+    ) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.env.model.dispatch("TOGGLE_CHECKBOX", {
+        sheetId: this.env.model.getters.getActiveSheetId(),
+        target: this.env.model.getters.getSelectedZones(),
+      });
+    }
+  }
+
   getClientPositionKey(client: Client) {
     return `${client.id}-${client.position?.sheetId}-${client.position?.col}-${client.position?.row}`;
   }
@@ -554,6 +567,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       ev.preventDefault();
       ev.stopPropagation();
       handler();
+      return;
+    }
+    // Space key is handled separately because the default and the propagation
+    // of the event should be stopped conditionally (presence of a validation rule)
+    if (keyDownString === " ") {
+      this.processSpaceKey(ev);
       return;
     }
 

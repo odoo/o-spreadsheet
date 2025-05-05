@@ -1045,6 +1045,10 @@ export interface PivotStopPresenceTracking {
   type: "PIVOT_STOP_PRESENCE_TRACKING";
 }
 
+export interface ToggleCheckboxCommand extends TargetDependentCommand {
+  type: "TOGGLE_CHECKBOX";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1198,7 +1202,8 @@ export type LocalCommand =
   | PaintFormat
   | DeleteUnfilteredContentCommand
   | PivotStartPresenceTracking
-  | PivotStopPresenceTracking;
+  | PivotStopPresenceTracking
+  | ToggleCheckboxCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

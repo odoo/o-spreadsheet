@@ -27,6 +27,7 @@ import { GeoFeaturePlugin } from "../plugins/ui_feature";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_style";
+import { CheckboxTogglePlugin } from "../plugins/ui_feature/checkbox_toggle";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
@@ -147,4 +148,5 @@ export type Getters = {
   PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof GeoFeaturePlugin> &
   PluginGetters<typeof PivotPresencePlugin> &
-  PluginGetters<typeof TableComputedStylePlugin>;
+  PluginGetters<typeof TableComputedStylePlugin> &
+  PluginGetters<typeof CheckboxTogglePlugin>;

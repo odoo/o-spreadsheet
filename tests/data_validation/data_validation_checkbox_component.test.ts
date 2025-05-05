@@ -3,9 +3,10 @@ import {
   addDataValidation,
   createTableWithFilter,
   setCellContent,
+  setSelection,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { click } from "../test_helpers/dom_helper";
+import { click, keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -49,6 +50,53 @@ describe("Checkbox component", () => {
     await click(checkbox);
     expect(getCellContent(model, "A1")).toBe("FALSE");
     expect(checkbox?.checked).toBe(false);
+  });
+
+  test("can check and uncheck with space key", async () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    const { fixture } = await mountSpreadsheet({ model });
+    await nextTick();
+    const checkbox = fixture.querySelector(".o-dv-checkbox input") as HTMLInputElement;
+    expect(checkbox?.checked).toBe(false);
+    await keyDown({ key: " " });
+    expect(getCellContent(model, "A1")).toBe("TRUE");
+    expect(checkbox?.checked).toBe(true);
+    await keyDown({ key: " " });
+    expect(getCellContent(model, "A1")).toBe("FALSE");
+    expect(checkbox?.checked).toBe(false);
+  });
+
+  test("Can toggle checkbox in selection with space key", async () => {
+    const model = new Model();
+    addDataValidation(model, "B2:B3", "id", { type: "isBoolean", values: [] });
+    const { fixture } = await mountSpreadsheet({ model });
+    await nextTick();
+    const checkboxB2 = fixture.querySelectorAll(".o-dv-checkbox input")[0] as HTMLInputElement;
+    const checkboxB3 = fixture.querySelectorAll(".o-dv-checkbox input")[1] as HTMLInputElement;
+    setSelection(model, ["A1:B2"]);
+    expect(checkboxB2?.checked).toBe(false);
+    expect(checkboxB3?.checked).toBe(false);
+
+    await keyDown({ key: " " });
+    expect(getCellContent(model, "B2")).toBe("TRUE");
+    expect(getCellContent(model, "B3")).toBe("FALSE");
+    expect(checkboxB2?.checked).toBe(true);
+    expect(checkboxB3?.checked).toBe(false);
+    setSelection(model, ["A1:B3"]);
+
+    await keyDown({ key: " " });
+    expect(getCellContent(model, "B2")).toBe("FALSE");
+    expect(getCellContent(model, "B3")).toBe("TRUE");
+    expect(checkboxB2?.checked).toBe(false);
+    expect(checkboxB3?.checked).toBe(true);
+    setSelection(model, ["A1"]);
+
+    await keyDown({ key: " " });
+    expect(getCellContent(model, "B2")).toBe("FALSE");
+    expect(getCellContent(model, "B3")).toBe("TRUE");
+    expect(checkboxB2?.checked).toBe(false);
+    expect(checkboxB3?.checked).toBe(true);
   });
 
   test("Data validation checkbox on formula is disabled", async () => {
