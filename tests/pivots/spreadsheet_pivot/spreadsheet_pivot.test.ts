@@ -311,6 +311,24 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
+  test("Date fields without granularity are defaulted as month", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "Col1");
+    setCellContent(model, "A2", "45323");
+    addPivot(model, "A1:A2", {
+      rows: [{ fieldName: "Col1", order: "asc" }],
+    });
+    setCellContent(model, "B1", "=PIVOT(1)");
+    expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "integer" } });
+
+    // field is now a date, but no granularity is specified since it was a integer when added to the pivot
+    setFormat(model, "A2", "dd/mm/yyyy");
+    expect(model.getters.getPivot("1").getFields()).toMatchObject({ Col1: { type: "datetime" } });
+
+    setCellContent(model, "E1", "=PIVOT(1)");
+    expect(getCellContent(model, "E3")).toEqual("February 2024");
+  });
+
   test("Empty string values are treated the same as blank cells", () => {
     const model = createModelWithPivot("A1:I5");
     setCellContent(model, "C3", '=""');
