@@ -10,6 +10,7 @@ import {
   formatNumberFullMonth,
   formatNumberFullQuarter,
   formatNumberFullWeekDayAndMonth,
+  formatNumberISODate,
   formatNumberQuarter,
   formatNumberShortMonth,
   formatNumberShortWeekDay,
@@ -41,6 +42,7 @@ css/* scss */ `
 
 const DATE_FORMAT_ACTIONS = createActions([
   formatNumberFullDateTime,
+  formatNumberISODate,
   formatNumberFullWeekDayAndMonth,
   formatNumberDayAndFullMonth,
   formatNumberShortWeekDay,
