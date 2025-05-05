@@ -5,7 +5,7 @@ import {
   setCellContent,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { click } from "../test_helpers/dom_helper";
+import { click, keyDown } from "../test_helpers/dom_helper";
 import { getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -47,6 +47,21 @@ describe("Checkbox component", () => {
     expect(getCellContent(model, "A1")).toBe("TRUE");
     expect(checkbox?.checked).toBe(true);
     await click(checkbox);
+    expect(getCellContent(model, "A1")).toBe("FALSE");
+    expect(checkbox?.checked).toBe(false);
+  });
+
+  test("can check and uncheck with space key", async () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    const { fixture } = await mountSpreadsheet({ model });
+    await nextTick();
+    const checkbox = fixture.querySelector(".o-dv-checkbox input") as HTMLInputElement;
+    expect(checkbox?.checked).toBe(false);
+    await keyDown({ key: " " });
+    expect(getCellContent(model, "A1")).toBe("TRUE");
+    expect(checkbox?.checked).toBe(true);
+    await keyDown({ key: " " });
     expect(getCellContent(model, "A1")).toBe("FALSE");
     expect(checkbox?.checked).toBe(false);
   });
