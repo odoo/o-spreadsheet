@@ -126,6 +126,25 @@ const monthNumberAdapter: PivotTimeAdapterNotNull<number> = {
 };
 
 /**
+ * normalizes month number + year
+ */
+const monthAdapter: PivotTimeAdapterNotNull<string> = {
+  normalizeFunctionValue(value) {
+    const date = toNumber(value, DEFAULT_LOCALE);
+    return formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/yyyy" });
+  },
+  toValueAndFormat(normalizedValue) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "mmmm yyyy",
+    };
+  },
+  toFunctionValue(normalizedValue) {
+    return `"${normalizedValue}"`;
+  },
+};
+
+/**
  * normalizes quarter number
  */
 const quarterNumberAdapter: PivotTimeAdapterNotNull<number> = {
@@ -197,4 +216,5 @@ pivotTimeAdapterRegistry
   .add("day_of_month", nullHandlerDecorator(dayOfMonthAdapter))
   .add("iso_week_number", nullHandlerDecorator(isoWeekNumberAdapter))
   .add("month_number", nullHandlerDecorator(monthNumberAdapter))
+  .add("month", nullHandlerDecorator(monthAdapter))
   .add("quarter_number", nullHandlerDecorator(quarterNumberAdapter));

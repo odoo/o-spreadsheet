@@ -26,6 +26,9 @@ export function createDate(dimension: PivotDimension, value: CellValue, locale: 
         case "month_number":
           number = date.getMonth() + 1;
           break;
+        case "month":
+          number = Math.floor(toNumber(value, locale));
+          break;
         case "iso_week_number":
           number = date.getIsoWeek();
           break;
@@ -88,6 +91,10 @@ const MAP_VALUE_DIMENSION_DATE: Record<
     values: {},
   },
   month_number: {
+    set: new Set<CellValue>(),
+    values: {},
+  },
+  month: {
     set: new Set<CellValue>(),
     values: {},
   },

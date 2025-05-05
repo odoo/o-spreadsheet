@@ -532,6 +532,19 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([["5", "9", "14", "Total", ""]]);
   });
 
+  test("month should be supported", () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [{ name: "Created on", granularity: "month", order: "asc" }],
+      rows: [],
+      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+    });
+    setCellContent(model, "A26", `=pivot(1)`);
+    expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
+      ["April 2024", "March 2024", "February 2024", "Total", ""],
+    ]);
+  });
+
   test("PIVOT.VALUE and PIVOT.HEADER with wrong pivot id", () => {
     const model = createModelWithPivot("A1:I5");
     setCellContent(model, "A26", "=PIVOT.HEADER(10)");
@@ -777,6 +790,28 @@ describe("Spreadsheet Pivot", () => {
 
     // no matching value
     setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:month_number", 1)');
+    expect(getEvaluatedCell(model, "A27").value).toBe("");
+  });
+
+  test("PIVOT.VALUE grouped by month", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date", B1: "Price",
+      A2: "2024-12-31", B2: "10",
+      A3: "2024-12-31", B3: "20",
+      A4: "1995-04-14", B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      columns: [],
+      rows: [{ name: "Date", granularity: "month" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:month", "12/2024")');
+    expect(getEvaluatedCell(model, "A27").value).toBe(30);
+
+    // no matching value
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:month", "1/2024")');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
@@ -1091,6 +1126,44 @@ describe("Spreadsheet Pivot", () => {
     setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:month_number", 13)');
     expect(getEvaluatedCell(model, "A34").message).toBe(
       "13 is not a valid month (it should be a number between 1 and 12)"
+    );
+  });
+
+  test("PIVOT.HEADER date month groupby", () => {
+    const grid = {
+      A1: "Date",
+      A2: "2024-12-31",
+      A4: "1995-04-14",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A4", {
+      columns: [],
+      rows: [{ name: "Date", granularity: "month" }],
+      measures: [],
+    });
+    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:month", "4/2024")');
+    expect(getEvaluatedCell(model, "A27").formattedValue).toBe("April 2024");
+
+    // not in the dataset
+    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:month", "1/2024")');
+    expect(getEvaluatedCell(model, "A29").formattedValue).toBe("January 2024");
+
+    // missing header value
+    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date:month")');
+    expect(getEvaluatedCell(model, "A31").message).toBe(
+      "Invalid number of arguments for the PIVOT.HEADER function. Expected all arguments after position 1 to be supplied by groups of 2 arguments"
+    );
+
+    // without granularity
+    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date", "4/2024")');
+    expect(getEvaluatedCell(model, "A32").message).toBe(
+      "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
+    );
+
+    // not a valid month
+    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:month", "14/2024")');
+    expect(getEvaluatedCell(model, "A34").message).toBe(
+      "The function PIVOT.HEADER expects a number value, but '14/2024' is a string, and cannot be coerced to a number."
     );
   });
 
