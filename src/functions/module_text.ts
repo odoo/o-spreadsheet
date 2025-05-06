@@ -1,9 +1,9 @@
 import { escapeRegExp, formatValue, trimContent } from "../helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
+import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
-import { reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
+import { reduceAny, toBoolean, toMatrix, toNumber, toString, transposeMatrix } from "./helpers";
 
 const DEFAULT_STARTING_AT = 1;
 
@@ -522,6 +522,105 @@ export const TEXTJOIN = {
         !(_ignoreEmpty && toString(a) === "") ? (n++ ? acc + _delimiter : "") + toString(a) : acc,
       ""
     );
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// TEXTSPLIT
+// -----------------------------------------------------------------------------
+
+const TEXTSPLIT_DEFAULT_IGNORE_EMPTY = false;
+const TEXTSPLIT_DEFAULT_MATCH_MODE = 0;
+
+export const TEXTSPLIT = {
+  description: _t("Splits text into rows or columns using specified column and row delimiters."),
+  args: [
+    arg("text (string)", _t("The text to split.")),
+    arg("col_delimiter (string, range<string>)", _t("Character or string to split columns by.")),
+    arg(
+      "row_delimiter (string, range<string>, optional)",
+      _t("Character or string to split rows by.")
+    ),
+    arg(
+      `ignore_empty (boolean, default=${TEXTSPLIT_DEFAULT_IGNORE_EMPTY})`,
+      _t("Whether to ignore empty cells.")
+    ),
+    arg(
+      `match_mode (number, default=${TEXTSPLIT_DEFAULT_MATCH_MODE})`,
+      _t("Searches the text for a delimiter match. 0 = case-sensitive, 1 = case-insensitive.")
+    ),
+    arg(
+      `pad_with (string, default="${CellErrorType.NotAvailable}")`,
+      _t("The value to use for padding empty cells.")
+    ),
+  ],
+  compute: function (
+    text: FunctionResultObject,
+    colDelimiter: Arg,
+    rowDelimiter: Arg,
+    ignoreEmpty: Maybe<FunctionResultObject> = { value: TEXTSPLIT_DEFAULT_IGNORE_EMPTY },
+    matchMode: Maybe<FunctionResultObject> = { value: TEXTSPLIT_DEFAULT_MATCH_MODE },
+    padWith: Maybe<FunctionResultObject> = new NotAvailableError()
+  ) {
+    const _text = toString(text);
+    if (_text.length <= 0) {
+      return new EvaluationError(_t("No text to split."));
+    }
+
+    if (colDelimiter === undefined && rowDelimiter === undefined) {
+      return new EvaluationError(_t("At least one delimiter must be provided."));
+    }
+
+    const _colDelimiters = toMatrix(colDelimiter)
+      .flat()
+      .map((v) => escapeRegExp(toString(v)));
+    const _rowDelimiters = toMatrix(rowDelimiter)
+      .flat()
+      .map((v) => escapeRegExp(toString(v)));
+
+    if (_colDelimiters.some((v) => v === "") || _rowDelimiters.some((v) => v === "")) {
+      return new EvaluationError(_t("The delimiters cannot be empty values."));
+    }
+
+    const _ignoreEmpty = toBoolean(ignoreEmpty);
+
+    const _matchMode = toNumber(matchMode, this.locale);
+    if (![0, 1].includes(_matchMode)) {
+      return new EvaluationError(_t("match_mode should be a value of 0 or 1."));
+    }
+
+    const cells: FunctionResultObject[][] = [];
+    const regexpFlags = _matchMode === 1 ? "gi" : "g";
+
+    // only keep the row delimiters that are not in the column delimiters to prioritize spliting by columns
+    const filteredRowDelimiters = _rowDelimiters.filter((delim) => !_colDelimiters.includes(delim));
+    let rowParts = filteredRowDelimiters.length
+      ? _text.split(new RegExp(filteredRowDelimiters.join("|"), regexpFlags))
+      : [_text];
+
+    if (_ignoreEmpty) {
+      rowParts = rowParts.filter((v) => v !== "");
+    }
+
+    const colRegexp = new RegExp(_colDelimiters.join("|"), regexpFlags);
+
+    for (const rowText of rowParts) {
+      let columns = _colDelimiters.length ? rowText.split(colRegexp) : [rowText];
+      if (_ignoreEmpty) {
+        columns = columns.filter((v) => v !== "");
+      }
+      cells.push(columns.map((value) => ({ value })));
+    }
+
+    const maxLength = Math.max(...cells.map((row) => row.length));
+    for (const row of cells) {
+      while (row.length < maxLength) {
+        row.push(padWith);
+      }
+    }
+
+    return transposeMatrix(cells);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
