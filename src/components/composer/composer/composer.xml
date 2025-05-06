@@ -45,7 +45,11 @@
       <div
         class="o-composer-assistant-container shadow position-absolute z-1"
         t-att-style="assistantContainerStyle"
-        t-if="props.focus !== 'inactive' and !assistant.forcedClosed and assistantIsAvailable">
+        t-if="props.focus !== 'inactive' and !assistant.forcedClosed and assistantIsAvailable"
+        t-on-wheel.stop=""
+        t-on-pointerdown.prevent.stop=""
+        t-on-pointerup.prevent.stop=""
+        t-on-click.prevent.stop="">
         <span
           role="button"
           t-on-click="closeAssistant"
@@ -53,13 +57,7 @@
           <i class="fa fa-circle fa-stack-1x fa-inverse"/>
           <i class="fa fa-times-circle fa-stack-1x text-muted"/>
         </span>
-        <div
-          class="o-composer-assistant overflow-auto"
-          t-att-style="assistantStyle"
-          t-on-wheel.stop=""
-          t-on-pointerdown.prevent.stop=""
-          t-on-click.prevent.stop=""
-          t-on-pointerup.prevent.stop="">
+        <div class="o-composer-assistant overflow-auto" t-att-style="assistantStyle">
           <FunctionDescriptionProvider
             t-if="functionDescriptionState.showDescription"
             functionName="functionDescriptionState.functionName"
