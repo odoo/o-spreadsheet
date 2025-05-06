@@ -1169,6 +1169,30 @@ describe("charts", () => {
     expect(document.querySelectorAll(".o-selection-input input")).toHaveLength(3);
   });
 
+  test("Removing a data series only create a single history step", async () => {
+    createChart(
+      model,
+      { type: "bar", dataSets: [{ dataRange: "B1" }, { dataRange: "C1" }] },
+      chartId
+    );
+    await mountSpreadsheet();
+    await openChartConfigSidePanel(model, env, chartId);
+    await simulateClick(".o-data-series .o-remove-selection");
+    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
+      { dataRange: "C1", backgroundColor: "#EA6175" },
+    ]);
+    expect(errorMessages()).toEqual([]);
+
+    undo(model);
+    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
+      { dataRange: "B1" },
+      { dataRange: "C1" },
+    ]);
+
+    undo(model);
+    expect(model.getters.getFigures(model.getters.getActiveSheetId())).toHaveLength(0);
+  });
+
   test("Custom design is kept when removing a data series", async () => {
     createTestChart("basicChart");
     updateChart(model, chartId, {
