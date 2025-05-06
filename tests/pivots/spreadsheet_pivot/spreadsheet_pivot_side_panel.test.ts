@@ -677,4 +677,15 @@ describe("Spreadsheet pivot side panel", () => {
       { fieldName: "Amount", order: "desc" },
     ]);
   });
+
+  test("Pivot with multiple time the same dimension does not crash the side panel", async () => {
+    setCellContent(model, "A1", "ValidDimension");
+    setCellContent(model, "A2", "10");
+    addPivot(model, "A1:A2", {
+      columns: [{ fieldName: "ValidDimension" }, { fieldName: "ValidDimension" }],
+    });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+    expect(1).toBe(1);
+  });
 });

@@ -9,7 +9,7 @@
           fields="props.unusedGroupableFields"
         />
       </div>
-      <t t-foreach="props.definition.columns" t-as="col" t-key="col.nameWithGranularity">
+      <t t-foreach="props.definition.columns" t-as="col" t-key="col_index">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDrop(col, ev)"
           t-att-style="dragAndDrop.itemsStyle[col.nameWithGranularity]"
@@ -35,7 +35,7 @@
           fields="props.unusedGroupableFields"
         />
       </div>
-      <t t-foreach="props.definition.rows" t-as="row" t-key="row.nameWithGranularity">
+      <t t-foreach="props.definition.rows" t-as="row" t-key="row_index">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDrop(row, ev)"
           t-att-style="dragAndDrop.itemsStyle[row.nameWithGranularity]"
