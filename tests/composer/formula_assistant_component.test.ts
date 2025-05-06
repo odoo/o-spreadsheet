@@ -93,12 +93,21 @@ describe("formula assistant", () => {
     test("empty not show autocomplete", async () => {
       await typeInComposer("");
       expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
     test("= do not show formula assistant", async () => {
       await typeInComposer("=");
       expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
+      expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
+    });
+
+    test("no search match does not show formula assistant", async () => {
+      await typeInComposer("=ZZZZ");
+      expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(0);
     });
 
