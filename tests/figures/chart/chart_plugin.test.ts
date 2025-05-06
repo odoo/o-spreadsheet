@@ -798,7 +798,7 @@ describe("datasource tests", function () {
     expect(cmd3).toBeCancelledBecause(CommandResult.DuplicatedChartId);
   });
 
-  test("reject updates that target a cinexisting chart", () => {
+  test("reject updates that target a inexistent chart", () => {
     createChart(
       model,
       {
@@ -839,6 +839,13 @@ describe("datasource tests", function () {
     });
     expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
   });
+
+  test("reject update that does not change the chart", () => {
+    createChart(model, { type: "line" }, "1");
+    const result = updateChart(model, "1", {});
+    expect(result).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
   test("chart is not selected after creation and update", () => {
     const chartId = "1234";
     createChart(
