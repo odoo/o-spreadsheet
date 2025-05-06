@@ -68,7 +68,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     const cancelledReasons = [
       ...(this.state.datasetDispatchResult?.reasons || []),
       ...(this.state.labelsDispatchResult?.reasons || []),
-    ];
+    ].filter((reason) => reason !== CommandResult.NoChanges);
     return cancelledReasons.map(
       (error) => ChartTerms.Errors[error] || ChartTerms.Errors.Unexpected
     );
