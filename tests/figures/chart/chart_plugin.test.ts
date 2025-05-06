@@ -687,6 +687,26 @@ describe("datasource tests", function () {
     expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
   });
 
+  test("reject updates that target a figure that is not a chart", () => {
+    model.dispatch("CREATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figure: { id: "2", x: 0, y: 0, width: 100, height: 100, tag: "not a chart" },
+    });
+
+    const result = model.dispatch("UPDATE_CHART", {
+      definition: {
+        dataSets: [],
+        dataSetsHaveTitle: false,
+        stacked: false,
+        legendPosition: "bottom",
+        title: { text: "test" },
+        type: "bar",
+      },
+      sheetId: model.getters.getActiveSheetId(),
+      id: "2",
+    });
+    expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
+  });
   test("chart is not selected after creation and update", () => {
     const chartId = "1234";
     createChart(
