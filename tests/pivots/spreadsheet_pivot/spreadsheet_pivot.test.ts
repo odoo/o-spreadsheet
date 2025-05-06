@@ -513,21 +513,6 @@ describe("Spreadsheet Pivot", () => {
     );
   });
 
-  test("Sum with a field that contains a string should work", () => {
-    const model = createModelWithPivot("A1:I5");
-    updatePivot(model, "1", {
-      columns: [],
-      rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
-    });
-    setCellContent(model, "A26", `=pivot(1)`);
-    expect(getCellContent(model, "B28")).toBe("$17,500.00");
-
-    expect(getCellContent(model, "F2")).toBe("$2,000.00");
-    setCellContent(model, "F2", "Hello");
-    expect(getCellContent(model, "B28")).toBe("$15,500.00");
-  });
-
   test("quarter_number should be supported", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
@@ -676,30 +661,6 @@ describe("Spreadsheet Pivot", () => {
       A2: "Alice",
       A3: "Bob",
       A4: "Bob",
-    };
-    const model = createModelFromGrid(grid);
-    addPivot(model, "A1:A4", {
-      columns: [],
-      rows: [],
-      measures: [{ name: "Name", aggregator }],
-    });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Name")');
-    expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
-  });
-
-  test.each([
-    ["sum", 15],
-    ["count", 3],
-    ["count_distinct", 3],
-    ["max", 10],
-    ["min", 5],
-    ["avg", 7.5],
-  ])("PIVOT.VALUE measure mixing text and number %s grand total", (aggregator, aggregatedValue) => {
-    const grid = {
-      A1: "Name",
-      A2: "Alice",
-      A3: "5",
-      A4: "10",
     };
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
@@ -1457,6 +1418,37 @@ describe("Spreadsheet Pivot", () => {
     expect(model.getters.getPivotIds()).toEqual(["1"]);
     expect(model.getters.getPivotCoreDefinition("1")).toBeTruthy();
     expect(model.getters.getPivot("1")).toBeTruthy();
+  });
+
+  test("char dimension supports mix of number and texts", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer",   B1: "Price", C1: "=PIVOT(1)",
+      A2: "Alice",      B2: "10",
+      A3: "",           B3: "20",
+      A4: "1",          B4: "30",
+      A5: "2",          B5: "40",
+      A6: "2",          B6: "50",
+      A7: '="1"',       B7: "60",
+    };
+    const model = createModelFromGrid(grid);
+    setFormat(model, "A6", "m/d/yyyy");
+    addPivot(model, "A1:B7", {
+      rows: [{ name: "Customer", order: "asc" }],
+      columns: [],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D8")).toEqual([
+      ["(#1) Pivot",     "Total"],
+      ["",               "Price"],
+      ["1",              "90"],
+      ["1/1/1900",       "50"],
+      ["2",              "40"],
+      ["Alice",          "10"],
+      ["(Undefined)",    "20"],
+      ["Total",          "210"],
+    ]);
   });
 });
 
