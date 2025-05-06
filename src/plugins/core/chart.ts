@@ -1,4 +1,5 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
+import { deepEquals } from "../../helpers";
 import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
 import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
@@ -64,7 +65,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       case "UPDATE_CHART":
         return this.checkValidations(
           cmd,
-          this.chainValidations(this.validateChartDefinition, this.checkChartExists)
+          this.chainValidations(
+            this.validateChartDefinition,
+            this.checkChartExists,
+            this.checkChartChanged
+          )
         );
       default:
         return CommandResult.Success;
@@ -244,5 +249,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     return this.isChartDefined(cmd.figureId)
       ? CommandResult.Success
       : CommandResult.ChartDoesNotExist;
+  }
+
+  private checkChartChanged(cmd: UpdateChartCommand): CommandResult {
+    return deepEquals(this.getChartDefinition(cmd.figureId), cmd.definition)
+      ? CommandResult.NoChanges
+      : CommandResult.Success;
   }
 }
