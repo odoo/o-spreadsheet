@@ -846,4 +846,24 @@ describe("TopBar composer", () => {
     expect(topBarComposer!.textContent).toBe("");
     expect(topBarComposer.attributes.getNamedItem("placeholder")?.value).toEqual("=MUNIT(3)");
   });
+
+  test("opening and closing the assistant preserves the focus on the top bar composer", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
+    await click(fixture, ".o-spreadsheet-topbar .o-composer");
+    let composerEl = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    expect(document.activeElement).toBe(composerEl);
+
+    await typeInComposerTopBar("=SUM(", false);
+    composerEl = document.querySelector(".o-spreadsheet-topbar .o-composer");
+    expect(document.activeElement).toBe(composerEl);
+    expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
+    expect(fixture.querySelector(".o-spreadsheet-topbar .fa-question-circle")).toBe(null);
+    expect(fixture.querySelector(".o-spreadsheet-topbar .fa-times-circle")).not.toBe(null);
+    await simulateClick(".o-spreadsheet-topbar .fa-times-circle");
+    expect(document.activeElement).toBe(composerEl);
+    expect(fixture.querySelector(".o-formula-assistant")).toBe(null);
+    await simulateClick(".o-spreadsheet-topbar .fa-question-circle");
+    expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
+    expect(document.activeElement).toBe(composerEl);
+  });
 });
