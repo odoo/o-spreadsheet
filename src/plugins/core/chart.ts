@@ -264,8 +264,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   }
 
   private checkChartExists(cmd: UpdateChartCommand): CommandResult {
-    return this.getters.getFigureSheetId(cmd.id)
-      ? CommandResult.Success
-      : CommandResult.ChartDoesNotExist;
+    return this.isChartDefined(cmd.id) ? CommandResult.Success : CommandResult.ChartDoesNotExist;
   }
 }
