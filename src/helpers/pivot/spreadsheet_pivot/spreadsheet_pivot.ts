@@ -230,6 +230,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return domain;
   }
 
+  canBeSorted(args: Maybe<FunctionResultObject>[]): boolean {
+    return false;
+  }
+
   markAsDirtyForEvaluation(): void {
     this.needsReevaluation = true;
   }

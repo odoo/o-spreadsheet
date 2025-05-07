@@ -480,8 +480,10 @@ topbarMenuRegistry
         sequence: sequence + index,
         isReadonlyAllowed: true,
         execute: (env) => env.openSidePanel("PivotSidePanel", { pivotId }),
-        onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
-        onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
+        onStartHover: (env) => {
+          env.getStore(HighlightStore).register(highlightProvider);
+          return () => env.getStore(HighlightStore).unRegister(highlightProvider);
+        },
         icon: "o-spreadsheet-Icon.PIVOT",
         separator: index === env.model.getters.getPivotIds().length - 1,
         secondaryIcon: (env) =>

@@ -1,0 +1,40 @@
+.o-spreadsheet {
+  $pivot-sorting-menu-width: 24px;
+  $pivot-sorting-menu-height: 24px;
+
+  @keyframes slice-in {
+    0% {
+      transform: translate(
+        calc(-100% + $pivot-sorting-menu-width),
+        calc(-100% + $pivot-sorting-menu-height)
+      );
+    }
+
+    100% {
+      transform: translate(0%, 0%);
+    }
+  }
+
+  .o-dashboard-menu-expandable {
+    animation: slice-in 150ms 0ms ease-in forwards;
+  }
+
+  @keyframes grow {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .o-dashboard-menu {
+    width: $pivot-sorting-menu-width;
+    height: $pivot-sorting-menu-height;
+    animation: grow 100ms 0ms ease-in forwards;
+    overflow: hidden;
+  }
+}
