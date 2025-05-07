@@ -53,6 +53,7 @@ import {
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
+import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -328,6 +329,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SidePanel,
     SpreadsheetDashboard,
     HeaderGroupContainer,
+    FullScreenFigure, // ADRM TODO delete this
   };
 
   sidePanel!: Store<SidePanelStore>;

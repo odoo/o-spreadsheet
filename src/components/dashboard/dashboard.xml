@@ -27,6 +27,7 @@
       </div>
       <VerticalScrollBar/>
       <HorizontalScrollBar/>
+      <!-- <FullScreenFigure /> -->
       <div class="o-scrollbar corner"/>
     </div>
   </t>

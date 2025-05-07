@@ -25,6 +25,7 @@
         <SidePanel/>
         <BottomBar onClick="() => this.focusGrid()"/>
       </t>
+      <FullScreenFigure/>
     </div>
   </t>
 </templates>

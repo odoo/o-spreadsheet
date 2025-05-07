@@ -1,0 +1,55 @@
+<templates>
+  <t t-name="o-spreadsheet-FigureWrapper">
+    <div class="o-figure-wrapper pe-auto" t-att-style="wrapperStyle">
+      <FigureComponent
+        onFigureDeleted="this.props.onFigureDeleted"
+        figureUI="this.props.figureUI"
+        style="this.props.style"
+        onMouseDown="this.props.onMouseDown"
+      />
+      <div class="o-figure-border w-100 h-100 position-absolute pe-none" t-att-style="borderStyle"/>
+      <t t-if="isSelected">
+        <div
+          class="o-fig-anchor o-top"
+          t-att-style="this.getResizerPosition('top')"
+          t-on-pointerdown="(ev) => this.clickAnchor(0,-1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-topRight"
+          t-att-style="this.getResizerPosition('top right')"
+          t-on-pointerdown="(ev) => this.clickAnchor(1,-1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-right"
+          t-att-style="this.getResizerPosition('right')"
+          t-on-pointerdown="(ev) => this.clickAnchor(1,0, ev)"
+        />
+        <div
+          class="o-fig-anchor o-bottomRight"
+          t-att-style="this.getResizerPosition('bottom right')"
+          t-on-pointerdown="(ev) => this.clickAnchor(1,1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-bottom"
+          t-att-style="this.getResizerPosition('bottom')"
+          t-on-pointerdown="(ev) => this.clickAnchor(0,1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-bottomLeft"
+          t-att-style="this.getResizerPosition('bottom left')"
+          t-on-pointerdown="(ev) => this.clickAnchor(-1,1, ev)"
+        />
+        <div
+          class="o-fig-anchor o-left"
+          t-att-style="this.getResizerPosition('left')"
+          t-on-pointerdown="(ev) => this.clickAnchor(-1,0, ev)"
+        />
+        <div
+          class="o-fig-anchor o-topLeft"
+          t-att-style="this.getResizerPosition('top left')"
+          t-on-pointerdown="(ev) => this.clickAnchor(-1,-1, ev)"
+        />
+      </t>
+    </div>
+  </t>
+</templates>

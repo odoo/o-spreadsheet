@@ -7,7 +7,7 @@
         t-key="this.props.figureUI.id"
       />
     </div>
-    <div t-if="env.isDashboard()" class="position-absolute top-0 end-0">
+    <div t-if="true || env.isDashboard()" class="position-absolute top-0 end-0">
       <ChartDashboardMenu figureUI="props.figureUI"/>
     </div>
   </t>
