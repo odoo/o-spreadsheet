@@ -10,7 +10,7 @@
             class="o-figure-viewport-inverse w-0 h-0 overflow-visible position-absolute"
             t-att-style="container.inverseViewportStyle">
             <t t-foreach="container.figures" t-as="figureUI" t-key="figureUI.id">
-              <FigureComponent
+              <FigureWrapper
                 onFigureDeleted="this.props.onFigureDeleted"
                 figureUI="figureUI"
                 style="getFigureStyle(figureUI)"

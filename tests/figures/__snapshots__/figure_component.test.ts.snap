@@ -56,6 +56,7 @@ exports[`figures selected figure snapshot 1`] = `
     </div>
     
   </div>
+  
   <div
     class="o-figure-border w-100 h-100 position-absolute pe-none"
     style="border: 2px solid #3266ca;"

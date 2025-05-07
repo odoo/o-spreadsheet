@@ -1,41 +1,10 @@
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import {
-  ComponentsImportance,
-  FIGURE_BORDER_COLOR,
-  SELECTION_BORDER_COLOR,
-} from "../../../constants";
 import { figureRegistry } from "../../../registries/figures_registry";
-import {
-  AnchorOffset,
-  CSSProperties,
-  FigureUI,
-  Pixel,
-  Rect,
-  ResizeDirection,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../types/index";
-import { css, cssPropertiesToCss } from "../../helpers/css";
+import { AnchorOffset, FigureUI, Rect, SpreadsheetChildEnv, UID } from "../../../types/index";
+import { css } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
 import { Menu, MenuState } from "../../menu/menu";
-
-type ResizeAnchor =
-  | "top left"
-  | "top"
-  | "top right"
-  | "right"
-  | "bottom right"
-  | "bottom"
-  | "bottom left"
-  | "left";
-
-// -----------------------------------------------------------------------------
-// STYLE
-// -----------------------------------------------------------------------------
-const ANCHOR_SIZE = 8;
-const BORDER_WIDTH = 1;
-const ACTIVE_BORDER_WIDTH = 2;
 
 css/*SCSS*/ `
   div.o-figure {
@@ -46,49 +15,6 @@ css/*SCSS*/ `
 
     &:focus {
       outline: none;
-    }
-  }
-
-  div.o-figure-border {
-    z-index: 1;
-  }
-
-  .o-figure-wrapper {
-    position: absolute;
-    box-sizing: content-box;
-
-    .o-fig-anchor {
-      z-index: ${ComponentsImportance.FigureAnchor};
-      position: absolute;
-      width: ${ANCHOR_SIZE}px;
-      height: ${ANCHOR_SIZE}px;
-      background-color: #1a73e8;
-      outline: ${BORDER_WIDTH}px solid white;
-
-      &.o-top {
-        cursor: n-resize;
-      }
-      &.o-topRight {
-        cursor: ne-resize;
-      }
-      &.o-right {
-        cursor: e-resize;
-      }
-      &.o-bottomRight {
-        cursor: se-resize;
-      }
-      &.o-bottom {
-        cursor: s-resize;
-      }
-      &.o-bottomLeft {
-        cursor: sw-resize;
-      }
-      &.o-left {
-        cursor: w-resize;
-      }
-      &.o-topLeft {
-        cursor: nw-resize;
-      }
     }
 
     .o-figure-menu {
@@ -101,8 +27,8 @@ css/*SCSS*/ `
       cursor: pointer;
     }
 
-    .o-figure.active:focus,
-    .o-figure:hover {
+    &.active:focus,
+    &:hover {
       .o-figure-menu {
         display: flex;
       }
@@ -115,7 +41,6 @@ interface Props {
   style: string;
   onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
-  onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
 }
 
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
@@ -125,13 +50,11 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     style: { type: String, optional: true },
     onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
-    onClickAnchor: { type: Function, optional: true },
   };
   static components = { Menu };
   static defaultProps = {
     onFigureDeleted: () => {},
     onMouseDown: () => {},
-    onClickAnchor: () => {},
   };
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
@@ -139,8 +62,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   private figureRef = useRef("figure");
   private menuButtonRef = useRef("menuButton");
   private menuButtonRect = useAbsoluteBoundingRect(this.menuButtonRef);
-
-  private borderWidth!: number;
 
   get isSelected(): boolean {
     return this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id;
@@ -150,52 +71,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     return figureRegistry;
   }
 
-  private getBorderWidth(): Pixel {
-    if (this.env.isDashboard()) return 0;
-    return this.isSelected ? ACTIVE_BORDER_WIDTH : this.borderWidth;
-  }
-
-  get borderStyle() {
-    const borderWidth = this.getBorderWidth();
-    const borderColor = this.isSelected ? SELECTION_BORDER_COLOR : FIGURE_BORDER_COLOR;
-    return `border: ${borderWidth}px solid ${borderColor};`;
-  }
-
-  get wrapperStyle() {
-    const { x, y, width, height } = this.props.figureUI;
-    return cssPropertiesToCss({
-      left: `${x}px`,
-      top: `${y}px`,
-      width: `${width}px`,
-      height: `${height}px`,
-      "z-index": String(ComponentsImportance.Figure + (this.isSelected ? 1 : 0)),
-    });
-  }
-
-  getResizerPosition(resizer: ResizeAnchor): string {
-    const anchorCenteringOffset = (ANCHOR_SIZE - ACTIVE_BORDER_WIDTH) / 2;
-    const style: CSSProperties = {};
-    if (resizer.includes("top")) {
-      style.top = `${-anchorCenteringOffset}px`;
-    } else if (resizer.includes("bottom")) {
-      style.bottom = `${-anchorCenteringOffset}px`;
-    } else {
-      style.bottom = `calc(50% - ${anchorCenteringOffset}px)`;
-    }
-
-    if (resizer.includes("left")) {
-      style.left = `${-anchorCenteringOffset}px`;
-    } else if (resizer.includes("right")) {
-      style.right = `${-anchorCenteringOffset}px`;
-    } else {
-      style.right = `calc(50% - ${anchorCenteringOffset}px)`;
-    }
-    return cssPropertiesToCss(style);
-  }
-
   setup() {
-    const borderWidth = figureRegistry.get(this.props.figureUI.tag).borderWidth;
-    this.borderWidth = borderWidth !== undefined ? borderWidth : BORDER_WIDTH;
     useEffect(
       (selectedFigureId: UID | null, thisFigureId: UID, el: HTMLElement | null) => {
         if (selectedFigureId === thisFigureId) {
@@ -220,10 +96,6 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       this.props.onFigureDeleted();
     });
-  }
-
-  clickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
-    this.props.onClickAnchor(dirX, dirY, ev);
   }
 
   onMouseDown(ev: MouseEvent) {

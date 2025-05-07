@@ -22,7 +22,7 @@ import {
   snapForMove,
   snapForResize,
 } from "../../helpers/figure_snap_helper";
-import { FigureComponent } from "../figure/figure";
+import { FigureWrapper } from "../figure_wrapper/figure_wrapper";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";
 
@@ -134,7 +134,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     onFigureDeleted: Function,
   };
-  static components = { FigureComponent };
+  static components = { FigureWrapper };
 
   dnd = useState<DndState>({
     draggedFigure: undefined,
