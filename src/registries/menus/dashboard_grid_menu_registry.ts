@@ -3,6 +3,7 @@ import { ACTION_COLOR } from "../../constants";
 import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
 import {
   canSortPivot,
+  isPivotHeaderSortMenuItemActive,
   isPivotSortMenuItemActive,
   sortPivot,
   sortPivotHeader,
@@ -134,6 +135,8 @@ dashboardGridMenuRegistry
   .add("sort_pivot_header_ascending", {
     name: _t("Sort ascending (A ⟶ Z)"),
     icon: "o-spreadsheet-Icon.SORT_ASCENDING",
+    iconColor: (env, position) =>
+      isPivotHeaderSortMenuItemActive(env.model.getters, position, "asc") ? ACTION_COLOR : "",
     isVisible: isPivotHeaderSortingVisible,
     execute(env, position) {
       sortPivotHeader(env, position, "asc");
@@ -143,6 +146,8 @@ dashboardGridMenuRegistry
   .add("sort_pivot_header_descending", {
     name: _t("Sort descending (Z ⟶ A)"),
     icon: "o-spreadsheet-Icon.SORT_DESCENDING",
+    iconColor: (env, position) =>
+      isPivotHeaderSortMenuItemActive(env.model.getters, position, "desc") ? ACTION_COLOR : "",
     isVisible: isPivotHeaderSortingVisible,
     execute(env, position) {
       sortPivotHeader(env, position, "desc");

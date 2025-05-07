@@ -200,3 +200,23 @@ export function isPivotSortMenuItemActive(
   }
   return sortedColumn.measure === pivotCell.measure && deepEquals(sortedColumn.domain, colDomain);
 }
+
+export function isPivotHeaderSortMenuItemActive(
+  getters: Getters,
+  position: CellPosition,
+  order: SortDirection | "none"
+): boolean {
+  const pivotId = getters.getPivotIdFromPosition(position);
+  const pivotCell = getters.getPivotCellFromPosition(position);
+  if (pivotCell.type !== "HEADER" || !pivotId) {
+    return false;
+  }
+  const pivot = getters.getPivot(pivotId);
+  const rowDimension = pivot.definition.rows.find(
+    (row) => row.nameWithGranularity === pivotCell.domain.at(-1)?.field
+  );
+  const columnDimension = pivot.definition.columns.find(
+    (col) => col.nameWithGranularity === pivotCell.domain.at(-1)?.field
+  );
+  return rowDimension?.order === order || columnDimension?.order === order;
+}
