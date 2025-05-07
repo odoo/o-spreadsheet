@@ -60,7 +60,7 @@
           fields="props.unusedMeasureFields"
         />
       </div>
-      <t t-foreach="props.definition.measures" t-as="measure" t-key="measure.nameWithAggregator">
+      <t t-foreach="maybeInvalidMeasures" t-as="measure" t-key="measure.nameWithAggregator">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDropMeasures(measure, ev)"
           t-att-style="dragAndDrop.itemsStyle[measure.name]"
@@ -73,12 +73,12 @@
                   class="o_input flex-grow-1"
                   t-on-change="(ev) => this.updateAggregator(measure, ev.target.value)">
                   <option
-                    t-foreach="Object.keys(AGGREGATORS[measure.type])"
+                    t-foreach="getAggregators(measure)"
                     t-as="agg"
-                    t-key="agg"
-                    t-att-value="agg"
-                    t-att-selected="agg === measure.aggregator"
-                    t-esc="AGGREGATORS[measure.type][agg]"
+                    t-key="agg.type"
+                    t-att-value="agg.type"
+                    t-att-selected="agg.type === measure.aggregator"
+                    t-esc="agg.label"
                   />
                 </select>
               </div>

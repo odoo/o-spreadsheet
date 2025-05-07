@@ -28,6 +28,7 @@ import { toXC } from "../../coordinates";
 import { isDateTimeFormat } from "../../format";
 import { isDefined } from "../../misc";
 import {
+  AGGREGATORS_BY_FIELD_TYPE,
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,
   parseDimension,
@@ -244,16 +245,27 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     };
   }
 
-  getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FunctionResultObject {
+  getPivotCellValueAndFormat(measureName: string, domain: PivotDomain): FunctionResultObject {
     const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     if (dataEntries.length === 0) {
       return { value: "" };
     }
     const values = dataEntries
-      .map((value) => value[measure])
+      .map((value) => value[measureName])
       .filter((cell) => cell && cell.type !== CellValueType.empty)
       .filter(isDefined);
-    const aggregator = this.getMeasure(measure).aggregator;
+    const measure = this.getMeasure(measureName);
+    const aggregator = measure.aggregator;
+
+    if (!AGGREGATORS_BY_FIELD_TYPE[measure.type]?.includes(aggregator)) {
+      const message =
+        'The aggregator "%(aggregator)s" is not valid for the field "%(field)s" of type "%(type)s"';
+      return {
+        value: CellErrorType.GenericError,
+        message: _t(message, { aggregator, field: measureName, type: measure.type }),
+      };
+    }
+
     const operator = AGGREGATORS_FN[aggregator];
     if (!operator) {
       throw new Error(`Aggregator ${aggregator} does not exist`);
@@ -420,7 +432,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         if (cell.value === "") {
           entry[field.name] = { value: null, type: CellValueType.empty };
         } else {
-          entry[field.name] = cell;
+          if (field.type === "char") {
+            entry[field.name] = { ...cell, value: cell.formattedValue || null };
+          } else {
+            entry[field.name] = cell;
+          }
         }
       }
       entry["__count"] = { value: 1, type: CellValueType.number };

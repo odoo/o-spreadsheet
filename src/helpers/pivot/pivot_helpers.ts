@@ -25,7 +25,7 @@ import {
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
-const AGGREGATOR_NAMES = {
+export const AGGREGATOR_NAMES = {
   count: _t("Count"),
   count_distinct: _t("Count Distinct"),
   bool_and: _t("Boolean And"),
@@ -36,11 +36,9 @@ const AGGREGATOR_NAMES = {
   sum: _t("Sum"),
 };
 
-const NUMBER_CHAR_AGGREGATORS = ["max", "min", "avg", "sum", "count_distinct", "count"];
-
-const AGGREGATORS_BY_FIELD_TYPE = {
-  integer: NUMBER_CHAR_AGGREGATORS,
-  char: NUMBER_CHAR_AGGREGATORS,
+export const AGGREGATORS_BY_FIELD_TYPE = {
+  integer: ["max", "min", "avg", "sum", "count_distinct", "count"],
+  char: ["count_distinct", "count"],
   boolean: ["count_distinct", "count", "bool_and", "bool_or"],
 };
 
