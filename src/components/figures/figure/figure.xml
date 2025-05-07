@@ -2,14 +2,9 @@
   <t t-name="o-spreadsheet-FigureComponent">
     <div
       class="o-figure w-100 h-100"
-      t-on-pointerdown.stop="(ev) => this.onMouseDown(ev)"
       t-on-contextmenu.prevent.stop="(ev) => !env.model.getters.isReadonly() and this.onContextMenu(ev)"
-      t-ref="figure"
       t-att-style="props.style"
-      t-att-data-id="props.figureUI.id"
-      tabindex="0"
-      t-on-keydown="(ev) => this.onKeyDown(ev)"
-      t-on-keyup.stop="">
+      t-att-data-id="props.figureUI.id">
       <t
         t-component="figureRegistry.get(props.figureUI.tag).Component"
         t-key="props.figureUI.id"

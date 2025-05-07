@@ -1,11 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-FigureWrapper">
-    <div class="o-figure-wrapper pe-auto" t-att-style="wrapperStyle">
+    <div
+      class="o-figure-wrapper pe-auto"
+      t-att-style="wrapperStyle"
+      t-ref="figureWrapper"
+      t-on-pointerdown.stop="this.props.onMouseDown"
+      tabindex="0"
+      t-on-keydown="(ev) => this.onKeyDown(ev)"
+      t-on-keyup.stop="">
       <FigureComponent
         onFigureDeleted="this.props.onFigureDeleted"
         figureUI="this.props.figureUI"
         style="this.props.style"
-        onMouseDown="this.props.onMouseDown"
       />
       <div class="o-figure-border w-100 h-100 position-absolute pe-none" t-att-style="borderStyle"/>
       <t t-if="isSelected">
