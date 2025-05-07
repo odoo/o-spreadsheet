@@ -684,6 +684,7 @@ describe("Grid component", () => {
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectColumn(model, 0, "overrideSelection");
+      selectColumn(model, 0, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -700,6 +701,7 @@ describe("Grid component", () => {
       selectColumn(model, 0, "overrideSelection");
       selectColumn(model, 1, "updateAnchor");
       selectColumn(model, 2, "updateAnchor");
+      selectColumn(model, 2, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -714,8 +716,11 @@ describe("Grid component", () => {
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectColumn(model, 0, "overrideSelection");
+      selectColumn(model, 0, "updateSelection");
       selectColumn(model, 1, "newAnchor");
+      selectColumn(model, 1, "updateSelection");
       selectColumn(model, 2, "newAnchor");
+      selectColumn(model, 2, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -727,6 +732,7 @@ describe("Grid component", () => {
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
+      selectRow(model, 0, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -743,6 +749,7 @@ describe("Grid component", () => {
       selectRow(model, 0, "overrideSelection");
       selectRow(model, 1, "updateAnchor");
       selectRow(model, 2, "updateAnchor");
+      selectRow(model, 2, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -757,8 +764,11 @@ describe("Grid component", () => {
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
+      selectRow(model, 0, "updateSelection");
       selectRow(model, 1, "newAnchor");
+      selectRow(model, 1, "updateSelection");
       selectRow(model, 2, "newAnchor");
+      selectRow(model, 2, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -771,7 +781,9 @@ describe("Grid component", () => {
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
+      selectRow(model, 0, "updateSelection");
       selectColumn(model, 2, "newAnchor");
+      selectColumn(model, 2, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -788,6 +800,7 @@ describe("Grid component", () => {
       setCellContent(model, "B1", "hello2");
       setCellContent(model, "C1", "hello3");
       selectColumn(model, 1, "overrideSelection");
+      selectColumn(model, 1, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -803,7 +816,9 @@ describe("Grid component", () => {
       setCellContent(model, "B1", "hello2");
       setCellContent(model, "C1", "hello3");
       selectColumn(model, 0, "overrideSelection");
+      selectColumn(model, 0, "updateSelection");
       selectColumn(model, 2, "newAnchor");
+      selectColumn(model, 2, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -818,6 +833,7 @@ describe("Grid component", () => {
       setCellContent(model, "A2", "hello2");
       setCellContent(model, "A3", "hello3");
       selectRow(model, 1, "overrideSelection");
+      selectRow(model, 1, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -833,7 +849,9 @@ describe("Grid component", () => {
       setCellContent(model, "A2", "hello2");
       setCellContent(model, "A3", "hello3");
       selectRow(model, 0, "overrideSelection");
+      selectRow(model, 0, "updateSelection");
       selectRow(model, 2, "newAnchor");
+      selectRow(model, 2, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -847,7 +865,9 @@ describe("Grid component", () => {
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
+      selectRow(model, 0, "updateSelection");
       selectColumn(model, 2, "newAnchor");
+      selectColumn(model, 2, "updateSelection");
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -1977,6 +1997,7 @@ describe("Header grouping shortcuts", () => {
   describe.each(["COL", "ROW"] as const)("With selected header", (dimension) => {
     test("ALT+SHIFT+ARROWRIGHT: group selected header", () => {
       selectHeader(model, dimension, 1, "overrideSelection");
+      selectHeader(model, dimension, 1, "updateSelection");
       keyDown({ key: "ArrowRight", altKey: true, shiftKey: true });
       expect(model.getters.getHeaderGroups(sheetId, dimension)).toMatchObject([
         { start: 1, end: 1 },
@@ -1986,6 +2007,7 @@ describe("Header grouping shortcuts", () => {
     test("ALT+SHIFT+ARROWLEFT: ungroup selected header", () => {
       groupHeaders(model, dimension, 1, 1);
       selectHeader(model, dimension, 1, "overrideSelection");
+      selectHeader(model, dimension, 1, "updateSelection");
       keyDown({ key: "ArrowLeft", altKey: true, shiftKey: true });
       expect(model.getters.getHeaderGroups(sheetId, dimension)).toMatchObject([]);
     });
@@ -1993,14 +2015,16 @@ describe("Header grouping shortcuts", () => {
     test("ALT+SHIFT+ARROWUP: fold selected header", () => {
       groupHeaders(model, dimension, 1, 1);
       selectHeader(model, dimension, 1, "overrideSelection");
+      selectHeader(model, dimension, 1, "updateSelection");
       keyDown({ key: "ArrowUp", altKey: true, shiftKey: true });
       expect(model.getters.isGroupFolded(sheetId, dimension, 1, 1)).toBe(true);
     });
 
     test("ALT+SHIFT+ARROWDOWN: unfold selected header", () => {
       groupHeaders(model, dimension, 1, 1);
-      foldHeaderGroup(model, dimension, 1, 1);
       selectHeader(model, dimension, 1, "overrideSelection");
+      selectHeader(model, dimension, 1, "updateSelection");
+      foldHeaderGroup(model, dimension, 1, 1);
       keyDown({ key: "ArrowDown", altKey: true, shiftKey: true });
       expect(model.getters.isGroupFolded(sheetId, dimension, 1, 1)).toBe(false);
     });

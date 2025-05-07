@@ -834,7 +834,19 @@ export function setCellFormat(
  */
 export function selectCell(model: Model, xc: string): DispatchResult {
   const { col, row } = toCartesian(xc);
-  return model.selection.selectCell(col, row);
+  model.selection.selectCell(col, row);
+  return model.selection.updateSelection(col, row);
+}
+
+export function selectZone(model: Model, xc: string): DispatchResult {
+  const zone = toZone(xc);
+  model.selection.selectCell(zone.left, zone.top);
+  return model.selection.updateSelection(zone.right, zone.bottom);
+}
+
+export function updateSelection(model: Model, xc: string): DispatchResult {
+  const { col, row } = toCartesian(xc);
+  return model.selection.updateSelection(col, row);
 }
 
 export function moveAnchorCell(
@@ -860,7 +872,14 @@ export function setAnchorCorner(model: Model, xc: string): DispatchResult {
 
 export function addCellToSelection(model: Model, xc: string): DispatchResult {
   const { col, row } = toCartesian(xc);
-  return model.selection.addCellToSelection(col, row);
+  model.selection.addCellToSelection(col, row);
+  return model.selection.updateSelection(col, row);
+}
+
+export function addZoneToSelection(model: Model, xcs: string): DispatchResult {
+  const zone = toZone(xcs);
+  model.selection.addCellToSelection(zone.left, zone.top);
+  return model.selection.updateSelection(zone.right, zone.bottom);
 }
 
 /**
@@ -924,21 +943,23 @@ export function setSelection(
       { cell: { col: z1.left, row: z1.top }, zone: z1 },
       { unbounded: options.unbounded }
     );
+    model.selection.updateSelection(z1.right, z1.bottom);
     for (const zone of zones) {
       model.selection.addCellToSelection(zone.left, zone.top);
-      model.selection.setAnchorCorner(zone.right, zone.bottom);
+      model.selection.updateSelection(zone.right, zone.bottom);
     }
     model.selection.addCellToSelection(anchor.zone.left, anchor.zone.top);
-    model.selection.setAnchorCorner(anchor.zone.right, anchor.zone.bottom);
+    model.selection.updateSelection(anchor.zone.right, anchor.zone.bottom);
   } else {
     model.selection.selectZone(anchor, { scrollIntoView: true, unbounded: options.unbounded });
+    model.selection.updateSelection(anchor.zone.right, anchor.zone.bottom);
   }
 }
 
 export function selectColumn(
   model: Model,
   col: number,
-  mode: "overrideSelection" | "updateAnchor" | "newAnchor"
+  mode: "overrideSelection" | "updateAnchor" | "newAnchor" | "updateSelection"
 ) {
   return model.selection.selectColumn(col, mode);
 }
@@ -946,7 +967,7 @@ export function selectColumn(
 export function selectRow(
   model: Model,
   row: number,
-  mode: "overrideSelection" | "updateAnchor" | "newAnchor"
+  mode: "overrideSelection" | "updateAnchor" | "newAnchor" | "updateSelection"
 ) {
   return model.selection.selectRow(row, mode);
 }
@@ -955,7 +976,7 @@ export function selectHeader(
   model: Model,
   dimension: Dimension,
   index: number,
-  mode: "overrideSelection" | "updateAnchor" | "newAnchor"
+  mode: "overrideSelection" | "updateAnchor" | "newAnchor" | "updateSelection"
 ) {
   if (dimension === "ROW") {
     return model.selection.selectRow(index, mode);
@@ -965,7 +986,8 @@ export function selectHeader(
 }
 
 export function selectAll(model: Model) {
-  return model.selection.selectAll();
+  model.selection.selectAll();
+  return model.selection.updateSelection();
 }
 
 export function sort(

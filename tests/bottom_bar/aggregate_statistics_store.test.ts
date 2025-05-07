@@ -3,12 +3,12 @@ import { AggregateStatisticsStore } from "../../src/components/bottom_bar/bottom
 import { functionRegistry } from "../../src/functions";
 import {
   activateSheet,
-  addCellToSelection,
+  addZoneToSelection,
   createSheet,
   hideRows,
   selectAll,
   selectCell,
-  setAnchorCorner,
+  selectZone,
   setCellContent,
   setFormat,
   setSelection,
@@ -29,8 +29,7 @@ describe("Aggregate statistic functions", () => {
     expect(statisticFnResults["Count"]?.()).toBe(2);
 
     // expand selection with the range A3:A2
-    addCellToSelection(model, "A3");
-    setAnchorCorner(model, "A2");
+    addZoneToSelection(model, "A3:A2");
 
     // A2 is now present in two selection
     statisticFnResults = store.statisticFnResults;
@@ -67,8 +66,7 @@ describe("Aggregate statistic functions", () => {
 
     test('return the "SUM" value only on cells interpreted as number', () => {
       // select the range A1:A7
-      selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      selectZone(model, "A1:A7");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Sum"]?.()).toBe(66);
 
@@ -79,8 +77,7 @@ describe("Aggregate statistic functions", () => {
 
     test('return the "Avg" result only on cells interpreted as number', () => {
       // select the range A1:A7
-      selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      selectZone(model, "A1:A7");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Avg"]?.()).toBe(22);
 
@@ -91,8 +88,7 @@ describe("Aggregate statistic functions", () => {
 
     test('return "Min" value only on cells interpreted as number', () => {
       // select the range A1:A7
-      selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      selectZone(model, "A1:A7");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Min"]?.()).toBe(0);
 
@@ -103,8 +99,7 @@ describe("Aggregate statistic functions", () => {
 
     test('return the "Max" value only on cells interpreted as number', () => {
       // select the range A1:A7
-      selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      selectZone(model, "A1:A7");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Max"]?.()).toBe(42);
 
@@ -115,8 +110,7 @@ describe("Aggregate statistic functions", () => {
 
     test('return the "Count" value on all types of interpreted cells except on cells interpreted as empty', () => {
       // select the range A1:A7
-      selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      selectZone(model, "A1:A7");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count"]?.()).toBe(6);
 
@@ -147,8 +141,7 @@ describe("Aggregate statistic functions", () => {
       expect(statisticFnResults["Count Numbers"]?.()).toBe(0);
 
       // select the range A6:A7
-      selectCell(model, "A6");
-      setAnchorCorner(model, "A7");
+      selectZone(model, "A6:A7");
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count"]?.()).toBe(1);
     });

@@ -135,7 +135,7 @@ export class ClipboardPlugin extends UIPlugin {
     switch (cmd.type) {
       case "COPY":
       case "CUT":
-        const zones = this.getters.getSelectedZones();
+        const zones = this.getters.getSelectedZones().concat(this.getters.getSelectedZone());
         this.status = "visible";
         this.originSheetId = this.getters.getActiveSheetId();
         this._isCutOperation = cmd.type === "CUT";
@@ -445,14 +445,16 @@ export class ClipboardPlugin extends UIPlugin {
     if (!options?.selectTarget) {
       return;
     }
-    const selection = zones[0];
-    const col = selection.left;
-    const row = selection.top;
-    this.selection.getBackToDefault();
-    this.selection.selectZone(
-      { cell: { col, row }, zone: union(...selectedZones) },
-      { scrollIntoView: false }
-    );
+    if (zone) {
+      const col = zone.left;
+      const row = zone.top;
+      this.selection.getBackToDefault();
+      this.selection.selectZone(
+        { cell: { col, row }, zone: union(...selectedZones) },
+        { scrollIntoView: false }
+      );
+      this.selection.updateSelection(zone.right, zone.bottom);
+    }
   }
 
   /**

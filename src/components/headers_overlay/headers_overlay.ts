@@ -105,7 +105,9 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   abstract _selectElement(index: HeaderIndex, addDistinctHeader: boolean): void;
 
-  abstract _increaseSelection(index: HeaderIndex): void;
+  abstract _increaseSelection(index: HeaderIndex, isShiftKey: boolean): void;
+
+  abstract _updateSelection(index: HeaderIndex): void;
 
   abstract _fitElementSize(index: HeaderIndex): void;
 
@@ -275,7 +277,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   private startSelection(ev: PointerEvent, index: HeaderIndex) {
     this.state.isSelecting = true;
     if (ev.shiftKey) {
-      this._increaseSelection(index);
+      this._increaseSelection(index, true);
     } else {
       this._selectElement(index, isCtrlKey(ev));
     }
@@ -284,20 +286,23 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     const mouseMoveSelect = (col: HeaderIndex, row: HeaderIndex) => {
       const newIndex = this._getType() === "COL" ? col : row;
       if (newIndex !== this.lastSelectedElementIndex && newIndex !== -1) {
-        this._increaseSelection(newIndex);
+        this._increaseSelection(newIndex, false);
         this.lastSelectedElementIndex = newIndex;
       }
     };
     const mouseUpSelect = () => {
+      if (this.lastSelectedElementIndex !== null) {
+        if (this._getType() === "COL") {
+          this.env.model.selection.updateSelection(this.lastSelectedElementIndex, undefined);
+        } else {
+          this.env.model.selection.updateSelection(undefined, this.lastSelectedElementIndex);
+        }
+      }
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
       this._computeGrabDisplay(ev);
     };
     this.dragNDropGrid.start(ev, mouseMoveSelect, mouseUpSelect);
-  }
-
-  onMouseUp(ev: MouseEvent) {
-    this.lastSelectedElementIndex = null;
   }
 
   onContextMenu(ev: MouseEvent) {
@@ -306,6 +311,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     if (index < 0) return;
     if (!this._getActiveElements().has(index)) {
       this._selectElement(index, false);
+      this._updateSelection(index);
     }
     const type = this._getType();
     this.props.onOpenContextMenu(type, ev.clientX, ev.clientY);
@@ -466,8 +472,12 @@ export class ColResizer extends AbstractResizer {
     );
   }
 
-  _increaseSelection(index: HeaderIndex): void {
-    this.env.model.selection.selectColumn(index, "updateAnchor");
+  _increaseSelection(index: HeaderIndex, isShiftKey: boolean): void {
+    this.env.model.selection.selectColumn(index, isShiftKey ? "extendAnchor" : "updateAnchor");
+  }
+
+  _updateSelection(index: HeaderIndex): void {
+    this.env.model.selection.selectColumn(index, "updateSelection");
   }
 
   _fitElementSize(index: HeaderIndex): void {
@@ -691,8 +701,12 @@ export class RowResizer extends AbstractResizer {
     );
   }
 
-  _increaseSelection(index: HeaderIndex): void {
-    this.env.model.selection.selectRow(index, "updateAnchor");
+  _increaseSelection(index: HeaderIndex, isShiftKey: boolean): void {
+    this.env.model.selection.selectRow(index, isShiftKey ? "extendAnchor" : "updateAnchor");
+  }
+
+  _updateSelection(index: HeaderIndex): void {
+    this.env.model.selection.selectRow(index, "updateSelection");
   }
 
   _fitElementSize(index: HeaderIndex): void {

@@ -244,6 +244,7 @@ describe("Context Menu hide col/row", () => {
     });
     selectColumn(model, 1, "overrideSelection");
     selectColumn(model, 3, "updateAnchor");
+    selectColumn(model, 3, "updateSelection");
     const NEW_COL_D = { x: COLUMN_D.x - DEFAULT_CELL_WIDTH, y: COLUMN_D.y };
     simulateContextMenu(".o-col-resizer", NEW_COL_D);
     await nextTick();
@@ -274,6 +275,7 @@ describe("Context Menu hide col/row", () => {
     });
     selectRow(model, 2, "overrideSelection");
     selectRow(model, 4, "updateAnchor");
+    selectRow(model, 4, "updateSelection");
     const NEW_ROW_5 = { x: ROW_5.x, y: ROW_5.y - DEFAULT_CELL_HEIGHT };
     simulateContextMenu(".o-row-resizer", NEW_ROW_5);
     await nextTick();

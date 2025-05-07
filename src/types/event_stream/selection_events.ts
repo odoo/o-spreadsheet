@@ -8,6 +8,12 @@ export type SelectionEventOptions = {
 export interface SelectionEvent {
   anchor: AnchorZone;
   previousAnchor: AnchorZone;
-  mode: "newAnchor" | "overrideSelection" | "updateAnchor";
+  mode:
+    | "newAnchor"
+    | "overrideSelection"
+    | "updateAnchor"
+    | "resizeAnchorZone"
+    | "updateSelection"
+    | "extendAnchor";
   options: SelectionEventOptions;
 }

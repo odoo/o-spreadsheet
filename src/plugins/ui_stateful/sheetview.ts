@@ -822,6 +822,7 @@ export class SheetViewPlugin extends UIPlugin {
     if (anchor.cell.row >= this.getters.getPaneDivisions(sheetId).ySplit) {
       const deltaRow = this.getMainInternalViewport(sheetId).top - top;
       this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
+      this.selection.updateSelection(anchor.cell.col, anchor.cell.row + deltaRow);
     }
   }
 

@@ -10,7 +10,7 @@ import {
   deleteRows,
   paste,
   selectCell,
-  setAnchorCorner,
+  selectZone,
   setBorders,
   setBordersOnTarget,
   setCellContent,
@@ -80,8 +80,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2:C2
-    selectCell(model, "B2");
-    setAnchorCorner(model, "C2");
+    selectZone(model, "B2:C2");
 
     // set a border top
     setZoneBorders(model, { position: "top" });
@@ -99,8 +98,7 @@ describe("borders", () => {
     expect(getBorder(model, "C3")).toBeDefined();
 
     // select A1:F6
-    selectCell(model, "A1");
-    setAnchorCorner(model, "F6");
+    selectZone(model, "A1:F6");
 
     // clear all borders
     setZoneBorders(model, { position: "clear" });
@@ -145,8 +143,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:C3
-    selectCell(model, "B2");
-    setAnchorCorner(model, "C3");
+    selectZone(model, "B2:C3");
 
     // set all borders
     setZoneBorders(model, { position: "all" });
@@ -166,8 +163,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:C3
-    selectCell(model, "B2");
-    setAnchorCorner(model, "C3");
+    selectZone(model, "B2:C3");
 
     // set all borders
     setZoneBorders(model, { position: "top" });
@@ -198,8 +194,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:D4
-    selectCell(model, "B2");
-    setAnchorCorner(model, "D4");
+    selectZone(model, "B2:D4");
 
     // set external borders
     setZoneBorders(model, { position: "external" });
@@ -227,8 +222,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:C4
-    selectCell(model, "B2");
-    setAnchorCorner(model, "C4");
+    selectZone(model, "B2:C4");
 
     setZoneBorders(model, { position: "h" });
     expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
@@ -257,8 +251,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:D4
-    selectCell(model, "B2");
-    setAnchorCorner(model, "D4");
+    selectZone(model, "B2:D4");
 
     setZoneBorders(model, { position: "v" });
     expect(getBorder(model, "B2")).toEqual({ right: DEFAULT_BORDER_DESC });
@@ -293,8 +286,7 @@ describe("borders", () => {
     const model = new Model();
 
     // select B2, then expand selection to B2:D4
-    selectCell(model, "B2");
-    setAnchorCorner(model, "D4");
+    selectZone(model, "B2:D4");
 
     setZoneBorders(model, { position: "hv" });
     expect(getBorder(model, "B2")).toEqual({
@@ -393,9 +385,7 @@ describe("borders", () => {
 
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new Model();
-    selectCell(model, "A1");
-
-    setAnchorCorner(model, "Z100");
+    selectZone(model, "A1:Z100");
     const activeSheetId = model.getters.getActiveSheetId();
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,

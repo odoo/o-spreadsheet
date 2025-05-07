@@ -35,6 +35,7 @@ import {
   selectCell,
   selectColumn,
   selectRow,
+  selectZone,
   setAnchorCorner,
   setCellContent,
   setSelection,
@@ -102,7 +103,7 @@ describe("simple selection", () => {
   test("can expand selection with mouse", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
-    setAnchorCorner(model, "B1");
+    selectZone(model, "A1:B2");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 2, bottom: 1 });
   });
 
@@ -125,7 +126,7 @@ describe("simple selection", () => {
   test("select a cell outside the sheet", () => {
     const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     selectCell(model, "D4");
-    const A1Zone = toZone("A1");
+    const A1Zone = toZone("C3");
     expect(model.getters.getSelection()).toEqual({
       anchor: {
         zone: A1Zone,
@@ -133,7 +134,7 @@ describe("simple selection", () => {
       },
       zones: [A1Zone],
     });
-    expect(getActivePosition(model)).toBe("A1");
+    expect(getActivePosition(model)).toBe("C3");
   });
   test("update selection in some different directions", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B2:C3"] }] });
@@ -284,6 +285,7 @@ describe("simple selection", () => {
   test("can select a whole column", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection");
+    selectColumn(model, 4, "updateSelection");
 
     expect(getSelectionAnchorCellXc(model)).toBe("E1");
 
@@ -293,6 +295,7 @@ describe("simple selection", () => {
   test("can select a whole column with a merged cell", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:B1"] }] });
     selectColumn(model, 0, "overrideSelection");
+    selectColumn(model, 0, "updateSelection");
 
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 9 });
@@ -312,6 +315,7 @@ describe("simple selection", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
 
     selectRow(model, 4, "overrideSelection");
+    selectRow(model, 4, "updateSelection");
     expect(getSelectionAnchorCellXc(model)).toBe("A5");
 
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 4, right: 9, bottom: 4 });
@@ -321,6 +325,7 @@ describe("simple selection", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2"] }] });
 
     selectRow(model, 0, "overrideSelection");
+    selectRow(model, 0, "updateSelection");
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 0 });
   });
@@ -1181,7 +1186,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after inserting column before", () => {
     const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 4, "updateSelection");
     selectColumn(model, 9, "newAnchor"); // select J
+    selectColumn(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1201,7 +1208,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after inserting column between", () => {
     const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 4, "updateSelection");
     selectColumn(model, 9, "newAnchor"); // select J
+    selectColumn(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1221,7 +1230,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after inserting column after", () => {
     const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 4, "updateSelection");
     selectColumn(model, 9, "newAnchor"); // select J
+    selectColumn(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1241,7 +1252,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after inserting row before", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 4, "updateSelection");
     selectRow(model, 9, "newAnchor"); // select 10
+    selectRow(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1261,7 +1274,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after inserting row between", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 4, "updateSelection");
     selectRow(model, 9, "newAnchor"); // select 10
+    selectRow(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1281,7 +1296,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after inserting rows after", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 4, "updateSelection");
     selectRow(model, 9, "newAnchor"); // select 10
+    selectRow(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1301,7 +1318,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after deleting column before", () => {
     const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 4, "updateSelection");
     selectColumn(model, 9, "newAnchor"); // select J
+    selectColumn(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1321,7 +1340,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after deleting column between", () => {
     const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 4, "updateSelection");
     selectColumn(model, 9, "newAnchor"); // select J
+    selectColumn(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1341,7 +1362,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after deleting column after", () => {
     const model = new Model({ sheets: [{ colNumber: 20, rowNumber: 10 }] });
     selectColumn(model, 4, "overrideSelection"); // select E
+    selectColumn(model, 4, "updateSelection");
     selectColumn(model, 9, "newAnchor"); // select J
+    selectColumn(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 4, right: 4, top: 0, bottom: 9 },
@@ -1361,7 +1384,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after deleting row before", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 4, "updateSelection");
     selectRow(model, 9, "newAnchor"); // select 10
+    selectRow(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1381,7 +1406,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after deleting row between", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 4, "updateSelection");
     selectRow(model, 9, "newAnchor"); // select 10
+    selectRow(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
@@ -1401,7 +1428,9 @@ describe("Multiple selection updates after insertion and deletion", () => {
   test("after deleting row after", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 20 }] });
     selectRow(model, 4, "overrideSelection"); // select 5
+    selectRow(model, 4, "updateSelection");
     selectRow(model, 9, "newAnchor"); // select 10
+    selectRow(model, 9, "updateSelection");
     let selection = model.getters.getSelection();
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },

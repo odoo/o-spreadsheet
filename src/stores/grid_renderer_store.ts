@@ -394,7 +394,7 @@ export class GridRenderer {
     const visibleRows = this.getters.getSheetViewVisibleRows();
     const top = visibleRows[0];
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
-    const selection = this.getters.getSelectedZones();
+    const selection = this.getters.getSelectedZones().concat(this.getters.getSelectedZone());
     const selectedCols = getZonesCols(selection);
     const selectedRows = getZonesRows(selection);
     const sheetId = this.getters.getActiveSheetId();

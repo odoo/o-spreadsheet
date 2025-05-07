@@ -12,8 +12,9 @@ import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "
 import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
 import {
-  addCellToSelection,
+  addZoneToSelection,
   createTableWithFilter,
+  resizeAnchorZone,
   selectCell,
   setAnchorCorner,
   setCellContent,
@@ -171,7 +172,7 @@ describe("TopBar component", () => {
 
     // increase the selection to A2 (so, it is now A1:B2) => merge tool
     // should not be active
-    setAnchorCorner(model, "A2");
+    resizeAnchorZone(model, "down");
     await nextTick();
     expect(mergeTool.classList.contains("active")).toBeFalsy();
   });
@@ -722,8 +723,8 @@ describe("Format", () => {
     const { model, fixture } = await mountSpreadsheet();
     setStyle(model, "A1, B2:B3", { fillColor: "#000000" });
     selectCell(model, "A1");
-    addCellToSelection(model, "B2");
-    setAnchorCorner(model, "B3");
+    addZoneToSelection(model, "B2:B3");
+
     expect(getCell(model, "A1")?.style).toEqual({ fillColor: "#000000" });
     expect(getCell(model, "B2")?.style).toEqual({ fillColor: "#000000" });
     expect(getCell(model, "B3")?.style).toEqual({ fillColor: "#000000" });

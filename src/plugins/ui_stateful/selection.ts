@@ -5,7 +5,9 @@ import {
   clip,
   deepCopy,
   isEqual,
+  isZoneInside,
   positionToZone,
+  splitZone,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -111,24 +113,55 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   private handleEvent(event: SelectionEvent) {
-    const anchor = event.anchor;
-    let zones: Zone[] = [];
+    let zones: Zone[] = [...this.gridSelection.zones];
+    let anchor: AnchorZone;
+    const lastZone = zones[zones.length - 1];
     switch (event.mode) {
       case "overrideSelection":
-        zones = [anchor.zone];
-        break;
-      case "updateAnchor":
-        zones = [...this.gridSelection.zones];
-        const index = zones.findIndex((z: Zone) => isEqual(z, event.previousAnchor.zone));
-        if (index >= 0) {
-          zones[index] = anchor.zone;
-        }
+        anchor = event.anchor;
+        zones = [];
         break;
       case "newAnchor":
-        zones = [...this.gridSelection.zones, anchor.zone];
+        anchor = event.anchor;
+        break;
+      case "updateAnchor":
+        if (isEqual(this.gridSelection.anchor.zone, event.previousAnchor.zone)) {
+          anchor = event.anchor;
+        } else {
+          anchor = event.previousAnchor;
+        }
+        break;
+      case "extendAnchor":
+        anchor = event.anchor;
+        if (lastZone && isEqual(lastZone, event.previousAnchor.zone)) {
+          zones.pop();
+        }
+        break;
+      case "resizeAnchorZone":
+        anchor = event.anchor;
+        if (isEqual(lastZone, event.previousAnchor.zone)) {
+          zones[zones.length - 1] = anchor.zone;
+        } else {
+          zones.push(anchor.zone);
+        }
+        break;
+      case "updateSelection":
+        anchor = event.anchor;
+        const zoneToSplit = zones.find((z) => isZoneInside(anchor.zone, z));
+        if (zoneToSplit) {
+          const splittedZones = splitZone(anchor.zone, zoneToSplit);
+          if (zones.length > 1 || (splittedZones[0] && !isEqual(splittedZones[0], lastZone))) {
+            zones.push(...splittedZones);
+            zones.splice(zones.indexOf(zoneToSplit), 1);
+          }
+          anchor.zone = zones[zones.length - 1];
+          anchor.cell = { col: anchor.zone.left, row: anchor.zone.top };
+        } else {
+          zones.push(anchor.zone);
+        }
         break;
     }
-    this.setSelectionMixin(event.anchor, zones);
+    this.setSelectionMixin(anchor, zones);
     /** Any change to the selection has to be reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
     const { col, row } = this.gridSelection.anchor.cell;
@@ -285,7 +318,8 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
-    for (const zone of this.gridSelection.zones) {
+    const zones = this.gridSelection.zones.concat(this.gridSelection.anchor.zone);
+    for (const zone of zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
@@ -301,7 +335,8 @@ export class GridSelectionPlugin extends UIPlugin {
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
     const sheetId = this.getters.getActiveSheetId();
-    for (const zone of this.gridSelection.zones) {
+    const zones = this.gridSelection.zones.concat(this.gridSelection.anchor.zone);
+    for (const zone of zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
@@ -733,14 +768,27 @@ export class GridSelectionPlugin extends UIPlugin {
       return;
     }
     const { ctx, thinLineWidth } = renderingContext;
-    // selection
-    const zones = this.getSelectedZones();
-    ctx.fillStyle = "#f3f7fe";
-    const onlyOneCell =
+    const onlyOneCell = (zones: Zone[]) =>
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
-    ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
+    // anchor zone
+    const activeZone = this.gridSelection.anchor.zone;
+    const lastZone = this.getSelectedZones().pop();
+    ctx.fillStyle = onlyOneCell([activeZone]) ? "#f3f7fe" : "#e9f0ff";
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 1.5 * thinLineWidth;
+    const rect = this.getters.getVisibleRect(activeZone);
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+    ctx.globalCompositeOperation = "source-over";
+    if (lastZone && isEqual(lastZone, activeZone)) {
+      ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+    // selection
+    const zones = this.getSelectedZones().filter((z) => !isEqual(z, activeZone));
+    ctx.fillStyle = "#f3f7fe";
+    ctx.fillStyle = onlyOneCell(zones) ? "#f3f7fe" : "#e9f0ff";
     for (const zone of zones) {
       const { x, y, width, height } = this.getters.getVisibleRect(zone);
       ctx.globalCompositeOperation = "multiply";

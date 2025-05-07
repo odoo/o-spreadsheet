@@ -179,7 +179,7 @@ function cannotMerge(env: SpreadsheetChildEnv): boolean {
 
 function isInMerge(env: SpreadsheetChildEnv): boolean {
   if (!cannotMerge(env)) {
-    const zones = env.model.getters.getSelectedZones();
+    const zones = env.model.getters.getSelectedZones().concat(env.model.getters.getSelectedZone());
     const { col, row, sheetId } = env.model.getters.getActivePosition();
     const zone = env.model.getters.expandZone(sheetId, positionToZone({ col, row }));
     return isEqual(zones[0], zone);

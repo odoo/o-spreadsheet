@@ -17,6 +17,7 @@ import {
   selectCell,
   selectColumn,
   selectRow,
+  selectZone,
   setAnchorCorner,
   setCellContent,
   setFormat,
@@ -313,12 +314,14 @@ describe("Menu Item actions", () => {
 
     test("A selected row", () => {
       selectRow(model, 4, "overrideSelection");
+      selectRow(model, 4, "updateSelection");
       expect(getName(path, env)).toBe("Delete row 5");
     });
 
     test("Multiple selected rows", () => {
       selectRow(model, 4, "overrideSelection");
       selectRow(model, 5, "updateAnchor");
+      selectRow(model, 5, "updateSelection");
       expect(getName(path, env)).toBe("Delete rows 5 - 6");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -332,6 +335,7 @@ describe("Menu Item actions", () => {
     test("Multiple zones of selected rows", () => {
       selectRow(model, 4, "newAnchor");
       selectRow(model, 5, "updateAnchor");
+      selectRow(model, 5, "updateSelection");
       expect(getName(path, env)).toBe("Delete rows");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -348,8 +352,7 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      selectZone(model, "D4:E5");
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -366,7 +369,9 @@ describe("Menu Item actions", () => {
 
       freezeRows(model, 4, sheetId);
       selectRow(model, 4, "newAnchor");
+      selectRow(model, 4, "updateSelection");
       selectRow(model, lastRow, "updateAnchor");
+      selectRow(model, lastRow, "updateSelection");
 
       expect(getNode(path, env).isVisible(env)).toBeFalsy();
     });
@@ -379,6 +384,7 @@ describe("Menu Item actions", () => {
 
       selectRow(model, 3, "newAnchor");
       selectRow(model, lastRow, "updateAnchor");
+      selectRow(model, lastRow, "updateSelection");
       expect(getNode(path, env).isVisible(env)).toBeFalsy();
     });
   });
@@ -388,6 +394,7 @@ describe("Menu Item actions", () => {
 
     test("A selected column", () => {
       selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 4, "updateSelection");
       expect(getName(path, env)).toBe("Delete column E");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -401,6 +408,7 @@ describe("Menu Item actions", () => {
     test("Multiple selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 5, "updateAnchor");
+      selectColumn(model, 5, "updateSelection");
       expect(getName(path, env)).toBe("Delete columns E - F");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -414,6 +422,7 @@ describe("Menu Item actions", () => {
     test("Multiple zones of selected columns", () => {
       selectColumn(model, 4, "newAnchor");
       selectColumn(model, 5, "updateAnchor");
+      selectColumn(model, 5, "updateSelection");
       expect(getName(path, env)).toBe("Delete columns");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -437,8 +446,7 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      selectZone(model, "D4:E5");
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -456,6 +464,7 @@ describe("Menu Item actions", () => {
       freezeColumns(model, 3, sheetId);
       selectColumn(model, 3, "newAnchor");
       selectColumn(model, lastColumn, "updateAnchor");
+      selectColumn(model, lastColumn, "updateSelection");
 
       expect(getNode(path, env).isVisible(env)).toBeFalsy();
     });
@@ -466,6 +475,7 @@ describe("Menu Item actions", () => {
 
     test("A selected row", () => {
       selectRow(model, 4, "overrideSelection");
+      selectRow(model, 4, "updateSelection");
       expect(getName(insertRowBeforePath, env)).toBe("Row above");
       expect(getNode(insertRowBeforePath, env).isVisible(env)).toBeTruthy();
     });
@@ -473,6 +483,7 @@ describe("Menu Item actions", () => {
     test("Multiple consecutive selected rows", () => {
       selectRow(model, 4, "overrideSelection");
       selectRow(model, 5, "updateAnchor");
+      selectRow(model, 5, "updateSelection");
       expect(getName(insertRowBeforePath, env)).toBe("2 Rows above");
       doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -504,8 +515,7 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      selectZone(model, "D4:E5");
       expect(getName(insertRowBeforePath, env)).toBe("2 Rows above");
       doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -525,6 +535,7 @@ describe("Menu Item actions", () => {
 
     test("A selected row", () => {
       selectRow(model, 4, "overrideSelection");
+      selectRow(model, 4, "updateSelection");
       expect(getName(addRowBeforePath, env, rowMenuRegistry)).toBe("Insert row above");
       expect(getNode(addRowBeforePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
@@ -532,6 +543,7 @@ describe("Menu Item actions", () => {
     test("Multiple consecutive selected rows", () => {
       selectRow(model, 4, "overrideSelection");
       selectRow(model, 5, "updateAnchor");
+      selectRow(model, 5, "updateSelection");
       expect(getName(addRowBeforePath, env, rowMenuRegistry)).toBe("Insert 2 rows above");
       doAction(addRowBeforePath, env, rowMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -562,6 +574,7 @@ describe("Menu Item actions", () => {
 
     test("A selected row", () => {
       selectRow(model, 4, "overrideSelection");
+      selectRow(model, 4, "updateSelection");
       expect(getName(insertRowAfterPath, env)).toBe("Row below");
       expect(getNode(insertRowAfterPath, env).isVisible(env)).toBeTruthy();
     });
@@ -569,6 +582,7 @@ describe("Menu Item actions", () => {
     test("Multiple consecutive selected rows", () => {
       selectRow(model, 4, "overrideSelection");
       selectRow(model, 5, "updateAnchor");
+      selectRow(model, 5, "updateSelection");
       expect(getName(insertRowAfterPath, env)).toBe("2 Rows below");
       doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -600,8 +614,7 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      selectZone(model, "D4:E5");
       expect(getName(insertRowAfterPath, env)).toBe("2 Rows below");
       doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -621,6 +634,7 @@ describe("Menu Item actions", () => {
 
     test("A selected row", () => {
       selectRow(model, 4, "overrideSelection");
+      selectRow(model, 4, "updateSelection");
       expect(getName(addRowAfterPath, env, rowMenuRegistry)).toBe("Insert row below");
       expect(getNode(addRowAfterPath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
@@ -628,6 +642,7 @@ describe("Menu Item actions", () => {
     test("Multiple consecutive selected rows", () => {
       selectRow(model, 4, "overrideSelection");
       selectRow(model, 5, "updateAnchor");
+      selectRow(model, 5, "updateSelection");
       expect(getName(addRowAfterPath, env, rowMenuRegistry)).toBe("Insert 2 rows below");
       doAction(addRowAfterPath, env, rowMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -658,6 +673,7 @@ describe("Menu Item actions", () => {
 
     test("A selected column", () => {
       selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 4, "updateSelection");
       expect(getName(insertColBeforePath, env)).toBe("Column left");
       expect(getNode(insertColBeforePath, env).isVisible(env)).toBeTruthy();
     });
@@ -665,6 +681,7 @@ describe("Menu Item actions", () => {
     test("Multiple consecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 5, "updateAnchor");
+      selectColumn(model, 5, "updateSelection");
       expect(getName(insertColBeforePath, env)).toBe("2 Columns left");
       doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -696,8 +713,7 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      selectZone(model, "D4:E5");
       expect(getName(insertColBeforePath, env)).toBe("2 Columns left");
       doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -717,6 +733,7 @@ describe("Menu Item actions", () => {
 
     test("A selected column", () => {
       selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 4, "updateSelection");
       expect(getName(addColBeforePath, env, colMenuRegistry)).toBe("Insert column left");
       expect(getNode(addColBeforePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
@@ -724,6 +741,7 @@ describe("Menu Item actions", () => {
     test("Multiple consecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 5, "updateAnchor");
+      selectColumn(model, 5, "updateSelection");
       expect(getName(addColBeforePath, env, colMenuRegistry)).toBe("Insert 2 columns left");
       doAction(addColBeforePath, env, colMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -739,7 +757,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 4, "updateSelection");
       selectColumn(model, 6, "newAnchor");
+      selectColumn(model, 6, "updateSelection");
       expect(getNode(addColBeforePath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
@@ -754,6 +774,7 @@ describe("Menu Item actions", () => {
 
     test("A selected column", () => {
       selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 4, "updateSelection");
       expect(getName(insertColAfterPath, env)).toBe("Column right");
       expect(getNode(insertColAfterPath, env).isVisible(env)).toBeTruthy();
     });
@@ -761,6 +782,7 @@ describe("Menu Item actions", () => {
     test("Multiple consecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 5, "updateAnchor");
+      selectColumn(model, 5, "updateSelection");
       expect(getName(insertColAfterPath, env)).toBe("2 Columns right");
       doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -792,8 +814,9 @@ describe("Menu Item actions", () => {
     });
 
     test("Multiple selected cells", () => {
-      selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      // selectCell(model, "D4");
+      // setAnchorCorner(model, "E5");
+      selectZone(model, "D4:E5");
       expect(getName(insertColAfterPath, env)).toBe("2 Columns right");
       doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -813,6 +836,7 @@ describe("Menu Item actions", () => {
 
     test("A selected column", () => {
       selectColumn(model, 4, "overrideSelection");
+      selectColumn(model, 4, "updateSelection");
       expect(getName(addColAfterPath, env, colMenuRegistry)).toBe("Insert column right");
       expect(getNode(addColAfterPath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
@@ -820,6 +844,7 @@ describe("Menu Item actions", () => {
     test("Multiple consecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 5, "updateAnchor");
+      selectColumn(model, 5, "updateSelection");
       expect(getName(addColAfterPath, env, colMenuRegistry)).toBe("Insert 2 columns right");
       doAction(addColAfterPath, env, colMenuRegistry);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -1441,6 +1466,7 @@ describe("Menu Item actions", () => {
     const unhidePath = ["unhide_columns"];
     test("Action on single column selection", () => {
       selectColumn(model, 1, "overrideSelection");
+      selectColumn(model, 1, "updateSelection");
       expect(getName(hidePath, env, colMenuRegistry)).toBe("Hide column B");
       expect(getNode(hidePath, env, colMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, colMenuRegistry);
@@ -1512,6 +1538,7 @@ describe("Menu Item actions", () => {
     const unhidePath = ["unhide_rows"];
     test("Action on single row selection", () => {
       selectRow(model, 1, "overrideSelection");
+      selectRow(model, 1, "updateSelection");
       expect(getName(hidePath, env, rowMenuRegistry)).toBe("Hide row 2");
       expect(getNode(hidePath, env, rowMenuRegistry).isVisible(env)).toBeTruthy();
       doAction(hidePath, env, rowMenuRegistry);
@@ -1586,7 +1613,9 @@ describe("Menu Item actions", () => {
       foldHeaderGroup(model, "ROW", 0, 2, sheetId);
 
       selectRow(model, 3, "newAnchor");
+      selectRow(model, 3, "updateSelection");
       selectRow(model, lastRow, "updateAnchor");
+      selectRow(model, lastRow, "updateSelection");
       expect(getNode(hidePath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 

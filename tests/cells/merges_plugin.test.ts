@@ -12,7 +12,7 @@ import {
   moveAnchorCell,
   redo,
   selectCell,
-  setAnchorCorner,
+  selectZone,
   setCellContent,
   setStyle,
   setZoneBorders,
@@ -316,8 +316,7 @@ describe("merges", () => {
 
   test("merging => setting background color => unmerging", () => {
     const model = new Model();
-
-    setAnchorCorner(model, "B1");
+    selectZone(model, "A1:B1");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
     merge(model, "A1:B1");
@@ -333,7 +332,7 @@ describe("merges", () => {
 
   test("setting background color => merging => unmerging", () => {
     const model = new Model();
-    setAnchorCorner(model, "B1");
+    selectZone(model, "A1:B1");
     setStyle(model, "A1:B1", { fillColor: "red" });
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
@@ -351,7 +350,7 @@ describe("merges", () => {
   test("setting background color to topleft => merging => unmerging", () => {
     const model = new Model();
     setStyle(model, "A1", { fillColor: "red" });
-    setAnchorCorner(model, "B1");
+    selectZone(model, "A1:B1");
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
 
@@ -394,7 +393,7 @@ describe("merges", () => {
 
   test("setting border => merging => unmerging", () => {
     const model = new Model();
-    setAnchorCorner(model, "B1");
+    selectZone(model, "A1:B1");
 
     setZoneBorders(model, { position: "external" });
     expect(getBorder(model, "A1")).toEqual({

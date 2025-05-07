@@ -29,6 +29,7 @@ export class TableResizeUI extends UIPlugin {
         if (!table) return;
         const newTableZone = this.getters.getRangeFromRangeData(cmd.newTableRange).zone;
         this.selection.selectCell(newTableZone.right, newTableZone.bottom);
+        this.selection.updateSelection(newTableZone.right, newTableZone.bottom);
         if (!table.config.automaticAutofill) return;
         const oldTableZone = table.range.zone;
 

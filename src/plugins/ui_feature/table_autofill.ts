@@ -48,13 +48,16 @@ export class TableAutofillPlugin extends UIPlugin {
     };
 
     this.selection.selectCell(col, row);
+    this.selection.updateSelection(col, row);
     this.dispatch("AUTOFILL_SELECT", { col, row: zone.bottom });
     this.dispatch("AUTOFILL");
 
     this.selection.selectCell(col, row);
+    this.selection.updateSelection(col, row);
     this.dispatch("AUTOFILL_SELECT", { col, row: zone.top });
     this.dispatch("AUTOFILL");
 
     this.selection.selectZone(oldSelection);
+    this.selection.updateSelection(oldSelection.zone.right, oldSelection.zone.bottom);
   }
 }

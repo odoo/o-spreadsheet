@@ -48,7 +48,7 @@ import {
   paste,
   pasteFromOSClipboard,
   selectCell,
-  setAnchorCorner,
+  selectZone,
   setCellContent,
   setCellFormat,
   setFormat,
@@ -822,8 +822,7 @@ describe("clipboard", () => {
       copy(model, "A1:B2");
 
       // select C3:G7
-      selectCell(model, "C3");
-      setAnchorCorner(model, "G7");
+      selectZone(model, "C3:G7");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 6, right: 6 });
 
       paste(model, "C3:G7");
@@ -874,8 +873,7 @@ describe("clipboard", () => {
       cut(model, "A1:B2");
 
       // select C3:G7
-      selectCell(model, "C3");
-      setAnchorCorner(model, "G7");
+      selectZone(model, "C3:G7");
 
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 6, right: 6 });
 

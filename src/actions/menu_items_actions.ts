@@ -101,7 +101,7 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
     first = largeMin([...activesRows]);
     last = largeMax([...activesRows]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model.getters.getSelectedZone();
     first = zone.top;
     last = zone.bottom;
   }
@@ -133,7 +133,7 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
     first = largeMin([...activeCols]);
     last = largeMax([...activeCols]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model.getters.getSelectedZone();
     first = zone.left;
     last = zone.right;
   }
@@ -165,7 +165,7 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
     first = largeMin([...activesRows]);
     last = largeMax([...activesRows]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model.getters.getSelectedZone();
     first = zone.top;
     last = zone.bottom;
   }
@@ -223,7 +223,7 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
     first = largeMin([...activeCols]);
     last = largeMax([...activeCols]);
   } else {
-    const zone = env.model.getters.getSelectedZones()[0];
+    const zone = env.model.getters.getSelectedZone();
     first = zone.left;
     last = zone.right;
   }

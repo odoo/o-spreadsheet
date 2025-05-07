@@ -359,6 +359,7 @@ describe("Resizer component", () => {
   });
   test("can select the entire sheet", async () => {
     triggerMouseEvent(".o-overlay .all", "pointerdown", 5, 5);
+    triggerMouseEvent(".o-overlay .all", "pointerup", 5, 5);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
   });

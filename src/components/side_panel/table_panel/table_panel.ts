@@ -163,10 +163,12 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
 
     if (result.isSuccessful && updatedTable) {
       const newTopLeft = getTableTopLeft(updatedTable);
+      const zone = positionToZone(newTopLeft);
       this.env.model.selection.selectZone({
-        zone: positionToZone(newTopLeft),
+        zone,
         cell: newTopLeft,
       });
+      this.env.model.selection.updateSelection(zone.right, zone.bottom);
       const newTableRange = updatedTable.range;
       this.state.tableXc = this.env.model.getters.getRangeString(newTableRange, sheetId);
     }

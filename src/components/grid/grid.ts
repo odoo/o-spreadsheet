@@ -22,7 +22,7 @@ import {
   SCROLLBAR_WIDTH,
 } from "../../constants";
 import { parseOSClipboardContent } from "../../helpers/clipboard/clipboard_helpers";
-import { isInside } from "../../helpers/index";
+import { isEqual, isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
@@ -314,6 +314,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         row: 0,
       });
       this.env.model.selection.selectCell(col, row);
+      this.env.model.selection.updateSelection(col, row);
     },
     "Ctrl+End": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
@@ -330,6 +331,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         0
       )!;
       this.env.model.selection.selectCell(col, row);
+      this.env.model.selection.updateSelection(col, row);
     },
     "Shift+ ": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
@@ -340,6 +342,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       };
       const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
+      this.env.model.selection.updateSelection(newZone.right, newZone.bottom);
     },
     "Ctrl+ ": () => {
       const sheetId = this.env.model.getters.getActiveSheetId();
@@ -350,6 +353,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       };
       const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
+      this.env.model.selection.updateSelection(newZone.right, newZone.bottom);
     },
     "Ctrl+D": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ABOVE"),
     "Ctrl+R": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_LEFT"),
@@ -363,6 +367,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     "Ctrl+<": () => this.clearFormatting(), // for azerty
     "Ctrl+Shift+ ": () => {
       this.env.model.selection.selectAll();
+      this.env.model.selection.updateSelection();
     },
     "Ctrl+Alt+=": () => {
       const activeCols = this.env.model.getters.getActiveCols();
@@ -436,6 +441,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get isAutofillVisible(): boolean {
+    const zones = this.env.model.getters.getSelectedZones();
     const zone = this.env.model.getters.getSelectedZone();
     const rect = this.env.model.getters.getVisibleRect({
       left: zone.right,
@@ -443,7 +449,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       top: zone.bottom,
       bottom: zone.bottom,
     });
-    return !(rect.width === 0 || rect.height === 0);
+    return zones.some((z) => isEqual(z, zone)) && !(rect.width === 0 || rect.height === 0);
   }
 
   onGridResized({ height, width }: DOMDimension) {
@@ -490,7 +496,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.composerFocusStore.activeComposer.stopEdition();
     }
     if (modifiers.expandZone) {
-      this.env.model.selection.setAnchorCorner(col, row);
+      this.env.model.selection.extendAnchor(col, row);
     } else if (modifiers.addZone) {
       this.env.model.selection.addCellToSelection(col, row);
     } else {
@@ -511,6 +517,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     };
     const onMouseUp = () => {
+      this.env.model.selection.updateSelection(prevCol, prevRow);
       if (this.paintFormatStore.isActive) {
         this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }
@@ -584,12 +591,15 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {
-    const zones = this.env.model.getters.getSelectedZones();
-    const lastZone = zones[zones.length - 1];
+    // const zones = this.env.model.getters
+    //   .getSelectedZones()
+    //   .concat(this.env.model.getters.getSelectedZone());
+    const lastZone = this.env.model.getters.getSelectedZone();
     let type: ContextMenuType = "CELL";
     if (!isInside(col, row, lastZone)) {
       this.env.model.selection.getBackToDefault();
       this.env.model.selection.selectCell(col, row);
+      this.env.model.selection.updateSelection(col, row);
     } else {
       if (this.env.model.getters.getActiveCols().has(col)) {
         type = "COL";
