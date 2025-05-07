@@ -40,11 +40,6 @@ css/* scss */ `
       .o-menu-item-description {
         color: grey;
       }
-      .o-menu-item-icon {
-        .o-icon {
-          color: ${ICONS_COLOR};
-        }
-      }
     }
     &.disabled {
       color: ${DISABLED_TEXT_COLOR};
@@ -123,7 +118,7 @@ export class MenuItems extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getIconColor(menu: Action) {
-    return cssPropertiesToCss({ color: menu.iconColor });
+    return cssPropertiesToCss({ color: menu.iconColor(this.env) || ICONS_COLOR });
   }
 
   async onClickMenu(menu: Action, ev: MouseEvent) {
