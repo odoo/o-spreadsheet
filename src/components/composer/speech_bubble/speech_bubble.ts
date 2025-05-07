@@ -4,7 +4,6 @@ import { Rect, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
-import { Popover } from "../../popover";
 
 const BUBBLE_ARROW_SIZE = 7;
 
@@ -47,7 +46,7 @@ export interface Props {
 export class SpeechBubble extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpeechBubble";
   static props = { content: String, anchorRect: Object };
-  static components = { Popover };
+  static components = {};
 
   private spreadsheetRect = useSpreadsheetRect();
   private bubbleRef = useRef("bubble");
