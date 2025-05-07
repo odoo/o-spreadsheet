@@ -673,6 +673,19 @@ describe("Context Menu internal tests", () => {
     expect(getElComputedStyle(".o-menu-item-icon", "color")).toBeSameColorAs("#FFF000");
   });
 
+  test("Can change icon with a dynamic color", async () => {
+    const menuItems = createActions([
+      {
+        name: "child1",
+        icon: "o-spreadsheet-Icon.BOLD",
+        iconColor: () => "#FFF000",
+        execute: () => {},
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    expect(getElComputedStyle(".o-menu-item-icon", "color")).toBeSameColorAs("#FFF000");
+  });
+
   test("Menu hover callbacks are called", async () => {
     const onStopHover = jest.fn(() => {});
     const onStartHover = jest.fn(() => onStopHover);
