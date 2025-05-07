@@ -56,6 +56,7 @@ export const DashboardPopoverMenuBuilder: PopoverBuilders = {
     }
     const actionSpecs = visibleItems.map((action) => ({
       ...action,
+      iconColor: (env: SpreadsheetChildEnv) => action.iconColor?.(env, position) ?? "",
       isVisible: (env: SpreadsheetChildEnv) =>
         action.isVisible?.(env.model.getters, position) ?? true,
       execute: (env: SpreadsheetChildEnv, isMiddleClick) =>

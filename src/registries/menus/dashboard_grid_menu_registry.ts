@@ -1,16 +1,21 @@
 import { ActionSpec } from "../../actions/action";
 import { ACTION_COLOR } from "../../constants";
 import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
-import { canSortPivot, sortPivot, sortPivotHeader } from "../../helpers/pivot/pivot_menu_items";
+import {
+  canSortPivot,
+  isPivotSortMenuItemActive,
+  sortPivot,
+  sortPivotHeader,
+} from "../../helpers/pivot/pivot_menu_items";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
-import { CellPosition, Getters, SpreadsheetChildEnv, Zone } from "../../types";
+import { CellPosition, Color, Getters, SpreadsheetChildEnv, Zone } from "../../types";
 import { Registry } from "../registry";
 
 interface DashboardActionSpec {
   name: ActionSpec["name"];
   icon: ActionSpec["icon"];
-  iconColor?: ActionSpec["iconColor"];
+  iconColor?: (env: SpreadsheetChildEnv, position: CellPosition) => Color;
   execute: (env: SpreadsheetChildEnv, position: CellPosition, isMiddleClick?: boolean) => void;
   isVisible?: (getters: Getters, position: CellPosition) => boolean;
   onStartHover?: (env: SpreadsheetChildEnv, position: CellPosition) => (() => void) | void;
@@ -107,6 +112,8 @@ dashboardGridMenuRegistry
   .add("sort_pivot_ascending", {
     name: _t("Sort ascending (0 ⟶ 100)"),
     icon: "o-spreadsheet-Icon.SORT_ASCENDING_NUMERIC",
+    iconColor: (env, position) =>
+      isPivotSortMenuItemActive(env.model.getters, position, "asc") ? ACTION_COLOR : "",
     isVisible: isPivotSortingVisible,
     execute(env, position) {
       sortPivot(env, position, "asc");
@@ -116,6 +123,8 @@ dashboardGridMenuRegistry
   .add("sort_pivot_descending", {
     name: _t("Sort descending (100 ⟶ 0)"),
     icon: "o-spreadsheet-Icon.SORT_DESCENDING_NUMERIC",
+    iconColor: (env, position) =>
+      isPivotSortMenuItemActive(env.model.getters, position, "desc") ? ACTION_COLOR : "",
     isVisible: isPivotSortingVisible,
     execute(env, position) {
       sortPivot(env, position, "desc");
