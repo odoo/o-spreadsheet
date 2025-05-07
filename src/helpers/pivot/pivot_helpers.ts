@@ -36,7 +36,7 @@ const AGGREGATOR_NAMES = {
   sum: _t("Sum"),
 };
 
-const AGGREGATORS_BY_FIELD_TYPE = {
+export const AGGREGATORS_BY_FIELD_TYPE = {
   integer: ["max", "min", "avg", "sum", "count_distinct", "count"],
   char: ["count_distinct", "count"],
   boolean: ["count_distinct", "count", "bool_and", "bool_or"],
