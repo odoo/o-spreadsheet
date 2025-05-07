@@ -1,6 +1,11 @@
 import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
-import { AGGREGATORS, isDateField } from "../../../../helpers/pivot/pivot_helpers";
+import {
+  AGGREGATORS,
+  AGGREGATORS_BY_FIELD_TYPE,
+  AGGREGATOR_NAMES,
+  isDateField,
+} from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { SpreadsheetChildEnv } from "../../../../types";
 import {
@@ -49,7 +54,6 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
 
   private dimensionsRef = useRef("pivot-dimensions");
   private dragAndDrop = useDragAndDropListItems();
-  AGGREGATORS = AGGREGATORS;
   isDateField = isDateField;
 
   startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
@@ -247,5 +251,20 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
         return col;
       }),
     });
+  }
+
+  getAggregators(measure: PivotMeasure) {
+    const aggregators = Object.keys(AGGREGATORS[measure.type]);
+    if (!aggregators.find((agg) => agg === measure.aggregator)) {
+      aggregators.push(measure.aggregator);
+    }
+    return aggregators.map((agg) => ({ type: agg, label: AGGREGATOR_NAMES[agg] }));
+  }
+
+  get maybeInvalidMeasures() {
+    return this.props.definition.measures.map((measure) => ({
+      ...measure,
+      isValid: AGGREGATORS_BY_FIELD_TYPE[measure.type]?.includes(measure.aggregator),
+    }));
   }
 }

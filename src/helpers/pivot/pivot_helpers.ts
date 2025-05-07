@@ -25,7 +25,7 @@ import {
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
-const AGGREGATOR_NAMES = {
+export const AGGREGATOR_NAMES = {
   count: _t("Count"),
   count_distinct: _t("Count Distinct"),
   bool_and: _t("Boolean And"),

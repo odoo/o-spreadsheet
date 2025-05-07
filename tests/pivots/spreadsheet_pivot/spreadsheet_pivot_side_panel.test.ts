@@ -292,4 +292,18 @@ describe("Spreadsheet pivot side panel", () => {
     expect(invalidDimensionEl.classList).toContain("pivot-dimension-invalid");
     expect(invalidDimensionEl.querySelector(".fa-exclamation-triangle")).not.toBe(null);
   });
+
+  test("Pivot measure with invalid aggregator as displayed as such in the side panel", async () => {
+    setCellContent(model, "A1", "ValidDimension");
+    setCellContent(model, "A2", "10");
+    addPivot(model, "A1:A2", {
+      measures: [{ name: "ValidDimension", aggregator: "bool_or" }],
+    });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+    const pivotMeasureEl = fixture.querySelector<HTMLElement>(".pivot-dimension")!;
+    expect(pivotMeasureEl.classList).toContain("pivot-dimension-invalid");
+    expect(pivotMeasureEl.querySelector(".fa-exclamation-triangle")).not.toBe(null);
+    expect(pivotMeasureEl.querySelector<HTMLSelectElement>("select")?.value).toBe("bool_or");
+  });
 });
