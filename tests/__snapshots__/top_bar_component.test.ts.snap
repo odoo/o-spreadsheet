@@ -721,7 +721,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             >
               <svg
                 class="o-icon"
@@ -757,7 +757,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -786,7 +786,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -816,7 +816,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -850,7 +850,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -880,7 +880,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -910,7 +910,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -940,7 +940,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -969,7 +969,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -999,7 +999,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -1029,7 +1029,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -1059,7 +1059,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
@@ -1093,7 +1093,7 @@ exports[`TopBar component can set cell format 1`] = `
           >
             <div
               class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-              style=""
+              style="color:#4A4F59; "
             />
             
             <div
