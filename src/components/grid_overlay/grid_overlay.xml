@@ -8,7 +8,8 @@
       class="o-grid-overlay overflow-hidden"
       t-att-class="{'o-paint-format-cursor': isPaintingFormat}"
       t-att-style="style"
-      t-on-pointerdown="onMouseDown"
+      t-on-pointerdown="onPointerDown"
+      t-on-click="onClick"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
       <DataValidationOverlay/>

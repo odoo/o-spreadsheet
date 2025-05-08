@@ -134,6 +134,7 @@ export interface CellComposerProps {
   isDefaultFocus?: boolean;
   composerStore: Store<CellComposerStore>;
   placeholder?: string;
+  inputMode?: ElementContentEditable["inputMode"];
 }
 
 interface ComposerState {
@@ -163,11 +164,13 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     onInputContextMenu: { type: Function, optional: true },
     composerStore: Object,
     placeholder: { type: String, optional: true },
+    inputMode: { type: String, optional: true },
   };
   static components = { TextValueProvider, FunctionDescriptionProvider, SpeechBubble };
   static defaultProps = {
     inputStyle: "",
     isDefaultFocus: false,
+    inputMode: "text",
   };
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
@@ -227,8 +230,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         assistantStyle["max-height"] = `${availableSpaceAbove - CLOSE_ICON_RADIUS}px`;
         // render top
         // We compensate 2 px of margin on the assistant style + 1px for design reasons
-        assistantStyle.top = `-3px`;
-        assistantStyle.transform = `translate(0, -100%)`;
+        assistantStyle.transform = `translate(0, calc(-100% - ${cellHeight + 3}px))`;
       }
       if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {
         // render left

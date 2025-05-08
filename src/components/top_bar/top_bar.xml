@@ -1,9 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-TopBar">
     <div
-      class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
+      class="o-spreadsheet-topbar d-flex flex-column user-select-none"
       t-on-click="props.onClick">
-      <div class="o-topbar-top d-flex justify-content-between">
+      <div t-if="!env.isSmall" class="o-topbar-top d-flex justify-content-between">
         <!-- Menus -->
         <div class="o-topbar-topleft d-flex">
           <t t-foreach="menus" t-as="menu" t-key="menu_index">
@@ -63,7 +63,7 @@
             </div>
           </div>
         </div>
-        <TopBarComposer/>
+        <TopBarComposer t-if="!env.isSmall"/>
       </div>
       <div
         t-if="this.fingerprints.isEnabled"
@@ -90,7 +90,7 @@
         </div>
       </div>
     </div>
-    <Menu
+    <MenuPopover
       t-if="state.menuState.isOpen"
       anchorRect="state.menuState.anchorRect"
       menuItems="state.menuState.menuItems"

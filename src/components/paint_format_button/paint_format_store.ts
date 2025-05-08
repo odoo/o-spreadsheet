@@ -96,7 +96,7 @@ export class PaintFormatStore extends SpreadsheetStore {
       return [];
     }
     return data.zones.map((zone) => ({
-      zone,
+      range: this.model.getters.getRangeFromZone(data.sheetId, zone),
       color: SELECTION_BORDER_COLOR,
       dashed: true,
       sheetId: data.sheetId,
