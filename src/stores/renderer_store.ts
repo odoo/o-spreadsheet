@@ -6,7 +6,7 @@ export interface Renderer {
 }
 
 export class RendererStore {
-  mutators = ["register", "unRegister"] as const;
+  mutators = ["register", "unRegister", "drawLayer"] as const;
   private renderers: Partial<Record<LayerName, Renderer[]>> = {};
 
   register(renderer: Renderer) {
@@ -29,13 +29,13 @@ export class RendererStore {
 
   drawLayer(context: GridRenderingContext, layer: LayerName) {
     const renderers = this.renderers[layer];
-    if (!renderers) {
-      return;
+    if (renderers) {
+      for (const renderer of renderers) {
+        context.ctx.save();
+        renderer.drawLayer(context, layer);
+        context.ctx.restore();
+      }
     }
-    for (const renderer of renderers) {
-      context.ctx.save();
-      renderer.drawLayer(context, layer);
-      context.ctx.restore();
-    }
+    return "noStateChange";
   }
 }
