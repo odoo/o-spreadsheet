@@ -303,7 +303,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         this.props.composerStore.editionMode === "inactive" &&
         !this.props.isDefaultFocus
       ) {
-        this.DOMFocusableElementStore.focusableElement?.focus();
+        this.DOMFocusableElementStore.focus();
       }
     });
 
