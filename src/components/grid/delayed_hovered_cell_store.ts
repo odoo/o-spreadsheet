@@ -14,12 +14,20 @@ export class DelayedHoveredCellStore extends SpreadsheetStore {
   }
 
   hover(position: Partial<Position>) {
+    if (position.col === this.col && position.row === this.row) {
+      return "noStateChange";
+    }
     this.col = position.col;
     this.row = position.row;
+    return;
   }
 
   clear() {
+    if (this.col === undefined && this.row === undefined) {
+      return "noStateChange";
+    }
     this.col = undefined;
     this.row = undefined;
+    return;
   }
 }
