@@ -1,4 +1,4 @@
-import { ChartCreationContext, CommandResult, Model } from "../../../../src";
+import { CommandResult, Model } from "../../../../src";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -81,8 +81,9 @@ describe("datasource tests", function () {
   });
 
   test("create scorecard from creation context", () => {
-    const context: Required<ChartCreationContext> = GENERAL_CHART_CREATION_CONTEXT;
-    const definition = ScorecardChart.getDefinitionFromContextCreation(context);
+    const definition = ScorecardChart.getDefinitionFromContextCreation(
+      GENERAL_CHART_CREATION_CONTEXT
+    );
     expect(definition).toEqual({
       type: "scorecard",
       background: "#123456",
