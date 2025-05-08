@@ -37,6 +37,8 @@ declare global {
       toHaveValue(value: string | boolean): R;
       toHaveText(text: string): R;
       toHaveCount(count: number): R;
+      toHaveClass(className: string): R;
+      toHaveAttribute(attribute: string, value: string): R;
     }
   }
 }
@@ -257,6 +259,44 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       };
     }
     return { pass: true, message: () => "" };
+  },
+  toHaveClass(target: DOMTarget, expectedClass: string) {
+    const element = getTarget(target);
+    if (!(element instanceof HTMLElement)) {
+      const message = element ? "Target is not an HTML element" : "Target not found";
+      return { pass: false, message: () => message };
+    }
+    const pass = element.classList.contains(expectedClass);
+    const message = () =>
+      pass
+        ? ""
+        : `expect(target).toHaveClass(expected);\n\n${this.utils.printDiffOrStringify(
+            expectedClass,
+            element.className,
+            "Expected class",
+            "Received class",
+            false
+          )}`;
+    return { pass, message };
+  },
+  toHaveAttribute(target: DOMTarget, attribute: string, expectedValue: string) {
+    const element = getTarget(target);
+    if (!(element instanceof HTMLElement)) {
+      const message = element ? "Target is not an HTML element" : "Target not found";
+      return { pass: false, message: () => message };
+    }
+    const pass = element.getAttribute(attribute) === expectedValue;
+    const message = () =>
+      pass
+        ? ""
+        : `expect(target).toHaveAttribute(attribute, expected);\n\n${this.utils.printDiffOrStringify(
+            expectedValue,
+            element.getAttribute(attribute),
+            "Expected value",
+            "Received value",
+            false
+          )}`;
+    return { pass, message };
   },
 });
 
