@@ -219,8 +219,12 @@ export class Session extends EventBus<CollaborativeEvent> {
     });
   }
 
-  getClient(): Client {
-    const client = this.clients[this.clientId];
+  getCurrentClient(): Client {
+    return this.getClient(this.clientId);
+  }
+
+  getClient(clientId: ClientId): Client {
+    const client = this.clients[clientId];
     if (!client) {
       throw new ClientDisconnectedError("The client left the session");
     }
@@ -261,7 +265,7 @@ export class Session extends EventBus<CollaborativeEvent> {
       return;
     }
     const type = currentPosition ? "CLIENT_MOVED" : "CLIENT_JOINED";
-    const client = this.getClient();
+    const client = this.getCurrentClient();
     this.clients[this.clientId] = { ...client, position };
     this.transportService.sendMessage({
       type,
