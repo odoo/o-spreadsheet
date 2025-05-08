@@ -1,5 +1,16 @@
 .o-spreadsheet {
-  .o-fullscreen-figure {
+  .o-fullscreen-figure-overlay {
     z-index: 1505451;
+    // background-color: rgba(0, 0, 0, 0.8);
+    // padding: 100px;
+  }
+
+  /* ADRM TODO:do szoemthign better, be need to overwirte o-figure ATM and we need o-figure for chart menu style */
+  .o-fullscreen-figure {
+    position: relative;
+    transform-origin: top left;
+
+    // width: unset;
+    // height: unset;
   }
 }
