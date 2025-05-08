@@ -1,4 +1,4 @@
-import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUpdateProps, useEffect, useRef } from "@odoo/owl";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
 import { SpreadsheetChildEnv } from "../../types";
@@ -27,30 +27,38 @@ export class FullScreenFigure extends Component<Props, SpreadsheetChildEnv> {
       if (!el || !this.figureUI) return;
     });
 
+    onWillUpdateProps(() => {
+      console.log("onWillUpdateProps", this.figureUI);
+    });
+
     useEffect(() => {
       console.log("useEffect", this.figureUI);
-      const el = ref.el;
-      if (!el || !this.figureUI) return;
-      el.classList.remove("w-100", "h-100");
-      el.style.width = "0px";
-      el.style.height = "0px";
-
-      const realFigure = document.querySelector(`.o-figure[data-id="${this.figureUI.id}"]`);
-      console.log("realFigure", realFigure);
-      if (!realFigure) return;
-      const rect = realFigure.getBoundingClientRect();
-      el.style.width = `${rect.width}px`;
-      el.style.height = `${rect.height}px`;
-      el.style.left = `${rect.left}px`;
-      el.style.top = `${rect.top}px`;
-      // trigger reflow
-      el.offsetHeight;
-      console.log("el", el);
-      // el.style.transition = "all 0.4s ease-in-out";
-      // el.classList.add("w-100", "h-100");
-      // el.style.left = "0px";
-      // el.style.top = "0px";
     });
+
+    // useEffect(() => {
+    //   console.log("useEffect", this.figureUI);
+    //   const el = ref.el;
+    //   if (!el || !this.figureUI) return;
+    //   el.classList.remove("w-100", "h-100");
+    //   el.style.width = "0px";
+    //   el.style.height = "0px";
+
+    //   const realFigure = document.querySelector(`.o-figure[data-id="${this.figureUI.id}"]`);
+    //   console.log("realFigure", realFigure);
+    //   if (!realFigure) return;
+    //   const rect = realFigure.getBoundingClientRect();
+    //   el.style.width = `${rect.width}px`;
+    //   el.style.height = `${rect.height}px`;
+    //   el.style.left = `${rect.left}px`;
+    //   el.style.top = `${rect.top}px`;
+    //   // trigger reflow
+    //   el.offsetHeight;
+    //   console.log("el", el);
+    //   // el.style.transition = "all 0.4s ease-in-out";
+    //   // el.classList.add("w-100", "h-100");
+    //   // el.style.left = "0px";
+    //   // el.style.top = "0px";
+    // });
   }
 
   get figureUI() {
