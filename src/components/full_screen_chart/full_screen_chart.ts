@@ -1,30 +1,25 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, useEffect, useRef } from "@odoo/owl";
+import { chartComponentRegistry } from "../../registries/chart_types";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
-import { SpreadsheetChildEnv, UID } from "../../types";
+import { SpreadsheetChildEnv } from "../../types";
+import { ChartDashboardMenu } from "../figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { useSpreadsheetRect } from "../helpers/position_hook";
-import { FullScreenFigureStore } from "./full_screen_figure_store";
+import { FullScreenFigureStore } from "./full_screen_chart_store";
 
 interface Props {}
 
-interface State {
-  fullScreenFigureId: UID | undefined;
-}
 export class FullScreenFigure extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-FullScreenFigure";
+  static template = "o-spreadsheet-FullScreenChart";
   static props = {};
-  static components = {};
+  static components = { ChartDashboardMenu };
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
-  private ref = useRef("fullScreenFigure");
+  private ref = useRef("fullScreenChart");
 
   spreadsheetRect = useSpreadsheetRect();
 
   figureRegistry = figureRegistry;
-
-  state = useState<State>({
-    fullScreenFigureId: undefined,
-  });
 
   setup() {
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
@@ -39,10 +34,6 @@ export class FullScreenFigure extends Component<Props, SpreadsheetChildEnv> {
     return this.fullScreenFigureStore.fullScreenFigure;
   }
 
-  get figureStyle() {
-    return "";
-  }
-
   exitFullScreen() {
     if (this.figureUI) {
       this.fullScreenFigureStore.toggleFullScreenFigure(this.figureUI.id);
@@ -53,5 +44,15 @@ export class FullScreenFigure extends Component<Props, SpreadsheetChildEnv> {
     if (ev.key === "Escape") {
       this.exitFullScreen();
     }
+  }
+
+  get chartComponent(): (new (...args: any) => Component) | undefined {
+    if (!this.figureUI) return undefined;
+    const type = this.env.model.getters.getChartType(this.figureUI.id);
+    const component = chartComponentRegistry.get(type);
+    if (!component) {
+      throw new Error(`Component is not defined for type ${type}`);
+    }
+    return component;
   }
 }

@@ -1,7 +1,7 @@
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
 import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
-import { FullScreenFigure } from "../full_screen_figure/full_screen_figure";
+import { FullScreenFigure } from "../full_screen_chart/full_screen_chart";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";

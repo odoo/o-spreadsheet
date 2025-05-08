@@ -4,7 +4,7 @@ import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { chartRegistry, chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { Store, useStore } from "../../../../store_engine";
 import { ChartDefinition, ChartType, FigureUI, SpreadsheetChildEnv } from "../../../../types";
-import { FullScreenFigureStore } from "../../../full_screen_figure/full_screen_figure_store";
+import { FullScreenFigureStore } from "../../../full_screen_chart/full_screen_chart_store";
 import { Menu, MenuState } from "../../../menu/menu";
 
 interface Props {
