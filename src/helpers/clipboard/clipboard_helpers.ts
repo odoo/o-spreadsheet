@@ -1,3 +1,4 @@
+import { NEWLINE } from "../../constants";
 import {
   ClipboardCellData,
   ClipboardMIMEType,
@@ -64,20 +65,40 @@ export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
 
 export function parseOSClipboardContent(content: OSClipboardContent): ParsedOSClipboardContent {
   if (!content[ClipboardMIMEType.Html]) {
-    return {
-      text: content[ClipboardMIMEType.PlainText],
-    };
+    return { text: splitPlainTextContent(content[ClipboardMIMEType.PlainText]) };
   }
-  const htmlDocument = new DOMParser().parseFromString(
-    content[ClipboardMIMEType.Html],
-    "text/html"
-  );
+
+  let htmlString = content[ClipboardMIMEType.Html];
+  htmlString = htmlString.replaceAll(/(\n|\r) */g, "");
+  htmlString = htmlString.replaceAll(/<br\s*\/?>/gi, NEWLINE);
+  console.log("htmlString", htmlString);
+
+  const htmlDocument = new DOMParser().parseFromString(htmlString, "text/html");
   const oSheetClipboardData = htmlDocument
     .querySelector("div")
     ?.getAttribute("data-osheet-clipboard");
   const spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
   return {
-    text: content[ClipboardMIMEType.PlainText],
+    text:
+      getContentFromHTMLTable(htmlDocument) ??
+      splitPlainTextContent(content[ClipboardMIMEType.PlainText]),
     data: spreadsheetContent,
   };
+}
+
+function splitPlainTextContent(content: string | undefined): string[][] {
+  return (content || "")
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((vals) => vals.split("\t"));
+}
+
+function getContentFromHTMLTable(doc: Document): string[][] | undefined {
+  const table = doc.querySelector("table");
+  if (!table) {
+    const spans = doc.querySelectorAll("span");
+    return spans.length === 1 ? [[spans[0].innerText]] : undefined;
+  }
+  const rows = Array.from(table.rows);
+  return rows.map((row) => Array.from(row.cells).map((cell) => cell.innerText));
 }

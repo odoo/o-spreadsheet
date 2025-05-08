@@ -40,7 +40,7 @@ export class ClipboardHandler<T> {
     return { zones: [], sheetId };
   }
 
-  convertTextToClipboardData(data: string): T | undefined {
+  convertTextToClipboardData(data: string[][]): T | undefined {
     return;
   }
 }
