@@ -14,7 +14,7 @@ export class FullScreenFigureStore extends SpreadsheetStore {
     const figures = this.getters.getFigures(sheetId);
     if (figures.length > 0) {
       // ADRM TODO: delete this
-      // this.makeFullScreen(figures[0].id);
+      this.makeFullScreen(figures[0].id);
     }
   }
 

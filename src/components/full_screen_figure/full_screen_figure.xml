@@ -1,12 +1,20 @@
 <templates>
   <t t-name="o-spreadsheet-FullScreenFigure">
-    <div class="position-absolute o-fullscreen-figure-overlay w-100 h-100 d-flex" t-if="figureUI">
-      <button class="top-0 end-0 position-absolute btn btn-primary">Exit fullscreen</button>
+    <div
+      class="position-absolute o-fullscreen-figure-overlay w-100 h-100 d-flex"
+      t-if="figureUI"
+      t-on-click="exitFullScreen">
+      <button
+        class="o-exit top-0 end-0 position-absolute o-button primary m-1"
+        t-on-click="exitFullScreen">
+        Exit fullscreen
+      </button>
       <div class="flex-fill">
         <div
           class="o-fullscreen-figure o-figure"
           tabindex="1"
           t-ref="fullScreenFigure"
+          t-on-click.stop=""
           t-on-keydown="(ev) => this.onKeyDown(ev)">
           <t
             t-component="figureRegistry.get(figureUI.tag).Component"
