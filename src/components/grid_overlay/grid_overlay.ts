@@ -82,7 +82,13 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     if (isChildEvent(gridRef.el, e)) {
       ({ x, y } = getOffsetRelativeToOverlay(e));
       lastMoved = Date.now();
-      hoveredTable.hover(getPosition());
+      const position = getPosition();
+      if (
+        env.isDashboard() &&
+        (hoveredTable.col !== position.col || hoveredTable.row !== position.row)
+      ) {
+        hoveredTable.hover(getPosition());
+      }
     }
   }
 
