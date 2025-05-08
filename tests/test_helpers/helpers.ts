@@ -154,7 +154,9 @@ export function makeTestFixture() {
 
 class FakeRendererStore extends RendererStore {
   // we don't want to actually draw anything on the canvas as it cannot be tested
-  drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {}
+  drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
+    return "noStateChange";
+  }
 }
 
 interface SpreadsheetChildEnvWithStores extends SpreadsheetChildEnv {
