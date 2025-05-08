@@ -2,7 +2,8 @@
   <t t-name="o-spreadsheet-FullScreenFigure">
     <div
       t-if="figureUI"
-      class="o-fullscreen-figure o-figure position-absolute w-100 h-100"
+      class="o-fullscreen-figure o-figure position-absolute"
+      t-att-style="style"
       tabindex="1"
       t-ref="fullScreenFigure"
       t-on-keydown="(ev) => this.onKeyDown(ev)">

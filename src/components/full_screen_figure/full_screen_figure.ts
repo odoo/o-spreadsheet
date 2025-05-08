@@ -1,64 +1,48 @@
-import { Component, onMounted, onWillUpdateProps, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
+import { HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { figureRegistry } from "../../registries/figures_registry";
 import { Store, useStore } from "../../store_engine";
-import { SpreadsheetChildEnv } from "../../types";
+import { SpreadsheetChildEnv, UID } from "../../types";
+import { cssPropertiesToCss } from "../helpers";
 import { FullScreenFigureStore } from "./full_screen_figure_store";
 
 interface Props {}
 
+interface State {
+  fullScreenFigureId: UID | undefined;
+}
 export class FullScreenFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FullScreenFigure";
   static props = {};
   static components = {};
 
   private fullScreenFigureStore!: Store<FullScreenFigureStore>;
+  private ref = useRef("fullScreenFigure");
 
   figureRegistry = figureRegistry;
 
+  state = useState<State>({
+    fullScreenFigureId: undefined,
+  });
+
   setup() {
     this.fullScreenFigureStore = useStore(FullScreenFigureStore);
-    const ref = useRef("fullScreenFigure");
+
     useEffect(
       (el) => el?.focus(),
-      () => [ref.el]
+      () => [this.ref.el]
     );
     onMounted(() => {
-      const el = ref.el;
+      const el = this.ref.el;
       if (!el || !this.figureUI) return;
     });
 
-    onWillUpdateProps(() => {
-      console.log("onWillUpdateProps", this.figureUI);
-    });
-
+    let lastFullScreenFigureId: string | undefined;
     useEffect(() => {
-      console.log("useEffect", this.figureUI);
+      if (!this.figureUI || lastFullScreenFigureId === this.figureUI.id) return;
+
+      this.doAnimation("enter");
     });
-
-    // useEffect(() => {
-    //   console.log("useEffect", this.figureUI);
-    //   const el = ref.el;
-    //   if (!el || !this.figureUI) return;
-    //   el.classList.remove("w-100", "h-100");
-    //   el.style.width = "0px";
-    //   el.style.height = "0px";
-
-    //   const realFigure = document.querySelector(`.o-figure[data-id="${this.figureUI.id}"]`);
-    //   console.log("realFigure", realFigure);
-    //   if (!realFigure) return;
-    //   const rect = realFigure.getBoundingClientRect();
-    //   el.style.width = `${rect.width}px`;
-    //   el.style.height = `${rect.height}px`;
-    //   el.style.left = `${rect.left}px`;
-    //   el.style.top = `${rect.top}px`;
-    //   // trigger reflow
-    //   el.offsetHeight;
-    //   console.log("el", el);
-    //   // el.style.transition = "all 0.4s ease-in-out";
-    //   // el.classList.add("w-100", "h-100");
-    //   // el.style.left = "0px";
-    //   // el.style.top = "0px";
-    // });
   }
 
   get figureUI() {
@@ -70,14 +54,78 @@ export class FullScreenFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   exitFullScreen() {
-    if (this.figureUI) {
-      this.fullScreenFigureStore.toggleFullScreenFigure(this.figureUI.id);
-    }
+    this.doAnimation("exit", () => {
+      if (this.figureUI) {
+        this.fullScreenFigureStore.toggleFullScreenFigure(this.figureUI.id);
+      }
+    });
   }
 
   onKeyDown(ev: KeyboardEvent) {
     if (ev.key === "Escape") {
       this.exitFullScreen();
     }
+  }
+
+  private doAnimation(mode: "enter" | "exit", onAnimationEnd?: () => void) {
+    const el = this.ref.el;
+    if (!el || !this.figureUI) return;
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const figure = this.env.model.getters.getFigure(sheetId, this.figureUI.id)!;
+    const originalFigureUi = this.env.model.getters.getFigureUI(sheetId, figure);
+
+    const gridEl = document.querySelector(".o-grid")!;
+    const gridRect = gridEl.getBoundingClientRect();
+
+    const offset2 = this.env.isDashboard() ? { x: 0, y: 0 } : { x: HEADER_WIDTH, y: HEADER_HEIGHT };
+
+    const originalFigurePosition = {
+      // width: "0px",
+      top: `${originalFigureUi.y + gridRect.top + offset2.y}px`,
+      left: `${originalFigureUi.x + gridRect.left + offset2.x}px`,
+      width: `${originalFigureUi.width}px`,
+      height: `${originalFigureUi.height}px`,
+    };
+
+    const fullScreenFigureDims = {
+      top: "0px",
+      left: "0px",
+      width: "100%",
+      height: "100%",
+    };
+
+    const animation = el.animate(
+      mode === "enter"
+        ? [originalFigurePosition, fullScreenFigureDims]
+        : [fullScreenFigureDims, originalFigurePosition],
+      {
+        duration: 3500,
+        easing: "ease",
+      }
+    );
+    animation.onfinish = () => {
+      onAnimationEnd?.();
+    };
+  }
+
+  get style() {
+    const gridEl = document.querySelector(".o-grid");
+    if (!this.figureUI || !gridEl) return "";
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const figure = this.env.model.getters.getFigure(sheetId, this.figureUI.id)!;
+    const originalFigureUi = this.env.model.getters.getFigureUI(sheetId, figure);
+
+    const gridRect = gridEl.getBoundingClientRect();
+
+    const offset2 = this.env.isDashboard() ? { x: 0, y: 0 } : { x: HEADER_WIDTH, y: HEADER_HEIGHT };
+
+    const originalFigurePosition = {
+      // width: "0px",
+      top: `${originalFigureUi.y + gridRect.top + offset2.y}px`,
+      left: `${originalFigureUi.x + gridRect.left + offset2.x}px`,
+      width: `${originalFigureUi.width}px`,
+      height: `${originalFigureUi.height}px`,
+    };
+    return cssPropertiesToCss(originalFigurePosition);
   }
 }
