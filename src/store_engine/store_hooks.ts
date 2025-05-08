@@ -82,7 +82,10 @@ export function proxifyStoreMutation<S extends { mutators: readonly (keyof S)[] 
         const functionProxy = new Proxy(value, {
           // trap the function call
           apply(target, thisArg, argArray) {
-            Reflect.apply(target, thisStore, argArray);
+            const res = Reflect.apply(target, thisStore, argArray);
+            if (res === "noStateChange") {
+              return;
+            }
             callback();
           },
         });
