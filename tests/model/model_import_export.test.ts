@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { CellIsRule, Model } from "../../src";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_CELL_HEIGHT,
@@ -452,7 +452,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     expect(data.version).toEqual(getCurrentVersion());
-    expect(getCurrentVersion().localeCompare("14.5")).toBeGreaterThanOrEqual(0);
+    expect(parseFloat(getCurrentVersion())).toBeGreaterThanOrEqual(14.5);
     expect(data.sheets[0].tables).toEqual([
       {
         range: "A1:C2",
@@ -628,6 +628,86 @@ describe("Migrations", () => {
     expect(model.getters.getPivot("2").definition.sortedColumn).toEqual(
       data.pivots["2"].sortedColumn
     ); // unchanged
+  });
+
+  test("migrate version 18.4.1: convert cf types", () => {
+    const oldCfTypes = [
+      "BeginsWith",
+      "Between",
+      "ContainsText",
+      "EndsWith",
+      "Equal",
+      "GreaterThan",
+      "GreaterThanOrEqual",
+      "IsEmpty",
+      "IsNotEmpty",
+      "LessThan",
+      "LessThanOrEqual",
+      "NotBetween",
+      "NotContains",
+      "NotEqual",
+    ];
+    const conditionalFormats: any[] = [];
+    for (const index in oldCfTypes) {
+      conditionalFormats.push({
+        id: index,
+        ranges: ["A1"],
+        rule: { type: "CellIsRule", values: ["42"], style: {}, operator: oldCfTypes[index] },
+      });
+    }
+    const model = new Model({
+      version: "18.3.1",
+      sheets: [{ conditionalFormats }],
+    });
+
+    const migratedTypes = model.getters
+      .getConditionalFormats(model.getters.getActiveSheetId())
+      .map((cf) => (cf.rule as CellIsRule).operator);
+
+    expect(migratedTypes).toEqual([
+      "beginsWithText",
+      "isBetween",
+      "containsText",
+      "endsWithText",
+      "isEqual",
+      "isGreaterThan",
+      "isGreaterOrEqualTo",
+      "isEmpty",
+      "isNotEmpty",
+      "isLessThan",
+      "isLessOrEqualTo",
+      "isNotBetween",
+      "notContainsText",
+      "isNotEqual",
+    ]);
+  });
+
+  test("migrate version 18.4.1: convert dv types", () => {
+    const oldDvTypes = ["textContains", "textNotContains", "textIs", "textIsEmail", "textIsLink"];
+    const dvs: any[] = [];
+    for (const index in oldDvTypes) {
+      dvs.push({
+        id: index,
+        ranges: ["A1"],
+        criterion: { type: oldDvTypes[index], values: ["42"] },
+      });
+    }
+    const model = new Model({
+      version: "18.3.1",
+      sheets: [{ dataValidationRules: dvs }],
+    });
+
+    const migratedTypes = model.getters
+      .getDataValidationRules(model.getters.getActiveSheetId())
+      .map((dv) => dv.criterion.type);
+
+    expect(migratedTypes).toEqual([
+      "containsText",
+      "notContainsText",
+      "isEqualText",
+      "isEmail",
+      "isLink",
+    ]);
   });
 });
 

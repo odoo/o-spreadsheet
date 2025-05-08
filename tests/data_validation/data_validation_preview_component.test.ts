@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { DataValidationPreview } from "../../src/components/side_panel/data_validation/dv_preview/dv_preview";
 import { toZone } from "../../src/helpers";
-import { dataValidationEvaluatorRegistry } from "../../src/registries/data_validation_registry";
+import { criterionEvaluatorRegistry } from "../../src/registries/criterion_registry";
 import { DataValidationRuleData, DEFAULT_LOCALE, SpreadsheetChildEnv } from "../../src/types";
 import { DataValidationCriterion } from "../../src/types/data_validation";
 import { updateLocale } from "../test_helpers/commands_helpers";
@@ -12,7 +12,7 @@ import { getHighlightsFromStore, mountComponent, spyModelDispatch } from "../tes
 const testDataValidationRule: DataValidationRuleData = {
   id: "id",
   ranges: ["A1"],
-  criterion: { type: "textContains", values: ["foo"] },
+  criterion: { type: "containsText", values: ["foo"] },
 };
 
 describe("Data validation preview", () => {
@@ -95,7 +95,7 @@ describe("Data validation preview", () => {
     });
 
     function getCriterionPreview(criterion: DataValidationCriterion) {
-      return dataValidationEvaluatorRegistry
+      return criterionEvaluatorRegistry
         .get(criterion.type)
         .getPreview(criterion, model.getters)
         .toString();

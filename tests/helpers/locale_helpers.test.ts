@@ -90,14 +90,14 @@ describe("Locale helpers", () => {
     const style = { fillColor: "#FF0000" };
 
     test.each([
-      "Between",
-      "Equal",
-      "GreaterThan",
-      "GreaterThanOrEqual",
-      "LessThan",
-      "LessThanOrEqual",
-      "NotBetween",
-      "NotEqual",
+      "isBetween",
+      "isEqual",
+      "isGreaterThan",
+      "isGreaterOrEqualTo",
+      "isLessThan",
+      "isLessOrEqualTo",
+      "isNotBetween",
+      "isNotEqual",
     ])("CellIsRule can be localized/canonicalized for number operators", (operator) => {
       const rule: CellIsRule = {
         values: ["1.5"],
@@ -113,7 +113,7 @@ describe("Locale helpers", () => {
       expect(canonicalized).toMatchObject({ values: ["1.5"] });
     });
 
-    test.each(["BeginsWith", "ContainsText", "EndsWith", "NotContains"])(
+    test.each(["beginsWithText", "containsText", "endsWithText", "notContainsText"])(
       "CellIsRule values aren't touched for text operators",
       (operator) => {
         const rule: CellIsRule = {

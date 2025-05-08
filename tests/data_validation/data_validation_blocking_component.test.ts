@@ -27,7 +27,7 @@ describe("Data validation with blocking rule", () => {
     const raiseError = jest.fn();
     const env = { raiseError };
     await mountSpreadsheet({ model }, env);
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["ok"] }, "blocking");
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["ok"] }, "blocking");
 
     await typeInComposerGrid("hey");
     await keyDown({ key: "Enter" });
@@ -37,7 +37,7 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User can input wrong value in non-blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["ok"] });
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["ok"] });
 
     composerStore.startEdition("hey");
     composerStore.stopEdition();
@@ -86,7 +86,7 @@ describe("Data validation with blocking rule", () => {
 
   test("User can input formula with correct result in blocking DV rule", async () => {
     setCellContent(model, "B1", "i");
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["hi"] }, "blocking");
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] }, "blocking");
     composerStore.startEdition('=CONCAT("h", B1)');
     composerStore.stopEdition();
 
@@ -104,7 +104,7 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User cannot input formula in error in blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["hi"] }, "blocking");
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] }, "blocking");
     composerStore.startEdition("=0/0");
     composerStore.stopEdition();
 
@@ -112,7 +112,7 @@ describe("Data validation with blocking rule", () => {
   });
 
   test("User can input spreading formula in blocking DV rule", async () => {
-    addDataValidation(model, "A1", "id", { type: "textContains", values: ["hi"] }, "blocking");
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] }, "blocking");
     composerStore.startEdition("=MUNIT(6)");
     composerStore.stopEdition();
 

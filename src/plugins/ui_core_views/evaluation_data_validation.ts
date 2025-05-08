@@ -1,16 +1,19 @@
 import { DVTerms } from "../../components/translations_terms";
 import { compile } from "../../formulas";
 import { getCellPositionsInRanges, isInside, lazy } from "../../helpers";
-import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
+import { parseLiteral } from "../../helpers/cells";
+import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellPosition,
   CellValue,
   CellValueType,
+  DEFAULT_LOCALE,
   DataValidationCriterion,
   DataValidationCriterionType,
   DataValidationRule,
   HeaderIndex,
   Lazy,
+  Matrix,
   Offset,
   UID,
   isMatrix,
@@ -81,7 +84,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     criterionType: DataValidationCriterionType,
     value: string
   ): string | undefined {
-    const evaluator = dataValidationEvaluatorRegistry.get(criterionType);
+    const evaluator = criterionEvaluatorRegistry.get(criterionType);
     if (value.startsWith("=")) {
       if (evaluator.allowedValues === "onlyLiterals") {
         return _t("The value must not be a formula");
@@ -160,15 +163,19 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
   ): string | undefined {
     const { sheetId } = cellPosition;
     const criterion = rule.criterion;
-    const evaluator = dataValidationEvaluatorRegistry.get(criterion.type);
+    const evaluator = criterionEvaluatorRegistry.get(criterion.type);
 
     const offset = this.getCellOffsetInRule(cellPosition, rule);
     const evaluatedCriterionValues = this.getEvaluatedCriterionValues(sheetId, offset, criterion);
-    const evaluatedCriterion = { ...criterion, values: evaluatedCriterionValues };
+    if (evaluatedCriterionValues.some(isMatrix)) {
+      return undefined;
+    }
+    const evaluatedCriterion = { ...criterion, values: evaluatedCriterionValues as CellValue[] };
 
     if (evaluator.isValueValid(cellValue, evaluatedCriterion, this.getters, sheetId)) {
       return undefined;
     }
+
     return evaluator.getErrorString(evaluatedCriterion, this.getters, sheetId);
   }
 
@@ -190,10 +197,10 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     sheetId: UID,
     offset: Offset,
     criterion: DataValidationCriterion
-  ): string[] {
+  ): (CellValue | Matrix<CellValue>)[] {
     return criterion.values.map((value) => {
       if (!value.startsWith("=")) {
-        return value;
+        return parseLiteral(value, DEFAULT_LOCALE);
       }
 
       const formula = compile(value);
@@ -204,8 +211,7 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
         formula.tokens
       );
 
-      const evaluated = this.getters.evaluateFormula(sheetId, translatedFormula);
-      return evaluated && !isMatrix(evaluated) ? evaluated.toString() : "";
+      return this.getters.evaluateFormula(sheetId, translatedFormula);
     });
   }
 }

@@ -1,10 +1,10 @@
 import { Component, useEffect, useRef, useState } from "@odoo/owl";
-import { canonicalizeContent } from "../../../../../helpers/locale";
-import { dataValidationEvaluatorRegistry } from "../../../../../registries/data_validation_registry";
-import { _t } from "../../../../../translation";
-import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../../types";
-import { StandaloneComposer } from "../../../../composer/standalone_composer/standalone_composer";
-import { css } from "../../../../helpers";
+import { canonicalizeContent } from "../../../../helpers/locale";
+import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
+import { _t } from "../../../../translation";
+import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../types";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { css } from "../../../helpers";
 
 interface Props {
   value: string;
@@ -13,11 +13,12 @@ interface Props {
   onKeyDown?: (ev: KeyboardEvent) => void;
   focused: boolean;
   onBlur: () => void;
+  disableFormulas?: boolean;
 }
 
 css/* scss */ `
   .o-dv-input {
-    .o-invalid {
+    &.o-invalid {
       background-color: #ffdddd;
     }
     .error-icon {
@@ -27,8 +28,8 @@ css/* scss */ `
   }
 `;
 
-export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-DataValidationInput";
+export class CriterionInput extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-CriterionInput";
   static props = {
     value: { type: String, optional: true },
     criterionType: String,
@@ -37,6 +38,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     focused: { type: Boolean, optional: true },
     onBlur: { type: Function, optional: true },
     onFocus: { type: Function, optional: true },
+    disableFormulas: { type: Boolean, optional: true },
   };
   static defaultProps = {
     value: "",
@@ -64,11 +66,9 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
   });
 
   get placeholder(): string {
-    const evaluator = dataValidationEvaluatorRegistry.get(this.props.criterionType);
-
-    if (evaluator.allowedValues === "onlyFormulas") {
+    if (this.allowedValues === "onlyFormulas") {
       return _t("Formula");
-    } else if (evaluator.allowedValues === "onlyLiterals") {
+    } else if (this.allowedValues === "onlyLiterals") {
       return _t("Value");
     }
 
@@ -76,8 +76,15 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get allowedValues(): string {
-    const evaluator = dataValidationEvaluatorRegistry.get(this.props.criterionType);
-    return evaluator.allowedValues ?? "any";
+    const evaluator = criterionEvaluatorRegistry.get(this.props.criterionType);
+    if (evaluator.allowedValues === "onlyFormulas" && this.props.disableFormulas) {
+      throw new Error(
+        `Cannot disable formulas for criterion type ${this.props.criterionType} that accept only formulas`
+      );
+    }
+
+    const allowedValues = this.props.disableFormulas ? "onlyLiterals" : evaluator.allowedValues;
+    return allowedValues ?? "any";
   }
 
   onInputValueChanged(ev: Event) {
@@ -97,6 +104,7 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
       placeholder: this.placeholder,
       class: "o-sidePanel-composer",
       defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
+      invalid: this.state.shouldDisplayError && !!this.errorMessage,
     };
   }
 
