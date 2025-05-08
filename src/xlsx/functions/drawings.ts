@@ -71,21 +71,22 @@ function convertFigureData(
 ): FigurePosition {
   const { col, row, offset, width, height } = figure;
   const { x: offsetCol, y: offsetRow } = offset;
-
-  const rows = Object.values(sheet.rows);
-  const { index: rowFrom, offset: offsetRowFrom } = figureCoordinates(rows, row, offsetRow);
-  const { index: rowTo, offset: offsetRowTo } = figureCoordinates(rows, row, offsetRow + height);
-
-  const cols = Object.values(sheet.cols);
-  const { index: colFrom, offset: offsetColFrom } = figureCoordinates(cols, col, offsetCol);
-  const { index: colTo, offset: offsetColTo } = figureCoordinates(cols, col, offsetCol + width);
-
+  const { index: rowTo, offset: offsetRowTo } = figureCoordinates(
+    Object.values(sheet.rows),
+    row,
+    offsetRow + height
+  );
+  const { index: colTo, offset: offsetColTo } = figureCoordinates(
+    Object.values(sheet.cols),
+    col,
+    offsetCol + width
+  );
   return {
     from: {
-      col: colFrom,
-      colOff: offsetColFrom,
-      row: rowFrom,
-      rowOff: offsetRowFrom,
+      col,
+      colOff: convertDotValueToEMU(offsetCol + FIGURE_BORDER_WIDTH),
+      row,
+      rowOff: convertDotValueToEMU(offsetRow + FIGURE_BORDER_WIDTH),
     },
     to: {
       col: colTo,
@@ -108,7 +109,7 @@ function figureCoordinates(
   for (const [headerIndex, header] of headers.slice(anchor).entries()) {
     if (currentPosition <= offset && offset < currentPosition + header.size!) {
       return {
-        index: headerIndex,
+        index: anchor + headerIndex,
         offset: convertDotValueToEMU(offset - currentPosition + FIGURE_BORDER_WIDTH),
       };
     } else if (headerIndex < headers.length - 1) {
