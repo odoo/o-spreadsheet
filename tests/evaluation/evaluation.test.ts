@@ -381,6 +381,16 @@ describe("evaluateCells", () => {
     expect(evaluateCell("A1", { A1: "=IF(A2<>0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(10);
   });
 
+  test("IF does not mutate the empty cell value", () => {
+    const grid = evaluateGrid({
+      A1: "=ISBLANK(C1)",
+      A2: "=IF(TRUE,B1,B1)",
+      A3: "=ISBLANK(C1)",
+    });
+    expect(grid.A1).toBe(true);
+    expect(grid.A3).toBe(true);
+  });
+
   test("evaluate formula returns the cell error value when we pass an invalid formula", () => {
     let model = new Model();
     const sheetId = model.getters.getActiveSheetId();
