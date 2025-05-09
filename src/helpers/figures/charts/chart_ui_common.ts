@@ -68,6 +68,8 @@ export async function chartToImageFile(
   const div = document.createElement("div");
   div.style.width = `${figure.width}px`;
   div.style.height = `${figure.height}px`;
+  div.style.position = "fixed";
+  div.style.opacity = "0";
   const canvas = document.createElement("canvas");
   div.append(canvas);
   canvas.setAttribute("width", figure.width.toString());
