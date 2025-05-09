@@ -463,6 +463,20 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  private processSpaceKey(ev) {
+    if (
+      this.env.model.getters.getValidationRuleForCell(this.env.model.getters.getActivePosition())
+        ?.criterion.type === "isBoolean"
+    ) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const value = this.env.model.getters.getActiveCell().value;
+      const cellContent = value ? "FALSE" : "TRUE";
+      const position = this.env.model.getters.getActivePosition();
+      this.env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
+    }
+  }
+
   getClientPositionKey(client: Client) {
     return `${client.id}-${client.position?.sheetId}-${client.position?.col}-${client.position?.row}`;
   }
@@ -554,6 +568,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       ev.preventDefault();
       ev.stopPropagation();
       handler();
+      return;
+    }
+    // Space key is handled separately because the default and the propagation
+    // of the event should be stopped conditionally (presence of a validation rule)
+    if (keyDownString === " ") {
+      this.processSpaceKey(ev);
       return;
     }
 
