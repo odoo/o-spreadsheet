@@ -65,6 +65,10 @@ function isEmpty(value: Maybe<CellValue>): boolean {
 
 const getNeutral = { number: 0, string: "", boolean: false };
 
+function areAlmostEqual(value1: number, value2: number, epsilon: number = 2e-16): boolean {
+  return Math.abs(value1 - value2) < epsilon;
+}
+
 export const EQ = {
   description: _t("Equal."),
   args: [
@@ -80,6 +84,9 @@ export const EQ = {
     }
     if (typeof value2 === "string") {
       value2 = value2.toUpperCase();
+    }
+    if (typeof value1 === "number" && typeof value2 === "number") {
+      return areAlmostEqual(value1, value2);
     }
     return value1 === value2;
   },
@@ -121,6 +128,9 @@ export const GT = {
   returns: ["BOOLEAN"],
   compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
+      if (typeof v1 === "number" && typeof v2 === "number") {
+        return !areAlmostEqual(v1, v2) && v1 > v2;
+      }
       return v1 > v2;
     });
   },
@@ -138,6 +148,9 @@ export const GTE = {
   returns: ["BOOLEAN"],
   compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
+      if (typeof v1 === "number" && typeof v2 === "number") {
+        return areAlmostEqual(v1, v2) || v1 > v2;
+      }
       return v1 >= v2;
     });
   },
