@@ -2,6 +2,7 @@ import {
   clip,
   createRange,
   deepEquals,
+  doesAnyZoneCrossFrozenPane,
   getFullReference,
   isDefined,
   isEqual,
@@ -360,15 +361,9 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const sheet = this.getters.tryGetSheet(sheetId);
     if (!sheet) return CommandResult.Success;
     const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
-    for (const zone of target) {
-      if (
-        (zone.left < xSplit && zone.right >= xSplit) ||
-        (zone.top < ySplit && zone.bottom >= ySplit)
-      ) {
-        return CommandResult.FrozenPaneOverlap;
-      }
+    if (doesAnyZoneCrossFrozenPane(target, xSplit, ySplit)) {
+      return CommandResult.FrozenPaneOverlap;
     }
-
     return CommandResult.Success;
   }
 

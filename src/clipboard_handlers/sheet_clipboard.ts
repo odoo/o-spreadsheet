@@ -1,3 +1,4 @@
+import { doesAnyZoneCrossFrozenPane } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import { ClipboardOptions, CommandResult, UID, Zone } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
@@ -19,13 +20,9 @@ export class SheetClipboardHandler extends AbstractCellClipboardHandler<Clipboar
       return CommandResult.Success;
     }
     const { xSplit, ySplit } = this.getters.getPaneDivisions(sheetId);
-    for (const zone of getPasteZones(target, content.cells)) {
-      if (
-        (zone.left < xSplit && zone.right >= xSplit) ||
-        (zone.top < ySplit && zone.bottom >= ySplit)
-      ) {
-        return CommandResult.FrozenPaneOverlap;
-      }
+    const pasteZones = getPasteZones(target, content.cells);
+    if (doesAnyZoneCrossFrozenPane(pasteZones, xSplit, ySplit)) {
+      return CommandResult.FrozenPaneOverlap;
     }
     return CommandResult.Success;
   }
