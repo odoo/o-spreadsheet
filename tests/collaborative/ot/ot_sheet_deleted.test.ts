@@ -107,6 +107,7 @@ describe("OT with DELETE_SHEET", () => {
     type: "CREATE_CHART",
     id: "1",
     definition: {} as any,
+    sheetMap: { Sheet1: "Sheet1" },
   };
   const resizeColumns: Omit<ResizeColumnsRowsCommand, "sheetId"> = {
     type: "RESIZE_COLUMNS_ROWS",

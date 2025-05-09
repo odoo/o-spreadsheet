@@ -82,7 +82,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getDuplicateSheetName",
   ] as const;
 
-  readonly sheetIdsMapName: Record<string, UID | undefined> = {};
+  readonly sheetIdsMapName: Record<string, UID> = {};
   readonly orderedSheetIds: UID[] = [];
   readonly sheets: Record<UID, Sheet | undefined> = {};
   readonly cellPosition: Record<UID, CellPosition | undefined> = {};
