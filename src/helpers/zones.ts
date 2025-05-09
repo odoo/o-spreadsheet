@@ -361,6 +361,20 @@ export function overlap(z1: Zone, z2: Zone): boolean {
   return true;
 }
 
+/**
+ * Returns true if any two zones in the given list overlap.
+ */
+export function hasOverlappingZones(zones: Zone[]): boolean {
+  for (let i = 0; i < zones.length - 1; i++) {
+    for (let j = i + 1; j < zones.length; j++) {
+      if (overlap(zones[i], zones[j])) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function isInside(col: number, row: number, zone: Zone): boolean {
   const { left, right, top, bottom } = zone;
   return col >= left && col <= right && row >= top && row <= bottom;
@@ -590,6 +604,22 @@ export function isFullCol(zone: UnboundedZone): boolean {
 /** Returns the area of a zone */
 export function getZoneArea(zone: Zone): number {
   return (zone.bottom - zone.top + 1) * (zone.right - zone.left + 1);
+}
+
+/**
+ * Checks if a single zone crosses any of the frozen panes based on the vertical and horizontal split.
+ */
+export function doesZoneCrossFrozenPane(zone: Zone, xSplit: number, ySplit: number): boolean {
+  return (
+    (zone.left < xSplit && xSplit <= zone.right) || (zone.top < ySplit && ySplit <= zone.bottom)
+  );
+}
+
+/**
+ * Checks if any of the given zones crosses any of the frozen panes.
+ */
+export function doesAnyZoneCrossFrozenPane(zones: Zone[], xSplit: number, ySplit: number): boolean {
+  return zones.some((zone) => doesZoneCrossFrozenPane(zone, xSplit, ySplit));
 }
 
 export function boundUnboundedZone(
