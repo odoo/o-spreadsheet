@@ -35,8 +35,8 @@ import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
 const MAX_ITERATION = 30;
-const ERROR_CYCLE_CELL = createEvaluatedCell(new CircularDependencyError());
-const EMPTY_CELL = createEvaluatedCell({ value: null });
+const ERROR_CYCLE_CELL = Object.freeze(createEvaluatedCell(new CircularDependencyError()));
+const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
 
 export class Evaluator {
   private readonly getters: Getters;
