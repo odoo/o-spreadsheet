@@ -592,6 +592,22 @@ export function getZoneArea(zone: Zone): number {
   return (zone.bottom - zone.top + 1) * (zone.right - zone.left + 1);
 }
 
+/**
+ * Checks if a single zone crosses any of the frozen panes based on the vertical and horizontal split.
+ */
+export function doesZoneCrossFrozenPane(zone: Zone, xSplit: number, ySplit: number): boolean {
+  return (
+    (zone.left < xSplit && xSplit <= zone.right) || (zone.top < ySplit && ySplit <= zone.bottom)
+  );
+}
+
+/**
+ * Checks if any of the given zones crosses any of the frozen panes.
+ */
+export function doesAnyZoneCrossFrozenPane(zones: Zone[], xSplit: number, ySplit: number): boolean {
+  return zones.some((zone) => doesZoneCrossFrozenPane(zone, xSplit, ySplit));
+}
+
 export function boundUnboundedZone(
   unboundedZone: Readonly<UnboundedZone>,
   sheetSize: ZoneDimension
