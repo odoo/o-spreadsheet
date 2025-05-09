@@ -434,7 +434,6 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     ) {
       return;
     }
-    this.autoCompleteState.showProvider = true;
     this.autoCompleteState.type = "function";
     let values = Object.entries(functionRegistry.content)
       .filter(([_, { hidden }]) => !hidden)
@@ -450,6 +449,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
     if (searchTerm) {
       values = fuzzyLookup(searchTerm, values, (t) => t.text).slice(0, AUTOCOMPLETE_ENTRIES);
+    }
+    if (values.length) {
+      this.autoCompleteState.showProvider = true;
     }
     this.autoCompleteState.values = values.slice(0, AUTOCOMPLETE_ENTRIES);
     this.autoCompleteState.getHtmlContent = (value) =>
