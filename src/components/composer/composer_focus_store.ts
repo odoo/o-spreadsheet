@@ -20,29 +20,32 @@ export class ComposerFocusStore extends SpreadsheetStore {
 
   focusTopBarComposer(selection: ComposerSelection) {
     if (this.getters.isReadonly()) {
-      return;
+      return "noStateChange";
     }
     this.topBarFocus = "contentFocus";
     this.gridFocusMode = "inactive";
-    this.setComposerContent({ selection } || {});
+    this.setComposerContent({ selection });
+    return;
   }
 
   focusGridComposerContent() {
     if (this.getters.isReadonly()) {
-      return;
+      return "noStateChange";
     }
     this.topBarFocus = "inactive";
     this.gridFocusMode = "contentFocus";
     this.setComposerContent({});
+    return;
   }
 
   focusGridComposerCell(content?: string, selection?: ComposerSelection) {
     if (this.getters.isReadonly()) {
-      return;
+      return "noStateChange";
     }
     this.topBarFocus = "inactive";
     this.gridFocusMode = "cellFocus";
-    this.setComposerContent({ content, selection } || {});
+    this.setComposerContent({ content, selection });
+    return;
   }
 
   /**

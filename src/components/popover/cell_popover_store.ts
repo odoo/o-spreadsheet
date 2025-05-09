@@ -33,7 +33,11 @@ export class CellPopoverStore extends SpreadsheetStore {
   }
 
   close() {
+    if (!this.persistentPopover) {
+      return "noStateChange";
+    }
     this.persistentPopover = undefined;
+    return;
   }
 
   get persistentCellPopover(): OpenCellPopover | ClosedCellPopover {

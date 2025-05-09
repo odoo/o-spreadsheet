@@ -42,10 +42,6 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
 
     for (const layer of OrderedLayers()) {
       model.drawLayer(renderingContext, layer);
-      // @ts-ignore 'drawLayer' is not declated as a mutator because:
-      // it does not mutate anything. Most importantly it's used
-      // during rendering. Invoking a mutator during rendering would
-      // trigger another rendering, ultimately resulting in an infinite loop.
       rendererStore.drawLayer(renderingContext, layer);
     }
   }
