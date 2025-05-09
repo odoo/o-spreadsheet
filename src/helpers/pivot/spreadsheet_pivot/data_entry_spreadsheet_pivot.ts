@@ -1,4 +1,5 @@
-import { CellValue, EvaluatedCell } from "../../../types";
+import { toNumber } from "../../../functions/helpers";
+import { CellValue, DEFAULT_LOCALE, EvaluatedCell } from "../../../types";
 import {
   DimensionTree,
   PivotDimension,
@@ -251,7 +252,9 @@ function compareDimensionValues(dimension: PivotDimension, a: string, b: string)
     return dimension.order === "asc" ? -1 : 1;
   }
   if (dimension.type === "integer" || dimension.type === "datetime") {
-    return dimension.order === "asc" ? Number(a) - Number(b) : Number(b) - Number(a);
+    return dimension.order === "asc"
+      ? toNumber(a, DEFAULT_LOCALE) - toNumber(b, DEFAULT_LOCALE)
+      : toNumber(b, DEFAULT_LOCALE) - toNumber(a, DEFAULT_LOCALE);
   }
   return dimension.order === "asc" ? a.localeCompare(b) : b.localeCompare(a);
 }
