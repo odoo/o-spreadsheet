@@ -147,6 +147,12 @@ describe("EQ formula", () => {
     expect(evaluateCell("A1", { A1: "=EQ(FALSE, )" })).toBe(true);
   });
 
+  test("floating point rounding", () => {
+    expect(evaluateCell("A1", { A1: "=EQ(0.3, 0.1+0.1+0.1)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=EQ(0.3, 0.3+1e-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=EQ(0.3, 0.3+1e-15)" })).toBe(false);
+  });
+
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A3: "0" })).toBe(true);
@@ -252,6 +258,13 @@ describe("GT formula", () => {
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: '="1"', A3: "99999" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(false);
   });
+
+  test("floating point rounding", () => {
+    expect(evaluateCell("A1", { A1: "=GT(0.3, 0.1+0.1+0.1)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3+1e-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3-1e-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=GT(0.3, 0.3-1e-15)" })).toBe(true);
+  });
 });
 
 describe("GTE formula", () => {
@@ -302,6 +315,14 @@ describe("GTE formula", () => {
 
     expect(evaluateCell("A1", { A1: '=GTE("1", 99999)' })).toBe(true);
     expect(evaluateCell("A1", { A1: '=GTE("1", "99999")' })).toBe(false);
+  });
+
+  test("floating point rounding", () => {
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.1+0.1+0.1)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3+1e-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3-1e-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3-1e-15)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=GTE(0.3, 0.3+1e-15)" })).toBe(false);
   });
 
   test("functional tests on cell arguments", () => {
@@ -431,6 +452,13 @@ describe("LT formula", () => {
     expect(evaluateCell("A1", { A1: "=LT(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
     expect(evaluateCell("A1", { A1: "=LT(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
   });
+
+  test("floating point rounding", () => {
+    expect(evaluateCell("A1", { A1: "=LT(0.3, 0.1+0.1+0.1)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3+1e-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3-1e-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LT(0.3, 0.3+1e-15)" })).toBe(true);
+  });
 });
 
 describe("LTE formula", () => {
@@ -483,6 +511,10 @@ describe("LTE formula", () => {
     expect(evaluateCell("A1", { A1: '=LTE("1", "99999")' })).toBe(true);
   });
 
+  test("floating point rounding", () => {
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.1+0.1+0.1)" })).toBe(true);
+  });
+
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: "1" })).toBe(false);
@@ -520,6 +552,14 @@ describe("LTE formula", () => {
   test("LTE doesn't accept error values", () => {
     expect(evaluateCell("A1", { A1: "=LTE(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
     expect(evaluateCell("A1", { A1: "=LTE(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
+  });
+
+  test("floating point rounding", () => {
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.1+0.1+0.1)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3+1e-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3-1e-16)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3-1e-15)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=LTE(0.3, 0.3+1e-15)" })).toBe(true);
   });
 });
 
@@ -655,6 +695,12 @@ describe("NE formula", () => {
   test("NE doesn't accept error values", () => {
     expect(evaluateCell("A1", { A1: "=NE(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
     expect(evaluateCell("A1", { A1: "=NE(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
+  });
+
+  test("floating point rounding", () => {
+    expect(evaluateCell("A1", { A1: "=NE(0.3, 0.1+0.1+0.1)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=NE(0.3, 0.3+1e-16)" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=NE(0.3, 0.3+1e-15)" })).toBe(true);
   });
 });
 
