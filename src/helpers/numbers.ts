@@ -14,7 +14,7 @@ export const getFormulaNumberRegex = memoize(function getFormulaNumberRegex(
 ) {
   decimalSeparator = escapeRegExp(decimalSeparator);
   return new RegExp(
-    `(?:^-?\\d+(?:${decimalSeparator}?\\d*(?:e\\d+)?)?|^-?${decimalSeparator}\\d+)(?!\\w|!)`
+    `(?:^-?\\d+(?:${decimalSeparator}?\\d*(?:e(\\+|-)?\\d+)?)?|^-?${decimalSeparator}\\d+)(?!\\w|!)`
   );
 });
 
