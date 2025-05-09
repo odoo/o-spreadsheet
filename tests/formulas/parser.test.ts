@@ -126,6 +126,9 @@ describe("parser", () => {
     expect(parse("1.5")).toEqual({ type: "NUMBER", value: 1.5 });
     expect(parse("1.")).toEqual({ type: "NUMBER", value: 1 });
     expect(parse(".5")).toEqual({ type: "NUMBER", value: 0.5 });
+    expect(parse("1e3")).toEqual({ type: "NUMBER", value: 1e3 });
+    expect(parse("1e+3")).toEqual({ type: "NUMBER", value: 1e3 });
+    expect(parse("1e-3")).toEqual({ type: "NUMBER", value: 1e-3 });
   });
 
   test("can parse string without ending double quotes", () => {
