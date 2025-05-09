@@ -69,6 +69,10 @@ function isEmpty(value: PrimitiveArgValue): boolean {
 
 const getNeutral = { number: 0, string: "", boolean: false };
 
+function areAlmostEqual(value1: number, value2: number, epsilon: number = 2e-16): boolean {
+  return Math.abs(value1 - value2) < epsilon;
+}
+
 export const EQ: AddFunctionDescription = {
   description: _lt(`Equal.`),
   args: args(`
@@ -84,6 +88,9 @@ export const EQ: AddFunctionDescription = {
     }
     if (typeof value2 === "string") {
       value2 = value2.toUpperCase();
+    }
+    if (typeof value1 === "number" && typeof value2 === "number") {
+      return areAlmostEqual(value1, value2);
     }
     return value1 === value2;
   },
@@ -125,6 +132,9 @@ export const GT: AddFunctionDescription = {
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
+      if (typeof v1 === "number" && typeof v2 === "number") {
+        return !areAlmostEqual(v1, v2) && v1 > v2;
+      }
       return v1 > v2;
     });
   },
@@ -142,6 +152,9 @@ export const GTE: AddFunctionDescription = {
   returns: ["BOOLEAN"],
   compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
+      if (typeof v1 === "number" && typeof v2 === "number") {
+        return areAlmostEqual(v1, v2) || v1 > v2;
+      }
       return v1 >= v2;
     });
   },
