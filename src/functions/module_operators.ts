@@ -83,6 +83,10 @@ function isEmpty(data: Maybe<FunctionResultObject>): boolean {
 
 const getNeutral = { number: 0, string: "", boolean: false };
 
+function areAlmostEqual(value1: number, value2: number, epsilon: number = 2e-16): boolean {
+  return Math.abs(value1 - value2) < epsilon;
+}
+
 export const EQ = {
   description: _t("Equal."),
   args: [
@@ -106,6 +110,9 @@ export const EQ = {
     }
     if (isEvaluationError(_value2)) {
       throw value2;
+    }
+    if (typeof _value1 === "number" && typeof _value2 === "number") {
+      return areAlmostEqual(_value1, _value2);
     }
     return _value1 === _value2;
   },
@@ -155,6 +162,9 @@ export const GT = {
     value2: Maybe<FunctionResultObject>
   ): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
+      if (typeof v1 === "number" && typeof v2 === "number") {
+        return !areAlmostEqual(v1, v2) && v1 > v2;
+      }
       return v1 > v2;
     });
   },
@@ -174,6 +184,9 @@ export const GTE = {
     value2: Maybe<FunctionResultObject>
   ): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
+      if (typeof v1 === "number" && typeof v2 === "number") {
+        return areAlmostEqual(v1, v2) || v1 > v2;
+      }
       return v1 >= v2;
     });
   },
