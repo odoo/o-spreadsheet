@@ -654,7 +654,7 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([["5", "9", "14", "Total", ""]]);
   });
 
-  test("month should be supported", () => {
+  test("month should be supported and correctly ordered", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [{ fieldName: "Created on", granularity: "month", order: "asc" }],
@@ -662,6 +662,15 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
+    expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
+      ["February 2024", "March 2024", "April 2024", "Total", ""],
+    ]);
+
+    updatePivot(model, "1", {
+      columns: [{ fieldName: "Created on", granularity: "month", order: "desc" }],
+      rows: [],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
       ["April 2024", "March 2024", "February 2024", "Total", ""],
     ]);
