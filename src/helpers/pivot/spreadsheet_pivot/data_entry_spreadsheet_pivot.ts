@@ -1,4 +1,5 @@
-import { CellValue, EvaluatedCell } from "../../../types";
+import { toNumber } from "../../../functions/helpers";
+import { CellValue, DEFAULT_LOCALE, EvaluatedCell } from "../../../types";
 import { PivotDimension, PivotTableColumn, PivotTableRow } from "../../../types/pivot";
 import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
@@ -254,7 +255,9 @@ function compareDimensionValues(dimension: PivotDimension, a: string, b: string)
     return dimension.order === "asc" ? -1 : 1;
   }
   if (dimension.type === "integer" || dimension.type === "date") {
-    return dimension.order === "asc" ? Number(a) - Number(b) : Number(b) - Number(a);
+    return dimension.order === "asc"
+      ? toNumber(a, DEFAULT_LOCALE) - toNumber(b, DEFAULT_LOCALE)
+      : toNumber(b, DEFAULT_LOCALE) - toNumber(a, DEFAULT_LOCALE);
   }
   return dimension.order === "asc" ? a.localeCompare(b) : b.localeCompare(a);
 }
