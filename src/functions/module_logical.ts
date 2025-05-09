@@ -76,7 +76,7 @@ export const IF = {
       return { value: "" };
     }
     if (result.value === null) {
-      result.value = "";
+      return { ...result, value: "" };
     }
     return result;
   },
@@ -104,7 +104,7 @@ export const IFERROR = {
       return { value: "" };
     }
     if (result.value === null) {
-      result.value = "";
+      return { ...result, value: "" };
     }
     return result;
   },
@@ -132,7 +132,7 @@ export const IFNA = {
       return { value: "" };
     }
     if (result.value === null) {
-      result.value = "";
+      return { ...result, value: "" };
     }
     return result;
   },
@@ -173,7 +173,7 @@ export const IFS = {
           return { value: "" };
         }
         if (result.value === null) {
-          result.value = "";
+          return { ...result, value: "" };
         }
         return result;
       }
