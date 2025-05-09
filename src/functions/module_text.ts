@@ -480,12 +480,12 @@ export const TEXTSPLIT = {
     const _text = toString(text);
     const _colDelimiter = toMatrix(colDelimiter)
       .flat()
-      .map((v) => escapeRegExp(toString(v)))
-      .join("");
+      .map((v) => escapeRegExp(toString(v)));
+    const splitByEachColDelimiter = _colDelimiter.length > 1;
     const _rowDelimiter = toMatrix(rowDelimiter)
       .flat()
-      .map((v) => escapeRegExp(toString(v)))
-      .join("");
+      .map((v) => escapeRegExp(toString(v)));
+    const splitByEachRowDelimiter = _rowDelimiter.length > 1;
     const _ignoreEmpty = toBoolean(ignoreEmpty);
     const _matchMode = toNumber(matchMode, this.locale);
     const _padWith = toString(padWith);
@@ -503,11 +503,15 @@ export const TEXTSPLIT = {
     }
 
     if (_rowDelimiter) {
-      const rowRegexp = new RegExp(`[${_rowDelimiter}]`, "g");
+      const rowRegexp = splitByEachRowDelimiter
+        ? new RegExp(`[${_rowDelimiter.join("")}]`, "g")
+        : _rowDelimiter[0];
       const rowParts = _text.split(rowRegexp);
       if (_colDelimiter) {
         for (const rowText of rowParts) {
-          const colRegexp = new RegExp(`[${_colDelimiter}]`, "g");
+          const colRegexp = splitByEachColDelimiter
+            ? new RegExp(`[${_colDelimiter.join("")}]`, "g")
+            : _colDelimiter[0];
           let columns = rowText.split(colRegexp);
           if (_ignoreEmpty) {
             columns = columns.filter((v) => v !== "");
@@ -518,7 +522,9 @@ export const TEXTSPLIT = {
         cells = rowParts.map((rowText) => [rowText]);
       }
     } else {
-      const colRegexp = new RegExp(`[${_colDelimiter}]`, "g");
+      const colRegexp = splitByEachColDelimiter
+        ? new RegExp(`[${_colDelimiter.join("")}]`, "g")
+        : _colDelimiter[0];
       const columns = _text.split(colRegexp!);
       cells[0] = [];
       for (const col of columns) {
