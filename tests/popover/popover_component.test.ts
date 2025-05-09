@@ -47,6 +47,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
         positioning: args.positioning || "right",
         maxWidth: args.maxHeight,
         maxHeight: args.maxHeight,
+        transition: args.transition,
       };
     }
   }
@@ -333,5 +334,19 @@ describe("Popover positioning", () => {
     });
     popover = fixture.querySelector(".o-popover")! as HTMLElement;
     expect(popover.style.display).toEqual("none");
+  });
+
+  test.each([
+    [true, "left 0.2s, top 0.2s"],
+    [false, ""],
+  ])("transition on position", async (isTransitionEnabled, css) => {
+    await mountTestPopover({
+      childHeight: 100,
+      childWidth: 100,
+      transition: isTransitionEnabled,
+    });
+    const popover = fixture.querySelector(".o-popover")! as HTMLElement;
+    expect(popover).toBeTruthy();
+    expect(popover.style["transition"]).toEqual(css);
   });
 });
