@@ -1,13 +1,17 @@
 import { deepCopy } from "../../helpers";
 import { adaptFormulaStringRanges, adaptStringRange } from "../../helpers/formulas";
 import { specificRangeTransformRegistry } from "../../registries/srt_registry";
+import { CustomizedDataSet } from "../../types";
 import {
   AddConditionalFormatCommand,
   AddDataValidationCommand,
   AddPivotCommand,
+  CreateChartCommand,
   UpdateCellCommand,
+  UpdateChartCommand,
   UpdatePivotCommand,
 } from "../../types/commands";
+import { CellErrorType } from "../../types/errors";
 import { RangeAdapter } from "../../types/misc";
 
 function updateCellCommandAdaptRange(
@@ -101,3 +105,92 @@ function addPivotCommandAdaptRange<Cmd extends AddPivotCommand | UpdatePivotComm
 }
 specificRangeTransformRegistry.add("ADD_PIVOT", addPivotCommandAdaptRange);
 specificRangeTransformRegistry.add("UPDATE_PIVOT", addPivotCommandAdaptRange);
+
+function adaptChartRange<Cmd extends CreateChartCommand | UpdateChartCommand>(
+  cmd: Cmd,
+  applyChange: RangeAdapter
+): Cmd {
+  cmd = deepCopy(cmd);
+  const definition = cmd.definition;
+  const type = definition.type;
+  switch (type) {
+    case "bar":
+    case "line":
+    case "combo":
+    case "funnel":
+    case "pie":
+    case "waterfall":
+    case "pyramid":
+    case "radar":
+    case "sunburst":
+    case "treemap":
+    case "geo":
+      let labelRange: string | undefined;
+      if (definition.labelRange) {
+        const adaptedRange = adaptStringRange(cmd.sheetId, definition.labelRange, applyChange);
+        if (adaptedRange !== CellErrorType.InvalidReference) {
+          labelRange = adaptedRange;
+        }
+      }
+
+      const dataSets: CustomizedDataSet[] = [];
+      for (const dataSet of definition.dataSets) {
+        const newDataSet = { ...dataSet };
+        const adaptedRange = adaptStringRange(cmd.sheetId, dataSet.dataRange, applyChange);
+
+        if (adaptedRange !== CellErrorType.InvalidReference) {
+          newDataSet.dataRange = adaptedRange;
+          dataSets.push(newDataSet);
+        }
+      }
+
+      cmd.definition = {
+        ...definition,
+        dataSets,
+        labelRange,
+      };
+      break;
+
+    case "scorecard":
+      {
+        let baseline: string | undefined;
+        let keyValue: string | undefined;
+        if (definition.baseline) {
+          const adaptedRange = adaptStringRange(cmd.sheetId, definition.baseline, applyChange);
+          if (adaptedRange !== CellErrorType.InvalidReference) {
+            baseline = adaptedRange;
+          }
+        }
+        if (definition.keyValue) {
+          const adaptedRange = adaptStringRange(cmd.sheetId, definition.keyValue, applyChange);
+          if (adaptedRange !== CellErrorType.InvalidReference) {
+            keyValue = adaptedRange;
+          }
+        }
+        cmd.definition = {
+          ...definition,
+          baseline,
+          keyValue,
+        };
+      }
+      break;
+    case "gauge":
+      let dataRange: string | undefined;
+      if (definition.dataRange) {
+        const adaptedRange = adaptStringRange(cmd.sheetId, definition.dataRange, applyChange);
+        if (adaptedRange !== CellErrorType.InvalidReference) {
+          dataRange = adaptedRange;
+        }
+      }
+      cmd.definition = {
+        ...definition,
+        dataRange,
+      };
+
+      break;
+  }
+  return cmd;
+}
+
+specificRangeTransformRegistry.add("CREATE_CHART", adaptChartRange);
+specificRangeTransformRegistry.add("UPDATE_CHART", adaptChartRange);

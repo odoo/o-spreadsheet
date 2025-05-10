@@ -1,14 +1,12 @@
 import type { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
 import { BarChartDefinition, BarChartRuntime } from "../../../types/chart/bar_chart";
@@ -38,7 +36,6 @@ import {
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
@@ -85,13 +82,6 @@ export class BarChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.horizontal = definition.horizontal;
     this.showValues = definition.showValues;
-  }
-
-  static transformDefinition(
-    definition: BarChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): BarChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static validateChartDefinition(

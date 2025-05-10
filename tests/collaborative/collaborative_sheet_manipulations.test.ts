@@ -640,7 +640,7 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "H1:H3" }],
+          dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "H1:H3" }],
           labelRange: "H3",
         }
       );
@@ -975,6 +975,23 @@ describe("Collaborative Sheet manipulation", () => {
         xSplit: 0,
         ySplit: 0,
       }
+    );
+  });
+
+  test("Concurrently create a chart and add a row in another sheet", () => {
+    createSheet(bob, { sheetId: "sheet2", name: "Sheet2" });
+    network.concurrent(() => {
+      addRows(alice, "after", 1, 1);
+      createChart(
+        charlie,
+        { type: "bar", dataSets: [{ dataRange: "Sheet1!A1:A5" }, { dataRange: "Sheet2!A1:A5" }] },
+        "chartId",
+        "sheet2"
+      );
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => (user.getters.getChartDefinition("chartId") as BarChartDefinition).dataSets,
+      [{ dataRange: "Sheet1!A1:A6" }, { dataRange: "A1:A5" }]
     );
   });
 });

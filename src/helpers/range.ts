@@ -23,6 +23,7 @@ import { CellErrorType } from "../types/errors";
 import { numberToLetters } from "./coordinates";
 import { getCanonicalSymbolName, groupConsecutive, largeMax, largeMin } from "./misc";
 import { isRowReference, splitReference } from "./references";
+import { isSheetNameEqual } from "./sheet";
 import {
   boundUnboundedZone,
   createAdaptedZone,
@@ -457,7 +458,7 @@ function getApplyRangeChangeAddColRow(cmd: AddColumnsRowsCommand): ApplyRangeCha
 
 function getApplyRangeChangeDeleteSheet(cmd: DeleteSheetCommand): ApplyRangeChange {
   return (range: Range) => {
-    if (range.sheetId !== cmd.sheetId && range.invalidSheetName !== cmd.sheetName) {
+    if (range.sheetId !== cmd.sheetId && !isSheetNameEqual(range.invalidSheetName, cmd.sheetName)) {
       return { changeType: "NONE" };
     }
     const invalidSheetName = cmd.sheetName;

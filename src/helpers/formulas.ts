@@ -1,9 +1,9 @@
 import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID } from "../types";
-import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
+import { isSheetNameEqual } from "./sheet";
 
 export function adaptFormulaStringRanges(
   defaultSheetId: string,
@@ -37,7 +37,11 @@ export function adaptStringRange(
   applyChange: RangeAdapter
 ): string {
   const sheetName = splitReference(sheetXC).sheetName;
-  if (sheetName ? sheetName !== applyChange.sheetName : defaultSheetId !== applyChange.sheetId) {
+  if (
+    sheetName
+      ? !isSheetNameEqual(sheetName, applyChange.sheetName)
+      : defaultSheetId !== applyChange.sheetId
+  ) {
     return sheetXC;
   }
   const sheetId = sheetName ? applyChange.sheetId : defaultSheetId;
@@ -52,8 +56,7 @@ export function adaptStringRange(
     return sheetXC;
   }
 
-  const newSheetXC = getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
-  return newSheetXC === CellErrorType.InvalidReference ? sheetXC : newSheetXC;
+  return getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
 }
 
 function getSheetNameGetter(applyChange: RangeAdapter) {

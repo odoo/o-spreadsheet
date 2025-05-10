@@ -1,14 +1,12 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
 import {
@@ -39,7 +37,6 @@ import {
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
@@ -97,13 +94,6 @@ export class LineChart extends AbstractChart {
     definition: LineChartDefinition
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(definition, checkDataset, checkLabelRange);
-  }
-
-  static transformDefinition(
-    definition: LineChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): LineChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {

@@ -1,4 +1,3 @@
-import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -8,7 +7,6 @@ import {
 import { toNumber } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   CellValueType,
   Color,
@@ -18,9 +16,7 @@ import {
   Getters,
   Locale,
   Range,
-  RemoveColumnsRowsCommand,
   UID,
-  UnboundedZone,
 } from "../../../types";
 import { ChartCreationContext } from "../../../types/chart/chart";
 import {
@@ -35,7 +31,6 @@ import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
-import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
@@ -202,26 +197,6 @@ export class ScorecardChart extends AbstractChart {
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
-    };
-  }
-
-  static transformDefinition(
-    definition: ScorecardChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): ScorecardChartDefinition {
-    let baselineZone: UnboundedZone | undefined;
-    let keyValueZone: UnboundedZone | undefined;
-
-    if (definition.baseline) {
-      baselineZone = transformZone(toUnboundedZone(definition.baseline), executed);
-    }
-    if (definition.keyValue) {
-      keyValueZone = transformZone(toUnboundedZone(definition.keyValue), executed);
-    }
-    return {
-      ...definition,
-      baseline: baselineZone ? zoneToXc(baselineZone) : undefined,
-      keyValue: keyValueZone ? zoneToXc(keyValueZone) : undefined,
     };
   }
 
