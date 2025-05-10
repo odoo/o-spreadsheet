@@ -1,4 +1,3 @@
-import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -8,7 +7,6 @@ import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
 import { _t } from "../../../translation";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   CellValueType,
   Color,
@@ -17,9 +15,7 @@ import {
   Format,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
   UID,
-  UnboundedZone,
   Validation,
   isMatrix,
 } from "../../../types";
@@ -36,7 +32,6 @@ import { Validator } from "../../../types/validator";
 import { clip, formatValue } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
-import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 
@@ -157,21 +152,6 @@ export class GaugeChart extends AbstractChart {
         checkInflectionPointsValue(checkValueIsNumberOrFormula, validator.batchValidations)
       )
     );
-  }
-
-  static transformDefinition(
-    definition: GaugeChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): GaugeChartDefinition {
-    let dataRangeZone: UnboundedZone | undefined;
-    if (definition.dataRange) {
-      dataRangeZone = transformZone(toUnboundedZone(definition.dataRange), executed);
-    }
-
-    return {
-      ...definition,
-      dataRange: dataRangeZone ? zoneToXc(dataRangeZone) : undefined,
-    };
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): GaugeChartDefinition {

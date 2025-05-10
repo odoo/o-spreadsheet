@@ -1,6 +1,5 @@
 import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID } from "../types";
-import { CellErrorType } from "../types/errors";
 import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
@@ -37,6 +36,7 @@ export function adaptStringRange(
   applyChange: RangeAdapter
 ): string {
   const sheetName = splitReference(sheetXC).sheetName;
+  // TODORAR  strict equality is bad, find florian's pr with the comparison helper
   if (sheetName ? sheetName !== applyChange.sheetName : defaultSheetId !== applyChange.sheetId) {
     return sheetXC;
   }
@@ -52,8 +52,7 @@ export function adaptStringRange(
     return sheetXC;
   }
 
-  const newSheetXC = getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
-  return newSheetXC === CellErrorType.InvalidReference ? sheetXC : newSheetXC;
+  return getRangeString(change.range, defaultSheetId, getSheetNameGetter(applyChange));
 }
 
 function getSheetNameGetter(applyChange: RangeAdapter) {

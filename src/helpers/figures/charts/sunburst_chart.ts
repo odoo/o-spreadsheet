@@ -1,14 +1,12 @@
 import type { ChartConfiguration, ChartOptions } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
 import { SunburstChartDefinition, SunburstChartRuntime } from "../../../types/chart";
@@ -29,7 +27,6 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
@@ -71,13 +68,6 @@ export class SunburstChart extends AbstractChart {
     this.showLabels = definition.showLabels;
     this.valuesDesign = definition.valuesDesign;
     this.groupColors = definition.groupColors;
-  }
-
-  static transformDefinition(
-    definition: SunburstChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): SunburstChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static validateChartDefinition(

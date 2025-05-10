@@ -1,14 +1,12 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
 import {
@@ -33,7 +31,6 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
@@ -84,13 +81,6 @@ export class TreeMapChart extends AbstractChart {
     this.showLabels = definition.showLabels;
     this.valuesDesign = definition.valuesDesign;
     this.coloringOptions = definition.coloringOptions;
-  }
-
-  static transformDefinition(
-    definition: TreeMapChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): TreeMapChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static validateChartDefinition(

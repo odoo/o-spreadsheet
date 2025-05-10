@@ -1,14 +1,12 @@
 import type { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
 import {
@@ -32,7 +30,6 @@ import {
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
@@ -89,13 +86,6 @@ export class WaterfallChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
-  }
-
-  static transformDefinition(
-    definition: WaterfallChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): WaterfallChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static validateChartDefinition(

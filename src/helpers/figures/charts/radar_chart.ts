@@ -1,7 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
@@ -9,7 +8,6 @@ import {
   DatasetDesign,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
 import {
@@ -36,7 +34,6 @@ import {
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
-  transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
@@ -81,13 +78,6 @@ export class RadarChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.fillArea = definition.fillArea;
     this.showValues = definition.showValues;
-  }
-
-  static transformDefinition(
-    definition: RadarChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): RadarChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static validateChartDefinition(

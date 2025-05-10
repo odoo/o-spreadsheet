@@ -5,14 +5,7 @@ import {
 } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
 import { chartRegistry } from "../../../registries/chart_types";
-import {
-  AddColumnsRowsCommand,
-  CellValueType,
-  CommandResult,
-  RemoveColumnsRowsCommand,
-  UID,
-  Zone,
-} from "../../../types";
+import { CellValueType, CommandResult, UID, Zone } from "../../../types";
 import { LineChartDefinition, SunburstChartDefinition } from "../../../types/chart";
 import { ChartDefinition, ChartRuntime } from "../../../types/chart/chart";
 import { CoreGetters, Getters } from "../../../types/getters";
@@ -67,21 +60,6 @@ export function validateChartDefinition(
     throw new Error("Unknown chart type.");
   }
   return validators.validateChartDefinition(validator, definition);
-}
-
-/**
- * Get a new chart definition transformed with the executed command. This
- * functions will be called during operational transform process
- */
-export function transformDefinition(
-  definition: ChartDefinition,
-  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-): ChartDefinition {
-  const transformation = chartRegistry.getAll().find((factory) => factory.match(definition.type));
-  if (!transformation) {
-    throw new Error("Unknown chart type.");
-  }
-  return transformation.transformDefinition(definition, executed);
 }
 
 /**
