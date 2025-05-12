@@ -48,64 +48,55 @@ enum State {
   Found,
 }
 
-const goTo = (state: State, guard: (token: Token) => boolean = () => true) => [
-  {
-    goTo: state,
-    guard,
-  },
-];
-
-const goToMulti = (state: State, guard: (token: Token) => boolean = () => true) => ({
-  goTo: state,
-  guard,
-});
-
-interface Transition {
-  goTo: State;
-  guard: (token: Token) => boolean;
-}
+type Transition = (token: Token) => State | undefined;
 
 type Machine = {
-  [s in State]: Record<string, Transition[] | undefined>;
+  [s in State]: Record<string, Transition | undefined>;
 };
 
 const machine: Machine = {
   [State.LeftRef]: {
-    REFERENCE: goTo(State.Separator),
-    NUMBER: goTo(State.FullRowSeparator),
-    SYMBOL: [
-      goToMulti(State.FullColumnSeparator, (token) => isColReference(token.value)),
-      goToMulti(State.FullRowSeparator, (token) => isRowReference(token.value)),
-    ],
+    REFERENCE: () => State.Separator,
+    NUMBER: () => State.FullRowSeparator,
+    SYMBOL: (token) => {
+      if (isColReference(token.value)) {
+        return State.FullColumnSeparator;
+      }
+      if (isRowReference(token.value)) {
+        return State.FullRowSeparator;
+      }
+      return undefined;
+    },
   },
   [State.FullColumnSeparator]: {
-    SPACE: goTo(State.FullColumnSeparator),
-    OPERATOR: goTo(State.RightColumnRef, (token) => token.value === ":"),
+    SPACE: () => State.FullColumnSeparator,
+    OPERATOR: (token) => (token.value === ":" ? State.RightColumnRef : undefined),
   },
   [State.FullRowSeparator]: {
-    SPACE: goTo(State.FullRowSeparator),
-    OPERATOR: goTo(State.RightRowRef, (token) => token.value === ":"),
+    SPACE: () => State.FullRowSeparator,
+    OPERATOR: (token) => (token.value === ":" ? State.RightRowRef : undefined),
   },
   [State.Separator]: {
-    SPACE: goTo(State.Separator),
-    OPERATOR: goTo(State.RightRef, (token) => token.value === ":"),
+    SPACE: () => State.Separator,
+    OPERATOR: (token) => (token.value === ":" ? State.RightRef : undefined),
   },
   [State.RightRef]: {
-    SPACE: goTo(State.RightRef),
-    NUMBER: goTo(State.Found),
-    REFERENCE: goTo(State.Found, (token) => isSingleCellReference(token.value)),
-    SYMBOL: goTo(State.Found, (token) => isColHeader(token.value) || isRowHeader(token.value)),
+    SPACE: () => State.RightRef,
+    NUMBER: () => State.Found,
+    REFERENCE: (token) => (isSingleCellReference(token.value) ? State.Found : undefined),
+    SYMBOL: (token) =>
+      isColHeader(token.value) || isRowHeader(token.value) ? State.Found : undefined,
   },
   [State.RightColumnRef]: {
-    SPACE: goTo(State.RightColumnRef),
-    SYMBOL: goTo(State.Found, (token) => isColHeader(token.value)),
-    REFERENCE: goTo(State.Found, (token) => isSingleCellReference(token.value)),
+    SPACE: () => State.RightColumnRef,
+    SYMBOL: (token) => (isColHeader(token.value) ? State.Found : undefined),
+    REFERENCE: (token) => (isSingleCellReference(token.value) ? State.Found : undefined),
   },
   [State.RightRowRef]: {
-    SPACE: goTo(State.RightRowRef),
-    NUMBER: goTo(State.Found),
-    REFERENCE: goTo(State.Found, (token) => isSingleCellReference(token.value)),
-    SYMBOL: goTo(State.Found, (token) => isRowHeader(token.value)),
+    SPACE: () => State.RightRowRef,
+    NUMBER: () => State.Found,
+    REFERENCE: (token) => (isSingleCellReference(token.value) ? State.Found : undefined),
+    SYMBOL: (token) => (isRowHeader(token.value) ? State.Found : undefined),
   },
   [State.Found]: {},
 };
@@ -125,8 +116,7 @@ function matchReference(tokens: Token[]): Token | null {
     if (!token) {
       return null;
     }
-    const transition = transitions[token.type]?.find((transition) => transition.guard(token));
-    const nextState = transition ? transition.goTo : undefined;
+    const nextState = transitions[token.type]?.(token);
     switch (nextState) {
       case undefined:
         return null;
