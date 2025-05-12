@@ -1,11 +1,13 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import { Chart, ChartConfiguration } from "chart.js/auto";
 import { ComponentsImportance } from "../../../../constants";
-import { deepCopy } from "../../../../helpers";
+import { deepCopy, deepEquals } from "../../../../helpers";
+import { Store, useStore } from "../../../../store_engine";
 import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
 import { chartJsExtensionRegistry } from "./chart_js_extension";
+import { ChartAnimationStore } from "./chartjs_animation_store";
 import {
   funnelTooltipPositioner,
   getFunnelChartController,
@@ -70,6 +72,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private canvas = useRef("graphContainer");
   private chart?: Chart;
   private currentRuntime!: ChartJSRuntime;
+  private animationStore: Store<ChartAnimationStore> | undefined;
 
   private currentDevicePixelRatio = window.devicePixelRatio;
 
@@ -90,6 +93,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
+    if (this.env.model.getters.isDashboard()) {
+      this.animationStore = useStore(ChartAnimationStore);
+    }
     onMounted(() => {
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
@@ -115,12 +121,28 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private createChart(chartData: ChartConfiguration<any>) {
+    if (this.env.model.getters.isDashboard() && this.animationStore) {
+      const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
+      if (chartType && this.animationStore.animationPlayed[this.props.figureUI.id] !== chartType) {
+        chartData = this.enableAnimationInChartData(chartData);
+        this.animationStore.disableAnimationForChart(this.props.figureUI.id, chartType);
+      }
+    }
+
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     this.chart = new window.Chart(ctx, chartData);
   }
 
   private updateChartJs(chartData: ChartConfiguration<any>) {
+    if (this.env.model.getters.isDashboard()) {
+      const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
+      if (chartType && this.hasChartDataChanged() && this.animationStore) {
+        chartData = this.enableAnimationInChartData(chartData);
+        this.animationStore.disableAnimationForChart(this.props.figureUI.id, chartType);
+      }
+    }
+
     if (chartData.data && chartData.data.datasets) {
       this.chart!.data = chartData.data;
       if (chartData.options?.plugins?.title) {
@@ -131,5 +153,19 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     }
     this.chart!.config.options = chartData.options;
     this.chart!.update();
+  }
+
+  private hasChartDataChanged() {
+    return !deepEquals(
+      this.currentRuntime.chartJsConfig.data,
+      this.chartRuntime.chartJsConfig.data
+    );
+  }
+
+  private enableAnimationInChartData(chartData: ChartConfiguration<any>) {
+    return {
+      ...chartData,
+      options: { ...chartData.options, animation: { animateRotate: true } },
+    };
   }
 }
