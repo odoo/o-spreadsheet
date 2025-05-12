@@ -1,7 +1,7 @@
 import { Model } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER, MAX_CHAR_LABEL } from "../../../src/constants";
-import { BarChart } from "../../../src/helpers/charts";
+import { BarChart, getChartSheetMap } from "../../../src/helpers/charts";
 import { toZone, zoneToXc } from "../../../src/helpers/zones";
 import { ChartPlugin } from "../../../src/plugins/core/chart";
 import { BorderCommand, CommandResult } from "../../../src/types";
@@ -626,10 +626,13 @@ describe("datasource tests", function () {
       "1"
     );
     createSheet(model, { sheetId: "42" });
+    const def = model.getters.getChartDefinition("1");
+
     const result = model.dispatch("UPDATE_CHART", {
-      definition: model.getters.getChartDefinition("1"),
+      definition: def,
       sheetId: model.getters.getActiveSheetId(),
       id: "2",
+      sheetMap: getChartSheetMap(model.getters, def),
     });
 
     updateChart(model, "1", { legendPosition: "left" });

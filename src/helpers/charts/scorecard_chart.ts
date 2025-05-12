@@ -22,7 +22,7 @@ import {
 } from "../../types/chart/scorecard_chart";
 import { Validator } from "../../types/validator";
 import { createValidRange } from "../range";
-import { rangeReference } from "../references";
+import { mergeReference, rangeReference, splitReference } from "../references";
 import { toUnboundedZone, zoneToXc } from "../zones";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -42,10 +42,14 @@ chartRegistry.add("scorecard", {
     ScorecardChart.validateChartDefinition(validator, definition as ScorecardChartDefinition),
   transformDefinition: (
     definition: ScorecardChartDefinition,
+    sheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => ScorecardChart.transformDefinition(definition, executed),
+  ) => ScorecardChart.transformDefinition(definition, sheetId, sheetMap, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     ScorecardChart.getDefinitionFromContextCreation(context),
+  getDataSheetMapFromDefinition: (getters: CoreGetters, def: ScorecardChartDefinition) =>
+    ScorecardChart.getDataSheetMap(getters, def),
   name: _lt("Scorecard"),
 });
 
@@ -105,22 +109,60 @@ export class ScorecardChart extends AbstractChart {
 
   static transformDefinition(
     definition: ScorecardChartDefinition,
+    chartSheetId: UID,
+    sheetMap: Record<string, UID>,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): ScorecardChartDefinition {
+    let baselineSheetName: string | undefined;
     let baselineZone: UnboundedZone | undefined;
+    let keyValueSheetName: string | undefined;
     let keyValueZone: UnboundedZone | undefined;
 
     if (definition.baseline) {
-      baselineZone = transformZone(toUnboundedZone(definition.baseline), executed);
+      ({ sheetName: baselineSheetName } = splitReference(definition.baseline));
+      const sheetId = baselineSheetName ? sheetMap[baselineSheetName] : chartSheetId;
+      if (sheetId === executed.sheetId) {
+        baselineZone = transformZone(toUnboundedZone(definition.baseline), executed);
+      }
     }
     if (definition.keyValue) {
-      keyValueZone = transformZone(toUnboundedZone(definition.keyValue), executed);
+      ({ sheetName: keyValueSheetName } = splitReference(definition.keyValue));
+      const sheetId = keyValueSheetName ? sheetMap[keyValueSheetName] : chartSheetId;
+      if (sheetId === executed.sheetId) {
+        keyValueZone = transformZone(toUnboundedZone(definition.keyValue), executed);
+      }
     }
     return {
       ...definition,
-      baseline: baselineZone ? zoneToXc(baselineZone) : undefined,
-      keyValue: keyValueZone ? zoneToXc(keyValueZone) : undefined,
+      baseline: baselineZone
+        ? mergeReference(zoneToXc(baselineZone), baselineSheetName)
+        : undefined,
+      keyValue: keyValueZone
+        ? mergeReference(zoneToXc(keyValueZone), keyValueSheetName)
+        : undefined,
     };
+  }
+
+  static getDataSheetMap(
+    getters: CoreGetters,
+    definition: ScorecardChartDefinition
+  ): Record<string, UID> {
+    const sheetMap: Record<string, UID> = {};
+    if (definition.baseline) {
+      const { sheetName } = splitReference(definition.baseline);
+      const baselineSheetId = getters.getSheetIdByName(sheetName);
+      if (sheetName && baselineSheetId) {
+        sheetMap[sheetName] = baselineSheetId;
+      }
+    }
+    if (definition.keyValue) {
+      const { sheetName } = splitReference(definition.keyValue);
+      const keyValueSheetId = getters.getSheetIdByName(sheetName);
+      if (sheetName && keyValueSheetId) {
+        sheetMap[sheetName] = keyValueSheetId;
+      }
+    }
+    return sheetMap;
   }
 
   copyForSheetId(sheetId: UID): ScorecardChart {
