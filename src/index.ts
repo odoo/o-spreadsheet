@@ -110,8 +110,9 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
-import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
+import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
+import { FullScreenChart } from "./components/full_screen_chart/full_screen_chart";
 import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { FunnelChartDesignPanel } from "./components/side_panel/chart/funnel_chart_panel/funnel_chart_design_panel";
@@ -418,6 +419,7 @@ export const components = {
   RadioSelection,
   GeoChartRegionSelectSection,
   ChartDashboardMenu,
+  FullScreenChart,
 };
 
 export const hooks = {

@@ -57,6 +57,7 @@ import {
   registerChartJSExtensions,
   unregisterChartJsExtensions,
 } from "../figures/chart/chartJs/chart_js_extension";
+import { FullScreenChart } from "../full_screen_chart/full_screen_chart";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -332,6 +333,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SidePanel,
     SpreadsheetDashboard,
     HeaderGroupContainer,
+    FullScreenChart,
   };
 
   sidePanel!: Store<SidePanelStore>;

@@ -1,12 +1,24 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
+import { isDefined } from "../../../../helpers";
 import { chartRegistry, chartSubtypeRegistry } from "../../../../registries/chart_types";
+import { Store, useStore } from "../../../../store_engine";
+import { _t } from "../../../../translation";
 import { ChartDefinition, ChartType, FigureUI, SpreadsheetChildEnv } from "../../../../types";
+import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
 import { Menu, MenuState } from "../../../menu/menu";
 
 interface Props {
   figureUI: FigureUI;
+}
+
+interface MenuItem {
+  id: string;
+  label: string;
+  iconClass: string;
+  onClick: () => void;
+  isSelected?: boolean;
 }
 
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
@@ -15,11 +27,13 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static props = { figureUI: Object };
 
   private originalChartDefinition!: ChartDefinition;
+  private fullScreenFigureStore!: Store<FullScreenChartStore>;
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
   setup() {
     super.setup();
+    this.fullScreenFigureStore = useStore(FullScreenChartStore);
     this.originalChartDefinition = this.env.model.getters.getChartDefinition(
       this.props.figureUI.id
     );
@@ -30,7 +44,11 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  getAvailableTypes() {
+  getMenuItems(): MenuItem[] {
+    return [this.fullScreenMenuItem, ...this.changeChartTypeMenuItems].filter(isDefined);
+  }
+
+  get changeChartTypeMenuItems(): MenuItem[] {
     const definition = this.env.model.getters.getChartDefinition(this.props.figureUI.id);
     if (!["line", "bar", "pie"].includes(definition.type)) {
       return [];
@@ -39,8 +57,11 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     return ["column", "line", "pie"].map((type) => {
       const item = chartSubtypeRegistry.get(type);
       return {
-        ...item,
-        icon: this.getIconClasses(item.chartType),
+        id: item.chartType,
+        label: item.displayName,
+        onClick: () => this.onTypeChange(item.chartType),
+        isSelected: item.chartType === this.selectedChartType,
+        iconClass: this.getIconClasses(item.chartType),
       };
     });
   }
@@ -99,5 +120,31 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = { x: ev.clientX, y: ev.clientY, width: 0, height: 0 };
     this.menuState.menuItems = getChartMenuActions(this.props.figureUI.id, () => {}, this.env);
+  }
+
+  get fullScreenMenuItem(): MenuItem | undefined {
+    const definition = this.env.model.getters.getChartDefinition(this.props.figureUI.id);
+    if (definition.type === "scorecard") {
+      return undefined;
+    }
+
+    if (this.props.figureUI.id === this.fullScreenFigureStore.fullScreenFigure?.id) {
+      return {
+        id: "fullScreenChart",
+        label: _t("Exit Full Screen"),
+        iconClass: "fa fa-compress",
+        onClick: () => {
+          this.fullScreenFigureStore.toggleFullScreenChart(this.props.figureUI.id);
+        },
+      };
+    }
+    return {
+      id: "fullScreenChart",
+      label: _t("Full Screen"),
+      iconClass: "fa fa-expand",
+      onClick: () => {
+        this.fullScreenFigureStore.toggleFullScreenChart(this.props.figureUI.id);
+      },
+    };
   }
 }
