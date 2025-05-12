@@ -139,12 +139,20 @@ export function multiplyMatrices(matrix1: Matrix<number>, matrix2: Matrix<number
 /**
  * Return the input if it's a scalar or the first element of the input if it's a matrix.
  */
-export function toScalar<T>(matrix: Matrix<T> | T): T {
-  if (!isMatrix(matrix)) {
-    return matrix;
+export function toScalar<T>(arg: Matrix<T> | T): T {
+  if (!isMatrix(arg)) {
+    return arg;
   }
-  if (matrix.length !== 1 || matrix[0].length !== 1) {
+  if (!isSingleElementMatrix(arg)) {
     throw new EvaluationError(_t("The value should be a scalar or a 1x1 matrix"));
   }
-  return matrix[0][0];
+  return arg[0][0];
+}
+
+function isSingleElementMatrix<T>(matrix: Matrix<T>) {
+  return matrix.length === 1 && matrix[0].length === 1;
+}
+
+export function isMultipleElementMatrix(arg: any) {
+  return isMatrix(arg) && !isSingleElementMatrix(arg);
 }
