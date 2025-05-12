@@ -5,7 +5,7 @@ import {
   DEFAULT_FONT,
 } from "../../../constants";
 import { Color, PixelPosition, Rect } from "../../../types";
-import { GaugeChartRuntime } from "../../../types/chart";
+import { GaugeAnimatedRuntime } from "../../../types/chart";
 import { clip } from "../../misc";
 import {
   computeTextDimension,
@@ -70,7 +70,7 @@ interface Segment {
   end: PixelPosition;
 }
 
-export function drawGaugeChart(canvas: HTMLCanvasElement, runtime: GaugeChartRuntime) {
+export function drawGaugeChart(canvas: HTMLCanvasElement, runtime: GaugeAnimatedRuntime) {
   const canvasBoundingRect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
   canvas.width = dpr * canvasBoundingRect.width;
@@ -168,18 +168,18 @@ function drawTitle(ctx: CanvasRenderingContext2D, config: RenderingParams) {
 
 export function getGaugeRenderingConfig(
   boundingRect: Rect,
-  runtime: GaugeChartRuntime,
+  runtime: GaugeAnimatedRuntime,
   ctx: CanvasRenderingContext2D
 ): RenderingParams {
   const maxValue = runtime.maxValue;
   const minValue = runtime.minValue;
-  const gaugeValue = runtime.gaugeValue;
+  const gaugeValue = getGaugeValue(runtime, "animated");
 
   const gaugeRect = getGaugeRect(boundingRect, runtime.title.text);
   const gaugeArcWidth = gaugeRect.width / 6;
 
   const gaugePercentage = gaugeValue
-    ? (gaugeValue.value - minValue.value) / (maxValue.value - minValue.value)
+    ? (gaugeValue - minValue.value) / (maxValue.value - minValue.value)
     : 0;
 
   const gaugeValuePosition = {
@@ -195,7 +195,7 @@ export function getGaugeRenderingConfig(
 
   // Scale down the font size if the text is too long
   const maxTextWidth = gaugeRect.width / 2;
-  const gaugeLabel = gaugeValue?.label || "-";
+  const gaugeLabel = runtime.gaugeValue?.label || "-";
   if (computeTextWidth(ctx, gaugeLabel, { fontSize: gaugeValueFontSize }, "px") > maxTextWidth) {
     gaugeValueFontSize = getFontSizeMatchingWidth(
       maxTextWidth,
@@ -318,7 +318,7 @@ function getGaugeRect(boundingRect: Rect, title?: string) {
  * Also compute an offset for the text so that it doesn't overlap with other text.
  */
 function getInflectionValues(
-  runtime: GaugeChartRuntime,
+  runtime: GaugeAnimatedRuntime,
   gaugeRect: Rect,
   textColor: Color,
   ctx: CanvasRenderingContext2D
@@ -365,8 +365,8 @@ function getInflectionValues(
   return inflectionValues;
 }
 
-function getGaugeColor(runtime: GaugeChartRuntime): Color {
-  const gaugeValue = runtime.gaugeValue?.value;
+function getGaugeColor(runtime: GaugeAnimatedRuntime): Color {
+  const gaugeValue = getGaugeValue(runtime, "final");
   if (gaugeValue === undefined) {
     return GAUGE_BACKGROUND_COLOR;
   }
@@ -471,4 +471,10 @@ function getRectangleTangentToCircle(
   };
 
   return { bottomLeft, bottomRight, topRight, topLeft };
+}
+
+function getGaugeValue(runtime: GaugeAnimatedRuntime, mode: "animated" | "final") {
+  return mode === "animated" && runtime.animationValue !== undefined
+    ? runtime.animationValue
+    : runtime.gaugeValue?.value;
 }

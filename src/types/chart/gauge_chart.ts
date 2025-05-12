@@ -49,6 +49,10 @@ export interface GaugeChartRuntime {
   colors: Color[];
 }
 
+export interface GaugeAnimatedRuntime extends GaugeChartRuntime {
+  animationValue?: number;
+}
+
 export interface GaugeChartOptions extends ChartOptions {
   needle?: NeedleOptions;
   valueLabel?: ValueLabelOptions;

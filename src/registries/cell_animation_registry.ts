@@ -334,6 +334,7 @@ export const EASING_FN = {
   easeInCubic: (t: number) => t * t * t,
   easeOutCubic: (t: number) => (t -= 1) * t * t + 1,
   easeInOutCubic: (t: number) => ((t /= 0.5) < 1 ? 0.5 * t * t * t : 0.5 * ((t -= 2) * t * t + 2)),
+  easeOutQuart: (t: number) => -((t -= 1) * t * t * t - 1),
 } as const;
 
 function makeIconsEmpty(icons: Box["icons"]): Box["icons"] {
