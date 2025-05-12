@@ -6,7 +6,7 @@ import {
   getGaugeRenderingConfig,
 } from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
 import { Rect } from "../../../../src/types";
-import { GaugeChartRuntime } from "../../../../src/types/chart";
+import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../src/types/chart";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 
 const testRuntime: GaugeChartRuntime = {
@@ -30,7 +30,7 @@ const testChartRect: Rect = {
 };
 
 function getRenderingConfig(
-  runtime: GaugeChartRuntime,
+  runtime: GaugeAnimatedRuntime,
   boundingRect = testChartRect,
   ctx = new MockCanvasRenderingContext2D()
 ) {
@@ -125,6 +125,18 @@ describe("Gauge rendering config", () => {
     expect(
       getRenderingConfig({ ...testRuntime, gaugeValue: { value: 100, label: "100" } }).gauge.color
     ).toEqual(testRuntime.colors[2]);
+  });
+
+  test("Animation value is used only for the gauge fill value, not the gauge color", () => {
+    for (const animationValue of [0, 50, 100]) {
+      const config = getRenderingConfig({
+        ...testRuntime,
+        gaugeValue: { value: 0, label: "0" },
+        animationValue,
+      });
+      expect(config.gauge.color).toEqual(testRuntime.colors[0]);
+      expect(config.gauge.percentage).toEqual(animationValue / 100);
+    }
   });
 
   test("Gauge inflection value can be lower than or lower or equal than", () => {
