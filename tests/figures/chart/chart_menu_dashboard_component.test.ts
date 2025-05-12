@@ -47,7 +47,7 @@ describe("chart menu for dashboard", () => {
     createChart(model, { type: "radar" }, chartId);
     model.updateMode("dashboard");
     await mountSpreadsheet({ model });
-    expect(".o-chart-dashboard-item").toHaveCount(1);
+    expect(".o-chart-dashboard-item").toHaveCount(2); // ellipsis and fullscreen
     expect(".o-chart-dashboard-item.fa-ellipsis-v").toHaveCount(1);
   });
 

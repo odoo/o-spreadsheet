@@ -20,6 +20,7 @@ import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
 interface Props {
   figureUI: FigureUI;
+  isFullScreen?: boolean;
 }
 
 css/* scss */ `
@@ -67,6 +68,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
   static props = {
     figureUI: Object,
+    isFullScreen: { type: Boolean, optional: true },
   };
 
   private canvas = useRef("graphContainer");
@@ -123,9 +125,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private createChart(chartData: ChartConfiguration<any>) {
     if (this.env.model.getters.isDashboard() && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
-      if (chartType && this.animationStore.animationPlayed[this.props.figureUI.id] !== chartType) {
+      if (chartType && this.animationStore.animationPlayed[this.animationFigureId] !== chartType) {
         chartData = this.enableAnimationInChartData(chartData);
-        this.animationStore.disableAnimationForChart(this.props.figureUI.id, chartType);
+        this.animationStore.disableAnimationForChart(this.animationFigureId, chartType);
       }
     }
 
@@ -139,7 +141,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
         chartData = this.enableAnimationInChartData(chartData);
-        this.animationStore.disableAnimationForChart(this.props.figureUI.id, chartType);
+        this.animationStore.disableAnimationForChart(this.animationFigureId, chartType);
       }
     }
 
@@ -167,5 +169,11 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       ...chartData,
       options: { ...chartData.options, animation: { animateRotate: true } },
     };
+  }
+
+  get animationFigureId() {
+    return this.props.isFullScreen
+      ? this.props.figureUI.id + "-fullscreen"
+      : this.props.figureUI.id;
   }
 }

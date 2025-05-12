@@ -5,10 +5,16 @@ import { GaugeChartRuntime } from "../../../../types/chart";
 
 interface Props {
   figureUI: FigureUI;
+  isFullScreen?: boolean;
 }
 
 export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartComponent";
+  static props = {
+    figureUI: Object,
+    isFullScreen: { type: Boolean, optional: true },
+  };
+
   private canvas = useRef("chartContainer");
 
   get runtime(): GaugeChartRuntime {
@@ -26,7 +32,3 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 }
-
-GaugeChartComponent.props = {
-  figureUI: Object,
-};

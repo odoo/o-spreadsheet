@@ -39,7 +39,9 @@ export function usePopoverContainer(): Rect {
   function updateRect() {
     const env = component.env;
     const newRect =
-      "getPopoverContainerRect" in env ? env.getPopoverContainerRect() : spreadsheetRect;
+      "getPopoverContainerRect" in env && env.getPopoverContainerRect
+        ? env.getPopoverContainerRect()
+        : spreadsheetRect;
     container.x = newRect.x;
     container.y = newRect.y;
     container.width = newRect.width;

@@ -3,6 +3,7 @@
     <div class="o-spreadsheet h-100 w-100" t-ref="spreadsheet" t-att-style="getStyle()">
       <t t-if="env.isDashboard()">
         <SpreadsheetDashboard/>
+        <FullScreenChart/>
       </t>
       <t t-else="">
         <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>

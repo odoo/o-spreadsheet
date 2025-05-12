@@ -2,13 +2,13 @@
   <t t-name="spreadsheet.ChartDashboardMenu">
     <div class="o-dashboard-chart-select position-absolute top-0 end-0" t-on-click.stop="">
       <div class="d-flex flex-row px-1" t-att-style="backgroundColor">
-        <t t-foreach="getAvailableTypes()" t-as="type" t-key="type.chartSubtype">
+        <t t-foreach="getMenuItems()" t-as="item" t-key="item.id">
           <button
-            t-attf-class=" {{type.icon}} {{type.chartType === selectedChartType ? 'active' : ''}}"
+            t-attf-class=" {{item.iconClass}} {{item.isSelected ? 'active' : ''}}"
             class="o-chart-dashboard-item btn mt-1 me-1 p-1 "
-            t-att-title="type.displayName"
-            t-on-click="() => this.onTypeChange(type.chartSubtype)"
-            t-att-data-id="type.chartSubtype"
+            t-att-title="item.label"
+            t-on-click="item.onClick"
+            t-att-data-id="item.id"
           />
         </t>
         <button

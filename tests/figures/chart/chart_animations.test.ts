@@ -1,6 +1,8 @@
 import { Chart } from "chart.js";
 import { Model, readonlyAllowedCommands } from "../../../src";
+import { ChartAnimationStore } from "../../../src/components/figures/chart/chartJs/chartjs_animation_store";
 import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
+import { click } from "../../test_helpers/dom_helper";
 import { mockChart, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 
 mockChart();
@@ -71,5 +73,31 @@ describe("Chart animations in dashboard", () => {
     updateChart(model, "chartId", { type: "pie" });
     await nextTick();
     expect(mockedChart.config.options.animation.animateRotate).toBe(true);
+  });
+
+  test("Full screen charts are animated separately from their counterparts", async () => {
+    const model = new Model();
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    model.updateMode("dashboard");
+    const { env, fixture } = await mountSpreadsheet({ model });
+    const store = env.getStore(ChartAnimationStore);
+
+    expect(store.animationPlayed["chartId"]).toBe("bar");
+    expect(store.animationPlayed["chartId-fullscreen"]).toBe(undefined);
+
+    await click(fixture, ".o-figure [data-id='fullScreenChart']");
+    expect(store.animationPlayed["chartId-fullscreen"]).toBe("bar");
+  });
+
+  test("Full screen charts will be animated each time we open them", async () => {
+    const model = new Model();
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1:A6" }] }, "chartId");
+    model.updateMode("dashboard");
+    const { env, fixture } = await mountSpreadsheet({ model });
+    const store = env.getStore(ChartAnimationStore) as ChartAnimationStore;
+    const enableAnimationSpy = jest.spyOn(store, "enableAnimationForChart");
+
+    await click(fixture, ".o-figure [data-id='fullScreenChart']");
+    expect(enableAnimationSpy).toHaveBeenCalledWith("chartId-fullscreen");
   });
 });

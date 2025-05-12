@@ -1,0 +1,32 @@
+<templates>
+  <t t-name="o-spreadsheet-FullScreenChart">
+    <div
+      class="position-absolute o-fullscreen-chart-overlay w-100 h-100 d-flex"
+      t-if="figureUI"
+      t-on-click="exitFullScreen">
+      <button
+        class="o-exit top-0 end-0 position-absolute o-button primary m-1"
+        t-on-click="exitFullScreen">
+        Exit fullscreen
+      </button>
+      <div class="flex-fill">
+        <div
+          class="o-fullscreen-chart o-figure position-relative"
+          tabindex="1"
+          t-ref="fullScreenChart"
+          t-on-click.stop=""
+          t-on-keydown="(ev) => this.onKeyDown(ev)">
+          <t
+            t-component="chartComponent"
+            figureUI="this.figureUI"
+            isFullScreen="true"
+            t-key="this.figureUI.id"
+          />
+          <div class="position-absolute top-0 end-0">
+            <ChartDashboardMenu figureUI="figureUI"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>
