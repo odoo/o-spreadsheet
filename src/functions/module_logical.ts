@@ -1,9 +1,16 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
+import { AddFunctionDescription, Arg, FunctionResultObject, isMatrix, Maybe } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { boolAnd, boolOr } from "./helper_logical";
-import { assert, conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
+import { isMultipleElementMatrix, toScalar } from "./helper_matrices";
+import {
+  applyVectorization,
+  assert,
+  conditionalVisitBoolean,
+  isEvaluationError,
+  toBoolean,
+} from "./helpers";
 
 // -----------------------------------------------------------------------------
 // AND
@@ -49,27 +56,33 @@ export const IF = {
   description: _t("Returns value depending on logical expression."),
   args: [
     arg(
-      "logical_expression (boolean)",
+      "logical_expression (boolean, range<boolean>)",
       _t(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE."
       )
     ),
-    arg("value_if_true (any)", _t("The value the function returns if logical_expression is TRUE.")),
     arg(
-      "value_if_false (any, default=FALSE)",
+      "value_if_true (any, range)",
+      _t("The value the function returns if logical_expression is TRUE.")
+    ),
+    arg(
+      "value_if_false (any, range, default=FALSE)",
       _t("The value the function returns if logical_expression is FALSE.")
     ),
   ],
-  compute: function (
-    logicalExpression: Maybe<FunctionResultObject>,
-    valueIfTrue: Maybe<FunctionResultObject>,
-    valueIfFalse: Maybe<FunctionResultObject>
-  ): FunctionResultObject {
-    const result = toBoolean(logicalExpression?.value) ? valueIfTrue : valueIfFalse;
+  compute: function (logicalExpression: Arg, valueIfTrue: Arg, valueIfFalse: Arg) {
+    if (isMultipleElementMatrix(logicalExpression)) {
+      return applyVectorization(IF.compute, [logicalExpression, valueIfTrue, valueIfFalse]);
+    }
+    let result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
+    if (!isMultipleElementMatrix(result)) {
+      // useful for interpreting empty cell references as empty strings. But must be removed to make empty cell references equal to zero
+      result = toScalar(result);
+    }
     if (result === undefined) {
       return { value: "" };
     }
-    if (result.value === null) {
+    if (!isMatrix(result) && result.value === null) {
       return { ...result, value: "" };
     }
     return result;
@@ -83,21 +96,25 @@ export const IF = {
 export const IFERROR = {
   description: _t("Value if it is not an error, otherwise 2nd argument."),
   args: [
-    arg("value (any)", _t("The value to return if value itself is not an error.")),
+    arg("value (any, range)", _t("The value to return if value itself is not an error.")),
     arg(
-      `value_if_error (any, default="empty")`,
+      `value_if_error (any, range, default="empty")`,
       _t("The value the function returns if value is an error.")
     ),
   ],
-  compute: function (
-    value: Maybe<FunctionResultObject>,
-    valueIfError: Maybe<FunctionResultObject> = { value: "" }
-  ): FunctionResultObject {
-    const result = isEvaluationError(value?.value) ? valueIfError : value;
+  compute: function (value: Arg, valueIfError: Arg = { value: "" }) {
+    if (isMultipleElementMatrix(value)) {
+      return applyVectorization(IFERROR.compute, [value, valueIfError]);
+    }
+    let result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
+    if (!isMultipleElementMatrix(result)) {
+      // useful for interpreting empty cell references as empty strings. But must be removed to make empty cell references equal to zero
+      result = toScalar(result);
+    }
     if (result === undefined) {
       return { value: "" };
     }
-    if (result.value === null) {
+    if (!isMatrix(result) && result.value === null) {
       return { ...result, value: "" };
     }
     return result;
@@ -111,21 +128,25 @@ export const IFERROR = {
 export const IFNA = {
   description: _t("Value if it is not an #N/A error, otherwise 2nd argument."),
   args: [
-    arg("value (any)", _t("The value to return if value itself is not #N/A an error.")),
+    arg("value (any, range)", _t("The value to return if value itself is not #N/A an error.")),
     arg(
-      `value_if_error (any, default="empty")`,
+      `value_if_error (any, range, default="empty")`,
       _t("The value the function returns if value is an #N/A error.")
     ),
   ],
-  compute: function (
-    value: Maybe<FunctionResultObject>,
-    valueIfError: Maybe<FunctionResultObject> = { value: "" }
-  ): FunctionResultObject {
-    const result = value?.value === CellErrorType.NotAvailable ? valueIfError : value;
+  compute: function (value: Arg, valueIfError: Arg = { value: "" }) {
+    if (isMultipleElementMatrix(value)) {
+      return applyVectorization(IFNA.compute, [value, valueIfError]);
+    }
+    let result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
+    if (!isMultipleElementMatrix(result)) {
+      // useful for interpreting empty cell references as empty strings. But must be removed to make empty cell references equal to zero
+      result = toScalar(result);
+    }
     if (result === undefined) {
       return { value: "" };
     }
-    if (result.value === null) {
+    if (!isMatrix(result) && result.value === null) {
       return { ...result, value: "" };
     }
     return result;
@@ -140,36 +161,44 @@ export const IFS = {
   description: _t("Returns a value depending on multiple logical expressions."),
   args: [
     arg(
-      "condition1 (boolean)",
+      "condition1 (boolean, range<boolean>)",
       _t(
         "The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those."
       )
     ),
-    arg("value1 (any)", _t("The returned value if condition1 is TRUE.")),
+    arg("value1 (any, range)", _t("The returned value if condition1 is TRUE.")),
     arg(
-      "condition2 (boolean, any, repeating)",
+      "condition2 (boolean, any, range, repeating)",
       _t("Additional conditions to be evaluated if the previous ones are FALSE.")
     ),
     arg(
-      "value2 (any, repeating)",
+      "value2 (any, range, repeating)",
       _t("Additional values to be returned if their corresponding conditions are TRUE.")
     ),
   ],
-  compute: function (...values: Maybe<FunctionResultObject>[]): FunctionResultObject {
+  compute: function (...values: Arg[]) {
     assert(
       () => values.length % 2 === 0,
       _t("Wrong number of arguments. Expected an even number of arguments.")
     );
-    for (let n = 0; n < values.length - 1; n += 2) {
-      if (toBoolean(values[n]?.value)) {
-        const result = values[n + 1];
-        if (result === undefined) {
+    while (values.length > 0) {
+      if (isMultipleElementMatrix(values[0])) {
+        return applyVectorization(IFS.compute, values);
+      }
+      const condition = toBoolean(toScalar(values.shift()));
+      let valueIfTrue = values.shift();
+      if (condition) {
+        if (!isMultipleElementMatrix(valueIfTrue)) {
+          // useful for interpreting empty cell references as empty strings. But must be removed to make empty cell references equal to zero
+          valueIfTrue = toScalar(valueIfTrue);
+        }
+        if (valueIfTrue === undefined) {
           return { value: "" };
         }
-        if (result.value === null) {
-          return { ...result, value: "" };
+        if (!isMatrix(valueIfTrue) && valueIfTrue.value === null) {
+          return { ...valueIfTrue, value: "" };
         }
-        return result;
+        return valueIfTrue;
       }
     }
     return new EvaluationError(_t("No match."));
