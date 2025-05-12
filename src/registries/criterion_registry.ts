@@ -106,7 +106,7 @@ criterionEvaluatorRegistry.add("notContainsText", {
   isCriterionValueValid: (value: string) => !!value,
   criterionValueErrorString: DVTerms.CriterionError.notEmptyValue,
   numberOfValues: () => 1,
-  name: _t("Text does not contains"),
+  name: _t("Text does not contain"),
   getPreview: (criterion) => _t('Text does not contain "%s"', criterion.values[0]),
 });
 
