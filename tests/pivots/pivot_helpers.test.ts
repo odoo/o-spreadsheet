@@ -200,6 +200,9 @@ describe("ToFunctionValue", () => {
     dimension.granularity = "year";
     expect(toFunctionPivotValue("2020", dimension)).toBe("2020");
 
+    dimension.granularity = "month";
+    expect(toFunctionPivotValue("4/11/2020", dimension)).toBe("DATE(2020,4,1)");
+
     dimension.granularity = "day_of_month";
     expect(toFunctionPivotValue(1, dimension)).toBe("1");
 
