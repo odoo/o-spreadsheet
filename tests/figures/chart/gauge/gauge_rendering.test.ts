@@ -1,3 +1,5 @@
+import { Model } from "../../../../src";
+import { GaugeChartComponent } from "../../../../src/components/figures/chart/gauge/gauge_chart_component";
 import { CHART_PADDING, CHART_TITLE_FONT_SIZE } from "../../../../src/constants";
 import { chartMutedFontColor } from "../../../../src/helpers/figures/charts";
 import {
@@ -5,9 +7,11 @@ import {
   GAUGE_LABELS_FONT_SIZE,
   getGaugeRenderingConfig,
 } from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
-import { Rect } from "../../../../src/types";
-import { GaugeChartRuntime } from "../../../../src/types/chart";
+import { readonlyAllowedCommands, Rect } from "../../../../src/types";
+import { GaugeAnimatedRuntime, GaugeChartRuntime } from "../../../../src/types/chart";
 import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
+import { createGaugeChart, setCellContent } from "../../../test_helpers/commands_helpers";
+import { mountSpreadsheet, nextTick } from "../../../test_helpers/helpers";
 
 const testRuntime: GaugeChartRuntime = {
   background: "#FFFFFF",
@@ -30,7 +34,7 @@ const testChartRect: Rect = {
 };
 
 function getRenderingConfig(
-  runtime: GaugeChartRuntime,
+  runtime: GaugeAnimatedRuntime,
   boundingRect = testChartRect,
   ctx = new MockCanvasRenderingContext2D()
 ) {
@@ -127,6 +131,18 @@ describe("Gauge rendering config", () => {
     ).toEqual(testRuntime.colors[2]);
   });
 
+  test("Animation value is used only for the gauge fill value, not the gauge color", () => {
+    for (const animationValue of [0, 50, 100]) {
+      const config = getRenderingConfig({
+        ...testRuntime,
+        gaugeValue: { value: 0, label: "0" },
+        animationValue,
+      });
+      expect(config.gauge.color).toEqual(testRuntime.colors[0]);
+      expect(config.gauge.percentage).toEqual(animationValue / 100);
+    }
+  });
+
   test("Gauge inflection value can be lower than or lower or equal than", () => {
     const ltRuntime = testRuntime;
     expect(
@@ -218,5 +234,59 @@ describe("Gauge rendering config", () => {
     expect(config.gaugeValue.color).toEqual(chartMutedFontColor("#000000"));
     expect(config.inflectionValues[0].color).toEqual(chartMutedFontColor("#000000"));
     expect(config.inflectionValues[1].color).toEqual(chartMutedFontColor("#000000"));
+  });
+});
+
+describe("Gauge chart component animation", () => {
+  let gaugeAnimationSpy: jest.SpyInstance;
+  let model: Model;
+
+  beforeEach(() => {
+    gaugeAnimationSpy = jest.spyOn(GaugeChartComponent.prototype, "drawGaugeWithAnimation");
+    model = new Model();
+  });
+
+  afterEach(() => {
+    gaugeAnimationSpy.mockRestore();
+  });
+
+  test("Gauge chart is animated only at first render", async () => {
+    createGaugeChart(model, {});
+    model.updateMode("dashboard");
+    await mountSpreadsheet({ model });
+
+    expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
+
+    // Scroll the figure out of the viewport and back in
+    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 500 });
+    await nextTick();
+    expect(".o-figure").toHaveCount(0);
+    model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+    await nextTick();
+    expect(".o-figure").toHaveCount(1);
+    expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test("Animations are replayed only when chart data changes", async () => {
+    readonlyAllowedCommands.add("UPDATE_CELL");
+
+    const model = new Model();
+    createGaugeChart(model, { dataRange: "A1" });
+    model.updateMode("dashboard");
+    await mountSpreadsheet({ model });
+
+    expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
+
+    // Dispatch a command that doesn't change the chart data
+    setCellContent(model, "A50", "6");
+    await nextTick();
+    expect(gaugeAnimationSpy).toHaveBeenCalledTimes(1);
+
+    // Change the chart data
+    setCellContent(model, "A1", "6");
+    await nextTick();
+    expect(gaugeAnimationSpy).toHaveBeenCalledTimes(2);
+
+    readonlyAllowedCommands.delete("UPDATE_CELL");
   });
 });
