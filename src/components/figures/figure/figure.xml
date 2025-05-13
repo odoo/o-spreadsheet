@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="o-figure-border w-100 h-100 position-absolute pe-none" t-att-style="borderStyle"/>
-      <t t-if="isSelected">
+      <t t-if="isSelected and !env.isMobile()">
         <div
           class="o-fig-anchor o-top"
           t-att-style="this.getResizerPosition('top')"
