@@ -19,7 +19,7 @@ import { Registry } from "./registry";
  * (ordered by sequence), and we generate the AutofillModifier with generateRule
  */
 export interface AutofillRule {
-  condition: (cell: Cell, cells: (Cell | undefined)[]) => boolean;
+  condition: (cell: Cell, cells: (Cell | undefined)[], direction) => boolean;
   generateRule: (cell: Cell, cells: (Cell | undefined)[], direction: DIRECTION) => AutofillModifier;
   sequence: number;
 }
