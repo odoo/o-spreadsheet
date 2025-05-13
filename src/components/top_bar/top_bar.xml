@@ -47,7 +47,15 @@
                 t-foreach="toolbarMenuRegistry.getEntries(category)"
                 t-as="toolbarAction"
                 t-key="toolbarAction_index">
-                <t t-component="toolbarAction.component" t-props="toolbarAction.props"/>
+                <t
+                  t-set="isVisible"
+                  t-value="toolbarAction.isVisible ? toolbarAction.isVisible(env) : true"
+                />
+                <t
+                  t-if="isVisible"
+                  t-component="toolbarAction.component"
+                  t-props="toolbarAction.props"
+                />
               </t>
               <div t-if="showDivider(category_index)" class="o-topbar-divider"/>
             </div>
@@ -109,7 +117,15 @@
             t-foreach="toolbarMenuRegistry.getEntries(category)"
             t-as="toolbarAction"
             t-key="toolbarAction_index">
-            <t t-component="toolbarAction.component" t-props="toolbarAction.props"/>
+            <t
+              t-set="isVisible"
+              t-value="toolbarAction.isVisible ? toolbarAction.isVisible(env) : true"
+            />
+            <t
+              t-if="isVisible"
+              t-component="toolbarAction.component"
+              t-props="toolbarAction.props"
+            />
           </t>
           <div
             t-if="category_index &lt; state.invisibleToolsCategories.length-1"
