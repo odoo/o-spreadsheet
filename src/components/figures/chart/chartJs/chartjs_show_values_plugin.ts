@@ -168,12 +168,26 @@ function drawPieChartValues(
       const midAngle = (startAngle + endAngle) / 2;
       const midRadius = (innerRadius + outerRadius) / 2;
       const x = bar.x + midRadius * Math.cos(midAngle);
-      const y = bar.y + midRadius * Math.sin(midAngle) + 7;
+      const y = bar.y + midRadius * Math.sin(midAngle);
+      const displayValue = options.callback(value, dataset, i);
+
+      const textHeight = 12; // ChartJS default
+      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: textHeight }, "px");
+
+      const radius = outerRadius - innerRadius;
+      // Check if the text fits in the slice. Not perfect, but good enough heuristic.
+      if (textWidth >= radius || radius < textHeight) {
+        continue;
+      }
+      const sliceAngle = endAngle - startAngle;
+      const midWidth = 2 * midRadius * Math.tan(sliceAngle / 2);
+      if (sliceAngle < Math.PI / 2 && (textWidth >= midWidth || midWidth < textHeight)) {
+        continue;
+      }
 
       ctx.fillStyle = chartFontColor(options.background);
       ctx.strokeStyle = options.background || "#ffffff";
 
-      const displayValue = options.callback(value, dataset, i);
       drawTextWithBackground(displayValue, x, y, ctx);
     }
   }
