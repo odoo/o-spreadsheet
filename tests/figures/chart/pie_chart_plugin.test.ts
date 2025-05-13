@@ -66,6 +66,27 @@ describe("pie chart", () => {
     ]);
   });
 
+  test("Empty legend items are filtered out", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "",    B1: "1",
+      A2: "P2",  B2: "2",
+    });
+
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "B1:B2" }],
+        labelRange: "A1:A2",
+        dataSetsHaveTitle: false,
+        type: "pie",
+      },
+      "1"
+    );
+    expect(getChartLegendLabels(model, "1")).toHaveLength(1);
+    expect(getChartLegendLabels(model, "1")[0].text).toEqual("P2");
+  });
+
   test("Pie chart hole size", () => {
     const model = new Model();
     createChart(model, { type: "pie", isDoughnut: true, pieHolePercentage: 15 }, "1");

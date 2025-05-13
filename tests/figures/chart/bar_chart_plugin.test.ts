@@ -168,6 +168,26 @@ describe("bar chart", () => {
     ]);
   });
 
+  test("Empty legend items are filtered out", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "",    B1: "",   C1: "Dataset 2",
+      A2: "P1",  B2: "2",  C2: "4",
+    });
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "B1:C2" }],
+        labelRange: "A1:A2",
+        dataSetsHaveTitle: true,
+        type: "bar",
+      },
+      "1"
+    );
+    expect(getChartLegendLabels(model, "1")).toHaveLength(1);
+    expect(getChartLegendLabels(model, "1")[0].text).toEqual("Dataset 2");
+  });
+
   test("Bar chart border are only shown for stacked chart", () => {
     const model = createModelFromGrid({
       A1: "first column dataset",
