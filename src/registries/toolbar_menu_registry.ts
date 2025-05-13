@@ -1,10 +1,11 @@
 import { ComponentConstructor } from "@odoo/owl";
-import { PropsOf } from "..";
+import { PropsOf, SpreadsheetChildEnv } from "..";
 
 type ToolBarItem<C extends ComponentConstructor = ComponentConstructor> = {
   component: C;
   props: PropsOf<C>;
   sequence: number;
+  isVisible?: (env: SpreadsheetChildEnv) => boolean;
 };
 
 export class ToolBarRegistry {

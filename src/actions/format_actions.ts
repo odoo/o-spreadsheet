@@ -381,6 +381,7 @@ export const fillColor: ActionSpec = {
 export const formatCF: ActionSpec = {
   name: _t("Conditional formatting"),
   execute: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
+  isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.CONDITIONAL_FORMAT",
 };
 

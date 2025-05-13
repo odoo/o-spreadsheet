@@ -117,7 +117,7 @@ exports[`TopBar component can set cell format 1`] = `
                 
               </span>
               <span
-                class="o-menu-item-button o-hoverable-button o-toolbar-button"
+                class="o-menu-item-button o-hoverable-button o-toolbar-button o-mobile-disabled"
                 title="Paint Format"
               >
                 <span>
@@ -579,7 +579,7 @@ exports[`TopBar component can set cell format 1`] = `
               id="misc"
             >
               <div
-                class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button"
+                class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
               >
                 <span
                   class="o-menu-item-button o-hoverable-button"
@@ -1237,7 +1237,7 @@ exports[`TopBar component simple rendering 1`] = `
             
           </span>
           <span
-            class="o-menu-item-button o-hoverable-button o-toolbar-button"
+            class="o-menu-item-button o-hoverable-button o-toolbar-button o-mobile-disabled"
             title="Paint Format"
           >
             <span>
@@ -1698,7 +1698,7 @@ exports[`TopBar component simple rendering 1`] = `
           id="misc"
         >
           <div
-            class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button"
+            class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
           >
             <span
               class="o-menu-item-button o-hoverable-button"

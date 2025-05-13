@@ -121,7 +121,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 
               </span>
               <span
-                class="o-menu-item-button o-hoverable-button o-toolbar-button"
+                class="o-menu-item-button o-hoverable-button o-toolbar-button o-mobile-disabled"
                 title="Paint Format"
               >
                 <span>
@@ -582,7 +582,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               id="misc"
             >
               <div
-                class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button"
+                class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
               >
                 <span
                   class="o-menu-item-button o-hoverable-button"
@@ -1092,7 +1092,7 @@ exports[`components take the small screen into account 1`] = `
                 
               </span>
               <span
-                class="o-menu-item-button o-hoverable-button o-toolbar-button"
+                class="o-menu-item-button o-hoverable-button o-toolbar-button o-mobile-disabled"
                 title="Paint Format"
               >
                 <span>
@@ -1553,7 +1553,7 @@ exports[`components take the small screen into account 1`] = `
               id="misc"
             >
               <div
-                class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button"
+                class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
               >
                 <span
                   class="o-menu-item-button o-hoverable-button"
