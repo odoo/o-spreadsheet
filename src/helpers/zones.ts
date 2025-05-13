@@ -1,8 +1,15 @@
 import { CellPosition, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
-import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./coordinates";
-import { range } from "./misc";
+import {
+  MAX_COL,
+  MAX_ROW,
+  consumeDigits,
+  consumeLetters,
+  consumeSpaces,
+  numberToLetters,
+  toXC,
+} from "./coordinates";
+import { TokenizingChars, range } from "./misc";
 import { recomputeZones } from "./recompute_zones";
-import { isColReference, isRowReference } from "./references";
 
 /**
  * Convert from a cartesian reference to a Zone
@@ -20,63 +27,53 @@ import { isColReference, isRowReference } from "./references";
  * @param xc the string reference to convert
  *
  */
-export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
-  if (xc.includes("!")) {
-    xc = xc.split("!").at(-1)!;
+function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
+  const chars = new TokenizingChars(xc);
+  consumeSpaces(chars);
+  const sheetSeparatorIndex = xc.indexOf("!");
+  if (sheetSeparatorIndex !== -1) {
+    chars.advanceBy(sheetSeparatorIndex + 1);
   }
-  if (xc.includes("$")) {
-    xc = xc.replaceAll("$", "");
-  }
-  let firstRangePart: string = "";
-  let secondRangePart: string | undefined;
-  if (xc.includes(":")) {
-    [firstRangePart, secondRangePart] = xc.split(":");
-    firstRangePart = firstRangePart.trim();
-    secondRangePart = secondRangePart.trim();
-  } else {
-    firstRangePart = xc.trim();
-  }
+  const leftLetters = consumeLetters(chars);
+  const leftNumbers = consumeDigits(chars);
 
   let top: number, bottom: number, left: number, right: number;
   let fullCol = false;
   let fullRow = false;
   let hasHeader = false;
 
-  if (isColReference(firstRangePart)) {
-    left = right = lettersToNumber(firstRangePart);
+  if (leftNumbers === -1) {
+    left = right = leftLetters - 1;
     top = bottom = 0;
     fullCol = true;
-  } else if (isRowReference(firstRangePart)) {
-    top = bottom = parseInt(firstRangePart, 10) - 1;
+  } else if (leftLetters === -1) {
+    top = bottom = leftNumbers - 1;
     left = right = 0;
     fullRow = true;
   } else {
-    const c = toCartesian(firstRangePart);
-    left = right = c.col;
-    top = bottom = c.row;
+    left = right = leftLetters - 1;
+    top = bottom = leftNumbers - 1;
     hasHeader = true;
   }
-  if (secondRangePart) {
-    if (isColReference(secondRangePart)) {
-      right = lettersToNumber(secondRangePart);
+  consumeSpaces(chars);
+  if (chars.current === ":") {
+    chars.advanceBy(1);
+    consumeSpaces(chars);
+    const rightLetters = consumeLetters(chars);
+    const rightNumbers = consumeDigits(chars);
+    if (rightNumbers === -1) {
+      right = rightLetters - 1;
       fullCol = true;
-    } else if (isRowReference(secondRangePart)) {
-      bottom = parseInt(secondRangePart, 10) - 1;
+    } else if (rightLetters === -1) {
+      bottom = rightNumbers - 1;
       fullRow = true;
     } else {
-      const c = toCartesian(secondRangePart);
-      right = c.col;
-      bottom = c.row;
+      right = rightLetters - 1;
+      bottom = rightNumbers - 1;
       top = fullCol ? bottom : top;
       left = fullRow ? right : left;
       hasHeader = true;
     }
-  }
-
-  if (fullCol && fullRow) {
-    throw new Error(
-      "Wrong zone xc. The zone cannot be at the same time a full column and a full row"
-    );
   }
 
   const zone: UnboundedZone = {
@@ -110,7 +107,18 @@ export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
  */
 export function toUnboundedZone(xc: string): UnboundedZone {
   const zone = toZoneWithoutBoundaryChanges(xc);
-  return reorderZone(zone);
+  const orderedZone = reorderZone(zone);
+  const bottom = orderedZone.bottom;
+  const right = orderedZone.right;
+  if ((bottom !== undefined && bottom > MAX_ROW) || (right !== undefined && right > MAX_COL)) {
+    throw new Error(`Range string out of bounds: ${xc}`); // limit the size of the zone for performance
+  }
+  if (bottom === undefined && right === undefined) {
+    throw new Error(
+      "Wrong zone xc. The zone cannot be at the same time a full column and a full row"
+    );
+  }
+  return orderedZone;
 }
 
 /**
