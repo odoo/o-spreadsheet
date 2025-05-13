@@ -3,6 +3,7 @@
 //------------------------------------------------------------------------------
 
 import { HeaderIndex, Position, RangePart } from "../types";
+import { TokenizingChars } from "./misc";
 
 /**
  * Convert a (col) number to the corresponding letter.
@@ -28,11 +29,15 @@ export function lettersToNumber(letters: string): number {
   let result = 0;
   const l = letters.length;
   for (let i = 0; i < l; i++) {
-    const charCode = letters.charCodeAt(i);
-    const colIndex = charCode >= 65 && charCode <= 90 ? charCode - 64 : charCode - 96;
+    const colIndex = charToNumber(letters[i]);
     result = result * 26 + colIndex;
   }
   return result - 1;
+}
+
+function charToNumber(char: string) {
+  const charCode = char.charCodeAt(0);
+  return charCode >= 65 && charCode <= 90 ? charCode - 64 : charCode - 96;
 }
 
 function isCharALetter(char: string) {
@@ -41,6 +46,40 @@ function isCharALetter(char: string) {
 
 function isCharADigit(char: string) {
   return char >= "0" && char <= "9";
+}
+
+// we limit the max column to 3 letters and max row to 7 digits for performance reasons
+export const MAX_COL = lettersToNumber("ZZZ");
+export const MAX_ROW = 9999998;
+
+export function consumeSpaces(chars: TokenizingChars) {
+  while (chars.current === " ") {
+    chars.advanceBy(1);
+  }
+}
+
+export function consumeLetters(chars: TokenizingChars): number {
+  if (chars.current === "$") chars.advanceBy(1);
+  if (!chars.current || !isCharALetter(chars.current)) {
+    return -1;
+  }
+  let colCoordinate = 0;
+  while (chars.current && isCharALetter(chars.current)) {
+    colCoordinate = colCoordinate * 26 + charToNumber(chars.shift());
+  }
+  return colCoordinate;
+}
+
+export function consumeDigits(chars: TokenizingChars): number {
+  if (chars.current === "$") chars.advanceBy(1);
+  if (!chars.current || !isCharADigit(chars.current)) {
+    return -1;
+  }
+  let num = 0;
+  while (chars.current && isCharADigit(chars.current)) {
+    num = num * 10 + Number(chars.shift());
+  }
+  return num;
 }
 
 /**
@@ -53,37 +92,21 @@ function isCharADigit(char: string) {
  * Note: it also accepts lowercase coordinates, but not fixed references
  */
 export function toCartesian(xc: string): Position {
-  xc = xc.trim();
+  const chars = new TokenizingChars(xc);
 
-  let letterPart = "";
-  let numberPart = "";
-  let i = 0;
+  consumeSpaces(chars);
+  const letterPart = consumeLetters(chars);
 
-  // Process letter part
-  if (xc[i] === "$") i++;
-  while (i < xc.length && isCharALetter(xc[i])) {
-    letterPart += xc[i++];
-  }
-
-  if (letterPart.length === 0 || letterPart.length > 3) {
-    // limit to max 3 letters for performance reasons
+  if (letterPart === -1 || !chars.current) {
     throw new Error(`Invalid cell description: ${xc}`);
   }
 
-  // Process number part
-  if (xc[i] === "$") i++;
-  while (i < xc.length && isCharADigit(xc[i])) {
-    numberPart += xc[i++];
-  }
+  const num = consumeDigits(chars);
+  consumeSpaces(chars);
 
-  if (i !== xc.length || numberPart.length === 0 || numberPart.length > 7) {
-    // limit to max 7 numbers for performance reasons
-    throw new Error(`Invalid cell description: ${xc}`);
-  }
-
-  const col = lettersToNumber(letterPart);
-  const row = Number(numberPart) - 1;
-  if (isNaN(row)) {
+  const col = letterPart - 1;
+  const row = num - 1;
+  if (!chars.isOver() || col > MAX_COL || row > MAX_ROW) {
     throw new Error(`Invalid cell description: ${xc}`);
   }
   return { col, row };
