@@ -21,7 +21,9 @@ autoCompleteProviders.add("functions", {
       return [];
     }
     const values = Object.entries(functionRegistry.content)
-      .filter(([_, { hidden }]) => !hidden)
+      .filter(([text, { hidden }]) => {
+        return !hidden && text.includes(searchTermUpperCase);
+      })
       .map(([text, { description }]) => {
         return {
           text,
