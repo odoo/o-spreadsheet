@@ -460,7 +460,6 @@ topbarMenuRegistry
       env.openSidePanel("DataValidation");
     },
     isVisible: (env) => !env.isSmall,
-
     icon: "o-spreadsheet-Icon.DATA_VALIDATION",
     sequence: 30,
     separator: true,
