@@ -7,7 +7,7 @@ export interface ChartShowValuesPluginOptions {
   showValues: boolean;
   background?: Color;
   horizontal?: boolean;
-  callback: (value: number | string, axisId?: string) => string;
+  callback: (value: number | string, axisId: string) => string;
 }
 
 declare module "chart.js" {
@@ -183,7 +183,7 @@ function drawPieChartValues(
       ctx.fillStyle = chartFontColor(options.background);
       ctx.strokeStyle = options.background || "#ffffff";
 
-      const displayValue = options.callback(value);
+      const displayValue = options.callback(value, "y");
       drawTextWithBackground(displayValue, x, y, ctx);
     }
   }
