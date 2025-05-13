@@ -77,6 +77,7 @@ export const findAndReplace: ActionSpec = {
   execute: (env) => {
     env.openSidePanel("FindAndReplace", {});
   },
+  isVisible: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.SEARCH",
 };
 
