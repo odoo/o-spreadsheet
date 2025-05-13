@@ -440,8 +440,8 @@ export function getDefinedAxis(definition: GenericDefinition<ChartWithDataSetDef
 }
 
 export function formatChartDatasetValue(axisFormats: ChartAxisFormats, locale: Locale) {
-  return (value: any, axisId: string | undefined) => {
-    const format = axisId ? axisFormats?.[axisId] : undefined;
+  return (value: any, axisId: string) => {
+    const format = axisFormats?.[axisId];
     return formatTickValue({ format, locale })(value);
   };
 }
