@@ -14,8 +14,7 @@ export function createTableStyleContextMenuActions(
       id: "editTableStyle",
       name: _t("Edit table style"),
       execute: (env) => env.openSidePanel("TableStyleEditorPanel", { styleId }),
-      isVisible: (env) => !env.isSmall,
-
+      isEnabled: (env) => !env.isSmall,
       icon: "o-spreadsheet-Icon.EDIT",
     },
     {

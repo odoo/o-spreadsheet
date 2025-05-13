@@ -26,8 +26,7 @@ topbarMenuRegistry
     name: _t("Settings"),
     sequence: 100,
     execute: (env) => env.openSidePanel("Settings"),
-    isVisible: (env) => !env.isSmall,
-
+    isEnabled: (env) => !env.isSmall,
     icon: "o-spreadsheet-Icon.COG",
   })
 
@@ -459,8 +458,7 @@ topbarMenuRegistry
     execute: (env) => {
       env.openSidePanel("DataValidation");
     },
-    isVisible: (env) => !env.isSmall,
-
+    isEnabled: (env) => !env.isSmall,
     icon: "o-spreadsheet-Icon.DATA_VALIDATION",
     sequence: 30,
     separator: true,
@@ -484,7 +482,7 @@ topbarMenuRegistry
         sequence: sequence + index,
         isReadonlyAllowed: true,
         execute: (env) => env.openSidePanel("PivotSidePanel", { pivotId }),
-        isVisible: (env) => !env.isSmall,
+        isEnabled: (env) => !env.isSmall,
         onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
         onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
         icon: "o-spreadsheet-Icon.PIVOT",

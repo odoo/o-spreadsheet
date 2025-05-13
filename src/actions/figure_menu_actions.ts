@@ -22,7 +22,7 @@ export function getChartMenuActions(
         env.openSidePanel("ChartPanel");
       },
       icon: "o-spreadsheet-Icon.EDIT",
-      isVisible: (env) => !env.isSmall,
+      isEnabled: (env) => !env.isSmall,
     },
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),

@@ -15,6 +15,7 @@ import {
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
   DEFAULT_FONT_SIZE,
+  DISABLED_TEXT_COLOR,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
@@ -110,6 +111,13 @@ css/* scss */ `
       .o-toolbar-tools {
         cursor: default;
       }
+    }
+  }
+
+  .o-spreadsheet-mobile {
+    .o-toolbar-button.o-mobile-disabled * {
+      color: ${DISABLED_TEXT_COLOR};
+      cursor: not-allowed;
     }
   }
 `;
