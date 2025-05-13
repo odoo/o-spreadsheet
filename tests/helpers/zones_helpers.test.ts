@@ -77,6 +77,17 @@ describe("toZone", () => {
     expect(toUnboundedZone(range)).toMatchObject({ ...baseZone, ...change });
   });
 
+  test("boundary limits", () => {
+    expect(() => toUnboundedZone("A1:A10000000")).toThrow(
+      "Range string out of bounds: A1:A10000000"
+    );
+    expect(() => toUnboundedZone("A10000000:A1")).toThrow(
+      "Range string out of bounds: A10000000:A1"
+    );
+    expect(() => toUnboundedZone("A1:ZZZA1")).toThrow("Range string out of bounds: A1:ZZZA1");
+    expect(() => toUnboundedZone("ZZZA1:A1")).toThrow("Range string out of bounds: ZZZA1:A1");
+  });
+
   test("should support lowercase cell reference", () => {
     expect(toZone("c35")).toStrictEqual({ right: 2, top: 34, bottom: 34, left: 2 } as Zone);
   });
