@@ -198,6 +198,8 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "UPDATE_FILTER",
   "UPDATE_CHART",
+
+  "UPDATE_PIVOT",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([

@@ -34,6 +34,8 @@ export interface PopoverProps {
   zIndex?: Number;
 
   class?: string;
+
+  transition?: boolean;
 }
 
 css/* scss */ `
@@ -51,7 +53,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
   static props = {
     anchorRect: Object,
-    containerRect: { type: Object, optional: true },
     positioning: { type: String, optional: true },
     maxWidth: { type: Number, optional: true },
     maxHeight: { type: Number, optional: true },
@@ -61,6 +62,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     onPopoverMoved: { type: Function, optional: true },
     zIndex: { type: Number, optional: true },
     class: { type: String, optional: true },
+    transition: { type: Boolean, optional: true },
     slots: Object,
   };
   static defaultProps = {
@@ -99,6 +101,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   get popoverStyle(): string {
     return cssPropertiesToCss({
       "z-index": `${this.props.zIndex}`,
+      transition: this.props.transition ? "left 0.2s, top 0.2s" : "",
     });
   }
 

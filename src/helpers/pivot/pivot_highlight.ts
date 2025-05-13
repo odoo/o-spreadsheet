@@ -9,7 +9,7 @@ export function getPivotHighlights(getters: Getters, pivotId: UID): Highlight[] 
   return mergedZones.map((zone) => ({ sheetId, zone, noFill: true, color: HIGHLIGHT_COLOR }));
 }
 
-function getVisiblePivotCellPositions(getters: Getters, pivotId: UID) {
+export function getVisiblePivotCellPositions(getters: Getters, pivotId: UID) {
   const positions: CellPosition[] = [];
   const sheetId = getters.getActiveSheetId();
   for (const col of getters.getSheetViewVisibleCols()) {

@@ -1,5 +1,6 @@
 import { markRaw } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
+import { ReadonlyTransportFilter } from "./collaborative/readonly_transport_filter";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
@@ -429,12 +430,15 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       name: _t("Anonymous").toString(),
     };
     const transportService = config.transportService || new LocalTransportService();
+    const isReadonly = config.mode === "readonly" || config.mode === "dashboard";
     return {
       ...config,
       mode: config.mode || "normal",
       custom: config.custom || {},
       external: this.setupExternalConfig(config.external || {}),
-      transportService,
+      transportService: isReadonly
+        ? new ReadonlyTransportFilter(transportService)
+        : transportService,
       client,
       moveClient: () => {},
       snapshotRequested: false,

@@ -1,5 +1,5 @@
 import { Model, UIPlugin } from "../../src";
-import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
+import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toZone, zoneToXc } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
@@ -52,7 +52,10 @@ import {
   target,
   toRangesData,
 } from "../test_helpers/helpers";
+import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
+
+jest.useFakeTimers();
 
 describe("Multi users synchronisation", () => {
   let network: MockTransportService;
@@ -637,6 +640,62 @@ describe("Multi users synchronisation", () => {
       (user) => getCell(user, "A2")?.format,
       undefined
     );
+  });
+
+  test.each(["readonly", "dashboard"] as const)(
+    "Spreadsheet in readonly never sends commands",
+    (mode) => {
+      const david = new Model(alice.exportData(), { transportService: network, mode });
+      setCellContent(alice, "A1", "hello");
+      addPivot(alice, "A1", {
+        measures: [{ id: "__count", fieldName: "__count", aggregator: "sum" }],
+      });
+      const [pivotId] = david.getters.getPivotIds();
+
+      // David can update the pivot locally
+      updatePivot(david, pivotId, {
+        sortedColumn: { order: "asc", measure: "__count", domain: [] },
+      });
+      expect(david.getters.getPivotCoreDefinition("1").sortedColumn).toEqual({
+        order: "asc",
+        measure: "__count",
+        domain: [],
+      });
+      // but the update should not be sent to other users
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getPivotCoreDefinition("1").sortedColumn,
+        undefined
+      );
+    }
+  );
+
+  test("readonly client is visible to other users", () => {
+    jest.advanceTimersByTime(DEBOUNCE_TIME);
+    expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
+      "Bob",
+      "Charlie",
+    ]);
+    const david = new Model(alice.exportData(), {
+      transportService: network,
+      mode: "readonly",
+      client: { id: "david", name: "David" },
+    });
+    jest.advanceTimersByTime(DEBOUNCE_TIME);
+    expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
+      "Bob",
+      "Charlie",
+      "David",
+    ]);
+    expect(david.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
+      "Alice",
+      "Bob",
+      "Charlie",
+    ]);
+    david.leaveSession();
+    expect(alice.getters.getClientsToDisplay().map((client) => client.name)).toEqual([
+      "Bob",
+      "Charlie",
+    ]);
   });
 
   describe("Evaluation", () => {

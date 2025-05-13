@@ -45,6 +45,7 @@ type OpenCellPopoverComponent<C extends ComponentConstructor> = {
   Component: C;
   props: PropsOf<C>;
   cellCorner: PopoverPropsPosition;
+  transition?: boolean;
 };
 
 export type CellPopoverComponent<
@@ -59,4 +60,5 @@ export type PositionedCellPopoverComponent<
   props: PropsOf<C>;
   anchorRect: Rect;
   cellCorner: PopoverPropsPosition;
+  transition?: boolean;
 };
