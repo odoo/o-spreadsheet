@@ -6,11 +6,11 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../../types/index";
-import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesDesignEditor } from "../building_blocks/series_design/series_design_editor";
+import { ChartShowValues } from "../building_blocks/show_values/show_values";
 
 interface Props {
   figureId: UID;
@@ -31,8 +31,8 @@ export class RadarChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     GeneralDesignEditor,
     SeriesDesignEditor,
     Section,
-    Checkbox,
     ChartLegend,
+    ChartShowValues,
   };
   static props = {
     figureId: String,
