@@ -1,10 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-TreeMapChartDesignPanel">
-    <GeneralDesignEditor
-      figureId="props.figureId"
-      definition="props.definition"
-      updateChart="props.updateChart"
-    />
+    <GeneralDesignEditor t-props="props"/>
 
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Tree map colors">
       <t t-set-slot="content">
