@@ -14,10 +14,9 @@
   .o-small-composer {
     background-color: white;
     border: lightgrey solid 1px;
-    border-radius: 5px;
     line-height: 24px;
     display: flex;
-    /* TODORAR move this elsewhere*/
+    /* FIXME move this in css wrapper */
     z-index: 30;
   }
 

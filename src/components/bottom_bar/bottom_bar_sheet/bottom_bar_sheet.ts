@@ -1,5 +1,9 @@
 import { Component, onPatched, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
-import { ACTION_COLOR, BOTTOMBAR_HEIGHT } from "../../../constants";
+import {
+  ACTION_COLOR,
+  DESKTOP_BOTTOMBAR_HEIGHT,
+  MOBILE_BOTTOMBAR_HEIGHT,
+} from "../../../constants";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { getSheetMenuRegistry } from "../../../registries/menus";
@@ -15,7 +19,7 @@ css/* scss */ `
   .o-sheet {
     padding: 0 15px;
     padding-right: 10px;
-    height: ${BOTTOMBAR_HEIGHT}px;
+    height: ${DESKTOP_BOTTOMBAR_HEIGHT}px;
     border-left: 1px solid #c1c1c1;
     border-right: 1px solid #c1c1c1;
     margin-left: -1px;
@@ -58,6 +62,10 @@ css/* scss */ `
       z-index: 1;
       width: calc(100% - 1px);
     }
+  }
+
+  .o-spreadshet-mobile .o-sheet {
+    height: ${MOBILE_BOTTOMBAR_HEIGHT}px;
   }
 `;
 

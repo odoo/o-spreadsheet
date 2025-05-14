@@ -73,7 +73,7 @@ css/* scss */ `
   }
 
   /* TODORAR Move this to small_bottom_bar.ts ? */
-  .mobile.o-spreadsheet-bottom-bar {
+  .o-spreadsheet-mobile .o-spreadsheet-bottom-bar {
     padding-left: 0;
 
     .add-sheet-container {
