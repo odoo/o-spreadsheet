@@ -11,6 +11,10 @@ interface Props {
   figureId: UID;
   definition: ChartWithDataSetDefinition;
   updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  canUpdateChart: (
+    figureId: UID,
+    definition: Partial<ChartWithDataSetDefinition>
+  ) => DispatchResult;
 }
 
 export class ChartLegend extends Component<Props, SpreadsheetChildEnv> {
@@ -22,6 +26,7 @@ export class ChartLegend extends Component<Props, SpreadsheetChildEnv> {
     figureId: String,
     definition: Object,
     updateChart: Function,
+    canUpdateChart: Function,
   };
 
   updateLegendPosition(ev) {

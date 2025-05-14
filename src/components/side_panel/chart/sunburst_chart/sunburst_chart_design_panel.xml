@@ -1,15 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-SunburstChartDesignPanel">
-    <GeneralDesignEditor
-      figureId="props.figureId"
-      definition="props.definition"
-      updateChart="props.updateChart">
+    <GeneralDesignEditor t-props="props">
       <t t-set-slot="general-extension">
-        <ChartLegend
-          figureId="props.figureId"
-          definition="props.definition"
-          updateChart="props.updateChart"
-        />
+        <ChartLegend t-props="props"/>
       </t>
     </GeneralDesignEditor>
 
