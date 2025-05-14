@@ -2,6 +2,7 @@ import { _t } from "../../../../translation";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { DispatchResult, GenericDefinition, UID } from "../../../../types/index";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
+import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_data_markers";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 
 interface Props {
@@ -21,6 +22,7 @@ export class ComboChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
   static template = "o-spreadsheet-ComboChartDesignPanel";
   static components = {
     ...ChartWithAxisDesignPanel.components,
+    ChartShowDataMarkers,
     RadioSelection,
   };
   seriesTypeChoices = [

@@ -69,6 +69,7 @@ export class LineChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly hideDataMarkers?: boolean;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -90,6 +91,7 @@ export class LineChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.fillArea = definition.fillArea;
     this.showValues = definition.showValues;
+    this.hideDataMarkers = definition.hideDataMarkers;
   }
 
   static validateChartDefinition(
@@ -122,6 +124,7 @@ export class LineChart extends AbstractChart {
       axesDesign: context.axesDesign,
       fillArea: context.fillArea,
       showValues: context.showValues,
+      hideDataMarkers: context.hideDataMarkers,
     };
   }
 
@@ -158,6 +161,7 @@ export class LineChart extends AbstractChart {
       axesDesign: this.axesDesign,
       fillArea: this.fillArea,
       showValues: this.showValues,
+      hideDataMarkers: this.hideDataMarkers,
     };
   }
 
