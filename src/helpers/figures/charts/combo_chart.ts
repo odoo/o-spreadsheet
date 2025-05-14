@@ -67,6 +67,7 @@ export class ComboChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly type = "combo";
   readonly showValues?: boolean;
+  readonly hideDataMarkers?: boolean;
 
   constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -84,6 +85,7 @@ export class ComboChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
+    this.hideDataMarkers = definition.hideDataMarkers;
   }
 
   static transformDefinition(
@@ -147,6 +149,7 @@ export class ComboChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      hideDataMarkers: this.hideDataMarkers,
     };
   }
 
@@ -204,6 +207,7 @@ export class ComboChart extends AbstractChart {
       type: "combo",
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      hideDataMarkers: context.hideDataMarkers,
     };
   }
 

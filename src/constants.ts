@@ -249,6 +249,7 @@ export const DEFAULT_SCORECARD_KEY_VALUE_FONT_SIZE = 32;
 export const DEFAULT_SCORECARD_BASELINE_FONT_SIZE = 16;
 
 export const LINE_FILL_TRANSPARENCY = 0.4;
+export const LINE_DATA_POINT_RADIUS = 3;
 export const DEFAULT_WINDOW_SIZE = 2;
 
 // session

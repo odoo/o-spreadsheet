@@ -5,6 +5,7 @@ import {
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
   COLOR_TRANSPARENT,
+  LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "../../../../constants";
 import { _t } from "../../../../translation";
@@ -187,6 +188,7 @@ export function getLineChartDatasets(
       backgroundColor: areaChart ? setColorAlpha(color, LINE_FILL_TRANSPARENCY) : color,
       pointBackgroundColor: color,
       fill: areaChart ? getFillingMode(index, stackedChart) : false,
+      pointRadius: definition.hideDataMarkers ? 0 : LINE_DATA_POINT_RADIUS,
       yAxisID: definition.dataSets?.[index].yAxisId || "y",
     };
     dataSets.push(dataset);
@@ -267,6 +269,7 @@ export function getComboChartDatasets(
       xAxisID: "x",
       type,
       order: type === "bar" ? dataSetsValues.length + index : index,
+      pointRadius: definition.hideDataMarkers ? 0 : LINE_DATA_POINT_RADIUS,
     };
     dataSets.push(dataset);
 
@@ -305,6 +308,7 @@ export function getRadarChartDatasets(
       hidden,
       borderColor,
       backgroundColor: borderColor,
+      pointRadius: definition.hideDataMarkers ? 0 : LINE_DATA_POINT_RADIUS,
     };
     if (fill) {
       dataset.backgroundColor = setColorAlpha(borderColor, LINE_FILL_TRANSPARENCY);
