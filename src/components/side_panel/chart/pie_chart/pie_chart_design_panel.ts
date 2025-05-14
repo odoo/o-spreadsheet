@@ -1,11 +1,11 @@
 import { Component } from "@odoo/owl";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { GenericDefinition, PieChartDefinition } from "../../../../types/chart";
-import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
+import { ChartShowValues } from "../building_blocks/show_values/show_values";
 
 interface Props {
   figureId: UID;
@@ -22,8 +22,8 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static components = {
     GeneralDesignEditor,
     Section,
-    Checkbox,
     ChartLegend,
+    ChartShowValues,
     PieHoleSize,
   };
   static props = {
