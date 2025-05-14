@@ -7,7 +7,7 @@ import {
   useState,
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
-import { MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
+import { DESKTOP_MENU_ITEM_HEIGHT, MENU_VERTICAL_PADDING, MENU_WIDTH } from "../../constants";
 import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { PopoverPropsPosition } from "../../types/cell_popovers";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -128,12 +128,13 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
         x: this.props.anchorRect.x,
         y: this.props.anchorRect.y,
         width: isRoot ? this.props.anchorRect.width : this.props.width || MENU_WIDTH,
-        height: isRoot ? this.props.anchorRect.height : MENU_ITEM_HEIGHT,
+        height: isRoot ? this.props.anchorRect.height : DESKTOP_MENU_ITEM_HEIGHT,
       },
       positioning: this.props.popoverPositioning,
       verticalOffset: isRoot ? 0 : MENU_VERTICAL_PADDING,
       onPopoverHidden: () => this.closeSubMenu(),
       onPopoverMoved: () => this.closeSubMenu(),
+      maxHeight: this.props.maxHeight,
     };
   }
 
@@ -218,7 +219,7 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
       x: getRefBoundingRect(this.menuRef).x,
       y: y - (this.subMenu.scrollOffset || 0),
       width: this.props.width || MENU_WIDTH,
-      height: MENU_ITEM_HEIGHT,
+      height: DESKTOP_MENU_ITEM_HEIGHT,
     };
     this.subMenu.menuItems = menu.children(this.env);
     this.subMenu.isOpen = true;

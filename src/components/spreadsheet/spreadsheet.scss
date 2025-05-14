@@ -4,4 +4,9 @@
   input {
     background-color: white;
   }
+
+  &.o-spreadsheet-mobile .o-spreadsheet-topbar-wrapper,
+  .o-spreadsheet-bottombar-wrapper {
+    box-shadow: 0 0 3px 1px lightgray;
+  }
 }

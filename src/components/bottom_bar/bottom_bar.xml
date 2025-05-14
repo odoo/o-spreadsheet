@@ -1,9 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-BottomBar">
-    <!-- t-att-class="props.class" -->
     <div
       class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
-      t-att-class="{'mobile': env.isSmall}"
       t-on-click="props.onClick"
       t-ref="bottomBar"
       t-on-contextmenu.prevent="">
