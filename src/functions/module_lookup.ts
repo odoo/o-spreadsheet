@@ -856,13 +856,18 @@ export const PIVOT = {
       _t("Whether to include the column titles or not.")
     ),
     arg("column_count (number, optional)", _t("number of columns")),
+    arg(
+      "include_measure_titles (boolean, default=TRUE)",
+      _t("Whether to include the measure titles row or not.")
+    ),
   ],
   compute: function (
     pivotFormulaId: Maybe<FunctionResultObject>,
     rowCount: Maybe<FunctionResultObject> = { value: 10000 },
     includeTotal: Maybe<FunctionResultObject> = { value: true },
     includeColumnHeaders: Maybe<FunctionResultObject> = { value: true },
-    columnCount: Maybe<FunctionResultObject> = { value: Number.MAX_VALUE }
+    columnCount: Maybe<FunctionResultObject> = { value: Number.MAX_VALUE },
+    includeMeasureTitles: Maybe<FunctionResultObject> = { value: true }
   ) {
     const _pivotFormulaId = toString(pivotFormulaId);
     const _rowCount = toNumber(rowCount, this.locale);
@@ -876,6 +881,7 @@ export const PIVOT = {
     const visibilityOptions: PivotVisibilityOptions = {
       displayColumnHeaders: toBoolean(includeColumnHeaders),
       displayTotals: toBoolean(includeTotal),
+      displayMeasuresRow: toBoolean(includeMeasureTitles),
     };
 
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
@@ -889,7 +895,14 @@ export const PIVOT = {
     }
     const table = pivot.getCollapsedTableStructure();
     const cells = table.getPivotCells(visibilityOptions);
-    const headerRows = visibilityOptions.displayColumnHeaders ? table.columns.length : 0;
+
+    let headerRows = 0;
+    if (visibilityOptions.displayColumnHeaders) {
+      headerRows = table.columns.length - 1;
+    }
+    if (visibilityOptions.displayMeasuresRow) {
+      headerRows++;
+    }
     const pivotTitle = this.getters.getPivotName(pivotId);
     const tableHeight = Math.min(headerRows + _rowCount, cells[0].length);
     if (tableHeight === 0) {
@@ -918,7 +931,7 @@ export const PIVOT = {
         }
       }
     }
-    if (visibilityOptions.displayColumnHeaders) {
+    if (visibilityOptions.displayColumnHeaders || visibilityOptions.displayMeasuresRow) {
       result[0][0] = { value: pivotTitle };
     }
     return result;
