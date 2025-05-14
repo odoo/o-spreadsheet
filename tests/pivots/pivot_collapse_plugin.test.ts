@@ -23,7 +23,7 @@ describe("Pivot collapse", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "D1:E4")).toEqual([
-        ["(#1) Pivot",      "Total"],
+        ["Pivot"     ,      "Total"],
         ["",                "Price"],
         ["Alice",           "30"],
         ["Total",           "30"],
@@ -45,7 +45,7 @@ describe("Pivot collapse", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "D1:F4")).toEqual([
-        ["(#1) Pivot",      "Alice",   ""],
+        ["Pivot"     ,      "Alice",   ""],
         ["",                "",        "Total"],
         ["",                "Price",   "Price"],
         ["Total",           "30",      "30"],
@@ -70,7 +70,7 @@ describe("Pivot collapse", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "E1:I4")).toEqual([
-        ["(#1) Pivot",      "Alice",   "",          "",        ""],
+        ["Pivot"     ,      "Alice",   "",          "",        ""],
         ["",                "",        "",          "Total",   ""],
         ["",                "Price",   "Quantity",  "Price",   "Quantity"],
         ["Total",           "30",      "15",       "30",      "15"],
@@ -100,7 +100,7 @@ describe("Pivot collapse", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "D1:E4")).toEqual([
-            ["(#1) Pivot",      "Total"],
+            ["Pivot"     ,      "Total"],
             ["",                "calc"],
             ["Alice",           "60"],
             ["Total",           "60"],
@@ -133,7 +133,7 @@ describe("Pivot collapse", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "E1:F8")).toEqual([
-        ["(#1) Pivot",      "Total"],
+        ["Pivot"     ,      "Total"],
         ["",                "Price"],
         ["Alice",           "30"],
         ["Bob",             "70"],
@@ -171,7 +171,7 @@ describe("Pivot collapse", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "E1:I5")).toEqual([
-        ["(#1) Pivot",      "Alice",  "Bob",   "",        ""],
+        ["Pivot"     ,      "Alice",  "Bob",   "",        ""],
         ["",                "",       "2020",  "2021",    ""],
         ["",                "",       "",      "TRUE",    "Total"],
         ["",                "Price",  "Price", "Price",   "Price"],
@@ -204,7 +204,7 @@ describe("Pivot collapse", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "F1:I5")).toEqual([
-        ["(#1) Pivot",      "Alice",  "Bob",   ""],
+        ["Pivot"     ,      "Alice",  "Bob",   ""],
         ["",                "",       "",      "Total"],
         ["",                "Price",  "Price", "Price"],
         ["Marc",            "30",     "70",    "100"],

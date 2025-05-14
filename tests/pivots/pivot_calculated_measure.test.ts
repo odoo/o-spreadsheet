@@ -32,7 +32,7 @@ describe("Pivot calculated measure", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:E3")).toEqual([
-      ["(#1) Pivot", "Total", ""],
+      ["Pivot",      "Total", ""],
       ["",           "Price", "Price times 2"],
       ["Total",      "10",    "20"],
     ]);
@@ -59,7 +59,7 @@ describe("Pivot calculated measure", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:E3")).toEqual([
-      ["(#1) Pivot", "Total",             ""],
+      ["Pivot",      "Total",             ""],
       ["",           "Expected revenue",  "Revenue times 2"],
       ["Total",      "10",                "20"],
     ]);
@@ -110,7 +110,7 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "A3").value).toEqual("#ERROR");
     expect(getEvaluatedCell(model, "A3").message).toEqual("Field Price is not a measure");
     expect(getEvaluatedGrid(model, "A4:B6")).toEqual([
-      ["(#1) Pivot", "Total"],
+      ["Pivot", "Total"],
       ["", "calculated"],
       ["Total", "#ERROR"],
     ]);
@@ -147,7 +147,7 @@ describe("Pivot calculated measure", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:C12")).toEqual(
       [
-        ["(#1) Pivot",      "Total",          "",],
+        ["Pivot",           "Total",          "",],
         ["",                "calc Customer",  "calc Category"],
         ["Alice",           "1",              "2"],
         ["Food",            "Alice",          "Food"],
@@ -190,7 +190,7 @@ describe("Pivot calculated measure", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:I8")).toEqual(
       [
-        ["(#1) Pivot",  "Alice",      "",           "",           "",           "Bob",        "",           "",           ""],
+        ["Pivot",       "Alice",      "",           "",           "",           "Bob",        "",           "",           ""],
         ["",            "Food",       "",           "Drink",      "",           "Food",       "",           "Total",      ""],
         ["",            "calc Cust",  "calc Categ", "calc Cust",  "calc Categ", "calc Cust",  "calc Categ", "calc Cust",  "calc Categ"],
         ["Total",       "Alice",      "Food",       "Alice",      "Drink",      "Bob",        "Food",       "2",          "2"],
@@ -224,7 +224,7 @@ describe("Pivot calculated measure", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:D9")).toEqual(
       [
-        ["(#1) Pivot",  "Alice",          "Bob",            "Total"],
+        ["Pivot",       "Alice",          "Bob",            "Total"],
         ["",            "calc Customer",  "calc Customer",  "calc Customer"],
         ["Food",        "Alice",          "Bob",            "2"],
         ["Drink",       "Alice",          "Bob",            "2"],
@@ -259,7 +259,7 @@ describe("Pivot calculated measure", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:C10")).toEqual(
       [
-        ["(#1) Pivot",      "10",             "Total"],
+        ["Pivot",           "10",             "Total"],
         ["",                "calc Category",  "calc Category"],
         ["Alice",           "2",              "2"],
         ["Food",            "Food",           "1"],
@@ -354,7 +354,7 @@ describe("Pivot calculated measure", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A10:C17")).toEqual(
       [
-        ["(#1) Pivot",      "Total",  ""],
+        ["Pivot",           "Total",  ""],
         ["",                "Price",  "Commission"],
         ["Alice",           "30",             "3"],
         ["Food",            "10",             "1"],
@@ -598,7 +598,7 @@ describe("Pivot calculated measure", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "D1:F6")).toEqual([
-      ["(#1) Pivot",      "Total", ""],
+      ["Pivot",           "Total", ""],
       ["",                "Price", "calculated"],
       ["Alice",           "30",    "50"], // 50 = 20 + 30
       ["2020",            "10",    "20"], // 20 = 10 + 10
@@ -634,7 +634,7 @@ describe("Pivot calculated measure", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A6:G10")).toEqual([
-      ["(#1) Pivot",  "Food",  "",     "Drink", "",     "Total",  ""],
+      ["Pivot",       "Food",  "",     "Drink", "",     "Total",  ""],
       ["",            "Price", "calc", "Price", "calc", "Price",  "calc"],
       ["Alice",       "10",    "20",   "300",   "310",  "310",    "330"],
       ["Bob",         "1000",  "1010", "3000",  "3010", "4000",   "4020"],
@@ -792,7 +792,7 @@ describe("Pivot calculated measure", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "D1:F6")).toEqual([
-      ["(#1) Pivot",      "Total",  ""],
+      ["Pivot",           "Total",  ""],
       ["",                "Price",  "calculated"],
       ["Alice",           "1",      "11"],
       ["2020",            "10",     "20"],
@@ -868,7 +868,7 @@ describe("Pivot calculated measure", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A3:B6")).toEqual([
-      ["(#1) Pivot",  "Total"],
+      ["Pivot",       "Total"],
       ["",            "calculated"],
       ["Alice",       "#DIV/0!",],
       ["Total",       "#DIV/0!",],
