@@ -1,4 +1,4 @@
-import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
+import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import {
@@ -548,11 +548,6 @@ export class GridSelectionPlugin extends UIPlugin {
     ];
 
     const sheetId = this.getActiveSheetId();
-    const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getClipboardDataPositions(sheetId, target));
-    if (!data) {
-      return;
-    }
     const base = isBasedBefore ? cmd.base : cmd.base + 1;
     const pasteTarget = [
       {
@@ -562,7 +557,15 @@ export class GridSelectionPlugin extends UIPlugin {
         bottom: !isCol ? base + thickness - 1 : this.getters.getNumberRows(cmd.sheetId) - 1,
       },
     ];
-    handler.paste({ zones: pasteTarget, sheetId }, data, { isCutOperation: true });
+
+    for (const Handler of clipboardHandlersRegistries.cellHandlers.getAll()) {
+      const handler = new Handler(this.getters, this.dispatch);
+      const data = handler.copy(getClipboardDataPositions(sheetId, target));
+      if (!data) {
+        continue;
+      }
+      handler.paste({ zones: pasteTarget, sheetId }, data, { isCutOperation: true });
+    }
 
     const selection = pasteTarget[0];
     const col = selection.left;
