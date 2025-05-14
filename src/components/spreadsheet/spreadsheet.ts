@@ -19,6 +19,7 @@ import {
   BUTTON_BG,
   BUTTON_HOVER_BG,
   BUTTON_HOVER_TEXT_COLOR,
+  ComponentsImportance,
   DISABLED_TEXT_COLOR,
   GRAY_200,
   GRAY_300,
@@ -316,6 +317,11 @@ css/* scss */ `
       color: ${TEXT_BODY};
     }
   }
+
+  .o-spreadsheet-topbar-wrapper,
+  .o-spreadsheet-bottombar-wrapper {
+    z-index: ${ComponentsImportance.ScrollBar + 1};
+  }
 `;
 
 export interface SpreadsheetProps extends Partial<NotificationStoreMethods> {
@@ -431,15 +437,15 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     useExternalListener(window, "resize", () => this.render(true));
 
-    if (window.visualViewport) {
-      useExternalListener(window.visualViewport, "resize", () =>
-        this.notificationStore.notifyUser({
-          text: `${window.visualViewport?.height}px`,
-          type: "warning",
-          sticky: true,
-        })
-      );
-    }
+    // if (window.visualViewport) {
+    //   useExternalListener(window.visualViewport, "resize", () =>
+    //     this.notificationStore.notifyUser({
+    //       text: `${window.visualViewport?.height}px`,
+    //       type: "warning",
+    //       sticky: true,
+    //     })
+    //   );
+    // }
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
