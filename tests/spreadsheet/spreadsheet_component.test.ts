@@ -523,5 +523,5 @@ test("components take the small screen into account", async () => {
   const model = new Model();
   const { fixture } = await mountSpreadsheet({ model }, { isSmall: true });
   expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
-  expect(fixture.querySelector(".o-spreadsheet-bottom-bar")?.classList).toContain("mobile");
+  expect(fixture.querySelector(".o-spreadsheet-mobile")).not.toBeNull();
 });

@@ -50,9 +50,9 @@ import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_sec
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
-  BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  DESKTOP_BOTTOMBAR_HEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   HIGHLIGHT_COLOR,
@@ -256,7 +256,7 @@ export const SPREADSHEET_DIMENSIONS = {
   MIN_COL_WIDTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  BOTTOMBAR_HEIGHT,
+  DESKTOP_BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_CELL_HEIGHT,
   SCROLLBAR_WIDTH,

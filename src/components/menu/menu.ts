@@ -3,11 +3,12 @@ import { Action } from "../../actions/action";
 import {
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
+  DESKTOP_MENU_ITEM_HEIGHT,
   DISABLED_TEXT_COLOR,
   ICONS_COLOR,
-  MENU_ITEM_HEIGHT,
   MENU_ITEM_PADDING_HORIZONTAL,
   MENU_ITEM_PADDING_VERTICAL,
+  MOBILE_MENU_ITEM_HEIGHT,
 } from "../../constants";
 import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
@@ -22,7 +23,7 @@ css/* scss */ `
     user-select: none;
 
     .o-menu-item {
-      height: ${MENU_ITEM_HEIGHT}px;
+      height: ${DESKTOP_MENU_ITEM_HEIGHT}px;
       padding: ${MENU_ITEM_PADDING_VERTICAL}px ${MENU_ITEM_PADDING_HORIZONTAL}px;
       cursor: pointer;
       user-select: none;
@@ -34,8 +35,8 @@ css/* scss */ `
       .o-menu-item-icon {
         display: inline-block;
         margin: 0px 8px 0px 0px;
-        width: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
-        line-height: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
+        width: ${DESKTOP_MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
+        line-height: ${DESKTOP_MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
       }
 
       &:not(.disabled) {
@@ -57,6 +58,12 @@ css/* scss */ `
         color: ${DISABLED_TEXT_COLOR};
         cursor: not-allowed;
       }
+    }
+  }
+
+  .o-spreadsheet-mobile {
+    .o-menu-item {
+      height: ${MOBILE_MENU_ITEM_HEIGHT}px;
     }
   }
 `;

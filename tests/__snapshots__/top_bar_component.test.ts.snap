@@ -704,7 +704,7 @@ exports[`TopBar component can set cell format 1`] = `
     
     
     <div
-      class="o-popover"
+      class="o-popover rounded"
       style="z-index: 35; display: block; max-height: 1000px; max-width: 1000px; top: 0px; left: 0px;"
     >
       <div

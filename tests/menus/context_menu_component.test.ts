@@ -4,7 +4,7 @@ import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  MENU_ITEM_HEIGHT,
+  DESKTOP_MENU_ITEM_HEIGHT,
   MENU_SEPARATOR_HEIGHT,
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
@@ -100,7 +100,7 @@ function getSubMenuPosition(depth = 1) {
 }
 
 function getItemSize() {
-  return MENU_ITEM_HEIGHT;
+  return DESKTOP_MENU_ITEM_HEIGHT;
 }
 
 function getSize(menuItemsCount: number): { width: number; height: number } {
@@ -215,7 +215,7 @@ beforeEach(() => {
         if (e === el) break;
 
         if (el.classList.contains("o-menu-item")) {
-          offset += MENU_ITEM_HEIGHT;
+          offset += DESKTOP_MENU_ITEM_HEIGHT;
         } else if (el.classList.contains("o-separator")) {
           offset += MENU_SEPARATOR_HEIGHT;
         }
@@ -223,7 +223,7 @@ beforeEach(() => {
       return {
         top: parentPosition.top + offset,
         left: parentPosition.left,
-        height: MENU_ITEM_HEIGHT,
+        height: DESKTOP_MENU_ITEM_HEIGHT,
         width: MENU_WIDTH,
       };
     },
@@ -820,7 +820,7 @@ describe("Context MenuPopover position on large screen 1000px/1000px", () => {
     const { height, width } = getSubMenuSize();
     const { height: rootHeight } = getMenuSize();
     expect(rootTop).toBe(clickY - rootHeight);
-    expect(top).toBe(clickY + MENU_ITEM_HEIGHT - height);
+    expect(top).toBe(clickY + DESKTOP_MENU_ITEM_HEIGHT - height);
     expect(left).toBe(clickX + width);
   });
 
