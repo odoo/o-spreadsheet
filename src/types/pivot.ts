@@ -217,3 +217,8 @@ export interface DimensionTreeNode {
 }
 
 export type DimensionTree = DimensionTreeNode[];
+
+export interface PivotVisibilityOptions {
+  displayColumnHeaders: boolean;
+  displayTotals: boolean;
+}
