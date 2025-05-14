@@ -289,7 +289,7 @@ describe("pivot contextual formatting", () => {
     expect(getEvaluatedCell(model, "F3")?.format).toBe("[$$]#,##0.00");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:F3")).toEqual([
-      ["(#1) Pivot", "Alice",   "Bob",    "Total"],
+      ["Pivot",      "Alice",   "Bob",    "Total"],
       ["",           "Price",   "Price",  "Price"],
       ["Total",      "$10.00",  "$12.00", "$22.00"],
     ]);
@@ -312,7 +312,7 @@ describe("pivot contextual formatting", () => {
     setContextualFormat(model, "B5", "[$$]#,##0.00"); // only on the first measure
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A3:C5")).toEqual([
-      ["(#1) Pivot", "Total",   ""],
+      ["Pivot",      "Total",   ""],
       ["",           "Price",   "Price avg"],
       ["Total",      "$10.00",  "10"],
     ]);
@@ -320,7 +320,7 @@ describe("pivot contextual formatting", () => {
     setContextualFormat(model, "B5:C5", "[$€]#,##0.00"); // on both measures
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A3:C5")).toEqual([
-      ["(#1) Pivot", "Total",   ""],
+      ["Pivot",      "Total",   ""],
       ["",           "Price",   "Price avg"],
       ["Total",      "€10.00",  "€10.00"],
     ]);
@@ -372,7 +372,7 @@ describe("pivot contextual formatting", () => {
     setContextualFormat(model, "D3", "[$$]#,##0.00");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:D4")).toEqual([
-      ["(#1) Pivot", "Total"],
+      ["Pivot",      "Total"],
       ["",           "Price"],
       ["Alice",      "$1.00"],
       ["Total",      "$1.00"],

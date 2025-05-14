@@ -880,7 +880,7 @@ export const PIVOT = {
     const table = pivot.getCollapsedTableStructure();
     const cells = table.getPivotCells(_includedTotal, _includeColumnHeaders);
     const headerRows = _includeColumnHeaders ? table.columns.length : 0;
-    const pivotTitle = this.getters.getPivotDisplayName(pivotId);
+    const pivotTitle = this.getters.getPivotName(pivotId);
     const tableHeight = Math.min(headerRows + _rowCount, cells[0].length);
     if (tableHeight === 0) {
       return [[{ value: pivotTitle }]];
