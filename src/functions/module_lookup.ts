@@ -1,7 +1,15 @@
 import { getFullReference, range, splitReference, toXC, toZone } from "../helpers/index";
 import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
+import {
+  AddFunctionDescription,
+  Arg,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+  PivotVisibilityOptions,
+  Zone,
+} from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import { expectNumberGreaterThanOrEqualToOne } from "./helper_assert";
@@ -865,8 +873,10 @@ export const PIVOT = {
     if (_columnCount < 0) {
       return new EvaluationError(_t("The number of columns must be positive."));
     }
-    const _includeColumnHeaders = toBoolean(includeColumnHeaders);
-    const _includedTotal = toBoolean(includeTotal);
+    const visibilityOptions: PivotVisibilityOptions = {
+      displayColumnHeaders: toBoolean(includeColumnHeaders),
+      displayTotals: toBoolean(includeTotal),
+    };
 
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
     const pivot = this.getters.getPivot(pivotId);
@@ -878,8 +888,8 @@ export const PIVOT = {
       return error;
     }
     const table = pivot.getCollapsedTableStructure();
-    const cells = table.getPivotCells(_includedTotal, _includeColumnHeaders);
-    const headerRows = _includeColumnHeaders ? table.columns.length : 0;
+    const cells = table.getPivotCells(visibilityOptions);
+    const headerRows = visibilityOptions.displayColumnHeaders ? table.columns.length : 0;
     const pivotTitle = this.getters.getPivotName(pivotId);
     const tableHeight = Math.min(headerRows + _rowCount, cells[0].length);
     if (tableHeight === 0) {
@@ -908,7 +918,7 @@ export const PIVOT = {
         }
       }
     }
-    if (_includeColumnHeaders) {
+    if (visibilityOptions.displayColumnHeaders) {
       result[0][0] = { value: pivotTitle };
     }
     return result;

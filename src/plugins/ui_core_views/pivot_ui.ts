@@ -226,9 +226,11 @@ export class PivotUIPlugin extends CoreViewPlugin {
       const includeColumnHeaders = toScalar(args[3]);
       const shouldIncludeColumnHeaders =
         includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
-      const pivotCells = pivot
-        .getCollapsedTableStructure()
-        .getPivotCells(shouldIncludeTotal, shouldIncludeColumnHeaders);
+      const visibilityOptions = {
+        displayColumnHeaders: shouldIncludeColumnHeaders,
+        displayTotals: shouldIncludeTotal,
+      };
+      const pivotCells = pivot.getCollapsedTableStructure().getPivotCells(visibilityOptions);
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;
       return pivotCells[pivotCol][pivotRow];
