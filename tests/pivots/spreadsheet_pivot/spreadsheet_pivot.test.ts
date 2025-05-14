@@ -22,6 +22,7 @@ import { createModelFromGrid } from "../../test_helpers/helpers";
 import {
   addPivot,
   createModelWithPivot,
+  createModelWithTestPivotDataset,
   removePivot,
   updatePivot,
 } from "../../test_helpers/pivot_helpers";
@@ -730,6 +731,67 @@ describe("Spreadsheet Pivot", () => {
       ["Bob",        "20"],
       ["Alice",      "10"],
       ["",           ""],
+    ]);
+  });
+
+  test("Pivot with columns and without measures", () => {
+    const model = createModelWithTestPivotDataset();
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
+      ["Pivot",    "Alice",            "Bob",              "Total"],
+      ["",         "Expected Revenue", "Expected Revenue", "Expected Revenue"],
+      ["February", "22500",            "",                 "22500"],
+      ["March",    "125400",           "64000",            "189400"],
+      ["April",    "82300",            "26000",            "108300"],
+      ["Total",    "230200",           "90000",            "320200"],
+    ]);
+
+    setCellContent(model, "A20", "=PIVOT(1,,,,,false)");
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
+      ["Pivot",    "Alice",  "Bob",   "Total"],
+      ["February", "22500",  "",      "22500"],
+      ["March",    "125400", "64000", "189400"],
+      ["April",    "82300",  "26000", "108300"],
+      ["Total",    "230200", "90000", "320200"],
+      ["",         "",       "",      ""],
+    ]);
+  });
+
+  test("Pivot without columns and with measures", () => {
+    const model = createModelWithTestPivotDataset();
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
+      ["Pivot",    "Alice",            "Bob",              "Total"],
+      ["",         "Expected Revenue", "Expected Revenue", "Expected Revenue"],
+      ["February", "22500",            "",                 "22500"],
+      ["March",    "125400",           "64000",            "189400"],
+      ["April",    "82300",            "26000",            "108300"],
+      ["Total",    "230200",           "90000",            "320200"],
+    ]);
+
+    setCellContent(model, "A20", "=PIVOT(1,,,FALSE)");
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
+      ["Pivot",    "Expected Revenue", "Expected Revenue", "Expected Revenue"],
+      ["February", "22500",            "",                 "22500"],
+      ["March",    "125400",           "64000",            "189400"],
+      ["April",    "82300",            "26000",            "108300"],
+      ["Total",    "230200",           "90000",            "320200"],
+      ["",         "",                 "",                 ""],
+    ]);
+
+    setCellContent(model, "A20", "=PIVOT(1,,,FALSE,,FALSE)");
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A20:D25")).toEqual([
+      ["February", "22500",  "",      "22500"],
+      ["March",    "125400", "64000", "189400"],
+      ["April",    "82300",  "26000", "108300"],
+      ["Total",    "230200", "90000", "320200"],
+      ["",         "",       "",      ""],
+      ["",         "",       "",      ""],
     ]);
   });
 

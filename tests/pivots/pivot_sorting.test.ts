@@ -92,7 +92,7 @@ describe("Pivot sorting", () => {
     expect(model.getters.getPivot(pivotId).getExpandedTableStructure().isSorted).toBe(true);
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-      A4: "(#1) Pivot",  B4: "Total",
+      A4: "Pivot",       B4: "Total",
       A5: "",            B5: "Price",
       A6: "Bob",         B6: 20,
       A7: "Alice",       B7: 10,
@@ -102,7 +102,7 @@ describe("Pivot sorting", () => {
     expect(model.getters.getPivot(pivotId).getExpandedTableStructure().isSorted).toBe(true);
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-      A4: "(#1) Pivot",  B4: "Total",
+      A4: "Pivot",       B4: "Total",
       A5: "",            B5: "Price",
       A6: "Alice",       B6: 10,
       A7: "Bob",         B7: 20,

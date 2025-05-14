@@ -157,12 +157,29 @@ export class SpreadsheetPivotTable {
     return this.columns.at(-1)?.length || 0;
   }
 
+  private getSkippedRows(visibilityOptions: PivotVisibilityOptions) {
+    const skippedRows: Set<number> = new Set();
+    if (!visibilityOptions.displayColumnHeaders) {
+      for (let i = 0; i < this.columns.length - 1; i++) {
+        skippedRows.add(i);
+      }
+    }
+    if (!visibilityOptions.displayMeasuresRow) {
+      skippedRows.add(this.columns.length - 1);
+    }
+    return skippedRows;
+  }
+
   getPivotCells(
-    visibilityOptions: PivotVisibilityOptions = { displayColumnHeaders: true, displayTotals: true }
+    visibilityOptions: PivotVisibilityOptions = {
+      displayColumnHeaders: true,
+      displayTotals: true,
+      displayMeasuresRow: true,
+    }
   ): PivotTableCell[][] {
     const key = JSON.stringify(visibilityOptions);
     if (!this.pivotCells[key]) {
-      const { displayColumnHeaders, displayTotals } = visibilityOptions;
+      const { displayTotals } = visibilityOptions;
       const numberOfDataRows = this.rows.length;
       const numberOfDataColumns = this.getNumberOfDataColumns();
       let pivotHeight = this.columns.length + numberOfDataRows;
@@ -174,11 +191,11 @@ export class SpreadsheetPivotTable {
         pivotWidth -= this.measures.length;
       }
       const domainArray: PivotTableCell[][] = [];
-      const startRow = displayColumnHeaders ? 0 : this.columns.length;
+      const skippedRows = this.getSkippedRows(visibilityOptions);
       for (let col = 0; col < pivotWidth; col++) {
         domainArray.push([]);
-        for (let row = startRow; row < pivotHeight; row++) {
-          if (!displayTotals && row === pivotHeight) {
+        for (let row = 0; row < pivotHeight; row++) {
+          if (skippedRows.has(row)) {
             continue;
           }
           domainArray[col].push(this.getPivotCell(col, row, displayTotals));
