@@ -214,4 +214,5 @@ export type DimensionTree = DimensionTreeNode[];
 export interface PivotVisibilityOptions {
   displayColumnHeaders: boolean;
   displayTotals: boolean;
+  displayMeasuresRow: boolean;
 }

@@ -368,7 +368,7 @@ describe("Pivot fix formula menu item", () => {
   test("Fixing the formula take into account the arguments of PIVOT()", () => {
     // prettier-ignore
     const grid = {
-     A1: "Customer", B1: "Price", C1: "Date",     E1: "=PIVOT(1, 1, false, false, 1)",
+     A1: "Customer", B1: "Price", C1: "Date",     E1: "=PIVOT(1, 1, false, false, 1, false)",
      A2: "Alice",    B2: "10",    C2: "2/4/2023",
      A3: "Bob",      B3: "30",    C3: "1/1/2024",
    };

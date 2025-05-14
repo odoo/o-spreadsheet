@@ -99,12 +99,24 @@ export class SpreadsheetPivotTable {
     return this.columns.at(-1)?.length || 0;
   }
 
+  getStartRow(visibilityOptions: PivotVisibilityOptions) {
+    const startRow = visibilityOptions.displayColumnHeaders ? 0 : this.columns.length - 1;
+    if (visibilityOptions.displayMeasuresRow) {
+      return startRow;
+    }
+    return startRow + 1;
+  }
+
   getPivotCells(
-    visibilityOptions: PivotVisibilityOptions = { displayColumnHeaders: true, displayTotals: true }
+    visibilityOptions: PivotVisibilityOptions = {
+      displayColumnHeaders: true,
+      displayTotals: true,
+      displayMeasuresRow: true,
+    }
   ): PivotTableCell[][] {
     const key = JSON.stringify(visibilityOptions);
     if (!this.pivotCells[key]) {
-      const { displayColumnHeaders, displayTotals } = visibilityOptions;
+      const { displayTotals } = visibilityOptions;
       const numberOfDataRows = this.rows.length;
       const numberOfDataColumns = this.getNumberOfDataColumns();
       let pivotHeight = this.columns.length + numberOfDataRows;
@@ -116,7 +128,7 @@ export class SpreadsheetPivotTable {
         pivotWidth -= this.measures.length;
       }
       const domainArray: PivotTableCell[][] = [];
-      const startRow = displayColumnHeaders ? 0 : this.columns.length;
+      const startRow = this.getStartRow(visibilityOptions);
       for (let col = 0; col < pivotWidth; col++) {
         domainArray.push([]);
         for (let row = startRow; row < pivotHeight; row++) {

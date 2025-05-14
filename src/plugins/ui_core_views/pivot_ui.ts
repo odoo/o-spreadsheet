@@ -20,6 +20,7 @@ import {
   FunctionResultObject,
   PivotCoreMeasure,
   PivotTableCell,
+  PivotVisibilityOptions,
   UID,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
@@ -223,11 +224,15 @@ export class PivotUIPlugin extends CoreViewPlugin {
       const includeTotal = toScalar(args[2]);
       const shouldIncludeTotal = includeTotal === undefined ? true : toBoolean(includeTotal);
       const includeColumnHeaders = toScalar(args[3]);
+      const includeMeasures = toScalar(args[5]);
+      const shouldIncludeMeasures =
+        includeMeasures === undefined ? true : toBoolean(includeMeasures);
       const shouldIncludeColumnHeaders =
         includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
-      const visibilityOptions = {
+      const visibilityOptions: PivotVisibilityOptions = {
         displayColumnHeaders: shouldIncludeColumnHeaders,
         displayTotals: shouldIncludeTotal,
+        displayMeasuresRow: shouldIncludeMeasures,
       };
       const pivotCells = pivot.getTableStructure().getPivotCells(visibilityOptions);
       const pivotCol = position.col - mainPosition.col;
