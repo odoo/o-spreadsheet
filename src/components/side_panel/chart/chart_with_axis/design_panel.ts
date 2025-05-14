@@ -8,7 +8,6 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../../types/index";
-import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
 import {
@@ -18,6 +17,7 @@ import {
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/series_with_axis_design_editor";
+import { ChartShowValues } from "../building_blocks/show_values/show_values";
 
 interface Props {
   figureId: UID;
@@ -42,9 +42,9 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     SidePanelCollapsible,
     Section,
     AxisDesignEditor,
-    Checkbox,
     SeriesWithAxisDesignEditor,
     ChartLegend,
+    ChartShowValues,
   };
   static props = {
     figureId: String,

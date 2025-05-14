@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartShowValues">
+    <Checkbox
+      name="'showValues'"
+      label.translate="Show values"
+      value="props.definition.showValues ?? props.defaultValue"
+      onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
+    />
+  </t>
+</templates>

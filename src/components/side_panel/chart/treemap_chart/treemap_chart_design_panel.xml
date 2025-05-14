@@ -57,12 +57,7 @@
               value="showLabels"
               onChange="(showLabels) => props.updateChart(this.props.figureId, { showLabels })"
             />
-            <Checkbox
-              name="'showValues'"
-              label.translate="Show values"
-              value="showValues"
-              onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
-            />
+            <ChartShowValues t-props="props" defaultValue="defaults.showValues"/>
           </div>
         </Section>
         <Section class="'pt-0'" t-if="showValues || showLabels">

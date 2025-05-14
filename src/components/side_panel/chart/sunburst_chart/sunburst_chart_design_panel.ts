@@ -14,6 +14,7 @@ import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
 import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
+import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
 
 interface Props {
@@ -29,6 +30,7 @@ export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildE
     GeneralDesignEditor,
     Section,
     SidePanelCollapsible,
+    ChartShowValues,
     Checkbox,
     TextStyler,
     RoundColorPicker,
