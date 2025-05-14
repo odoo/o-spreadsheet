@@ -879,7 +879,6 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden"
   >
     
-    <!-- t-att-class="props.class" -->
     <div
       class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
     >
@@ -1024,7 +1023,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 
 exports[`components take the small screen into account 1`] = `
 <div
-  class="o-spreadsheet h-100 w-100"
+  class="o-spreadsheet h-100 w-100 o-spreadsheet-mobile"
   style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
 >
   
@@ -1879,9 +1878,8 @@ exports[`components take the small screen into account 1`] = `
           </div>
         </div>
         
-        <!-- t-att-class="props.class" -->
         <div
-          class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden mobile"
+          class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
         >
           <div
             class="o-ripple-container position-relative add-sheet-container"

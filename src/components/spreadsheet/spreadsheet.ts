@@ -19,6 +19,7 @@ import {
   BUTTON_BG,
   BUTTON_HOVER_BG,
   BUTTON_HOVER_TEXT_COLOR,
+  ComponentsImportance,
   DISABLED_TEXT_COLOR,
   GRAY_200,
   GRAY_300,
@@ -315,6 +316,11 @@ css/* scss */ `
     &:active {
       color: ${TEXT_BODY};
     }
+  }
+
+  .o-spreadsheet-topbar-wrapper,
+  .o-spreadsheet-bottombar-wrapper {
+    z-index: ${ComponentsImportance.ScrollBar + 1};
   }
 `;
 

@@ -15,9 +15,10 @@ import {
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
   DEFAULT_FONT_SIZE,
+  DESKTOP_TOPBAR_TOOLBAR_HEIGHT,
   DISABLED_TEXT_COLOR,
+  MOBILE_TOPBAR_TOOLBAR_HEIGHT,
   SEPARATOR_COLOR,
-  TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
@@ -54,6 +55,7 @@ css/* scss */ `
     border-right: 1px solid ${SEPARATOR_COLOR};
     width: 0;
     margin: 0 6px;
+    height: 30px;
   }
 
   .o-toolbar-button {
@@ -86,7 +88,7 @@ css/* scss */ `
 
     .irregularity-map {
       border-top: 1px solid ${SEPARATOR_COLOR};
-      height: ${TOPBAR_TOOLBAR_HEIGHT}px;
+      height: ${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px;
 
       .alert-info {
         border-left: 3px solid ${ALERT_INFO_BORDER};
@@ -99,7 +101,7 @@ css/* scss */ `
 
     /* Toolbar */
     .o-topbar-toolbar {
-      height: ${TOPBAR_TOOLBAR_HEIGHT}px;
+      height: ${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px;
 
       .o-readonly-toolbar {
         background-color: ${BACKGROUND_HEADER_COLOR};
@@ -115,7 +117,18 @@ css/* scss */ `
   }
 
   .o-spreadsheet-mobile {
-    .o-toolbar-button.o-mobile-disabled * {
+    .o-topbar-toolbar {
+      height: ${MOBILE_TOPBAR_TOOLBAR_HEIGHT}px;
+    }
+    .o-topbar-divider {
+      border-width: 2px;
+      border-radius: 4px;
+    }
+
+    .o-toolbar-button {
+      height: 35px;
+      width: 31px;
+      .o-toolbar-button.o-mobile-disabled * {
       color: ${DISABLED_TEXT_COLOR};
       cursor: not-allowed;
     }

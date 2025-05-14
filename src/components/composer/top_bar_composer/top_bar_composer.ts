@@ -2,9 +2,9 @@ import { Component } from "@odoo/owl";
 import {
   ComponentsImportance,
   DEFAULT_FONT,
+  DESKTOP_TOPBAR_TOOLBAR_HEIGHT,
   SELECTION_BORDER_COLOR,
   SEPARATOR_COLOR,
-  TOPBAR_TOOLBAR_HEIGHT,
 } from "../../../constants";
 import { Store, useStore } from "../../../store_engine";
 import { CSSProperties, ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
@@ -25,7 +25,7 @@ const FX_SVG = /*xml*/ `
 
 css/* scss */ `
   .o-topbar-composer-container {
-    height: ${TOPBAR_TOOLBAR_HEIGHT}px;
+    height: ${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px;
   }
 
   .o-topbar-composer {
@@ -85,7 +85,7 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
       "max-height": `${COMPOSER_MAX_HEIGHT}px`,
       "line-height": "24px",
     };
-    style.height = this.focus === "inactive" ? `${TOPBAR_TOOLBAR_HEIGHT}px` : "fit-content";
+    style.height = this.focus === "inactive" ? `${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px` : "fit-content";
     return cssPropertiesToCss(style);
   }
 

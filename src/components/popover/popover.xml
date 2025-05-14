@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-Popover">
     <t t-portal="'.o-spreadsheet'">
       <div
-        class="o-popover"
+        class="o-popover rounded"
         t-att-class="props.class"
         t-ref="popover"
         t-on-wheel="props.onMouseWheel"

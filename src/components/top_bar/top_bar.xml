@@ -99,7 +99,7 @@
       popoverPositioning="'bottom-left'"
     />
     <Popover t-if="state.toolsPopoverState.isOpen" t-props="toolsPopoverProps">
-      <div class="d-flex px-2 py-1 flex-wrap" style="background-color:white;">
+      <div class="d-flex px-2 py-1 flex-wrap align-items-center" style="background-color:white;">
         <t
           t-foreach="state.invisibleToolsCategories"
           t-as="category"
@@ -113,7 +113,7 @@
           </t>
           <div
             t-if="category_index &lt; state.invisibleToolsCategories.length-1"
-            class="o-topbar-divider my-2"
+            class="o-topbar-divider"
           />
         </t>
       </div>
