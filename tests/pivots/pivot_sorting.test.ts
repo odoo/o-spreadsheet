@@ -10,7 +10,7 @@ import {
 
 // prettier-ignore
 const unsortedGrid = {
-    A20: "(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+    A20: "Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
     A22: "February",    B22: 22500,    C22: "",     D22: 22500,
     A23: "March",       B23: 125400,   C23: 64000,  D23: 189400,
     A24: "April",       B24: 82300,    C24: 26000,  D24: 108300,
@@ -31,7 +31,7 @@ describe("Pivot sorting", () => {
     });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20: "(#1) Pivot",   B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20: "Pivot",        B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",     B22: 22500,    C22: "",     D22: 22500,
         A23: "April",        B23: 82300,    C23: 26000,  D23: 108300,
         A24: "March",        B24: 125400,   C24: 64000,  D24: 189400,
@@ -47,7 +47,7 @@ describe("Pivot sorting", () => {
     });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",   B22: 22500,    C22: "",     D22: 22500,
         A23: "April",      B23: 82300,    C23: 26000,  D23: 108300,
         A24: "March",      B24: 125400,   C24: 64000,  D24: 189400,
@@ -59,7 +59,7 @@ describe("Pivot sorting", () => {
     });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "March",      B22: 125400,   C22: 64000,  D22: 189400,
         A23: "April",      B23: 82300,    C23: 26000,  D23: 108300,
         A24: "February",   B24: 22500,    C24: "",     D24: 22500,
@@ -121,7 +121,7 @@ describe("Pivot sorting", () => {
     updatePivot(model, "pivotId", { sortedColumn: { ...bobColumn, order: "asc" } });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-      A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+      A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
       A22: "February",   B22: 22500,    C22: "",     D22: 22500,
       A23: "April",      B23: 82300,    C23: 26000,  D23: 108300,
       A24: "March",      B24: 125400,   C24: 64000,  D24: 189400,
@@ -131,7 +131,7 @@ describe("Pivot sorting", () => {
     updatePivot(model, "pivotId", { sortedColumn: { ...bobColumn, order: "desc" } });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-      A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+      A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
       A22: "March",      B22: 125400,   C22: 64000,  D22: 189400,
       A23: "April",      B23: 82300,    C23: 26000,  D23: 108300,
       A24: "February",   B24: 22500,    C24: "",     D24: 22500,
@@ -151,7 +151,7 @@ describe("Pivot sorting", () => {
     });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-      A20: '(#1) Pivot',  B20: 'February',  C20: 'March', D20: 'April', E20: 'Total',
+      A20: 'Pivot',       B20: 'February',  C20: 'March', D20: 'April', E20: 'Total',
       A22: 'Alice',       B22: 22500,       C22: 125400,  D22: 82300,   E22: 230200,
       A23: 'Bob',         B23: "",          C23: 64000,   D23: 26000,   E23: 90000,
       A24: 'Total',       B24: 22500,       C24: 189400,  D24: 108300,  E24: 320200,
@@ -170,7 +170,7 @@ describe("Pivot sorting", () => {
 
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",    B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",         B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",     B22: 22500,    C22: "",     D22: 22500,
         A23: "FALSE",        B23: 22500,    C23: "",     D23: 22500,
         A24: "April",        B24: 82300,    C24: 26000,  D24: 108300,
@@ -191,7 +191,7 @@ describe("Pivot sorting", () => {
     });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",    B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",         B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "March",        B22: 125400,   C22: 64000,  D22: 189400,
         A23: "FALSE",        B23: 105600,   C23: 53000,  D23: 158600,
         A24: "TRUE",         B24: 19800,    C24: 11000,  D24: 30800,
@@ -259,7 +259,7 @@ describe("Pivot sorting", () => {
     });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",   D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",   D20: "Total",
         A22: "February",   B22: 45000,    C22: 0,       D22: 45000,
         A23: "April",      B23: 164600,   C23: 52000,   D23: 216600,
         A24: "March",      B24: 250800,   C24: 128000,  D24: 378800,
@@ -289,7 +289,7 @@ describe("Pivot sorting", () => {
 
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",   B22: 22500,    C22: 0,      D22: 22500,
         A23: "April",      B23: 104800,   C23: 26000,  D23: 130800,
         A24: "March",      B24: 230200,   C24: 90000,  D24: 320200,
@@ -309,7 +309,7 @@ describe("Pivot sorting", () => {
 
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",   B22: 22500,    C22: "",     D22: 22500,
         A23: "April",      B23: 82300,    C23: 26000,  D23: 108300,
         A24: "March",      B24: 125400,   C24: 64000,  D24: 189400,
@@ -333,7 +333,7 @@ describe("Pivot sorting", () => {
 
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",   B22: "100.00%",  C22: "",         D22: "100.00%",
         A23: "April",      B23: "365.78%",  C23: "",         D23: "481.33%",
         A24: "March",      B24: "152.37%",  C24: "246.15%",  D24: "174.88%",
@@ -385,7 +385,7 @@ describe("Pivot sorting", () => {
     updatePivot(model, pivotId, { sortedColumn });
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-      A4: "(#1) Pivot",  B4: "(Undefined)",  C4: "Total",
+      A4: "Pivot",       B4: "(Undefined)",  C4: "Total",
       A5: "",            B5: "Price",        C5: "Price",
       A6: "Bob",         B6: 20,             C6: 20,
       A7: "Alice",       B7: 10,             C7: 10,

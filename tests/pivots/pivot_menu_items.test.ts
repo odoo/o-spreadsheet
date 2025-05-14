@@ -196,7 +196,7 @@ describe("Pivot fix formula menu item", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:D4")).toEqual([
-      ["(#1) Pivot", "Total"],
+      ["Pivot",      "Total"],
       ["",              "Amount"],
       ["Alice",         "10",],
       ["(Undefined)",   "20"],

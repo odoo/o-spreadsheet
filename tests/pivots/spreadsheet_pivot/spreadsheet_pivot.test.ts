@@ -414,7 +414,7 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
     });
     expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
-      ["(#1) Pivot"],
+      ["Pivot"],
       [""],
       ["Sunday"],
       ["Monday"],
@@ -440,7 +440,7 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
     });
     expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
-      ["(#1) Pivot"],
+      ["Pivot"],
       [""],
       ["Monday"],
       ["Sunday"],
@@ -461,13 +461,7 @@ describe("Spreadsheet Pivot", () => {
       rows: [{ fieldName: "Date", granularity: "hour_number" }],
       measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
     });
-    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
-      ["(#1) Pivot"],
-      [""],
-      ["1h"],
-      ["2h"],
-      ["Total"],
-    ]);
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([["Pivot"], [""], ["1h"], ["2h"], ["Total"]]);
   });
 
   test("Pivot with minute_number", () => {
@@ -483,13 +477,7 @@ describe("Spreadsheet Pivot", () => {
       rows: [{ fieldName: "Date", granularity: "minute_number" }],
       measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
     });
-    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
-      ["(#1) Pivot"],
-      [""],
-      ["7'"],
-      ["8'"],
-      ["Total"],
-    ]);
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([["Pivot"], [""], ["7'"], ["8'"], ["Total"]]);
   });
 
   test("Pivot with second_number", () => {
@@ -506,7 +494,7 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
     });
     expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
-      ["(#1) Pivot"],
+      ["Pivot"],
       [""],
       ["12''"],
       ["14''"],
@@ -566,7 +554,7 @@ describe("Spreadsheet Pivot", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
-      ["(#1) Pivot"],
+      ["Pivot"],
       [""],
       ["Alice"],
       ["Olaf"],
@@ -590,7 +578,7 @@ describe("Spreadsheet Pivot", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
-      ["(#1) Pivot"],
+      ["Pivot"],
       [""],
       ["(Undefined)"],
       ["Olaf"],
@@ -737,7 +725,7 @@ describe("Spreadsheet Pivot", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:D5")).toEqual([
-      ["(#1) Pivot", "Total"],
+      ["Pivot",      "Total"],
       ["",           "Price"],
       ["Bob",        "20"],
       ["Alice",      "10"],
@@ -762,21 +750,21 @@ describe("Spreadsheet Pivot", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:H2")).toEqual([
-      ["(#1) Pivot", "14 Apr 1995", "28 Nov 2024", "28 Dec 2024", "Total", ""],
+      ["Pivot",      "14 Apr 1995", "28 Nov 2024", "28 Dec 2024", "Total", ""],
       ["",           "Price",       "Price",       "Price",      "Price", ""],
     ]);
 
     setCellContent(model, "C1", "=PIVOT(1,,,,0)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:D2")).toEqual([
-      ["(#1) Pivot", ""],
+      ["Pivot",      ""],
       ["",           ""],
     ]);
 
     setCellContent(model, "C1", "=PIVOT(1,,,,1)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:E2")).toEqual([
-      ["(#1) Pivot", "14 Apr 1995", ""],
+      ["Pivot",      "14 Apr 1995", ""],
       ["",           "Price",       ""],
     ]);
   });
@@ -810,7 +798,7 @@ describe("Spreadsheet Pivot", () => {
 
     const margin = GRID_ICON_MARGIN * 2;
     expect(cellsWithMargins).toMatchObject([
-      { value: "(#1) Pivot", format: undefined, iconMargin: 0 },
+      { value: "Pivot", format: undefined, iconMargin: 0 },
       { value: "", format: undefined, iconMargin: 0 },
       { value: 1995, format: "0* ", iconMargin: margin },
       { value: "Q2", format: "@* ", iconMargin: PIVOT_INDENT + margin },
@@ -1807,7 +1795,7 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ id: "Customer:avg", fieldName: "Customer", aggregator: "avg" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
-    expect(getCellContent(model, "A26")).toBe(model.getters.getPivotDisplayName("1"));
+    expect(getCellContent(model, "A26")).toBe(model.getters.getPivotName("1"));
     expect(getEvaluatedCell(model, "B28")).toMatchObject({
       value: CellErrorType.DivisionByZero,
       message: "Evaluation of function AVG caused a divide by zero error.",
@@ -1940,7 +1928,7 @@ describe("Spreadsheet Pivot", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:I2")).toEqual([
-      ["(#1) Pivot", "28 Nov 2024", "",      "28 Dec 2024", "",      "Total", ""],
+      ["Pivot",      "28 Nov 2024", "",      "28 Dec 2024", "",      "Total", ""],
       ["",           "Price",       "Price", "Price",       "Price", "Price", "Price"],
     ]);
   });
@@ -1964,7 +1952,7 @@ describe("Spreadsheet Pivot", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:I2")).toEqual([
-      ["(#1) Pivot", "28 Nov 2024", "",         "28 Dec 2024", "",         "Total", ""],
+      ["Pivot",      "28 Nov 2024", "",         "28 Dec 2024", "",         "Total", ""],
       ["",           "Price",       "My price", "Price",       "My price", "Price", "My price"],
     ]);
   });
@@ -2280,7 +2268,7 @@ describe("Spreadsheet arguments parsing", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:C7")).toEqual([
-      ["(#1) Pivot", "Total", ""],
+      ["Pivot",      "Total", ""],
       ["",           "Price", "double"],
       ["Total",      "10",    "20"],
     ]);
@@ -2289,7 +2277,7 @@ describe("Spreadsheet arguments parsing", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:C7")).toEqual([
-      ["(#1) Pivot", "", ""],
+      ["Pivot",      "", ""],
       ["",           "", ""],
       ["Total",      "", ""],
     ]);
@@ -2314,7 +2302,7 @@ describe("Spreadsheet arguments parsing", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:D7")).toEqual([
-      ["(#1) Pivot",  "Alice",  "Bob",   "Total"],
+      ["Pivot",       "Alice",  "Bob",   "Total"],
       ["",            "Price",  "Price", "Price"],
       ["Total",       "10",     "20",    "30"],
     ]);

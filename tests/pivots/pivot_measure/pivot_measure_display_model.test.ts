@@ -23,7 +23,7 @@ describe("Measure display", () => {
 
     // prettier-ignore
     expect(getGrid(model)).toMatchObject({
-        A20: "(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20: "Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",    B22: 22500,    C22: "",     D22: 22500,
         A23: "March",       B23: 125400,   C23: 64000,  D23: 189400,
         A24: "April",       B24: 82300,    C24: 26000,  D24: 108300,
@@ -37,7 +37,7 @@ describe("Measure display", () => {
 
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-        A20: "(#1) Pivot",  B20: "Alice",   C20: "Bob",     D20: "Total",
+        A20: "Pivot",       B20: "Alice",   C20: "Bob",     D20: "Total",
         A22: "February",    B22: "7.03%",   C22: "0.00%",   D22: "7.03%",
         A23: "March",       B23: "39.16%",  C23: "19.99%",  D23: "59.15%",
         A24: "April",       B24: "25.70%",  C24: "8.12%",   D24: "33.82%",
@@ -60,7 +60,7 @@ describe("Measure display", () => {
 
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-        A20: "(#1) Pivot",  B20: "Alice",    C20: "Bob",     D20: "Total",
+        A20: "Pivot",       B20: "Alice",    C20: "Bob",     D20: "Total",
         A22: "February",    B22: "37.50%",   C22: "0.00%",   D22: "37.50%",
         A23: "March",       B23: "100.00%",  C23: "58.33%",  D23: "100.00%",
         A24: "April",       B24: "66.67%",   C24: "40.00%",  D24: "66.67%",
@@ -74,7 +74,7 @@ describe("Measure display", () => {
 
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-      A20: "(#1) Pivot",  B20: "Alice",    C20: "Bob",      D20: "Total",
+      A20: "Pivot",       B20: "Alice",    C20: "Bob",      D20: "Total",
       A22: "February",    B22: "9.77%",    C22: "0.00%",    D22: "7.03%",
       A23: "March",       B23: "54.47%",   C23: "71.11%",   D23: "59.15%",
       A24: "April",       B24: "35.75%",   C24: "28.89%",   D24: "33.82%",
@@ -88,7 +88,7 @@ describe("Measure display", () => {
 
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-      A20: "(#1) Pivot",  B20: "Alice",    C20: "Bob",     D20: "Total",
+      A20: "Pivot",       B20: "Alice",    C20: "Bob",     D20: "Total",
       A22: "February",    B22: "100.00%",  C22: "0.00%",   D22: "100.00%",
       A23: "March",       B23: "66.21%",   C23: "33.79%",  D23: "100.00%",
       A24: "April",       B24: "75.99%",   C24: "24.01%",  D24: "100.00%",
@@ -114,7 +114,7 @@ describe("Measure display", () => {
 
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-      A20: "(#1) Pivot",      B20: "Alice",    C20: "Bob",      D20: "Total",
+      A20: "Pivot",           B20: "Alice",    C20: "Bob",      D20: "Total",
       A22: "February",        B22: "9.77%",    C22: "0.00%",    D22: "7.03%",
       A23: "FALSE",           B23: "100.00%",  C23: "",         D23: "100.00%",
       A24: "March",           B24: "54.47%",   C24: "71.11%",   D24: "59.15%",
@@ -146,7 +146,7 @@ describe("Measure display", () => {
 
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-      A20:"(#1) Pivot",  B20: "Alice",    C20: "",        D20: "Bob",     E20: "",         F20: "",
+      A20:"Pivot",       B20: "Alice",    C20: "",        D20: "Bob",     E20: "",         F20: "",
       A21: "",           B21: "FALSE",    C21: "TRUE",    D21: "FALSE",   E21: "TRUE",     F21: "Total",
       A23: "February",   B23: "100.00%",  C23: "0.00%",   D23: "",        E23: "",         F23: "100.00%",
       A24: "March",      B24: "84.21%",   C24: "15.79%",  D24: "82.81%",  E24: "17.19%",   F24: "100.00%",
@@ -179,7 +179,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "100.00%",  C22: "",         D22: "100.00%",
         A23: "FALSE",              B23: "100.00%",  C23: "",         D23: "100.00%",
         A24: "Won",                B24: "100.00%",  C24: "",         D24: "100.00%",
@@ -224,7 +224,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "",         C22: "",         D22: "",
         A23: "FALSE",              B23: "100.00%",  C23: "",         D23: "100.00%",
         A24: "Won",                B24: "100.00%",  C24: "",         D24: "100.00%",
@@ -268,7 +268,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",   C20: "",         D20: "Bob",     E20: "",        F20: "",
+        A20:"Pivot",       B20: "Alice",   C20: "",         D20: "Bob",     E20: "",        F20: "",
         A21: "",           B21: "New",     C21: "Won",      D21: "New",     E21: "Won",     F21: "Total",
         A23: "February",   B23: "0.00%",   C23: "100.00%",  D23: "",        E23: "",        F23: "",
         A24: "March",      B24: "84.21%",  C24: "15.79%",   D24: "40.63%",  E24: "59.38%",  F24: "",
@@ -295,7 +295,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",   D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",   D20: "Total",
         A22: "February",   B22: "#N/A",   C22: "#N/A",  D22: "#N/A",
         A23: "March",      B23: "#N/A",   C23: "#N/A",  D23: "#N/A",
         A24: "April",      B24: "#N/A",   C24: "#N/A",  D24: "#N/A",
@@ -327,7 +327,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",  D20: "Total",
         A22: "February",   B22: "100.00%",  C22: "",     D22: "100.00%", // No value for Bob in February, so the whole col is empty
         A23: "March",      B23: "557.33%",  C23: "",     D23: "841.78%",
         A24: "April",      B24: "365.78%",  C24: "",     D24: "481.33%",
@@ -354,7 +354,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",     D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",     D20: "Total",
         A22: "February",   B22: "100.00%",  C22: "#NULL!",  D22: "",
         A23: "March",      B23: "100.00%",  C23: "51.04%",  D23: "",
         A24: "April",      B24: "100.00%",  C24: "31.59%",  D24: "",
@@ -386,7 +386,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "",         C22: "",         D22: "",
         A23: "FALSE",              B23: "100.00%",  C23: "",         D23: "100.00%",
         A24: "Won",                B24: "100.00%",  C24: "",         D24: "100.00%",
@@ -427,7 +427,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",     D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",     D20: "Total",
         A22: "February",   B22: "100.00%",  C22: "",        D22: "100.00%",
         A23: "March",      B23: "557.33%",  C23: "",        D23: "841.78%",
         A24: "April",      B24: "65.63%",   C24: "40.63%",  D24: "57.18%",
@@ -454,7 +454,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",   B22: "",         C22: "",         D22: "",
         A23: "March",      B23: "195.94%",  C23: "100.00%",  D23: "",
         A24: "April",      B24: "316.54%",  C24: "100.00%",  D24: "",
@@ -486,7 +486,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "",         C22: "",         D22: "",
         A23: "FALSE",              B23: "100.00%",  C23: "",         D23: "100.00%",
         A24: "Won",                B24: "100.00%",  C24: "",         D24: "100.00%",
@@ -528,7 +528,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "April",      B22: "100.00%",  C22: "100.00%",  D22: "100.00%",
         A23: "March",      B23: "152.37%",  C23: "246.15%",  D23: "174.88%",
         A24: "February",   B24: "17.94%",   C24: "#NULL!",   D24: "11.88%",
@@ -555,7 +555,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",   D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",   D20: "Total",
         A22: "February",   B22: "#N/A",   C22: "#N/A",  D22: "#N/A",
         A23: "March",      B23: "#N/A",   C23: "#N/A",  D23: "#N/A",
         A24: "April",      B24: "#N/A",   C24: "#N/A",  D24: "#N/A",
@@ -582,7 +582,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",   D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",   D20: "Total",
         A22: "February",   B22: "#N/A",   C22: "#N/A",  D22: "",
         A23: "March",      B23: "#N/A",   C23: "#N/A",  D23: "",
         A24: "April",      B24: "#N/A",   C24: "#N/A",  D24: "",
@@ -642,7 +642,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",   C20: "Bob",    D20: "Total",
+        A20:"Pivot",       B20: "Alice",   C20: "Bob",    D20: "Total",
         A22: "February",   B22: "",        C22: "",       D22: "",
         A23: "March",      B23: "102900",  C23: "64000",  D23: "166900",
         A24: "April",      B24: "59800",   C24: "26000",  D24: "85800",
@@ -669,7 +669,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",      D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",      D20: "Total",
         A22: "February",   B22: "",       C22: "-22500",   D22: "",
         A23: "March",      B23: "",       C23: "-61400",   D23: "",
         A24: "April",      B24: "",       C24: "-56300",   D24: "",
@@ -701,7 +701,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",   C20: "Bob",     D20: "Total",
+        A20:"Pivot",               B20: "Alice",   C20: "Bob",     D20: "Total",
         A22: "February",           B22: "",        C22: "",        D22: "",
         A23: "FALSE",              B23: "#N/A",    C23: "#N/A",    D23: "#N/A",
         A24: "Won",                B24: "#N/A",    C24: "#N/A",    D24: "#N/A",
@@ -747,7 +747,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",     D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",     D20: "Total",
         A22: "February",           B22: "",         C22: "",        D22: "",
         A23: "FALSE",              B23: "",         C23: "",        D23: "",
         A24: "Won",                B24: "",         C24: "",        D24: "",
@@ -790,7 +790,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",  D20: "Total",
         A22: "February",   B22: "",         C22: "",     D22: "",
         A23: "March",      B23: "457.33%",  C23: "",     D23: "741.78%",
         A24: "April",      B24: "265.78%",  C24: "",     D24: "381.33%",
@@ -817,7 +817,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",      D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",      D20: "Total",
         A22: "February",   B22: "",       C22: "#NULL!",   D22: "",
         A23: "March",      B23: "",       C23: "-48.96%",  D23: "",
         A24: "April",      B24: "",       C24: "-68.41%",  D24: "",
@@ -849,7 +849,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "",         C22: "",         D22: "",
         A23: "FALSE",              B23: "#N/A",     C23: "#N/A",     D23: "#N/A",
         A24: "Won",                B24: "#N/A",     C24: "#N/A",     D24: "#N/A",
@@ -895,7 +895,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "",         C22: "",         D22: "",
         A23: "FALSE",              B23: "",         C23: "",         D23: "",
         A24: "Won",                B24: "",         C24: "",         D24: "",
@@ -956,7 +956,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",        C20: "Bob",          D20: "Total",
+        A20:"Pivot",       B20: "Alice",        C20: "Bob",          D20: "Total",
         A22: "February",   B22: "1.390964379",  C22: "0",            D22: "1",
         A23: "March",      B23: "0.920944737",  C23: "1.202205796",  D23: "1",
         A24: "April",      B24: "1.057030179",  C24: "0.854129476",  D24: "1",
@@ -983,7 +983,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",        C20: "Bob",          D20: "Total",
+        A20:"Pivot",               B20: "Alice",        C20: "Bob",          D20: "Total",
         A22: "February",           B22: "1.390964379",  C22: "0",            D22: "1",
         A23: "FALSE",              B23: "1.390964379",  C23: "0",            D23: "1",
         A24: "Won",                B24: "1.390964379",  C24: "0",            D24: "1",
@@ -1016,7 +1016,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",   B22: "1",      C22: "",     D22: "1",
         A23: "March",      B23: "3",      C23: "2",    D23: "3",
         A24: "April",      B24: "2",      C24: "1",    D24: "2",
@@ -1040,7 +1040,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",               B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",           B22: "1",      C22: "",     D22: "1",
         A23: "FALSE",              B23: "1",      C23: "",     D23: "1",
         A24: "Won",                B24: "3",      C24: "",     D24: "3",
@@ -1067,7 +1067,7 @@ describe("Measure display", () => {
       });
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",               B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",           B22: "",       C22: "",     D22: "",
         A23: "FALSE",              B23: "1",      C23: "",     D23: "1",
         A24: "Won",                B24: "1",      C24: "",     D24: "1",
@@ -1094,7 +1094,7 @@ describe("Measure display", () => {
       });
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",               B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",           B22: "",       C22: "",     D22: "",
         A23: "FALSE",              B23: "",       C23: "",     D23: "",
         A24: "Won",                B24: "1",      C24: "",     D24: "1",
@@ -1125,7 +1125,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",   B22: "1",      C22: "",     D22: "",
         A23: "March",      B23: "2",      C23: "1",    D23: "",
         A24: "April",      B24: "2",      C24: "1",    D24: "",
@@ -1144,7 +1144,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",   B22: "3",      C22: "",     D22: "3",
         A23: "March",      B23: "1",      C23: "1",    D23: "1",
         A24: "April",      B24: "2",      C24: "2",    D24: "2",
@@ -1168,7 +1168,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",               B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",           B22: "",       C22: "",     D22: "",
         A23: "FALSE",              B23: "1",      C23: "",     D23: "1",
         A24: "Won",                B24: "1",      C24: "",     D24: "1",
@@ -1199,7 +1199,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",  D20: "Total",
+        A20:"Pivot",       B20: "Alice",  C20: "Bob",  D20: "Total",
         A22: "February",   B22: "1",      C22: "",     D22: "",
         A23: "March",      B23: "1",      C23: "2",    D23: "",
         A24: "April",      B24: "1",      C24: "2",    D24: "",
@@ -1218,7 +1218,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",   C20: "Bob",    D20: "Total",
+        A20:"Pivot",       B20: "Alice",   C20: "Bob",    D20: "Total",
         A22: "February",   B22: "22500",   C22: "0",      D22: "22500",
         A23: "March",      B23: "147900",  C23: "64000",  D23: "211900",
         A24: "April",      B24: "230200",  C24: "90000",  D24: "320200",
@@ -1242,7 +1242,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",   C20: "Bob",    D20: "Total",
+        A20:"Pivot",               B20: "Alice",   C20: "Bob",    D20: "Total",
         A22: "February",           B22: "22500",   C22: "0",      D22: "22500",
         A23: "FALSE",              B23: "22500",   C23: "0",      D23: "22500",
         A24: "Won",                B24: "22500",   C24: "0",      D24: "22500",
@@ -1270,7 +1270,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",   C20: "Bob",    D20: "Total",
+        A20:"Pivot",               B20: "Alice",   C20: "Bob",    D20: "Total",
         A22: "February",           B22: "",        C22: "",       D22: "",
         A23: "FALSE",              B23: "22500",   C23: "0",      D23: "22500",
         A24: "Won",                B24: "22500",   C24: "0",      D24: "22500",
@@ -1298,7 +1298,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",   C20: "Bob",    D20: "Total",
+        A20:"Pivot",               B20: "Alice",   C20: "Bob",    D20: "Total",
         A22: "February",           B22: "",        C22: "",       D22: "",
         A23: "FALSE",              B23: "",        C23: "",       D23: "",
         A24: "Won",                B24: "22500",   C24: "0",      D24: "22500",
@@ -1329,7 +1329,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",   C20: "Bob",     D20: "Total",
+        A20:"Pivot",       B20: "Alice",   C20: "Bob",     D20: "Total",
         A22: "February",   B22: "22500",   C22: "22500",   D22: "",
         A23: "March",      B23: "125400",  C23: "189400",  D23: "",
         A24: "April",      B24: "82300",   C24: "108300",  D24: "",
@@ -1349,7 +1349,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",   C20: "Bob",    D20: "Total",
+        A20:"Pivot",       B20: "Alice",   C20: "Bob",    D20: "Total",
         A22: "April",      B22: "82300",   C22: "26000",  D22: "108300",
         A23: "March",      B23: "207700",  C23: "90000",  D23: "297700",
         A24: "February",   B24: "230200",  C24: "90000",  D24: "320200",
@@ -1381,7 +1381,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",   C20: "",        D20: "Bob",    E20: "",        F20: "Total",   G20: "",
+        A20:"Pivot",       B20: "Alice",   C20: "",        D20: "Bob",    E20: "",        F20: "Total",   G20: "",
         A21: "",           B21: "m1",      C21: "m2",      D21: "m1",     E21: "m2",      F21: "m1",      G21: "m2",
         A22: "February",   B22: "22500",   C22: "22500",   D22: "",       E22: "22500",   F22: "22500",   G22: "",
         A23: "March",      B23: "125400",  C23: "125400",  D23: "64000",  E23: "189400",  F23: "189400",  G23: "",
@@ -1401,7 +1401,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",   B22: "9.77%",    C22: "0.00%",    D22: "7.03%",
         A23: "March",      B23: "64.25%",   C23: "71.11%",   D23: "66.18%",
         A24: "April",      B24: "100.00%",  C24: "100.00%",  D24: "100.00%",
@@ -1425,7 +1425,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "9.77%",    C22: "0.00%",    D22: "7.03%",
         A23: "FALSE",              B23: "11.65%",   C23: "0.00%",    D23: "9.14%",
         A24: "Won",                B24: "47.37%",   C24: "0.00%",    D24: "26.32%",
@@ -1453,7 +1453,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "",         C22: "",         D22: "",
         A23: "FALSE",              B23: "100.00%",  C23: "",         D23: "100.00%",
         A24: "Won",                B24: "100.00%",  C24: "",         D24: "100.00%",
@@ -1481,7 +1481,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",          B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",               B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",           B22: "",         C22: "",         D22: "",
         A23: "FALSE",              B23: "",         C23: "",         D23: "",
         A24: "Won",                B24: "100.00%",  C24: "",         D24: "100.00%",
@@ -1512,7 +1512,7 @@ describe("Measure display", () => {
 
       // prettier-ignore
       expect(getFormattedGrid(model)).toMatchObject({
-        A20:"(#1) Pivot",  B20: "Alice",    C20: "Bob",      D20: "Total",
+        A20:"Pivot",       B20: "Alice",    C20: "Bob",      D20: "Total",
         A22: "February",   B22: "100.00%",  C22: "100.00%",  D22: "",
         A23: "March",      B23: "66.21%",   C23: "100.00%",  D23: "",
         A24: "April",      B24: "75.99%",   C24: "100.00%",  D24: "",
@@ -1586,7 +1586,7 @@ describe("Measure display", () => {
     });
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-      A20:"(#1) Pivot",  B20: "Alice",   C20: "",        D20: "Bob",     E20: "",        F20: "Total",    G20: "",
+      A20:"Pivot",       B20: "Alice",   C20: "",        D20: "Bob",     E20: "",        F20: "Total",    G20: "",
       A21: "",           B21: "m1",      C21: "m2",      D21: "m1",      E21: "m2",      F21: "m1",       G21: "m2",
       A22: "February",   B22: "7.03%",   C22: "17.03%",  D22: "0.00%",   E22: "10.00%",  F22: "7.03%",    G22: "27.03%",
       A23: "March",      B23: "39.16%",  C23: "49.16%",  D23: "19.99%",  E23: "29.99%",  F23: "59.15%",   G23: "79.15%",
@@ -1624,7 +1624,7 @@ describe("Measure display", () => {
     });
     // prettier-ignore
     expect(getFormattedGrid(model)).toMatchObject({
-      A20:"(#1) Pivot",  B20: "Alice",   C20: "",        D20: "Bob",     E20: "",        F20: "Total",    G20: "",
+      A20:"Pivot",       B20: "Alice",   C20: "",        D20: "Bob",     E20: "",        F20: "Total",    G20: "",
       A21: "",           B21: "m1",      C21: "m2",      D21: "m1",      E21: "m2",      F21: "m1",       G21: "m2",
       A22: "February",   B22: "7.03%",   C22: "10.64%",  D22: "0.00%",   E22: "6.25%",   F22: "7.03%",    G22: "16.89%",
       A23: "March",      B23: "39.16%",  C23: "30.73%",  D23: "19.99%",  E23: "18.74%",  F23: "59.15%",   G23: "49.47%",
