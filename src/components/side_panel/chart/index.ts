@@ -12,6 +12,7 @@ import { GeoChartConfigPanel } from "./geo_chart_panel/geo_chart_config_panel";
 import { GeoChartDesignPanel } from "./geo_chart_panel/geo_chart_design_panel";
 import { HierarchicalChartConfigPanel } from "./hierarchical_chart/hierarchical_chart_config_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
+import { LineChartDesignPanel } from "./line_chart/line_chart_design_panel";
 import { PieChartDesignPanel } from "./pie_chart/pie_chart_design_panel";
 import { RadarChartDesignPanel } from "./radar_chart/radar_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
@@ -40,7 +41,7 @@ export const chartSidePanelComponentRegistry = new Registry<ChartSidePanel>();
 chartSidePanelComponentRegistry
   .add("line", {
     configuration: LineConfigPanel,
-    design: ChartWithAxisDesignPanel,
+    design: LineChartDesignPanel,
   })
   .add("scatter", {
     configuration: ScatterConfigPanel,

@@ -6,6 +6,7 @@ import { ComboBarChartDefinition } from "./common_bar_combo";
 export interface ComboChartDefinition extends ComboBarChartDefinition {
   readonly dataSets: ComboChartDataSet[];
   readonly type: "combo";
+  readonly hideDataMarkers?: boolean;
 }
 
 export type ComboChartDataSet = CustomizedDataSet & { type?: "bar" | "line" };

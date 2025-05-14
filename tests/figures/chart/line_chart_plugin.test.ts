@@ -30,6 +30,7 @@ describe("line chart", () => {
       axesDesign: {},
       fillArea: true,
       showValues: false,
+      hideDataMarkers: false,
     });
   });
 

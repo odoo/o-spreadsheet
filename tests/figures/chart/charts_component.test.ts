@@ -2,7 +2,11 @@ import { App } from "@odoo/owl";
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ChartTerms } from "../../../src/components/translations_terms";
-import { BACKGROUND_CHART_COLOR, DEBOUNCE_TIME } from "../../../src/constants";
+import {
+  BACKGROUND_CHART_COLOR,
+  DEBOUNCE_TIME,
+  LINE_DATA_POINT_RADIUS,
+} from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { getChartColorsGenerator } from "../../../src/helpers/figures/charts/runtime";
@@ -1796,6 +1800,30 @@ describe("charts", () => {
 
       options = getChartConfiguration(model, chartId).options;
       expect(options.plugins.chartShowValuesPlugin.showValues).toBeTruthy();
+    }
+  );
+
+  test.each<ChartType>(["line", "combo", "radar"])(
+    "show data marker checkbox updates the chart",
+    async (type: ChartType) => {
+      createTestChart("bar");
+      await mountChartSidePanel();
+      await changeChartType(type);
+      await openChartDesignSidePanel(model, env, fixture, chartId);
+
+      expect(model.getters.getChartDefinition(chartId)["hideDataMarkers"]).toBe(undefined);
+
+      let datasets = getChartConfiguration(model, chartId).data.datasets;
+      expect(datasets[0].pointRadius).toBe(LINE_DATA_POINT_RADIUS);
+
+      await simulateClick("input[name='showDataMarkers']");
+
+      expect(model.getters.getChartDefinition(chartId)["hideDataMarkers"]).toBe(true);
+      datasets = getChartConfiguration(model, chartId).data.datasets;
+      expect(datasets[0].pointRadius).toBe(0);
+
+      await simulateClick("input[name='showDataMarkers']");
+      expect(model.getters.getChartDefinition(chartId)["hideDataMarkers"]).toBe(false);
     }
   );
 
