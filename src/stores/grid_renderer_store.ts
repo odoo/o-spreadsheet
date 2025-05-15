@@ -1,4 +1,4 @@
-import { ModelStore } from ".";
+import { ModelStore, SpreadsheetStore } from ".";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
@@ -21,46 +21,93 @@ import {
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
+  deepCopy,
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
+  isZoneInside,
   numberToLetters,
   overlap,
   positionToZone,
   union,
+  zoneToXc,
 } from "../helpers/index";
+import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { Get, Store } from "../store_engine";
 import {
   Align,
+  BorderDescrWithOpacity,
   Box,
   CellPosition,
   CellValueType,
-  Getters,
+  Command,
   GridRenderingContext,
   HeaderIndex,
   LayerName,
   Pixel,
+  RenderingBox,
   UID,
   Viewport,
   Zone,
 } from "../types/index";
 import { FormulaFingerprintStore } from "./formula_fingerprints_store";
-import { RendererStore } from "./renderer_store";
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
-export class GridRenderer {
-  private getters: Getters;
-  private renderer: Store<RendererStore>;
+interface Animation {
+  oldBox: RenderingBox;
+  startTime?: number;
+  progress: number;
+  animationTypes: string[];
+}
+
+export class GridRenderer extends SpreadsheetStore {
   private fingerprints: Store<FormulaFingerprintStore>;
   private hoveredTables: Store<HoveredTableStore>;
 
+  private lastRenderBoxes: Map<string, Box> = new Map();
+  private preventNewAnimationsInNextFrame = false;
+  private zonesWithPreventedAnimationsInNextFrame: Zone[] = [];
+  private animations: Map<string, Animation> = new Map();
+
+  animationDuration = 300;
+
   constructor(get: Get) {
+    super(get);
     this.getters = get(ModelStore).getters;
-    this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
     this.hoveredTables = get(HoveredTableStore);
-    this.renderer.register(this);
+  }
+
+  handle(cmd: Command) {
+    switch (cmd.type) {
+      case "START":
+      case "ACTIVATE_SHEET":
+      case "ADD_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
+        this.animations.clear();
+        this.preventNewAnimationsInNextFrame = true;
+        break;
+      case "REDO":
+        this.zonesWithPreventedAnimationsInNextFrame = [];
+        break;
+      case "UNDO":
+        for (const command of cmd.commands) {
+          if (command.type === "ADD_COLUMNS_ROWS" || command.type === "REMOVE_COLUMNS_ROWS") {
+            this.animations.clear();
+            this.preventNewAnimationsInNextFrame = true;
+            break;
+          }
+        }
+        break;
+      case "PASTE":
+        this.zonesWithPreventedAnimationsInNextFrame.push(...this.getters.getSelectedZones());
+        break;
+      case "UPDATE_CELL":
+        const zones = this.getters.getCommandZones(cmd);
+        this.zonesWithPreventedAnimationsInNextFrame.push(...zones);
+        break;
+    }
   }
 
   get renderingLayers() {
@@ -71,17 +118,25 @@ export class GridRenderer {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
+  drawLayer(
+    renderingContext: GridRenderingContext,
+    layer: LayerName,
+    timeStamp: number | undefined
+  ) {
     switch (layer) {
       case "Background":
         this.drawGlobalBackground(renderingContext);
+        const oldBoxes = this.lastRenderBoxes;
+        this.lastRenderBoxes = new Map();
+
         for (const { zone, rect } of this.getters.getAllActiveViewportsZonesAndRect()) {
           const { ctx } = renderingContext;
           ctx.save();
           ctx.beginPath();
           ctx.rect(rect.x, rect.y, rect.width, rect.height);
           ctx.clip();
-          const boxes = this.getGridBoxes(zone);
+          const boxesWithoutAnimations = this.getGridBoxes(zone);
+          const boxes = this.getBoxesWithAnimations(boxesWithoutAnimations, oldBoxes, timeStamp);
           this.drawBackground(renderingContext, boxes);
           this.drawOverflowingCellBackground(renderingContext, boxes);
           this.drawCellBackground(renderingContext, boxes);
@@ -91,6 +146,8 @@ export class GridRenderer {
           ctx.restore();
         }
         this.drawFrozenPanes(renderingContext);
+        this.preventNewAnimationsInNextFrame = false;
+        this.zonesWithPreventedAnimationsInNextFrame = [];
         break;
       case "Headers":
         if (!this.getters.isDashboard()) {
@@ -120,6 +177,7 @@ export class GridRenderer {
 
     if (areGridLinesVisible) {
       for (const box of boxes) {
+        if (box.skipCellGridLines) continue;
         ctx.strokeStyle = CELL_BORDER_COLOR;
         ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
@@ -216,7 +274,14 @@ export class GridRenderer {
      * each line and adding 1 pixel to the end of each line (depending on the direction of the
      * line).
      */
-    function drawBorder({ style, color }, x1: Pixel, y1: Pixel, x2: Pixel, y2: Pixel) {
+    function drawBorder(
+      { color, style, opacity }: BorderDescrWithOpacity,
+      x1: Pixel,
+      y1: Pixel,
+      x2: Pixel,
+      y2: Pixel
+    ) {
+      ctx.globalAlpha = opacity ?? 1;
       ctx.strokeStyle = color;
       switch (style) {
         case "medium":
@@ -265,6 +330,7 @@ export class GridRenderer {
 
       ctx.lineWidth = 1;
       ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
     }
   }
 
@@ -274,6 +340,7 @@ export class GridRenderer {
     let currentFont;
     for (const box of boxes) {
       if (box.content) {
+        ctx.globalAlpha = box.textOpacity ?? 1;
         const style = box.style || {};
         const align = box.content.align || "left";
 
@@ -330,6 +397,7 @@ export class GridRenderer {
         if (box.clipRect) {
           ctx.restore();
         }
+        ctx.globalAlpha = 1;
       }
     }
   }
@@ -342,8 +410,10 @@ export class GridRenderer {
           continue;
         }
         ctx.save();
+        ctx.globalAlpha = icon.opacity ?? 1;
         ctx.beginPath();
-        ctx.rect(box.x, box.y, box.width, box.height);
+        const clipRect = icon.clipRect || box;
+        ctx.rect(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
         ctx.clip();
 
         const iconSize = icon.size;
@@ -622,6 +692,7 @@ export class GridRenderer {
     };
 
     const box: Box = {
+      id: zoneToXc(zone),
       x,
       y,
       width,
@@ -634,6 +705,9 @@ export class GridRenderer {
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
       icons: cellIcons,
+      disabledAnimation: this.zonesWithPreventedAnimationsInNextFrame.some(
+        (z) => isZoneInside(zone, z) || overlap(zone, z)
+      ),
     };
 
     const fontSizePX = computeTextFontSizeInPixels(box.style);
@@ -785,5 +859,99 @@ export class GridRenderer {
       }
     }
     return boxes;
+  }
+
+  private getBoxesWithAnimations(
+    boxes: Box[],
+    oldBoxes: Map<string, Box>,
+    timeStamp: number | undefined
+  ) {
+    this.updateAnimationsProgress(timeStamp);
+    this.addNewAnimations(boxes, oldBoxes, timeStamp);
+
+    if (this.animations.size > 0) {
+      this.renderer.startAnimation("grid_renderer_animation");
+      return this.updateBoxesWithAnimations(boxes);
+    } else {
+      this.renderer.stopAnimation("grid_renderer_animation");
+      return boxes;
+    }
+  }
+
+  private updateBoxesWithAnimations(boxes: Box[]) {
+    const boxesWithAnimations: Box[] = [];
+    for (const box of boxes) {
+      const animation = this.animations.get(box.id);
+      if (!animation) {
+        boxesWithAnimations.push(box);
+        continue;
+      }
+
+      const animatedBox = deepCopy(box);
+      boxesWithAnimations.push(animatedBox);
+      for (const animationId of animation.animationTypes) {
+        const animationItem = cellAnimationRegistry.get(animationId);
+        const newBoxes = animationItem.updateAnimation(
+          animation.progress,
+          animatedBox,
+          animation.oldBox,
+          box
+        );
+        if (newBoxes) {
+          boxesWithAnimations.push(...newBoxes.newBoxes);
+        }
+      }
+    }
+
+    return boxesWithAnimations;
+  }
+
+  private updateAnimationsProgress(timeStamp: number | undefined) {
+    if (timeStamp === undefined) {
+      return;
+    }
+    for (const boxId of this.animations.keys()) {
+      const animation = this.animations.get(boxId)!;
+      if (animation.startTime === undefined) {
+        animation.startTime = timeStamp;
+        continue;
+      }
+      const elapsedTime = timeStamp - animation.startTime;
+      const progress = Math.min(1, elapsedTime / this.animationDuration);
+      if (progress >= 1) {
+        this.animations.delete(boxId);
+      }
+      animation.progress = progress;
+    }
+  }
+
+  private addNewAnimations(
+    boxes: Box[],
+    oldBoxes: Map<string, Box>,
+    timeStamp: number | undefined
+  ) {
+    for (const box of boxes) {
+      this.lastRenderBoxes.set(box.id, box);
+      const oldBox = oldBoxes.get(box.id);
+      if (this.preventNewAnimationsInNextFrame || !oldBox || box.disabledAnimation) {
+        continue;
+      }
+
+      const animationTypes: string[] = [];
+      for (const animationItem of cellAnimationRegistry.getAll()) {
+        if (animationItem.hasAnimation(oldBox, box)) {
+          animationTypes.push(animationItem.id);
+        }
+      }
+
+      const animation =
+        animationTypes.length > 0
+          ? { animationTypes, oldBox, progress: 0, startTime: timeStamp }
+          : undefined;
+
+      if (animation) {
+        this.animations.set(box.id, animation);
+      }
+    }
   }
 }
