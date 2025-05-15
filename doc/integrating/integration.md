@@ -7,24 +7,30 @@ Here is the shortest example to use o-spreadsheet.
 ```typescript
 const { Spreadsheet, Model } = o_spreadsheet;
 
-const model = new Model();
-const templates = await(await fetch("../dist/o_spreadsheet.xml")).text();
-const app = new owl.App(Spreadsheet, {
-  props: {
-    model,
-    // optionals
-    notifyUser: () => window.alert(content),
-    askConfirmation: (message, confirm, cancel) => window.confirm(message),
-    raiseError: (content, callback) => {
-      window.alert(content);
-      callback?.();
+const response = await fetch("../dist/o_spreadsheet.xml");
+if (response.status === 404) {
+  document.body.innerText =
+    'File not found: ../dist/o_spreadsheet.xml, Don\'t forget to run: "npm run dist"';
+} else {
+  const templates = await response.text();
+  const app = new owl.App(Spreadsheet, {
+    props: {
+      model: new Model(),
+      // optionals
+      notifyUser: () => window.alert(content),
+      askConfirmation: (message, confirm, cancel) => window.confirm(message),
+      raiseError: (content, callback) => {
+        window.alert(content);
+        callback?.();
+      },
     },
-  },
-  {},
-  templates,
-});
-app.mount(document.body);
+    templates,
+  });
+  app.mount(document.body);
+}
 ```
+
+You can also look at [minimalist.html](../../demo/minimalist.html) and [minimalist.js](../../demo/minimalist.js) for a more complete example.
 
 ## Spreadsheet component props
 

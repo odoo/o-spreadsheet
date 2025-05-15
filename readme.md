@@ -15,6 +15,23 @@ a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
 
 ![o-spreadsheet screenshot](doc/o-spreadsheet.png "o-spreadsheet demo")
 
+## Run it!
+
+```bash
+# install dependencies
+npm install
+
+# build stuff, start a live server, start a collaborative server, build with --watch
+npm run dev
+```
+
+## Test it!
+
+```bash
+npm run test # run all tests
+npm run test -- --watch # run all tests, rerun on file change
+```
+
 ## Integrating o-spreadsheet
 
 1. [Getting started](doc/integrating/integration.md#getting-started)
@@ -41,26 +58,6 @@ a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
 9. [Terminology](doc/o-spreadsheet_terminology.png)
 10. [Translations](doc/extending/translations.md)
 11. [API](doc/tsdoc/README.md)
-
-## Run it!
-
-```bash
-# install dependencies
-npm install
-
-# build o_spreadsheet.js in dist/
-npm run build
-
-# build stuff, start a live server, start a collaborative server, build with --watch
-npm run dev
-
-# run the test suite
-npm run test
-npm run test -- --watch
-
-# build documentation
-npm run doc
-```
 
 ## Contributing
 
