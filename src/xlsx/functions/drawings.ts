@@ -108,7 +108,7 @@ function figureCoordinates(
   for (const [headerIndex, header] of headers.slice(anchor).entries()) {
     if (currentPosition <= offset && offset < currentPosition + header.size!) {
       return {
-        index: headerIndex,
+        index: anchor + headerIndex,
         offset: convertDotValueToEMU(offset - currentPosition + FIGURE_BORDER_WIDTH),
       };
     } else if (headerIndex < headers.length - 1) {
