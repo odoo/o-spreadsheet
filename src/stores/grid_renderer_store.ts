@@ -56,11 +56,12 @@ import { RendererStore } from "./renderer_store";
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
-const DURATION = 1000;
+const DURATION = 250;
 
 interface AnimatedBox {
+  type: string;
   oldBox: Box | undefined;
-  newBox: Box;
+  newBox: Box | undefined;
   startTime: number;
 }
 
@@ -85,8 +86,6 @@ export class GridRenderer {
   private boxes: Map<string, Box> = new Map();
   private animations: Map<string, AnimatedBox> = new Map();
 
-  private runningAnimation: Animation | undefined = undefined;
-
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
@@ -102,43 +101,14 @@ export class GridRenderer {
           ctx.rect(rect.x, rect.y, rect.width, rect.height);
           ctx.clip();
           const boxes = this.getGridBoxes(zone);
-          this.updateBoxes(boxes);
-          this.drawBackground(renderingContext);
-          this.drawOverflowingCellBackground(renderingContext);
-          this.drawCellBackground(renderingContext);
-          this.drawBorders(renderingContext);
-          this.drawTexts(renderingContext);
-          this.drawIcon(renderingContext);
+          this.updateAnimations(boxes);
+          this.drawBackground(renderingContext, boxes);
+          this.drawOverflowingCellBackground(renderingContext, boxes);
+          this.drawCellBackground(renderingContext, boxes);
+          this.drawBorders(renderingContext, boxes);
+          this.drawTexts(renderingContext, boxes);
+          this.drawIcon(renderingContext, boxes);
           ctx.restore();
-
-          if (this.animations.size && !this.runningAnimation) {
-            this.runningAnimation = new Animation(
-              0,
-              1,
-              DURATION,
-              (progress) => {
-                ctx.save();
-                ctx.beginPath();
-                ctx.rect(rect.x, rect.y, rect.width, rect.height);
-                ctx.clip();
-                const boxes = this.getGridBoxes(zone);
-                this.updateBoxes(boxes);
-                this.drawBackground(renderingContext);
-                this.drawOverflowingCellBackground(renderingContext);
-                this.drawCellBackground(renderingContext);
-                this.drawBorders(renderingContext);
-                this.drawTexts(renderingContext);
-                this.drawIcon(renderingContext);
-                ctx.restore();
-              },
-              () => {
-                22;
-                this.runningAnimation = undefined;
-                this.animations.clear();
-              }
-            );
-            this.runningAnimation.start();
-          }
         }
         this.drawFrozenPanes(renderingContext);
         break;
@@ -151,7 +121,15 @@ export class GridRenderer {
     }
   }
 
-  private updateBoxes(newBoxes: Box[]) {
+  private updateAnimations(newBoxes: Box[]) {
+    const timeStamp = performance.now();
+    for (const [boxId, animation] of this.animations.entries()) {
+      const elapsedTime = timeStamp - animation.startTime;
+      if (elapsedTime > DURATION) {
+        this.animations.delete(boxId);
+      }
+    }
+
     const newBoxesMap = new Map<string, Box>();
     const boxIds = new Set<string>();
     for (const box of newBoxes) {
@@ -162,7 +140,7 @@ export class GridRenderer {
       const animation = this.getAnimationForBoxChange(oldBox, box);
       if (animation) {
         if (this.animations.has(box.xc)) {
-          // console.log("Animation skipped", box.xc);
+          console.log("Animation skipped", box.xc);
         } else {
           this.animations.set(box.xc, animation);
         }
@@ -171,18 +149,30 @@ export class GridRenderer {
     this.boxes = newBoxesMap;
 
     for (const boxId of this.animations.keys()) {
+      1;
       if (!boxIds.has(boxId)) {
         this.animations.delete(boxId);
       }
     }
+
+    if (this.animations.size > 0 && !this.renderer.isAnimating) {
+      this.renderer.startAnimation(DURATION);
+    }
   }
 
-  private getAnimationForBoxChange(oldBox: Box | undefined, newBox: Box): AnimatedBox | undefined {
-    if (!oldBox?.content?.text) {
-      return undefined;
-    }
-    if (oldBox?.content?.text !== newBox.content?.text) {
-      return { oldBox, newBox, startTime: performance.now() };
+  private getAnimationForBoxChange(
+    oldBox: Box | undefined,
+    newBox: Box | undefined
+  ): AnimatedBox | undefined {
+    const oldText = oldBox?.content?.text;
+    const newText = newBox?.content?.text;
+
+    if (!oldText && newText) {
+      return { oldBox: undefined, newBox, startTime: performance.now(), type: "fadein" };
+    } else if (oldText && !newText) {
+      return { oldBox, newBox: undefined, startTime: performance.now(), type: "fadeout" };
+    } else if (oldBox && newBox && oldText !== newText) {
+      return { oldBox, newBox, startTime: performance.now(), type: "sliding" };
     }
     return undefined;
   }
@@ -196,7 +186,7 @@ export class GridRenderer {
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
   }
 
-  private drawBackground(renderingContext: GridRenderingContext) {
+  private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
 
     const areGridLinesVisible =
@@ -205,7 +195,7 @@ export class GridRenderer {
     const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
 
     if (areGridLinesVisible) {
-      for (const box of this.boxes.values()) {
+      for (const box of boxes) {
         ctx.strokeStyle = CELL_BORDER_COLOR;
         ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
@@ -213,9 +203,9 @@ export class GridRenderer {
     }
   }
 
-  private drawCellBackground(renderingContext: GridRenderingContext) {
+  private drawCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
-    for (const box of this.boxes.values()) {
+    for (const box of boxes) {
       const style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
@@ -242,9 +232,9 @@ export class GridRenderer {
     }
   }
 
-  private drawOverflowingCellBackground(renderingContext: GridRenderingContext) {
+  private drawOverflowingCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
-    for (const box of this.boxes.values()) {
+    for (const box of boxes) {
       if (box.content && box.isOverflow) {
         const align = box.content.align || "left";
         let x: number;
@@ -269,9 +259,9 @@ export class GridRenderer {
     }
   }
 
-  private drawBorders(renderingContext: GridRenderingContext) {
+  private drawBorders(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
-    for (const box of this.boxes.values()) {
+    for (const box of boxes) {
       const border = box.border;
       if (border) {
         const { x, y, width, height } = box;
@@ -356,16 +346,16 @@ export class GridRenderer {
 
   // private textsAtLastRender: any = {};
 
-  private drawTexts(renderingContext: GridRenderingContext) {
+  private drawTexts(renderingContext: GridRenderingContext, boxes: Box[]) {
     // const texts: any = {};
     const { ctx } = renderingContext;
-    for (const box of this.boxes.values()) {
+    for (const box of boxes) {
       if (box.content) {
         // const text = box.content.textLines.join(" ");
         // const lastText = this.textsAtLastRender[box.xc];
         // ADRM TODO: error cells
         if (this.animations.has(box.xc)) {
-          this.drawAnimatedText(renderingContext, this.animations.get(box.xc)!);
+          // this.drawAnimatedText(renderingContext, this.animations.get(box.xc)!);
         } else {
           // if (this.runningAnimations[box.xc]) {
           //   continue;
@@ -388,6 +378,10 @@ export class GridRenderer {
 
         // texts[box.xc] = text;
       }
+    }
+
+    for (const animatedBox of this.animations.values()) {
+      this.drawAnimatedText(renderingContext, animatedBox);
     }
 
     // this.textsAtLastRender = texts;
@@ -445,9 +439,9 @@ export class GridRenderer {
     }
   }
 
-  private drawIcon(renderingContext: GridRenderingContext) {
+  private drawIcon(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
-    for (const box of this.boxes.values()) {
+    for (const box of boxes) {
       if (box.image && box.image.svg) {
         ctx.save();
         if (box.image.clipIcon) {
@@ -903,9 +897,6 @@ export class GridRenderer {
   }
 
   private drawAnimatedText(renderingContext: GridRenderingContext, animatedBox: AnimatedBox) {
-    if (!animatedBox.oldBox) {
-      return;
-    }
     const { ctx } = renderingContext;
 
     // ADRM TODO: probably an argument of the function
@@ -915,66 +906,42 @@ export class GridRenderer {
     const value = 1 * progress;
 
     const box = animatedBox.newBox;
-    const oldBox = animatedBox.oldBox!;
+    const oldBox = animatedBox.oldBox;
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(box.x + 1, box.y + 1, box.width - 2, box.height - 2);
-    ctx.clip();
-    ctx.fillStyle = box.style.fillColor || "#ffffff";
-    ctx.fillRect(box.x, box.y, box.width, box.height);
-    const oldTextBox = { ...oldBox, y: box.y + value * box.height };
-    const newTextBox = { ...box, y: box.y + (value - 1) * box.height };
-    this.drawText(renderingContext, oldTextBox);
-    this.drawText(renderingContext, newTextBox);
+    console.log("draw animated text", box?.xc, animatedBox);
+
+    if (box && oldBox && animatedBox.type === "sliding") {
+      ctx.beginPath();
+      ctx.rect(box.x + 1, box.y + 1, box.width - 2, box.height - 2);
+      ctx.clip();
+      const val = easeOut(value);
+      const oldTextBox = { ...oldBox, y: box.y + val * box.height };
+      const newTextBox = { ...box, y: box.y + (val - 1) * box.height };
+      this.drawText(renderingContext, oldTextBox);
+      this.drawText(renderingContext, newTextBox);
+    }
+    // Fade in
+    else if (box && animatedBox.type === "fadein") {
+      const alpha = Math.min(1, easeIn(value));
+      ctx.globalAlpha = alpha;
+      this.drawText(renderingContext, box);
+    }
+    // Fade out
+    else if (oldBox && animatedBox.type === "fadeout") {
+      console.log("fade out", oldBox.xc);
+      const alpha = Math.max(0, 1 - easeOut(value));
+      ctx.globalAlpha = alpha;
+      this.drawText(renderingContext, oldBox);
+    }
     ctx.restore();
   }
 }
 
-export class Animation {
-  private startTime: number;
-  private animationFrameId: number | null = null;
+// ADRM TODO move this
+export function easeOut(t: number) {
+  return 1 - Math.pow(1 - t, 3); // Cubic ease-out
+}
 
-  constructor(
-    private startValue: number,
-    private endValue: number,
-    private duration: number,
-    private callback: (value: number) => void,
-    private onAnimationEnd?: () => void
-  ) {
-    this.startTime = performance.now();
-  }
-
-  start() {
-    this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
-  }
-
-  stop() {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-    this.onAnimationEnd?.();
-  }
-
-  private animate() {
-    const timestamp = performance.now();
-    const elapsed = timestamp - this.startTime;
-    const progress = Math.min(elapsed / this.duration, 1);
-    const currentValue = this.interpolateLinear(this.startValue, this.endValue, progress);
-    this.callback(currentValue);
-
-    if (progress < 1) {
-      this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
-    } else {
-      this.stop();
-    }
-  }
-
-  // private interpolateEaseOutQuart(start: number, end: number, progress: number): number {
-  //   return start + (end - start) * (1 - (1 - progress) ** 4);
-  // }
-
-  private interpolateLinear(start: number, end: number, progress: number): number {
-    return start + (end - start) * progress;
-  }
+export function easeIn(t: number) {
+  return Math.pow(t, 3); // Cubic ease-in
 }
