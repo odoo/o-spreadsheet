@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
-import { deepEquals } from "../../helpers";
+import { deepEquals, positionToZone } from "../../helpers";
 import { isPointInsideRect } from "../../helpers/rectangle";
 import { Store, useStore } from "../../store_engine";
 import {
@@ -328,7 +328,11 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
 
     const icons = this.env.model.getters.getCellIcons(position);
     const icon = icons.find((icon) => {
-      return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon));
+      const merge = this.env.model.getters.getMerge(position);
+      const zone = merge || positionToZone(position);
+      const cellRect = this.env.model.getters.getRect(zone);
+
+      return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon, cellRect));
     });
     return icon?.onClick ? icon : undefined;
   }

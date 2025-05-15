@@ -4,6 +4,7 @@ import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import {
   MIN_DELAY,
   lettersToNumber,
+  positionToZone,
   scrollDelay,
   toCartesian,
   toHex,
@@ -156,14 +157,16 @@ export async function clickCell(
 }
 
 export function getGridIconEventPosition(model: Model, xc: string) {
-  const position = toCartesian(xc);
-  const sheetId = model.getters.getActiveSheetId();
-  const icon = model.getters.getCellIcons({ sheetId, ...position })[0];
+  const position = { ...toCartesian(xc), sheetId: model.getters.getActiveSheetId() };
+  const icon = model.getters.getCellIcons(position)[0];
   if (!icon) {
     throw new Error(`No icon inside cell ${xc}`);
   }
   const gridOffset = model.getters.getGridOffset();
-  const rect = model.getters.getCellIconRect(icon);
+  const merge = model.getters.getMerge(position);
+  const zone = merge || positionToZone(position);
+  const cellRect = model.getters.getRect(zone);
+  const rect = model.getters.getCellIconRect(icon, cellRect);
   const x = rect.x + rect.width / 2 - gridOffset.x;
   const y = rect.y + rect.height / 2 - gridOffset.y;
   return { x, y };

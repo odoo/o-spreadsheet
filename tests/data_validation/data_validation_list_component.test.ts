@@ -7,6 +7,7 @@ import {
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { IsValueInListCriterion, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   addDataValidation,
@@ -439,7 +440,7 @@ describe("Selection arrow icon in grid", () => {
   test("Icon is displayed in the grid at the correct position", () => {
     const icon = getCellIcons(model, "A1")[0];
     expect(icon.type).toEqual("data_validation_list_icon");
-    const rect = model.getters.getCellIconRect(icon);
+    const rect = model.getters.getCellIconRect(icon, model.getters.getRect(toZone("A1")));
     expect(rect.x).toEqual(DEFAULT_CELL_WIDTH - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH);
     expect(rect.y).toEqual(1 + MIN_CELL_TEXT_MARGIN); // +1 to skip grid lines
   });
