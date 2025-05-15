@@ -18,15 +18,7 @@ import { Mode } from "../../src/model";
 import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../../src/stores/grid_renderer_store";
 import { RendererStore } from "../../src/stores/renderer_store";
-import {
-  Align,
-  BorderPosition,
-  Box,
-  GridRenderingContext,
-  OrderedLayers,
-  Viewport,
-  Zone,
-} from "../../src/types";
+import { Align, BorderPosition, Box, GridRenderingContext, Viewport, Zone } from "../../src/types";
 import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
@@ -76,12 +68,10 @@ interface ContextObserver {
 
 function setRenderer(model: Model = new Model()) {
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
+  gridRendererStore["getBoxesWithAnimations"] = (boxes) => boxes; // disable animations ADRM TODO: do it in the model when we implement the option
   const rendererManager = container.get(RendererStore);
   const drawGridRenderer = (ctx: GridRenderingContext) => {
-    for (const layer of OrderedLayers()) {
-      model.drawLayer(ctx, layer);
-      rendererManager.drawLayer(ctx, layer);
-    }
+    rendererManager.draw(ctx);
   };
   return { model, gridRendererStore, drawGridRenderer, container };
 }

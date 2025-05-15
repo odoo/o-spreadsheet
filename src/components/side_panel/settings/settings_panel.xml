@@ -2,7 +2,9 @@
   <t t-name="o-spreadsheet-SettingsPanel">
     <div class="o-settings-panel">
       <Section title.translate="Locale">
-        <select class="o-input" t-on-change="(ev) => this.onLocaleChange(ev.target.value)">
+        <select
+          class="o-input o-locale-select"
+          t-on-change="(ev) => this.onLocaleChange(ev.target.value)">
           <option
             t-foreach="supportedLocales"
             t-as="locale"
@@ -31,8 +33,30 @@
           </div>
         </div>
       </Section>
+
+      <!-- ADRM TODO: do something clean based on what Francois ask for spec -->
+      <Section title.translate="Animations settings. TODO: decide what we want to keep">
+        <div>
+          <span class="o-section-subtitle">Animation duration</span>
+          <!-- ADRM TODO: change the t-model into something clean if we keep this -->
+          <input t-model="gridRendererStore.animationDuration" type="number" class="o-input "/>
+        </div>
+
+        <div t-foreach="animationsTypes" t-as="effect" t-key="effect" class="mt-3">
+          <span class="o-section-subtitle" t-esc="animationLabels[effect] || effect"/>
+          <select
+            t-att-value="getCurrentAnimationEasing(effect)"
+            t-on-change="(ev) => setCurrentAnimationEasing(effect, ev)"
+            class="o-input">
+            <option t-foreach="easingFns" t-as="fn" t-key="fn" t-att-value="fn">
+              <span t-esc="labels[fn]"/>
+            </option>
+          </select>
+        </div>
+      </Section>
+
       <Section class="'pt-0'">
-        <t t-set="message">This setting affects all users.</t>
+        <t t-set="message">Those settings affect all users.</t>
         <ValidationMessages messages="[message]" msgType="'info'"/>
       </Section>
     </div>

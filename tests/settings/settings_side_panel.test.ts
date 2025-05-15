@@ -34,7 +34,9 @@ describe("settings sidePanel component", () => {
     test("Locale select is initialized with correct value", async () => {
       model = new Model({ settings: { locale: FR_LOCALE } });
       await mountSettingsSidePanel(model);
-      const localeInput = fixture.querySelector<HTMLInputElement>(".o-settings-panel select")!;
+      const localeInput = fixture.querySelector<HTMLInputElement>(
+        ".o-settings-panel .o-locale-select"
+      )!;
       expect(localeInput.value).toEqual(FR_LOCALE.code);
     });
 
@@ -46,7 +48,9 @@ describe("settings sidePanel component", () => {
 
     test("Side panel is updated when model is updated", async () => {
       await mountSettingsSidePanel();
-      const localeInput = fixture.querySelector<HTMLInputElement>(".o-settings-panel select")!;
+      const localeInput = fixture.querySelector<HTMLInputElement>(
+        ".o-settings-panel .o-locale-select"
+      )!;
       expect(localeInput.value).toEqual(DEFAULT_LOCALE.code);
       updateLocale(model, FR_LOCALE);
       await nextTick();
@@ -63,7 +67,7 @@ describe("settings sidePanel component", () => {
         dateTimePreview: "12/31/1899 02:24:00 PM",
       });
 
-      await setInputValueAndTrigger(".o-settings-panel select", "fr_FR");
+      await setInputValueAndTrigger(".o-settings-panel .o-locale-select", "fr_FR");
       expect(getLocalePreview()).toEqual({
         numberPreview: "1 234 567,89",
         datePreview: "31/12/1899",
@@ -83,7 +87,7 @@ describe("settings sidePanel component", () => {
       model = new Model({ settings: { locale: CUSTOM_LOCALE } });
       await mountSettingsSidePanel(model);
       const options = fixture.querySelectorAll<HTMLOptionElement>(
-        ".o-settings-panel select option"
+        ".o-settings-panel .o-locale-select option"
       );
       const optionValues = Array.from(options).map((option) => option.value);
 
@@ -100,7 +104,7 @@ describe("settings sidePanel component", () => {
       await mountSettingsSidePanel(undefined, env);
 
       const options = fixture.querySelectorAll<HTMLOptionElement>(
-        ".o-settings-panel select option"
+        ".o-settings-panel .o-locale-select option"
       );
       const optionValues = Array.from(options).map((option) => option.value);
       expect(optionValues).toEqual([DEFAULT_LOCALE.code]);
