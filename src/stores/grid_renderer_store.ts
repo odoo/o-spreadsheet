@@ -24,7 +24,6 @@ import {
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
-  deepCopy,
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
@@ -57,6 +56,14 @@ import { RendererStore } from "./renderer_store";
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
+const DURATION = 1000;
+
+interface AnimatedBox {
+  oldBox: Box | undefined;
+  newBox: Box;
+  startTime: number;
+}
+
 export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
@@ -75,6 +82,11 @@ export class GridRenderer {
     return ["Background", "Headers"] as const;
   }
 
+  private boxes: Map<string, Box> = new Map();
+  private animations: Map<string, AnimatedBox> = new Map();
+
+  private runningAnimation: Animation | undefined = undefined;
+
   // ---------------------------------------------------------------------------
   // Grid rendering
   // ---------------------------------------------------------------------------
@@ -90,13 +102,43 @@ export class GridRenderer {
           ctx.rect(rect.x, rect.y, rect.width, rect.height);
           ctx.clip();
           const boxes = this.getGridBoxes(zone);
-          this.drawBackground(renderingContext, boxes);
-          this.drawOverflowingCellBackground(renderingContext, boxes);
-          this.drawCellBackground(renderingContext, boxes);
-          this.drawBorders(renderingContext, boxes);
-          this.drawTexts(renderingContext, boxes);
-          this.drawIcon(renderingContext, boxes);
+          this.updateBoxes(boxes);
+          this.drawBackground(renderingContext);
+          this.drawOverflowingCellBackground(renderingContext);
+          this.drawCellBackground(renderingContext);
+          this.drawBorders(renderingContext);
+          this.drawTexts(renderingContext);
+          this.drawIcon(renderingContext);
           ctx.restore();
+
+          if (this.animations.size && !this.runningAnimation) {
+            this.runningAnimation = new Animation(
+              0,
+              1,
+              DURATION,
+              (progress) => {
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(rect.x, rect.y, rect.width, rect.height);
+                ctx.clip();
+                const boxes = this.getGridBoxes(zone);
+                this.updateBoxes(boxes);
+                this.drawBackground(renderingContext);
+                this.drawOverflowingCellBackground(renderingContext);
+                this.drawCellBackground(renderingContext);
+                this.drawBorders(renderingContext);
+                this.drawTexts(renderingContext);
+                this.drawIcon(renderingContext);
+                ctx.restore();
+              },
+              () => {
+                22;
+                this.runningAnimation = undefined;
+                this.animations.clear();
+              }
+            );
+            this.runningAnimation.start();
+          }
         }
         this.drawFrozenPanes(renderingContext);
         break;
@@ -109,6 +151,42 @@ export class GridRenderer {
     }
   }
 
+  private updateBoxes(newBoxes: Box[]) {
+    const newBoxesMap = new Map<string, Box>();
+    const boxIds = new Set<string>();
+    for (const box of newBoxes) {
+      newBoxesMap.set(box.xc, box);
+      boxIds.add(box.xc);
+
+      const oldBox = this.boxes.get(box.xc);
+      const animation = this.getAnimationForBoxChange(oldBox, box);
+      if (animation) {
+        if (this.animations.has(box.xc)) {
+          // console.log("Animation skipped", box.xc);
+        } else {
+          this.animations.set(box.xc, animation);
+        }
+      }
+    }
+    this.boxes = newBoxesMap;
+
+    for (const boxId of this.animations.keys()) {
+      if (!boxIds.has(boxId)) {
+        this.animations.delete(boxId);
+      }
+    }
+  }
+
+  private getAnimationForBoxChange(oldBox: Box | undefined, newBox: Box): AnimatedBox | undefined {
+    if (!oldBox?.content?.text) {
+      return undefined;
+    }
+    if (oldBox?.content?.text !== newBox.content?.text) {
+      return { oldBox, newBox, startTime: performance.now() };
+    }
+    return undefined;
+  }
+
   private drawGlobalBackground(renderingContext: GridRenderingContext) {
     const { ctx } = renderingContext;
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
@@ -118,7 +196,7 @@ export class GridRenderer {
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
   }
 
-  private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
+  private drawBackground(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
 
     const areGridLinesVisible =
@@ -127,7 +205,7 @@ export class GridRenderer {
     const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
 
     if (areGridLinesVisible) {
-      for (const box of boxes) {
+      for (const box of this.boxes.values()) {
         ctx.strokeStyle = CELL_BORDER_COLOR;
         ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
@@ -135,9 +213,9 @@ export class GridRenderer {
     }
   }
 
-  private drawCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
+  private drawCellBackground(renderingContext: GridRenderingContext) {
     const { ctx } = renderingContext;
-    for (const box of boxes) {
+    for (const box of this.boxes.values()) {
       const style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
@@ -164,9 +242,9 @@ export class GridRenderer {
     }
   }
 
-  private drawOverflowingCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
+  private drawOverflowingCellBackground(renderingContext: GridRenderingContext) {
     const { ctx, thinLineWidth } = renderingContext;
-    for (const box of boxes) {
+    for (const box of this.boxes.values()) {
       if (box.content && box.isOverflow) {
         const align = box.content.align || "left";
         let x: number;
@@ -191,9 +269,9 @@ export class GridRenderer {
     }
   }
 
-  private drawBorders(renderingContext: GridRenderingContext, boxes: Box[]) {
+  private drawBorders(renderingContext: GridRenderingContext) {
     const { ctx } = renderingContext;
-    for (const box of boxes) {
+    for (const box of this.boxes.values()) {
       const border = box.border;
       if (border) {
         const { x, y, width, height } = box;
@@ -276,24 +354,22 @@ export class GridRenderer {
     }
   }
 
-  private textsAtLastRender: any = {};
+  // private textsAtLastRender: any = {};
 
-  private drawTexts(renderingContext: GridRenderingContext, boxes: Box[]) {
-    const texts: any = {};
+  private drawTexts(renderingContext: GridRenderingContext) {
+    // const texts: any = {};
     const { ctx } = renderingContext;
-    for (const box of boxes) {
+    for (const box of this.boxes.values()) {
       if (box.content) {
-        const text = box.content.textLines.join(" ");
-        const lastText = this.textsAtLastRender[box.xc];
+        // const text = box.content.textLines.join(" ");
+        // const lastText = this.textsAtLastRender[box.xc];
         // ADRM TODO: error cells
-        if (lastText && lastText !== text && !text.includes("Loading")) {
-          console.log(box.xc, `animate from ${lastText} to ${text}`);
-          this.animateTextChange(renderingContext, box, lastText);
+        if (this.animations.has(box.xc)) {
+          this.drawAnimatedText(renderingContext, this.animations.get(box.xc)!);
         } else {
-          console.log(box.xc, `no animation21 ${text}`);
-          if (this.runningAnimations[box.xc]) {
-            continue;
-          }
+          // if (this.runningAnimations[box.xc]) {
+          //   continue;
+          // }
           // clip rect if needed
           if (box.clipRect) {
             ctx.save();
@@ -310,11 +386,11 @@ export class GridRenderer {
           }
         }
 
-        texts[box.xc] = text;
+        // texts[box.xc] = text;
       }
     }
 
-    this.textsAtLastRender = texts;
+    // this.textsAtLastRender = texts;
   }
 
   private drawText(renderingContext: GridRenderingContext, box: Box) {
@@ -369,9 +445,9 @@ export class GridRenderer {
     }
   }
 
-  private drawIcon(renderingContext: GridRenderingContext, boxes: Box[]) {
+  private drawIcon(renderingContext: GridRenderingContext) {
     const { ctx } = renderingContext;
-    for (const box of boxes) {
+    for (const box of this.boxes.values()) {
       if (box.image && box.image.svg) {
         ctx.save();
         if (box.image.clipIcon) {
@@ -695,6 +771,7 @@ export class GridRenderer {
     const align = this.computeCellAlignment(position, contentWidth > width);
     box.content = {
       textLines: multiLineText,
+      text: this.getters.getCellText(position),
       width: wrapping === "overflow" ? textWidth : width,
       align,
     };
@@ -825,42 +902,31 @@ export class GridRenderer {
     return boxes;
   }
 
-  private runningAnimations: Record<string, Animation | undefined> = {};
-
-  private animateTextChange(renderingContext: GridRenderingContext, box: Box, oldText: string) {
-    box = deepCopy(box);
-    if (this.runningAnimations[box.xc]) {
-      this.runningAnimations[box.xc]?.stop();
-    }
-    if (!box.content) {
+  private drawAnimatedText(renderingContext: GridRenderingContext, animatedBox: AnimatedBox) {
+    if (!animatedBox.oldBox) {
       return;
     }
     const { ctx } = renderingContext;
-    const oldBox: Box = { ...box, content: { ...box.content, textLines: [oldText] } };
 
-    const animation = new Animation(
-      0,
-      1,
-      200,
-      (value) => {
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(box.x + 1, box.y + 1, box.width - 2, box.height - 2);
-        ctx.clip();
-        ctx.fillStyle = box.style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
-        const oldTextBox = { ...oldBox, y: box.y + value * box.height };
-        const newTextBox = { ...box, y: box.y + (value - 1) * box.height };
-        this.drawText(renderingContext, oldTextBox);
-        this.drawText(renderingContext, newTextBox);
-        ctx.restore();
-      },
-      () => {
-        this.runningAnimations[box.xc] = undefined;
-      }
-    );
-    animation.start();
-    this.runningAnimations[box.xc] = animation;
+    // ADRM TODO: probably an argument of the function
+    const timestamp = performance.now();
+    const elapsed = timestamp - animatedBox.startTime;
+    const progress = Math.min(elapsed / DURATION, 1);
+    const value = 1 * progress;
+
+    const box = animatedBox.newBox;
+    const oldBox = animatedBox.oldBox!;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(box.x + 1, box.y + 1, box.width - 2, box.height - 2);
+    ctx.clip();
+    ctx.fillStyle = box.style.fillColor || "#ffffff";
+    ctx.fillRect(box.x, box.y, box.width, box.height);
+    const oldTextBox = { ...oldBox, y: box.y + value * box.height };
+    const newTextBox = { ...box, y: box.y + (value - 1) * box.height };
+    this.drawText(renderingContext, oldTextBox);
+    this.drawText(renderingContext, newTextBox);
+    ctx.restore();
   }
 }
 
@@ -883,7 +949,6 @@ export class Animation {
   }
 
   stop() {
-    console.log("stop animation");
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;

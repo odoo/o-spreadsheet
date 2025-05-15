@@ -29,6 +29,7 @@ export type Rect = DOMCoordinates & DOMDimension;
 
 export interface BoxTextContent {
   textLines: string[];
+  text: string;
   width: Pixel;
   align: Align;
 }
