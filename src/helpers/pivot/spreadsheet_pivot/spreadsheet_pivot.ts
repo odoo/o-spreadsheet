@@ -87,7 +87,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    * This object contains the pivot table structure. It is created from the
    * data entries and the pivot definition.
    */
-  private table: SpreadsheetPivotTable | undefined;
+  private collapsedTable: SpreadsheetPivotTable | undefined;
+  private expandedTable: SpreadsheetPivotTable | undefined;
   /**
    * This error is set when the range is invalid. It is used to show an error
    * message to the user.
@@ -123,7 +124,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       this.dataEntries = this.loadData();
     }
     if (type >= ReloadType.TABLE) {
-      this.table = undefined;
+      this.collapsedTable = undefined;
+      this.expandedTable = undefined;
     }
   }
 
@@ -308,14 +310,32 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return values;
   }
 
-  getTableStructure(): SpreadsheetPivotTable {
+  getCollapsedTableStructure(): SpreadsheetPivotTable {
     if (!this.isValid()) {
       throw new Error("Pivot is not valid !");
     }
-    if (!this.table) {
-      this.table = dataEntriesToSpreadsheetPivotTable(this.dataEntries, this.definition);
+    if (!this.collapsedTable) {
+      this.collapsedTable = dataEntriesToSpreadsheetPivotTable(
+        this.dataEntries,
+        this.definition,
+        "collapsed"
+      );
     }
-    return this.table;
+    return this.collapsedTable;
+  }
+
+  getExpandedTableStructure(): SpreadsheetPivotTable {
+    if (!this.isValid()) {
+      throw new Error("Pivot is not valid !");
+    }
+    if (!this.expandedTable) {
+      this.expandedTable = dataEntriesToSpreadsheetPivotTable(
+        this.dataEntries,
+        this.definition,
+        "expanded"
+      );
+    }
+    return this.expandedTable;
   }
 
   getFields(): PivotFields {

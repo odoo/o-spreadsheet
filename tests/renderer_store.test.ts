@@ -1300,17 +1300,34 @@ describe("renderer", () => {
       })
     );
 
-    const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    let instructions: string[] = [];
+    const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onSet: (key, value) => {
+        instructions.push(`context.${key}=${JSON.stringify(value)};`);
+      },
+      onGet: (key) => {
+        instructions.push(`GET:${key}`);
+      },
+      onFunctionCall: (key, args) => {
+        instructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
+      },
+    });
+    const getCFClipRectInstruction = () => {
+      const cfFillInstrIndex = instructions.findIndex((instr) => instr.includes("#6AA84F"));
+      return instructions
+        .slice(0, cfFillInstrIndex)
+        .reverse()
+        .find((instr) => instr.includes("rect"));
+    };
+
     drawGridRenderer(ctx);
 
     box = getBoxFromText(gridRendererStore, cellContent);
-    const maxIconBoxWidth = box.image!.size + MIN_CF_ICON_MARGIN;
-    expect(box.image!.clipIcon).toEqual({
-      x: 0,
-      y: 0,
-      width: maxIconBoxWidth,
-      height: DEFAULT_CELL_HEIGHT,
-    });
+    const maxIconBoxWidth = box.icons.left!.size + MIN_CF_ICON_MARGIN;
+    expect(getCFClipRectInstruction()).toEqual(
+      `context.rect(0, 0, ${DEFAULT_CELL_WIDTH}, ${DEFAULT_CELL_HEIGHT})`
+    );
+
     expect(box.clipRect).toEqual({
       x: maxIconBoxWidth,
       y: 0,
@@ -1319,15 +1336,13 @@ describe("renderer", () => {
     });
 
     resizeColumns(model, ["A"], maxIconBoxWidth - 3);
+    instructions = [];
     drawGridRenderer(ctx);
 
     box = getBoxFromText(gridRendererStore, cellContent);
-    expect(box.image!.clipIcon).toEqual({
-      x: 0,
-      y: 0,
-      width: maxIconBoxWidth - 3,
-      height: DEFAULT_CELL_HEIGHT,
-    });
+    expect(getCFClipRectInstruction()).toEqual(
+      `context.rect(0, 0, ${maxIconBoxWidth - 3}, ${DEFAULT_CELL_HEIGHT})`
+    );
     expect(box.clipRect).toEqual({
       x: maxIconBoxWidth,
       y: 0,

@@ -19,7 +19,8 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   isValid(): boolean;
   onDefinitionChange(nextDefinition: PivotCoreDefinition): void;
 
-  getTableStructure(): SpreadsheetPivotTable;
+  getCollapsedTableStructure(): SpreadsheetPivotTable;
+  getExpandedTableStructure(): SpreadsheetPivotTable;
   getFields(): PivotFields;
 
   getPivotHeaderValueAndFormat(domain: PivotDomain): FunctionResultObject;

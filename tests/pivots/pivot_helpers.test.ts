@@ -1,4 +1,5 @@
-import { PivotSortedColumn } from "../../src";
+import { PivotDomain, PivotSortedColumn } from "../../src";
+import { isDomainIsInPivot } from "../../src/helpers/pivot/pivot_domain_helpers";
 import {
   isSortedColumnValid,
   toFunctionPivotValue,
@@ -271,4 +272,53 @@ test("isSortedColumnValid", () => {
   sortedColumn.measure = "Random Measure";
   sortedColumn.domain = [];
   expect(isSortedColumnValid(sortedColumn, model.getters.getPivot(pivotId))).toBe(false);
+});
+
+test("isDomainInPivot", () => {
+  // prettier-ignore
+  const grid = {
+      A1: "Customer", B1: "Price", C1: "Date",
+      A2: "Alice",    B2: "10",    C2: "10/10/2020",
+      A3: "Bob",      B3: "30",    C3: "10/10/2020",
+      A4: "Bob",      B4: "20",    C4: "01/01/2020",
+  };
+  const model = createModelFromGrid(grid);
+  addPivot(model, "A1:C4", {
+    columns: [
+      { fieldName: "Date", granularity: "year" },
+      { fieldName: "Date", granularity: "month_number" },
+    ],
+    rows: [{ fieldName: "Customer" }],
+    measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    collapsedDomains: {
+      COL: [[{ field: "Date:year", value: 2020, type: "datetime" }]],
+      ROW: [],
+    },
+  });
+
+  const pivotId = model.getters.getPivotIds()[0];
+  const pivot = model.getters.getPivot(pivotId);
+
+  // Valid row domain
+  let domain: PivotDomain = [{ field: "Date:year", value: 2020, type: "datetime" }];
+  expect(isDomainIsInPivot(pivot, domain)).toBe(true);
+
+  // Valid column domain
+  domain = [{ field: "Customer", value: "Alice", type: "char" }];
+  expect(isDomainIsInPivot(pivot, domain)).toBe(true);
+
+  // Domain with invalid value
+  domain = [{ field: "Customer", value: "Random Person", type: "char" }];
+  expect(isDomainIsInPivot(pivot, domain)).toBe(false);
+
+  // Domain with invalid field
+  domain = [{ field: "Random Field", value: "Alice", type: "char" }];
+  expect(isDomainIsInPivot(pivot, domain)).toBe(false);
+
+  // Domain of collapsed column
+  domain = [
+    { field: "Date:year", value: 2020, type: "datetime" },
+    { field: "Date:month_number", value: 1, type: "datetime" },
+  ];
+  expect(isDomainIsInPivot(pivot, domain)).toBe(true);
 });

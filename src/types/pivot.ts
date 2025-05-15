@@ -2,7 +2,7 @@ import { NEXT_VALUE, PREVIOUS_VALUE } from "../helpers/pivot/pivot_domain_helper
 import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Locale } from "./locale";
-import { FunctionResultObject, SortDirection, UID, Zone } from "./misc";
+import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
 
 export type Aggregator =
   | "array_agg"
@@ -58,12 +58,18 @@ export interface CommonPivotCoreDefinition {
   name: string;
   deferUpdates?: boolean;
   sortedColumn?: PivotSortedColumn;
+  collapsedDomains?: PivotCollapsedDomains;
 }
 
 export interface PivotSortedColumn {
   order: SortDirection;
   domain: PivotDomain;
   measure: string;
+}
+
+export interface PivotCollapsedDomains {
+  COL: PivotDomain[];
+  ROW: PivotDomain[];
 }
 
 export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinition {
@@ -128,6 +134,7 @@ export interface PivotTableData {
 export interface PivotHeaderCell {
   type: "HEADER";
   domain: PivotDomain;
+  dimension: Dimension;
 }
 
 export interface PivotMeasureHeaderCell {

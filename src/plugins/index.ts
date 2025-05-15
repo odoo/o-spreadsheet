@@ -27,6 +27,7 @@ import {
   EvaluationDataValidationPlugin,
   EvaluationPlugin,
 } from "./ui_core_views";
+import { CellIconPlugin } from "./ui_core_views/cell_icon_plugin";
 import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
@@ -120,4 +121,5 @@ export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()
   .add("data_validation_ui", EvaluationDataValidationPlugin)
   .add("dynamic_tables", DynamicTablesPlugin)
   .add("custom_colors", CustomColorsPlugin)
-  .add("pivot_ui", PivotUIPlugin);
+  .add("pivot_ui", PivotUIPlugin)
+  .add("cell_icon", CellIconPlugin);

@@ -1,11 +1,5 @@
+import { DEFAULT_CELL_HEIGHT, PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
 import {
-  DEFAULT_CELL_HEIGHT,
-  GRID_ICON_MARGIN,
-  ICON_EDGE_LENGTH,
-  PADDING_AUTORESIZE_HORIZONTAL,
-} from "../../constants";
-import {
-  computeIconWidth,
   computeTextWidth,
   formatValue,
   getCellContentHeight,
@@ -17,17 +11,13 @@ import {
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
-import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
 import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
-import { ImageSVG } from "../../types/image";
 import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
   static getters = [
-    "doesCellHaveGridIcon",
     "getCellWidth",
-    "getCellIconSvg",
     "getTextWidth",
     "getCellText",
     "getCellMultiLineText",
@@ -95,13 +85,8 @@ export class SheetUIPlugin extends UIPlugin {
       );
     }
 
-    const icon = this.getters.getCellIconSvg(position);
-    if (icon) {
-      contentWidth += computeIconWidth(style);
-    }
-
-    if (this.getters.doesCellHaveGridIcon(position)) {
-      contentWidth += ICON_EDGE_LENGTH + GRID_ICON_MARGIN;
+    for (const icon of this.getters.getCellIcons(position)) {
+      contentWidth += icon.margin + icon.size;
     }
 
     if (contentWidth === 0) {
@@ -115,17 +100,6 @@ export class SheetUIPlugin extends UIPlugin {
     }
 
     return contentWidth;
-  }
-
-  getCellIconSvg(position: CellPosition): ImageSVG | undefined {
-    const callbacks = iconsOnCellRegistry.getAll();
-    for (const callback of callbacks) {
-      const imageSrc = callback(this.getters, position);
-      if (imageSrc) {
-        return imageSrc;
-      }
-    }
-    return undefined;
   }
 
   getTextWidth(text: string, style: Style): Pixel {
@@ -172,13 +146,6 @@ export class SheetUIPlugin extends UIPlugin {
       availableWidth: args.maxWidth,
     });
     return splitTextToWidth(this.ctx, text, style, args.wrapText ? args.maxWidth : undefined);
-  }
-
-  doesCellHaveGridIcon(position: CellPosition): boolean {
-    const isFilterHeader = this.getters.isFilterHeader(position);
-    const hasListIcon =
-      !this.getters.isReadonly() && this.getters.cellHasListDataValidationIcon(position);
-    return isFilterHeader || hasListIcon;
   }
 
   /**

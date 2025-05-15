@@ -1,5 +1,5 @@
 import { getFullReference, range, splitReference, toXC, toZone } from "../helpers/index";
-import { addIndentAndAlignToPivotHeader } from "../helpers/pivot/pivot_helpers";
+import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
@@ -12,12 +12,12 @@ import {
   getPivotId,
 } from "./helper_lookup";
 import {
+  LinearSearchMode,
   dichotomicSearch,
   expectNumberRangeError,
   generateMatrix,
   isEvaluationError,
   linearSearch,
-  LinearSearchMode,
   strictToInteger,
   toBoolean,
   toMatrix,
@@ -877,7 +877,7 @@ export const PIVOT = {
     if (error) {
       return error;
     }
-    const table = pivot.getTableStructure();
+    const table = pivot.getCollapsedTableStructure();
     const cells = table.getPivotCells(_includedTotal, _includeColumnHeaders);
     const headerRows = _includeColumnHeaders ? table.columns.length : 0;
     const pivotTitle = this.getters.getPivotDisplayName(pivotId);
@@ -897,9 +897,7 @@ export const PIVOT = {
             break;
           case "HEADER":
             const valueAndFormat = pivot.getPivotHeaderValueAndFormat(pivotCell.domain);
-            result[col].push(
-              addIndentAndAlignToPivotHeader(pivot, pivotCell.domain, valueAndFormat)
-            );
+            result[col].push(addAlignFormatToPivotHeader(pivotCell.domain, valueAndFormat));
             break;
           case "MEASURE_HEADER":
             result[col].push(pivot.getPivotMeasureValue(pivotCell.measure, pivotCell.domain));

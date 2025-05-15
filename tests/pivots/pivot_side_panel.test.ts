@@ -138,4 +138,77 @@ describe("Pivot side panel", () => {
     expect(definition.measures[1].id).toBe("renamed:sum");
     expect(definition.sortedColumn?.measure).toBe("renamed:sum");
   });
+
+  test("Changing pivot rows/cols filter out invalid collapsed row/cols domains", async () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: "Year",  D1: "Active", E1: "Client",
+      A2: "Alice",    B2: "10",     C2: "2020",  D2: "FALSE",  E2: "Marc",
+      A3: "Alice",    B3: "20",     C3: "2021",  D3: "TRUE",   E3: "Marc",
+      A4: "Bob",      B4: "30",     C4: "2020",  D4: "FALSE",  E4: "Marc",
+      A5: "Bob",      B5: "40",     C5: "2021",  D5: "TRUE",   E5: "Marc",
+    };
+    setGrid(model, grid);
+    updatePivot(model, "1", {
+      columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
+      rows: [{ fieldName: "Client" }, { fieldName: "Active" }],
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+      collapsedDomains: {
+        COL: [[{ field: "Customer", value: "Alice", type: "char" }]],
+        ROW: [[{ field: "Client", value: "Marc", type: "char" }]],
+      },
+      dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:E5") },
+    });
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    const customerDimEl = fixture.querySelectorAll(".pivot-dimension")[0];
+    await click(customerDimEl, ".fa-trash");
+
+    let definition = model.getters.getPivotCoreDefinition("1");
+    expect(definition.columns).toHaveLength(1);
+    expect(definition.collapsedDomains?.COL).toHaveLength(0);
+    expect(definition.collapsedDomains?.ROW).toHaveLength(1);
+
+    const clientDimEl = fixture.querySelectorAll(".pivot-dimension")[1];
+    await click(clientDimEl, ".fa-trash");
+    definition = model.getters.getPivotCoreDefinition("1");
+    expect(definition.rows).toHaveLength(1);
+    expect(definition.collapsedDomains?.COL).toHaveLength(0);
+    expect(definition.collapsedDomains?.ROW).toHaveLength(0);
+  });
+
+  test("Collapsed dimension with correct field but wrong value is not filtered out at pivot update", async () => {
+    // Note: we don't want to remove those, because different users may have different value,
+    // and a domain might be valid for one user and not for another
+
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: "Year",
+      A2: "Alice",    B2: "10",     C2: "2020",
+      A3: "Alice",    B3: "20",     C3: "2021",
+    };
+    setGrid(model, grid);
+    updatePivot(model, "1", {
+      columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
+      rows: [],
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+      collapsedDomains: {
+        COL: [[{ field: "Customer", value: "NotARealPerson", type: "char" }]],
+        ROW: [],
+      },
+      dataSet: { sheetId: model.getters.getActiveSheetId(), zone: toZone("A1:C3") },
+    });
+
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    const yearDimensionEl = fixture.querySelectorAll(".pivot-dimension")[1];
+    await click(yearDimensionEl, ".fa-trash");
+
+    const definition = model.getters.getPivotCoreDefinition("1");
+    expect(definition.columns).toHaveLength(1);
+    expect(definition.collapsedDomains?.COL).toHaveLength(1);
+  });
 });

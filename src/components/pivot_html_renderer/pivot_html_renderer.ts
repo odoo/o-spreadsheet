@@ -105,7 +105,7 @@ export class PivotHTMLRenderer extends Component<Props, SpreadsheetChildEnv> {
   });
 
   setup() {
-    const table = this.pivot.getTableStructure();
+    const table = this.pivot.getExpandedTableStructure();
     const formulaId = this.env.model.getters.getPivotFormulaId(this.props.pivotId);
     this.data = {
       columns: this._buildColHeaders(formulaId, table),
@@ -153,7 +153,7 @@ export class PivotHTMLRenderer extends Component<Props, SpreadsheetChildEnv> {
    * The parent of "January" is "Australia"
    */
   private addRecursiveRow(index: number): number[] {
-    const rows = this.pivot.getTableStructure().rows;
+    const rows = this.pivot.getExpandedTableStructure().rows;
     const row = [...rows[index].values];
     if (row.length <= 1) {
       return [index];
