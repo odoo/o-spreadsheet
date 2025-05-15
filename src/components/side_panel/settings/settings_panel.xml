@@ -31,8 +31,9 @@
           </div>
         </div>
       </Section>
+
       <Section class="'pt-0'">
-        <t t-set="message">This setting affects all users.</t>
+        <t t-set="message">Those settings affect all users.</t>
         <ValidationMessages messages="[message]" msgType="'info'"/>
       </Section>
     </div>

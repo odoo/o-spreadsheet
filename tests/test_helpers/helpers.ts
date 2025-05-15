@@ -62,7 +62,6 @@ import {
   Format,
   GridRenderingContext,
   Highlight,
-  LayerName,
   Matrix,
   OrderedLayers,
   RangeData,
@@ -166,7 +165,13 @@ export function makeTestFixture() {
 
 class FakeRendererStore extends RendererStore {
   // we don't want to actually draw anything on the canvas as it cannot be tested
-  drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
+  draw() {
+    return "noStateChange";
+  }
+  startAnimation() {
+    return "noStateChange";
+  }
+  stopAnimation() {
     return "noStateChange";
   }
 }
@@ -188,7 +193,7 @@ export function makeTestEnv(
   });
 
   container.inject(ModelStore, model);
-  container.inject(RendererStore, new FakeRendererStore());
+  container.inject(RendererStore, new FakeRendererStore(container.get.bind(container)));
 
   const notificationStore = container.get(NotificationStore);
   notificationStore.updateNotificationCallbacks({

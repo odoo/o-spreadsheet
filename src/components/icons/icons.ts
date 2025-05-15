@@ -42,6 +42,7 @@ export type IconSetType = keyof typeof ICON_SETS;
 // We need here the svg of the icons that we need to convert to images for the renderer
 // -----------------------------------------------------------------------------
 const ARROW_DOWN: ImageSVG = {
+  name: "ARROW_DOWN",
   width: 448,
   height: 512,
   paths: [
@@ -52,6 +53,7 @@ const ARROW_DOWN: ImageSVG = {
   ],
 };
 const ARROW_UP: ImageSVG = {
+  name: "ARROW_UP",
   width: 448,
   height: 512,
   paths: [
@@ -62,6 +64,7 @@ const ARROW_UP: ImageSVG = {
   ],
 };
 const ARROW_RIGHT: ImageSVG = {
+  name: "ARROW_RIGHT",
   width: 448,
   height: 512,
   paths: [
@@ -73,6 +76,7 @@ const ARROW_RIGHT: ImageSVG = {
 };
 
 const SMILE: ImageSVG = {
+  name: "SMILE",
   width: 496,
   height: 512,
   paths: [
@@ -83,6 +87,7 @@ const SMILE: ImageSVG = {
   ],
 };
 const MEH: ImageSVG = {
+  name: "MEH",
   width: 496,
   height: 512,
   paths: [
@@ -93,6 +98,7 @@ const MEH: ImageSVG = {
   ],
 };
 const FROWN: ImageSVG = {
+  name: "FROWN",
   width: 496,
   height: 512,
   paths: [
@@ -105,16 +111,19 @@ const FROWN: ImageSVG = {
 
 const DOT_PATH = "M256 9 a247 247 0 1 0.1 0 0";
 const GREEN_DOT: ImageSVG = {
+  name: "GREEN_DOT",
   width: 512,
   height: 512,
   paths: [{ fillColor: "#6AA84F", path: DOT_PATH }],
 };
 const YELLOW_DOT: ImageSVG = {
+  name: "YELLOW_DOT",
   width: 512,
   height: 512,
   paths: [{ fillColor: "#F0AD4E", path: DOT_PATH }],
 };
 const RED_DOT: ImageSVG = {
+  name: "RED_DOT",
   width: 512,
   height: 512,
   paths: [{ fillColor: "#E06666", path: DOT_PATH }],
@@ -122,6 +131,7 @@ const RED_DOT: ImageSVG = {
 
 export function getCaretDownSvg(color: Style): ImageSVG {
   return {
+    name: "CARET_DOWN",
     width: 512,
     height: 512,
     paths: [{ fillColor: color.textColor || TEXT_BODY_MUTED, path: "M120 195 h270 l-135 130" }],
@@ -130,6 +140,7 @@ export function getCaretDownSvg(color: Style): ImageSVG {
 
 export function getHoveredCaretDownSvg(color: Style): ImageSVG {
   return {
+    name: "CARET_DOWN",
     width: 512,
     height: 512,
     paths: [
@@ -143,6 +154,7 @@ const CHIP_CARET_DOWN_PATH = "M40 185 h270 l-135 128";
 
 export function getChipSvg(chipStyle: Style): ImageSVG {
   return {
+    name: "CHIP",
     width: 512,
     height: 512,
     paths: [{ fillColor: chipStyle.textColor || TEXT_BODY_MUTED, path: CHIP_CARET_DOWN_PATH }],
@@ -151,6 +163,7 @@ export function getChipSvg(chipStyle: Style): ImageSVG {
 
 export function getHoveredChipSvg(chipStyle: Style): ImageSVG {
   return {
+    name: "CHIP",
     width: 512,
     height: 512,
     paths: [
@@ -164,18 +177,21 @@ export function getHoveredChipSvg(chipStyle: Style): ImageSVG {
 }
 
 export const CHECKBOX_UNCHECKED: ImageSVG = {
+  name: "CHECKBOX_UNCHECKED",
   width: 512,
   height: 512,
   paths: [{ fillColor: GRAY_300, path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" }],
 };
 
 export const CHECKBOX_UNCHECKED_HOVERED: ImageSVG = {
+  name: "CHECKBOX_UNCHECKED",
   width: 512,
   height: 512,
   paths: [{ fillColor: ACTION_COLOR, path: "M45,45 h422 v422 h-422 v-422 m30,30 v362 h362 v-362" }],
 };
 
 export const CHECKBOX_CHECKED: ImageSVG = {
+  name: "CHECKBOX_CHECKED",
   width: 512,
   height: 512,
   paths: [
@@ -190,6 +206,7 @@ export function getPivotIconSvg(isCollapsed: boolean, isHovered: boolean): Image
     : "M149,235 h213 v43 h-213"; // -
 
   return {
+    name: "PIVOT_ICON",
     width: 512,
     height: 512,
     paths: [
@@ -222,6 +239,7 @@ export function getDataFilterIcon(
   }
 
   return {
+    name: "DATA_FILTER_ICON",
     width: isActive ? 24 : 850,
     height: isActive ? 24 : 850,
     paths: [

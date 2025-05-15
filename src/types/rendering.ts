@@ -1,7 +1,7 @@
 import { memoize } from "../helpers/misc";
 import { GridIcon } from "../registries/icons_on_cell_registry";
 import { ImageSVG } from "./image";
-import { Alias, Align, Border, Color, DataBarFill, Pixel, Style, Zone } from "./misc";
+import { Alias, Align, BorderDescr, Color, DataBarFill, Pixel, Style, Zone } from "./misc";
 
 /**
  * Coordinate in pixels
@@ -27,7 +27,19 @@ export interface BoxTextContent {
   y: Pixel;
 }
 
-export interface Box extends Rect {
+export type BorderDescrWithOpacity = BorderDescr & { opacity?: number };
+
+export type RenderingBorder = {
+  top?: BorderDescrWithOpacity;
+  right?: BorderDescrWithOpacity;
+  bottom?: BorderDescrWithOpacity;
+  left?: BorderDescrWithOpacity;
+};
+
+export type RenderingGridIcon = GridIcon & { clipRect?: Rect };
+
+export interface RenderingBox {
+  id: string;
   content?: BoxTextContent;
   style: Style;
   chip?: {
@@ -38,14 +50,20 @@ export interface Box extends Rect {
     color: Color;
   };
   dataBarFill?: DataBarFill;
-  border?: Border;
+  border?: RenderingBorder;
   clipRect?: Rect;
   isError?: boolean;
   isMerge?: boolean;
   isOverflow?: boolean;
-  overlayColor: Color | undefined;
-  icons: { left?: GridIcon; right?: GridIcon; center?: GridIcon };
+  overlayColor?: Color;
+  icons: { left?: RenderingGridIcon; right?: RenderingGridIcon; center?: RenderingGridIcon };
+  textOpacity?: number;
+  skipCellGridLines?: boolean;
+  disabledAnimation?: boolean;
 }
+
+export type Box = RenderingBox & Rect;
+
 export interface Image {
   clipIcon: Rect | null;
   size: Pixel;

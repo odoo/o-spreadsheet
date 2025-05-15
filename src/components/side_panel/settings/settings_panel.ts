@@ -5,6 +5,7 @@ import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
+import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Section } from "../components/section/section";
 
 interface Props {
@@ -20,7 +21,7 @@ css/* scss */ `
 
 export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
-  static components = { Section, ValidationMessages };
+  static components = { Section, ValidationMessages, BadgeSelection };
   static props = { onCloseSidePanel: Function };
 
   loadedLocales: Locale[] = [];

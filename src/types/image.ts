@@ -3,6 +3,7 @@ import { Color } from "./misc";
 import { XLSXFigureSize } from "./xlsx";
 
 export type ImageSVG = {
+  name: string;
   width: number;
   height: number;
   paths: { path: string; fillColor: Color }[];

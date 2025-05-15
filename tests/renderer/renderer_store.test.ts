@@ -24,7 +24,6 @@ import {
   Box,
   DataValidationCriterion,
   GridRenderingContext,
-  OrderedLayers,
   Viewport,
   Zone,
 } from "../../src/types";
@@ -77,12 +76,10 @@ interface ContextObserver {
 
 function setRenderer(model: Model = new Model()) {
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
+  gridRendererStore["getBoxesWithAnimations"] = (boxes) => boxes;
   const rendererManager = container.get(RendererStore);
   const drawGridRenderer = (ctx: GridRenderingContext) => {
-    for (const layer of OrderedLayers()) {
-      model.drawLayer(ctx, layer);
-      rendererManager.drawLayer(ctx, layer);
-    }
+    rendererManager.draw(ctx);
   };
   return { model, gridRendererStore, drawGridRenderer, container };
 }

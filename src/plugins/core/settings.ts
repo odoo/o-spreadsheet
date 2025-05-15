@@ -67,8 +67,6 @@ export class SettingsPlugin extends CorePlugin {
   }
 
   export(data: WorkbookData) {
-    data.settings = {
-      locale: this.locale,
-    };
+    data.settings = { locale: this.locale };
   }
 }

@@ -8,7 +8,7 @@ export class SpreadsheetStore extends DisposableStore {
   // cast the model store as Model to allow model.dispatch to return the DispatchResult
   protected model = this.get(ModelStore) as Model;
   protected getters = this.model.getters;
-  private renderer = this.get(RendererStore);
+  protected renderer = this.get(RendererStore);
 
   constructor(get: Get) {
     super(get);
@@ -30,5 +30,5 @@ export class SpreadsheetStore extends DisposableStore {
   protected handle(cmd: Command) {}
   protected finalize() {}
 
-  drawLayer(ctx: GridRenderingContext, layer: LayerName) {}
+  drawLayer(ctx: GridRenderingContext, layer: LayerName, timestamp: number | undefined) {}
 }
