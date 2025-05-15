@@ -34,6 +34,7 @@ export interface BoxTextContent {
 }
 
 export interface Box extends Rect {
+  xc: string;
   content?: BoxTextContent;
   style: Style;
   dataBarFill?: DataBarFill;

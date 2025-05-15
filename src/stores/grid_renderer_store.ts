@@ -24,6 +24,7 @@ import {
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
+  deepCopy,
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
@@ -31,6 +32,7 @@ import {
   overlap,
   positionToZone,
   union,
+  zoneToXc,
 } from "../helpers/index";
 import { Get, Store } from "../store_engine";
 import {
@@ -274,69 +276,95 @@ export class GridRenderer {
     }
   }
 
+  private textsAtLastRender: any = {};
+
   private drawTexts(renderingContext: GridRenderingContext, boxes: Box[]) {
+    const texts: any = {};
     const { ctx } = renderingContext;
-    ctx.textBaseline = "top";
-    let currentFont;
     for (const box of boxes) {
       if (box.content) {
-        const style = box.style || {};
-        const align = box.content.align || "left";
-
-        // compute font and textColor
-        const font = computeTextFont(style);
-        if (font !== currentFont) {
-          currentFont = font;
-          ctx.font = font;
-        }
-        ctx.fillStyle = style.textColor || "#000";
-
-        // compute horizontal align start point parameter
-        let x = box.x;
-        if (align === "left") {
-          x += MIN_CELL_TEXT_MARGIN + (box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0);
-        } else if (align === "right") {
-          x +=
-            box.width -
-            MIN_CELL_TEXT_MARGIN -
-            (box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0);
+        const text = box.content.textLines.join(" ");
+        const lastText = this.textsAtLastRender[box.xc];
+        // ADRM TODO: error cells
+        if (lastText && lastText !== text && !text.includes("Loading")) {
+          console.log(box.xc, `animate from ${lastText} to ${text}`);
+          this.animateTextChange(renderingContext, box, lastText);
         } else {
-          x += box.width / 2;
+          console.log(box.xc, `no animation21 ${text}`);
+          if (this.runningAnimations[box.xc]) {
+            continue;
+          }
+          // clip rect if needed
+          if (box.clipRect) {
+            ctx.save();
+            ctx.beginPath();
+            const { x, y, width, height } = box.clipRect;
+            ctx.rect(x, y, width, height);
+            ctx.clip();
+          }
+
+          this.drawText(renderingContext, box);
+
+          if (box.clipRect) {
+            ctx.restore();
+          }
         }
 
-        // horizontal align text direction
-        ctx.textAlign = align;
+        texts[box.xc] = text;
+      }
+    }
 
-        // clip rect if needed
-        if (box.clipRect) {
-          ctx.save();
-          ctx.beginPath();
-          const { x, y, width, height } = box.clipRect;
-          ctx.rect(x, y, width, height);
-          ctx.clip();
-        }
+    this.textsAtLastRender = texts;
+  }
 
-        // compute vertical align start point parameter:
-        const textLineHeight = computeTextFontSizeInPixels(style);
-        const numberOfLines = box.content.textLines.length;
-        let y = this.computeTextYCoordinate(box, textLineHeight, numberOfLines);
+  private drawText(renderingContext: GridRenderingContext, box: Box) {
+    const { ctx } = renderingContext;
+    ctx.textBaseline = "top";
 
-        // use the horizontal and the vertical start points to:
-        // fill text / fill strikethrough / fill underline
-        for (const brokenLine of box.content.textLines) {
-          drawDecoratedText(
-            ctx,
-            brokenLine,
-            { x: Math.round(x), y: Math.round(y) },
-            style.underline,
-            style.strikethrough
-          );
-          y += MIN_CELL_TEXT_MARGIN + textLineHeight;
-        }
+    if (box.content) {
+      const style = box.style || {};
+      const align = box.content.align || "left";
 
-        if (box.clipRect) {
-          ctx.restore();
-        }
+      // compute font and textColor
+      const font = computeTextFont(style);
+      // if (font !== currentFont) { // ADRM TODO
+      //   currentFont = font;
+      ctx.font = font;
+      // }
+      ctx.fillStyle = style.textColor || "#000";
+
+      // compute horizontal align start point parameter
+      let x = box.x;
+      if (align === "left") {
+        x += MIN_CELL_TEXT_MARGIN + (box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0);
+      } else if (align === "right") {
+        x +=
+          box.width -
+          MIN_CELL_TEXT_MARGIN -
+          (box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0);
+      } else {
+        x += box.width / 2;
+      }
+
+      // horizontal align text direction
+      ctx.textAlign = align;
+
+      // compute vertical align start point parameter:
+      const textLineHeight = computeTextFontSizeInPixels(style);
+      const numberOfLines = box.content.textLines.length;
+      let y = this.computeTextYCoordinate(box, textLineHeight, numberOfLines);
+
+      // use the horizontal and the vertical start points to:
+      // fill text / fill strikethrough / fill underline
+      for (const brokenLine of box.content.textLines) {
+        drawDecoratedText(
+          ctx,
+          brokenLine,
+          { x: Math.round(x), y: Math.round(y) },
+          style.underline,
+          style.strikethrough
+        );
+        y += MIN_CELL_TEXT_MARGIN + textLineHeight;
       }
     }
   }
@@ -618,6 +646,7 @@ export class GridRenderer {
       ? undefined
       : this.getters.getConditionalDataBar(position);
     const box: Box = {
+      xc: zoneToXc(zone),
       x,
       y,
       width,
@@ -794,5 +823,93 @@ export class GridRenderer {
       }
     }
     return boxes;
+  }
+
+  private runningAnimations: Record<string, Animation | undefined> = {};
+
+  private animateTextChange(renderingContext: GridRenderingContext, box: Box, oldText: string) {
+    box = deepCopy(box);
+    if (this.runningAnimations[box.xc]) {
+      this.runningAnimations[box.xc]?.stop();
+    }
+    if (!box.content) {
+      return;
+    }
+    const { ctx } = renderingContext;
+    const oldBox: Box = { ...box, content: { ...box.content, textLines: [oldText] } };
+
+    const animation = new Animation(
+      0,
+      1,
+      200,
+      (value) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(box.x + 1, box.y + 1, box.width - 2, box.height - 2);
+        ctx.clip();
+        ctx.fillStyle = box.style.fillColor || "#ffffff";
+        ctx.fillRect(box.x, box.y, box.width, box.height);
+        const oldTextBox = { ...oldBox, y: box.y + value * box.height };
+        const newTextBox = { ...box, y: box.y + (value - 1) * box.height };
+        this.drawText(renderingContext, oldTextBox);
+        this.drawText(renderingContext, newTextBox);
+        ctx.restore();
+      },
+      () => {
+        this.runningAnimations[box.xc] = undefined;
+      }
+    );
+    animation.start();
+    this.runningAnimations[box.xc] = animation;
+  }
+}
+
+export class Animation {
+  private startTime: number;
+  private animationFrameId: number | null = null;
+
+  constructor(
+    private startValue: number,
+    private endValue: number,
+    private duration: number,
+    private callback: (value: number) => void,
+    private onAnimationEnd?: () => void
+  ) {
+    this.startTime = performance.now();
+  }
+
+  start() {
+    this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
+  }
+
+  stop() {
+    console.log("stop animation");
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    this.onAnimationEnd?.();
+  }
+
+  private animate() {
+    const timestamp = performance.now();
+    const elapsed = timestamp - this.startTime;
+    const progress = Math.min(elapsed / this.duration, 1);
+    const currentValue = this.interpolateLinear(this.startValue, this.endValue, progress);
+    this.callback(currentValue);
+
+    if (progress < 1) {
+      this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
+    } else {
+      this.stop();
+    }
+  }
+
+  // private interpolateEaseOutQuart(start: number, end: number, progress: number): number {
+  //   return start + (end - start) * (1 - (1 - progress) ** 4);
+  // }
+
+  private interpolateLinear(start: number, end: number, progress: number): number {
+    return start + (end - start) * progress;
   }
 }
