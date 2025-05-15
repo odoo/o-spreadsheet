@@ -131,4 +131,37 @@ describe("Settings plugin", () => {
       expect(getCellContent(model, "A2")).toEqual("1001,2");
     });
   });
+
+  describe("Cell animations", () => {
+    test("Can disable cell animations", () => {
+      expect(model.getters.areCellAnimationDisabled()).toBeFalsy();
+
+      model.dispatch("SET_CELL_ANIMATIONS", { disableCellAnimations: true });
+      expect(model.getters.areCellAnimationDisabled()).toBeTruthy();
+
+      model.dispatch("SET_CELL_ANIMATIONS", { disableCellAnimations: false });
+      expect(model.getters.areCellAnimationDisabled()).toBeFalsy();
+    });
+
+    test("Can undo/redo cell animation change", () => {
+      expect(model.getters.areCellAnimationDisabled()).toBeFalsy();
+      model.dispatch("SET_CELL_ANIMATIONS", { disableCellAnimations: true });
+      expect(model.getters.areCellAnimationDisabled()).toBeTruthy();
+
+      undo(model);
+      expect(model.getters.areCellAnimationDisabled()).toBeFalsy();
+
+      redo(model);
+      expect(model.getters.areCellAnimationDisabled()).toBeTruthy();
+    });
+
+    test("Cell animation setting is exported/imported", () => {
+      model.dispatch("SET_CELL_ANIMATIONS", { disableCellAnimations: true });
+      const exported = model.exportData();
+      expect(exported.settings.disableCellAnimations).toBeTruthy();
+
+      const newModel = new Model(exported);
+      expect(newModel.getters.areCellAnimationDisabled()).toBeTruthy();
+    });
+  });
 });

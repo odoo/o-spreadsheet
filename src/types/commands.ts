@@ -285,6 +285,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** MISC */
   "UPDATE_LOCALE",
+  "SET_CELL_ANIMATIONS",
 
   /** PIVOT */
   "ADD_PIVOT",
@@ -649,6 +650,11 @@ export interface SetContextualFormatCommand extends TargetDependentCommand {
 export interface UpdateLocaleCommand {
   type: "UPDATE_LOCALE";
   locale: Locale;
+}
+
+export interface SetCellAnimationsCommand {
+  type: "SET_CELL_ANIMATIONS";
+  disableCellAnimations: boolean;
 }
 
 // ------------------------------------------------
@@ -1138,6 +1144,7 @@ export type CoreCommand =
 
   /** MISC */
   | UpdateLocaleCommand
+  | SetCellAnimationsCommand
 
   /** PIVOT */
   | AddPivotCommand

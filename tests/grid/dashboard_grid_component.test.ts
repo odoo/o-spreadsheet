@@ -6,6 +6,7 @@ import {
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
 import {
@@ -70,13 +71,15 @@ describe("Grid component in dashboard mode", () => {
     await nextTick();
 
     const y = DEFAULT_CELL_HEIGHT + 1 + MIN_CELL_TEXT_MARGIN; // +1 to skip grid lines
-    const leftA = DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
-    const leftB = DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
+    const leftB = DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
+    const leftC = DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
 
-    const iconA = getCellIcons(model, "B2")[0];
-    expect(model.getters.getCellIconRect(iconA)).toMatchObject({ y, x: leftA });
-    const iconB = getCellIcons(model, "C2")[0];
-    expect(model.getters.getCellIconRect(iconB)).toMatchObject({ y, x: leftB });
+    const iconB = getCellIcons(model, "B2")[0];
+    const rectB = model.getters.getCellIconRect(iconB, model.getters.getRect(toZone("B2")));
+    expect(rectB).toMatchObject({ y, x: leftB });
+    const iconC = getCellIcons(model, "C2")[0];
+    const rectC = model.getters.getCellIconRect(iconC, model.getters.getRect(toZone("C2")));
+    expect(rectC).toMatchObject({ y, x: leftC });
   });
 
   test("Clicking on a filter icon correctly open the filter popover", async () => {
