@@ -1,4 +1,4 @@
-import { isDefined, positionToZone } from "../../helpers/index";
+import { isDefined } from "../../helpers/index";
 import {
   GridIcon,
   IconsOfCell,
@@ -33,11 +33,8 @@ export class CellIconPlugin extends CoreViewPlugin {
     return this.cellIconsCache[position.sheetId][position.col][position.row];
   }
 
-  getCellIconRect(icon: GridIcon): Rect {
+  getCellIconRect(icon: GridIcon, cellRect: Rect): Rect {
     const cellPosition = icon.position;
-    const merge = this.getters.getMerge(cellPosition);
-    const zone = merge || positionToZone(cellPosition);
-    const cellRect = this.getters.getRect(zone);
     const cell = this.getters.getCell(cellPosition);
 
     const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign, icon);

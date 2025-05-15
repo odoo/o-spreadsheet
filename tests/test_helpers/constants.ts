@@ -385,6 +385,10 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "UPDATE_LOCALE",
     locale: DEFAULT_LOCALE,
   },
+  TOGGLE_CELL_ANIMATIONS: {
+    type: "TOGGLE_CELL_ANIMATIONS",
+    disableCellAnimations: true,
+  },
   GROUP_HEADERS: {
     type: "GROUP_HEADERS",
     sheetId: "Sheet1",
