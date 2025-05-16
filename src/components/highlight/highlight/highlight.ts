@@ -1,10 +1,20 @@
 import { Component, useState } from "@odoo/owl";
 import { ComponentsImportance } from "../../../constants";
 import { clip, isEqual } from "../../../helpers";
-import { Color, HeaderIndex, SpreadsheetChildEnv, Zone } from "../../../types";
+import {
+  Color,
+  HeaderIndex,
+  Range,
+  ResizeDirection,
+  SpreadsheetChildEnv,
+  Zone,
+} from "../../../types";
 import { css } from "../../helpers/css";
 import { gridOverlayPosition } from "../../helpers/dom_helpers";
-import { useDragAndDropBeyondTheViewport } from "../../helpers/drag_and_drop_grid_hook";
+import {
+  DnDDirection,
+  useDragAndDropBeyondTheViewport,
+} from "../../helpers/drag_and_drop_grid_hook";
 import { Border } from "../border/border";
 import { Corner } from "../corner/corner";
 
@@ -14,18 +24,18 @@ css/*SCSS*/ `
   }
 `;
 
-interface Props {
-  zone: Zone;
+export interface HighlightProps {
+  range: Range;
   color: Color;
 }
 
 interface HighlightState {
   shiftingMode: "isMoving" | "isResizing" | "none";
 }
-export class Highlight extends Component<Props, SpreadsheetChildEnv> {
+export class Highlight extends Component<HighlightProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Highlight";
   static props = {
-    zone: Object,
+    range: Object,
     color: String,
   };
   static components = {
@@ -38,39 +48,65 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   });
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
-  onResizeHighlight(ev: PointerEvent, isLeft: boolean, isTop: boolean) {
+  get cornerOrientations(): Array<"nw" | "ne" | "sw" | "se" | "n" | "s" | "e" | "w"> {
+    if (!this.env.isMobile()) {
+      return ["nw", "ne", "sw", "se"];
+    }
+    const z = this.props.range.unboundedZone;
+    if (z.bottom === undefined) {
+      return ["w", "e"];
+    } else if (z.right === undefined) {
+      return ["n", "s"];
+    } else {
+      return ["nw", "se"];
+    }
+  }
+
+  onResizeHighlight(ev: PointerEvent, dirX: ResizeDirection, dirY: ResizeDirection) {
     const activeSheetId = this.env.model.getters.getActiveSheetId();
     this.highlightState.shiftingMode = "isResizing";
-    const z = this.props.zone;
+    const z = this.props.range.zone;
 
-    const pivotCol = isLeft ? z.right : z.left;
-    const pivotRow = isTop ? z.bottom : z.top;
-    let lastCol = isLeft ? z.left : z.right;
-    let lastRow = isTop ? z.top : z.bottom;
+    const pivotCol = dirX === 1 ? z.left : z.right;
+    const pivotRow = dirY === 1 ? z.top : z.bottom;
+
+    let lastCol = dirX === 1 ? z.right : z.left;
+    let lastRow = dirY === 1 ? z.bottom : z.top;
     let currentZone = z;
+
+    let scrollDirection: DnDDirection = "all";
+
+    if (this.env.isMobile()) {
+      scrollDirection = dirX === 0 ? "vertical" : dirY === 0 ? "horizontal" : "all";
+    }
 
     this.env.model.dispatch("START_CHANGE_HIGHLIGHT", { zone: currentZone });
 
     const mouseMove = (col: HeaderIndex, row: HeaderIndex) => {
       if (lastCol !== col || lastRow !== row) {
-        lastCol = clip(
-          col === -1 ? lastCol : col,
-          0,
-          this.env.model.getters.getNumberCols(activeSheetId) - 1
-        );
-        lastRow = clip(
-          row === -1 ? lastRow : row,
-          0,
-          this.env.model.getters.getNumberRows(activeSheetId) - 1
-        );
+        let { left, right, top, bottom } = currentZone;
 
-        const newZone: Zone = {
-          left: Math.min(pivotCol, lastCol),
-          top: Math.min(pivotRow, lastRow),
-          right: Math.max(pivotCol, lastCol),
-          bottom: Math.max(pivotRow, lastRow),
-        };
+        if (scrollDirection !== "horizontal") {
+          lastRow = lastRow = clip(
+            row === -1 ? lastRow : row,
+            0,
+            this.env.model.getters.getNumberRows(activeSheetId) - 1
+          );
+          top = Math.min(pivotRow, lastRow);
+          bottom = Math.max(pivotRow, lastRow);
+        }
 
+        if (scrollDirection !== "vertical") {
+          lastCol = clip(
+            col === -1 ? lastCol : col,
+            0,
+            this.env.model.getters.getNumberCols(activeSheetId) - 1
+          );
+          left = Math.min(pivotCol, lastCol);
+          right = Math.max(pivotCol, lastCol);
+        }
+
+        const newZone: Zone = { left, right, top, bottom };
         if (!isEqual(newZone, currentZone)) {
           this.env.model.selection.selectZone(
             {
@@ -87,12 +123,12 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     const mouseUp = () => {
       this.highlightState.shiftingMode = "none";
     };
-    this.dragNDropGrid.start(ev, mouseMove, mouseUp);
+    this.dragNDropGrid.start(ev, mouseMove, mouseUp, scrollDirection);
   }
 
   onMoveHighlight(ev: PointerEvent) {
     this.highlightState.shiftingMode = "isMoving";
-    const z = this.props.zone;
+    const z = this.props.range.zone;
 
     const position = gridOverlayPosition();
     const activeSheetId = this.env.model.getters.getActiveSheetId();

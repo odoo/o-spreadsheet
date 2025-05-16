@@ -65,7 +65,7 @@ interface Props {
   sheetId: string;
   openContextMenu: (registry: MenuItemRegistry, ev: MouseEvent) => void;
   style?: string;
-  onMouseDown: (ev: MouseEvent) => void;
+  onMouseDown: (ev: PointerEvent) => void;
 }
 
 interface State {
@@ -144,7 +144,17 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onMouseDown(ev) {
+  onClick() {
+    if (!this.env.isMobile()) {
+      return;
+    }
+    this.activateSheet();
+  }
+
+  onMouseDown(ev: PointerEvent) {
+    if (this.env.isMobile()) {
+      return;
+    }
     this.activateSheet();
     this.props.onMouseDown(ev);
   }

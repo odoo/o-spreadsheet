@@ -4,6 +4,7 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
 <div
   class="o-composer w-100 text-start active"
   contenteditable="true"
+  inputmode="text"
   spellcheck="false"
   style=""
   tabindex="1"
@@ -72,6 +73,7 @@ exports[`Composer string is correctly translated to DOM Multi-line string 1`] = 
 <div
   class="o-composer w-100 text-start active"
   contenteditable="true"
+  inputmode="text"
   spellcheck="false"
   style=""
   tabindex="1"
@@ -113,6 +115,7 @@ exports[`Composer string is correctly translated to DOM Selection indicator in m
 <div
   class="o-composer w-100 text-start active"
   contenteditable="true"
+  inputmode="text"
   spellcheck="false"
   style=""
   tabindex="1"
@@ -142,6 +145,7 @@ exports[`Composer string is correctly translated to DOM Selection indicator in s
 <div
   class="o-composer w-100 text-start active"
   contenteditable="true"
+  inputmode="text"
   spellcheck="false"
   style=""
   tabindex="1"
@@ -161,6 +165,7 @@ exports[`Composer string is correctly translated to DOM Simple formula 1`] = `
 <div
   class="o-composer w-100 text-start active"
   contenteditable="true"
+  inputmode="text"
   spellcheck="false"
   style=""
   tabindex="1"
@@ -204,6 +209,7 @@ exports[`Composer string is correctly translated to DOM Simple string 1`] = `
 <div
   class="o-composer w-100 text-start active"
   contenteditable="true"
+  inputmode="text"
   spellcheck="false"
   style=""
   tabindex="1"

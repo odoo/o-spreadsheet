@@ -108,10 +108,19 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     }
   }
 
-  useRefListener(gridRef, "pointermove", updateMousePosition);
+  useRefListener(
+    gridRef,
+    "pointermove",
+    (ev: MouseEvent) => !env.isMobile() && updateMousePosition(ev)
+  );
   useRefListener(gridRef, "mouseleave", onMouseLeave);
   useRefListener(gridRef, "mouseenter", resume);
   useRefListener(gridRef, "pointerdown", recompute);
+  useRefListener(
+    gridRef,
+    "pointerdown",
+    (ev: MouseEvent) => env.isMobile() && updateMousePosition(ev)
+  );
 
   useExternalListener(window, "click", handleGlobalClick);
   function handleGlobalClick(e: MouseEvent) {
@@ -138,7 +147,7 @@ interface Props {
     col: HeaderIndex,
     row: HeaderIndex,
     modifiers: GridClickModifiers,
-    ev: MouseEvent
+    ev: PointerEvent | MouseEvent
   ) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
   onGridResized: (dimension: Rect) => void;
@@ -193,6 +202,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       resizeObserver.disconnect();
     });
+
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
   }
@@ -212,11 +222,23 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     return this.paintFormatStore.isActive;
   }
 
-  onMouseDown(ev: MouseEvent) {
-    if (ev.button > 0) {
+  onPointerDown(ev: PointerEvent) {
+    if (ev.button > 0 || this.env.isMobile()) {
       // not main button, probably a context menu
       return;
     }
+    this.onCellClicked(ev);
+  }
+
+  onClick(ev: MouseEvent) {
+    if (ev.button > 0 || !this.env.isMobile()) {
+      // not main button, probably a context menu
+      return;
+    }
+    this.onCellClicked(ev);
+  }
+
+  onCellClicked(ev: PointerEvent | MouseEvent) {
     if (ev.target === this.gridOverlay.el && this.cellPopovers.isOpen) {
       this.cellPopovers.close();
     }
