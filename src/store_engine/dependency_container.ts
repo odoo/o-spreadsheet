@@ -41,6 +41,14 @@ export class DependencyContainer extends EventBus<StoreUpdateEvent> {
   resetStores() {
     this.dependencies.clear();
   }
+
+  dispose() {
+    for (const instance of this.dependencies.values()) {
+      if ("dispose" in instance && typeof instance.dispose === "function") {
+        instance.dispose();
+      }
+    }
+  }
 }
 
 class StoreFactory {
