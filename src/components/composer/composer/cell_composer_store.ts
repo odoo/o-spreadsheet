@@ -1,3 +1,4 @@
+import { parseTokens } from "../../../formulas/parser";
 import { parseLiteral } from "../../../helpers/cells";
 import {
   formatValue,
@@ -26,6 +27,7 @@ import {
   isMatrix,
 } from "../../../types";
 import { AbstractComposerStore } from "./abstract_composer_store";
+import { prettier } from "./prettifier_content";
 
 const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
@@ -132,6 +134,10 @@ export class CellComposerStore extends AbstractComposerStore {
       col: this.col,
       row: this.row,
     };
+  }
+
+  get prettifiedFormula(): string {
+    return prettier(parseTokens(this.currentTokens));
   }
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
