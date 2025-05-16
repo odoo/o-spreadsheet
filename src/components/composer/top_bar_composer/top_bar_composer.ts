@@ -29,6 +29,7 @@ css/* scss */ `
   }
 
   .o-topbar-composer {
+    position: relative;
     height: fit-content;
     margin-top: -1px;
     margin-bottom: -1px;
@@ -41,6 +42,22 @@ css/* scss */ `
       content: url("data:image/svg+xml,${encodeURIComponent(FX_SVG)}");
       position: relative;
       top: 20%;
+    }
+
+    .btn-prettify {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn-prettify:hover {
+      background-color: #e0e0e0;
     }
   }
 
@@ -104,5 +121,15 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
 
   onFocus(selection: ComposerSelection) {
     this.composerFocusStore.focusComposer(this.composerInterface, { selection });
+  }
+
+  onPrettifyClick(event: MouseEvent) {
+    event.stopPropagation(); // Empêche la perte de focus
+    const prettifiedFormula = this.composerStore.prettifiedFormula;
+    this.composerStore.setCurrentContent(prettifiedFormula);
+
+    this.composerFocusStore.focusComposer(this.composerInterface, {
+      selection: { start: prettifiedFormula.length, end: prettifiedFormula.length },
+    });
   }
 }
