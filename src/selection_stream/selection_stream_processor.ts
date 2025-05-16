@@ -43,6 +43,7 @@ interface SelectionProcessor {
   moveAnchorCell(direction: Direction, step: SelectionStep): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
   addCellToSelection(col: number, row: number): DispatchResult;
+  updateSelection(col: number, row: number): DispatchResult;
   resizeAnchorZone(direction: Direction, step: SelectionStep): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectRow(index: number, mode: SelectionEvent["mode"]): DispatchResult;
@@ -183,6 +184,9 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       bottom: Math.max(anchorRow, row),
     };
     const expandedZone = this.getters.expandZone(sheetId, zone);
+    if (isEqual(this.anchor.zone, expandedZone)) {
+      return new DispatchResult(CommandResult.NoChanges);
+    }
     const anchor = { zone: expandedZone, cell: { col: anchorCol, row: anchorRow } };
     return this.processEvent({
       mode: "updateAnchor",
@@ -202,6 +206,38 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       options: { scrollIntoView: true },
       anchor: { zone, cell: { col, row } },
       mode: "newAnchor",
+    });
+  }
+
+  /**
+   * Calculates a new anchor zone from the current anchor cell to the target cell.
+   * Handles full row/column selection if col or row is -1, and expands the
+   * zone if needed. Dispatches the updated selection to the handler.
+   *
+   * @param col - Target column index or -1 for full column.
+   * @param row - Target row index or -1 for full row.
+   * @returns The result of the selection update dispatch.
+   */
+  updateSelection(col: HeaderIndex, row: HeaderIndex): DispatchResult {
+    const sheetId = this.getters.getActiveSheetId();
+    const { col: anchorCol, row: anchorRow } = this.anchor.cell;
+    let zone: Zone = {
+      left: col === -1 ? 0 : Math.min(anchorCol, col),
+      top: row === -1 ? 0 : Math.min(anchorRow, row),
+      right: col === -1 ? this.getters.getNumberCols(sheetId) - 1 : Math.max(anchorCol, col),
+      bottom: row === -1 ? this.getters.getNumberRows(sheetId) - 1 : Math.max(anchorRow, row),
+    };
+    if (col !== -1 && row !== -1) {
+      zone = this.getters.expandZone(sheetId, zone);
+    }
+    const anchor = { zone, cell: { col: anchorCol, row: anchorRow } };
+    return this.processEvent({
+      options: {
+        scrollIntoView: false,
+        unbounded: true,
+      },
+      anchor,
+      mode: "updateSelection",
     });
   }
 
@@ -286,7 +322,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     });
   }
 
-  selectColumn(index: HeaderIndex, mode: SelectionEvent["mode"]): DispatchResult {
+  selectColumn(
+    index: HeaderIndex,
+    mode: Exclude<SelectionEvent["mode"], "updateSelection">
+  ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const bottom = this.getters.getNumberRows(sheetId) - 1;
     let zone = { left: index, right: index, top: 0, bottom };
@@ -313,7 +352,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     });
   }
 
-  selectRow(index: HeaderIndex, mode: SelectionEvent["mode"]): DispatchResult {
+  selectRow(
+    index: HeaderIndex,
+    mode: Exclude<SelectionEvent["mode"], "updateSelection">
+  ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const right = this.getters.getNumberCols(sheetId) - 1;
     let zone = { top: index, bottom: index, left: 0, right };
