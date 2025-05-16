@@ -18,6 +18,7 @@ export function useStoreProvider() {
       return proxifyStoreMutation(store, () => container.trigger("store-updated"));
     },
   });
+  onWillUnmount(() => container.dispose());
   return container;
 }
 
