@@ -5,6 +5,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/figures_registry";
+import { Store, useStore } from "../../../store_engine";
 import {
   AnchorOffset,
   CSSProperties,
@@ -14,10 +15,12 @@ import {
   ResizeDirection,
   SpreadsheetChildEnv,
   UID,
+  ZoomConfiguration,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { Menu, MenuState } from "../../menu/menu";
+import { ZoomableChartStore } from "../chart/chartJs/zoomable_chart/zoomable_chart_store";
 
 type ResizeAnchor =
   | "top left"
@@ -96,6 +99,10 @@ css/*SCSS*/ `
       display: none;
     }
 
+    .o-figure-zoom-icons {
+      margin-right: 2.5rem !important;
+    }
+
     .o-figure-menu-item {
       cursor: pointer;
     }
@@ -139,6 +146,8 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   private menuButtonRef = useRef("menuButton");
 
   private borderWidth!: number;
+
+  private store!: Store<ZoomableChartStore>;
 
   get isSelected(): boolean {
     return this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id;
@@ -218,6 +227,8 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       this.props.onFigureDeleted();
     });
+
+    this.store = useStore(ZoomableChartStore);
   }
 
   clickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
@@ -322,6 +333,60 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
   showMenu() {
     this.openContextMenu(getRefBoundingRect(this.menuButtonRef));
+  }
+
+  get zoomEnabled() {
+    if (this.props.figureUI.tag !== "chart") {
+      return false;
+    }
+    const figureId = this.props.figureUI.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    return "zoom" in definition && definition.zoom?.enabled;
+  }
+
+  toggleZoom() {
+    if (this.props.figureUI.tag !== "chart") {
+      return;
+    }
+    const figureId = this.props.figureUI.id;
+    const definition = this.env.model.getters.getChartDefinition(figureId);
+    let zoom: ZoomConfiguration | undefined = undefined;
+    if ("zoom" in definition) {
+      zoom = {
+        ...definition.zoom,
+        sliceable: !definition.zoom?.sliceable,
+      };
+    }
+    this.env.model.dispatch("UPDATE_CHART", {
+      figureId,
+      // @ts-ignore
+      definition: { ...definition, zoom },
+      sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
+    });
+  }
+
+  resetZoom() {
+    if (this.props.figureUI.tag !== "chart") {
+      return;
+    }
+    const figureId = this.props.figureUI.id;
+    this.store.updateAxisLimits(figureId, this.store.originalAxisLimits[figureId].x);
+    this.env.model.dispatch("EVALUATE_CHARTS");
+  }
+
+  get isZoomResetable() {
+    if (this.props.figureUI.tag !== "chart") {
+      return false;
+    }
+    const figureId = this.props.figureUI.id;
+    const originalAxisLimits = this.store.originalAxisLimits[figureId]?.x;
+    const currentAxisLimits = this.store.currentAxisLimits[figureId];
+    return (
+      originalAxisLimits &&
+      currentAxisLimits &&
+      (originalAxisLimits.min !== currentAxisLimits.min ||
+        originalAxisLimits.max !== currentAxisLimits.max)
+    );
   }
 
   private openContextMenu(anchorRect: Rect) {

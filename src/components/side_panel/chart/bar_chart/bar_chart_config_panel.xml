@@ -28,6 +28,16 @@
       />
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+
+      <Section class="'pt-0'">
+        <Checkbox
+          name="'zoom'"
+          label.translate="'Allow zoom'"
+          value="props.definition.zoom?.enabled"
+          onChange.bind="onToggleZoom"
+          className="'mb-2'"
+        />
+      </Section>
     </div>
   </t>
 </templates>

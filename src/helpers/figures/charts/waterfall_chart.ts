@@ -38,7 +38,6 @@ import {
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getWaterfallChartLegend,
@@ -46,6 +45,7 @@ import {
   getWaterfallChartTooltip,
   getWaterfallDatasetAndLabels,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class WaterfallChart extends AbstractChart {
   readonly dataSets: DataSet[];
