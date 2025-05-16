@@ -11,7 +11,7 @@ export class ClientFocusStore extends SpreadsheetStore {
     "jumpToClient",
   ] as const;
 
-  private _showClientTag: Boolean = false;
+  private _showClientTag = false;
   private clientFocusTimeout = {};
 
   constructor(get: Get) {
@@ -58,7 +58,7 @@ export class ClientFocusStore extends SpreadsheetStore {
       clearTimeout(this.clientFocusTimeout[clientId]);
     }
     // This call to unfocus client isn't proxyfied and doesn't trigger a render.
-    // The focus will visuably disappear when the next render is triggered
+    // The focus will visually disappear when the next render is triggered
     this.clientFocusTimeout[clientId] = setTimeout(() => this.unfocusClient(clientId), 3000);
   }
 
