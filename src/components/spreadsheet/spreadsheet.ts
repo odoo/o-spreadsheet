@@ -430,6 +430,16 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     );
 
     useExternalListener(window, "resize", () => this.render(true));
+
+    if (window.visualViewport) {
+      useExternalListener(window.visualViewport, "resize", () =>
+        this.notificationStore.notifyUser({
+          text: `${window.visualViewport?.height}px`,
+          type: "warning",
+          sticky: true,
+        })
+      );
+    }
     // For some reason, the wheel event is not properly registered inside templates
     // in Chromium-based browsers based on chromium 125
     // This hack ensures the event declared in the template is properly registered/working
