@@ -571,6 +571,94 @@ describe("SPLIT function", () => {
   });
 });
 
+describe("TEXTSPLIT function", () => {
+  test("TEXTSPLIT accepts minimum 2 and maximum 6 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TEXTSPLIT()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=TEXTSPLIT("MERA")' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTSPLIT("MERA", ",")' })).toBe("MERA");
+    expect(evaluateCell("A1", { A1: '=TEXTSPLIT("MERA",,",")' })).toBe("MERA");
+    expect(evaluateCell("A1", { A1: '=TEXTSPLIT("MERA",",",, FALSE, 1)' })).toBe("MERA");
+    expect(evaluateCell("A1", { A1: '=TEXTSPLIT("MERA",",",, FALSE, 0, "HOLA")' })).toBe("MERA");
+    expect(evaluateCell("A1", { A1: '=TEXTSPLIT("MERA","",, FALSE, 0, "HOLA", 1)' })).toBe(
+      "#BAD_EXPR"
+    );
+  });
+
+  test("Split into columns", () => {
+    const grid = { A1: "Red,Green,Blue" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTSPLIT(A1, ",")');
+    expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Red", "Green", "Blue"]]);
+  });
+
+  test("Split into rows", () => {
+    const grid = { A1: "Red;Green;Blue" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTSPLIT(A1, , ";")');
+    expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["Red"], ["Green"], ["Blue"]]);
+  });
+
+  test("Split by substring", () => {
+    const grid = { A1: "2023--11--05" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTSPLIT(A1, "--")');
+    expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["2023", "11", "05"]]);
+  });
+
+  test("Split into columns and rows", () => {
+    const grid = { A1: "Name, Age=City, Country" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTSPLIT(A1, ", ", "=")');
+    expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
+      ["Name", "Age"],
+      ["City", "Country"],
+    ]);
+  });
+
+  test("Multiple delimiters", () => {
+    const grid = { A1: "Apple, Banana;Orange, Grapes;Tomato" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "F1", ", ");
+    setCellContent(model, "F2", ";");
+    setCellContent(model, "A2", "=TEXTSPLIT(A1, F1:F2)");
+    expect(getRangeValuesAsMatrix(model, "A2:E2")).toEqual([
+      ["Apple", "Banana", "Orange", "Grapes", "Tomato"],
+    ]);
+  });
+
+  test("Ignore empty values", () => {
+    const grid = { A1: "Dog,,Cat,,Bird" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTSPLIT(A1, ",", , TRUE)');
+    expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Dog", "Cat", "Bird"]]);
+  });
+
+  test("Case-insensitive split", () => {
+    const grid = { A1: "AppleDELIMbanaNADelimcHerry" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTSPLIT(A1, "delim",,,1)');
+    expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["Apple", "banaNA", "cHerry"]]);
+  });
+
+  test("Pad missing values", () => {
+    const grid = { A1: "Name=MERA, Score, Result=Excellent" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTSPLIT(A1, "=",", ",,,"HOLA_PAD")');
+    expect(getRangeValuesAsMatrix(model, "A2:B4")).toEqual([
+      ["Name", "MERA"],
+      ["Score", "HOLA_PAD"],
+      ["Result", "Excellent"],
+    ]);
+  });
+
+  test("Split dates", () => {
+    const grid = { A1: "2024/05/09" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTSPLIT(TEXT(A1, "m/d/yyyy"), "/")');
+    expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["5", "9", "2024"]]);
+  });
+});
+
 describe("SUBSTITUTE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=SUBSTITUTE( ,  ,  )" })).toBe("");
