@@ -1037,7 +1037,7 @@ test("UI plugins cannot refuse core command and de-synchronize the users", () =>
   class MyUIPlugin extends UIPlugin {
     allowDispatch(cmd: Command) {
       if (cmd.type === "UPDATE_CELL") {
-        return this.getters.getClient().name === "Alice"
+        return this.getters.getCurrentClient().name === "Alice"
           ? CommandResult.Success
           : CommandResult.CancelledForUnknownReason;
       }

@@ -20,6 +20,7 @@ import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import { Store } from "../../src/store_engine";
+import { ClientFocusStore } from "../../src/stores/client_focus_store";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
 import { xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
@@ -1194,7 +1195,7 @@ describe("Multi User selection", () => {
     transportService = new MockTransportService();
 
     model = new Model({}, { transportService });
-    ({ parent, fixture } = await mountSpreadsheet({ model }));
+    ({ parent, fixture, env } = await mountSpreadsheet({ model }));
   });
 
   test("Render collaborative user when hovering the position", async () => {
@@ -1248,6 +1249,77 @@ describe("Multi User selection", () => {
         position: { sheetId: sheetId, col: 1, row: model.getters.getNumberRows(sheetId) },
       },
     });
+    await nextTick();
+    expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
+  });
+
+  test("Render collaborative user when user is focused", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    const clientFocusStore = env.getStore(ClientFocusStore);
+    clientFocusStore.focusClient("david");
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: { id: "david", name: "David", position: { sheetId, col: 1, row: 1 } },
+    });
+    await nextTick();
+    expect(document.querySelectorAll(".o-client-tag")).toHaveLength(1);
+    expect(document.querySelector(".o-client-tag")?.textContent).toBe("David");
+  });
+
+  test("Jump to client switch to correct sheet", async () => {
+    jest.useFakeTimers();
+    const clientFocusStore = env.getStore(ClientFocusStore);
+    createSheet(model, { sheetId: "AliceSheet", name: "Alice Sheet", position: 1 });
+    createSheet(model, { sheetId: "BobSheet", name: "Bob Sheet", position: 2 });
+
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: { id: "alice", name: "Alice", position: { sheetId: "AliceSheet", col: 5, row: 5 } },
+    });
+
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: { id: "bob", name: "Bob", position: { sheetId: "BobSheet", col: 20, row: 20 } },
+    });
+
+    clientFocusStore.jumpToClient("alice");
+    await nextTick();
+
+    expect(clientFocusStore.focusedClients).toContain("alice");
+    expect(model.getters.getActiveSheetId()).toBe("AliceSheet");
+
+    jest.advanceTimersByTime(3000 + 100);
+    expect(clientFocusStore.focusedClients).not.toContain("alice");
+
+    clientFocusStore.jumpToClient("bob");
+    await nextTick();
+
+    expect(clientFocusStore.focusedClients).toContain("bob");
+    expect(model.getters.getActiveSheetId()).toBe("BobSheet");
+
+    jest.advanceTimersByTime(3000 + 100);
+    expect(clientFocusStore.focusedClients).not.toContain("bob");
+  });
+
+  test("Render collaborative user with commands", async () => {
+    jest.useFakeTimers();
+    const sheetId = model.getters.getActiveSheetId();
+    const clientFocusStore = env.getStore(ClientFocusStore);
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: { id: "david", name: "David", position: { sheetId, col: 1, row: 1 } },
+    });
+
+    clientFocusStore.showClientTag();
+    await nextTick();
+    expect(document.querySelectorAll(".o-client-tag")).toHaveLength(1);
+    expect(document.querySelector(".o-client-tag")?.textContent).toBe("David");
+
+    clientFocusStore.hideClientTag();
     await nextTick();
     expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
   });

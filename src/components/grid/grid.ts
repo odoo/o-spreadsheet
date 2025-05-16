@@ -37,6 +37,7 @@ import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
+import { ClientFocusStore } from "../../stores/client_focus_store";
 import { HighlightStore } from "../../stores/highlight_store";
 import { AllowedImageMimeTypes } from "../../types/image";
 import {
@@ -143,6 +144,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+  private clientFocusStore!: Store<ClientFocusStore>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
@@ -163,6 +165,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
     this.paintFormatStore = useStore(PaintFormatStore);
+    this.clientFocusStore = useStore(ClientFocusStore);
     useStore(ArrayFormulaHighlight);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
@@ -479,6 +482,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   isCellHovered(col: HeaderIndex, row: HeaderIndex): boolean {
     return this.hoveredCell.col === col && this.hoveredCell.row === row;
+  }
+
+  get focusedClients() {
+    return this.clientFocusStore.focusedClients;
   }
 
   private getGridRect(): Rect {

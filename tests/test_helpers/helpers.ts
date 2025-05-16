@@ -183,6 +183,10 @@ export function makeTestEnv(
     throw new Error("Cannot call makeTestEnv on a partial env that already have a store container");
   }
   const container = new DependencyContainer();
+  registerCleanup(() => {
+    container.dispose();
+  });
+
   container.inject(ModelStore, model);
   container.inject(RendererStore, new FakeRendererStore());
 
@@ -1151,6 +1155,10 @@ export function makeTestComposerStore(
   notificationStore?: NotificationStore
 ): CellComposerStore {
   const container = new DependencyContainer();
+  registerCleanup(() => {
+    container.dispose();
+  });
+
   container.inject(ModelStore, model);
   notificationStore = notificationStore || makeTestNotificationStore();
   container.inject(NotificationStore, notificationStore);
