@@ -5,7 +5,8 @@ import { StandaloneComposer } from "../../src/components/composer/standalone_com
 import { zoneToXc } from "../../src/helpers";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
-import { createSheet } from "../test_helpers/commands_helpers";
+import { createSheet, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { click, getTextNodes, keyDown, simulateClick } from "../test_helpers/dom_helper";
 import {
   addToRegistry,
@@ -156,6 +157,19 @@ describe("Spreadsheet integrations tests", () => {
     // in a real world scenario, the props most likely changed
     // to the new confirmed content
     expect(composerEl.textContent).toBe("content from props");
+  });
+
+  test("Standalone composer works with non-default locale", async () => {
+    updateLocale(model, FR_LOCALE);
+    await openSidePanelWithComposer({ composerContent: "=SUM(1,2.5)" });
+    expect(composerEl.textContent).toBe("=SUM(1;2,5)");
+
+    await editStandaloneComposer(composerSelector, "=SUM(1;2,5) + SUM(1,5;4)", {
+      confirm: false,
+    });
+    expect(composerEl.textContent).toBe("=SUM(1;2,5) + SUM(1,5;4)");
+    await keyDown({ key: "Enter" });
+    expect(onConfirm).toHaveBeenCalledWith("=SUM(1,2.5) + SUM(1.5,4)");
   });
 
   test("Can have title and placeholder", async () => {
