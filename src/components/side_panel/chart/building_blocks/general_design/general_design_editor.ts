@@ -22,6 +22,7 @@ interface Props {
   figureId: UID;
   definition: ChartDefinition;
   updateChart: (figureId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
+  canUpdateChart: (figureId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
   defaultChartTitleFontSize?: number;
 }
 
@@ -38,6 +39,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     figureId: String,
     definition: Object,
     updateChart: Function,
+    canUpdateChart: Function,
     defaultChartTitleFontSize: { type: Number, optional: true },
     slots: { type: Object, optional: true },
   };

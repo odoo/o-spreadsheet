@@ -63,6 +63,7 @@ export class RadarChart extends AbstractChart {
   readonly dataSetDesign?: DatasetDesign[];
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly hideDataMarkers?: boolean;
 
   constructor(definition: RadarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -81,6 +82,7 @@ export class RadarChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.fillArea = definition.fillArea;
     this.showValues = definition.showValues;
+    this.hideDataMarkers = definition.hideDataMarkers;
   }
 
   static transformDefinition(
@@ -110,6 +112,7 @@ export class RadarChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       fillArea: context.fillArea ?? false,
       showValues: context.showValues ?? false,
+      hideDataMarkers: context.hideDataMarkers,
     };
   }
 
@@ -180,6 +183,7 @@ export class RadarChart extends AbstractChart {
       aggregated: this.aggregated,
       fillArea: this.fillArea,
       showValues: this.showValues,
+      hideDataMarkers: this.hideDataMarkers,
     };
   }
 

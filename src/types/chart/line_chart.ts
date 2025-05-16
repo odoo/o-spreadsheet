@@ -9,6 +9,7 @@ export interface LineChartDefinition extends CommonChartDefinition {
   readonly aggregated?: boolean;
   readonly cumulative: boolean;
   readonly fillArea?: boolean;
+  readonly hideDataMarkers?: boolean;
 }
 
 export type LineChartRuntime = {

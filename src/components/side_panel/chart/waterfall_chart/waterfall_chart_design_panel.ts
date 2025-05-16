@@ -24,6 +24,7 @@ import {
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
+import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
 interface Props {
@@ -43,6 +44,7 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
   static template = "o-spreadsheet-WaterfallChartDesignPanel";
   static components = {
     GeneralDesignEditor,
+    ChartShowValues,
     Checkbox,
     SidePanelCollapsible,
     Section,

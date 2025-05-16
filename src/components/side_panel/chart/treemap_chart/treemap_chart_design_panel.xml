@@ -1,10 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-TreeMapChartDesignPanel">
-    <GeneralDesignEditor
-      figureId="props.figureId"
-      definition="props.definition"
-      updateChart="props.updateChart"
-    />
+    <GeneralDesignEditor t-props="props"/>
 
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Tree map colors">
       <t t-set-slot="content">
@@ -61,12 +57,7 @@
               value="showLabels"
               onChange="(showLabels) => props.updateChart(this.props.figureId, { showLabels })"
             />
-            <Checkbox
-              name="'showValues'"
-              label.translate="Show values"
-              value="showValues"
-              onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
-            />
+            <ChartShowValues t-props="props" defaultValue="defaults.showValues"/>
           </div>
         </Section>
         <Section class="'pt-0'" t-if="showValues || showLabels">

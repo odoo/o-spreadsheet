@@ -32,6 +32,7 @@ describe("combo chart", () => {
       aggregated: true,
       axesDesign: {},
       showValues: false,
+      hideDataMarkers: false,
     });
   });
 

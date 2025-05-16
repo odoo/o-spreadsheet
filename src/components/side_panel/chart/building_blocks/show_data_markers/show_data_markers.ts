@@ -5,7 +5,7 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../../../types";
-import { Section } from "../../../components/section/section";
+import { Checkbox } from "../../../components/checkbox/checkbox";
 
 interface Props {
   figureId: UID;
@@ -17,10 +17,10 @@ interface Props {
   ) => DispatchResult;
 }
 
-export class ChartLegend extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-ChartLegend";
+export class ChartShowDataMarkers extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-ChartShowDataMarkers";
   static components = {
-    Section,
+    Checkbox,
   };
   static props = {
     figureId: String,
@@ -28,10 +28,4 @@ export class ChartLegend extends Component<Props, SpreadsheetChildEnv> {
     updateChart: Function,
     canUpdateChart: Function,
   };
-
-  updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
-      legendPosition: ev.target.value,
-    });
-  }
 }

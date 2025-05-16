@@ -204,6 +204,7 @@ export interface ChartCreationContext {
   readonly showValues?: boolean;
   readonly funnelColors?: FunnelChartColors;
   readonly showLabels?: boolean;
+  readonly hideDataMarkers?: boolean;
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly showHeaders?: boolean;
