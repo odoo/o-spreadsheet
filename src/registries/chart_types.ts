@@ -27,14 +27,7 @@ import {
   createWaterfallChartRuntime,
 } from "../helpers/figures/charts/waterfall_chart";
 import { _t } from "../translation";
-import {
-  AddColumnsRowsCommand,
-  CommandResult,
-  CoreGetters,
-  Getters,
-  RemoveColumnsRowsCommand,
-  UID,
-} from "../types";
+import { CommandResult, CoreGetters, Getters, UID } from "../types";
 import {
   BarChartDefinition,
   GaugeChartDefinition,
@@ -78,10 +71,6 @@ export interface ChartBuilder {
     validator: Validator,
     definition: ChartDefinition
   ): CommandResult | CommandResult[];
-  transformDefinition(
-    definition: ChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
   sequence: number;
 }
@@ -97,7 +86,6 @@ chartRegistry.add("bar", {
     new BarChart(definition as BarChartDefinition, sheetId, getters),
   getChartRuntime: createBarChartRuntime,
   validateChartDefinition: BarChart.validateChartDefinition,
-  transformDefinition: BarChart.transformDefinition,
   getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
   sequence: 10,
 });
@@ -107,7 +95,6 @@ chartRegistry.add("combo", {
     new ComboChart(definition as ComboChartDefinition, sheetId, getters),
   getChartRuntime: createComboChartRuntime,
   validateChartDefinition: ComboChart.validateChartDefinition,
-  transformDefinition: ComboChart.transformDefinition,
   getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
   sequence: 15,
 });
@@ -117,7 +104,6 @@ chartRegistry.add("line", {
     new LineChart(definition as LineChartDefinition, sheetId, getters),
   getChartRuntime: createLineChartRuntime,
   validateChartDefinition: LineChart.validateChartDefinition,
-  transformDefinition: LineChart.transformDefinition,
   getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
   sequence: 20,
 });
@@ -127,7 +113,6 @@ chartRegistry.add("pie", {
     new PieChart(definition as PieChartDefinition, sheetId, getters),
   getChartRuntime: createPieChartRuntime,
   validateChartDefinition: PieChart.validateChartDefinition,
-  transformDefinition: PieChart.transformDefinition,
   getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
   sequence: 30,
 });
@@ -137,7 +122,6 @@ chartRegistry.add("scorecard", {
     new ScorecardChart(definition as ScorecardChartDefinition, sheetId, getters),
   getChartRuntime: createScorecardChartRuntime,
   validateChartDefinition: ScorecardChart.validateChartDefinition,
-  transformDefinition: ScorecardChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
   sequence: 40,
 });
@@ -147,7 +131,6 @@ chartRegistry.add("gauge", {
     new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
   getChartRuntime: createGaugeChartRuntime,
   validateChartDefinition: GaugeChart.validateChartDefinition,
-  transformDefinition: GaugeChart.transformDefinition,
   getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
   sequence: 50,
 });
@@ -157,7 +140,6 @@ chartRegistry.add("scatter", {
     new ScatterChart(definition as ScatterChartDefinition, sheetId, getters),
   getChartRuntime: createScatterChartRuntime,
   validateChartDefinition: ScatterChart.validateChartDefinition,
-  transformDefinition: ScatterChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
   sequence: 60,
 });
@@ -167,7 +149,6 @@ chartRegistry.add("waterfall", {
     new WaterfallChart(definition as WaterfallChartDefinition, sheetId, getters),
   getChartRuntime: createWaterfallChartRuntime,
   validateChartDefinition: WaterfallChart.validateChartDefinition,
-  transformDefinition: WaterfallChart.transformDefinition,
   getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
   sequence: 70,
 });
@@ -177,7 +158,6 @@ chartRegistry.add("pyramid", {
     new PyramidChart(definition as PyramidChartDefinition, sheetId, getters),
   getChartRuntime: createPyramidChartRuntime,
   validateChartDefinition: PyramidChart.validateChartDefinition,
-  transformDefinition: PyramidChart.transformDefinition,
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
   sequence: 80,
 });
@@ -187,7 +167,6 @@ chartRegistry.add("radar", {
     new RadarChart(definition as RadarChartDefinition, sheetId, getters),
   getChartRuntime: createRadarChartRuntime,
   validateChartDefinition: RadarChart.validateChartDefinition,
-  transformDefinition: RadarChart.transformDefinition,
   getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
   sequence: 80,
 });
@@ -197,7 +176,6 @@ chartRegistry.add("geo", {
     new GeoChart(definition as GeoChartDefinition, sheetId, getters),
   getChartRuntime: createGeoChartRuntime,
   validateChartDefinition: GeoChart.validateChartDefinition,
-  transformDefinition: GeoChart.transformDefinition,
   getChartDefinitionFromContextCreation: GeoChart.getDefinitionFromContextCreation,
   sequence: 90,
 });
@@ -207,7 +185,6 @@ chartRegistry.add("funnel", {
     new FunnelChart(definition as FunnelChartDefinition, sheetId, getters),
   getChartRuntime: createFunnelChartRuntime,
   validateChartDefinition: FunnelChart.validateChartDefinition,
-  transformDefinition: FunnelChart.transformDefinition,
   getChartDefinitionFromContextCreation: FunnelChart.getDefinitionFromContextCreation,
   sequence: 100,
 });
@@ -217,7 +194,6 @@ chartRegistry.add("sunburst", {
     new SunburstChart(definition as SunburstChartDefinition, sheetId, getters),
   getChartRuntime: createSunburstChartRuntime,
   validateChartDefinition: SunburstChart.validateChartDefinition,
-  transformDefinition: SunburstChart.transformDefinition,
   getChartDefinitionFromContextCreation: SunburstChart.getDefinitionFromContextCreation,
   sequence: 30,
 });
@@ -227,7 +203,6 @@ chartRegistry.add("treemap", {
     new TreeMapChart(definition as TreeMapChartDefinition, sheetId, getters),
   getChartRuntime: createTreeMapChartRuntime,
   validateChartDefinition: TreeMapChart.validateChartDefinition,
-  transformDefinition: TreeMapChart.transformDefinition,
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
   sequence: 100,
 });

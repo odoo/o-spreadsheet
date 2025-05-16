@@ -1,11 +1,4 @@
-import {
-  AddColumnsRowsCommand,
-  ApplyRangeChange,
-  CommandResult,
-  CoreGetters,
-  RemoveColumnsRowsCommand,
-  UID,
-} from "../../../types";
+import { ApplyRangeChange, CommandResult, CoreGetters, UID } from "../../../types";
 import {
   ChartCreationContext,
   ChartDefinition,
@@ -39,17 +32,6 @@ export abstract class AbstractChart {
     validator: Validator,
     definition: ChartDefinition
   ): CommandResult | CommandResult[] {
-    throw new Error("This method should be implemented by sub class");
-  }
-
-  /**
-   * Get a new chart definition transformed with the executed command. This
-   * functions will be called during operational transform process
-   */
-  static transformDefinition(
-    definition: ChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): ChartDefinition {
     throw new Error("This method should be implemented by sub class");
   }
 
