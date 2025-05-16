@@ -24,6 +24,7 @@ import {
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
+  deepCopy,
   drawDecoratedText,
   getColorScale,
   getZonesCols,
@@ -63,8 +64,14 @@ interface AnimatedBox {
   newBox: Box | undefined;
   startTime?: number;
   progress: number;
+  hasAnimatedDataBar?: boolean;
+  hasAnimatedBackgroundColor?: boolean;
+  hasFadeIn?: boolean;
+  hasFadeOut?: boolean;
+  hasSlidingText?: boolean;
 }
 
+// ADRM TODO: animation registry ?
 export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
@@ -109,8 +116,9 @@ export class GridRenderer {
           ctx.beginPath();
           ctx.rect(rect.x, rect.y, rect.width, rect.height);
           ctx.clip();
-          const boxes = this.getGridBoxes(zone);
-          this.updateAnimations(boxes, timeStamp);
+          const boxesWithoutAnimations = this.getGridBoxes(zone);
+          this.updateAnimations(boxesWithoutAnimations, timeStamp);
+          const boxes = this.addAnimationBoxes(boxesWithoutAnimations);
           this.drawBackground(renderingContext, boxes);
           this.drawOverflowingCellBackground(renderingContext, boxes);
           this.drawCellBackground(renderingContext, boxes);
@@ -128,6 +136,53 @@ export class GridRenderer {
         }
         break;
     }
+  }
+
+  private addAnimationBoxes(boxes: Box[]) {
+    const boxesWithAnimations: Box[] = [];
+    for (const box of boxes) {
+      const animation = this.animations.get(box.xc);
+      if (!animation) {
+        boxesWithAnimations.push(box);
+        continue;
+      }
+      const animatedBox = deepCopy(box);
+
+      const dataBar = animation.newBox?.dataBarFill || animation.oldBox?.dataBarFill;
+      if (animation.hasAnimatedDataBar && dataBar) {
+        const value = EASING_FN[this.easingFunctions.dataBar](animation.progress);
+        animatedBox.dataBarFill = {
+          ...dataBar,
+          percentage: value * dataBar.percentage,
+        };
+      }
+
+      if (animation.hasAnimatedBackgroundColor) {
+        const colorScale = getColorScale([
+          { value: 0, color: animation.oldBox?.style.fillColor || "#ffffff" },
+          { value: 1, color: animation.newBox?.style.fillColor || "#ffffff" },
+        ]);
+        animatedBox.style.fillColor = colorScale(
+          EASING_FN[this.easingFunctions.cfColorChange](animation.progress)
+        );
+      }
+
+      if (animation.hasFadeIn) {
+        animatedBox.opacity = EASING_FN[this.easingFunctions.cellFadeIn](animation.progress);
+      } else if (animation.hasFadeOut) {
+        // ADRM TODO: use old box
+        animatedBox.opacity = 1 - EASING_FN[this.easingFunctions.cellFadeOut](animation.progress);
+        // console.log("fade out", animatedBox.opacity);
+      }
+
+      boxesWithAnimations.push(animatedBox);
+    }
+
+    // console.log(
+    //   "boxesWithAnimations",
+    //   boxesWithAnimations.find((b) => b.xc === "B5")
+    // );
+    return boxesWithAnimations;
   }
 
   private updateAnimations(newBoxes: Box[], timeStamp: number) {
@@ -169,7 +224,6 @@ export class GridRenderer {
     }
 
     if (this.animations.size > 0) {
-      console.log(new Map(this.animations));
       this.renderer.startAnimation("grid_renderer_animation");
     } else {
       this.renderer.stopAnimation("grid_renderer_animation");
@@ -183,12 +237,45 @@ export class GridRenderer {
     const oldText = oldBox?.content?.text;
     const newText = newBox?.content?.text;
 
+    let hasAnimatedDataBar = false;
+    let hasAnimatedBackgroundColor = false;
+    let hasFadeIn = false;
+    let hasFadeOut = false;
+    let hasSlidingText = false;
     if (!oldText && newText) {
-      return { oldBox: undefined, newBox, type: "fadein", progress: 0 };
+      hasFadeIn = true;
     } else if (oldText && !newText) {
-      return { oldBox, newBox: undefined, type: "fadeout", progress: 0 };
+      hasFadeOut = true;
     } else if (oldBox && newBox && oldText !== newText) {
-      return { oldBox, newBox, type: "sliding", progress: 0 };
+      hasSlidingText = true;
+    }
+    // ADRM TODO: fade in/out for borders
+
+    if (oldBox?.dataBarFill?.percentage !== newBox?.dataBarFill?.percentage) {
+      hasAnimatedDataBar = true;
+    }
+    if (oldBox?.style?.fillColor !== newBox?.style?.fillColor) {
+      hasAnimatedBackgroundColor = true;
+    }
+
+    if (
+      hasAnimatedDataBar ||
+      hasAnimatedBackgroundColor ||
+      hasFadeIn ||
+      hasFadeOut ||
+      hasSlidingText
+    ) {
+      return {
+        newBox,
+        oldBox,
+        type: "ADRM TODO remove this",
+        progress: 0,
+        hasAnimatedDataBar,
+        hasAnimatedBackgroundColor,
+        hasFadeIn,
+        hasFadeOut,
+        hasSlidingText,
+      };
     }
     return undefined;
   }
@@ -225,30 +312,31 @@ export class GridRenderer {
       // ADRM TODO animate boxes that are not there anymore
       const style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
-        const animatedBox = this.animations.get(box.xc);
-        if (animatedBox) {
-          const colorScale = getColorScale([
-            { value: 0, color: animatedBox.oldBox?.style.fillColor || "#ffffff" },
-            { value: 1, color: style.fillColor },
-          ]);
-          ctx.fillStyle = colorScale(
-            EASING_FN[this.easingFunctions.cfColorChange](animatedBox.progress)
-          );
-          ctx.fillRect(box.x, box.y, box.width, box.height);
-        } else {
-          ctx.fillStyle = style.fillColor || "#ffffff";
-          ctx.fillRect(box.x, box.y, box.width, box.height);
-        }
+        // const animatedBox = this.animations.get(box.xc);
+        // if (animatedBox) {
+        //   const colorScale = getColorScale([
+        //     { value: 0, color: animatedBox.oldBox?.style.fillColor || "#ffffff" },
+        //     { value: 1, color: style.fillColor },
+        //   ]);
+        //   ctx.fillStyle = colorScale(
+        //     EASING_FN[this.easingFunctions.cfColorChange](animatedBox.progress)
+        //   );
+        //   ctx.fillRect(box.x, box.y, box.width, box.height);
+        // } else {
+        ctx.fillStyle = style.fillColor || "#ffffff";
+        ctx.fillRect(box.x, box.y, box.width, box.height);
+        // }
       }
       if (box.dataBarFill) {
-        const animatedBox = this.animations.get(box.xc);
+        // const animatedBox = this.animations.get(box.xc);
         ctx.fillStyle = box.dataBarFill.color;
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
-        const progress = animatedBox
-          ? EASING_FN[this.easingFunctions.dataBar](animatedBox.progress)
-          : 1;
-        ctx.fillRect(box.x, box.y, width * progress, box.height);
+        // const progress = animatedBox
+        //   ? EASING_FN[this.easingFunctions.dataBar](animatedBox.progress)
+        // : 1;
+        // const progress = 1;
+        ctx.fillRect(box.x, box.y, width, box.height);
       }
       if (box.overlayColor) {
         ctx.fillStyle = box.overlayColor;
@@ -297,6 +385,7 @@ export class GridRenderer {
     for (const box of boxes) {
       const border = box.border;
       if (border) {
+        ctx.globalAlpha = box.opacity ?? 1;
         const { x, y, width, height } = box;
         if (border.left) {
           drawBorder(border.left, x, y, x, y + height);
@@ -310,6 +399,7 @@ export class GridRenderer {
         if (border.bottom) {
           drawBorder(border.bottom, x, y + height, x + width, y + height);
         }
+        ctx.globalAlpha = 1;
       }
     }
 
@@ -381,9 +471,9 @@ export class GridRenderer {
     const { ctx } = renderingContext;
     for (const box of boxes) {
       if (box.content) {
-        if (this.animations.has(box.xc)) {
-          continue;
-        }
+        // if (this.animations.has(box.xc)) {
+        //   continue;
+        // }
         if (box.clipRect) {
           ctx.save();
           ctx.beginPath();
@@ -391,7 +481,9 @@ export class GridRenderer {
           ctx.clip();
         }
 
+        ctx.globalAlpha = box.opacity ?? 1;
         this.drawText(renderingContext, box);
+        ctx.globalAlpha = 1;
 
         if (box.clipRect) {
           ctx.restore();
@@ -461,6 +553,7 @@ export class GridRenderer {
     for (const box of boxes) {
       if (box.image && box.image.svg) {
         ctx.save();
+        ctx.globalAlpha = box.opacity ?? 1;
         if (box.image.clipIcon) {
           ctx.beginPath();
           const { x, y, width, height } = box.image.clipIcon;
@@ -919,7 +1012,6 @@ export class GridRenderer {
     const box = animatedBox.newBox;
     const oldBox = animatedBox.oldBox;
     ctx.save();
-    // console.log("draw animated text", box?.xc, animatedBox);
     ctx.beginPath();
     const clipRect = box?.clipRect || oldBox?.clipRect || box || oldBox; // ADRM TODO: overflowing cell without clipRect
     if (clipRect) {

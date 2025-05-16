@@ -48,6 +48,8 @@ export interface Box extends Rect {
   verticalAlign?: VerticalAlign;
   isOverflow?: boolean;
   overlayColor: Color | undefined;
+  /** Isn't applied to background color */
+  opacity?: number;
 }
 export interface Image {
   clipIcon: Rect | null;
