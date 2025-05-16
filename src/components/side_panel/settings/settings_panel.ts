@@ -2,6 +2,8 @@ import { Component, onWillStart } from "@odoo/owl";
 import { GRAY_100, GRAY_300 } from "../../../constants";
 import { DAYS, deepEquals, formatValue } from "../../../helpers";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
+import { Store, useStore } from "../../../store_engine";
+import { EASING_FN, GridRenderer } from "../../../stores/grid_renderer_store";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
@@ -24,8 +26,52 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
   static props = { onCloseSidePanel: Function };
 
   loadedLocales: Locale[] = [];
+  gridRendererStore!: Store<GridRenderer>;
+
+  easingFns = Object.keys(EASING_FN);
+  labels = {
+    linear: "Linear",
+    easeInQuad: "Quadratic ease in",
+    easeOutQuad: "Quadratic ease out",
+    easeInOutQuad: "Quadratic ease in-out",
+    easeInCubic: "Cubic ease in",
+    easeOutCubic: "Cubic ease out",
+    easeInOutCubic: "Cubic ease in-out",
+    easeInQuart: "Quartic ease in",
+    easeOutQuart: "Quartic ease out",
+    easeInOutQuart: "Quartic ease in-out",
+    easeInQuint: "Quintic ease in",
+    easeOutQuint: "Quintic ease out",
+    easeInOutQuint: "Quintic ease in-out",
+    easeInSine: "Sine ease in",
+    easeOutSine: "Sine ease out",
+    easeInOutSine: "Sine ease in-out",
+    easeInExpo: "Exponential ease in",
+    easeOutExpo: "Exponential ease out",
+    easeInOutExpo: "Exponential ease in-out",
+    easeInCirc: "Circular ease in",
+    easeOutCirc: "Circular ease out",
+    easeInOutCirc: "Circular ease in-out",
+    easeInElastic: "Elastic ease in",
+    easeOutElastic: "Elastic ease out",
+    easeInOutElastic: "Elastic ease in-out",
+    easeInBack: "Back ease in",
+    easeOutBack: "Back ease out",
+    easeInOutBack: "Back ease in-out",
+    easeInBounce: "Bounce ease in",
+    easeOutBounce: "Bounce ease out",
+    easeInOutBounce: "Bounce ease in-out",
+  };
+  animationLabels = {
+    cellFadeIn: "Cell Fade In",
+    cellFadeOut: "Cell Fade Out",
+    cellSliding: "Cell Sliding",
+    dataBar: "Data Bar",
+    cfColorChange: "Color Change (table/cf)",
+  };
 
   setup() {
+    this.gridRendererStore = useStore(GridRenderer);
     onWillStart(() => this.loadLocales());
   }
 

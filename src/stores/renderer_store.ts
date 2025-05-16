@@ -4,18 +4,21 @@ import { GridRenderingContext, LayerName, OrderedLayers } from "../types";
 import { ModelStore } from "./model_store";
 
 export interface Renderer {
-  drawLayer(ctx: GridRenderingContext, layer: LayerName): void;
+  drawLayer(ctx: GridRenderingContext, layer: LayerName, timestamp: number): void;
   renderingLayers: Readonly<LayerName[]>;
 }
 
 export class RendererStore extends DisposableStore {
-  mutators = ["register", "unRegister", "draw", "startAnimation"] as const;
+  mutators = ["register", "unRegister", "draw", "startAnimation", "stopAnimation"] as const;
   private renderers: Partial<Record<LayerName, Renderer[]>> = {};
 
   private model = this.get(ModelStore) as Model;
 
   private context: GridRenderingContext | undefined = undefined;
+
   private animationFrameId: number | null = null;
+  private registeredAnimations: Set<String> = new Set();
+  private timeStamp: number | null = null;
 
   register(renderer: Renderer) {
     if (!renderer.renderingLayers.length) {
@@ -38,9 +41,10 @@ export class RendererStore extends DisposableStore {
   private drawLayer(context: GridRenderingContext, layer: LayerName) {
     const renderers = this.renderers[layer];
     if (renderers) {
+      const timeStamp = this.timeStamp || Number(document.timeline.currentTime);
       for (const renderer of renderers) {
         context.ctx.save();
-        renderer.drawLayer(context, layer);
+        renderer.drawLayer(context, layer, timeStamp);
         context.ctx.restore();
       }
     }
@@ -61,31 +65,30 @@ export class RendererStore extends DisposableStore {
     return "noStateChange";
   }
 
-  startAnimation(duration: number) {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-    }
-    const startTime = performance.now();
-
-    const animationCallback = () => {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      this.draw();
-      if (progress < 1) {
+  startAnimation(animationId: string) {
+    this.registeredAnimations.add(animationId);
+    if (!this.animationFrameId) {
+      const animationCallback = (timestamp: number) => {
+        this.timeStamp = timestamp;
         this.animationFrameId = requestAnimationFrame(animationCallback);
-      } else {
-        this.animationFrameId = null;
-      }
-    };
+        this.draw();
+      };
 
-    this.animationFrameId = requestAnimationFrame(animationCallback);
+      this.animationFrameId = requestAnimationFrame(animationCallback);
+    }
+    return "noStateChange";
+  }
+
+  stopAnimation(animationId: string) {
+    this.registeredAnimations.delete(animationId);
+    if (this.registeredAnimations.size === 0 && this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    return "noStateChange";
   }
 
   get isAnimating() {
     return this.animationFrameId !== null;
   }
-}
-
-export function interpolateLinear(start: number, end: number, progress: number): number {
-  return start + (end - start) * progress;
 }

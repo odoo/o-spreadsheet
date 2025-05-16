@@ -35,6 +35,27 @@
         <t t-set="message">This setting affects all users.</t>
         <ValidationMessages messages="[message]" msgType="'info'"/>
       </Section>
+
+      <!-- ADRM TODO: probably remove all of this after testing -->
+      <Section title.translate="Animations settings">
+        <div>
+          <span class="o-section-subtitle">Animation duration</span>
+          <input t-model="gridRendererStore.animationDuration" type="number" class="o-input "/>
+        </div>
+
+        <div
+          t-foreach="gridRendererStore.easingFunctions"
+          t-as="effect"
+          t-key="effect"
+          class="mt-3">
+          <span class="o-section-subtitle" t-esc="animationLabels[effect]"/>
+          <select t-model="gridRendererStore.easingFunctions[effect]" class="o-input">
+            <option t-foreach="easingFns" t-as="fn" t-key="fn" t-att-value="fn">
+              <span t-esc="labels[fn]"/>
+            </option>
+          </select>
+        </div>
+      </Section>
     </div>
   </t>
 </templates>

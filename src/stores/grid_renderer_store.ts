@@ -25,6 +25,7 @@ import {
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
   drawDecoratedText,
+  getColorScale,
   getZonesCols,
   getZonesRows,
   numberToLetters,
@@ -56,13 +57,12 @@ import { RendererStore } from "./renderer_store";
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
-const DURATION = 250;
-
 interface AnimatedBox {
   type: string;
   oldBox: Box | undefined;
   newBox: Box | undefined;
-  startTime: number;
+  startTime?: number;
+  progress: number;
 }
 
 export class GridRenderer {
@@ -70,6 +70,15 @@ export class GridRenderer {
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
   private hoveredTables: Store<HoveredTableStore>;
+
+  easingFunctions: Record<string, keyof typeof EASING_FN> = {
+    cellFadeIn: "easeInCubic",
+    cellFadeOut: "easeOutCubic",
+    cellSliding: "easeOutCubic",
+    dataBar: "easeOutCubic",
+    cfColorChange: "easeInOutCubic",
+  };
+  animationDuration = 3000;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
@@ -90,7 +99,7 @@ export class GridRenderer {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
+  drawLayer(renderingContext: GridRenderingContext, layer: LayerName, timeStamp: number) {
     switch (layer) {
       case "Background":
         this.drawGlobalBackground(renderingContext);
@@ -101,7 +110,7 @@ export class GridRenderer {
           ctx.rect(rect.x, rect.y, rect.width, rect.height);
           ctx.clip();
           const boxes = this.getGridBoxes(zone);
-          this.updateAnimations(boxes);
+          this.updateAnimations(boxes, timeStamp);
           this.drawBackground(renderingContext, boxes);
           this.drawOverflowingCellBackground(renderingContext, boxes);
           this.drawCellBackground(renderingContext, boxes);
@@ -121,13 +130,18 @@ export class GridRenderer {
     }
   }
 
-  private updateAnimations(newBoxes: Box[]) {
-    const timeStamp = performance.now();
+  private updateAnimations(newBoxes: Box[], timeStamp: number) {
     for (const [boxId, animation] of this.animations.entries()) {
+      if (!animation.startTime) {
+        animation.startTime = timeStamp;
+        continue;
+      }
       const elapsedTime = timeStamp - animation.startTime;
-      if (elapsedTime > DURATION) {
+      const progress = Math.min(1, elapsedTime / this.animationDuration);
+      if (progress >= 1) {
         this.animations.delete(boxId);
       }
+      animation.progress = progress;
     }
 
     const newBoxesMap = new Map<string, Box>();
@@ -149,14 +163,16 @@ export class GridRenderer {
     this.boxes = newBoxesMap;
 
     for (const boxId of this.animations.keys()) {
-      1;
       if (!boxIds.has(boxId)) {
         this.animations.delete(boxId);
       }
     }
 
-    if (this.animations.size > 0 && !this.renderer.isAnimating) {
-      this.renderer.startAnimation(DURATION);
+    if (this.animations.size > 0) {
+      console.log(new Map(this.animations));
+      this.renderer.startAnimation("grid_renderer_animation");
+    } else {
+      this.renderer.stopAnimation("grid_renderer_animation");
     }
   }
 
@@ -168,11 +184,11 @@ export class GridRenderer {
     const newText = newBox?.content?.text;
 
     if (!oldText && newText) {
-      return { oldBox: undefined, newBox, startTime: performance.now(), type: "fadein" };
+      return { oldBox: undefined, newBox, type: "fadein", progress: 0 };
     } else if (oldText && !newText) {
-      return { oldBox, newBox: undefined, startTime: performance.now(), type: "fadeout" };
+      return { oldBox, newBox: undefined, type: "fadeout", progress: 0 };
     } else if (oldBox && newBox && oldText !== newText) {
-      return { oldBox, newBox, startTime: performance.now(), type: "sliding" };
+      return { oldBox, newBox, type: "sliding", progress: 0 };
     }
     return undefined;
   }
@@ -206,16 +222,33 @@ export class GridRenderer {
   private drawCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
     for (const box of boxes) {
+      // ADRM TODO animate boxes that are not there anymore
       const style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
-        ctx.fillStyle = style.fillColor || "#ffffff";
-        ctx.fillRect(box.x, box.y, box.width, box.height);
+        const animatedBox = this.animations.get(box.xc);
+        if (animatedBox) {
+          const colorScale = getColorScale([
+            { value: 0, color: animatedBox.oldBox?.style.fillColor || "#ffffff" },
+            { value: 1, color: style.fillColor },
+          ]);
+          ctx.fillStyle = colorScale(
+            EASING_FN[this.easingFunctions.cfColorChange](animatedBox.progress)
+          );
+          ctx.fillRect(box.x, box.y, box.width, box.height);
+        } else {
+          ctx.fillStyle = style.fillColor || "#ffffff";
+          ctx.fillRect(box.x, box.y, box.width, box.height);
+        }
       }
       if (box.dataBarFill) {
+        const animatedBox = this.animations.get(box.xc);
         ctx.fillStyle = box.dataBarFill.color;
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
-        ctx.fillRect(box.x, box.y, width, box.height);
+        const progress = animatedBox
+          ? EASING_FN[this.easingFunctions.dataBar](animatedBox.progress)
+          : 1;
+        ctx.fillRect(box.x, box.y, width * progress, box.height);
       }
       if (box.overlayColor) {
         ctx.fillStyle = box.overlayColor;
@@ -344,47 +377,31 @@ export class GridRenderer {
     }
   }
 
-  // private textsAtLastRender: any = {};
-
   private drawTexts(renderingContext: GridRenderingContext, boxes: Box[]) {
-    // const texts: any = {};
     const { ctx } = renderingContext;
     for (const box of boxes) {
       if (box.content) {
-        // const text = box.content.textLines.join(" ");
-        // const lastText = this.textsAtLastRender[box.xc];
-        // ADRM TODO: error cells
         if (this.animations.has(box.xc)) {
-          // this.drawAnimatedText(renderingContext, this.animations.get(box.xc)!);
-        } else {
-          // if (this.runningAnimations[box.xc]) {
-          //   continue;
-          // }
-          // clip rect if needed
-          if (box.clipRect) {
-            ctx.save();
-            ctx.beginPath();
-            const { x, y, width, height } = box.clipRect;
-            ctx.rect(x, y, width, height);
-            ctx.clip();
-          }
-
-          this.drawText(renderingContext, box);
-
-          if (box.clipRect) {
-            ctx.restore();
-          }
+          continue;
+        }
+        if (box.clipRect) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(box.clipRect.x, box.clipRect.y, box.clipRect.width, box.clipRect.height);
+          ctx.clip();
         }
 
-        // texts[box.xc] = text;
+        this.drawText(renderingContext, box);
+
+        if (box.clipRect) {
+          ctx.restore();
+        }
       }
     }
 
     for (const animatedBox of this.animations.values()) {
       this.drawAnimatedText(renderingContext, animatedBox);
     }
-
-    // this.textsAtLastRender = texts;
   }
 
   private drawText(renderingContext: GridRenderingContext, box: Box) {
@@ -899,37 +916,37 @@ export class GridRenderer {
   private drawAnimatedText(renderingContext: GridRenderingContext, animatedBox: AnimatedBox) {
     const { ctx } = renderingContext;
 
-    // ADRM TODO: probably an argument of the function
-    const timestamp = performance.now();
-    const elapsed = timestamp - animatedBox.startTime;
-    const progress = Math.min(elapsed / DURATION, 1);
-    const value = 1 * progress;
-
     const box = animatedBox.newBox;
     const oldBox = animatedBox.oldBox;
     ctx.save();
-    console.log("draw animated text", box?.xc, animatedBox);
+    // console.log("draw animated text", box?.xc, animatedBox);
+    ctx.beginPath();
+    const clipRect = box?.clipRect || oldBox?.clipRect || box || oldBox; // ADRM TODO: overflowing cell without clipRect
+    if (clipRect) {
+      ctx.rect(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
+      ctx.clip();
+    }
 
     if (box && oldBox && animatedBox.type === "sliding") {
-      ctx.beginPath();
-      ctx.rect(box.x + 1, box.y + 1, box.width - 2, box.height - 2);
-      ctx.clip();
-      const val = easeOut(value);
-      const oldTextBox = { ...oldBox, y: box.y + val * box.height };
-      const newTextBox = { ...box, y: box.y + (val - 1) * box.height };
+      const value = EASING_FN[this.easingFunctions.cellSliding](animatedBox.progress);
+      const oldTextBox = { ...oldBox, y: box.y + value * box.height };
+      const newTextBox = { ...box, y: box.y + (value - 1) * box.height };
       this.drawText(renderingContext, oldTextBox);
       this.drawText(renderingContext, newTextBox);
     }
     // Fade in
     else if (box && animatedBox.type === "fadein") {
-      const alpha = Math.min(1, easeIn(value));
+      const alpha = Math.min(1, EASING_FN[this.easingFunctions.cellFadeIn](animatedBox.progress));
       ctx.globalAlpha = alpha;
       this.drawText(renderingContext, box);
     }
     // Fade out
     else if (oldBox && animatedBox.type === "fadeout") {
-      console.log("fade out", oldBox.xc);
-      const alpha = Math.max(0, 1 - easeOut(value));
+      const alpha = Math.max(
+        0,
+        1 - EASING_FN[this.easingFunctions.cellFadeOut](animatedBox.progress)
+      );
+
       ctx.globalAlpha = alpha;
       this.drawText(renderingContext, oldBox);
     }
@@ -937,11 +954,87 @@ export class GridRenderer {
   }
 }
 
-// ADRM TODO move this
-export function easeOut(t: number) {
-  return 1 - Math.pow(1 - t, 3); // Cubic ease-out
-}
+// ADRM TODO: move/remove all of this
+const HALF_PI = Math.PI / 2;
+const PI = Math.PI;
+const TAU = 2 * PI;
 
-export function easeIn(t: number) {
-  return Math.pow(t, 3); // Cubic ease-in
-}
+const atEdge = (t) => t === 0 || t === 1;
+const elasticIn = (t, s, p) => -(Math.pow(2, 10 * (t -= 1)) * Math.sin(((t - s) * TAU) / p));
+const elasticOut = (t, s, p) => Math.pow(2, -10 * t) * Math.sin(((t - s) * TAU) / p) + 1;
+
+export const EASING_FN = {
+  linear: (t: number) => t,
+  easeInQuad: (t: number) => t * t,
+  easeOutQuad: (t: number) => -t * (t - 2),
+  easeInOutQuad: (t: number) => ((t /= 0.5) < 1 ? 0.5 * t * t : -0.5 * (--t * (t - 2) - 1)),
+  easeInCubic: (t: number) => t * t * t,
+  easeOutCubic: (t: number) => (t -= 1) * t * t + 1,
+  easeInOutCubic: (t: number) => ((t /= 0.5) < 1 ? 0.5 * t * t * t : 0.5 * ((t -= 2) * t * t + 2)),
+  easeInQuart: (t: number) => t * t * t * t,
+  easeOutQuart: (t: number) => -((t -= 1) * t * t * t - 1),
+  easeInOutQuart: (t: number) =>
+    (t /= 0.5) < 1 ? 0.5 * t * t * t * t : -0.5 * ((t -= 2) * t * t * t - 2),
+  easeInQuint: (t: number) => t * t * t * t * t,
+  easeOutQuint: (t: number) => (t -= 1) * t * t * t * t + 1,
+  easeInOutQuint: (t: number) =>
+    (t /= 0.5) < 1 ? 0.5 * t * t * t * t * t : 0.5 * ((t -= 2) * t * t * t * t + 2),
+  easeInSine: (t: number) => -Math.cos(t * HALF_PI) + 1,
+  easeOutSine: (t: number) => Math.sin(t * HALF_PI),
+  easeInOutSine: (t: number) => -0.5 * (Math.cos(PI * t) - 1),
+  easeInExpo: (t: number) => (t === 0 ? 0 : Math.pow(2, 10 * (t - 1))),
+  easeOutExpo: (t: number) => (t === 1 ? 1 : -Math.pow(2, -10 * t) + 1),
+  easeInOutExpo: (t: number) =>
+    atEdge(t)
+      ? t
+      : t < 0.5
+      ? 0.5 * Math.pow(2, 10 * (t * 2 - 1))
+      : 0.5 * (-Math.pow(2, -10 * (t * 2 - 1)) + 2),
+  easeInCirc: (t: number) => (t >= 1 ? t : -(Math.sqrt(1 - t * t) - 1)),
+  easeOutCirc: (t: number) => Math.sqrt(1 - (t -= 1) * t),
+  easeInOutCirc: (t: number) =>
+    (t /= 0.5) < 1 ? -0.5 * (Math.sqrt(1 - t * t) - 1) : 0.5 * (Math.sqrt(1 - (t -= 2) * t) + 1),
+  easeInElastic: (t: number) => (atEdge(t) ? t : elasticIn(t, 0.075, 0.3)),
+  easeOutElastic: (t: number) => (atEdge(t) ? t : elasticOut(t, 0.075, 0.3)),
+  easeInOutElastic(t: number) {
+    const s = 0.1125;
+    const p = 0.45;
+    return atEdge(t)
+      ? t
+      : t < 0.5
+      ? 0.5 * elasticIn(t * 2, s, p)
+      : 0.5 + 0.5 * elasticOut(t * 2 - 1, s, p);
+  },
+  easeInBack(t: number) {
+    const s = 1.70158;
+    return t * t * ((s + 1) * t - s);
+  },
+  easeOutBack(t: number) {
+    const s = 1.70158;
+    return (t -= 1) * t * ((s + 1) * t + s) + 1;
+  },
+  easeInOutBack(t: number) {
+    let s = 1.70158;
+    if ((t /= 0.5) < 1) {
+      return 0.5 * (t * t * (((s *= 1.525) + 1) * t - s));
+    }
+    return 0.5 * ((t -= 2) * t * (((s *= 1.525) + 1) * t + s) + 2);
+  },
+  easeInBounce: (t: number) => 1 - EASING_FN.easeOutBounce(1 - t),
+  easeOutBounce(t: number) {
+    const m = 7.5625;
+    const d = 2.75;
+    if (t < 1 / d) {
+      return m * t * t;
+    }
+    if (t < 2 / d) {
+      return m * (t -= 1.5 / d) * t + 0.75;
+    }
+    if (t < 2.5 / d) {
+      return m * (t -= 2.25 / d) * t + 0.9375;
+    }
+    return m * (t -= 2.625 / d) * t + 0.984375;
+  },
+  easeInOutBounce: (t: number) =>
+    t < 0.5 ? EASING_FN.easeInBounce(t * 2) * 0.5 : EASING_FN.easeOutBounce(t * 2 - 1) * 0.5 + 0.5,
+} as const;
