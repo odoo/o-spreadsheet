@@ -60,6 +60,8 @@ css/* scss */ `
       padding-right: 3px;
       outline: none;
 
+      tab-size: 4;
+
       p {
         margin-bottom: 0px;
 
