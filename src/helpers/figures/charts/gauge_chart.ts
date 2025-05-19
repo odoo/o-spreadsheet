@@ -1,4 +1,3 @@
-import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
   DEFAULT_GAUGE_LOWER_COLOR,
   DEFAULT_GAUGE_MIDDLE_COLOR,
@@ -8,7 +7,6 @@ import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
 import { _t } from "../../../translation";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   CellValueType,
   Color,
@@ -17,9 +15,8 @@ import {
   Format,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
+  RangeAdapter,
   UID,
-  UnboundedZone,
   Validation,
   isMatrix,
 } from "../../../types";
@@ -33,10 +30,10 @@ import {
 } from "../../../types/chart/gauge_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
+import { adaptStringRange } from "../../formulas";
 import { clip, formatValue } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
-import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 
@@ -160,17 +157,20 @@ export class GaugeChart extends AbstractChart {
   }
 
   static transformDefinition(
+    chartSheetId: UID,
     definition: GaugeChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+    applyChange: RangeAdapter
   ): GaugeChartDefinition {
-    let dataRangeZone: UnboundedZone | undefined;
+    let dataRange: string | undefined;
     if (definition.dataRange) {
-      dataRangeZone = transformZone(toUnboundedZone(definition.dataRange), executed);
+      const adaptedRange = adaptStringRange(chartSheetId, definition.dataRange, applyChange);
+      if (adaptedRange !== CellErrorType.InvalidReference) {
+        dataRange = adaptedRange;
+      }
     }
-
     return {
       ...definition,
-      dataRange: dataRangeZone ? zoneToXc(dataRangeZone) : undefined,
+      dataRange,
     };
   }
 

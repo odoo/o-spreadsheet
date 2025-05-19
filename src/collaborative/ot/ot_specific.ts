@@ -5,14 +5,12 @@ import {
   overlap,
   range,
 } from "../../helpers";
-import { transformDefinition } from "../../helpers/figures/charts";
 import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import { otRegistry } from "../../registries/ot_registry";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   AddPivotCommand,
-  CreateChartCommand,
   CreateSheetCommand,
   CreateTableCommand,
   DeleteFigureCommand,
@@ -47,16 +45,6 @@ import { transformRangeData, transformZone } from "./ot_helpers";
 otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["ADD_COLUMNS_ROWS"], addHeadersTransformation);
 otRegistry.addTransformation("REMOVE_COLUMNS_ROWS", ["ADD_COLUMNS_ROWS"], addHeadersTransformation);
 
-otRegistry.addTransformation(
-  "ADD_COLUMNS_ROWS",
-  ["CREATE_CHART", "UPDATE_CHART"],
-  updateChartRangesTransformation
-);
-otRegistry.addTransformation(
-  "REMOVE_COLUMNS_ROWS",
-  ["CREATE_CHART", "UPDATE_CHART"],
-  updateChartRangesTransformation
-);
 otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetSheetId);
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
@@ -169,16 +157,6 @@ function updateChartFigure(
     return undefined;
   }
   return toTransform;
-}
-
-function updateChartRangesTransformation(
-  toTransform: UpdateChartCommand | CreateChartCommand,
-  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-): UpdateChartCommand | CreateChartCommand {
-  return {
-    ...toTransform,
-    definition: transformDefinition(toTransform.definition, executed),
-  };
 }
 
 function createSheetTransformation(
