@@ -1,5 +1,5 @@
-import { Model } from "../src";
-import { HoveredTableStore } from "../src/components/tables/hovered_table_store";
+import { Model } from "../../src";
+import { HoveredTableStore } from "../../src/components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
@@ -12,12 +12,12 @@ import {
   MIN_CF_ICON_MARGIN,
   NEWLINE,
   SELECTION_BORDER_COLOR,
-} from "../src/constants";
-import { fontSizeInPixels, toHex, toZone } from "../src/helpers";
-import { Mode } from "../src/model";
-import { FormulaFingerprintStore } from "../src/stores/formula_fingerprints_store";
-import { GridRenderer } from "../src/stores/grid_renderer_store";
-import { RendererStore } from "../src/stores/renderer_store";
+} from "../../src/constants";
+import { fontSizeInPixels, toHex, toZone } from "../../src/helpers";
+import { Mode } from "../../src/model";
+import { FormulaFingerprintStore } from "../../src/stores/formula_fingerprints_store";
+import { GridRenderer } from "../../src/stores/grid_renderer_store";
+import { RendererStore } from "../../src/stores/renderer_store";
 import {
   Align,
   BorderPosition,
@@ -27,8 +27,8 @@ import {
   OrderedLayers,
   Viewport,
   Zone,
-} from "../src/types";
-import { MockCanvasRenderingContext2D } from "./setup/canvas.mock";
+} from "../../src/types";
+import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import {
   addColumns,
   addDataValidation,
@@ -46,11 +46,11 @@ import {
   setSelection,
   setStyle,
   setZoneBorders,
-} from "./test_helpers/commands_helpers";
-import { getCell } from "./test_helpers/getters_helpers";
-import { createEqualCF, getFingerprint, target, toRangesData } from "./test_helpers/helpers";
-import { watchClipboardOutline } from "./test_helpers/renderer_helpers";
-import { makeStoreWithModel } from "./test_helpers/stores";
+} from "../test_helpers/commands_helpers";
+import { getCell } from "../test_helpers/getters_helpers";
+import { createEqualCF, getFingerprint, target, toRangesData } from "../test_helpers/helpers";
+import { watchClipboardOutline } from "../test_helpers/renderer_helpers";
+import { makeStoreWithModel } from "../test_helpers/stores";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   return { width: text.length };
