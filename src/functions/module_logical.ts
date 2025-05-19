@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
+import { AddFunctionDescription, Arg, FunctionResultObject, isMatrix, Maybe } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { boolAnd, boolOr } from "./helper_logical";
@@ -76,7 +76,17 @@ export const IF = {
       return applyVectorization(IF.compute, [logicalExpression, valueIfTrue, valueIfFalse]);
     }
     let result = toBoolean(toScalar(logicalExpression)) ? valueIfTrue : valueIfFalse;
-    return result ?? { value: 0 };
+    // useful for interpreting empty cell references as empty strings. But must be removed to make empty cell references equal to zero
+    if (!isMultipleElementMatrix(result)) {
+      result = toScalar(result);
+    }
+    if (result === undefined) {
+      return { value: "" };
+    }
+    if (!isMatrix(result) && result.value === null) {
+      return { ...result, value: "" };
+    }
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -98,7 +108,17 @@ export const IFERROR = {
       return applyVectorization(IFERROR.compute, [value, valueIfError]);
     }
     let result = isEvaluationError(toScalar(value)?.value) ? valueIfError : value;
-    return result ?? { value: 0 };
+    // useful for interpreting empty cell references as empty strings. But must be removed to make empty cell references equal to zero
+    if (!isMultipleElementMatrix(result)) {
+      result = toScalar(result);
+    }
+    if (result === undefined) {
+      return { value: "" };
+    }
+    if (!isMatrix(result) && result.value === null) {
+      return { ...result, value: "" };
+    }
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -120,7 +140,17 @@ export const IFNA = {
       return applyVectorization(IFNA.compute, [value, valueIfError]);
     }
     let result = toScalar(value)?.value === CellErrorType.NotAvailable ? valueIfError : value;
-    return result ?? { value: 0 };
+    // useful for interpreting empty cell references as empty strings. But must be removed to make empty cell references equal to zero
+    if (!isMultipleElementMatrix(result)) {
+      result = toScalar(result);
+    }
+    if (result === undefined) {
+      return { value: "" };
+    }
+    if (!isMatrix(result) && result.value === null) {
+      return { ...result, value: "" };
+    }
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -159,7 +189,17 @@ export const IFS = {
       const condition = toBoolean(toScalar(values.shift()));
       let valueIfTrue = values.shift();
       if (condition) {
-        return valueIfTrue ?? { value: 0 };
+        // useful for interpreting empty cell references as empty strings. But must be removed to make empty cell references equal to zero
+        if (!isMultipleElementMatrix(valueIfTrue)) {
+          valueIfTrue = toScalar(valueIfTrue);
+        }
+        if (valueIfTrue === undefined) {
+          return { value: "" };
+        }
+        if (!isMatrix(valueIfTrue) && valueIfTrue.value === null) {
+          return { ...valueIfTrue, value: "" };
+        }
+        return valueIfTrue;
       }
     }
     return new EvaluationError(_t("No match."));
