@@ -1,7 +1,6 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   ChartCreationContext,
   Color,
@@ -11,7 +10,7 @@ import {
   ExcelChartDefinition,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
+  RangeAdapter,
   UID,
 } from "../../../types";
 import {
@@ -87,10 +86,11 @@ export class ComboChart extends AbstractChart {
   }
 
   static transformDefinition(
+    chartSheetId: UID,
     definition: ComboChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+    applyChange: RangeAdapter
   ): ComboChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
+    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(
