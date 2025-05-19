@@ -640,7 +640,7 @@ describe("Collaborative Sheet manipulation", () => {
         (user) => user.getters.getChartDefinition(chartId),
         {
           ...chartDef,
-          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "H1:H3" }],
+          dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "H1:H3" }],
           labelRange: "H3",
         }
       );

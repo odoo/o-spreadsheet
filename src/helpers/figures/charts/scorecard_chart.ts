@@ -1,4 +1,3 @@
-import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
   CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -8,7 +7,6 @@ import {
 import { toNumber } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   CellValueType,
   Color,
@@ -18,9 +16,8 @@ import {
   Getters,
   Locale,
   Range,
-  RemoveColumnsRowsCommand,
+  RangeAdapter,
   UID,
-  UnboundedZone,
 } from "../../../types";
 import { ChartCreationContext, TitleDesign } from "../../../types/chart/chart";
 import {
@@ -29,13 +26,14 @@ import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
+import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { formatValue, humanizeNumber } from "../../format/format";
+import { adaptStringRange } from "../../formulas";
 import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
-import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
@@ -208,22 +206,28 @@ export class ScorecardChart extends AbstractChart {
   }
 
   static transformDefinition(
+    chartSheetId: UID,
     definition: ScorecardChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+    applyChange: RangeAdapter
   ): ScorecardChartDefinition {
-    let baselineZone: UnboundedZone | undefined;
-    let keyValueZone: UnboundedZone | undefined;
-
+    let baseline: string | undefined;
+    let keyValue: string | undefined;
     if (definition.baseline) {
-      baselineZone = transformZone(toUnboundedZone(definition.baseline), executed);
+      const adaptedRange = adaptStringRange(chartSheetId, definition.baseline, applyChange);
+      if (adaptedRange !== CellErrorType.InvalidReference) {
+        baseline = adaptedRange;
+      }
     }
     if (definition.keyValue) {
-      keyValueZone = transformZone(toUnboundedZone(definition.keyValue), executed);
+      const adaptedRange = adaptStringRange(chartSheetId, definition.keyValue, applyChange);
+      if (adaptedRange !== CellErrorType.InvalidReference) {
+        keyValue = adaptedRange;
+      }
     }
     return {
       ...definition,
-      baseline: baselineZone ? zoneToXc(baselineZone) : undefined,
-      keyValue: keyValueZone ? zoneToXc(keyValueZone) : undefined,
+      baseline,
+      keyValue,
     };
   }
 

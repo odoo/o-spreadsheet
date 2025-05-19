@@ -2,12 +2,15 @@ import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers/zones";
 import {
   AddColumnsRowsCommand,
+  CreateChartCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
+  UpdateChartCommand,
   UpdateTableCommand,
 } from "../../../src/types";
+import { BarChartDefinition } from "../../../src/types/chart";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
@@ -576,4 +579,61 @@ describe("Transform adapt string formulas on col addition", () => {
       expect(result).toEqual(expected);
     }
   );
+});
+
+describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
+  const sheetId = "sheet1";
+  const sheetName = "Sheet1";
+  const definition: BarChartDefinition = {
+    type: "bar",
+    dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!M1:M10" }],
+    dataSetsHaveTitle: false,
+    labelRange: "Sheet1!M1:M10",
+    legendPosition: "top",
+    stacked: false,
+    title: { text: "test" },
+  };
+
+  const addColumnsBefore: AddColumnsRowsCommand = {
+    ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+    dimension: "COL",
+    quantity: 2,
+    sheetId,
+    sheetName,
+  };
+
+  test("CREATE_CHART ranges are updated on the same sheet as addColumns", () => {
+    const toTransform: CreateChartCommand = {
+      type: "CREATE_CHART",
+      sheetId,
+      figureId: "chart1",
+      definition,
+      offset: { x: 0, y: 0 },
+      size: { width: 0, height: 0 },
+      col: 0,
+      row: 0,
+    };
+    const result = transform(toTransform, addColumnsBefore) as CreateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
+      labelRange: "Sheet1!O1:O10",
+    });
+  });
+
+  test("UPDATE_CHART ranges are updated on the same sheet as addColumns", () => {
+    const toTransform: UpdateChartCommand = {
+      type: "UPDATE_CHART",
+      sheetId,
+      figureId: "chart1",
+      definition,
+    };
+
+    const result = transform(toTransform, addColumnsBefore) as UpdateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
+      labelRange: "Sheet1!O1:O10",
+    });
+  });
 });

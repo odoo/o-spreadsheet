@@ -1,14 +1,13 @@
 import { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
+  RangeAdapter,
   UID,
 } from "../../../types";
 import { LegendPosition } from "../../../types/chart";
@@ -77,10 +76,11 @@ export class GeoChart extends AbstractChart {
   }
 
   static transformDefinition(
+    chartSheetId: UID,
     definition: GeoChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+    applyChange: RangeAdapter
   ): GeoChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
+    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(

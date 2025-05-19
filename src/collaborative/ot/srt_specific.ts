@@ -1,11 +1,14 @@
 import { deepCopy } from "../../helpers";
+import { transformDefinition } from "../../helpers/figures/charts";
 import { adaptFormulaStringRanges, adaptStringRange } from "../../helpers/formulas";
 import { specificRangeTransformRegistry } from "../../registries/srt_registry";
 import {
   AddConditionalFormatCommand,
   AddDataValidationCommand,
   AddPivotCommand,
+  CreateChartCommand,
   UpdateCellCommand,
+  UpdateChartCommand,
   UpdatePivotCommand,
 } from "../../types/commands";
 import { RangeAdapter } from "../../types/misc";
@@ -101,3 +104,16 @@ function addPivotCommandAdaptRange<Cmd extends AddPivotCommand | UpdatePivotComm
 }
 specificRangeTransformRegistry.add("ADD_PIVOT", addPivotCommandAdaptRange);
 specificRangeTransformRegistry.add("UPDATE_PIVOT", addPivotCommandAdaptRange);
+
+specificRangeTransformRegistry.add("CREATE_CHART", updateChartRangesTransformation);
+specificRangeTransformRegistry.add("UPDATE_CHART", updateChartRangesTransformation);
+
+function updateChartRangesTransformation<Cmd extends UpdateChartCommand | CreateChartCommand>(
+  cmd: Cmd,
+  applyChange: RangeAdapter
+): Cmd {
+  return {
+    ...cmd,
+    definition: transformDefinition(cmd.sheetId, cmd.definition, applyChange),
+  };
+}
