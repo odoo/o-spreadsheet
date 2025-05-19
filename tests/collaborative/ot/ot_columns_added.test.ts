@@ -602,6 +602,12 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
     sheetName,
   };
 
+  const addColOnSheet2: AddColumnsRowsCommand = {
+    ...addColumnsBefore,
+    sheetId: "sh2",
+    sheetName: "Sheet2",
+  };
+
   test("CREATE_CHART ranges are updated on the same sheet as addColumns", () => {
     const toTransform: CreateChartCommand = {
       type: "CREATE_CHART",
@@ -613,11 +619,18 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
       col: 0,
       row: 0,
     };
-    const result = transform(toTransform, addColumnsBefore) as CreateChartCommand;
+    let result = transform(toTransform, addColumnsBefore) as CreateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
       labelRange: "Sheet1!O1:O10",
+    });
+
+    result = transform(toTransform, addColOnSheet2) as CreateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!O1:O10" }],
+      labelRange: "Sheet1!M1:M10",
     });
   });
 
@@ -629,11 +642,18 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
       definition,
     };
 
-    const result = transform(toTransform, addColumnsBefore) as UpdateChartCommand;
+    let result = transform(toTransform, addColumnsBefore) as UpdateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!O1:O10" }, { dataRange: "Sheet2!M1:M10" }],
       labelRange: "Sheet1!O1:O10",
+    });
+
+    result = transform(toTransform, addColOnSheet2) as UpdateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!O1:O10" }],
+      labelRange: "Sheet1!M1:M10",
     });
   });
 });
