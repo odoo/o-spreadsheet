@@ -65,9 +65,9 @@ describe("FALSE formula", () => {
 
 describe("IF formula", () => {
   test("functional tests on simple arguments", () => {
-    expect(evaluateCell("A1", { A1: "=IF( ,  ,  )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IF( ,  ,  )" })).toBe("");
     expect(evaluateCell("A1", { A1: "=IF( , 1, 2)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=IF(TRUE,  , 2)" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IF(TRUE,  , 2)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=IF(FALSE , 1, 2)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IF(TRUE , 1, 2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=IF(TRUE , "1", 2)' })).toBe("1");
@@ -86,7 +86,7 @@ describe("IF formula", () => {
   });
 
   test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "TRUE", A3: "1", A4: "2" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "FALSE", A3: "1", A4: "2" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: " ", A3: "1", A4: "2" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
@@ -158,7 +158,7 @@ describe("IF formula", () => {
 describe("IFERROR formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR( )" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=IFERROR( ,  )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IFERROR( ,  )" })).toBe("");
     expect(evaluateCell("A1", { A1: "=IFERROR(FALSE , 42)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=IFERROR(TRUE , 42)" })).toBe(true);
     expect(evaluateCell("A1", { A1: '=IFERROR("" , 42)' })).toBe("");
@@ -168,7 +168,7 @@ describe("IFERROR formula", () => {
   test("functional tests on simple arguments with errors", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(FALSE, 42/0)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=IFERROR(42/0, FALSE)" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=IFERROR(42/0, )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IFERROR(42/0, )" })).toBe("");
   });
 
   test("functional tests on cell arguments", () => {
@@ -176,7 +176,7 @@ describe("IFERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "=(+" })).toBe(42); // corespond to #BAD_EXPR error
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "=SQRT(-1)" })).toBe(42); // corespond to #ERROR error
 
-    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "FALSE" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "TRUE" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "3" })).toBe(3);
@@ -261,7 +261,7 @@ describe("IFERROR formula", () => {
 describe("IFNA formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=IFNA( )" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=IFNA( ,  )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IFNA( ,  )" })).toBe("");
     expect(evaluateCell("A1", { A1: "=IFNA(FALSE , 42)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=IFNA(TRUE , 42)" })).toBe(true);
     expect(evaluateCell("A1", { A1: '=IFNA("" , 42)' })).toBe("");
@@ -270,7 +270,7 @@ describe("IFNA formula", () => {
     expect(evaluateCell("A1", { A1: "=IFNA(42/0, FALSE)" })).toBe("#DIV/0!");
 
     expect(evaluateCell("A1", { A1: "=IFNA(NA(), 42)" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=IFNA(NA(), )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IFNA(NA(), )" })).toBe("");
   });
 
   test("functional tests on cell arguments", () => {
@@ -279,7 +279,7 @@ describe("IFNA formula", () => {
     expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "=(+" })).toBe("#BAD_EXPR"); // corespond to #BAD_EXPR error
     expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "=SQRT(-1)" })).toBe("#ERROR"); // corespond to #ERROR error
 
-    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)" })).toBe("");
     expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "FALSE" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "TRUE" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "3" })).toBe(3);
@@ -333,7 +333,7 @@ describe("IFS formula", () => {
     expect(evaluateCell("A1", { A1: "=IFS(TRUE, 1)" })).toBe(1);
     expect(evaluateCell("A1", { A1: '=IFS(TRUE, "1")' })).toBe("1");
     expect(evaluateCell("A1", { A1: "=IFS(TRUE, FALSE)" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=IFS(TRUE, )" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IFS(TRUE, )" })).toBe("");
   });
 
   test("functional tests on simple arguments with errors", () => {
@@ -353,7 +353,7 @@ describe("IFS formula", () => {
     expect(evaluateCell("A1", { A1: "=IFS(A2, A3)", A2: "TRUE", A3: "1" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=IFS(A2, A3)", A2: "FALSE", A3: "1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
     expect(evaluateCell("A1", { A1: "=IFS(A2, A3)", A2: "test", A3: "1" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=IFS(A2, A3)", A2: "TRUE" })).toBe(0); // @compatibility: on google sheets, return empty string ""
+    expect(evaluateCell("A1", { A1: "=IFS(A2, A3)", A2: "TRUE" })).toBe("");
     expect(
       evaluateCell("A1", {
         A1: "=IFS(A2, A3, A4, A5)",
