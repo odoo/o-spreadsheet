@@ -1191,3 +1191,15 @@ export function flattenHighlightRange(
   delete flatHighlight.range;
   return flatHighlight;
 }
+
+export function setMobileMode() {
+  const mock = jest
+    .spyOn(window.navigator, "userAgent", "get")
+    .mockImplementation(
+      () =>
+        "Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36"
+    );
+  registerCleanup(() => {
+    mock.mockRestore();
+  });
+}
