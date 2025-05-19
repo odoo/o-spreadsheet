@@ -614,6 +614,12 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
     sheetName,
   };
 
+  const removeRowsOnSheet2: RemoveColumnsRowsCommand = {
+    ...removeRows,
+    sheetId: "sh2",
+    sheetName: "Sheet2",
+  };
+
   test("CREATE_CHART ranges are updated on the same sheet as removeRows", () => {
     const toTransform: CreateChartCommand = {
       type: "CREATE_CHART",
@@ -625,11 +631,18 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       offset: { x: 0, y: 0 },
       size: { width: 0, height: 0 },
     };
-    const result = transform(toTransform, removeRows) as CreateChartCommand;
+    let result = transform(toTransform, removeRows) as CreateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!A1:A7" }, { dataRange: "Sheet2!A1:A10" }],
       labelRange: "Sheet1!A1:A7",
+    });
+
+    result = transform(toTransform, removeRowsOnSheet2) as CreateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!A1:A10" }, { dataRange: "Sheet2!A1:A7" }],
+      labelRange: "Sheet1!A1:A10",
     });
   });
 
@@ -640,11 +653,18 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       figureId: "chart1",
       definition,
     };
-    const result = transform(toTransform, removeRows) as UpdateChartCommand;
+    let result = transform(toTransform, removeRows) as UpdateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!A1:A7" }, { dataRange: "Sheet2!A1:A10" }],
       labelRange: "Sheet1!A1:A7",
+    });
+
+    result = transform(toTransform, removeRowsOnSheet2) as UpdateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!A1:A10" }, { dataRange: "Sheet2!A1:A7" }],
+      labelRange: "Sheet1!A1:A10",
     });
   });
 });
