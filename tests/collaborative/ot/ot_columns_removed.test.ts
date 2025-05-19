@@ -591,7 +591,7 @@ describe("Transform adapt string formulas on row deletion", () => {
   );
 });
 
-describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
+describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
   const sheetId = "sheet1";
   const sheetName = "Sheet1";
   const definition: BarChartDefinition = {
@@ -612,7 +612,13 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
     sheetName,
   };
 
-  test("CREATE_CHART ranges are updated on the same sheet as addColumns", () => {
+  const removeColumnsOnSheet2: RemoveColumnsRowsCommand = {
+    ...removeColumns,
+    sheetId: "sh2",
+    sheetName: "Sheet2",
+  };
+
+  test("CREATE_CHART ranges are updated on the same sheet as RemoveColumns", () => {
     const toTransform: CreateChartCommand = {
       type: "CREATE_CHART",
       sheetId,
@@ -623,26 +629,40 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
       offset: { x: 0, y: 0 },
       size: { width: 0, height: 0 },
     };
-    const result = transform(toTransform, removeColumns) as CreateChartCommand;
+    let result = transform(toTransform, removeColumns) as CreateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
       labelRange: "Sheet1!J1:J10",
     });
+
+    result = transform(toTransform, removeColumnsOnSheet2) as CreateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
+      labelRange: "Sheet1!M1:M10",
+    });
   });
 
-  test("UPDATE_CHART ranges are updated on the same sheet as addColumns", () => {
+  test("UPDATE_CHART ranges are updated on the same sheet as RemoveColumns", () => {
     const toTransform: UpdateChartCommand = {
       type: "UPDATE_CHART",
       sheetId,
       figureId: "chart1",
       definition,
     };
-    const result = transform(toTransform, removeColumns) as UpdateChartCommand;
+    let result = transform(toTransform, removeColumns) as UpdateChartCommand;
     expect(result.definition).toEqual({
       ...definition,
       dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
       labelRange: "Sheet1!J1:J10",
+    });
+
+    result = transform(toTransform, removeColumnsOnSheet2) as UpdateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
+      labelRange: "Sheet1!M1:M10",
     });
   });
 });
