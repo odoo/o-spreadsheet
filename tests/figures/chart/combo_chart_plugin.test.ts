@@ -33,6 +33,7 @@ describe("combo chart", () => {
       axesDesign: {},
       showValues: false,
       hideDataMarkers: false,
+      humanize: false,
     });
   });
 
@@ -52,6 +53,7 @@ describe("combo chart", () => {
           { dataRange: "C1:C2", yAxisId: "y1" },
         ],
         dataSetsHaveTitle: false,
+        humanize: false,
       },
       "1"
     );

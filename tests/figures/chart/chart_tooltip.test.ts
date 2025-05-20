@@ -1,5 +1,5 @@
 import { ChartJSRuntime, Color, Model } from "../../../src";
-import { createChart } from "../../test_helpers/commands_helpers";
+import { createChart, updateChart } from "../../test_helpers/commands_helpers";
 
 interface TooltipArgs {
   tooltipItem: any;
@@ -114,5 +114,34 @@ describe("Chart tooltip", () => {
     openTooltip(runtime, { tooltipItem });
     expect(".o-tooltip-label").toHaveText("Avengers: Endgame");
     expect(".o-tooltip-value").toHaveText("20");
+  });
+
+  test("Chart tooltip can be humanized", () => {
+    const model = new Model();
+    createChart(model, { type: "bar", humanize: false }, "chartId");
+    let runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
+    const tooltipItem = { parsed: { y: 1000000 }, dataset: { yAxisID: "y", label: "Ds 1" } };
+
+    openTooltip(runtime, {
+      tooltipItem,
+      backgroundColor: "#FFF000",
+      title: "Marc",
+    });
+
+    expect(".o-tooltip-value").toHaveText("1,000,000");
+
+    updateChart(model, "chartId", {
+      humanize: true,
+    });
+
+    runtime = model.getters.getChartRuntime("chartId") as ChartJSRuntime;
+
+    openTooltip(runtime, {
+      tooltipItem,
+      backgroundColor: "#FFF000",
+      title: "Marc",
+    });
+
+    expect(".o-tooltip-value").toHaveText("1,000k");
   });
 });
