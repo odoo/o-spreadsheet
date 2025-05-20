@@ -4,6 +4,7 @@ import { ChartDefinition } from "../../../src/types";
 import {
   BarChartDefinition,
   BarChartRuntime,
+  ChartWithAxisDefinition,
   ChartWithDataSetDefinition,
   LineChartDefinition,
   LineChartRuntime,
@@ -1796,6 +1797,7 @@ describe("Chart design configuration", () => {
     labelRange: "A3",
     stacked: false,
     aggregated: false,
+    humanize: false,
   };
 
   test("Legend position", () => {
@@ -2203,6 +2205,7 @@ describe("Chart design configuration", () => {
           dataSets: [{ dataRange: "A1:A2" }],
           labelRange: "A1",
           type: "pie",
+          humanize: false,
         },
         "1"
       );
@@ -2226,6 +2229,7 @@ describe("Chart design configuration", () => {
         dataSets: [{ dataRange: "B1:B2" }],
         type: "scatter",
         dataSetsHaveTitle: true,
+        humanize: false,
       },
       "1"
     );
@@ -3846,4 +3850,75 @@ test("logarithmic trending line with values between 0 and 1", () => {
     0.575, 0.5875, 0.6, 0.6125, 0.625, 0.6375, 0.65, 0.6625, 0.675, 0.6875, 0.7, 0.7125, 0.725,
     0.7375, 0.75,
   ]);
+});
+
+describe("Can make numbers human-readable", () => {
+  test.each(["bar", "combo"] as const)(
+    "Humanization is taken into account for the axis ticks of a %s chart",
+    async (type: "bar" | "combo") => {
+      createChart(
+        model,
+        {
+          type,
+          labelRange: "A2",
+          dataSets: [{ dataRange: "B2" }],
+          humanize: false,
+        },
+        "1"
+      );
+      let axis = getChartConfiguration(model, "1").options.scales.y;
+      const valuesBefore = [1e3, 1e6].map(axis.ticks.callback);
+      expect(valuesBefore).toEqual(["1,000", "1,000,000"]);
+      updateChart(model, "1", { humanize: true });
+      axis = getChartConfiguration(model, "1").options.scales.y;
+      const valuesAfter = [1e3, 1e6].map(axis.ticks.callback);
+      expect(valuesAfter).toEqual(["1,000", "1,000k"]);
+    }
+  );
+
+  test.each(["line", "scatter"] as const)(
+    "Humanization is taken into account for the axis ticks of a %s chart",
+    async (type: "line" | "scatter") => {
+      createChart(
+        model,
+        {
+          type,
+          labelRange: "A2",
+          dataSets: [{ dataRange: "B2" }],
+          humanize: false,
+        },
+        "1"
+      );
+      let axis = getChartConfiguration(model, "1").options.scales.y;
+      const valuesBefore = [1e3, 1e6].map(axis.ticks.callback);
+      expect(valuesBefore).toEqual(["1,000", "1,000,000"]);
+      updateChart(model, "1", { humanize: true });
+      axis = getChartConfiguration(model, "1").options.scales.y;
+      const valuesAfter = [1e3, 1e6].map(axis.ticks.callback);
+      expect(valuesAfter).toEqual(["1,000", "1,000k"]);
+    }
+  );
+
+  test.each(["line", "bar", "scatter", "combo"] as const)(
+    "%s chart showValues plugin takes humanization into account",
+    async (type: ChartWithAxisDefinition["type"]) => {
+      createChart(
+        model,
+        {
+          type,
+          labelRange: "A2",
+          dataSets: [{ dataRange: "B2" }],
+          humanize: false,
+        },
+        "1"
+      );
+      let plugin = getChartConfiguration(model, "1").options?.plugins?.chartShowValuesPlugin;
+      const valuesBefore = [1e3, 1e6].map((v) => plugin.callback(v, "x"));
+      expect(valuesBefore).toEqual(["1,000", "1,000,000"]);
+      updateChart(model, "1", { humanize: true });
+      plugin = getChartConfiguration(model, "1").options?.plugins?.chartShowValuesPlugin;
+      const valuesAfter = [1e3, 1e6].map((v) => plugin.callback(v, "x"));
+      expect(valuesAfter).toEqual(["1,000", "1,000k"]);
+    }
+  );
 });

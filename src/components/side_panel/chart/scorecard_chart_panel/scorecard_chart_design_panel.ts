@@ -19,6 +19,7 @@ import { RoundColorPicker } from "../../components/round_color_picker/round_colo
 import { Section } from "../../components/section/section";
 import { ChartTitle } from "../building_blocks/chart_title/chart_title";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartHumanizeNumbers } from "../building_blocks/humanize_numbers/humanize_numbers";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
@@ -38,6 +39,7 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     Section,
     Checkbox,
     ChartTitle,
+    ChartHumanizeNumbers,
   };
   static props = {
     chartId: String,
@@ -52,16 +54,8 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
       : _t("Baseline colors");
   }
 
-  get humanizeNumbersLabel(): string {
-    return _t("Humanize numbers");
-  }
-
   get defaultScorecardTitleFontSize(): number {
     return SCORECARD_CHART_TITLE_FONT_SIZE;
-  }
-
-  updateHumanizeNumbers(humanize: boolean) {
-    this.props.updateChart(this.props.chartId, { humanize });
   }
 
   translate(term) {

@@ -71,6 +71,19 @@ interface FormatWidth {
   measureText: (text: string) => number;
 }
 
+export function formatOrHumanizeValue(
+  value: CellValue,
+  format: Format | undefined,
+  locale: Locale,
+  humanize: boolean = false
+): FormattedValue {
+  if (humanize) {
+    return humanizeNumber({ value, format }, locale);
+  } else {
+    return formatValue(value, { format, locale });
+  }
+}
+
 /**
  * Formats a cell value with its format.
  */

@@ -8,6 +8,7 @@ export interface RadarChartDefinition extends CommonChartDefinition {
   readonly stacked: boolean;
   readonly fillArea?: boolean;
   readonly hideDataMarkers?: boolean;
+  readonly humanize?: boolean;
 }
 
 export type RadarChartRuntime = {

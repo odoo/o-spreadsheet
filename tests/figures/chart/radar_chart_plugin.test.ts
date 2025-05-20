@@ -3,6 +3,7 @@ import { RadarChart } from "../../../src/helpers/figures/charts/radar_chart";
 import { RadarChartRuntime } from "../../../src/types/chart/radar_chart";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
+  getChartConfiguration,
   getChartLegendLabels,
   getChartTooltipValues,
 } from "../../test_helpers/chart_helpers";
@@ -37,6 +38,7 @@ describe("radar chart", () => {
       stacked: true,
       showValues: true,
       hideDataMarkers: false,
+      humanize: false,
     });
   });
 
@@ -101,7 +103,11 @@ describe("radar chart", () => {
     setCellContent(model, "A2", "1");
     setFormat(model, "A2", `0.0 "écu d'or"`);
 
-    createRadarChart(model, { fillArea: false, dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
+    createRadarChart(
+      model,
+      { fillArea: false, dataSets: [{ dataRange: "A1:A2" }], humanize: false },
+      "chartId"
+    );
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     const tickCallback = runtime.chartJsConfig.options?.scales?.r?.["ticks"]?.callback as any;
     expect(tickCallback(1)).toBe("1.0 écu d'or");
@@ -142,4 +148,25 @@ describe("radar chart", () => {
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     expect(runtime.chartJsConfig.options?.scales?.r?.suggestedMin).toBe(-8);
   });
+});
+
+test("Humanization is taken into account for the axis ticks of a radar chart", async () => {
+  const model = new Model();
+  createChart(
+    model,
+    {
+      type: "radar",
+      labelRange: "A2",
+      dataSets: [{ dataRange: "B2" }],
+      humanize: false,
+    },
+    "1"
+  );
+  let axis = getChartConfiguration(model, "1").options.scales.r;
+  const valuesBefore = [1e3, 1e6].map(axis.ticks.callback);
+  expect(valuesBefore).toEqual(["1,000", "1,000,000"]);
+  updateChart(model, "1", { humanize: true });
+  axis = getChartConfiguration(model, "1").options.scales.r;
+  const valuesAfter = [1e3, 1e6].map(axis.ticks.callback);
+  expect(valuesAfter).toEqual(["1,000", "1,000k"]);
 });

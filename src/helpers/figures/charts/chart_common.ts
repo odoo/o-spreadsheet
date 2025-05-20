@@ -29,7 +29,7 @@ import {
 import { CellErrorType } from "../../../types/errors";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
-import { formatValue } from "../../format/format";
+import { formatValue, humanizeNumber } from "../../format/format";
 import { adaptStringRange } from "../../formulas";
 import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
@@ -448,22 +448,28 @@ export function getDefinedAxis(definition: GenericDefinition<ChartWithDataSetDef
   return { useLeftAxis, useRightAxis };
 }
 
-export function formatChartDatasetValue(axisFormats: ChartAxisFormats, locale: Locale) {
+export function formatChartDatasetValue(
+  axisFormats: ChartAxisFormats,
+  locale: Locale,
+  humanizeNumbers: boolean = false
+) {
   return (value: any, axisId: string) => {
     const format = axisFormats?.[axisId];
-    return formatTickValue({ format, locale })(value);
+    return formatTickValue({ format, locale }, humanizeNumbers)(value);
   };
 }
 
-export function formatTickValue(localeFormat: LocaleFormat) {
+export function formatTickValue(localeFormat: LocaleFormat, humanizeNumbers: boolean = false) {
   return (value: any) => {
     value = Number(value);
     if (isNaN(value)) return value;
     const { locale, format } = localeFormat;
-    const formattedValue = formatValue(value, {
-      locale,
-      format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-    });
+    const formattedValue = humanizeNumbers
+      ? humanizeNumber({ value, format }, locale)
+      : formatValue(value, {
+          locale,
+          format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+        });
     return truncateLabel(formattedValue);
   };
 }

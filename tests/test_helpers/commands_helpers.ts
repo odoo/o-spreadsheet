@@ -278,6 +278,7 @@ export function createComboChart(
       background: data.background,
       legendPosition: data.legendPosition || "top",
       aggregated: ("aggregated" in data && data.aggregated) || false,
+      humanize: data.humanize || false,
     },
   });
 }
@@ -312,6 +313,7 @@ export function createRadarChart(
       aggregated: ("aggregated" in data && data.aggregated) || false,
       fillArea: data.fillArea || false,
       stacked: data.stacked || false,
+      humanize: data.humanize || false,
     },
   });
 }
@@ -417,6 +419,7 @@ export function createGaugeChart(
           operator: "<=",
         },
       },
+      humanize: data.humanize || false,
     },
   });
 }
@@ -450,6 +453,7 @@ export function createGeoChart(
       colorScale: data.colorScale,
       missingValueColor: data.missingValueColor,
       region: data.region,
+      humanize: data.humanize || false,
     },
   });
 }

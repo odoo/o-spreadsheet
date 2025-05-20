@@ -124,6 +124,7 @@ export class WaterfallChart extends AbstractChart {
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       zoomable: context.zoomable ?? false,
+      humanize: context.humanize,
     };
   }
 
@@ -201,6 +202,7 @@ export class WaterfallChart extends AbstractChart {
       axesDesign: this.axesDesign,
       showValues: this.showValues,
       zoomable: this.zoomable,
+      humanize: this.humanize,
     };
   }
 

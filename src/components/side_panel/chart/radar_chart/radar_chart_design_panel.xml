@@ -7,6 +7,9 @@
           <ChartShowValues t-props="props"/>
           <ChartShowDataMarkers t-props="props"/>
         </Section>
+        <Section class="'pt-1'" title.translate="Number formatting">
+          <ChartHumanizeNumbers t-props="props"/>
+        </Section>
       </t>
     </GeneralDesignEditor>
     <SeriesDesignEditor t-props="props"/>

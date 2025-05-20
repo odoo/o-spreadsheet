@@ -66,6 +66,7 @@ describe("Sunburst chart chart", () => {
       showLabels: true,
       valuesDesign: { italic: true },
       groupColors: ["#123456", "#654321"],
+      humanize: false,
     });
   });
 
@@ -347,6 +348,7 @@ describe("Sunburst chart chart", () => {
     const chartId = createSunburstChart(model, {
       dataSets: [{ dataRange: "A1:A2" }],
       labelRange: "B1:B2",
+      humanize: false,
     });
 
     const tooltip = getSunburstRuntime(chartId).chartJsConfig.options?.plugins?.tooltip as any;

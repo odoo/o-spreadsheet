@@ -99,6 +99,7 @@ export class GeoChart extends AbstractChart {
       title: context.title || { text: "" },
       type: "geo",
       labelRange: context.auxiliaryRange || undefined,
+      humanize: context.humanize,
     };
   }
 
@@ -168,6 +169,7 @@ export class GeoChart extends AbstractChart {
       colorScale: this.colorScale,
       missingValueColor: this.missingValueColor,
       region: this.region,
+      humanize: this.humanize,
     };
   }
 

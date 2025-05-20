@@ -112,6 +112,7 @@ describe("datasource tests", function () {
       title: { text: "hello there" },
       dataRange: "Sheet1!B1:B4",
       sectionRule: expect.any(Object),
+      humanize: false,
     });
   });
 

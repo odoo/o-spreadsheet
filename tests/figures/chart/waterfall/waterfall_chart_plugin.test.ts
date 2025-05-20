@@ -15,8 +15,10 @@ import {
 } from "../../../test_helpers";
 import {
   GENERAL_CHART_CREATION_CONTEXT,
+  getChartConfiguration,
   getChartTooltipValues,
 } from "../../../test_helpers/chart_helpers";
+import { nextTick } from "../../../test_helpers/helpers";
 
 let model: Model;
 
@@ -322,6 +324,7 @@ describe("Waterfall chart", () => {
       verticalAxisPosition: "left",
       showValues: false,
       zoomable: false,
+      humanize: false,
     });
   });
 
@@ -342,5 +345,47 @@ describe("Waterfall chart", () => {
     expect(callback(0, mockDataset, 1)).toEqual("+20$");
     expect(callback(0, mockDataset, 2)).toEqual("-15$");
     expect(callback(0, mockDataset, 3)).toEqual("15$");
+  });
+
+  test("Humanization is taken into account for the axis ticks of a waterfall chart", async () => {
+    const chartId = createWaterfallChart(model, {
+      dataSets: [{ dataRange: "A1:A4" }],
+      showSubTotals: true,
+      humanize: false,
+    });
+    await nextTick();
+    let axis = getChartConfiguration(model, chartId).options.scales.y;
+    const valuesBefore = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+    expect(valuesBefore).toEqual(["1,000", "1,000,000", "1,000,000,000", "1,000,000,000,000"]);
+    updateChart(model, chartId, { humanize: true });
+    await nextTick();
+    axis = getChartConfiguration(model, chartId).options.scales.y;
+    const valuesAfter = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+    expect(valuesAfter).toEqual(["1,000", "1,000k", "1,000m", "1,000b"]);
+  });
+
+  test("Waterfall chart showValues plugin takes humanization into account", async () => {
+    const chartId = createWaterfallChart(model, {
+      dataSets: [{ dataRange: "A1:A4" }],
+      showSubTotals: true,
+      humanize: false,
+    });
+    setCellContent(model, "A2", "1000");
+    setCellContent(model, "A3", "1000000");
+    setCellContent(model, "A4", "1000000000");
+
+    const runtime = getWaterfallRuntime(chartId);
+    const dataset = runtime.chartJsConfig.data.datasets[0];
+    const ds = { _dataset: dataset, yAxisID: "y" } as unknown as ChartMeta;
+    let plugin = getChartConfiguration(model, chartId).options?.plugins?.chartShowValuesPlugin;
+    expect(plugin.callback(0, ds, 0)).toEqual("+1,000");
+    expect(plugin.callback(0, ds, 1)).toEqual("+1,000,000");
+    expect(plugin.callback(0, ds, 2)).toEqual("+1,000,000,000");
+    updateChart(model, chartId, { humanize: true });
+    await nextTick();
+    plugin = getChartConfiguration(model, chartId).options?.plugins?.chartShowValuesPlugin;
+    expect(plugin.callback(0, ds, 0)).toEqual("+1,000");
+    expect(plugin.callback(0, ds, 1)).toEqual("+1,000k");
+    expect(plugin.callback(0, ds, 2)).toEqual("+1,000m");
   });
 });

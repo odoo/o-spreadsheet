@@ -113,6 +113,7 @@ export class FunnelChart extends AbstractChart {
       funnelColors: context.funnelColors,
       horizontal: true,
       cumulative: context.cumulative,
+      humanize: context.humanize,
     };
   }
 
@@ -185,6 +186,7 @@ export class FunnelChart extends AbstractChart {
       showValues: this.showValues,
       funnelColors: this.funnelColors,
       cumulative: this.cumulative,
+      humanize: this.humanize,
     };
   }
 
