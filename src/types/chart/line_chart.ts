@@ -1,5 +1,6 @@
 import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
+import { ZoomConfiguration } from "./chart";
 import { CommonChartDefinition } from "./common_chart";
 
 export interface LineChartDefinition extends CommonChartDefinition {
@@ -9,6 +10,8 @@ export interface LineChartDefinition extends CommonChartDefinition {
   readonly aggregated?: boolean;
   readonly cumulative: boolean;
   readonly fillArea?: boolean;
+  readonly showValues?: boolean;
+  readonly zoom?: ZoomConfiguration;
 }
 
 export type LineChartRuntime = {

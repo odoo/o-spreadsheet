@@ -20,6 +20,7 @@ import {
   DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
+  ZoomConfiguration,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { LineChartDefinition } from "../../../types/chart/line_chart";
@@ -44,7 +45,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getLineChartData,
@@ -53,6 +53,8 @@ import {
   getLineChartScales,
   getLineChartTooltip,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
+import { getChartZoom } from "./runtime/chartjs_zoom";
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -69,6 +71,7 @@ export class LineChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
+  readonly zoom?: ZoomConfiguration;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -90,6 +93,7 @@ export class LineChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.fillArea = definition.fillArea;
     this.showValues = definition.showValues;
+    this.zoom = definition.zoom;
   }
 
   static validateChartDefinition(
@@ -122,6 +126,7 @@ export class LineChart extends AbstractChart {
       axesDesign: context.axesDesign,
       fillArea: context.fillArea,
       showValues: context.showValues,
+      zoom: context.zoom,
     };
   }
 
@@ -158,6 +163,7 @@ export class LineChart extends AbstractChart {
       axesDesign: this.axesDesign,
       fillArea: this.fillArea,
       showValues: this.showValues,
+      zoom: this.zoom,
     };
   }
 
@@ -252,6 +258,7 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Char
         legend: getLineChartLegend(definition, chartData),
         tooltip: getLineChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        zoom: getChartZoom(definition, chartData),
       },
     },
   };
