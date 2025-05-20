@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartHumanizeNumbers">
+    <Checkbox
+      name="'humanizeNumbers'"
+      label.translate="Humanize numbers"
+      value="props.definition.humanizeNumbers ?? true"
+      onChange="(humanizeNumbers) => props.updateChart(this.props.figureId, { humanizeNumbers })"
+    />
+  </t>
+</templates>

@@ -16,6 +16,7 @@ export interface SunburstChartDefinition {
   readonly valuesDesign?: ChartStyle;
   readonly groupColors?: (Color | undefined | null)[];
   readonly pieHolePercentage?: number;
+  readonly humanizeNumbers?: boolean;
 }
 
 export type SunburstChartRuntime = {

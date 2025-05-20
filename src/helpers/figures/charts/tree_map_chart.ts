@@ -121,6 +121,7 @@ export class TreeMapChart extends AbstractChart {
       showLabels: context.showLabels,
       valuesDesign: context.valuesDesign,
       coloringOptions: context.treemapColoringOptions,
+      humanizeNumbers: context.humanizeNumbers,
     };
   }
 
@@ -185,6 +186,7 @@ export class TreeMapChart extends AbstractChart {
       showLabels: this.showLabels,
       valuesDesign: this.valuesDesign,
       coloringOptions: this.coloringOptions,
+      humanizeNumbers: this.humanizeNumbers,
     };
   }
 

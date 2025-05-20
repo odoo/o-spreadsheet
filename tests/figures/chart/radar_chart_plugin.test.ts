@@ -37,6 +37,7 @@ describe("radar chart", () => {
       stacked: true,
       showValues: true,
       hideDataMarkers: false,
+      humanizeNumbers: false,
     });
   });
 
@@ -101,7 +102,11 @@ describe("radar chart", () => {
     setCellContent(model, "A2", "1");
     setFormat(model, "A2", `0.0 "écu d'or"`);
 
-    createRadarChart(model, { fillArea: false, dataSets: [{ dataRange: "A1:A2" }] }, "chartId");
+    createRadarChart(
+      model,
+      { fillArea: false, dataSets: [{ dataRange: "A1:A2" }], humanizeNumbers: false },
+      "chartId"
+    );
     const runtime = model.getters.getChartRuntime("chartId") as RadarChartRuntime;
     const tickCallback = runtime.chartJsConfig.options?.scales?.r?.["ticks"]?.callback as any;
     expect(tickCallback(1)).toBe("1.0 écu d'or");

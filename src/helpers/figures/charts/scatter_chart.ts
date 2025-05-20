@@ -111,6 +111,7 @@ export class ScatterChart extends AbstractChart {
       aggregated: context.aggregated ?? false,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      humanizeNumbers: context.humanizeNumbers,
     };
   }
 
@@ -144,6 +145,7 @@ export class ScatterChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      humanizeNumbers: this.humanizeNumbers,
     };
   }
 
