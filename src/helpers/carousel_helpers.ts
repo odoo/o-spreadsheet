@@ -9,6 +9,7 @@ export const CAROUSEL_DEFAULT_CHART_DEFINITION: ChartDefinition = {
   dataSetsHaveTitle: false,
   dataSets: [],
   legendPosition: "top",
+  humanize: true,
 };
 
 export function getCarouselItemPreview(getters: Getters, item: CarouselItem): string {

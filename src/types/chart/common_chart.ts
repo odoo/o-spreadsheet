@@ -14,4 +14,5 @@ export interface CommonChartDefinition {
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
   readonly showValues?: boolean;
+  readonly humanize?: boolean;
 }

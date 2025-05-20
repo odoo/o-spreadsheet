@@ -38,6 +38,7 @@ describe("bar chart", () => {
       showValues: false,
       horizontal: false,
       zoomable: false,
+      humanize: false,
     });
   });
 

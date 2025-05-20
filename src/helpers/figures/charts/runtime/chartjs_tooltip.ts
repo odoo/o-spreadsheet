@@ -17,7 +17,7 @@ import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { setColorAlpha } from "../../../color";
-import { formatValue } from "../../../format/format";
+import { formatOrHumanizeValue } from "../../../format/format";
 import { isNumber } from "../../../numbers";
 import { formatChartDatasetValue, isTrendLineAxis } from "../chart_common";
 import { renderToString } from "./chart_custom_tooltip";
@@ -46,7 +46,11 @@ export function getBarChartTooltip(
         }
 
         const axisId = horizontalChart ? tooltipItem.dataset.xAxisID : tooltipItem.dataset.yAxisID;
-        const yLabelStr = formatChartDatasetValue(args.axisFormats, args.locale)(yLabel, axisId);
+        const yLabelStr = formatChartDatasetValue(
+          args.axisFormats,
+          args.locale,
+          definition.humanize
+        )(yLabel, axisId);
         return yLabelStr;
       },
     },
@@ -76,9 +80,14 @@ export function getLineChartTooltip(
       if (typeof label === "string" && isNumber(label, locale)) {
         label = toNumber(label, locale);
       }
-      const formattedX = formatValue(label, { locale, format: labelFormat });
+      const formattedX = formatOrHumanizeValue(label, labelFormat, locale, definition.humanize);
       const axisId = tooltipItem.dataset.yAxisID || "y";
-      const formattedY = formatValue(dataSetPoint, { locale, format: axisFormats?.[axisId] });
+      const formattedY = formatOrHumanizeValue(
+        dataSetPoint,
+        axisFormats?.[axisId],
+        locale,
+        definition.humanize
+      );
       return formattedX ? `(${formattedX}, ${formattedY})` : `${formattedY}`;
     };
   } else {
@@ -86,7 +95,11 @@ export function getLineChartTooltip(
       const yLabel = tooltipItem.parsed.y;
 
       const axisId = tooltipItem.dataset.yAxisID;
-      const yLabelStr = formatChartDatasetValue(axisFormats, locale)(yLabel, axisId);
+      const yLabelStr = formatChartDatasetValue(
+        axisFormats,
+        locale,
+        definition.humanize
+      )(yLabel, axisId);
       return yLabelStr;
     };
   }
@@ -122,7 +135,7 @@ export function getPieChartTooltip(
 
         const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
         const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
-        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+        const yLabelStr = formatOrHumanizeValue(yLabel, toolTipFormat, locale, definition.humanize);
 
         return `${yLabelStr} (${percentage}%)`;
       },
@@ -151,7 +164,7 @@ export function getWaterfallChartTooltip(
         const [lastValue, currentValue] = tooltipItem.raw as [number, number];
         const yLabel = currentValue - lastValue;
         const toolTipFormat = !format && Math.abs(yLabel) > 1000 ? "#,##" : format;
-        return formatValue(yLabel, { format: toolTipFormat, locale });
+        return formatOrHumanizeValue(yLabel, toolTipFormat, locale, definition.humanize);
       },
     },
   };
@@ -186,7 +199,7 @@ export function getRadarChartTooltip(
       beforeLabel: (tooltipItem) => tooltipItem.dataset?.label || tooltipItem.label,
       label: function (tooltipItem) {
         const yLabel = tooltipItem.parsed.r;
-        return formatValue(yLabel, { format: axisFormats?.r, locale });
+        return formatOrHumanizeValue(yLabel, axisFormats?.r, locale, definition.humanize);
       },
     },
   };
@@ -210,7 +223,7 @@ export function getGeoChartTooltip(
         const rawItem = tooltipItem.raw as any;
         const yLabel = rawItem.value;
         const toolTipFormat = !format && Math.abs(yLabel) >= 1000 ? "#,##" : format;
-        return formatValue(yLabel, { format: toolTipFormat, locale });
+        return formatOrHumanizeValue(yLabel, toolTipFormat, locale, definition.humanize);
       },
     },
   };
@@ -230,7 +243,11 @@ export function getFunnelChartTooltip(
       label: function (tooltipItem) {
         const yLabel = tooltipItem.parsed.x;
         const axisId = tooltipItem.dataset.xAxisID;
-        const yLabelStr = formatChartDatasetValue(args.axisFormats, args.locale)(yLabel, axisId);
+        const yLabelStr = formatChartDatasetValue(
+          args.axisFormats,
+          args.locale,
+          definition.humanize
+        )(yLabel, axisId);
         return yLabelStr;
       },
     },
@@ -260,7 +277,7 @@ export function getSunburstChartTooltip(
         const data = tooltipItem.raw as SunburstChartRawData;
         const yLabel = data.value;
         const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
-        return formatValue(yLabel, { format: toolTipFormat, locale });
+        return formatOrHumanizeValue(yLabel, toolTipFormat, locale, definition.humanize);
       },
     },
   };
@@ -294,7 +311,7 @@ export function getTreeMapChartTooltip(
       label: (tooltipItem: any) => {
         const yLabel = tooltipItem.raw.v;
         const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
-        return formatValue(yLabel, { format: toolTipFormat, locale });
+        return formatOrHumanizeValue(yLabel, toolTipFormat, locale, definition.humanize);
       },
     },
   };

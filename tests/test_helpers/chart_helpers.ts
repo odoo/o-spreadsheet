@@ -134,4 +134,5 @@ export const GENERAL_CHART_CREATION_CONTEXT: Required<ChartCreationContext> = {
   treemapColoringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
   showHeaders: true,
   zoomable: false,
+  humanize: false,
 };

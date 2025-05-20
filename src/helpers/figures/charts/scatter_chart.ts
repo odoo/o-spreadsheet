@@ -114,6 +114,7 @@ export class ScatterChart extends AbstractChart {
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       zoomable: context.zoomable,
+      humanize: context.humanize,
     };
   }
 
@@ -148,6 +149,7 @@ export class ScatterChart extends AbstractChart {
       axesDesign: this.axesDesign,
       showValues: this.showValues,
       zoomable: this.zoomable,
+      humanize: this.humanize,
     };
   }
 

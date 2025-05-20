@@ -114,6 +114,7 @@ export class BarChart extends AbstractChart {
       showValues: context.showValues,
       horizontal: context.horizontal,
       zoomable: context.zoomable,
+      humanize: context.humanize,
     };
   }
 
@@ -186,6 +187,7 @@ export class BarChart extends AbstractChart {
       horizontal: this.horizontal,
       showValues: this.showValues,
       zoomable: this.horizontal ? undefined : this.zoomable,
+      humanize: this.humanize,
     };
   }
 

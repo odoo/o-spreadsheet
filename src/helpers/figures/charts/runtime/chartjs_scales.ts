@@ -29,7 +29,7 @@ import {
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { getChartTimeOptions } from "../../../chart_date";
 import { getColorScale } from "../../../color";
-import { formatValue } from "../../../format/format";
+import { formatValue, humanizeNumber } from "../../../format/format";
 import { isDefined, range, removeFalsyAttributes } from "../../../misc";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
@@ -107,7 +107,9 @@ export function getLineChartScales(
     scales!.x!.ticks!.maxTicksLimit = 15;
   } else if (axisType === "linear") {
     scales!.x!.type = "linear";
-    scales!.x!.ticks!.callback = (value) => formatValue(value, { format: labelFormat, locale });
+    scales!.x!.ticks!.callback = definition.humanize
+      ? (value) => humanizeNumber({ value, format: labelFormat }, locale)
+      : (value) => formatValue(value, { format: labelFormat, locale });
   }
 
   if (trendDatasets && trendDatasets.length && trendDatasets.some(isDefined)) {
@@ -172,7 +174,7 @@ export function getWaterfallChartScales(
       position: definition.verticalAxisPosition,
       ticks: {
         color: chartFontColor(definition.background),
-        callback: formatTickValue({ locale, format }),
+        callback: formatTickValue({ locale, format }, definition.humanize),
       },
       grid: {
         lineWidth: (context) => (context.tick.value === 0 ? 2 : 1),
@@ -219,7 +221,7 @@ export function getRadarChartScales(
     r: {
       beginAtZero: true,
       ticks: {
-        callback: formatTickValue({ format: axisFormats?.r, locale }),
+        callback: formatTickValue({ format: axisFormats?.r, locale }, definition.humanize),
         backdropColor: definition.background || "#FFFFFF",
       },
       pointLabels: {
@@ -256,7 +258,7 @@ export function getGeoChartScales(
       grid: { color: GRAY_300 },
       ticks: {
         color: chartFontColor(definition.background),
-        callback: formatTickValue({ locale, format }),
+        callback: formatTickValue({ locale, format }, definition.humanize),
       },
       legend: {
         position: geoLegendPosition,
@@ -376,7 +378,7 @@ function getChartAxis(
       stacked: options?.stacked,
       ticks: {
         color: fontColor,
-        callback: formatTickValue(options),
+        callback: formatTickValue(options, definition.humanize),
       },
     };
   } else {

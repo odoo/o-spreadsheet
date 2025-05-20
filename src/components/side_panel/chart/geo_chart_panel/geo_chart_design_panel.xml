@@ -14,6 +14,9 @@
             <option value="left">Bottom left</option>
           </select>
         </Section>
+        <Section class="'pt-1'" title.translate="Number formatting">
+          <ChartHumanizeNumbers t-props="props"/>
+        </Section>
       </t>
     </GeneralDesignEditor>
 

@@ -32,6 +32,7 @@ describe("line chart", () => {
       showValues: false,
       hideDataMarkers: false,
       zoomable: false,
+      humanize: false,
     });
   });
 

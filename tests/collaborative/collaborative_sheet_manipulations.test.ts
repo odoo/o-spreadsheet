@@ -629,6 +629,7 @@ describe("Collaborative Sheet manipulation", () => {
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       aggregated: false,
+      humanize: false,
     };
 
     test(`Concurrently chart creation & update and add columns`, () => {

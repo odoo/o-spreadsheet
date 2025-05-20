@@ -108,6 +108,7 @@ export class SunburstChart extends AbstractChart {
       showLabels: context.showLabels,
       valuesDesign: context.valuesDesign,
       groupColors: context.groupColors,
+      humanize: context.humanize,
     };
   }
 
@@ -151,6 +152,7 @@ export class SunburstChart extends AbstractChart {
       valuesDesign: this.valuesDesign,
       groupColors: this.groupColors,
       pieHolePercentage: this.pieHolePercentage,
+      humanize: this.humanize,
     };
   }
 
