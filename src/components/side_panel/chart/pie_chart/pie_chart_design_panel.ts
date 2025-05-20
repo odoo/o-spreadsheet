@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { GenericDefinition, PieChartDefinition } from "../../../../types/chart";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
@@ -25,6 +26,7 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
     ChartLegend,
     ChartShowValues,
     PieHoleSize,
+    Checkbox,
   };
   static props = {
     figureId: String,
@@ -38,5 +40,9 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
       ...this.props.definition,
       pieHolePercentage,
     });
+  }
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
   }
 }

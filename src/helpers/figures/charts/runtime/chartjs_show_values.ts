@@ -21,7 +21,7 @@ export function getChartShowValues(
     background: definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       const axisId = getDatasetAxisId(definition, dataset);
-      return formatChartDatasetValue(axisFormats, locale)(value, axisId);
+      return formatChartDatasetValue(axisFormats, locale, definition.humanize)(value, axisId);
     },
   };
 }
@@ -32,7 +32,7 @@ export function getSunburstShowValues(
 ): ChartSunburstLabelsPluginOptions {
   const { axisFormats, locale } = args;
   return {
-    callback: formatChartDatasetValue(axisFormats, locale),
+    callback: formatChartDatasetValue(axisFormats, locale, definition.humanize),
     showLabels: definition.showLabels ?? SunburstChartDefaults.showLabels,
     showValues: definition.showValues ?? SunburstChartDefaults.showValues,
     style: {
@@ -84,7 +84,11 @@ export function getWaterfallChartShowValues(
       if (definition.showSubTotals && subtotalIndexes.includes(index) && sign === "+") {
         sign = "";
       }
-      return `${sign}${formatChartDatasetValue(axisFormats, locale)(delta, dataset.yAxisID)}`;
+      return `${sign}${formatChartDatasetValue(
+        axisFormats,
+        locale,
+        definition.humanize
+      )(delta, dataset.yAxisID)}`;
     },
   };
 }

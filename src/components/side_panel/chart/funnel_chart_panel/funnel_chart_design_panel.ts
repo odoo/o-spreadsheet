@@ -4,6 +4,7 @@ import { getFunnelLabelColors } from "../../../../helpers/figures/charts/runtime
 import { _t } from "../../../../translation";
 import { FunnelChartDefinition, FunnelChartRuntime } from "../../../../types/chart";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
@@ -25,6 +26,7 @@ export class FunnelChartDesignPanel extends Component<Props, SpreadsheetChildEnv
     SidePanelCollapsible,
     RoundColorPicker,
     Section,
+    Checkbox,
   };
   static props = {
     figureId: String,
@@ -48,5 +50,9 @@ export class FunnelChartDesignPanel extends Component<Props, SpreadsheetChildEnv
   updateFunnelItemColor(index: number, color: string) {
     const funnelColors = replaceItemAtIndex(this.props.definition.funnelColors || [], color, index);
     this.props.updateChart(this.props.figureId, { funnelColors });
+  }
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
   }
 }
