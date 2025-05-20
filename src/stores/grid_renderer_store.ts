@@ -376,7 +376,7 @@ export class GridRenderer {
     const y = box.y + 1;
     const textHeight = computeTextLinesHeight(textLineHeight, numberOfLines);
     const hasEnoughSpaces = box.height > textHeight + MIN_CELL_TEXT_MARGIN * 2;
-    const verticalAlign = box.verticalAlign || DEFAULT_VERTICAL_ALIGN;
+    const verticalAlign = box.style.verticalAlign || DEFAULT_VERTICAL_ALIGN;
 
     if (hasEnoughSpaces) {
       if (verticalAlign === "middle") {
@@ -606,7 +606,6 @@ export class GridRenderer {
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
-    const { verticalAlign } = this.getters.getCellStyle(position);
     let style = this.getters.getCellComputedStyle(position);
     if (this.fingerprints.isEnabled) {
       const fingerprintColor = this.fingerprints.colors.get(position);
@@ -630,7 +629,6 @@ export class GridRenderer {
       border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
-      verticalAlign,
       overlayColor: this.hoveredTables.overlayColors.get(position),
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||
