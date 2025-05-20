@@ -580,7 +580,6 @@ export class GridRenderer {
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
-    const { verticalAlign } = this.getters.getCellStyle(position);
     const chipStyle = this.getters.getDataValidationChipStyle(position);
 
     let style = this.getters.getCellComputedStyle(position);
@@ -609,7 +608,6 @@ export class GridRenderer {
       border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
-      verticalAlign,
       overlayColor: this.hoveredTables.overlayColors.get(position),
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||

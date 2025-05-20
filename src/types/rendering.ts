@@ -1,17 +1,7 @@
 import { memoize } from "../helpers/misc";
 import { GridIcon } from "../registries/icons_on_cell_registry";
 import { ImageSVG } from "./image";
-import {
-  Alias,
-  Align,
-  Border,
-  Color,
-  DataBarFill,
-  Pixel,
-  Style,
-  VerticalAlign,
-  Zone,
-} from "./misc";
+import { Alias, Align, Border, Color, DataBarFill, Pixel, Style, Zone } from "./misc";
 
 /**
  * Coordinate in pixels
@@ -52,7 +42,6 @@ export interface Box extends Rect {
   clipRect?: Rect;
   isError?: boolean;
   isMerge?: boolean;
-  verticalAlign?: VerticalAlign;
   isOverflow?: boolean;
   overlayColor: Color | undefined;
   icons: { left?: GridIcon; right?: GridIcon; center?: GridIcon };
