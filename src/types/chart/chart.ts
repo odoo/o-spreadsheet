@@ -57,7 +57,7 @@ export type ChartDefinition =
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
-  { dataSets: CustomizedDataSet[]; labelRange?: string }
+  { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
 >;
 
 export type ChartWithAxisDefinition = Extract<
@@ -210,6 +210,7 @@ export interface ChartCreationContext {
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
   readonly treemapColoringOptions?: TreeMapColoringOptions;
+  readonly humanize?: boolean;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

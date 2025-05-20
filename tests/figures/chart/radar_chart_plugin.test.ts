@@ -37,6 +37,7 @@ describe("radar chart", () => {
       stacked: true,
       showValues: true,
       hideDataMarkers: false,
+      humanize: false,
     });
   });
 

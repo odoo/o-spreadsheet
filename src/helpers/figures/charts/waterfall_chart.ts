@@ -121,6 +121,7 @@ export class WaterfallChart extends AbstractChart {
       firstValueAsSubtotal: context.firstValueAsSubtotal ?? false,
       axesDesign: context.axesDesign,
       showValues: context.showValues,
+      humanize: context.humanize,
     };
   }
 
@@ -197,6 +198,7 @@ export class WaterfallChart extends AbstractChart {
       firstValueAsSubtotal: this.firstValueAsSubtotal,
       axesDesign: this.axesDesign,
       showValues: this.showValues,
+      humanize: this.humanize,
     };
   }
 

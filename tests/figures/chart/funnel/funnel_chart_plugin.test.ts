@@ -34,6 +34,7 @@ describe("Funnel chart", () => {
       horizontal: true,
       funnelColors: ["#ff0000", "#00ff00"],
       cumulative: true,
+      humanize: false,
     });
   });
 
