@@ -109,4 +109,8 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
       verticalAxisPosition: value,
     });
   }
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
+  }
 }

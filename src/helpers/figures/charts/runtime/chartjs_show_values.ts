@@ -17,7 +17,7 @@ export function getChartShowValues(
     horizontal: "horizontal" in definition && definition.horizontal,
     showValues: "showValues" in definition ? !!definition.showValues : false,
     background: definition.background,
-    callback: formatChartDatasetValue(axisFormats, locale),
+    callback: formatChartDatasetValue(axisFormats, locale, definition.humanize),
   };
 }
 
@@ -27,7 +27,7 @@ export function getSunburstShowValues(
 ): ChartSunburstLabelsPluginOptions {
   const { axisFormats, locale } = args;
   return {
-    callback: formatChartDatasetValue(axisFormats, locale),
+    callback: formatChartDatasetValue(axisFormats, locale, definition.humanize),
     showLabels: definition.showLabels ?? SunburstChartDefaults.showLabels,
     showValues: definition.showValues ?? SunburstChartDefaults.showValues,
     style: {

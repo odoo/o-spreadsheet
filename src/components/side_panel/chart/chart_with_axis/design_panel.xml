@@ -18,6 +18,14 @@
             onChange="(showValues) => props.updateChart(this.props.figureId, { showValues })"
           />
         </Section>
+        <Section class="'pt-1'" title.translate="Number formatting">
+          <Checkbox
+            name="'humanizeNumbers'"
+            label.translate="Humanize numbers"
+            value="props.definition.humanize ?? false"
+            onChange.bind="updateHumanizeNumbers"
+          />
+        </Section>
       </t>
     </GeneralDesignEditor>
     <SeriesWithAxisDesignEditor t-props="props"/>

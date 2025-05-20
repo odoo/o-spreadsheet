@@ -40,4 +40,8 @@ export class RadarChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     canUpdateChart: Function,
     updateChart: Function,
   };
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
+  }
 }

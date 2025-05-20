@@ -1,9 +1,9 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
 import { CustomizedDataSet } from "./chart";
-import { ComboBarChartDefinition } from "./common_bar_combo";
+import { CommonChartDefinition } from "./common_chart";
 
-export interface ComboChartDefinition extends ComboBarChartDefinition {
+export interface ComboChartDefinition extends CommonChartDefinition {
   readonly dataSets: ComboChartDataSet[];
   readonly type: "combo";
 }

@@ -49,4 +49,8 @@ export class FunnelChartDesignPanel extends Component<Props, SpreadsheetChildEnv
     const funnelColors = replaceItemAtIndex(this.props.definition.funnelColors || [], color, index);
     this.props.updateChart(this.props.figureId, { funnelColors });
   }
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
+  }
 }
