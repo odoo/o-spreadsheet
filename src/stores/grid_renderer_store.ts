@@ -285,18 +285,6 @@ export class GridRenderer {
         }
         ctx.fillStyle = style.textColor || "#000";
 
-        // compute horizontal align start point parameter
-        let x = box.x;
-        if (align === "left") {
-          const leftIconSize = box.icons.left ? box.icons.left.size + box.icons.left.margin : 0;
-          x += MIN_CELL_TEXT_MARGIN + leftIconSize;
-        } else if (align === "right") {
-          const rightIconSize = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
-          x += box.width - MIN_CELL_TEXT_MARGIN - rightIconSize;
-        } else {
-          x += box.width / 2;
-        }
-
         // horizontal align text direction
         ctx.textAlign = align;
 
@@ -308,12 +296,8 @@ export class GridRenderer {
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
-
-        // compute vertical align start point parameter:
-        const textLineHeight = computeTextFontSizeInPixels(style);
-        const numberOfLines = box.content.textLines.length;
-        let y = this.computeTextYCoordinate(box, textLineHeight, numberOfLines);
-
+        const x = box.content.x;
+        let y = box.content.y;
         // use the horizontal and the vertical start points to:
         // fill text / fill strikethrough / fill underline
         for (const brokenLine of box.content.textLines) {
@@ -324,7 +308,7 @@ export class GridRenderer {
             style.underline,
             style.strikethrough
           );
-          y += MIN_CELL_TEXT_MARGIN + textLineHeight;
+          y += MIN_CELL_TEXT_MARGIN + box.content.fontSizePx;
         }
 
         if (box.clipRect) {
@@ -657,10 +641,29 @@ export class GridRenderer {
     const rightIconWidth = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
     const contentWidth = leftIconWidth + textWidth + rightIconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);
+
+    // compute vertical align start point parameter:
+    const numberOfLines = multiLineText.length;
+    const contentY = this.computeTextYCoordinate(box, fontSizePX, numberOfLines);
+
+    // compute horizontal align start point parameter
+    let contentX = box.x;
+    if (align === "left") {
+      const leftIconSize = box.icons.left ? box.icons.left.size + box.icons.left.margin : 0;
+      contentX += MIN_CELL_TEXT_MARGIN + leftIconSize;
+    } else if (align === "right") {
+      const rightIconSize = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
+      contentX += box.width - MIN_CELL_TEXT_MARGIN - rightIconSize;
+    } else {
+      contentX += box.width / 2;
+    }
     box.content = {
       textLines: multiLineText,
       width: wrapping === "overflow" ? textWidth : width,
       align,
+      x: Math.round(contentX),
+      y: Math.round(contentY),
+      fontSizePx: fontSizePX,
     };
 
     /** ClipRect */

@@ -32,6 +32,9 @@ export interface BoxTextContent {
   textLines: string[];
   width: Pixel;
   align: Align;
+  fontSizePx: number;
+  x: number;
+  y: number;
 }
 
 export interface Box extends Rect {
