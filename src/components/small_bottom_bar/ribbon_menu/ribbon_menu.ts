@@ -41,7 +41,7 @@ export class RibbonMenu extends Component<RibbonMenuProps, SpreadsheetChildEnv> 
 
   onExternalClick(ev: Event) {
     if (!this.menuRef.el?.contains(ev.target as HTMLElement)) {
-      this.props.onClose();
+      setTimeout(() => this.props.onClose(), 0);
     }
   }
 
