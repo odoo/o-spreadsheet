@@ -2951,7 +2951,7 @@ export const demoData = {
         C6: "-445248",
         D2: "Origin",
         D3: "Wales",
-        D4: "Britain",
+        D4: "Rome",
         D5: "Britain",
         D6: "Britain",
         E2: "Is king ?",
@@ -2997,7 +2997,11 @@ export const demoData = {
           criterion: {
             type: "isValueInList",
             values: ["Wales", "Britain", "Rome"],
-            displayStyle: "arrow",
+            colors: {
+              Britain: "#0C343D",
+              Rome: "#F4CCCC",
+            },
+            displayStyle: "chip",
           },
           ranges: ["D3:D6"],
         },

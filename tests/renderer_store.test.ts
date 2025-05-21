@@ -22,6 +22,7 @@ import {
   Align,
   BorderPosition,
   Box,
+  DataValidationCriterion,
   GridRenderingContext,
   OrderedLayers,
   Viewport,
@@ -104,7 +105,8 @@ class MockGridRenderingContext implements GridRenderingContext {
 
     const handler = {
       get: (target, val) => {
-        if (val in (this._context as any).__proto__) {
+        // roundRect isn't implemented
+        if (val in (this._context as any).__proto__ || val === "roundRect") {
           return (...args) => {
             if (observer.onFunctionCall) {
               observer.onFunctionCall(val, args, this);
@@ -2248,7 +2250,7 @@ describe("renderer", () => {
     expect(boxesText).toEqual(["=MUNIT(2)", "", "", ""]);
   });
 
-  describe("DataValidations are correctly rendered", () => {
+  describe("boolean DataValidations are correctly rendered", () => {
     let renderedTexts: string[];
     let ctx: MockGridRenderingContext;
     let model: Model;
@@ -2278,6 +2280,116 @@ describe("renderer", () => {
       setCellContent(model, "B2", "hello");
       drawGridRenderer(ctx);
       expect(renderedTexts).toContain("hello");
+    });
+  });
+
+  describe("chip DataValidations are correctly rendered", () => {
+    test("chip is rendered", () => {
+      const { drawGridRenderer, model } = setRenderer();
+      const roundRectArgs: any[] = [];
+      let fillStyle: string = "";
+      const criterion: DataValidationCriterion = {
+        type: "isValueInList",
+        values: ["hello"],
+        colors: { hello: "#123456" },
+        displayStyle: "chip",
+      };
+      addDataValidation(model, "A1", "id", criterion);
+      const ctx = new MockGridRenderingContext(model, 1000, 1000, {
+        onFunctionCall: (key, args) => {
+          if (key === "roundRect") {
+            roundRectArgs.push(args);
+            expect(fillStyle).toBe("#123456");
+          }
+        },
+        onSet: (key, value) => {
+          if (key === "fillStyle") {
+            fillStyle = value;
+          }
+        },
+      });
+      setCellContent(model, "A1", "hello");
+      drawGridRenderer(ctx);
+      expect(roundRectArgs).toHaveLength(1);
+      expect(roundRectArgs[0]).toEqual([5, 5, 86, 15, 10]);
+    });
+
+    test("chip boxes are colored", () => {
+      const { drawGridRenderer, model, gridRendererStore } = setRenderer();
+      const criterion: DataValidationCriterion = {
+        type: "isValueInList",
+        values: ["hello"],
+        displayStyle: "chip",
+      };
+      addDataValidation(model, "A1", "id", criterion);
+      const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      drawGridRenderer(ctx);
+      let [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
+      expect(box.chip).toBeUndefined();
+      setCellContent(model, "A1", "hello");
+      drawGridRenderer(ctx);
+      [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
+      expect(box.style.textColor).toBeUndefined();
+      expect(box.chip).toEqual({
+        color: "#E7E9ED", // default color
+        height: 15,
+        width: 86,
+        x: 5,
+        y: 5,
+      });
+      addDataValidation(model, "A1", "id", {
+        ...criterion,
+        colors: { hello: "#FF0000" },
+      });
+      drawGridRenderer(ctx);
+      [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
+      expect(box.style.textColor).toBe("#FFE5E5");
+      expect(box.chip).toEqual({
+        color: "#FF0000",
+        height: 15,
+        width: 86,
+        x: 5,
+        y: 5,
+      });
+    });
+
+    test("chip is rendered next to CF icon", () => {
+      const { drawGridRenderer, model, gridRendererStore } = setRenderer();
+      const criterion: DataValidationCriterion = {
+        type: "isValueInList",
+        values: ["1"],
+        displayStyle: "chip",
+      };
+      const sheetId = model.getters.getActiveSheetId();
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          id: "1",
+          rule: {
+            type: "IconSetRule",
+            lowerInflectionPoint: { type: "number", value: "7", operator: "gt" },
+            upperInflectionPoint: { type: "number", value: "7", operator: "gt" },
+            icons: {
+              upper: "arrowGood",
+              middle: "arrowNeutral",
+              lower: "arrowBad",
+            },
+          },
+        },
+        ranges: toRangesData(sheetId, "A1:A5"),
+        sheetId,
+      });
+      addDataValidation(model, "A1", "id", criterion);
+      setCellContent(model, "A1", "1");
+      const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+      drawGridRenderer(ctx);
+      const [box] = gridRendererStore["getGridBoxes"](toZone("A1"));
+      expect(box.chip).toEqual({
+        color: "#E7E9ED",
+        height: 15,
+        width: 69,
+        x: 22,
+        y: 5,
+      });
     });
   });
 

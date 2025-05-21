@@ -1,11 +1,13 @@
 import {
-  CARET_DOWN,
   CHECKBOX_CHECKED,
   CHECKBOX_UNCHECKED,
   CHECKBOX_UNCHECKED_HOVERED,
+  getCaretDownSvg,
+  getChipSvg,
   getDataFilterIcon,
+  getHoveredCaretDownSvg,
+  getHoveredChipSvg,
   getPivotIconSvg,
-  HOVERED_CARET_DOWN,
   ICONS,
 } from "../components/icons/icons";
 import { CellPopoverStore } from "../components/popover";
@@ -70,12 +72,36 @@ iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   return undefined;
 });
 
+iconsOnCellRegistry.add("data_validation_chip_icon", (getters, position) => {
+  const chipStyle = getters.getDataValidationChipStyle(position);
+  if (chipStyle) {
+    const cellStyle = getters.getCellComputedStyle(position);
+    return {
+      svg: getChipSvg(chipStyle),
+      hoverSvg: getHoveredChipSvg(chipStyle),
+      priority: 10,
+      horizontalAlign: "right",
+      size: computeTextFontSizeInPixels(cellStyle),
+      margin: 4,
+      position,
+      onClick: (position, env) => {
+        const { col, row } = position;
+        env.model.selection.selectCell(col, row);
+        env.startCellEdition();
+      },
+      type: "data_validation_chip_icon",
+    };
+  }
+  return undefined;
+});
+
 iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
   const hasIcon = !getters.isReadonly() && getters.cellHasListDataValidationIcon(position);
   if (hasIcon) {
+    const cellStyle = getters.getCellComputedStyle(position);
     return {
-      svg: CARET_DOWN,
-      hoverSvg: HOVERED_CARET_DOWN,
+      svg: getCaretDownSvg(cellStyle),
+      hoverSvg: getHoveredCaretDownSvg(cellStyle),
       priority: 2,
       horizontalAlign: "right",
       size: GRID_ICON_EDGE_LENGTH,

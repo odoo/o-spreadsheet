@@ -8,6 +8,7 @@ import {
   BACKGROUND_HEADER_SELECTED_COLOR,
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
+  DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_FONT,
   FROZEN_PANE_BORDER_COLOR,
   FROZEN_PANE_HEADER_BORDER_COLOR,
@@ -21,6 +22,7 @@ import {
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
+  computeTextLinesHeight,
   deepEquals,
   drawDecoratedText,
   getZonesCols,
@@ -143,6 +145,19 @@ export class GridRenderer {
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
         ctx.fillRect(box.x, box.y, width, box.height);
+      }
+      if (box?.chip) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(box.x, box.y, box.width, box.height);
+        ctx.clip();
+        const chip = box.chip;
+        ctx.fillStyle = chip.color;
+        const radius = 10;
+        ctx.beginPath();
+        ctx.roundRect(chip.x, chip.y, chip.width, chip.height, radius);
+        ctx.fill();
+        ctx.restore();
       }
       if (box.overlayColor) {
         ctx.fillStyle = box.overlayColor;
@@ -566,10 +581,15 @@ export class GridRenderer {
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
+    const chipStyle = this.getters.getDataValidationChipStyle(position);
+
     let style = this.getters.getCellComputedStyle(position);
     if (this.fingerprints.isEnabled) {
       const fingerprintColor = this.fingerprints.colors.get(position);
       style = { ...style, fillColor: fingerprintColor };
+    }
+    if (chipStyle?.textColor) {
+      style = { ...style, textColor: chipStyle.textColor };
     }
     const dataBarFill = this.fingerprints.isEnabled
       ? undefined
@@ -611,46 +631,59 @@ export class GridRenderer {
     const textWidth = Math.max(
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
     );
-
+    const chipMargin = chipStyle ? DATA_VALIDATION_CHIP_MARGIN : 0;
     const leftIconWidth = box.icons.left ? box.icons.left.size + box.icons.left.margin : 0;
+    const leftMargin = leftIconWidth + chipMargin;
     const rightIconWidth = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
-    const contentWidth = leftIconWidth + textWidth + rightIconWidth;
+    const rightMargin = rightIconWidth + chipMargin;
+    const contentWidth = leftMargin + textWidth + rightMargin;
     const align = this.computeCellAlignment(position, contentWidth > width);
 
     // compute vertical align start point parameter:
     const numberOfLines = multiLineText.length;
-    const contentY = this.getters.computeTextYCoordinate(
-      box,
-      fontSizePX,
-      style.verticalAlign,
-      numberOfLines
+    const contentY = Math.round(
+      this.getters.computeTextYCoordinate(box, fontSizePX, style.verticalAlign, numberOfLines)
     );
 
     // compute horizontal align start point parameter
     let contentX = box.x;
     if (align === "left") {
-      contentX += MIN_CELL_TEXT_MARGIN + leftIconWidth;
+      contentX += MIN_CELL_TEXT_MARGIN + leftMargin;
     } else if (align === "right") {
-      contentX += box.width - MIN_CELL_TEXT_MARGIN - rightIconWidth;
+      contentX += box.width - MIN_CELL_TEXT_MARGIN - rightMargin;
     } else {
       contentX += box.width / 2;
     }
+    contentX = Math.round(contentX);
+
+    const textHeight = computeTextLinesHeight(fontSizePX, numberOfLines);
     box.content = {
       textLines: multiLineText,
       width: wrapping === "overflow" ? textWidth : width,
       align,
-      x: Math.round(contentX),
-      y: Math.round(contentY),
+      x: contentX,
+      y: contentY,
       fontSizePx: fontSizePX,
     };
+    if (chipStyle?.fillColor) {
+      const chipMarginLeft = leftMargin;
+      const chipMarginRight = DATA_VALIDATION_CHIP_MARGIN;
+      box.chip = {
+        color: chipStyle.fillColor,
+        width: box.width - chipMarginLeft - chipMarginRight,
+        height: textHeight + 2,
+        x: box.x + chipMarginLeft,
+        y: contentY - 2,
+      };
+    }
 
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizePX > height;
-    if (box.icons.left || box.icons.right) {
+    if (box.icons.left || box.icons.right || box.chip) {
       box.clipRect = {
-        x: box.x + leftIconWidth,
+        x: box.x + leftMargin,
         y: box.y,
-        width: Math.max(0, width - leftIconWidth - rightIconWidth),
+        width: Math.max(0, width - leftMargin - rightMargin),
         height,
       };
     } else if (isOverflowing && wrapping === "overflow") {

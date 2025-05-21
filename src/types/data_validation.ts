@@ -1,5 +1,5 @@
 import { DateCriterionValue } from "./generic_criterion";
-import { UID } from "./misc";
+import { Color, UID } from "./misc";
 import { Range } from "./range";
 
 export interface DataValidationRule {
@@ -127,13 +127,15 @@ export type IsCheckboxCriterion = {
 export type IsValueInListCriterion = {
   type: "isValueInList";
   values: string[];
-  displayStyle: "arrow" | "plainText";
+  colors?: Record<string, Color | undefined>;
+  displayStyle: "arrow" | "plainText" | "chip";
 };
 
 export type IsValueInRangeCriterion = {
   type: "isValueInRange";
   values: string[];
-  displayStyle: "arrow" | "plainText";
+  colors?: Record<string, Color | undefined>;
+  displayStyle: "arrow" | "plainText" | "chip";
 };
 
 export type CustomFormulaCriterion = {

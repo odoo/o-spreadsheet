@@ -1,4 +1,5 @@
 import {
+  DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_VERTICAL_ALIGN,
   MIN_CELL_TEXT_MARGIN,
@@ -94,6 +95,9 @@ export class SheetUIPlugin extends UIPlugin {
 
     for (const icon of this.getters.getCellIcons(position)) {
       contentWidth += icon.margin + icon.size;
+    }
+    if (this.getters.getDataValidationChipStyle(position)) {
+      contentWidth += DATA_VALIDATION_CHIP_MARGIN * 2;
     }
 
     if (contentWidth === 0) {
