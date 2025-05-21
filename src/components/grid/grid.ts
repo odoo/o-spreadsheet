@@ -73,11 +73,12 @@ import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useTouchScroll } from "../helpers/touch_scroll_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
-import { Menu, MenuState } from "../menu/menu";
+import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { Selection } from "../selection/selection";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TableResizer } from "../tables/table_resizer/table_resizer";
 import { DelayedHoveredCellStore } from "./delayed_hovered_cell_store";
@@ -111,6 +112,7 @@ const registries = {
 
 interface Props {
   exposeFocus: (focus: () => void) => void;
+  getGridSize: () => DOMDimension;
 }
 
 // -----------------------------------------------------------------------------
@@ -120,13 +122,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Grid";
   static props = {
     exposeFocus: Function,
+    getGridSize: Function,
   };
   static components = {
     GridComposer,
     GridOverlay,
     GridPopover,
     HeadersOverlay,
-    Menu,
+    MenuPopover,
     Autofill,
     ClientTag,
     Highlight,
@@ -134,6 +137,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     VerticalScrollBar,
     HorizontalScrollBar,
     TableResizer,
+    Selection,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
@@ -174,9 +178,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useExternalListener(document.body, "paste", this.paste);
     onMounted(() => this.focusDefaultElement());
     this.props.exposeFocus(() => this.focusDefaultElement());
-    useGridDrawing("canvas", this.env.model, () =>
-      this.env.model.getters.getSheetViewDimensionWithHeaders()
-    );
+    useGridDrawing("canvas", this.env.model, this.props.getGridSize);
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.clear();
@@ -516,6 +518,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.env.model.selection.selectCell(col, row);
     }
+
+    if (this.env.isMobile()) {
+      return;
+    }
+
     let prevCol = col;
     let prevRow = row;
 
@@ -825,5 +832,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   get staticTables(): Table[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
     return this.env.model.getters.getCoreTables(sheetId).filter(isStaticTable);
+  }
+
+  get displaySelectionHandler() {
+    return this.env.isMobile() && this.composerFocusStore.activeComposer.editionMode === "inactive";
   }
 }

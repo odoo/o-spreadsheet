@@ -1,10 +1,10 @@
 import { Component, xml } from "@odoo/owl";
 import { Action, ActionSpec, createActions } from "../../src/actions/action";
-import { Menu } from "../../src/components/menu/menu";
+import { MenuPopover } from "../../src/components/menu_popover/menu_popover";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  MENU_ITEM_HEIGHT,
+  DESKTOP_MENU_ITEM_HEIGHT,
   MENU_SEPARATOR_HEIGHT,
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
@@ -67,17 +67,18 @@ function makeTestMenuItem(name: string, params?: Partial<ActionSpec>): ActionSpe
 
 mockGetBoundingClientRect({
   "o-menu": (el) => getElPosition(el),
+  "o-menu-wrapper": (el) => getElPosition(el),
   "o-popover": () => getMenuSize(),
   "o-popover-content": () => getMenuSize(),
   "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
   "o-menu-item": (el) => {
-    const parentPosition = getElPosition(el.parentElement!);
+    const parentPosition = getElPosition(el.parentElement!.parentElement!);
     let offset = MENU_VERTICAL_PADDING;
     for (const e of el.parentElement!.children) {
       if (e === el) break;
 
       if (el.classList.contains("o-menu-item")) {
-        offset += MENU_ITEM_HEIGHT;
+        offset += DESKTOP_MENU_ITEM_HEIGHT;
       } else if (el.classList.contains("o-separator")) {
         offset += MENU_SEPARATOR_HEIGHT;
       }
@@ -85,7 +86,7 @@ mockGetBoundingClientRect({
     return {
       top: parentPosition.top + offset,
       left: parentPosition.left,
-      height: MENU_ITEM_HEIGHT,
+      height: DESKTOP_MENU_ITEM_HEIGHT,
       width: MENU_WIDTH,
     };
   },
@@ -118,17 +119,17 @@ function getElPosition(element: string | Element): {
 }
 
 function getMenuPosition() {
-  const { left, top } = getElPosition(".o-menu");
+  const { left, top } = getElPosition(".o-menu-wrapper");
   return { left, top: top };
 }
 
 function getSubMenuPosition(depth = 1) {
-  const { left, top } = getElPosition(fixture.querySelectorAll(".o-menu")[depth]);
+  const { left, top } = getElPosition(fixture.querySelectorAll(".o-menu-wrapper")[depth]);
   return { left, top: top };
 }
 
 function getItemSize() {
-  return MENU_ITEM_HEIGHT;
+  return DESKTOP_MENU_ITEM_HEIGHT;
 }
 
 function getSize(menuItemsCount: number): { width: number; height: number } {
@@ -196,7 +197,7 @@ const subMenu: Action[] = createActions([
 class ContextMenuParent extends Component {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
-      <Menu
+      <MenuPopover
         onClose="() => this.onClose()"
         anchorRect="anchorRect"
         menuItems="menus"
@@ -205,7 +206,7 @@ class ContextMenuParent extends Component {
       />
     </div>
   `;
-  static components = { Menu };
+  static components = { MenuPopover };
   static props = { x: Number, y: Number, width: Number, height: Number, config: Object };
   menus!: Action[];
   anchorRect: Rect;
@@ -230,7 +231,7 @@ class ContextMenuParent extends Component {
   }
 }
 
-describe("Context Menu integration tests", () => {
+describe("Context MenuPopover integration tests", () => {
   beforeEach(async () => {
     ({ fixture, model } = await mountSpreadsheet());
   });
@@ -251,7 +252,7 @@ describe("Context Menu integration tests", () => {
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
     await rightClickCell(model, "B2");
     expect(getSelectionAnchorCellXc(model)).toBe("B2");
-    expect(getElPosition(".o-menu")).toMatchObject({
+    expect(getElPosition(".o-menu-wrapper")).toMatchObject({
       left: DEFAULT_CELL_WIDTH,
       top: DEFAULT_CELL_HEIGHT,
     });
@@ -418,7 +419,7 @@ describe("Context Menu integration tests", () => {
   });
 });
 
-describe("Context Menu internal tests", () => {
+describe("Context MenuPopover internal tests", () => {
   test("submenu opens and close when (un)hovered", async () => {
     const menuItems = createActions([
       makeTestMenuItem("action"),
@@ -734,7 +735,7 @@ describe("Context Menu internal tests", () => {
   });
 });
 
-describe("Context Menu position on large screen 1000px/1000px", () => {
+describe("Context MenuPopover position on large screen 1000px/1000px", () => {
   test("it renders menu on the bottom right if enough space", async () => {
     const [clickX, clickY] = await renderContextMenu(300, 300);
     const { left, top } = getMenuPosition();
@@ -817,7 +818,7 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
     const { height, width } = getSubMenuSize();
     const { height: rootHeight } = getMenuSize();
     expect(rootTop).toBe(clickY - rootHeight);
-    expect(top).toBe(clickY + MENU_ITEM_HEIGHT - height);
+    expect(top).toBe(clickY + DESKTOP_MENU_ITEM_HEIGHT - height);
     expect(left).toBe(clickX + width);
   });
 

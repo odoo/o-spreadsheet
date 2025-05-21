@@ -15,7 +15,7 @@ export const pivotProperties: ActionSpec = {
   isVisible: (env) => {
     const position = env.model.getters.getActivePosition();
     const pivotId = env.model.getters.getPivotIdFromPosition(position);
-    return (pivotId && env.model.getters.isExistingPivot(pivotId)) || false;
+    return (!env.isSmall && pivotId && env.model.getters.isExistingPivot(pivotId)) || false;
   },
   isReadonlyAllowed: true,
   icon: "o-spreadsheet-Icon.PIVOT",

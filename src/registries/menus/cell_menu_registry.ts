@@ -7,7 +7,7 @@ import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTIONS_PIVOT from "../../helpers/pivot/pivot_menu_items";
 
 //------------------------------------------------------------------------------
-// Context Menu Registry
+// Context MenuPopover Registry
 //------------------------------------------------------------------------------
 
 export const cellMenuRegistry = new MenuItemRegistry();
@@ -91,7 +91,9 @@ cellMenuRegistry
   })
   .add("edit_table", {
     ...ACTION_EDIT.editTable,
-    isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,
+    isVisible: (env) => {
+      return !env.isSmall && ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE(env);
+    },
     sequence: 140,
   })
   .add("delete_table", {

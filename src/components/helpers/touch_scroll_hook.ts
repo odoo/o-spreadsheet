@@ -4,8 +4,9 @@ import { useRefListener } from "./listener_hook";
 const friction = 0.95;
 
 const verticalScrollFactor = 1;
-
 const horizontalScrollFactor = 1;
+
+export const resetTimeoutDuration = 100;
 
 export function useTouchScroll(
   ref: Ref<HTMLElement>,
@@ -20,12 +21,17 @@ export function useTouchScroll(
   let velocityY = 0;
   let isMouseDown = false;
   let lastTime = 0;
+  let resetTimeout: NodeJS.Timeout | null = null;
 
   useRefListener(ref, "touchstart", onTouchStart, { capture: false });
   useRefListener(ref, "touchmove", onTouchMove, { capture: false });
   useRefListener(ref, "touchend", onTouchEnd, { capture: false });
 
   function onTouchStart(event: TouchEvent) {
+    if (event.touches.length > 1) {
+      isMouseDown = false;
+      return;
+    }
     isMouseDown = true;
     ({ clientX: lastX, clientY: lastY } = event.touches[0]);
     velocityX = 0;
@@ -34,6 +40,11 @@ export function useTouchScroll(
 
   function onTouchMove(event: TouchEvent) {
     if (!isMouseDown) return;
+
+    if (resetTimeout) {
+      clearTimeout(resetTimeout);
+      resetTimeout = null;
+    }
 
     const currentTime = Date.now();
     const { clientX, clientY } = event.touches[0];
@@ -53,7 +64,10 @@ export function useTouchScroll(
       }
       event.stopPropagation();
     }
-
+    resetTimeout = setTimeout(() => {
+      velocityX = 0;
+      velocityY = 0;
+    }, resetTimeoutDuration);
     updateScroll(deltaX * horizontalScrollFactor, deltaY * verticalScrollFactor);
   }
 

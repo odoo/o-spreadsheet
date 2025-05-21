@@ -38,6 +38,7 @@ topBarToolBarRegistry
       class: "o-hoverable-button o-toolbar-button",
     },
     sequence: 3,
+    isVisible: (env) => !env.isMobile(),
   })
   .addChild("edit", {
     component: ActionButton,
@@ -197,6 +198,7 @@ topBarToolBarRegistry
     component: TableDropdownButton,
     props: { class: "o-toolbar-button o-hoverable-button o-menu-item-button" },
     sequence: 1,
+    isVisible: (env) => !env.isSmall,
   })
   .addChild("misc", {
     component: ActionButton,

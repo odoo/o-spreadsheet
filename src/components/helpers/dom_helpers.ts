@@ -191,7 +191,7 @@ export function isMacOS(): boolean {
  * On Mac, this is the "meta" or "command" key.
  */
 export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
-  return isMacOS() ? ev.metaKey : ev.ctrlKey;
+  return isMacOS() || isIOS() ? ev.metaKey : ev.ctrlKey;
 }
 
 /**
@@ -234,4 +234,28 @@ export function downloadFile(dataUrl: string, fileName: string) {
  */
 export function isBrowserFirefox() {
   return /Firefox/i.test(navigator.userAgent);
+}
+
+// Mobile detection
+function maxTouchPoints() {
+  return navigator.maxTouchPoints || 1;
+}
+
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent);
+}
+
+function isIOS() {
+  return (
+    /(iPad|iPhone|iPod)/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && maxTouchPoints() > 1)
+  );
+}
+
+function isOtherMobileOS() {
+  return /(webOS|BlackBerry|Windows Phone)/i.test(navigator.userAgent);
+}
+
+export function isMobileOS() {
+  return isAndroid() || isIOS() || isOtherMobileOS();
 }
