@@ -1,6 +1,7 @@
 import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import {
@@ -182,6 +183,7 @@ describe("Grid component", () => {
     expect(getHorizontalScroll()).toBe(70);
     expect(getVerticalScroll()).toBe(50);
   });
+
   test("Event is stopped if not at the top", async () => {
     const grid = fixture.querySelector(".o-grid-overlay")!;
     expect(getHorizontalScroll()).toBe(0);
@@ -200,6 +202,37 @@ describe("Grid component", () => {
     // move up again but we are at the stop: ev not prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 4 });
     expect(mockCallback).toBeCalledTimes(2);
+  });
+
+  test("Touch has an inertial scroll", async () => {
+    const timeDelta = 100;
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150 });
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150 });
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(0);
+    jest.advanceTimersByTime(timeDelta);
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120 });
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
+    triggerTouchEvent(grid, "touchend", { clientX: 0, clientY: 120 });
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
+    jest.runOnlyPendingTimers();
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(30);
+  });
+
+  test("scroll inertia is reset after some time", async () => {
+    const timeDelta = 100;
+    const grid = fixture.querySelector(".o-grid-overlay")!;
+    triggerTouchEvent(grid, "touchstart", { clientX: 0, clientY: 150 });
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150 });
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(0);
+    jest.advanceTimersByTime(timeDelta);
+    triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120 });
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
+    jest.advanceTimersByTime(resetTimeoutDuration + 1);
+    triggerTouchEvent(grid, "touchend", { clientX: 0, clientY: 120 });
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
+    jest.runOnlyPendingTimers();
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
   });
 
   describe("keybindings", () => {
