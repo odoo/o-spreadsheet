@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { GRID_ICON_EDGE_LENGTH, TEXT_BODY_MUTED } from "../../../constants";
 import { CellPosition, SpreadsheetChildEnv } from "../../../types";
-import { css } from "../../helpers";
+import { css, cssPropertiesToCss } from "../../helpers";
 
 const ICON_WIDTH = 13;
 
@@ -14,7 +14,6 @@ css/* scss */ `
 
     &:hover {
       color: #ffffff;
-      background-color: ${TEXT_BODY_MUTED};
     }
 
     svg {
@@ -38,5 +37,12 @@ export class DataValidationListIcon extends Component<Props, SpreadsheetChildEnv
     const { col, row } = this.props.cellPosition;
     this.env.model.selection.selectCell(col, row);
     this.env.startCellEdition();
+  }
+
+  get chipStyle() {
+    const style = this.env.model.getters.getDataValidationCellStyle(this.props.cellPosition);
+    return cssPropertiesToCss({
+      color: style?.textColor,
+    });
   }
 }

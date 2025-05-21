@@ -6,6 +6,7 @@ import {
   BACKGROUND_HEADER_SELECTED_COLOR,
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
+  CHIP_MARGIN,
   DEFAULT_FONT,
   DEFAULT_VERTICAL_ALIGN,
   FROZEN_PANE_BORDER_COLOR,
@@ -146,6 +147,12 @@ export class GridRenderer {
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
         ctx.fillRect(box.x, box.y, width, box.height);
+      }
+      if (box?.chip) {
+        ctx.fillStyle = box.chip.color;
+        ctx.beginPath();
+        ctx.roundRect(box.chip.x, box.chip.y, box.chip.width, box.chip.height, 10);
+        ctx.fill();
       }
       if (box.overlayColor) {
         ctx.fillStyle = box.overlayColor;
@@ -592,7 +599,10 @@ export class GridRenderer {
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
-    let style = this.getters.getCellComputedStyle(position);
+    let style = {
+      ...this.getters.getCellComputedStyle(position),
+      ...this.getters.getDataValidationCellStyle(position), // TODO: this is how Gsheets does it, but meh, try with the composer
+    };
     if (this.fingerprints.isEnabled) {
       const fingerprintColor = this.fingerprints.colors.get(position);
       style = { ...style, fillColor: fingerprintColor };
@@ -650,28 +660,46 @@ export class GridRenderer {
 
     // compute vertical align start point parameter:
     const numberOfLines = multiLineText.length;
-    const contentY = this.computeTextYCoordinate(box, fontSizePX, numberOfLines);
+    const contentY = Math.round(this.computeTextYCoordinate(box, fontSizePX, numberOfLines));
 
     // compute horizontal align start point parameter
+    const chipColor = this.getters.getDataValidationChipColor(position);
+
+    const chipMargin = chipColor ? CHIP_MARGIN : 0;
+    const cfIconMargin = box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0;
+    const iconMargin = box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0;
     let contentX = box.x;
     if (align === "left") {
-      contentX += MIN_CELL_TEXT_MARGIN + (box.image ? box.image.size + MIN_CF_ICON_MARGIN : 0);
+      const marginLeft = MIN_CELL_TEXT_MARGIN + cfIconMargin + chipMargin;
+      contentX += marginLeft;
     } else if (align === "right") {
-      contentX +=
-        box.width -
-        MIN_CELL_TEXT_MARGIN -
-        (box.hasIcon ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0);
+      const marginRight = MIN_CELL_TEXT_MARGIN + chipMargin + iconMargin;
+      contentX += box.width - marginRight;
     } else {
       contentX += box.width / 2;
     }
+    contentX = Math.round(contentX);
+
+    const textHeight = computeTextLinesHeight(fontSizePX, numberOfLines);
     box.content = {
       textLines: multiLineText,
       width: wrapping === "overflow" ? textWidth : width,
       align,
-      x: Math.round(contentX),
-      y: Math.round(contentY),
+      x: contentX,
+      y: contentY,
       fontSizePx: fontSizePX,
     };
+    if (chipColor) {
+      const chipMarginLeft = CHIP_MARGIN + cfIconMargin;
+      const chipMarginRight = CHIP_MARGIN;
+      box.chip = {
+        color: chipColor,
+        width: box.width - chipMarginLeft - chipMarginRight,
+        height: textHeight + 2,
+        x: box.x + chipMarginLeft,
+        y: contentY - 2,
+      };
+    }
 
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizePX > height;
