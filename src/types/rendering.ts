@@ -40,6 +40,13 @@ export interface BoxTextContent {
 export interface Box extends Rect {
   content?: BoxTextContent;
   style: Style;
+  chip?: {
+    x: number;
+    y: number;
+    width: Pixel;
+    height: Pixel;
+    color: Color;
+  };
   dataBarFill?: DataBarFill;
   border?: Border;
   clipRect?: Rect;

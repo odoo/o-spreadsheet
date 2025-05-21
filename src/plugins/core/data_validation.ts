@@ -217,7 +217,7 @@ export class DataValidationPlugin
 
     return (
       (rule.criterion.type === "isValueInList" || rule.criterion.type === "isValueInRange") &&
-      rule.criterion.displayStyle === "arrow"
+      (rule.criterion.displayStyle === "arrow" || rule.criterion.displayStyle === "chip")
     );
   }
 
