@@ -8,6 +8,7 @@ import {
   TEXT_BODY_MUTED,
 } from "../../constants";
 import { isDefined } from "../../helpers";
+import { Style } from "../../types";
 import { ImageSVG } from "../../types/image";
 import { css } from "../helpers";
 
@@ -119,20 +120,48 @@ const RED_DOT: ImageSVG = {
   paths: [{ fillColor: "#E06666", path: DOT_PATH }],
 };
 
-export const CARET_DOWN: ImageSVG = {
-  width: 512,
-  height: 512,
-  paths: [{ fillColor: TEXT_BODY_MUTED, path: "M120 195 h270 l-135 130" }],
-};
+export function getCaretDownSvg(color: Style): ImageSVG {
+  return {
+    width: 512,
+    height: 512,
+    paths: [{ fillColor: color.textColor || TEXT_BODY_MUTED, path: "M120 195 h270 l-135 130" }],
+  };
+}
 
-export const HOVERED_CARET_DOWN: ImageSVG = {
-  width: 512,
-  height: 512,
-  paths: [
-    { fillColor: TEXT_BODY_MUTED, path: "M15 15 h482 v482 h-482" },
-    { fillColor: "#fff", path: "M120 195 h270 l-135 130" },
-  ],
-};
+export function getHoveredCaretDownSvg(color: Style): ImageSVG {
+  return {
+    width: 512,
+    height: 512,
+    paths: [
+      { fillColor: color.textColor || TEXT_BODY_MUTED, path: "M15 15 h482 v482 h-482" },
+      { fillColor: color.fillColor || "#fff", path: "M120 195 h270 l-135 130" },
+    ],
+  };
+}
+
+const CHIP_CARET_DOWN_PATH = "M40 185 h270 l-135 128";
+
+export function getChipSvg(chipStyle: Style): ImageSVG {
+  return {
+    width: 512,
+    height: 512,
+    paths: [{ fillColor: chipStyle.textColor || TEXT_BODY_MUTED, path: CHIP_CARET_DOWN_PATH }],
+  };
+}
+
+export function getHoveredChipSvg(chipStyle: Style): ImageSVG {
+  return {
+    width: 512,
+    height: 512,
+    paths: [
+      {
+        fillColor: chipStyle.textColor || TEXT_BODY_MUTED,
+        path: "M0,225 A175,175 0 1,0 350,225 A175,175 0 1,0 0,225",
+      },
+      { fillColor: chipStyle.fillColor || TEXT_BODY_MUTED, path: CHIP_CARET_DOWN_PATH },
+    ],
+  };
+}
 
 export const CHECKBOX_UNCHECKED: ImageSVG = {
   width: 512,

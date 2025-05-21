@@ -1,4 +1,5 @@
-import { isFormula, isNotNull } from "../../helpers";
+import { GRAY_200 } from "../../constants";
+import { chipTextColor, isFormula } from "../../helpers";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {
@@ -18,23 +19,31 @@ autoCompleteProviders.add("dataValidation", {
     ) {
       return [];
     }
+    const sheetId = this.composer.currentEditedCell.sheetId;
+    const values =
+      rule.criterion.type === "isValueInRange"
+        ? Array.from(new Set(this.getters.getDataValidationRangeValues(sheetId, rule.criterion)))
+        : rule.criterion.values;
 
-    let values: string[];
-    if (rule.criterion.type === "isValueInList") {
-      values = rule.criterion.values;
-    } else {
-      const range = this.getters.getRangeFromSheetXC(position.sheetId, rule.criterion.values[0]);
-      values = Array.from(
-        new Set(
-          this.getters
-            .getRangeValues(range)
-            .filter(isNotNull)
-            .map((value) => value.toString())
-            .filter((val) => val !== "")
-        )
-      );
+    const isChip = rule.criterion.displayStyle === "chip";
+    if (!isChip) {
+      return values.map((value) => ({ text: value }));
     }
-    return values.map((value) => ({ text: value }));
+    const colors = rule.criterion.colors;
+    return values.map((value) => {
+      const color = colors?.[value];
+      return {
+        text: value,
+        htmlContent: [
+          {
+            value,
+            color: color ? chipTextColor(color) : undefined,
+            backgroundColor: color || GRAY_200,
+            classes: ["badge rounded-pill fs-6 fw-normal w-100 mt-1 text-start"],
+          },
+        ],
+      };
+    });
   },
   selectProposal(tokenAtCursor, value) {
     this.composer.setCurrentContent(value);

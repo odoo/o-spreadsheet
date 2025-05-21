@@ -2,6 +2,12 @@
   <t t-name="o-spreadsheet-ListCriterionForm">
     <t t-foreach="displayedValues" t-as="value" t-key="value_index">
       <div class="o-dv-list-values d-flex align-items-center">
+        <div class="me-1">
+          <RoundColorPicker
+            currentColor="props.criterion.colors?.[value] || '#E7E9ED'"
+            onColorPicked="(c) => this.onColorChanged(c, value)"
+          />
+        </div>
         <CriterionInput
           value="props.criterion.values[value_index]"
           onValueChanged="(v) => this.onValueChanged(v, value_index)"
@@ -25,6 +31,7 @@
 
     <div class="o-section-subtitle">Display style</div>
     <select class="o-dv-display-style o-input" t-on-change="onChangedDisplayStyle">
+      <option t-att-selected="props.criterion.displayStyle === 'chip'" value="chip">Chip</option>
       <option t-att-selected="props.criterion.displayStyle === 'arrow'" value="arrow">Arrow</option>
       <option t-att-selected="props.criterion.displayStyle === 'plainText'" value="plainText">
         Plain text

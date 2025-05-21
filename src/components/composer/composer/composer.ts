@@ -44,6 +44,7 @@ export type HtmlContent = {
   onHover?: (rect: Rect) => void;
   onStopHover?: () => void;
   color?: Color;
+  backgroundColor?: Color;
   classes?: string[];
 };
 

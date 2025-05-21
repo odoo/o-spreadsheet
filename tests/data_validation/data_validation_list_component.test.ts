@@ -2,6 +2,7 @@ import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_WIDTH,
+  GRAY_200,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   MIN_CELL_TEXT_MARGIN,
@@ -14,7 +15,13 @@ import {
   setSelection,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { click, clickGridIcon, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import {
+  click,
+  clickGridIcon,
+  getElComputedStyle,
+  keyDown,
+  setInputValueAndTrigger,
+} from "../test_helpers/dom_helper";
 import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
@@ -119,13 +126,41 @@ describe("Edit criterion in side panel", () => {
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["hello", "okay"]);
     });
 
-    test("Can change display style", () => {
+    test.each(["plainText", "chip", "arrow"])("Can change display style to %s", (displayStyle) => {
       const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
-      setInputValueAndTrigger(displayStyleInput, "plainText");
+      setInputValueAndTrigger(displayStyleInput, displayStyle);
       click(fixture, ".o-dv-save");
       expect(
         (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle
-      ).toEqual("plainText");
+      ).toEqual(displayStyle);
+    });
+
+    test("can set a color", async () => {
+      expect(getElComputedStyle(".o-round-color-picker-button", "background")).toBeSameColorAs(
+        GRAY_200
+      );
+      await click(fixture.querySelector(".o-round-color-picker-button")!);
+      await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
+      expect(getElComputedStyle(".o-round-color-picker-button", "background")).toBeSameColorAs(
+        "#CFE2F3"
+      );
+      await click(fixture, ".o-dv-save");
+      const criterion = getDataValidationRules(model)[0].criterion as IsValueInListCriterion;
+      expect(criterion.colors).toEqual({ [criterion.values[0]]: "#CFE2F3" });
+    });
+
+    test("can remove a color", async () => {
+      await click(fixture.querySelector(".o-round-color-picker-button")!);
+      await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
+      await click(fixture.querySelector(".o-round-color-picker-button")!);
+      await click(fixture, ".o-color-picker .o-cancel");
+      expect(getElComputedStyle(".o-round-color-picker-button", "background")).toBeSameColorAs(
+        GRAY_200
+      );
+      await click(fixture, ".o-dv-save");
+      expect((getDataValidationRules(model)[0].criterion as IsValueInListCriterion).colors).toEqual(
+        {}
+      );
     });
   });
 
@@ -170,6 +205,64 @@ describe("Edit criterion in side panel", () => {
       expect(
         (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle
       ).toEqual("plainText");
+    });
+
+    test("can set a color", async () => {
+      setCellContent(model, "B1", "hello");
+      setCellContent(model, "B2", "world");
+      await nextTick();
+      const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+      expect(inputs).toHaveLength(2);
+      expect(inputs[0]).toHaveValue("hello");
+      expect(inputs[1]).toHaveValue("world");
+
+      expect(getElComputedStyle(".o-round-color-picker-button", "background")).toBeSameColorAs(
+        GRAY_200
+      );
+      await click(fixture.querySelector(".o-round-color-picker-button")!);
+      await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
+      expect(getElComputedStyle(".o-round-color-picker-button", "background")).toBeSameColorAs(
+        "#CFE2F3"
+      );
+      await click(fixture, ".o-dv-save");
+      const criterion = getDataValidationRules(model)[0].criterion as IsValueInListCriterion;
+      expect(criterion.colors).toEqual({ hello: "#CFE2F3" });
+    });
+
+    test("do not show colored value missing from the range", async () => {
+      setCellContent(model, "B1", "hello");
+      setCellContent(model, "B2", "world");
+      await nextTick();
+      const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+      expect(inputs).toHaveLength(2);
+      expect(inputs[0]).toHaveValue("hello");
+      expect(inputs[1]).toHaveValue("world");
+      await click(fixture.querySelector(".o-round-color-picker-button")!);
+      await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
+      await click(fixture, ".o-dv-save");
+      setCellContent(model, "B1", "something else");
+      await click(fixture, ".o-dv-preview");
+      const newInputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+      expect(newInputs).toHaveLength(2);
+      expect(newInputs[0]).toHaveValue("something else");
+      expect(newInputs[1]).toHaveValue("world");
+    });
+
+    test("can remove a color", async () => {
+      setCellContent(model, "B1", "hello");
+      setCellContent(model, "B2", "world");
+      await nextTick();
+      await click(fixture.querySelector(".o-round-color-picker-button")!);
+      await click(fixture, ".o-color-picker-line-item[data-color='#CFE2F3'");
+      await click(fixture.querySelector(".o-round-color-picker-button")!);
+      await click(fixture, ".o-color-picker .o-cancel");
+      expect(getElComputedStyle(".o-round-color-picker-button", "background")).toBeSameColorAs(
+        GRAY_200
+      );
+      await click(fixture, ".o-dv-save");
+      expect((getDataValidationRules(model)[0].criterion as IsValueInListCriterion).colors).toEqual(
+        {}
+      );
     });
   });
 });
@@ -395,5 +488,23 @@ describe("Selection arrow icon in grid", () => {
     const icons = getCellIcons(model, "A1");
     expect(icons.length).toBe(1);
     expect(icons[0].type).toBe("filter_icon");
+  });
+
+  test("chip color isn't taken into account in composer", async () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["hello"],
+      displayStyle: "chip",
+      colors: { hello: "#CFE2F3" },
+    });
+    setCellContent(model, "A1", "hello");
+    setStyle(model, "A1", {
+      fillColor: "#123456",
+      textColor: "#654321",
+    });
+    ({ fixture } = await mountSpreadsheet({ model }));
+    await clickGridIcon(model, "A1");
+    expect(getElComputedStyle(".o-grid-composer", "background")).toBeSameColorAs("#123456");
+    expect(getElComputedStyle(".o-grid-composer", "color")).toBeSameColorAs("#654321");
   });
 });

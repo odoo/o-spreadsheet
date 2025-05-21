@@ -1,6 +1,7 @@
 import { DVTerms } from "../../components/translations_terms";
+import { GRAY_200 } from "../../constants";
 import { compile } from "../../formulas";
-import { getCellPositionsInRanges, isInside, lazy } from "../../helpers";
+import { chipTextColor, getCellPositionsInRanges, isDefined, isInside, lazy } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
@@ -11,10 +12,12 @@ import {
   DataValidationCriterion,
   DataValidationCriterionType,
   DataValidationRule,
+  EvaluatedCriterion,
   HeaderIndex,
   Lazy,
   Matrix,
   Offset,
+  Style,
   UID,
   isMatrix,
 } from "../../types";
@@ -43,7 +46,10 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     "getDataValidationInvalidCriterionValueMessage",
     "getInvalidDataValidationMessage",
     "getValidationResultForCellValue",
+    "getDataValidationRangeValues",
     "isCellValidCheckbox",
+    "getDataValidationCellStyle",
+    "getDataValidationChipStyle",
     "isDataValidationInvalid",
   ] as const;
 
@@ -68,6 +74,20 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
 
   isDataValidationInvalid(cellPosition: CellPosition): boolean {
     return !this.getValidationResultForCell(cellPosition).isValid;
+  }
+
+  getDataValidationCellStyle(position: CellPosition): Style | undefined {
+    if (this.hasChip(position)) {
+      return undefined; // The style is not applied on the cell if it's a chip
+    }
+    return this.getDataValidationStyle(position);
+  }
+
+  getDataValidationChipStyle(position: CellPosition): Style | undefined {
+    if (this.hasChip(position)) {
+      return this.getDataValidationStyle(position) ?? { fillColor: GRAY_200 };
+    }
+    return undefined;
   }
 
   getInvalidDataValidationMessage(cellPosition: CellPosition): string | undefined {
@@ -97,6 +117,12 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     return evaluator.isCriterionValueValid(value) ? undefined : evaluator.criterionValueErrorString;
   }
 
+  getDataValidationRangeValues(sheetId: UID, criterion: EvaluatedCriterion): string[] {
+    const range = this.getters.getRangeFromSheetXC(sheetId, String(criterion.values[0]));
+    const criterionValues = this.getters.getRangeValues(range);
+    return criterionValues.map((value) => value?.toString()).filter(isDefined);
+  }
+
   isCellValidCheckbox(cellPosition: CellPosition): boolean {
     if (!this.getters.isMainCellPosition(cellPosition)) {
       return false;
@@ -122,6 +148,45 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     const error = this.getRuleErrorForCellValue(cellValue, cellPosition, rule);
 
     return error ? { error, rule, isValid: false } : VALID_RESULT;
+  }
+
+  private hasChip(position: CellPosition) {
+    const rule = this.getters.getValidationRuleForCell(position);
+    return (
+      (rule?.criterion.type === "isValueInList" || rule?.criterion.type === "isValueInRange") &&
+      rule.criterion.displayStyle === "chip"
+    );
+  }
+
+  private getDataValidationStyle(
+    position: CellPosition
+  ): Pick<Style, "fillColor" | "textColor"> | undefined {
+    const rule = this.getters.getValidationRuleForCell(position);
+    if (!rule || this.isDataValidationInvalid(position)) {
+      return undefined;
+    }
+    const evaluatedCell = this.getters.getEvaluatedCell(position);
+    const color = this.getValueColor(rule, evaluatedCell.value);
+    if (!color) {
+      return undefined;
+    }
+    const style: Style = {
+      fillColor: color,
+      textColor: chipTextColor(color),
+    };
+    return style;
+  }
+
+  private getValueColor(rule: DataValidationRule, value: CellValue): string | undefined {
+    if (rule.criterion.type !== "isValueInList" && rule.criterion.type !== "isValueInRange") {
+      return undefined;
+    }
+    for (const criterionValue in rule.criterion.colors) {
+      if (criterionValue.toLowerCase() === String(value).toLowerCase()) {
+        return rule.criterion.colors[criterionValue];
+      }
+    }
+    return undefined;
   }
 
   private isValidFormula(value: string): boolean {

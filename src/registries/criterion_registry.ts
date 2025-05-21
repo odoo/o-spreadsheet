@@ -11,7 +11,6 @@ import {
   isDateBetween,
   isDateStrictlyAfter,
   isDateStrictlyBefore,
-  isNotNull,
   isNumberBetween,
   jsDateToRoundNumber,
   valueToDateNumber,
@@ -625,11 +624,9 @@ criterionEvaluatorRegistry.add("isValueInRange", {
     if (!value) {
       return false;
     }
-    const range = getters.getRangeFromSheetXC(sheetId, String(criterion.values[0]));
-    const criterionValues = getters.getRangeValues(range);
+    const criterionValues = getters.getDataValidationRangeValues(sheetId, criterion);
     return criterionValues
-      .filter(isNotNull)
-      .map((value) => value.toString().toLowerCase())
+      .map((value) => value.toLowerCase())
       .includes(value.toString().toLowerCase());
   },
   getErrorString: (criterion: EvaluatedCriterion) =>
