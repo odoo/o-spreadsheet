@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { CellPosition, UID } from "../../src/types";
+import { CellPosition, DataValidationCriterion, UID } from "../../src/types";
 import {
   addDataValidation,
   duplicateSheet,
@@ -51,6 +51,40 @@ describe("Data validation evaluation", () => {
     expect(
       model.getters.getInvalidDataValidationMessage({ ...A1, sheetId: "newSheet" })?.toString()
     ).toEqual('The value must be a text that contains "test"');
+  });
+
+  test("style is applied in cell with arrow display", () => {
+    const criterion: DataValidationCriterion = {
+      type: "isValueInList",
+      values: ["A", "B"],
+      colors: [undefined, "#EA9999"],
+      displayStyle: "arrow",
+    };
+    addDataValidation(model, "A1", "id", criterion);
+    expect(model.getters.getDataValidationCellStyle(A1)).toBe(undefined);
+    setCellContent(model, "A1", "A");
+    expect(model.getters.getDataValidationCellStyle(A1)).toBe(undefined);
+    setCellContent(model, "A1", "B");
+    expect(model.getters.getDataValidationCellStyle(A1)).toEqual({
+      fillColor: "#EA9999",
+      textColor: "#FDF5F5",
+    });
+  });
+
+  test("style is applied in cell with chip display", () => {
+    const criterion: DataValidationCriterion = {
+      type: "isValueInList",
+      values: ["A", "B"],
+      colors: [undefined, "#EA9999"],
+      displayStyle: "chip",
+    };
+    addDataValidation(model, "A1", "id", criterion);
+    expect(model.getters.getDataValidationCellStyle(A1)).toBe(undefined);
+    setCellContent(model, "A1", "A");
+    expect(model.getters.getDataValidationCellStyle(A1)).toBe(undefined);
+    setCellContent(model, "A1", "B");
+    expect(model.getters.getDataValidationCellStyle(A1)).toEqual({ textColor: "#FDF5F5" });
+    expect(model.getters.getDataValidationChipColor(A1)).toBe("#EA9999");
   });
 
   describe("Formula values", () => {
