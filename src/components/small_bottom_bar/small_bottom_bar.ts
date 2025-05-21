@@ -45,6 +45,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
 
     useEffect(() => {
       if (
+        this.composerRef.el &&
         !this.menuState.isOpen &&
         this.composerStore.editionMode !== "inactive" &&
         this.composerFocusStore.activeComposer !== this.composerInterface
