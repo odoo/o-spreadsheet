@@ -304,7 +304,7 @@ export const insertDropdown: ActionSpec = {
         criterion: {
           type: "isValueInList",
           values: [],
-          displayStyle: "arrow",
+          displayStyle: "chip",
         },
       },
     });

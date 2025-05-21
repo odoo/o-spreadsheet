@@ -60,6 +60,7 @@ export const ALERT_INFO_BG = "#CDEDF1";
 export const ALERT_INFO_BORDER = "#98DBE2";
 export const ALERT_INFO_TEXT_COLOR = "#09414A";
 export const BADGE_SELECTED_COLOR = "#E6F2F3";
+export const CHIP_DEFAULT_COLOR = "#E8EAED";
 
 export const CHART_PADDING = 20;
 export const CHART_PADDING_BOTTOM = 10;
@@ -179,6 +180,7 @@ export const GRID_ICON_EDGE_LENGTH = 17;
 export const FILTER_ICON_MARGIN = 2;
 export const FILTER_ICON_EDGE_LENGTH = 17;
 export const FOOTER_HEIGHT = 2 * DEFAULT_CELL_HEIGHT;
+export const CHIP_MARGIN = 5;
 
 // 768px is a common breakpoint for small screens
 // Typically inside Odoo, it is the threshold for switching to mobile view

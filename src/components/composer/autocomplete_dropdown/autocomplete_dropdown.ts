@@ -1,6 +1,7 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { AutoCompleteProposal } from "../../../registries/auto_completes";
-import { css } from "../../helpers/css";
+import { css, cssPropertiesToCss } from "../../helpers/css";
+import { HtmlContent } from "../composer/composer";
 
 css/* scss */ `
   .o-autocomplete-dropdown {
@@ -53,5 +54,12 @@ export class TextValueProvider extends Component<Props> {
       },
       () => [this.props.selectedIndex, this.autoCompleteListRef.el]
     );
+  }
+
+  getCss(html: HtmlContent) {
+    return cssPropertiesToCss({
+      color: html.color || "#000000",
+      background: html.backgroundColor,
+    });
   }
 }

@@ -21,6 +21,8 @@ export class CellComputedStylePlugin extends UIPlugin {
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "UPDATE_CELL" ||
       cmd.type === "SET_FORMATTING" ||
+      cmd.type === "ADD_DATA_VALIDATION_RULE" ||
+      cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||
       cmd.type === "EVALUATE_CELLS"
     ) {
       this.styles = {};
@@ -100,8 +102,10 @@ export class CellComputedStylePlugin extends UIPlugin {
     const cell = this.getters.getCell(position);
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
     const tableStyle = this.getters.getCellTableStyle(position);
+    const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
     const computedStyle = {
       ...removeFalsyAttributes(tableStyle),
+      ...removeFalsyAttributes(dataValidationStyle),
       ...removeFalsyAttributes(cell?.style),
       ...removeFalsyAttributes(cfStyle),
     };
