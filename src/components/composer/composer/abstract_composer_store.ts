@@ -585,7 +585,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
           proposals,
           (p) => p.fuzzySearchKey || p.text
         );
-        if (!exactMatch || filteredProposals.length > 1) {
+        if (!exactMatch || filteredProposals.length) {
           proposals = filteredProposals;
         }
       }
