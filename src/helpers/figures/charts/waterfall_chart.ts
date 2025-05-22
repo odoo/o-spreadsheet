@@ -231,7 +231,8 @@ function getWaterfallConfiguration(
   chart: WaterfallChart,
   labels: string[],
   dataSeriesLabels: (string | undefined)[],
-  localeFormat: LocaleFormat
+  localeFormat: LocaleFormat,
+  dataSetsValues: ChartDataset[]
 ): ChartConfiguration {
   const { locale, format } = localeFormat;
 
@@ -327,10 +328,22 @@ function getWaterfallConfiguration(
   };
 
   config.options.plugins!.waterfallLinesPlugin = { showConnectorLines: chart.showConnectorLines };
+  const subtotalIndexes = dataSetsValues.reduce((subtotalIndexes, ds) => {
+    subtotalIndexes.push((subtotalIndexes.at(-1) || -1) + ds.data.length + 1);
+    return subtotalIndexes;
+  }, [] as number[]);
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
-    callback: formatTickValue(localeFormat),
+    callback: (value, dataset: any, index) => {
+      const raw = dataset._dataset.data[index];
+      const delta = raw[1] - raw[0];
+      let sign = delta >= 0 ? "+" : "";
+      if (chart.showSubTotals && subtotalIndexes.includes(index) && sign === "+") {
+        sign = "";
+      }
+      return `${sign}${formatTickValue(localeFormat)(delta)}`;
+    },
   };
 
   return config;
@@ -358,10 +371,13 @@ export function createWaterfallChartRuntime(
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const dataSeriesLabels = dataSetsValues.map((dataSet) => dataSet.label);
-  const config = getWaterfallConfiguration(chart, labels, dataSeriesLabels, {
-    format: dataSetFormat,
-    locale,
-  });
+  const config = getWaterfallConfiguration(
+    chart,
+    labels,
+    dataSeriesLabels,
+    { format: dataSetFormat, locale },
+    dataSetsValues
+  );
   config.type = "bar";
 
   const negativeColor = chart.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
