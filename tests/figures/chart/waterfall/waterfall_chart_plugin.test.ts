@@ -320,6 +320,7 @@ describe("Waterfall chart", () => {
       axesDesign: {},
       verticalAxisPosition: "left",
       showValues: false,
+      humanize: false,
     });
   });
 });

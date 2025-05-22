@@ -64,4 +64,8 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     }
     return axes;
   }
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
+  }
 }

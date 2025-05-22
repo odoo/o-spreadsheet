@@ -39,4 +39,8 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
       pieHolePercentage,
     });
   }
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
+  }
 }

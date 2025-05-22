@@ -110,6 +110,7 @@ export class RadarChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       fillArea: context.fillArea ?? false,
       showValues: context.showValues ?? false,
+      humanize: context.humanize,
     };
   }
 
@@ -180,6 +181,7 @@ export class RadarChart extends AbstractChart {
       aggregated: this.aggregated,
       fillArea: this.fillArea,
       showValues: this.showValues,
+      humanize: this.humanize,
     };
   }
 

@@ -122,6 +122,7 @@ export class LineChart extends AbstractChart {
       axesDesign: context.axesDesign,
       fillArea: context.fillArea,
       showValues: context.showValues,
+      humanize: context.humanize,
     };
   }
 
@@ -158,6 +159,7 @@ export class LineChart extends AbstractChart {
       axesDesign: this.axesDesign,
       fillArea: this.fillArea,
       showValues: this.showValues,
+      humanize: this.humanize,
     };
   }
 
