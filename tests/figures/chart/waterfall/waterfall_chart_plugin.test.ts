@@ -1,3 +1,4 @@
+import { ChartMeta } from "chart.js";
 import { ChartCreationContext, Model, UID } from "../../../../src";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
@@ -321,5 +322,24 @@ describe("Waterfall chart", () => {
       verticalAxisPosition: "left",
       showValues: false,
     });
+  });
+
+  test("Waterfall show value is displayed as delta", () => {
+    const chartId = createWaterfallChart(model, {
+      dataSets: [{ dataRange: "A1:A4" }],
+      showSubTotals: true,
+    });
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "A3", "20");
+    setCellContent(model, "A4", "-15");
+    setFormat(model, "A1:A3", "0$");
+    const runtime = getWaterfallRuntime(chartId);
+    const dataset = runtime.chartJsConfig.data.datasets[0];
+    const mockDataset = { _dataset: dataset, yAxisID: "y" } as unknown as ChartMeta;
+    const callback = runtime.chartJsConfig.options?.plugins?.chartShowValuesPlugin?.callback!;
+    expect(callback(0, mockDataset, 0)).toEqual("+10$");
+    expect(callback(0, mockDataset, 1)).toEqual("+20$");
+    expect(callback(0, mockDataset, 2)).toEqual("-15$");
+    expect(callback(0, mockDataset, 3)).toEqual("15$");
   });
 });
