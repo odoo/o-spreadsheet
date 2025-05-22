@@ -59,20 +59,22 @@ export function computeTextWidth(
   fontUnit: "px" | "pt" = "pt"
 ) {
   const font = computeTextFont(style, fontUnit);
-  context.save();
-  context.font = font;
-  const width = computeCachedTextWidth(context, text);
-  context.restore();
-  return width;
+  return computeCachedTextWidth(context, text, font);
 }
 
-export function computeCachedTextWidth(context: CanvasRenderingContext2D, text: string) {
-  const font = context.font;
+export function computeCachedTextWidth(
+  context: CanvasRenderingContext2D,
+  text: string,
+  font: string
+) {
   if (!textWidthCache[font]) {
     textWidthCache[font] = {};
   }
   if (textWidthCache[font][text] === undefined) {
+    const oldFont = context.font;
+    context.font = font;
     textWidthCache[font][text] = context.measureText(text).width;
+    context.font = oldFont;
   }
   return textWidthCache[font][text];
 }
@@ -280,19 +282,19 @@ export function clipTextWithEllipsis(
   text: string,
   maxWidth: number
 ) {
-  let width = computeCachedTextWidth(ctx, text);
+  let width = computeCachedTextWidth(ctx, text, ctx.font);
   if (width <= maxWidth) {
     return text;
   }
   const ellipsis = "…";
-  const ellipsisWidth = computeCachedTextWidth(ctx, ellipsis);
+  const ellipsisWidth = computeCachedTextWidth(ctx, ellipsis, ctx.font);
   if (width <= ellipsisWidth) {
     return text;
   }
   let len = text.length;
   while (width >= maxWidth - ellipsisWidth && len-- > 0) {
     text = text.substring(0, len);
-    width = computeCachedTextWidth(ctx, text);
+    width = computeCachedTextWidth(ctx, text, ctx.font);
   }
   return text + ellipsis;
 }
