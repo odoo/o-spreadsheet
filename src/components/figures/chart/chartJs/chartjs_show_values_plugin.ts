@@ -1,4 +1,4 @@
-import { ChartType, Plugin } from "chart.js";
+import { ChartMeta, ChartType, Plugin } from "chart.js";
 import { computeTextWidth } from "../../../../helpers";
 import { chartFontColor, isTrendLineAxis } from "../../../../helpers/figures/charts/chart_common";
 import { Color } from "../../../../types";
@@ -7,7 +7,7 @@ export interface ChartShowValuesPluginOptions {
   showValues: boolean;
   background?: Color;
   horizontal?: boolean;
-  callback: (value: number | string, axisId: string) => string;
+  callback: (value: number | string, dataset: ChartMeta, index: number) => string;
 }
 
 declare module "chart.js" {
@@ -80,9 +80,6 @@ function drawLineOrBarOrRadarChartValues(
         continue;
       }
 
-      const axisId = chart.config.type === "radar" ? dataset.rAxisID : dataset.yAxisID;
-      const displayValue = options.callback(Number(value), axisId);
-
       const point = dataset.data[i];
       const xPosition = point.x;
 
@@ -108,7 +105,8 @@ function drawLineOrBarOrRadarChartValues(
 
       ctx.fillStyle = point.options.backgroundColor;
       ctx.strokeStyle = options.background || "#ffffff";
-      drawTextWithBackground(displayValue, xPosition, yPosition, ctx);
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
     }
   }
 }
@@ -132,7 +130,7 @@ function drawHorizontalBarChartValues(
       if (isNaN(value)) {
         continue;
       }
-      const displayValue = options.callback(value, dataset.xAxisID);
+      const displayValue = options.callback(value, dataset, i);
       const point = dataset.data[i];
 
       const yPosition = point.y;
@@ -180,7 +178,7 @@ function drawPieChartValues(
       ctx.fillStyle = chartFontColor(options.background);
       ctx.strokeStyle = options.background || "#ffffff";
 
-      const displayValue = options.callback(value, "y");
+      const displayValue = options.callback(value, dataset, i);
       drawTextWithBackground(displayValue, x, y, ctx);
     }
   }
