@@ -15,6 +15,14 @@
           composerStore="composerStore"
           placeholder="composerStore.placeholder"
         />
+
+        <button
+          class="btn btn-prettify"
+          t-on-click="onPrettifyClick"
+          title="Prettify Formula"
+          composerFocusableElement="true">
+          Prettify
+        </button>
       </div>
     </div>
   </t>

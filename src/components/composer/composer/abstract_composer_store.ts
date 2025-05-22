@@ -470,10 +470,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     if (this.editionMode !== "inactive") {
       this.cancelEditionAndActivateSheet();
       let content = this.getCurrentCanonicalContent();
-      const didChange = this.initialContent !== content;
-      if (!didChange) {
-        return;
-      }
+      // const didChange = this.initialContent !== content;
+      // if (!didChange) {
+      //   return;
+      // }
       if (content) {
         if (isFormula(content)) {
           const missing = this.getNumberOfMissingParenthesis(this.currentTokens);
