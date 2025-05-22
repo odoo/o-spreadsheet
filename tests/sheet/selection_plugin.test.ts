@@ -40,6 +40,7 @@ import {
 import {
   getActivePosition,
   getCellContent,
+  getCellText,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
 
@@ -992,6 +993,102 @@ describe("move elements(s)", () => {
     selectRow(model, 1, "overrideSelection");
     moveRows(model, 3, [1]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A4:Z4"));
+  });
+
+  test("Formula are correctly updated on col move", () => {
+    const model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 7,
+          rowNumber: 7,
+          cells: {
+            A1: { content: "A Col" },
+            A2: { content: "1" },
+            A3: { content: "=A2" },
+            A4: { content: "=A2+A3" },
+            B1: { content: "B Col" },
+            B4: { content: "=A2+A3" },
+            C1: { content: "C Col" },
+            C4: { content: "2" },
+            D4: { content: "=A2+A3" },
+          },
+        },
+      ],
+    });
+    moveColumns(model, "C", ["A"], "after");
+
+    // A -> C
+    expect(getCellText(model, "C1", "sheet1")).toBe("A Col");
+    expect(getCellText(model, "C2", "sheet1")).toBe("1");
+    expect(getCellText(model, "C3", "sheet1")).toBe("=C2");
+    expect(getCellText(model, "C4", "sheet1")).toBe("=C2+C3");
+
+    // B -> A
+    expect(getCellText(model, "A1", "sheet1")).toBe("B Col");
+    expect(getCellText(model, "A2", "sheet1")).toBe("");
+    expect(getCellText(model, "A4", "sheet1")).toBe("=C2+C3");
+
+    // C -> B
+    expect(getCellText(model, "B1", "sheet1")).toBe("C Col");
+    expect(getCellText(model, "B4", "sheet1")).toBe("2");
+
+    // D -> D
+    expect(getCellText(model, "D4", "sheet1")).toBe("=C2+C3");
+  });
+
+  test("Formula are correctly updated on row move", () => {
+    model = new Model({
+      sheets: [
+        {
+          id: "sheet1",
+          colNumber: 7,
+          rowNumber: 7,
+          cells: {
+            A1: { content: "R1" },
+            B1: { content: "1" },
+            C1: { content: "=B1" },
+            D1: { content: "=B1+C1" },
+
+            A2: { content: "R2" },
+            B2: { content: "2" },
+            C2: { content: "=B2" },
+            D2: { content: "=B2+C2" },
+
+            A3: { content: "R3" },
+            B3: { content: "3" },
+            C3: { content: "=B3" },
+            D3: { content: "=B3+C3" },
+
+            A4: { content: "R4" },
+            B4: { content: "=B1+C1" },
+            C4: { content: "=B2+C2" },
+            D4: { content: "=B3+C3" },
+          },
+        },
+      ],
+    });
+    moveRows(model, 2, [0], "after");
+
+    //  1 -> 3
+    expect(getCellText(model, "A3", "sheet1")).toBe("R1");
+    expect(getCellText(model, "B3", "sheet1")).toBe("1");
+    expect(getCellText(model, "C3", "sheet1")).toBe("=B3");
+    expect(getCellText(model, "D3", "sheet1")).toBe("=B3+C3");
+
+    // 2 -> 1
+    expect(getCellText(model, "A1", "sheet1")).toBe("R2");
+    expect(getCellText(model, "D1", "sheet1")).toBe("=B1+C1");
+
+    // 3 -> 2
+    expect(getCellText(model, "A2", "sheet1")).toBe("R3");
+    expect(getCellText(model, "D2", "sheet1")).toBe("=B2+C2");
+
+    // 4 -> 4
+    expect(getCellText(model, "A4", "sheet1")).toBe("R4");
+    expect(getCellText(model, "B4", "sheet1")).toBe("=B3+C3");
+    expect(getCellText(model, "C4", "sheet1")).toBe("=B1+C1");
+    expect(getCellText(model, "D4", "sheet1")).toBe("=B2+C2");
   });
 });
 
