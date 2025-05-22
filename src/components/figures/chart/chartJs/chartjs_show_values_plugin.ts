@@ -1,4 +1,4 @@
-import { ChartType, Plugin } from "chart.js";
+import { ChartDataset, ChartType, Plugin } from "chart.js";
 import { computeTextWidth } from "../../../../helpers";
 import {
   TREND_LINE_XAXIS_ID,
@@ -10,7 +10,7 @@ interface ChartShowValuesPluginOptions {
   showValues: boolean;
   background?: Color;
   horizontal?: boolean;
-  callback: (value: number | string) => string;
+  callback: (value: number | string, dataset: ChartDataset, index: number) => string;
 }
 
 declare module "chart.js" {
@@ -103,7 +103,8 @@ function drawLineOrBarChartValues(
 
       ctx.fillStyle = point.options.backgroundColor;
       ctx.strokeStyle = options.background || "#ffffff";
-      drawTextWithBackground(options.callback(value - 0), xPosition, yPosition, ctx);
+      const valueToDisplay = options.callback(Number(value), dataset, i);
+      drawTextWithBackground(valueToDisplay, xPosition, yPosition, ctx);
     }
   }
 }
@@ -124,7 +125,7 @@ function drawHorizontalBarChartValues(
 
     for (let i = 0; i < dataset._parsed.length; i++) {
       const value = dataset._parsed[i].x;
-      const displayValue = options.callback(value - 0);
+      const displayValue = options.callback(value, dataset, i);
       const point = dataset.data[i];
 
       const yPosition = point.y;
@@ -172,7 +173,7 @@ function drawPieChartValues(
       ctx.fillStyle = chartFontColor(options.background);
       ctx.strokeStyle = options.background || "#ffffff";
 
-      const displayValue = options.callback(value);
+      const displayValue = options.callback(value, dataset, i);
       drawTextWithBackground(displayValue, x, y, ctx);
     }
   }
