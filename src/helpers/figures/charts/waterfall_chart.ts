@@ -39,10 +39,10 @@ import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
   getChartLayout,
-  getChartShowValues,
   getChartTitle,
   getWaterfallChartLegend,
   getWaterfallChartScales,
+  getWaterfallChartShowValues,
   getWaterfallChartTooltip,
   getWaterfallDatasetAndLabels,
 } from "./runtime";
@@ -238,7 +238,7 @@ export function createWaterfallChartRuntime(
         title: getChartTitle(definition),
         legend: getWaterfallChartLegend(definition, chartData),
         tooltip: getWaterfallChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        chartShowValuesPlugin: getWaterfallChartShowValues(definition, chartData),
         waterfallLinesPlugin: { showConnectorLines: definition.showConnectorLines },
       },
     },
