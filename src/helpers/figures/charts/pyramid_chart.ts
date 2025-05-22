@@ -38,10 +38,10 @@ import {
   getBarChartDatasets,
   getBarChartLegend,
   getChartLayout,
-  getChartShowValues,
   getChartTitle,
   getPyramidChartData,
   getPyramidChartScales,
+  getPyramidChartShowValues,
   getPyramidChartTooltip,
 } from "./runtime";
 
@@ -220,7 +220,7 @@ export function createPyramidChartRuntime(
         title: getChartTitle(definition),
         legend: getBarChartLegend(definition, chartData),
         tooltip: getPyramidChartTooltip(definition, chartData),
-        chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),
       },
     },
   };
