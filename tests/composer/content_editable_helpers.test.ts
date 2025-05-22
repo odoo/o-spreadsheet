@@ -117,5 +117,48 @@ describe("ContentEditableHelper", () => {
       expect(spanNodeAfter.nodeName).toBe("SPAN");
       expect(spanNodeAfter).toEqual(spanNode);
     });
+
+    test("Paste multiline <br>", () => {
+      div.innerHTML = "hellotest";
+      expect(helper.getText()).toBe("hellotest");
+
+      div.innerHTML = "hello<br>test";
+      expect(helper.getText()).toBe("hello\ntest");
+
+      div.innerHTML = "hello<br><br>test";
+      expect(helper.getText()).toBe("hello\n\ntest");
+
+      div.innerHTML = "<br>hello<br>test";
+      expect(helper.getText()).toBe("\nhello\ntest");
+
+      div.innerHTML = "hello<br>test<br>";
+      expect(helper.getText()).toBe("hello\ntest\n");
+    });
+
+    test("Paste multiline <p>", () => {
+      div.innerHTML = "<p>hellotest</p>";
+      expect(helper.getText()).toBe("hellotest");
+
+      div.innerHTML = "<p>hello</p><p>test</p>";
+      expect(helper.getText()).toBe("hello\ntest");
+
+      div.innerHTML = "<p>hello</p><p></p><p>test</p>";
+      expect(helper.getText()).toBe("hello\n\ntest");
+
+      div.innerHTML = "<p>hello</p><p><br></p><p>test</p>";
+      expect(helper.getText()).toBe("hello\n\ntest");
+
+      div.innerHTML = "<p></p><p>hello</p><p>test</p>";
+      expect(helper.getText()).toBe("\nhello\ntest");
+
+      div.innerHTML = "<p><br></p><p>hello</p><p>test</p>";
+      expect(helper.getText()).toBe("\nhello\ntest");
+
+      div.innerHTML = "<p>hello</p><p>test</p><p></p>";
+      expect(helper.getText()).toBe("hello\ntest\n");
+
+      div.innerHTML = "<p>hello</p><p>test</p><p><br></p>";
+      expect(helper.getText()).toBe("hello\ntest\n");
+    });
   });
 });
