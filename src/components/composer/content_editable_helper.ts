@@ -150,7 +150,6 @@ export class ContentEditableHelper {
         // We can only modify a node in place if it has the same type as the content
         // that we would insert, which are spans.
         // Otherwise, it means that the node has been input by the user, through the keyboard or a copy/paste
-        // @ts-ignore (somehow required because jest does not like child.tagName despite the prior check)
         const childIsSpan = child && "tagName" in child && child.tagName === "SPAN";
         if (childIsSpan && compareContentToSpanElement(content, child as HTMLSpanElement)) {
           continue;
@@ -186,9 +185,7 @@ export class ContentEditableHelper {
 
       // Empty line
       if (!p.hasChildNodes()) {
-        const span = document.createElement("span");
-        span.appendChild(document.createElement("br"));
-        p.appendChild(span);
+        p.appendChild(document.createElement("span"));
       }
 
       // replace p if necessary
@@ -239,14 +236,10 @@ export class ContentEditableHelper {
 
   getText(): string {
     let text = "";
-
-    const it = iterateChildren(this.el);
-    let current = it.next();
     let isFirstParagraph = true;
-    while (!current.done) {
-      if (!current.value.hasChildNodes()) {
-        text += current.value.textContent;
-      }
+    let emptyParagraph = false;
+    const it = iterateChildren(this.el);
+    for (let current = it.next(); !current.done; current = it.next()) {
       if (
         current.value.nodeName === "P" ||
         (current.value.nodeName === "DIV" && current.value !== this.el) // On paste, the HTML may contain <div> instead of <p>
@@ -256,8 +249,17 @@ export class ContentEditableHelper {
         } else {
           text += NEWLINE;
         }
+        emptyParagraph = ["<br>", "<span><br></span>"].includes(
+          (current.value as HTMLElement).innerHTML
+        );
+        continue;
       }
-      current = it.next();
+      if (!current.value.hasChildNodes()) {
+        if (current.value.nodeName === "BR" && !emptyParagraph) {
+          text += NEWLINE;
+        }
+        text += current.value.textContent;
+      }
     }
     return text;
   }
