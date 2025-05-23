@@ -11,7 +11,7 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   >
     <div
       class="position-absolute"
-      style="height:100%; width:100%; "
+      style="height:100%; width:100%; cursor:default; "
     >
       <div
         class="position-absolute"
@@ -23,10 +23,8 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
     </div>
     <div
       class="o-grid-overlay overflow-hidden"
-      style="height:100%; width:100%; "
+      style="height:100%; width:100%; cursor:default; "
     >
-      
-      
       
       
       

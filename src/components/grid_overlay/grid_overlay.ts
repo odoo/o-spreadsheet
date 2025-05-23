@@ -1,4 +1,6 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import { deepEquals } from "../../helpers";
+import { isPointInsideRect } from "../../helpers/rectangle";
 import { Store, useStore } from "../../store_engine";
 import {
   DOMCoordinates,
@@ -13,8 +15,7 @@ import {
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
-import { GridCellIconOverlay } from "../grid_cell_icon_overlay/grid_cell_icon_overlay";
-import { css } from "../helpers";
+import { css, cssPropertiesToCss } from "../helpers";
 import {
   getBoundingRectAsPOJO,
   getRefBoundingRect,
@@ -26,6 +27,7 @@ import { useInterval } from "../helpers/time_hooks";
 import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { HoveredTableStore } from "../tables/hovered_table_store";
+import { HoveredIconStore } from "./hovered_icon_store";
 
 const CURSOR_SVG = /*xml*/ `
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="14" height="16"><path d="M6.5.4c1.3-.8 2.9-.1 3.8 1.4l2.9 5.1c.2.4.9 1.6-.4 2.3l-1.6.9 1.8 3.1c.2.4.1 1-.2 1.2l-1.6 1c-.3.1-.9 0-1.1-.4l-1.8-3.1-1.6 1c-.6.4-1.7 0-2.2-.8L0 4.3"/><path fill="#fff" d="M9.1 2a1.4 1.1 60 0 0-1.7-.6L5.5 2.5l.9 1.6-1 .6-.9-1.6-.6.4 1.8 3.1-1.3.7-1.8-3.1-1 .6 3.8 6.6 6.8-3.98M3.9 8.8 10.82 5l.795 1.4-6.81 3.96"/></svg>
@@ -161,7 +163,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   static components = {
     FiguresContainer,
     GridAddRowsFooter,
-    GridCellIconOverlay,
   };
   static defaultProps = {
     onCellDoubleClicked: () => {},
@@ -173,6 +174,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private gridOverlay: Ref<HTMLElement> = useRef("gridOverlay");
   private cellPopovers!: Store<CellPopoverStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
+  private hoveredIconStore!: Store<HoveredIconStore>;
 
   setup() {
     useCellHovered(this.env, this.gridOverlay);
@@ -193,6 +195,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     });
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
+    this.hoveredIconStore = useStore(HoveredIconStore);
   }
 
   get gridOverlayEl(): HTMLElement {
@@ -203,11 +206,22 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get style() {
-    return this.props.gridOverlayDimensions;
+    return (
+      this.props.gridOverlayDimensions +
+      cssPropertiesToCss({ cursor: this.hoveredIconStore.hoveredIcon ? "pointer" : "default" })
+    );
   }
 
   get isPaintingFormat() {
     return this.paintFormatStore.isActive;
+  }
+
+  onMouseMove(ev: MouseEvent) {
+    const icon = this.getInteractiveIconAtEvent(ev);
+    const hoveredIcon = icon?.type ? { id: icon.type, position: icon.position } : undefined;
+    if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
+      this.hoveredIconStore.setHoveredIcon(hoveredIcon);
+    }
   }
 
   onMouseDown(ev: MouseEvent) {
@@ -215,9 +229,8 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       // not main button, probably a context menu
       return;
     }
-    if (ev.target === this.gridOverlay.el && this.cellPopovers.isOpen) {
-      this.cellPopovers.close();
-    }
+
+    const openedPopover = this.cellPopovers.persistentCellPopover;
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellClicked(
       col,
@@ -228,9 +241,28 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       },
       ev
     );
+
+    const clickedIcon = this.getInteractiveIconAtEvent(ev);
+    if (clickedIcon?.onClick) {
+      clickedIcon.onClick(clickedIcon.position, this.env);
+    }
+
+    if (
+      ev.target === this.gridOverlay.el &&
+      this.cellPopovers.isOpen &&
+      deepEquals(openedPopover, this.cellPopovers.persistentCellPopover)
+    ) {
+      // Only close the popover if props.click/icon.click didn't open a new one
+      this.cellPopovers.close();
+      return;
+    }
   }
 
   onDoubleClick(ev: MouseEvent) {
+    if (this.getInteractiveIconAtEvent(ev)) {
+      return;
+    }
+
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellDoubleClicked(col, row);
   }
@@ -248,5 +280,27 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);
     return [colIndex, rowIndex];
+  }
+
+  private getInteractiveIconAtEvent(ev: MouseEvent) {
+    const gridOverLayRect = getRefBoundingRect(this.gridOverlay);
+    const gridOffset = this.env.model.getters.getGridOffset();
+    const x = ev.clientX - gridOverLayRect.x + gridOffset.x;
+    const y = ev.clientY - gridOverLayRect.y + gridOffset.y;
+
+    const [col, row] = this.getCartesianCoordinates(ev);
+    const sheetId = this.env.model.getters.getActiveSheetId();
+
+    let position = { col, row, sheetId };
+    const merge = this.env.model.getters.getMerge(position);
+    if (merge) {
+      position = { col: merge.left, row: merge.top, sheetId };
+    }
+
+    const icons = this.env.model.getters.getCellIcons(position);
+    const icon = icons.find((icon) => {
+      return isPointInsideRect(x, y, this.env.model.getters.getCellIconRect(icon));
+    });
+    return icon?.onClick ? icon : undefined;
   }
 }

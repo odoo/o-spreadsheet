@@ -8,7 +8,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
 >
   <div
     class="position-absolute"
-    style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); "
+    style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
   >
     <div
       class="position-absolute"
@@ -20,10 +20,8 @@ exports[`Grid component simple rendering snapshot 1`] = `
   </div>
   <div
     class="o-grid-overlay overflow-hidden"
-    style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); "
+    style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); cursor:default; "
   >
-    
-    
     
     <div
       class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"

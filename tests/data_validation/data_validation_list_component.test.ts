@@ -1,10 +1,10 @@
 import { Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
-  DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
+  MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
 import { IsValueInListCriterion, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -14,12 +14,11 @@ import {
   setSelection,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { getCellContent } from "../test_helpers/getters_helpers";
+import { click, clickGridIcon, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import { getCellContent, getCellIcons } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
   getDataValidationRules,
-  getStylePropertyInPx,
   mountComposerWrapper,
   mountSpreadsheet,
   nextTick,
@@ -344,25 +343,19 @@ describe("Selection arrow icon in grid", () => {
     });
   });
 
-  test("Icon is displayed in the grid at the correct position", async () => {
-    ({ fixture } = await mountSpreadsheet({ model }));
-    const icon = fixture.querySelector(".o-grid-cell-icon") as HTMLElement;
-
-    expect(icon.querySelector(".o-dv-list-icon")).toBeTruthy();
-    expect(getStylePropertyInPx(icon, "left")).toEqual(
-      DEFAULT_CELL_WIDTH - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH
-    );
-    expect(getStylePropertyInPx(icon, "top")).toEqual(
-      DEFAULT_CELL_HEIGHT - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH
-    );
+  test("Icon is displayed in the grid at the correct position", () => {
+    const icon = getCellIcons(model, "A1")[0];
+    expect(icon.type).toEqual("data_validation_list_icon");
+    const rect = model.getters.getCellIconRect(icon);
+    expect(rect.x).toEqual(DEFAULT_CELL_WIDTH - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH);
+    expect(rect.y).toEqual(1 + MIN_CELL_TEXT_MARGIN); // +1 to skip grid lines
   });
 
   test("Clicking on the icon opens the composer with suggestions", async () => {
     setSelection(model, ["B2"]);
     ({ fixture, env } = await mountSpreadsheet({ model }));
     const composerStore = env.getStore(CellComposerStore);
-    await click(fixture, ".o-dv-list-icon");
-    await nextTick();
+    await clickGridIcon(model, "A1");
     expect(composerStore.editionMode).toBe("editing");
     expect(composerStore.currentEditedCell).toEqual({ sheetId, col: 0, row: 0 });
     const suggestions = fixture.querySelectorAll(".o-autocomplete-dropdown .o-autocomplete-value");
@@ -372,28 +365,26 @@ describe("Selection arrow icon in grid", () => {
     expect(suggestions[2].textContent).toBe("okay");
   });
 
-  test("Icon is not displayed when display style is plainText", async () => {
+  test("Icon is not displayed when display style is plainText", () => {
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
       displayStyle: "plainText",
     });
-    ({ fixture } = await mountSpreadsheet({ model }));
-    expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
+    expect(getCellIcons(model, "A1")).toHaveLength(0);
   });
 
-  test("Icon is not displayed in dashboard", async () => {
+  test("Icon is not displayed in dashboard", () => {
     model.updateMode("dashboard");
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
       displayStyle: "arrow",
     });
-    ({ fixture } = await mountSpreadsheet({ model }));
-    expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
+    expect(getCellIcons(model, "A1")).toHaveLength(0);
   });
 
-  test("Icon is not displayed if there is a filter icon", async () => {
+  test("Icon is not displayed if there is a filter icon", () => {
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
@@ -401,8 +392,8 @@ describe("Selection arrow icon in grid", () => {
     });
     createTableWithFilter(model, "A1:A4");
 
-    ({ fixture } = await mountSpreadsheet({ model }));
-    expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
-    expect(fixture.querySelector(".o-filter-icon")).not.toBeNull();
+    const icons = getCellIcons(model, "A1");
+    expect(icons.length).toBe(1);
+    expect(icons[0].type).toBe("filter_icon");
   });
 });

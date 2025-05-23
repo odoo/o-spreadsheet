@@ -1,7 +1,14 @@
 import { Color, Model } from "../../src";
 import { iterateChildren } from "../../src/components/helpers/dom_helpers";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
-import { MIN_DELAY, lettersToNumber, scrollDelay, toHex, toZone } from "../../src/helpers";
+import {
+  MIN_DELAY,
+  lettersToNumber,
+  scrollDelay,
+  toCartesian,
+  toHex,
+  toZone,
+} from "../../src/helpers";
 import { DOMCoordinates, Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
@@ -146,6 +153,32 @@ export async function clickCell(
     y -= HEADER_HEIGHT;
   }
   await simulateClick(".o-grid-overlay", x, y, extra);
+}
+
+export function getGridIconEventPosition(model: Model, xc: string) {
+  const position = toCartesian(xc);
+  const sheetId = model.getters.getActiveSheetId();
+  const icon = model.getters.getCellIcons({ sheetId, ...position })[0];
+  if (!icon) {
+    throw new Error(`No icon inside cell ${xc}`);
+  }
+  const gridOffset = model.getters.getGridOffset();
+  const rect = model.getters.getCellIconRect(icon);
+  const x = rect.x + rect.width / 2 - gridOffset.x;
+  const y = rect.y + rect.height / 2 - gridOffset.y;
+  return { x, y };
+}
+
+export async function clickGridIcon(model: Model, xc: string) {
+  const { x, y } = getGridIconEventPosition(model, xc);
+  triggerMouseEvent(".o-grid-overlay", "pointerdown", x, y);
+  await nextTick();
+}
+
+export async function hoverGridIcon(model: Model, xc: string) {
+  const { x, y } = getGridIconEventPosition(model, xc);
+  triggerMouseEvent(".o-grid-overlay", "mousemove", x, y);
+  await nextTick();
 }
 
 export async function gridMouseEvent(

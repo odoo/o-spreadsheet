@@ -1,4 +1,5 @@
 import { ModelStore } from ".";
+import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
@@ -7,7 +8,6 @@ import {
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
   DEFAULT_FONT,
-  DEFAULT_VERTICAL_ALIGN,
   FROZEN_PANE_BORDER_COLOR,
   FROZEN_PANE_HEADER_BORDER_COLOR,
   HEADER_BORDER_COLOR,
@@ -20,7 +20,7 @@ import {
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
-  computeTextLinesHeight,
+  deepEquals,
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
@@ -54,12 +54,14 @@ export class GridRenderer {
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
   private hoveredTables: Store<HoveredTableStore>;
+  private hoveredIcon: Store<HoveredIconStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
     this.hoveredTables = get(HoveredTableStore);
+    this.hoveredIcon = get(HoveredIconStore);
     this.renderer.register(this);
   }
 
@@ -312,7 +314,12 @@ export class GridRenderer {
         // compute vertical align start point parameter:
         const textLineHeight = computeTextFontSizeInPixels(style);
         const numberOfLines = box.content.textLines.length;
-        let y = this.computeTextYCoordinate(box, textLineHeight, numberOfLines);
+        let y = this.getters.computeTextYCoordinate(
+          box,
+          textLineHeight,
+          style.verticalAlign,
+          numberOfLines
+        );
 
         // use the horizontal and the vertical start points to:
         // fill text / fill strikethrough / fill underline
@@ -338,7 +345,15 @@ export class GridRenderer {
     const { ctx } = renderingContext;
     for (const box of boxes) {
       for (const icon of Object.values(box.icons)) {
-        if (!icon || !icon.svg) {
+        if (!icon) {
+          continue;
+        }
+        const isHovered = deepEquals(
+          { id: icon.type, position: icon.position },
+          this.hoveredIcon.hoveredIcon
+        );
+        const svg = isHovered ? icon.hoverSvg || icon.svg : icon.svg;
+        if (!svg) {
           continue;
         }
         ctx.save();
@@ -347,46 +362,16 @@ export class GridRenderer {
         ctx.clip();
 
         const iconSize = icon.size;
-        const iconY = this.computeTextYCoordinate(box, iconSize);
-
-        const svg = icon.svg;
-        let x: number;
-        if (icon.horizontalAlign === "left") {
-          x = box.x + icon.margin;
-        } else if (icon.horizontalAlign === "right") {
-          x = box.x + box.width - iconSize - icon.margin;
-        } else {
-          x = box.x + (box.width - iconSize) / 2;
-        }
-        ctx.translate(x, iconY);
+        const { x, y } = this.getters.getCellIconRect(icon);
+        ctx.translate(x, y);
         ctx.scale(iconSize / svg.width, iconSize / svg.height);
-        ctx.fillStyle = svg.fillColor;
-        ctx.fill(new Path2D(svg.path));
+        for (const path of svg.paths) {
+          ctx.fillStyle = path.fillColor;
+          ctx.fill(new Path2D(path.path));
+        }
         ctx.restore();
       }
     }
-  }
-
-  /** Computes the vertical start point from which a text line should be draw.
-   *
-   * Note that in case the cell does not have enough spaces to display its text lines,
-   * (wrapping cell case) then the vertical align should be at the top.
-   * */
-  private computeTextYCoordinate(box: Box, textLineHeight: number, numberOfLines: number = 1) {
-    const y = box.y + 1;
-    const textHeight = computeTextLinesHeight(textLineHeight, numberOfLines);
-    const hasEnoughSpaces = box.height > textHeight + MIN_CELL_TEXT_MARGIN * 2;
-    const verticalAlign = box.verticalAlign || DEFAULT_VERTICAL_ALIGN;
-
-    if (hasEnoughSpaces) {
-      if (verticalAlign === "middle") {
-        return y + (box.height - textHeight) / 2;
-      }
-      if (verticalAlign === "bottom") {
-        return y + box.height - textHeight - MIN_CELL_TEXT_MARGIN;
-      }
-    }
-    return y + MIN_CELL_TEXT_MARGIN;
   }
 
   private drawHeaders(renderingContext: GridRenderingContext) {

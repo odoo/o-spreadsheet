@@ -2,6 +2,7 @@ import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { resetTimeoutDuration } from "../../src/components/helpers/touch_scroll_hook";
+import { getDataFilterIcon } from "../../src/components/icons/icons";
 import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import {
@@ -9,11 +10,13 @@ import {
   DEFAULT_BORDER_DESC,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  FILTERS_COLOR,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MESSAGE_VERSION,
+  MIN_CELL_TEXT_MARGIN,
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
@@ -29,6 +32,7 @@ import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
+  addIconCF,
   copy,
   createChart,
   createImage,
@@ -58,11 +62,14 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
+  clickGridIcon,
   doubleClick,
   edgeScrollDelay,
   getElComputedStyle,
+  getGridIconEventPosition,
   gridMouseEvent,
   hoverCell,
+  hoverGridIcon,
   keyDown,
   rightClickCell,
   scrollGrid,
@@ -75,6 +82,7 @@ import {
   getBorder,
   getCell,
   getCellContent,
+  getCellIcons,
   getCellText,
   getClipboardVisibleZones,
   getEvaluatedCell,
@@ -380,6 +388,17 @@ describe("Grid component", () => {
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toBe(30);
     jest.runOnlyPendingTimers();
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toBe(30);
+  });
+
+  test("Double clicking on an icon does not open the composer", async () => {
+    createTableWithFilter(model, "A1:A2");
+    await nextTick();
+
+    const { x, y } = getGridIconEventPosition(model, "A1");
+    triggerMouseEvent(".o-grid-overlay", "dblclick", x, y);
+    await nextTick();
+
+    expect(composerFocusStore.focusMode).toBe("inactive");
   });
 
   describe("keybindings", () => {
@@ -930,54 +949,52 @@ describe("Grid component", () => {
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
     });
 
-    test("Filter icon is correctly rendered", async () => {
+    test("Filter icon is correctly rendered", () => {
       createTableWithFilter(model, "B2:C3");
-      await nextTick();
 
-      const icons = fixture.querySelectorAll(".o-grid-cell-icon");
-      expect(icons).toHaveLength(2);
-      const top = `${DEFAULT_CELL_HEIGHT * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
-      const leftA = `${DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
-      const leftB = `${DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
-      expect((icons[0] as HTMLElement).style["_values"]).toMatchObject({ top, left: leftA });
-      expect((icons[1] as HTMLElement).style["_values"]).toMatchObject({ top, left: leftB });
+      const y = DEFAULT_CELL_HEIGHT + 1 + MIN_CELL_TEXT_MARGIN + HEADER_HEIGHT; // +1 to skip grid lines
+      const leftA =
+        DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN + HEADER_WIDTH;
+      const leftB =
+        DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN + HEADER_WIDTH;
+
+      const iconA = getCellIcons(model, "B2")[0];
+      expect(model.getters.getCellIconRect(iconA)).toMatchObject({ y, x: leftA });
+      const iconB = getCellIcons(model, "C2")[0];
+      expect(model.getters.getCellIconRect(iconB)).toMatchObject({ y, x: leftB });
     });
 
-    test("Filter icon change when filter is active", async () => {
+    test("Filter icon changes when filter is active", () => {
+      const activeFilterSVG = getDataFilterIcon(true, true, false);
+      const inactiveFilterSVG = getDataFilterIcon(false, true, false);
       createTableWithFilter(model, "A1:A2");
-      await nextTick();
-      const grid = fixture.querySelector(".o-grid")!;
-      expect(grid.querySelectorAll(".filter-icon")).toHaveLength(1);
-      expect(grid.querySelectorAll(".filter-icon-active")).toHaveLength(0);
+      const sheetId = model.getters.getActiveSheetId();
+      expect(getCellIcons(model, "A1")[0].svg).toEqual(inactiveFilterSVG);
 
       updateFilter(model, "A1", ["5"]);
-      await nextTick();
-      const sheetId = model.getters.getActiveSheetId();
       expect(model.getters.isFilterActive({ sheetId, ...toCartesian("A1") })).toBeTruthy();
-      expect(grid.querySelectorAll(".filter-icon")).toHaveLength(0);
-      expect(grid.querySelectorAll(".filter-icon-active")).toHaveLength(1);
+      expect(getCellIcons(model, "A1")[0].svg).toEqual(activeFilterSVG);
     });
 
-    test("Filter icon changes color on high contrast background", async () => {
+    test("Filter icon changes color on high contrast background", () => {
       createTableWithFilter(model, "A1:A2");
       updateTableConfig(model, "A1", { styleId: "None" });
-      await nextTick();
-      const icon = fixture.querySelector(".o-grid .o-filter-icon");
-      expect(icon?.classList).not.toContain(".o-high-contrast");
+      let icon = getCellIcons(model, "A1")[0];
+      expect(icon?.svg?.paths[0].fillColor).toBe(FILTERS_COLOR);
 
       updateTableConfig(model, "A1", { styleId: "TableStyleLight8" });
-      await nextTick();
-      expect(icon?.classList).toContain("o-high-contrast");
+      icon = getCellIcons(model, "A1")[0];
+      expect(icon?.svg?.paths[0].fillColor).toBe("#defade");
 
       setStyle(model, "A1", { fillColor: "#fff" });
-      await nextTick();
-      expect(icon?.classList).not.toContain(".o-high-contrast");
+      icon = getCellIcons(model, "A1")[0];
+      expect(icon?.svg?.paths[0].fillColor).toBe(FILTERS_COLOR);
     });
 
     test("Clicking on a filter icon correctly open context menu", async () => {
       createTableWithFilter(model, "A1:A2");
       await nextTick();
-      await simulateClick(".o-filter-icon");
+      await clickGridIcon(model, "A1");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
     });
   });
@@ -1230,6 +1247,21 @@ describe("Grid component", () => {
     await keyDown({ key: "A", metaKey: true, bubbles: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
     jest.restoreAllMocks();
+  });
+
+  test("Hovering an interactive icon changes the cursor", async () => {
+    setCellContent(model, "A1", "5");
+    addIconCF(model, "A1", ["3", "7"], "arrows");
+    createTableWithFilter(model, "B1:B2");
+
+    const overlay = fixture.querySelector<HTMLElement>(".o-grid-overlay")!;
+    expect(overlay!.style.cursor).toBe("default");
+
+    await hoverGridIcon(model, "B1");
+    expect(overlay.style.cursor).toBe("pointer");
+
+    await hoverGridIcon(model, "A1");
+    expect(overlay.style.cursor).toBe("default");
   });
 });
 
@@ -1945,7 +1977,7 @@ describe("Copy paste keyboard shortcut", () => {
     copy(model, "A1");
     selectCell(model, "A2");
     await nextTick();
-    await simulateClick(".o-filter-icon");
+    await clickGridIcon(model, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
     expect(getClipboardVisibleZones(model).length).toBe(1);
     await keyDown({ key: "Escape" });
