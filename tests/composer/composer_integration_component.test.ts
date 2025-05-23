@@ -23,7 +23,9 @@ import {
   setCellContent,
   setSelection,
   setStyle,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import {
   click,
   clickCell,
@@ -849,6 +851,25 @@ describe("TopBar composer", () => {
     await keyDown({ key: "Enter" });
     expect(topBarComposer!.textContent).toBe("");
     expect(topBarComposer.attributes.getNamedItem("placeholder")?.value).toEqual("=MUNIT(3)");
+  });
+
+  test("Spreaded cell placeholder follows the current locale", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
+    setCellContent(model, "A1", "=SEQUENCE(3,3)");
+    selectCell(model, "A2");
+    updateLocale(model, FR_LOCALE);
+    await nextTick();
+
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
+    expect(topBarComposer.textContent).toBe("");
+    expect(topBarComposer.attributes.getNamedItem("placeholder")?.value).toEqual("=SEQUENCE(3;3)");
+
+    await simulateClick(topBarComposer);
+    expect(topBarComposer!.textContent).toBe("");
+
+    await keyDown({ key: "Enter" });
+    expect(topBarComposer!.textContent).toBe("");
+    expect(topBarComposer.attributes.getNamedItem("placeholder")?.value).toEqual("=SEQUENCE(3;3)");
   });
 
   test("opening and closing the assistant preserves the focus on the top bar composer", async () => {
