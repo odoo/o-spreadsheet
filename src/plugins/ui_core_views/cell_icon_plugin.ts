@@ -1,15 +1,21 @@
-import { isDefined } from "../../helpers/index";
+import { DEFAULT_VERTICAL_ALIGN, GRID_ICON_MARGIN } from "../../constants";
+import { isDefined, positionToZone } from "../../helpers/index";
 import {
   GridIcon,
   IconsOfCell,
   iconsOnCellRegistry,
 } from "../../registries/icons_on_cell_registry";
-import { Command } from "../../types";
-import { CellPosition } from "../../types/misc";
+import { Command, Rect } from "../../types";
+import { Align, CellPosition, VerticalAlign } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 export class CellIconPlugin extends CoreViewPlugin {
-  static getters = ["doesCellHaveGridIcon", "getCellIcons"] as const;
+  static getters = [
+    "doesCellHaveGridIcon",
+    "getCellIcons",
+    "getCellIconRect",
+    "getVisibleCellIcons",
+  ] as const;
 
   private cellIconsCache: Record<string, Record<number, Record<number, GridIcon[]>>> = {};
 
@@ -31,6 +37,76 @@ export class CellIconPlugin extends CoreViewPlugin {
         this.computeCellIcons(position);
     }
     return this.cellIconsCache[position.sheetId][position.col][position.row];
+  }
+
+  getVisibleCellIcons(): (GridIcon & { x: number; y: number })[] {
+    const icons: (GridIcon & { x: number; y: number })[] = [];
+    for (const position of this.getters.getVisibleCellPositions()) {
+      const cellIcons = this.getters.getCellIcons(position);
+
+      for (const icon of cellIcons) {
+        const merge = this.getters.getMerge(icon.position);
+        const zone = merge || positionToZone(icon.position);
+        const cellRect = this.getters.getVisibleRectWithoutHeaders(zone);
+        const cell = this.getters.getCell(icon.position);
+        const verticalAlign = cell?.style?.verticalAlign || DEFAULT_VERTICAL_ALIGN;
+
+        const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign, icon);
+        const y = this.getIconVerticalPosition(cellRect, verticalAlign, icon);
+        icons.push({ ...icon, x, y });
+      }
+    }
+
+    return icons;
+  }
+
+  getCellIconRect(icon: GridIcon): Rect {
+    const cellPosition = icon.position;
+    const merge = this.getters.getMerge(cellPosition);
+    const zone = merge || positionToZone(cellPosition);
+    const cellRect = this.getters.getVisibleRectWithoutHeaders(zone);
+    const cell = this.getters.getCell(cellPosition);
+
+    const verticalAlign = cell?.style?.verticalAlign || DEFAULT_VERTICAL_ALIGN;
+
+    const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign, icon);
+    const y = this.getIconVerticalPosition(cellRect, verticalAlign, icon);
+    return {
+      x,
+      y,
+      width: icon.size,
+      height: icon.size,
+    };
+  }
+
+  private getIconVerticalPosition(rect: Rect, align: VerticalAlign, icon: GridIcon): number {
+    const start = rect.y;
+    const end = rect.y + rect.height;
+
+    switch (align) {
+      case "bottom":
+        return end - GRID_ICON_MARGIN - icon.size;
+      case "top":
+        return start + GRID_ICON_MARGIN;
+      default:
+        const centeringOffset = Math.floor((end - start - icon.size) / 2);
+        return end - icon.size - centeringOffset;
+    }
+  }
+
+  private getIconHorizontalPosition(rect: Rect, align: Align, icon: GridIcon): number {
+    const start = rect.x;
+    const end = rect.x + rect.width;
+
+    switch (align) {
+      case "right":
+        return end - icon.margin - icon.size;
+      case "left":
+        return start + icon.margin;
+      default:
+        const centeringOffset = Math.floor((end - start - icon.size) / 2);
+        return end - icon.size - centeringOffset;
+    }
   }
 
   private computeCellIcons(position: CellPosition): GridIcon[] {

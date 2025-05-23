@@ -13,12 +13,11 @@ import {
   setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import { click, clickGridIcon, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
   getDataValidationRules,
-  getStylePropertyInPx,
   mountComposerWrapper,
   mountSpreadsheet,
   nextTick,
@@ -327,23 +326,18 @@ describe("Selection arrow icon in grid", () => {
 
   test("Icon is displayed in the grid at the correct position", async () => {
     ({ fixture } = await mountSpreadsheet({ model }));
-    const icon = fixture.querySelector(".o-grid-cell-icon") as HTMLElement;
 
-    expect(icon.querySelector(".o-dv-list-icon")).toBeTruthy();
-    expect(getStylePropertyInPx(icon, "left")).toEqual(
-      DEFAULT_CELL_WIDTH - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH
-    );
-    expect(getStylePropertyInPx(icon, "top")).toEqual(
-      DEFAULT_CELL_HEIGHT - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH
-    );
+    const icon = model.getters.getVisibleCellIcons()[0];
+    expect(icon.id).toEqual("data_validation_list_icon");
+    expect(icon.x).toEqual(DEFAULT_CELL_WIDTH - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH);
+    expect(icon.y).toEqual(DEFAULT_CELL_HEIGHT - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH);
   });
 
   test("Clicking on the icon opens the composer with suggestions", async () => {
     setSelection(model, ["B2"]);
     ({ fixture, env } = await mountSpreadsheet({ model }));
     const composerStore = env.getStore(CellComposerStore);
-    await click(fixture, ".o-dv-list-icon");
-    await nextTick();
+    await clickGridIcon(model, "A1");
     expect(composerStore.editionMode).toBe("editing");
     expect(composerStore.currentEditedCell).toEqual({ sheetId, col: 0, row: 0 });
     const suggestions = fixture.querySelectorAll(".o-autocomplete-dropdown .o-autocomplete-value");

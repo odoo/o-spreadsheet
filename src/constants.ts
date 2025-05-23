@@ -308,6 +308,7 @@ export const PIVOT_TABLE_CONFIG = {
   automaticAutofill: false,
 };
 export const PIVOT_INDENT = 15;
+export const PIVOT_COLLAPSE_ICON_SIZE = 12;
 
 export const DEFAULT_CURRENCY: Currency = {
   symbol: "$",
