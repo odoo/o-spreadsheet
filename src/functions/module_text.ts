@@ -433,7 +433,7 @@ export const SPLIT = {
 
     return transposeMatrix([result]);
   },
-  isExported: true,
+  isExported: false,
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
