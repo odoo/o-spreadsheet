@@ -13,7 +13,7 @@
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
       <t t-foreach="icons" t-as="icon" t-key="icon_index">
-        <GridCellIcon x="icon.x" y="icon.y">
+        <GridCellIcon icon="icon">
           <t t-component="icon.component" cellPosition="icon.position"/>
         </GridCellIcon>
       </t>

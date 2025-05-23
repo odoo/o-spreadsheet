@@ -1,4 +1,4 @@
-import { DEFAULT_VERTICAL_ALIGN, GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "../../constants";
+import { DEFAULT_VERTICAL_ALIGN, GRID_ICON_MARGIN } from "../../constants";
 import { isDefined, positionToZone } from "../../helpers/index";
 import {
   GridIcon,
@@ -51,8 +51,8 @@ export class CellIconPlugin extends CoreViewPlugin {
         const cell = this.getters.getCell(icon.position);
         const verticalAlign = cell?.style?.verticalAlign || DEFAULT_VERTICAL_ALIGN;
 
-        const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign);
-        const y = this.getIconVerticalPosition(cellRect, verticalAlign);
+        const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign, icon);
+        const y = this.getIconVerticalPosition(cellRect, verticalAlign, icon);
         icons.push({ ...icon, x, y });
       }
     }
@@ -69,43 +69,43 @@ export class CellIconPlugin extends CoreViewPlugin {
 
     const verticalAlign = cell?.style?.verticalAlign || DEFAULT_VERTICAL_ALIGN;
 
-    const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign);
-    const y = this.getIconVerticalPosition(cellRect, verticalAlign);
+    const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign, icon);
+    const y = this.getIconVerticalPosition(cellRect, verticalAlign, icon);
     return {
       x,
       y,
-      width: GRID_ICON_EDGE_LENGTH,
-      height: GRID_ICON_EDGE_LENGTH,
+      width: icon.size,
+      height: icon.size,
     };
   }
 
-  private getIconVerticalPosition(rect: Rect, align: VerticalAlign): number {
+  private getIconVerticalPosition(rect: Rect, align: VerticalAlign, icon: GridIcon): number {
     const start = rect.y;
     const end = rect.y + rect.height;
 
     switch (align) {
       case "bottom":
-        return end - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH;
+        return end - GRID_ICON_MARGIN - icon.size;
       case "top":
         return start + GRID_ICON_MARGIN;
       default:
-        const centeringOffset = Math.floor((end - start - GRID_ICON_EDGE_LENGTH) / 2);
-        return end - GRID_ICON_EDGE_LENGTH - centeringOffset;
+        const centeringOffset = Math.floor((end - start - icon.size) / 2);
+        return end - icon.size - centeringOffset;
     }
   }
 
-  private getIconHorizontalPosition(rect: Rect, align: Align): number {
+  private getIconHorizontalPosition(rect: Rect, align: Align, icon: GridIcon): number {
     const start = rect.x;
     const end = rect.x + rect.width;
 
     switch (align) {
       case "right":
-        return end - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH;
+        return end - icon.margin - icon.size;
       case "left":
-        return start + GRID_ICON_MARGIN;
+        return start + icon.margin;
       default:
-        const centeringOffset = Math.floor((end - start - GRID_ICON_EDGE_LENGTH) / 2);
-        return end - GRID_ICON_EDGE_LENGTH - centeringOffset;
+        const centeringOffset = Math.floor((end - start - icon.size) / 2);
+        return end - icon.size - centeringOffset;
     }
   }
 

@@ -6,12 +6,14 @@ import { css } from "../helpers";
 css/* scss */ `
   .o-spreadsheet {
     .o-pivot-collapse-icon {
+      // display: none !important;
       cursor: pointer;
       width: 11px;
       height: 11px;
       border: 1px solid #777;
       background-color: #eee;
-      margin: 3px 0 3px 6px;
+      // margin: 3px 0 3px 6px;
+      opacity: 0.5;
 
       .o-icon {
         width: 5px;

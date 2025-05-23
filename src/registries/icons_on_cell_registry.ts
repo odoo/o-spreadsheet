@@ -7,15 +7,19 @@ import {
   CHECKBOX_UNCHECKED_HOVERED,
   HOVERED_CARET_DOWN,
   ICONS,
+  PIVOT_COLLAPSE,
+  PIVOT_COLLAPSE_HOVERED,
+  PIVOT_EXPAND,
+  PIVOT_EXPAND_HOVERED,
 } from "../components/icons/icons";
-import { PivotCollapseIcon } from "../components/pivot_collapse_icon/pivot_collapse_icon";
 import {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   MIN_CF_ICON_MARGIN,
+  PIVOT_COLLAPSE_ICON_SIZE,
   PIVOT_INDENT,
 } from "../constants";
-import { computeTextFontSizeInPixels } from "../helpers";
+import { computeTextFontSizeInPixels, deepEquals } from "../helpers";
 import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
 import { ImageSVG } from "../types/image";
 import { Registry } from "./registry";
@@ -137,19 +141,56 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
     const isDashboard = getters.isDashboard();
 
     const fields = pivotCell.dimension === "COL" ? definition.columns : definition.rows;
-    const component =
-      !isDashboard && pivotCell.domain.length !== fields.length ? PivotCollapseIcon : undefined;
+    const hasIcon = !isDashboard && pivotCell.domain.length !== fields.length;
+
+    const domains = definition.collapsedDomains?.[pivotCell.dimension] ?? [];
+    const isCollapsed = domains.some((domain) => deepEquals(domain, pivotCell.domain));
+
     return {
+      id: "pivot_collapse",
       priority: 4,
       horizontalAlign: "left",
       size:
-        !!component || (!isDashboard && pivotCell.dimension === "ROW" && definition.rows.length > 1)
-          ? GRID_ICON_EDGE_LENGTH
+        hasIcon && !isDashboard && pivotCell.dimension === "ROW" && definition.rows.length > 1
+          ? PIVOT_COLLAPSE_ICON_SIZE
           : 0,
-      margin: pivotCell.dimension === "ROW" ? (pivotCell.domain.length - 1) * PIVOT_INDENT : 0,
-      component,
+      margin:
+        pivotCell.dimension === "ROW"
+          ? (pivotCell.domain.length - 1) * PIVOT_INDENT + GRID_ICON_MARGIN
+          : GRID_ICON_MARGIN,
+      svg: hasIcon ? (isCollapsed ? PIVOT_EXPAND : PIVOT_COLLAPSE) : undefined,
+      hoverSvg: hasIcon ? (isCollapsed ? PIVOT_EXPAND_HOVERED : PIVOT_COLLAPSE_HOVERED) : undefined,
       position,
+      onClick: togglePivotCollapse,
     };
   }
   return undefined;
 });
+
+function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
+  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
+  const pivotId = env.model.getters.getPivotIdFromPosition(position);
+  if (!pivotId || pivotCell.type !== "HEADER") {
+    return;
+  }
+  const definition = env.model.getters.getPivotCoreDefinition(pivotId);
+
+  const collapsedDomains = definition.collapsedDomains?.[pivotCell.dimension]
+    ? [...definition.collapsedDomains[pivotCell.dimension]]
+    : [];
+  const index = collapsedDomains.findIndex((domain) => deepEquals(domain, pivotCell.domain));
+  if (index !== -1) {
+    collapsedDomains.splice(index, 1);
+  } else {
+    collapsedDomains.push(pivotCell.domain);
+  }
+
+  const newDomains = definition.collapsedDomains
+    ? { ...definition.collapsedDomains }
+    : { COL: [], ROW: [] };
+  newDomains[pivotCell.dimension] = collapsedDomains;
+  env.model.dispatch("UPDATE_PIVOT", {
+    pivotId,
+    pivot: { ...definition, collapsedDomains: newDomains },
+  });
+}

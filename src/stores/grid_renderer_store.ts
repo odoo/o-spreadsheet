@@ -361,6 +361,7 @@ export class GridRenderer {
         const iconSize = icon.size;
         const iconY = this.computeTextYCoordinate(box, iconSize);
 
+        // ADRM TODO: same computations as getter
         let x: number;
         if (icon.horizontalAlign === "left") {
           x = box.x + icon.margin;
@@ -370,6 +371,8 @@ export class GridRenderer {
           x = box.x + (box.width - iconSize) / 2;
         }
         ctx.translate(x, iconY);
+        // ctx.fillStyle = "#f00";
+        // ctx.fillRect(0, 0, iconSize, iconSize);
         ctx.scale(iconSize / svg.width, iconSize / svg.height);
         for (const path of svg.paths) {
           ctx.fillStyle = path.fillColor;

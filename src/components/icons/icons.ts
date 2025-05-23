@@ -1,4 +1,11 @@
-import { ACTION_COLOR, GRAY_300, ICON_EDGE_LENGTH, TEXT_BODY_MUTED } from "../../constants";
+import {
+  ACTION_COLOR,
+  GRAY_200,
+  GRAY_300,
+  GRAY_900,
+  ICON_EDGE_LENGTH,
+  TEXT_BODY_MUTED,
+} from "../../constants";
 import { ImageSVG } from "../../types/image";
 import { css } from "../helpers";
 
@@ -141,6 +148,41 @@ export const CHECKBOX_CHECKED: ImageSVG = {
     { fillColor: "#FFF", path: "M210,240 l45,45 l135,-135 h60 l-195,195 l-105,-105" },
   ],
 };
+
+export const PIVOT_COLLAPSE: ImageSVG = {
+  width: 512,
+  height: 512,
+  paths: [
+    { fillColor: "#777", path: "M21,21 h469 v469 h-469 " },
+    { fillColor: "#eee", path: "M64,64 v384 h384 v-384" },
+    { fillColor: "#777", path: "M149,235 h213 v43 h-213" },
+  ],
+};
+
+export const PIVOT_EXPAND: ImageSVG = {
+  width: 512,
+  height: 512,
+  paths: [
+    { fillColor: "#777", path: "M21,21 h469 v469 h-469 " },
+    { fillColor: "#eee", path: "M64,64 v384 h384 v-384" },
+    { fillColor: "#777", path: "M149,235 h213 v43 h-213 M235,149 h43 v213 h-43" },
+  ],
+};
+
+function getHoverPivotIcon(icon: ImageSVG): ImageSVG {
+  const paths = icon.paths.map((path) => ({
+    ...path,
+    fillColor: path.fillColor === "#eee" ? GRAY_200 : GRAY_900,
+  }));
+  return {
+    width: icon.width,
+    height: icon.height,
+    paths,
+  };
+}
+
+export const PIVOT_COLLAPSE_HOVERED: ImageSVG = getHoverPivotIcon(PIVOT_COLLAPSE);
+export const PIVOT_EXPAND_HOVERED: ImageSVG = getHoverPivotIcon(PIVOT_EXPAND);
 
 export const ICONS: Record<
   string,

@@ -16,7 +16,7 @@ import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { GridCellIcon } from "../grid_cell_icon/grid_cell_icon";
-import { css } from "../helpers";
+import { css, cssPropertiesToCss } from "../helpers";
 import {
   getBoundingRectAsPOJO,
   getRefBoundingRect,
@@ -208,7 +208,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get style() {
-    return this.props.gridOverlayDimensions;
+    return (
+      this.props.gridOverlayDimensions +
+      cssPropertiesToCss({ cursor: this.hoveredIconStore.hoveredIcon ? "pointer" : "default" })
+    );
   }
 
   get isPaintingFormat() {
@@ -249,6 +252,11 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onDoubleClick(ev: MouseEvent) {
+    // ADRM TODO: test this
+    if (this.getIconAtEvent(ev)) {
+      return;
+    }
+
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellDoubleClicked(col, row);
   }
