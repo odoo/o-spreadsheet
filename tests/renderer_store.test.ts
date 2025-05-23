@@ -1,5 +1,5 @@
 import { Model } from "../src";
-import { HoveredTableStore } from "../src/components/tables/hovered_table_store";
+import { HoveredCellStore } from "../src/components/grid/immediate_hovered_cell_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
@@ -503,7 +503,7 @@ describe("renderer", () => {
     expect(fillStyles).toEqual([{ color: background, h: 23, w: 96, x: 0, y: 0 }]);
 
     fillStyles = [];
-    container.get(HoveredTableStore).hover({ col: 0, row: 0 });
+    container.get(HoveredCellStore).hover({ col: 0, row: 0 });
     drawGridRenderer(ctx);
 
     expect(fillStyles).toEqual([
