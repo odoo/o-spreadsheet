@@ -123,28 +123,22 @@ export const HOVERED_CARET_DOWN: ImageSVG = {
   ],
 };
 export const CHECKBOX_UNCHECKED: ImageSVG = {
-  width: 17,
-  height: 17,
-  paths: [
-    { fillColor: "#FFF", path: "M3 0 h14 v14 h-14" },
-    { fillColor: GRAY_300, path: "M3 0 h14 v14 h-14 M4 1 v12 h12 v-12" },
-  ],
+  width: 512,
+  height: 512,
+  paths: [{ fillColor: GRAY_300, path: "M60,15 h452 v452 h-452 v-452 m30,30 v392 h392 v-392" }],
 };
 export const CHECKBOX_UNCHECKED_HOVERED: ImageSVG = {
-  width: 17,
-  height: 17,
-  paths: [
-    { fillColor: "#FFF", path: "M3 0 h14 v14 h-14" },
-    { fillColor: ACTION_COLOR, path: "M3 0 h14 v14 h-14 M4 1 v12 h12 v-12" },
-  ],
+  width: 512,
+  height: 512,
+  paths: [{ fillColor: ACTION_COLOR, path: "M60,15 h452 v452 h-452 v-452 m30,30 v392 h392 v-392" }],
 };
 
 export const CHECKBOX_CHECKED: ImageSVG = {
-  width: 17,
-  height: 17,
+  width: 512,
+  height: 512,
   paths: [
-    { fillColor: ACTION_COLOR, path: "M3 0 h14 v14 h-14" },
-    { fillColor: "#FFF", path: "M8 7 h-2 l3 3 l6-6 h-2 l-4 4" },
+    { fillColor: ACTION_COLOR, path: "M60,15 h452 v452 h-452 v-452" },
+    { fillColor: "#FFF", path: "M210,240 l45,45 l135,-135 h60 l-195,195 l-105,-105" },
   ],
 };
 
