@@ -274,7 +274,6 @@ export class FindAndReplacePlugin extends UIPlugin {
 
     const selectedMatch = this.searchMatches[this.selectedMatchIndex];
     this.replaceMatch(selectedMatch, replaceWith);
-    this.selectNextCell(Direction.next);
   }
   /**
    * Apply the replace function to all the matches one time.
