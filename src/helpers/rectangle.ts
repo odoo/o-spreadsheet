@@ -31,3 +31,7 @@ function zoneToRect(zone: Zone | undefined): Rect | undefined {
     height: zone.bottom - zone.top,
   };
 }
+
+export function isPointInsideRect(x: number, y: number, rect: Rect): boolean {
+  return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height;
+}
