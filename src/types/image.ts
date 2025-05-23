@@ -1,11 +1,11 @@
 import { FigureSize } from "./figure";
+import { Color } from "./misc";
 import { XLSXFigureSize } from "./xlsx";
 
 export type ImageSVG = {
-  path: string;
   width: number;
   height: number;
-  fillColor: string;
+  paths: { path: string; fillColor: Color }[];
 };
 
 export interface Image {

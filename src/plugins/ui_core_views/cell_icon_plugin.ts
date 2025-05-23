@@ -1,15 +1,15 @@
-import { isDefined } from "../../helpers/index";
+import { isDefined, positionToZone } from "../../helpers/index";
 import {
   GridIcon,
   IconsOfCell,
   iconsOnCellRegistry,
 } from "../../registries/icons_on_cell_registry";
-import { Command } from "../../types";
-import { CellPosition } from "../../types/misc";
+import { Command, Rect } from "../../types";
+import { Align, CellPosition } from "../../types/misc";
 import { CoreViewPlugin } from "../core_view_plugin";
 
 export class CellIconPlugin extends CoreViewPlugin {
-  static getters = ["doesCellHaveGridIcon", "getCellIcons"] as const;
+  static getters = ["doesCellHaveGridIcon", "getCellIcons", "getCellIconRect"] as const;
 
   private cellIconsCache: Record<string, Record<number, Record<number, GridIcon[]>>> = {};
 
@@ -31,6 +31,34 @@ export class CellIconPlugin extends CoreViewPlugin {
         this.computeCellIcons(position);
     }
     return this.cellIconsCache[position.sheetId][position.col][position.row];
+  }
+
+  getCellIconRect(icon: GridIcon): Rect {
+    const cellPosition = icon.position;
+    const merge = this.getters.getMerge(cellPosition);
+    const zone = merge || positionToZone(cellPosition);
+    const cellRect = this.getters.getRect(zone);
+    const cell = this.getters.getCell(cellPosition);
+
+    const x = this.getIconHorizontalPosition(cellRect, icon.horizontalAlign, icon);
+    const y = this.getters.computeTextYCoordinate(cellRect, icon.size, cell?.style?.verticalAlign);
+
+    return { x: x, y: y, width: icon.size, height: icon.size };
+  }
+
+  private getIconHorizontalPosition(rect: Rect, align: Align, icon: GridIcon): number {
+    const start = rect.x;
+    const end = rect.x + rect.width;
+
+    switch (align) {
+      case "right":
+        return end - icon.margin - icon.size;
+      case "left":
+        return start + icon.margin;
+      default:
+        const centeringOffset = Math.floor((end - start - icon.size) / 2);
+        return end - icon.size - centeringOffset;
+    }
   }
 
   private computeCellIcons(position: CellPosition): GridIcon[] {

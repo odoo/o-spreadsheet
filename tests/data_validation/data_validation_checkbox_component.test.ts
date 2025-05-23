@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { CHECKBOX_CHECKED, CHECKBOX_UNCHECKED } from "../../src/components/icons/icons";
 import {
   addDataValidation,
   createTableWithFilter,
@@ -6,9 +7,9 @@ import {
   setSelection,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { click, keyDown } from "../test_helpers/dom_helper";
-import { getCellContent, getStyle } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { clickGridIcon, keyDown } from "../test_helpers/dom_helper";
+import { getCellContent, getCellIcons, getStyle } from "../test_helpers/getters_helpers";
+import { mountSpreadsheet } from "../test_helpers/helpers";
 
 describe("Checkbox in model", () => {
   let model: Model;
@@ -34,99 +35,93 @@ describe("Checkbox in model", () => {
       verticalAlign: "middle",
     });
   });
+
+  test("Icon is not displayed if there is a filter icon", () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    createTableWithFilter(model, "A1:A4");
+
+    const icons = getCellIcons(model, "A1");
+    expect(icons).toHaveLength(1);
+    expect(icons[0].type).toEqual("filter_icon");
+  });
 });
 
 describe("Checkbox component", () => {
-  test("can check and uncheck", async () => {
+  test("can check and uncheck with click", async () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
-    const { fixture } = await mountSpreadsheet({ model });
-    await nextTick();
-    const checkbox = fixture.querySelector(".o-dv-checkbox input") as HTMLInputElement;
-    expect(checkbox?.checked).toBe(false);
-    await click(checkbox);
+    await mountSpreadsheet({ model });
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
+    await clickGridIcon(model, "A1");
     expect(getCellContent(model, "A1")).toBe("TRUE");
-    expect(checkbox?.checked).toBe(true);
-    await click(checkbox);
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
+    await clickGridIcon(model, "A1");
     expect(getCellContent(model, "A1")).toBe("FALSE");
-    expect(checkbox?.checked).toBe(false);
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
   });
 
   test("can check and uncheck with space key", async () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
-    const { fixture } = await mountSpreadsheet({ model });
-    await nextTick();
-    const checkbox = fixture.querySelector(".o-dv-checkbox input") as HTMLInputElement;
-    expect(checkbox?.checked).toBe(false);
+    await mountSpreadsheet({ model });
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
     await keyDown({ key: " " });
     expect(getCellContent(model, "A1")).toBe("TRUE");
-    expect(checkbox?.checked).toBe(true);
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
     await keyDown({ key: " " });
     expect(getCellContent(model, "A1")).toBe("FALSE");
-    expect(checkbox?.checked).toBe(false);
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
   });
 
   test("Can toggle checkbox in selection with space key", async () => {
     const model = new Model();
     addDataValidation(model, "B2:B3", "id", { type: "isBoolean", values: [] });
-    const { fixture } = await mountSpreadsheet({ model });
-    await nextTick();
-    const checkboxB2 = fixture.querySelectorAll(".o-dv-checkbox input")[0] as HTMLInputElement;
-    const checkboxB3 = fixture.querySelectorAll(".o-dv-checkbox input")[1] as HTMLInputElement;
+    await mountSpreadsheet({ model });
     setSelection(model, ["A1:B2"]);
-    expect(checkboxB2?.checked).toBe(false);
-    expect(checkboxB3?.checked).toBe(false);
+    expect(getCellIcons(model, "B2")[0].svg).toEqual(CHECKBOX_UNCHECKED);
+    expect(getCellIcons(model, "B3")[0].svg).toEqual(CHECKBOX_UNCHECKED);
 
     await keyDown({ key: " " });
     expect(getCellContent(model, "B2")).toBe("TRUE");
     expect(getCellContent(model, "B3")).toBe("FALSE");
-    expect(checkboxB2?.checked).toBe(true);
-    expect(checkboxB3?.checked).toBe(false);
+    expect(getCellIcons(model, "B2")[0].svg).toEqual(CHECKBOX_CHECKED);
+    expect(getCellIcons(model, "B3")[0].svg).toEqual(CHECKBOX_UNCHECKED);
     setSelection(model, ["A1:B3"]);
 
     await keyDown({ key: " " });
     expect(getCellContent(model, "B2")).toBe("FALSE");
     expect(getCellContent(model, "B3")).toBe("TRUE");
-    expect(checkboxB2?.checked).toBe(false);
-    expect(checkboxB3?.checked).toBe(true);
+    expect(getCellIcons(model, "B2")[0].svg).toEqual(CHECKBOX_UNCHECKED);
+    expect(getCellIcons(model, "B3")[0].svg).toEqual(CHECKBOX_CHECKED);
     setSelection(model, ["A1"]);
 
     await keyDown({ key: " " });
     expect(getCellContent(model, "B2")).toBe("FALSE");
     expect(getCellContent(model, "B3")).toBe("TRUE");
-    expect(checkboxB2?.checked).toBe(false);
-    expect(checkboxB3?.checked).toBe(true);
+    expect(getCellIcons(model, "B2")[0].svg).toEqual(CHECKBOX_UNCHECKED);
+    expect(getCellIcons(model, "B3")[0].svg).toEqual(CHECKBOX_CHECKED);
   });
 
   test("Data validation checkbox on formula is disabled", async () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
-    const { fixture } = await mountSpreadsheet({ model });
-    await nextTick();
-
-    expect(fixture.querySelector(".o-dv-checkbox")?.classList).not.toContain("pe-none");
     setCellContent(model, "A1", "=TRUE");
-    await nextTick();
-    expect(fixture.querySelector(".o-dv-checkbox")?.classList).toContain("pe-none");
+    await mountSpreadsheet({ model });
+
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
+    await clickGridIcon(model, "A1");
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_CHECKED);
   });
 
   test("Data validation checkbox is disabled in readonly mode", async () => {
     const model = new Model();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     model.updateMode("readonly");
-    const { fixture } = await mountSpreadsheet({ model });
+    await mountSpreadsheet({ model });
 
-    expect(fixture.querySelector(".o-dv-checkbox")?.classList).toContain("pe-none");
-  });
-
-  test("Icon is not displayed if there is a filter icon", async () => {
-    const model = new Model();
-    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
-    createTableWithFilter(model, "A1:A4");
-
-    const { fixture } = await mountSpreadsheet({ model });
-    expect(fixture.querySelector(".o-dv-checkbox")).toBeNull();
-    expect(fixture.querySelector(".o-filter-icon")).not.toBeNull();
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
+    await clickGridIcon(model, "A1");
+    expect(getCellIcons(model, "A1")[0].svg).toEqual(CHECKBOX_UNCHECKED);
   });
 });

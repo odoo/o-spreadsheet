@@ -4,6 +4,7 @@ import {
   DEFAULT_CELL_WIDTH,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
+  MIN_CELL_TEXT_MARGIN,
 } from "../../src/constants";
 import { Model } from "../../src/model";
 import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
@@ -13,8 +14,8 @@ import {
   setCellContent,
   setViewportOffset,
 } from "../test_helpers/commands_helpers";
-import { keyDown, simulateClick } from "../test_helpers/dom_helper";
-import { getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
+import { clickGridIcon, keyDown, simulateClick } from "../test_helpers/dom_helper";
+import { getCellIcons, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
 import { addToRegistry, mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
@@ -67,20 +68,22 @@ describe("Grid component in dashboard mode", () => {
     createTableWithFilter(model, "B2:C3");
     model.updateMode("dashboard");
     await nextTick();
-    const icons = fixture.querySelectorAll(".o-grid-cell-icon");
-    expect(icons).toHaveLength(2);
-    const top = `${DEFAULT_CELL_HEIGHT * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
-    const leftA = `${DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
-    const leftB = `${DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
-    expect((icons[0] as HTMLElement).style["_values"]).toMatchObject({ top, left: leftA });
-    expect((icons[1] as HTMLElement).style["_values"]).toMatchObject({ top, left: leftB });
+
+    const y = DEFAULT_CELL_HEIGHT + 1 + MIN_CELL_TEXT_MARGIN; // +1 to skip grid lines
+    const leftA = DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
+    const leftB = DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
+
+    const iconA = getCellIcons(model, "B2")[0];
+    expect(model.getters.getCellIconRect(iconA)).toMatchObject({ y, x: leftA });
+    const iconB = getCellIcons(model, "C2")[0];
+    expect(model.getters.getCellIconRect(iconB)).toMatchObject({ y, x: leftB });
   });
 
   test("Clicking on a filter icon correctly open the filter popover", async () => {
     createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
-    await simulateClick(".o-filter-icon");
+    await clickGridIcon(model, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
   });
 
@@ -88,11 +91,11 @@ describe("Grid component in dashboard mode", () => {
     createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
-    await simulateClick(".o-filter-icon");
+    await clickGridIcon(model, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
 
     await nextTick();
-    await simulateClick(".o-filter-icon");
+    await clickGridIcon(model, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
   });
 
@@ -100,7 +103,7 @@ describe("Grid component in dashboard mode", () => {
     createTableWithFilter(model, "A1:A2");
     model.updateMode("dashboard");
     await nextTick();
-    await simulateClick(".o-filter-icon");
+    await clickGridIcon(model, "A1");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
 
     await nextTick();

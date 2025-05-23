@@ -1,16 +1,22 @@
-import { ComponentConstructor } from "@odoo/owl";
-import { DataValidationCheckbox } from "../components/data_validation_overlay/dv_checkbox/dv_checkbox";
-import { DataValidationListIcon } from "../components/data_validation_overlay/dv_list_icon/dv_list_icon";
-import { FilterIcon } from "../components/filters/filter_icon/filter_icon";
-import { ICONS } from "../components/icons/icons";
-import { PivotCollapseIcon } from "../components/pivot_collapse_icon/pivot_collapse_icon";
+import {
+  CARET_DOWN,
+  CHECKBOX_CHECKED,
+  CHECKBOX_UNCHECKED,
+  CHECKBOX_UNCHECKED_HOVERED,
+  getDataFilterIcon,
+  getPivotIconSvg,
+  HOVERED_CARET_DOWN,
+  ICONS,
+} from "../components/icons/icons";
+import { CellPopoverStore } from "../components/popover";
 import {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
   MIN_CF_ICON_MARGIN,
+  PIVOT_COLLAPSE_ICON_SIZE,
   PIVOT_INDENT,
 } from "../constants";
-import { computeTextFontSizeInPixels } from "../helpers";
+import { computeTextFontSizeInPixels, deepEquals, relativeLuminance } from "../helpers";
 import { Align, CellPosition, Getters, SpreadsheetChildEnv } from "../types";
 import { ImageSVG } from "../types/image";
 import { Registry } from "./registry";
@@ -18,13 +24,15 @@ import { Registry } from "./registry";
 export type IconsOfCell = Record<Exclude<Align, undefined>, GridIcon | undefined>;
 
 export interface GridIcon {
+  type: string;
   position: CellPosition;
   horizontalAlign: Exclude<Align, undefined>;
   size: number;
   margin: number;
-  component?: ComponentConstructor<{ cellPosition: CellPosition }, SpreadsheetChildEnv>;
   svg?: ImageSVG;
+  hoverSvg?: ImageSVG;
   priority: number;
+  onClick?: (position: CellPosition, env: SpreadsheetChildEnv) => void;
 }
 
 type ImageSvgCallback = (getters: Getters, position: CellPosition) => GridIcon | undefined;
@@ -37,14 +45,26 @@ export const iconsOnCellRegistry = new Registry<ImageSvgCallback>();
 iconsOnCellRegistry.add("data_validation_checkbox", (getters, position) => {
   const hasIcon = getters.isCellValidCheckbox(position);
   if (hasIcon) {
+    const value = !!getters.getEvaluatedCell(position).value;
     return {
-      svg: undefined,
+      svg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED,
+      hoverSvg: value ? CHECKBOX_CHECKED : CHECKBOX_UNCHECKED_HOVERED,
       priority: 2,
       horizontalAlign: "center",
       size: GRID_ICON_EDGE_LENGTH,
       margin: GRID_ICON_MARGIN,
-      component: DataValidationCheckbox,
       position,
+      type: "data_validation_checkbox",
+      onClick: (position, env) => {
+        const cell = env.model.getters.getCell(position);
+        const isDisabled = env.model.getters.isReadonly() || !!cell?.isFormula;
+        if (isDisabled) {
+          return;
+        }
+
+        const cellContent = value ? "FALSE" : "TRUE";
+        env.model.dispatch("UPDATE_CELL", { ...position, content: cellContent });
+      },
     };
   }
   return undefined;
@@ -54,13 +74,19 @@ iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
   const hasIcon = !getters.isReadonly() && getters.cellHasListDataValidationIcon(position);
   if (hasIcon) {
     return {
-      svg: undefined,
+      svg: CARET_DOWN,
+      hoverSvg: HOVERED_CARET_DOWN,
       priority: 2,
       horizontalAlign: "right",
       size: GRID_ICON_EDGE_LENGTH,
       margin: GRID_ICON_MARGIN,
-      component: DataValidationListIcon,
       position,
+      onClick: (position, env) => {
+        const { col, row } = position;
+        env.model.selection.selectCell(col, row);
+        env.startCellEdition();
+      },
+      type: "data_validation_list_icon",
     };
   }
   return undefined;
@@ -69,14 +95,32 @@ iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
 iconsOnCellRegistry.add("filter_icon", (getters, position) => {
   const hasIcon = getters.isFilterHeader(position);
   if (hasIcon) {
+    const isFilterActive = getters.isFilterActive(position);
+    const cellStyle = getters.getCellComputedStyle(position);
+    const isHighContrast = relativeLuminance(cellStyle.fillColor || "#fff") < 0.45;
     return {
-      svg: undefined,
+      type: "filter_icon",
+      svg: getDataFilterIcon(isFilterActive, isHighContrast, false),
+      hoverSvg: getDataFilterIcon(isFilterActive, isHighContrast, true),
       priority: 3,
       horizontalAlign: "right",
       size: GRID_ICON_EDGE_LENGTH,
       margin: GRID_ICON_MARGIN,
-      component: FilterIcon,
       position,
+      onClick: (position, env) => {
+        const cellPopovers = env.getStore(CellPopoverStore);
+        const activePopover = cellPopovers.persistentCellPopover;
+        if (
+          activePopover.isOpen &&
+          activePopover.col === position.col &&
+          activePopover.row === position.row &&
+          activePopover.type === "FilterMenu"
+        ) {
+          cellPopovers.close();
+          return;
+        }
+        cellPopovers.open(position, "FilterMenu");
+      },
     };
   }
   return undefined;
@@ -87,6 +131,7 @@ iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
   if (icon) {
     const style = getters.getCellStyle(position);
     return {
+      type: "conditional_formatting",
       svg: ICONS[icon].svg,
       priority: 1,
       horizontalAlign: "left",
@@ -110,19 +155,54 @@ iconsOnCellRegistry.add("pivot_collapse", (getters, position) => {
     const isDashboard = getters.isDashboard();
 
     const fields = pivotCell.dimension === "COL" ? definition.columns : definition.rows;
-    const component =
-      !isDashboard && pivotCell.domain.length !== fields.length ? PivotCollapseIcon : undefined;
+    const hasIcon = !isDashboard && pivotCell.domain.length !== fields.length;
+
+    const domains = definition.collapsedDomains?.[pivotCell.dimension] ?? [];
+    const isCollapsed = domains.some((domain) => deepEquals(domain, pivotCell.domain));
+
+    const indent = pivotCell.dimension === "ROW" ? (pivotCell.domain.length - 1) * PIVOT_INDENT : 0;
     return {
+      type: "pivot_collapse",
       priority: 4,
       horizontalAlign: "left",
       size:
-        !!component || (!isDashboard && pivotCell.dimension === "ROW" && definition.rows.length > 1)
-          ? GRID_ICON_EDGE_LENGTH
+        hasIcon || (!isDashboard && pivotCell.dimension === "ROW" && definition.rows.length > 1)
+          ? PIVOT_COLLAPSE_ICON_SIZE
           : 0,
-      margin: pivotCell.dimension === "ROW" ? (pivotCell.domain.length - 1) * PIVOT_INDENT : 0,
-      component,
+      margin: hasIcon ? GRID_ICON_MARGIN * 2 + indent : indent,
+      svg: hasIcon ? getPivotIconSvg(isCollapsed, false) : undefined,
+      hoverSvg: hasIcon ? getPivotIconSvg(isCollapsed, true) : undefined,
       position,
+      onClick: togglePivotCollapse,
     };
   }
   return undefined;
 });
+
+function togglePivotCollapse(position: CellPosition, env: SpreadsheetChildEnv) {
+  const pivotCell = env.model.getters.getPivotCellFromPosition(position);
+  const pivotId = env.model.getters.getPivotIdFromPosition(position);
+  if (!pivotId || pivotCell.type !== "HEADER") {
+    return;
+  }
+  const definition = env.model.getters.getPivotCoreDefinition(pivotId);
+
+  const collapsedDomains = definition.collapsedDomains?.[pivotCell.dimension]
+    ? [...definition.collapsedDomains[pivotCell.dimension]]
+    : [];
+  const index = collapsedDomains.findIndex((domain) => deepEquals(domain, pivotCell.domain));
+  if (index !== -1) {
+    collapsedDomains.splice(index, 1);
+  } else {
+    collapsedDomains.push(pivotCell.domain);
+  }
+
+  const newDomains = definition.collapsedDomains
+    ? { ...definition.collapsedDomains }
+    : { COL: [], ROW: [] };
+  newDomains[pivotCell.dimension] = collapsedDomains;
+  env.model.dispatch("UPDATE_PIVOT", {
+    pivotId,
+    pivot: { ...definition, collapsedDomains: newDomains },
+  });
+}

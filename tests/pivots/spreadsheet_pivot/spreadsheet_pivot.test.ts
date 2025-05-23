@@ -1,5 +1,5 @@
 import { CellErrorType, EvaluatedCell, FunctionResultObject, Model } from "../../../src";
-import { PIVOT_INDENT } from "../../../src/constants";
+import { GRID_ICON_MARGIN, PIVOT_INDENT } from "../../../src/constants";
 import { positions, toZone } from "../../../src/helpers";
 import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { DEFAULT_LOCALES } from "../../../src/types/locale";
@@ -792,14 +792,16 @@ describe("Spreadsheet Pivot", () => {
       const cell = model.getters.getEvaluatedCell({ sheetId, ...position });
       cellsWithMargins.push({ ...cell, iconMargin: iconMargin ?? 0 });
     }
+
+    const margin = GRID_ICON_MARGIN * 2;
     expect(cellsWithMargins).toMatchObject([
       { value: "(#1) Pivot", format: undefined, iconMargin: 0 },
       { value: "", format: undefined, iconMargin: 0 },
-      { value: 1995, format: "0* ", iconMargin: 0 },
-      { value: "Q2", format: "@* ", iconMargin: PIVOT_INDENT },
+      { value: 1995, format: "0* ", iconMargin: margin },
+      { value: "Q2", format: "@* ", iconMargin: PIVOT_INDENT + margin },
       { value: 34803, format: "dd mmm yyyy* ", iconMargin: PIVOT_INDENT * 2 },
-      { value: 2024, format: "0* ", iconMargin: 0 },
-      { value: "Q4", format: "@* ", iconMargin: PIVOT_INDENT },
+      { value: 2024, format: "0* ", iconMargin: margin },
+      { value: "Q4", format: "@* ", iconMargin: PIVOT_INDENT + margin },
       { value: 45624, format: "dd mmm yyyy* ", iconMargin: PIVOT_INDENT * 2 },
       { value: 45654, format: "dd mmm yyyy* ", iconMargin: PIVOT_INDENT * 2 },
       { value: "Total", format: undefined, iconMargin: 0 },
