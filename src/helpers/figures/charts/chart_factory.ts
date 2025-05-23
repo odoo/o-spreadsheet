@@ -5,14 +5,7 @@ import {
 } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
 import { chartRegistry } from "../../../registries/chart_types";
-import {
-  AddColumnsRowsCommand,
-  CellValueType,
-  CommandResult,
-  RemoveColumnsRowsCommand,
-  UID,
-  Zone,
-} from "../../../types";
+import { CellValueType, CommandResult, RangeAdapter, UID, Zone } from "../../../types";
 import { LineChartDefinition, SunburstChartDefinition } from "../../../types/chart";
 import { ChartDefinition, ChartRuntime } from "../../../types/chart/chart";
 import { CoreGetters, Getters } from "../../../types/getters";
@@ -74,14 +67,15 @@ export function validateChartDefinition(
  * functions will be called during operational transform process
  */
 export function transformDefinition(
+  chartSheetId: UID,
   definition: ChartDefinition,
-  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+  applyrange: RangeAdapter
 ): ChartDefinition {
   const transformation = chartRegistry.getAll().find((factory) => factory.match(definition.type));
   if (!transformation) {
     throw new Error("Unknown chart type.");
   }
-  return transformation.transformDefinition(definition, executed);
+  return transformation.transformDefinition(chartSheetId, definition, applyrange);
 }
 
 /**

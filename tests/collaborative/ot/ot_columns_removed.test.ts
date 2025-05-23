@@ -2,12 +2,15 @@ import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
 import {
   AddColumnsRowsCommand,
+  CreateChartCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
+  UpdateChartCommand,
   UpdateTableCommand,
 } from "../../../src/types";
+import { BarChartDefinition } from "../../../src/types/chart";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
@@ -586,4 +589,80 @@ describe("Transform adapt string formulas on row deletion", () => {
       expect(result).toEqual(expected);
     }
   );
+});
+
+describe("OT with RemoveColumns and UPDATE_CHART/CREATE_CHART", () => {
+  const sheetId = "sheet1";
+  const sheetName = "Sheet1";
+  const definition: BarChartDefinition = {
+    type: "bar",
+    dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!M1:M10" }],
+    dataSetsHaveTitle: false,
+    labelRange: "Sheet1!M1:M10",
+    legendPosition: "top",
+    stacked: false,
+    title: { text: "test" },
+  };
+
+  const removeColumns: RemoveColumnsRowsCommand = {
+    ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+    dimension: "COL",
+    elements: [2, 5, 3],
+    sheetId,
+    sheetName,
+  };
+
+  const removeColumnsOnSheet2: RemoveColumnsRowsCommand = {
+    ...removeColumns,
+    sheetId: "sh2",
+    sheetName: "Sheet2",
+  };
+
+  test("CREATE_CHART ranges are updated on the same sheet as RemoveColumns", () => {
+    const toTransform: CreateChartCommand = {
+      type: "CREATE_CHART",
+      sheetId,
+      figureId: "chart1",
+      definition,
+      col: 0,
+      row: 0,
+      offset: { x: 0, y: 0 },
+      size: { width: 0, height: 0 },
+    };
+    let result = transform(toTransform, removeColumns) as CreateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
+      labelRange: "Sheet1!J1:J10",
+    });
+
+    result = transform(toTransform, removeColumnsOnSheet2) as CreateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
+      labelRange: "Sheet1!M1:M10",
+    });
+  });
+
+  test("UPDATE_CHART ranges are updated on the same sheet as RemoveColumns", () => {
+    const toTransform: UpdateChartCommand = {
+      type: "UPDATE_CHART",
+      sheetId,
+      figureId: "chart1",
+      definition,
+    };
+    let result = transform(toTransform, removeColumns) as UpdateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!J1:J10" }, { dataRange: "Sheet2!M1:M10" }],
+      labelRange: "Sheet1!J1:J10",
+    });
+
+    result = transform(toTransform, removeColumnsOnSheet2) as UpdateChartCommand;
+    expect(result.definition).toEqual({
+      ...definition,
+      dataSets: [{ dataRange: "Sheet1!M1:M10" }, { dataRange: "Sheet2!J1:J10" }],
+      labelRange: "Sheet1!M1:M10",
+    });
+  });
 });

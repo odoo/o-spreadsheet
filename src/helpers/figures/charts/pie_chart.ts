@@ -1,14 +1,13 @@
 import type { ChartConfiguration } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
   CoreGetters,
   Getters,
   Range,
-  RemoveColumnsRowsCommand,
+  RangeAdapter,
   UID,
 } from "../../../types";
 import {
@@ -79,10 +78,11 @@ export class PieChart extends AbstractChart {
   }
 
   static transformDefinition(
+    chartSheetId: UID,
     definition: PieChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+    applyChange: RangeAdapter
   ): PieChartDefinition {
-    return transformChartDefinitionWithDataSetsWithZone(definition, executed);
+    return transformChartDefinitionWithDataSetsWithZone(chartSheetId, definition, applyChange);
   }
 
   static validateChartDefinition(

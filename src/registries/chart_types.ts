@@ -27,14 +27,7 @@ import {
   createWaterfallChartRuntime,
 } from "../helpers/figures/charts/waterfall_chart";
 import { _t } from "../translation";
-import {
-  AddColumnsRowsCommand,
-  CommandResult,
-  CoreGetters,
-  Getters,
-  RemoveColumnsRowsCommand,
-  UID,
-} from "../types";
+import { CommandResult, CoreGetters, Getters, RangeAdapter, UID } from "../types";
 import {
   BarChartDefinition,
   GaugeChartDefinition,
@@ -79,8 +72,9 @@ export interface ChartBuilder {
     definition: ChartDefinition
   ): CommandResult | CommandResult[];
   transformDefinition(
+    chartSheetId: UID,
     definition: ChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+    applyRange: RangeAdapter
   ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
   sequence: number;

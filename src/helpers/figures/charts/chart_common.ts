@@ -1,8 +1,14 @@
+<<<<<<< cc2cc49bd51c331f0d49b4eefebfdc4bf506f1d1
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import { DEFAULT_WINDOW_SIZE, MAX_CHAR_LABEL } from "../../../constants";
+||||||| 91cfaab752176edcc674780b79901b053f5e5f45
+import { transformZone } from "../../../collaborative/ot/ot_helpers";
+import { MAX_CHAR_LABEL } from "../../../constants";
+=======
+import { MAX_CHAR_LABEL } from "../../../constants";
+>>>>>>> c6cd0c4a4e4cb5d7bb08425361bd7702bd7ab93e
 import { _t } from "../../../translation";
 import {
-  AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
   CommandResult,
@@ -13,7 +19,7 @@ import {
   Locale,
   LocaleFormat,
   Range,
-  RemoveColumnsRowsCommand,
+  RangeAdapter,
   UID,
   UnboundedZone,
   Zone,
@@ -32,6 +38,7 @@ import { CellErrorType } from "../../../types/errors";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
 import { ColorGenerator, relativeLuminance } from "../../color";
 import { formatValue } from "../../format/format";
+import { adaptStringRange } from "../../formulas";
 import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
@@ -326,23 +333,33 @@ export function toExcelLabelRange(
  * with an executed command
  */
 export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWithDataSetDefinition>(
+  chartSheetId: UID,
   definition: T,
-  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+  applyChange: RangeAdapter
 ): T {
   let labelRange: string | undefined;
   if (definition.labelRange) {
-    const labelZone = transformZone(toUnboundedZone(definition.labelRange), executed);
-    labelRange = labelZone ? zoneToXc(labelZone) : undefined;
+    const adaptedRange = adaptStringRange(chartSheetId, definition.labelRange, applyChange);
+    if (adaptedRange !== CellErrorType.InvalidReference) {
+      labelRange = adaptedRange;
+    }
   }
-  const dataSets: CustomizedDataSet[] = definition.dataSets
-    .map((ds) => toUnboundedZone(ds.dataRange))
-    .map((zone) => transformZone(zone, executed))
-    .filter(isDefined)
-    .map((xc) => ({ dataRange: zoneToXc(xc) }));
+
+  const dataSets: CustomizedDataSet[] = [];
+  for (const dataSet of definition.dataSets) {
+    const newDataSet = { ...dataSet };
+    const adaptedRange = adaptStringRange(chartSheetId, dataSet.dataRange, applyChange);
+
+    if (adaptedRange !== CellErrorType.InvalidReference) {
+      newDataSet.dataRange = adaptedRange;
+      dataSets.push(newDataSet);
+    }
+  }
+
   return {
     ...definition,
-    labelRange,
     dataSets,
+    labelRange,
   };
 }
 
