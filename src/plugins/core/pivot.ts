@@ -124,7 +124,12 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         break;
       }
       case "UPDATE_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
+        this.history.update(
+          "pivots",
+          cmd.pivotId,
+          "definition",
+          this.repairSortedColumn(deepCopy(cmd.pivot))
+        );
         this.compileCalculatedMeasures(cmd.pivot.measures);
         break;
       }
@@ -214,7 +219,10 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     pivot: PivotCoreDefinition,
     formulaId = this.nextFormulaId.toString()
   ) {
-    this.history.update("pivots", pivotId, { definition: deepCopy(pivot), formulaId });
+    this.history.update("pivots", pivotId, {
+      definition: this.repairSortedColumn(deepCopy(pivot)),
+      formulaId,
+    });
     this.compileCalculatedMeasures(pivot.measures);
     this.history.update("formulaIds", formulaId, pivotId);
     this.history.update("nextFormulaId", this.nextFormulaId + 1);
@@ -337,6 +345,29 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       return CommandResult.InvalidDefinition;
     }
     return CommandResult.Success;
+  }
+
+  private repairSortedColumn(definition: PivotCoreDefinition) {
+    if (definition.sortedColumn) {
+      // Fix for an upgrade issue: the sortedColumn measure was not updated
+      // from using fieldName to using id. If the sortedColumn measure matches
+      // a measure fieldName in the definition, update it to use the measure's id instead
+      // of its fieldName.
+      // TODO: add an upgrade step to fix this in master and remove this code
+      const sortedMeasure = definition.measures.find(
+        (measure) => measure.fieldName === definition.sortedColumn?.measure
+      );
+      if (sortedMeasure) {
+        return {
+          ...definition,
+          sortedColumn: {
+            ...definition.sortedColumn,
+            measure: sortedMeasure.id,
+          },
+        };
+      }
+    }
+    return definition;
   }
 
   // ---------------------------------------------------------------------
