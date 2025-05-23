@@ -108,6 +108,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getRect",
     "getFigureUI",
     "getPositionAnchorOffset",
+    "getGridOffset",
   ] as const;
 
   private viewports: Record<UID, SheetViewports | undefined> = {};
@@ -317,6 +318,10 @@ export class SheetViewPlugin extends UIPlugin {
       width: this.sheetViewWidth,
       height: this.sheetViewHeight,
     };
+  }
+
+  getGridOffset(): DOMCoordinates {
+    return { x: this.gridOffsetX, y: this.gridOffsetY };
   }
 
   /** type as pane, not viewport but basically pane extends viewport */

@@ -1,6 +1,11 @@
-import { click } from "../test_helpers/dom_helper";
+import { getPivotIconSvg } from "../../src/components/icons/icons";
+import { clickGridIcon } from "../test_helpers/dom_helper";
+import { getCellIcons } from "../test_helpers/getters_helpers";
 import { createModelFromGrid, mountSpreadsheet } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
+
+const collapseIconSVG = getPivotIconSvg(false, false);
+const expandIconSVG = getPivotIconSvg(true, false);
 
 describe("Pivot collapse icon", () => {
   test("Can collapse pivot row", async () => {
@@ -15,19 +20,19 @@ describe("Pivot collapse icon", () => {
       rows: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
-    const { fixture } = await mountSpreadsheet({ model });
+    await mountSpreadsheet({ model });
 
-    expect(".o-pivot-collapse-icon .minus").toHaveCount(1);
-    await click(fixture, ".o-pivot-collapse-icon .minus");
+    expect(getCellIcons(model, "D3")[0].svg).toEqual(collapseIconSVG);
+    await clickGridIcon(model, "D3");
 
-    expect(".o-pivot-collapse-icon .plus").toHaveCount(1);
+    expect(getCellIcons(model, "D3")[0].svg).toEqual(expandIconSVG);
     expect(model.getters.getPivotCoreDefinition("1").collapsedDomains).toEqual({
       ROW: [[{ field: "Customer", value: "Alice", type: "char" }]],
       COL: [],
     });
 
-    await click(fixture, ".o-pivot-collapse-icon .plus");
-    expect(".o-pivot-collapse-icon .minus").toHaveCount(1);
+    await clickGridIcon(model, "D3");
+    expect(getCellIcons(model, "D3")[0].svg).toEqual(collapseIconSVG);
     expect(model.getters.getPivotCoreDefinition("1").collapsedDomains).toEqual({
       ROW: [],
       COL: [],
@@ -46,19 +51,19 @@ describe("Pivot collapse icon", () => {
       columns: [{ fieldName: "Customer" }, { fieldName: "Year" }],
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
-    const { fixture } = await mountSpreadsheet({ model });
+    await mountSpreadsheet({ model });
 
-    expect(".o-pivot-collapse-icon .minus").toHaveCount(1);
-    await click(fixture, ".o-pivot-collapse-icon .minus");
+    expect(getCellIcons(model, "E1")[0].svg).toEqual(collapseIconSVG);
+    await clickGridIcon(model, "E1");
 
-    expect(".o-pivot-collapse-icon .plus").toHaveCount(1);
+    expect(getCellIcons(model, "E1")[0].svg).toEqual(expandIconSVG);
     expect(model.getters.getPivotCoreDefinition("1").collapsedDomains).toEqual({
       COL: [[{ field: "Customer", value: "Alice", type: "char" }]],
       ROW: [],
     });
 
-    await click(fixture, ".o-pivot-collapse-icon .plus");
-    expect(".o-pivot-collapse-icon .minus").toHaveCount(1);
+    await clickGridIcon(model, "E1");
+    expect(getCellIcons(model, "E1")[0].svg).toEqual(collapseIconSVG);
     expect(model.getters.getPivotCoreDefinition("1").collapsedDomains).toEqual({
       ROW: [],
       COL: [],

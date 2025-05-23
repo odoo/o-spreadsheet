@@ -243,3 +243,8 @@ export function getClipboardVisibleZones(model: Model): Zone[] {
     ? clipboardPlugin["copiedData"]?.["zones"] ?? []
     : [];
 }
+
+export function getCellIcons(model: Model, xc: string) {
+  const sheetId = model.getters.getActiveSheetId();
+  return model.getters.getCellIcons({ ...toCartesian(xc), sheetId });
+}

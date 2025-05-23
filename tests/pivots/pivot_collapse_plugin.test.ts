@@ -1,6 +1,5 @@
 import { Model } from "../../src";
-import { PivotCollapseIcon } from "../../src/components/pivot_collapse_icon/pivot_collapse_icon";
-import { GRID_ICON_EDGE_LENGTH, PIVOT_INDENT } from "../../src/constants";
+import { GRID_ICON_MARGIN, PIVOT_COLLAPSE_ICON_SIZE, PIVOT_INDENT } from "../../src/constants";
 import { positionToZone, positions, toZone, zoneToXc } from "../../src/helpers";
 import { GridIcon } from "../../src/registries/icons_on_cell_registry";
 import { getCellContent, getEvaluatedGrid } from "../test_helpers/getters_helpers";
@@ -248,7 +247,7 @@ describe("Pivot collapse icon", () => {
 
     const allIcons = getPivotIconsInZone(model, "A6:G12");
     const cellsWithIconComponents = Object.entries(allIcons).filter(
-      ([, { icon }]) => icon.component !== undefined
+      ([, { icon }]) => icon.svg !== undefined
     );
     expect(cellsWithIconComponents).toEqual([
       ["A9", { content: "Marc", icon: expect.any(Object) }],
@@ -264,16 +263,19 @@ describe("Pivot collapse icon", () => {
       measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
     });
 
-    const iconSize = GRID_ICON_EDGE_LENGTH;
+    const iconSize = PIVOT_COLLAPSE_ICON_SIZE;
     expect(getPivotIconsInZone(model, "A6:A13")).toMatchObject({
-      A11: { content: "Bob", icon: { size: iconSize, margin: 0, component: PivotCollapseIcon } },
+      A11: {
+        content: "Bob",
+        icon: { size: iconSize, margin: GRID_ICON_MARGIN * 2, svg: expect.any(Object) },
+      },
       A12: {
         content: "2020",
-        icon: { size: iconSize, margin: PIVOT_INDENT, component: undefined },
+        icon: { size: iconSize, margin: PIVOT_INDENT, svg: undefined },
       },
       A13: {
         content: "2021",
-        icon: { size: iconSize, margin: PIVOT_INDENT, component: undefined },
+        icon: { size: iconSize, margin: PIVOT_INDENT, svg: undefined },
       },
     });
   });
@@ -287,14 +289,14 @@ describe("Pivot collapse icon", () => {
     model.updateMode("dashboard");
 
     expect(getPivotIconsInZone(model, "A6:A13")).toMatchObject({
-      A11: { content: "Bob", icon: { size: 0, margin: 0, component: undefined } },
+      A11: { content: "Bob", icon: { size: 0, margin: 0, svg: undefined } },
       A12: {
         content: "2020",
-        icon: { size: 0, margin: PIVOT_INDENT, component: undefined },
+        icon: { size: 0, margin: PIVOT_INDENT, svg: undefined },
       },
       A13: {
         content: "2021",
-        icon: { size: 0, margin: PIVOT_INDENT, component: undefined },
+        icon: { size: 0, margin: PIVOT_INDENT, svg: undefined },
       },
     });
   });
