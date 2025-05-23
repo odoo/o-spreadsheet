@@ -324,14 +324,15 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     if (this.selectedMatchIndex === null) {
       return;
     }
-
+    this.preserveSelectedMatchIndex = true;
+    this.shouldFinalizeUpdateSelection = true;
     this.model.dispatch("REPLACE_SEARCH", {
       searchString: this.toSearch,
       replaceWith: this.toReplace,
       matches: [this.searchMatches[this.selectedMatchIndex]],
       searchOptions: this.searchOptions,
     });
-    this.selectNextCell(Direction.next, { jumpToMatchSheet: true, updateSelection: true });
+    this.preserveSelectedMatchIndex = false;
   }
   /**
    * Apply the replace function to all the matches one time.
