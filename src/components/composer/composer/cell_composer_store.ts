@@ -122,8 +122,7 @@ export class CellComposerStore extends AbstractComposerStore {
     if (!spreader) {
       return undefined;
     }
-    const cell = this.getters.getCell(spreader);
-    return cell?.content;
+    return this.getters.getCellText(spreader, { showFormula: true });
   }
 
   get currentEditedCell(): CellPosition {
