@@ -737,6 +737,17 @@ describe("replace", () => {
     expect(matchIndex).toStrictEqual(null);
     expect(getActivePosition(model)).toBe("A1");
   });
+
+  test("replacing correctly moves the selection to the next match", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "hell", searchOptions });
+    expect(getActivePosition(model)).toBe("A1");
+    model.dispatch("SELECT_SEARCH_NEXT_MATCH");
+    expect(getActivePosition(model)).toBe("A3");
+    model.dispatch("REPLACE_SEARCH", { replaceWith: "2" });
+    expect(getActivePosition(model)).toBe("A4");
+    model.dispatch("REPLACE_SEARCH", { replaceWith: "2" });
+    expect(getActivePosition(model)).toBe("A1");
+  });
 });
 
 test("replace don't replace value resulting from array formula", () => {
