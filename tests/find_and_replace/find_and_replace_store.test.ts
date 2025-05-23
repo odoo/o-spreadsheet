@@ -744,12 +744,46 @@ describe("Replace", () => {
   });
 
   test("replace all won't update the active cell", () => {
+    setCellContent(model, "A1", "hello");
+    setCellContent(model, "A2", "hell");
+    setCellContent(model, "A3", "hell");
     updateSearch(model, "hell");
     expect(getActivePosition(model)).toBe("A1");
     replaceAll("kikou");
     expect(store.searchMatches).toHaveLength(0);
     expect(store.selectedMatchIndex).toStrictEqual(null);
     expect(getActivePosition(model)).toBe("A1");
+  });
+
+  test("replacing correctly moves the selection to the next match", () => {
+    setCellContent(model, "A1", "hello");
+    setCellContent(model, "A3", "helly");
+    setCellContent(model, "A4", "hell");
+
+    updateSearch(model, "hell");
+    store.selectNextMatch();
+    expect(getActivePosition(model)).toBe("A3");
+    replaceSearch("2");
+    expect(getActivePosition(model)).toBe("A4");
+    replaceSearch("2");
+    expect(getActivePosition(model)).toBe("A1");
+    replaceSearch("2");
+    expect(store.searchMatches).toHaveLength(0);
+  });
+
+  test("replacing correctly moves the selection to the next match starting from the second match", () => {
+    setCellContent(model, "A1", "hello");
+    setCellContent(model, "A3", "helly");
+    setCellContent(model, "A4", "hell");
+
+    updateSearch(model, "hell");
+    expect(getActivePosition(model)).toBe("A1");
+    replaceSearch("2");
+    expect(getActivePosition(model)).toBe("A3");
+    replaceSearch("2");
+    expect(getActivePosition(model)).toBe("A4");
+    replaceSearch("2");
+    expect(store.searchMatches).toHaveLength(0);
   });
 });
 
