@@ -113,6 +113,7 @@ import { CellComposerStore } from "./components/composer/composer/cell_composer_
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { FullScreenChart } from "./components/full_screen_chart/full_screen_chart";
+import { HoveredCellStore } from "./components/grid/immediate_hovered_cell_store";
 import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { FunnelChartDesignPanel } from "./components/side_panel/chart/funnel_chart_panel/funnel_chart_design_panel";
@@ -123,7 +124,6 @@ import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfa
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
-import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
 import { ChartTerms } from "./components/translations_terms";
 import * as CHART_HELPERS from "./helpers/figures/charts";
@@ -437,7 +437,7 @@ export const stores = {
   FindAndReplaceStore,
   HighlightStore,
   DelayedHoveredCellStore,
-  HoveredTableStore,
+  HoveredCellStore,
   ModelStore,
   NotificationStore,
   RendererStore,

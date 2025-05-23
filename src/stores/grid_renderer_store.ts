@@ -1,5 +1,5 @@
 import { ModelStore } from ".";
-import { HoveredTableStore } from "../components/tables/hovered_table_store";
+import { HoveredCellStore } from "../components/grid/immediate_hovered_cell_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -59,13 +59,13 @@ export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
-  private hoveredTables: Store<HoveredTableStore>;
+  private hoveredTables: Store<HoveredCellStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
-    this.hoveredTables = get(HoveredTableStore);
+    this.hoveredTables = get(HoveredCellStore);
     this.renderer.register(this);
   }
 

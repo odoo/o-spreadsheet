@@ -3,7 +3,7 @@ import { PositionMap } from "../../plugins/ui_core_views/cell_evaluation/positio
 import { SpreadsheetStore } from "../../stores";
 import { Color, Command, Position } from "../../types";
 
-export class HoveredTableStore extends SpreadsheetStore {
+export class HoveredCellStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;
 
   col: number | undefined;
