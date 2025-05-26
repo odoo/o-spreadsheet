@@ -172,7 +172,7 @@ describe("Grid component in dashboard mode", () => {
     expect(fn).toHaveBeenCalledWith(true);
   });
 
-  test("Clickable cells actions can have a tooltip", async () => {
+  test("Clickable cells actions can have a generic tooltip", async () => {
     addToRegistry(clickableCellRegistry, "fake", {
       condition: () => true,
       execute: () => {},
@@ -183,6 +183,21 @@ describe("Grid component in dashboard mode", () => {
     await nextTick();
     expect(fixture.querySelector("div.o-dashboard-clickable-cell")?.getAttribute("title")).toBe(
       "hello there"
+    );
+  });
+
+  test("Clickable cells actions can have a tooltip based on their position", async () => {
+    addToRegistry(clickableCellRegistry, "fake", {
+      condition: () => true,
+      execute: () => {},
+      title: (position, getters) => `hello ${getters.getCell(position)?.content}`,
+      sequence: 5,
+    });
+    setCellContent(model, "A1", "Magical Françoise");
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(fixture.querySelector("div.o-dashboard-clickable-cell")?.getAttribute("title")).toBe(
+      "hello Magical Françoise"
     );
   });
 });
