@@ -17,7 +17,7 @@
               t-as="content"
               t-key="content_index"
               t-att-class="content.classes?.join(' ')"
-              t-attf-style="color: {{content.color || 'inherit'}};"
+              t-attf-style="color: {{content.color || '#000000'}};"
               t-esc="content.value"
             />
           </div>
