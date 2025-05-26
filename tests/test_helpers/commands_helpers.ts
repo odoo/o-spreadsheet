@@ -4,7 +4,13 @@ import {
   HEADER_HEIGHT,
   HEADER_WIDTH,
 } from "../../src/constants";
-import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
+import {
+  colorToNumber,
+  isInside,
+  lettersToNumber,
+  toCartesian,
+  toZone,
+} from "../../src/helpers/index";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import {
@@ -34,8 +40,9 @@ import {
   Style,
   UID,
 } from "../../src/types";
-import { target, toRangeData, toRangesData } from "./helpers";
+import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
+import { ICON_SETS } from "../../src/components/icons/icons";
 import { SunburstChartDefinition } from "../../src/types/chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
@@ -1486,5 +1493,66 @@ export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasH
     width,
     gridOffsetX: hasHeaders ? HEADER_WIDTH : 0,
     gridOffsetY: hasHeaders ? HEADER_HEIGHT : 0,
+  });
+}
+export function addEqualCf(
+  model: Model,
+  xc: string,
+  style: Style,
+  value: string,
+  cfId: UID = "cfId",
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    cf: createEqualCF(value, style, cfId),
+    sheetId,
+    ranges: toRangesData(sheetId, xc),
+  });
+}
+
+export function addIconCF(
+  model: Model,
+  xc: string,
+  inflectionPoints: string[],
+  iconSet: keyof typeof ICON_SETS,
+  cfId: UID = "cfId",
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    cf: {
+      id: cfId,
+      rule: {
+        type: "IconSetRule",
+        lowerInflectionPoint: { type: "number", value: inflectionPoints[0], operator: "ge" },
+        upperInflectionPoint: { type: "number", value: inflectionPoints[1], operator: "ge" },
+        icons: {
+          upper: ICON_SETS[iconSet].good,
+          middle: ICON_SETS[iconSet].neutral,
+          lower: ICON_SETS[iconSet].bad,
+        },
+      },
+    },
+    ranges: toRangesData(sheetId, xc),
+    sheetId,
+  });
+}
+
+export function addDataBarCF(
+  model: Model,
+  xc: string,
+  color: string,
+  cfId: UID = "cfId",
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    cf: {
+      id: cfId,
+      rule: {
+        type: "DataBarRule",
+        color: colorToNumber(color),
+      },
+    },
+    ranges: toRangesData(sheetId, xc),
+    sheetId,
   });
 }
