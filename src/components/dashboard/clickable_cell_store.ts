@@ -77,7 +77,7 @@ export class ClickableCellsStore extends SpreadsheetStore {
         coordinates: getters.getVisibleRect(zone),
         position,
         action: item.execute,
-        title: item.title || "",
+        title: item.title || item.titleCompute?.(position, getters) || "",
       });
     }
     return cells;
