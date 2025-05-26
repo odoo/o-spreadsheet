@@ -12,6 +12,7 @@ import {
   createTableWithFilter,
   setCellContent,
   setSelection,
+  setStyle,
 } from "../test_helpers/commands_helpers";
 import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
@@ -313,6 +314,24 @@ describe("autocomplete in composer", () => {
     expect(values).toHaveLength(2);
     expect(values[0].textContent).toBe("ok");
     expect(values[1].textContent).toBe("hello");
+  });
+
+  test("Autocomplete dropdown text should be black by default", async () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["hello"],
+      displayStyle: "arrow",
+    });
+    setStyle(model, "A1", {
+      textColor: "#FFFF00",
+      fillColor: "#000000",
+    });
+    ({ fixture, parent } = await mountComposerWrapper(model));
+    await typeInComposer("");
+    const values = fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value span");
+    expect(values).toHaveLength(1);
+    expect(values[0].textContent).toBe("hello");
+    expect(values[0].style.color).toBe("rgb(0, 0, 0)");
   });
 });
 
