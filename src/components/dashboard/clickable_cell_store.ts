@@ -72,12 +72,13 @@ export class ClickableCellsStore extends SpreadsheetStore {
       if (!item) {
         continue;
       }
+      const title = typeof item.title === "function" ? item.title(position, getters) : item.title;
       const zone = getters.expandZone(sheetId, positionToZone(position));
       cells.push({
         coordinates: getters.getVisibleRect(zone),
         position,
         action: item.execute,
-        title: item.title || "",
+        title: title || "",
       });
     }
     return cells;
