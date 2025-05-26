@@ -449,6 +449,7 @@ describe("Collaborative local history", () => {
               verticalAxisPosition: "left",
               legendPosition: "none",
             },
+            sheetMap: { Sheet1: "Sheet1" },
           },
           {
             type: "UPDATE_CHART",

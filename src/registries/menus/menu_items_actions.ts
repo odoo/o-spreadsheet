@@ -1,4 +1,5 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../../constants";
+import { getChartSheetMap } from "../../helpers/charts";
 import {
   areZonesContinuous,
   largeMax,
@@ -15,6 +16,7 @@ import {
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
 import { _lt } from "../../translation";
+import { BarChartDefinition } from "../../types/chart";
 import { CellValueType, Dimension, Format, SpreadsheetChildEnv, Style } from "../../types/index";
 
 //------------------------------------------------------------------------------
@@ -636,21 +638,24 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   }
   const newLegendPos = dataSetZone.right === dataSetZone.left ? "none" : "top"; //Using the same variable as above to identify number of columns involved.
 
+  const definition: BarChartDefinition = {
+    title,
+    dataSets,
+    labelRange,
+    type: "bar",
+    stacked: false,
+    dataSetsHaveTitle,
+    verticalAxisPosition: "left",
+    legendPosition: newLegendPos,
+  };
+
   env.model.dispatch("CREATE_CHART", {
     sheetId,
     id,
     position,
     size,
-    definition: {
-      title,
-      dataSets,
-      labelRange,
-      type: "bar",
-      stacked: false,
-      dataSetsHaveTitle,
-      verticalAxisPosition: "left",
-      legendPosition: newLegendPos,
-    },
+    definition: definition,
+    sheetMap: getChartSheetMap(env.model.getters, definition),
   });
   env.model.dispatch("SELECT_FIGURE", { id });
   env.openSidePanel("ChartPanel");

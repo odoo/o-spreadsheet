@@ -431,12 +431,14 @@ export interface CreateChartCommand extends SheetDependentCommand {
   position?: { x: Pixel; y: Pixel };
   size?: { width: Pixel; height: Pixel };
   definition: ChartDefinition;
+  sheetMap: Record<string, UID>;
 }
 
 export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   id: UID;
   definition: ChartDefinition;
+  sheetMap: Record<string, UID>;
 }
 
 //------------------------------------------------------------------------------

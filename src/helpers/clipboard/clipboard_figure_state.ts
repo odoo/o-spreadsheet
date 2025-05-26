@@ -9,7 +9,7 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { AbstractChart } from "../charts";
+import { AbstractChart, getChartSheetMap } from "../charts";
 import { UuidGenerator } from "../uuid";
 import { ClipboardOperation, ClipboardOptions, ClipboardState } from "./../../types/clipboard";
 
@@ -72,12 +72,14 @@ export class ClipboardFigureState implements ClipboardState {
     const newChart = this.copiedChart.copyInSheetId(sheetId);
     const newId = new UuidGenerator().smallUuid();
 
+    const definition = newChart.getDefinition();
     this.dispatch("CREATE_CHART", {
       id: newId,
       sheetId,
       position,
       size: { height: this.copiedFigure.height, width: this.copiedFigure.width },
-      definition: newChart.getDefinition(),
+      definition,
+      sheetMap: getChartSheetMap(this.getters, definition),
     });
 
     if (this.operation === "CUT") {

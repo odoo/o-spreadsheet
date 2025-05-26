@@ -19,6 +19,7 @@ describe("OT with DELETE_FIGURE", () => {
     type: "UPDATE_CHART",
     sheetId: "42",
     definition: {} as LineChartDefinition,
+    sheetMap: { Sheet1: "Sheet1" },
   };
   const updateFigure: Omit<UpdateFigureCommand, "id"> = {
     type: "UPDATE_FIGURE",
