@@ -17,7 +17,7 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
         S
       </span>
       <span
-        style="color: inherit;"
+        style="color: #000000;"
       >
         UM
       </span>
@@ -43,7 +43,7 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
         S
       </span>
       <span
-        style="color: inherit;"
+        style="color: #000000;"
       >
         ZZ
       </span>
@@ -78,7 +78,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
           S
         </span>
         <span
-          style="color: inherit;"
+          style="color: #000000;"
         >
           UM
         </span>
@@ -104,7 +104,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
           S
         </span>
         <span
-          style="color: inherit;"
+          style="color: #000000;"
         >
           ZZ
         </span>
@@ -141,7 +141,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
           S
         </span>
         <span
-          style="color: inherit;"
+          style="color: #000000;"
         >
           UM
         </span>
@@ -167,7 +167,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
           S
         </span>
         <span
-          style="color: inherit;"
+          style="color: #000000;"
         >
           ZZ
         </span>
