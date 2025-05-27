@@ -660,7 +660,9 @@ export const TEXT = {
     arg("number (number)", _t("The number, date or time to format.")),
     arg(
       "format (string)",
-      _t("The pattern by which to format the number, enclosed in quotation marks.")
+      _t(
+        'The case-sensitive format of the result, enclosed in quotation marks. Examples: "0.00" rounded to 2 decimal places, "hh:mm:ss" for hour:minutes:seconds.'
+      )
     ),
   ],
   compute: function (
