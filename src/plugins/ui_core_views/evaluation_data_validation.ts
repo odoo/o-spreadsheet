@@ -1,12 +1,14 @@
 import { DVTerms } from "../../components/translations_terms";
+import { CHIP_DEFAULT_COLOR } from "../../constants";
 import { compile } from "../../formulas";
-import { getCellPositionsInRanges, isInside, lazy } from "../../helpers";
+import { chipTextColor, getCellPositionsInRanges, isInside, lazy } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellPosition,
   CellValue,
   CellValueType,
+  Color,
   DEFAULT_LOCALE,
   DataValidationCriterion,
   DataValidationCriterionType,
@@ -15,6 +17,7 @@ import {
   Lazy,
   Matrix,
   Offset,
+  Style,
   UID,
   isMatrix,
 } from "../../types";
@@ -44,6 +47,8 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     "getInvalidDataValidationMessage",
     "getValidationResultForCellValue",
     "isCellValidCheckbox",
+    "getDataValidationCellStyle",
+    "getDataValidationChipColor",
     "isDataValidationInvalid",
   ] as const;
 
@@ -68,6 +73,25 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
 
   isDataValidationInvalid(cellPosition: CellPosition): boolean {
     return !this.getValidationResultForCell(cellPosition).isValid;
+  }
+
+  getDataValidationCellStyle(
+    position: CellPosition
+  ): Pick<Style, "fillColor" | "textColor"> | undefined {
+    const style = this.getDataValidationStyle(position);
+    if (!style) {
+      return undefined;
+    }
+    if (this.hasChip(position)) {
+      // the fill color is for the chip, not the cell background
+      delete style.fillColor;
+    }
+    return style;
+  }
+
+  getDataValidationChipColor(position: CellPosition): Color | undefined {
+    const style = this.getDataValidationStyle(position);
+    return this.hasChip(position) ? style?.fillColor ?? CHIP_DEFAULT_COLOR : undefined;
   }
 
   getInvalidDataValidationMessage(cellPosition: CellPosition): string | undefined {
@@ -122,6 +146,37 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     const error = this.getRuleErrorForCellValue(cellValue, cellPosition, rule);
 
     return error ? { error, rule, isValid: false } : VALID_RESULT;
+  }
+
+  private hasChip(position: CellPosition) {
+    const rule = this.getters.getValidationRuleForCell(position);
+    if (!rule) {
+      return false;
+    }
+    return rule.criterion.type === "isValueInList" && rule.criterion.displayStyle === "chip";
+  }
+
+  private getDataValidationStyle(
+    position: CellPosition
+  ): Pick<Style, "fillColor" | "textColor"> | undefined {
+    const rule = this.getters.getValidationRuleForCell(position);
+    if (rule?.criterion.type !== "isValueInList") {
+      return undefined;
+    }
+    if (this.isDataValidationInvalid(position)) {
+      return undefined;
+    }
+    const evaluatedCell = this.getters.getEvaluatedCell(position);
+    const index = rule.criterion.values.findIndex((value) => value === evaluatedCell.value);
+    const color = rule.criterion.colors?.[index];
+    if (!color) {
+      return undefined;
+    }
+    const style: Style = {
+      fillColor: color,
+      textColor: chipTextColor(color),
+    };
+    return style;
   }
 
   private isValidFormula(value: string): boolean {

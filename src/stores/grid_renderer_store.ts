@@ -1,11 +1,12 @@
 import { ModelStore } from ".";
-import { HoveredTableStore } from "../components/tables/hovered_table_store";
+import { HoveredCellStore } from "../components/grid/immediate_hovered_cell_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
+  CHIP_MARGIN,
   DEFAULT_FONT,
   DEFAULT_VERTICAL_ALIGN,
   FROZEN_PANE_BORDER_COLOR,
@@ -53,13 +54,13 @@ export class GridRenderer {
   private getters: Getters;
   private renderer: Store<RendererStore>;
   private fingerprints: Store<FormulaFingerprintStore>;
-  private hoveredTables: Store<HoveredTableStore>;
+  private hoveredTables: Store<HoveredCellStore>;
 
   constructor(get: Get) {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.fingerprints = get(FormulaFingerprintStore);
-    this.hoveredTables = get(HoveredTableStore);
+    this.hoveredTables = get(HoveredCellStore);
     this.renderer.register(this);
   }
 
@@ -140,6 +141,12 @@ export class GridRenderer {
         const percentage = box.dataBarFill.percentage;
         const width = box.width * (percentage / 100);
         ctx.fillRect(box.x, box.y, width, box.height);
+      }
+      if (box?.chip) {
+        ctx.fillStyle = box.chip.color;
+        ctx.beginPath();
+        ctx.roundRect(box.chip.x, box.chip.y, box.chip.width, box.chip.height, 10);
+        ctx.fill();
       }
       if (box.overlayColor) {
         ctx.fillStyle = box.overlayColor;
@@ -285,18 +292,6 @@ export class GridRenderer {
         }
         ctx.fillStyle = style.textColor || "#000";
 
-        // compute horizontal align start point parameter
-        let x = box.x;
-        if (align === "left") {
-          const leftIconSize = box.icons.left ? box.icons.left.size + box.icons.left.margin : 0;
-          x += MIN_CELL_TEXT_MARGIN + leftIconSize;
-        } else if (align === "right") {
-          const rightIconSize = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
-          x += box.width - MIN_CELL_TEXT_MARGIN - rightIconSize;
-        } else {
-          x += box.width / 2;
-        }
-
         // horizontal align text direction
         ctx.textAlign = align;
 
@@ -308,12 +303,8 @@ export class GridRenderer {
           ctx.rect(x, y, width, height);
           ctx.clip();
         }
-
-        // compute vertical align start point parameter:
-        const textLineHeight = computeTextFontSizeInPixels(style);
-        const numberOfLines = box.content.textLines.length;
-        let y = this.computeTextYCoordinate(box, textLineHeight, numberOfLines);
-
+        const x = box.content.x;
+        let y = box.content.y;
         // use the horizontal and the vertical start points to:
         // fill text / fill strikethrough / fill underline
         for (const brokenLine of box.content.textLines) {
@@ -324,7 +315,7 @@ export class GridRenderer {
             style.underline,
             style.strikethrough
           );
-          y += MIN_CELL_TEXT_MARGIN + textLineHeight;
+          y += MIN_CELL_TEXT_MARGIN + box.content.fontSizePx;
         }
 
         if (box.clipRect) {
@@ -607,7 +598,10 @@ export class GridRenderer {
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
-    let style = this.getters.getCellComputedStyle(position);
+    let style = {
+      ...this.getters.getCellComputedStyle(position),
+      ...this.getters.getDataValidationCellStyle(position),
+    };
     if (this.fingerprints.isEnabled) {
       const fingerprintColor = this.fingerprints.colors.get(position);
       style = { ...style, fillColor: fingerprintColor };
@@ -657,11 +651,49 @@ export class GridRenderer {
     const rightIconWidth = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
     const contentWidth = leftIconWidth + textWidth + rightIconWidth;
     const align = this.computeCellAlignment(position, contentWidth > width);
+
+    // compute vertical align start point parameter:
+    const numberOfLines = multiLineText.length;
+    const contentY = Math.round(this.computeTextYCoordinate(box, fontSizePX, numberOfLines));
+
+    // compute horizontal align start point parameter
+    const chipColor = this.getters.getDataValidationChipColor(position);
+
+    const chipMargin = chipColor ? CHIP_MARGIN : 0;
+    const leftIconSize = box.icons.left ? box.icons.left.size + box.icons.left.margin : 0;
+    const rightIconSize = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
+    let contentX = box.x;
+    if (align === "left") {
+      const marginLeft = MIN_CELL_TEXT_MARGIN + leftIconSize + chipMargin;
+      contentX += marginLeft;
+    } else if (align === "right") {
+      const marginRight = MIN_CELL_TEXT_MARGIN + chipMargin + rightIconSize;
+      contentX += box.width - marginRight;
+    } else {
+      contentX += box.width / 2;
+    }
+    contentX = Math.round(contentX);
+
+    const textHeight = computeTextLinesHeight(fontSizePX, numberOfLines);
     box.content = {
       textLines: multiLineText,
       width: wrapping === "overflow" ? textWidth : width,
       align,
+      x: contentX,
+      y: contentY,
+      fontSizePx: fontSizePX,
     };
+    if (chipColor) {
+      const chipMarginLeft = CHIP_MARGIN + leftIconSize;
+      const chipMarginRight = CHIP_MARGIN;
+      box.chip = {
+        color: chipColor,
+        width: box.width - chipMarginLeft - chipMarginRight,
+        height: textHeight + 2,
+        x: box.x + chipMarginLeft,
+        y: contentY - 2,
+      };
+    }
 
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizePX > height;

@@ -31,4 +31,35 @@ describe("Data validation auto complete", () => {
     const proposals = composer.autoCompleteProposals;
     expect(proposals).toHaveLength(3);
   });
+
+  test("set rounded chip and color", async () => {
+    const { store: composer, model } = makeStore(CellComposerStore);
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["hello", "world"],
+      colors: [undefined, "#B6D7A8"],
+      displayStyle: "chip",
+    });
+    composer.startEdition();
+    await nextTick();
+    const proposals = composer.autoCompleteProposals;
+    expect(proposals.map((p) => p.htmlContent)).toEqual([
+      [
+        {
+          backgroundColor: "#E8EAED", // default color
+          classes: ["badge rounded-pill"],
+          color: undefined,
+          value: "hello",
+        },
+      ],
+      [
+        {
+          backgroundColor: "#B6D7A8",
+          classes: ["badge rounded-pill"],
+          color: "#234F11",
+          value: "world",
+        },
+      ],
+    ]);
+  });
 });

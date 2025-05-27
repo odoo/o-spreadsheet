@@ -32,11 +32,21 @@ export interface BoxTextContent {
   textLines: string[];
   width: Pixel;
   align: Align;
+  fontSizePx: number;
+  x: number;
+  y: number;
 }
 
 export interface Box extends Rect {
   content?: BoxTextContent;
   style: Style;
+  chip?: {
+    x: number;
+    y: number;
+    width: Pixel;
+    height: Pixel;
+    color: Color;
+  };
   dataBarFill?: DataBarFill;
   border?: Border;
   clipRect?: Rect;
