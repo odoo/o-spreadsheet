@@ -63,8 +63,8 @@ import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
-import { SidePanel } from "../side_panel/side_panel/side_panel";
-import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
+import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
+import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
@@ -330,7 +330,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     TopBar,
     Grid,
     BottomBar,
-    SidePanel,
+    SidePanels,
     SpreadsheetDashboard,
     HeaderGroupContainer,
     FullScreenChart,
@@ -357,7 +357,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     } else {
       properties["grid-template-rows"] = `min-content auto min-content`;
     }
-    properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
+    properties["grid-template-columns"] = `auto ${Math.min(
+      this.sidePanel.totalPanelSize || DEFAULT_SIDE_PANEL_SIZE
+    )}px`;
 
     return cssPropertiesToCss(properties);
   }
@@ -455,7 +457,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
     });
     const resizeObserver = new ResizeObserver(() => {
-      this.sidePanel.changePanelSize(this.sidePanel.panelSize, this.spreadsheetRect.width);
+      this.sidePanel.changeSpreadsheetWidth(this.spreadsheetRect.width);
     });
   }
 
