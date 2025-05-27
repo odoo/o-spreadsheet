@@ -7,7 +7,7 @@ type EventFn = (ev: PointerEvent) => void;
  */
 export function startDnd(onPointerMove: EventFn, onPointerUp: EventFn) {
   const removeListeners = () => {
-    window.removeEventListener("pointerup", _onPointerUp);
+    window.removeEventListener("pointerup", _onPointerUp, { capture: true });
     window.removeEventListener("dragstart", _onDragStart);
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("wheel", onPointerMove);
@@ -19,7 +19,7 @@ export function startDnd(onPointerMove: EventFn, onPointerUp: EventFn) {
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
   }
-  window.addEventListener("pointerup", _onPointerUp);
+  window.addEventListener("pointerup", _onPointerUp, { capture: true });
   window.addEventListener("dragstart", _onDragStart);
   window.addEventListener("pointermove", onPointerMove);
   // mouse wheel on window is by default a passive event.
