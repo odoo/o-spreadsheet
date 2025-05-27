@@ -418,6 +418,17 @@ test("Drag&drop is stopped when the calling component is unmounted", async () =>
   expect(spyRemoveEventListener).toHaveBeenCalledTimes(4);
 });
 
+test("Drag&drop is stopped when mouseup is called on an element that stops pointer events", async () => {
+  const div = document.createElement("div");
+  div.id = "test-div";
+  div.addEventListener("pointerup", (ev) => ev.stopPropagation());
+  document.body.appendChild(div);
+  triggerMouseEvent(".o-fake-grid", "pointerdown", 0, 0);
+  expect(mouseUpFn).toHaveBeenCalledTimes(0);
+  triggerMouseEvent("#test-div", "pointerup", 0, 0);
+  expect(mouseUpFn).toHaveBeenCalledTimes(1);
+});
+
 test("drag And Drop is based on the current active sheet", async () => {
   setViewportOffset(model, 6 * DEFAULT_CELL_WIDTH, 6 * DEFAULT_CELL_HEIGHT);
   hideColumns(model, [numberToLetters(5)]);
