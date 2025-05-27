@@ -357,7 +357,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     } else {
       properties["grid-template-rows"] = `min-content auto min-content`;
     }
-    properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
+    properties["grid-template-columns"] = `auto ${this.sidePanel.activePanel.panelSize}px`;
 
     return cssPropertiesToCss(properties);
   }
@@ -440,6 +440,16 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
+      // const sheetId = this.env.model.getters.getActiveSheetId();
+      // const chartId = this.env.model.getters.getFigures(sheetId)[0]?.id;
+      // if (chartId) {
+      //   this.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+      //   this.sidePanel.open("ChartPanel");
+      // }
+      this.sidePanel.open("PivotSidePanel", { pivotId: "1" });
+      // setTimeout(() => {
+      //   document.querySelector<HTMLElement>(".o-panel-design")?.click();
+      // }, 60);
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);
@@ -455,7 +465,10 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
     });
     const resizeObserver = new ResizeObserver(() => {
-      this.sidePanel.changePanelSize(this.sidePanel.panelSize, this.spreadsheetRect.width);
+      this.sidePanel.changePanelSize(
+        this.sidePanel.activePanel.panelSize,
+        this.spreadsheetRect.width
+      );
     });
   }
 

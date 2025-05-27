@@ -3,7 +3,10 @@
     <div class="o-sidePanel" t-if="sidePanelStore.isOpen">
       <div class="o-sidePanelHeader">
         <div class="o-sidePanelTitle o-fw-bold" t-esc="getTitle()"/>
-        <div class="o-sidePanelClose" t-on-click="close">✕</div>
+        <div class="ms-auto o-sidePanelAction" t-on-click="pinPanel" t-att-title="pinInfoMessage">
+          <i class="fa fa-thumb-tack"/>
+        </div>
+        <div class="o-sidePanelClose o-sidePanelAction" t-on-click="close">✕</div>
       </div>
       <div class="o-sidePanelBody-container d-flex flex-grow-1 ">
         <div class="o-sidePanel-handle-container">

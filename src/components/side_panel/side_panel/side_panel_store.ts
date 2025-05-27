@@ -21,21 +21,43 @@ export type SidePanelState = OpenSidePanel | ClosedSidePanel;
 export const DEFAULT_SIDE_PANEL_SIZE = 350;
 export const MIN_SHEET_VIEW_WIDTH = 150;
 
+interface PanelInfo {
+  initialPanelProps: SidePanelProps;
+  componentTag: string;
+  panelSize: number;
+}
+
 export class SidePanelStore extends SpreadsheetStore {
-  mutators = ["open", "toggle", "close", "changePanelSize", "resetPanelSize"] as const;
-  initialPanelProps: SidePanelProps = {};
-  componentTag: string = "";
-  panelSize = DEFAULT_SIDE_PANEL_SIZE;
+  mutators = [
+    "open",
+    "toggle",
+    "close",
+    "changePanelSize",
+    "resetPanelSize",
+    "pinSidePanel",
+  ] as const;
+
+  activePanel: PanelInfo = {
+    initialPanelProps: {},
+    componentTag: "",
+    panelSize: DEFAULT_SIDE_PANEL_SIZE,
+  };
+
+  pinedPanel: PanelInfo | undefined;
 
   get isOpen() {
-    if (!this.componentTag) {
+    if (!this.activePanel.componentTag) {
       return false;
     }
-    return this.computeState(this.componentTag, this.initialPanelProps).isOpen;
+    return this.computeState(this.activePanel.componentTag, this.activePanel.initialPanelProps)
+      .isOpen;
   }
 
   get panelProps(): SidePanelProps {
-    const state = this.computeState(this.componentTag, this.initialPanelProps);
+    const state = this.computeState(
+      this.activePanel.componentTag,
+      this.activePanel.initialPanelProps
+    );
     if (state.isOpen) {
       return state.props ?? {};
     }
@@ -43,7 +65,10 @@ export class SidePanelStore extends SpreadsheetStore {
   }
 
   get panelKey(): string | undefined {
-    const state = this.computeState(this.componentTag, this.initialPanelProps);
+    const state = this.computeState(
+      this.activePanel.componentTag,
+      this.activePanel.initialPanelProps
+    );
     if (state.isOpen) {
       return state.key;
     }
@@ -55,15 +80,15 @@ export class SidePanelStore extends SpreadsheetStore {
     if (!state.isOpen) {
       return;
     }
-    if (this.isOpen && componentTag !== this.componentTag) {
-      this.initialPanelProps?.onCloseSidePanel?.();
+    if (this.isOpen && componentTag !== this.activePanel.componentTag) {
+      this.activePanel.initialPanelProps?.onCloseSidePanel?.();
     }
-    this.componentTag = componentTag;
-    this.initialPanelProps = state.props ?? {};
+    this.activePanel.componentTag = componentTag;
+    this.activePanel.initialPanelProps = state.props ?? {};
   }
 
   toggle(componentTag: string, panelProps: SidePanelProps) {
-    if (this.isOpen && componentTag === this.componentTag) {
+    if (this.isOpen && componentTag === this.activePanel.componentTag) {
       this.close();
     } else {
       this.open(componentTag, panelProps);
@@ -71,23 +96,33 @@ export class SidePanelStore extends SpreadsheetStore {
   }
 
   close() {
-    this.initialPanelProps.onCloseSidePanel?.();
-    this.initialPanelProps = {};
-    this.componentTag = "";
+    this.activePanel.initialPanelProps.onCloseSidePanel?.();
+    this.activePanel.initialPanelProps = {};
+    this.activePanel.componentTag = "";
   }
 
   changePanelSize(size: number, spreadsheetElWidth: number) {
     if (size < DEFAULT_SIDE_PANEL_SIZE) {
-      this.panelSize = DEFAULT_SIDE_PANEL_SIZE;
+      this.activePanel.panelSize = DEFAULT_SIDE_PANEL_SIZE;
     } else if (size > spreadsheetElWidth - MIN_SHEET_VIEW_WIDTH) {
-      this.panelSize = Math.max(spreadsheetElWidth - MIN_SHEET_VIEW_WIDTH, DEFAULT_SIDE_PANEL_SIZE);
+      this.activePanel.panelSize = Math.max(
+        spreadsheetElWidth - MIN_SHEET_VIEW_WIDTH,
+        DEFAULT_SIDE_PANEL_SIZE
+      );
     } else {
-      this.panelSize = size;
+      this.activePanel.panelSize = size;
     }
   }
 
   resetPanelSize() {
-    this.panelSize = DEFAULT_SIDE_PANEL_SIZE;
+    this.activePanel.panelSize = DEFAULT_SIDE_PANEL_SIZE;
+  }
+
+  pinSidePanel() {
+    this.pinedPanel = { ...this.activePanel };
+    this.activePanel.componentTag = "";
+    this.activePanel.initialPanelProps = {};
+    this.activePanel.panelSize = DEFAULT_SIDE_PANEL_SIZE;
   }
 
   private computeState(componentTag: string, panelProps: SidePanelProps): SidePanelState {

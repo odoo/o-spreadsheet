@@ -2,6 +2,7 @@ import { Component, useEffect } from "@odoo/owl";
 import { GRAY_300, TEXT_BODY } from "../../../constants";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { Store, useStore } from "../../../store_engine";
+import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { startDnd } from "../../helpers/drag_and_drop";
@@ -31,7 +32,7 @@ css/* scss */ `
       justify-content: space-between;
       border-bottom: 1px solid ${GRAY_300};
 
-      .o-sidePanelClose {
+      .o-sidePanelAction {
         padding: 5px 10px;
         cursor: pointer;
         &:hover {
@@ -131,11 +132,15 @@ export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
   }
 
   get panel() {
-    return sidePanelRegistry.get(this.sidePanelStore.componentTag);
+    return sidePanelRegistry.get(this.sidePanelStore.activePanel.componentTag);
   }
 
   close() {
     this.sidePanelStore.close();
+  }
+
+  pinPanel() {
+    this.sidePanelStore.pinSidePanel();
   }
 
   getTitle() {
@@ -147,7 +152,7 @@ export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
 
   startHandleDrag(ev: MouseEvent) {
     const startingCursor = document.body.style.cursor;
-    const startSize = this.sidePanelStore.panelSize;
+    const startSize = this.sidePanelStore.activePanel.panelSize;
     const startPosition = ev.clientX;
     const onMouseMove = (ev: MouseEvent) => {
       document.body.style.cursor = "col-resize";
@@ -158,5 +163,9 @@ export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
       document.body.style.cursor = startingCursor;
     };
     startDnd(onMouseMove, cleanUp);
+  }
+
+  get pinInfoMessage() {
+    return _t("Pin this panel to enable opening another side panel beside it.");
   }
 }
