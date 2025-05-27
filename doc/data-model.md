@@ -10,7 +10,7 @@ This document describes the data structure expected for importing spreadsheet da
 {
     // The version of the data model, used for compatibility checks and upgrading.
     // If omitted, it defaults to the latest version.
-    "version": number,
+    "version": string, // this defintion is for version "18.4.2"
 
     // Used for multi user capabilities. In single user hardcode "START_REVISION".
     "revisionId": "START_REVISION" | string,
