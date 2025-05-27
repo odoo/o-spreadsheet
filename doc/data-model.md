@@ -16,6 +16,7 @@ This document describes the data structure expected for importing spreadsheet da
     "revisionId": "START_REVISION" | string,
 
     // see the sheet Object, just below
+    // the order of the sheets determines the order of the tabs in the UI.
     "sheets": [ ... ],
 
     // Styles for the cells, details in data-model/style.md
