@@ -1,4 +1,4 @@
-# o-spreadsheet Data Model
+# o-spreadsheet Data Modeltyle doc
 
 This document describes the data structure expected for importing spreadsheet data into o-spreadsheet.
 
