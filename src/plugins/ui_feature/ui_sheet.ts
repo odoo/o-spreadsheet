@@ -1,5 +1,11 @@
-import { DEFAULT_CELL_HEIGHT, PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
 import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_VERTICAL_ALIGN,
+  MIN_CELL_TEXT_MARGIN,
+  PADDING_AUTORESIZE_HORIZONTAL,
+} from "../../constants";
+import {
+  computeTextLinesHeight,
   computeTextWidth,
   formatValue,
   getCellContentHeight,
@@ -11,8 +17,8 @@ import {
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
-import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
-import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
+import { CellValueType, Command, CommandResult, LocalCommand, Rect, UID } from "../../types";
+import { CellPosition, HeaderIndex, Pixel, Style, VerticalAlign, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
@@ -22,6 +28,7 @@ export class SheetUIPlugin extends UIPlugin {
     "getCellText",
     "getCellMultiLineText",
     "getContiguousZone",
+    "computeTextYCoordinate",
   ] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
@@ -146,6 +153,32 @@ export class SheetUIPlugin extends UIPlugin {
       availableWidth: args.maxWidth,
     });
     return splitTextToWidth(this.ctx, text, style, args.wrapText ? args.maxWidth : undefined);
+  }
+
+  /** Computes the vertical start point from which a text line should be draw in a cell.
+   *
+   * Note that in case the cell does not have enough spaces to display its text lines,
+   * (wrapping cell case) then the vertical align should be at the top.
+   * */
+  computeTextYCoordinate(
+    cellRect: Rect,
+    textLineHeight: number,
+    verticalAlign: VerticalAlign = DEFAULT_VERTICAL_ALIGN,
+    numberOfLines: number = 1
+  ): number {
+    const y = cellRect.y + 1; // +1 to skip the cell grid line at the top
+    const textHeight = computeTextLinesHeight(textLineHeight, numberOfLines);
+    const hasEnoughSpaces = cellRect.height > textHeight + MIN_CELL_TEXT_MARGIN * 2;
+
+    if (hasEnoughSpaces) {
+      if (verticalAlign === "middle") {
+        return Math.ceil(y + (cellRect.height - textHeight) / 2);
+      }
+      if (verticalAlign === "bottom") {
+        return y + cellRect.height - textHeight - MIN_CELL_TEXT_MARGIN;
+      }
+    }
+    return y + MIN_CELL_TEXT_MARGIN;
   }
 
   /**

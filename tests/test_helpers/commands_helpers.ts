@@ -36,6 +36,7 @@ import {
 } from "../../src/types";
 import { target, toRangeData, toRangesData } from "./helpers";
 
+import { ICON_SETS } from "../../src/components/icons/icons";
 import { SunburstChartDefinition } from "../../src/types/chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { FunnelChartDefinition } from "../../src/types/chart/funnel_chart";
@@ -1486,5 +1487,32 @@ export function setSheetviewSize(model: Model, height: Pixel, width: Pixel, hasH
     width,
     gridOffsetX: hasHeaders ? HEADER_WIDTH : 0,
     gridOffsetY: hasHeaders ? HEADER_HEIGHT : 0,
+  });
+}
+
+export function addIconCF(
+  model: Model,
+  xc: string,
+  inflectionPoints: string[],
+  iconSet: keyof typeof ICON_SETS,
+  cfId: UID = "cfId",
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    cf: {
+      id: cfId,
+      rule: {
+        type: "IconSetRule",
+        lowerInflectionPoint: { type: "number", value: inflectionPoints[0], operator: "ge" },
+        upperInflectionPoint: { type: "number", value: inflectionPoints[1], operator: "ge" },
+        icons: {
+          upper: ICON_SETS[iconSet].good,
+          middle: ICON_SETS[iconSet].neutral,
+          lower: ICON_SETS[iconSet].bad,
+        },
+      },
+    },
+    ranges: toRangesData(sheetId, xc),
+    sheetId,
   });
 }

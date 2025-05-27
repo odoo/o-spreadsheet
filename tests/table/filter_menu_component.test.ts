@@ -15,6 +15,7 @@ import {
   updateFilterCriterion,
 } from "../test_helpers/commands_helpers";
 import {
+  clickGridIcon,
   focusAndKeyDown,
   keyDown,
   setInputValueAndTrigger,
@@ -22,14 +23,14 @@ import {
 } from "../test_helpers/dom_helper";
 import { getCellsObject, mountSpreadsheet, nextTick, setGrid } from "../test_helpers/helpers";
 
-async function openFilterMenu() {
-  await simulateClick(".o-filter-icon");
-}
-
 describe("Filter menu component", () => {
   let fixture: HTMLElement;
   let model: Model;
   let sheetId: UID;
+
+  async function openFilterMenu(xc = "A1") {
+    await clickGridIcon(model, xc);
+  }
 
   function getFilterMenuValues() {
     const values: { value: string; isChecked: boolean }[] = [];
@@ -74,12 +75,11 @@ describe("Filter menu component", () => {
     });
 
     test("Opening the filter menu of another filter update the values", async () => {
-      const filterIcons = fixture.querySelectorAll(".o-filter-icon");
-      await simulateClick(filterIcons[0]);
+      await openFilterMenu("A1");
       let values = getFilterMenuValues();
       expect(values.map((val) => val.value)).toEqual(["(Blanks)", "1", "2"]);
 
-      await simulateClick(filterIcons[1]);
+      await openFilterMenu("B1");
       values = getFilterMenuValues();
       expect(values.map((val) => val.value)).toEqual(["B2", "B3", "B4"]);
     });
@@ -339,7 +339,7 @@ describe("Filter menu component", () => {
     setCellContent(model, "B14", "ca");
     await nextTick();
 
-    await openFilterMenu();
+    await openFilterMenu("A10");
     await simulateClick(".o-filter-menu-item:nth-of-type(1)");
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A10: { content: "header" },
@@ -354,7 +354,7 @@ describe("Filter menu component", () => {
       B14: { content: "ca" },
     });
 
-    await openFilterMenu();
+    await openFilterMenu("A10");
     await simulateClick(".o-filter-menu-item:nth-of-type(2)");
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A10: { content: "header" },
@@ -372,7 +372,7 @@ describe("Filter menu component", () => {
   test("cannot sort filter table in readonly mode", async () => {
     createTableWithFilter(model, "A10:B15");
     await nextTick();
-    await openFilterMenu();
+    await openFilterMenu("A10");
     expect(
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
     ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "(Blanks)"]);
@@ -387,7 +387,7 @@ describe("Filter menu component", () => {
     setCellContent(model, "A10", "=MUNIT(2)");
     createDynamicTable(model, "A10", { hasFilters: true });
     await nextTick();
-    await openFilterMenu();
+    await openFilterMenu("A10");
     expect(
       [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
     ).not.toContain("Sort ascending (A ⟶ Z)");
