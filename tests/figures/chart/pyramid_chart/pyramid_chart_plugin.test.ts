@@ -1,7 +1,7 @@
 import { ChartCreationContext, ChartJSRuntime, Model } from "../../../../src";
 import { PyramidChart } from "../../../../src/helpers/figures/charts/pyramid_chart";
 import { PyramidChartDefinition } from "../../../../src/types/chart/pyramid_chart";
-import { getChartTooltipValues } from "../../../test_helpers/chart_helpers";
+import { getChartConfiguration, getChartTooltipValues } from "../../../test_helpers/chart_helpers";
 import { createChart, setCellContent, setFormat } from "../../../test_helpers/commands_helpers";
 
 let model: Model;
@@ -124,6 +124,24 @@ describe("population pyramid chart", () => {
       const options = runtime.chartJsConfig.options;
       expect(options?.scales?.x?.suggestedMin).toBe(-33);
       expect(options?.scales?.x?.suggestedMax).toBe(33);
+    });
+
+    test("Pyramid chart showValues plugin does not display negative or zero values", () => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }],
+          type: "pyramid",
+        },
+        "43"
+      );
+
+      const config = getChartConfiguration(model, "43");
+      const plugin = config.options?.plugins?.chartShowValuesPlugin;
+
+      expect(plugin.callback(10, "x")).toBe("10");
+      expect(plugin.callback(-10, "x")).toBe("10");
+      expect(plugin.callback(0, "x")).toBe("");
     });
   });
 });

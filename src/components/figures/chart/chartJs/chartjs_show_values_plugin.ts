@@ -73,6 +73,7 @@ function drawLineOrBarOrRadarChartValues(
       continue;
     }
 
+    const yAxisScale = chart.scales[dataset.yAxisID];
     for (let i = 0; i < dataset._parsed.length; i++) {
       const parsedValue = dataset._parsed[i];
       const value = Number(chart.config.type === "radar" ? parsedValue.r : parsedValue.y);
@@ -85,10 +86,19 @@ function drawLineOrBarOrRadarChartValues(
 
       let yPosition = 0;
       if (chart.config.type === "line" || chart.config.type === "radar") {
-        yPosition = point.y - 10;
+        yPosition = value < 0 ? point.y + 10 : point.y - 10;
       } else {
-        yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+        const yZeroLine = yAxisScale.getPixelForValue(0);
+        const distanceFromAxisOrigin = Math.abs(yZeroLine - point.y);
+        const textHeight = 12; // ChartJS default text height
+
+        if (distanceFromAxisOrigin < textHeight) {
+          yPosition = value < 0 ? yZeroLine + textHeight / 2 : yZeroLine - textHeight / 2;
+        } else {
+          yPosition = value < 0 ? point.y - point.height / 2 : point.y + point.height / 2;
+        }
       }
+
       yPosition = Math.min(yPosition, yMax);
       yPosition = Math.max(yPosition, yMin);
 
@@ -98,7 +108,7 @@ function drawLineOrBarOrRadarChartValues(
       }
       for (const otherPosition of textsPositions[xPosition] || []) {
         if (Math.abs(otherPosition - yPosition) < 13) {
-          yPosition = otherPosition - 13;
+          yPosition = value < 0 ? otherPosition + 13 : otherPosition - 13;
         }
       }
       textsPositions[xPosition].push(yPosition);
@@ -124,6 +134,8 @@ function drawHorizontalBarChartValues(
     if (isTrendLineAxis(dataset.xAxisID)) {
       return; // ignore trend lines
     }
+    const xAxisScale = chart.scales[dataset.xAxisID];
+    const xZeroLine = xAxisScale.getPixelForValue(0);
 
     for (let i = 0; i < dataset._parsed.length; i++) {
       const value = Number(dataset._parsed[i].x);
@@ -134,18 +146,28 @@ function drawHorizontalBarChartValues(
       const point = dataset.data[i];
 
       const yPosition = point.y;
-      let xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
-      xPosition = Math.min(xPosition, xMax);
-      xPosition = Math.max(xPosition, xMin);
+      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: 12 }, "px");
+      const distanceFromAxisOrigin = Math.abs(point.x - xZeroLine);
+
+      const PADDING = 3;
+      let xPosition: number;
+      if (distanceFromAxisOrigin < textWidth) {
+        xPosition =
+          value < 0 ? xZeroLine - textWidth / 2 - PADDING : xZeroLine + textWidth / 2 + PADDING;
+      } else {
+        xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
+        xPosition = Math.min(xPosition, xMax);
+        xPosition = Math.max(xPosition, xMin);
+      }
 
       // Avoid overlapping texts with same Y
       if (!textsPositions[yPosition]) {
         textsPositions[yPosition] = [];
       }
-      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: 12 }, "px");
       for (const otherPosition of textsPositions[yPosition]) {
         if (Math.abs(otherPosition - xPosition) < textWidth) {
-          xPosition = otherPosition + textWidth + 3;
+          xPosition =
+            value < 0 ? otherPosition - textWidth - PADDING : otherPosition + textWidth + PADDING;
         }
       }
       textsPositions[yPosition].push(xPosition);
