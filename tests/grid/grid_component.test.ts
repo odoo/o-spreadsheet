@@ -178,6 +178,7 @@ describe("Grid component", () => {
     expect(getVerticalScroll()).toBe(0);
     triggerTouchEvent(grid, "touchstart", { clientX: 150, clientY: 150, identifier: 1 });
     triggerTouchEvent(grid, "touchmove", { clientX: 100, clientY: 120, identifier: 2 });
+    jest.advanceTimersByTime(10);
     await nextTick();
     expect(getHorizontalScroll()).toBe(50);
     expect(getVerticalScroll()).toBe(30);
@@ -199,6 +200,7 @@ describe("Grid component", () => {
     // move down; we are at the top: ev not prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 120, identifier: 2 });
     expect(mockCallback).toBeCalledTimes(1);
+    jest.advanceTimersByTime(10);
     // move up:; we are not at the top: ev prevented
     triggerTouchEvent(grid, "touchmove", { clientX: 0, clientY: 150, identifier: 3 });
     expect(mockCallback).toBeCalledTimes(1);
@@ -218,8 +220,17 @@ describe("Grid component", () => {
     expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
     triggerTouchEvent(grid, "touchend", { clientX: 0, clientY: 120 });
     expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
-    jest.runOnlyPendingTimers();
+    jest.advanceTimersByTime(timeDelta);
     expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(30);
+    let previousScrollY = model.getters.getActiveSheetDOMScrollInfo().scrollY;
+    jest.advanceTimersByTime(timeDelta);
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(previousScrollY);
+    previousScrollY = model.getters.getActiveSheetDOMScrollInfo().scrollY;
+    jest.advanceTimersByTime(timeDelta);
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(previousScrollY);
+    previousScrollY = model.getters.getActiveSheetDOMScrollInfo().scrollY;
+    jest.advanceTimersByTime(timeDelta);
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(previousScrollY);
   });
 
   test("scroll inertia is reset after some time", async () => {
