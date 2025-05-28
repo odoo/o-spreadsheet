@@ -56,7 +56,9 @@ export function getPyramidChartShowValues(
     background: definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       value = Math.abs(Number(value));
-      return formatChartDatasetValue(axisFormats, locale)(value, dataset.xAxisID || "x");
+      return value === 0
+        ? ""
+        : formatChartDatasetValue(axisFormats, locale)(value, dataset.xAxisID || "x");
     },
   };
 }
