@@ -23,7 +23,7 @@
             <Grid exposeFocus="(focus) => this._focusGrid = focus"/>
           </div>
         </div>
-        <SidePanel/>
+        <SidePanels/>
         <BottomBar onClick="() => this.focusGrid()"/>
       </t>
     </div>

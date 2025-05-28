@@ -2,7 +2,7 @@
 
 exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
 <div
-  class="o-sidePanel"
+  class="o-sidePanel h-100"
 >
   <div
     class="o-sidePanelHeader"
@@ -13,7 +13,15 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
       Pivot #1
     </div>
     <div
-      class="o-sidePanelClose"
+      class="ms-auto o-sidePanelAction"
+      title="Pin this panel to enable opening another side panel beside it."
+    >
+      <i
+        class="fa fa-thumb-tack"
+      />
+    </div>
+    <div
+      class="o-sidePanelClose o-sidePanelAction"
     >
       ✕
     </div>
@@ -222,7 +230,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
 
 exports[`Spreadsheet pivot side panel It should display only the selection input when the dataSet is not valid 1`] = `
 <div
-  class="o-sidePanel"
+  class="o-sidePanel h-100"
 >
   <div
     class="o-sidePanelHeader"
@@ -233,7 +241,15 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
       Pivot #1
     </div>
     <div
-      class="o-sidePanelClose"
+      class="ms-auto o-sidePanelAction"
+      title="Pin this panel to enable opening another side panel beside it."
+    >
+      <i
+        class="fa fa-thumb-tack"
+      />
+    </div>
+    <div
+      class="o-sidePanelClose o-sidePanelAction"
     >
       ✕
     </div>

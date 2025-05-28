@@ -1,13 +1,11 @@
-import { Component, useEffect } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { GRAY_300, TEXT_BODY } from "../../../constants";
-import { sidePanelRegistry } from "../../../registries/side_panel_registry";
-import { Store, useStore } from "../../../store_engine";
+import { SidePanelContent } from "../../../registries/side_panel_registry";
 import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
-import { startDnd } from "../../helpers/drag_and_drop";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
-import { SidePanelStore } from "./side_panel_store";
+import { SidePanelProps } from "./side_panel_store";
 
 css/* scss */ `
   .o-sidePanel {
@@ -37,6 +35,10 @@ css/* scss */ `
         cursor: pointer;
         &:hover {
           background-color: WhiteSmoke;
+        }
+
+        &.active {
+          background-color: Gainsboro;
         }
       }
     }
@@ -113,59 +115,30 @@ css/* scss */ `
   }
 `;
 
-export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
+interface Props {
+  panelContent: SidePanelContent;
+  panelProps: SidePanelProps;
+  onCloseSidePanel: () => void;
+  onStartHandleDrag: (ev: MouseEvent) => void;
+  onResetPanelSize: () => void;
+  canPinPanel: boolean;
+  isPinned?: boolean;
+  togglePinPanel?: () => void;
+}
+
+export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
-  static props = {};
-  sidePanelStore!: Store<SidePanelStore>;
+  static props = { "*": Object }; // ADRM TODO
   spreadsheetRect = useSpreadsheetRect();
 
-  setup() {
-    this.sidePanelStore = useStore(SidePanelStore);
-    useEffect(
-      (isOpen) => {
-        if (!isOpen) {
-          this.sidePanelStore.close();
-        }
-      },
-      () => [this.sidePanelStore.isOpen]
-    );
-  }
-
-  get panel() {
-    return sidePanelRegistry.get(this.sidePanelStore.activePanel.componentTag);
-  }
-
-  close() {
-    this.sidePanelStore.close();
-  }
-
-  pinPanel() {
-    this.sidePanelStore.pinSidePanel();
-  }
-
   getTitle() {
-    const panel = this.panel;
+    const panel = this.props.panelContent;
     return typeof panel.title === "function"
-      ? panel.title(this.env, this.sidePanelStore.panelProps)
+      ? panel.title(this.env, this.props.panelProps)
       : panel.title;
   }
 
-  startHandleDrag(ev: MouseEvent) {
-    const startingCursor = document.body.style.cursor;
-    const startSize = this.sidePanelStore.activePanel.panelSize;
-    const startPosition = ev.clientX;
-    const onMouseMove = (ev: MouseEvent) => {
-      document.body.style.cursor = "col-resize";
-      const newSize = startSize + startPosition - ev.clientX;
-      this.sidePanelStore.changePanelSize(newSize, this.spreadsheetRect.width);
-    };
-    const cleanUp = () => {
-      document.body.style.cursor = startingCursor;
-    };
-    startDnd(onMouseMove, cleanUp);
-  }
-
   get pinInfoMessage() {
-    return _t("Pin this panel to enable opening another side panel beside it.");
+    return _t("Pin this panel to allow to open another side panel beside it.");
   }
 }

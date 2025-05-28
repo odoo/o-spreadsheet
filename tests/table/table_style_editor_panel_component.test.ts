@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { SidePanel } from "../../src/components/side_panel/side_panel/side_panel";
+import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableStyleEditorPanelProps } from "../../src/components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { buildTableStyle } from "../../src/helpers/table_presets";
 import { SpreadsheetChildEnv, TableStyle } from "../../src/types";
@@ -12,7 +12,7 @@ let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
 
 async function mountPanel(partialProps: Partial<TableStyleEditorPanelProps> = {}) {
-  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
+  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   const props = { onCloseSidePanel: () => {}, ...partialProps };
   env.openSidePanel("TableStyleEditorPanel", { ...props });
   await nextTick();
