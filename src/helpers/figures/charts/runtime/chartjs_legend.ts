@@ -77,14 +77,16 @@ export function getPieChartLegend(
     labels: {
       usePointStyle: true,
       generateLabels: (c) =>
-        c.data.labels?.map((label, index) => ({
-          text: truncateLabel(String(label)),
-          strokeStyle: colors[index],
-          fillStyle: colors[index],
-          pointStyle: "rect",
-          lineWidth: 2,
-          fontColor,
-        })) || [],
+        (
+          c.data.labels?.map((label, index) => ({
+            text: truncateLabel(String(label)),
+            strokeStyle: colors[index],
+            fillStyle: colors[index],
+            pointStyle: "rect" as const,
+            lineWidth: 2,
+            fontColor,
+          })) || []
+        ).filter((label) => label.text),
       filter: (legendItem, data) => {
         return "datasetIndex" in legendItem
           ? !data.datasets[legendItem.datasetIndex!].hidden
@@ -279,29 +281,31 @@ function getCustomLegendLabels(
       color: fontColor,
       usePointStyle: true,
       generateLabels: (chart: Chart) =>
-        chart.data.datasets.map((dataset, index) => {
-          if (isTrendLineAxis(dataset["xAxisID"])) {
+        chart.data.datasets
+          .map((dataset, index) => {
+            if (isTrendLineAxis(dataset["xAxisID"])) {
+              return {
+                text: truncateLabel(dataset.label),
+                fontColor,
+                strokeStyle: dataset.borderColor as Color,
+                hidden: !chart.isDatasetVisible(index),
+                pointStyle: "line" as const,
+                datasetIndex: index,
+                lineWidth: 3,
+              } as LegendItem;
+            }
             return {
               text: truncateLabel(dataset.label),
               fontColor,
               strokeStyle: dataset.borderColor as Color,
+              fillStyle: dataset.backgroundColor as Color,
               hidden: !chart.isDatasetVisible(index),
-              pointStyle: "line",
+              pointStyle: dataset.type === "line" ? "line" : "rect",
               datasetIndex: index,
-              lineWidth: 3,
-            };
-          }
-          return {
-            text: truncateLabel(dataset.label),
-            fontColor,
-            strokeStyle: dataset.borderColor as Color,
-            fillStyle: dataset.backgroundColor as Color,
-            hidden: !chart.isDatasetVisible(index),
-            pointStyle: dataset.type === "line" ? "line" : "rect",
-            datasetIndex: index,
-            ...legendLabelConfig,
-          };
-        }),
+              ...legendLabelConfig,
+            } as LegendItem;
+          })
+          .filter((label) => label.text),
       filter: (legendItem, data) => {
         return "datasetIndex" in legendItem
           ? !data.datasets[legendItem.datasetIndex!].hidden
