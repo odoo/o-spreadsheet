@@ -126,6 +126,8 @@ function drawHorizontalBarChartValues(
     if (isTrendLineAxis(dataset.xAxisID)) {
       return; // ignore trend lines
     }
+    const scale = chart.scales[dataset.xAxisID];
+    const xZero = scale.getPixelForValue(0);
 
     for (let i = 0; i < dataset._parsed.length; i++) {
       const value = Number(dataset._parsed[i].x);
@@ -136,15 +138,22 @@ function drawHorizontalBarChartValues(
       const point = dataset.data[i];
 
       const yPosition = point.y;
-      let xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
-      xPosition = Math.min(xPosition, xMax);
-      xPosition = Math.max(xPosition, xMin);
+      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: 12 }, "px");
+      const barWidth = Math.abs(point.x - xZero);
+
+      let xPosition: number;
+      if (barWidth < textWidth) {
+        xPosition = value < 0 ? xZero - textWidth / 2 : xZero + textWidth / 2;
+      } else {
+        xPosition = value < 0 ? point.x + point.width / 2 : point.x - point.width / 2;
+        xPosition = Math.min(xPosition, xMax);
+        xPosition = Math.max(xPosition, xMin);
+      }
 
       // Avoid overlapping texts with same Y
       if (!textsPositions[yPosition]) {
         textsPositions[yPosition] = [];
       }
-      const textWidth = computeTextWidth(ctx, displayValue, { fontSize: 12 }, "px");
       for (const otherPosition of textsPositions[yPosition]) {
         if (Math.abs(otherPosition - xPosition) < textWidth) {
           xPosition = otherPosition + textWidth + 3;
