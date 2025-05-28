@@ -10,6 +10,7 @@ interface ChartShowValuesPluginOptions {
   showValues: boolean;
   background?: Color;
   horizontal?: boolean;
+  isWaterfall?: boolean;
   callback: (value: number | string) => string;
 }
 
@@ -103,7 +104,13 @@ function drawLineOrBarChartValues(
 
       ctx.fillStyle = point.options.backgroundColor;
       ctx.strokeStyle = options.background || "#ffffff";
-      drawTextWithBackground(options.callback(value - 0), xPosition, yPosition, ctx);
+
+      let valueToDisplay = value;
+      if (options.isWaterfall) {
+        const raw = dataset._dataset.data[i];
+        valueToDisplay = raw[1] - raw[0];
+      }
+      drawTextWithBackground(options.callback(Number(valueToDisplay)), xPosition, yPosition, ctx);
     }
   }
 }

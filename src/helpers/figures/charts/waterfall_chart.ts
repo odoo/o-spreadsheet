@@ -330,6 +330,7 @@ function getWaterfallConfiguration(
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
+    isWaterfall: true,
     callback: formatTickValue(localeFormat),
   };
 
