@@ -18,7 +18,17 @@ function line(): Line {
 
 // sections the tokens as a single line
 function concat(docs: Doc[]): Concat {
-  return { type: "concat", docs };
+  const res: Doc[] = [];
+  for (const d of docs) {
+    // concats of concats are concats
+    // let's flatten them for the output readability
+    if (typeof d === "object" && d !== null && d.type === "concat") {
+      res.push(...d.docs);
+    } else {
+      res.push(d);
+    }
+  }
+  return { type: "concat", docs: res };
 }
 
 // indents the tokens
@@ -43,7 +53,7 @@ function flatten(x: Doc): Doc {
     return null;
   }
   if (x.type === "union") {
-    return union(flatten(x.a), flatten(x.b));
+    return flatten(x.a);
   }
   if (x.type === "concat") {
     return concat(x.docs.map(flatten));
@@ -151,7 +161,9 @@ function fits(width: number, x: SubDoc): boolean {
 // ---------------------------------------
 
 export function prettify(ast: AST) {
-  return "= " + pretty(30, astToDoc(ast));
+  const doc = astToDoc(ast);
+  console.log(JSON.stringify(doc, null, 2));
+  return "= " + pretty(30, doc);
 }
 
 function astToDoc(ast: AST): Doc {

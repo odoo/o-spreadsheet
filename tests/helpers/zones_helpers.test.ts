@@ -1,3 +1,5 @@
+import { parse } from "../../src";
+import { prettify } from "../../src/components/composer/composer/prettifier_content";
 import {
   createAdaptedZone,
   excludeTopLeft,
@@ -13,6 +15,50 @@ import {
 
 import { Zone } from "../../src/types";
 import { target } from "../test_helpers/helpers";
+
+describe("expression formatter", () => {
+  test("format", () => {
+    expect(prettify(parse("=A1+B1+C1"))).toMatchInlineSnapshot(`"= A1 +  B1 +  C1"`);
+    expect(prettify(parse("=A1+B1+C1+D1+E1+F1"))).toMatchInlineSnapshot(`
+      "= A1 +  B1 +  C1 +  D1 +  E1 + 
+      F1"
+    `);
+    expect(prettify(parse("=SUM(A1,B1,C1,D1,E1,F1,G1,H1,I1,J1)"))).toMatchInlineSnapshot(`
+      "= SUM(
+      	A1,
+      	B1,
+      	C1,
+      	D1,
+      	E1,
+      	F1,
+      	G1,
+      	H1,
+      	I1,
+      	J1
+      )"
+    `);
+    expect(prettify(parse("=SUM(SUM(A1,B1,C1,D1,E1,F1,G1))"))).toMatchInlineSnapshot(`
+      "= SUM(
+      	SUM(
+      		A1,
+      		B1,
+      		C1,
+      		D1,
+      		E1,
+      		F1,
+      		G1
+      	)
+      )"
+    `);
+
+    // the corresponding doc is in doc.json
+    expect(prettify(parse("=A1+A2+A3+A4+A5+A6+A7"))).toMatchInlineSnapshot(`
+      "= A1 +  A2 +  A3 +  A4 +  A5 + 
+      A6 + 
+      A7"
+    `);
+  });
+});
 
 describe("overlap", () => {
   test("one zone above the other", () => {
