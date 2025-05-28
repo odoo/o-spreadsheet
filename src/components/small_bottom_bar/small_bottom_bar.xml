@@ -19,6 +19,19 @@
             </span>
           </span>
         </div>
+        <div class="d-flex flex-row mb-1" t-if="this.focus !== 'inactive'">
+          <div
+            t-foreach="symbols"
+            t-as="symbol"
+            t-key="symbol_index"
+            class="o-spreadsheet-editor-symbol w-100 d-flex justify-content-center align-items-center mx-1"
+            t-esc="symbol"
+            tabindex="-1"
+            t-att-title="symbol"
+            t-on-click="() => this.insertSymbol(symbol)"
+            composerFocusableElement="true"
+          />
+        </div>
         <div class="d-flex flex-fill align-items-center bottom-bar-menu">
           <Ripple>
             <div class="py-1 px-1 mx-2 ribbon-toggler" t-on-click="toggleRibbon">

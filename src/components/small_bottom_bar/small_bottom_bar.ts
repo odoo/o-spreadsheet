@@ -97,6 +97,17 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
+  get symbols(): string[] {
+    return ["=", "(", ")", ":", "-", "/", "*", ",", "+", "$", "."];
+  }
+
+  insertSymbol(symbol: string): void {
+    this.composerStore.replaceComposerCursorSelection(symbol);
+    this.composerFocusStore.focusComposer(this.composerInterface, {
+      focusMode: "contentFocus",
+    });
+  }
+
   toggleRibbon(): void {
     this.composerStore.cancelEdition();
     this.menuState.isOpen = !this.menuState.isOpen;

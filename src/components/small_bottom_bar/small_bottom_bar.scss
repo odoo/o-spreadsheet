@@ -31,4 +31,10 @@
   .o-composer-assistant-container {
     transform: translateY(calc(-24px - 100%));
   }
+
+  .o-spreadsheet-editor-symbol {
+    height: 33px;
+    cursor: pointer;
+    user-select: none;
+  }
 }
