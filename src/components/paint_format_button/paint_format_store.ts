@@ -15,7 +15,13 @@ interface ClipboardContent {
 }
 
 // Include only the format-related handlers from clipboardHandlersRegistries
-const PAINT_FORMAT_HANDLER_KEYS = ["cell", "border", "table", "conditionalFormat"] as const;
+const PAINT_FORMAT_HANDLER_KEYS = [
+  "cell",
+  "border",
+  "table",
+  "conditionalFormat",
+  "merge",
+] as const;
 
 export class PaintFormatStore extends SpreadsheetStore {
   mutators = ["activate", "cancel", "pasteFormat"] as const;
