@@ -9,4 +9,7 @@
   .o-spreadsheet-bottombar-wrapper {
     box-shadow: 0 0 3px 1px lightgray;
   }
+  .o-spreadsheet-bottombar-wrapper {
+    overscroll-behavior: none;
+  }
 }
