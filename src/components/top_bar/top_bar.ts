@@ -64,7 +64,7 @@ css/* scss */ `
 
   .o-spreadsheet-topbar {
     line-height: 1.2;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     background-color: #fff;
 
