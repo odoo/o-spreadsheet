@@ -485,11 +485,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         if (cell.value === "") {
           entry[field.name] = { value: null, type: CellValueType.empty, formattedValue: "" };
         } else {
-          if (field.type === "char") {
-            entry[field.name] = { ...cell, value: cell.formattedValue || null };
-          } else {
-            entry[field.name] = cell;
-          }
+          entry[field.name] = cell;
         }
       }
       entry["__count"] = { value: 1, type: CellValueType.number, formattedValue: "1" };
