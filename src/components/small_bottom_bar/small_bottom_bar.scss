@@ -11,6 +11,7 @@
       color: #6aa84f;
     }
   }
+
   .o-small-composer {
     background-color: white;
     border: lightgrey solid 1px;
@@ -28,8 +29,12 @@
     border: none;
   }
 
+  .o-composer {
+    overscroll-behavior: contain;
+  }
+
   .o-composer-assistant-container {
-    transform: translateY(calc(-24px - 100%));
+    transform: translateY(calc(-26px - 100%));
   }
 
   .o-spreadsheet-editor-symbol {
