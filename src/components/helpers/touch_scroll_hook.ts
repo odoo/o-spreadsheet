@@ -74,6 +74,11 @@ export function useTouchScroll(
   function onTouchEnd(ev: MouseEvent) {
     isMouseDown = false;
     lastX = lastY = 0;
+    if (resetTimeout) {
+      clearTimeout(resetTimeout);
+    }
+    velocityX *= 1.2;
+    velocityY *= 1.2;
     requestAnimationFrame(scroll);
   }
 
