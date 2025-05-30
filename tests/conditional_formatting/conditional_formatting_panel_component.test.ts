@@ -42,7 +42,7 @@ import {
   textContentAll,
   toRangesData,
 } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 function errorMessages(): string[] {
@@ -137,7 +137,7 @@ describe("UI of conditional formats", () => {
   let sheetId: UID;
   let env: SpreadsheetChildEnv;
 
-  mockGetBoundingClientRect({
+  extendMockGetBoundingClientRect({
     "o-cf-preview-container": (el: HTMLElement) => ({
       y:
         model.getters
@@ -222,7 +222,9 @@ describe("UI of conditional formats", () => {
     test("Ranges of hovered previews are highlighted", async () => {
       expect(getHighlightsFromStore(env)).toEqual([]);
       triggerMouseEvent(selectors.listPreview, "mouseenter");
-      expect(getHighlightsFromStore(env)).toMatchObject([{ zone: toZone("A1:A2") }]);
+      expect(getHighlightsFromStore(env)).toMatchObject([
+        { range: model.getters.getRangeFromZone(sheetId, toZone("A1:A2")) },
+      ]);
       triggerMouseEvent(selectors.listPreview, "mouseleave");
       expect(getHighlightsFromStore(env)).toEqual([]);
     });

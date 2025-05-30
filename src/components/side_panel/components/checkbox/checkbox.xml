@@ -13,6 +13,7 @@
         t-att-name="props.name"
         t-att-checked="props.value"
         t-on-change="onChange"
+        t-on-click.stop=""
       />
       <t t-if="props.label" t-esc="props.label"/>
     </label>

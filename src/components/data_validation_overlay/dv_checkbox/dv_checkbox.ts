@@ -30,6 +30,7 @@ export class DataValidationCheckbox extends Component<Props, SpreadsheetChildEnv
   onCheckboxChange(value: boolean) {
     const { sheetId, col, row } = this.props.cellPosition;
     const cellContent = value ? "TRUE" : "FALSE";
+    this.env.model.selection.selectCell(col, row);
     this.env.model.dispatch("UPDATE_CELL", { sheetId, col, row, content: cellContent });
   }
 

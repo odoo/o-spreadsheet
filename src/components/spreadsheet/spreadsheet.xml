@@ -1,12 +1,18 @@
 <templates>
   <t t-name="o-spreadsheet-Spreadsheet">
-    <div class="o-spreadsheet h-100 w-100" t-ref="spreadsheet" t-att-style="getStyle()">
+    <div
+      class="o-spreadsheet h-100 w-100"
+      t-att-class="{'o-spreadsheet-mobile': env.isSmall}"
+      t-ref="spreadsheet"
+      t-att-style="getStyle()">
       <t t-if="env.isDashboard()">
-        <SpreadsheetDashboard/>
+        <SpreadsheetDashboard getGridSize.bind="getGridSize"/>
         <FullScreenChart/>
       </t>
       <t t-else="">
-        <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
+        <div class="o-spreadsheet-topbar-wrapper o-two-columns">
+          <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
+        </div>
         <div
           class="o-grid-container"
           t-att-class="{'o-two-columns': !sidePanel.isOpen}"
@@ -20,11 +26,14 @@
             <HeaderGroupContainer layers="rowLayers" dimension="'ROW'"/>
           </div>
           <div class="o-group-grid overflow-hidden">
-            <Grid exposeFocus="(focus) => this._focusGrid = focus"/>
+            <Grid exposeFocus="(focus) => this._focusGrid = focus" getGridSize.bind="getGridSize"/>
           </div>
         </div>
         <SidePanel/>
-        <BottomBar onClick="() => this.focusGrid()"/>
+        <div class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden">
+          <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
+          <BottomBar t-else="" onClick="() => this.focusGrid()"/>
+        </div>
       </t>
     </div>
   </t>

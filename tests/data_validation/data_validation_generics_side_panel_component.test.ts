@@ -10,11 +10,10 @@ import {
   mountComponentWithPortalTarget,
   nextTick,
 } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 const dataValidationSelectBoundingRect = { x: 100, y: 100, width: 50, height: 50 };
-mockGetBoundingClientRect({
-  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+extendMockGetBoundingClientRect({
   "o-dv-type": () => dataValidationSelectBoundingRect,
 });
 

@@ -20,6 +20,7 @@ interface Props {
 
 css/* scss */ `
   .o-font-size-editor {
+    width: max-content !important;
     height: calc(100% - 4px);
     input.o-font-size {
       outline: none;

@@ -31,4 +31,5 @@ export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   loadLocales: () => Promise<Locale[]>;
   getStore: Get;
   isSmall: boolean;
+  isMobile: () => boolean;
 }

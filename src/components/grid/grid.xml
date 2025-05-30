@@ -16,6 +16,7 @@
         onGridMoved.bind="moveCanvas"
         gridOverlayDimensions="gridOverlayDimensions"
         onFigureDeleted.bind="focusDefaultElement"
+        getGridSize="props.getGridSize"
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
       <GridComposer
@@ -42,16 +43,17 @@
         onMouseWheel.bind="onMouseWheel"
         onClosePopover.bind="onClosePopover"
       />
-      <t t-if="env.model.getters.isGridSelectionActive()">
+      <t t-if="env.model.getters.isGridSelectionActive() and !env.isMobile()">
         <Autofill position="getAutofillPosition()" isVisible="isAutofillVisible"/>
       </t>
       <t t-foreach="highlights" t-as="highlight" t-key="highlight_index">
         <t
-          t-if="highlight.interactive and highlight.sheetId === env.model.getters.getActiveSheetId()">
-          <Highlight zone="highlight.zone" color="highlight.color"/>
+          t-if="highlight.interactive and highlight.range.sheetId === env.model.getters.getActiveSheetId()">
+          <Highlight range="highlight.range" color="highlight.color"/>
         </t>
       </t>
-      <Menu
+      <Selection t-if="displaySelectionHandler"/>
+      <MenuPopover
         t-if="menuState.isOpen"
         menuItems="menuState.menuItems"
         anchorRect="menuState.anchorRect"

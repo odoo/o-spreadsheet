@@ -7,7 +7,7 @@ import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../typ
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_dom_items_hook";
-import { Menu, MenuState } from "../menu/menu";
+import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { BottomBarSheet } from "./bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "./bottom_bar_statistic/bottom_bar_statistic";
 
@@ -72,8 +72,8 @@ css/* scss */ `
     }
   }
 
-  .mobile.o-spreadsheet-bottom-bar {
-    padding-left: 1rem;
+  .o-spreadsheet-mobile .o-spreadsheet-bottom-bar {
+    padding-left: 0;
 
     .add-sheet-container {
       order: 2;
@@ -104,10 +104,9 @@ interface BottomBarMenuState extends MenuState {
 
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBar";
-  static props = {
-    onClick: Function,
-  };
-  static components = { Menu, Ripple, BottomBarSheet, BottomBarStatistic };
+  static props = { onClick: Function };
+
+  static components = { MenuPopover, Ripple, BottomBarSheet, BottomBarStatistic };
 
   private bottomBarRef = useRef("bottomBar");
   private sheetListRef = useRef("sheetList");
@@ -259,6 +258,10 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   onSheetMouseDown(sheetId: UID, event: MouseEvent) {
     if (event.button !== 0 || this.env.model.getters.isReadonly()) return;
     this.closeMenu();
+
+    if (this.env.isMobile()) {
+      return;
+    }
 
     const visibleSheets = this.getVisibleSheets();
     const sheetRects = this.getSheetItemRects();

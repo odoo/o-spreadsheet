@@ -1,5 +1,5 @@
 .o-spreadsheet {
-  @media (max-width: 900px) {
+  @media (max-width: 1200px) {
     .o-topbar-responsive {
       flex-direction: column !important;
     }
@@ -10,5 +10,11 @@
       overflow: auto;
       align-items: normal !important;
     }
+  }
+
+  .tool-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }

@@ -3,9 +3,13 @@
  */
 import { App } from "@odoo/owl";
 import * as Chart from "chart.js";
-import { setDefaultSheetViewSize } from "../../src/constants";
+import { HEADER_HEIGHT, HEADER_WIDTH, setDefaultSheetViewSize } from "../../src/constants";
 import "../../src/types/chart/chartjs_tree_map_type";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
+import {
+  extendMockGetBoundingClientRect,
+  mockGetBoundingClientRect,
+} from "../test_helpers/mock_helpers";
 import "./canvas.mock";
 import "./jest_extend";
 import "./polyfill";
@@ -71,6 +75,22 @@ beforeEach(() => {
     });
   patchSessionMove();
 });
+
+beforeEach(() => {
+  mockGetBoundingClientRect();
+  extendMockGetBoundingClientRect({
+    "o-spreadsheet": () => ({
+      x: 0,
+      y: 0,
+      width: 1000 + HEADER_WIDTH,
+      height: 1000 + HEADER_HEIGHT,
+    }),
+    "o-grid": () => ({ x: 0, y: 0, width: 1000 + HEADER_WIDTH, height: 1000 + HEADER_HEIGHT }),
+    // "o-grid-overlay": () => ({ x: HEADER_WIDTH, y: HEADER_HEIGHT, width: 1000 + HEADER_WIDTH, height: 1000 + HEADER_HEIGHT }),
+  });
+});
+
+// afterAll(() => {resetMockGetBoundingClientRect()});
 
 afterEach(() => {
   window.resizers.removeAll();

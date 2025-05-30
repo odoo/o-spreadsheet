@@ -28,6 +28,10 @@ export function useTouchScroll(
   useRefListener(ref, "touchend", onTouchEnd, { capture: false });
 
   function onTouchStart(event: TouchEvent) {
+    if (event.touches.length > 1) {
+      isMouseDown = false;
+      return;
+    }
     isMouseDown = true;
     ({ clientX: lastX, clientY: lastY } = event.touches[0]);
     velocityX = 0;
@@ -70,6 +74,11 @@ export function useTouchScroll(
   function onTouchEnd(ev: MouseEvent) {
     isMouseDown = false;
     lastX = lastY = 0;
+    if (resetTimeout) {
+      clearTimeout(resetTimeout);
+    }
+    velocityX *= 1.2;
+    velocityY *= 1.2;
     requestAnimationFrame(scroll);
   }
 

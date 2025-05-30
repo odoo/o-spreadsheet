@@ -11,7 +11,7 @@ import { Grid } from "./components/grid/grid";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_dom_items_hook";
 import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
-import { Menu } from "./components/menu/menu";
+import { MenuPopover } from "./components/menu_popover/menu_popover";
 import { Popover } from "./components/popover";
 import { CellPopoverStore } from "./components/popover/cell_popover_store";
 import { SelectionInput } from "./components/selection_input/selection_input";
@@ -50,9 +50,9 @@ import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_sec
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
-  BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  DESKTOP_BOTTOMBAR_HEIGHT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   HIGHLIGHT_COLOR,
@@ -256,7 +256,7 @@ export const SPREADSHEET_DIMENSIONS = {
   MIN_COL_WIDTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  BOTTOMBAR_HEIGHT,
+  DESKTOP_BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_WIDTH,
   DEFAULT_CELL_HEIGHT,
   SCROLLBAR_WIDTH,
@@ -405,7 +405,7 @@ export const components = {
   FunnelChartDesignPanel,
   ChartTypePicker,
   FigureComponent,
-  Menu,
+  MenuPopover,
   Popover,
   SelectionInput,
   ValidationMessages,

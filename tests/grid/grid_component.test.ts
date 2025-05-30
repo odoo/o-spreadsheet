@@ -83,6 +83,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import {
   createEqualCF,
+  flattenHighlightRange,
   getPlugin,
   mockChart,
   mountSpreadsheet,
@@ -92,7 +93,7 @@ import {
   toRangesData,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 jest.mock("../../src/helpers/figures/images/image_provider", () =>
   require("../__mocks__/mock_image_provider")
@@ -107,11 +108,6 @@ function getHorizontalScroll(): number {
   const scrollbar = fixture.querySelector(".o-scrollbar.horizontal") as HTMLElement;
   return scrollbar.scrollLeft;
 }
-
-const mockGridPosition = { x: 40, y: 40 };
-mockGetBoundingClientRect({
-  "o-grid": () => mockGridPosition,
-});
 
 let fixture: HTMLElement;
 let model: Model;
@@ -600,7 +596,7 @@ describe("Grid component", () => {
       expect(composerStore.editionMode).toBe("editing");
       expect(composerStore.composerSelection).toEqual({ start: 5, end: 10 });
       expect(composerStore.currentContent).toBe("=SUM(B2:B4)");
-      expect(composerStore.highlights[0]?.zone).toEqual(toZone("B2:B4"));
+      expect(composerStore.highlights[0]?.range.zone).toEqual(toZone("B2:B4"));
     });
 
     test("can automatically sum in an empty sheet with ALT+=", () => {
@@ -1130,7 +1126,9 @@ describe("Grid component", () => {
     test("zone to paint is highlighted", async () => {
       selectCell(model, "B2");
       paintFormatStore.activate({ persistent: false });
-      expect(highlightStore.highlights).toMatchObject([{ zone: toZone("B2") }]);
+      expect(highlightStore.highlights.map(flattenHighlightRange)).toMatchObject([
+        { zone: toZone("B2") },
+      ]);
 
       paintFormatStore.cancel();
       expect(highlightStore.highlights).toEqual([]);
@@ -1195,6 +1193,15 @@ describe("Grid component", () => {
   });
 
   test("Can open context menu with a keyboard input ", async () => {
+    const mockGridPosition = {
+      x: 40,
+      y: 40,
+      width: 1000 + HEADER_WIDTH,
+      height: 1000 + HEADER_HEIGHT,
+    };
+    extendMockGetBoundingClientRect({
+      "o-grid": () => mockGridPosition,
+    });
     const selector = ".o-grid div.o-composer";
     const target = document.querySelector(selector)! as HTMLElement;
     target.focus();
@@ -1218,7 +1225,7 @@ describe("Grid component", () => {
     await nextTick();
     await keyDown({ key: "A", metaKey: true, bubbles: true });
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
-    jest.restoreAllMocks();
+    mockUserAgent.mockRestore();
   });
 });
 
@@ -1400,8 +1407,10 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getActiveMainViewport()).toMatchObject(viewport);
     keyDown({ key: "ArrowRight" });
     expect(getSelectionAnchorCellXc(model)).toBe("K1");
+
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       ...viewport,
+      // the viewport snapped to display K1 entirely
       left: 0,
       right: 10,
     });
@@ -1427,6 +1436,8 @@ describe("Events on Grid update viewport correctly", () => {
     freezeColumns(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_WIDTH, shiftKey: true });
     await clickCell(model, "H1");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("H1"));
+
     expect(model.getters.getActiveMainViewport().left).toEqual(7);
     expect(model.getters.getActiveSheetScrollInfo().scrollX).toEqual(4 * DEFAULT_CELL_WIDTH);
     keyDown({ key: "ArrowLeft", shiftKey: false });
@@ -1453,7 +1464,7 @@ describe("Events on Grid update viewport correctly", () => {
     expect(model.getters.getActiveSheetScrollInfo().scrollY).toEqual(0);
   });
 
-  test("Move selection vertically (bottom to to) through pane division does not reset the scroll", async () => {
+  test("Move selection vertically (bottom to top) through pane division does not reset the scroll", async () => {
     freezeRows(model, 3);
     triggerWheelEvent(document.activeElement!, { deltaY: 4 * DEFAULT_CELL_HEIGHT });
     await clickCell(model, "A8");
@@ -1569,16 +1580,18 @@ describe("Events on Grid update viewport correctly", () => {
       height: 1000 - SCROLLBAR_WIDTH,
     });
     // mock a resizing of the grid DOM element. can occur if resizing the browser or opening the sidePanel
-    jest.spyOn(HTMLDivElement.prototype, "clientWidth", "get").mockImplementation(() => 800);
-    jest.spyOn(HTMLDivElement.prototype, "clientHeight", "get").mockImplementation(() => 650);
+    extendMockGetBoundingClientRect({
+      "o-spreadsheet": () => ({ x: 0, y: 0, width: 800, height: 650 }),
+      "o-grid": () => ({ x: 0, y: 0, width: 800, height: 650 }),
+    });
     // force a triggering of all resizeObservers to ensure the grid is resized
     //@ts-ignore
     window.resizers.resize();
     await nextTick();
 
     expect(model.getters.getSheetViewDimension()).toMatchObject({
-      width: 800,
-      height: 650,
+      width: 800 - HEADER_WIDTH - SCROLLBAR_WIDTH,
+      height: 650 - HEADER_HEIGHT - SCROLLBAR_WIDTH,
     });
   });
 
@@ -1620,6 +1633,8 @@ describe("Events on Grid update viewport correctly", () => {
     setViewportOffset(model, 0, offset);
     await nextTick();
     await clickCell(model, "A2"); //++ cassé
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A2"));
+
     expect(model.getters.getVisibleRect(toZone("A1"))).toMatchObject({
       x: HEADER_WIDTH,
       y: HEADER_HEIGHT,

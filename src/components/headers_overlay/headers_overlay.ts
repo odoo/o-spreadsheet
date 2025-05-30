@@ -155,7 +155,10 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     this.state.waitingForMove = false;
   }
 
-  onMouseMove(ev: MouseEvent) {
+  onMouseMove(ev: PointerEvent) {
+    if (this.env.isMobile()) {
+      return;
+    }
     if (this.state.isResizing || this.state.isMoving || this.state.isSelecting) {
       return;
     }
@@ -205,7 +208,22 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     startDnd(onMouseMove, onMouseUp);
   }
 
+  onClick(ev: MouseEvent) {
+    if (!this.env.isMobile()) {
+      return;
+    }
+    if (ev.button > 0) {
+      // not main button, probably a context menu
+      return;
+    }
+    const index = this._getElementIndex(this._getEvOffset(ev));
+    this._selectElement(index, false);
+  }
+
   select(ev: PointerEvent) {
+    if (this.env.isMobile()) {
+      return;
+    }
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;
@@ -273,6 +291,9 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   }
 
   private startSelection(ev: PointerEvent, index: HeaderIndex) {
+    if (this.env.isMobile()) {
+      return;
+    }
     this.state.isSelecting = true;
     if (ev.shiftKey) {
       this._increaseSelection(index);
