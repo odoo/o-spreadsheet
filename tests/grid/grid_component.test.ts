@@ -218,8 +218,17 @@ describe("Grid component", () => {
     expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
     triggerTouchEvent(grid, "touchend", { clientX: 0, clientY: 120 });
     expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBe(30);
-    jest.runOnlyPendingTimers();
+    jest.advanceTimersByTime(timeDelta);
     expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(30);
+    let previousScrollY = model.getters.getActiveSheetDOMScrollInfo().scrollY;
+    jest.advanceTimersByTime(timeDelta);
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(previousScrollY);
+    previousScrollY = model.getters.getActiveSheetDOMScrollInfo().scrollY;
+    jest.advanceTimersByTime(timeDelta);
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(previousScrollY);
+    previousScrollY = model.getters.getActiveSheetDOMScrollInfo().scrollY;
+    jest.advanceTimersByTime(timeDelta);
+    expect(model.getters.getActiveSheetDOMScrollInfo().scrollY).toBeGreaterThan(previousScrollY);
   });
 
   test("scroll inertia is reset after some time", async () => {
