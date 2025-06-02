@@ -1,5 +1,6 @@
 import { ModelStore } from ".";
 import { HoveredIconStore } from "../components/grid_overlay/hovered_icon_store";
+import { getPath2D } from "../components/icons/icons";
 import { HoveredTableStore } from "../components/tables/hovered_table_store";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
@@ -367,7 +368,7 @@ export class GridRenderer {
         ctx.scale(iconSize / svg.width, iconSize / svg.height);
         for (const path of svg.paths) {
           ctx.fillStyle = path.fillColor;
-          ctx.fill(new Path2D(path.path));
+          ctx.fill(getPath2D(path.path));
         }
         ctx.restore();
       }
