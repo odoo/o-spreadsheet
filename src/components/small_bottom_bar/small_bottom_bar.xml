@@ -35,7 +35,7 @@
         <div class="d-flex flex-fill align-items-center bottom-bar-menu">
           <Ripple>
             <div class="py-1 px-1 mx-2 ribbon-toggler" t-on-click="toggleRibbon">
-              <span class="o-icon">🐧</span>
+              <i class="o-icon fa fa-cog"/>
             </div>
           </Ripple>
           <BottomBar onClick="props.onClick"/>
