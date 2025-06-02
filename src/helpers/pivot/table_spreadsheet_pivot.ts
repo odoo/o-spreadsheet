@@ -8,6 +8,7 @@ import {
   PivotTableCell,
   PivotTableColumn,
   PivotTableRow,
+  PivotVisibilityOptions,
 } from "../../types/pivot";
 import { deepEquals, lazy } from "../misc";
 import { isParentDomain, sortPivotTree } from "./pivot_domain_helpers";
@@ -156,28 +157,51 @@ export class SpreadsheetPivotTable {
     return this.columns.at(-1)?.length || 0;
   }
 
-  getPivotCells(includeTotal = true, includeColumnHeaders = true): PivotTableCell[][] {
-    const key = JSON.stringify({ includeTotal, includeColumnHeaders });
+  getSkippedRows(visibilityOptions: PivotVisibilityOptions) {
+    const skippedRows: Set<number> = new Set();
+    if (!visibilityOptions.displayColumnHeaders) {
+      for (let i = 0; i < this.columns.length - 1; i++) {
+        skippedRows.add(i);
+      }
+    }
+    if (!visibilityOptions.displayMeasuresRow) {
+      skippedRows.add(this.columns.length - 1);
+    }
+    return skippedRows;
+  }
+
+  getPivotCells(
+    visibilityOptions: PivotVisibilityOptions = {
+      displayColumnHeaders: true,
+      displayTotals: true,
+      displayMeasuresRow: true,
+    }
+  ): PivotTableCell[][] {
+    const key = JSON.stringify(visibilityOptions);
     if (!this.pivotCells[key]) {
+      const { displayTotals } = visibilityOptions;
       const numberOfDataRows = this.rows.length;
       const numberOfDataColumns = this.getNumberOfDataColumns();
       let pivotHeight = this.columns.length + numberOfDataRows;
       let pivotWidth = 1 /*(row headers)*/ + numberOfDataColumns;
-      if (!includeTotal && numberOfDataRows !== 1) {
+      if (!displayTotals && numberOfDataRows !== 1) {
         pivotHeight -= 1;
       }
-      if (!includeTotal && numberOfDataColumns !== this.measures.length) {
+      if (!displayTotals && numberOfDataColumns !== this.measures.length) {
         pivotWidth -= this.measures.length;
       }
       const domainArray: PivotTableCell[][] = [];
-      const startRow = includeColumnHeaders ? 0 : this.columns.length;
+      const skippedRows = this.getSkippedRows(visibilityOptions);
       for (let col = 0; col < pivotWidth; col++) {
         domainArray.push([]);
-        for (let row = startRow; row < pivotHeight; row++) {
-          if (!includeTotal && row === pivotHeight) {
+        for (let row = 0; row < pivotHeight; row++) {
+          if (skippedRows.has(row)) {
             continue;
           }
-          domainArray[col].push(this.getPivotCell(col, row, includeTotal));
+          if (!displayTotals && row === pivotHeight) {
+            continue;
+          }
+          domainArray[col].push(this.getPivotCell(col, row, displayTotals));
         }
       }
       this.pivotCells[key] = domainArray;

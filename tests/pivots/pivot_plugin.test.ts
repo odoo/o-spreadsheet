@@ -317,7 +317,7 @@ describe("Pivot plugin", () => {
     // prettier-ignore
     const grid = {
       A1: "Customer", B1: "Price",
-      A2: "Alice",    B2: "10",    
+      A2: "Alice",    B2: "10",
       A3: "Bob",      B3: "30",
     };
     const model = createModelFromGrid(grid);
@@ -329,15 +329,31 @@ describe("Pivot plugin", () => {
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "C1", "=PIVOT(1,,,false)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      type: "MEASURE_HEADER",
+    });
+    setCellContent(model, "C1", "=PIVOT(1,,,false,,false)");
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       measure: "testCount",
       type: "VALUE",
     });
     setCellContent(model, "C1", "=PIVOT(1,,,0)");
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      type: "MEASURE_HEADER",
+    });
+    setCellContent(model, "C1", "=PIVOT(1,,,0,,0)");
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      measure: "testCount",
+      type: "VALUE",
+    });
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       measure: "testCount",
       type: "VALUE",
     });
     setCellContent(model, "C1", `=PIVOT(1,,,"FALSE")`);
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      type: "MEASURE_HEADER",
+    });
+    setCellContent(model, "C1", `=PIVOT(1,,,"FALSE",,"FALSE")`);
     expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
       measure: "testCount",
       type: "VALUE",
