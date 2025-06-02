@@ -245,7 +245,7 @@ function isAndroid() {
   return /Android/i.test(navigator.userAgent);
 }
 
-function isIOS() {
+export function isIOS() {
   return (
     /(iPad|iPhone|iPod)/i.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && maxTouchPoints() > 1)
