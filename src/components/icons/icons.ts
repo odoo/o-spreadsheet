@@ -264,3 +264,13 @@ export const ICON_SETS = {
     bad: "dotBad",
   },
 };
+
+const path2DCache: Record<string, Path2D> = {};
+export function getPath2D(svgPath: string): Path2D {
+  if (path2DCache[svgPath]) {
+    return path2DCache[svgPath];
+  }
+  const path2D = new Path2D(svgPath);
+  path2DCache[svgPath] = path2D;
+  return path2D;
+}
