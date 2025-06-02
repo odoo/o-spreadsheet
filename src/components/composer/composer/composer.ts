@@ -18,7 +18,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { isIOS, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
@@ -559,6 +559,10 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   onMousedown(ev: MouseEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
+      return;
+    }
+
+    if (this.env.isMobile() && !isIOS()) {
       return;
     }
     this.contentHelper.removeSelection();
