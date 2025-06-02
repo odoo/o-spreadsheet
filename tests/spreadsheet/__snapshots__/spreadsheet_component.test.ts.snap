@@ -1852,6 +1852,7 @@ exports[`components take the small screen into account 1`] = `
         </div>
         
       </div>
+      
       <div
         class="d-flex flex-fill align-items-center bottom-bar-menu"
       >
@@ -1869,11 +1870,9 @@ exports[`components take the small screen into account 1`] = `
             <div
               class="py-1 px-1 mx-2 ribbon-toggler"
             >
-              <span
-                class="o-icon"
-              >
-                🐧
-              </span>
+              <i
+                class="o-icon fa fa-cog"
+              />
             </div>
           </div>
         </div>
