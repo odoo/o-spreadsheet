@@ -135,6 +135,7 @@ export interface CellComposerProps {
   composerStore: Store<CellComposerStore>;
   placeholder?: string;
   inputMode?: ElementContentEditable["inputMode"];
+  showAssistant?: boolean;
 }
 
 interface ComposerState {
@@ -165,12 +166,14 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     composerStore: Object,
     placeholder: { type: String, optional: true },
     inputMode: { type: String, optional: true },
+    showAssistant: { type: Boolean, optional: true },
   };
   static components = { TextValueProvider, FunctionDescriptionProvider, SpeechBubble };
   static defaultProps = {
     inputStyle: "",
     isDefaultFocus: false,
     inputMode: "text",
+    showAssistant: true,
   };
 
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;

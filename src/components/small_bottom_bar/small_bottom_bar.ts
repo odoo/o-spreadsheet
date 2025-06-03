@@ -8,7 +8,7 @@ import { CellComposerStore } from "../composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../composer/composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer/composer_focus_store";
 import { css, cssPropertiesToCss } from "../helpers";
-import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
+import { getBoundingRectAsPOJO, isIOS } from "../helpers/dom_helpers";
 import { RibbonMenu } from "./ribbon_menu/ribbon_menu";
 
 interface Props {
@@ -97,6 +97,7 @@ export class SmallBottomBar extends Component<Props, SpreadsheetChildEnv> {
         height: this.focus === "inactive" ? "26px" : "fit-content",
         "max-height": `130px`,
       }),
+      showAssistant: !isIOS(), // Hide assistant on iOS as it breaks visually
     };
   }
 
