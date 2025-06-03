@@ -1,7 +1,8 @@
 import { arg, functionRegistry } from "../../src/functions";
 import { toMatrix } from "../../src/functions/helpers";
+import { toCartesian } from "../../src/helpers/coordinates";
 import { Model } from "../../src/model";
-import { CellValueType, ErrorCell } from "../../src/types";
+import { CellValueType, ErrorCell, UID } from "../../src/types";
 import { CellErrorType, EvaluationError } from "../../src/types/errors";
 import {
   activateSheet,
@@ -1138,6 +1139,126 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A5").errorOriginPosition).toEqual(
       toCellPosition(sheetId, "A2")
     );
+  });
+
+  describe("origin", () => {
+    let model: Model, sheetId: UID;
+    beforeEach(() => {
+      model = new Model();
+      sheetId = model.getters.getActiveSheetId();
+    });
+
+    test("on literal", () => {
+      setCellContent(model, "A3", "5");
+      expect(getEvaluatedCell(model, "A3").origin).toEqual({
+        sheetId,
+        ...toCartesian("A3"),
+      });
+
+      setCellContent(model, "A3", "ABC");
+      expect(getEvaluatedCell(model, "A3").origin).toEqual({
+        sheetId,
+        ...toCartesian("A3"),
+      });
+    });
+
+    test("on self-contained formula", () => {
+      setCellContent(model, "A3", "=SUM(5, 10)");
+      expect(getEvaluatedCell(model, "A3").origin).toEqual({
+        sheetId,
+        ...toCartesian("A3"),
+      });
+
+      setCellContent(model, "A3", "=PI()");
+      expect(getEvaluatedCell(model, "A3").origin).toEqual({
+        sheetId,
+        ...toCartesian("A3"),
+      });
+    });
+
+    test("on reference to literal", () => {
+      setCellContent(model, "F5", "10");
+      setCellContent(model, "A3", "=F5");
+      expect(getEvaluatedCell(model, "A3").origin).toEqual({
+        sheetId,
+        ...toCartesian("F5"),
+      });
+    });
+
+    test("on reference to formula", () => {
+      setCellContent(model, "F5", "=PI()");
+      setCellContent(model, "A3", "=F5");
+      expect(getEvaluatedCell(model, "A3").origin).toEqual({
+        sheetId,
+        ...toCartesian("F5"),
+      });
+    });
+
+    test("on reference chaining", () => {
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "F5", "=B2");
+      setCellContent(model, "A3", "=F5");
+      setCellContent(model, "C6", "=A3");
+      setCellContent(model, "A1", "=C6");
+      expect(getEvaluatedCell(model, "A1").origin).toEqual({
+        sheetId,
+        ...toCartesian("B2"),
+      });
+    });
+
+    test("on range reference chaining", () => {
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "B3", "2");
+      setCellContent(model, "C2", "=B2:B3");
+      setCellContent(model, "D2", "=C2");
+      setCellContent(model, "D3", "=C3");
+      expect(getEvaluatedCell(model, "D2").origin).toEqual({
+        sheetId,
+        ...toCartesian("B2"),
+      });
+      expect(getEvaluatedCell(model, "D3").origin).toEqual({
+        sheetId,
+        ...toCartesian("B3"),
+      });
+    });
+
+    test("on spilled reference", () => {
+      setCellContent(model, "F7", "1");
+      setCellContent(model, "A3", "=F5:F10");
+      expect(getEvaluatedCell(model, "A5").origin).toEqual({
+        sheetId,
+        ...toCartesian("F7"),
+      });
+    });
+
+    test("on branching formula", () => {
+      setCellContent(model, "F5", "1");
+      setCellContent(model, "A3", "=IF(TRUE, F5, Z20)");
+      expect(getEvaluatedCell(model, "A3").origin).toEqual({
+        sheetId,
+        ...toCartesian("F5"),
+      });
+
+      setCellContent(model, "F1", "1");
+      setCellContent(model, "G1", "One");
+      setCellContent(model, "F2", "2");
+      setCellContent(model, "G2", "Two");
+      setCellContent(model, "F3", "3");
+      setCellContent(model, "G3", "Three");
+      setCellContent(model, "A3", "=VLOOKUP(2, F1:G3, 2)");
+      expect(getEvaluatedCell(model, "A3").origin).toEqual({
+        sheetId,
+        ...toCartesian("G2"),
+      });
+    });
+
+    test("on spilling formula", () => {
+      setCellContent(model, "A3", "=MUNIT(5)");
+      expect(getEvaluatedCell(model, "D5").origin).toEqual({
+        sheetId,
+        ...toCartesian("D5"),
+      });
+    });
   });
 });
 
