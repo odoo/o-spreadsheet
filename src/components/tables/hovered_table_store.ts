@@ -19,7 +19,7 @@ export class HoveredTableStore extends SpreadsheetStore {
   }
 
   hover(position: Partial<Position>) {
-    if (position.col === this.col && position.row === this.row) {
+    if (!this.getters.isDashboard() || (position.col === this.col && position.row === this.row)) {
       return "noStateChange";
     }
     this.col = position.col;
