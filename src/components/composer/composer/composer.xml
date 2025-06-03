@@ -4,7 +4,7 @@
       <t t-set="autoCompleteProposals" t-value="props.composerStore.autoCompleteProposals"/>
       <t
         t-set="assistantIsAvailable"
-        t-value="autoCompleteProposals.length or functionDescriptionState.showDescription"
+        t-value="props.showAssistant and (autoCompleteProposals.length or functionDescriptionState.showDescription)"
       />
       <div class="d-flex flex-row position-relative">
         <span

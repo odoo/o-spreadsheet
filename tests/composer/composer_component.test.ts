@@ -1049,6 +1049,13 @@ describe("composer", () => {
     await keyDown({ key: "F2" });
     expect(composerStore.editionMode).toBe("editing");
   });
+
+  test("Composer assistant can be hidden", async () => {
+    ({ fixture, parent } = await mountComposerWrapper(undefined, { showAssistant: false }));
+    composerStore = parent.env.getStore(CellComposerStore);
+    await startComposition("=s");
+    expect(fixture.querySelector(".o-composer-assistant-container")).toBeNull();
+  });
 });
 
 describe("composer formula color", () => {
