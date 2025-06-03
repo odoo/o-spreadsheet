@@ -1139,6 +1139,121 @@ describe("evaluateCells", () => {
       toCellPosition(sheetId, "A2")
     );
   });
+
+  describe("origin", () => {
+    let model, sheetId;
+    beforeEach(() => {
+      model = new Model();
+      sheetId = model.getters.getActiveSheetId();
+    });
+
+    test("on literal", () => {
+      setCellContent(model, "A3", "5");
+      expect(getEvaluatedCell(model, "A3").origin).toMatchObject({
+        sheetId,
+        col: 0,
+        row: 2,
+      });
+
+      setCellContent(model, "A3", "ABC");
+      expect(getEvaluatedCell(model, "A3").origin).toMatchObject({
+        sheetId,
+        col: 0,
+        row: 2,
+      });
+    });
+
+    test("on self-contained formula", () => {
+      setCellContent(model, "A3", "=SUM(5, 10)");
+      expect(getEvaluatedCell(model, "A3").origin).toMatchObject({
+        sheetId,
+        col: 0,
+        row: 2,
+      });
+
+      setCellContent(model, "A3", "=PI()");
+      expect(getEvaluatedCell(model, "A3").origin).toMatchObject({
+        sheetId,
+        col: 0,
+        row: 2,
+      });
+    });
+
+    test("on reference to literal", () => {
+      setCellContent(model, "F5", "10");
+      setCellContent(model, "A3", "=F5");
+      expect(getEvaluatedCell(model, "A3").origin).toMatchObject({
+        sheetId,
+        col: 5,
+        row: 4,
+      });
+    });
+
+    test("on reference to formula", () => {
+      setCellContent(model, "F5", "=PI()");
+      setCellContent(model, "A3", "=F5");
+      expect(getEvaluatedCell(model, "A3").origin).toMatchObject({
+        sheetId,
+        col: 5,
+        row: 4,
+      });
+    });
+
+    test("on reference chaining", () => {
+      setCellContent(model, "B2", "1");
+      setCellContent(model, "F5", "=B2");
+      setCellContent(model, "A3", "=F5");
+      setCellContent(model, "C6", "=A3");
+      setCellContent(model, "A1", "=C6");
+      expect(getEvaluatedCell(model, "A1").origin).toMatchObject({
+        sheetId,
+        col: 1,
+        row: 1,
+      });
+    });
+
+    test("on spilled reference", () => {
+      setCellContent(model, "F7", "1");
+      setCellContent(model, "A3", "=F5:F10");
+      expect(getEvaluatedCell(model, "A5").origin).toMatchObject({
+        sheetId,
+        col: 5,
+        row: 6,
+      });
+    });
+
+    test("on branching formula", () => {
+      setCellContent(model, "F5", "1");
+      setCellContent(model, "A3", "=IF(TRUE, F5, Z20)");
+      expect(getEvaluatedCell(model, "A3").origin).toMatchObject({
+        sheetId,
+        col: 5,
+        row: 4,
+      });
+
+      setCellContent(model, "F1", "1");
+      setCellContent(model, "G1", "One");
+      setCellContent(model, "F2", "2");
+      setCellContent(model, "G2", "Two");
+      setCellContent(model, "F3", "3");
+      setCellContent(model, "G3", "Three");
+      setCellContent(model, "A3", "=VLOOKUP(2, F1:G3, 2)");
+      expect(getEvaluatedCell(model, "A3").origin).toMatchObject({
+        sheetId,
+        col: 6,
+        row: 1,
+      });
+    });
+
+    test("on spilling formula", () => {
+      setCellContent(model, "A3", "=MUNIT(5)");
+      expect(getEvaluatedCell(model, "D5").origin).toMatchObject({
+        sheetId,
+        col: 3,
+        row: 4,
+      });
+    });
+  });
 });
 
 describe("evaluate formula getter", () => {
