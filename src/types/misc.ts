@@ -204,6 +204,7 @@ export type FunctionResultObject = {
   format?: Format;
   errorOriginPosition?: CellPosition;
   message?: string;
+  origin?: CellPosition;
 };
 
 export type FunctionResultNumber = { value: number; format?: string };

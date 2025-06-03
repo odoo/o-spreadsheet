@@ -42,7 +42,9 @@ import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
 const MAX_ITERATION = 30;
-const ERROR_CYCLE_CELL = Object.freeze(createEvaluatedCell(new CircularDependencyError()));
+const ERROR_CYCLE_CELL = Object.freeze(
+  createEvaluatedCell({ ...new CircularDependencyError(), origin: undefined })
+);
 const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
 
 export class Evaluator {
@@ -337,13 +339,13 @@ export class Evaluator {
         return ERROR_CYCLE_CELL;
       }
       this.cellsBeingComputed.add(cellId);
-
       return cell.isFormula
         ? this.computeFormulaCell(position, cell)
-        : evaluateLiteral(cell, localeFormat);
+        : evaluateLiteral(cell, localeFormat, position);
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;
+      e.origin = position;
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
@@ -371,7 +373,8 @@ export class Evaluator {
       const evaluatedCell = createEvaluatedCell(
         nullValueToZeroValue(formulaReturn),
         this.getters.getLocale(),
-        cellData
+        cellData,
+        formulaPosition
       );
       if (evaluatedCell.type === CellValueType.error) {
         evaluatedCell.errorOriginPosition = formulaReturn.errorOriginPosition ?? formulaPosition;
@@ -498,7 +501,8 @@ export class Evaluator {
       const evaluatedCell = createEvaluatedCell(
         nullValueToZeroValue(matrixResult[i][j]),
         this.getters.getLocale(),
-        cell
+        cell,
+        position
       );
       if (evaluatedCell.type === CellValueType.error) {
         evaluatedCell.errorOriginPosition = matrixResult[i][j].errorOriginPosition ?? position;
