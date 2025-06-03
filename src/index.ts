@@ -50,6 +50,7 @@ import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_sec
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
+  ACTION_COLOR,
   BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -178,6 +179,7 @@ import {
   rowMenuRegistry,
   topbarMenuRegistry,
 } from "./registries/menus";
+import { dashboardGridMenuRegistry } from "./registries/menus/dashboard_grid_menu_registry";
 import { otRegistry } from "./registries/ot_registry";
 import {
   genericRepeat,
@@ -190,7 +192,7 @@ import { useLocalStore, useStore, useStoreProvider } from "./store_engine";
 import { DependencyContainer } from "./store_engine/dependency_container";
 import { SpreadsheetStore } from "./stores";
 import { ClientFocusStore } from "./stores/client_focus_store";
-import { HighlightStore } from "./stores/highlight_store";
+import { highlightOnMenuHover, HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
 import { RendererStore } from "./stores/renderer_store";
@@ -268,6 +270,7 @@ export const registries = {
   autofillRulesRegistry,
   cellMenuRegistry,
   colMenuRegistry,
+  dashboardGridMenuRegistry,
   errorTypes,
   linkMenuRegistry,
   functionRegistry,
@@ -348,6 +351,7 @@ export const helpers = {
   getFunctionsFromTokens,
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
+  highlightOnMenuHover,
   parseDimension,
   isDateOrDatetimeField,
   makeFieldProposal,
@@ -469,6 +473,7 @@ export const constants = {
   DEFAULT_LOCALE,
   HIGHLIGHT_COLOR,
   PIVOT_TABLE_CONFIG,
+  ACTION_COLOR,
   ChartTerms,
 };
 

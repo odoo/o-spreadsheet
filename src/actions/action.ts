@@ -36,7 +36,7 @@ export interface ActionSpec {
    * Can be defined to display an icon
    */
   icon?: string | ((env: SpreadsheetChildEnv) => string);
-  iconColor?: Color;
+  iconColor?: Color | ((env: SpreadsheetChildEnv) => Color);
   /**
    * Can be defined to display another icon on the right of the item.
    */
@@ -61,8 +61,11 @@ export interface ActionSpec {
    */
   separator?: boolean;
   textColor?: Color;
-  onStartHover?: (env: SpreadsheetChildEnv) => void;
-  onStopHover?: (env: SpreadsheetChildEnv) => void;
+  /**
+   * Can be defined to trigger effects when the user hovers the item.
+   * Can return a cleaning function.
+   */
+  onStartHover?: (env: SpreadsheetChildEnv) => (() => void) | void;
 }
 
 export interface Action {
@@ -74,15 +77,14 @@ export interface Action {
   isEnabled: (env: SpreadsheetChildEnv) => boolean;
   isActive?: (env: SpreadsheetChildEnv) => boolean;
   icon: (env: SpreadsheetChildEnv) => string;
-  iconColor?: Color;
+  iconColor: (env: SpreadsheetChildEnv) => Color | undefined;
   secondaryIcon: (env: SpreadsheetChildEnv) => string;
   isReadonlyAllowed: boolean;
   execute?: (env: SpreadsheetChildEnv, isMiddleClick?: boolean) => unknown;
   children: (env: SpreadsheetChildEnv) => Action[];
   separator: boolean;
   textColor?: Color;
-  onStartHover?: (env: SpreadsheetChildEnv) => void;
-  onStopHover?: (env: SpreadsheetChildEnv) => void;
+  onStartHover?: (env: SpreadsheetChildEnv) => (() => void) | void;
 }
 
 export type ActionBuilder = (env: SpreadsheetChildEnv) => ActionSpec[];
@@ -99,6 +101,7 @@ export function createAction(item: ActionSpec): Action {
   const children = item.children;
   const description = item.description;
   const icon = item.icon;
+  const iconColor = item.iconColor;
   const secondaryIcon = item.secondaryIcon;
   const itemId = item.id || nextItemId++;
   return {
@@ -119,12 +122,11 @@ export function createAction(item: ActionSpec): Action {
     isReadonlyAllowed: item.isReadonlyAllowed || false,
     separator: item.separator || false,
     icon: typeof icon === "function" ? icon : () => icon || "",
-    iconColor: item.iconColor,
+    iconColor: typeof iconColor === "function" ? iconColor : () => iconColor,
     secondaryIcon: typeof secondaryIcon === "function" ? secondaryIcon : () => secondaryIcon || "",
     description: typeof description === "function" ? description : () => description || "",
     textColor: item.textColor,
     sequence: item.sequence || 0,
     onStartHover: item.onStartHover,
-    onStopHover: item.onStopHover,
   };
 }

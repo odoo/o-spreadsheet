@@ -31,6 +31,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
 
   parseArgsToPivotDomain(args: Maybe<FunctionResultObject>[]): PivotDomain;
   areDomainArgsFieldsValid(args: Maybe<FunctionResultObject>[]): boolean;
+  canBeSorted(args: Maybe<FunctionResultObject>[]): boolean;
 
   assertIsValid({ throwOnError }: { throwOnError: boolean }): FunctionResultObject | undefined;
   getPossibleFieldValues(
