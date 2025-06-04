@@ -194,6 +194,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     forcedClosed: false,
   });
   private compositionActive: boolean = false;
+  private isComposerScroll: boolean = false;
   private spreadsheetRect = useSpreadsheetRect();
   private lastHoveredTokenIndex: number | undefined = undefined;
 
@@ -359,6 +360,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     // and right should move the cursor.
     ev.stopPropagation();
     this.handleArrowKeysForAutocomplete(ev);
+    this.isComposerScroll = true;
   }
 
   private handleArrowKeysForAutocomplete(ev: KeyboardEvent) {
@@ -417,6 +419,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       }
     );
     this.processContent();
+    this.isComposerScroll = true;
   }
 
   private processEscapeKey(ev) {
@@ -429,12 +432,14 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     ev.stopPropagation();
     this.props.composerStore.cycleReferences();
     this.processContent();
+    this.isComposerScroll = true;
   }
 
   private toggleEditionMode(ev: KeyboardEvent) {
     ev.stopPropagation();
     this.props.composerStore.toggleEditionMode();
     this.processContent();
+    this.isComposerScroll = true;
   }
 
   private processNumpadDecimal(ev: KeyboardEvent) {
@@ -458,6 +463,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     // We need to do the process content here in case there is no render between the keyDown and the
     // keyUp event
     this.processContent();
+    this.isComposerScroll = true;
   }
 
   onCompositionStart() {
@@ -519,6 +525,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     this.props.composerStore.stopComposerRangeSelection();
     this.props.composerStore.setCurrentContent(content, selection);
     this.processTokenAtCursor();
+    this.isComposerScroll = true;
   }
 
   onKeyup(ev: KeyboardEvent) {
@@ -563,6 +570,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   updateAutoCompleteIndex(index: number) {
     this.autoCompleteState.selectIndex(clip(0, index, 10));
+    this.isComposerScroll = true;
   }
 
   /**
@@ -599,6 +607,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
     this.props.composerStore.changeComposerCursorSelection(newSelection.start, newSelection.end);
     this.processTokenAtCursor();
+    this.isComposerScroll = true;
   }
 
   onDblClick() {
@@ -640,10 +649,12 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   closeAssistant() {
     this.assistant.forcedClosed = true;
+    this.isComposerScroll = true;
   }
 
   openAssistant() {
     this.assistant.forcedClosed = false;
+    this.isComposerScroll = true;
   }
 
   onWheel(event: WheelEvent) {
@@ -677,7 +688,10 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         const { start, end } = this.props.composerStore.composerSelection;
         this.contentHelper.selectRange(start, end);
       }
-      this.contentHelper.scrollSelectionIntoView();
+      if (this.isComposerScroll) {
+        this.contentHelper.scrollSelectionIntoView();
+        this.isComposerScroll = false;
+      }
     }
 
     this.shouldProcessInputEvents = true;
@@ -893,6 +907,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     }
     this.autoCompleteState.provider?.selectProposal(value);
     this.processTokenAtCursor();
+    this.isComposerScroll = true;
   }
 
   get displaySpeechBubble(): boolean {

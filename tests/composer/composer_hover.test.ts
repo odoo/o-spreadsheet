@@ -74,6 +74,15 @@ describe("Composer hover", () => {
     return composerEl;
   }
 
+  test("Hovering a composer token does not scroll composer to cursor", async () => {
+    const mockScrollIntoView = jest.fn();
+    await typeInComposer("=SUM(1,\n2,\n3,\n4,\n5,\n6,\n7,\n8,\n9,\n10)");
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    await hoverComposerContent("SUM");
+    expect(mockScrollIntoView).not.toHaveBeenCalled();
+  });
+
   test("Hovering a composer token will spawn a speech bubble with the evaluation result", async () => {
     setCellContent(model, "B1", "56");
     await typeInComposer("=B1");
