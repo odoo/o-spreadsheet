@@ -565,6 +565,22 @@ export class AlternatingColorGenerator extends ColorGenerator {
   }
 }
 
+export class AlternatingColorMap {
+  private availableColors: AlternatingColorGenerator;
+  private colors: Record<string, Color> = {};
+
+  constructor(paletteSize: number = 12) {
+    this.availableColors = new AlternatingColorGenerator(paletteSize);
+  }
+
+  get(id: string) {
+    if (!this.colors[id]) {
+      this.colors[id] = this.availableColors.next();
+    }
+    return this.colors[id];
+  }
+}
+
 type ColorScaleThreshold = {
   min: number;
   max: number;
