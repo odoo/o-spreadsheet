@@ -24,7 +24,7 @@ topbarMenuRegistry
   })
   .addChild("settings", ["file"], {
     name: _t("Settings"),
-    sequence: 100,
+    sequence: 200,
     execute: (env) => env.openSidePanel("Settings"),
     icon: "o-spreadsheet-Icon.COG",
   })
