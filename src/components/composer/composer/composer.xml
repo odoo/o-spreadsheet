@@ -4,7 +4,7 @@
       <t t-set="autoCompleteProposals" t-value="props.composerStore.autoCompleteProposals"/>
       <t
         t-set="assistantIsAvailable"
-        t-value="autoCompleteProposals.length or functionDescriptionState.showDescription"
+        t-value="props.showAssistant and (autoCompleteProposals.length or functionDescriptionState.showDescription)"
       />
       <div class="d-flex flex-row position-relative">
         <span
@@ -27,6 +27,7 @@
           tabindex="1"
           t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
           t-att-placeHolder="props.placeholder"
+          t-att-inputmode="props.inputMode"
           spellcheck="false"
           t-on-keydown="onKeydown"
           t-on-mousewheel.stop=""

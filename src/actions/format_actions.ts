@@ -115,7 +115,7 @@ export const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCAL
 
 export const formatCustomCurrency: ActionSpec = {
   name: _t("Custom currency"),
-  isVisible: (env) => env.loadCurrencies !== undefined,
+  isVisible: (env) => env.loadCurrencies !== undefined && !env.isSmall,
   execute: (env) => env.openSidePanel("CustomCurrency", {}),
 };
 
@@ -381,6 +381,7 @@ export const fillColor: ActionSpec = {
 export const formatCF: ActionSpec = {
   name: _t("Conditional formatting"),
   execute: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
+  isEnabled: (env) => !env.isSmall,
   icon: "o-spreadsheet-Icon.CONDITIONAL_FORMAT",
 };
 

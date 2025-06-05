@@ -5,6 +5,8 @@ import { HeaderIndex, Pixel } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 import { startDnd } from "./drag_and_drop";
 
+export type DnDDirection = "all" | "vertical" | "horizontal";
+
 /**
  * Function to be used during a pointerdown event, this function allows to
  * perform actions related to the pointermove and pointerup events and adjusts the viewport
@@ -20,6 +22,7 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   let previousEvClientPosition: { clientX: number; clientY: number };
   let startingX: number;
   let startingY: number;
+  let scrollDirection: DnDDirection = "all";
   const getters = env.model.getters;
 
   let cleanUpFns: (() => void)[] = [];
@@ -52,57 +55,61 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
     const x = currentEv.clientX - position.left;
     let colIndex = getters.getColIndex(x);
 
-    const previousX = previousEvClientPosition.clientX - position.left;
-    const edgeScrollInfoX = getters.getEdgeScrollCol(x, previousX, startingX);
-    if (edgeScrollInfoX.canEdgeScroll) {
-      canEdgeScroll = true;
-      timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoX.delay);
-      let newTarget = colIndex;
-      switch (edgeScrollInfoX.direction) {
-        case "reset":
-          colIndex = newTarget = xSplit;
-          break;
-        case 1:
-          colIndex = right;
-          newTarget = left + 1;
-          break;
-        case -1:
-          colIndex = left - 1;
-          while (env.model.getters.isColHidden(sheetId, colIndex)) {
-            colIndex--;
-          }
-          newTarget = colIndex;
-          break;
+    if (scrollDirection !== "vertical") {
+      const previousX = previousEvClientPosition.clientX - position.left;
+      const edgeScrollInfoX = getters.getEdgeScrollCol(x, previousX, startingX);
+      if (edgeScrollInfoX.canEdgeScroll) {
+        canEdgeScroll = true;
+        timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoX.delay);
+        let newTarget = colIndex;
+        switch (edgeScrollInfoX.direction) {
+          case "reset":
+            colIndex = newTarget = xSplit;
+            break;
+          case 1:
+            colIndex = right;
+            newTarget = left + 1;
+            break;
+          case -1:
+            colIndex = left - 1;
+            while (env.model.getters.isColHidden(sheetId, colIndex)) {
+              colIndex--;
+            }
+            newTarget = colIndex;
+            break;
+        }
+        scrollX = getters.getColDimensions(sheetId, newTarget).start - offsetCorrectionX;
       }
-      scrollX = getters.getColDimensions(sheetId, newTarget).start - offsetCorrectionX;
     }
 
     const y = currentEv.clientY - position.top;
     let rowIndex = getters.getRowIndex(y);
 
-    const previousY = previousEvClientPosition.clientY - position.top;
-    const edgeScrollInfoY = getters.getEdgeScrollRow(y, previousY, startingY);
-    if (edgeScrollInfoY.canEdgeScroll) {
-      canEdgeScroll = true;
-      timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoY.delay);
-      let newTarget = rowIndex;
-      switch (edgeScrollInfoY.direction) {
-        case "reset":
-          rowIndex = newTarget = ySplit;
-          break;
-        case 1:
-          rowIndex = bottom;
-          newTarget = top + 1;
-          break;
-        case -1:
-          rowIndex = top - 1;
-          while (env.model.getters.isRowHidden(sheetId, rowIndex)) {
-            rowIndex--;
-          }
-          newTarget = rowIndex;
-          break;
+    if (scrollDirection !== "horizontal") {
+      const previousY = previousEvClientPosition.clientY - position.top;
+      const edgeScrollInfoY = getters.getEdgeScrollRow(y, previousY, startingY);
+      if (edgeScrollInfoY.canEdgeScroll) {
+        canEdgeScroll = true;
+        timeoutDelay = Math.min(timeoutDelay, edgeScrollInfoY.delay);
+        let newTarget = rowIndex;
+        switch (edgeScrollInfoY.direction) {
+          case "reset":
+            rowIndex = newTarget = ySplit;
+            break;
+          case 1:
+            rowIndex = bottom;
+            newTarget = top + 1;
+            break;
+          case -1:
+            rowIndex = top - 1;
+            while (env.model.getters.isRowHidden(sheetId, rowIndex)) {
+              rowIndex--;
+            }
+            newTarget = rowIndex;
+            break;
+        }
+        scrollY = env.model.getters.getRowDimensions(sheetId, newTarget).start - offsetCorrectionY;
       }
-      scrollY = env.model.getters.getRowDimensions(sheetId, newTarget).start - offsetCorrectionY;
     }
 
     if (!canEdgeScroll) {
@@ -129,10 +136,12 @@ export function useDragAndDropBeyondTheViewport(env: SpreadsheetChildEnv) {
   const startFn = (
     initialPointerCoordinates: { clientX: number; clientY: number },
     onPointerMove: (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => void,
-    onPointerUp: () => void
+    onPointerUp: () => void,
+    startScrollDirection: DnDDirection = "all"
   ) => {
     cleanUp();
     const position = gridOverlayPosition();
+    scrollDirection = startScrollDirection;
     startingX = initialPointerCoordinates.clientX - position.left;
     startingY = initialPointerCoordinates.clientY - position.top;
     previousEvClientPosition = {

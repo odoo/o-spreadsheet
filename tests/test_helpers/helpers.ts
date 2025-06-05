@@ -7,7 +7,7 @@ import { ComposerSelection } from "../../src/components/composer/composer/abstra
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { CellComposerProps, Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
-import { getCurrentSelection } from "../../src/components/helpers/dom_helpers";
+import { getCurrentSelection, isMobileOS } from "../../src/components/helpers/dom_helpers";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
@@ -240,6 +240,7 @@ export function makeTestEnv(
     get isSmall() {
       return mockEnv.isSmall || false;
     },
+    isMobile: mockEnv.isMobile || isMobileOS,
     // @ts-ignore
     __spreadsheet_stores__: container,
   };
@@ -1176,4 +1177,29 @@ export function getFilterHiddenValues(model: Model, sheetId = model.getters.getA
       row: table.range.zone.top,
     }),
   }));
+}
+
+export function flattenHighlightRange(
+  highlight: Highlight
+): { zone: Zone; sheetId: UID } & Omit<Highlight, "range"> {
+  const flatHighlight: any = {
+    ...highlight,
+    zone: highlight.range.zone,
+    sheetId: highlight.range.sheetId,
+    color: highlight.color,
+  };
+  delete flatHighlight.range;
+  return flatHighlight;
+}
+
+export function setMobileMode() {
+  const mock = jest
+    .spyOn(window.navigator, "userAgent", "get")
+    .mockImplementation(
+      () =>
+        "Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36"
+    );
+  registerCleanup(() => {
+    mock.mockRestore();
+  });
 }

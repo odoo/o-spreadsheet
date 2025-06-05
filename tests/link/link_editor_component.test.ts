@@ -18,10 +18,9 @@ import {
 } from "../test_helpers/dom_helper";
 import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
-mockGetBoundingClientRect({
-  "o-spreadsheet": () => ({ top: 0, left: 0, height: 1000, width: 1000 }),
+extendMockGetBoundingClientRect({
   "o-special-link": () => ({ top: 100, left: 100, height: 50, width: 50 }),
 });
 

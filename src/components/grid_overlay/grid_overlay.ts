@@ -109,10 +109,19 @@ function useCellHovered(env: SpreadsheetChildEnv, gridRef: Ref<HTMLElement>): Pa
     }
   }
 
-  useRefListener(gridRef, "pointermove", updateMousePosition);
+  useRefListener(
+    gridRef,
+    "pointermove",
+    (ev: MouseEvent) => !env.isMobile() && updateMousePosition(ev)
+  );
   useRefListener(gridRef, "mouseleave", onMouseLeave);
   useRefListener(gridRef, "mouseenter", resume);
   useRefListener(gridRef, "pointerdown", recompute);
+  useRefListener(
+    gridRef,
+    "pointerdown",
+    (ev: MouseEvent) => env.isMobile() && updateMousePosition(ev)
+  );
 
   useExternalListener(window, "click", handleGlobalClick);
   function handleGlobalClick(e: MouseEvent) {
@@ -139,13 +148,14 @@ interface Props {
     col: HeaderIndex,
     row: HeaderIndex,
     modifiers: GridClickModifiers,
-    ev: MouseEvent
+    ev: PointerEvent | MouseEvent
   ) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
   onGridResized: (dimension: Rect) => void;
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
   gridOverlayDimensions: string;
   onFigureDeleted: () => void;
+  getGridSize: () => { width: number; height: number };
 }
 
 export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
@@ -159,6 +169,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onGridMoved: Function,
     gridOverlayDimensions: String,
     slots: { type: Object, optional: true },
+    getGridSize: Function,
   };
   static components = {
     FiguresContainer,
@@ -180,11 +191,12 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     useCellHovered(this.env, this.gridOverlay);
     const resizeObserver = new ResizeObserver(() => {
       const boundingRect = this.gridOverlayEl.getBoundingClientRect();
+      const { width, height } = this.props.getGridSize();
       this.props.onGridResized({
         x: boundingRect.left,
         y: boundingRect.top,
-        height: this.gridOverlayEl.clientHeight,
-        width: this.gridOverlayEl.clientWidth,
+        height: height,
+        width: width,
       });
     });
     onMounted(() => {
@@ -193,6 +205,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => {
       resizeObserver.disconnect();
     });
+
     this.cellPopovers = useStore(CellPopoverStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.hoveredIconStore = useStore(HoveredIconStore);
@@ -216,7 +229,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     return this.paintFormatStore.isActive;
   }
 
-  onMouseMove(ev: MouseEvent) {
+  onPointerMove(ev: MouseEvent) {
+    if (this.env.isMobile()) {
+      return;
+    }
     const icon = this.getInteractiveIconAtEvent(ev);
     const hoveredIcon = icon?.type ? { id: icon.type, position: icon.position } : undefined;
     if (!deepEquals(hoveredIcon, this.hoveredIconStore.hoveredIcon)) {
@@ -224,12 +240,23 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onMouseDown(ev: MouseEvent) {
-    if (ev.button > 0) {
+  onPointerDown(ev: PointerEvent) {
+    if (ev.button > 0 || this.env.isMobile()) {
       // not main button, probably a context menu
       return;
     }
+    this.onCellClicked(ev);
+  }
 
+  onClick(ev: MouseEvent) {
+    if (ev.button > 0 || !this.env.isMobile()) {
+      // not main button, probably a context menu
+      return;
+    }
+    this.onCellClicked(ev);
+  }
+
+  onCellClicked(ev: PointerEvent | MouseEvent) {
     const openedPopover = this.cellPopovers.persistentCellPopover;
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellClicked(
@@ -276,7 +303,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     const gridOverLayRect = getRefBoundingRect(this.gridOverlay);
     const x = ev.clientX - gridOverLayRect.x;
     const y = ev.clientY - gridOverLayRect.y;
-
     const colIndex = this.env.model.getters.getColIndex(x);
     const rowIndex = this.env.model.getters.getRowIndex(y);
     return [colIndex, rowIndex];

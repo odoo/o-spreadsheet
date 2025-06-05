@@ -510,17 +510,18 @@ describe("composer Assistant", () => {
   });
 
   test("render above the cell when not enough place below", async () => {
+    const rect = { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 };
     ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
       delimitation: { width: 200, height: 200 },
-      rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
+      rect,
     }));
     await typeInComposer("=s");
     const assistantEL = fixture.querySelector<HTMLElement>(".o-composer-assistant")!;
     expect(assistantEL).toMatchSnapshot();
     expect(assistantEL.style.width).toBe("300px");
     const containerEL = fixture.querySelector<HTMLElement>(".o-composer-assistant-container")!;
-    expect(containerEL.style.top).toBe("-3px");
-    expect(containerEL.style.transform).toBe("translate(0, -100%)");
+    const marginsOffset = rect.height + 3; // 3px for the border and margin
+    expect(containerEL.style.transform).toBe(`translate(0, calc(-100% - ${marginsOffset}px))`);
   });
 
   test("composer assistant min-width is the same as the underlying cell", async () => {

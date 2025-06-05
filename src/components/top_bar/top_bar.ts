@@ -15,8 +15,10 @@ import {
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
   DEFAULT_FONT_SIZE,
+  DESKTOP_TOPBAR_TOOLBAR_HEIGHT,
+  DISABLED_TEXT_COLOR,
+  MOBILE_TOPBAR_TOOLBAR_HEIGHT,
   SEPARATOR_COLOR,
-  TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
 import { formatNumberMenuItemSpec } from "../../registries/menus";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
@@ -29,7 +31,7 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { css } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
-import { Menu, MenuState } from "../menu/menu";
+import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { Popover, PopoverProps } from "../popover";
 import { TopBarToolStore } from "./top_bar_tool_store";
 import { topBarToolBarRegistry } from "./top_bar_tools_registry";
@@ -53,6 +55,7 @@ css/* scss */ `
     border-right: 1px solid ${SEPARATOR_COLOR};
     width: 0;
     margin: 0 6px;
+    height: 30px;
   }
 
   .o-toolbar-button {
@@ -85,7 +88,7 @@ css/* scss */ `
 
     .irregularity-map {
       border-top: 1px solid ${SEPARATOR_COLOR};
-      height: ${TOPBAR_TOOLBAR_HEIGHT}px;
+      height: ${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px;
 
       .alert-info {
         border-left: 3px solid ${ALERT_INFO_BORDER};
@@ -98,7 +101,7 @@ css/* scss */ `
 
     /* Toolbar */
     .o-topbar-toolbar {
-      height: ${TOPBAR_TOOLBAR_HEIGHT}px;
+      height: ${DESKTOP_TOPBAR_TOOLBAR_HEIGHT}px;
 
       .o-readonly-toolbar {
         background-color: ${BACKGROUND_HEADER_COLOR};
@@ -112,6 +115,24 @@ css/* scss */ `
       }
     }
   }
+
+  .o-spreadsheet-mobile {
+    .o-topbar-toolbar {
+      height: ${MOBILE_TOPBAR_TOOLBAR_HEIGHT}px;
+    }
+    .o-topbar-divider {
+      border-width: 2px;
+      border-radius: 4px;
+    }
+
+    .o-toolbar-button {
+      height: 35px;
+      width: 31px;
+      .o-toolbar-button.o-mobile-disabled * {
+      color: ${DISABLED_TEXT_COLOR};
+      cursor: not-allowed;
+    }
+  }
 `;
 
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
@@ -121,7 +142,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     dropdownMaxHeight: Number,
   };
   static components = {
-    Menu,
+    MenuPopover,
     TopBarComposer,
     Popover,
   };
@@ -222,7 +243,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     // TODO : manage click events better. We need this piece of code
     // otherwise the event opening the menu would close it on the same frame.
     // And we cannot stop the event propagation because it's used in an
-    // external listener of the Menu component to close the context menu when
+    // external listener of the MenuPopover component to close the context menu when
     // clicking on the top bar
     if (this.openedEl === ev.target) {
       return;

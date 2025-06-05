@@ -5,7 +5,8 @@
         <GridOverlay
           onGridResized.bind="onGridResized"
           onGridMoved.bind="moveCanvas"
-          gridOverlayDimensions="gridOverlayDimensions">
+          gridOverlayDimensions="gridOverlayDimensions"
+          getGridSize="props.getGridSize">
           <div
             t-foreach="getClickableCells()"
             t-as="clickableCell"

@@ -33,6 +33,7 @@ export const removeDuplicates: ActionSpec = {
     }
     env.openSidePanel("RemoveDuplicates", {});
   },
+  isEnabled: (env) => !env.isSmall,
 };
 
 export const trimWhitespace: ActionSpec = {
@@ -65,7 +66,7 @@ export const splitToColumns: ActionSpec = {
   name: _t("Split text to columns"),
   sequence: 1,
   execute: (env) => env.openSidePanel("SplitToColumns", {}),
-  isEnabled: (env) => env.model.getters.isSingleColSelected(),
+  isEnabled: (env) => !env.isSmall && env.model.getters.isSingleColSelected(),
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
 

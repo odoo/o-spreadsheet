@@ -1,9 +1,9 @@
 <templates>
   <t t-name="o-spreadsheet-TopBar">
     <div
-      class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
+      class="o-spreadsheet-topbar d-flex flex-column user-select-none"
       t-on-click="props.onClick">
-      <div class="o-topbar-top d-flex justify-content-between">
+      <div t-if="!env.isSmall" class="o-topbar-top d-flex justify-content-between">
         <!-- Menus -->
         <div class="o-topbar-topleft d-flex">
           <t t-foreach="menus" t-as="menu" t-key="menu_index">
@@ -63,7 +63,7 @@
             </div>
           </div>
         </div>
-        <TopBarComposer/>
+        <TopBarComposer t-if="!env.isSmall"/>
       </div>
       <div
         t-if="this.fingerprints.isEnabled"
@@ -90,7 +90,7 @@
         </div>
       </div>
     </div>
-    <Menu
+    <MenuPopover
       t-if="state.menuState.isOpen"
       anchorRect="state.menuState.anchorRect"
       menuItems="state.menuState.menuItems"
@@ -99,7 +99,7 @@
       popoverPositioning="'bottom-left'"
     />
     <Popover t-if="state.toolsPopoverState.isOpen" t-props="toolsPopoverProps">
-      <div class="d-flex px-2 py-1 flex-wrap" style="background-color:white;">
+      <div class="d-flex px-2 py-1 flex-wrap align-items-center" style="background-color:white;">
         <t
           t-foreach="state.invisibleToolsCategories"
           t-as="category"
@@ -113,7 +113,7 @@
           </t>
           <div
             t-if="category_index &lt; state.invisibleToolsCategories.length-1"
-            class="o-topbar-divider my-2"
+            class="o-topbar-divider"
           />
         </t>
       </div>

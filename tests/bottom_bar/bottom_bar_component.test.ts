@@ -28,8 +28,13 @@ import {
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
-import { makeTestEnv, mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
-import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+import {
+  makeTestEnv,
+  mountComponentWithPortalTarget,
+  nextTick,
+  setMobileMode,
+} from "../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 let fixture: HTMLElement;
 
@@ -739,7 +744,7 @@ describe("BottomBar component", () => {
     let model: Model;
 
     beforeEach(async () => {
-      mockGetBoundingClientRect({
+      extendMockGetBoundingClientRect({
         "o-sheet": (el: HTMLElement) => ({
           x: model.getters.getSheetIds().indexOf(el.dataset.id!) * 100,
           width: 101, // width of 101 and x is offset by only 100 because there's negative borders on sheets
@@ -857,7 +862,7 @@ describe("BottomBar component", () => {
     });
 
     test("Swap a sheet with a sheet with a longer name : no back & forth when moving mouse", async () => {
-      mockGetBoundingClientRect({
+      extendMockGetBoundingClientRect({
         "o-sheet-list": () => ({ x: 0, width: 500 }),
         "o-sheet": (el: HTMLElement) => {
           if (el.dataset.id === "Sheet1") return { x: 0, width: 100 };
@@ -933,6 +938,21 @@ describe("BottomBar component", () => {
       const sheetId = model.getters.getActiveSheetId();
       await doubleClick(sheetName);
       await nextTick();
+      await dragElement(
+        `.o-sheet[data-id="${sheetId}"] .o-sheet-name`,
+        { x: 10, y: 0 },
+        { x: sheetName.getBoundingClientRect().x, y: 0 },
+        false
+      );
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "position")).toBe("");
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("");
+    });
+
+    test("Cannot drag & drop sheet in mobile mode", async () => {
+      setMobileMode();
+      await nextTick();
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      const sheetId = model.getters.getActiveSheetId();
       await dragElement(
         `.o-sheet[data-id="${sheetId}"] .o-sheet-name`,
         { x: 10, y: 0 },

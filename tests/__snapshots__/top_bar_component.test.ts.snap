@@ -6,7 +6,7 @@ exports[`TopBar component can set cell format 1`] = `
     class="o-spreadsheet"
   >
     <div
-      class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
+      class="o-spreadsheet-topbar d-flex flex-column user-select-none"
     >
       <div
         class="o-topbar-top d-flex justify-content-between"
@@ -59,6 +59,7 @@ exports[`TopBar component can set cell format 1`] = `
           
         </div>
       </div>
+      
       <!-- Toolbar and Cell Content -->
       <div
         class="d-flex o-topbar-responsive"
@@ -116,7 +117,7 @@ exports[`TopBar component can set cell format 1`] = `
                 
               </span>
               <span
-                class="o-menu-item-button o-hoverable-button o-toolbar-button"
+                class="o-menu-item-button o-hoverable-button o-toolbar-button o-mobile-disabled"
                 title="Paint Format"
               >
                 <span>
@@ -578,7 +579,7 @@ exports[`TopBar component can set cell format 1`] = `
               id="misc"
             >
               <div
-                class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button"
+                class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
               >
                 <span
                   class="o-menu-item-button o-hoverable-button"
@@ -685,6 +686,7 @@ exports[`TopBar component can set cell format 1`] = `
                 <div
                   class="o-composer w-100 text-start"
                   contenteditable="true"
+                  inputmode="text"
                   spellcheck="false"
                   style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
                   tabindex="1"
@@ -702,414 +704,418 @@ exports[`TopBar component can set cell format 1`] = `
     
     
     <div
-      class="o-popover"
+      class="o-popover rounded"
       style="z-index: 35; display: block; max-height: 1000px; max-width: 1000px; top: 0px; left: 0px;"
     >
       <div
         class="o-popover-content"
       >
         <div
-          class="o-menu"
-          style=""
+          class="o-menu-wrapper"
         >
-          
           <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_automatic"
-            style=""
-            title="Automatic"
+            class="o-menu"
+            style="width:250px; "
           >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_automatic"
+              style=""
+              title="Automatic"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
+                class="d-flex w-100"
               >
-                <svg
-                  class="o-icon"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
                 >
-                  <path
-                    d="M18.707 7.293a1 1 0 0 1 0 1.414L11.414 16a1.8 2 0 0 1-2.828 0l-3.293-3.293a1 1 0 1 1 1.414-1.414L10 14.586l7.293-7.293a1 1 0 0 1 1.414 0z"
-                    fill="currentColor"
-                  />
-                </svg>
+                  <svg
+                    class="o-icon"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M18.707 7.293a1 1 0 0 1 0 1.414L11.414 16a1.8 2 0 0 1-2.828 0l-3.293-3.293a1 1 0 1 1 1.414-1.414L10 14.586l7.293-7.293a1 1 0 0 1 1.414 0z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Automatic
+                </div>
+                
+                
+                
               </div>
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
-              >
-                Automatic
-              </div>
-              
-              
-              
             </div>
-          </div>
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_plain_text"
-            style=""
-            title="Plain text"
-          >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_plain_text"
+              style=""
+              title="Plain text"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Plain text
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Plain text
+                </div>
+                
+                
+                
               </div>
-              
-              
-              
             </div>
-          </div>
-          <div
-            class="o-separator"
-          />
-          
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_number"
-            style=""
-            title="Number"
-          >
             <div
-              class="d-flex w-100"
+              class="o-separator"
+            />
+            
+            
+            <div
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_number"
+              style=""
+              title="Number"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Number
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Number
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  1,000.12
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                1,000.12
-              </div>
-              
-              
-              
             </div>
-          </div>
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_percent"
-            style=""
-            title="Percent"
-          >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_percent"
+              style=""
+              title="Percent"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Percent
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Percent
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  10.12%
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                10.12%
-              </div>
-              
-              
-              
             </div>
-          </div>
-          <div
-            class="o-separator"
-          />
-          
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_currency"
-            style=""
-            title="Currency"
-          >
             <div
-              class="d-flex w-100"
+              class="o-separator"
+            />
+            
+            
+            <div
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_currency"
+              style=""
+              title="Currency"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Currency
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Currency
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  $1,000.12
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                $1,000.12
-              </div>
-              
-              
-              
             </div>
-          </div>
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_accounting"
-            style=""
-            title="Accounting"
-          >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_accounting"
+              style=""
+              title="Accounting"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Accounting
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Accounting
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  $(1,000.12)
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                $(1,000.12)
-              </div>
-              
-              
-              
             </div>
-          </div>
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_currency_rounded"
-            style=""
-            title="Currency rounded"
-          >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_currency_rounded"
+              style=""
+              title="Currency rounded"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Currency rounded
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Currency rounded
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  $1,000
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                $1,000
-              </div>
-              
-              
-              
             </div>
-          </div>
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_custom_currency"
-            style=""
-            title="Custom currency"
-          >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_custom_currency"
+              style=""
+              title="Custom currency"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Custom currency
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Custom currency
+                </div>
+                
+                
+                
               </div>
-              
-              
-              
             </div>
-          </div>
-          <div
-            class="o-separator"
-          />
-          
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_date"
-            style=""
-            title="Date"
-          >
             <div
-              class="d-flex w-100"
+              class="o-separator"
+            />
+            
+            
+            <div
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_date"
+              style=""
+              title="Date"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Date
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Date
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  9/26/2023
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                9/26/2023
-              </div>
-              
-              
-              
             </div>
-          </div>
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_time"
-            style=""
-            title="Time"
-          >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_time"
+              style=""
+              title="Time"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Time
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Time
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  10:43:00 PM
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                10:43:00 PM
-              </div>
-              
-              
-              
             </div>
-          </div>
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_date_time"
-            style=""
-            title="Date time"
-          >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_date_time"
+              style=""
+              title="Date time"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Date time
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Date time
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  9/26/2023 10:43:00 PM
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                9/26/2023 10:43:00 PM
-              </div>
-              
-              
-              
             </div>
-          </div>
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="format_number_duration"
-            style=""
-            title="Duration"
-          >
+            
             <div
-              class="d-flex w-100"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="format_number_duration"
+              style=""
+              title="Duration"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                Duration
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  Duration
+                </div>
+                <div
+                  class="o-menu-item-description ms-auto text-truncate"
+                >
+                  27:51:38
+                </div>
+                
+                
+                
               </div>
-              <div
-                class="o-menu-item-description ms-auto text-truncate"
-              >
-                27:51:38
-              </div>
-              
-              
-              
             </div>
-          </div>
-          <div
-            class="o-separator"
-          />
-          
-          
-          <div
-            class="o-menu-item d-flex justify-content-between align-items-center"
-            data-name="more_formats"
-            style=""
-            title="More date formats"
-          >
             <div
-              class="d-flex w-100"
+              class="o-separator"
+            />
+            
+            
+            <div
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              data-name="more_formats"
+              style=""
+              title="More date formats"
             >
               <div
-                class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
-                style=""
-              />
-              
-              <div
-                class="o-menu-item-name align-middle text-truncate"
+                class="d-flex w-100"
               >
-                More date formats
+                <div
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  style=""
+                />
+                
+                <div
+                  class="o-menu-item-name align-middle text-truncate"
+                >
+                  More date formats
+                </div>
+                
+                
+                
               </div>
-              
-              
-              
             </div>
+            
           </div>
-          
         </div>
         
       </div>
@@ -1120,7 +1126,7 @@ exports[`TopBar component can set cell format 1`] = `
 
 exports[`TopBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
+  class="o-spreadsheet-topbar d-flex flex-column user-select-none"
 >
   <div
     class="o-topbar-top d-flex justify-content-between"
@@ -1173,6 +1179,7 @@ exports[`TopBar component simple rendering 1`] = `
       
     </div>
   </div>
+  
   <!-- Toolbar and Cell Content -->
   <div
     class="d-flex o-topbar-responsive"
@@ -1230,7 +1237,7 @@ exports[`TopBar component simple rendering 1`] = `
             
           </span>
           <span
-            class="o-menu-item-button o-hoverable-button o-toolbar-button"
+            class="o-menu-item-button o-hoverable-button o-toolbar-button o-mobile-disabled"
             title="Paint Format"
           >
             <span>
@@ -1691,7 +1698,7 @@ exports[`TopBar component simple rendering 1`] = `
           id="misc"
         >
           <div
-            class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button"
+            class="o-table-widget d-flex align-item-center o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled"
           >
             <span
               class="o-menu-item-button o-hoverable-button"
@@ -1798,6 +1805,7 @@ exports[`TopBar component simple rendering 1`] = `
             <div
               class="o-composer w-100 text-start"
               contenteditable="true"
+              inputmode="text"
               spellcheck="false"
               style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
               tabindex="1"

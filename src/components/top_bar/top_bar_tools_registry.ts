@@ -35,7 +35,7 @@ topBarToolBarRegistry
   .addChild("edit", {
     component: PaintFormatButton,
     props: {
-      class: "o-hoverable-button o-toolbar-button",
+      class: "o-hoverable-button o-toolbar-button o-mobile-disabled",
     },
     sequence: 3,
   })
@@ -195,7 +195,7 @@ topBarToolBarRegistry
   .add("misc")
   .addChild("misc", {
     component: TableDropdownButton,
-    props: { class: "o-toolbar-button o-hoverable-button o-menu-item-button" },
+    props: { class: "o-toolbar-button o-hoverable-button o-menu-item-button o-mobile-disabled" },
     sequence: 1,
   })
   .addChild("misc", {

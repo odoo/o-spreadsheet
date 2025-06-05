@@ -1,0 +1,5 @@
+<templates>
+  <t t-name="o-spreadsheet-Selection">
+    <Highlight t-props="highlightProps"/>
+  </t>
+</templates>

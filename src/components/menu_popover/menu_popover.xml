@@ -1,0 +1,22 @@
+<templates>
+  <t t-name="o-spreadsheet-Menu-Popover">
+    <Popover t-if="props.menuItems" t-props="popoverProps">
+      <div t-ref="menu" class="o-menu-wrapper" t-on-mouseover="() => this.onMouseOverMainMenu()">
+        <Menu t-props="menuProps"/>
+      </div>
+      <MenuPopover
+        t-if="subMenu.isOpen"
+        t-key="subMenu.parentMenu.id"
+        anchorRect="subMenuAnchorRect"
+        menuItems="subMenu.menuItems"
+        depth="props.depth + 1"
+        maxHeight="props.maxHeight"
+        onMenuClicked="props.onMenuClicked"
+        onClose.bind="close"
+        menuId="props.menuId"
+        onMouseOver.bind="onMouseOverChildMenu"
+        width="props.width"
+      />
+    </Popover>
+  </t>
+</templates>

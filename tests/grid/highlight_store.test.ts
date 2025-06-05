@@ -37,7 +37,10 @@ describe("Highlight store", () => {
   });
 
   test("Can add a highlight provider", () => {
-    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000" };
+    const testHighlight = {
+      range: model.getters.getRangeFromZone(sheetId, toZone("A1")),
+      color: "#FF0000",
+    };
     const provider: HighlightProvider = { highlights: [testHighlight] };
     highlightStore.register(provider);
 
@@ -46,7 +49,10 @@ describe("Highlight store", () => {
   });
 
   test("Can remove a highlight provider", () => {
-    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000" };
+    const testHighlight = {
+      range: model.getters.getRangeFromZone(sheetId, toZone("A1")),
+      color: "#FF0000",
+    };
     const provider: HighlightProvider = { highlights: [testHighlight] };
     highlightStore.register(provider);
 
@@ -60,7 +66,10 @@ describe("Highlight store", () => {
   });
 
   test("Highlights are correctly drawn", () => {
-    const testHighlight = { zone: toZone("A1"), sheetId, color: HIGHLIGHT_COLOR };
+    const testHighlight = {
+      range: model.getters.getRangeFromZone(sheetId, toZone("A1")),
+      color: HIGHLIGHT_COLOR,
+    };
     drawHighlight(testHighlight);
 
     expect(ctxInstructions).toContain(`context.strokeStyle="${HIGHLIGHT_COLOR}";`);
@@ -76,7 +85,10 @@ describe("Highlight store", () => {
   });
 
   test("Can change highlight color", () => {
-    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000" };
+    const testHighlight = {
+      range: model.getters.getRangeFromZone(sheetId, toZone("A1")),
+      color: "#FF0000",
+    };
     drawHighlight(testHighlight);
 
     expect(ctxInstructions).toContain(`context.strokeStyle="#FF0000";`);
@@ -84,7 +96,10 @@ describe("Highlight store", () => {
   });
 
   test("Can change highlight line width", () => {
-    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000" };
+    const testHighlight = {
+      range: model.getters.getRangeFromZone(sheetId, toZone("A1")),
+      color: "#FF0000",
+    };
     drawHighlight(testHighlight);
     expect(ctxInstructions).toContain(`context.lineWidth=2;`);
 
@@ -94,7 +109,11 @@ describe("Highlight store", () => {
   });
 
   test("Can draw highlights without fill", () => {
-    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000", noFill: true };
+    const testHighlight = {
+      range: model.getters.getRangeFromZone(sheetId, toZone("A1")),
+      color: "#FF0000",
+      noFill: true,
+    };
     drawHighlight(testHighlight);
 
     expect(ctxInstructions).not.toContain('context.fillStyle="#FF00001F";');
@@ -104,7 +123,11 @@ describe("Highlight store", () => {
   });
 
   test("Can draw highlights without border", () => {
-    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000", noBorder: true };
+    const testHighlight = {
+      range: model.getters.getRangeFromZone(sheetId, toZone("A1")),
+      color: "#FF0000",
+      noBorder: true,
+    };
     drawHighlight(testHighlight);
 
     expect(ctxInstructions).not.toContain(
@@ -113,7 +136,11 @@ describe("Highlight store", () => {
   });
 
   test("Can change highlights fill color transparency", () => {
-    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000", fillAlpha: 0.5 };
+    const testHighlight = {
+      range: model.getters.getRangeFromZone(sheetId, toZone("A1")),
+      color: "#FF0000",
+      fillAlpha: 0.5,
+    };
     drawHighlight(testHighlight);
 
     expect(ctxInstructions).toContain('context.fillStyle="#FF000080";');

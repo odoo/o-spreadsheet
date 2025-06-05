@@ -5,15 +5,42 @@ import { toZone, zoneToXc } from "../../src/helpers";
 import { createDynamicTable, createTable, setCellContent } from "../test_helpers/commands_helpers";
 import { dragElement, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { getCell } from "../test_helpers/getters_helpers";
-import { getHighlightsFromStore, mountComponent, nextTick } from "../test_helpers/helpers";
+import {
+  flattenHighlightRange,
+  getHighlightsFromStore,
+  mountComponent,
+  nextTick,
+} from "../test_helpers/helpers";
+import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
+extendMockGetBoundingClientRect({
+  "o-spreadsheet": () => {
+    return { x: 0, y: 0, width: 1000, height: 1000 };
+  },
+  "o-grid": () => {
+    return { x: 0, y: 0, width: 1000, height: 780 };
+  },
+  "o-spreadsheet-bottombar-wrapper": () => {
+    return { x: 0, y: 0, width: 1000, height: 120 };
+  },
+  "o-spreadsheet-topbar-wrapper": () => {
+    return { x: 0, y: 0, width: 1000, height: 100 };
+  },
+});
 describe("Table resizer component", () => {
   let model: Model;
   let sheetId: UID;
   let env: SpreadsheetChildEnv;
 
   beforeEach(async () => {
-    ({ model, env } = await mountComponent(Grid, { props: { exposeFocus: () => {} } }));
+    model = new Model();
+    ({ env } = await mountComponent(Grid, {
+      props: {
+        exposeFocus: () => {},
+        getGridSize: model.getters.getSheetViewDimensionWithHeaders,
+      },
+      model,
+    }));
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -33,10 +60,12 @@ describe("Table resizer component", () => {
   test("Highlight appear during the table drag & drop", async () => {
     createTable(model, "A1:B2");
     await nextTick();
-
     const dragEndPosition = { x: DEFAULT_CELL_WIDTH * 4, y: DEFAULT_CELL_HEIGHT * 4 };
     dragElement(".o-table-resizer", dragEndPosition, undefined, false);
-    expect(getHighlightsFromStore(env)[0]).toMatchObject({ zone: toZone("A1:E5"), noFill: true });
+    expect(flattenHighlightRange(getHighlightsFromStore(env)[0])).toMatchObject({
+      zone: toZone("A1:E5"),
+      noFill: true,
+    });
 
     triggerMouseEvent(".o-table-resizer", "pointerup", 0, 0);
     expect(getHighlightsFromStore(env)[0]).toEqual(undefined);
@@ -47,7 +76,9 @@ describe("Table resizer component", () => {
     await nextTick();
 
     dragElement(".o-table-resizer", { x: 0, y: 0 }, undefined, false);
-    expect(getHighlightsFromStore(env)[0]).toMatchObject({ zone: toZone("C3") });
+    expect(flattenHighlightRange(getHighlightsFromStore(env)[0])).toMatchObject({
+      zone: toZone("C3"),
+    });
     triggerMouseEvent(".o-table-resizer", "pointerup", 0, 0);
     expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("C3");
   });

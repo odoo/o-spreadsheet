@@ -17,7 +17,7 @@ import {
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { getRefBoundingRect, keyboardEventToShortcutString } from "../../helpers/dom_helpers";
-import { Menu, MenuState } from "../../menu/menu";
+import { MenuPopover, MenuState } from "../../menu_popover/menu_popover";
 
 type ResizeAnchor =
   | "top left"
@@ -126,7 +126,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     onMouseDown: { type: Function, optional: true },
     onClickAnchor: { type: Function, optional: true },
   };
-  static components = { Menu };
+  static components = { MenuPopover };
   static defaultProps = {
     onFigureDeleted: () => {},
     onMouseDown: () => {},
@@ -225,7 +225,15 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onMouseDown(ev: MouseEvent) {
-    this.props.onMouseDown(ev);
+    if (!this.env.isMobile()) {
+      this.props.onMouseDown(ev);
+    }
+  }
+
+  onClick(ev: MouseEvent) {
+    if (this.env.isMobile()) {
+      this.props.onMouseDown(ev);
+    }
   }
 
   onKeyDown(ev: KeyboardEvent) {

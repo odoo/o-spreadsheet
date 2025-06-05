@@ -3,7 +3,7 @@ import { Action } from "../../../actions/action";
 import { UuidGenerator } from "../../../helpers";
 import { MenuMouseEvent, Rect, SpreadsheetChildEnv } from "../../../types";
 import { getRefBoundingRect } from "../../helpers/dom_helpers";
-import { Menu } from "../../menu/menu";
+import { MenuPopover } from "../../menu_popover/menu_popover";
 
 export interface SelectMenuProps {
   menuItems: Action[];
@@ -15,7 +15,7 @@ interface State {
   isMenuOpen: boolean;
 }
 
-/** This component looks like a select input, but on click it opens a Menu with the items given as props instead of a dropdown */
+/** This component looks like a select input, but on click it opens a MenuPopover with the items given as props instead of a dropdown */
 export class SelectMenu extends Component<SelectMenuProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectMenu";
   static props = {
@@ -23,7 +23,7 @@ export class SelectMenu extends Component<SelectMenuProps, SpreadsheetChildEnv> 
     selectedValue: String,
     class: { type: String, optional: true },
   };
-  static components = { Menu };
+  static components = { MenuPopover };
 
   menuId = new UuidGenerator().uuidv4();
 

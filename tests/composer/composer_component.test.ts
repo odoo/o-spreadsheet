@@ -253,7 +253,7 @@ describe("ranges and highlights", () => {
     await keyDown({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=B2");
     expect(composerStore.highlights).toHaveLength(1);
-    expect(composerStore.highlights[0].zone).toMatchObject(toZone("B2:C3"));
+    expect(composerStore.highlights[0].range.zone).toMatchObject(toZone("B2:C3"));
     await keyDown({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=C4");
   });
@@ -264,13 +264,13 @@ describe("ranges and highlights", () => {
     composerEl = await typeInComposer("=B2:B10");
     expect(composerEl.textContent).toBe("=B2:B10");
     expect(composerStore.highlights).toHaveLength(1);
-    expect(composerStore.highlights[0].zone).toMatchObject(toZone("B2:B10"));
+    expect(composerStore.highlights[0].range.zone).toMatchObject(toZone("B2:B10"));
     await keyDown({ key: "Escape" });
     await keyUp({ key: "Escape" });
     composerEl = await typeInComposer("=B2:B3");
     expect(composerEl.textContent).toBe("=B2:B3");
     expect(composerStore.highlights).toHaveLength(1);
-    expect(composerStore.highlights[0].zone).toMatchObject(toZone("B2:B3"));
+    expect(composerStore.highlights[0].range.zone).toMatchObject(toZone("B2:B3"));
   });
 
   describe("change highlight position in the grid", () => {
@@ -1049,6 +1049,13 @@ describe("composer", () => {
     await keyDown({ key: "F2" });
     expect(composerStore.editionMode).toBe("editing");
   });
+
+  test("Composer assistant can be hidden", async () => {
+    ({ fixture, parent } = await mountComposerWrapper(undefined, { showAssistant: false }));
+    composerStore = parent.env.getStore(CellComposerStore);
+    await startComposition("=s");
+    expect(fixture.querySelector(".o-composer-assistant-container")).toBeNull();
+  });
 });
 
 describe("composer formula color", () => {
@@ -1536,7 +1543,12 @@ describe("composer highlights color", () => {
   test("highlight 'reverse' ranges", async () => {
     setCellContent(model, "A1", "=sum(B3:a1)");
     await startComposition();
-    expect(composerStore.highlights[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
+    expect(composerStore.highlights[0].range.zone).toEqual({
+      left: 0,
+      right: 1,
+      top: 0,
+      bottom: 2,
+    });
   });
 
   test("Do not highlight invalid ref", async () => {
@@ -1552,10 +1564,10 @@ describe("composer highlights color", () => {
     await startComposition();
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(2);
-    expect(highlights[0].sheetId).toBe(model.getters.getActiveSheetId());
-    expect(highlights[0].zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
-    expect(highlights[1].sheetId).toBe("42");
-    expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
+    expect(highlights[0].range.sheetId).toBe(model.getters.getActiveSheetId());
+    expect(highlights[0].range.zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
+    expect(highlights[1].range.sheetId).toBe("42");
+    expect(highlights[1].range.zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
 
   test("highlight cross-sheet ranges using +", async () => {
@@ -1564,10 +1576,10 @@ describe("composer highlights color", () => {
     await startComposition();
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(2);
-    expect(highlights[0].sheetId).toBe(model.getters.getActiveSheetId());
-    expect(highlights[0].zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
-    expect(highlights[1].sheetId).toBe("42");
-    expect(highlights[1].zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
+    expect(highlights[0].range.sheetId).toBe(model.getters.getActiveSheetId());
+    expect(highlights[0].range.zone).toEqual({ left: 1, right: 1, top: 0, bottom: 0 });
+    expect(highlights[1].range.sheetId).toBe("42");
+    expect(highlights[1].range.zone).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
   });
 
   test.skip("grid composer is resized when top bar composer grows", async () => {});

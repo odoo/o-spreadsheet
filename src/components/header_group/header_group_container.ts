@@ -5,8 +5,8 @@ import { createHeaderGroupContainerContextMenu } from "../../registries/menus/he
 import { DOMCoordinates, SpreadsheetChildEnv } from "../../types";
 import { CSSProperties, Dimension, HeaderGroup, Pixel } from "../../types/misc";
 import { css, cssPropertiesToCss } from "../helpers";
+import { MenuPopover, MenuState } from "../menu_popover/menu_popover";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "./../../constants";
-import { Menu, MenuState } from "./../menu/menu";
 import { ColGroup, RowGroup } from "./header_group";
 
 interface Props {
@@ -42,7 +42,7 @@ export class HeaderGroupContainer extends Component<Props, SpreadsheetChildEnv> 
     dimension: String,
     layers: Array,
   };
-  static components = { RowGroup, ColGroup, Menu };
+  static components = { RowGroup, ColGroup, MenuPopover };
 
   menu: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 

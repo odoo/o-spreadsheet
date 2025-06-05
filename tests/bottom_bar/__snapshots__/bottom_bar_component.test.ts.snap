@@ -3,7 +3,7 @@
 exports[`BottomBar component Can open the list of statistics 1`] = `
 <div
   class="o-menu"
-  style=""
+  style="width:250px; "
 >
   
   <div
@@ -137,7 +137,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
 
 exports[`BottomBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
+  class="o-spreadsheet-bottom-bar o-two-columns d-flex flex-fill align-items-center overflow-hidden"
 >
   <div
     class="o-ripple-container position-relative add-sheet-container"

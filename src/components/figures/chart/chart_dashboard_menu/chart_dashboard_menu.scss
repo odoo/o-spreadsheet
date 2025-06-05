@@ -10,9 +10,18 @@
       opacity: 0.3;
 
       &.active,
-      &:hover {
+      &:hover,
+      &:target {
         background: $os-button-active-bg;
       }
+    }
+  }
+}
+
+.o-spreadsheet {
+  &.o-spreadsheet-mobile .o-figure {
+    .o-dashboard-chart-select {
+      display: block !important;
     }
   }
 }
