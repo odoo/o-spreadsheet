@@ -1,19 +1,16 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
-import { AlternatingColorGenerator } from "../../helpers";
+import { AlternatingColorMap } from "../../helpers";
 import {
   Client,
   ClientId,
   ClientPosition,
-  ClientWithPosition,
-  Color,
+  ClientWithColor,
   GridRenderingContext,
 } from "../../types";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
-interface ClientToDisplay extends ClientWithPosition {
-  color: Color;
-}
+interface ClientToDisplay extends Required<Client> {}
 
 export class CollaborativePlugin extends UIPlugin {
   static getters = [
@@ -24,8 +21,7 @@ export class CollaborativePlugin extends UIPlugin {
     "isFullySynchronized",
   ] as const;
   static layers = ["Selection"] as const;
-  private availableColors = new AlternatingColorGenerator(12);
-  private colors: Record<ClientId, Color> = {};
+  private colors: AlternatingColorMap = new AlternatingColorMap(12);
   private session: UIPluginConfig["session"];
 
   constructor(config: UIPluginConfig) {
@@ -48,9 +44,9 @@ export class CollaborativePlugin extends UIPlugin {
     return this.session.getCurrentClient();
   }
 
-  getConnectedClients(): Client[] {
+  getConnectedClients(): ClientWithColor[] {
     return [...this.session.getConnectedClients()].map((client) => {
-      return { ...client, color: this.colors[client.id] };
+      return { ...client, color: this.colors.get(client.id) };
     });
   }
 
@@ -81,10 +77,7 @@ export class CollaborativePlugin extends UIPlugin {
         client.position.sheetId === sheetId &&
         this.isPositionValid(client.position)
       ) {
-        if (!this.colors[client.id]) {
-          this.colors[client.id] = this.availableColors.next();
-        }
-        clients.push({ ...client, color: this.colors[client.id], position: client.position });
+        clients.push({ ...client, position: client.position });
       }
     }
     return clients;

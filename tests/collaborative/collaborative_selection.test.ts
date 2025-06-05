@@ -1,4 +1,4 @@
-import { Client, Model } from "../../src";
+import { Client, ClientWithColor, Model } from "../../src";
 import { DEBOUNCE_TIME } from "../../src/constants";
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
@@ -33,21 +33,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 
@@ -64,21 +64,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 2, row: 2, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 1, row: 1, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 
@@ -103,21 +103,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 3, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 
@@ -134,21 +134,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 3, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 3, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 
@@ -163,21 +163,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 1, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 
@@ -191,21 +191,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
     const david = new Model(alice.exportData(), {
       transportService: network,
@@ -219,27 +219,27 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "david",
           name: "David",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
     david.leaveSession();
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -249,21 +249,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 
@@ -279,21 +279,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId: "42" },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId: "42" },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId: "42" },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 
@@ -308,18 +308,21 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId: "42" },
-        } as Client,
+          color: expect.any(String),
+        },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 
@@ -337,28 +340,28 @@ describe("Collaborative selection", () => {
           id: "alice",
           name: "Alice",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "bob",
           name: "Bob",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "charlie",
           name: "Charlie",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
         {
           id: "david",
           customId: "1",
           name: "David",
           position: { col: 0, row: 0, sheetId },
-          color: undefined,
+          color: expect.any(String),
         },
-      ])
+      ]) as Set<ClientWithColor>
     );
   });
 });
