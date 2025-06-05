@@ -42,8 +42,12 @@ import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
 const MAX_ITERATION = 30;
-const ERROR_CYCLE_CELL = Object.freeze(createEvaluatedCell(new CircularDependencyError()));
-const EMPTY_CELL = Object.freeze(createEvaluatedCell({ value: null }));
+const ERROR_CYCLE_CELL = Object.freeze(
+  createEvaluatedCell({ ...new CircularDependencyError(), origin: { sheetId: "", col: 0, row: 0 } })
+);
+const EMPTY_CELL = Object.freeze(
+  createEvaluatedCell({ value: null, origin: { sheetId: "", col: 0, row: 0 } })
+);
 
 export class Evaluator {
   private readonly getters: Getters;
@@ -327,7 +331,9 @@ export class Evaluator {
 
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
+      // Todo discuss about correctness vs perf
       return EMPTY_CELL;
+      // return { ...EMPTY_CELL, origin: position };
     }
 
     const cellId = cell.id;
@@ -337,13 +343,13 @@ export class Evaluator {
         return ERROR_CYCLE_CELL;
       }
       this.cellsBeingComputed.add(cellId);
-
       return cell.isFormula
         ? this.computeFormulaCell(position, cell)
-        : evaluateLiteral(cell, localeFormat);
+        : evaluateLiteral(cell, localeFormat, position);
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;
+      e.origin = position;
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
@@ -368,6 +374,9 @@ export class Evaluator {
     );
 
     if (!isMatrix(formulaReturn)) {
+      if (!formulaReturn.origin) {
+        formulaReturn.origin = formulaPosition;
+      }
       const evaluatedCell = createEvaluatedCell(
         nullValueToZeroValue(formulaReturn),
         this.getters.getLocale(),
@@ -500,6 +509,9 @@ export class Evaluator {
         this.getters.getLocale(),
         cell
       );
+      if (!evaluatedCell.origin) {
+        evaluatedCell.origin = position;
+      }
       if (evaluatedCell.type === CellValueType.error) {
         evaluatedCell.errorOriginPosition = matrixResult[i][j].errorOriginPosition ?? position;
       }
