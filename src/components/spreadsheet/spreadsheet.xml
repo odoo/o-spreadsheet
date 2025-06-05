@@ -9,7 +9,7 @@
         <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
         <div
           class="o-grid-container"
-          t-att-class="{'o-two-columns': !sidePanel.isOpen}"
+          t-att-class="{'o-two-columns': !sidePanel.isMainPanelOpen}"
           t-att-style="gridContainerStyle"
           t-on-click="this.focusGrid">
           <div class="o-top-left"/>
@@ -23,7 +23,7 @@
             <Grid exposeFocus="(focus) => this._focusGrid = focus"/>
           </div>
         </div>
-        <SidePanel/>
+        <SidePanels/>
         <BottomBar onClick="() => this.focusGrid()"/>
       </t>
     </div>
