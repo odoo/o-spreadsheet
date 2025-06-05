@@ -452,7 +452,7 @@ function normalizeLabels(
   return { normalizedLabels, normalizedNewLabels };
 }
 
-function getChartAxisType(
+export function getChartAxisType(
   definition: GenericDefinition<LineChartDefinition>,
   dataSets: DataSet[],
   labelRange: Range | undefined,
