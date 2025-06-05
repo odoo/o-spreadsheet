@@ -14,6 +14,10 @@ export interface ClientWithPosition extends Client {
   position: ClientPosition;
 }
 
+export interface ClientWithColor extends Client {
+  color: Color;
+}
+
 export interface ClientPosition {
   sheetId: UID;
   col: HeaderIndex;

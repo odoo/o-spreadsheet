@@ -208,6 +208,7 @@ import { DEFAULT_LOCALE } from "./types/locale";
 export const __info__ = {};
 export { LocalTransportService } from "./collaborative/local_transport_service";
 export { Revision } from "./collaborative/revisions";
+export { ClientDisconnectedError } from "./collaborative/session";
 export { tokenColors } from "./components/composer/composer/abstract_composer_store";
 export { Spreadsheet } from "./components/index";
 export { setDefaultSheetViewSize } from "./constants";
