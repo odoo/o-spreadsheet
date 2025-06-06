@@ -10,8 +10,9 @@ import {
 import { CorePlugin } from "./../core_plugin";
 
 export class SettingsPlugin extends CorePlugin {
-  static getters = ["getLocale"] as const;
+  static getters = ["getLocale", "areCellAnimationDisabled"] as const;
   private locale: Locale = DEFAULT_LOCALE;
+  private disableCellAnimations: boolean | undefined = undefined;
 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -29,11 +30,18 @@ export class SettingsPlugin extends CorePlugin {
         this.history.update("locale", newLocale);
         this.changeCellsDateFormatWithLocale(oldLocale, newLocale);
         break;
+      case "TOGGLE_CELL_ANIMATIONS":
+        this.history.update("disableCellAnimations", cmd.disableCellAnimations);
+        break;
     }
   }
 
   getLocale(): Locale {
     return this.locale;
+  }
+
+  areCellAnimationDisabled(): boolean {
+    return !!this.disableCellAnimations;
   }
 
   private changeCellsDateFormatWithLocale(oldLocale: Locale, newLocale: Locale) {
@@ -64,11 +72,13 @@ export class SettingsPlugin extends CorePlugin {
 
   import(data: WorkbookData) {
     this.locale = data.settings?.locale ?? DEFAULT_LOCALE;
+    this.disableCellAnimations = data.settings?.disableCellAnimations;
   }
 
   export(data: WorkbookData) {
     data.settings = {
       locale: this.locale,
+      disableCellAnimations: this.disableCellAnimations,
     };
   }
 }
