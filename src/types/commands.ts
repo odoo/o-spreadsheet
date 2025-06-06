@@ -1373,6 +1373,7 @@ export const enum CommandResult {
   InvalidDefinition = "InvalidDefinition",
   InvalidColor = "InvalidColor",
   InvalidPivotDataSet = "InvalidPivotDataSet",
+  InvalidPivotCustomField = "InvalidPivotCustomField",
 }
 
 export interface CommandHandler<T> {

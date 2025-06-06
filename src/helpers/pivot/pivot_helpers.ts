@@ -1,3 +1,4 @@
+import { tokenize } from "../../formulas/tokenizer";
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
@@ -15,13 +16,17 @@ import {
 import { EvaluationError } from "../../types/errors";
 import {
   Granularity,
+  PivotCoreDefinition,
   PivotCoreDimension,
+  PivotCustomGroupedField,
   PivotDimension,
   PivotDomain,
   PivotField,
+  PivotFields,
   PivotSortedColumn,
   PivotTableCell,
 } from "../../types/pivot";
+import { deepCopy, getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -307,4 +312,169 @@ export function isSortedColumnValid(sortedColumn: PivotSortedColumn, pivot: Pivo
   } catch (e) {
     return false;
   }
+}
+
+/**
+ * When a custom field change its name, we need to update all of its occurrences
+ * - in the pivot dimensions
+ * - in the pivot sorted column
+ * - in the pivot collapsed domains
+ * - in the pivot custom fields
+ */
+export function updatePivotDefinitionForCustomFieldNameChange(
+  definition: PivotCoreDefinition,
+  customFieldName: string,
+  newName: string
+): PivotCoreDefinition {
+  const updatedDefinition = deepCopy(definition);
+
+  // Update custom fields
+  if (updatedDefinition.customFields?.[customFieldName]) {
+    const customField = updatedDefinition.customFields[customFieldName];
+    delete updatedDefinition.customFields[customFieldName];
+    updatedDefinition.customFields[newName] = { ...customField, parentField: newName };
+  } else {
+    return definition; // If the custom field does not exist, return the original definition
+  }
+
+  // Update dimensions
+  updatedDefinition.rows = updatedDefinition.rows.map((row) =>
+    row.fieldName === customFieldName ? { ...row, fieldName: newName } : row
+  );
+  updatedDefinition.columns = updatedDefinition.columns.map((col) =>
+    col.fieldName === customFieldName ? { ...col, fieldName: newName } : col
+  );
+
+  // Update measures & calculated measure formula
+  updatedDefinition.measures = updatedDefinition.measures.map((measure) => {
+    if (measure.fieldName === customFieldName) {
+      measure = { ...measure, fieldName: newName, userDefinedName: newName };
+    }
+    if (measure.computedBy?.formula.includes(customFieldName)) {
+      const computedBy = tokenize(measure.computedBy.formula)
+        .map((token) =>
+          token.type === "SYMBOL" && token.value === customFieldName ? newName : token.value
+        )
+        .join("");
+      measure = { ...measure, computedBy: { ...measure.computedBy, formula: computedBy } };
+    }
+    return measure;
+  });
+
+  // Update sorted columns
+  if (updatedDefinition.sortedColumn) {
+    if (updatedDefinition.sortedColumn.domain.some((d) => d.field === customFieldName)) {
+      updatedDefinition.sortedColumn.domain = updatedDefinition.sortedColumn.domain.map((d) =>
+        d.field === customFieldName ? { ...d, field: newName } : d
+      );
+    }
+    if (updatedDefinition.sortedColumn.measure === customFieldName) {
+      updatedDefinition.sortedColumn.measure = newName;
+    }
+  }
+
+  // Update collapsed domains
+  if (updatedDefinition.collapsedDomains) {
+    updatedDefinition.collapsedDomains = {
+      COL: updatedDefinition.collapsedDomains.COL.map((domain) =>
+        domain.map((d) => (d.field === customFieldName ? { ...d, field: newName } : d))
+      ),
+      ROW: updatedDefinition.collapsedDomains.ROW.map((domain) =>
+        domain.map((d) => (d.field === customFieldName ? { ...d, field: newName } : d))
+      ),
+    };
+  }
+
+  return updatedDefinition;
+}
+
+export function getUniquePivotGroupName(baseName: string, field: PivotCustomGroupedField) {
+  const groupNames = field.groups.map((g) => g.name);
+  return getUniqueText(baseName, groupNames, {
+    compute: (name, i) => `${name}${i}`,
+    start: 2,
+  });
+}
+
+export function getUniquePivotFieldName(baseName: string, fields: PivotFields): string {
+  const namesToAvoid = Object.values(fields)
+    .map((f) => [f?.name, f?.string])
+    .flat()
+    .filter(isDefined);
+  return getUniqueText(baseName, namesToAvoid, {
+    compute: (name, i) => `${name}${i}`,
+    start: 2,
+  });
+}
+
+export function addPivotCustomFieldsToFields(
+  definition: PivotCoreDefinition,
+  fields: PivotFields
+): PivotFields {
+  for (const customField of Object.values(definition.customFields || {})) {
+    const parentField = fields[customField.parentField];
+    if (!parentField) {
+      continue;
+    }
+    fields[customField.name] = {
+      type: "char",
+      isCustomField: true,
+      name: customField.name,
+      string: customField.name,
+      customGroups: customField.groups,
+      parentField: customField.parentField,
+    };
+  }
+  return fields;
+}
+
+export function removePivotGroupsContainingValues(
+  valuesToRemove: CellValue[],
+  customField: PivotCustomGroupedField
+) {
+  customField.groups = customField.groups.filter(
+    (group) => !group.values.some((value) => valuesToRemove.includes(value))
+  );
+}
+
+/**
+ * Adds a new dimension to the pivot definition before a specified base dimension.
+ * If the new dimension already exists, it does nothing.
+ */
+export function addDimensionToPivotDefinition(
+  definition: PivotCoreDefinition,
+  baseDimension: string,
+  newDimension: string
+): PivotCoreDefinition {
+  const dimensions = definition.rows.some((dim) => dim.fieldName === baseDimension)
+    ? definition.rows
+    : definition.columns;
+
+  const baseIndex = dimensions.findIndex((dim) => dim.fieldName === baseDimension);
+  if (baseIndex === -1) {
+    return definition;
+  }
+
+  if (dimensions.some((dim) => dim.fieldName === newDimension)) {
+    return definition;
+  }
+
+  dimensions.splice(baseIndex, 0, { fieldName: newDimension });
+  return definition;
+}
+
+export function getCustomFieldWithParentField(
+  definition: PivotCoreDefinition,
+  parentField: PivotField,
+  fields: PivotFields
+): PivotCustomGroupedField {
+  return (
+    Object.values(definition.customFields || {}).find(
+      (field) => field.parentField === parentField.name
+    ) || {
+      parentField: parentField.name,
+      name: getUniquePivotFieldName(parentField.string, fields),
+      groups: [],
+    }
+  );
 }

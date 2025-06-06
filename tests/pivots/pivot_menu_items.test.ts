@@ -1,4 +1,4 @@
-import { Model, SortDirection, SpreadsheetChildEnv } from "../../src";
+import { Model, PivotCustomGroup, SortDirection, SpreadsheetChildEnv } from "../../src";
 import { Action } from "../../src/actions/action";
 import { PIVOT_TABLE_CONFIG } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
@@ -26,6 +26,7 @@ import {
   addPivot,
   createModelWithPivot,
   createModelWithTestPivotDataset,
+  updatePivot,
 } from "../test_helpers/pivot_helpers";
 
 const reinsertDynamicPivotPath = ["data", "reinsert_dynamic_pivot", "reinsert_dynamic_pivot_1"];
@@ -744,5 +745,346 @@ describe("Pivot sorting menu item", () => {
 
     selectCell(model, "C21"); // Other column
     expect(getActiveSortOrder()).toEqual([]);
+  });
+});
+
+describe("Pivot (un)grouping menu items", () => {
+  let model: Model;
+  let pivotId: string;
+  let env: SpreadsheetChildEnv;
+  let openSidePanel: jest.Mock;
+
+  beforeEach(() => {
+    model = createModelWithPivot("A1:I22");
+    openSidePanel = jest.fn();
+
+    env = makeTestEnv({ model, openSidePanel });
+    pivotId = model.getters.getPivotIds()[0];
+    updatePivot(model, pivotId, {
+      rows: [],
+      columns: [],
+      measures: [{ id: "measureId", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+
+    setCellContent(model, "A25", "=PIVOT(1)");
+  });
+
+  function updatePivotWithGroups(groups: PivotCustomGroup[]) {
+    updatePivot(model, pivotId, {
+      rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
+      customFields: {
+        Stage2: {
+          parentField: "Stage",
+          name: "Stage2",
+          groups: groups,
+        },
+      },
+    });
+  }
+
+  describe("Group pivot headers", () => {
+    test("Menu item is only visible when selecting pivot headers on the same pivot dimension", () => {
+      updatePivot(model, pivotId, {
+        rows: [{ fieldName: "Salesperson" }, { fieldName: "Stage" }],
+      });
+
+      setSelection(model, ["A1"]); // No pivot header selected
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A25"]); // Pivot title
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A27"]); // Single Salesperson header
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A27", "A32"]); // Salesperson headers
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(true);
+
+      setSelection(model, ["A28:A29"]); // Stage headers
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(true);
+
+      setSelection(model, ["A27:A29"]); // Salesperson and Stage headers
+      expect(cellMenuRegistry.get("pivot_headers_group").isVisible!(env)).toBe(false);
+    });
+
+    test("Can group pivot headers", () => {
+      updatePivot(model, pivotId, {
+        rows: [{ fieldName: "Stage" }],
+      });
+
+      setSelection(model, ["A27:A28"]); // Salesperson and Stage headers
+      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
+        rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
+        customFields: {
+          Stage2: {
+            parentField: "Stage",
+            groups: [{ name: "Group", values: ["New", "Won"] }],
+          },
+        },
+      });
+    });
+
+    test("If some headers are already grouped, remove their group", () => {
+      updatePivotWithGroups([{ name: "CustomGroup", values: ["New", "Won"] }]);
+
+      setSelection(model, ["A28:A29", "A31"]); // "New", "Won" and"Proposition" headers
+      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
+        rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
+        customFields: {
+          Stage2: {
+            parentField: "Stage",
+            groups: [{ name: "Group", values: ["New", "Won", "Proposition"] }],
+          },
+        },
+      });
+
+      setSelection(model, ["A28:A29"]); // "New" and "Won" headers
+      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
+        { name: "Group", values: ["New", "Won"] },
+      ]);
+    });
+
+    test("Can merge value into existing group", () => {
+      updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
+
+      setSelection(model, ["A27", "A30"]); // "MyGroup" + "Proposition" headers
+      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
+        rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
+        customFields: {
+          Stage2: {
+            groups: [{ name: "MyGroup", values: ["New", "Won", "Proposition"] }],
+          },
+        },
+      });
+    });
+
+    test("Can merge two existing groups", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Group2", values: ["Proposition", "Qualified"] },
+      ]);
+
+      setSelection(model, ["A27", "A30"]); // "MyGroup" + "Group2" headers
+      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
+        rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
+        customFields: {
+          Stage2: {
+            groups: [{ name: "MyGroup", values: ["New", "Won", "Proposition", "Qualified"] }],
+          },
+        },
+      });
+    });
+
+    test("Merging a group into others group will remove the group", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+
+      setSelection(model, ["A27", "A30"]); // MyGroup + Others headers
+      doAction(["pivot_headers_group"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId)).toMatchObject({
+        rows: [{ fieldName: "Stage2" }, { fieldName: "Stage" }],
+        customFields: {
+          Stage2: {
+            groups: [{ name: "Others", values: [], isOtherGroup: true }],
+          },
+        },
+      });
+    });
+  });
+
+  describe("Ungroup pivot headers", () => {
+    test("Menu item is only visible when selecting grouped pivot headers", () => {
+      updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
+
+      setSelection(model, ["A1"]); // No pivot header selected
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A25"]); // Pivot title
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A27"]); // "MyGroup" header
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(true);
+
+      setSelection(model, ["A28"]); // "New" header inside MyGroup
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(true);
+
+      setSelection(model, ["A30"]); // Proposition header in dimension Stage2
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A31"]); // Proposition header in dimension Stage
+      expect(cellMenuRegistry.get("pivot_headers_ungroup").isVisible!(env)).toBe(false);
+    });
+
+    test("Un-grouping header deletes the group it belongs to", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "SecondGroup", values: ["Proposition", "Qualified"] },
+      ]);
+
+      setSelection(model, ["A28"]); // "New" header inside MyGroup
+      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
+        { name: "SecondGroup", values: ["Proposition", "Qualified"] },
+      ]);
+    });
+
+    test("Removing all groups deletes the custom field", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+
+      setSelection(model, ["A28", "A31"]); // "New" header inside MyGroup and Proposition header in Others group
+      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
+    });
+
+    test("Can remove a group", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+
+      setSelection(model, ["A27"]); // "MyGroup" header
+      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+    });
+
+    test("Can remove the others group", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+
+      setSelection(model, ["A30"]); // "MyGroup" header
+      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
+        { name: "MyGroup", values: ["New", "Won"] },
+      ]);
+    });
+  });
+
+  test("Can open the pivot custom field side panel", () => {
+    updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
+    expect(cellMenuRegistry.get("pivot_edit_custom_field").isVisible!(env)).toBe(false);
+
+    setSelection(model, ["A27"]); // "MyGroup" header
+    expect(cellMenuRegistry.get("pivot_edit_custom_field").isVisible!(env)).toBe(true);
+    doAction(["pivot_edit_custom_field"], env, cellMenuRegistry);
+
+    expect(openSidePanel).toHaveBeenCalledWith("PivotCustomFieldSidePanel", {
+      pivotId,
+      customField: {
+        parentField: "Stage",
+        name: "Stage2",
+        groups: [{ name: "MyGroup", values: ["New", "Won"] }],
+      },
+    });
+  });
+
+  describe("Group remaining pivot headers", () => {
+    test("Menu item is only visible when selecting only non-grouped headers", () => {
+      updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
+
+      setSelection(model, ["A1"]); // No pivot header selected
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A25"]); // Pivot title
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A27"]); // "MyGroup" header
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A28"]); // "New" header inside MyGroup
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A30"]); // "Proposition" header in dimension Stage2
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(false);
+
+      setSelection(model, ["A30", "A32"]); // "Proposition" and "Qualified" headers in dimension Stage2
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(true);
+
+      setSelection(model, ["A31", "A33"]); // "Proposition" and "Qualified" headers in dimension Stage
+      expect(cellMenuRegistry.get("pivot_group_remaining").isVisible!(env)).toBe(true);
+    });
+
+    test("Can group remaining groups", () => {
+      updatePivotWithGroups([{ name: "MyGroup", values: ["New", "Won"] }]);
+
+      setSelection(model, ["A30", "A32"]); // "Proposition", "Qualified" headers inside Stage field
+      doAction(["pivot_group_remaining"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+
+      undo(model);
+      setSelection(model, ["A31", "A33"]); // "Proposition", "Qualified" headers inside Stage field
+      doAction(["pivot_group_remaining"], env, cellMenuRegistry);
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+    });
+
+    test("Removing all groups deletes the custom field", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+
+      setSelection(model, ["A28", "A31"]); // "New" header inside MyGroup and Proposition header in Others group
+      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
+    });
+
+    test("Can remove a group", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+
+      setSelection(model, ["A27"]); // "MyGroup" header
+      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+    });
+
+    test("Can remove the others group", () => {
+      updatePivotWithGroups([
+        { name: "MyGroup", values: ["New", "Won"] },
+        { name: "Others", values: [], isOtherGroup: true },
+      ]);
+
+      setSelection(model, ["A30"]); // "MyGroup" header
+      doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
+
+      expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2.groups).toEqual([
+        { name: "MyGroup", values: ["New", "Won"] },
+      ]);
+    });
   });
 });

@@ -1,0 +1,42 @@
+.o-spreadsheet {
+  .o-tag-input {
+    border-bottom: 1px solid $os-gray-300;
+    cursor: pointer;
+    min-height: 24px;
+
+    .o-tag.badge {
+      font-size: 0.85em;
+      background-color: $os-gray-200;
+      color: $os-text-body;
+      font-weight: 500;
+      height: 20px;
+
+      padding: 0.25em 0.82em;
+      line-height: 1.3;
+
+      .o-delete {
+        cursor: pointer;
+
+        &:hover {
+          opacity: 100 !important;
+        }
+      }
+    }
+
+    &:hover::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      margin-bottom: 6px;
+      /* CSS trick to make a triangle */
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid currentColor;
+    }
+  }
+
+  .o-popover .o-values-proposals {
+    min-width: 160px;
+    background: white;
+  }
+}

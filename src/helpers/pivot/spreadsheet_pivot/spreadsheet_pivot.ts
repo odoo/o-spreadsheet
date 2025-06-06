@@ -10,6 +10,7 @@ import {
   Maybe,
   Range,
   UID,
+  ValueAndLabel,
   Zone,
 } from "../../../types";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
@@ -26,20 +27,23 @@ import {
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
 import { formatValue, isDateTimeFormat } from "../../format/format";
-import { deepEquals, getUniqueText, isDefined } from "../../misc";
+import { deepEquals, isDefined } from "../../misc";
 import {
+  addPivotCustomFieldsToFields,
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,
+  getUniquePivotFieldName,
   parseDimension,
   toNormalizedPivotValue,
 } from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
+import { createPivotDimension } from "../pivot_runtime_definition";
 import { pivotTimeAdapter } from "../pivot_time_adapter";
 import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import {
   DataEntries,
-  DataEntry,
   dataEntriesToSpreadsheetPivotTable,
+  DataEntry,
   groupPivotDataEntriesBy,
   orderDataEntriesKeys,
 } from "./data_entry_spreadsheet_pivot";
@@ -297,8 +301,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   getPossibleDimensionValues(
     dimension: PivotDimension
-  ): { value: string | number | boolean; label: string }[] {
-    const values: { value: string | number | boolean; label: string }[] = [];
+  ): ValueAndLabel<string | number | boolean>[] {
+    const values: ValueAndLabel<string | number | boolean>[] = [];
     const groups = groupPivotDataEntriesBy(this.dataEntries, dimension);
     const orderedKeys = orderDataEntriesKeys(groups, dimension);
     for (const key of orderedKeys) {
@@ -308,6 +312,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       });
     }
     return values;
+  }
+
+  getPossibleFieldValues(fieldName: string): ValueAndLabel<string | number | boolean>[] {
+    const dimension = createPivotDimension(this.fields, { fieldName });
+    return this.getPossibleDimensionValues(dimension);
   }
 
   getCollapsedTableStructure(): SpreadsheetPivotTable {
@@ -339,7 +348,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   }
 
   getFields(): PivotFields {
-    return this.metaData.fields;
+    return addPivotCustomFieldsToFields(this.coreDefinition, { ...this.metaData.fields });
   }
 
   get fields(): PivotFields {
@@ -466,7 +475,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
           bottom: range.zone.bottom,
           right: col,
         });
-        const string = this.findName(field, fields);
+        const string = getUniquePivotFieldName(field, fields);
         fields[string] = {
           name: string,
           type,
@@ -477,16 +486,6 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       }
     }
     return { fields, fieldKeys };
-  }
-
-  /**
-   * Take cares of double names
-   */
-  private findName(name: string, fields: PivotFields) {
-    return getUniqueText(name, Object.keys(fields), {
-      compute: (name, i) => `${name}${i}`,
-      start: 2,
-    });
   }
 
   private extractDataEntriesFromRange(range: Range): DataEntries {
@@ -507,6 +506,23 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         } else {
           entry[field.name] = cell;
         }
+      }
+      for (const customFieldName in this.definition.customFields || {}) {
+        const customField = this.definition.customFields?.[customFieldName];
+        if (!customField) continue;
+        const baseValue = entry[customField.parentField];
+        const parentField = this.fields[customField.parentField];
+        if (!baseValue || !parentField) {
+          entry[customFieldName] = { value: null, type: CellValueType.empty, formattedValue: "" };
+          continue;
+        }
+        const group =
+          customField.groups.find((g) => g.values.some((v) => v === baseValue?.value)) ||
+          customField.groups.find((g) => g.isOtherGroup);
+        entry[customFieldName] = {
+          ...baseValue,
+          value: group ? group.name : baseValue.value,
+        };
       }
       entry["__count"] = { value: 1, type: CellValueType.number, formattedValue: "1" };
       dataEntries.push(entry);

@@ -18,6 +18,7 @@ import { SelectionInput } from "./components/selection_input/selection_input";
 import { SelectionInputStore } from "./components/selection_input/selection_input_store";
 import {
   BarConfigPanel,
+  chartSidePanelComponentRegistry,
   ChartWithAxisDesignPanel,
   GaugeChartConfigPanel,
   GaugeChartDesignPanel,
@@ -25,7 +26,6 @@ import {
   LineConfigPanel,
   ScorecardChartConfigPanel,
   ScorecardChartDesignPanel,
-  chartSidePanelComponentRegistry,
 } from "./components/side_panel/chart";
 import { ChartTitle } from "./components/side_panel/chart/building_blocks/chart_title/chart_title";
 import { ChartDataSeries } from "./components/side_panel/chart/building_blocks/data_series/data_series";
@@ -62,11 +62,17 @@ import {
   SCROLLBAR_WIDTH,
 } from "./constants";
 import { getFunctionsFromTokens } from "./formulas";
-import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
-import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
+import {
+  isEvaluationError,
+  toBoolean,
+  toJsDate,
+  toNumber,
+  toString,
+  tryToNumber,
+} from "./functions/helpers";
+import { arg, FunctionRegistry, functionRegistry } from "./functions/index";
 import {
   ColorGenerator,
-  UuidGenerator,
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
@@ -98,6 +104,7 @@ import {
   toZone,
   union,
   unquote,
+  UuidGenerator,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
@@ -130,6 +137,7 @@ import { ChartTerms } from "./components/translations_terms";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import {
+  addPivotCustomFieldsToFields,
   areDomainArgsFieldsValid,
   createPivotFormula,
   getMaxObjectId,
@@ -206,6 +214,8 @@ import { DEFAULT_LOCALE } from "./types/locale";
  */
 
 export const __info__ = {};
+export { AbstractCellClipboardHandler } from "./clipboard_handlers/abstract_cell_clipboard_handler";
+export { AbstractFigureClipboardHandler } from "./clipboard_handlers/abstract_figure_clipboard_handler";
 export { LocalTransportService } from "./collaborative/local_transport_service";
 export { Revision } from "./collaborative/revisions";
 export { ClientDisconnectedError } from "./collaborative/session";
@@ -213,6 +223,7 @@ export { tokenColors } from "./components/composer/composer/abstract_composer_st
 export { Spreadsheet } from "./components/index";
 export { setDefaultSheetViewSize } from "./constants";
 export { compile, compileTokens, functionCache } from "./formulas/compiler";
+export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export {
   astToFormula,
   convertAstNodes,
@@ -220,8 +231,12 @@ export {
   parse,
   parseTokens,
 } from "./formulas/parser";
+export type { AST, ASTFuncall } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
+export type { Token } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/figures/charts";
+export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
+export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
 export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";
 export { Model } from "./model";
@@ -229,8 +244,10 @@ export { CorePlugin } from "./plugins/core_plugin";
 export { CoreViewPlugin } from "./plugins/core_view_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
+export type { StoreConstructor, StoreParams } from "./store_engine";
 export { setTranslationMethod } from "./translation";
-export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
+export type * from "./types";
+export { addRenderingLayer, CancelledReason, CommandResult, DispatchResult } from "./types";
 export { Client } from "./types/collaborative/session";
 export {
   ClientJoinedMessage,
@@ -251,6 +268,7 @@ export {
   readonlyAllowedCommands,
 } from "./types/commands";
 export { CellErrorType, EvaluationError } from "./types/errors";
+export type { FunctionRegistry };
 
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
@@ -310,6 +328,7 @@ export const helpers = {
   toBoolean,
   toJsDate,
   toNumber,
+  tryToNumber,
   toString,
   toNormalizedPivotValue,
   toFunctionPivotValue,
@@ -365,6 +384,7 @@ export const helpers = {
   getUniqueText,
   isNumber,
   isDateTime,
+  addPivotCustomFieldsToFields,
 };
 
 export const links = {
@@ -456,8 +476,6 @@ export const stores = {
   ClientFocusStore,
 };
 
-export type { StoreConstructor, StoreParams } from "./store_engine";
-
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
   functionRegistry.add(functionName, functionDescription);
   return {
@@ -474,15 +492,3 @@ export const constants = {
 };
 
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
-
-export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
-export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
-
-export type { EnrichedToken } from "./formulas/composer_tokenizer";
-export type { AST, ASTFuncall } from "./formulas/parser";
-export type { Token } from "./formulas/tokenizer";
-export type * from "./types";
-export type { FunctionRegistry };
-
-export { AbstractCellClipboardHandler } from "./clipboard_handlers/abstract_cell_clipboard_handler";
-export { AbstractFigureClipboardHandler } from "./clipboard_handlers/abstract_figure_clipboard_handler";
