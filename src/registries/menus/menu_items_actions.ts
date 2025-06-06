@@ -41,6 +41,24 @@ function getRowsNumber(env: SpreadsheetChildEnv): number {
   }
 }
 
+function canRemoveColumnsRows(dimension: Dimension, env: SpreadsheetChildEnv): boolean {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedElements = env.model.getters.getElementsFromSelection(dimension);
+
+  const includesAllVisibleHeaders = env.model.getters.checkElementsIncludeAllVisibleHeaders(
+    sheetId,
+    dimension,
+    selectedElements
+  );
+  const includesAllNonFrozenHeaders = env.model.getters.checkElementsIncludeAllNonFrozenHeaders(
+    sheetId,
+    dimension,
+    selectedElements
+  );
+
+  return !includesAllVisibleHeaders && !includesAllNonFrozenHeaders;
+}
+
 export function setFormatter(env: SpreadsheetChildEnv, format: Format) {
   env.model.dispatch("SET_FORMATTING", {
     sheetId: env.model.getters.getActiveSheetId(),
@@ -242,25 +260,18 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
   });
 };
 
-export const CAN_REMOVE_COLUMNS_ROWS = (
-  dimension: Dimension,
-  env: SpreadsheetChildEnv
-): boolean => {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedElements = env.model.getters.getElementsFromSelection(dimension);
+export const CAN_REMOVE_COLUMNS = (env: SpreadsheetChildEnv): boolean => {
+  if (env.model.getters.getActiveRows().size !== 0) {
+    return false;
+  }
+  return canRemoveColumnsRows("COL", env);
+};
 
-  const includesAllVisibleHeaders = env.model.getters.checkElementsIncludeAllVisibleHeaders(
-    sheetId,
-    dimension,
-    selectedElements
-  );
-  const includesAllNonFrozenHeaders = env.model.getters.checkElementsIncludeAllNonFrozenHeaders(
-    sheetId,
-    dimension,
-    selectedElements
-  );
-
-  return !includesAllVisibleHeaders && !includesAllNonFrozenHeaders;
+export const CAN_REMOVE_ROWS = (env: SpreadsheetChildEnv): boolean => {
+  if (env.model.getters.getActiveCols().size !== 0) {
+    return false;
+  }
+  return canRemoveColumnsRows("ROW", env);
 };
 
 export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {

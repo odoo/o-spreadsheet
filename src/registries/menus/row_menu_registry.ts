@@ -55,7 +55,7 @@ rowMenuRegistry
     name: ACTIONS.REMOVE_ROWS_NAME,
     sequence: 70,
     action: ACTIONS.REMOVE_ROWS_ACTION,
-    isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("ROW", env),
+    isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_ROWS(env),
   })
   .add("clear_row", {
     name: ACTIONS.DELETE_CONTENT_ROWS_NAME,

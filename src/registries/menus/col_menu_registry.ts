@@ -72,7 +72,7 @@ colMenuRegistry
     name: ACTIONS.REMOVE_COLUMNS_NAME,
     sequence: 90,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
-    isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("COL", env),
+    isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS(env),
   })
   .add("clear_column", {
     name: ACTIONS.DELETE_CONTENT_COLUMNS_NAME,
