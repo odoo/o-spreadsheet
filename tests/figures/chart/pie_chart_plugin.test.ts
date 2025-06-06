@@ -25,6 +25,7 @@ describe("pie chart", () => {
       dataSetsHaveTitle: true,
       aggregated: true,
       isDoughnut: false,
+      pieHolePercentage: 0,
       showValues: false,
     });
   });
