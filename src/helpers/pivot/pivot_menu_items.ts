@@ -1,8 +1,15 @@
-import { PivotDomain, SortDirection, SpreadsheetChildEnv, Zone } from "../..";
+import {
+  PivotCustomGroup,
+  PivotCustomGroupedField,
+  PivotDomain,
+  SortDirection,
+  SpreadsheetChildEnv,
+  Zone,
+} from "../..";
 import { ActionSpec } from "../../actions/action";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types";
-import { deepEquals, isDefined } from "../misc";
+import { deepCopy, deepEquals, isDefined } from "../misc";
 import { cellPositions } from "../zones";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
 
@@ -85,6 +92,31 @@ export const groupPivotHeaders: ActionSpec = {
     const selection = env.model.getters.getSelectedZones();
     const { pivotId, headers } = getMatchingPivotHeadersInZones(env, selection);
     console.log("Group pivot headers", pivotId, headers);
+    const values = headers.map((pivotCell) => pivotCell.domain.at(-1)?.value).filter(isDefined);
+    const field = headers[0].domain.at(-1)?.field;
+    if (!field || !pivotId || values.length === 0) {
+      return;
+    }
+    const pivotGroups = deepCopy(
+      env.model.getters.getPivotCoreDefinition(pivotId).customFields || {}
+    );
+    // ADRM TODO: group in existing custom field. Be caareful of translate
+
+    const newGroup: PivotCustomGroup = { name: values.join(","), values };
+    const groupedField: PivotCustomGroupedField = {
+      parentField: field,
+      name: _t("Group: %s", field),
+      groups: [],
+    };
+    groupedField.groups.push(newGroup);
+    pivotGroups[groupedField.name] = groupedField;
+    env.model.dispatch("UPDATE_PIVOT", {
+      pivotId: pivotId,
+      pivot: {
+        ...env.model.getters.getPivotCoreDefinition(pivotId),
+        customFields: pivotGroups,
+      },
+    });
   },
   isVisible: (env) => true, /// ADRM TODO: mix of multiple pivots, no pivot header cell
 };

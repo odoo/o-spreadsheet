@@ -1,0 +1,12 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotCustomFieldPanel">
+    <Section>Hello !</Section>
+
+    <Section>
+      <div class="o-sidePanelButtons">
+        <button t-on-click="props.onExit" class="o-cancel o-button">Cancel</button>
+        <button t-on-click="onSave" class="o-save o-button primary">Save</button>
+      </div>
+    </Section>
+  </t>
+</templates>

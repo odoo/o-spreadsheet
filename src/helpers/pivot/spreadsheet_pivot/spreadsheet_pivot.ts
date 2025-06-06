@@ -339,7 +339,24 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   }
 
   getFields(): PivotFields {
-    return this.metaData.fields;
+    const fields = { ...this.metaData.fields };
+    for (const key in this.coreDefinition.customFields || {}) {
+      const customField = this.coreDefinition.customFields?.[key];
+      if (!customField) continue;
+      const baseField = fields[customField.parentField];
+      if (!baseField) {
+        continue;
+      }
+      fields[key] = {
+        ...baseField,
+        isCustomField: true,
+        name: key,
+        string: customField.name,
+        customGroups: customField.groups,
+        parentField: customField.parentField,
+      };
+    }
+    return fields;
   }
 
   get fields(): PivotFields {
@@ -505,6 +522,21 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         } else {
           entry[field.name] = cell;
         }
+      }
+      for (const customFieldName in this.definition.customFields || {}) {
+        const customField = this.definition.customFields?.[customFieldName];
+        if (!customField) continue;
+        const baseValue = entry[customField.parentField];
+        const parentField = this.fields[customField.parentField];
+        if (!baseValue || !parentField) {
+          entry[customFieldName] = { value: null, type: CellValueType.empty, formattedValue: "" };
+          continue;
+        }
+        const group = customField.groups.find((g) => g.values.some((v) => v === baseValue?.value));
+        entry[customFieldName] = {
+          ...baseValue,
+          value: group ? group.name : baseValue.value,
+        };
       }
       entry["__count"] = { value: 1, type: CellValueType.number, formattedValue: "1" };
       dataEntries.push(entry);

@@ -4,6 +4,22 @@ import { Format } from "./format";
 import { Locale } from "./locale";
 import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
 
+/**
+ * ADM TODO
+ *
+ * - DISCUSS: one or multiple custom field per real field?
+ *    - use case: countries grouped by continent & countries grouped by spoken language
+ * - Icons (context menu + AddDimensionButton)
+ * - DISCUSS: how to side panel
+ *  - my understanding is that we create a custom FIELD, with a parent field, and inside we can define multiple groups
+ *     (eg. res.country => Europe, Africa, ...). That's not really what's suggested by the Excalidraw
+ * - DISCUSS: what exactly fo we want in the context menu ? only a button to open the side panel ? Or can we add/remove things from the
+ *     groups from the context menu ?
+ * - sounds very fun in Odoo, AVERAGE(AVERAGE(Alice), AVERAGE(Bob)) !== AVERAGE(Alice, Bob) so .... bonus rpcs
+ *
+ *
+ */
+
 export type Aggregator =
   | "array_agg"
   | "count"
@@ -34,6 +50,9 @@ export interface PivotCoreDimension {
   fieldName: string;
   order?: SortDirection;
   granularity?: Granularity | string;
+  isCustomField?: boolean;
+  parentField?: string;
+  customGroups?: PivotCustomGroup[];
 }
 
 export interface PivotCoreMeasure {
@@ -59,6 +78,7 @@ export interface CommonPivotCoreDefinition {
   deferUpdates?: boolean;
   sortedColumn?: PivotSortedColumn;
   collapsedDomains?: PivotCollapsedDomains;
+  customFields?: Record<string, PivotCustomGroupedField>;
 }
 
 export interface PivotSortedColumn {
@@ -70,6 +90,17 @@ export interface PivotSortedColumn {
 export interface PivotCollapsedDomains {
   COL: PivotDomain[];
   ROW: PivotDomain[];
+}
+
+export interface PivotCustomGroupedField {
+  parentField: string;
+  name: string;
+  groups: PivotCustomGroup[];
+}
+
+export interface PivotCustomGroup {
+  name: string;
+  values: CellValue[];
 }
 
 export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinition {
@@ -94,6 +125,9 @@ export interface PivotField {
   string: string;
   aggregator?: string;
   help?: string;
+  isCustomField?: boolean; // ADRM TODO: most of this might be useless. Or useless in PivotDimension
+  parentField?: string;
+  customGroups?: PivotCustomGroup[];
 }
 
 export type PivotFields = Record<TechnicalName, PivotField | undefined>;

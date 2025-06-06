@@ -6,8 +6,16 @@
         Columns
         <AddDimensionButton
           onFieldPicked.bind="addColumnDimension"
-          fields="props.unusedGroupableFields"
-        />
+          fields="props.unusedGroupableFields">
+          <div
+            t-on-click="() => this.addCustomGroup('COL')"
+            class="p-2 bg-white border-top d-flex align-items-center sticky-bottom add-calculated-measure">
+            <i class="pe-1">
+              <t t-call="o-spreadsheet-Icon.GROUP_ROWS"/>
+            </i>
+            Add custom group
+          </div>
+        </AddDimensionButton>
       </div>
       <t t-foreach="props.definition.columns" t-as="col" t-key="col_index">
         <div
@@ -32,8 +40,16 @@
         Rows
         <AddDimensionButton
           onFieldPicked.bind="addRowDimension"
-          fields="props.unusedGroupableFields"
-        />
+          fields="props.unusedGroupableFields">
+          <div
+            t-on-click="() => this.addCustomGroup('ROW')"
+            class="p-2 bg-white border-top d-flex align-items-center sticky-bottom add-calculated-measure">
+            <i class="pe-1">
+              <t t-call="o-spreadsheet-Icon.GROUP_ROWS"/>
+            </i>
+            Add custom group
+          </div>
+        </AddDimensionButton>
       </div>
       <t t-foreach="props.definition.rows" t-as="row" t-key="row_index">
         <div
