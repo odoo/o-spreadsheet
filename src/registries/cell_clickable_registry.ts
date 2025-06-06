@@ -6,6 +6,7 @@ export interface CellClickableItem {
   condition: (position: CellPosition, getters: Getters) => boolean;
   execute: (position: CellPosition, env: SpreadsheetChildEnv, isMiddleClick?: boolean) => void;
   title?: string;
+  titleCompute?: (position: CellPosition, getters: Getters) => string;
   sequence: number;
 }
 
