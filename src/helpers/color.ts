@@ -349,8 +349,16 @@ export function darkenColor(color: Color, percentage: number): Color {
   if (percentage === 1) {
     return "#000";
   }
+  // increase saturation to compensate and make it more vivid
+  hsla.s = Math.min(100, percentage * hsla.s + hsla.s);
   hsla.l = hsla.l - percentage * hsla.l;
   return hslaToHex(hsla);
+}
+
+export function chipTextColor(chipBackgroundColor: Color): Color {
+  return relativeLuminance(chipBackgroundColor) < 0.6
+    ? lightenColor(chipBackgroundColor, 0.9)
+    : darkenColor(chipBackgroundColor, 0.75);
 }
 
 const COLORS_SM = [

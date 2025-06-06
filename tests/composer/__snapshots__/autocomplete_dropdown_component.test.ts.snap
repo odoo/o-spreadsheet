@@ -12,12 +12,12 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
     >
       <span
         class="o-semi-bold"
-        style="color: #9B359B;"
+        style="color:#9B359B; "
       >
         S
       </span>
       <span
-        style="color: #000000;"
+        style="color:#000000; "
       >
         UM
       </span>
@@ -38,12 +38,12 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
     >
       <span
         class="o-semi-bold"
-        style="color: #9B359B;"
+        style="color:#9B359B; "
       >
         S
       </span>
       <span
-        style="color: #000000;"
+        style="color:#000000; "
       >
         ZZ
       </span>
@@ -73,12 +73,12 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       >
         <span
           class="o-semi-bold"
-          style="color: #9B359B;"
+          style="color:#9B359B; "
         >
           S
         </span>
         <span
-          style="color: #000000;"
+          style="color:#000000; "
         >
           UM
         </span>
@@ -99,12 +99,12 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       >
         <span
           class="o-semi-bold"
-          style="color: #9B359B;"
+          style="color:#9B359B; "
         >
           S
         </span>
         <span
-          style="color: #000000;"
+          style="color:#000000; "
         >
           ZZ
         </span>
@@ -136,12 +136,12 @@ exports[`composer Assistant render below the cell by default 1`] = `
       >
         <span
           class="o-semi-bold"
-          style="color: #9B359B;"
+          style="color:#9B359B; "
         >
           S
         </span>
         <span
-          style="color: #000000;"
+          style="color:#000000; "
         >
           UM
         </span>
@@ -162,12 +162,12 @@ exports[`composer Assistant render below the cell by default 1`] = `
       >
         <span
           class="o-semi-bold"
-          style="color: #9B359B;"
+          style="color:#9B359B; "
         >
           S
         </span>
         <span
-          style="color: #000000;"
+          style="color:#000000; "
         >
           ZZ
         </span>

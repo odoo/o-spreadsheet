@@ -31,4 +31,68 @@ describe("Data validation auto complete", () => {
     const proposals = composer.autoCompleteProposals;
     expect(proposals).toHaveLength(3);
   });
+
+  test("value in list set rounded chip and color", async () => {
+    const { store: composer, model } = makeStore(CellComposerStore);
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["hello", "world"],
+      colors: { world: "#B6D7A8" },
+      displayStyle: "chip",
+    });
+    composer.startEdition();
+    await nextTick();
+    const proposals = composer.autoCompleteProposals;
+    expect(proposals.map((p) => p.htmlContent)).toEqual([
+      [
+        {
+          backgroundColor: "#E8EAED", // default color
+          classes: ["badge rounded-pill fs-6 fw-normal"],
+          color: undefined,
+          value: "hello",
+        },
+      ],
+      [
+        {
+          backgroundColor: "#B6D7A8",
+          classes: ["badge rounded-pill fs-6 fw-normal"],
+          color: "#234F11",
+          value: "world",
+        },
+      ],
+    ]);
+  });
+
+  test("value in range set rounded chip and color", async () => {
+    const { store: composer, model } = makeStore(CellComposerStore);
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInRange",
+      values: ["B2:B4"],
+      colors: { world: "#B6D7A8" },
+      displayStyle: "chip",
+    });
+    setCellContent(model, "B2", "hello");
+    setCellContent(model, "B3", "world");
+    composer.startEdition();
+    await nextTick();
+    const proposals = composer.autoCompleteProposals;
+    expect(proposals.map((p) => p.htmlContent)).toEqual([
+      [
+        {
+          backgroundColor: "#E8EAED", // default color
+          classes: ["badge rounded-pill fs-6 fw-normal"],
+          color: undefined,
+          value: "hello",
+        },
+      ],
+      [
+        {
+          backgroundColor: "#B6D7A8",
+          classes: ["badge rounded-pill fs-6 fw-normal"],
+          color: "#234F11",
+          value: "world",
+        },
+      ],
+    ]);
+  });
 });
