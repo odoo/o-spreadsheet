@@ -25,7 +25,8 @@ css/* scss */ `
     input.o-font-size {
       outline: none;
       height: 20px;
-      width: 23px;
+      width: 31px;
+      text-align: center;
     }
   }
   .o-text-options > div {
