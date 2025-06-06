@@ -107,6 +107,10 @@ cellMenuRegistry
     sequence: 150,
     separator: true,
   })
+  .add("pivot_headers_group", {
+    sequence: 155,
+    ...ACTIONS_PIVOT.groupPivotHeaders,
+  })
   .add("pivot_sorting", {
     name: _t("Sort pivot"),
     sequence: 155,
