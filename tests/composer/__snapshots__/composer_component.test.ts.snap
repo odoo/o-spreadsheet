@@ -31,9 +31,7 @@ exports[`Composer string is correctly translated to DOM Multi-line formula 1`] =
     </span>
   </p>
   <p>
-    <span>
-      <br />
-    </span>
+    <span />
   </p>
   <p>
     <span
@@ -79,9 +77,7 @@ exports[`Composer string is correctly translated to DOM Multi-line string 1`] = 
   tabindex="1"
 >
   <p>
-    <span>
-      <br />
-    </span>
+    <span />
   </p>
   <p>
     <span>
@@ -94,9 +90,7 @@ exports[`Composer string is correctly translated to DOM Multi-line string 1`] = 
     </span>
   </p>
   <p>
-    <span>
-      <br />
-    </span>
+    <span />
   </p>
   <p>
     <span>
@@ -128,9 +122,7 @@ exports[`Composer string is correctly translated to DOM Selection indicator in m
     </span>
   </p>
   <p>
-    <span>
-      <br />
-    </span>
+    <span />
   </p>
   <p>
     <span
