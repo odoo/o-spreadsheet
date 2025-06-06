@@ -14,3 +14,24 @@ export function getChartShowValues(
     callback: formatChartDatasetValue(axisFormats, locale),
   };
 }
+
+/**
+ * Specialized configuration for pyramid chart to format absolute values.
+ */
+export function getPyramidChartShowValues(
+  definition: ChartWithDataSetDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartShowValuesPluginOptions {
+  const { axisFormats, locale } = args;
+  const formatDatasetValue = formatChartDatasetValue(axisFormats, locale);
+
+  return {
+    horizontal: true,
+    showValues: "showValues" in definition ? !!definition.showValues : false,
+    background: definition.background,
+    callback: (value, axisId) => {
+      const absValue = Math.abs(Number(value));
+      return absValue === 0 ? "" : formatDatasetValue(absValue, axisId);
+    },
+  };
+}
