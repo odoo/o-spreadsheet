@@ -1,0 +1,12 @@
+.o-spreadsheet {
+  .o-custom-group {
+    border-left: 2px solid #ccc;
+  }
+
+  .o-add-group.o-button {
+    font-weight: 400;
+    font-size: 12px;
+    flex-grow: 0;
+    height: inherit;
+  }
+}

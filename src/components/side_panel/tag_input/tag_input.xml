@@ -1,0 +1,21 @@
+<templates>
+  <t t-name="o-spreadsheet-TagInput">
+    <AutocompletePopover values="values" onValuePicked.bind="onValuePicked">
+      <div class="o-tag-input position-relative d-flex flex-wrap gap-1 align-items-end pb-1">
+        <t t-foreach="tags" t-as="tag" t-key="tag_index">
+          <span
+            class="o-tag d-inline-flex align-items-center user-select-none mw-100 cursor-pointer badge rounded-pill">
+            <div class="text-truncate" t-out="tag.text"/>
+
+            <div
+              t-if="tag.onDelete"
+              t-on-click.stop.prevent="(ev) => tag.onDelete and tag.onDelete(ev)"
+              class="o-delete d-flex align-items-center ps-1 opacity-75">
+              <i class="fa fa-times"/>
+            </div>
+          </span>
+        </t>
+      </div>
+    </AutocompletePopover>
+  </t>
+</templates>

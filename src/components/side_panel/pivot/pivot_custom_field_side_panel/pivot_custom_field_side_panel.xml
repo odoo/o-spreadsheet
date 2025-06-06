@@ -1,0 +1,76 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotCustomFieldPanel">
+    <Section>
+      <div class="o-section-title">Related dimension</div>
+      <AutocompletePopover values="possibleFields" onValuePicked.bind="onUpdateParentField">
+        <select class="o-input o-parent-field" t-on-pointerdown.prevent="">
+          <option selected="true" t-esc="state.customField.parentField"/>
+        </select>
+      </AutocompletePopover>
+    </Section>
+
+    <Section class="'pt-0'" t-if="parentField">
+      <div class="o-section-title">Custom dimension name</div>
+      <TextInput
+        value="state.customField.name"
+        onChange.bind="updateCustomFieldName"
+        class="'o-custom-field-name'"
+      />
+    </Section>
+
+    <Section class="'pt-0'" t-if="parentField">
+      <div class="w-100 d-flex justify-content-between align-items-center pb-2">
+        <div class="o-section-title">Groups</div>
+        <button class="o-add-group o-button py-1 px-2" t-on-click="addNewGroup">Add group</button>
+      </div>
+      <div
+        t-foreach="groups"
+        t-as="group"
+        t-key="group_index"
+        class="mb-4 o-custom-group ps-2"
+        t-att-data-id="group.name">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="w-100">
+            <TextInput
+              value="group.name"
+              onChange="(newName) => this.onUpdateGroupName(group_index, newName)"
+              class="'o-group-name o-fw-bold mb-2'"
+            />
+            <t
+              t-if="!group.isOtherGroup"
+              t-component="GroupEditorComponent"
+              pivotId="props.pivotId"
+              parentField="parentField"
+              group="group"
+              usedValues="getUsedValuesInOtherGroups(group_index)"
+              onUpdateGroupValues="(values) => this.onUpdateGroupValues(group_index, values)"
+            />
+            <i t-else="" class="text-muted">&lt;All ungrouped values&gt;</i>
+          </div>
+          <i
+            class="o-button-icon ps-3 fa fa-trash fs-5"
+            t-on-click="() => this.onDeleteGroup(group_index)"
+          />
+        </div>
+      </div>
+
+      <Checkbox
+        name="'addOthersGroup'"
+        value="hasOthersGroup"
+        onChange.bind="toggleOthersGroup"
+        className="''"
+        label.translate="&quot;Others&quot; group"
+      />
+    </Section>
+
+    <Section class="'pt-0'">
+      <div class="o-sidePanelButtons">
+        <button t-on-click="onCancel" class="o-cancel o-button">Cancel</button>
+        <t t-if="state.customField.parentField">
+          <button t-on-click="onDelete" class="o-delete o-button o-button-danger">Delete</button>
+          <button t-on-click="onSave" class="o-save o-button primary">Save</button>
+        </t>
+      </div>
+    </Section>
+  </t>
+</templates>

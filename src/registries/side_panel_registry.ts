@@ -5,6 +5,7 @@ import { DataValidationPanel } from "../components/side_panel/data_validation/da
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
 import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
+import { PivotCustomFieldPanel } from "../components/side_panel/pivot/pivot_custom_field_side_panel/pivot_custom_field_side_panel";
 import { PivotMeasureDisplayPanel } from "../components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
 import { PivotSidePanel } from "../components/side_panel/pivot/pivot_side_panel/pivot_side_panel";
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
@@ -131,6 +132,20 @@ sidePanelRegistry.add("PivotSidePanel", {
       isOpen: getters.isExistingPivot(props.pivotId),
       props,
       key: `pivot_key_${props.pivotId}`,
+    };
+  },
+});
+
+sidePanelRegistry.add("PivotCustomFieldSidePanel", {
+  title: (env: SpreadsheetChildEnv, props: { pivotId: UID }) => {
+    return _t("Pivot #%s Groups", env.model.getters.getPivotFormulaId(props.pivotId));
+  },
+  Body: PivotCustomFieldPanel,
+  computeState: (getters: Getters, props: { pivotId: UID }) => {
+    return {
+      isOpen: getters.isExistingPivot(props.pivotId),
+      props,
+      key: `pivot_custom_field_key_${props.pivotId}`,
     };
   },
 });

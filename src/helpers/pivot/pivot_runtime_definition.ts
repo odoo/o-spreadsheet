@@ -5,6 +5,7 @@ import {
   PivotCollapsedDomains,
   PivotCoreDimension,
   PivotCoreMeasure,
+  PivotCustomGroupedField,
   PivotDimension,
   PivotFields,
   PivotMeasure,
@@ -23,6 +24,7 @@ export class PivotRuntimeDefinition {
   readonly rows: PivotDimension[];
   readonly sortedColumn?: PivotSortedColumn;
   readonly collapsedDomains?: PivotCollapsedDomains;
+  readonly customFields?: Record<string, PivotCustomGroupedField>;
 
   constructor(definition: CommonPivotCoreDefinition, fields: PivotFields) {
     this.measures = definition.measures.map((measure) => createMeasure(fields, measure));
@@ -30,6 +32,7 @@ export class PivotRuntimeDefinition {
     this.rows = definition.rows.map((dimension) => createPivotDimension(fields, dimension));
     this.sortedColumn = definition.sortedColumn;
     this.collapsedDomains = definition.collapsedDomains;
+    this.customFields = definition.customFields;
   }
 
   getDimension(nameWithGranularity: string): PivotDimension {
@@ -92,7 +95,10 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
   };
 }
 
-function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
+export function createPivotDimension(
+  fields: PivotFields,
+  dimension: PivotCoreDimension
+): PivotDimension {
   const field = fields[dimension.fieldName];
   const type = field?.type ?? "integer";
   const granularity = field && isDateOrDatetimeField(field) ? dimension.granularity : undefined;
@@ -131,5 +137,8 @@ function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension
     order: dimension.order,
 
     isValid: !!field,
+    isCustomField: !!field?.isCustomField,
+    customGroups: field?.customGroups,
+    parentField: field?.parentField,
   };
 }

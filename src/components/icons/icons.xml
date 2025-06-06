@@ -809,13 +809,32 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.PLUS_IN_BOX">
-    <svg
-      class="o-icon"
-      width="18"
-      height="18"
-      style="fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5">
-      <path stroke="currentColor" d="M1.5,1.5h15v15h-15v-15M9,5v8M5,9h8"/>
+    <svg class="o-icon" width="18" height="18" style="">
+      <path
+        fill="currentColor"
+        d="
+        M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v14a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2H2v14h14V2H2
+        M4,9.5 h10 v-1.5 h-10
+        M8.25,3.75 v10 h1.5 v-10
+        "
+      />
     </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.MINUS_IN_BOX">
+    <svg class="o-icon" width="18" height="18" style="">
+      <path
+        fill="currentColor"
+        d="
+        M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v14a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2H2v14h14V2H2
+        M4,9.5 h10 v-1.5 h-10
+        "
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.PENCIL_SQUARE">
+    <div class="o-icon">
+      <i class="fa fa-pencil-square-o"/>
+    </div>
   </t>
   <t t-name="o-spreadsheet-Icon.GROUP_ROWS">
     <svg class="o-icon" width="18" height="18">

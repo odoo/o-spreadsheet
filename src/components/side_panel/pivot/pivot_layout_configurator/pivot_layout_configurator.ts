@@ -43,7 +43,8 @@ interface Props {
 }
 
 css/* scss */ `
-  .add-calculated-measure {
+  .add-calculated-measure,
+  .add-custom-field {
     cursor: pointer;
     background-color: #fff;
     &:hover {
@@ -286,6 +287,19 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
           },
         },
       ]),
+    });
+  }
+
+  addCustomGroup() {
+    this.env.openSidePanel("PivotCustomFieldSidePanel", { pivotId: this.props.pivotId });
+  }
+
+  editCustomGroup(dimension: PivotDimensionType) {
+    const definition = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const customField = definition.customFields?.[dimension.nameWithGranularity];
+    this.env.openSidePanel("PivotCustomFieldSidePanel", {
+      pivotId: this.props.pivotId,
+      customField,
     });
   }
 
