@@ -92,4 +92,11 @@ describe("Plain text format", () => {
     expect(getCell(importedModel, "A1")?.format).toBe("@");
     expect(getCellContent(importedModel, "A1")).toBe("00009");
   });
+
+  test("Cells with no content stay empty with a text format", () => {
+    setFormat(model, "A1", "@");
+    expect(getCell(model, "A1")?.content).toBe("");
+    expect(getEvaluatedCell(model, "A1").value).toBe(null);
+    expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.empty);
+  });
 });
