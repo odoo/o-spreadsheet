@@ -30,7 +30,10 @@ export function evaluateLiteral(
   literalCell: LiteralCell,
   localeFormat: LocaleFormat
 ): EvaluatedCell {
-  const value = isTextFormat(localeFormat.format) ? literalCell.content : literalCell.parsedValue;
+  const value =
+    isTextFormat(localeFormat.format) && literalCell.parsedValue !== null
+      ? literalCell.content
+      : literalCell.parsedValue;
   const functionResult = { value, format: localeFormat.format };
   return createEvaluatedCell(functionResult, localeFormat.locale);
 }
@@ -92,6 +95,9 @@ function _createEvaluatedCell(
   if (isEvaluationError(value)) {
     return errorCell(value, message);
   }
+  if (value === null) {
+    return emptyCell(format);
+  }
   if (isTextFormat(format)) {
     // TO DO:
     // with the next line, the value of the cell is transformed depending on the format.
@@ -99,9 +105,7 @@ function _createEvaluatedCell(
     // to interpret the value as a number.
     return textCell(toString(value), format, formattedValue);
   }
-  if (value === null) {
-    return emptyCell(format);
-  }
+
   if (typeof value === "number") {
     if (isDateTimeFormat(format || "")) {
       return dateTimeCell(value, format, formattedValue);
