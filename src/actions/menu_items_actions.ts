@@ -196,6 +196,12 @@ export const CAN_REMOVE_COLUMNS_ROWS = (
   dimension: Dimension,
   env: SpreadsheetChildEnv
 ): boolean => {
+  if (
+    (dimension === "COL" && env.model.getters.getActiveRows().size > 0) ||
+    (dimension === "ROW" && env.model.getters.getActiveCols().size > 0)
+  ) {
+    return false;
+  }
   const sheetId = env.model.getters.getActiveSheetId();
   const selectedElements = env.model.getters.getElementsFromSelection(dimension);
 
