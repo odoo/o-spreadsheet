@@ -1,5 +1,5 @@
 import { CommandResult, Model, SpreadsheetChildEnv } from "../../../../src";
-import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
+import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { ChartTerms } from "../../../../src/components/translations_terms";
 import { createGaugeChart, setInputValueAndTrigger, simulateClick } from "../../../test_helpers";
 import {
@@ -21,7 +21,7 @@ const chartId = "chartId";
 beforeEach(async () => {
   model = new Model();
   createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
-  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
+  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   await openChartConfigSidePanel(model, env, chartId);
 });
 
