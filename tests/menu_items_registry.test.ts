@@ -310,6 +310,11 @@ describe("Menu Item actions", () => {
 
       expect(getNode(path).isVisible(env)).toBeFalsy();
     });
+
+    test("Selecting column should hide the option for row deletion", async () => {
+      selectColumn(model, 4, "overrideSelection");
+      expect(getNode(path).isVisible(env)).toBeFalsy();
+    });
   });
 
   describe("Edit -> edit_delete_column", () => {
@@ -381,6 +386,11 @@ describe("Menu Item actions", () => {
       selectColumn(model, 3, "newAnchor");
       selectColumn(model, lastColumn, "updateAnchor");
 
+      expect(getNode(path).isVisible(env)).toBeFalsy();
+    });
+
+    test("Selecting row should hide the option for column deletion", async () => {
+      selectRow(model, 4, "overrideSelection");
       expect(getNode(path).isVisible(env)).toBeFalsy();
     });
   });
