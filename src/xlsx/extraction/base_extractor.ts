@@ -294,7 +294,7 @@ export class XlsxBaseExtractor {
     optionalArgs?: ExtractArg
   ) {
     if (optionalArgs?.required) {
-      if (optionalArgs?.default) {
+      if (optionalArgs?.default !== undefined) {
         this.warningManager.addParsingWarning(
           `Missing required ${missingElementName} in element <${parentElement.tagName}> of ${this.currentFile}, replacing it by the default value ${optionalArgs.default}`
         );
