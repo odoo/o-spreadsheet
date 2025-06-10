@@ -27,7 +27,7 @@ import {
   UID,
   Zone,
 } from "../../types/misc";
-import { Range } from "../../types/range";
+import { Range, RangePart } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
 
@@ -54,6 +54,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     "getMergesInZone",
     "isSingleCellOrMerge",
     "isMainCellPosition",
+    "zoneToXC",
   ] as const;
 
   private nextId: number = 1;
@@ -285,6 +286,52 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   isMainCellPosition(position: CellPosition): boolean {
     return deepEquals(this.getMainCellPosition(position), position);
+  }
+
+  /**
+   * Converts a zone to a XC coordinate system
+   *
+   * The conversion also treats merges as one single cell
+   *
+   * Examples:
+   * {top:0,left:0,right:0,bottom:0} ==> A1
+   * {top:0,left:0,right:1,bottom:1} ==> A1:B2
+   *
+   * if A1:B2 is a merge:
+   * {top:0,left:0,right:1,bottom:1} ==> A1
+   * {top:1,left:0,right:1,bottom:2} ==> A1:B3
+   *
+   * if A1:B2 and A4:B5 are merges:
+   * {top:1,left:0,right:1,bottom:3} ==> A1:A5
+   */
+  zoneToXC(
+    sheetId: UID,
+    zone: Zone,
+    fixedParts: RangePart[] = [{ colFixed: false, rowFixed: false }]
+  ): string {
+    zone = this.getters.expandZone(sheetId, zone);
+    const topLeft = toXC(zone.left, zone.top, fixedParts[0]);
+    const botRight = toXC(
+      zone.right,
+      zone.bottom,
+      fixedParts.length > 1 ? fixedParts[1] : fixedParts[0]
+    );
+    const cellTopLeft = this.getters.getMainCellPosition({
+      sheetId,
+      col: zone.left,
+      row: zone.top,
+    });
+    const cellBotRight = this.getters.getMainCellPosition({
+      sheetId,
+      col: zone.right,
+      row: zone.bottom,
+    });
+    const sameCell = cellTopLeft.col === cellBotRight.col && cellTopLeft.row === cellBotRight.row;
+    if (topLeft !== botRight && !sameCell) {
+      return topLeft + ":" + botRight;
+    }
+
+    return topLeft;
   }
 
   // ---------------------------------------------------------------------------
