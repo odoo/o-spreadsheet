@@ -108,8 +108,9 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     const cells: EvaluatedCell[] = [];
 
     const recomputedZones = recomputeZones(getters.getSelectedZones(), []);
-    const heightMax = this.getters.getSheetSize(sheetId).numberOfRows - 1;
-    const widthMax = this.getters.getSheetSize(sheetId).numberOfCols - 1;
+    const sizes = this.getters.getUsedSheetSize(sheetId);
+    const heightMax = sizes.numberOfRows - 1;
+    const widthMax = sizes.numberOfCols - 1;
 
     for (const zone of recomputedZones) {
       for (let col = zone.left; col <= (zone.right ?? widthMax); col++) {
