@@ -16,4 +16,18 @@ export class BarConfigPanel extends GenericChartConfigPanel {
       stacked,
     });
   }
+
+  onToggleZoom(enabled: boolean) {
+    const definition = this.props.definition as BarChartDefinition;
+    const zoom = {
+      ...definition.zoom,
+      enabled,
+    };
+    if (enabled) {
+      zoom.sliceable = true;
+    }
+    this.props.updateChart(this.props.figureId, {
+      zoom,
+    });
+  }
 }
