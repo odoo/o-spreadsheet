@@ -2,6 +2,7 @@ import { isEvaluationError, toString } from "../../functions/helpers";
 import {
   BooleanCell,
   Cell,
+  CellPosition,
   CellValue,
   CellValueType,
   DEFAULT_LOCALE,
@@ -28,10 +29,11 @@ import { isNumber, parseNumber } from "../numbers";
 
 export function evaluateLiteral(
   literalCell: LiteralCell,
-  localeFormat: LocaleFormat
+  localeFormat: LocaleFormat,
+  position?: CellPosition
 ): EvaluatedCell {
   const value = isTextFormat(localeFormat.format) ? literalCell.content : literalCell.parsedValue;
-  const functionResult = { value, format: localeFormat.format };
+  const functionResult = { value, format: localeFormat.format, origin: position };
   return createEvaluatedCell(functionResult, localeFormat.locale);
 }
 
@@ -62,7 +64,9 @@ export function createEvaluatedCell(
 ): EvaluatedCell {
   const link = detectLink(functionResult.value);
   if (!link) {
-    return _createEvaluatedCell(functionResult, locale, cell);
+    const evaluateCell = _createEvaluatedCell(functionResult, locale, cell);
+    if (!evaluateCell.origin) evaluateCell.origin = functionResult.origin;
+    return evaluateCell;
   }
   const value = parseLiteral(link.label, locale);
   const format =
@@ -77,6 +81,7 @@ export function createEvaluatedCell(
   return {
     ..._createEvaluatedCell(linkPayload, locale, cell),
     link,
+    origin: functionResult.origin,
   };
 }
 
@@ -148,6 +153,7 @@ const emptyCell = memoize(function emptyCell(format: string | undefined): EmptyC
     type: CellValueType.empty,
     isAutoSummable: true,
     defaultAlign: "left",
+    origin: { sheetId: "", col: 0, row: 0 },
   };
 });
 
