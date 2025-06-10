@@ -1,19 +1,12 @@
-import {
-  deepCopy,
-  getAddHeaderStartIndex,
-  includesAll,
-  largeMax,
-  largeMin,
-  range,
-} from "../../helpers";
+import { deepCopy, getAddHeaderStartIndex, largeMax, largeMin } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {
   static getters = [
-    "getHiddenColsGroups",
-    "getHiddenRowsGroups",
+    // "getHiddenColsGroups",
+    // "getHiddenRowsGroups",
     "isRowHiddenByUser",
     "isColHiddenByUser",
   ] as const;
@@ -143,20 +136,20 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return consecutiveIndexes;
   }
 
-  private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
-    const headers: HeaderIndex[] = range(0, this.getters.getNumberHeaders(sheetId, dimension));
+  // private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
+  //   const headers: HeaderIndex[] = range(0, this.getters.getNumberHeaders(sheetId, dimension));
 
-    const foldedHeaders: HeaderIndex[] = [];
-    this.getters.getHeaderGroups(sheetId, dimension).forEach((group) => {
-      if (group.isFolded) {
-        foldedHeaders.push(...range(group.start, group.end + 1));
-      }
-    });
+  //   const foldedHeaders: HeaderIndex[] = [];
+  //   this.getters.getHeaderGroups(sheetId, dimension).forEach((group) => {
+  //     if (group.isFolded) {
+  //       foldedHeaders.push(...range(group.start, group.end + 1));
+  //     }
+  //   });
 
-    return headers.filter((i) => {
-      return !this.hiddenHeaders[sheetId][dimension][i] && !foldedHeaders.includes(i);
-    });
-  }
+  //   return headers.filter((i) => {
+  //     return !this.hiddenHeaders[sheetId][dimension][i] && !foldedHeaders.includes(i);
+  //   });
+  // }
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
