@@ -125,7 +125,19 @@ describe("merges", () => {
   test("merge outside the sheet is refused", () => {
     const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
     const sheetId = model.getters.getActiveSheetId();
-    expect(merge(model, "A1:C3")).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+    const limit = model.getters.getSheetSize(sheetId);
+    const merge = model.dispatch("ADD_MERGE", {
+      sheetId,
+      target: [
+        {
+          left: limit.numberOfCols - 2,
+          right: limit.numberOfCols + 2,
+          top: limit.numberOfRows - 2,
+          bottom: limit.numberOfRows + 2,
+        },
+      ],
+    });
+    expect(merge).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     const { col, row } = toCartesian("A1");
 
     expect(model.getters.getMerge({ sheetId, col, row })).toBeUndefined();

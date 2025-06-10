@@ -1,6 +1,8 @@
 import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
 import {
   getCanonicalSymbolName,
+  MAX_COL,
+  MAX_ROW,
   numberToLetters,
   toUnboundedZone,
   toZone,
@@ -31,8 +33,8 @@ import {
   resizeRows,
   setCellContent,
   showSheet,
-  unMerge,
   undo,
+  unMerge,
 } from "../test_helpers/commands_helpers";
 import {
   getCell,
@@ -975,8 +977,8 @@ describe("sheets", () => {
       cellId: cell.id,
     });
     const sheet = model.getters.getActiveSheet();
-    expect(sheet.rows[0].cells[0]).toBeUndefined();
-    expect(sheet.rows[1].cells[1]).toBe(cell.id);
+    expect(sheet.rows[0]?.cells[0]).toBeUndefined();
+    expect(sheet.rows[1]?.cells[1]).toBe(cell.id);
     expect(model.getters.getCellPosition(cell.id)).toEqual({
       col: 1,
       row: 1,
@@ -1133,25 +1135,25 @@ describe("sheets", () => {
   test("Cannot delete non-existing columns", () => {
     const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
-    let result = deleteColumns(model, [1, 2, 12].map(numberToLetters));
+    let result = deleteColumns(model, [1, 2, MAX_COL + 5].map(numberToLetters));
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = deleteColumns(model, [1, 3].map(numberToLetters));
+    result = deleteColumns(model, [1, MAX_COL].map(numberToLetters));
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
 
     deleteColumns(model, [1, 2].map(numberToLetters));
-    expect(model.getters.getNumberCols(sheetId)).toBe(1);
+    expect(model.getters.getNumberCols(sheetId)).toBe(MAX_COL);
   });
 
   test("Cannot delete non-existing rows", () => {
     const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
-    let result = deleteRows(model, [1, 2, 26]);
+    let result = deleteRows(model, [1, 2, MAX_ROW + 5]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = deleteRows(model, [1, 3]);
+    result = deleteRows(model, [1, MAX_ROW]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
 
     deleteRows(model, [1, 2]);
-    expect(model.getters.getNumberRows(sheetId)).toBe(1);
+    expect(model.getters.getNumberRows(sheetId)).toBe(MAX_ROW);
   });
 
   test("Cannot add cols/row to indexes out of the sheet", () => {
@@ -1159,7 +1161,7 @@ describe("sheets", () => {
     expect(addColumns(model, "after", "Z", 1)).toBeCancelledBecause(
       CommandResult.InvalidHeaderIndex
     );
-    expect(addColumns(model, "after", "D", 1)).toBeCancelledBecause(
+    expect(addRows(model, "after", MAX_ROW + 10, 1)).toBeCancelledBecause(
       CommandResult.InvalidHeaderIndex
     );
     expect(addRows(model, "after", 3, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);

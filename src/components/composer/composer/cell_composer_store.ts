@@ -24,7 +24,6 @@ import {
   Format,
   Locale,
   RemoveColumnsRowsCommand,
-  isMatrix,
 } from "../../../types";
 import { AbstractComposerStore } from "./abstract_composer_store";
 
@@ -183,7 +182,6 @@ export class CellComposerStore extends AbstractComposerStore {
       if (cell.link && !isFormula(content)) {
         content = markdownLink(content, cell.link.url);
       }
-      this.addHeadersForSpreadingFormula(content);
       this.model.dispatch("UPDATE_CELL", {
         ...this.currentEditedCell,
         content,
@@ -238,45 +236,6 @@ export class CellComposerStore extends AbstractComposerStore {
       return `${numberToString(value * 100, locale.decimalSeparator)}%`;
     }
     return numberToString(value, locale.decimalSeparator);
-  }
-
-  /** Add headers at the end of the sheet so the formula in the composer has enough space to spread */
-  private addHeadersForSpreadingFormula(content: string) {
-    if (!isFormula(content)) {
-      return;
-    }
-
-    const evaluated = this.getters.evaluateFormula(this.sheetId, content);
-    if (!isMatrix(evaluated)) {
-      return;
-    }
-
-    const numberOfRows = this.getters.getNumberRows(this.sheetId);
-    const numberOfCols = this.getters.getNumberCols(this.sheetId);
-
-    const missingRows = this.row + evaluated[0].length - numberOfRows;
-    const missingCols = this.col + evaluated.length - numberOfCols;
-
-    if (missingCols > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
-        sheetId: this.sheetId,
-        sheetName: this.getters.getSheetName(this.sheetId),
-        dimension: "COL",
-        base: numberOfCols - 1,
-        position: "after",
-        quantity: missingCols + 20,
-      });
-    }
-    if (missingRows > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
-        sheetId: this.sheetId,
-        sheetName: this.getters.getSheetName(this.sheetId),
-        dimension: "ROW",
-        base: numberOfRows - 1,
-        position: "after",
-        quantity: missingRows + 50,
-      });
-    }
   }
 
   private checkDataValidation(): boolean {

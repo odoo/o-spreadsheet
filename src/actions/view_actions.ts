@@ -97,7 +97,7 @@ export const unhideAllRows: ActionSpec = {
     env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
       sheetId,
       dimension: "ROW",
-      elements: Array.from(Array(env.model.getters.getNumberRows(sheetId)).keys()),
+      elements: Array.from(Array(env.model.getters.getLastUsedRow(sheetId)).keys()),
     });
   },
   isVisible: (env: SpreadsheetChildEnv) =>

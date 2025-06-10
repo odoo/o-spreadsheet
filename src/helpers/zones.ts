@@ -560,9 +560,9 @@ export function createAdaptedZone<
   // without header and that we are adding/removing a row (or a column)
   const hasHeader = "hasHeader" in zone ? zone.hasHeader : false;
   let shouldStartBeMoved: boolean;
-  if (isFullCol(zone) && !hasHeader) {
+  if (isUnboundedCol(zone) && !hasHeader) {
     shouldStartBeMoved = dimension !== "rows";
-  } else if (isFullRow(zone) && !hasHeader) {
+  } else if (isUnboundedRow(zone) && !hasHeader) {
     shouldStartBeMoved = dimension !== "columns";
   } else {
     shouldStartBeMoved = true;
@@ -658,12 +658,20 @@ export function zoneToTopLeft(zone: Zone): Zone {
   return { ...zone, right: zone.left, bottom: zone.top };
 }
 
-export function isFullRow(zone: UnboundedZone): boolean {
+export function isUnboundedRow(zone: UnboundedZone): boolean {
   return zone.right === undefined;
 }
 
-export function isFullCol(zone: UnboundedZone): boolean {
+export function isFullRow(zone: UnboundedZone, sheetZone: Zone): boolean {
+  return zone.left === 0 && (zone.right === undefined || zone.right >= sheetZone.right);
+}
+
+export function isUnboundedCol(zone: UnboundedZone): boolean {
   return zone.bottom === undefined;
+}
+
+export function isFullCol(zone: UnboundedZone, sheetZone: Zone): boolean {
+  return zone.top === 0 && (zone.bottom === undefined || zone.bottom >= sheetZone.bottom);
 }
 
 /** Returns the area of a zone */

@@ -2,7 +2,15 @@ import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
+import {
+  deepEquals,
+  intersection,
+  isExcelCompatible,
+  isFullCol,
+  isFullRow,
+  isTextFormat,
+  recomputeZones,
+} from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { PositionMap } from "../../helpers/cells/position_map";
 import {
@@ -172,11 +180,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
 
       case "CLEAR_CELLS":
+        this.clearFormatting(cmd.sheetId, cmd.target);
         this.clearCells(cmd.sheetId, cmd.target);
         break;
 
       case "DELETE_CONTENT":
-        this.clearZones(cmd.sheetId, cmd.target);
+        this.deleteContent(cmd.sheetId, cmd.target);
         break;
       case "DELETE_SHEET": {
         this.history.update("cells", cmd.sheetId, undefined);
@@ -184,8 +193,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  private clearZones(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
+  private deleteContent(sheetId: UID, zones: Zone[]) {
+    const sheetZone = this.getters.getUsedSheetZone(sheetId);
+    for (const deletionZone of recomputeZones(zones)) {
+      const zone = intersection(deletionZone, sheetZone);
+      if (!zone) continue;
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const cell = this.getters.getCell({ sheetId, col, row });
@@ -206,10 +218,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Set a format to all the cells in a zone
    */
   private setFormatter(sheetId: UID, zones: Zone[], format: Format) {
-    const sheetSizes = this.getters.getSheetSize(sheetId);
+    const sheetZone = this.getters.getSheetZone(sheetId);
     for (const zone of recomputeZones(zones)) {
-      const fullRow = zone.left === 0 && zone.right >= sheetSizes.numberOfCols - 1;
-      const fullCol = zone.top === 0 && zone.bottom >= sheetSizes.numberOfRows - 1;
+      const fullRow = isFullRow(zone, sheetZone);
+      const fullCol = isFullCol(zone, sheetZone);
       if (fullCol && fullRow) {
         this.setGlobalFormat(sheetId, format);
       } else if (fullCol) {
@@ -239,10 +251,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Clear the styles and format of zones
    */
   private clearFormatting(sheetId: UID, zones: Zone[]) {
-    const sheetSizes = this.getters.getSheetSize(sheetId);
+    const sheetZone = this.getters.getSheetZone(sheetId);
     for (const zone of recomputeZones(zones)) {
-      const fullRow = zone.left === 0 && zone.right >= sheetSizes.numberOfCols - 1;
-      const fullCol = zone.top === 0 && zone.bottom >= sheetSizes.numberOfRows - 1;
+      const fullRow = isFullRow(zone, sheetZone);
+      const fullCol = isFullCol(zone, sheetZone);
       if (fullCol && fullRow) {
         this.setGlobalStyle(sheetId, undefined);
         this.setGlobalFormat(sheetId, "");
@@ -277,17 +289,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private clearCells(sheetId: UID, zones: Zone[]) {
     for (const zone of zones) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId: sheetId,
-            col,
-            row,
-            content: "",
-            style: null,
-            format: "",
-          });
-        }
+      for (const cell of this.getters.getCellFromZone(sheetId, zone)) {
+        const { col, row } = this.getters.getCellPosition(cell.id);
+        this.dispatch("UPDATE_CELL", {
+          sheetId,
+          col,
+          row,
+          content: "",
+        });
       }
     }
   }
@@ -557,10 +566,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private setStyle(sheetId: UID, target: Zone[], style: Style | undefined) {
-    const sheetSizes = this.getters.getSheetSize(sheetId);
+    const sheetZone = this.getters.getSheetZone(sheetId);
     for (const zone of recomputeZones(target)) {
-      const fullRow = zone.left === 0 && zone.right >= sheetSizes.numberOfCols - 1;
-      const fullCol = zone.top === 0 && zone.bottom >= sheetSizes.numberOfRows - 1;
+      const fullRow = isFullRow(zone, sheetZone);
+      const fullCol = isFullCol(zone, sheetZone);
       if (fullCol && fullRow) {
         this.setGlobalStyle(sheetId, style);
       } else if (fullCol) {
