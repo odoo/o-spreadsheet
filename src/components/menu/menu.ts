@@ -192,4 +192,11 @@ export class Menu extends Component<MenuProps, SpreadsheetChildEnv> {
     menu.onStopHover?.(this.env);
     this.props.onMouseLeave?.(menu, ev);
   }
+
+  onClickMenu(menu: Action, ev: CustomEvent) {
+    if (!this.isEnabled(menu)) {
+      return;
+    }
+    this.props.onClickMenu?.(menu, ev);
+  }
 }
