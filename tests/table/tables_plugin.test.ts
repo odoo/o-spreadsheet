@@ -31,10 +31,16 @@ import {
   getFilter,
   getTable,
 } from "../test_helpers/getters_helpers";
-import { getFilterHiddenValues, toRangeData, toRangesData } from "../test_helpers/helpers";
+import {
+  getFilterHiddenValues,
+  getPlugin,
+  toRangeData,
+  toRangesData,
+} from "../test_helpers/helpers";
 
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { EvaluationPlugin } from "../../src/plugins/ui_core_views";
 import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";
 import { DEFAULT_TABLE_CONFIG } from "./../../src/helpers/table_presets";
 
@@ -115,6 +121,19 @@ describe("Table plugin", () => {
       test("Add Merge is correctly rejected when creating a merge inside a table", () => {
         createTable(model, "A1:A5");
         expect(merge(model, "A1:A2")).toBeCancelledBecause(CommandResult.MergeInTable);
+      });
+
+      test("Inserting a table only invalidates the evaluation if it overlaps a merge", () => {
+        merge(model, "A1:B1");
+
+        const evaluator = getPlugin(model, EvaluationPlugin)["evaluator"];
+        const evaluateSpy = jest.spyOn(evaluator, "evaluateAllCells");
+
+        createTable(model, "D1:E5");
+        expect(evaluateSpy).not.toHaveBeenCalled();
+
+        createTable(model, "A1:B4");
+        expect(evaluateSpy).toHaveBeenCalled();
       });
     });
 
