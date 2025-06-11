@@ -5,10 +5,11 @@ import { Locale } from "./locale";
 import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
 
 /**
- * ADM TODO
+ * ADRM TODO
  *
  * - DISCUSS: one or multiple custom field per real field?
  *    - use case: countries grouped by continent & countries grouped by spoken language
+ * - DISCUSS: value in multiple groups?
  * - Icons (context menu + AddDimensionButton)
  * - DISCUSS: how to side panel
  *  - my understanding is that we create a custom FIELD, with a parent field, and inside we can define multiple groups

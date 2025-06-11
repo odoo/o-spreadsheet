@@ -410,3 +410,8 @@ export type EditionMode =
   | "inactive";
 
 export type SortDirection = "asc" | "desc";
+
+export type ValueWithLabel<T = string> = {
+  value: T;
+  label: string;
+};
