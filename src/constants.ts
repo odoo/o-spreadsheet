@@ -3,7 +3,7 @@ import { BorderDescr, Color, Currency, Style } from "./types";
 export const CANVAS_SHIFT = 0.5;
 
 // Colors
-export const HIGHLIGHT_COLOR = "#37A850";
+export const HIGHLIGHT_COLOR = "#017E84";
 export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
@@ -16,7 +16,7 @@ export const CELL_BORDER_COLOR = "#E2E3E3";
 export const BACKGROUND_CHART_COLOR = "#FFFFFF";
 export const DISABLED_TEXT_COLOR = "#CACACA";
 export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
-export const LINK_COLOR = "#017E84";
+export const LINK_COLOR = HIGHLIGHT_COLOR;
 export const FILTERS_COLOR = "#188038";
 export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
 export const SEPARATOR_COLOR = "#E0E2E4";
@@ -48,7 +48,7 @@ export const BUTTON_HOVER_BG = GRAY_300;
 export const BUTTON_HOVER_TEXT_COLOR = "#111827";
 export const BUTTON_ACTIVE_BG = "#e6f2f3";
 export const BUTTON_ACTIVE_TEXT_COLOR = "#111827";
-export const ACTION_COLOR = "#017E84";
+export const ACTION_COLOR = HIGHLIGHT_COLOR;
 export const ACTION_COLOR_HOVER = "#01585c";
 export const ALERT_WARNING_BG = "#FBEBCC";
 export const ALERT_WARNING_BORDER = "#F8E2B3";
