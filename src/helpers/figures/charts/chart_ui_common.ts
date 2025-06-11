@@ -1,9 +1,11 @@
-import type { ChartConfiguration, ChartOptions } from "chart.js";
-import { Figure } from "../../../types";
-import { ChartType, GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
-import { ChartRuntime } from "../../../types/chart/chart";
+import { ChartConfiguration, ChartOptions } from "chart.js";
+import { ChartRuntime, ChartType, Figure } from "../../../types";
+import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
+import { HeatMapRuntime } from "../../../types/chart/heat_map";
 import { deepCopy } from "../../misc";
 import { drawGaugeChart } from "./gauge_chart_rendering";
+import { drawHeatMap } from "./heat_map";
+import { getHeatMapConfiguration } from "./heat_map_config_builder";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 
@@ -49,6 +51,10 @@ export function chartToImageUrl(
   } else if (type === "scorecard") {
     const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
     drawScoreChart(design, canvas);
+    imageContent = canvas.toDataURL();
+  } else if (type === "heatmap") {
+    const design = getHeatMapConfiguration(figure, runtime as HeatMapRuntime);
+    drawHeatMap(design, canvas);
     imageContent = canvas.toDataURL();
   } else if (type === "gauge") {
     drawGaugeChart(canvas, runtime as GaugeChartRuntime);

@@ -165,6 +165,24 @@
       <text x="9" y="32" style="font-size:18px;">123</text>
     </svg>
   </t>
+  <t t-name="o-spreadsheet-ChartPreview.HEAT_MAP">
+    <svg class="o-chart-preview" viewBox="0 0 48 48">
+      <g style="fill:none;stroke:none">
+        <path style="fill:#eb6d00" d="M4 4h10v10H4z"/>
+        <path style="fill:none" d="M4 14h10v10H4z"/>
+        <path style="fill:#0074d9" d="M4 24h10v10H4zm0 10h10v10H4z"/>
+        <path style="fill:#c4e4ff" d="M14 4h10v10H14z"/>
+        <path style="fill:#ffe1c8" d="M14 14h10v10H14zm0 10h10v10H14z"/>
+        <path style="fill:#0074d9" d="M14 34h10v10H14zM24 4h10v10H24z"/>
+        <path style="fill:#eb6d00" d="M24 14h10v10H24z"/>
+        <path style="fill:#ffe1c8" d="M24 24h10v10H24z"/>
+        <path style="fill:#c4e4ff" d="M24 34h10v10H24zM34 4h10v10H34z"/>
+        <path style="fill:#eb6d00" d="M34 14h10v10H34z"/>
+        <path style="fill:none" d="M34 24h10v10H34z"/>
+        <path style="fill:#ffe1c8" d="M34 34h10v10H34z"/>
+      </g>
+    </svg>
+  </t>
   <t t-name="o-spreadsheet-ChartPreview.WATERFALL_CHART">
     <svg viewBox="0 0 48 48" class="o-chart-preview" xmlns="http://www.w3.org/2000/svg">
       <path fill="#444" d="M5,45 v-26 h6 v26"/>

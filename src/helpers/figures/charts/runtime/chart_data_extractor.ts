@@ -815,7 +815,7 @@ export function getChartLabelFormat(
   return formats.find((format) => format !== undefined);
 }
 
-function getChartLabelValues(
+export function getChartLabelValues(
   getters: Getters,
   dataSets: DataSet[],
   labelRange?: Range
@@ -875,7 +875,7 @@ function getChartDatasetFormat(
   return undefined;
 }
 
-function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
+export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
     let label: string;
