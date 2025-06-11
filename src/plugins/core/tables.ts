@@ -134,7 +134,9 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         const ranges = cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData));
         const union = this.getters.getRangesUnion(ranges);
         const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, union.zone);
-        this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
+        if (mergesInTarget.length) {
+          this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
+        }
 
         const id = this.consumeNextId();
         const config = cmd.config || DEFAULT_TABLE_CONFIG;
