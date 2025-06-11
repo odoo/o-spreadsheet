@@ -17,8 +17,8 @@
           <div
             t-att-title="getName(menuItem)"
             t-att-data-name="menuItem.id"
-            t-on-click="(ev) => this.props.onClickMenu?.(menuItem, ev)"
-            t-on-auxclick="(ev) => this.props.onClickMenu?.(menuItem, ev)"
+            t-on-click="(ev) => this.onClickMenu(menuItem, ev)"
+            t-on-auxclick="(ev) => this.onClickMenu(menuItem, ev)"
             t-on-mouseover="(ev) => this.props.onMouseOver?.(menuItem, ev)"
             t-on-mouseenter="(ev) => this.onMouseEnter?.(menuItem, ev)"
             t-on-mouseleave="(ev) => this.onMouseLeave?.(menuItem)"

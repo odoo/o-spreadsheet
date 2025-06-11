@@ -239,10 +239,6 @@ export class MenuPopover extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onClickMenu(menu: Action, ev: MouseEvent) {
-    if (!this.isEnabled(menu)) {
-      return;
-    }
-
     if (this.isRoot(menu)) {
       this.openSubMenu(menu, ev.currentTarget as HTMLElement);
     } else {
