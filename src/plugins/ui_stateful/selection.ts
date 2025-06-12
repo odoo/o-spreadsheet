@@ -42,6 +42,46 @@ interface SheetInfo {
   gridSelection: Selection;
 }
 
+export class SelectionRangeSet {
+  // TODO ? Sort them to merge zone and have dichotomic has()
+  private ranges: { min: number; max: number }[] = [];
+  private empty: boolean = true;
+
+  add(min: number, max: number) {
+    if (min > max) return;
+    this.ranges.push({ min, max });
+    this.empty = false;
+  }
+
+  has(num: number) {
+    for (const range of this.ranges) {
+      if (range.min <= num && num <= range.max) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  get isEmpty() {
+    return this.empty;
+  }
+
+  *[Symbol.iterator]() {
+    const set = new Set<number>();
+    for (const range of this.ranges) {
+      for (let index = range.min; index <= range.max; index++) {
+        if (set.has(index)) continue;
+        yield index;
+        set.add(index);
+      }
+    }
+  }
+
+  get size() {
+    return [...this].length;
+  }
+}
+
 /**
  * SelectionPlugin
  */
@@ -293,29 +333,25 @@ export class GridSelectionPlugin extends UIPlugin {
     return this.getters.getEvaluatedCell(this.getActivePosition());
   }
 
-  getActiveCols(): Set<number> {
-    const activeCols = new Set<number>();
+  getActiveCols(): SelectionRangeSet {
+    const activeCols = new SelectionRangeSet();
     for (const zone of this.gridSelection.zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
       ) {
-        for (let i = zone.left; i <= zone.right; i++) {
-          activeCols.add(i);
-        }
+        activeCols.add(zone.left, zone.right);
       }
     }
     return activeCols;
   }
 
-  getActiveRows(): Set<number> {
-    const activeRows = new Set<number>();
+  getActiveRows(): SelectionRangeSet {
+    const activeRows = new SelectionRangeSet();
     const sheetId = this.getters.getActiveSheetId();
     for (const zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
-        for (let i = zone.top; i <= zone.bottom; i++) {
-          activeRows.add(i);
-        }
+        activeRows.add(zone.top, zone.bottom);
       }
     }
     return activeRows;
@@ -401,10 +437,10 @@ export class GridSelectionPlugin extends UIPlugin {
    * if dimension === "ROW" => [2,3,4,5]
    */
   getElementsFromSelection(dimension: Dimension): number[] {
-    if (dimension === "COL" && this.getters.getActiveCols().size === 0) {
+    if (dimension === "COL" && this.getters.getActiveCols().isEmpty) {
       return [];
     }
-    if (dimension === "ROW" && this.getters.getActiveRows().size === 0) {
+    if (dimension === "ROW" && this.getters.getActiveRows().isEmpty) {
       return [];
     }
     const zones = this.getters.getSelectedZones();
