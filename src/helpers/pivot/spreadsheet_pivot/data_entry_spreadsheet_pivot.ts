@@ -6,7 +6,7 @@ import {
   PivotTableColumn,
   PivotTableRow,
 } from "../../../types/pivot";
-import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
+import { SpreadsheetPivotTable } from "../spreadsheet_pivot_table";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
 
 export type FieldName = string;
