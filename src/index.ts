@@ -484,7 +484,7 @@ export const constants = {
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
-export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
+export { SpreadsheetPivotTable } from "./helpers/pivot/spreadsheet_pivot_table";
 
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "./formulas/parser";

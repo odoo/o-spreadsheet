@@ -11,7 +11,7 @@ import { domainToColRowDomain } from "../../helpers/pivot/pivot_domain_helpers";
 import withPivotPresentationLayer from "../../helpers/pivot/pivot_presentation";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
-import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
+import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/spreadsheet_pivot_table";
 import { _t } from "../../translation";
 import {
   AddPivotCommand,

@@ -35,7 +35,7 @@ import {
 } from "./pivot_domain_helpers";
 import { AGGREGATORS_FN, isSortedColumnValid, toNormalizedPivotValue } from "./pivot_helpers";
 import { PivotParams, PivotUIConstructor } from "./pivot_registry";
-import { SpreadsheetPivotTable } from "./table_spreadsheet_pivot";
+import { SpreadsheetPivotTable } from "./spreadsheet_pivot_table";
 
 const PERCENT_FORMAT = "0.00%";
 
