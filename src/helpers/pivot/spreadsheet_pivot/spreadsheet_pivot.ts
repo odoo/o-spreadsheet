@@ -35,7 +35,7 @@ import {
 } from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
 import { pivotTimeAdapter } from "../pivot_time_adapter";
-import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
+import { SpreadsheetPivotTable } from "../spreadsheet_pivot_table";
 import {
   DataEntries,
   DataEntry,

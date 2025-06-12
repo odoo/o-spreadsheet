@@ -1,7 +1,7 @@
 import { PIVOT_TABLE_CONFIG } from "../../constants";
 import { getUniqueText, sanitizeSheetName } from "../../helpers";
 import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
-import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
+import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot_table";
 import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { CellPosition, HeaderIndex, PivotTableCell, PivotTableData, UID, Zone } from "../../types";
