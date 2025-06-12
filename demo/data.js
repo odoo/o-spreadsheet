@@ -829,6 +829,33 @@ export const demoData = {
             title: { text: "Movie Revenue by Genre" },
           },
         },
+        {
+          id: "14",
+          tag: "chart",
+          width: 400,
+          height: 300,
+          x: 100,
+          y: 2225,
+          data: {
+            type: "pyramid",
+            dataSetsHaveTitle: true,
+            background: "#FFFFFF",
+            dataSets: [
+              {
+                dataRange: "Sheet1!B26:B35",
+              },
+              {
+                dataRange: "Sheet1!C26:C35",
+              },
+            ],
+            legendPosition: "top",
+            labelRange: "Sheet1!A27:A35",
+            title: {
+              text: "Line",
+            },
+            stacked: false,
+          },
+        },
       ],
       tables: [
         {
