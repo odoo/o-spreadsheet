@@ -1,5 +1,5 @@
 import { SpreadsheetClipboardData } from "../plugins/ui_stateful";
-import { HeaderIndex, UID, Zone } from "./misc";
+import { ClipboardCell, HeaderIndex, UID, Zone } from "./misc";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
@@ -40,4 +40,12 @@ export type ClipboardPasteTarget = {
   sheetId: UID;
   zones: Zone[];
   figureId?: UID;
+};
+
+export type MinimalClipboardData = {
+  sheetId?: UID;
+  cells?: ClipboardCell[][];
+  zones?: Zone[];
+  figureId?: UID;
+  [key: string]: unknown;
 };
