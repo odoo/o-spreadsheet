@@ -618,6 +618,14 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       }
       currentPosition = nextCellPosition;
     }
+    const endPosition = this.getters.getSheetSize(sheetId);
+    const reachedEnd =
+      dim === "cols"
+        ? currentPosition.col === endPosition.numberOfCols - 1
+        : currentPosition.row === endPosition.numberOfRows - 1;
+    if (mode === "nextCluster" && reachedEnd) {
+      return dim === "cols" ? startPosition.col + 1000 : startPosition.row + 1000;
+    }
     return dim === "cols" ? currentPosition.col : currentPosition.row;
   }
 
