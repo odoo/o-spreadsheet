@@ -79,6 +79,7 @@ export class TagInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onInputBlur() {
-    this.popover.isOpen = false;
+    // ADRM TODO
+    // this.popover.isOpen = false;
   }
 }

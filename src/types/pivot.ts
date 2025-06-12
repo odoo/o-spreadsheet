@@ -7,9 +7,9 @@ import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./mis
 /**
  * ADRM TODO
  *
- * - DISCUSS: one or multiple custom field per real field?
+ * - DISCUSS: one or multiple custom field per real field? ONE
  *    - use case: countries grouped by continent & countries grouped by spoken language
- * - DISCUSS: value in multiple groups?
+ * - DISCUSS: value in multiple groups? YES
  * - Icons (context menu + AddDimensionButton)
  * - DISCUSS: how to side panel
  *  - my understanding is that we create a custom FIELD, with a parent field, and inside we can define multiple groups
@@ -53,7 +53,7 @@ export interface PivotCoreDimension {
   granularity?: Granularity | string;
   isCustomField?: boolean;
   parentField?: string;
-  customGroups?: PivotCustomGroup[];
+  customGroups?: PivotCustomGroup[]; // ADRM TODO: is this needed?
 }
 
 export interface PivotCoreMeasure {

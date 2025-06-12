@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-TagInput">
-    <div class="o-input o-tag-select-todo-better-name d-flex flex-wrap gap-1">
+    <div class="o-tag-input d-flex flex-wrap gap-1">
       <t t-foreach="tags" t-as="tag" t-key="tag_index">
         <span
           class="o-tag d-inline-flex align-items-center user-select-none mw-100 cursor-pointer badge rounded-pill">
@@ -9,7 +9,7 @@
           <div
             t-if="tag.onDelete"
             t-on-click.stop.prevent="(ev) => tag.onDelete and tag.onDelete(ev)"
-            class="o-delete d-flex align-items-center ps-1 pt-1 opacity-75">
+            class="o-delete d-flex align-items-center ps-1 opacity-75">
             <i class="fa fa-times"/>
           </div>
         </span>
@@ -23,7 +23,9 @@
       />
     </div>
 
-    <Popover t-if="popover.isOpen" t-props="popoverProps">
+    <Popover
+      t-if="popover.isOpen and autoComplete.provider.proposals?.length"
+      t-props="popoverProps">
       <div class="o-values-proposals py-2 px-1">
         <TextValueProvider
           proposals="autoComplete.provider.proposals"

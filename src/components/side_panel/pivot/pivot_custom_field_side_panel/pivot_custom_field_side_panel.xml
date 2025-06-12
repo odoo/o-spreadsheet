@@ -3,11 +3,7 @@
     <Section>Hello !</Section>
 
     <Section>
-      <TagInput
-        selectedValues="selectedValues"
-        allValues="allValues"
-        onValuesChanged="onValuesChanged"
-      />
+      <t t-component="GroupEditorComponent" pivotId="props.pivotId" parentField="parentField"/>
     </Section>
 
     <Section>

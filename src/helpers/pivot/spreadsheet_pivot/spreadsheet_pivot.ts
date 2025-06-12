@@ -34,6 +34,7 @@ import {
   toNormalizedPivotValue,
 } from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
+import { createPivotDimension } from "../pivot_runtime_definition";
 import { pivotTimeAdapter } from "../pivot_time_adapter";
 import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import {
@@ -308,6 +309,14 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       });
     }
     return values;
+  }
+
+  // ADRM TODO: rename
+  getPossibleFieldValues2(
+    fieldName: string
+  ): { value: string | number | boolean; label: string }[] {
+    const dimension = createPivotDimension(this.fields, { fieldName });
+    return this.getPossibleFieldValues(dimension);
   }
 
   getCollapsedTableStructure(): SpreadsheetPivotTable {

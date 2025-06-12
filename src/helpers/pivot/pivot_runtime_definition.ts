@@ -95,7 +95,10 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
   };
 }
 
-function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
+export function createPivotDimension(
+  fields: PivotFields,
+  dimension: PivotCoreDimension
+): PivotDimension {
   const field = fields[dimension.fieldName];
   const type = field?.type ?? "integer";
   const granularity = field && isDateOrDatetimeField(field) ? dimension.granularity : undefined;
