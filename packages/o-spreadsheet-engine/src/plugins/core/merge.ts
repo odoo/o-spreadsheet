@@ -143,7 +143,6 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
       return [];
     }
     const mergeIds = new Set<number>();
-
     for (let col = zone.left; col <= zone.right; col++) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         const mergeId = sheetMap[col]?.[row];

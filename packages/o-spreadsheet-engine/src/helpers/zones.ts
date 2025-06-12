@@ -1,6 +1,7 @@
 import {
   AdjacentEdge,
   CellPosition,
+  HeaderIndex,
   Position,
   UID,
   UnboundedZone,
@@ -744,15 +745,11 @@ export function areZonesContinuous(zones: Zone[]): boolean {
   return recomputeZones(zones).length === 1;
 }
 
-/** Return all the columns in the given list of zones */
-export function getZonesCols(zones: Zone[]): Set<number> {
-  const set = new Set<number>();
+export function zonesHasCol(zones: Zone[], col: HeaderIndex): boolean {
   for (const zone of recomputeZones(zones)) {
-    for (const col of range(zone.left, zone.right + 1)) {
-      set.add(col);
-    }
+    if (zone.left <= col && col <= zone.right) return true;
   }
-  return set;
+  return false;
 }
 
 /**
@@ -784,6 +781,13 @@ export function getZonesRows(zones: Zone[]): Set<number> {
     }
   }
   return set;
+}
+
+export function zonesHasRow(zones: Zone[], row: HeaderIndex): boolean {
+  for (const zone of recomputeZones(zones)) {
+    if (zone.top <= row && row <= zone.bottom) return true;
+  }
+  return false;
 }
 
 export function unionPositionsToZone(positions: Position[]): Zone {

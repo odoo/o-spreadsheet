@@ -1,6 +1,7 @@
 import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getFullReference, splitReference } from "../../helpers";
+import { SequenceSet } from "../../helpers/cells/sequence_set";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { clip, deepCopy, range } from "../../helpers/misc";
 import { createRange, isFullColRange, isFullRowRange } from "../../helpers/range";
@@ -318,29 +319,25 @@ export class GridSelectionPlugin extends UIPlugin {
     return this.getters.getEvaluatedCell(this.getActivePosition());
   }
 
-  getActiveCols(): Set<number> {
-    const activeCols = new Set<number>();
+  getActiveCols(): SequenceSet {
+    const activeCols = new SequenceSet();
     for (const zone of this.gridSelection.zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
       ) {
-        for (let i = zone.left; i <= zone.right; i++) {
-          activeCols.add(i);
-        }
+        activeCols.add(zone.left, zone.right);
       }
     }
     return activeCols;
   }
 
-  getActiveRows(): Set<number> {
-    const activeRows = new Set<number>();
+  getActiveRows(): SequenceSet {
+    const activeRows = new SequenceSet();
     const sheetId = this.getters.getActiveSheetId();
     for (const zone of this.gridSelection.zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
-        for (let i = zone.top; i <= zone.bottom; i++) {
-          activeRows.add(i);
-        }
+        activeRows.add(zone.top, zone.bottom);
       }
     }
     return activeRows;
@@ -426,10 +423,10 @@ export class GridSelectionPlugin extends UIPlugin {
    * if dimension === "ROW" => [2,3,4,5]
    */
   getElementsFromSelection(dimension: Dimension): number[] {
-    if (dimension === "COL" && this.getters.getActiveCols().size === 0) {
+    if (dimension === "COL" && this.getters.getActiveCols().length === 0) {
       return [];
     }
-    if (dimension === "ROW" && this.getters.getActiveRows().size === 0) {
+    if (dimension === "ROW" && this.getters.getActiveRows().length === 0) {
       return [];
     }
     const zones = this.getters.getSelectedZones();

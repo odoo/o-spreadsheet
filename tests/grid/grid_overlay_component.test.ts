@@ -482,53 +482,53 @@ describe("Resizer component", () => {
   test("Select B, shift D then BCD selected", async () => {
     await selectColumn("B");
     await selectColumn("D", { shiftKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([1, 2, 3]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([1, 2, 3]));
   });
 
   test("Select B, ctrl D then BD selected", async () => {
     await selectColumn("B");
     await selectColumn("D", { ctrlKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([1, 3]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([1, 3]));
   });
 
   test("Select 2, shift 4 then 234 selected", async () => {
     await selectRow(1);
     await selectRow(3, { shiftKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([1, 2, 3]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([1, 2, 3]));
   });
 
   test("Select 2, ctrl 4 then 24 selected", async () => {
     await selectRow(1);
     await selectRow(3, { ctrlKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([1, 3]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([1, 3]));
   });
 
   test("Select B, shift D, shift A then AB selected", async () => {
     await selectColumn("B");
     await selectColumn("D", { shiftKey: true });
     await selectColumn("A", { shiftKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 1]));
   });
 
   test("Select 2, shift 4, shift 1 then 12 selected", async () => {
     await selectRow(1);
     await selectRow(3, { shiftKey: true });
     await selectRow(0, { shiftKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([0, 1]));
   });
 
   test("Select A, shift C, ctrl E then ABCE selected", async () => {
     await selectColumn("A");
     await selectColumn("C", { shiftKey: true });
     await selectColumn("E", { ctrlKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 4]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 1, 2, 4]));
   });
 
   test("Select 1, shift 3, ctrl 5 then 1235 selected", async () => {
     await selectRow(0);
     await selectRow(2, { shiftKey: true });
     await selectRow(4, { ctrlKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 4]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([0, 1, 2, 4]));
   });
 
   test("Select A, shift C, ctrl E, shift G then ABCEFG selected", async () => {
@@ -537,7 +537,7 @@ describe("Resizer component", () => {
     await selectColumn("E", { ctrlKey: true });
     await selectColumn("G", { shiftKey: true });
 
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 4, 5, 6]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 1, 2, 4, 5, 6]));
   });
 
   test("Select 1, shift 3, ctrl 5, shift 7 then 123567 selected", async () => {
@@ -545,7 +545,7 @@ describe("Resizer component", () => {
     await selectRow(2, { shiftKey: true });
     await selectRow(4, { ctrlKey: true });
     await selectRow(6, { shiftKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 4, 5, 6]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([0, 1, 2, 4, 5, 6]));
   });
 
   test("Select A, shift C, ctrl 1, shift 3 then ABC123 selected", async () => {
@@ -554,22 +554,22 @@ describe("Resizer component", () => {
     await selectRow(0, { ctrlKey: true });
     await selectRow(2, { shiftKey: true });
 
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 1, 2]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([0, 1, 2]));
   });
 
   test("Select A, ctrl C, shift E then ACDE selected", async () => {
     await selectColumn("A");
     await selectColumn("C", { ctrlKey: true });
     await selectColumn("E", { shiftKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 2, 3, 4]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 2, 3, 4]));
   });
 
   test("Select 1, ctrl 3, shift 5 then 1345 selected", async () => {
     await selectRow(0);
     await selectRow(2, { ctrlKey: true });
     await selectRow(4, { shiftKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 2, 3, 4]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([0, 2, 3, 4]));
   });
 
   test("Select ABC E, dblclick E then resize all", async () => {
@@ -632,12 +632,12 @@ describe("Resizer component", () => {
 
   test("Select A, drag to C then ABC selected", async () => {
     await dragColumn("A", "C");
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 1, 2]));
   });
 
   test("Select 1, drag to 3 then 123 selected", async () => {
     await dragRow(0, 2);
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([0, 1, 2]));
   });
 
   test("right click after last column does not open context menu", async () => {
@@ -1001,7 +1001,7 @@ describe("move selected element(s)", () => {
     // last selected columns are now columns C, D, E
     await selectColumn("C");
     // A, C, D, E stay active
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 2, 3, 4]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 2, 3, 4]));
   });
 
   describe("move selected column(s)", () => {
@@ -1135,7 +1135,7 @@ describe("move selected element(s)", () => {
     test("Can select a column but not move it in readonly", async () => {
       model.updateMode("readonly");
       await selectColumnByClicking(model, "A", {});
-      expect(model.getters.getActiveCols()).toEqual(new Set([0]));
+      expect([...model.getters.getActiveCols()]).toEqual([0]);
 
       await simulateClick(".o-overlay .o-col-resizer", 10, 10);
       expect(fixture.querySelector(".o-overlay .o-col-resizer")?.classList).not.toContain("o-grab");
@@ -1275,18 +1275,18 @@ describe("move selected element(s)", () => {
     merge(model, "B1:C1");
     await selectColumn("A");
     await selectColumn("B", { shiftKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 1]));
     await selectColumn("C", { shiftKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
+    expect(new Set([...model.getters.getActiveCols()])).toEqual(new Set([0, 1, 2]));
   });
 
   test("Can select a row within a merge", async () => {
     merge(model, "B2:B3");
     await selectRow(0);
     await selectRow(1, { shiftKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([0, 1]));
     await selectRow(2, { shiftKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
+    expect(new Set([...model.getters.getActiveRows()])).toEqual(new Set([0, 1, 2]));
   });
 });
 
@@ -1324,17 +1324,17 @@ describe("Can select de-select headers", () => {
     await selectColumn("A");
     await selectColumn("D", { shiftKey: true });
     await selectColumn("E", { ctrlKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 3, 4]));
+    expect([...model.getters.getActiveCols()]).toEqual([0, 1, 2, 3, 4]);
     await selectColumn("C", { ctrlKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 3, 4]));
+    expect([...model.getters.getActiveCols()]).toEqual([0, 1, 3, 4]);
   });
 
   test("Can select already selected row remove it from selection", async () => {
     await selectRow(0);
     await selectRow(3, { shiftKey: true });
     await selectRow(4, { ctrlKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 3, 4]));
+    expect([...model.getters.getActiveRows()]).toEqual([0, 1, 2, 3, 4]);
     await selectRow(2, { ctrlKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 3, 4]));
+    expect([...model.getters.getActiveRows()]).toEqual([0, 1, 3, 4]);
   });
 });
