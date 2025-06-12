@@ -1,5 +1,6 @@
 import {
   DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   GRID_ICON_MARGIN,
@@ -11,7 +12,7 @@ import {
 } from "../../src/constants";
 import { arg, functionRegistry } from "../../src/functions";
 import { toString } from "../../src/functions/helpers";
-import { fontSizeInPixels, toCartesian, toZone } from "../../src/helpers";
+import { fontSizeInPixels, getCellContentHeight, toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   Arg,
@@ -433,13 +434,14 @@ describe("Autoresize", () => {
   const TEXT = "text";
   const LONG_TEXT = "longText";
   let sizes: number[];
+  let ctx: CanvasRenderingContext2D;
   const hPadding = 2 * PADDING_AUTORESIZE_HORIZONTAL;
   const vPadding = 2 * PADDING_AUTORESIZE_VERTICAL;
 
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    const ctx = document.createElement("canvas").getContext("2d")!;
+    ctx = document.createElement("canvas").getContext("2d")!;
     ctx.font = `${fontSizeInPixels(DEFAULT_FONT_SIZE)}px ${DEFAULT_FONT}`;
     sizes = [TEXT, LONG_TEXT].map((text) => ctx.measureText(text).width);
   });
@@ -590,6 +592,21 @@ describe("Autoresize", () => {
     setCellContent(model, "B1", "Hello");
     model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [0] });
     expect(model.getters.getUserRowSize(sheetId, 0)).toBe(36);
+  });
+
+  test("Auto-resizes a row correctly when it contains an array formula result", () => {
+    setCellContent(model, "A1", "=RANDARRAY(2, 2)");
+    expect(model.getters.getRowSize(sheetId, 1)).toBe(DEFAULT_CELL_HEIGHT);
+    setStyle(model, "A2", { fontSize: 40 });
+    model.dispatch("AUTORESIZE_ROWS", { sheetId, rows: [1] });
+    const position = { sheetId, ...toCartesian("A2") };
+    const evaluatedSize = getCellContentHeight(
+      ctx,
+      model.getters.getEvaluatedCell(position).formattedValue,
+      model.getters.getCellStyle(position),
+      DEFAULT_CELL_WIDTH
+    );
+    expect(model.getters.getRowSize(sheetId, 1)).toBe(evaluatedSize);
   });
 
   test("Can autoresize a column in another sheet", () => {
