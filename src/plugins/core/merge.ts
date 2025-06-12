@@ -150,9 +150,11 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const sheetMap = this.mergeCellMap[sheetId];
     if (!sheetMap) return [];
     const mergeIds = new Set<number>();
-
-    for (let col = zone.left; col <= zone.right; col++) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
+    const sheetSize = this.getters.getUsedSheetSize(sheetId);
+    const maxCol = Math.min(zone.right, sheetSize.numberOfCols);
+    const maxRow = Math.min(zone.bottom, sheetSize.numberOfRows);
+    for (let col = zone.left; col <= maxCol; col++) {
+      for (let row = zone.top; row <= maxRow; row++) {
         const mergeId = sheetMap[col]?.[row];
         if (mergeId) {
           mergeIds.add(mergeId);
