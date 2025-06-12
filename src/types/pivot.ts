@@ -36,6 +36,13 @@ export interface PivotCoreDimension {
   granularity?: Granularity | string;
 }
 
+export interface ExtendedPivotCoreDimension {
+  fieldName: string;
+  order?: SortDirection;
+  granularity?: Granularity | string;
+  additionalInfo?: { sheetId: UID; formula: string }[];
+}
+
 export interface PivotCoreMeasure {
   /**
    * Identifier of the measure, `technicalName:aggregator{:autoIncrementedNumber}`.
