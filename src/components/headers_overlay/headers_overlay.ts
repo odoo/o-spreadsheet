@@ -504,7 +504,11 @@ export class ColResizer extends AbstractResizer {
   }
 
   _getActiveElements(): Set<HeaderIndex> {
-    return this.env.model.getters.getActiveCols();
+    const cols = new Set<HeaderIndex>();
+    for (const col of this.env.model.getters.getActiveCols()) {
+      cols.add(col);
+    }
+    return cols;
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {
@@ -729,7 +733,11 @@ export class RowResizer extends AbstractResizer {
   }
 
   _getActiveElements(): Set<HeaderIndex> {
-    return this.env.model.getters.getActiveRows();
+    const rows = new Set<HeaderIndex>();
+    for (const row of this.env.model.getters.getActiveRows()) {
+      rows.add(row);
+    }
+    return rows;
   }
 
   _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex {

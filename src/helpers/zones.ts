@@ -1,4 +1,12 @@
-import { Adjacence, CellPosition, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
+import {
+  Adjacence,
+  CellPosition,
+  HeaderIndex,
+  Position,
+  UnboundedZone,
+  Zone,
+  ZoneDimension,
+} from "../types";
 import {
   MAX_COL,
   MAX_ROW,
@@ -719,26 +727,18 @@ export function areZonesContinuous(zones: Zone[]): boolean {
   return recomputeZones(zones).length === 1;
 }
 
-/** Return all the columns in the given list of zones */
-export function getZonesCols(zones: Zone[]): Set<number> {
-  const set = new Set<number>();
+export function zonesHasCol(zones: Zone[], col: HeaderIndex): boolean {
   for (const zone of recomputeZones(zones)) {
-    for (const col of range(zone.left, zone.right + 1)) {
-      set.add(col);
-    }
+    if (zone.left <= col && col <= zone.right) return true;
   }
-  return set;
+  return false;
 }
 
-/** Return all the rows in the given list of zones */
-export function getZonesRows(zones: Zone[]): Set<number> {
-  const set = new Set<number>();
+export function zonesHasRow(zones: Zone[], row: HeaderIndex): boolean {
   for (const zone of recomputeZones(zones)) {
-    for (const row of range(zone.top, zone.bottom + 1)) {
-      set.add(row);
-    }
+    if (zone.top <= row && row <= zone.bottom) return true;
   }
-  return set;
+  return false;
 }
 
 export function unionPositionsToZone(positions: Position[]): Zone {
