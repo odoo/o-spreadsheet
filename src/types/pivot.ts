@@ -60,7 +60,7 @@ export interface PivotCoreMeasure {
 
 export interface CommonPivotCoreDefinition {
   columns: PivotCoreDimension[];
-  rows: PivotCoreDimension[];
+  rows: ExtendedPivotCoreDimension[];
   measures: PivotCoreMeasure[];
   name: string;
   deferUpdates?: boolean;
