@@ -259,6 +259,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   onCellClicked(ev: PointerEvent | MouseEvent) {
     const openedPopover = this.cellPopovers.persistentCellPopover;
     const [col, row] = this.getCartesianCoordinates(ev);
+    const clickedIcon = this.getInteractiveIconAtEvent(ev);
+    if (clickedIcon) {
+      this.env.model.selection.getBackToDefault();
+    }
     this.props.onCellClicked(
       col,
       row,
@@ -269,7 +273,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       ev
     );
 
-    const clickedIcon = this.getInteractiveIconAtEvent(ev);
     if (clickedIcon?.onClick) {
       clickedIcon.onClick(clickedIcon.position, this.env);
     }

@@ -1,4 +1,5 @@
 import {
+  DATA_VALIDATION_CHIP_MARGIN,
   DEFAULT_FONT_SIZE,
   DEFAULT_STYLE,
   PADDING_AUTORESIZE_HORIZONTAL,
@@ -6,6 +7,7 @@ import {
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
+  addDataValidation,
   createSheet,
   selectCell,
   setCellContent,
@@ -148,6 +150,26 @@ describe("styles", () => {
     );
     expect(model.getters.getCellWidth({ sheetId, col: A2.col, row: A2.row })).toBe(
       fontSizeInPixels(DEFAULT_FONT_SIZE) + 2 * PADDING_AUTORESIZE_HORIZONTAL
+    );
+  });
+
+  test("getCellWidth with chip", () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["A"],
+      displayStyle: "chip",
+    });
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "A");
+    const A1 = { sheetId, col: 0, row: 0 };
+    const chipIcon = model.getters.getCellIcons(A1)[0];
+    expect(model.getters.getCellWidth(A1)).toBe(
+      fontSizeInPixels(DEFAULT_FONT_SIZE) +
+        2 * PADDING_AUTORESIZE_HORIZONTAL +
+        2 * DATA_VALIDATION_CHIP_MARGIN +
+        chipIcon.margin +
+        chipIcon.size
     );
   });
 });

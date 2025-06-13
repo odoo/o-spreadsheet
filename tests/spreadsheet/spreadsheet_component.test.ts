@@ -15,6 +15,7 @@ import { HighlightStore } from "../../src/stores/highlight_store";
 import { SpreadsheetChildEnv } from "../../src/types";
 import { unPatchSessionMove } from "../setup/session_debounce_mock";
 import {
+  addDataValidation,
   addRows,
   createChart,
   freezeRows,
@@ -24,6 +25,7 @@ import {
 import {
   click,
   clickCell,
+  clickGridIcon,
   dragElement,
   getElComputedStyle,
   hoverCell,
@@ -479,6 +481,25 @@ describe("Composer / selectionInput interactions", () => {
     await simulateClick(".o-selection-input input");
     expect(fixture.querySelector(".o-autofill")).toBeNull();
   });
+});
+
+test("cell icon takes over a focused selection input", async () => {
+  const { model, env, fixture } = await mountSpreadsheet();
+  addDataValidation(model, "B1:B3", "id", {
+    type: "isValueInList",
+    values: ["hello", "world"],
+    displayStyle: "arrow",
+  });
+  env.openSidePanel("DataValidation");
+  await nextTick();
+  await simulateClick(fixture.querySelector(".o-dv-preview"));
+  await simulateClick(fixture.querySelector(".o-selection-input input"));
+  await nextTick();
+  expect(".o-selection-input input.o-focused").toHaveCount(1);
+  expect(".o-selection-input input.o-focused").toHaveValue("B1:B3");
+  await clickGridIcon(model, "B1");
+  expect(".o-selection-input input.o-focused").toHaveCount(0);
+  expect(".o-selection-input input").toHaveValue("B1:B3");
 });
 
 test("cell popovers to be closed on clicking outside grid", async () => {
