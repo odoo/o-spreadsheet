@@ -2,9 +2,13 @@ import { Component, onWillStart } from "@odoo/owl";
 import { GRAY_100, GRAY_300 } from "../../../constants";
 import { DAYS, deepEquals, formatValue } from "../../../helpers";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
+import { Store, useStore } from "../../../store_engine";
+import { GridRenderer } from "../../../stores/grid_renderer_store";
+import { _t } from "../../../translation";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
+import { BadgeSelection } from "../components/badge_selection/badge_selection";
 import { Section } from "../components/section/section";
 
 interface Props {
@@ -20,12 +24,14 @@ css/* scss */ `
 
 export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
-  static components = { Section, ValidationMessages };
+  static components = { Section, ValidationMessages, BadgeSelection };
   static props = { onCloseSidePanel: Function };
 
   loadedLocales: Locale[] = [];
+  gridRendererStore!: Store<GridRenderer>;
 
   setup() {
+    this.gridRendererStore = useStore(GridRenderer);
     onWillStart(() => this.loadLocales());
   }
 
@@ -90,5 +96,20 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
     }
 
     return this.loadedLocales;
+  }
+
+  get cellAnimationChoices() {
+    return [
+      { value: "on", label: _t("On") },
+      { value: "off", label: _t("Off") },
+    ];
+  }
+
+  updateCellAnimations(value: "on" | "off") {
+    this.env.model.dispatch("SET_CELL_ANIMATIONS", { disableCellAnimations: value === "off" });
+  }
+
+  get cellAnimationValue() {
+    return this.env.model.getters.areCellAnimationDisabled() ? "off" : "on";
   }
 }

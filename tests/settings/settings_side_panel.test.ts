@@ -3,7 +3,7 @@ import { SettingsPanel } from "../../src/components/side_panel/settings/settings
 import { DEFAULT_LOCALE, DEFAULT_LOCALES, Locale, SpreadsheetChildEnv } from "../../src/types";
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
-import { setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 describe("settings sidePanel component", () => {
@@ -105,5 +105,20 @@ describe("settings sidePanel component", () => {
       const optionValues = Array.from(options).map((option) => option.value);
       expect(optionValues).toEqual([DEFAULT_LOCALE.code]);
     });
+  });
+
+  test("Can disable cell animations", async () => {
+    model = new Model({ settings: { disableCellAnimations: true } });
+    await mountSettingsSidePanel(model);
+
+    expect('.o-badge-selection [data-id="off"]').toHaveClass("selected");
+    await click(fixture, '.o-badge-selection [data-id="on"]');
+
+    expect(model.getters.areCellAnimationDisabled()).toBeFalsy();
+    expect('.o-badge-selection [data-id="on"]').toHaveClass("selected");
+
+    await click(fixture, '.o-badge-selection [data-id="off"]');
+    expect(model.getters.areCellAnimationDisabled()).toBeTruthy();
+    expect('.o-badge-selection [data-id="off"]').toHaveClass("selected");
   });
 });

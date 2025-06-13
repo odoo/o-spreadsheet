@@ -64,6 +64,7 @@ export interface SheetData {
 
 interface WorkbookSettings {
   locale: Locale;
+  disableCellAnimations?: boolean;
 }
 
 type PivotData = { formulaId: string } & PivotCoreDefinition;
