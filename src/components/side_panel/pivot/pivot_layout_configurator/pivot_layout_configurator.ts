@@ -7,7 +7,7 @@ import {
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
-import { Dimension, SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
+import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
 import {
   Aggregator,
   Granularity,
@@ -283,8 +283,18 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
-  addCustomGroup(dimension: Dimension) {
+  addCustomGroup() {
     this.env.openSidePanel("PivotCustomFieldSidePanel", { pivotId: this.props.pivotId });
+  }
+
+  editCustomGroup(dimension: PivotDimensionType) {
+    console.log(dimension);
+    const definition = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    const customField = definition.customFields?.[dimension.nameWithGranularity];
+    this.env.openSidePanel("PivotCustomFieldSidePanel", {
+      pivotId: this.props.pivotId,
+      customField,
+    });
   }
 
   updateOrder(updateDimension: PivotDimensionType, order?: SortDirection) {

@@ -1,14 +1,54 @@
 <templates>
   <t t-name="o-spreadsheet-PivotCustomFieldPanel">
-    <Section>Hello !</Section>
-
     <Section>
-      <t t-component="GroupEditorComponent" pivotId="props.pivotId" parentField="parentField"/>
+      <div class="o-section-title">Parent field</div>
+      <SelectMenu
+        class="'o-input m-1 mb-2'"
+        menuItems="parentFieldsMenuItems"
+        selectedValue="parentField || ''"
+      />
+    </Section>
+
+    <Section class="'pt-0'" t-if="parentField">
+      <div class="o-section-title">Custom field name</div>
+      <TextInput
+        value="state.customField.name"
+        onChange="updateCustomFieldName"
+        class="'o-custom-field-name'"
+      />
+    </Section>
+
+    <Section class="'pt-0'" t-if="parentField">
+      <div class="o-section-title">Groups</div>
+      <div t-foreach="groups" t-as="group" t-key="group_index" class="mb-4 o-custom-group ps-2">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="w-100">
+            <TextInput
+              value="group.name"
+              onChange="(newName) => this.updateGroupName(group, newName)"
+              class="'o-group-name o-fw-bold mb-3'"
+            />
+            <t
+              t-component="GroupEditorComponent"
+              pivotId="props.pivotId"
+              parentField="parentField"
+              group="group"
+              onUpdateGroupValues="(values) => this.onUpdateGroupValues(group, values)"
+            />
+          </div>
+          <i
+            class="o-button-icon ps-3 fa fa-trash fs-5"
+            t-on-click="() => this.deleteGroup(group)"
+          />
+        </div>
+      </div>
+
+      <div class="o-button-link text-end" t-on-click="addNewGroup">+ Add another group</div>
     </Section>
 
     <Section>
       <div class="o-sidePanelButtons">
-        <button t-on-click="props.onExit" class="o-cancel o-button">Cancel</button>
+        <button t-on-click="onCancel" class="o-cancel o-button">Cancel</button>
         <button t-on-click="onSave" class="o-save o-button primary">Save</button>
       </div>
     </Section>

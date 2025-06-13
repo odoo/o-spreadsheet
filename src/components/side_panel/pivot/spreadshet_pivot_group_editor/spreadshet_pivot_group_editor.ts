@@ -1,12 +1,14 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetPivot } from "../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { PivotCustomGroup, SpreadsheetChildEnv, UID } from "../../../../types";
 import { Section } from "../../components/section/section";
 import { TagInput } from "../../tag_input/tag_input";
 
 interface Props {
   pivotId: UID;
   parentField: string;
+  group: PivotCustomGroup;
+  onUpdateGroupValues: (groupId: string, values: string[]) => void;
 }
 
 export class SpreadsheetPivotGroupEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -14,17 +16,15 @@ export class SpreadsheetPivotGroupEditor extends Component<Props, SpreadsheetChi
   static props = {
     pivotId: String,
     parentField: String,
+    group: Object,
+    onUpdateGroupValues: Function,
   };
   static components = { Section, TagInput };
 
   setup(): void {}
 
   get selectedValues() {
-    return ["Albania", "randomTag", "anotherTag"].map((value) => ({ value, label: value }));
-  }
-
-  onValuesChanged(values: string[]) {
-    console.log("Values changed:", values);
+    return this.props.group.values.map((value) => ({ value, label: value }));
   }
 
   get allValues() {

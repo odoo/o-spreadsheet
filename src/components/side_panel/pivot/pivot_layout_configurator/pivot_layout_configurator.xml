@@ -8,7 +8,7 @@
           onFieldPicked.bind="addColumnDimension"
           fields="props.unusedGroupableFields">
           <div
-            t-on-click="() => this.addCustomGroup('COL')"
+            t-on-click="addCustomGroup"
             class="p-2 bg-white border-top d-flex align-items-center sticky-bottom add-calculated-measure">
             <i class="pe-1">
               <t t-call="o-spreadsheet-Icon.GROUP_ROWS"/>
@@ -23,6 +23,14 @@
           t-att-style="dragAndDrop.itemsStyle[col.nameWithGranularity]"
           class="pt-1">
           <PivotDimension dimension="col" onRemoved.bind="removeDimension">
+            <t t-set-slot="upper-right-icons">
+              <i
+                t-if="col.isCustomField"
+                class="o-button-icon o-edit-custom-group fa fa-pencil-square-o"
+                title="Edit custom group"
+                t-on-click="() => this.editCustomGroup(col)"
+              />
+            </t>
             <PivotDimensionGranularity
               t-if="isDateOrDatetimeField(col)"
               dimension="col"
@@ -42,7 +50,7 @@
           onFieldPicked.bind="addRowDimension"
           fields="props.unusedGroupableFields">
           <div
-            t-on-click="() => this.addCustomGroup('ROW')"
+            t-on-click="addCustomGroup"
             class="p-2 bg-white border-top d-flex align-items-center sticky-bottom add-calculated-measure">
             <i class="pe-1">
               <t t-call="o-spreadsheet-Icon.GROUP_ROWS"/>
@@ -57,6 +65,14 @@
           t-att-style="dragAndDrop.itemsStyle[row.nameWithGranularity]"
           class="pt-1">
           <PivotDimension dimension="row" onRemoved.bind="removeDimension">
+            <t t-set-slot="upper-right-icons">
+              <i
+                t-if="row.isCustomField"
+                class="o-button-icon o-edit-custom-group fa fa-pencil-square-o"
+                title="Edit custom group"
+                t-on-click="() => this.editCustomGroup(row)"
+              />
+            </t>
             <PivotDimensionGranularity
               t-if="isDateOrDatetimeField(row)"
               dimension="row"

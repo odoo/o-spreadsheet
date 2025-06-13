@@ -16,6 +16,7 @@ import { EvaluationError } from "../../types/errors";
 import {
   Granularity,
   PivotCoreDimension,
+  PivotCustomGroup,
   PivotDimension,
   PivotDomain,
   PivotField,
@@ -307,4 +308,8 @@ export function isSortedColumnValid(sortedColumn: PivotSortedColumn, pivot: Pivo
   } catch (e) {
     return false;
   }
+}
+
+export function createPivotGroupName(groupValues: PivotCustomGroup["values"]): string {
+  return groupValues.join(",");
 }

@@ -11,7 +11,7 @@ import { Section } from "../components/section/section";
 interface Props {
   selectedValues: ValueWithLabel<CellValue>[];
   allValues: ValueWithLabel<CellValue>[];
-  onValuesChanged: (values: CellValue[]) => void;
+  onValuesChanged: (values: ValueWithLabel<CellValue>[]) => void;
 }
 
 export class TagInput extends Component<Props, SpreadsheetChildEnv> {
@@ -48,8 +48,12 @@ export class TagInput extends Component<Props, SpreadsheetChildEnv> {
       proposals,
       autoSelectFirstProposal: true,
       selectProposal: (value) => {
+        console.log("Selected proposal value:", value);
         this.popover.isOpen = false;
-        this.props.onValuesChanged([...this.props.selectedValues.map((v) => v.value), value]);
+        const selectedValue = this.props.allValues.find((v) => v.value === value);
+        if (selectedValue) {
+          this.props.onValuesChanged([...this.props.selectedValues, selectedValue]);
+        }
       },
     };
   }
@@ -60,7 +64,7 @@ export class TagInput extends Component<Props, SpreadsheetChildEnv> {
       text: value.label,
       onDelete: () => {
         this.props.onValuesChanged(
-          this.props.selectedValues.filter((v) => v.value !== value.value).map((v) => v.value)
+          this.props.selectedValues.filter((v) => v.value !== value.value)
         );
       },
     }));
@@ -79,7 +83,7 @@ export class TagInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onInputBlur() {
-    // ADRM TODO
+    // ADRM TODO: replace by an external click handler, onblur closes the popover before the onClick of the menu item
     // this.popover.isOpen = false;
   }
 }

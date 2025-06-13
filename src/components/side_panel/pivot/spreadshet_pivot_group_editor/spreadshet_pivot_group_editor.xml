@@ -3,7 +3,7 @@
     <TagInput
       selectedValues="selectedValues"
       allValues="allValues"
-      onValuesChanged="onValuesChanged"
+      onValuesChanged="props.onUpdateGroupValues"
     />
   </t>
 </templates>

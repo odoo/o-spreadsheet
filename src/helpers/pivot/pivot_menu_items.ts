@@ -12,6 +12,7 @@ import { CellValueType } from "../../types";
 import { deepCopy, deepEquals, isDefined } from "../misc";
 import { cellPositions } from "../zones";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
+import { createPivotGroupName } from "./pivot_helpers";
 
 export const pivotProperties: ActionSpec = {
   name: _t("See pivot properties"),
@@ -102,7 +103,7 @@ export const groupPivotHeaders: ActionSpec = {
     );
     // ADRM TODO: group in existing custom field. Be caareful of translate
 
-    const newGroup: PivotCustomGroup = { name: values.join(","), values };
+    const newGroup: PivotCustomGroup = { name: createPivotGroupName(values), values };
     const groupedField: PivotCustomGroupedField = {
       parentField: field,
       name: _t("Group: %s", field),
