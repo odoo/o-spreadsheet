@@ -2,6 +2,7 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { BorderClipboardHandler } from "../../clipboard_handlers/borders_clipboard";
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import { ConditionalFormatClipboardHandler } from "../../clipboard_handlers/conditional_format_clipboard";
+import { MergeClipboardHandler } from "../../clipboard_handlers/merge_clipboard";
 import { TableClipboardHandler } from "../../clipboard_handlers/tables_clipboard";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
@@ -42,6 +43,10 @@ export class PaintFormatStore extends SpreadsheetStore {
     {
       handlerName: "conditionalFormat",
       handler: new ConditionalFormatClipboardHandler(this.getters, this.model.dispatch),
+    },
+    {
+      handlerName: "merge",
+      handler: new MergeClipboardHandler(this.getters, this.model.dispatch),
     },
   ];
 
