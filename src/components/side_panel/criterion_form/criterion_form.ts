@@ -1,12 +1,13 @@
 import { Component, onMounted } from "@odoo/owl";
 import { useStore } from "../../../store_engine";
-import { GenericCriterion, SpreadsheetChildEnv } from "../../../types";
+import { GenericCriterion, SpreadsheetChildEnv, UID } from "../../../types";
 import { ComposerFocusStore } from "../../composer/composer_focus_store";
 
 interface Props<T extends GenericCriterion> {
   criterion: T;
   onCriterionChanged: (criterion: T) => void;
   disableFormulas?: boolean;
+  sheetId: UID;
 }
 
 export abstract class CriterionForm<
@@ -16,6 +17,7 @@ export abstract class CriterionForm<
     criterion: Object,
     onCriterionChanged: Function,
     disableFormulas: { type: Boolean, optional: true },
+    sheetId: { type: String, optional: true },
   };
   setup() {
     const composerFocusStore = useStore(ComposerFocusStore);
