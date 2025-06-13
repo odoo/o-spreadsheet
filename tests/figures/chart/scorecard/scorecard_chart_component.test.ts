@@ -1,5 +1,5 @@
 import { Model } from "../../../../src";
-import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
+import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -481,7 +481,7 @@ describe("Scorecard charts rendering", () => {
       baseline: {},
       baselineDescr: {},
     };
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
+    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
 
     /*
      * We mock the fillText method of the canvas context to get the font size and color used

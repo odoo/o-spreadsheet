@@ -2,20 +2,37 @@
 
 exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
 <div
-  class="o-sidePanel"
+  class="o-sidePanel h-100"
 >
   <div
-    class="o-sidePanelHeader"
+    class="o-sidePanelHeader d-flex align-items-center justify-content-between"
   >
     <div
-      class="o-sidePanelTitle o-fw-bold"
+      class="o-collapse-panel o-sidePanelAction rounded"
+    >
+      <i
+        class="fa fa-angle-double-right"
+      />
+    </div>
+    
+    <div
+      class="o-sidePanelTitle o-fw-bold ms-2"
     >
       Pivot #1
     </div>
     <div
-      class="o-sidePanelClose"
+      class="o-pin-panel o-sidePanelAction ms-auto rounded"
+      title="Pin this panel to allow to open another side panel beside it."
     >
-      ✕
+      <i
+        class="fa fa-thumb-tack"
+      />
+    </div>
+    
+    <div
+      class="o-sidePanelClose o-sidePanelAction rounded"
+    >
+       ✕ 
     </div>
   </div>
   <div
@@ -222,20 +239,37 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
 
 exports[`Spreadsheet pivot side panel It should display only the selection input when the dataSet is not valid 1`] = `
 <div
-  class="o-sidePanel"
+  class="o-sidePanel h-100"
 >
   <div
-    class="o-sidePanelHeader"
+    class="o-sidePanelHeader d-flex align-items-center justify-content-between"
   >
     <div
-      class="o-sidePanelTitle o-fw-bold"
+      class="o-collapse-panel o-sidePanelAction rounded"
+    >
+      <i
+        class="fa fa-angle-double-right"
+      />
+    </div>
+    
+    <div
+      class="o-sidePanelTitle o-fw-bold ms-2"
     >
       Pivot #1
     </div>
     <div
-      class="o-sidePanelClose"
+      class="o-pin-panel o-sidePanelAction ms-auto rounded"
+      title="Pin this panel to allow to open another side panel beside it."
     >
-      ✕
+      <i
+        class="fa fa-thumb-tack"
+      />
+    </div>
+    
+    <div
+      class="o-sidePanelClose o-sidePanelAction rounded"
+    >
+       ✕ 
     </div>
   </div>
   <div
