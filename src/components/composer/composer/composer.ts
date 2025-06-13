@@ -321,6 +321,16 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       },
       () => [this.props.composerStore.editionMode !== "inactive"]
     );
+
+    useEffect(
+      () => {
+        this.contentHelper.scrollSelectionIntoView();
+      },
+      () => [
+        this.props.composerStore.composerSelection.start,
+        this.props.composerStore.composerSelection.end,
+      ]
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -578,6 +588,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       // not main button, probably a context menu
       return;
     }
+    this.debouncedHover.stopDebounce();
     this.contentHelper.removeSelection();
   }
 
@@ -677,7 +688,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
         const { start, end } = this.props.composerStore.composerSelection;
         this.contentHelper.selectRange(start, end);
       }
-      this.contentHelper.scrollSelectionIntoView();
     }
 
     this.shouldProcessInputEvents = true;

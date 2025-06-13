@@ -259,6 +259,15 @@ describe("Composer hover", () => {
     expect(".o-speech-bubble").toHaveCount(0);
   });
 
+  test("Hovering a composer token does not scroll composer to cursor", async () => {
+    const mockScrollIntoView = jest.fn();
+    await typeInComposer("=SUM(1,\n2,\n3,\n4,\n5,\n6,\n7,\n8,\n9,\n10)");
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    await hoverComposerContent("SUM");
+    expect(mockScrollIntoView).not.toHaveBeenCalled();
+  });
+
   test("Bubble disappear when selecting a text with the mouse", async () => {
     await typeInComposer("=12");
     await hoverComposerContent("=");
