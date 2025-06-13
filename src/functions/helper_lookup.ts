@@ -66,6 +66,16 @@ export function addPivotDependencies(
       dependencies.push(...formula.dependencies.filter((range) => !range.invalidXc));
     }
   }
+
+  for (const row of coreDefinition.rows) {
+    if (row.additionalInfo) {
+      for (const info of row.additionalInfo) {
+        const formula = evalContext.getters.getRowGroupCompiledFormula(info);
+        dependencies.push(...formula.dependencies.filter((range) => !range.invalidXc));
+      }
+    }
+  }
+
   const originPosition = evalContext.__originCellPosition;
   if (originPosition && dependencies.length) {
     // The following line is used to reset the dependencies of the cell, to avoid

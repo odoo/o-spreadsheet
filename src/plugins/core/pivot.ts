@@ -13,7 +13,11 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
-import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
+import {
+  ExtendedPivotCoreDimension,
+  PivotCoreDefinition,
+  PivotCoreMeasure,
+} from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 
 interface Pivot {
@@ -36,6 +40,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     "getPivotFormulaId",
     "getPivotIds",
     "getMeasureCompiledFormula",
+    "getRowGroupCompiledFormula",
     "getPivotName",
     "isExistingPivot",
   ] as const;
@@ -44,8 +49,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   public readonly pivots: {
     [pivotId: UID]: Pivot | undefined;
   } = {};
-  public readonly formulaIds: { [formulaId: UID]: UID | undefined } = {};
-  public readonly compiledMeasureFormulas: Record<UID, Record<string, RangeCompiledFormula>> = {};
+  readonly formulaIds: { [formulaId: UID]: UID | undefined } = {};
+  // rename to compiled formulas and use the same cache for all compiled formulas, including rows
+  readonly compiledMeasureFormulas: Record<UID, Record<string, RangeCompiledFormula>> = {};
 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -213,6 +219,10 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     return this.compiledMeasureFormulas[sheetId][measure.computedBy.formula];
   }
 
+  getRowGroupCompiledFormula(info: { sheetId: UID; formula: string }): RangeCompiledFormula {
+    return this.compiledMeasureFormulas[info.sheetId][info.formula];
+  }
+
   // -------------------------------------------------------------------------
   // Private
   // -------------------------------------------------------------------------
@@ -224,6 +234,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   ) {
     this.history.update("pivots", pivotId, { definition: deepCopy(pivot), formulaId });
     this.compileCalculatedMeasures(pivot.measures);
+    this.compileCalculatedRowGroups(pivot.rows);
     this.history.update("formulaIds", formulaId, pivotId);
     this.history.update("nextFormulaId", this.nextFormulaId + 1);
   }
@@ -242,6 +253,18 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           measure.computedBy.formula,
           compiledFormula
         );
+      }
+    }
+  }
+
+  private compileCalculatedRowGroups(rows: ExtendedPivotCoreDimension[]) {
+    for (const row of rows) {
+      if (row.additionalInfo) {
+        for (const info of row.additionalInfo) {
+          const sheetId = info.sheetId;
+          const compiledFormula = this.compileMeasureFormula(info.sheetId, info.formula);
+          this.history.update("compiledMeasureFormulas", sheetId, info.formula, compiledFormula);
+        }
       }
     }
   }
