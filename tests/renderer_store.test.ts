@@ -15,6 +15,7 @@ import {
 } from "../src/constants";
 import { fontSizeInPixels, toHex, toZone } from "../src/helpers";
 import { Mode } from "../src/model";
+import { DependencyContainer } from "../src/store_engine";
 import { FormulaFingerprintStore } from "../src/stores/formula_fingerprints_store";
 import { GridRenderer } from "../src/stores/grid_renderer_store";
 import { RendererStore } from "../src/stores/renderer_store";
@@ -471,45 +472,78 @@ describe("renderer", () => {
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
   });
 
-  test("fill style of hovered clickable cells goes over regular fill style", () => {
-    const { drawGridRenderer, model, container } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
-    );
+  describe("Table cell hover effect", () => {
+    let model: Model;
+    let ctx: MockGridRenderingContext;
+    let container: DependencyContainer;
+    let drawGridRenderer: (ctx: GridRenderingContext) => void;
+    let fillStyles: any[];
+
     const background = "#DC6CDF";
     const hoverColor = "#017E8414";
-    createTable(model, "A1");
-    setStyle(model, "A1", { fillColor: background });
-    model.updateMode("dashboard");
 
-    let fillStyle = "";
-    let fillStyles: any[] = [];
-    let fillStyleCalled = false;
-    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onSet: (key, value) => {
-        if (key === "fillStyle" && [background, hoverColor].includes(value)) {
-          fillStyle = value;
-          fillStyleCalled = true;
-        }
-      },
-      onFunctionCall: (val, args) => {
-        if (val === "fillRect" && fillStyleCalled) {
-          fillStyles.push({ color: fillStyle, x: args[0], y: args[1], w: args[2], h: args[3] });
-          fillStyleCalled = false;
-        }
-      },
+    beforeEach(() => {
+      fillStyles = [];
+      let fillStyle = "";
+      let fillStyleCalled = false;
+      ({ drawGridRenderer, model, container } = setRenderer(
+        new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      ));
+      ctx = new MockGridRenderingContext(model, 1000, 1000, {
+        onSet: (key, value) => {
+          if (key === "fillStyle" && [background, hoverColor].includes(value)) {
+            fillStyle = value;
+            fillStyleCalled = true;
+          }
+        },
+        onFunctionCall: (val, args) => {
+          if (val === "fillRect" && fillStyleCalled) {
+            fillStyles.push({ color: fillStyle, x: args[0], y: args[1], w: args[2], h: args[3] });
+            fillStyleCalled = false;
+          }
+        },
+      });
     });
 
-    drawGridRenderer(ctx);
-    expect(fillStyles).toEqual([{ color: background, h: 23, w: 96, x: 0, y: 0 }]);
+    test("should overlay hover style on a filled data cell", () => {
+      createTable(model, "A1:A2");
+      setCellContent(model, "A2", "Table Row 1");
+      setStyle(model, "A2", { fillColor: background });
+      model.updateMode("dashboard");
 
-    fillStyles = [];
-    container.get(HoveredTableStore).hover({ col: 0, row: 0 });
-    drawGridRenderer(ctx);
+      drawGridRenderer(ctx);
+      expect(fillStyles).toEqual([{ color: background, h: 23, w: 96, x: 0, y: 23 }]);
 
-    expect(fillStyles).toEqual([
-      { color: background, h: 23, w: 96, x: 0, y: 0 },
-      { color: hoverColor, h: 23, w: 96, x: 0, y: 0 },
-    ]);
+      fillStyles = [];
+      container.get(HoveredTableStore).hover({ col: 0, row: 1 });
+      drawGridRenderer(ctx);
+
+      expect(fillStyles).toEqual([
+        { color: background, h: 23, w: 96, x: 0, y: 23 },
+        { color: hoverColor, h: 23, w: 96, x: 0, y: 23 },
+      ]);
+    });
+
+    test("should not render a hover overlay on a header row with data", () => {
+      createTable(model, "A1:A2");
+      setCellContent(model, "A1", "Table Header");
+      model.updateMode("dashboard");
+
+      container.get(HoveredTableStore).hover({ col: 0, row: 0 });
+      drawGridRenderer(ctx);
+
+      expect(fillStyles).toEqual([]);
+    });
+
+    test("should not render a hover overlay on an empty data row", () => {
+      createTable(model, "A1:A2");
+      model.updateMode("dashboard");
+
+      container.get(HoveredTableStore).hover({ col: 0, row: 1 });
+      drawGridRenderer(ctx);
+
+      expect(fillStyles).toEqual([]);
+    });
   });
 
   test("fillstyle of merge works with CF", () => {
