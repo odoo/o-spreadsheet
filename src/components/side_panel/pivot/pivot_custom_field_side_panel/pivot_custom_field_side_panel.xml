@@ -13,7 +13,7 @@
       <div class="o-section-title">Custom field name</div>
       <TextInput
         value="state.customField.name"
-        onChange="updateCustomFieldName"
+        onChange.bind="updateCustomFieldName"
         class="'o-custom-field-name'"
       />
     </Section>

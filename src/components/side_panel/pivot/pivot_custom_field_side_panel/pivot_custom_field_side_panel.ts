@@ -42,7 +42,6 @@ export class PivotCustomFieldPanel extends Component<Props, SpreadsheetChildEnv>
   setup(): void {
     onWillUpdateProps((nextProps) => {
       if (!deepEquals(nextProps.customField, this.props.customField)) {
-        console.log("props change", deepCopy(this.props), deepCopy(nextProps));
         this.state.customField = this.getInitialCustomField(nextProps);
       }
     });
@@ -123,6 +122,7 @@ export class PivotCustomFieldPanel extends Component<Props, SpreadsheetChildEnv>
       (name) => customFields[name].parentField === this.state.customField.parentField
     );
     if (oldName && oldName !== this.state.customField.name) {
+      // ADRM TODO: also need to update pivot dimensions if the name changed
       delete customFields[oldName];
     }
     this.state.customField.groups = this.state.customField.groups.filter(

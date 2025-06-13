@@ -1,7 +1,6 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetPivot } from "../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { PivotCustomGroup, SpreadsheetChildEnv, UID } from "../../../../types";
-import { Section } from "../../components/section/section";
 import { TagInput } from "../../tag_input/tag_input";
 
 interface Props {
@@ -19,7 +18,7 @@ export class SpreadsheetPivotGroupEditor extends Component<Props, SpreadsheetChi
     group: Object,
     onUpdateGroupValues: Function,
   };
-  static components = { Section, TagInput };
+  static components = { TagInput };
 
   setup(): void {}
 

@@ -464,10 +464,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       //   this.env.model.dispatch("SELECT_FIGURE", { id: chartId });
       //   this.sidePanel.open("ChartPanel");
       // }
-      this.sidePanel.open("PivotSidePanel", { pivotId: "1" });
+      const pivotId = this.env.model.getters.getPivotIds()[0];
+      this.sidePanel.open("PivotSidePanel", { pivotId });
       setTimeout(() => {
         document.querySelector<HTMLElement>(".o-edit-custom-group")?.click();
-      }, 60);
+      }, 200);
       // this.sidePanel.open("PivotCustomFieldSidePanel", { pivotId: "1" });
 
       this.checkViewportSize();
