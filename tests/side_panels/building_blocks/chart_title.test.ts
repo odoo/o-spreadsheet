@@ -40,20 +40,7 @@ describe("Chart title", () => {
     await mountChartTitle({
       title: undefined,
     });
-
-    const input = fixture.querySelector("input")!;
-    expect(input.value).toBe("");
-  });
-
-  test("Update is called when title is changed, not on input", async () => {
-    const updateTitle = jest.fn();
-    await mountChartTitle({ updateTitle });
-    const input = fixture.querySelector("input")!;
-    expect(input.value).toBe("My title");
-    await setInputValueAndTrigger(input, "My new title", "onlyInput");
-    expect(updateTitle).toHaveBeenCalledTimes(0);
-    input.dispatchEvent(new Event("change"));
-    expect(updateTitle).toHaveBeenCalledTimes(1);
+    expect(".o-chart-title .o-composer").toHaveText("");
   });
 
   test("Can change text color", async () => {

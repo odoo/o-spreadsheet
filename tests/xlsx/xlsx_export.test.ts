@@ -1490,6 +1490,46 @@ describe("Test XLSX export", () => {
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
+
+    test("Exports chart title as evaluated value when it contains a cell reference or formula", () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          type: "bar",
+          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          title: { text: "=B1" },
+        },
+        "1"
+      );
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].charts[0].data.title?.text).toEqual(getCellContent(model, "B1"));
+    });
+
+    test("Exports axis title as evaluated value when it contains a cell reference or formula", () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          type: "bar",
+          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          axesDesign: {
+            x: { title: { text: "=B1" } },
+            y: { title: { text: "=C1" } },
+          },
+        },
+        "1"
+      );
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].charts[0].data.axesDesign?.x?.title?.text).toEqual(
+        getCellContent(model, "B1")
+      );
+      expect(exported.sheets[0].charts[0].data.axesDesign?.y?.title?.text).toEqual(
+        getCellContent(model, "C1")
+      );
+    });
   });
 
   describe("Images", () => {
