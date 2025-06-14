@@ -10,12 +10,10 @@ import {
 } from "../types";
 import { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
-import { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
   readonly stateObserver: StateObserver;
-  readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
   readonly custom: ModelConfig["custom"];
@@ -41,9 +39,10 @@ export class CorePlugin<State = any>
   protected dispatch: CoreCommandDispatcher["dispatch"];
   protected canDispatch: CoreCommandDispatcher["dispatch"];
 
-  constructor({ getters, stateObserver, range, dispatch, canDispatch }: CorePluginConfig) {
+  adaptRanges?(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string): void;
+
+  constructor({ getters, stateObserver, dispatch, canDispatch }: CorePluginConfig) {
     super(stateObserver);
-    range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
@@ -66,7 +65,7 @@ export class CorePlugin<State = any>
    * @param applyChange a function that, when called, will adapt the range according to the change on the grid
    * @param sheetId an optional sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
    */
-  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string): void {}
+  // adaptRanges?(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string): void {}
 
   /**
    * Implement this method to clean unused external resources, such as images
