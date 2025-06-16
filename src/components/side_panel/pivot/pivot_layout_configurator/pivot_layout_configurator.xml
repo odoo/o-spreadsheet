@@ -58,7 +58,7 @@
         <AddDimensionButton onFieldPicked.bind="addMeasureDimension" fields="props.measureFields">
           <div
             t-on-click="addCalculatedMeasure"
-            class="p-2 bg-white border-top d-flex align-items-center sticky-bottom add-calculated-measure">
+            class="p-2 border-top d-flex align-items-center sticky-bottom add-calculated-measure">
             <i class="pe-1">
               <t t-call="o-spreadsheet-Icon.FORMULA"/>
             </i>

@@ -1,0 +1,16 @@
+.o-spreadsheet .o-autocomplete-popover {
+  background-color: #fff;
+
+  .o-autocomplete-search {
+    background-color: #fff;
+  }
+
+  input.o-autocomplete-search-field:focus {
+    outline: none;
+  }
+
+  .o-autocomplete-search-field-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+}
