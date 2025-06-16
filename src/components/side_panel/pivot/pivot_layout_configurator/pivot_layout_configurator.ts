@@ -1,4 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
+import { BUTTON_ACTIVE_BG, BUTTON_ACTIVE_TEXT_COLOR } from "../../../../constants";
 import { isDefined } from "../../../../helpers";
 import {
   AGGREGATORS,
@@ -44,6 +45,11 @@ interface Props {
 css/* scss */ `
   .add-calculated-measure {
     cursor: pointer;
+    background-color: #fff;
+    &:hover {
+      background-color: ${BUTTON_ACTIVE_BG};
+      color: ${BUTTON_ACTIVE_TEXT_COLOR};
+    }
   }
 `;
 

@@ -1,0 +1,31 @@
+<templates>
+  <t t-name="o-spreadsheet-AutocompletePopover">
+    <div t-on-click="togglePopover" t-ref="button">
+      <t t-slot="default"/>
+    </div>
+    <Popover t-if="popover.isOpen" t-props="popoverProps">
+      <div class="o-autocomplete-popover">
+        <div class="p-2 border-bottom d-flex sticky-top align-items-baseline o-autocomplete-search">
+          <i class="pe-1 o-autocomplete-search-field-icon text-muted">
+            <t t-call="o-spreadsheet-Icon.SEARCH"/>
+          </i>
+          <input
+            t-on-input="(ev) => this.updateSearch(ev.target.value)"
+            t-on-keydown="onKeyDown"
+            class="border-0 w-100 o-autocomplete-search-field"
+            t-ref="autofocus"
+          />
+        </div>
+        <div t-on-pointerleave="() => autoComplete.selectIndex(undefined)">
+          <TextValueProvider
+            proposals="autoComplete.provider.proposals"
+            selectedIndex="autoComplete.selectedIndex"
+            onValueSelected="autoComplete.provider.selectProposal"
+            onValueHovered="autoComplete.selectIndex"
+          />
+        </div>
+        <t t-slot="popoverContent" t-on-click="togglePopover"/>
+      </div>
+    </Popover>
+  </t>
+</templates>

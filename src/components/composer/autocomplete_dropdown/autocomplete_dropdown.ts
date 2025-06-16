@@ -1,4 +1,5 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
+import { BUTTON_ACTIVE_BG, BUTTON_ACTIVE_TEXT_COLOR } from "../../../constants";
 import { AutoCompleteProposal } from "../../../registries/auto_completes";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { HtmlContent } from "../composer/composer";
@@ -12,7 +13,8 @@ css/* scss */ `
     z-index: 1;
 
     .o-autocomplete-value-focus {
-      background-color: #f2f2f2;
+      background-color: ${BUTTON_ACTIVE_BG};
+      color: ${BUTTON_ACTIVE_TEXT_COLOR};
     }
 
     & > div {
