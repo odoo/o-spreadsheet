@@ -256,6 +256,20 @@ describe("data validation sidePanel component", () => {
     expect(model.getters.getDataValidationRules(sheetId)).toMatchObject([{ isBlocking: true }]);
   });
 
+  test("Preserves rule order when editing and saving via data validation preview panel", async () => {
+    addDataValidation(model, "A1", "id1", { type: "isEqual", values: ["5"] });
+    addDataValidation(model, "A2", "id2", { type: "isEqual", values: ["10"] });
+
+    await nextTick();
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([{ id: "id1" }, { id: "id2" }]);
+
+    await click(fixture.querySelector(".o-dv-preview")!);
+    await nextTick();
+    await simulateClick(fixture.querySelector(".o-dv-save")!);
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([{ id: "id1" }, { id: "id2" }]);
+  });
+
   describe("Locale", () => {
     test("Number preview is localized", async () => {
       updateLocale(model, FR_LOCALE);
