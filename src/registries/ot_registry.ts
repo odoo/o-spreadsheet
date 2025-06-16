@@ -50,14 +50,11 @@ export class OTRegistry extends Registry<
     toTransforms: V[],
     fn: TransformationFunction<CoreCommandTypes, CoreCommandTypes>
   ): this {
-    for (let toTransform of toTransforms) {
-      if (!this.content[toTransform]) {
-        this.content[toTransform] = new Map<
-          CoreCommandTypes,
-          TransformationFunction<CoreCommandTypes, CoreCommandTypes>
-        >();
-      }
-      this.content[toTransform].set(executed, fn);
+    if (!this.content[executed]) {
+      this.content[executed] = new Map();
+    }
+    for (const toTransform of toTransforms) {
+      this.content[executed].set(toTransform, fn);
     }
     return this;
   }
@@ -70,7 +67,7 @@ export class OTRegistry extends Registry<
     toTransform: U,
     executed: V
   ): TransformationFunction<CoreCommandTypes, CoreCommandTypes> | undefined {
-    return this.content[toTransform] && this.content[toTransform].get(executed);
+    return this.content[executed] && this.content[executed].get(toTransform);
   }
 }
 
