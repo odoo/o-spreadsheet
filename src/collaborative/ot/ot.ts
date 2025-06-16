@@ -67,10 +67,13 @@ export function transformAll(
   executed: readonly CoreCommand[]
 ): CoreCommand[] {
   let transformedCommands = [...toTransform];
+  const transformations = new Set(otRegistry.getKeys());
   for (const executedCommand of executed) {
-    transformedCommands = transformedCommands
-      .map((cmd) => transform(cmd, executedCommand))
-      .filter(isDefined);
+    if (transformations.has(executedCommand.type)) {
+      transformedCommands = transformedCommands
+        .map((cmd) => transform(cmd, executedCommand))
+        .filter(isDefined);
+    }
   }
   return transformedCommands;
 }
