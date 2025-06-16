@@ -3,7 +3,11 @@ const { createScssBundle } = require("./scss.cjs");
 
 const watcher = watch("./src", { filter: /\.scss$/, recursive: true }, (ev, name) => {
   console.log(`\n File ${name}: ${ev}`);
-  createScssBundle("build");
+  try {
+    createScssBundle("build");
+  } catch (error) {
+    console.error("Error creating SCSS bundle:", error.message);
+  }
 });
 
 watcher.on("ready", () => console.log("Watching .scss files..."));
