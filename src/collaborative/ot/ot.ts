@@ -78,10 +78,20 @@ export function transformAll(
   executed: readonly CoreCommand[]
 ): CoreCommand[] {
   let transformedCommands = [...toTransform];
+  const possibleTransformations = new Set(otRegistry.getKeys());
   for (const executedCommand of executed) {
-    transformedCommands = transformedCommands
-      .map((cmd) => transform(cmd, executedCommand))
-      .filter(isDefined);
+    // If the executed command is not in the registry, we skip it
+    // because we know there won't be any transformation impacting the
+    // commands to transform.
+    if (possibleTransformations.has(executedCommand.type)) {
+      transformedCommands = transformedCommands.reduce<CoreCommand[]>((acc, cmd) => {
+        const transformed = transform(cmd, executedCommand);
+        if (transformed) {
+          acc.push(transformed);
+        }
+        return acc;
+      }, []);
+    }
   }
   return transformedCommands;
 }
