@@ -905,7 +905,6 @@ export const PIVOT = {
       displayTotals: toBoolean(includeTotal),
       displayMeasuresRow: toBoolean(includeMeasureTitles),
     };
-
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
