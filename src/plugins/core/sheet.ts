@@ -65,8 +65,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "doesHeaderExist",
     "doesHeadersExist",
     "getCell",
+    "getCellFromZone",
     "getCellPosition",
     "getColsZone",
+    "getColCells",
     "getRowCells",
     "getLastUsedCol",
     "getLastUsedRow",
@@ -277,6 +279,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           ySplit: sheetData.panes?.ySplit || 0,
         },
         color: sheetData.color,
+        defaults: {
+          global: {},
+          cols: {},
+          rows: {},
+        },
       };
       this.orderedSheetIds.push(sheet.id);
       this.sheets[sheet.id] = sheet;
@@ -399,6 +406,31 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.getters.getCellById(cellId);
   }
 
+  getCellFromZone(sheetId: UID, zone: UnboundedZone): Cell[] {
+    const sheet = this.tryGetSheet(sheetId);
+    if (!sheet) return [];
+    const result: Cell[] = [];
+    for (const [rowIndex, row] of Object.entries(sheet.rows)) {
+      if (!row || !this.indexInRange(parseInt(rowIndex), zone.top, zone.bottom)) continue;
+      for (const [colIndex, cellId] of Object.entries(row.cells)) {
+        if (!cellId) continue;
+        const cell = this.getters.getCellById(cellId);
+        if (cell && this.indexInRange(parseInt(colIndex), zone.left, zone.right)) {
+          result.push(cell);
+        }
+      }
+    }
+    return result;
+  }
+
+  private indexInRange(index: HeaderIndex, start: HeaderIndex, end: HeaderIndex | undefined) {
+    return start <= index && (end === undefined || index <= end);
+  }
+
+  getColCells(sheetId: UID, col: HeaderIndex): Cell[] {
+    return this.getCellFromZone(sheetId, this.getColsZone(sheetId, col, col));
+  }
+
   getColsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
     return {
       top: 0,
@@ -408,9 +440,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     };
   }
 
-  getRowCells(sheetId: UID, row: HeaderIndex): UID[] {
+  getRowCells(sheetId: UID, row: HeaderIndex): Cell[] {
     const cells = this.getSheet(sheetId).rows[row]?.cells;
-    return cells ? Object.values(cells).filter(isDefined) : [];
+    return cells
+      ? Object.values(cells)
+          .map((cellId) => cellId && this.getters.getCellById(cellId))
+          .filter(isDefined)
+      : [];
   }
 
   getRowsZone(sheetId: UID, start: HeaderIndex, end: HeaderIndex): Zone {
@@ -634,6 +670,11 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       panes: {
         xSplit: 0,
         ySplit: 0,
+      },
+      defaults: {
+        global: {},
+        cols: {},
+        rows: {},
       },
     };
     const orderedSheetIds = this.orderedSheetIds.slice();
