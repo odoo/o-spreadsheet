@@ -134,6 +134,17 @@ export interface UpdateCellData {
   format?: Format;
 }
 
+export interface DefaultCell {
+  style?: Style;
+  format?: Format;
+}
+
+export interface DefaultCells {
+  global: DefaultCell;
+  cols: Record<number, DefaultCell>;
+  rows: Record<number, DefaultCell>;
+}
+
 export interface Sheet {
   id: UID;
   name: string;
@@ -143,6 +154,7 @@ export interface Sheet {
   isVisible: boolean;
   panes: PaneDivision;
   color?: Color;
+  defaults: DefaultCells;
 }
 
 export interface CellPosition {
