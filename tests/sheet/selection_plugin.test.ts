@@ -94,6 +94,60 @@ describe("simple selection", () => {
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 9, right: 0, bottom: 9 });
   });
 
+  test("Can extend selection with Shift-arrow through merges horizontally", () => {
+    const model = new Model();
+    merge(model, "A1:B2");
+    merge(model, "C1:D2");
+    merge(model, "E1:F2");
+
+    selectCell(model, "A1");
+    resizeAnchorZone(model, "right");
+    resizeAnchorZone(model, "right");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:F2"));
+
+    selectCell(model, "B1");
+    resizeAnchorZone(model, "right");
+    resizeAnchorZone(model, "right");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:F2"));
+
+    selectCell(model, "E1");
+    resizeAnchorZone(model, "left");
+    resizeAnchorZone(model, "left");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:F2"));
+
+    selectCell(model, "F1");
+    resizeAnchorZone(model, "left");
+    resizeAnchorZone(model, "left");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:F2"));
+  });
+
+  test("Can extend selection with Shift-arrow through merges horizontally", () => {
+    const model = new Model();
+    merge(model, "A1:B2");
+    merge(model, "A3:B4");
+    merge(model, "A5:B6");
+
+    selectCell(model, "A1");
+    resizeAnchorZone(model, "down");
+    resizeAnchorZone(model, "down");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B6"));
+
+    selectCell(model, "A2");
+    resizeAnchorZone(model, "down");
+    resizeAnchorZone(model, "down");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B6"));
+
+    selectCell(model, "A5");
+    resizeAnchorZone(model, "up");
+    resizeAnchorZone(model, "up");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B6"));
+
+    selectCell(model, "A6");
+    resizeAnchorZone(model, "up");
+    resizeAnchorZone(model, "up");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B6"));
+  });
+
   test("can expand selection with mouse", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10, merges: ["B1:C2"] }] });
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 0, bottom: 0 });
