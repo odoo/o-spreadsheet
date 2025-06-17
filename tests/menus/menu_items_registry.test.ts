@@ -45,6 +45,7 @@ import {
 
 import { Currency, Model } from "../../src";
 
+import { ActionSpec, createAction } from "../../src/actions/action";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
@@ -168,11 +169,13 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> undo", () => {
+    setCellContent(model, "A1", "coucou");
     doAction(["edit", "undo"], env);
     expect(dispatch).toHaveBeenCalledWith("REQUEST_UNDO");
   });
 
   test("Edit -> redo", () => {
+    setCellContent(model, "A1", "coucou");
     doAction(["edit", "redo"], env);
     expect(dispatch).toHaveBeenCalledWith("REQUEST_REDO");
   });
@@ -1990,5 +1993,18 @@ describe("Menu Item actions", () => {
       expect(unfreezeRowAction.isVisible(env)).toBe(true);
       expect(unfreezeAllAction.isVisible(env)).toBe(true);
     });
+  });
+
+  test("calling execute on a disabled action should have no effect", () => {
+    const executeMock = jest.fn();
+    const ActionSpec: ActionSpec = {
+      isEnabled: () => false,
+      execute: () => executeMock(),
+      name: () => "TestAction",
+    };
+
+    const action = createAction(ActionSpec);
+    action.execute?.(env);
+    expect(executeMock).not.toHaveBeenCalled();
   });
 });

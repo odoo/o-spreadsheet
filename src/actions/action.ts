@@ -101,13 +101,21 @@ export function createAction(item: ActionSpec): Action {
   const icon = item.icon;
   const secondaryIcon = item.secondaryIcon;
   const itemId = item.id || nextItemId++;
+  const isEnabled = item.isEnabled ? item.isEnabled : () => true;
   return {
     id: itemId.toString(),
     name: typeof name === "function" ? name : () => name,
     isVisible: item.isVisible ? item.isVisible : () => true,
-    isEnabled: item.isEnabled ? item.isEnabled : () => true,
+    isEnabled: isEnabled,
     isActive: item.isActive,
-    execute: item.execute,
+    execute: item.execute
+      ? (env, isMiddleClick) => {
+          if (isEnabled(env)) {
+            return item.execute!(env, isMiddleClick);
+          }
+          return undefined;
+        }
+      : undefined,
     children: children
       ? (env) => {
           return children
