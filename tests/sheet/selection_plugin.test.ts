@@ -17,6 +17,7 @@ import {
   addColumns,
   addRows,
   createSheet,
+  createTable,
   deleteColumns,
   deleteRows,
   hideColumns,
@@ -45,6 +46,7 @@ import {
   getCellContent,
   getCellText,
   getSelectionAnchorCellXc,
+  getTable,
 } from "../test_helpers/getters_helpers";
 import { addTestPlugin, createModelFromGrid } from "../test_helpers/helpers";
 
@@ -971,6 +973,19 @@ describe("move elements(s)", () => {
   test("can't move rows between rows containing common merged ", () => {
     const result = moveRows(model, 7, [1, 2]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
+  });
+
+  test("rejects moving part of a table with headers", () => {
+    createTable(model, "A1:A4", { numberOfHeaders: 2 });
+    const result = moveRows(model, 5, [1]);
+    expect(result).toBeCancelledBecause(CommandResult.CannotMoveTableHeader);
+  });
+
+  test("allows moving the whole table with headers", () => {
+    createTable(model, "A1:A2");
+    expect(getTable(model, "A1")!.range.zone).toEqual(toZone("A1:A2"));
+    moveRows(model, 9, [0, 1], "after");
+    expect(getTable(model, "A9")!.range.zone).toEqual(toZone("A9:A10"));
   });
 
   test("Move a resized column preserves its size", () => {
