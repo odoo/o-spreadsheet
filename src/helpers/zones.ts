@@ -1,3 +1,4 @@
+import { MAX_COL_NUMBER, MAX_ROW_NUMBER } from "../constants";
 import { CellPosition, HeaderIndex, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
 import {
   MAX_COL,
@@ -615,11 +616,11 @@ export function zoneToTopLeft(zone: Zone): Zone {
 }
 
 export function isFullRow(zone: UnboundedZone): boolean {
-  return zone.right === undefined;
+  return zone.left === 0 && (!zone.right || zone.right >= MAX_COL_NUMBER - 1);
 }
 
 export function isFullCol(zone: UnboundedZone): boolean {
-  return zone.bottom === undefined;
+  return zone.top === 0 && (!zone.bottom || zone.bottom >= MAX_ROW_NUMBER - 1);
 }
 
 /** Returns the area of a zone */
