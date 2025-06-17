@@ -1247,6 +1247,7 @@ export const enum CommandResult {
   Success = "Success",
   CancelledForUnknownReason = "CancelledForUnknownReason",
   WillRemoveExistingMerge = "WillRemoveExistingMerge",
+  CannotMoveTableHeader = "CannotMoveTableHeader",
   MergeIsDestructive = "MergeIsDestructive",
   CellIsMerged = "CellIsMerged",
   InvalidTarget = "InvalidTarget",
