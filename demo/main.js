@@ -314,9 +314,9 @@ class Demo extends Component {
 }
 
 Demo.template = xml/* xml */ `
-  <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content vh-100">
+  <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content">
     <div class="p-3 border-bottom">A header</div>
-    <div class="flex-fill">
+    <div class="flex-fill" style="height: 100dvh !important;width: 100dvw !important;">
       <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key"/>
     </div>
   </div>
