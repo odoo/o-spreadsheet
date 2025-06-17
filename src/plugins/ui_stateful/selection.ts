@@ -6,6 +6,7 @@ import {
   deepCopy,
   isEqual,
   positionToZone,
+  range,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -620,7 +621,38 @@ export class GridSelectionPlugin extends UIPlugin {
     if (headers.some((h) => h < 0 || h >= maxHeaderValue)) {
       return CommandResult.InvalidHeaderIndex;
     }
+    if (!isCol && !this.isTableRowMoveAllowed(id, cmd.elements)) {
+      return CommandResult.CannotMoveTableHeader;
+    }
     return CommandResult.Success;
+  }
+
+  private isTableRowMoveAllowed(sheetId: UID, selectedRows: HeaderIndex[]): boolean {
+    const tables = this.getters.getCoreTables(sheetId);
+    if (tables.length === 0) {
+      return true;
+    }
+
+    const selectedRowSet = new Set(selectedRows);
+    return tables.every(({ range: { zone }, config }) => {
+      const { top, bottom } = zone;
+
+      if (config.numberOfHeaders === 0) {
+        return true;
+      }
+
+      const headerRowEnd = top + config.numberOfHeaders - 1;
+
+      // Moving the table is allowed if table header rows are not part of the selection
+      // Or if the entire table (including header) is selected
+      const isHeaderSelected = selectedRows.some((row) => row >= top && row <= headerRowEnd);
+      if (!isHeaderSelected) {
+        return true;
+      }
+
+      const isWholeTableSelected = range(top, bottom + 1).every((r) => selectedRowSet.has(r));
+      return isWholeTableSelected;
+    });
   }
 
   private fallbackToVisibleSheet() {
