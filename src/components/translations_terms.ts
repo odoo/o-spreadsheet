@@ -114,6 +114,8 @@ export const MergeErrorMessage = _t(
   "Merged cells are preventing this operation. Unmerge those cells and try again."
 );
 
+export const TableHeaderMoveErrorMessage = _t("The header row of a table can't be moved.");
+
 export const SplitToColumnsTerms = {
   Errors: {
     Unexpected: _t("Cannot split the selection for an unknown reason"),
