@@ -241,26 +241,28 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       };
     };
 
-    const { col: refCol, row: refRow } = this.getReferencePosition();
+    const { cell: refCell, zone: refZone } = this.getReferenceAnchor();
+    const { col: refCol, row: refRow } = refCell;
     // check if we can shrink selection
     let n = 0;
     while (result !== null) {
       n++;
       if (deltaCol < 0) {
         const newRight = this.getNextAvailableCol(deltaCol, right - (n - 1), refRow);
-        result = refCol <= right - n ? expand({ top, left, bottom, right: newRight }) : null;
+        result = refZone.right <= right - n ? expand({ top, left, bottom, right: newRight }) : null;
       }
       if (deltaCol > 0) {
         const newLeft = this.getNextAvailableCol(deltaCol, left + (n - 1), refRow);
-        result = left + n <= refCol ? expand({ top, left: newLeft, bottom, right }) : null;
+        result = left + n <= refZone.left ? expand({ top, left: newLeft, bottom, right }) : null;
       }
       if (deltaRow < 0) {
         const newBottom = this.getNextAvailableRow(deltaRow, refCol, bottom - (n - 1));
-        result = refRow <= bottom - n ? expand({ top, left, bottom: newBottom, right }) : null;
+        result =
+          refZone.bottom <= bottom - n ? expand({ top, left, bottom: newBottom, right }) : null;
       }
       if (deltaRow > 0) {
         const newTop = this.getNextAvailableRow(deltaRow, refCol, top + (n - 1));
-        result = top + n <= refRow ? expand({ top: newTop, left, bottom, right }) : null;
+        result = top + n <= refZone.top ? expand({ top: newTop, left, bottom, right }) : null;
       }
       result = result ? reorderZone(result) : result;
       if (result && !isEqual(result, anchor.zone)) {
@@ -531,19 +533,29 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
    * If the anchor is hidden, browses from left to right and top to bottom to
    * find a visible cell.
    */
-  private getReferencePosition(): Position {
+  private getReferenceAnchor(): AnchorZone {
     const sheetId = this.getters.getActiveSheetId();
     const anchor = this.anchor;
     const { left, right, top, bottom } = anchor.zone;
     const { col: anchorCol, row: anchorRow } = anchor.cell;
 
+    const col = this.getters.isColHidden(sheetId, anchorCol)
+      ? this.getters.findVisibleHeader(sheetId, "COL", left, right) || anchorCol
+      : anchorCol;
+
+    const row = this.getters.isRowHidden(sheetId, anchorRow)
+      ? this.getters.findVisibleHeader(sheetId, "ROW", top, bottom) || anchorRow
+      : anchorRow;
+
+    const zone = this.getters.expandZone(sheetId, {
+      left: col,
+      right: col,
+      top: row,
+      bottom: row,
+    });
     return {
-      col: this.getters.isColHidden(sheetId, anchorCol)
-        ? this.getters.findVisibleHeader(sheetId, "COL", left, right) || anchorCol
-        : anchorCol,
-      row: this.getters.isRowHidden(sheetId, anchorRow)
-        ? this.getters.findVisibleHeader(sheetId, "ROW", top, bottom) || anchorRow
-        : anchorRow,
+      cell: { col, row },
+      zone,
     };
   }
 
