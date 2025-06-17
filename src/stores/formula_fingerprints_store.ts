@@ -1,7 +1,7 @@
 import {
   AlternatingColorGenerator,
-  isFullColRange,
-  isFullRowRange,
+  isUnboundedColRange,
+  isUnboundedRowRange,
   reorderZone,
   setColorAlpha,
 } from "../helpers";
@@ -186,8 +186,8 @@ export class FormulaFingerprintStore extends SpreadsheetStore {
 
       // in relative mode, we offset the col and row by the cell's position
       // in absolute mode, we offset the col and row relative to the sheet
-      const isLeftUnbounded = isFullRowRange(range) && !range.unboundedZone.hasHeader;
-      const isTopUnbounded = isFullColRange(range) && !range.unboundedZone.hasHeader;
+      const isLeftUnbounded = isUnboundedRowRange(range) && !range.unboundedZone.hasHeader;
+      const isTopUnbounded = isUnboundedColRange(range) && !range.unboundedZone.hasHeader;
       const leftOffset = isLeftUnbounded || left?.colFixed ? 0 : colCellOffset;
       const topOffset = isTopUnbounded || left?.rowFixed ? 0 : rowCellOffset;
 
