@@ -109,6 +109,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getFigureUI",
     "getPositionAnchorOffset",
     "getGridOffset",
+    "getScrollbarSize",
   ] as const;
 
   private viewports: Record<UID, SheetViewports | undefined> = {};
@@ -404,6 +405,13 @@ export class SheetViewPlugin extends UIPlugin {
       maxOffsetX: Math.max(0, width - viewport.viewportWidth),
       maxOffsetY: Math.max(0, height - viewport.viewportHeight),
     };
+  }
+
+  getScrollbarSize(direction: "horizontal" | "vertical"): Pixel {
+    const sheetId = this.getters.getActiveSheetId();
+    const viewport = this.getMainInternalViewport(sheetId);
+    const maxSize = viewport.getScrollbarSize();
+    return direction === "horizontal" ? maxSize.width : maxSize.height;
   }
 
   getColRowOffsetInViewport(
