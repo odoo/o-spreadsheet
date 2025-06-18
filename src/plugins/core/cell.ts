@@ -171,7 +171,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           col: cmd.col,
           row: cmd.row,
           content: "",
-          style: null,
+          style: undefined,
           format: "",
         });
         break;
@@ -282,11 +282,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   private clearCells(sheetId: UID, zones: Zone[]) {
     for (const zone of zones) {
       for (const cell of this.getters.getCellFromZone(sheetId, zone)) {
-        const { col, row } = this.getters.getCellPosition(cell.id);
         this.dispatch("UPDATE_CELL", {
-          sheetId,
-          col,
-          row,
+          ...this.getters.getCellPosition(cell.id),
+          style: undefined,
           content: "",
         });
       }
@@ -499,12 +497,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   getCellStyle(position: CellPosition): Style {
-    return this.getters.getCell(position)?.style || this.getDefaultCellStyle(position);
+    return this.getters.getCell(position)?.style || this.getDefaultCellStyle(position) || {};
   }
 
-  private getDefaultCellStyle({ sheetId, col, row }: CellPosition): Style {
+  private getDefaultCellStyle({ sheetId, col, row }: CellPosition): Style | undefined {
     const defaults = this.defaultStyle?.[sheetId];
-    return defaults?.rows?.[row] ?? defaults?.cols?.[col] ?? defaults?.global ?? {};
+    return defaults?.rows?.[row] ?? defaults?.cols?.[col] ?? defaults?.global ?? undefined;
   }
 
   private getDefaultCellFormat({ sheetId, col, row }: CellPosition): Format {
@@ -686,12 +684,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
     // Compute the new cell properties
     const afterContent = hasContent ? replaceNewLines(after?.content) : before?.content || "";
-    let style: Style | undefined;
-    if (after.style !== undefined) {
-      style = after.style || undefined;
-    } else {
-      style = before ? before.style : this.getDefaultCellStyle({ sheetId, col, row });
-    }
+    const style =
+      "style" in after
+        ? after.style || undefined
+        : (before && before.style) || this.getDefaultCellStyle({ sheetId, col, row });
     const format =
       "format" in after
         ? after.format
@@ -874,9 +870,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private setColStyle(sheetId: UID, col: HeaderIndex, style: Style | undefined) {
-    this.history.update("defaultStyle", sheetId, "cols", col, style);
+    if (style !== this.defaultStyle[sheetId]?.global) {
+      this.history.update("defaultStyle", sheetId, "cols", col, style);
+    }
     // Update rows as they are prioritized compared to colums
-    for (const [row, rowStyle] of Object.entries(this.defaultStyle[sheetId].rows ?? {})) {
+    for (const [row, rowStyle] of Object.entries(this.defaultStyle[sheetId]?.rows ?? {})) {
       let cellStyle: Style | undefined = style && { ...rowStyle, ...style };
       if (cellStyle === style) cellStyle = undefined;
       this.dispatch("UPDATE_CELL", {
@@ -892,23 +890,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private setRowStyle(sheetId: UID, row: HeaderIndex, style: Style | undefined) {
-    this.history.update("defaultStyle", sheetId, "rows", row, style);
+    if (style !== this.defaultStyle[sheetId]?.global) {
+      this.history.update("defaultStyle", sheetId, "rows", row, style);
+    }
     for (const cell of this.getters.getRowCells(sheetId, row)) {
       this.updateCellStyle(cell, style);
     }
   }
 
   private updateCellStyle(cell: Cell, style: Style | undefined) {
-    if (!cell.style) return;
-    let cellStyle: Style | undefined = { ...cell.style, ...style };
+    let cellStyle: Style | undefined = style && { ...cell.style, ...style };
     if (cellStyle === style) cellStyle = undefined;
-    const { col, row, sheetId } = this.getters.getCellPosition(cell.id);
-    this.dispatch("UPDATE_CELL", {
-      sheetId,
-      col,
-      row,
-      style,
-    });
+    this.dispatch("UPDATE_CELL", { ...this.getters.getCellPosition(cell.id), style });
   }
 
   private setGlobalFormat(sheetId: UID, format: Format | undefined) {
@@ -931,7 +924,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private setColFormat(sheetId: UID, col: HeaderIndex, format: Format | undefined) {
-    this.history.update("defaultFormat", sheetId, "cols", col, format);
+    if (format !== this.defaultFormat[sheetId]?.global) {
+      this.history.update("defaultFormat", sheetId, "cols", col, format);
+    }
     for (const cell of this.getters.getColCells(sheetId, col)) {
       this.updateCellFormat(cell, format);
     }
@@ -947,18 +942,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private setRowFormat(sheetId: UID, row: HeaderIndex, format: Format | undefined) {
-    this.history.update("defaultFormat", sheetId, "rows", row, format);
+    if (format !== this.defaultFormat[sheetId]?.global) {
+      this.history.update("defaultFormat", sheetId, "rows", row, format);
+    }
     for (const cell of this.getters.getRowCells(sheetId, row)) {
       this.updateCellFormat(cell, format);
     }
   }
 
   private updateCellFormat(cell: Cell, format: Format | undefined) {
-    const { col, row, sheetId } = this.getters.getCellPosition(cell.id);
     this.dispatch("UPDATE_CELL", {
-      sheetId,
-      col,
-      row,
+      ...this.getters.getCellPosition(cell.id),
       format,
     });
   }
