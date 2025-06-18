@@ -163,7 +163,7 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
 
   private initializeSheet(sheetId: UID) {
     const tallestCells: Array<CellWithSize | undefined> = [];
-    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
+    for (let row = 0; row < this.getters.getLastUsedRow(sheetId); row++) {
       const tallestCell = this.getRowTallestCell(sheetId, row);
       tallestCells.push(tallestCell);
     }
