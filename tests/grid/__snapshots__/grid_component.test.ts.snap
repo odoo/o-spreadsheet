@@ -90,7 +90,7 @@ exports[`Grid component simple rendering snapshot 1`] = `
           contenteditable="true"
           inputmode="none"
           spellcheck="false"
-          style="max-height: 1008.6px;"
+          style="max-height: 982.6px;"
           tabindex="1"
         />
       </div>
