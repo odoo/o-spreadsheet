@@ -221,7 +221,7 @@ describe("Columns", () => {
       const sheetId = model.getters.getActiveSheetId();
       expect(model.getters.getColSize(sheetId, 0)).toBe(10);
       expect(model.getters.getColSize(sheetId, 1)).toBe(DEFAULT_CELL_WIDTH);
-      expect(model.getters.getActiveSheet().numberOfCols).toBe(2);
+      expect(model.getters.getActiveSheet().lastUsedCol).toBe(2);
     });
     test("On delete cols in inactive sheet", () => {
       model = new Model({
@@ -238,7 +238,7 @@ describe("Columns", () => {
     });
     test("On addition before first", () => {
       addColumns(model, "before", "A", 1);
-      expect(model.getters.getActiveSheet().numberOfCols).toBe(5);
+      expect(model.getters.getActiveSheet().lastUsedCol).toBe(5);
       expect(model.getters.getActiveSheet().rows).toHaveLength(1);
     });
     test("On addition before", () => {
@@ -251,7 +251,7 @@ describe("Columns", () => {
       expect(model.getters.getColSize(sheetId, 3)).toBe(10);
       expect(model.getters.getColSize(sheetId, 4)).toBe(20);
       expect(model.getters.getColSize(sheetId, 5)).toBe(size);
-      expect(model.getters.getActiveSheet().numberOfCols).toBe(6);
+      expect(model.getters.getActiveSheet().lastUsedCol).toBe(6);
     });
     test("On addition after", () => {
       addColumns(model, "after", "C", 2);
@@ -264,7 +264,7 @@ describe("Columns", () => {
       expect(model.getters.getColSize(sheetId, 4)).toBe(20);
       expect(model.getters.getColSize(sheetId, 5)).toBe(size);
 
-      expect(model.getters.getActiveSheet().numberOfCols).toBe(6);
+      expect(model.getters.getActiveSheet().lastUsedCol).toBe(6);
     });
 
     test("On addition in invalid sheet", () => {
@@ -919,7 +919,7 @@ describe("Rows", () => {
     });
     test("On addition before first", () => {
       addRows(model, "before", 0, 1);
-      expect(model.getters.getActiveSheet().numberOfCols).toBe(1);
+      expect(model.getters.getActiveSheet().lastUsedCol).toBe(1);
       expect(model.getters.getActiveSheet().rows).toHaveLength(5);
     });
     test("On addition before", () => {

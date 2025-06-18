@@ -267,8 +267,8 @@ export const MESSAGE_VERSION = 1;
 export const FORBIDDEN_SHEETNAME_CHARS = ["'", "*", "?", "/", "\\", "[", "]"] as const;
 export const FORBIDDEN_SHEETNAME_CHARS_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
 
-export const MAX_ROW_NUMBER = 1048576;
-export const MAX_COL_NUMBER = 16384;
+export const MAX_ROW_NUMBER = 300;
+export const MAX_COL_NUMBER = 300;
 
 // Cells
 export const FORMULA_REF_IDENTIFIER = "|";
