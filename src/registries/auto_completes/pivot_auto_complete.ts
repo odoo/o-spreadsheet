@@ -282,7 +282,7 @@ autoCompleteProviders.add("pivot_group_values", {
         htmlContent: [{ value: `${secondNumber}`, color: tokenColors.NUMBER }],
       }));
     }
-    return pivot.getPossibleFieldValues(dimension).map(({ value, label }) => {
+    return pivot.getPossibleDimensionValues(dimension).map(({ value, label }) => {
       const isString = typeof value === "string";
       const text = isString ? `"${value}"` : value.toString();
       const color = isString ? tokenColors.STRING : tokenColors.NUMBER;
