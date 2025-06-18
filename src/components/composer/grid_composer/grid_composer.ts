@@ -108,7 +108,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get cellReference(): string {
-    const { col, row, sheetId } = this.composerStore.currentEditedCell;
+    const { col, row, sheetId } = this.currentEditedCell;
     const prefixSheet = sheetId !== this.env.model.getters.getActiveSheetId();
     return getFullReference(
       prefixSheet ? this.env.model.getters.getSheetName(sheetId) : undefined,
@@ -223,11 +223,18 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       this.composerFocusStore.focusComposer(this.composerInterface, { focusMode: "inactive" });
     }
 
+<<<<<<< a45061c1d65ccb244a086dbda6fa5123d4802857
     let shouldRecomputeRect = !deepEquals(
       this.currentEditedCell,
       this.composerStore.currentEditedCell
     );
 
+||||||| bbc9b0053456941f7208704c973a4f143866f008
+=======
+    let shouldRecomputeRect =
+      isEditing && !deepEquals(this.currentEditedCell, this.composerStore.currentEditedCell);
+
+>>>>>>> ef6e6040cebe85c46bfc35b9eb38fdc3115109a2
     if (this.isEditing !== isEditing) {
       this.isEditing = isEditing;
       if (!isEditing) {
