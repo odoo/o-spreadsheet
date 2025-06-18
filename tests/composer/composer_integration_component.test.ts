@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { HeaderIndex, Model } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -670,6 +670,22 @@ describe("Grid composer", () => {
 
       expect(getElComputedStyle(composerContainerSelector, "top")).toBe(expectedTop + "px");
       expect(getElComputedStyle(composerContainerSelector, "left")).toBe(expectedLeft + "px");
+    });
+
+    test("Grid Composer Position is recomputed if we change the edited cell", async () => {
+      const expectedTop = (index: HeaderIndex) => HEADER_HEIGHT + index * DEFAULT_CELL_HEIGHT;
+      const expectedLeft = (index: HeaderIndex) => HEADER_WIDTH + index * DEFAULT_CELL_WIDTH - 1; //-1 to include cell border
+      env.model.selection.selectCell(2, 4);
+      await typeInComposerGrid("coucou", true);
+      expect(getElComputedStyle(composerContainerSelector, "top")).toBe(expectedTop(4) + "px");
+      expect(getElComputedStyle(composerContainerSelector, "left")).toBe(expectedLeft(2) + "px");
+
+      env.model.selection.getBackToDefault();
+      env.model.selection.selectCell(1, 1);
+      env.startCellEdition();
+      await nextTick();
+      expect(getElComputedStyle(composerContainerSelector, "top")).toBe(expectedTop(1) + "px");
+      expect(getElComputedStyle(composerContainerSelector, "left")).toBe(expectedLeft(1) + "px");
     });
 
     test("Grid composer container have a min-height / min-width to have the same size as the edited cell ", async () => {

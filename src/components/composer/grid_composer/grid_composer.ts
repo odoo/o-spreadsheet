@@ -9,7 +9,13 @@ import {
   toXC,
 } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
-import { ComposerFocusType, DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
+import {
+  CellPosition,
+  ComposerFocusType,
+  DOMDimension,
+  Rect,
+  SpreadsheetChildEnv,
+} from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { CellComposerStore } from "../composer/cell_composer_store";
@@ -62,6 +68,11 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   private rect: Rect = this.defaultRect;
   private isEditing: boolean = false;
   private isCellReferenceVisible: boolean = false;
+  private currentEditedCell: CellPosition = {
+    col: 0,
+    row: 0,
+    sheetId: this.env.model.getters.getActiveSheetId(),
+  };
 
   private composerStore!: Store<CellComposerStore>;
   composerFocusStore!: Store<ComposerFocusStore>;
@@ -97,7 +108,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get cellReference(): string {
-    const { col, row, sheetId } = this.composerStore.currentEditedCell;
+    const { col, row, sheetId } = this.currentEditedCell;
     const prefixSheet = sheetId !== this.env.model.getters.getActiveSheetId();
     return getFullReference(
       prefixSheet ? this.env.model.getters.getSheetName(sheetId) : undefined,
@@ -209,12 +220,20 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       this.composerFocusStore.focusComposer(this.composerInterface, { focusMode: "inactive" });
     }
 
+    let shouldRecomputeRect =
+      isEditing && !deepEquals(this.currentEditedCell, this.composerStore.currentEditedCell);
+
     if (this.isEditing !== isEditing) {
       this.isEditing = isEditing;
       if (!isEditing) {
         this.rect = this.defaultRect;
         return;
       }
+      this.currentEditedCell = this.composerStore.currentEditedCell;
+      shouldRecomputeRect = true;
+    }
+
+    if (shouldRecomputeRect) {
       const position = this.env.model.getters.getActivePosition();
       const zone = this.env.model.getters.expandZone(position.sheetId, positionToZone(position));
       this.rect = this.env.model.getters.getVisibleRect(zone);
