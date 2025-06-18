@@ -294,7 +294,7 @@ export function isSortedColumnValid(sortedColumn: PivotSortedColumn, pivot: Pivo
         return false;
       }
       const possibleValues: (CellValue | null)[] = pivot
-        .getPossibleFieldValues(columns[i])
+        .getPossibleDimensionValues(columns[i])
         .map((v) => v.value);
       if (
         !possibleValues.includes(sortedColumn.domain[i].value) &&

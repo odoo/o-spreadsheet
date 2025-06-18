@@ -161,7 +161,7 @@ export class PivotMeasureDisplayPanelStore extends SpreadsheetStore {
     if (!field) {
       return [];
     }
-    const values = this.getters.getPivot(this.pivotId).getPossibleFieldValues(field);
+    const values = this.getters.getPivot(this.pivotId).getPossibleDimensionValues(field);
     return [...baseValues, ...values];
   }
 

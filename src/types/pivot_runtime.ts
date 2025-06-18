@@ -33,7 +33,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   areDomainArgsFieldsValid(args: Maybe<FunctionResultObject>[]): boolean;
 
   assertIsValid({ throwOnError }: { throwOnError: boolean }): FunctionResultObject | undefined;
-  getPossibleFieldValues(
+  getPossibleDimensionValues(
     dimension: PivotDimension
   ): { value: string | boolean | number; label: string }[];
   needsReevaluation: boolean;

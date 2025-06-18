@@ -295,7 +295,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
   }
 
-  getPossibleFieldValues(
+  getPossibleDimensionValues(
     dimension: PivotDimension
   ): { value: string | number | boolean; label: string }[] {
     const values: { value: string | number | boolean; label: string }[] = [];
