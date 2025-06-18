@@ -816,7 +816,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 contenteditable="true"
                 inputmode="none"
                 spellcheck="false"
-                style="max-height: 982.6px;"
+                style="max-height: 956.6px;"
                 tabindex="1"
               />
             </div>
@@ -1758,7 +1758,7 @@ exports[`components take the small screen into account 1`] = `
                 contenteditable="true"
                 inputmode="none"
                 spellcheck="false"
-                style="max-height: 982.6px;"
+                style="max-height: 956.6px;"
                 tabindex="1"
               />
             </div>
