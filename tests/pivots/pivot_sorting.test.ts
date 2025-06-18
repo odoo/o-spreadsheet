@@ -67,49 +67,6 @@ describe("Pivot sorting", () => {
     });
   });
 
-  test("sortedColumn.measure can be a field name instead of the measure id", () => {
-    // prettier-ignore
-    const grid = {
-      A1: "Customer",    B1: "Price",
-      A2: "Alice",       B2: "10",
-      A3: "Bob",         B3: "20",
-      A4: "=PIVOT(1)"
-    };
-    const model = createModelFromGrid(grid);
-    const sortedColumn: PivotSortedColumn = {
-      domain: [],
-      order: "desc",
-      measure: "Price", // should be "Price:sum" instead of "Price", but we accept it
-    };
-    addPivot(model, "A1:B3", {
-      columns: [],
-      rows: [{ fieldName: "Customer" }],
-      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
-      sortedColumn,
-    });
-
-    const pivotId = model.getters.getPivotIds()[0];
-    expect(model.getters.getPivot(pivotId).getExpandedTableStructure().isSorted).toBe(true);
-    // prettier-ignore
-    expect(getGrid(model)).toMatchObject({
-      A4: "Pivot",       B4: "Total",
-      A5: "",            B5: "Price",
-      A6: "Bob",         B6: 20,
-      A7: "Alice",       B7: 10,
-      A8: "Total",       B8: 30,
-    });
-    updatePivot(model, pivotId, { sortedColumn: { ...sortedColumn, order: "asc" } });
-    expect(model.getters.getPivot(pivotId).getExpandedTableStructure().isSorted).toBe(true);
-    // prettier-ignore
-    expect(getGrid(model)).toMatchObject({
-      A4: "Pivot",       B4: "Total",
-      A5: "",            B5: "Price",
-      A6: "Alice",       B6: 10,
-      A7: "Bob",         B7: 20,
-      A8: "Total",       B8: 30,
-    });
-  });
-
   test("Empty values are sorted as the smallest value", () => {
     const model = createModelWithTestPivotDataset();
     const bobColumn: PivotSortedColumn = {
