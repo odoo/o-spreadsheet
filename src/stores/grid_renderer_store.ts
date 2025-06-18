@@ -23,12 +23,12 @@ import {
   computeTextFontSizeInPixels,
   deepEquals,
   drawDecoratedText,
-  getZonesCols,
-  getZonesRows,
   numberToLetters,
   overlap,
   positionToZone,
   union,
+  zoneHasCol,
+  zoneHasRow,
 } from "../helpers/index";
 import { Get, Store } from "../store_engine";
 import {
@@ -383,8 +383,6 @@ export class GridRenderer {
     const top = visibleRows[0];
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
-    const selectedCols = getZonesCols(selection);
-    const selectedRows = getZonesRows(selection);
     const sheetId = this.getters.getActiveSheetId();
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -402,7 +400,7 @@ export class GridRenderer {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
       const { x, width } = this.getters.getVisibleRect(colZone);
       const isColActive = activeCols.has(col);
-      const isColSelected = selectedCols.has(col);
+      const isColSelected = zoneHasCol(selection, col);
       if (isColActive) {
         ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
       } else if (isColSelected) {
@@ -419,7 +417,7 @@ export class GridRenderer {
       const { y, height } = this.getters.getVisibleRect(rowZone);
 
       const isRowActive = activeRows.has(row);
-      const isRowSelected = selectedRows.has(row);
+      const isRowSelected = zoneHasRow(selection, row);
       if (isRowActive) {
         ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
       } else if (isRowSelected) {

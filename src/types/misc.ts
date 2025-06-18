@@ -128,15 +128,28 @@ export interface UpdateCellData {
   format?: Format;
 }
 
+export interface DefaultCell {
+  style?: Style;
+  format?: Format;
+}
+
+export interface DefaultCells {
+  global: DefaultCell;
+  cols: Record<number, DefaultCell>;
+  rows: Record<number, DefaultCell>;
+}
+
 export interface Sheet {
   id: UID;
   name: string;
-  numberOfCols: number;
-  rows: Row[];
+  lastUsedCol: number;
+  lastUsedRow: number;
+  rows: Record<number, Row | undefined>;
   areGridLinesVisible: boolean;
   isVisible: boolean;
   panes: PaneDivision;
   color?: Color;
+  defaults: DefaultCells;
 }
 
 export interface CellPosition {

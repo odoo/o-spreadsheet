@@ -13,11 +13,6 @@
       t-on-click="onClick"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
-      <GridAddRowsFooter
-        t-if="!env.model.getters.isReadonly()"
-        t-key="env.model.getters.getActiveSheetId()"
-        focusGrid="props.onFigureDeleted"
-      />
       <t t-slot="default"/>
     </div>
   </t>

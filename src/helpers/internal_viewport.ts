@@ -1,4 +1,10 @@
-import { FOOTER_HEIGHT } from "../constants";
+import {
+  FOOTER_HEIGHT,
+  SCROLLBAR_ADDITIONAL_COL,
+  SCROLLBAR_ADDITIONAL_ROW,
+  SCROLLBAR_MIN_COL,
+  SCROLLBAR_MIN_ROW,
+} from "../constants";
 import {
   DOMCoordinates,
   DOMDimension,
@@ -73,6 +79,42 @@ export class InternalViewport {
     const lastRow = this.getters.findLastVisibleColRowIndex(this.sheetId, "ROW", {
       first: this.boundaries.top,
       last: this.boundaries.bottom,
+    });
+
+    const { end: lastColEnd } = this.getters.getColDimensions(this.sheetId, lastCol);
+    const { end: lastRowEnd } = this.getters.getRowDimensions(this.sheetId, lastRow);
+
+    let width = lastColEnd - this.offsetCorrectionX;
+    if (this.canScrollHorizontally) {
+      width = Math.max(width, this.viewportWidth); // if the viewport grid size is smaller than its client width, return client width
+    }
+
+    let height = lastRowEnd - this.offsetCorrectionY;
+    if (this.canScrollVertically) {
+      height = Math.max(height, this.viewportHeight); // if the viewport grid size is smaller than its client height, return client height
+
+      if (lastRowEnd + FOOTER_HEIGHT > height && !this.getters.isReadonly()) {
+        height += FOOTER_HEIGHT;
+      }
+    }
+
+    return { width, height };
+  }
+
+  getScrollbarSize() {
+    const { numberOfCols: minCol, numberOfRows: minRow } = this.getters.getUsedSheetSize(
+      this.sheetId
+    );
+    const col = Math.max(minCol, this.right, SCROLLBAR_MIN_COL) + SCROLLBAR_ADDITIONAL_COL;
+    const row = Math.max(minRow, this.bottom, SCROLLBAR_MIN_ROW) + SCROLLBAR_ADDITIONAL_ROW;
+
+    const lastCol = this.getters.findLastVisibleColRowIndex(this.sheetId, "COL", {
+      first: this.boundaries.left,
+      last: col,
+    });
+    const lastRow = this.getters.findLastVisibleColRowIndex(this.sheetId, "ROW", {
+      first: this.boundaries.top,
+      last: row,
     });
 
     const { end: lastColEnd } = this.getters.getColDimensions(this.sheetId, lastCol);

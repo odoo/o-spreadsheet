@@ -145,8 +145,8 @@ export class Evaluator {
     const sheetSizes: SheetSizes = {};
     for (const sheetId of this.getters.getSheetIds()) {
       sheetSizes[sheetId] = {
-        rows: this.getters.getNumberRows(sheetId),
-        cols: this.getters.getNumberCols(sheetId),
+        rows: this.getters.getLastUsedRow(sheetId),
+        cols: this.getters.getLastUsedCol(sheetId),
       };
     }
     return new PositionSet(sheetSizes);

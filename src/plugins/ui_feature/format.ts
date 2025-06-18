@@ -1,6 +1,7 @@
 import {
   changeDecimalPlaces,
   createDefaultFormat,
+  intersection,
   isDateTimeFormat,
   positions,
   positionToZone,
@@ -40,7 +41,17 @@ export class FormatPlugin extends UIPlugin {
   private setContextualFormat(sheetId: UID, zones: Zone[], format: Format) {
     const measurePositions: CellPosition[] = [];
     const measuresByPivotId: Record<string, Set<string>> = {};
-    for (const zone of recomputeZones(zones)) {
+    const sheetSize = this.getters.getUsedSheetSize(sheetId);
+    const sheetZone = {
+      top: 0,
+      left: 0,
+      bottom: sheetSize.numberOfRows,
+      right: sheetSize.numberOfCols,
+    };
+    for (const z of recomputeZones(zones)) {
+      // todo: je suis pas sur de comprendre pq on doit faire tt ça
+      const zone = intersection(z, sheetZone);
+      if (!zone) continue;
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           const position = { sheetId, col, row };
