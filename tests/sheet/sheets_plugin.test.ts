@@ -1,4 +1,4 @@
-import { FORBIDDEN_SHEETNAME_CHARS } from "../../src/constants";
+import { FORBIDDEN_SHEETNAME_CHARS, MAX_COL_NUMBER, MAX_ROW_NUMBER } from "../../src/constants";
 import {
   getCanonicalSymbolName,
   numberToLetters,
@@ -985,7 +985,7 @@ describe("sheets", () => {
   });
 
   test("Cannot remove more columns/rows than there are inside the sheet", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    const model = new Model();
     expect(deleteRows(model, [0, 1, 2])).toBeCancelledBecause(CommandResult.NotEnoughElements);
     expect(deleteColumns(model, ["A", "B", "C"])).toBeCancelledBecause(
       CommandResult.NotEnoughElements
@@ -1131,39 +1131,37 @@ describe("sheets", () => {
   });
 
   test("Cannot delete non-existing columns", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    let result = deleteColumns(model, [1, 2, 12].map(numberToLetters));
+    let result = deleteColumns(model, [1, 2, MAX_COL_NUMBER + 5].map(numberToLetters));
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = deleteColumns(model, [1, 3].map(numberToLetters));
+    result = deleteColumns(model, [1, MAX_COL_NUMBER].map(numberToLetters));
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
 
     deleteColumns(model, [1, 2].map(numberToLetters));
-    expect(model.getters.getNumberCols(sheetId)).toBe(1);
+    expect(model.getters.getNumberCols(sheetId)).toBe(MAX_COL_NUMBER);
   });
 
   test("Cannot delete non-existing rows", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    let result = deleteRows(model, [1, 2, 26]);
+    let result = deleteRows(model, [1, 2, MAX_ROW_NUMBER + 5]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    result = deleteRows(model, [1, 3]);
+    result = deleteRows(model, [1, MAX_ROW_NUMBER]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
 
     deleteRows(model, [1, 2]);
-    expect(model.getters.getNumberRows(sheetId)).toBe(1);
+    expect(model.getters.getNumberRows(sheetId)).toBe(MAX_ROW_NUMBER);
   });
 
   test("Cannot add cols/row to indexes out of the sheet", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
-    expect(addColumns(model, "after", "Z", 1)).toBeCancelledBecause(
+    const model = new Model();
+    expect(addColumns(model, "after", "ZZZZ", 1)).toBeCancelledBecause(
       CommandResult.InvalidHeaderIndex
     );
-    expect(addColumns(model, "after", "D", 1)).toBeCancelledBecause(
+    expect(addRows(model, "after", MAX_ROW_NUMBER + 10, 1)).toBeCancelledBecause(
       CommandResult.InvalidHeaderIndex
     );
-    expect(addRows(model, "after", 3, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
-    expect(addRows(model, "after", 20, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
 
   test("Cannot add wrong quantity of cols/row", () => {
@@ -1179,16 +1177,26 @@ describe("sheets", () => {
   });
 
   test("GetUnboundedZone works as expected > Range with a full row", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    const zone = toZone("A1:A10");
+    const zone = {
+      left: 0,
+      top: 0,
+      right: 0,
+      bottom: model.getters.getSheetSize(sheetId).numberOfRows - 1,
+    };
     expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, bottom: undefined });
   });
 
   test("GetUnboundedZone works as expected > Range with a full col", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    const zone = toZone("A1:J1");
+    const zone = {
+      left: 0,
+      top: 0,
+      right: model.getters.getSheetSize(sheetId).numberOfCols - 1,
+      bottom: 0,
+    };
     expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, right: undefined });
   });
 
