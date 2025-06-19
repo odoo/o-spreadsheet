@@ -353,6 +353,7 @@ describe("evaluateCells", () => {
     setCellContent(model, "A5", "= - 1 + - 2 * - 3");
     setCellContent(model, "A6", "=1 & 8 + 2");
     setCellContent(model, "A7", "=1 & 10 - 2");
+    setCellContent(model, "A8", "=2^100%");
 
     expect(getEvaluatedCell(model, "A1").value).toBe(7);
     expect(getEvaluatedCell(model, "A2").value).toBe(4);
@@ -361,6 +362,7 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A5").value).toBe(5);
     expect(getEvaluatedCell(model, "A6").value).toBe("110");
     expect(getEvaluatedCell(model, "A7").value).toBe("18");
+    expect(getEvaluatedCell(model, "A8").value).toBe(2);
   });
 
   test("& operator", () => {

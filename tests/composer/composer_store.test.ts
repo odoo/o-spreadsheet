@@ -721,8 +721,7 @@ describe("edition", () => {
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "raiseError");
     composerStore.startEdition();
-    const content = // 101 tokens
-      "=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1";
+    const content = "=" + "+1".repeat(500); // 1001 characters
     composerStore.setCurrentContent(content);
     composerStore.stopEdition();
 
@@ -1184,5 +1183,37 @@ describe("edition", () => {
       store.toggleEditionMode();
       expect(store.editionMode).toBe("inactive");
     });
+  });
+
+  test("Prettify the content depending on the length of the formula", () => {
+    setCellContent(
+      model,
+      "A1",
+      "=SUM(11111111,22222222,33333333,44444444,55555555,66666666,77777777)"
+    );
+    composerStore.startEdition();
+    expect(composerStore.currentContent).toBe(
+      "=SUM(11111111, 22222222, 33333333, 44444444, 55555555, 66666666, 77777777)"
+    );
+
+    setCellContent(
+      model,
+      "A1",
+      "=SUM(11111111,22222222,33333333,44444444,55555555,66666666,77777777,88888888)"
+    );
+    composerStore.startEdition();
+    expect(composerStore.currentContent).toBe(
+      // prettier-ignore
+      "=SUM(\n" +
+      "\t11111111, \n" +
+      "\t22222222, \n" +
+      "\t33333333, \n" +
+      "\t44444444, \n" +
+      "\t55555555, \n" +
+      "\t66666666, \n" +
+      "\t77777777, \n" +
+      "\t88888888\n" +
+      ")"
+    );
   });
 });

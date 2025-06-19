@@ -1,11 +1,5 @@
-import {
-  AST,
-  ASTFuncall,
-  ASTString,
-  astToFormula,
-  convertAstNodes,
-  parse,
-} from "../../formulas/parser";
+import { astToFormula } from "../../formulas/formula_formatter";
+import { AST, ASTFuncall, ASTString, convertAstNodes, parse } from "../../formulas/parser";
 import { functionRegistry } from "../../functions";
 import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";

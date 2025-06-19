@@ -221,13 +221,8 @@ export { tokenColors } from "./components/composer/composer/abstract_composer_st
 export { Spreadsheet } from "./components/index";
 export { setDefaultSheetViewSize } from "./constants";
 export { compile, compileTokens, functionCache } from "./formulas/compiler";
-export {
-  astToFormula,
-  convertAstNodes,
-  iterateAstNodes,
-  parse,
-  parseTokens,
-} from "./formulas/parser";
+export { astToFormula } from "./formulas/formula_formatter";
+export { convertAstNodes, iterateAstNodes, parse, parseTokens } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/figures/charts";
 export { findCellInNewZone } from "./helpers/zones";
