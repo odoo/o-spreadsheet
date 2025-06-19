@@ -20,6 +20,7 @@ import {
   toCartesian,
 } from "../../helpers/index";
 import { isSheetNameEqual } from "../../helpers/sheet";
+import { isFullCol, isFullRow } from "../../helpers/zones";
 import {
   Cell,
   CellPosition,
@@ -518,13 +519,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (zone.bottom === undefined || zone.right === undefined) {
       return zone;
     }
-    const isFullRow = zone.left === 0 && zone.right === this.getNumberCols(sheetId) - 1;
-    const isFullCol = zone.top === 0 && zone.bottom === this.getNumberRows(sheetId) - 1;
+    const fullRow = isFullRow(zone);
+    const fullCol = isFullCol(zone);
     return {
       ...zone,
-      bottom: isFullCol ? undefined : zone.bottom,
+      bottom: fullCol ? undefined : zone.bottom,
       // cannot be unbounded in the 2 dimensions at once
-      right: isFullRow && !isFullCol ? undefined : zone.right,
+      right: fullRow && !fullCol ? undefined : zone.right,
     };
   }
 
