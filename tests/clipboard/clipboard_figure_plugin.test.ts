@@ -1,5 +1,6 @@
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { toXC } from "../../src/helpers";
 import { parseOSClipboardContent } from "../../src/helpers/clipboard/clipboard_helpers";
 import { UID } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart";
@@ -145,7 +146,10 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     });
     model.dispatch("SELECT_FIGURE", { figureId });
     copy(model);
-    paste(model, "Z100");
+    paste(
+      model,
+      toXC(model.getters.getNumberCols(sheetId) - 1, model.getters.getNumberRows(sheetId) - 1)
+    );
     const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId())!;
     const figureUI = model.getters.getFigureUI(sheetId, copiedFigure);
     const maxX = model.getters.getColDimensions(
