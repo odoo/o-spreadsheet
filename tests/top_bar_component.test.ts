@@ -750,7 +750,7 @@ describe("TopBar component", () => {
     )!;
     setCellContent(model, "A1", "=A1+A2");
     await nextTick();
-    expect(topbarComposerElement.textContent).toBe("=A1+A2");
+    expect(topbarComposerElement.textContent).toBe("= A1 + A2");
   });
 });
 

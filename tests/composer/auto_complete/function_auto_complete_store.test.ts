@@ -14,6 +14,6 @@ describe("Function auto complete", () => {
     expect(proposals?.[0].text).toEqual("SUM");
     expect(proposals?.[1].text).toEqual("SUMIF");
     composer.insertAutoCompleteValue(proposals![0].text);
-    expect(composer.currentContent).toEqual("=SUM(");
+    expect(composer.currentContent).toEqual("= SUM(");
   });
 });

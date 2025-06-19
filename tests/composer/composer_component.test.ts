@@ -912,19 +912,19 @@ describe("composer", () => {
   });
 
   test("Can select a right-to-left range that spans multiple span elements", async () => {
-    setCellContent(model, "A1", "=A1+SUM(A2)");
+    setCellContent(model, "A1", "= A1 + SUM( A2 )");
     await nextTick();
     await simulateClick("div.o-composer");
     composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
 
-    composerStore.changeComposerCursorSelection(5, 5);
+    composerStore.changeComposerCursorSelection(8, 8);
     await nextTick();
 
-    composerStore.changeComposerCursorSelection(5, 2);
+    composerStore.changeComposerCursorSelection(8, 3);
     await nextTick();
     const selection = document.getSelection()!;
     await nextTick();
-    expect(selection?.toString()).toBe("1+S");
+    expect(selection?.toString()).toBe("1 + S");
     expect(selection.anchorNode?.textContent).toBe("A1");
     expect(selection.focusNode?.textContent).toBe("SUM");
   });
@@ -1522,7 +1522,7 @@ describe("composer highlights color", () => {
     composerEl = await startComposition();
     expect(composerStore.highlights.length).toBe(1);
     expect(composerStore.highlights[0].color).toBe(colors[0]);
-    expect(composerEl.textContent).toBe("=sum(A1:A10)");
+    expect(composerEl.textContent).toBe("= sum( A1:A10 )");
   });
 
   test("highlight range using +", async () => {
@@ -1543,7 +1543,7 @@ describe("composer highlights color", () => {
     setCellContent(model, "A1", "=A1A");
     composerEl = await startComposition();
     expect(composerStore.highlights.length).toBe(0);
-    expect(composerEl.textContent).toBe("=A1A");
+    expect(composerEl.textContent).toBe("= A1A");
   });
 
   test("highlight cross-sheet ranges", async () => {
