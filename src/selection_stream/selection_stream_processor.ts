@@ -43,7 +43,7 @@ interface SelectionProcessor {
   moveAnchorCell(direction: Direction, step: SelectionStep): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
   addCellToSelection(col: number, row: number): DispatchResult;
-  updateSelection(col: number, row: number): DispatchResult;
+  commitSelection(): DispatchResult;
   resizeAnchorZone(direction: Direction, step: SelectionStep): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectRow(index: number, mode: SelectionEvent["mode"]): DispatchResult;
@@ -218,26 +218,14 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
    * @param row - Target row index or -1 for full row.
    * @returns The result of the selection update dispatch.
    */
-  updateSelection(col: HeaderIndex, row: HeaderIndex): DispatchResult {
-    const sheetId = this.getters.getActiveSheetId();
-    const { col: anchorCol, row: anchorRow } = this.anchor.cell;
-    let zone: Zone = {
-      left: col === -1 ? 0 : Math.min(anchorCol, col),
-      top: row === -1 ? 0 : Math.min(anchorRow, row),
-      right: col === -1 ? this.getters.getNumberCols(sheetId) - 1 : Math.max(anchorCol, col),
-      bottom: row === -1 ? this.getters.getNumberRows(sheetId) - 1 : Math.max(anchorRow, row),
-    };
-    if (col !== -1 && row !== -1) {
-      zone = this.getters.expandZone(sheetId, zone);
-    }
-    const anchor = { zone, cell: { col: anchorCol, row: anchorRow } };
+  commitSelection(): DispatchResult {
     return this.processEvent({
       options: {
         scrollIntoView: false,
         unbounded: true,
       },
-      anchor,
-      mode: "updateSelection",
+      anchor: this.anchor,
+      mode: "commitSelection",
     });
   }
 
@@ -324,7 +312,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
 
   selectColumn(
     index: HeaderIndex,
-    mode: Exclude<SelectionEvent["mode"], "updateSelection">
+    mode: Exclude<SelectionEvent["mode"], "commitSelection">
   ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const bottom = this.getters.getNumberRows(sheetId) - 1;
@@ -354,7 +342,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
 
   selectRow(
     index: HeaderIndex,
-    mode: Exclude<SelectionEvent["mode"], "updateSelection">
+    mode: Exclude<SelectionEvent["mode"], "commitSelection">
   ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const right = this.getters.getNumberCols(sheetId) - 1;

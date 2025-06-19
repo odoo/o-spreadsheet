@@ -16,6 +16,7 @@ import {
   addCellToSelection,
   addColumns,
   addRows,
+  commitSelection,
   createFigure,
   createSheet,
   deleteColumns,
@@ -40,7 +41,6 @@ import {
   setSelection,
   setViewportOffset,
   undo,
-  updateSelection,
 } from "../test_helpers/commands_helpers";
 import {
   getActivePosition,
@@ -1434,7 +1434,7 @@ describe("Grid selection updates zones correctly when deselecting zone", () => {
 
     addCellToSelection(model, "B2");
     setAnchorCorner(model, "B3");
-    updateSelection(model, "B3");
+    commitSelection(model);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("A1"));
     expect(selection.zones).toEqual([
@@ -1453,7 +1453,7 @@ describe("Grid selection updates zones correctly when deselecting zone", () => {
     expect(selection.zones.length).toBe(1);
 
     addCellToSelection(model, "A1");
-    updateSelection(model, "A1");
+    commitSelection(model);
     selection = model.getters.getSelection();
     expect(selection.anchor.cell).toEqual(toCartesian("B1"));
     expect(selection.zones).toEqual([

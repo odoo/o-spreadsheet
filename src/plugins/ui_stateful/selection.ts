@@ -5,7 +5,7 @@ import {
   clip,
   deepCopy,
   isEqual,
-  isZoneAlreadyInZones,
+  isInside,
   isZoneInside,
   positionToZone,
   splitZone,
@@ -122,33 +122,27 @@ export class GridSelectionPlugin extends UIPlugin {
         zones = [anchor.zone];
         break;
       case "updateAnchor":
-        this.isAnchorInsideZones = isZoneAlreadyInZones(anchor.zone, zones) && zones.length > 2;
+        this.isAnchorInsideZones = zones.some((zone) =>
+          isInside(anchor.cell.col, anchor.cell.row, zone)
+        );
         const index = zones.findIndex((z: Zone) => isEqual(z, event.previousAnchor.zone));
         if (index >= 0) {
           zones[index] = anchor.zone;
         }
         break;
       case "newAnchor":
-        this.isAnchorInsideZones = isZoneAlreadyInZones(anchor.zone, zones) && zones.length > 1;
+        this.isAnchorInsideZones = zones.some((zone) =>
+          isInside(anchor.cell.col, anchor.cell.row, zone)
+        );
         zones.push(anchor.zone);
         break;
-      case "updateSelection":
-        let isAnchorChanged = false;
-        const zoneToSplit = zones.find(
-          (zone) => isZoneInside(anchor.zone, zone) && !isEqual(anchor.zone, zone)
-        );
-        if (this.isAnchorInsideZones) {
-          zones = zones.filter((zone) => !isEqual(zone, anchor.zone));
-          isAnchorChanged = true;
-        } else if (zoneToSplit) {
+      case "commitSelection":
+        const zoneToSplit = zones.slice(0, -1).find((zone) => isZoneInside(anchor.zone, zone));
+        if (this.isAnchorInsideZones && zoneToSplit && zones.length > 1) {
+          zones = zones.filter((zone) => zone !== zoneToSplit && !isEqual(anchor.zone, zone));
           const splittedZones = splitZone(anchor.zone, zoneToSplit);
-          zones = zones
-            .filter((z) => !isEqual(z, anchor.zone) && !isEqual(z, zoneToSplit))
-            .concat(splittedZones);
-          isAnchorChanged = true;
-        }
-        const anchorZone = zones[zones.length - 1];
-        if (isAnchorChanged && anchorZone) {
+          zones.push(...splittedZones);
+          const anchorZone = zones[zones.length - 1];
           anchor = {
             cell: { col: anchorZone.left, row: anchorZone.top },
             zone: anchorZone,
