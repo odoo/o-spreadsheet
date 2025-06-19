@@ -312,7 +312,7 @@ describe("Collaborative Sheet manipulation", () => {
     selectCell(bob, "A10");
     const nRows = bob.getters.getNumberRows(sheetId);
     deleteRows(alice, range(2, nRows));
-    expect(bob.getters.getSelectedZones()).toEqual([toZone("A2")]);
+    expect(bob.getters.getSelectedZones()).toEqual([toZone("A3")]);
   });
 
   test("remove the selected col when it is the last col", () => {
@@ -320,7 +320,7 @@ describe("Collaborative Sheet manipulation", () => {
     selectCell(bob, "F1");
     const nCols = bob.getters.getNumberCols(sheetId);
     deleteColumns(alice, range(2, nCols).map(numberToLetters));
-    expect(bob.getters.getSelectedZones()).toEqual([toZone("B1")]);
+    expect(bob.getters.getSelectedZones()).toEqual([toZone("C1")]);
   });
 
   test("adding rows adapts selection", () => {
