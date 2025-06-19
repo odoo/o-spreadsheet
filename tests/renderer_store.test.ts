@@ -12,6 +12,7 @@ import {
   MIN_CF_ICON_MARGIN,
   NEWLINE,
   SELECTION_BORDER_COLOR,
+  TABLE_HOVER_BACKGROUND_COLOR,
 } from "../src/constants";
 import { fontSizeInPixels, toHex, toZone } from "../src/helpers";
 import { Mode } from "../src/model";
@@ -476,9 +477,10 @@ describe("renderer", () => {
       new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const background = "#DC6CDF";
-    const hoverColor = "#017E8414";
-    createTable(model, "A1");
+    const hoverColor = TABLE_HOVER_BACKGROUND_COLOR;
+    createTable(model, "A1", { numberOfHeaders: 0 });
     setStyle(model, "A1", { fillColor: background });
+    setCellContent(model, "A1", "Data");
     model.updateMode("dashboard");
 
     let fillStyle = "";
