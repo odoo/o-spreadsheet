@@ -5,41 +5,43 @@
         <div
           class="o-panel-element o-panel-configuration"
           t-att-class="store.panel !== 'configuration' ? 'inactive' : ''"
-          t-on-click="() => this.store.activatePanel('configuration')">
+          t-on-click="switchPanel.bind(this, 'configuration')">
           <i class="fa fa-sliders"/>
           Configuration
         </div>
         <div
           class="o-panel-element o-panel-design"
           t-att-class="store.panel !== 'design' ? 'inactive' : ''"
-          t-on-click="() => this.store.activatePanel('design')">
+          t-on-click="switchPanel.bind(this, 'design')">
           <i class="fa fa-paint-brush"/>
           Design
         </div>
       </div>
 
       <t t-set="definition" t-value="getChartDefinition(this.figureId)"/>
-      <t t-if="store.panel === 'configuration'">
-        <ChartTypePicker figureId="props.figureId" chartPanelStore="store"/>
-        <t
-          t-component="chartPanel.configuration"
-          definition="definition"
-          figureId="figureId"
-          updateChart.bind="updateChart"
-          canUpdateChart.bind="canUpdateChart"
-          t-key="figureId + definition.type"
-        />
-      </t>
-      <t t-else="">
-        <t
-          t-component="chartPanel.design"
-          definition="definition"
-          figureId="figureId"
-          updateChart.bind="updateChart"
-          canUpdateChart.bind="canUpdateChart"
-          t-key="figureId + definition.type"
-        />
-      </t>
+      <div class="o-panel-content" t-ref="panelContent">
+        <div t-att-class="store.panel !== 'configuration' ? 'hidden' : ''">
+          <ChartTypePicker figureId="props.figureId" chartPanelStore="store"/>
+          <t
+            t-component="chartPanel.configuration"
+            definition="definition"
+            figureId="figureId"
+            updateChart.bind="updateChart"
+            canUpdateChart.bind="canUpdateChart"
+            t-key="figureId + definition.type"
+          />
+        </div>
+        <div t-att-class="store.panel !== 'design' ? 'hidden' : ''">
+          <t
+            t-component="chartPanel.design"
+            definition="definition"
+            figureId="figureId"
+            updateChart.bind="updateChart"
+            canUpdateChart.bind="canUpdateChart"
+            t-key="figureId + definition.type"
+          />
+        </div>
+      </div>
     </div>
   </t>
 </templates>
