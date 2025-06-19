@@ -688,7 +688,7 @@ exports[`TopBar component can set cell format 1`] = `
                   contenteditable="true"
                   inputmode="text"
                   spellcheck="false"
-                  style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
+                  style="padding:5px 0px 5px 8px; max-height:300px; line-height:24px; height:34px; "
                   tabindex="1"
                 />
               </div>
@@ -1807,7 +1807,7 @@ exports[`TopBar component simple rendering 1`] = `
               contenteditable="true"
               inputmode="text"
               spellcheck="false"
-              style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
+              style="padding:5px 0px 5px 8px; max-height:300px; line-height:24px; height:34px; "
               tabindex="1"
             />
           </div>

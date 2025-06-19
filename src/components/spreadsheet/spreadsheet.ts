@@ -318,7 +318,6 @@ css/* scss */ `
     }
   }
 
-  .o-spreadsheet-topbar-wrapper,
   .o-spreadsheet-bottombar-wrapper {
     z-index: ${ComponentsImportance.ScrollBar + 1};
   }

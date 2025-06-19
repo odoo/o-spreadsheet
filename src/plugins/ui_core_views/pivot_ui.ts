@@ -1,5 +1,5 @@
 import { Token } from "../../formulas";
-import { astToFormula } from "../../formulas/parser";
+import { astToFormula } from "../../formulas/formula_formatter";
 import { toScalar } from "../../functions/helper_matrices";
 import { toBoolean } from "../../functions/helpers";
 import { getUniqueText } from "../../helpers";

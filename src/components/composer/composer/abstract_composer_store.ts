@@ -535,11 +535,14 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     if (isNewCurrentContent || this.editionMode !== "inactive") {
       const locale = this.getters.getLocale();
       this.currentTokens = isFormula(text) ? composerTokenize(text, locale) : [];
-      if (this.currentTokens.length > 100) {
+      const nonSpaceTokensCount = this.currentTokens.filter(
+        (token) => token.type !== "SPACE"
+      ).length;
+      if (nonSpaceTokensCount > 1000) {
         if (raise) {
           this.notificationStore.raiseError(
             _t(
-              "This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"
+              "This formula has over 1000 parts. It can't be processed properly, consider splitting it into multiple cells"
             )
           );
         }

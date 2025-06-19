@@ -10,8 +10,6 @@ const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
 const UNARY_OPERATORS_PREFIX = ["-", "+"];
 const UNARY_OPERATORS_POSTFIX = ["%"];
 
-const ASSOCIATIVE_OPERATORS = ["*", "+", "&"];
-
 interface RichToken extends Token {
   tokenIndex: number;
 }
@@ -68,14 +66,14 @@ interface ASTBoolean extends ASTBase {
   value: boolean;
 }
 
-interface ASTUnaryOperation extends ASTBase {
+export interface ASTUnaryOperation extends ASTBase {
   type: "UNARY_OPERATION";
   value: any;
   operand: AST;
   postfix?: boolean; // needed to rebuild string from ast
 }
 
-interface ASTOperation extends ASTBase {
+export interface ASTOperation extends ASTBase {
   type: "BIN_OPERATION";
   value: any;
   left: AST;
@@ -109,9 +107,9 @@ export type AST =
   | ASTReference
   | ASTEmpty;
 
-const OP_PRIORITY = {
+export const OP_PRIORITY = {
+  "%": 40,
   "^": 30,
-  "%": 30,
   "*": 20,
   "/": 20,
   "+": 15,
@@ -413,64 +411,4 @@ export function mapAst<T extends AST["type"]>(
     default:
       return ast;
   }
-}
-
-/**
- * Converts an ast formula to the corresponding string
- */
-export function astToFormula(ast: AST): string {
-  switch (ast.type) {
-    case "FUNCALL":
-      const args = ast.args.map((arg) => astToFormula(arg));
-      return `${ast.value}(${args.join(",")})`;
-    case "NUMBER":
-      return ast.value.toString();
-    case "REFERENCE":
-      return ast.value;
-    case "STRING":
-      return `"${ast.value}"`;
-    case "BOOLEAN":
-      return ast.value ? "TRUE" : "FALSE";
-    case "UNARY_OPERATION":
-      return ast.postfix
-        ? leftOperandToFormula(ast) + ast.value
-        : ast.value + rightOperandToFormula(ast);
-    case "BIN_OPERATION":
-      return leftOperandToFormula(ast) + ast.value + rightOperandToFormula(ast);
-    default:
-      return ast.value;
-  }
-}
-
-/**
- * Convert the left operand of a binary operation to the corresponding string
- * and enclose the result inside parenthesis if necessary.
- */
-function leftOperandToFormula(operationAST: ASTOperation | ASTUnaryOperation): string {
-  const mainOperator = operationAST.value;
-  const leftOperation = "left" in operationAST ? operationAST.left : operationAST.operand;
-  const leftOperator = leftOperation.value;
-  const needParenthesis =
-    leftOperation.type === "BIN_OPERATION" && OP_PRIORITY[leftOperator] < OP_PRIORITY[mainOperator];
-  return needParenthesis ? `(${astToFormula(leftOperation)})` : astToFormula(leftOperation);
-}
-
-/**
- * Convert the right operand of a binary or unary operation to the corresponding string
- * and enclose the result inside parenthesis if necessary.
- */
-function rightOperandToFormula(operationAST: ASTOperation | ASTUnaryOperation): string {
-  const mainOperator = operationAST.value;
-  const rightOperation = "right" in operationAST ? operationAST.right : operationAST.operand;
-  const rightPriority = OP_PRIORITY[rightOperation.value];
-  const mainPriority = OP_PRIORITY[mainOperator];
-  let needParenthesis = false;
-  if (rightOperation.type !== "BIN_OPERATION") {
-    needParenthesis = false;
-  } else if (rightPriority < mainPriority) {
-    needParenthesis = true;
-  } else if (rightPriority === mainPriority && !ASSOCIATIVE_OPERATORS.includes(mainOperator)) {
-    needParenthesis = true;
-  }
-  return needParenthesis ? `(${astToFormula(rightOperation)})` : astToFormula(rightOperation);
 }
