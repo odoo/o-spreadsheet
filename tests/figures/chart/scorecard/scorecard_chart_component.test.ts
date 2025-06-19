@@ -29,6 +29,7 @@ import {
 import { FR_LOCALE } from "../../../test_helpers/constants";
 import { getCellContent } from "../../../test_helpers/getters_helpers";
 import {
+  editStandaloneComposer,
   mountComponentWithPortalTarget,
   nextTick,
   toRangesData,
@@ -644,21 +645,19 @@ describe("Scorecard charts rendering", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     const keyDescrElem = fixture.querySelectorAll(".o-chart-title")[1]!;
-    const keyDescrElemText = keyDescrElem.querySelector("input");
+    const keyDescrElemText = keyDescrElem.querySelector(".o-composer");
     const keyDescrElemBold = keyDescrElem.querySelector("[title=Bold]");
     const keyDescrElemItalic = keyDescrElem.querySelector("[title=Italic]");
     const keyDescrElemFontSize = keyDescrElem.querySelector(
       '[title="Font Size"] input'
     ) as HTMLInputElement;
 
-    expect(keyDescrElemText?.value).toEqual("keykey");
+    expect(keyDescrElemText?.textContent).toEqual("keykey");
     expect(keyDescrElemBold?.className).not.toContain("active");
     expect(keyDescrElemItalic?.className).not.toContain("active");
     expect(keyDescrElemFontSize?.value).toEqual("32");
 
-    keyDescrElemText!.value = "just Key";
-    keyDescrElemText!.dispatchEvent(new Event("change"));
-    await nextTick();
+    await editStandaloneComposer(keyDescrElemText!, "just Key");
 
     let definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
     expect(definition?.keyDescr?.text).toEqual("just Key");
@@ -702,21 +701,19 @@ describe("Scorecard charts rendering", () => {
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
     const baselineDescrElem = fixture.querySelectorAll(".o-chart-title")[1]!;
-    const baselineDescrElemText = baselineDescrElem.querySelector("input");
+    const baselineDescrElemText = baselineDescrElem.querySelector(".o-composer");
     const baselineDescrElemBold = baselineDescrElem.querySelector("[title=Bold]");
     const baselineDescrElemItalic = baselineDescrElem.querySelector("[title=Italic]");
     const baselineDescrElemFontSize = baselineDescrElem.querySelector(
       '[title="Font Size"] input'
     ) as HTMLInputElement;
 
-    expect(baselineDescrElemText?.value).toEqual("keykey");
+    expect(baselineDescrElemText?.textContent).toEqual("keykey");
     expect(baselineDescrElemBold?.className).not.toContain("active");
     expect(baselineDescrElemItalic?.className).not.toContain("active");
     expect(baselineDescrElemFontSize?.value).toEqual("32");
 
-    baselineDescrElemText!.value = "A B C, easy as 1 2 3, do ré mi";
-    baselineDescrElemText!.dispatchEvent(new Event("change"));
-    await nextTick();
+    await editStandaloneComposer(baselineDescrElemText!, "A B C, easy as 1 2 3, do ré mi");
 
     let definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
     expect(definition?.keyDescr?.text).toEqual("A B C, easy as 1 2 3, do ré mi");

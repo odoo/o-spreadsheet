@@ -20,7 +20,7 @@ import {
   Validation,
   isMatrix,
 } from "../../../types";
-import { ChartCreationContext } from "../../../types/chart/chart";
+import { ChartCreationContext, TitleDesign } from "../../../types/chart/chart";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -35,7 +35,13 @@ import { clip, formatValue } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
+import {
+  adaptChartRange,
+  adaptChartTitle,
+  copyChartTitleWithNewSheetId,
+  duplicateLabelRangeInDuplicatedSheet,
+  getEvaluatedChartTitle,
+} from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
@@ -214,7 +220,20 @@ export class GaugeChart extends AbstractChart {
 
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
 
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataRange,
+      sectionRule,
+      updatedChartTitle,
+      newSheetId
+    );
     return new GaugeChart(definition, newSheetId, this.getters);
   }
 
@@ -223,23 +242,38 @@ export class GaugeChart extends AbstractChart {
       this.getters.copyFormulaStringForSheet(this.sheetId, sheetId, formula, "keepSameReference");
 
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
-    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sectionRule, sheetId);
+
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      this.dataRange,
+      sectionRule,
+      updatedChartTitle,
+      sheetId
+    );
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): GaugeChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.dataRange, this.sectionRule);
+    return this.getDefinitionWithSpecifiedProperties(this.dataRange, this.sectionRule, this.title);
   }
 
-  private getDefinitionWithSpecificRanges(
+  private getDefinitionWithSpecifiedProperties(
     dataRange: Range | undefined,
     sectionRule: SectionRule,
+    title: TitleDesign,
     targetSheetId?: UID
   ): GaugeChartDefinition {
     return {
       background: this.background,
       sectionRule: sectionRule,
-      title: this.title,
+      title,
       type: "gauge",
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
@@ -267,7 +301,12 @@ export class GaugeChart extends AbstractChart {
     const adaptFormula = (formula: string) =>
       this.getters.adaptFormulaStringDependencies(this.sheetId, formula, applyChange);
     const sectionRule = adaptSectionRuleFormulas(this.sectionRule, adaptFormula);
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sectionRule);
+    const chartTitle = adaptChartTitle(this.getters, this.sheetId, this.title, applyChange);
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataRange,
+      sectionRule,
+      chartTitle
+    );
     return new GaugeChart(definition, this.sheetId, this.getters);
   }
 }
@@ -351,13 +390,13 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   }
 
   colors.push(chartColors.upperColor);
-
+  const chartTitle = getEvaluatedChartTitle(getters, chart.title);
   return {
     background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
     title: {
-      ...chart.title,
+      ...chartTitle,
       // chart titles are extracted from .json files and they are translated at runtime here
-      text: _t(chart.title.text ?? ""),
+      text: chartTitle.text ? _t(chartTitle.text) : "",
     },
     minValue: {
       value: minValue,

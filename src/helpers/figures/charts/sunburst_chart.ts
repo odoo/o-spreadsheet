@@ -17,6 +17,7 @@ import {
   CustomizedDataSet,
   DataSet,
   ExcelChartDefinition,
+  TitleDesign,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { Validator } from "../../../types/validator";
@@ -25,6 +26,7 @@ import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
+  copyChartTitleWithNewSheetId,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -112,7 +114,7 @@ export class SunburstChart extends AbstractChart {
   }
 
   getDefinition(): SunburstChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecifiedProperties(this.dataSets, this.labelRange, this.title);
   }
 
   getContextCreation(): ChartCreationContext {
@@ -129,9 +131,10 @@ export class SunburstChart extends AbstractChart {
     };
   }
 
-  private getDefinitionWithSpecificDataSets(
+  private getDefinitionWithSpecifiedProperties(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: TitleDesign,
     targetSheetId?: UID
   ): SunburstChartDefinition {
     return {
@@ -145,7 +148,7 @@ export class SunburstChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title,
       showValues: this.showValues,
       showLabels: this.showLabels,
       valuesDesign: this.valuesDesign,
@@ -161,14 +164,34 @@ export class SunburstChart extends AbstractChart {
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      updatedChartTitle,
+      newSheetId
+    );
     return new SunburstChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): SunburstChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
       this.dataSets,
       this.labelRange,
+      updatedChartTitle,
       sheetId
     );
     return new SunburstChart(definition, sheetId, this.getters);
@@ -179,16 +202,19 @@ export class SunburstChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): SunburstChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, chartTitle, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
       this.dataSets,
+      this.title,
+      undefined,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecifiedProperties(dataSets, labelRange, chartTitle);
     return new SunburstChart(definition, this.sheetId, this.getters);
   }
 }
@@ -210,7 +236,7 @@ export function createSunburstChartRuntime(
       ...(CHART_COMMON_OPTIONS as ChartOptions<"doughnut">),
       layout: getChartLayout(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, chartData),
         legend: getSunburstChartLegend(definition, chartData),
         tooltip: getSunburstChartTooltip(definition, chartData),
         sunburstLabelsPlugin: getSunburstShowValues(definition, chartData),
