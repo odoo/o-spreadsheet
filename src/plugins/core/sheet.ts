@@ -498,7 +498,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     };
   }
 
-  getSheetSize(sheetId: UID): ZoneDimension {
+  getSheetSize(sheetId: UID = ""): ZoneDimension {
     return {
       numberOfRows: MAX_ROW_NUMBER,
       numberOfCols: MAX_COL_NUMBER,
@@ -662,8 +662,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     const sheet: Sheet = {
       id,
       name,
-      lastUsedCol: 1,
-      lastUsedRow: 1,
+      lastUsedCol: 10,
+      lastUsedRow: 10,
       rows: {},
       areGridLinesVisible: true,
       isVisible: true,
