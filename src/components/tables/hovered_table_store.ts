@@ -1,4 +1,5 @@
-import { setColorAlpha } from "../../helpers";
+import { TABLE_HOVER_BACKGROUND_COLOR } from "../../constants";
+import { range } from "../../helpers";
 import { PositionMap } from "../../plugins/ui_core_views/cell_evaluation/position_map";
 import { SpreadsheetStore } from "../../stores";
 import { Color, Command, Position } from "../../types";
@@ -34,12 +35,8 @@ export class HoveredTableStore extends SpreadsheetStore {
   }
 
   private computeOverlay() {
-    if (!this.getters.isDashboard()) {
-      return;
-    }
     this.overlayColors = new PositionMap();
-    const col = this.col;
-    const row = this.row;
+    const { col, row } = this;
     if (col === undefined || row === undefined) {
       return;
     }
@@ -48,9 +45,19 @@ export class HoveredTableStore extends SpreadsheetStore {
     if (!table) {
       return;
     }
-    const { left, right } = table.range.zone;
-    for (let c = left; c <= right; c++) {
-      this.overlayColors.set({ sheetId, col: c, row }, setColorAlpha("#017E84", 0.08));
+    const { left, right, top } = table.range.zone;
+    const isTableHeader = row < top + table.config.numberOfHeaders;
+    const doesTableRowHaveContent = range(left, right + 1).some((col) => {
+      return (
+        !this.getters.isColHidden(sheetId, col) &&
+        this.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue
+      );
+    });
+
+    if (!isTableHeader && doesTableRowHaveContent) {
+      for (let col = left; col <= right; col++) {
+        this.overlayColors.set({ sheetId, col, row }, TABLE_HOVER_BACKGROUND_COLOR);
+      }
     }
   }
 }
