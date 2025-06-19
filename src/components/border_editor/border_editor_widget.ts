@@ -1,6 +1,13 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { BorderPosition, BorderStyle, Color, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
+import {
+  BorderPositionDescr,
+  BorderStyle,
+  Color,
+  Pixel,
+  Rect,
+  SpreadsheetChildEnv,
+} from "../../types";
 import { ToolBarDropdownStore, useToolBarDropdownStore } from "../helpers/top_bar_tool_hook";
 import { BorderEditor } from "./border_editor";
 
@@ -13,7 +20,7 @@ interface Props {
 interface State {
   currentColor: Color;
   currentStyle: BorderStyle;
-  currentPosition: BorderPosition | undefined;
+  currentPosition: BorderPositionDescr | undefined;
 }
 
 export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
@@ -57,7 +64,7 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  onBorderPositionPicked(position: BorderPosition) {
+  onBorderPositionPicked(position: BorderPositionDescr) {
     this.state.currentPosition = position;
     this.updateBorder();
   }

@@ -1,7 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { BUTTON_ACTIVE_BG, BUTTON_HOVER_BG, GRAY_300 } from "../../constants";
 import {
-  BorderPosition,
+  BorderPositionDescr,
   BorderStyle,
   Color,
   Pixel,
@@ -24,7 +24,7 @@ interface State {
  * The structure of this array is defined to match the order/lines we want
  * to display in the topbar's border tool.
  */
-const BORDER_POSITIONS: [BorderPosition, string][][] = [
+const BORDER_POSITIONS: [BorderPositionDescr, string][][] = [
   [
     ["all", "o-spreadsheet-Icon.BORDERS"],
     ["hv", "o-spreadsheet-Icon.BORDER_HV"],
@@ -45,10 +45,10 @@ export interface BorderEditorProps {
   class?: string;
   currentBorderColor: Color;
   currentBorderStyle: BorderStyle;
-  currentBorderPosition: BorderPosition | undefined;
+  currentBorderPosition: BorderPositionDescr | undefined;
   onBorderColorPicked: (color: Color) => void;
   onBorderStylePicked: (style: BorderStyle) => void;
-  onBorderPositionPicked: (position: BorderPosition) => void;
+  onBorderPositionPicked: (position: BorderPositionDescr) => void;
   maxHeight?: Pixel;
   anchorRect: Rect;
 }
@@ -161,7 +161,7 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
     this.state.activeTool = undefined;
   }
 
-  setBorderPosition(position: BorderPosition) {
+  setBorderPosition(position: BorderPositionDescr) {
     this.props.onBorderPositionPicked(position);
     this.closeDropdown();
   }

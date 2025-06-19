@@ -1,5 +1,6 @@
+import { BorderDescr, OldBorder } from "./border";
 import { DateCriterionValue, GenericCriterionType } from "./generic_criterion";
-import { Border, BorderDescr, Style, TableId, UID } from "./misc";
+import { Style, TableId, UID } from "./misc";
 import { Range } from "./range";
 
 export interface Table {
@@ -45,7 +46,7 @@ export interface TableConfig {
 }
 
 export interface ComputedTableStyle {
-  borders: Border[][];
+  borders: OldBorder[][];
   styles: Style[][];
 }
 
@@ -55,7 +56,7 @@ export interface TableElementStyle {
   size?: number;
 }
 
-export interface TableBorder extends Border {
+export interface TableBorder extends OldBorder {
   // used to describe borders inside of a zone
   horizontal?: BorderDescr;
   vertical?: BorderDescr;

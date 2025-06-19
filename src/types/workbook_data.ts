@@ -3,11 +3,11 @@ import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
 import {
-  Border,
   Color,
   Dimension,
   HeaderGroup,
   HeaderIndex,
+  OldBorder,
   PaneDivision,
   Pixel,
   PixelPosition,
@@ -73,7 +73,7 @@ export interface WorkbookData {
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };
-  borders: { [key: number]: Border };
+  borders: { [key: number]: OldBorder };
   pivots: { [key: string]: PivotData };
   pivotNextId: number;
   revisionId: UID;

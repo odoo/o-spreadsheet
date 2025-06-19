@@ -9,11 +9,11 @@ import {
 } from "./index";
 import {
   Border,
-  BorderData,
   CellPosition,
   Color,
   Dimension,
   HeaderIndex,
+  OldBorder,
   Pixel,
   PixelPosition,
   SetDecimalStep,
@@ -619,17 +619,17 @@ export interface SetFormattingCommand extends TargetDependentCommand {
 
 export interface SetZoneBordersCommand extends TargetDependentCommand {
   type: "SET_ZONE_BORDERS";
-  border: BorderData;
+  border: OldBorder;
 }
 
 export interface SetBorderCommand extends PositionDependentCommand {
   type: "SET_BORDER";
-  border: Border | undefined;
+  border: OldBorder | undefined;
 }
 
 export interface SetBorderTargetCommand extends TargetDependentCommand {
   type: "SET_BORDERS_ON_TARGET";
-  border: Border | undefined;
+  border: OldBorder | undefined;
 }
 
 export interface ClearFormattingCommand extends TargetDependentCommand {

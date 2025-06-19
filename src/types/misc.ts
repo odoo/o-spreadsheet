@@ -158,27 +158,6 @@ export interface CellPosition {
   sheetId: UID;
 }
 
-export const borderStyles = ["thin", "medium", "thick", "dashed", "dotted"] as const;
-export type BorderStyle = (typeof borderStyles)[number];
-// A complete border description is a pair [style, color]
-export type BorderDescr = { style: BorderStyle; color: Color };
-
-/**
- * A complete border(s) data is a set of position-color-style information
- */
-export type BorderData = {
-  position: BorderPosition;
-  color?: Color;
-  style?: BorderStyle;
-};
-
-export interface Border {
-  top?: BorderDescr;
-  left?: BorderDescr;
-  bottom?: BorderDescr;
-  right?: BorderDescr;
-}
-
 export type ReferenceDenormalizer = (
   range: Range,
   isMeta: boolean,
@@ -235,7 +214,6 @@ export interface ClipboardCell {
   style?: Style | undefined;
   format?: Format | undefined;
   tokens?: Token[];
-  border?: Border;
 }
 
 export interface HeaderDimensions {
@@ -280,18 +258,6 @@ export interface PaneDivision {
   /** Represents the number of frozen rows */
   ySplit: number;
 }
-
-export type BorderPosition =
-  | "all"
-  | "hv"
-  | "h"
-  | "v"
-  | "external"
-  | "left"
-  | "top"
-  | "right"
-  | "bottom"
-  | "clear";
 
 export const enum DIRECTION {
   UP = "up",

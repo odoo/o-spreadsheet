@@ -24,12 +24,12 @@ import {
   deepEquals,
   drawDecoratedText,
   numberToLetters,
-  overlap,
   positionToZone,
   union,
   zoneHasCol,
   zoneHasRow,
 } from "../helpers/index";
+import { boundUnboundedZone } from "../helpers/zones";
 import { Get, Store } from "../store_engine";
 import {
   Align,
@@ -88,7 +88,7 @@ export class GridRenderer {
           this.drawBackground(renderingContext, boxes);
           this.drawOverflowingCellBackground(renderingContext, boxes);
           this.drawCellBackground(renderingContext, boxes);
-          this.drawBorders(renderingContext, boxes);
+          this.drawBorders(renderingContext, zone);
           this.drawTexts(renderingContext, boxes);
           this.drawIcon(renderingContext, boxes);
           ctx.restore();
@@ -186,23 +186,57 @@ export class GridRenderer {
     }
   }
 
-  private drawBorders(renderingContext: GridRenderingContext, boxes: Box[]) {
+  private drawBorders(renderingContext: GridRenderingContext, zone: Zone) {
     const { ctx } = renderingContext;
-    for (const box of boxes) {
-      const border = box.border;
-      if (border) {
-        const { x, y, width, height } = box;
-        if (border.left) {
-          drawBorder(border.left, x, y, x, y + height);
+    const activeBorders = this.getters.getBorders(this.getters.getActiveSheetId());
+    for (const border of activeBorders) {
+      const { x, y, width, height } = this.getters.getVisibleRect(
+        boundUnboundedZone(border.zone, this.getters.getSheetSize())
+      );
+      const position = border.border.position;
+      if (position.left && zone.left <= border.zone.left && border.zone.left <= zone.right) {
+        drawBorder(border.border, x, y, x, y + height);
+      }
+      if (position.top && zone.top <= border.zone.top && border.zone.top <= zone.bottom) {
+        drawBorder(border.border, x, y, x + width, y);
+      }
+      if (
+        position.right &&
+        border.zone.right &&
+        zone.left <= border.zone.right &&
+        border.zone.right <= zone.right
+      ) {
+        drawBorder(border.border, x + width, y, x + width, y + height);
+      }
+      if (
+        position.bottom &&
+        border.zone.bottom &&
+        zone.top <= border.zone.bottom &&
+        border.zone.bottom <= zone.bottom
+      ) {
+        drawBorder(border.border, x, y + height, x + width, y + height);
+      }
+      if (position.vertical) {
+        const start = Math.max(border.zone.left + 1, zone.left);
+        const stop = border.zone.right ? Math.min(zone.right, border.zone.right - 1) : zone.right;
+        for (let i = start; i <= stop; i++) {
+          const { x, y, height } = this.getters.getVisibleRect(
+            boundUnboundedZone({ ...border.zone, left: i }, this.getters.getSheetSize())
+          );
+          drawBorder(border.border, x, y, x, y + height);
         }
-        if (border.top) {
-          drawBorder(border.top, x, y, x + width, y);
-        }
-        if (border.right) {
-          drawBorder(border.right, x + width, y, x + width, y + height);
-        }
-        if (border.bottom) {
-          drawBorder(border.bottom, x, y + height, x + width, y + height);
+      }
+
+      if (position.horizontal) {
+        const start = Math.max(border.zone.top + 1, zone.top);
+        const stop = border.zone.bottom
+          ? Math.min(zone.bottom, border.zone.bottom - 1)
+          : zone.bottom;
+        for (let i = start; i <= stop; i++) {
+          const { x, y, width } = this.getters.getVisibleRect(
+            boundUnboundedZone({ ...border.zone, top: i }, this.getters.getSheetSize())
+          );
+          drawBorder(border.border, x, y, x + width, y);
         }
       }
     }
@@ -533,12 +567,12 @@ export class GridRenderer {
     while (col < max) {
       const position = { sheetId, col: col + 1, row };
       const nextCell = this.getters.getEvaluatedCell(position);
-      const nextCellBorder = this.getters.getCellComputedBorder(position);
+      // const nextCellBorder = this.getters.getCellComputedBorder(position);
       const doesCellHaveGridIcon = this.getters.doesCellHaveGridIcon(position);
       if (
         nextCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
-        nextCellBorder?.left ||
+        // nextCellBorder?.left ||
         doesCellHaveGridIcon
       ) {
         return col;
@@ -554,12 +588,12 @@ export class GridRenderer {
     while (col > min) {
       const position = { sheetId, col: col - 1, row };
       const previousCell = this.getters.getEvaluatedCell(position);
-      const previousCellBorder = this.getters.getCellComputedBorder(position);
+      // const previousCellBorder = this.getters.getCellComputedBorder(position);
       const doesCellHaveGridIcon = this.getters.doesCellHaveGridIcon(position);
       if (
         previousCell.type !== CellValueType.empty ||
         this.getters.isInMerge(position) ||
-        previousCellBorder?.right ||
+        // previousCellBorder?.right ||
         doesCellHaveGridIcon
       ) {
         return col;
@@ -665,8 +699,8 @@ export class GridRenderer {
         nextColIndex = this.getters.getMerge(position)!.right;
         previousColIndex = col;
       } else {
-        nextColIndex = box.border?.right ? zone.right : this.findNextEmptyCol(col, right, row);
-        previousColIndex = box.border?.left ? zone.left : this.findPreviousEmptyCol(col, left, row);
+        nextColIndex = this.findNextEmptyCol(col, right, row);
+        previousColIndex = this.findPreviousEmptyCol(col, left, row);
         box.isOverflow = true;
       }
 
@@ -750,26 +784,26 @@ export class GridRenderer {
         boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
       }
     }
-    for (const merge of this.getters.getMerges(sheetId)) {
-      if (this.getters.isMergeHidden(sheetId, merge)) {
-        continue;
-      }
-      if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport);
-        const borderBottomRight = this.getters.getCellComputedBorder({
-          sheetId,
-          col: merge.right,
-          row: merge.bottom,
-        });
-        box.border = {
-          ...box.border,
-          bottom: borderBottomRight ? borderBottomRight.bottom : undefined,
-          right: borderBottomRight ? borderBottomRight.right : undefined,
-        };
-        box.isMerge = true;
-        boxes.push(box);
-      }
-    }
+    // for (const merge of this.getters.getMerges(sheetId)) {
+    // if (this.getters.isMergeHidden(sheetId, merge)) {
+    //   continue;
+    // }
+    // if (overlap(merge, viewport)) {
+    //   const box = this.createZoneBox(sheetId, merge, viewport);
+    //   const borderBottomRight = this.getters.getCellComputedBorder({
+    //     sheetId,
+    //     col: merge.right,
+    //     row: merge.bottom,
+    //   });
+    //   box.border = {
+    //     ...box.border,
+    //     bottom: borderBottomRight ? borderBottomRight.bottom : undefined,
+    //     right: borderBottomRight ? borderBottomRight.right : undefined,
+    //   };
+    //   box.isMerge = true;
+    //   boxes.push(box);
+    // }
+    // }
     return boxes;
   }
 }
