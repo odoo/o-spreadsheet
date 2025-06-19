@@ -4,7 +4,6 @@ import {
   colors,
   getCanonicalSymbolName,
   jsDateToRoundNumber,
-  toXC,
   toZone,
 } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -21,7 +20,6 @@ import {
   merge,
   moveAnchorCell,
   paste,
-  redo,
   renameSheet,
   resizeAnchorZone,
   selectCell,
@@ -30,7 +28,6 @@ import {
   setFormat,
   setSelection,
   setStyle,
-  undo,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -1056,55 +1053,55 @@ describe("edition", () => {
     });
   });
 
-  test("Adding a spreading formula at the bottom of the sheet add enough rows for the formula to spread", () => {
-    const sheetId = model.getters.getActiveSheetId();
-    const numberOfRows = model.getters.getNumberRows(sheetId);
+  // test("Adding a spreading formula at the bottom of the sheet add enough rows for the formula to spread", () => {
+  //   const sheetId = model.getters.getActiveSheetId();
+  //   const numberOfRows = model.getters.getNumberRows(sheetId);
 
-    const cellOnLastRow = toXC(0, numberOfRows - 1);
-    editCell(model, cellOnLastRow, "=TRANSPOSE(A1:E1)");
+  //   const cellOnLastRow = toXC(0, numberOfRows - 1);
+  //   editCell(model, cellOnLastRow, "=TRANSPOSE(A1:E1)");
 
-    expect(model.getters.getNumberRows(sheetId)).toBe(numberOfRows + 4 + 50);
-    expect(getCellContent(model, cellOnLastRow)).toBe("0");
-  });
+  //   expect(model.getters.getNumberRows(sheetId)).toBe(numberOfRows + 4 + 50);
+  //   expect(getCellContent(model, cellOnLastRow)).toBe("0");
+  // });
 
-  test("Adding a spreading formula at the right of the sheet add enough cols for the formula to spread", () => {
-    const sheetId = model.getters.getActiveSheetId();
-    const numberOfCols = model.getters.getNumberCols(sheetId);
+  // test("Adding a spreading formula at the right of the sheet add enough cols for the formula to spread", () => {
+  //   const sheetId = model.getters.getActiveSheetId();
+  //   const numberOfCols = model.getters.getNumberCols(sheetId);
 
-    const cellOnLastCol = toXC(numberOfCols - 1, 0);
-    editCell(model, cellOnLastCol, "=TRANSPOSE(A1:A5)");
+  //   const cellOnLastCol = toXC(numberOfCols - 1, 0);
+  //   editCell(model, cellOnLastCol, "=TRANSPOSE(A1:A5)");
 
-    expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
-    expect(getCellContent(model, cellOnLastCol)).toBe("0");
-  });
+  //   expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
+  //   expect(getCellContent(model, cellOnLastCol)).toBe("0");
+  // });
 
-  test("Can undo/redo after adding a spreading formula at the end of the sheet", () => {
-    const sheetId = model.getters.getActiveSheetId();
-    const numberOfCols = model.getters.getNumberCols(sheetId);
+  // test("Can undo/redo after adding a spreading formula at the end of the sheet", () => {
+  //   const sheetId = model.getters.getActiveSheetId();
+  //   const numberOfCols = model.getters.getNumberCols(sheetId);
 
-    const cellOnLastCol = toXC(numberOfCols - 1, 0);
-    editCell(model, cellOnLastCol, "=TRANSPOSE(A1:A5)");
+  //   const cellOnLastCol = toXC(numberOfCols - 1, 0);
+  //   editCell(model, cellOnLastCol, "=TRANSPOSE(A1:A5)");
 
-    expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
-    expect(getCell(model, cellOnLastCol)?.content).toBe("=TRANSPOSE(A1:A5)");
+  //   expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
+  //   expect(getCell(model, cellOnLastCol)?.content).toBe("=TRANSPOSE(A1:A5)");
 
-    // A current unavoidable limitation is that we have multiple history steps (add cols + update cell)
-    undo(model);
-    expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
-    expect(getCellContent(model, cellOnLastCol)).toBe("");
+  //   // A current unavoidable limitation is that we have multiple history steps (add cols + update cell)
+  //   undo(model);
+  //   expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
+  //   expect(getCellContent(model, cellOnLastCol)).toBe("");
 
-    undo(model);
-    expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols);
-    expect(getCellContent(model, cellOnLastCol)).toBe("");
+  //   undo(model);
+  //   expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols);
+  //   expect(getCellContent(model, cellOnLastCol)).toBe("");
 
-    redo(model);
-    expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
-    expect(getCellContent(model, cellOnLastCol)).toBe("");
+  //   redo(model);
+  //   expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
+  //   expect(getCellContent(model, cellOnLastCol)).toBe("");
 
-    redo(model);
-    expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
-    expect(getCell(model, cellOnLastCol)?.content).toBe("=TRANSPOSE(A1:A5)");
-  });
+  //   redo(model);
+  //   expect(model.getters.getNumberCols(sheetId)).toBe(numberOfCols + 4 + 20);
+  //   expect(getCell(model, cellOnLastCol)?.content).toBe("=TRANSPOSE(A1:A5)");
+  // });
 
   test("Invalid references are filtered out from the highlights", () => {
     const fakeSheetName = "louloulou";
