@@ -16,6 +16,7 @@ import {
   createSheet,
   paste,
   setSelection,
+  undo,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import {
@@ -1154,6 +1155,13 @@ describe("UI of conditional formats", () => {
     expect(
       fixture.querySelector(selectors.colorScaleEditor.midColor)?.parentElement?.classList
     ).toContain("invisible");
+  });
+
+  test("Undo the creation of a new CF will switch the panel to the list mode", async () => {
+    await click(fixture, selectors.buttonAdd);
+    undo(model);
+    await nextTick();
+    expect(selectors.listPreviewPanel).toHaveCount(1);
   });
 
   describe("Icon set CF", () => {
