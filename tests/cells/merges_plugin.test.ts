@@ -1,5 +1,5 @@
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
-import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/index";
 import {
@@ -123,9 +123,16 @@ describe("merges", () => {
   });
 
   test("merge outside the sheet is refused", () => {
-    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    expect(merge(model, "A1:C3")).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+    const limit = model.getters.getSheetSize(sheetId);
+    const xc = zoneToXc({
+      left: limit.numberOfCols - 2,
+      right: limit.numberOfCols + 2,
+      top: limit.numberOfRows - 2,
+      bottom: limit.numberOfRows + 2,
+    });
+    expect(merge(model, xc)).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     const { col, row } = toCartesian("A1");
 
     expect(model.getters.getMerge({ sheetId, col, row })).toBeUndefined();
@@ -326,7 +333,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    merge(model, "A1:B1");
+    unMerge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -343,7 +350,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    merge(model, "A1:B1");
+    unMerge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });
@@ -359,7 +366,7 @@ describe("merges", () => {
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
 
-    merge(model, "A1:B1");
+    unMerge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
   });

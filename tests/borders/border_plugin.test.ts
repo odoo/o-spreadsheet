@@ -1,4 +1,5 @@
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
+import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
@@ -394,8 +395,8 @@ describe("borders", () => {
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new Model();
     selectCell(model, "A1");
-
-    setAnchorCorner(model, "Z100");
+    const limit = model.getters.getSheetSize();
+    setAnchorCorner(model, toXC(limit.numberOfCols - 1, limit.numberOfRows - 1));
     const activeSheetId = model.getters.getActiveSheetId();
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,
