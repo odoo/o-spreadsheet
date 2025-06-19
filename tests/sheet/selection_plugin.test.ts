@@ -47,7 +47,7 @@ import {
   getCellContent,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
-import { addTestPlugin } from "../test_helpers/helpers";
+import { addTestPlugin, target } from "../test_helpers/helpers";
 
 let model: Model;
 const hiddenContent = "hidden content to be skipped";
@@ -1460,5 +1460,21 @@ describe("Grid selection updates zones correctly when deselecting zone", () => {
       { left: 0, right: 1, top: 2, bottom: 2 }, // right
       { left: 1, right: 1, top: 0, bottom: 1 }, // bottom
     ]);
+  });
+
+  test("cannot deselect a single column", () => {
+    selectColumn(model, 0, "overrideSelection");
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+    selectColumn(model, 0, "newAnchor");
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+  });
+
+  test("can deselect a single column when there are more than one", () => {
+    selectColumn(model, 0, "overrideSelection");
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+    selectColumn(model, 2, "newAnchor");
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5,C1:C5"));
+    selectColumn(model, 2, "newAnchor");
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
   });
 });

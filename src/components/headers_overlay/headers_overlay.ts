@@ -143,6 +143,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   _computeGrabDisplay(ev: MouseEvent) {
     if (isCtrlKey(ev)) {
+      this.state.waitingForMove = false;
       return;
     }
     const index = this._getElementIndex(this._getEvOffset(ev));
@@ -217,11 +218,9 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     if (index < 0) {
       return;
     }
-    if (this.state.waitingForMove) {
+    if (!isCtrlKey(ev) && this.state.waitingForMove) {
       if (!this.env.model.getters.isGridSelectionActive()) {
         this._selectElement(index, false);
-      } else if (isCtrlKey(ev)) {
-        this._selectElement(index, isCtrlKey(ev));
       } else {
         // FIXME: Consider reintroducing this feature for all type of selection if we find
         // a way to have the grid selection follow the other selections evolution

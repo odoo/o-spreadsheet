@@ -948,7 +948,9 @@ export function selectColumn(
   col: number,
   mode: "overrideSelection" | "updateAnchor" | "newAnchor"
 ) {
-  return model.selection.selectColumn(col, mode);
+  const result = model.selection.selectColumn(col, mode);
+  commitSelection(model);
+  return result;
 }
 
 export function selectRow(

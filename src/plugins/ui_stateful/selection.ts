@@ -137,7 +137,7 @@ export class GridSelectionPlugin extends UIPlugin {
         zones.push(anchor.zone);
         break;
       case "commitSelection":
-        const zoneToSplit = zones.slice(0, -1).find((zone) => isZoneInside(anchor.zone, zone));
+        const zoneToSplit = zones.find((zone) => isZoneInside(anchor.zone, zone));
         if (this.isAnchorInsideZones && zoneToSplit && zones.length > 1) {
           zones = zones.filter((zone) => zone !== zoneToSplit && !isEqual(anchor.zone, zone));
           const splittedZones = splitZone(anchor.zone, zoneToSplit);
