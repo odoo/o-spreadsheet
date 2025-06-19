@@ -1,3 +1,4 @@
+import { parseTokens } from "../../../formulas/parser";
 import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { parseLiteral } from "../../../helpers/cells";
 import {
@@ -27,6 +28,7 @@ import {
   isMatrix,
 } from "../../../types";
 import { AbstractComposerStore } from "./abstract_composer_store";
+import { prettify } from "./prettifier_content";
 
 const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
@@ -202,7 +204,10 @@ export class CellComposerStore extends AbstractComposerStore {
     const locale = this.getters.getLocale();
     const cell = this.getters.getCell(position);
     if (cell?.isFormula) {
-      return localizeFormula(cell.content, locale);
+      const pretifiedContent = cell.compiledFormula.isBadExpression
+        ? cell.content
+        : prettify(parseTokens(cell.compiledFormula.tokens));
+      return localizeFormula(pretifiedContent, locale);
     }
     const spreader = this.model.getters.getArrayFormulaSpreadingOn(position);
     if (spreader) {
