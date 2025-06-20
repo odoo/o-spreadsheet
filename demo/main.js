@@ -32,8 +32,8 @@ const NOTIFICATION_STYLE =
   z-index:10000;\
   width:140px;";
 
-topbarMenuRegistry.addChild("clear", ["file"], {
-  name: "Clear & reload",
+topbarMenuRegistry.addChild("reload", ["file"], {
+  name: "Clear & reload demo",
   sequence: 10,
   execute: async (env) => {
     await fetch("http://localhost:9090/clear");
@@ -74,7 +74,23 @@ class Demo extends Component {
       name: "Local",
     };
 
+<<<<<<< 0d81931ddfe41d14527fce6a607c0adf44178fbc
     this.fileStore = new FileStore();
+||||||| 2ff9f1ab0ea3380c3897c24fb15e66d560b5bf57
+=======
+    topbarMenuRegistry.addChild("clear", ["file"], {
+      name: "Clear",
+      sequence: 11,
+      action: async (env) => {
+        this.leaveCollaborativeSession();
+        await fetch(`http://${window.location.hostname}:9090/clear`);
+        await this.initiateConnection({});
+        this.state.key = this.state.key + 1;
+      },
+      icon: "o-spreadsheet-Icon.CLEAR_AND_RELOAD",
+    });
+
+>>>>>>> 558e94d332153e20ae2f657d4d277a9d1f10c818
     topbarMenuRegistry.addChild("readonly", ["file"], {
       name: "Open in read-only",
       sequence: 11,
