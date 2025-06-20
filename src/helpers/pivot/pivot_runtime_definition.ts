@@ -132,7 +132,7 @@ export function createPivotDimension(
      * Get the type of the field of the dimension
      * e.g. "stage_id" -> "many2one", "create_date:month" -> "date"
      */
-    type,
+    type: field?.isCustomField ? "char" : type,
 
     order: dimension.order,
 

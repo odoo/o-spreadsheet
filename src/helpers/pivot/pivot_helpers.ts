@@ -422,7 +422,7 @@ export function addPivotCustomFieldsToFields(
       continue;
     }
     fields[customField.name] = {
-      type: "char",
+      type: "char", // ADRM TODO: maybe new "custom" type ? See with someone what it means for normalization & such
       isCustomField: true,
       name: customField.name,
       string: customField.name,
