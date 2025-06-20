@@ -1102,6 +1102,23 @@ describe("Grid component", () => {
       expect(model.getters.getConditionalFormats(sheetId)[0].ranges).toEqual(["A1", "C8"]);
     });
 
+    test("Pasting format from merged cells applies merge and updates selection", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      merge(model, "B1:B3");
+      setSelection(model, ["B1:B3"]);
+
+      expect(model.getters.getMerges(sheetId)).toMatchObject([toZone("B1:B3")]);
+      expect(model.getters.getSelectedZones()).toMatchObject([toZone("B1:B3")]);
+
+      paintFormatStore.activate({ persistent: false });
+
+      gridMouseEvent(model, "pointerdown", "A1");
+      gridMouseEvent(model, "pointerup", "A1");
+
+      expect(model.getters.getSelectedZones()).toMatchObject([toZone("A1:A3")]);
+      expect(model.getters.getMerges(sheetId)).toMatchObject([toZone("B1:B3"), toZone("A1:A3")]);
+    });
+
     test("can keep the paint format mode persistently", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
