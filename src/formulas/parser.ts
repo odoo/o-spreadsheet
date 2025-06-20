@@ -109,9 +109,9 @@ export type AST =
   | ASTReference
   | ASTEmpty;
 
-const OP_PRIORITY = {
+export const OP_PRIORITY = {
+  "%": 40,
   "^": 30,
-  "%": 30,
   "*": 20,
   "/": 20,
   "+": 15,
@@ -432,45 +432,52 @@ export function astToFormula(ast: AST): string {
     case "BOOLEAN":
       return ast.value ? "TRUE" : "FALSE";
     case "UNARY_OPERATION":
-      return ast.postfix
-        ? leftOperandToFormula(ast) + ast.value
-        : ast.value + rightOperandToFormula(ast);
+      if (ast.postfix) {
+        const leftOperand = leftOperandNeedsParenthesis(ast)
+          ? `(${astToFormula(ast.operand)})`
+          : astToFormula(ast.operand);
+        return leftOperand + ast.value;
+      }
+      const rightOperand = rightOperandNeedsParenthesis(ast)
+        ? `(${astToFormula(ast.operand)})`
+        : astToFormula(ast.operand);
+      return ast.value + rightOperand;
     case "BIN_OPERATION":
-      return leftOperandToFormula(ast) + ast.value + rightOperandToFormula(ast);
+      const leftOperation = leftOperandNeedsParenthesis(ast)
+        ? `(${astToFormula(ast.left)})`
+        : astToFormula(ast.left);
+      const rightOperation = rightOperandNeedsParenthesis(ast)
+        ? `(${astToFormula(ast.right)})`
+        : astToFormula(ast.right);
+      return leftOperation + ast.value + rightOperation;
     default:
       return ast.value;
   }
 }
 
-/**
- * Convert the left operand of a binary operation to the corresponding string
- * and enclose the result inside parenthesis if necessary.
- */
-function leftOperandToFormula(operationAST: ASTOperation | ASTUnaryOperation): string {
+export function leftOperandNeedsParenthesis(
+  operationAST: ASTOperation | ASTUnaryOperation
+): boolean {
   const mainOperator = operationAST.value;
   const leftOperation = "left" in operationAST ? operationAST.left : operationAST.operand;
   const leftOperator = leftOperation.value;
-  const needParenthesis =
-    leftOperation.type === "BIN_OPERATION" && OP_PRIORITY[leftOperator] < OP_PRIORITY[mainOperator];
-  return needParenthesis ? `(${astToFormula(leftOperation)})` : astToFormula(leftOperation);
+  return (
+    leftOperation.type === "BIN_OPERATION" && OP_PRIORITY[leftOperator] < OP_PRIORITY[mainOperator]
+  );
 }
 
-/**
- * Convert the right operand of a binary or unary operation to the corresponding string
- * and enclose the result inside parenthesis if necessary.
- */
-function rightOperandToFormula(operationAST: ASTOperation | ASTUnaryOperation): string {
+export function rightOperandNeedsParenthesis(
+  operationAST: ASTOperation | ASTUnaryOperation
+): boolean {
   const mainOperator = operationAST.value;
   const rightOperation = "right" in operationAST ? operationAST.right : operationAST.operand;
   const rightPriority = OP_PRIORITY[rightOperation.value];
   const mainPriority = OP_PRIORITY[mainOperator];
-  let needParenthesis = false;
   if (rightOperation.type !== "BIN_OPERATION") {
-    needParenthesis = false;
-  } else if (rightPriority < mainPriority) {
-    needParenthesis = true;
-  } else if (rightPriority === mainPriority && !ASSOCIATIVE_OPERATORS.includes(mainOperator)) {
-    needParenthesis = true;
+    return false;
   }
-  return needParenthesis ? `(${astToFormula(rightOperation)})` : astToFormula(rightOperation);
+  if (rightPriority < mainPriority) {
+    return true;
+  }
+  return rightPriority === mainPriority && !ASSOCIATIVE_OPERATORS.includes(mainOperator);
 }
