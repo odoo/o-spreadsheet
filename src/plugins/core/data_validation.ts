@@ -172,7 +172,7 @@ export class DataValidationPlugin
       newRule.criterion.values = Array.from(new Set(newRule.criterion.values));
     }
 
-    const adaptedRules = this.removeRangesFromRules(sheetId, newRule.ranges, rules);
+    const adaptedRules = this.removeRangesFromRules(sheetId, newRule.ranges, rules, newRule.id);
     const ruleIndex = adaptedRules.findIndex((rule) => rule.id === newRule.id);
 
     if (ruleIndex !== -1) {
@@ -183,10 +183,18 @@ export class DataValidationPlugin
     }
   }
 
-  private removeRangesFromRules(sheetId: UID, ranges: Range[], rules: DataValidationRule[]) {
+  private removeRangesFromRules(
+    sheetId: UID,
+    ranges: Range[],
+    rules: DataValidationRule[],
+    editingRuleId?: UID
+  ) {
     rules = deepCopy(rules);
     const rangesXcs = ranges.map((range) => this.getters.getRangeString(range, sheetId));
     for (const rule of rules) {
+      if (rule.id === editingRuleId) {
+        continue; // Skip the rule being edited to preserve its place in the list
+      }
       const ruleRanges = rule.ranges.map((range) => this.getters.getRangeString(range, sheetId));
       rule.ranges = recomputeZones(ruleRanges, rangesXcs).map((xc) =>
         this.getters.getRangeFromSheetXC(sheetId, xc)
