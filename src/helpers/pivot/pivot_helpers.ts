@@ -27,7 +27,7 @@ import {
   PivotSortedColumn,
   PivotTableCell,
 } from "../../types/pivot";
-import { deepCopy, getUniqueText } from "../misc";
+import { deepCopy, getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -402,7 +402,11 @@ export function getUniquePivotGroupName(baseName: string, field: PivotCustomGrou
 }
 
 export function getUniquePivotFieldName(baseName: string, fields: PivotFields): string {
-  return getUniqueText(baseName, Object.keys(fields), {
+  const namesToAvoid = Object.values(fields)
+    .map((f) => [f?.name, f?.string])
+    .flat()
+    .filter(isDefined);
+  return getUniqueText(baseName, namesToAvoid, {
     compute: (name, i) => `${name}${i}`,
     start: 2,
   });

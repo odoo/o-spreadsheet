@@ -1,13 +1,19 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetPivot } from "../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { CellValue, PivotCustomGroup, SpreadsheetChildEnv, UID } from "../../../../types";
+import {
+  CellValue,
+  PivotCustomGroup,
+  SpreadsheetChildEnv,
+  UID,
+  ValueAndLabel,
+} from "../../../../types";
 import { TagInput } from "../../tag_input/tag_input";
 
 interface Props {
   pivotId: UID;
   parentField: string;
   group: PivotCustomGroup;
-  onUpdateGroupValues: (groupId: string, values: CellValue[]) => void;
+  onUpdateGroupValues: (groupId: string, values: ValueAndLabel<CellValue>[]) => void;
   usedValues: CellValue[];
 }
 

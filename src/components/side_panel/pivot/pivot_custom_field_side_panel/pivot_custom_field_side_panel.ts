@@ -122,6 +122,8 @@ export class PivotCustomFieldPanel extends Component<Props, SpreadsheetChildEnv>
   onUpdateGroupValues(groupIndex: number, values: ValueAndLabel<CellValue>[]) {
     const group = this.state.customField.groups[groupIndex];
     const newGroup: PivotCustomGroup = { ...group, values: values.map((v) => v.value) };
+    // ADRM TODO: group name should be based on values labels, not values
+    // either drop comma separated value feature, or put the whole group component in pivot specific registry ?
     if (this.doesGroupHaveDefaultName(group)) {
       newGroup.name =
         createPivotGroupName(newGroup.values) ||

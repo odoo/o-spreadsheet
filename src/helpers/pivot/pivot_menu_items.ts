@@ -22,6 +22,9 @@ import {
   removePivotGroupsContainingValues,
 } from "./pivot_helpers";
 
+// ADRM TODO: check field is groupable before showing menu items
+// ADRM TODO: how do I handle non-supported aggregators is odoo ?
+
 export const pivotProperties: ActionSpec = {
   name: _t("See pivot properties"),
   execute(env) {
@@ -102,18 +105,18 @@ export const groupPivotHeaders: ActionSpec = {
     if (!matchingHeaders) {
       return;
     }
-    const { pivotId, values, field } = matchingHeaders;
+    const { pivotId, values, field, valueToLabelMap } = matchingHeaders;
     const pivot = env.model.getters.getPivot(pivotId);
     const definition = deepCopy(env.model.getters.getPivotCoreDefinition(pivotId));
 
     if (!field.isCustomField) {
-      groupValuesInNormalField(definition, values, field, pivot.getFields());
+      groupValuesInNormalField(definition, values, field, pivot.getFields(), valueToLabelMap);
     } else {
       const customField = (definition.customFields || {})[field.name];
       if (!customField) {
         return;
       }
-      groupValuesInCustomField(customField, values);
+      groupValuesInCustomField(customField, values, valueToLabelMap);
     }
 
     env.model.dispatch("UPDATE_PIVOT", { pivotId, pivot: definition });
@@ -281,7 +284,7 @@ function isPivotSortMenuItemActive(
 function getMatchingPivotHeadersInSelection(env: SpreadsheetChildEnv) {
   let pivotId: string | undefined;
   let fieldName: string | undefined;
-  const pivotHeaders: PivotHeaderCell[] = [];
+  const pivotHeaders: (PivotHeaderCell & { label: string })[] = [];
   for (const zone of env.model.getters.getSelectedZones()) {
     const sheetId = env.model.getters.getActiveSheetId();
     for (const position of cellPositions(sheetId, zone)) {
@@ -304,7 +307,8 @@ function getMatchingPivotHeadersInSelection(env: SpreadsheetChildEnv) {
       } else if (fieldName && cellLeafField && fieldName !== cellLeafField) {
         return undefined;
       }
-      pivotHeaders.push(pivotCell);
+      const label = env.model.getters.getEvaluatedCell(position).formattedValue;
+      pivotHeaders.push({ ...pivotCell, label });
     }
   }
   if (!pivotId || !fieldName || pivotHeaders.length === 0) {
@@ -319,7 +323,15 @@ function getMatchingPivotHeadersInSelection(env: SpreadsheetChildEnv) {
     .map((pivotCell) => pivotCell.domain.at(-1)?.value)
     .filter((val) => val !== undefined && val !== null);
 
-  return { pivotId, values, field };
+  const valueToLabelMap = new Map<CellValue, string>();
+  for (const pivotCell of pivotHeaders) {
+    const value = pivotCell.domain.at(-1)?.value;
+    if (value !== undefined && value !== null) {
+      valueToLabelMap.set(value, pivotCell.label);
+    }
+  }
+
+  return { pivotId, values, field, valueToLabelMap };
 }
 
 /**
@@ -329,13 +341,17 @@ function groupValuesInNormalField(
   definition: PivotCoreDefinition,
   selectedValues: CellValue[],
   field: PivotField,
-  fields: PivotFields
+  fields: PivotFields,
+  valueToLabelMap: Map<CellValue, string>
 ) {
   const customField = getCustomFieldWithParentField(definition, field, fields);
 
   removePivotGroupsContainingValues(selectedValues, customField);
   const newGroup: PivotCustomGroup = {
-    name: getUniquePivotGroupName(selectedValues.join(","), customField),
+    name: getUniquePivotGroupName(
+      selectedValues.map((v) => valueToLabelMap.get(v)).join(","),
+      customField
+    ),
     values: selectedValues,
   };
   customField.groups.push(newGroup);
@@ -350,7 +366,11 @@ function groupValuesInNormalField(
 /**
  * We either merge the selected values into a single existing group, or create a new group
  */
-function groupValuesInCustomField(customField: PivotCustomGroupedField, fieldValues: CellValue[]) {
+function groupValuesInCustomField(
+  customField: PivotCustomGroupedField,
+  fieldValues: CellValue[],
+  valueToLabelMap: Map<CellValue, string>
+) {
   const valuesToGroup: Set<CellValue> = new Set();
   const groupsInSelection: PivotCustomGroup[] = [];
   for (const value of fieldValues) {
@@ -369,7 +389,10 @@ function groupValuesInCustomField(customField: PivotCustomGroupedField, fieldVal
     );
   } else if (groupsInSelection.length === 0) {
     const newGroup: PivotCustomGroup = {
-      name: getUniquePivotGroupName(fieldValues.join(","), customField),
+      name: getUniquePivotGroupName(
+        fieldValues.map((v) => valueToLabelMap.get(v)).join(","),
+        customField
+      ),
       values: fieldValues,
     };
     customField.groups.push(newGroup);
