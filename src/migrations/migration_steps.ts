@@ -518,6 +518,25 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("18.4.3", {
+    migrate(data: WorkbookData): any {
+      if (!data.pivots) {
+        return data;
+      }
+      for (const pivotId in data.pivots) {
+        const pivot = data.pivots[pivotId];
+        if (pivot.sortedColumn) {
+          const measure = pivot.measures.find(
+            (measure) => measure.fieldName === pivot.sortedColumn?.measure
+          );
+          if (measure) {
+            pivot.sortedColumn.measure = measure.id;
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

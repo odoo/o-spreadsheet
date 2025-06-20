@@ -709,6 +709,47 @@ describe("Migrations", () => {
       "isLink",
     ]);
   });
+
+  test("migrate version 18.4.3: clean pivot sorted column", () => {
+    const data = {
+      version: "18.4.2",
+      pivots: {
+        1: {
+          type: "SPREADSHEET",
+          columns: [],
+          domain: [],
+          measures: [{ id: "probability:sum", fieldName: "probability", aggregator: "sum" }],
+          model: "partner",
+          rows: [],
+          sortedColumn: {
+            measure: "probability", // should be "probability:sum"
+            order: "asc",
+            domain: [],
+          },
+          name: "A pivot",
+          formulaId: "1",
+        },
+        2: {
+          type: "SPREADSHEET",
+          columns: [],
+          domain: [],
+          measures: [{ id: "probability:sum", fieldName: "probability", aggregator: "sum" }],
+          model: "partner",
+          rows: [],
+          sortedColumn: {
+            measure: "probability:sum", // correct
+            order: "asc",
+            domain: [],
+          },
+          name: "A pivot",
+          formulaId: "2",
+        },
+      },
+    };
+    const model = new Model(data);
+    expect(model.getters.getPivot("1").definition.sortedColumn?.measure).toBe("probability:sum");
+    expect(model.getters.getPivot("2").definition.sortedColumn?.measure).toBe("probability:sum");
+  });
 });
 
 describe("Import", () => {
