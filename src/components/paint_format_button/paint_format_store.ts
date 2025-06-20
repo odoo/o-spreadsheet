@@ -1,31 +1,36 @@
+import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
-import { BorderClipboardHandler } from "../../clipboard_handlers/borders_clipboard";
-import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
-import { ConditionalFormatClipboardHandler } from "../../clipboard_handlers/conditional_format_clipboard";
-import { TableClipboardHandler } from "../../clipboard_handlers/tables_clipboard";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import {
+  applyClipboardHandlersPaste,
+  getClipboardDataPositions,
+  getPasteTargetFromHandlers,
+  selectPastedZone,
+} from "../../helpers/clipboard/clipboard_helpers";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { HighlightStore } from "../../stores/highlight_store";
-import { ClipboardCell, Command, Highlight, UID, Zone } from "../../types";
+import { ClipboardCell, ClipboardOptions, Command, Highlight, UID, Zone } from "../../types";
 
 interface ClipboardContent {
   cells: ClipboardCell[][];
   zones: Zone[];
   sheetId: UID;
+  [key: string]: unknown;
 }
+
+const PAINT_FORMAT_HANDLER_KEYS = [
+  "cell",
+  "border",
+  "table",
+  "conditionalFormat",
+  "merge",
+] as const;
 
 export class PaintFormatStore extends SpreadsheetStore {
   mutators = ["activate", "cancel", "pasteFormat"] as const;
 
   protected highlightStore = this.get(HighlightStore);
-  private clipboardHandlers: ClipboardHandler<any>[] = [
-    new CellClipboardHandler(this.getters, this.model.dispatch),
-    new BorderClipboardHandler(this.getters, this.model.dispatch),
-    new TableClipboardHandler(this.getters, this.model.dispatch),
-    new ConditionalFormatClipboardHandler(this.getters, this.model.dispatch),
-  ];
 
   private status: "inactive" | "oneOff" | "persistent" = "inactive";
   private copiedData?: ClipboardContent;
@@ -64,27 +69,52 @@ export class PaintFormatStore extends SpreadsheetStore {
     return this.status !== "inactive";
   }
 
+  private get clipboardHandlers(): {
+    handlerName: string;
+    handler: ClipboardHandler<any>;
+  }[] {
+    return PAINT_FORMAT_HANDLER_KEYS.map((handlerName) => {
+      const HandlerClass = clipboardHandlersRegistries.cellHandlers.get(handlerName);
+      return {
+        handlerName,
+        handler: new HandlerClass(this.getters, this.model.dispatch),
+      };
+    });
+  }
+
   private copyFormats(): ClipboardContent | undefined {
     const sheetId = this.getters.getActiveSheetId();
     const zones = this.getters.getSelectedZones();
 
-    const copiedData = {};
-    for (const handler of this.clipboardHandlers) {
-      Object.assign(copiedData, handler.copy(getClipboardDataPositions(sheetId, zones), false));
+    const copiedData: Partial<ClipboardContent> = { zones, sheetId };
+    for (const { handlerName, handler } of this.clipboardHandlers) {
+      const handlerResult = handler.copy(getClipboardDataPositions(sheetId, zones), false);
+      if (handlerResult !== undefined) {
+        copiedData[handlerName] = handlerResult;
+      }
     }
 
     return copiedData as ClipboardContent;
   }
 
   private paintFormat(sheetId: UID, target: Zone[]) {
-    if (this.copiedData) {
-      for (const handler of this.clipboardHandlers) {
-        handler.paste({ zones: target, sheetId }, this.copiedData, {
-          isCutOperation: false,
-          pasteOption: "onlyFormat",
-        });
-      }
+    if (!this.copiedData) {
+      return;
     }
+    const options: ClipboardOptions = {
+      isCutOperation: false,
+      pasteOption: "onlyFormat",
+    };
+    const { target: pasteTarget, selectedZones } = getPasteTargetFromHandlers(
+      sheetId,
+      target,
+      this.copiedData,
+      this.clipboardHandlers,
+      options
+    );
+    applyClipboardHandlersPaste(this.clipboardHandlers, this.copiedData, pasteTarget, options);
+    selectPastedZone(this.model.selection, target, selectedZones);
+
     if (this.status === "oneOff") {
       this.cancel();
     }
