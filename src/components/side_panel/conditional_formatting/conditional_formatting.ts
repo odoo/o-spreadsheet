@@ -61,6 +61,8 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
         } else {
           this.switchToList();
         }
+      } else if (!this.editedCF) {
+        this.switchToList();
       }
     });
   }
