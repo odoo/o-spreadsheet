@@ -138,6 +138,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                   
                   
                 </div>
+                
               </div>
               
               
@@ -386,6 +387,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                   </div>
                   
                 </div>
+                
               </div>
               <span
                 class="text-danger sp_range_error_message"
