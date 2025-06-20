@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { getPivotHighlights } from "../../../../helpers/pivot/pivot_highlight";
-import { pivotSidePanelRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
+import { pivotComponentsRegistry } from "../../../../helpers/pivot/pivot_side_panel_registry";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { useHighlights } from "../../../helpers/highlight_hook";
 import { Section } from "../../components/section/section";
@@ -31,7 +31,7 @@ export class PivotSidePanel extends Component<Props, SpreadsheetChildEnv> {
     if (!pivot) {
       throw new Error("pivotId does not correspond to a pivot.");
     }
-    return pivotSidePanelRegistry.get(pivot.type).editor;
+    return pivotComponentsRegistry.get(pivot.type).editor;
   }
 
   get highlights() {

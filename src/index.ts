@@ -142,7 +142,7 @@ import {
 } from "./helpers/pivot/pivot_helpers";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
-import { pivotSidePanelRegistry } from "./helpers/pivot/pivot_side_panel_registry";
+import { pivotComponentsRegistry } from "./helpers/pivot/pivot_side_panel_registry";
 import { pivotTimeAdapter, pivotTimeAdapterRegistry } from "./helpers/pivot/pivot_time_adapter";
 import {
   createEmptyExcelSheet,
@@ -297,7 +297,7 @@ export const registries = {
   clipboardHandlersRegistries,
   pivotRegistry,
   pivotTimeAdapterRegistry,
-  pivotSidePanelRegistry,
+  pivotComponentsRegistry,
   pivotNormalizationValueRegistry,
   supportedPivotPositionalFormulaRegistry,
   pivotToFunctionValueRegistry,

@@ -6,8 +6,8 @@ export interface PivotRegistryItem {
   editor: new (...args: any) => Component;
 }
 
-export const pivotSidePanelRegistry = new Registry<PivotRegistryItem>();
+export const pivotComponentsRegistry = new Registry<PivotRegistryItem>();
 
-pivotSidePanelRegistry.add("SPREADSHEET", {
+pivotComponentsRegistry.add("SPREADSHEET", {
   editor: PivotSpreadsheetSidePanel,
 });
