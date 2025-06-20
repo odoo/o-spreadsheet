@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, useEffect, useRef } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
 import { GRAY_100, GRAY_300, TEXT_BODY, TEXT_HEADING } from "../../../../constants";
 import { Store, useLocalStore } from "../../../../store_engine";
@@ -10,32 +10,46 @@ import { MainChartPanelStore } from "./main_chart_panel_store";
 
 css/* scss */ `
   .o-chart {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     .o-panel {
       display: flex;
-      .o-panel-element {
-        flex: 1 0 auto;
-        padding: 8px 0px;
-        text-align: center;
-        cursor: pointer;
-        border-right: 1px solid ${GRAY_300};
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+    }
+    .o-panel-element {
+      flex: 1 0 auto;
+      padding: 8px 0px;
+      text-align: center;
+      cursor: pointer;
+      border-right: 1px solid ${GRAY_300};
 
-        &.inactive {
-          color: ${TEXT_BODY};
-          background-color: ${GRAY_100};
-          border-bottom: 1px solid ${GRAY_300};
-        }
-
-        &:not(.inactive) {
-          color: ${TEXT_HEADING};
-          border-bottom: 1px solid #fff;
-        }
-
-        .fa {
-          margin-right: 4px;
-        }
+      &.inactive {
+        color: ${TEXT_BODY};
+        background-color: ${GRAY_100};
+        border-bottom: 1px solid ${GRAY_300};
       }
-      .o-panel-element:last-child {
-        border-right: none;
+
+      &:not(.inactive) {
+        color: ${TEXT_HEADING};
+        border-bottom: 1px solid #fff;
+      }
+
+      .fa {
+        margin-right: 4px;
+      }
+    }
+    .o-panel-element:last-child {
+      border-right: none;
+    }
+    .o-panel-content {
+      flex: 1 1 auto;
+      overflow-y: auto;
+
+      > div.hidden {
+        display: none;
       }
     }
   }
@@ -50,6 +64,11 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
   static components = { Section, ChartTypePicker };
   static props = { onCloseSidePanel: Function, figureId: String };
+  private panelContentRef!: ReturnType<typeof useRef>;
+  private scrollPositions: Record<"configuration" | "design", number> = {
+    configuration: 0,
+    design: 0,
+  };
 
   store!: Store<MainChartPanelStore>;
 
@@ -59,6 +78,26 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup(): void {
     this.store = useLocalStore(MainChartPanelStore);
+    this.panelContentRef = useRef("panelContent");
+
+    useEffect(
+      () => {
+        const el = this.panelContentRef.el as HTMLElement;
+        const activePanel = this.store.panel;
+        if (el) {
+          el.scrollTop = this.scrollPositions[activePanel];
+        }
+      },
+      () => [this.store.panel]
+    );
+  }
+
+  switchPanel(panel: "configuration" | "design") {
+    const el = this.panelContentRef.el as HTMLElement;
+    if (el) {
+      this.scrollPositions[this.store.panel] = el.scrollTop;
+    }
+    this.store.activatePanel(panel);
   }
 
   updateChart<T extends ChartDefinition>(figureId: UID, updateDefinition: Partial<T>) {
