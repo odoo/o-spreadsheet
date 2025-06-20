@@ -210,6 +210,7 @@ export interface ChartCreationContext {
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
   readonly treemapColoringOptions?: TreeMapColoringOptions;
+  readonly zoom?: ZoomConfiguration;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;
@@ -230,3 +231,8 @@ export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
 > & {
   dataSets?: Omit<T["dataSets"][number], "dataRange">[];
 };
+
+export interface ZoomConfiguration {
+  readonly enabled?: boolean;
+  readonly sliceable?: boolean;
+}

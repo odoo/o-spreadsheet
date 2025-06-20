@@ -18,6 +18,7 @@ import {
   CustomizedDataSet,
   ExcelChartDataset,
   LegendPosition,
+  ZoomConfiguration,
 } from "../../../types/chart";
 import {
   ComboChartDataSet,
@@ -48,12 +49,13 @@ import {
   getBarChartData,
   getBarChartScales,
   getBarChartTooltip,
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getComboChartDatasets,
   getComboChartLegend,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
+import { getChartZoom } from "./runtime/chartjs_zoom";
 
 export class ComboChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -67,6 +69,7 @@ export class ComboChart extends AbstractChart {
   readonly type = "combo";
   readonly showValues?: boolean;
   readonly hideDataMarkers?: boolean;
+  readonly zoom?: ZoomConfiguration;
 
   constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -85,6 +88,7 @@ export class ComboChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.showValues = definition.showValues;
     this.hideDataMarkers = definition.hideDataMarkers;
+    this.zoom = definition.zoom;
   }
 
   static transformDefinition(
@@ -150,6 +154,7 @@ export class ComboChart extends AbstractChart {
       axesDesign: this.axesDesign,
       showValues: this.showValues,
       hideDataMarkers: this.hideDataMarkers,
+      zoom: this.zoom,
     };
   }
 
@@ -208,6 +213,7 @@ export class ComboChart extends AbstractChart {
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       hideDataMarkers: context.hideDataMarkers,
+      zoom: context.zoom,
     };
   }
 
@@ -251,6 +257,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
         legend: getComboChartLegend(definition, chartData),
         tooltip: getBarChartTooltip(definition, chartData),
         chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        zoom: getChartZoom(definition, chartData),
       },
     },
   };
