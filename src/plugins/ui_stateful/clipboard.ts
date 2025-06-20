@@ -3,21 +3,25 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { convertImageToPng } from "../../components/helpers/dom_helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import {
+  applyClipboardHandlersPaste,
+  getClipboardDataPositions,
+  getPasteTargetFromHandlers,
+  selectPastedZone,
+} from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
-import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
+import { UuidGenerator, isZoneValid } from "../../helpers/index";
 import { getCurrentVersion } from "../../migrations/data";
 import { _t } from "../../translation";
 import {
   ClipboardData,
   ClipboardMIMEType,
   ClipboardOptions,
-  ClipboardPasteTarget,
+  MinimalClipboardData,
   OSClipboardContent,
 } from "../../types/clipboard";
 import { FileStore } from "../../types/files";
 import {
-  ClipboardCell,
   Command,
   CommandResult,
   Dimension,
@@ -37,14 +41,6 @@ interface InsertDeleteCellsTargets {
   cut: Zone[];
   paste: Zone[];
 }
-
-type MinimalClipboardData = {
-  sheetId?: UID;
-  cells?: ClipboardCell[][];
-  zones?: Zone[];
-  figureId?: UID;
-  [key: string]: unknown;
-};
 
 export interface SpreadsheetClipboardData extends MinimalClipboardData {
   version?: string;
@@ -399,58 +395,29 @@ export class ClipboardPlugin extends UIPlugin {
     if (!copiedData) {
       return;
     }
-    let zone: Zone | undefined = undefined;
-    const selectedZones: Zone[] = [];
     const sheetId = this.getters.getActiveSheetId();
-    const target: ClipboardPasteTarget = {
+    const handlers = this.selectClipboardHandlers(copiedData);
+    const { target, zone, selectedZones } = getPasteTargetFromHandlers(
       sheetId,
       zones,
-    };
-    const handlers = this.selectClipboardHandlers(copiedData);
-    for (const { handlerName, handler } of handlers) {
-      const handlerData = copiedData[handlerName];
-      if (!handlerData) {
-        continue;
-      }
-      const currentTarget = handler.getPasteTarget(sheetId, zones, handlerData, options);
-      if (currentTarget.figureId) {
-        target.figureId = currentTarget.figureId;
-      }
-      for (const targetZone of currentTarget.zones) {
-        selectedZones.push(targetZone);
-        if (zone === undefined) {
-          zone = targetZone;
-          continue;
-        }
-        zone = union(zone, targetZone);
-      }
-    }
+      copiedData,
+      handlers,
+      options
+    );
     if (zone !== undefined) {
       this.addMissingDimensions(
-        this.getters.getActiveSheetId(),
+        sheetId,
         zone.right - zone.left + 1,
         zone.bottom - zone.top + 1,
         zone.left,
         zone.top
       );
     }
-    handlers.forEach(({ handlerName, handler }) => {
-      const handlerData = copiedData[handlerName];
-      if (handlerData) {
-        handler.paste(target, handlerData, options);
-      }
-    });
+    applyClipboardHandlersPaste(handlers, copiedData, target, options);
     if (!options?.selectTarget) {
       return;
     }
-    const selection = zones[0];
-    const col = selection.left;
-    const row = selection.top;
-    this.selection.getBackToDefault();
-    this.selection.selectZone(
-      { cell: { col, row }, zone: union(...selectedZones) },
-      { scrollIntoView: false }
-    );
+    selectPastedZone(this.selection, zones, selectedZones);
   }
 
   /**
