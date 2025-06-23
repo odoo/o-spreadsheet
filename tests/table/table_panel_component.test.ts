@@ -13,7 +13,7 @@ import { getCell } from "../test_helpers/getters_helpers";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
-import { SidePanel } from "../../src/components/side_panel/side_panel/side_panel";
+import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableTerms } from "../../src/components/translations_terms";
 import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 
@@ -35,7 +35,7 @@ describe("Table side panel", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
+    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
     env.openSidePanel("TableSidePanel", {});
     await nextTick();
   });

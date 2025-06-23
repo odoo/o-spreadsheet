@@ -1,5 +1,5 @@
 import { Model, SpreadsheetChildEnv } from "../../../../src";
-import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
+import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { createChart } from "../../../test_helpers";
 import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
 import { setInputValueAndTrigger, simulateClick } from "../../../test_helpers/dom_helper";
@@ -12,7 +12,7 @@ let env: SpreadsheetChildEnv;
 describe("Pyramid chart side panel", () => {
   beforeEach(async () => {
     model = new Model();
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
+    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 
   test("Only first 2 ranges are enabled when changing the selection input", async () => {

@@ -1,13 +1,15 @@
 import { Component, xml } from "@odoo/owl";
 import { Model, Spreadsheet } from "../../src";
 import {
+  COLLAPSED_SIDE_PANEL_SIZE,
   DEFAULT_SIDE_PANEL_SIZE,
   MIN_SHEET_VIEW_WIDTH,
   SidePanelStore,
 } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
+import { Store } from "../../src/store_engine";
 import { createSheet } from "../test_helpers/commands_helpers";
-import { doubleClick, dragElement, simulateClick } from "../test_helpers/dom_helper";
+import { click, doubleClick, dragElement, simulateClick } from "../test_helpers/dom_helper";
 import { addToRegistry, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { extendMockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
@@ -23,6 +25,8 @@ let fixture: HTMLElement;
 let parent: Spreadsheet;
 let sidePanelContent: { [key: string]: SidePanelContent };
 let model: Model;
+let sidePanelStore: Store<SidePanelStore>;
+let notifyUser = jest.fn();
 
 class Body extends Component<any, any> {
   static template = xml`
@@ -56,8 +60,12 @@ class BodyWithoutProps extends Component<any, any> {
 }
 
 beforeEach(async () => {
-  ({ parent, fixture, model } = await mountSpreadsheet());
+  spreadsheetWidth = 1000;
+  notifyUser = jest.fn();
+  ({ parent, fixture, model } = await mountSpreadsheet(undefined, { notifyUser }));
   sidePanelContent = Object.assign({}, sidePanelRegistry.content);
+  sidePanelStore = parent.env.getStore(SidePanelStore);
+  sidePanelStore.changeSpreadsheetWidth(spreadsheetWidth);
 });
 
 afterEach(() => {
@@ -311,12 +319,11 @@ describe("Side Panel", () => {
       await dragElement(fixture.querySelector(".o-sidePanel-handle")!, { y: 0, x: -100 });
       await nextTick();
       expect(spreadsheetEl.style["grid-template-columns"]).toBe("auto 450px");
-      expect(parent.env.getStore(SidePanelStore).panelSize).toBe(450);
+      expect(sidePanelStore.mainPanel?.size).toBe(450);
     });
 
     test("Can resize the side panel with the sidePanelStore", async () => {
-      const store = parent.env.getStore(SidePanelStore);
-      store.changePanelSize(400, spreadsheetWidth);
+      sidePanelStore.changePanelSize("mainPanel", 400);
       await nextTick();
 
       const spreadsheetEl = fixture.querySelector<HTMLElement>(".o-spreadsheet")!;
@@ -324,38 +331,208 @@ describe("Side Panel", () => {
     });
 
     test("Cannot make the side panel smaller than its default size", () => {
-      const store = parent.env.getStore(SidePanelStore);
-      store.changePanelSize(100, spreadsheetWidth);
-      expect(store.panelSize).toBe(DEFAULT_SIDE_PANEL_SIZE);
+      sidePanelStore.changePanelSize("mainPanel", 100);
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
     });
 
     test("Cannot make the sheetView too small", () => {
-      const store = parent.env.getStore(SidePanelStore);
-      store.changePanelSize(900, spreadsheetWidth);
-      expect(store.panelSize).toBe(spreadsheetWidth - MIN_SHEET_VIEW_WIDTH);
+      sidePanelStore.changePanelSize("mainPanel", 900);
+      expect(sidePanelStore.mainPanel?.size).toBe(spreadsheetWidth - MIN_SHEET_VIEW_WIDTH);
 
-      store.changePanelSize(2000, spreadsheetWidth);
-      expect(store.panelSize).toBe(spreadsheetWidth - MIN_SHEET_VIEW_WIDTH);
+      sidePanelStore.changePanelSize("mainPanel", 2000);
+      expect(sidePanelStore.mainPanel?.size).toBe(spreadsheetWidth - MIN_SHEET_VIEW_WIDTH);
     });
 
     test("Side panel is resized when spreadsheet is resized", async () => {
-      const store = parent.env.getStore(SidePanelStore);
-      store.changePanelSize(850, spreadsheetWidth);
+      sidePanelStore.changePanelSize("mainPanel", 2000);
 
       spreadsheetWidth = 600;
       await nextTick();
       window.resizers.resize();
-      expect(store.panelSize).toBe(600 - MIN_SHEET_VIEW_WIDTH);
+      expect(sidePanelStore.mainPanel?.size).toBe(600 - MIN_SHEET_VIEW_WIDTH);
     });
 
     test("Can double click to reset the panel size", async () => {
-      const store = parent.env.getStore(SidePanelStore);
-      store.changePanelSize(400, spreadsheetWidth);
+      sidePanelStore.changePanelSize("mainPanel", 400);
       await nextTick();
 
       await doubleClick(fixture.querySelector(".o-sidePanel-handle")!);
       await nextTick();
-      expect(store.panelSize).toBe(DEFAULT_SIDE_PANEL_SIZE);
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+    });
+  });
+
+  describe("Pin & collapse side panel", () => {
+    beforeEach(async () => {
+      addToRegistry(sidePanelRegistry, "CUSTOM_PANEL", { title: "Custom Panel", Body: Body });
+      addToRegistry(sidePanelRegistry, "CUSTOM_PANEL_2", { title: "Custom Panel 2", Body: Body });
+      parent.env.openSidePanel("CUSTOM_PANEL");
+      await nextTick();
+    });
+
+    test("Can pin a side panel", async () => {
+      expect(sidePanelStore.mainPanel?.isPinned).toBeFalsy();
+      expect(".o-pin-panel").not.toHaveClass("active");
+
+      await click(fixture, ".o-pin-panel");
+      expect(sidePanelStore.mainPanel?.isPinned).toBe(true);
+      expect(".o-pin-panel").toHaveClass("active");
+
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+
+      const panels = fixture.querySelectorAll(".o-sidePanel");
+      expect(panels).toHaveLength(2);
+      expect(panels[1].querySelector(".o-sidePanelTitle")).toHaveText("Custom Panel");
+      expect(panels[0].querySelector(".o-sidePanelTitle")).toHaveText("Custom Panel 2");
+      expect(panels[0].querySelector(".o-pin-panel")).toBeNull();
+    });
+
+    test("Unpinning a panel close it if another panel is open", async () => {
+      sidePanelStore.togglePinPanel();
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+
+      expect(".o-sidePanel").toHaveCount(2);
+
+      await click(fixture, ".o-pin-panel");
+      expect(".o-sidePanel").toHaveCount(1);
+      expect(".o-sidePanelTitle").toHaveText("Custom Panel 2");
+    });
+
+    test("Can collapse single panel", async () => {
+      expect(".o-collapse-panel").toHaveCount(1);
+
+      await click(fixture, ".o-collapse-panel");
+      expect(".o-sidePanel").toHaveClass("collapsed");
+      expect(sidePanelStore.mainPanel?.isCollapsed).toBe(true);
+      expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
+
+      await click(fixture, ".o-collapse-panel");
+      expect(".o-sidePanel").not.toHaveClass("collapsed");
+      expect(sidePanelStore.mainPanel?.isCollapsed).toBe(false);
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+    });
+
+    test("Can collapse both panels", async () => {
+      sidePanelStore.togglePinPanel();
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+
+      let panels = fixture.querySelectorAll(".o-sidePanel");
+      const collapsePanelButtons = fixture.querySelectorAll(".o-collapse-panel");
+      expect(panels[1]).not.toHaveClass("collapsed");
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+      expect(panels[0]).not.toHaveClass("collapsed");
+      expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+
+      await click(collapsePanelButtons[0]);
+      panels = fixture.querySelectorAll(".o-sidePanel");
+      expect(panels[0]).toHaveClass("collapsed");
+      expect(sidePanelStore.secondaryPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
+      expect(panels[1]).not.toHaveClass("collapsed");
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+
+      await click(collapsePanelButtons[1]);
+      panels = fixture.querySelectorAll(".o-sidePanel");
+      expect(panels[0]).toHaveClass("collapsed");
+      expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
+      expect(panels[1]).toHaveClass("collapsed");
+      expect(sidePanelStore.secondaryPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
+    });
+
+    test("Cannot open two panels with the same key", async () => {
+      const panelKey = "myKey";
+      addToRegistry(sidePanelRegistry, "OTHER_PANEL", {
+        title: "Custom Panel",
+        Body: Body,
+        computeState: () => ({
+          isOpen: true,
+          key: "CUSTOM_PANEL", // This is the key of the first panel opened
+        }),
+      });
+
+      await click(fixture, ".o-pin-panel");
+      parent.env.openSidePanel("OTHER_PANEL", { key: panelKey });
+      await nextTick();
+      expect(".o-sidePanel").toHaveCount(1);
+      expect(".o-sidePanelTitle").toHaveText("Custom Panel");
+    });
+
+    test("Re-opening the same panel un-collapses it", async () => {
+      await click(fixture, ".o-pin-panel");
+      await click(fixture, ".o-collapse-panel");
+
+      expect(".o-sidePanel").toHaveClass("collapsed");
+      expect(sidePanelStore.mainPanel?.size).toBe(COLLAPSED_SIDE_PANEL_SIZE);
+
+      parent.env.openSidePanel("CUSTOM_PANEL");
+      await nextTick();
+      expect(".o-sidePanel").not.toHaveClass("collapsed");
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+    });
+
+    test("Can resize panels when two panels are open", async () => {
+      sidePanelStore.togglePinPanel();
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+
+      const handles = fixture.querySelectorAll(".o-sidePanel-handle");
+      expect(handles).toHaveLength(2);
+
+      await dragElement(handles[0], { y: 0, x: -50 }, undefined, true);
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+      expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE + 50);
+
+      await dragElement(handles[1], { y: 0, x: -25 }, undefined, true);
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE + 25);
+      expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE + 50);
+    });
+
+    test("Resizing the man panel reduces the size of the secondary panel if there is not enough space", async () => {
+      sidePanelStore.togglePinPanel();
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+
+      const handles = fixture.querySelectorAll(".o-sidePanel-handle");
+      expect(handles).toHaveLength(2);
+
+      await dragElement(handles[0], { y: 0, x: -150 }, undefined, true);
+      expect(sidePanelStore.mainPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+      expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE + 150);
+
+      await dragElement(handles[1], { y: 0, x: -1000 }, undefined, true);
+      expect(sidePanelStore.mainPanel?.size).toBe(
+        1000 - MIN_SHEET_VIEW_WIDTH - DEFAULT_SIDE_PANEL_SIZE
+      );
+      expect(sidePanelStore.secondaryPanel?.size).toBe(DEFAULT_SIDE_PANEL_SIZE);
+    });
+
+    test("Secondary side panel closes if the sheet is too small", async () => {
+      sidePanelStore.togglePinPanel();
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+      expect(".o-sidePanel").toHaveCount(2);
+
+      sidePanelStore.changeSpreadsheetWidth(600);
+      await nextTick();
+
+      expect(".o-sidePanel").toHaveCount(1);
+      expect(".o-sidePanelTitle").toHaveText("Custom Panel");
+    });
+
+    test("Cannot open second size panel if the spreadsheet is too small", async () => {
+      sidePanelStore.changeSpreadsheetWidth(600);
+      sidePanelStore.togglePinPanel();
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+
+      expect(".o-sidePanel").toHaveCount(1);
+      expect(notifyUser).toHaveBeenCalledWith({
+        sticky: false,
+        type: "warning",
+        text: "The window is too small to display multiple side panels.",
+      });
     });
   });
 });

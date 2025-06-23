@@ -1,5 +1,5 @@
 import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
-import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
+import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { GeoChartDefinition } from "../../../../src/types/chart/geo_chart";
 import {
   changeRoundColorPickerColor,
@@ -34,7 +34,7 @@ function getGeoChartDefinition(chartId: UID): GeoChartDefinition {
 describe("Geo chart side panel", () => {
   beforeEach(async () => {
     model = new Model({}, { external: { geoJsonService: mockGeoJsonService } });
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
+    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 
   describe("Config panel", () => {

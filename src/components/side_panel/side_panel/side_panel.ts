@@ -1,12 +1,11 @@
-import { Component, useEffect } from "@odoo/owl";
-import { GRAY_300, TEXT_BODY } from "../../../constants";
-import { sidePanelRegistry } from "../../../registries/side_panel_registry";
-import { Store, useStore } from "../../../store_engine";
+import { Component } from "@odoo/owl";
+import { BUTTON_ACTIVE_BG, BUTTON_HOVER_BG, GRAY_300, TEXT_BODY } from "../../../constants";
+import { SidePanelContent } from "../../../registries/side_panel_registry";
+import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
-import { startDnd } from "../../helpers/drag_and_drop";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
-import { SidePanelStore } from "./side_panel_store";
+import { SidePanelProps } from "./side_panel_store";
 
 css/* scss */ `
   .o-sidePanel {
@@ -19,24 +18,36 @@ css/* scss */ `
     user-select: none;
     color: ${TEXT_BODY};
 
+    &.collapsed {
+      padding: 8px;
+      cursor: pointer;
+
+      .o-sidePanelTitle {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+      }
+    }
+
     .o-sidePanelTitle {
       line-height: 20px;
       font-size: 16px;
     }
 
     .o-sidePanelHeader {
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      padding: 8px;
       border-bottom: 1px solid ${GRAY_300};
+    }
 
-      .o-sidePanelClose {
-        padding: 5px 10px;
-        cursor: pointer;
-        &:hover {
-          background-color: WhiteSmoke;
-        }
+    .o-sidePanelAction {
+      padding: 5px 10px;
+      cursor: pointer;
+
+      &.active {
+        background-color: ${BUTTON_ACTIVE_BG};
+      }
+
+      &:hover {
+        background-color: ${BUTTON_HOVER_BG};
       }
     }
     .o-sidePanelBody-container {
@@ -112,51 +123,41 @@ css/* scss */ `
   }
 `;
 
-export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
+interface Props {
+  panelContent: SidePanelContent;
+  panelProps: SidePanelProps;
+  onCloseSidePanel: () => void;
+  onStartHandleDrag: (ev: MouseEvent) => void;
+  onResetPanelSize: () => void;
+  isPinned?: boolean;
+  onTogglePinPanel?: () => void;
+  onToggleCollapsePanel?: () => void;
+  isCollapsed?: boolean;
+}
+
+export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
-  static props = {};
-  sidePanelStore!: Store<SidePanelStore>;
+  static props = {
+    panelContent: Object,
+    panelProps: Object,
+    onCloseSidePanel: Function,
+    onStartHandleDrag: Function,
+    onResetPanelSize: Function,
+    isPinned: { type: Boolean, optional: true },
+    onTogglePinPanel: { type: Function, optional: true },
+    onToggleCollapsePanel: { type: Function, optional: true },
+    isCollapsed: { type: Boolean, optional: true },
+  };
   spreadsheetRect = useSpreadsheetRect();
 
-  setup() {
-    this.sidePanelStore = useStore(SidePanelStore);
-    useEffect(
-      (isOpen) => {
-        if (!isOpen) {
-          this.sidePanelStore.close();
-        }
-      },
-      () => [this.sidePanelStore.isOpen]
-    );
-  }
-
-  get panel() {
-    return sidePanelRegistry.get(this.sidePanelStore.componentTag);
-  }
-
-  close() {
-    this.sidePanelStore.close();
-  }
-
   getTitle() {
-    const panel = this.panel;
+    const panel = this.props.panelContent;
     return typeof panel.title === "function"
-      ? panel.title(this.env, this.sidePanelStore.panelProps)
+      ? panel.title(this.env, this.props.panelProps)
       : panel.title;
   }
 
-  startHandleDrag(ev: MouseEvent) {
-    const startingCursor = document.body.style.cursor;
-    const startSize = this.sidePanelStore.panelSize;
-    const startPosition = ev.clientX;
-    const onMouseMove = (ev: MouseEvent) => {
-      document.body.style.cursor = "col-resize";
-      const newSize = startSize + startPosition - ev.clientX;
-      this.sidePanelStore.changePanelSize(newSize, this.spreadsheetRect.width);
-    };
-    const cleanUp = () => {
-      document.body.style.cursor = startingCursor;
-    };
-    startDnd(onMouseMove, cleanUp);
+  get pinInfoMessage() {
+    return _t("Pin this panel to allow to open another side panel beside it.");
   }
 }

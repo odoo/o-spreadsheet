@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
-import { SidePanel } from "../../src/components/side_panel/side_panel/side_panel";
+import { SidePanels } from "../../src/components/side_panel/side_panels/side_panels";
 import { TableDropdownButton } from "../../src/components/tables/table_dropdown_button/table_dropdown_button";
 import { toZone, zoneToXc } from "../../src/helpers";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
@@ -13,11 +13,11 @@ let sheetId: UID;
 let fixture: HTMLElement;
 
 class Parent extends Component<{}, SpreadsheetChildEnv> {
-  static components = { TableDropdownButton, SidePanel };
+  static components = { TableDropdownButton, SidePanels };
   static template = xml/*xml*/ `
   <div class="o-spreadsheet">
     <TableDropdownButton />
-    <SidePanel />
+    <SidePanels />
   </div>
   `;
   static props = {};
