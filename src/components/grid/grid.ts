@@ -188,12 +188,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.cellPopovers = useStore(CellPopoverStore);
 
     useEffect(
-      () => {
-        if (!this.sidePanel.isOpen) {
+      (isMainPanelOpen, isSecondaryPanelOpen) => {
+        if (!isMainPanelOpen && !isSecondaryPanelOpen) {
           this.DOMFocusableElementStore.focus();
         }
       },
-      () => [this.sidePanel.isOpen]
+      () => [this.sidePanel.isMainPanelOpen, this.sidePanel.isSecondaryPanelOpen]
     );
 
     useTouchScroll(this.gridRef, this.moveCanvas.bind(this), () => {

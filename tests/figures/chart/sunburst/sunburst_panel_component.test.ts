@@ -1,5 +1,5 @@
 import { Model, SpreadsheetChildEnv, UID } from "../../../../src";
-import { SidePanel } from "../../../../src/components/side_panel/side_panel/side_panel";
+import { SidePanels } from "../../../../src/components/side_panel/side_panels/side_panels";
 import { ColorGenerator } from "../../../../src/helpers";
 import { SunburstChartDefinition } from "../../../../src/types/chart";
 import {
@@ -30,7 +30,7 @@ function getSunburstDefinition(chartId: UID): SunburstChartDefinition {
 describe("Sunburst chart side panel", () => {
   beforeEach(async () => {
     model = new Model();
-    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
+    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanels, { model }));
   });
 
   describe("Config panel", () => {

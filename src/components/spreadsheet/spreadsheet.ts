@@ -67,8 +67,8 @@ import { css, cssPropertiesToCss } from "../helpers/css";
 import { isMobileOS } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
-import { SidePanel } from "../side_panel/side_panel/side_panel";
-import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
+import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
+import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
@@ -341,7 +341,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     Grid,
     BottomBar,
     SmallBottomBar,
-    SidePanel,
+    SidePanels,
     SpreadsheetDashboard,
     HeaderGroupContainer,
     FullScreenChart,
@@ -368,7 +368,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     } else {
       properties["grid-template-rows"] = `min-content auto min-content`;
     }
-    const columnWidth = this.sidePanel.isOpen ? `${this.sidePanel.panelSize}px` : "auto";
+    const columnWidth = this.sidePanel.mainPanel
+      ? `${this.sidePanel.totalPanelSize || DEFAULT_SIDE_PANEL_SIZE}px`
+      : "auto";
     properties["grid-template-columns"] = `auto ${columnWidth}`;
 
     return cssPropertiesToCss(properties);
@@ -473,7 +475,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
     });
     const resizeObserver = new ResizeObserver(() => {
-      this.sidePanel.changePanelSize(this.sidePanel.panelSize, this.spreadsheetRect.width);
+      this.sidePanel.changeSpreadsheetWidth(this.spreadsheetRect.width);
     });
   }
 
