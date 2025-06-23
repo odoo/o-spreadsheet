@@ -165,6 +165,13 @@ cellAnimationRegistry.add("textChange", {
         : makeIconsEmpty(oldBox.icons),
     };
 
+    if (newBox.content && oldBox.content && slideInBox.content && slideOutBox.content) {
+      const slideInContentY = newBox.content.y + (value - 1) * newBox.height;
+      const slideOutContentY = newBox.content.y + value * newBox.height;
+      slideInBox.content.y = slideInContentY;
+      slideOutBox.content.y = slideOutContentY;
+    }
+
     slideOutBox.style.fillColor = slideInBox.style.fillColor = undefined;
 
     animatedBox.content = undefined;

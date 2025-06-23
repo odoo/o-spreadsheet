@@ -334,9 +334,10 @@ describe("Individual animation tests", () => {
     setCellContent(model, "A1", "newText");
     drawGrid();
     const a2Box = getBoxFromXc("A2");
+    const originalContentY = a2Box.y + DEFAULT_CELL_HEIGHT - 13 - MIN_CELL_TEXT_MARGIN + 1; // 13: text height, 1: to avoid borders
     expect(a2Box.content).toEqual(undefined);
     expect(getBoxFromXc("A2-text-slide-in")).toMatchObject({
-      content: { textLines: ["newText"] },
+      content: { textLines: ["newText"], y: originalContentY - DEFAULT_CELL_HEIGHT },
       x: 0,
       y: a2Box.y - DEFAULT_CELL_HEIGHT,
       width: DEFAULT_CELL_WIDTH,
@@ -344,7 +345,7 @@ describe("Individual animation tests", () => {
       skipCellGridLines: true,
     });
     expect(getBoxFromXc("A2-text-slide-out")).toMatchObject({
-      content: { textLines: ["oldText"] },
+      content: { textLines: ["oldText"], y: originalContentY },
       x: 0,
       y: a2Box.y,
       width: DEFAULT_CELL_WIDTH,
@@ -355,10 +356,20 @@ describe("Individual animation tests", () => {
     animationFrameCallback(0);
     expect(getBoxFromXc("A2-text-slide-in").y).toEqual(a2Box.y - DEFAULT_CELL_HEIGHT);
     expect(getBoxFromXc("A2-text-slide-out").y).toEqual(a2Box.y);
+    expect(getBoxFromXc("A2-text-slide-in").content?.y).toEqual(
+      originalContentY - DEFAULT_CELL_HEIGHT
+    );
+    expect(getBoxFromXc("A2-text-slide-out").content?.y).toEqual(originalContentY);
 
     animationFrameCallback(CELL_ANIMATION_DURATION / 2);
     expect(getBoxFromXc("A2-text-slide-in").y).toEqual(a2Box.y - DEFAULT_CELL_HEIGHT / 2);
     expect(getBoxFromXc("A2-text-slide-out").y).toEqual(a2Box.y + DEFAULT_CELL_HEIGHT / 2);
+    expect(getBoxFromXc("A2-text-slide-in").content?.y).toEqual(
+      originalContentY - DEFAULT_CELL_HEIGHT / 2
+    );
+    expect(getBoxFromXc("A2-text-slide-out").content?.y).toEqual(
+      originalContentY + DEFAULT_CELL_HEIGHT / 2
+    );
 
     animationFrameCallback(CELL_ANIMATION_DURATION);
     expect(getBoxFromXc("A2")).toMatchObject({ content: { textLines: ["newText"] } });
