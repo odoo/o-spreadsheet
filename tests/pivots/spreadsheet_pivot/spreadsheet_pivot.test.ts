@@ -335,12 +335,16 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelWithPivot("A1:I5");
     setCellContent(model, "C3", '=""');
     setCellContent(model, "C5", "");
+    setCellContent(model, "A2", '=""');
+    setCellContent(model, "A3", "");
     setCellContent(model, "A26", "=pivot(1)");
 
     updatePivot(model, "1", {
       columns: [{ fieldName: "Contact Name", order: "asc" }],
     });
 
+    const pivot = model.getters.getPivot("1");
+    expect(pivot.getFields()).toMatchObject({ "Created on": { type: "datetime" } });
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
       ["Alice", "Michel", "(Undefined)", "Total", ""],
     ]);

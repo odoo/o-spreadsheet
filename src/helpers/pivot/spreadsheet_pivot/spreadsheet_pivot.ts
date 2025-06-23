@@ -405,7 +405,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   private getTypeFromZone(sheetId: UID, zone: Zone) {
     const cells = this.getters.getEvaluatedCellsInZone(sheetId, zone);
-    const nonEmptyCells = cells.filter((cell) => cell.type !== CellValueType.empty);
+    const nonEmptyCells = cells.filter(
+      (cell) => !(cell.type === CellValueType.empty || cell.value === "")
+    );
     if (nonEmptyCells.length === 0) {
       return "integer";
     }
