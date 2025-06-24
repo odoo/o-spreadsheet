@@ -658,4 +658,16 @@ describe("Model resizer", () => {
     expect(model.getters.getColSize(sheetId, 0)).toBe(26);
     expect(model.getters.getRowSize(sheetId, 0)).toBe(27);
   });
+
+  test("Should use markdown label instead of full link for auto row height", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+
+    setStyle(model, "A1", { wrapping: "wrap" });
+    const initialCellHeight = getDefaultCellHeight(getCell(model, "A1"));
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(initialCellHeight);
+
+    setCellContent(model, "A1", "[link](https://example.com)");
+    expect(model.getters.getRowSize(sheetId, 0)).toBe(initialCellHeight);
+  });
 });
