@@ -107,6 +107,57 @@ cellAnimationRegistry.add("textFadeOut", {
   },
 });
 
+cellAnimationRegistry.add("iconFadeIn", {
+  id: "iconFadeIn",
+  easingFn: "easeInCubic",
+  hasAnimation: (oldBox, newBox) => {
+    return Boolean(
+      (!oldBox?.icons?.left && newBox?.icons?.left) ||
+        (!oldBox?.icons?.right && newBox?.icons?.right) ||
+        (!oldBox?.icons?.center && newBox?.icons?.center)
+    );
+  },
+  updateAnimation: function (progress, animatedBox, oldBox, newBox) {
+    const iconOpacity = EASING_FN[this.easingFn](progress);
+    if (animatedBox.icons.left && newBox.icons.left && !oldBox.icons.left) {
+      animatedBox.icons.left.opacity = iconOpacity;
+    }
+    if (animatedBox.icons.right && newBox.icons.right && !oldBox.icons.right) {
+      animatedBox.icons.right.opacity = iconOpacity;
+    }
+    if (animatedBox.icons.center && newBox.icons.center && !oldBox.icons.center) {
+      animatedBox.icons.center.opacity = iconOpacity;
+    }
+  },
+});
+
+cellAnimationRegistry.add("iconFadeOut", {
+  id: "iconFadeOut",
+  easingFn: "easeOutCubic",
+  hasAnimation: (oldBox, newBox) => {
+    return Boolean(
+      (oldBox?.icons?.left && !newBox?.icons?.left) ||
+        (oldBox?.icons?.right && !newBox?.icons?.right) ||
+        (oldBox?.icons?.center && !newBox?.icons?.center)
+    );
+  },
+  updateAnimation: function (progress, animatedBox, oldBox, newBox) {
+    const iconOpacity = 1 - EASING_FN[this.easingFn](progress);
+    if (!animatedBox.icons) {
+      animatedBox.icons = {};
+    }
+    if (oldBox.icons.left && !newBox.icons.left) {
+      animatedBox.icons.left = { ...oldBox.icons.left, opacity: iconOpacity };
+    }
+    if (oldBox.icons.right && !newBox.icons.right) {
+      animatedBox.icons.right = { ...oldBox.icons.right, opacity: iconOpacity };
+    }
+    if (oldBox.icons.center && !newBox.icons.center) {
+      animatedBox.icons.center = { ...oldBox.icons.center, opacity: iconOpacity };
+    }
+  },
+});
+
 cellAnimationRegistry.add("textChange", {
   id: "textChange",
   easingFn: "easeOutCubic",
@@ -115,8 +166,8 @@ cellAnimationRegistry.add("textChange", {
     const newText = newBox?.content?.textLines?.join("\n");
     // Note: here, we also animate changes to icons layout (margins/size change, or icon appearing/disappearing)
     // because a change to the icon layout will impact where the text is positioned.
-    return (
-      Boolean(oldText && newText && oldText !== newText) || hasIconLayoutChange(newBox, oldBox)
+    return Boolean(
+      oldText && newText && (oldText !== newText || hasIconLayoutChange(newBox, oldBox))
     );
   },
   updateAnimation: function (progress, animatedBox, oldBox, newBox) {
@@ -134,7 +185,7 @@ cellAnimationRegistry.add("textChange", {
       height: newBox.height,
       style: { ...newBox.style },
       skipCellGridLines: true,
-      content: newBox.content,
+      content: newBox.content ? { ...newBox.content } : undefined,
       clipRect: newBox.clipRect || {
         ...newBox,
         // large width to avoid clipping the text it it didn't have a clipRect before,
@@ -154,7 +205,7 @@ cellAnimationRegistry.add("textChange", {
       height: newBox.height,
       style: { ...oldBox.style },
       skipCellGridLines: true,
-      content: oldBox.content,
+      content: oldBox.content ? { ...oldBox.content } : undefined,
       clipRect: oldBox.clipRect || {
         ...newBox,
         x: Math.max(0, newBox.x - (oldBox.content?.width || 0)),

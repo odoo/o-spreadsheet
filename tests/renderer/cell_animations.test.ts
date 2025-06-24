@@ -639,13 +639,14 @@ describe("Individual animation tests", () => {
     expect(getBoxFromXc("B3-icon-left-slide-out")).toBe(undefined);
   });
 
-  test("Icon appearing trigger a text sliding animation containing the icon", () => {
-    setGrid(model, { A1: '=""', B3: "=A1" });
+  test("Icon appearing without text change trigger a text sliding animation containing the icon", () => {
+    setGrid(model, { B3: "8" });
     addIconCF(model, "B3", ["3", "7"], "arrows");
+    undo(model);
     drawGrid();
     expect(getBoxFromXc("B3").icons.left?.svg).toEqual(undefined);
 
-    setCellContent(model, "A1", "8");
+    redo(model);
     drawGrid();
 
     animationFrameCallback(0);
@@ -659,20 +660,39 @@ describe("Individual animation tests", () => {
     });
     expect(getBoxFromXc("B3-text-slide-out")).toMatchObject({
       icons: { left: undefined },
-      content: { textLines: [""] },
+      content: { textLines: ["8"] },
       y: b3Box.y + DEFAULT_CELL_HEIGHT / 2,
     });
     expect(getBoxFromXc("B3-icon-left-slide-in")).toBe(undefined);
     expect(getBoxFromXc("B3-icon-left-slide-out")).toBe(undefined);
   });
 
-  test("Icon disappearing trigger a text sliding animation containing the icon", () => {
+  test("Both icon and text appearing at once triggers a fade in animation", () => {
+    setGrid(model, { A1: '=""', B3: "=A1" });
+    addIconCF(model, "B3", ["3", "7"], "arrows");
+    drawGrid();
+    expect(getBoxFromXc("B3").icons.left?.svg).toEqual(undefined);
+
+    setCellContent(model, "A1", "8");
+    drawGrid();
+
+    animationFrameCallback(0);
+    animationFrameCallback(CELL_ANIMATION_DURATION / 2);
+    expect(getBoxFromXc("B3")).toMatchObject({
+      icons: { left: { opacity: 0.5 } },
+      textOpacity: 0.5,
+    });
+    expect(getBoxFromXc("B3-text-slide-in")).toBe(undefined);
+    expect(getBoxFromXc("B3-text-slide-out")).toBe(undefined);
+  });
+
+  test("Icon disappearing with text staying triggers a text sliding animation containing the icon", () => {
     setGrid(model, { A1: "9", B3: "=A1" });
     addIconCF(model, "B3", ["3", "7"], "arrows");
     drawGrid();
     expect(getBoxFromXc("B3").icons.left?.svg).toEqual(ICONS.arrowGood.svg);
 
-    setCellContent(model, "A1", '=""');
+    undo(model);
     drawGrid();
 
     animationFrameCallback(0);
@@ -681,7 +701,7 @@ describe("Individual animation tests", () => {
     expect(b3Box.icons.left?.svg).toEqual(undefined);
     expect(getBoxFromXc("B3-text-slide-in")).toMatchObject({
       icons: { left: undefined },
-      content: { textLines: [""] },
+      content: { textLines: ["9"] },
       y: b3Box.y - DEFAULT_CELL_HEIGHT / 2,
     });
     expect(getBoxFromXc("B3-text-slide-out")).toMatchObject({
@@ -693,35 +713,23 @@ describe("Individual animation tests", () => {
     expect(getBoxFromXc("B3-icon-left-slide-out")).toBe(undefined);
   });
 
-  test("Icon disappearing trigger a text sliding animation containing the icon", () => {
-    setGrid(model, { A1: '=""', B3: "=A1" });
+  test("Icon and text both disappearing at once triggers a fade out animation", () => {
+    setGrid(model, { A1: "9", B3: "=A1" });
     addIconCF(model, "B3", ["3", "7"], "arrows");
     drawGrid();
-    expect(getBoxFromXc("B3").icons.left?.svg).toEqual(undefined);
+    expect(getBoxFromXc("B3").icons.left?.svg).toEqual(ICONS.arrowGood.svg);
 
-    setCellContent(model, "A1", "8");
+    setCellContent(model, "A1", '=""');
     drawGrid();
 
     animationFrameCallback(0);
     animationFrameCallback(CELL_ANIMATION_DURATION / 2);
-    const b3Box = getBoxFromXc("B3");
-    expect(b3Box.icons.left?.svg).toEqual(undefined);
-    expect(getBoxFromXc("B3-text-slide-in")).toMatchObject({
-      icons: { left: { svg: ICONS.arrowGood.svg, clipRect: model.getters.getRect(toZone("B3")) } },
-      content: { textLines: ["8"] },
-      x: b3Box.x,
-      y: b3Box.y - DEFAULT_CELL_HEIGHT / 2,
-      width: b3Box.width,
-      height: b3Box.height,
+    expect(getBoxFromXc("B3")).toMatchObject({
+      icons: { left: { opacity: 0.5 } },
+      textOpacity: 0.5,
     });
-    expect(getBoxFromXc("B3-text-slide-out")).toMatchObject({
-      icons: { left: undefined },
-      content: { textLines: [""] },
-      x: b3Box.x,
-      y: b3Box.y + DEFAULT_CELL_HEIGHT / 2,
-      width: b3Box.width,
-      height: b3Box.height,
-    });
+    expect(getBoxFromXc("B3-text-slide-in")).toBe(undefined);
+    expect(getBoxFromXc("B3-text-slide-out")).toBe(undefined);
   });
 
   test("Can animate a data bar change", () => {
