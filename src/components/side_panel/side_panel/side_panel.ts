@@ -5,7 +5,7 @@ import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
-import { SidePanelProps } from "./side_panel_store";
+import { SidePanelComponentProps } from "./side_panel_store";
 
 css/* scss */ `
   .o-sidePanel {
@@ -123,9 +123,9 @@ css/* scss */ `
   }
 `;
 
-interface Props {
+export interface SidePanelProps {
   panelContent: SidePanelContent;
-  panelProps: SidePanelProps;
+  panelProps: SidePanelComponentProps;
   onCloseSidePanel: () => void;
   onStartHandleDrag: (ev: MouseEvent) => void;
   onResetPanelSize: () => void;
@@ -135,7 +135,7 @@ interface Props {
   isCollapsed?: boolean;
 }
 
-export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
+export class SidePanel extends Component<SidePanelProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
   static props = {
     panelContent: Object,
