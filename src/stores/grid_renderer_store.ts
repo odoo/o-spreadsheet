@@ -640,7 +640,7 @@ export class GridRenderer extends SpreadsheetStore {
     if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle(position);
+    const { align } = this.getters.getCellStyle(position) || {};
     const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;

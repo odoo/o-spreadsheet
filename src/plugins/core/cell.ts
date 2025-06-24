@@ -65,7 +65,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "zoneToXC",
     "getCells",
     "getTranslatedCellFormula",
-    "getCellStyle",
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
@@ -323,7 +322,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
-        const style = this.removeDefaultStyleValues(cell.style);
+        const style = this.removeDefaultStyleValues(this.getters.getCellStyle(position));
         if (Object.keys(style).length) {
           const styleId = getItemId<Style>(style, styles);
           positionsByStyle[styleId] ??= [];
@@ -445,10 +444,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return this.getFormulaString(targetSheetId, tokens, adaptedDependencies);
   }
 
-  getCellStyle(position: CellPosition): Style {
-    return this.getters.getCell(position)?.style || {};
-  }
-
   /**
    * Converts a zone to a XC coordinate system
    *
@@ -499,12 +494,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     for (const zone of recomputeZones(target)) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.getters.getCell({ sheetId, col, row });
+          const oldStyle = this.getters.getCellStyle({ sheetId, col, row });
           this.dispatch("UPDATE_CELL", {
             sheetId,
             col,
             row,
-            style: style ? { ...cell?.style, ...style } : undefined,
+            style: style ? { ...oldStyle, ...style } : undefined,
           });
         }
       }
@@ -550,9 +545,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const format: { style?: Style; format?: string } = {};
     const position = this.getters.getMainCellPosition({ sheetId, col, row });
     const cell = this.getters.getCell(position);
+    const style = this.getters.getCellStyle(position);
     if (cell) {
-      if (cell.style) {
-        format["style"] = cell.style;
+      if (style) {
+        format["style"] = style;
       }
       if (cell.format) {
         format["format"] = cell.format;
@@ -712,8 +708,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {
     const cell = this.getters.getCell(cmd);
+    const style = this.getters.getCellStyle(cmd);
     if (!cell) return CommandResult.NoChanges;
-    if (!cell.content && !cell.style && !cell.format) {
+    if (!cell.content && !style && !cell.format) {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
@@ -723,10 +720,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const cell = this.getters.getCell(cmd);
     const hasContent = "content" in cmd || "formula" in cmd;
     const hasStyle = "style" in cmd;
+    const oldStyle = hasStyle && this.getters.getCellStyle(cmd);
     const hasFormat = "format" in cmd;
     if (
       (!hasContent || cell?.content === cmd.content) &&
-      (!hasStyle || deepEquals(cell?.style, cmd.style)) &&
+      (!hasStyle || deepEquals(oldStyle, cmd.style)) &&
       (!hasFormat || cell?.format === cmd.format)
     ) {
       return CommandResult.NoChanges;

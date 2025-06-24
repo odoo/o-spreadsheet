@@ -31,7 +31,13 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "./test_helpers/dom_helper";
-import { getBorder, getCell, getStyle, getTable } from "./test_helpers/getters_helpers";
+import {
+  getBorder,
+  getCell,
+  getCellStyle,
+  getStyle,
+  getTable,
+} from "./test_helpers/getters_helpers";
 import {
   addToRegistry,
   getFigureIds,
@@ -282,7 +288,7 @@ describe("TopBar component", () => {
     await nextTick();
     expect(undoTool.classList.contains("o-disabled")).toBeFalsy();
     expect(redoTool.classList.contains("o-disabled")).toBeFalsy();
-    expect(getCell(model, "A1")!.style).toBeDefined();
+    expect(getCellStyle(model, "A1")).toBeDefined();
 
     await click(undoTool);
     expect(undoTool.classList.contains("o-disabled")).toBeTruthy();
@@ -792,14 +798,14 @@ describe("Format", () => {
     selectCell(model, "A1");
     addCellToSelection(model, "B2");
     setAnchorCorner(model, "B3");
-    expect(getCell(model, "A1")?.style).toEqual({ fillColor: "#000000" });
-    expect(getCell(model, "B2")?.style).toEqual({ fillColor: "#000000" });
-    expect(getCell(model, "B3")?.style).toEqual({ fillColor: "#000000" });
+    expect(getCellStyle(model, "A1")).toEqual({ fillColor: "#000000" });
+    expect(getCellStyle(model, "B2")).toEqual({ fillColor: "#000000" });
+    expect(getCellStyle(model, "B3")).toEqual({ fillColor: "#000000" });
     await click(fixture, ".o-topbar-menu[data-id='format']");
     await click(fixture, ".o-menu-item[data-name='format_clearFormat']");
-    expect(getCell(model, "A1")?.style).toBeUndefined();
-    expect(getCell(model, "B2")?.style).toBeUndefined();
-    expect(getCell(model, "B3")?.style).toBeUndefined();
+    expect(getCellStyle(model, "A1")).toBeUndefined();
+    expect(getCellStyle(model, "B2")).toBeUndefined();
+    expect(getCellStyle(model, "B3")).toBeUndefined();
   });
 });
 
