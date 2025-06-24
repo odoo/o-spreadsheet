@@ -37,7 +37,7 @@ import {
   sort,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellStyle, getCellText } from "../test_helpers/getters_helpers";
 import { createModelFromGrid, makeTestEnv, target } from "../test_helpers/helpers";
 
 function getCellsObject(model: Model, sheetId: UID) {
@@ -187,13 +187,13 @@ describe("UI Helpers", () => {
       interactivePaste(env, target("B3"));
 
       expect(getCellText(model, "B1")).toBe("");
-      expect(getCell(model, "B1")!.style).toEqual(style);
+      expect(getCellStyle(model, "B1")).toEqual(style);
 
       expect(getCellText(model, "B2")).toBe("42");
-      expect(getCell(model, "B2")!.style).toBeUndefined();
+      expect(getCellStyle(model, "B2")).toBeUndefined();
 
       expect(getCellText(model, "B3")).toBe("=42");
-      expect(getCell(model, "B3")!.style).toEqual(style);
+      expect(getCellStyle(model, "B3")).toEqual(style);
     });
 
     test("paste a zone with more than one value will warn user", async () => {

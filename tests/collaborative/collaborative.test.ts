@@ -50,6 +50,7 @@ import {
   createEqualCF,
   getDataValidationRules,
   target,
+  toCellPosition,
   toRangesData,
 } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
@@ -937,7 +938,12 @@ describe("Multi users synchronisation", () => {
     const ctx = document.createElement("canvas").getContext("2d")!;
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getRowSize("sheet2", 0),
-      getDefaultCellHeight(ctx, getCell(alice, "A1"), colSize)
+      getDefaultCellHeight(
+        ctx,
+        getCell(alice, "A1"),
+        alice.getters.getCellStyle(toCellPosition("sheet2", "A1")),
+        colSize
+      )
     );
   });
 

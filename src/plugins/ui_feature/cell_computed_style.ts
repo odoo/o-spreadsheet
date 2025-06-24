@@ -93,14 +93,14 @@ export class CellComputedStylePlugin extends UIPlugin {
   }
 
   private computeCellStyle(position: CellPosition): Style {
-    const cell = this.getters.getCell(position);
+    const cellStyle = this.getters.getCellStyle(position);
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
     const tableStyle = this.getters.getCellTableStyle(position);
     const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
     const computedStyle = {
       ...removeFalsyAttributes(tableStyle),
       ...removeFalsyAttributes(dataValidationStyle),
-      ...removeFalsyAttributes(cell?.style),
+      ...removeFalsyAttributes(cellStyle),
       ...removeFalsyAttributes(cfStyle),
     };
     const evaluatedCell = this.getters.getEvaluatedCell(position);

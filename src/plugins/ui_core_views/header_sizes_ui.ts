@@ -188,9 +188,9 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
     }
 
     const cell = this.getters.getCell(position);
-
+    const style = this.getters.getCellStyle(position);
     const colSize = this.getters.getColSize(position.sheetId, position.col);
-    return getDefaultCellHeight(this.ctx, cell, colSize);
+    return getDefaultCellHeight(this.ctx, cell, style, colSize);
   }
 
   private isInMultiRowMerge(position: CellPosition): boolean {
