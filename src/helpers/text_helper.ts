@@ -9,6 +9,7 @@ import {
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
 import { Cell, Pixel, PixelPosition, Style } from "../types";
+import { isMarkdownLink, parseMarkdownLink } from "./misc";
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
@@ -111,6 +112,7 @@ export function splitTextToWidth(
   width: number | undefined
 ): string[] {
   if (!style) style = {};
+  if (isMarkdownLink(text)) text = parseMarkdownLink(text).label;
   const brokenText: string[] = [];
 
   // Checking if text contains NEWLINE before split makes it very slightly slower if text contains it,
