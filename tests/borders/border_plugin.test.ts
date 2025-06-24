@@ -1,4 +1,6 @@
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
+import { toZone } from "../../src/helpers";
+import { removeFalsyAttributes } from "../../src/helpers/misc";
 import { Model } from "../../src/model";
 import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
@@ -755,37 +757,77 @@ describe("Grid manipulation", () => {
     expect(model.exportData().borders).toEqual({});
   });
 
-  test("Adding a border on a cell removes it on the adjacent cells if it differs", () => {
-    const model = new Model();
-    const b = DEFAULT_BORDER_DESC;
-    setZoneBorders(model, { position: "bottom", color: "red", style: "dashed" }, ["B2"]);
-    setZoneBorders(model, { position: "right", color: "red", style: "dashed" }, ["A3"]);
-    setZoneBorders(model, { position: "left", color: "red", style: "dashed" }, ["C3"]);
-    setZoneBorders(model, { position: "top" }, ["D2"]);
-    setZoneBorders(model, { position: "external" }, ["B3"]);
-    expect(getBorder(model, "B3")).toEqual({ top: b, bottom: b, left: b, right: b });
-    // deleted as the borders are different
-    expect(getBorder(model, "B2")).toBeNull();
-    expect(getBorder(model, "A3")).toBeNull();
-    expect(getBorder(model, "C3")).toBeNull();
-    // untouched as the border are the same
-    expect(getBorder(model, "D2")).toEqual({ top: DEFAULT_BORDER_DESC });
-  });
-
   test("Setting a *clear* border on a cell removes the adjacent border cell", () => {
     const model = new Model();
     const b = DEFAULT_BORDER_DESC;
+    const allSides = { left: b, right: b, top: b, bottom: b };
     setZoneBorders(model, { position: "all" }, ["A1:C3"]);
     setZoneBorders(model, { position: "clear" }, ["B2"]);
-    expect(getBorder(model, "A1")).toEqual({ top: b, bottom: b, left: b, right: b });
+
+    /**
+     * ----------------     ----------------
+     * | A1 | B1 | C1 |     | A1 | B1 | C1 |
+     * ----------------     ------    ------
+     * | A2 | B2 | C2 |  => | A2   B2   C2 |
+     * ----------------     ------    ------
+     * | A3 | B3 | C3 |     | A3 | B3 | C3 |
+     * ----------------     ----------------
+     */
+
+    expect(getBorder(model, "A1")).toEqual(allSides);
     expect(getBorder(model, "A2")).toEqual({ top: b, bottom: b, left: b });
-    expect(getBorder(model, "A3")).toEqual({ top: b, bottom: b, left: b, right: b });
+    expect(getBorder(model, "A3")).toEqual(allSides);
     expect(getBorder(model, "B1")).toEqual({ top: b, left: b, right: b });
     expect(getBorder(model, "B2")).toBeNull();
     expect(getBorder(model, "B3")).toEqual({ bottom: b, left: b, right: b });
-    expect(getBorder(model, "C1")).toEqual({ top: b, bottom: b, left: b, right: b });
+    expect(getBorder(model, "C1")).toEqual(allSides);
     expect(getBorder(model, "C2")).toEqual({ top: b, bottom: b, right: b });
-    expect(getBorder(model, "C3")).toEqual({ top: b, bottom: b, left: b, right: b });
+    expect(getBorder(model, "C3")).toEqual(allSides);
+  });
+
+  test("Setting a *clear* border on multiple cells removes the adjacent border cell ", () => {
+    const model = new Model();
+    const b = DEFAULT_BORDER_DESC;
+    const allSides = { left: b, right: b, top: b, bottom: b };
+    const sheetId = model.getters.getActiveSheetId();
+    setZoneBorders(model, { position: "all" }, ["A1:F6"]);
+    const getZoneBorder = (zone) => {
+      return removeFalsyAttributes(model.getters.getZoneExternalBorders(sheetId, toZone(zone)));
+    };
+
+    expect(getZoneBorder("A1:B2")).toEqual(allSides);
+    expect(getZoneBorder("C1:D2")).toEqual(allSides);
+    expect(getZoneBorder("E1:F2")).toEqual(allSides);
+    expect(getZoneBorder("A3:B4")).toEqual(allSides);
+    expect(getZoneBorder("C3:D4")).toEqual(allSides);
+    expect(getZoneBorder("E3:F4")).toEqual(allSides);
+    expect(getZoneBorder("A5:B6")).toEqual(allSides);
+    expect(getZoneBorder("A5:D6")).toEqual(allSides);
+    expect(getZoneBorder("A5:E6")).toEqual(allSides);
+
+    /**
+     * ----------------     ----------------
+     * | A1 | C1 | E1 |     | A1 | C1 | E1 |
+     * | B2 | D2 | F2 |     | B2 | D2 | F2 |
+     * ----------------     ------    ------
+     * | A3 | C3 | E3 |  => | A3   C3   E3 |
+     * | B4 | D4 | F4 |  => | B4   D4   F4 |
+     * ----------------     ------    ------
+     * | A5 | C5 | E5 |     | A5 | C5 | E5 |
+     * | B6 | D6 | F6 |     | B6 | D6 | F6 |
+     * ----------------     ----------------
+     */
+    setZoneBorders(model, { position: "clear" }, ["C3:D4"]);
+
+    expect(getZoneBorder("A1:B2")).toEqual(allSides);
+    expect(getZoneBorder("C1:D2")).toEqual({ top: b, right: b, left: b });
+    expect(getZoneBorder("E1:F2")).toEqual(allSides);
+    expect(getZoneBorder("A3:B4")).toEqual({ top: b, bottom: b, left: b });
+    expect(getZoneBorder("C3:D4")).toEqual({});
+    expect(getZoneBorder("E3:F4")).toEqual({ top: b, bottom: b, right: b });
+    expect(getZoneBorder("A5:B6")).toEqual(allSides);
+    expect(getZoneBorder("C5:D6")).toEqual({ bottom: b, left: b, right: b });
+    expect(getZoneBorder("E5:F6")).toEqual(allSides);
   });
 
   describe("manipulate borders on boundaries of the sheet", () => {
@@ -862,8 +904,7 @@ describe("Border continuity", () => {
   };
   test("border continuity is preserved when adding a row before", () => {
     const model = new Model();
-    setZoneBorders(model, { position: "external" }, ["A1"]);
-    setZoneBorders(model, { position: "external" }, ["A2"]);
+    setZoneBorders(model, { position: "all" }, ["A1: A2"]);
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "A2")).toEqual(border);
     expect(getBorder(model, "A3")).toBeNull();
@@ -875,8 +916,7 @@ describe("Border continuity", () => {
 
   test("border continuity is preserved when adding a row after", () => {
     const model = new Model();
-    setZoneBorders(model, { position: "external" }, ["A1"]);
-    setZoneBorders(model, { position: "external" }, ["A2"]);
+    setZoneBorders(model, { position: "all" }, ["A1: A2"]);
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "A2")).toEqual(border);
     expect(getBorder(model, "A3")).toBeNull();
@@ -888,8 +928,7 @@ describe("Border continuity", () => {
 
   test("border continuity is preserved when adding a column before", () => {
     const model = new Model();
-    setZoneBorders(model, { position: "external" }, ["A1"]);
-    setZoneBorders(model, { position: "external" }, ["B1"]);
+    setZoneBorders(model, { position: "all" }, ["A1: B1"]);
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "B1")).toEqual(border);
     expect(getBorder(model, "C1")).toBeNull();
@@ -901,8 +940,7 @@ describe("Border continuity", () => {
 
   test("border continuity is preserved when adding a column after", () => {
     const model = new Model();
-    setZoneBorders(model, { position: "external" }, ["A1"]);
-    setZoneBorders(model, { position: "external" }, ["B1"]);
+    setZoneBorders(model, { position: "all" }, ["A1: B1"]);
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "B1")).toEqual(border);
     expect(getBorder(model, "C1")).toBeNull();
@@ -910,6 +948,67 @@ describe("Border continuity", () => {
     expect(getBorder(model, "A1")).toEqual(border);
     expect(getBorder(model, "B1")).toEqual(border);
     expect(getBorder(model, "C1")).toEqual(border);
+  });
+
+  test("insert column after cell with external border", () => {
+    const model = new Model();
+    setZoneBorders(model, { position: "external" }, ["B2"]);
+    addColumns(model, "after", "B", 1);
+    expect(getBorder(model, "B2")).toEqual({
+      top: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      left: DEFAULT_BORDER_DESC,
+      right: DEFAULT_BORDER_DESC,
+    });
+  });
+
+  test("insert column before cell with external border", () => {
+    const model = new Model();
+    setZoneBorders(model, { position: "external" }, ["B2"]);
+    addColumns(model, "before", "B", 1);
+    expect(getBorder(model, "C2")).toEqual({
+      top: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      left: DEFAULT_BORDER_DESC,
+      right: DEFAULT_BORDER_DESC,
+    });
+  });
+
+  test("delete column after cell with external border", () => {
+    const model = new Model();
+    setZoneBorders(model, { position: "external" }, ["B2"]);
+    deleteColumns(model, ["C"]);
+    expect(getBorder(model, "B2")).toEqual({
+      top: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      left: DEFAULT_BORDER_DESC,
+      right: DEFAULT_BORDER_DESC,
+    });
+  });
+
+  test("insert row after cell with external border", () => {
+    const model = new Model();
+    const s = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "external" }, ["B2"]);
+    addRows(model, "after", 1, 1);
+    expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
+  });
+
+  test("insert row before cell with external border", () => {
+    const model = new Model();
+    const s = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "external" }, ["B2"]);
+    addRows(model, "before", 1, 1);
+    expect(getBorder(model, "B2")).toBeNull();
+    expect(getBorder(model, "B3")).toEqual({ top: s, bottom: s, left: s, right: s });
+  });
+
+  test("delete row  after cell with external border", () => {
+    const model = new Model();
+    const s = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "external" }, ["B2"]);
+    deleteRows(model, [2]);
+    expect(getBorder(model, "B2")).toEqual({ top: s, bottom: s, left: s, right: s });
   });
 });
 
