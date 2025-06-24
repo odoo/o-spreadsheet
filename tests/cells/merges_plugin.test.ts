@@ -394,9 +394,7 @@ describe("merges", () => {
 
   test("setting border => merging => unmerging", () => {
     const model = new Model();
-    setAnchorCorner(model, "B1");
-
-    setZoneBorders(model, { position: "external" });
+    setZoneBorders(model, { position: "external" }, ["A1:B1"]);
     expect(getBorder(model, "A1")).toEqual({
       left: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,
@@ -408,7 +406,7 @@ describe("merges", () => {
       top: DEFAULT_BORDER_DESC,
     });
     merge(model, "A1:B1");
-    merge(model, "A1:B1");
+    unMerge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({
       left: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,
@@ -424,6 +422,12 @@ describe("merges", () => {
   test("setting border to topleft => merging => unmerging", () => {
     const model = new Model();
     setZoneBorders(model, { position: "external" }, ["A1"]);
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+      right: DEFAULT_BORDER_DESC,
+    });
     merge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({
       left: DEFAULT_BORDER_DESC,
