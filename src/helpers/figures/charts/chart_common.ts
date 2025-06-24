@@ -8,6 +8,7 @@ import {
   DOMCoordinates,
   DOMDimension,
   Getters,
+  isMatrix,
   Locale,
   LocaleFormat,
   Range,
@@ -17,6 +18,7 @@ import {
   Zone,
 } from "../../../types";
 import {
+  AxesDesign,
   ChartAxisFormats,
   ChartWithDataSetDefinition,
   CustomizedDataSet,
@@ -25,6 +27,7 @@ import {
   ExcelChartDataset,
   ExcelChartTrendConfiguration,
   GenericDefinition,
+  TitleDesign,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { MAX_XLSX_POLYNOMIAL_DEGREE } from "../../../xlsx/constants";
@@ -55,8 +58,11 @@ export const SPREADSHEET_TO_EXCEL_TRENDLINE_TYPE_MAPPING = {
  */
 export function updateChartRangesWithDataSets(
   getters: CoreGetters,
+  sheetId: UID,
   applyChange: ApplyRangeChange,
   chartDataSets: DataSet[],
+  chartTitle: TitleDesign,
+  axesDesign?: AxesDesign,
   chartLabelRange?: Range
 ) {
   let isStale = false;
@@ -96,11 +102,66 @@ export function updateChartRangesWithDataSets(
     labelRange = range;
   }
   const dataSets = dataSetsWithUndefined.filter(isDefined);
+
+  const adaptedChartTitle = adaptChartTitle(getters, sheetId, chartTitle, applyChange);
+  const adaptedAxesDesign = adaptAxesDesign(getters, sheetId, axesDesign, applyChange);
+  if (adaptedChartTitle !== chartTitle || adaptedAxesDesign !== axesDesign) {
+    isStale = true;
+  }
+
   return {
     isStale,
     dataSets,
     labelRange,
+    chartTitle: adaptedChartTitle,
+    axesDesign: adaptedAxesDesign,
   };
+}
+
+/**
+ * Adapt chart title by updating range references in the formula.
+ */
+export function adaptChartTitle(
+  getters: CoreGetters,
+  sheetId: UID,
+  title: TitleDesign,
+  applyChange: ApplyRangeChange
+): TitleDesign {
+  if (title.text && title.text.startsWith("=")) {
+    const adaptedChartTitle = getters.adaptFormulaStringDependencies(
+      sheetId,
+      title.text,
+      applyChange
+    );
+    return {
+      ...title,
+      text: adaptedChartTitle,
+    };
+  }
+  return title;
+}
+
+/**
+ * Adapt axes design by updating range references in the formula.
+ */
+export function adaptAxesDesign(
+  getters: CoreGetters,
+  sheetId: UID,
+  axesDesign: AxesDesign | undefined,
+  applyChange: ApplyRangeChange
+): AxesDesign | undefined {
+  if (!axesDesign) {
+    return undefined;
+  }
+
+  const newAxesDesign: AxesDesign = {};
+  for (const [key, value] of Object.entries(axesDesign)) {
+    newAxesDesign[key] = {
+      ...value,
+      title: value.title && adaptChartTitle(getters, sheetId, value.title, applyChange),
+    };
+  }
+  return newAxesDesign;
 }
 
 /**
@@ -371,6 +432,105 @@ export function chartMutedFontColor(backgroundColor: Color | undefined): Color {
     return "#666666";
   }
   return relativeLuminance(backgroundColor) < 0.3 ? "#C8C8C8" : "#666666";
+}
+
+/**
+ * Evaluates the chart title if it contains a formula.
+ */
+export function getEvaluatedChartTitle(
+  getters: Getters,
+  title: TitleDesign | undefined = {}
+): TitleDesign {
+  if (title.text && title.text.startsWith("=")) {
+    const evaluated = getters.evaluateFormula(getters.getActiveSheetId(), title.text);
+    return {
+      ...title,
+      text: evaluated && !isMatrix(evaluated) ? evaluated.toString() : "",
+    };
+  }
+
+  return title;
+}
+
+/**
+ * Evaluates the axes design if they contain formulas.
+ */
+export function getEvaluatedAxesDesign(
+  getters: Getters,
+  axesDesign: AxesDesign | undefined
+): AxesDesign {
+  const newAxesDesign: AxesDesign = {};
+  if (axesDesign) {
+    for (const [key, value] of Object.entries(axesDesign)) {
+      newAxesDesign[key] = {
+        ...value,
+        title: value.title && getEvaluatedChartTitle(getters, value.title),
+      };
+    }
+  }
+  return newAxesDesign;
+}
+
+/**
+ * Copy the chart title to another sheet.
+ *
+ * @param mode
+ * `keepSameReference` will make the formula reference the exact same ranges,
+ * `moveReference` will change all the references to `sheetIdFrom` into references to `sheetIdTo`.
+ */
+export function copyChartTitleWithNewSheetId(
+  getters: CoreGetters,
+  sourceSheetId: UID,
+  targetSheetId: UID,
+  title: TitleDesign,
+  referenceMode: "keepSameReference" | "moveReference"
+): TitleDesign {
+  if (!title.text) {
+    return title;
+  }
+
+  const updatedChartTitle = getters.copyFormulaStringForSheet(
+    sourceSheetId,
+    targetSheetId,
+    title.text,
+    referenceMode
+  );
+  return {
+    ...title,
+    text: updatedChartTitle,
+  };
+}
+
+/**
+ * Copy the axes design to another sheet.
+ */
+export function copyAxesDesignWithNewSheetId(
+  getters: CoreGetters,
+  sourceSheetId: UID,
+  targetSheetId: UID,
+  axesDesign: AxesDesign | undefined,
+  referenceMode: "keepSameReference" | "moveReference"
+): AxesDesign | undefined {
+  if (!axesDesign) {
+    return undefined;
+  }
+
+  const newAxesDesign: AxesDesign = {};
+  for (const [key, value] of Object.entries(axesDesign)) {
+    newAxesDesign[key] = {
+      ...value,
+      title: value.title
+        ? copyChartTitleWithNewSheetId(
+            getters,
+            sourceSheetId,
+            targetSheetId,
+            value.title,
+            referenceMode
+          )
+        : undefined,
+    };
+  }
+  return newAxesDesign;
 }
 
 export function checkDataset(definition: ChartWithDataSetDefinition): CommandResult {
