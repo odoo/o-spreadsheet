@@ -22,6 +22,7 @@ import {
   UID,
 } from "./misc";
 
+import { ZoneBorderData } from "../plugins/core";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { Carousel, CarouselItem, FigureSize } from "./figure";
@@ -180,6 +181,7 @@ export const invalidateBordersCommands = new Set<CommandTypes>([
   "AUTOFILL_CELL",
   "SET_BORDER",
   "SET_ZONE_BORDERS",
+  "SET_ZONE_BORDERDATA",
 ]);
 
 export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
@@ -271,6 +273,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "CLEAR_FORMATTING",
   "SET_BORDER",
   "SET_ZONE_BORDERS",
+  "SET_ZONE_BORDERDATA",
   "SET_BORDERS_ON_TARGET",
 
   /** CHART */
@@ -680,6 +683,11 @@ export interface SetFormattingCommand extends TargetDependentCommand {
 export interface SetZoneBordersCommand extends TargetDependentCommand {
   type: "SET_ZONE_BORDERS";
   border: BorderData;
+}
+
+export interface SetZoneBorderDataCommand extends TargetDependentCommand {
+  type: "SET_ZONE_BORDERDATA";
+  border: ZoneBorderData;
 }
 
 export interface SetBorderCommand extends PositionDependentCommand {
@@ -1169,6 +1177,7 @@ export type CoreCommand =
   | ClearFormattingCommand
   | SetZoneBordersCommand
   | SetBorderCommand
+  | SetZoneBorderDataCommand
   | SetBorderTargetCommand
 
   /** CHART */
