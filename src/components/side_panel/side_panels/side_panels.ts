@@ -5,7 +5,7 @@ import { SpreadsheetChildEnv } from "../../../types";
 import { cssPropertiesToCss } from "../../helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
-import { SidePanel } from "../side_panel/side_panel";
+import { SidePanel, SidePanelProps } from "../side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel_store";
 
 export class SidePanels extends Component<{}, SpreadsheetChildEnv> {
@@ -68,7 +68,7 @@ export class SidePanels extends Component<{}, SpreadsheetChildEnv> {
     };
   }
 
-  get secondaryPanelProps(): SidePanel["props"] | undefined {
+  get secondaryPanelProps(): SidePanelProps | undefined {
     const panelProps = this.sidePanelStore.secondaryPanelProps;
     if (!this.sidePanelStore.secondaryPanel || !panelProps) {
       return undefined;
