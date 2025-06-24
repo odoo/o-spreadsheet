@@ -75,6 +75,15 @@ export function getCellContent(
   );
 }
 
+export function getCellStyle(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): Style | undefined {
+  const { col, row } = toCartesian(xc);
+  return model.getters.getCellStyle({ sheetId, col, row });
+}
+
 /**
  * Get the string representation of the content of a range of cells
  */

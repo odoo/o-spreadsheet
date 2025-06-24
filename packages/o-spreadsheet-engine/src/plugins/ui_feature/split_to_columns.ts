@@ -67,6 +67,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
 
       const col = selection.left;
       const mainCell = this.getters.getCell({ sheetId, col, row });
+      const mainCellStyle = this.getters.getCellStyle({ sheetId, col, row });
 
       if (splittedContent.length === 1 && splittedContent[0] === mainCell?.content) {
         continue;
@@ -79,7 +80,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
           row,
           content: canonicalizeNumberContent(content, this.getters.getLocale()),
           format: "",
-          style: mainCell?.style || null,
+          style: mainCellStyle || null,
         });
       }
     }

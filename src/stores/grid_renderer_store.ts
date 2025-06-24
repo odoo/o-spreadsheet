@@ -641,7 +641,7 @@ export class GridRenderer extends SpreadsheetStore {
     if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle(position);
+    const align = this.getters.getCellComputedStyle(position)?.align;
     const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (formatHasRepeatedChar(evaluatedCell.value, evaluatedCell.format)) {
       return "left";

@@ -747,14 +747,15 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     this.history.update("sheets", Object.assign({}, this.sheets, { [newSheet.id]: newSheet }));
 
     for (const cell of Object.values(this.getters.getCells(fromId))) {
-      const { col, row } = this.getCellPosition(cell.id);
+      const { sheetId, col, row } = this.getCellPosition(cell.id);
+      const style = this.getters.getCellStyle({ sheetId, col, row });
       this.dispatch("UPDATE_CELL", {
         sheetId: newSheet.id,
         col,
         row,
         content: cell.content,
         format: cell.format,
-        style: cell.style,
+        style,
       });
     }
 
