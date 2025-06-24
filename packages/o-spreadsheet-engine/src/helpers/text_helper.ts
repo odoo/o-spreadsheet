@@ -26,13 +26,14 @@ export function getCanvas(width: number = 100, height: number = 100): Canvas2DCo
 export function getDefaultCellHeight(
   ctx: Canvas2DContext,
   cell: Cell | undefined,
+  style: Style | undefined,
   colSize: number
 ) {
   if (!cell || (!cell.isFormula && !cell.content)) {
     return DEFAULT_CELL_HEIGHT;
   }
   const content = cell.isFormula ? "" : cell.content;
-  return getCellContentHeight(ctx, content, cell.style, colSize);
+  return getCellContentHeight(ctx, content, style, colSize);
 }
 
 export function getCellContentHeight(

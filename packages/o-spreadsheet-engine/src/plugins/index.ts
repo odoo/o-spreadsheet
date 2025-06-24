@@ -15,6 +15,7 @@ import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
 import { SheetPlugin } from "./core/sheet";
 import { SpreadsheetPivotCorePlugin } from "./core/spreadsheet_pivot";
+import { StylePlugin } from "./core/style";
 import { TableStylePlugin } from "./core/table_style";
 import { TablePlugin } from "./core/tables";
 import { CorePluginConstructor } from "./core_plugin";
@@ -66,6 +67,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("dataValidation", DataValidationPlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
+  .add("style", StylePlugin)
   .add("headerSize", HeaderSizePlugin)
   .add("borders", BordersPlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
