@@ -137,22 +137,26 @@ export class PivotCustomFieldPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   onSave() {
-    let definition = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
-    const customFields = { ...definition.customFields };
-    const oldName = Object.keys(customFields).find(
-      (name) => customFields[name].parentField === this.state.customField.parentField
+    // ADRM TODO: also add the field to the pivot dimension
+    let definition = deepCopy(this.env.model.getters.getPivotCoreDefinition(this.props.pivotId));
+    const oldName = Object.keys(definition.customFields || {}).find(
+      (name) => definition.customFields?.[name].parentField === this.state.customField.parentField
     );
     const newName = this.state.customField.name;
     if (oldName && oldName !== newName) {
       definition = updatePivotDefinitionForCustomFieldNameChange(definition, oldName, newName);
     }
+    console.log(definition);
     this.state.customField.groups = this.state.customField.groups.filter(
       (group) => group.values.length > 0 || group.isOtherGroup
     );
-    customFields[this.state.customField.name] = this.state.customField;
+    if (!definition.customFields) {
+      definition.customFields = {};
+    }
+    definition.customFields[this.state.customField.name] = this.state.customField;
     this.env.model.dispatch("UPDATE_PIVOT", {
       pivotId: this.props.pivotId,
-      pivot: { ...definition, customFields },
+      pivot: definition,
     });
     this.env.openSidePanel("PivotSidePanel", { pivotId: this.props.pivotId });
   }

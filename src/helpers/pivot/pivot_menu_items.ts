@@ -345,6 +345,7 @@ function groupValuesInNormalField(
   valueToLabelMap: Map<CellValue, string>
 ) {
   const customField = getCustomFieldWithParentField(definition, field, fields);
+  console.log("customField", customField);
 
   removePivotGroupsContainingValues(selectedValues, customField);
   const newGroup: PivotCustomGroup = {
@@ -387,7 +388,7 @@ function groupValuesInCustomField(
   } else if (groupsInSelection.length === 0) {
     const newGroup: PivotCustomGroup = {
       name: getUniquePivotGroupName(
-        fieldValues.map((v) => valueToLabelMap.get(v)).join(","),
+        fieldValues.map((v) => valueToLabelMap.get(v)).join(","), // ADRM TODO: virer ca ?
         customField
       ),
       values: fieldValues,
