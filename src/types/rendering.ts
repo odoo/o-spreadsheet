@@ -36,7 +36,7 @@ export type RenderingBorder = {
   left?: BorderDescrWithOpacity;
 };
 
-export type RenderingGridIcon = GridIcon & { clipRect?: Rect };
+export type RenderingGridIcon = GridIcon & { clipRect?: Rect; opacity?: number };
 
 export interface RenderingBox {
   id: string;
