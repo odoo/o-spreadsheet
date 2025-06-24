@@ -420,6 +420,7 @@ export class GridRenderer extends SpreadsheetStore {
           continue;
         }
         ctx.save();
+        ctx.globalAlpha = icon.opacity ?? 1;
         ctx.beginPath();
         const clipRect = icon.clipRect || box;
         ctx.rect(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
