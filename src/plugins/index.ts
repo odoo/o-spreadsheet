@@ -11,6 +11,7 @@ import {
   ImagePlugin,
   MergePlugin,
   SheetPlugin,
+  StylePlugin,
   TablePlugin,
 } from "./core";
 import { CarouselPlugin } from "./core/carousel";
@@ -76,6 +77,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("merge", MergePlugin)
   .add("headerSize", HeaderSizePlugin)
   .add("borders", BordersPlugin)
+  .add("style", StylePlugin)
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
