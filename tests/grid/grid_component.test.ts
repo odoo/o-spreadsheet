@@ -83,6 +83,7 @@ import {
   getCell,
   getCellContent,
   getCellIcons,
+  getCellStyle,
   getCellText,
   getClipboardVisibleZones,
   getEvaluatedCell,
@@ -1085,7 +1086,7 @@ describe("Grid component", () => {
       gridMouseEvent(model, "pointerdown", "C8");
       gridMouseEvent(model, "pointerup", "C8");
 
-      expect(getCell(model, "C8")?.style).toMatchObject({ fillColor: "#748747" });
+      expect(getCellStyle(model, "C8")).toMatchObject({ fillColor: "#748747" });
     });
 
     test("Paste format works with conditional format", () => {
@@ -1202,7 +1203,7 @@ describe("Grid component", () => {
 
       gridMouseEvent(model, "pointerdown", "D8");
       gridMouseEvent(model, "pointerup", "D8");
-      expect(getCell(model, "D8")?.style).toEqual({ bold: true });
+      expect(getCellStyle(model, "D8")).toEqual({ bold: true });
     });
 
     test("Paint format does a single history step", async () => {

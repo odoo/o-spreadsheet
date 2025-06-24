@@ -30,7 +30,7 @@ import { getCell } from "../test_helpers/getters_helpers";
 
 const ctx = document.createElement("canvas").getContext("2d")!;
 function getDefaultCellHeight(cell: Cell | undefined, colSize = DEFAULT_CELL_WIDTH) {
-  return Math.round(getDefaultCellHeightHelper(ctx, cell, colSize));
+  return Math.round(getDefaultCellHeightHelper(ctx, cell, cell?.style, colSize));
 }
 
 describe("Model resizer", () => {

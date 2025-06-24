@@ -27,8 +27,8 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
-  getCell,
   getCellContent,
+  getCellStyle,
   getFilter,
   getTable,
 } from "../test_helpers/getters_helpers";
@@ -817,7 +817,7 @@ describe("Table plugin", () => {
       copy(model, "A1:B2");
       paste(model, "C1");
       expect(getTable(model, "D2")).toBeFalsy();
-      expect(getCell(model, "D2")?.style).toEqual({ fillColor: "#FF0000", bold: true });
+      expect(getCellStyle(model, "D2")).toEqual({ fillColor: "#FF0000", bold: true });
       expect(getBorder(model, "D2")?.top).toEqual(DEFAULT_BORDER_DESC);
     });
 
@@ -827,9 +827,9 @@ describe("Table plugin", () => {
       copy(model, "A1:A2");
       paste(model, "B1");
       expect(getTable(model, "B1")).toBeFalsy();
-      expect(getCell(model, "B1")?.style).toEqual({ fillColor: "#FF0000", bold: true });
+      expect(getCellStyle(model, "B1")).toEqual({ fillColor: "#FF0000", bold: true });
       expect(getBorder(model, "B1")?.top).toEqual(DEFAULT_BORDER_DESC);
-      expect(getCell(model, "B2")?.style).toEqual({ fillColor: "#FF0000" });
+      expect(getCellStyle(model, "B2")).toEqual({ fillColor: "#FF0000" });
     });
 
     test("Cutting partially the table paste the style but do not remove the table", () => {
@@ -839,7 +839,7 @@ describe("Table plugin", () => {
       paste(model, "B1");
       expect(getTable(model, "A1")).toBeTruthy();
       expect(getTable(model, "B1")).toBeFalsy();
-      expect(getCell(model, "B1")?.style).toEqual({ fillColor: "#FF0000", bold: true });
+      expect(getCellStyle(model, "B1")).toEqual({ fillColor: "#FF0000", bold: true });
     });
 
     test("Do not paste table style inside another table", () => {
@@ -848,7 +848,7 @@ describe("Table plugin", () => {
       createTable(model, "B1:B4");
       copy(model, "A1");
       paste(model, "B1");
-      expect(getCell(model, "B1")?.style?.fillColor).not.toEqual("#FF0000");
+      expect(getCellStyle(model, "B1")?.fillColor).not.toEqual("#FF0000");
     });
 
     test("Paste as value do not copy the table", () => {
@@ -857,7 +857,7 @@ describe("Table plugin", () => {
       copy(model, "A1:B4");
       paste(model, "A5", "asValue");
       expect(getTable(model, "A5")).toBeFalsy();
-      expect(getCell(model, "A5")?.style).toBeUndefined();
+      expect(getCellStyle(model, "A5")).toBeUndefined();
     });
 
     test("Can copy/paste the whole table formatting", () => {
@@ -866,9 +866,9 @@ describe("Table plugin", () => {
       copy(model, "A1:A2");
       paste(model, "A5", "onlyFormat");
       expect(getTable(model, "A5")).toBeFalsy();
-      expect(getCell(model, "A5")?.style).toEqual({ fillColor: "#FF0000", bold: true });
+      expect(getCellStyle(model, "A5")).toEqual({ fillColor: "#FF0000", bold: true });
       expect(getBorder(model, "A5")).toEqual({ top: DEFAULT_BORDER_DESC });
-      expect(getCell(model, "A6")?.style).toEqual({ fillColor: "#FF0000" });
+      expect(getCellStyle(model, "A6")).toEqual({ fillColor: "#FF0000" });
     });
 
     test("Pasting onlyFormat with a partial table copied paste the table style, not asValue", () => {
@@ -877,10 +877,10 @@ describe("Table plugin", () => {
       copy(model, "A1");
 
       paste(model, "A5", "onlyFormat");
-      expect(getCell(model, "A5")?.style).toEqual({ fillColor: "#FF0000", bold: true });
+      expect(getCellStyle(model, "A5")).toEqual({ fillColor: "#FF0000", bold: true });
 
       paste(model, "A6", "asValue");
-      expect(getCell(model, "A6")?.style).toEqual(undefined);
+      expect(getCellStyle(model, "A6")).toEqual(undefined);
     });
 
     test("Copied table style do not overwrite cell style", () => {
@@ -889,7 +889,7 @@ describe("Table plugin", () => {
       setStyle(model, "A1", { fillColor: "#000000", italic: true });
       copy(model, "A1");
       paste(model, "B2");
-      expect(getCell(model, "B2")?.style).toEqual({
+      expect(getCellStyle(model, "B2")).toEqual({
         fillColor: "#000000",
         italic: true,
         bold: true,
