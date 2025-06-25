@@ -431,7 +431,10 @@ function ungroupPivotHeaders(
   }
 
   if (customField.groups.every((g) => g.values.length === 0 && !g.isOtherGroup)) {
+    // ADRM TODO: do we want to remove the custom field when un-grouping everything with the menu items ? If so, what about existing computed measure/row/cols/sortedColumn
     delete definition.customFields?.[customField.name];
+    definition.rows = definition.rows.filter((d) => d.fieldName !== customField.name);
+    definition.columns = definition.columns.filter((d) => d.fieldName !== customField.name);
   }
 }
 

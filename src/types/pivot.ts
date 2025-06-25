@@ -4,6 +4,13 @@ import { Format } from "./format";
 import { Locale } from "./locale";
 import { Dimension, FunctionResultObject, SortDirection, UID, Zone } from "./misc";
 
+// ADRM TODO: keep side panel ?
+// ADRM TODO: if we drop the side panel, do "others" group still make sense ?
+// ADRM TODO: if we drop the side panel, how to rename custom groups ? Or custom field (less important)
+// ADRM TODO: ordering of custom groups in odoo ? simple string localeCompare ?
+// ADRM TODO: field name w/ translation. create in english => "Salesperson2", but doesn't transform to "Vendeur2" in french.
+// ADRM TODO: do we want to remove the custom field when un-grouping everything with the menu items ? If so, what about existing computed measure/row/cols/sortedColumn
+
 export type Aggregator =
   | "array_agg"
   | "count"

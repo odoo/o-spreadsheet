@@ -748,6 +748,7 @@ describe("Pivot sorting menu item", () => {
   });
 });
 
+// ADRM TODO: maybe separate file ?
 describe("Pivot (un)grouping menu items", () => {
   let model: Model;
   let pivotId: string;
@@ -942,7 +943,7 @@ describe("Pivot (un)grouping menu items", () => {
       ]);
     });
 
-    test("Removing all groups deletes the custom field", () => {
+    test("Removing all groups deletes the custom field, and its occurrences in the pivot dimensions", () => {
       updatePivotWithGroups([
         { name: "MyGroup", values: ["New", "Won"] },
         { name: "Others", values: [], isOtherGroup: true },
@@ -952,6 +953,7 @@ describe("Pivot (un)grouping menu items", () => {
       doAction(["pivot_headers_ungroup"], env, cellMenuRegistry);
 
       expect(model.getters.getPivotCoreDefinition(pivotId).customFields?.Stage2).toBeUndefined();
+      expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([{ fieldName: "Stage" }]);
     });
 
     test("Can remove a group", () => {
