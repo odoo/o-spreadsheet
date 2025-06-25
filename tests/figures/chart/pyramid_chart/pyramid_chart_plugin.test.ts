@@ -28,6 +28,7 @@ describe("population pyramid chart", () => {
       axesDesign: {},
       horizontal: true,
       showValues: false,
+      humanize: false,
     });
   });
 

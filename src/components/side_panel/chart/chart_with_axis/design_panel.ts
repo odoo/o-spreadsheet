@@ -8,6 +8,7 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../../types/index";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { Section } from "../../components/section/section";
 import {
@@ -45,6 +46,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     SeriesWithAxisDesignEditor,
     ChartLegend,
     ChartShowValues,
+    Checkbox,
   };
   static props = {
     figureId: String,
@@ -63,5 +65,9 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
       axes.push({ id: "y1", name: useLeftAxis ? _t("Right axis") : _t("Vertical axis") });
     }
     return axes;
+  }
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
   }
 }

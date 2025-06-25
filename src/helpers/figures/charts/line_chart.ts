@@ -125,6 +125,7 @@ export class LineChart extends AbstractChart {
       fillArea: context.fillArea,
       showValues: context.showValues,
       hideDataMarkers: context.hideDataMarkers,
+      humanize: context.humanize,
     };
   }
 
@@ -162,6 +163,7 @@ export class LineChart extends AbstractChart {
       fillArea: this.fillArea,
       showValues: this.showValues,
       hideDataMarkers: this.hideDataMarkers,
+      humanize: this.humanize,
     };
   }
 

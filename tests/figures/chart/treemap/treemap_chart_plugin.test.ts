@@ -129,6 +129,7 @@ describe("TreeMap chart", () => {
       showLabels: false,
       valuesDesign: { italic: true },
       coloringOptions: { type: "categoryColor", colors: [], useValueBasedGradient: true },
+      humanize: false,
     });
   });
 

@@ -26,6 +26,7 @@ describe("pie chart", () => {
       aggregated: true,
       isDoughnut: false,
       showValues: false,
+      humanize: false,
     });
   });
 
