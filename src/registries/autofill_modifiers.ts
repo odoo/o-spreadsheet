@@ -26,9 +26,9 @@ autofillModifiersRegistry
   .add("ALPHANUMERIC_INCREMENT_MODIFIER", {
     apply: (rule: AlphanumericIncrementModifier, data: AutofillData) => {
       rule.current += rule.increment;
-      const content = `${rule.prefix}${rule.current
-        .toString()
-        .padStart(rule.numberPostfixLength || 0, "0")}`;
+      let value = Math.abs(rule.current).toString();
+      value = "0".repeat(Math.max(rule.numberPostfixLength - value.length, 0)) + value;
+      const content = `${rule.prefix}${value}`;
       return {
         cellData: {
           border: data.border,

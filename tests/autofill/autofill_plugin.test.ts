@@ -490,10 +490,10 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A8")).toBe("test0");
       expect(getCellContent(model, "A7")).toBe("test");
       expect(getCellContent(model, "A6")).toBe("2");
-      expect(getCellContent(model, "A5")).toBe("test-1");
+      expect(getCellContent(model, "A5")).toBe("test1");
       expect(getCellContent(model, "A4")).toBe("test");
       expect(getCellContent(model, "A3")).toBe("1");
-      expect(getCellContent(model, "A2")).toBe("test-2");
+      expect(getCellContent(model, "A2")).toBe("test2");
       expect(getCellContent(model, "A1")).toBe("test");
     });
 
@@ -506,10 +506,10 @@ describe("Autofill", () => {
       expect(getCellContent(model, "H1")).toBe("test0");
       expect(getCellContent(model, "G1")).toBe("test");
       expect(getCellContent(model, "F1")).toBe("2");
-      expect(getCellContent(model, "E1")).toBe("test-1");
+      expect(getCellContent(model, "E1")).toBe("test1");
       expect(getCellContent(model, "D1")).toBe("test");
       expect(getCellContent(model, "C1")).toBe("1");
-      expect(getCellContent(model, "B1")).toBe("test-2");
+      expect(getCellContent(model, "B1")).toBe("test2");
       expect(getCellContent(model, "A1")).toBe("test");
     });
 
@@ -560,12 +560,42 @@ describe("Autofill", () => {
         expect(getCellContent(model, "A4")).toBe("prefixb11");
       });
 
-      test("padding zeros of number at the end", () => {
+      test("padding leading zeros of number at the end", () => {
         setCellContent(model, "A1", "prefix005");
         setCellContent(model, "A2", "prefix007");
         autofill("A1:A2", "A4");
         expect(getCellContent(model, "A3")).toBe("prefix009");
         expect(getCellContent(model, "A4")).toBe("prefix011");
+      });
+
+      test("Do not pad non-leading zeros of number at the end", () => {
+        setCellContent(model, "A1", "prefix 11");
+        setCellContent(model, "A2", "prefix 10");
+        autofill("A1:A2", "A4");
+        expect(getCellContent(model, "A3")).toBe("prefix 9");
+        expect(getCellContent(model, "A4")).toBe("prefix 8");
+      });
+
+      describe("Alphanumeric do not go to negative values", () => {
+        test("Without leading zeros", () => {
+          setCellContent(model, "A1", "prefix2");
+          setCellContent(model, "A2", "prefix1");
+          autofill("A1:A2", "A6");
+          expect(getCellContent(model, "A3")).toBe("prefix0");
+          expect(getCellContent(model, "A4")).toBe("prefix1");
+          expect(getCellContent(model, "A5")).toBe("prefix2");
+          expect(getCellContent(model, "A6")).toBe("prefix3");
+        });
+
+        test("With leading zeros", () => {
+          setCellContent(model, "A1", "prefix002");
+          setCellContent(model, "A2", "prefix001");
+          autofill("A1:A2", "A6");
+          expect(getCellContent(model, "A3")).toBe("prefix000");
+          expect(getCellContent(model, "A4")).toBe("prefix001");
+          expect(getCellContent(model, "A5")).toBe("prefix002");
+          expect(getCellContent(model, "A6")).toBe("prefix003");
+        });
       });
 
       test("prefix with numbers", () => {
