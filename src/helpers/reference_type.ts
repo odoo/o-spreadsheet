@@ -2,6 +2,7 @@
 import { Token } from "../formulas";
 import { EnrichedToken, composerTokenize } from "../formulas/composer_tokenizer";
 import { Locale } from "../types";
+import { getCanonicalSymbolName } from "./misc";
 import { getFullReference, splitReference } from "./references";
 
 type FixedReferenceType = "col" | "row" | "colrow" | "none";
@@ -53,7 +54,7 @@ function getTokenNextReferenceType(xc: string): string {
 export function setXcToFixedReferenceType(xc: string, referenceType: FixedReferenceType): string {
   let sheetName;
   ({ sheetName, xc } = splitReference(xc));
-  sheetName = sheetName ? sheetName + "!" : "";
+  sheetName = sheetName ? getCanonicalSymbolName(sheetName) + "!" : "";
 
   xc = xc.replace(/\$/g, "");
   const splitIndex = xc.indexOf(":");
