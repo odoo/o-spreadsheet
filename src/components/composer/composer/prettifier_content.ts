@@ -175,11 +175,14 @@ function _best(width: number, currentIndentLvl: number, head: RestToFitNode | nu
     };
   }
   if (pp.type === "chooseBetween") {
-    const headA = { indentLvl, pp: pp.p1, next };
-    const headB = { indentLvl, pp: pp.p2, next };
-    const a = _best(width, currentIndentLvl, headA);
-    const b = _best(width, currentIndentLvl, headB);
-    return fits(width - currentIndentLvl, a) ? a : b;
+    const head1 = { indentLvl, pp: pp.p1, next };
+    const subRuleA = _best(width, currentIndentLvl, head1);
+    if (fits(width - currentIndentLvl, subRuleA)) {
+      return subRuleA;
+    }
+
+    const head2 = { indentLvl, pp: pp.p2, next };
+    return _best(width, currentIndentLvl, head2);
   }
   return null;
 }
