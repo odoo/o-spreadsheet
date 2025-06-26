@@ -116,6 +116,13 @@ describe("ranges and highlights", () => {
     expect(composerEl.textContent).toBe("=A2");
   });
 
+  test("=Key LEFT in A2, should select and highlight A1", async () => {
+    selectCell(model, "B1");
+    composerEl = await startComposition("=");
+    await keyDown({ key: "ArrowLeft" });
+    expect(composerEl.textContent).toBe("=A1");
+  });
+
   test("reference position is reset at each selection", async () => {
     composerEl = await typeInComposer("=");
     expect(composerEl.querySelector(".selector-flag")).toBeTruthy();
