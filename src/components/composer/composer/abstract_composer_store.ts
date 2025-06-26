@@ -411,7 +411,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.model.selection.capture(
       this,
       {
-        cell: { col: col || zone.left, row: row || zone.right },
+        cell: { col: col ?? zone.left, row: row ?? zone.right },
         zone,
       },
       {
