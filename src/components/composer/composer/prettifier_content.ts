@@ -14,15 +14,15 @@ import {
 // Once created, this structure is used to determine the best formatting path based on the available width,
 // allowing dynamic selection of the most suitable layout for the given constraints.
 
-type PrettifyPossibility = string | ChooseBetween | Join | Nest | Line;
+type PrettifyPossibility = string | ChooseBetween | Join | Nest | insertLine;
 type ChooseBetween = { type: "chooseBetween"; p1: PrettifyPossibility; p2: PrettifyPossibility };
 type Join = { type: "join"; rules: PrettifyPossibility[] };
 type Nest = { type: "nest"; indentLvl: number; p: PrettifyPossibility };
-type Line = { type: "line" };
+type insertLine = { type: "insertLine" };
 
 /** Useful for indicating where to insert a new line. Placed in a group, it will be used if there is insufficient space*/
-function line(): Line {
-  return { type: "line" };
+function line(): insertLine {
+  return { type: "insertLine" };
 }
 
 /** Useful for indicating where to insert a new line with a specific indentation level.
@@ -68,8 +68,8 @@ function flatten(pp: PrettifyPossibility): PrettifyPossibility {
       p: flatten(pp.p),
     };
   }
-  if (pp.type === "line") {
-    return " ";
+  if (pp.type === "insertLine") {
+    return "";
   }
   return pp;
 }
@@ -153,7 +153,7 @@ function _best(width: number, currentIndentLvl: number, restsToFit: RestToFit[])
   if (pp.type === "nest") {
     return _best(width, currentIndentLvl, [[indentLvl + pp.indentLvl, pp.p], ...rests]);
   }
-  if (pp.type === "line") {
+  if (pp.type === "insertLine") {
     return {
       type: "subLine",
       indent: indentLvl,
@@ -188,7 +188,7 @@ function fits(width: number, x: SubRule): boolean {
 // ---------------------------------------
 
 export function prettify(ast: AST) {
-  return "= " + print(astToPp(ast), 38); // 39 but 40 with the `= ` at the beginning
+  return "=" + print(astToPp(ast), 39); // 39 but 40 with the `= ` at the beginning
 }
 
 /** transform an AST composed of sub-ASTs into a PrettifyPossibility composed of sub-PrettifyPossibility.*/
@@ -209,7 +209,7 @@ function astToPp(ast: AST): PrettifyPossibility {
     case "FUNCALL":
       const pps = ast.args.map(astToPp);
       return splitParenthesesContent(
-        join(pps.map((pp, i) => (i < 1 ? pp : join([",", line(), pp])))),
+        join(pps.map((pp, i) => (i < 1 ? pp : join([", ", line(), pp])))),
         ast.value
       );
 
@@ -231,7 +231,7 @@ function astToPp(ast: AST): PrettifyPossibility {
       const needParenthesisRightPp = rightOperandNeedsParenthesis(ast);
       const finalRightPp = needParenthesisRightPp ? splitParenthesesContent(rightPp) : rightPp;
 
-      const operator = ` ${ast.value}`;
+      const operator = `${ast.value}`;
       return group(join([finalLeftPp, operator, nest(1, join([line(), finalRightPp]))]));
     }
 

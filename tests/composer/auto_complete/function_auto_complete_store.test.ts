@@ -14,7 +14,7 @@ describe("Function auto complete", () => {
     expect(proposals?.[0].text).toEqual("SUM");
     expect(proposals?.[1].text).toEqual("SUMIF");
     composer.insertAutoCompleteValue(proposals![0].text);
-    expect(composer.currentContent).toEqual("= SUM(");
+    expect(composer.currentContent).toEqual("=SUM(");
   });
 
   test("function auto complete uses fuzzy search", async () => {
@@ -26,7 +26,7 @@ describe("Function auto complete", () => {
     expect(proposals).toHaveLength(1);
     expect(proposals?.[0].text).toBe("VLOOKUP");
     composer.insertAutoCompleteValue(proposals![0].text);
-    expect(composer.currentContent).toEqual("= VLOOKUP(");
+    expect(composer.currentContent).toEqual("=VLOOKUP(");
   });
 
   test("reselect cell with existing content shows correct autocomplete proposals", async () => {
@@ -39,6 +39,6 @@ describe("Function auto complete", () => {
     expect(proposals).toHaveLength(1);
     expect(proposals?.[0].text).toBe("VLOOKUP");
     composer.insertAutoCompleteValue(proposals![0].text);
-    expect(composer.currentContent).toEqual("= VLOOKUP(");
+    expect(composer.currentContent).toEqual("=VLOOKUP(");
   });
 });
