@@ -97,10 +97,14 @@ type subText = {
 };
 
 /**
- * `RestToFit` is a stateful representation of the remaining `PrettifyPossibility` to check for fitting knowing an indentation level already used.
+ * `RestToFitNode` is a stateful representation of the remaining `PrettifyPossibility` to check for fitting knowing an indentation level already used.
  *  It is a tuple where the first element is the current indentation level and the second element is the `PrettifyPossibility` to check for fitting.
  */
-type RestToFit = [number, PrettifyPossibility];
+type RestToFitNode = {
+  indentLvl: number;
+  pp: PrettifyPossibility;
+  next: RestToFitNode | null;
+};
 
 /**
  * Print use the `PrettifyPossibility` structure to create a layout that fits within a given width.
@@ -131,38 +135,50 @@ function layout(x: SubRule): string {
  * This is the function that reduces the PrettifyPossibility to a SubRule
  */
 function best(width: number, prettifyPossibility: PrettifyPossibility): SubRule {
-  return _best(width, 0, [[0, prettifyPossibility]]);
+  const head: RestToFitNode = {
+    indentLvl: 0,
+    pp: prettifyPossibility,
+    next: null,
+  };
+  return _best(width, 0, head);
 }
 
-function _best(width: number, currentIndentLvl: number, restsToFit: RestToFit[]): SubRule {
-  if (restsToFit.length === 0) return null;
-  const [firstPpToFit, ...rests] = restsToFit;
-  const [indentLvl, pp] = firstPpToFit;
+function _best(width: number, currentIndentLvl: number, head: RestToFitNode | null): SubRule {
+  if (head === null) {
+    return null;
+  }
+
+  const { indentLvl, pp, next } = head;
+
   if (typeof pp === "string") {
     return {
       type: "subText",
       text: pp,
-      rule: _best(width, currentIndentLvl + pp.length, rests),
+      rule: _best(width, currentIndentLvl + pp.length, next),
     };
   }
   if (pp.type === "join") {
-    const restsJoinToFit: RestToFit[] = pp.rules.map((j) => [indentLvl, j]);
-    const res = _best(width, currentIndentLvl, [...restsJoinToFit, ...rests]);
-    return res;
+    let newHead = next;
+    for (let i = pp.rules.length - 1; i >= 0; i--) {
+      newHead = { indentLvl, pp: pp.rules[i], next: newHead };
+    }
+    return _best(width, currentIndentLvl, newHead);
   }
   if (pp.type === "nest") {
-    return _best(width, currentIndentLvl, [[indentLvl + pp.indentLvl, pp.p], ...rests]);
+    return _best(width, currentIndentLvl, { indentLvl: indentLvl + pp.indentLvl, pp: pp.p, next });
   }
   if (pp.type === "insertLine") {
     return {
       type: "subLine",
       indent: indentLvl,
-      rule: _best(width, indentLvl, rests),
+      rule: _best(width, indentLvl, next),
     };
   }
   if (pp.type === "chooseBetween") {
-    const a = _best(width, currentIndentLvl, [[indentLvl, pp.p1], ...rests]);
-    const b = _best(width, currentIndentLvl, [[indentLvl, pp.p2], ...rests]);
+    const headA = { indentLvl, pp: pp.p1, next };
+    const headB = { indentLvl, pp: pp.p2, next };
+    const a = _best(width, currentIndentLvl, headA);
+    const b = _best(width, currentIndentLvl, headB);
     return fits(width - currentIndentLvl, a) ? a : b;
   }
   return null;

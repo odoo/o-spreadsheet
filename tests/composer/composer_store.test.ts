@@ -721,8 +721,7 @@ describe("edition", () => {
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "raiseError");
     composerStore.startEdition();
-    const content = // 202 tokens
-      "=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1";
+    const content = "=" + "+1".repeat(500); // 1001 characters
     composerStore.setCurrentContent(content);
     composerStore.stopEdition();
 

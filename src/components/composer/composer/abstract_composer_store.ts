@@ -538,7 +538,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       const nonSpaceTokensCount = this.currentTokens.filter(
         (token) => token.type !== "SPACE"
       ).length;
-      if (nonSpaceTokensCount > 200) {
+      if (nonSpaceTokensCount > 1000) {
         if (raise) {
           this.notificationStore.raiseError(
             _t(
