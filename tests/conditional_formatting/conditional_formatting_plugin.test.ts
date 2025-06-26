@@ -1218,6 +1218,26 @@ describe("conditional formats types", () => {
         const computedStyle = shouldMatch ? { fillColor: "#ff0f0f" } : {};
         expect(getStyle(model, "A1")).toEqual(computedStyle);
       });
+
+      test("applies conditional formatting correctly when formula returns a 1x1 matrix", () => {
+        setCellContent(model, "A1", "test");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "containsText",
+              values: ['=IF(TRUE, $A$1, "something else")'],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          ranges: toRangesData(sheetId, "A1:A2"),
+          sheetId,
+        });
+
+        expect(getStyle(model, "A1")).toEqual({ fillColor: "#ff0f0f" });
+        expect(getStyle(model, "A2")).toEqual({});
+      });
     });
 
     describe("Operator EndsWith", () => {
