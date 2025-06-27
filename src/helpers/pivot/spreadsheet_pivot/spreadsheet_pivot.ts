@@ -262,10 +262,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (finalCell.value === null) {
       return { value: _t("(Undefined)") };
     }
-    return {
-      value: finalCell.value,
-      format: finalCell.format,
-    };
+    return finalCell;
   }
 
   getPivotCellValueAndFormat(measureId: string, domain: PivotDomain): FunctionResultObject {
