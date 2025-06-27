@@ -207,6 +207,9 @@ export function toNormalizedPivotValue(
   if (groupValue === null || groupValue === "null") {
     return null;
   }
+  if (dimension.type === "custom") {
+    return groupValue;
+  }
   const groupValueString =
     typeof groupValue === "boolean"
       ? toString(groupValue).toLocaleLowerCase()
@@ -260,7 +263,8 @@ pivotNormalizationValueRegistry
   .add("datetime", normalizeDateTime)
   .add("integer", (value) => toNumber(value, DEFAULT_LOCALE))
   .add("boolean", (value) => toBoolean(value))
-  .add("char", (value) => toString(value));
+  .add("char", (value) => toString(value))
+  .add("custom", (value) => value);
 
 export const pivotToFunctionValueRegistry = new Registry<
   (value: CellValue, granularity?: string) => string
@@ -271,7 +275,8 @@ pivotToFunctionValueRegistry
   .add("datetime", toFunctionValueDateTime)
   .add("integer", (value: CellValue) => `${toNumber(value, DEFAULT_LOCALE)}`)
   .add("boolean", (value: CellValue) => (toBoolean(value) ? "TRUE" : "FALSE"))
-  .add("char", (value: CellValue) => `"${toString(value).replace(/"/g, '\\"')}"`);
+  .add("char", (value: CellValue) => `"${toString(value).replace(/"/g, '\\"')}"`)
+  .add("custom", (value) => (typeof value === "string" ? `"${value}"` : String(value)));
 
 export function getFieldDisplayName(field: PivotDimension) {
   return field.displayName + (field.granularity ? ` (${ALL_PERIODS[field.granularity]})` : "");
@@ -417,7 +422,7 @@ export function addPivotCustomFieldsToFields(
       continue;
     }
     fields[customField.name] = {
-      type: "char",
+      type: "custom",
       isCustomField: true,
       name: customField.name,
       string: customField.name,
