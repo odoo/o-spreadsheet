@@ -1780,6 +1780,29 @@ describe("Spreadsheet Pivot", () => {
     });
   });
 
+  test("can group by value in error", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+      A3: "=0/0",     B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
+    });
+    expect(getEvaluatedCell(model, "C4").message).toBe("The divisor must be different from zero.");
+    expect(getEvaluatedGrid(model, "C1:D5")).toEqual([
+      ["(#1) Pivot", "Total"],
+      ["", "Price"],
+      ["Alice", "10"],
+      ["#DIV/0!", "20"],
+      ["Total", "30"],
+    ]);
+  });
+
   test("Cannot use PIVOT function inside its range", () => {
     const model = createModelWithPivot("A1:I5");
     setCellContent(model, "B3", `=PIVOT("1")`);
