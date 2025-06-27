@@ -354,6 +354,22 @@ describe("datasource tests", function () {
       const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
       expect(runtime.inflectionValues).toHaveLength(1); // only the lower inflection point is valid and kept
     });
+
+    test("accepts sectionRule formulas returning a 1x1 matrix", () => {
+      setCellContent(model, "A1", "10");
+
+      sectionRule = {
+        ...sectionRule,
+        rangeMin: '=IF(TRUE, A1, "something else")',
+        rangeMax: '=IF(TRUE, A1, "something else")',
+      };
+      const result = createGaugeChart(model, { dataRange: "A1", sectionRule }, "1");
+      expect(result).toBeSuccessfullyDispatched();
+
+      const runtime = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+      expect(runtime.minValue).toMatchObject({ value: 10 });
+      expect(runtime.maxValue).toMatchObject({ value: 10 });
+    });
   });
 
   test("Gauge Chart is deleted on sheet deletion", () => {
