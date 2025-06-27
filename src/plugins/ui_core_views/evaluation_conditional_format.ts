@@ -1,4 +1,5 @@
 import { compile } from "../../formulas";
+import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, getColorScale, isInside, percentile } from "../../helpers/index";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
@@ -6,7 +7,6 @@ import { criterionEvaluatorRegistry } from "../../registries/criterion_registry"
 import {
   CellIsRule,
   CellPosition,
-  CellValue,
   CellValueType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
@@ -24,7 +24,6 @@ import {
   UID,
   Zone,
   invalidateCFEvaluationCommands,
-  isMatrix,
 } from "../../types/index";
 import { CoreViewPlugin } from "../core_view_plugin";
 import { CoreViewCommand, invalidateEvaluationCommands } from "./../../types/commands";
@@ -372,13 +371,14 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
       }
       return this.getters.evaluateFormula(sheetId, value) ?? "";
     });
-    if (evaluatedCriterionValues.some(isMatrix)) {
+
+    if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
       return false;
     }
 
     const evaluatedCriterion = {
       type: rule.operator,
-      values: evaluatedCriterionValues as CellValue[],
+      values: evaluatedCriterionValues.map(toScalar),
     };
     return evaluator.isValueValid(cell.value ?? "", evaluatedCriterion, this.getters, sheetId);
   }

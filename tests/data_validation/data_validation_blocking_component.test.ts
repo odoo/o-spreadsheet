@@ -118,4 +118,12 @@ describe("Data validation with blocking rule", () => {
 
     expect(getCellContent(model, "A1")).toBe("1");
   });
+
+  test("User cannot input formula returning 1x1 matrix that fails blocking DV rule", async () => {
+    addDataValidation(model, "A1", "id", { type: "containsText", values: ["hi"] }, "blocking");
+    composerStore.startEdition('=IF(TRUE, A2, "something else")');
+    composerStore.stopEdition();
+
+    expect(getCellContent(model, "A1")).toBe("");
+  });
 });

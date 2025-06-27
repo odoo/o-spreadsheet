@@ -1,6 +1,7 @@
 import { DVTerms } from "../../components/translations_terms";
 import { GRAY_200 } from "../../constants";
 import { compile } from "../../formulas";
+import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { chipTextColor, getCellPositionsInRanges, isDefined, isInside, lazy } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
@@ -19,7 +20,6 @@ import {
   Offset,
   Style,
   UID,
-  isMatrix,
 } from "../../types";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import { CoreViewPlugin } from "../core_view_plugin";
@@ -232,10 +232,10 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
 
     const offset = this.getCellOffsetInRule(cellPosition, rule);
     const evaluatedCriterionValues = this.getEvaluatedCriterionValues(sheetId, offset, criterion);
-    if (evaluatedCriterionValues.some(isMatrix)) {
+    if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
       return undefined;
     }
-    const evaluatedCriterion = { ...criterion, values: evaluatedCriterionValues as CellValue[] };
+    const evaluatedCriterion = { ...criterion, values: evaluatedCriterionValues.map(toScalar) };
 
     if (evaluator.isValueValid(cellValue, evaluatedCriterion, this.getters, sheetId)) {
       return undefined;

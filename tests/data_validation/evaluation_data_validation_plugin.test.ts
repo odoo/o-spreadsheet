@@ -140,6 +140,18 @@ describe("Data validation evaluation", () => {
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
     });
 
+    test("applies data validation correctly when formula returns a 1x1 matrix", () => {
+      addDataValidation(model, "A1:A2", "id", {
+        type: "containsText",
+        values: ['=IF(1=1, $A$1, "something else")'],
+      });
+
+      setCellContent(model, "A1", "random text");
+      setCellContent(model, "A2", "text");
+      expect(model.getters.isDataValidationInvalid(A1)).toBe(false);
+      expect(model.getters.isDataValidationInvalid({ sheetId, col: 0, row: 1 })).toBe(true);
+    });
+
     test("Criterion with spreading formula values is ignored ", () => {
       addDataValidation(model, "A1", "id", {
         type: "isGreaterThan",

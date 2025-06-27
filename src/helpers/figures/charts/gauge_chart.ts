@@ -3,6 +3,7 @@ import {
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { tryToNumber } from "../../../functions/helpers";
 import { BasePlugin } from "../../../plugins/base_plugin";
 import { _t } from "../../../translation";
@@ -18,7 +19,6 @@ import {
   RangeAdapter,
   UID,
   Validation,
-  isMatrix,
 } from "../../../types";
 import { ChartCreationContext } from "../../../types/chart/chart";
 import {
@@ -396,7 +396,9 @@ function getSectionThresholdValue(
 
 function getFormulaNumberValue(sheetId: UID, formula: string, getters: Getters) {
   const value = getters.evaluateFormula(sheetId, formula);
-  return isMatrix(value) ? undefined : tryToNumber(value, getters.getLocale());
+  return isMultipleElementMatrix(value)
+    ? undefined
+    : tryToNumber(toScalar(value), getters.getLocale());
 }
 
 function getInvalidGaugeRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {

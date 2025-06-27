@@ -1,4 +1,5 @@
 import { Component, useState } from "@odoo/owl";
+import { isMultipleElementMatrix, toScalar } from "../../../../functions/helper_matrices";
 import { tryToNumber } from "../../../../functions/helpers";
 import { deepCopy } from "../../../../helpers/index";
 import { _t } from "../../../../translation";
@@ -9,7 +10,6 @@ import {
   DispatchResult,
   SpreadsheetChildEnv,
   UID,
-  isMatrix,
 } from "../../../../types/index";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { css } from "../../../helpers/css";
@@ -213,10 +213,10 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
       return tryToNumber(value, locale) !== undefined;
     }
     const evaluatedValue = this.env.model.getters.evaluateFormula(this.sheetId, value);
-    if (isMatrix(evaluatedValue)) {
+    if (isMultipleElementMatrix(evaluatedValue)) {
       return false;
     }
-    return tryToNumber(evaluatedValue, locale) !== undefined;
+    return tryToNumber(toScalar(evaluatedValue), locale) !== undefined;
   }
 
   get sheetId() {

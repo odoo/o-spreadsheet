@@ -1,3 +1,4 @@
+import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import {
   deepCopy,
   getUniqueText,
@@ -12,7 +13,6 @@ import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
   CellPosition,
-  CellValue,
   Command,
   CommandResult,
   CriterionFilter,
@@ -23,7 +23,6 @@ import {
   FilterId,
   Table,
   UID,
-  isMatrix,
 } from "../../types";
 import { LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
@@ -198,13 +197,13 @@ export class FilterEvaluationPlugin extends UIPlugin {
           }
           return this.getters.evaluateFormula(sheetId, value) ?? "";
         });
-        if (evaluatedCriterionValues.some(isMatrix)) {
+        if (evaluatedCriterionValues.some(isMultipleElementMatrix)) {
           continue;
         }
 
         const evaluatedCriterion = {
           type: filterValue.type,
-          values: evaluatedCriterionValues as CellValue[],
+          values: evaluatedCriterionValues.map(toScalar),
           dateValue: filterValue.dateValue,
         };
         for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
