@@ -1,7 +1,13 @@
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
-import { inferFormat, toBoolean, toNumber, toString } from "../../functions/helpers";
+import {
+  inferFormat,
+  isEvaluationError,
+  toBoolean,
+  toNumber,
+  toString,
+} from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import {
@@ -10,6 +16,7 @@ import {
   FunctionResultObject,
   Locale,
   Matrix,
+  Maybe,
   Pivot,
 } from "../../types";
 import { EvaluationError } from "../../types/errors";
@@ -197,10 +204,14 @@ export function createPivotFormula(formulaId: string, cell: PivotTableCell) {
  */
 export function toNormalizedPivotValue(
   dimension: Pick<PivotDimension, "type" | "displayName" | "granularity">,
-  groupValue
-) {
+  groupValue: Maybe<CellValue | FunctionResultObject>
+): CellValue {
   if (groupValue === null || groupValue === "null") {
     return null;
+  }
+  const extractedGroupValue = typeof groupValue === "object" ? groupValue.value : groupValue;
+  if (isEvaluationError(extractedGroupValue)) {
+    return extractedGroupValue;
   }
   const groupValueString =
     typeof groupValue === "boolean"
