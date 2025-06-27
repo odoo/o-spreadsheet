@@ -1,3 +1,4 @@
+import { isMultipleElementMatrix, toScalar } from "../../../functions/helper_matrices";
 import { parseLiteral } from "../../../helpers/cells";
 import {
   formatValue,
@@ -285,11 +286,14 @@ export class CellComposerStore extends AbstractComposerStore {
       ? this.getters.evaluateFormula(this.sheetId, content)
       : parseLiteral(content, this.getters.getLocale());
 
-    if (isMatrix(cellValue)) {
+    if (isMultipleElementMatrix(cellValue)) {
       return true;
     }
 
-    const validationResult = this.getters.getValidationResultForCellValue(cellValue, cellPosition);
+    const validationResult = this.getters.getValidationResultForCellValue(
+      toScalar(cellValue),
+      cellPosition
+    );
     if (!validationResult.isValid && validationResult.rule.isBlocking) {
       return false;
     }
