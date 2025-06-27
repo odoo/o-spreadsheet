@@ -432,4 +432,20 @@ describe("Filter criterion test", () => {
       expect(getFilteredRows()).toEqual(expectedFilteredRows);
     }
   );
+
+  test("applies filter correctly when formula returns a 1x1 matrix", () => {
+    const grid = {
+      A2: "text",
+      A3: "random",
+    };
+    setGrid(model, grid);
+    createTableWithFilter(model, "A1:A3");
+
+    updateFilterCriterion(model, "A1", {
+      type: "containsText",
+      values: ['=IF(TRUE, $A$2, "something else")'],
+    });
+
+    expect(getFilteredRows()).toEqual([2]);
+  });
 });
