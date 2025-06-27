@@ -1100,6 +1100,23 @@ describe("charts", () => {
     expect(fixture.querySelector(".o-chart")).toBeFalsy();
   });
 
+  test("restores scroll position when switching tabs in side panel", async () => {
+    createTestChart("basicChart");
+    await mountSpreadsheet();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+
+    const chartPanel = fixture.querySelector(".o-panel-content")!;
+    chartPanel.scrollTop = 100;
+
+    const configTab = fixture.querySelector(".o-panel-element.inactive")!;
+    await click(configTab);
+    expect(chartPanel.scrollTop).toBe(0);
+
+    const designTab = fixture.querySelector(".o-panel-element.inactive")!;
+    await click(designTab);
+    expect(chartPanel.scrollTop).toBe(100);
+  });
+
   describe.each(TEST_CHART_TYPES)("selecting other chart will adapt sidepanel", (chartType) => {
     test.each(["click", "SELECT_FIGURE command"])("when using %s", async (selectMethod: string) => {
       createTestChart(chartType);
