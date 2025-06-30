@@ -1232,11 +1232,13 @@ describe("edition", () => {
     });
 
     test("Split the content in multiple lines when it is too long", () => {
-      setCellContent(model, "A1", "=SUM(11111111,22222222,33333333)"); // 41 characters
+      setCellContent(model, "A1", "=SUM(11111111,22222222,33333333,44444444,55555555)"); // 41 characters
       composerStore.startEdition();
-      expect(composerStore.currentContent).toBe("=SUM(11111111, 22222222, 33333333)");
+      expect(composerStore.currentContent).toBe(
+        "=SUM(11111111, 22222222, 33333333, 44444444, 55555555)"
+      );
 
-      setCellContent(model, "A1", "=SUM(11111111,22222222,33333333,44444444)"); // 41 characters
+      setCellContent(model, "A1", "=SUM(11111111,22222222,33333333,44444444,55555555,66666666)"); // 41 characters
       composerStore.startEdition();
       expect(composerStore.currentContent).toBe(
         // prettier-ignore
@@ -1244,19 +1246,22 @@ describe("edition", () => {
         "\t11111111, \n" +
         "\t22222222, \n" +
         "\t33333333, \n" +
-        "\t44444444\n" +
+        "\t44444444, \n" +
+        "\t55555555, \n" +
+        "\t66666666\n" +
         ")"
       );
     });
 
     test("nested functions are properly indented", () => {
-      setCellContent(model, "A1", "=SUM(AVERAGE(1,2,3,4), MAX(5,6,7,8))");
+      setCellContent(model, "A1", "=SUM(AVERAGE(1,2,3,4), MAX(5,6,7,8), MIN(10,11,12,13))");
       composerStore.startEdition();
       expect(composerStore.currentContent).toBe(
         // prettier-ignore
         "=SUM(\n" + 
         "\tAVERAGE(1, 2, 3, 4), \n" +
-        "\tMAX(5, 6, 7, 8)\n" + 
+        "\tMAX(5, 6, 7, 8), \n" + 
+        "\tMIN(10, 11, 12, 13)\n" + 
         ")"
       );
     });
@@ -1265,18 +1270,20 @@ describe("edition", () => {
       setCellContent(
         model,
         "A1",
-        "=SUM(AVERAGE(COUNT(4,5,6,7),COUNT(10,11,12,13)), MAX(COUNT(4,5,6,7),COUNT(10,11,12,13)))"
+        "=SUM(AVERAGE(COUNT(4,5,6,7),COUNT(10,11,12,13),COUNT(14,15,16,17)), MAX(COUNT(4,5,6,7),COUNT(10,11,12,13),COUNT(14,15,16,17)))"
       );
       composerStore.startEdition();
       expect(composerStore.currentContent).toBe(
         "=SUM(\n" +
           "\tAVERAGE(\n" +
           "\t\tCOUNT(4, 5, 6, 7), \n" +
-          "\t\tCOUNT(10, 11, 12, 13)\n" +
+          "\t\tCOUNT(10, 11, 12, 13), \n" +
+          "\t\tCOUNT(14, 15, 16, 17)\n" +
           "\t), \n" +
           "\tMAX(\n" +
           "\t\tCOUNT(4, 5, 6, 7), \n" +
-          "\t\tCOUNT(10, 11, 12, 13)\n" +
+          "\t\tCOUNT(10, 11, 12, 13), \n" +
+          "\t\tCOUNT(14, 15, 16, 17)\n" +
           "\t)\n" +
           ")"
       );
@@ -1286,15 +1293,15 @@ describe("edition", () => {
       setCellContent(
         model,
         "A1",
-        "=SUM(1111 + 2222 + 3333 + 4444 + 5555 + 6666 + 7777 + 8888 + 9999)"
+        "=SUM(1111 + 2222 + 3333 + 4444 + 5555 + 6666 + 7777 + 8888 + 9999 + 11111 + 22222 + 33333 + 44444)"
       );
       composerStore.startEdition();
       expect(composerStore.currentContent).toBe(
         //prettier-ignore
         "=SUM(\n" +
-          "\t1111+2222+3333+4444+5555+6666+7777+\n" +
-          "\t\t8888+\n" +
-          "\t\t9999\n" +
+          "\t1111+2222+3333+4444+5555+6666+7777+8888+9999+11111+22222+\n" +
+          "\t\t33333+\n" +
+          "\t\t44444\n" +
           ")"
       );
     });
@@ -1303,29 +1310,33 @@ describe("edition", () => {
       setCellContent(
         model,
         "A1",
-        "=SUM(1111 + 2222 + 3333 + 4444 + 5555 + 6666 + 7777 + 8888 * 9999 - 10000 + 20000 / 30000 )"
+        "=SUM(1111 + 2222 + 3333 + 4444 + 5555 + 6666 + 7777 + 8888 + 9999 + 11111 + 22222 + 33333 * 44444 - 55555 + 66666 / 77777 )"
       );
       composerStore.startEdition();
       expect(composerStore.currentContent).toBe(
         "=SUM(\n" +
-          "\t1111+2222+3333+4444+5555+6666+7777+\n" +
-          "\t\t8888*9999-\n" +
-          "\t\t10000+\n" +
-          "\t\t20000/30000\n" +
+          "\t1111+2222+3333+4444+5555+6666+7777+8888+9999+11111+22222+\n" +
+          "\t\t33333*44444-\n" +
+          "\t\t55555+\n" +
+          "\t\t66666/77777\n" +
           ")"
       );
     });
 
     test("long functions with nested parenthesis for mathematical operation are properly indented with sub-lvls", () => {
-      setCellContent(model, "A1", "=1*(2-2-2-2-2-2-2-(3+3+3+3+3+3+3+3+3/(4+5+6+7+5+6+7+8+9)))");
+      setCellContent(
+        model,
+        "A1",
+        "=1*(2-2-2-2-2-2-2-(3+3+3+3+3+3+3+3+3-(4+4+4+4+4+4+4+4+4/(4+5+6+7+5+6+7+8+9))))"
+      );
       composerStore.startEdition();
       expect(composerStore.currentContent).toBe(
         "=1*\n" +
           "\t(\n" +
           "\t\t2-2-2-2-2-2-2-\n" +
           "\t\t\t(\n" +
-          "\t\t\t\t3+3+3+3+3+3+3+3+\n" +
-          "\t\t\t\t\t3/(4+5+6+7+5+6+7+8+9)\n" +
+          "\t\t\t\t3+3+3+3+3+3+3+3+3-\n" +
+          "\t\t\t\t\t(4+4+4+4+4+4+4+4+4/(4+5+6+7+5+6+7+8+9))\n" +
           "\t\t\t)\n" +
           "\t)"
       );

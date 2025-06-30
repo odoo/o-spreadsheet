@@ -15,9 +15,9 @@ import {
 // allowing dynamic selection of the most suitable layout for the given constraints.
 
 type PrettifyPossibility = string | ChooseBetween | Join | Nest | insertLine;
-type ChooseBetween = { type: "chooseBetween"; p1: PrettifyPossibility; p2: PrettifyPossibility };
+type ChooseBetween = { type: "chooseBetween"; pp1: PrettifyPossibility; pp2: PrettifyPossibility };
 type Join = { type: "join"; rules: PrettifyPossibility[] };
-type Nest = { type: "nest"; indentLvl: number; p: PrettifyPossibility };
+type Nest = { type: "nest"; indentLvl: number; pp: PrettifyPossibility };
 type insertLine = { type: "insertLine" };
 
 /** Useful for indicating where to insert a new line. Placed in a group, it will be used if there is insufficient space*/
@@ -27,8 +27,8 @@ function line(): insertLine {
 
 /** Useful for indicating where to insert a new line with a specific indentation level.
  * Should be placed before a line. Placed in a group, it will be used if there is insufficient space*/
-function nest(indentLvl: number, p: PrettifyPossibility): Nest {
-  return { type: "nest", indentLvl, p };
+function nest(indentLvl: number, pp: PrettifyPossibility): Nest {
+  return { type: "nest", indentLvl, pp: pp };
 }
 
 /** Useful for join few rules into a single rule.
@@ -45,8 +45,8 @@ function group(pp: PrettifyPossibility): ChooseBetween {
 }
 
 /** Used exclusively for `group`, indicating that we can choose between two rules depending on the available space.*/
-function chooseBetween(p1: PrettifyPossibility, p2: PrettifyPossibility): ChooseBetween {
-  return { type: "chooseBetween", p1, p2 };
+function chooseBetween(pp1: PrettifyPossibility, pp2: PrettifyPossibility): ChooseBetween {
+  return { type: "chooseBetween", pp1: pp1, pp2: pp2 };
 }
 
 /** Recursive function used exclusively for `group`, to indicate how to flatten the rules.*/
@@ -56,7 +56,7 @@ function flatten(pp: PrettifyPossibility): PrettifyPossibility {
   }
   if (pp.type === "chooseBetween") {
     // normally should be "chooseBetween(flatten(x.a), flatten(x.b))" but compute time is too high
-    return flatten(pp.p1);
+    return flatten(pp.pp1);
   }
   if (pp.type === "join") {
     return join(pp.rules.map(flatten));
@@ -65,7 +65,7 @@ function flatten(pp: PrettifyPossibility): PrettifyPossibility {
     return {
       type: "nest",
       indentLvl: pp.indentLvl,
-      p: flatten(pp.p),
+      pp: flatten(pp.pp),
     };
   }
   if (pp.type === "insertLine") {
@@ -165,7 +165,7 @@ function _best(width: number, currentIndentLvl: number, head: RestToFitNode | nu
     return _best(width, currentIndentLvl, newHead);
   }
   if (pp.type === "nest") {
-    return _best(width, currentIndentLvl, { indentLvl: indentLvl + pp.indentLvl, pp: pp.p, next });
+    return _best(width, currentIndentLvl, { indentLvl: indentLvl + pp.indentLvl, pp: pp.pp, next });
   }
   if (pp.type === "insertLine") {
     return {
@@ -175,13 +175,13 @@ function _best(width: number, currentIndentLvl: number, head: RestToFitNode | nu
     };
   }
   if (pp.type === "chooseBetween") {
-    const head1 = { indentLvl, pp: pp.p1, next };
+    const head1 = { indentLvl, pp: pp.pp1, next };
     const subRuleA = _best(width, currentIndentLvl, head1);
     if (fits(width - currentIndentLvl, subRuleA)) {
       return subRuleA;
     }
 
-    const head2 = { indentLvl, pp: pp.p2, next };
+    const head2 = { indentLvl, pp: pp.pp2, next };
     return _best(width, currentIndentLvl, head2);
   }
   return null;
@@ -207,7 +207,7 @@ function fits(width: number, x: SubRule): boolean {
 // ---------------------------------------
 
 export function prettify(ast: AST) {
-  return "=" + print(astToPp(ast), 39); // 39 but 40 with the `= ` at the beginning
+  return "=" + print(astToPp(ast), 59); // 59 but 60 with the `=` at the beginning
 }
 
 /** transform an AST composed of sub-ASTs into a PrettifyPossibility composed of sub-PrettifyPossibility.*/

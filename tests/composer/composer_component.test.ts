@@ -919,7 +919,7 @@ describe("composer", () => {
   });
 
   test("Can select a right-to-left range that spans multiple span elements", async () => {
-    setCellContent(model, "A1", "= A1 + SUM( A2 )");
+    setCellContent(model, "A1", "=A1+SUM(A2)");
     await nextTick();
     await simulateClick("div.o-composer");
     composerEl = fixture.querySelector<HTMLElement>("div.o-composer")!;
