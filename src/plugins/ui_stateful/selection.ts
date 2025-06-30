@@ -31,6 +31,7 @@ import {
   LocalCommand,
   Locale,
   MoveColumnsRowsCommand,
+  Pixel,
   RemoveColumnsRowsCommand,
   Selection,
   Sheet,
@@ -649,6 +650,13 @@ export class GridSelectionPlugin extends UIPlugin {
     const isBasedBefore = cmd.base < start;
     const deltaCol = isBasedBefore && isCol ? thickness : 0;
     const deltaRow = isBasedBefore && !isCol ? thickness : 0;
+    const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
+    const originalSize = Object.fromEntries(
+      toRemove.map((element): [HeaderIndex, Pixel] => [
+        element,
+        this.getters.getHeaderSize(cmd.sheetId, cmd.dimension, element),
+      ])
+    );
 
     const target = [
       {
@@ -676,14 +684,12 @@ export class GridSelectionPlugin extends UIPlugin {
     ];
     state.paste(pasteTarget, { selectTarget: true });
 
-    const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
     let currentIndex = isBasedBefore ? cmd.base : cmd.base + 1;
     for (const element of toRemove) {
-      const size = this.getters.getHeaderSize(cmd.sheetId, cmd.dimension, element);
       this.dispatch("RESIZE_COLUMNS_ROWS", {
         dimension: cmd.dimension,
         sheetId: cmd.sheetId,
-        size,
+        size: originalSize[element],
         elements: [currentIndex],
       });
       currentIndex += 1;

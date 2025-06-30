@@ -995,6 +995,17 @@ describe("move elements(s)", () => {
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(20);
   });
 
+  test("Move multiline row preserves its size", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A3", "Hello\nWorld");
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
+    moveRows(model, 1, [2], "before");
+    expect(model.getters.getRowSize(sheetId, 1)).toEqual(36);
+    moveRows(model, 2, [1], "before");
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
+  });
+
   test("Can move a column to the end of the sheet", () => {
     const model = new Model();
     setCellContent(model, "A1", "5");
