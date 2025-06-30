@@ -1016,6 +1016,15 @@ describe("move elements(s)", () => {
     expect(model.getters.getUserRowSize(sheetId, 1)).toEqual(undefined);
   });
 
+  test("Preserves wrapped row height when a row is moved above it", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A2", "Hello\nWorld");
+    setStyle(model, "A2", { wrapping: "wrap" });
+    moveRows(model, 1, [2], "before");
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
+  });
+
   test("Can move a column to the end of the sheet", () => {
     const model = new Model();
     setCellContent(model, "A1", "5");
@@ -1054,6 +1063,15 @@ describe("move elements(s)", () => {
     result = moveRows(model, -1, [0]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
+});
+
+test("Preserves wrapped row height when inserting a row above", () => {
+  const model = new Model();
+  const sheetId = model.getters.getActiveSheetId();
+  setCellContent(model, "A2", "Hello\nWorld");
+  setStyle(model, "A2", { wrapping: "wrap" });
+  addRows(model, "before", 1, 1);
+  expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
 });
 
 describe("Selection loop (ctrl + a)", () => {
