@@ -34,6 +34,7 @@ import {
   setAnchorCorner,
   setCellContent,
   setSelection,
+  setStyle,
   setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -993,6 +994,26 @@ describe("move elements(s)", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(10);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(20);
+  });
+
+  test("Move multiline row preserves its size", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A3", "Hello\nWorld");
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
+    moveRows(model, 1, [2], "before");
+    expect(model.getters.getRowSize(sheetId, 1)).toEqual(36);
+    moveRows(model, 2, [1], "before");
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
+  });
+
+  test("Moving a row with wrapped text should not convert its height to fixed row size", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A3", "Hello\nWorld");
+    setStyle(model, "A3", { wrapping: "wrap" });
+    moveRows(model, 1, [2], "before");
+    expect(model.getters.getUserRowSize(sheetId, 1)).toEqual(undefined);
   });
 
   test("Can move a column to the end of the sheet", () => {
