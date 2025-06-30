@@ -207,7 +207,7 @@ function fits(width: number, x: SubRule): boolean {
 // ---------------------------------------
 
 export function prettify(ast: AST) {
-  return "=" + print(astToPp(ast), 39); // 39 but 40 with the `= ` at the beginning
+  return "=" + print(astToPp(ast), 59); // 59 but 60 with the `=` at the beginning
 }
 
 /** transform an AST composed of sub-ASTs into a PrettifyPossibility composed of sub-PrettifyPossibility.*/
