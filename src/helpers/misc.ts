@@ -420,11 +420,11 @@ export function removeFalsyAttributes(obj: Object): Object {
 }
 
 /**
- * Equivalent to "\s" in regexp, minus the new lines characters
+ * Equivalent to "\s" in regexp, minus the new lines characters and the standard space character.
  *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes
  */
-const specialWhiteSpaceSpecialCharacters = [
+export const specialWhiteSpaceSpecialCharacters = [
   "\t",
   "\f",
   "\v",
@@ -444,6 +444,8 @@ export const specialWhiteSpaceRegexp = new RegExp(
   "g"
 );
 const newLineRegexp = /(\r\n|\r)/g;
+
+export const whiteSpaceCharacters = specialWhiteSpaceSpecialCharacters.concat([" "]);
 
 /**
  * Replace all different newlines characters by \n
