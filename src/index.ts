@@ -190,6 +190,7 @@ import { useLocalStore, useStore, useStoreProvider } from "./store_engine";
 import { DependencyContainer } from "./store_engine/dependency_container";
 import { SpreadsheetStore } from "./stores";
 import { ClientFocusStore } from "./stores/client_focus_store";
+import { GridRenderer } from "./stores/grid_renderer_store";
 import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
@@ -454,6 +455,7 @@ export const stores = {
   PivotSidePanelStore,
   PivotMeasureDisplayPanelStore,
   ClientFocusStore,
+  GridRenderer,
 };
 
 export type { StoreConstructor, StoreParams } from "./store_engine";
