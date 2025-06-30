@@ -79,7 +79,8 @@ class Demo extends Component {
     topbarMenuRegistry.addChild("clear", ["file"], {
       name: "Clear",
       sequence: 10.5,
-      execute: async (env) => {
+      execute: async () => {
+        stores.resetStores();
         this.leaveCollaborativeSession();
         await fetch(`http://${window.location.hostname}:9090/clear`);
         await this.initiateConnection({});
