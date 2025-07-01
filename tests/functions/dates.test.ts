@@ -228,6 +228,11 @@ describe("date helpers: can detect and parse various dates", () => {
     expect(parseDateTime("-1/2023", locale)).toBeNull();
   });
 
+  test("do not parse invalid separators", () => {
+    expect(parseDateTime("1.1.2020", locale)).toBeNull();
+    expect(parseDateTime("1\n1\n2020", locale)).toBeNull();
+  });
+
   test("can infer a year if not given completely", () => {
     const getYear = (str) => parseDateTime(str, locale)!.jsDate!.getFullYear();
 
