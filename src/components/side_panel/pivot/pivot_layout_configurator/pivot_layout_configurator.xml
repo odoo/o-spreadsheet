@@ -15,6 +15,15 @@
           t-att-style="dragAndDrop.itemsStyle[col.nameWithGranularity]"
           class="pt-1">
           <PivotDimension dimension="col" onRemoved.bind="removeDimension">
+            <t t-set-slot="upper-right-icons">
+              <t t-set="errorMessage" t-value="getHugeDimensionErrorMessage(col)"/>
+              <i
+                t-if="errorMessage"
+                class="text-warning fa fa-exclamation-triangle"
+                t-att-title="errorMessage"
+              />
+            </t>
+
             <PivotDimensionGranularity
               t-if="isDateOrDatetimeField(col)"
               dimension="col"
@@ -47,6 +56,15 @@
           t-att-style="dragAndDrop.itemsStyle[row.nameWithGranularity]"
           class="pt-1">
           <PivotDimension dimension="row" onRemoved.bind="removeDimension">
+            <t t-set-slot="upper-right-icons">
+              <t t-set="errorMessage" t-value="getHugeDimensionErrorMessage(row)"/>
+              <i
+                t-if="errorMessage"
+                class="text-warning fa fa-exclamation-triangle"
+                t-att-title="errorMessage"
+              />
+            </t>
+
             <PivotDimensionGranularity
               t-if="isDateOrDatetimeField(row)"
               dimension="row"

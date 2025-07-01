@@ -1,5 +1,10 @@
 import { CellPopoverStore } from "../components/popover";
-import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../constants";
+import { getPivotTooBigErrorMessage } from "../components/translations_terms";
+import {
+  DEFAULT_FIGURE_HEIGHT,
+  DEFAULT_FIGURE_WIDTH,
+  PIVOT_MAX_NUMBER_OF_CELLS,
+} from "../constants";
 import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
 import { getSmartChartDefinition } from "../helpers/figures/charts";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
@@ -481,10 +486,18 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
     sequence: index,
     execute: (env: SpreadsheetChildEnv) => {
       const zone = env.model.getters.getSelectedZone();
-      const table = env.model.getters.getPivot(pivotId).getExpandedTableStructure().export();
+      const table = env.model.getters.getPivot(pivotId).getExpandedTableStructure();
+      if (table.numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
+        env.notifyUser({
+          type: "warning",
+          text: getPivotTooBigErrorMessage(table.numberOfCells, env.model.getters.getLocale()),
+          sticky: true,
+        });
+        return;
+      }
       env.model.dispatch("INSERT_PIVOT_WITH_TABLE", {
         pivotId,
-        table,
+        table: table.export(),
         col: zone.left,
         row: zone.top,
         sheetId: env.model.getters.getActiveSheetId(),

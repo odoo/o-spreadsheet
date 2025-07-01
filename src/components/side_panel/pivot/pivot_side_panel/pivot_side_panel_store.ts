@@ -1,3 +1,4 @@
+import { PIVOT_MAX_NUMBER_OF_CELLS } from "../../../../constants";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { getFirstPivotFunction } from "../../../../helpers/pivot/pivot_composer_helpers";
 import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
@@ -17,6 +18,7 @@ import {
   PivotFields,
   PivotMeasure,
 } from "../../../../types/pivot";
+import { getPivotTooBigErrorMessage } from "../../../translations_terms";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
   mutators = ["reset", "deferUpdates", "applyUpdate", "discardPendingUpdate", "update"] as const;
@@ -25,6 +27,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   private draft: PivotCoreDefinition | null = null;
   private notification = this.get(NotificationStore);
   private alreadyNotified = false;
+  private alreadyNotifiedForPivotSize = false;
 
   constructor(get: Get, private pivotId: UID) {
     super(get);
@@ -158,6 +161,17 @@ export class PivotSidePanelStore extends SpreadsheetStore {
             "Pivot updates only work with dynamic pivot tables. Use the formula '%s' or re-insert the static pivot from the Data menu.",
             pivotExample
           ),
+          sticky: true,
+        });
+      }
+
+      const pivot = this.getters.getPivot(this.pivotId);
+      const numberOfCells = pivot.isValid() ? pivot.getExpandedTableStructure().numberOfCells : 0;
+      if (!this.alreadyNotifiedForPivotSize && numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
+        this.alreadyNotifiedForPivotSize = true;
+        this.notification.notifyUser({
+          type: "warning",
+          text: getPivotTooBigErrorMessage(numberOfCells, this.getters.getLocale()),
           sticky: true,
         });
       }

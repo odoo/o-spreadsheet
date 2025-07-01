@@ -1,5 +1,12 @@
-import { Model, PivotCustomGroup, SortDirection, SpreadsheetChildEnv } from "../../src";
+import {
+  Model,
+  PivotCustomGroup,
+  SortDirection,
+  SpreadsheetChildEnv,
+  SpreadsheetPivotTable,
+} from "../../src";
 import { Action } from "../../src/actions/action";
+import { getPivotTooBigErrorMessage } from "../../src/components/translations_terms";
 import { PIVOT_TABLE_CONFIG } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries/menus";
@@ -525,6 +532,24 @@ describe("Pivot reinsertion menu item", () => {
       expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
       expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
       expect(model.getters.getNumberRows("smallSheet")).toEqual(4); // title, col group, row header, total
+    });
+
+    test("Cannot reinsert a static pivot with too many pivot cells", () => {
+      const grid = { A1: "Customer", B1: "Quantity", A2: "Alice", B2: "Jambon" };
+      const model = createModelFromGrid(grid);
+      addPivot(model, "A1:B2", {});
+
+      const notifyUser = jest.fn();
+      const env = makeTestEnv({ model, notifyUser });
+      jest.spyOn(SpreadsheetPivotTable.prototype, "numberOfCells", "get").mockReturnValue(1000000);
+
+      doAction(reinsertStaticPivotPath, env, topbarMenuRegistry);
+      expect(notifyUser).toHaveBeenCalledWith({
+        sticky: true,
+        text: getPivotTooBigErrorMessage(1000000, model.getters.getLocale()),
+        type: "warning",
+      });
+      jest.restoreAllMocks();
     });
 
     test("undo pivot reinsertion", () => {

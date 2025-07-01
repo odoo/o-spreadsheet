@@ -1,4 +1,5 @@
-import { Model, PivotSortedColumn, SpreadsheetChildEnv } from "../../../src";
+import { Model, PivotSortedColumn, SpreadsheetChildEnv, SpreadsheetPivotTable } from "../../../src";
+import { getPivotTooBigErrorMessage } from "../../../src/components/translations_terms";
 import { PIVOT_TABLE_CONFIG, PIVOT_TOKEN_COLOR } from "../../../src/constants";
 import { toXC, toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
@@ -19,7 +20,7 @@ import {
   keyDown,
   setInputValueAndTrigger,
 } from "../../test_helpers/dom_helper";
-import { getCellText, getCoreTable } from "../../test_helpers/getters_helpers";
+import { getCellText, getCoreTable, getEvaluatedCell } from "../../test_helpers/getters_helpers";
 import {
   doAction,
   editStandaloneComposer,
@@ -868,5 +869,25 @@ describe("Spreadsheet pivot side panel", () => {
       click(column, ".fa-trash");
       expect(model.getters.getPivotCoreDefinition("1").sortedColumn).toBeUndefined();
     });
+  });
+
+  test("Trying to load a very big pivot will raise an error message", async () => {
+    setCellContent(model, "G1", "=PIVOT(1)");
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    jest.spyOn(SpreadsheetPivotTable.prototype, "numberOfCells", "get").mockReturnValue(1000000);
+
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+
+    const errorMessage = getPivotTooBigErrorMessage(1000000, model.getters.getLocale());
+    expect(notifyUser).toHaveBeenCalledWith({
+      sticky: true,
+      text: errorMessage,
+      type: "warning",
+    });
+    expect(getEvaluatedCell(model, "G1").message).toEqual(errorMessage);
+    jest.restoreAllMocks();
   });
 });

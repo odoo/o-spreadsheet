@@ -7,6 +7,7 @@ import {
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
+import { _t } from "../../../../translation";
 import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
 import {
   Aggregator,
@@ -338,5 +339,16 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     const fieldName = field ? getFieldDisplayName(field) : "";
 
     return measureDisplayTerms.descriptions[measureDisplay.type](fieldName);
+  }
+
+  getHugeDimensionErrorMessage(dimension: PivotDimensionType) {
+    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const possibleValues = pivot.getPossibleFieldValues(dimension);
+    return possibleValues.length > 100
+      ? _t(
+          "This dimension contains a lot of values (%s), and might slow down the pivot table.",
+          possibleValues.length
+        )
+      : undefined;
   }
 }
