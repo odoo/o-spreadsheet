@@ -74,6 +74,10 @@ describe("isNumber", () => {
     expect(isNumber("$123$", locale)).toBe(false);
     expect(isNumber("$123€", locale)).toBe(false);
     expect(isNumber("12$3", locale)).toBe(false);
+    expect(isNumber("5\n5", locale)).toBe(false);
+    expect(isNumber("5 5", locale)).toBe(false);
+    expect(isNumber("5\n", locale)).toBe(false);
+    expect(isNumber("\n5", locale)).toBe(false);
   });
 });
 

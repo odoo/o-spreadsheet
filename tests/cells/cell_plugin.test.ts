@@ -561,6 +561,13 @@ test.each([
   }
 );
 
+test.each(["5\n\n", "\n5\n", "\n\n5"])("Content with new lines is detected as text", (str) => {
+  const model = new Model();
+  setCellContent(model, "A1", str);
+  expect(getCellContent(model, "A1")).toEqual(str);
+  expect(getEvaluatedCell(model, "A1")?.type).toBe(CellValueType.text);
+});
+
 test.each([
   ["12/31/1999", "36525", "m/d/yyyy"],
   ["30€", "30", "#,##0[$€]"],
