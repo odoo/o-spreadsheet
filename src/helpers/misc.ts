@@ -480,6 +480,8 @@ export const specialWhiteSpaceRegexp = new RegExp(
 );
 const newLineRegexp = /(\r\n|\r)/g;
 
+export const whiteSpaceCharacters = specialWhiteSpaceSpecialCharacters.concat([" "]);
+
 /**
  * Replace all different newlines characters by \n
  */
