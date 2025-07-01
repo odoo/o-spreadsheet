@@ -131,6 +131,7 @@ import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import {
   areDomainArgsFieldsValid,
+  createCustomFields,
   createPivotFormula,
   getMaxObjectId,
   isDateOrDatetimeField,
@@ -365,6 +366,7 @@ export const helpers = {
   getUniqueText,
   isNumber,
   isDateTime,
+  createCustomFields,
 };
 
 export const links = {
