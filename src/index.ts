@@ -58,6 +58,7 @@ import {
   HIGHLIGHT_COLOR,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
+  PIVOT_MAX_NUMBER_OF_CELLS,
   PIVOT_TABLE_CONFIG,
   SCROLLBAR_WIDTH,
 } from "./constants";
@@ -126,7 +127,7 @@ import { RadioSelection } from "./components/side_panel/components/radio_selecti
 import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import { HoveredTableStore } from "./components/tables/hovered_table_store";
 import { TextInput } from "./components/text_input/text_input";
-import { ChartTerms } from "./components/translations_terms";
+import { ChartTerms, getPivotTooBigErrorMessage } from "./components/translations_terms";
 import * as CHART_HELPERS from "./helpers/figures/charts";
 import * as CHART_RUNTIME_HELPERS from "./helpers/figures/charts/runtime";
 import {
@@ -365,6 +366,7 @@ export const helpers = {
   getUniqueText,
   isNumber,
   isDateTime,
+  getPivotTooBigErrorMessage,
 };
 
 export const links = {
@@ -471,6 +473,7 @@ export const constants = {
   HIGHLIGHT_COLOR,
   PIVOT_TABLE_CONFIG,
   ChartTerms,
+  PIVOT_MAX_NUMBER_OF_CELLS,
 };
 
 export const chartHelpers = { ...CHART_HELPERS, ...CHART_RUNTIME_HELPERS };
