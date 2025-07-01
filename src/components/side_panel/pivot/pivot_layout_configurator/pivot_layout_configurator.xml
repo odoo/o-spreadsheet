@@ -23,6 +23,12 @@
               allGranularities="getGranularitiesFor(col)"
             />
             <PivotDimensionOrder dimension="col" onUpdated.bind="this.updateOrder"/>
+            <PivotCustomGroupsCollapsible
+              t-if="col.isCustomField"
+              pivotId="props.pivotId"
+              customField="getCustomField(col)"
+              onCustomFieldUpdated="props.onDimensionsUpdated"
+            />
           </PivotDimension>
         </div>
       </t>
@@ -49,6 +55,12 @@
               allGranularities="getGranularitiesFor(row)"
             />
             <PivotDimensionOrder dimension="row" onUpdated.bind="this.updateOrder"/>
+            <PivotCustomGroupsCollapsible
+              t-if="row.isCustomField"
+              pivotId="props.pivotId"
+              customField="getCustomField(row)"
+              onCustomFieldUpdated="props.onDimensionsUpdated"
+            />
           </PivotDimension>
         </div>
       </t>
