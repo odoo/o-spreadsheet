@@ -17,7 +17,11 @@ import {
   openChartConfigSidePanel,
   openChartDesignSidePanel,
 } from "../../../test_helpers/chart_helpers";
-import { mountComponentWithPortalTarget, setGrid } from "../../../test_helpers/helpers";
+import {
+  editStandaloneComposer,
+  mountComponentWithPortalTarget,
+  setGrid,
+} from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
@@ -80,7 +84,7 @@ describe("Sunburst chart side panel", () => {
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      expect(".o-chart-title input").toHaveValue("My Sunburst chart");
+      expect(".o-chart-title .o-composer").toHaveText("My Sunburst chart");
       expect(".o-chart-legend-position").toHaveValue("bottom");
       expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#00FF00");
 
@@ -95,7 +99,7 @@ describe("Sunburst chart side panel", () => {
       const chartId = createSunburstChart(model, {});
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      await setInputValueAndTrigger(".o-chart-title input", "My Sunburst Title");
+      await editStandaloneComposer(".o-chart-title .o-composer", "My Sunburst Title");
       await setInputValueAndTrigger(".o-chart-legend-position", "left");
       await changeRoundColorPickerColor(".o-chart-background-color", "#000000");
 

@@ -17,6 +17,7 @@ import {
   DataSet,
   DatasetDesign,
   ExcelChartDefinition,
+  TitleDesign,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "../../../types/chart/pyramid_chart";
@@ -26,6 +27,8 @@ import { AbstractChart } from "./abstract_chart";
 import {
   checkDataset,
   checkLabelRange,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleWithNewSheetId,
   createDataSets,
   duplicateDataSetsInDuplicatedSheet,
   duplicateLabelRangeInDuplicatedSheet,
@@ -132,26 +135,69 @@ export class PyramidChart extends AbstractChart {
       newSheetId,
       this.labelRange
     );
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const updatedAxesDesign = copyAxesDesignWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.axesDesign,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      updatedChartTitle,
+      updatedAxesDesign,
+      newSheetId
+    );
     return new PyramidChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): PyramidChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const updatedAxesDesign = copyAxesDesignWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.axesDesign,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
       this.dataSets,
       this.labelRange,
+      updatedChartTitle,
+      updatedAxesDesign,
       sheetId
     );
     return new PyramidChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): PyramidChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecifiedProperties(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
-  private getDefinitionWithSpecificDataSets(
+  private getDefinitionWithSpecifiedProperties(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: TitleDesign,
+    axesDesign?: AxesDesign,
     targetSheetId?: UID
   ): PyramidChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -170,9 +216,9 @@ export class PyramidChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title,
       aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
+      axesDesign,
       horizontal: true,
       stacked: true,
       showValues: this.showValues,
@@ -184,16 +230,24 @@ export class PyramidChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): PyramidChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, chartTitle, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
+      this.sheetId,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign
+    );
     return new PyramidChart(definition, this.sheetId, this.getters);
   }
 }
@@ -217,7 +271,7 @@ export function createPyramidChartRuntime(
       layout: getChartLayout(definition, chartData),
       scales: getPyramidChartScales(definition, chartData),
       plugins: {
-        title: getChartTitle(definition),
+        title: getChartTitle(definition, chartData),
         legend: getBarChartLegend(definition, chartData),
         tooltip: getPyramidChartTooltip(definition, chartData),
         chartShowValuesPlugin: getPyramidChartShowValues(definition, chartData),

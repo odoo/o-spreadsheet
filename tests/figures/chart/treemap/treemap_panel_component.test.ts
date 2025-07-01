@@ -96,7 +96,7 @@ describe("TreeMap chart side panel", () => {
       });
       await openChartDesignSidePanel(model, env, fixture, chartId);
 
-      expect(getHTMLInputValue(".o-chart-title input")).toEqual("My TreeMap chart");
+      expect(".o-chart-title .o-composer").toHaveText("My TreeMap chart");
 
       expect(getRoundColorPickerValue(".o-chart-background-color")).toEqual("#00FF00");
       expect(getColorPickerWidgetColor(".o-header-style", "Fill color")).toEqual("#0000FF");
