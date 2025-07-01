@@ -33,6 +33,7 @@ export interface PivotRegistryItem {
   datetimeGranularities: string[];
   isMeasureCandidate: (field: PivotField) => boolean;
   isGroupable: (field: PivotField) => boolean;
+  canHaveCustomGroup: (field: PivotField) => boolean;
 }
 
 export const pivotRegistry = new Registry<PivotRegistryItem>();
@@ -56,4 +57,5 @@ pivotRegistry.add("SPREADSHEET", {
   datetimeGranularities: [...dateGranularities, "hour_number", "minute_number", "second_number"],
   isMeasureCandidate: (field: PivotField) => field.type !== "boolean",
   isGroupable: () => true,
+  canHaveCustomGroup: (field: PivotField) => field.type === "char" && !field.isCustomField,
 });

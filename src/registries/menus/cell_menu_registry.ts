@@ -107,6 +107,21 @@ cellMenuRegistry
     sequence: 150,
     separator: true,
   })
+  .add("pivot_headers_group", {
+    sequence: 155,
+    icon: "o-spreadsheet-Icon.PLUS_IN_BOX",
+    ...ACTIONS_PIVOT.groupPivotHeaders,
+  })
+  .add("pivot_group_remaining", {
+    sequence: 155,
+    icon: "o-spreadsheet-Icon.PLUS_IN_BOX",
+    ...ACTIONS_PIVOT.groupRemainingPivotHeadersAction,
+  })
+  .add("pivot_headers_ungroup", {
+    sequence: 155,
+    icon: "o-spreadsheet-Icon.MINUS_IN_BOX",
+    ...ACTIONS_PIVOT.ungroupPivotHeadersAction,
+  })
   .add("pivot_sorting", {
     name: _t("Sort pivot"),
     sequence: 155,

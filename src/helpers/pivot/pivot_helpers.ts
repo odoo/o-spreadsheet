@@ -7,6 +7,7 @@ import {
   toBoolean,
   toNumber,
   toString,
+  toValue,
 } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
@@ -22,13 +23,17 @@ import {
 import { EvaluationError } from "../../types/errors";
 import {
   Granularity,
+  PivotCoreDefinition,
   PivotCoreDimension,
+  PivotCustomGroupedField,
   PivotDimension,
   PivotDomain,
   PivotField,
+  PivotFields,
   PivotSortedColumn,
   PivotTableCell,
 } from "../../types/pivot";
+import { getUniqueText, isDefined } from "../misc";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -213,6 +218,10 @@ export function toNormalizedPivotValue(
   if (isEvaluationError(extractedGroupValue)) {
     return extractedGroupValue;
   }
+  if (dimension.type === "custom") {
+    return toValue(groupValue) ?? null;
+  }
+
   const groupValueString =
     typeof groupValue === "boolean"
       ? toString(groupValue).toLocaleLowerCase()
@@ -266,7 +275,8 @@ pivotNormalizationValueRegistry
   .add("datetime", normalizeDateTime)
   .add("integer", (value) => toNumber(value, DEFAULT_LOCALE))
   .add("boolean", (value) => toBoolean(value))
-  .add("char", (value) => toString(value));
+  .add("char", (value) => toString(value))
+  .add("custom", (value) => value);
 
 export const pivotToFunctionValueRegistry = new Registry<
   (value: CellValue, granularity?: string) => string
@@ -277,7 +287,8 @@ pivotToFunctionValueRegistry
   .add("datetime", toFunctionValueDateTime)
   .add("integer", (value: CellValue) => `${toNumber(value, DEFAULT_LOCALE)}`)
   .add("boolean", (value: CellValue) => (toBoolean(value) ? "TRUE" : "FALSE"))
-  .add("char", (value: CellValue) => `"${toString(value).replace(/"/g, '\\"')}"`);
+  .add("char", (value: CellValue) => `"${toString(value).replace(/"/g, '\\"')}"`)
+  .add("custom", (value) => (typeof value === "string" ? `"${value}"` : String(value)));
 
 export function getFieldDisplayName(field: PivotDimension) {
   return field.displayName + (field.granularity ? ` (${ALL_PERIODS[field.granularity]})` : "");
@@ -318,4 +329,96 @@ export function isSortedColumnValid(sortedColumn: PivotSortedColumn, pivot: Pivo
   } catch (e) {
     return false;
   }
+}
+
+export function getUniquePivotGroupName(baseName: string, field: PivotCustomGroupedField) {
+  const groupNames = field.groups.map((g) => g.name);
+  return getUniqueText(baseName, groupNames, {
+    compute: (name, i) => `${name}${i}`,
+    start: 2,
+  });
+}
+
+export function getUniquePivotFieldName(baseName: string, fields: PivotFields): string {
+  const namesToAvoid = Object.values(fields)
+    .map((f) => [f?.name, f?.string])
+    .flat()
+    .filter(isDefined);
+  return getUniqueText(baseName, namesToAvoid, {
+    compute: (name, i) => `${name}${i}`,
+    start: 2,
+  });
+}
+
+export function createCustomFields(
+  definition: PivotCoreDefinition,
+  fields: PivotFields
+): PivotFields {
+  const newFields: PivotFields = {};
+  for (const customField of Object.values(definition.customFields || {})) {
+    const parentField = fields[customField.parentField];
+    if (!parentField) {
+      continue;
+    }
+    newFields[customField.name] = {
+      type: "custom",
+      isCustomField: true,
+      name: customField.name,
+      string: customField.name,
+      customGroups: customField.groups,
+      parentField: customField.parentField,
+    };
+  }
+  return newFields;
+}
+
+export function removePivotGroupsContainingValues(
+  valuesToRemove: CellValue[],
+  customField: PivotCustomGroupedField
+) {
+  customField.groups = customField.groups.filter(
+    (group) => !group.values.some((value) => valuesToRemove.includes(value))
+  );
+}
+
+/**
+ * Adds a new dimension to the pivot definition before a specified base dimension.
+ * If the new dimension already exists, it does nothing.
+ */
+export function addDimensionToPivotDefinition(
+  definition: PivotCoreDefinition,
+  baseDimension: string,
+  newDimension: string
+): PivotCoreDefinition {
+  const dimensions = definition.rows.some((dim) => dim.fieldName === baseDimension)
+    ? definition.rows
+    : definition.columns;
+
+  const baseIndex = dimensions.findIndex((dim) => dim.fieldName === baseDimension);
+  if (baseIndex === -1) {
+    return definition;
+  }
+
+  if (dimensions.some((dim) => dim.fieldName === newDimension)) {
+    return definition;
+  }
+
+  dimensions.splice(baseIndex, 0, { fieldName: newDimension });
+  return definition;
+}
+
+export function getCustomFieldWithParentField(
+  definition: PivotCoreDefinition,
+  parentField: PivotField,
+  fields: PivotFields
+): PivotCustomGroupedField {
+  return (
+    Object.values(definition.customFields || {}).find(
+      (field) => field.parentField === parentField.name
+    ) || {
+      parentField: parentField.name,
+      name: getUniquePivotFieldName(parentField.string, fields),
+      groups: [],
+    }
+  );
 }
