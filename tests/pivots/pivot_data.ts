@@ -31,7 +31,7 @@ export const pivotModelData = function (xc: string) {
           A19: "01/31/2024",
           A20: "04/02/2024",
           A21: "04/05/2024",
-          A22: "19/05/2024",
+          A22: "05/19/2024",
           B1: "Opportunity",
           B2: "my opportunity",
           B3: "test opportunity",
