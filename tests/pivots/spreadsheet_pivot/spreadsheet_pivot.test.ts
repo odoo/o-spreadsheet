@@ -144,6 +144,21 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
+  test("Pivot does not create empty row when number is added in char field", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Text",     B1: "Value",    C1: "=PIVOT(1)",
+      A2: "Hello",    B2: "10",
+      A3: "45",       B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      rows: [{ fieldName: "Text", order: "asc" }],
+      measures: [{ id: "Value:sum", fieldName: "Value", aggregator: "sum" }],
+    });
+    expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["45"], ["Hello"]]);
+  });
+
   test("Values aren't detected as date if they have a date format but a non-numeric value", () => {
     const model = new Model();
     setCellContent(model, "A1", "Col1");
