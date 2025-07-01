@@ -225,7 +225,7 @@ export function toJsDate(
   return numberToJsDate(toNumber(value, locale));
 }
 
-function toValue(data: FunctionResultObject | CellValue | undefined): CellValue | undefined {
+export function toValue(data: FunctionResultObject | CellValue | undefined): CellValue | undefined {
   if (typeof data === "object" && data !== null && "value" in data) {
     if (isEvaluationError(data.value)) {
       throw data;
