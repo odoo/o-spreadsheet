@@ -3,7 +3,7 @@
 // -----------------------------------------------------------------------------
 
 import { CellValue, Format, Locale } from "../types";
-import { isDefined } from "./misc";
+import { isDefined, whiteSpaceCharacters } from "./misc";
 
 /**
  * All Spreadsheet dates are internally stored as an object with two values:
@@ -157,8 +157,12 @@ const DATE_JS_1900_OFFSET = INITIAL_JS_DAY.getTime() - INITIAL_1900_DAY.getTime(
 export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
 export const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
 
-const dateSeparatorsRegex = /\/|-|\s/;
-const dateRegexp = /^(\d{1,4})[\/-\s](\d{1,4})([\/-\s](\d{1,4}))?$/;
+const whiteSpaceChars = whiteSpaceCharacters.join("");
+
+const dateSeparatorsRegex = new RegExp(`\/|-|${whiteSpaceCharacters.join("|")}`);
+const dateRegexp = new RegExp(
+  `^(\\d{1,4})[\/${whiteSpaceChars}\-](\\d{1,4})([\/${whiteSpaceChars}\-](\\d{1,4}))?$`
+);
 
 export const timeRegexp = /((\d+(:\d+)?(:\d+)?\s*(AM|PM))|(\d+:\d+(:\d+)?))$/;
 
