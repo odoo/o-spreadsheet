@@ -406,6 +406,10 @@ export class SpreadsheetPivotTable {
       return [row, ...this.rowTreeToRows(node.children, row)];
     });
   }
+
+  get numberOfCells() {
+    return this.rows.length * this.getNumberOfDataColumns();
+  }
 }
 
 export const EMPTY_PIVOT_CELL = { type: "EMPTY" } as const;

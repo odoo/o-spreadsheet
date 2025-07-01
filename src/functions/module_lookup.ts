@@ -1,3 +1,5 @@
+import { getPivotTooBigErrorMessage } from "../components/translations_terms";
+import { PIVOT_MAX_NUMBER_OF_CELLS } from "../constants";
 import { getFullReference, range, splitReference, toXC, toZone } from "../helpers/index";
 import { addAlignFormatToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
@@ -916,6 +918,9 @@ export const PIVOT = {
       return error;
     }
     const table = pivot.getCollapsedTableStructure();
+    if (table.numberOfCells > PIVOT_MAX_NUMBER_OF_CELLS) {
+      return new EvaluationError(getPivotTooBigErrorMessage(table.numberOfCells, this.locale));
+    }
     const cells = table.getPivotCells(visibilityOptions);
 
     let headerRows = 0;

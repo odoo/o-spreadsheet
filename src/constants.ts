@@ -316,6 +316,7 @@ export const PIVOT_TABLE_CONFIG = {
 };
 export const PIVOT_INDENT = 15;
 export const PIVOT_COLLAPSE_ICON_SIZE = 12;
+export const PIVOT_MAX_NUMBER_OF_CELLS = 1e5;
 
 export const DEFAULT_CURRENCY: Currency = {
   symbol: "$",
