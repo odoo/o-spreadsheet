@@ -45,6 +45,9 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
   if (content === "") {
     return null;
   }
+  if (content.includes("\n")) {
+    return content;
+  }
   if (isNumber(content, DEFAULT_LOCALE)) {
     return parseNumber(content, DEFAULT_LOCALE);
   }
