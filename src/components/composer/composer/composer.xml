@@ -25,7 +25,7 @@
           t-att-style="props.inputStyle"
           t-ref="o_composer"
           tabindex="1"
-          t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
+          t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'plaintext-only'"
           t-att-placeHolder="props.placeholder"
           t-att-inputmode="props.inputMode"
           spellcheck="false"
