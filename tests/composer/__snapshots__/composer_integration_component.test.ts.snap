@@ -14,7 +14,7 @@ exports[`Grid composer grid composer basic style Grid composer snapshot 1`] = `
       
       <div
         class="o-composer w-100 text-start active"
-        contenteditable="true"
+        contenteditable="plaintext-only"
         spellcheck="false"
         style="max-height: 982.6px;"
         tabindex="1"
