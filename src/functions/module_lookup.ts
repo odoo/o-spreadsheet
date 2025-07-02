@@ -126,18 +126,29 @@ export const COLUMN = {
     if (isEvaluationError(cellReference?.value)) {
       return cellReference;
     }
-    const column =
-      cellReference === undefined
-        ? this.__originCellPosition?.col
-        : toZone(cellReference.value).left;
-    if (column === undefined) {
-      return new EvaluationError(
-        _t(
-          "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
-        )
-      );
+    if (cellReference === undefined) {
+      if (this.__originCellPosition?.col === undefined) {
+        return new EvaluationError(
+          _t(
+            "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
+          )
+        );
+      }
+      return this.__originCellPosition!.col! + 1;
     }
-    return column! + 1;
+
+    const zone = this.getters.getRangeFromSheetXC(
+      this.getters.getActiveSheetId(),
+      cellReference.value
+    ).zone;
+
+    if (zone.left === zone.right) {
+      return zone.left + 1;
+    }
+
+    return generateMatrix(zone.right - zone.left + 1, 1, (col, row) => ({
+      value: zone.left + col + 1,
+    }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -501,18 +512,29 @@ export const ROW = {
     if (isEvaluationError(cellReference?.value)) {
       return cellReference;
     }
-    const row =
-      cellReference === undefined
-        ? this.__originCellPosition?.row
-        : toZone(cellReference.value).top;
-    if (row === undefined) {
-      return new EvaluationError(
-        _t(
-          "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
-        )
-      );
+    if (cellReference === undefined) {
+      if (this.__originCellPosition?.row === undefined) {
+        return new EvaluationError(
+          _t(
+            "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
+          )
+        );
+      }
+      return this.__originCellPosition!.row! + 1;
     }
-    return row! + 1;
+
+    const zone = this.getters.getRangeFromSheetXC(
+      this.getters.getActiveSheetId(),
+      cellReference.value
+    ).zone;
+
+    if (zone.top === zone.bottom) {
+      return zone.top + 1;
+    }
+
+    return generateMatrix(1, zone.bottom - zone.top + 1, (col, row) => ({
+      value: zone.top + row + 1,
+    }));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
