@@ -562,6 +562,16 @@ test.each([
 );
 
 test.each([
+  ["5 5", CellValueType.number],
+  ["5\n5", CellValueType.text],
+])("Date detection", (str, type) => {
+  const model = new Model();
+  setCellContent(model, "A1", str);
+  expect(getCellContent(model, "A1")).toEqual(str);
+  expect(getEvaluatedCell(model, "A1")?.type).toBe(type);
+});
+
+test.each([
   ["12/31/1999", "36525", "m/d/yyyy"],
   ["30€", "30", "#,##0[$€]"],
   ["50.69%", "0.5069", "0.00%"],
