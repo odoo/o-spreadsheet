@@ -16,6 +16,7 @@
           focused="value_index === state.focusedValueIndex"
           onBlur.bind="onBlurInput"
           disableFormulas="props.disableFormulas"
+          sheetId="props.sheetId"
         />
         <div
           class="o-dv-list-item-delete ms-2 o-button-icon"

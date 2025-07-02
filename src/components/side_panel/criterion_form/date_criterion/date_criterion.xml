@@ -17,6 +17,7 @@
       onValueChanged.bind="onValueChanged"
       criterionType="props.criterion.type"
       disableFormulas="props.disableFormulas"
+      sheetId="props.sheetId"
     />
   </t>
 </templates>
