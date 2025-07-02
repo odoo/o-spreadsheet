@@ -1,3 +1,4 @@
+import { range } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import {
@@ -105,11 +106,19 @@ describe("COLUMN formula", () => {
     expect(evaluateCell("A1", { A1: "=COLUMN(Sheet1!$ABC$2)" })).toBe(731);
   });
 
-  test("functional tests on range arguments", () => {
-    expect(evaluateCell("A1", { A1: "=COLUMN(B3:C40)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=COLUMN(D3:Z9)" })).toBe(4);
-    expect(evaluateCell("A1", { A1: "=COLUMN($D$3:$Z$9)" })).toBe(4);
-    expect(evaluateCell("A1", { A1: "=COLUMN(Sheet1!$D$3:$Z$9)" })).toBe(4);
+  test.each([
+    ["=COLUMN(B3:C40)", [2, 3]],
+    ["=COLUMN(A3:E9)", [1, 5]],
+    ["=COLUMN($D$3:$Z$9)", [4, 26]],
+    ["=COLUMN(Sheet1!$D$3:$Z$9)", [4, 26]],
+    ["=COLUMN(Sheet1!1:1)", [1, 26]],
+    ["=COLUMN(Sheet2!1:1)", [1, 5]],
+  ])("functional tests on range arguments", (formula, [start, end]) => {
+    const model = new Model();
+    createSheet(model, { sheetId: "Sheet2", name: "Sheet2", cols: 5 });
+    const sheetId = model.getters.getActiveSheetId();
+    const result = model.getters.evaluateFormula(sheetId, formula);
+    expect(result).toEqual(range(start, end + 1).map((col) => [col]));
   });
 
   test("functional tests on range arguments with invalid sheet name", () => {
@@ -537,11 +546,19 @@ describe("ROW formula", () => {
     expect(evaluateCell("A1", { A1: "=ROW(Sheet1!$A$234)" })).toBe(234);
   });
 
-  test("functional tests on range arguments", () => {
-    expect(evaluateCell("A1", { A1: "=ROW(B3:C40)" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=ROW(D3:Z9)" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=ROW($D$3:$Z$9)" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=ROW(Sheet1!$D$3:$Z$9)" })).toBe(3);
+  test.each([
+    ["=ROW(B3:C40)", [3, 40]],
+    ["=ROW(A2:E9)", [2, 9]],
+    ["=ROW($D$3:$Z$9)", [3, 9]],
+    ["=ROW(Sheet1!$D$3:$Z$9)", [3, 9]],
+    ["=ROW(Sheet1!A:A)", [1, 100]],
+    ["=ROW(Sheet2!A:A)", [1, 5]],
+  ])("functional tests on range arguments", (formula, [start, end]) => {
+    const model = new Model();
+    createSheet(model, { sheetId: "Sheet2", name: "Sheet2", rows: 5 });
+    const sheetId = model.getters.getActiveSheetId();
+    const result = model.getters.evaluateFormula(sheetId, formula);
+    expect(result).toEqual([range(start, end + 1)]);
   });
 
   test("functional tests on range arguments with invalid sheet name", () => {
