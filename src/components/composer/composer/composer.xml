@@ -1,9 +1,53 @@
 <templates>
   <t t-name="o-spreadsheet-Composer">
     <div class="o-composer-container w-100 h-100">
+<<<<<<< 05feba73022c30a0e007f90004ce372098e50621
       <t
         t-set="assistantIsAvailable"
         t-value="autoCompleteState.provider or functionDescriptionState.showDescription"
+||||||| 73a832b867c2c1750749cbf46ca0637735e587e3
+      <div
+        class="o-composer w-100 text-start"
+        t-att-class="{ 'text-muted': env.model.getters.isReadonly(), 'active': props.focus !== 'inactive' }"
+        t-att-style="props.inputStyle"
+        t-ref="o_composer"
+        tabindex="1"
+        t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
+        spellcheck="false"
+        t-on-keydown="onKeydown"
+        t-on-mousewheel.stop=""
+        t-on-input="onInput"
+        t-on-mousedown="onMousedown"
+        t-on-click="onClick"
+        t-on-keyup="onKeyup"
+        t-on-paste="onPaste"
+        t-on-compositionstart="onCompositionStart"
+        t-on-compositionend="onCompositionEnd"
+        t-on-dblclick="onDblClick"
+        t-on-contextmenu="onContextMenu"
+        t-on-wheel="onWheel"
+=======
+      <div
+        class="o-composer w-100 text-start"
+        t-att-class="{ 'text-muted': env.model.getters.isReadonly(), 'active': props.focus !== 'inactive' }"
+        t-att-style="props.inputStyle"
+        t-ref="o_composer"
+        tabindex="1"
+        t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'plaintext-only'"
+        spellcheck="false"
+        t-on-keydown="onKeydown"
+        t-on-mousewheel.stop=""
+        t-on-input="onInput"
+        t-on-mousedown="onMousedown"
+        t-on-click="onClick"
+        t-on-keyup="onKeyup"
+        t-on-paste="onPaste"
+        t-on-compositionstart="onCompositionStart"
+        t-on-compositionend="onCompositionEnd"
+        t-on-dblclick="onDblClick"
+        t-on-contextmenu="onContextMenu"
+        t-on-wheel="onWheel"
+>>>>>>> 940b22da1012e8eada736ba3c2c6deef2d0cfd73
       />
       <div class="d-flex flex-row position-relative">
         <span
