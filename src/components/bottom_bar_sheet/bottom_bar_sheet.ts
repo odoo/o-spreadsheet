@@ -164,15 +164,13 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private stopEdition() {
-    const input = this.sheetNameRef.el;
-    if (!this.state.isEditing || !input) return;
+    if (!this.state.isEditing || !this.sheetNameRef.el) return;
 
     this.state.isEditing = false;
     this.editionState = "initializing";
-    input.blur();
+    this.sheetNameRef.el.blur();
 
     const inputValue = this.getInputContent() || "";
-    input.innerText = inputValue;
 
     interactiveRenameSheet(this.env, this.props.sheetId, inputValue, () => this.startEdition());
   }
