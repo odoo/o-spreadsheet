@@ -7,7 +7,7 @@
         t-att-style="props.inputStyle"
         t-ref="o_composer"
         tabindex="1"
-        t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
+        t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'plaintext-only'"
         spellcheck="false"
         t-on-keydown="onKeydown"
         t-on-mousewheel.stop=""
