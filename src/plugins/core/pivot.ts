@@ -5,6 +5,7 @@ import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_piv
 import {
   ApplyRangeChange,
   CellPosition,
+  CellValue,
   CommandResult,
   CoreCommand,
   Position,
@@ -53,7 +54,8 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         return this.checkValidations(
           cmd.pivot,
           this.checkDuplicatedMeasureIds,
-          this.checkSortedColumnInMeasures
+          this.checkSortedColumnInMeasures,
+          this.checkCustomFieldsAreValid
         );
       }
       case "UPDATE_PIVOT": {
@@ -69,7 +71,8 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         return this.checkValidations(
           cmd.pivot,
           this.checkDuplicatedMeasureIds,
-          this.checkSortedColumnInMeasures
+          this.checkSortedColumnInMeasures,
+          this.checkCustomFieldsAreValid
         );
       }
       case "RENAME_PIVOT":
@@ -353,6 +356,30 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     const uniqueIds = new Set(definition.measures.map((m) => m.id));
     if (definition.measures.length !== uniqueIds.size) {
       return CommandResult.InvalidDefinition;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkCustomFieldsAreValid(definition: PivotCoreDefinition) {
+    for (const customFieldName in definition.customFields) {
+      const customField = definition.customFields[customFieldName];
+      const groupedValues = new Set<CellValue>();
+      const groupNames = new Set<string>();
+      let hasOtherGroup = false;
+      for (const group of customField.groups) {
+        if (!group.name || groupNames.has(group.name)) {
+          return CommandResult.InvalidPivotCustomField;
+        }
+        if (group.values.some((value) => groupedValues.has(value))) {
+          return CommandResult.InvalidPivotCustomField;
+        }
+        if (group.isOtherGroup && hasOtherGroup) {
+          return CommandResult.InvalidPivotCustomField;
+        }
+        group.values.forEach((value) => groupedValues.add(value));
+        groupNames.add(group.name);
+        hasOtherGroup ||= !!group.isOtherGroup;
+      }
     }
     return CommandResult.Success;
   }
