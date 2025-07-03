@@ -19,6 +19,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "../constants";
+import { PositionMap } from "../helpers/cells/position_map";
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
@@ -39,6 +40,7 @@ import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { Get, Store } from "../store_engine";
 import {
   Align,
+  Border,
   BorderDescrWithOpacity,
   Box,
   CellPosition,
@@ -648,7 +650,12 @@ export class GridRenderer extends SpreadsheetStore {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+  private createZoneBox(
+    sheetId: UID,
+    zone: Zone,
+    viewport: Viewport,
+    borders: PositionMap<Border>
+  ): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
@@ -682,7 +689,7 @@ export class GridRenderer extends SpreadsheetStore {
       y,
       width,
       height,
-      border: this.getters.getCellComputedBorder(position) || undefined,
+      border: borders.get(position),
       style,
       dataBarFill,
       overlayColor: this.hoveredTables.overlayColors.get(position),
@@ -848,6 +855,7 @@ export class GridRenderer extends SpreadsheetStore {
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
     const sheetId = this.getters.getActiveSheetId();
+    const borders = this.getters.getZoneCellBorders(sheetId, zone);
 
     for (const row of visibleRows) {
       for (const col of visibleCols) {
@@ -855,7 +863,7 @@ export class GridRenderer extends SpreadsheetStore {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport, borders));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -863,8 +871,8 @@ export class GridRenderer extends SpreadsheetStore {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport);
-        const borderBottomRight = this.getters.getCellComputedBorder({
+        const box = this.createZoneBox(sheetId, merge, viewport, borders);
+        const borderBottomRight = borders.get({
           sheetId,
           col: merge.right,
           row: merge.bottom,

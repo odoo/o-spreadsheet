@@ -1,4 +1,4 @@
-import { CellPosition, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
+import { Adjacence, CellPosition, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
 import {
   MAX_COL,
   MAX_ROW,
@@ -347,15 +347,15 @@ export function unionUnboundedZones(...zones: UnboundedZone[]): UnboundedZone {
 /**
  * Compute the intersection of two zones. Returns nothing if the two zones don't overlap
  */
-export function intersection(z1: Zone, z2: Zone): Zone | undefined {
+export function intersection(z1: UnboundedZone, z2: Zone): Zone | undefined {
   if (!overlap(z1, z2)) {
     return undefined;
   }
   return {
     top: Math.max(z1.top, z2.top),
     left: Math.max(z1.left, z2.left),
-    bottom: Math.min(z1.bottom, z2.bottom),
-    right: Math.min(z1.right, z2.right),
+    bottom: z1.bottom !== undefined ? Math.min(z1.bottom, z2.bottom) : z1.bottom ?? z2.bottom,
+    right: z1.right !== undefined ? Math.min(z1.right, z2.right) : z1.right ?? z2.right,
   };
 }
 
@@ -370,13 +370,57 @@ export function isEqual(z1: Zone, z2: Zone): boolean {
 }
 
 /**
+ * Two zones are adjacent if they -partially- share a border.
+ * Returns the adjacent size of z1 as well as the indexes of the header by which they are adjacent.
+ */
+export function adjacent(z1: UnboundedZone, z2: Zone): Adjacence | undefined {
+  if (intersection(z1, z2)) return undefined;
+  let adjacence: Adjacence | undefined = undefined;
+  if (z1.left === z2.right + 1) {
+    adjacence = {
+      position: "left",
+      start: Math.max(z1.top, z2.top),
+      stop: z1.bottom !== undefined ? Math.min(z1.bottom, z2.bottom) : z2.bottom,
+    };
+  }
+  if (z1.right !== undefined && z1.right + 1 === z2.left) {
+    adjacence = {
+      position: "right",
+      start: Math.max(z1.top, z2.top),
+      stop: z1.bottom !== undefined ? Math.min(z1.bottom, z2.bottom) : z2.bottom,
+    };
+  }
+  if (z1.top === z2.bottom + 1) {
+    adjacence = {
+      position: "top",
+      start: Math.max(z1.left, z2.left),
+      stop: z1.right !== undefined ? Math.min(z1.right, z2.right) : z2.right,
+    };
+  }
+  if (z1.bottom !== undefined && z1.bottom + 1 === z2.top) {
+    adjacence = {
+      position: "bottom",
+      start: Math.max(z1.left, z2.left),
+      stop: z1.right !== undefined ? Math.min(z1.right, z2.right) : z2.right,
+    };
+  }
+  return adjacence && adjacence.start <= adjacence.stop ? adjacence : undefined;
+}
+
+/**
  * Return true if two zones overlap, false otherwise.
  */
-export function overlap(z1: Zone, z2: Zone): boolean {
-  if (z1.bottom < z2.top || z2.bottom < z1.top) {
+export function overlap(z1: UnboundedZone, z2: UnboundedZone): boolean {
+  if (
+    (z1.bottom !== undefined && z1.bottom < z2.top) ||
+    (z2.bottom !== undefined && z2.bottom < z1.top)
+  ) {
     return false;
   }
-  if (z1.right < z2.left || z2.right < z1.left) {
+  if (
+    (z1.right !== undefined && z1.right < z2.left) ||
+    (z2.right !== undefined && z2.right < z1.left)
+  ) {
     return false;
   }
   return true;
