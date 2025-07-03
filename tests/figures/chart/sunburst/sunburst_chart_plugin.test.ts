@@ -66,6 +66,7 @@ describe("Sunburst chart chart", () => {
       showLabels: true,
       valuesDesign: { italic: true },
       groupColors: ["#123456", "#654321"],
+      humanize: false,
     });
   });
 

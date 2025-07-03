@@ -202,6 +202,7 @@ export class ScorecardChart extends AbstractChart {
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
+      humanize: context.humanize,
     };
   }
 
