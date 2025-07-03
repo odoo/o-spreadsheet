@@ -854,6 +854,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
           proposals,
           selectProposal: provider.selectProposal,
           autoSelectFirstProposal: provider.autoSelectFirstProposal ?? false,
+          canBeToggled: provider.canBeToggled,
         };
       }
       if (exactMatch && this._currentContent !== this.initialContent) {
@@ -882,6 +883,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
           proposals,
           selectProposal: provider.selectProposal,
           autoSelectFirstProposal: provider.autoSelectFirstProposal ?? false,
+          canBeToggled: provider.canBeToggled,
         };
       }
     }

@@ -650,10 +650,12 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   closeAssistant() {
+    if (!this.canBeToggled) return;
     this.assistant.forcedClosed = true;
   }
 
   openAssistant() {
+    if (!this.canBeToggled) return;
     this.assistant.forcedClosed = false;
   }
 
@@ -665,6 +667,10 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     ) {
       event.stopPropagation();
     }
+  }
+
+  get canBeToggled() {
+    return this.autoCompleteState.provider?.canBeToggled ?? true;
   }
 
   // ---------------------------------------------------------------------------
@@ -898,7 +904,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   private autoComplete(value: string) {
-    if (!value || this.assistant.forcedClosed) {
+    if (!value || (this.assistant.forcedClosed && this.canBeToggled)) {
       return;
     }
     this.autoCompleteState.provider?.selectProposal(value);
