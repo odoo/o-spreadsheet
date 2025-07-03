@@ -871,7 +871,7 @@ export function getExportedExcelData(model: Model): ExcelWorkbookData {
   return purgeSingleRowTables(data);
 }
 
-export const mockChart = () => {
+export const mockChart = (options: any = {}) => {
   const mockChartData: ChartConfiguration = {
     data: { datasets: [] },
     type: "bar",
@@ -916,6 +916,8 @@ export const mockChart = () => {
     config = mockChartData;
     static BarController = class {};
     static BarElement = class {};
+    chartArea = options.chartArea ?? { left: 0, top: 0, right: 100, bottom: 100 };
+    scales = options.scales ?? undefined;
   }
 
   //@ts-ignore

@@ -65,6 +65,8 @@ export type ChartWithAxisDefinition = Extract<
   { axesDesign?: AxesDesign }
 >;
 
+export type ZoomableChartDefinition = Extract<ChartWithAxisDefinition, { zoomable?: boolean }>;
+
 export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
@@ -210,6 +212,7 @@ export interface ChartCreationContext {
   readonly showHeaders?: boolean;
   readonly headerDesign?: TitleDesign;
   readonly treemapColoringOptions?: TreeMapColoringOptions;
+  readonly zoomable?: boolean;
 }
 
 export type ChartAxisFormats = { [axisId: string]: Format | undefined } | undefined;

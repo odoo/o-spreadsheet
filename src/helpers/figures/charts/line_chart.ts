@@ -43,7 +43,6 @@ import {
 } from "./chart_common";
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
   getLineChartData,
@@ -52,6 +51,7 @@ import {
   getLineChartScales,
   getLineChartTooltip,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -69,6 +69,7 @@ export class LineChart extends AbstractChart {
   readonly fillArea?: boolean;
   readonly showValues?: boolean;
   readonly hideDataMarkers?: boolean;
+  readonly zoomable?: boolean;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -91,6 +92,7 @@ export class LineChart extends AbstractChart {
     this.fillArea = definition.fillArea;
     this.showValues = definition.showValues;
     this.hideDataMarkers = definition.hideDataMarkers;
+    this.zoomable = definition.zoomable;
   }
 
   static validateChartDefinition(
@@ -125,6 +127,7 @@ export class LineChart extends AbstractChart {
       fillArea: context.fillArea,
       showValues: context.showValues,
       hideDataMarkers: context.hideDataMarkers,
+      zoomable: context.zoomable,
     };
   }
 
@@ -162,6 +165,7 @@ export class LineChart extends AbstractChart {
       fillArea: this.fillArea,
       showValues: this.showValues,
       hideDataMarkers: this.hideDataMarkers,
+      zoomable: this.zoomable,
     };
   }
 
