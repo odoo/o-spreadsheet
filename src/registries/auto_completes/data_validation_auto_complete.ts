@@ -3,6 +3,7 @@ import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("dataValidation", {
   displayAllOnInitialContent: true,
+  canBeToggled: false,
   getProposals(tokenAtCursor, content) {
     if (content.startsWith("=")) {
       return [];
