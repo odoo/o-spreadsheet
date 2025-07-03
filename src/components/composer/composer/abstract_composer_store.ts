@@ -281,6 +281,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     return !!this.autoComplete.provider;
   }
 
+  get canBeToggled() {
+    return this.autoComplete.provider?.canBeToggled ?? true;
+  }
+
   cycleReferences() {
     const locale = this.getters.getLocale();
     const updated = cycleFixedReference(this.composerSelection, this._currentContent, locale);
@@ -887,6 +891,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
           proposals,
           selectProposal: provider.selectProposal,
           autoSelectFirstProposal: provider.autoSelectFirstProposal ?? false,
+          canBeToggled: provider.canBeToggled,
         };
       }
       if (exactMatch && this._currentContent !== this.initialContent) {
@@ -915,6 +920,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
           proposals,
           selectProposal: provider.selectProposal,
           autoSelectFirstProposal: provider.autoSelectFirstProposal ?? false,
+          canBeToggled: provider.canBeToggled,
         };
       }
     }

@@ -641,10 +641,12 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   closeAssistant() {
+    if (!this.props.composerStore.canBeToggled) return;
     this.assistant.forcedClosed = true;
   }
 
   openAssistant() {
+    if (!this.props.composerStore.canBeToggled) return;
     this.assistant.forcedClosed = false;
   }
 
@@ -882,7 +884,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   autoComplete(value: string) {
-    if (!value || this.assistant.forcedClosed) {
+    if (!value || (this.assistant.forcedClosed && this.props.composerStore.canBeToggled)) {
       return;
     }
     this.props.composerStore.insertAutoCompleteValue(value);
