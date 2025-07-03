@@ -24,6 +24,7 @@ export interface AutoCompleteProvider {
   proposals: AutoCompleteProposal[];
   selectProposal(text: string): void;
   autoSelectFirstProposal: boolean;
+  canBeToggled?: boolean;
 }
 
 interface ComposerStoreInterface {
@@ -45,6 +46,7 @@ interface ComposerStoreInterface {
 export interface AutoCompleteProviderDefinition {
   sequence?: number;
   autoSelectFirstProposal?: boolean;
+  canBeToggled?: boolean;
   displayAllOnInitialContent?: boolean;
   maxDisplayedProposals?: number;
   getProposals(
