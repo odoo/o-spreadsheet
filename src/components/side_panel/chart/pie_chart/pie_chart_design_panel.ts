@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { GenericDefinition, PieChartDefinition } from "../../../../types/chart";
+import { DEFAULT_DOUGHNUT_CHART_HOLE_SIZE } from "../../../../xlsx/constants";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { ChartLegend } from "../building_blocks/legend/legend";
@@ -38,5 +39,8 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
       ...this.props.definition,
       pieHolePercentage,
     });
+  }
+  get defaultHoleSize() {
+    return DEFAULT_DOUGHNUT_CHART_HOLE_SIZE;
   }
 }

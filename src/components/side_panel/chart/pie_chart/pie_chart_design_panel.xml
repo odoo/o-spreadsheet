@@ -8,7 +8,7 @@
         </Section>
         <PieHoleSize
           t-if="props.definition.isDoughnut"
-          value="props.definition.pieHolePercentage ?? 50"
+          value="props.definition.pieHolePercentage ?? this.defaultHoleSize"
           onValueChange.bind="onPieHoleSizeChange"
         />
       </t>
