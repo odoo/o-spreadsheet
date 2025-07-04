@@ -612,7 +612,39 @@ export class GridSelectionPlugin extends UIPlugin {
     if (headers.some((h) => h < 0 || h >= maxHeaderValue)) {
       return CommandResult.InvalidHeaderIndex;
     }
+    if (!isCol && this.isPartiallyMovingTableWithHeader(id, cmd.elements)) {
+      return CommandResult.CannotMovePartialTableWithHeader;
+    }
     return CommandResult.Success;
+  }
+
+  private isPartiallyMovingTableWithHeader(sheetId: UID, selectedRows: number[]): boolean {
+    const selectedRowSet = new Set(selectedRows);
+    return this.getters.getCoreTables(sheetId).some(({ range, config }) => {
+      const { top, bottom } = range.zone;
+      const headerRowStart = top;
+      const headerRowEnd = top + config.numberOfHeaders;
+
+      if (config.numberOfHeaders === 0) {
+        return false;
+      }
+
+      const headerSelected = selectedRows.some(
+        (row) => row >= headerRowStart && row < headerRowEnd
+      );
+
+      if (!headerSelected) {
+        return false;
+      }
+
+      for (let r = top; r <= bottom; r++) {
+        if (!selectedRowSet.has(r)) {
+          return true;
+        }
+      }
+
+      return false;
+    });
   }
 
   private fallbackToVisibleSheet() {
