@@ -152,6 +152,9 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       bottom: Math.max(anchorRow, row),
     };
     const expandedZone = this.getters.expandZone(sheetId, zone);
+    if (isEqual(this.anchor.zone, expandedZone)) {
+      return new DispatchResult(CommandResult.NoChanges);
+    }
     const anchor = { zone: expandedZone, cell: { col: anchorCol, row: anchorRow } };
     return this.processEvent({
       mode: "updateAnchor",
@@ -171,6 +174,23 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       options: { scrollIntoView: true },
       anchor: { zone, cell: { col, row } },
       mode: "newAnchor",
+    });
+  }
+
+  /**
+   * Triggered on mouse up to finalize the selection.
+   * - If the current anchor zone already exists in the selection, it will be removed.
+   * - If the anchor zone overlaps with existing zones, it will be split into
+   *   multiple non-overlapping parts.
+   */
+  commitSelection(): DispatchResult {
+    return this.processEvent({
+      options: {
+        scrollIntoView: false,
+        unbounded: true,
+      },
+      anchor: this.anchor,
+      mode: "commitSelection",
     });
   }
 
@@ -257,7 +277,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     });
   }
 
-  selectColumn(index: HeaderIndex, mode: SelectionEvent["mode"]): DispatchResult {
+  selectColumn(
+    index: HeaderIndex,
+    mode: Exclude<SelectionEvent["mode"], "commitSelection">
+  ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const bottom = this.getters.getNumberRows(sheetId) - 1;
     let zone = { left: index, right: index, top: 0, bottom };
@@ -284,7 +307,10 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     });
   }
 
-  selectRow(index: HeaderIndex, mode: SelectionEvent["mode"]): DispatchResult {
+  selectRow(
+    index: HeaderIndex,
+    mode: Exclude<SelectionEvent["mode"], "commitSelection">
+  ): DispatchResult {
     const sheetId = this.getters.getActiveSheetId();
     const right = this.getters.getNumberCols(sheetId) - 1;
     let zone = { top: index, bottom: index, left: 0, right };

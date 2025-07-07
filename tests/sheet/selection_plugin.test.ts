@@ -16,6 +16,7 @@ import {
   addCellToSelection,
   addColumns,
   addRows,
+  commitSelection,
   createFigure,
   createSheet,
   createTable,
@@ -1642,6 +1643,49 @@ describe("Multiple selection updates after insertion and deletion", () => {
     expect(selection.zones).toEqual([
       { left: 0, right: 9, top: 4, bottom: 4 },
       { left: 0, right: 9, top: 9, bottom: 9 },
+    ]);
+  });
+});
+
+describe("Grid selection updates zones correctly when deselecting zone", () => {
+  let model: Model;
+
+  beforeEach(() => {
+    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+  });
+
+  test("can deselect zone from a larger zone", () => {
+    setSelection(model, ["A1:C4"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+
+    addCellToSelection(model, "B2");
+    setAnchorCorner(model, "B3");
+    commitSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+    expect(selection.zones).toEqual([
+      toZone("A4:C4"), // bottom
+      toZone("C2:C3"), // right
+      toZone("A2:A3"), // left
+      toZone("A1:C1"), // top
+    ]);
+  });
+
+  test("can deselect merged cell from selection", () => {
+    merge(model, "A1:A2");
+
+    setSelection(model, ["A1:B3"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+
+    addCellToSelection(model, "A1");
+    commitSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("B1"));
+    expect(selection.zones).toEqual([
+      toZone("A3:B3"), // bottom
+      toZone("B1:B2"), // right
     ]);
   });
 });

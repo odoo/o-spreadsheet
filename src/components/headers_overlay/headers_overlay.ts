@@ -137,6 +137,10 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   }
 
   _computeGrabDisplay(zoomedMouseEvent: ZoomedMouseEvent<MouseEvent>) {
+    if (isCtrlKey(zoomedMouseEvent.ev)) {
+      this.state.waitingForMove = false;
+      return;
+    }
     const index = this._getElementIndex(this._getEvOffset(zoomedMouseEvent));
     const activeElements = this._getActiveElements();
     const selectedZoneStart = this._getSelectedZoneStart();
@@ -239,7 +243,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       this._selectElement(index, false);
       return;
     }
-    if (this.state.waitingForMove) {
+    if (!isCtrlKey(ev) && this.state.waitingForMove) {
       if (!this.env.model.getters.isGridSelectionActive()) {
         this._selectElement(index, false);
       } else {
@@ -320,15 +324,12 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       }
     };
     const mouseUpSelect = () => {
+      this.env.model.selection.commitSelection();
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
       this._computeGrabDisplay(zoomedMouseEvent);
     };
     this.dragNDropGrid.start(zoomedMouseEvent, mouseMoveSelect, mouseUpSelect);
-  }
-
-  onMouseUp(ev: MouseEvent) {
-    this.lastSelectedElementIndex = null;
   }
 
   onContextMenu(ev: MouseEvent) {

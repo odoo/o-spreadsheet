@@ -887,3 +887,45 @@ export function splitIfAdjacent(zone: UnboundedZone, zoneToRemove: Zone): Unboun
       return newZones;
   }
 }
+
+/**
+ * Splits zone z2 by removing the overlapping zone z1 (fully inside z2).
+ * Returns the remaining parts of z2 that don't overlap with z1.
+ *
+ * Diagram:
+ * ┌──────────── z2 ─────────────┐
+ * │              1              │
+ * │--------─────────────--------│
+ * │  2    |     z1      |    3  │
+ * │--------─────────────--------│
+ * │              4              │
+ * └─────────────────────────────┘
+ *
+ * Input:
+ *   z1 = { top: 2, bottom: 3, left: 2, right: 3 }
+ *   z2 = { top: 1, bottom: 4, left: 1, right: 4 }
+ *
+ * Output:
+ * [
+ *   { top: 4, bottom: 4, left: 1, right: 4 },  // bottom
+ *   { top: 2, bottom: 3, left: 4, right: 4 },  // right
+ *   { top: 2, bottom: 3, left: 1, right: 1 },  // left
+ *   { top: 1, bottom: 1, left: 1, right: 4 }   // top
+ * ]
+ */
+export function splitZone(z1: Zone, z2: Zone): Zone[] {
+  const zones: Zone[] = [];
+  if (z1.bottom < z2.bottom) {
+    zones.push({ ...z2, top: z1.bottom + 1 });
+  }
+  if (z1.right < z2.right) {
+    zones.push({ ...z2, left: z1.right + 1, top: z1.top, bottom: z1.bottom });
+  }
+  if (z1.left > z2.left) {
+    zones.push({ ...z2, right: z1.left - 1, top: z1.top, bottom: z1.bottom });
+  }
+  if (z1.top > z2.top) {
+    zones.push({ ...z2, bottom: z1.top - 1 });
+  }
+  return zones;
+}
