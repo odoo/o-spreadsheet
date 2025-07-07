@@ -553,6 +553,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     };
     const onMouseUp = () => {
+      this.env.model.selection.commitSelection();
       if (this.paintFormatStore.isActive) {
         this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }

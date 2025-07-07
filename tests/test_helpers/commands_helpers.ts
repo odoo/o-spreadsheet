@@ -925,6 +925,14 @@ export function addCellToSelection(model: Model, xc: string): DispatchResult {
 }
 
 /**
+ * commitSelection only called on mouse up.
+ * it will check and update the selection accordingly.
+ */
+export function commitSelection(model: Model): DispatchResult {
+  return model.selection.commitSelection();
+}
+
+/**
  * Move a conditianal formatting rule
  */
 export function changeCFPriority(

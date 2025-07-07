@@ -40,6 +40,8 @@ interface SelectionProcessor {
 
   selectTableAroundSelection(): DispatchResult;
 
+  commitSelection(): DispatchResult;
+
   isListening(owner: unknown): boolean;
 }
 

@@ -4,7 +4,9 @@ import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_hel
 import { clip, deepCopy, range } from "../../helpers/misc";
 import {
   isEqual,
+  isZoneInside,
   positionToZone,
+  splitZone,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -118,8 +120,8 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   private handleEvent(event: SelectionEvent) {
-    const anchor = event.anchor;
-    let zones: Zone[] = [];
+    let anchor = event.anchor;
+    let zones: Zone[] = [...this.gridSelection.zones];
 
     this.isUnbounded = event.options?.unbounded || false;
 
@@ -128,17 +130,36 @@ export class GridSelectionPlugin extends UIPlugin {
         zones = [anchor.zone];
         break;
       case "updateAnchor":
-        zones = [...this.gridSelection.zones];
         const index = zones.findIndex((z: Zone) => isEqual(z, event.previousAnchor.zone));
         if (index >= 0) {
           zones[index] = anchor.zone;
         }
         break;
       case "newAnchor":
-        zones = [...this.gridSelection.zones, anchor.zone];
+        zones.push(anchor.zone);
+        break;
+      case "commitSelection":
+        const zoneToSplit = zones.find(
+          (zone) => isZoneInside(anchor.zone, zone) && !isEqual(anchor.zone, zone)
+        );
+        const removeFullAnchor = zones.filter((zone) => isEqual(anchor.zone, zone)).length > 1;
+        if (removeFullAnchor && zones.length > 2) {
+          zones = zones.filter((zone) => !isEqual(zone, anchor.zone));
+        } else if (zoneToSplit) {
+          const splittedZones = splitZone(anchor.zone, zoneToSplit);
+          zones = zones
+            .filter((z) => !isEqual(z, anchor.zone) && !isEqual(z, zoneToSplit))
+            .concat(splittedZones);
+        }
+        zones = uniqueZones(zones);
+        const lastZone = zones[zones.length - 1];
+        anchor = {
+          cell: { col: lastZone.left, row: lastZone.top },
+          zone: lastZone,
+        };
         break;
     }
-    this.setSelectionMixin(event.anchor, zones);
+    this.setSelectionMixin(anchor, zones);
     /** Any change to the selection has to be reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
     const { col, row } = this.gridSelection.anchor.cell;
@@ -455,7 +476,7 @@ export class GridSelectionPlugin extends UIPlugin {
       { anchor, zones }
     );
     this.gridSelection.anchor = clippedAnchor;
-    this.gridSelection.zones = uniqueZones(clippedZones);
+    this.gridSelection.zones = clippedZones;
   }
   /**
    * Change the anchor of the selection active cell to an absolute col and row index.

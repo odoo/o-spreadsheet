@@ -35,7 +35,7 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, target, typeInComposerGrid } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -1287,5 +1287,54 @@ describe("move selected element(s)", () => {
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
     await selectRow(2, { shiftKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
+  });
+});
+
+describe("Can select de-select headers", () => {
+  beforeEach(async () => {
+    const data = {
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    };
+    model = new Model(data);
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+  });
+
+  test("cannot deselect a single column", async () => {
+    await selectColumn("A");
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+    await selectColumn("A", { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+  });
+
+  test("can deselect a single column when there are more than one", async () => {
+    await selectColumn("A");
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+    await selectColumn("C", { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5,C1:C5"));
+    await selectColumn("C", { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+  });
+
+  test("Can select already selected column remove it from selection", async () => {
+    await selectColumn("A");
+    await selectColumn("D", { shiftKey: true });
+    await selectColumn("E", { ctrlKey: true });
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 3, 4]));
+    await selectColumn("C", { ctrlKey: true });
+    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 3, 4]));
+  });
+
+  test("Can select already selected row remove it from selection", async () => {
+    await selectRow(0);
+    await selectRow(3, { shiftKey: true });
+    await selectRow(4, { ctrlKey: true });
+    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 3, 4]));
+    await selectRow(2, { ctrlKey: true });
+    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 3, 4]));
   });
 });
