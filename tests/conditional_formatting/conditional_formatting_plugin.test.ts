@@ -2924,4 +2924,157 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "B2")?.percentage).toBe(50);
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
   });
+
+  test("conditionl format with simple custom formula", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "2", 
+        A2: "4", 
+        A3: "2",
+        A4: "4",
+        A5: "2",
+        A6: "4",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          values: ["=A1>3"],
+          operator: "customFormula",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#FF0000",
+          },
+        },
+      },
+      ranges: toRangesData(sheetId, "C1:C6"),
+      sheetId,
+    });
+    expect(getStyle(model, "C1")).toEqual({
+      fillColor: undefined,
+    });
+    expect(getStyle(model, "C2")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "C3")).toEqual({
+      fillColor: undefined,
+    });
+    expect(getStyle(model, "C4")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "C5")).toEqual({
+      fillColor: undefined,
+    });
+    expect(getStyle(model, "C6")).toEqual({
+      fillColor: "#FF0000",
+    });
+  });
+
+  test("conditionl format with simple custom formula containing fixed range", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "2", 
+        A2: "4", 
+        A3: "2",
+        A4: "4",
+        A5: "2",
+        A6: "4",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          values: ["=$A$2>3"],
+          operator: "customFormula",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#FF0000",
+          },
+        },
+      },
+      ranges: toRangesData(sheetId, "C1:C6"),
+      sheetId,
+    });
+    expect(getStyle(model, "C1")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "C2")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "C3")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "C4")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "C5")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "C6")).toEqual({
+      fillColor: "#FF0000",
+    });
+  });
+
+  test("conditionl format with advanced custom formula", () => {
+    const grid = {
+      B1: "Seattle",
+      B2: "Portland",
+      B3: "Spokane",
+      B4: "Edmonds",
+      B5: "Atlanta",
+      B6: "Spokane",
+      B7: "Charleston",
+      B8: "Youngstown",
+      B9: "Seattle",
+      B10: "San Francisco",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          values: ["=COUNTIF($B$1:$B$10,B1)>1"],
+          operator: "customFormula",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#FF0000",
+          },
+        },
+      },
+      ranges: toRangesData(sheetId, "B1:B10"),
+      sheetId,
+    });
+    expect(getStyle(model, "B1")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "B2")).toEqual({
+      fillColor: undefined,
+    });
+    expect(getStyle(model, "B3")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "B4")).toEqual({
+      fillColor: undefined,
+    });
+    expect(getStyle(model, "B5")).toEqual({
+      fillColor: undefined,
+    });
+    expect(getStyle(model, "B6")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "B7")).toEqual({
+      fillColor: undefined,
+    });
+    expect(getStyle(model, "B8")).toEqual({
+      fillColor: undefined,
+    });
+    expect(getStyle(model, "B9")).toEqual({
+      fillColor: "#FF0000",
+    });
+    expect(getStyle(model, "B10")).toEqual({
+      fillColor: undefined,
+    });
+  });
 });
