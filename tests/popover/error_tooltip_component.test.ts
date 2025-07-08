@@ -75,6 +75,15 @@ describe("Error tooltip component", () => {
     expect(".fst-italic").toHaveText(" Caused by A1");
   });
 
+  test("Do not display error origin position in dashboard", async () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=1/0");
+    setCellContent(model, "A2", "=A1");
+    model.updateMode("dashboard");
+    await mountErrorTooltip(model, "A2");
+    expect(".fst-italic").toHaveCount(0);
+  });
+
   test("can display error position from another sheet", async () => {
     const model = new Model();
     createSheet(model, { sheetId: "sheet2" });
