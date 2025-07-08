@@ -87,6 +87,7 @@ iconsOnCellRegistry.add("data_validation_chip_icon", (getters, position) => {
       onClick: (position, env) => {
         const { col, row } = position;
         env.model.selection.selectCell(col, row);
+        env.model.selection.commitSelection();
         env.startCellEdition();
       },
       type: "data_validation_chip_icon",
@@ -110,6 +111,7 @@ iconsOnCellRegistry.add("data_validation_list_icon", (getters, position) => {
       onClick: (position, env) => {
         const { col, row } = position;
         env.model.selection.selectCell(col, row);
+        env.model.selection.commitSelection();
         env.startCellEdition();
       },
       type: "data_validation_list_icon",

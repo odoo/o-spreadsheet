@@ -28,6 +28,7 @@ import {
   addColumns,
   addRows,
   cleanClipBoardHighlight,
+  commitSelection,
   copy,
   copyPasteAboveCells,
   copyPasteCellsOnLeft,
@@ -823,7 +824,7 @@ describe("clipboard", () => {
 
       // select C3:G7
       selectCell(model, "C3");
-      setAnchorCorner(model, "G7");
+      setAnchorCorner(model, "G7", "overrideSelection");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 6, right: 6 });
 
       paste(model, "C3:G7");
@@ -875,7 +876,7 @@ describe("clipboard", () => {
 
       // select C3:G7
       selectCell(model, "C3");
-      setAnchorCorner(model, "G7");
+      setAnchorCorner(model, "G7", "overrideSelection");
 
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 2, left: 2, bottom: 6, right: 6 });
 
@@ -900,7 +901,9 @@ describe("clipboard", () => {
 
       // select C1 and E1
       selectCell(model, "C1");
+      commitSelection(model);
       addCellToSelection(model, "E1");
+      commitSelection(model);
 
       paste(model, "C1, E1");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
@@ -931,7 +934,9 @@ describe("clipboard", () => {
 
       // select C1 and E1
       selectCell(model, "C1");
+      commitSelection(model);
       addCellToSelection(model, "E1");
+      commitSelection(model);
 
       paste(model, "C1, E1");
       expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 2, bottom: 0, right: 2 });
@@ -982,7 +987,7 @@ describe("clipboard", () => {
       });
 
       test("Copy cells only once", () => {
-        copy(model, "A1:A3", "A1:A2", "A2:A3", "A1", "A2", "A3");
+        copy(model, "A1:A3", "A1:A2", "A2:A3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:A3"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
         paste(model, "F6");
@@ -1032,7 +1037,7 @@ describe("clipboard", () => {
       });
 
       test("Copy cells only once", () => {
-        copy(model, "A1:C1", "A1:B1", "B1:C1", "A1", "B1", "C1");
+        copy(model, "A1:C1", "A1:B1", "B1:C1");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:C1"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
         paste(model, "F6");

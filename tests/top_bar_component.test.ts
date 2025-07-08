@@ -13,6 +13,7 @@ import { FileStore } from "./__mocks__/mock_file_store";
 import { MockTransportService } from "./__mocks__/transport_service";
 import {
   addCellToSelection,
+  commitSelection,
   createTableWithFilter,
   freezeColumns,
   freezeRows,
@@ -790,8 +791,11 @@ describe("Format", () => {
     const { model, fixture } = await mountSpreadsheet();
     setStyle(model, "A1, B2:B3", { fillColor: "#000000" });
     selectCell(model, "A1");
+    commitSelection(model);
+
     addCellToSelection(model, "B2");
-    setAnchorCorner(model, "B3");
+    setAnchorCorner(model, "B3", "updateAnchor");
+
     expect(getCell(model, "A1")?.style).toEqual({ fillColor: "#000000" });
     expect(getCell(model, "B2")?.style).toEqual({ fillColor: "#000000" });
     expect(getCell(model, "B3")?.style).toEqual({ fillColor: "#000000" });

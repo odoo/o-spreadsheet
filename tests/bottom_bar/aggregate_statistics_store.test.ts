@@ -4,6 +4,7 @@ import { functionRegistry } from "../../src/functions";
 import {
   activateSheet,
   addCellToSelection,
+  commitSelection,
   createSheet,
   hideRows,
   selectAll,
@@ -30,7 +31,7 @@ describe("Aggregate statistic functions", () => {
 
     // expand selection with the range A3:A2
     addCellToSelection(model, "A3");
-    setAnchorCorner(model, "A2");
+    setAnchorCorner(model, "A2", "updateAnchor");
 
     // A2 is now present in two selection
     statisticFnResults = store.statisticFnResults;
@@ -68,11 +69,12 @@ describe("Aggregate statistic functions", () => {
     test('return the "SUM" value only on cells interpreted as number', () => {
       // select the range A1:A7
       selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      setAnchorCorner(model, "A7", "overrideSelection");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Sum"]?.()).toBe(66);
 
       selectCell(model, "A7");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Sum"]).toBe(undefined);
     });
@@ -80,11 +82,12 @@ describe("Aggregate statistic functions", () => {
     test('return the "Avg" result only on cells interpreted as number', () => {
       // select the range A1:A7
       selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      setAnchorCorner(model, "A7", "overrideSelection");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Avg"]?.()).toBe(22);
 
       selectCell(model, "A7");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Avg"]).toBe(undefined);
     });
@@ -92,11 +95,12 @@ describe("Aggregate statistic functions", () => {
     test('return "Min" value only on cells interpreted as number', () => {
       // select the range A1:A7
       selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      setAnchorCorner(model, "A7", "overrideSelection");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Min"]?.()).toBe(0);
 
       selectCell(model, "A7");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Min"]).toBe(undefined);
     });
@@ -104,11 +108,12 @@ describe("Aggregate statistic functions", () => {
     test('return the "Max" value only on cells interpreted as number', () => {
       // select the range A1:A7
       selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      setAnchorCorner(model, "A7", "overrideSelection");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Max"]?.()).toBe(42);
 
       selectCell(model, "A7");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Max"]).toBe(undefined);
     });
@@ -116,39 +121,45 @@ describe("Aggregate statistic functions", () => {
     test('return the "Count" value on all types of interpreted cells except on cells interpreted as empty', () => {
       // select the range A1:A7
       selectCell(model, "A1");
-      setAnchorCorner(model, "A7");
+      setAnchorCorner(model, "A7", "overrideSelection");
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count"]?.()).toBe(6);
 
       selectCell(model, "A7");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count"]).toBe(undefined);
     });
 
     test('return the "Count numbers" value on all types of interpreted cells except on cells interpreted as empty', () => {
       selectCell(model, "A1");
+      commitSelection(model);
       let statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count Numbers"]?.()).toBe(1);
 
       selectCell(model, "A2");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count Numbers"]?.()).toBe(1);
 
       selectCell(model, "A3");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count Numbers"]?.()).toBe(0);
 
       selectCell(model, "A4");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count Numbers"]?.()).toBe(0);
 
       selectCell(model, "A5");
+      commitSelection(model);
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count Numbers"]?.()).toBe(0);
 
       // select the range A6:A7
       selectCell(model, "A6");
-      setAnchorCorner(model, "A7");
+      setAnchorCorner(model, "A7", "updateAnchor");
       statisticFnResults = store.statisticFnResults;
       expect(statisticFnResults["Count"]?.()).toBe(1);
     });

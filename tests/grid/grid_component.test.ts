@@ -33,6 +33,7 @@ import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
   addIconCF,
+  commitSelection,
   copy,
   createChart,
   createImage,
@@ -774,8 +775,11 @@ describe("Grid component", () => {
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectColumn(model, 0, "overrideSelection");
+      commitSelection(model);
       selectColumn(model, 1, "newAnchor");
+      commitSelection(model);
       selectColumn(model, 2, "newAnchor");
+      commitSelection(model);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -817,8 +821,11 @@ describe("Grid component", () => {
       const numOfRows = model.getters.getNumberRows(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
+      commitSelection(model);
       selectRow(model, 1, "newAnchor");
+      commitSelection(model);
       selectRow(model, 2, "newAnchor");
+      commitSelection(model);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -831,7 +838,9 @@ describe("Grid component", () => {
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
+      commitSelection(model);
       selectColumn(model, 2, "newAnchor");
+      commitSelection(model);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "=", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -863,7 +872,9 @@ describe("Grid component", () => {
       setCellContent(model, "B1", "hello2");
       setCellContent(model, "C1", "hello3");
       selectColumn(model, 0, "overrideSelection");
+      commitSelection(model);
       selectColumn(model, 2, "newAnchor");
+      commitSelection(model);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -893,7 +904,9 @@ describe("Grid component", () => {
       setCellContent(model, "A2", "hello2");
       setCellContent(model, "A3", "hello3");
       selectRow(model, 0, "overrideSelection");
+      commitSelection(model);
       selectRow(model, 2, "newAnchor");
+      commitSelection(model);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );
@@ -907,7 +920,9 @@ describe("Grid component", () => {
       const numOfCols = model.getters.getNumberCols(activeSheetId);
       setCellContent(model, "A1", "hello");
       selectRow(model, 0, "overrideSelection");
+      commitSelection(model);
       selectColumn(model, 2, "newAnchor");
+      commitSelection(model);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "-", ctrlKey: true, altKey: true, bubbles: true })
       );

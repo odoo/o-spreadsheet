@@ -4,6 +4,7 @@ import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types/index";
 import {
   addColumns,
+  commitSelection,
   deleteRows,
   deleteSheet,
   freezeColumns,
@@ -71,6 +72,7 @@ describe("merges", () => {
     });
 
     selectCell(model, "B2");
+    commitSelection(model);
     unMerge(model, "B2:B3");
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(Object.keys(getMergeCellMap(model))).toEqual([]);
@@ -138,6 +140,7 @@ describe("merges", () => {
     const composerStore = makeTestComposerStore(model);
 
     selectCell(model, "C3");
+    commitSelection(model);
     expect(getSelectionAnchorCellXc(model)).toBe("C3");
     composerStore.startEdition();
     expect(composerStore.currentContent).toBe("b2");
@@ -152,6 +155,7 @@ describe("merges", () => {
     });
 
     selectCell(model, "C3");
+    commitSelection(model);
     expect(getSelectionAnchorCellXc(model)).toBe("C3");
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCell(model, "B2")!.style).not.toBeDefined();
@@ -175,6 +179,7 @@ describe("merges", () => {
       ],
     });
     selectCell(model, "C4");
+    commitSelection(model);
     expect(getSelectionAnchorCellXc(model)).toBe("C4");
     expect(getCell(model, "C4")).toBeUndefined(); // no active cell in C4
     moveAnchorCell(model, "up");
@@ -317,7 +322,7 @@ describe("merges", () => {
   test("merging => setting background color => unmerging", () => {
     const model = new Model();
 
-    setAnchorCorner(model, "B1");
+    setAnchorCorner(model, "B1", "overrideSelection");
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
     merge(model, "A1:B1");
@@ -333,7 +338,7 @@ describe("merges", () => {
 
   test("setting background color => merging => unmerging", () => {
     const model = new Model();
-    setAnchorCorner(model, "B1");
+    setAnchorCorner(model, "B1", "overrideSelection");
     setStyle(model, "A1:B1", { fillColor: "red" });
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
@@ -351,7 +356,7 @@ describe("merges", () => {
   test("setting background color to topleft => merging => unmerging", () => {
     const model = new Model();
     setStyle(model, "A1", { fillColor: "red" });
-    setAnchorCorner(model, "B1");
+    setAnchorCorner(model, "B1", "overrideSelection");
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
 
@@ -394,7 +399,7 @@ describe("merges", () => {
 
   test("setting border => merging => unmerging", () => {
     const model = new Model();
-    setAnchorCorner(model, "B1");
+    setAnchorCorner(model, "B1", "overrideSelection");
 
     setZoneBorders(model, { position: "external" });
     expect(getBorder(model, "A1")).toEqual({
@@ -525,10 +530,12 @@ describe("merges", () => {
 
     merge(model, "B2:B3");
     selectCell(model, "B2"); // B2
+    commitSelection(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
     undo(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);
     selectCell(model, "B2"); // B2
+    commitSelection(model);
 
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     redo(model);
@@ -541,6 +548,7 @@ describe("merges", () => {
     merge(model, "B2:B3");
     unMerge(model, "B2:B3");
     selectCell(model, "B2"); // B2
+    commitSelection(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 1, left: 1, right: 1, top: 1 }]);
     undo(model);
     expect(model.getters.getSelection().zones).toEqual([{ bottom: 2, left: 1, right: 1, top: 1 }]);

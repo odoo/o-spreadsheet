@@ -4,6 +4,7 @@ import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
   addColumns,
   addRows,
+  commitSelection,
   cut,
   deleteCells,
   deleteColumns,
@@ -31,6 +32,7 @@ describe("borders", () => {
 
     // select B2, set its top border, then clear it
     selectCell(model, "B2");
+    commitSelection(model);
     setZoneBorders(model, { position: "top" });
     expect(getBorder(model, "B2")).toEqual({ top: DEFAULT_BORDER_DESC });
     setZoneBorders(model, { position: "clear" });
@@ -39,6 +41,7 @@ describe("borders", () => {
 
     // select B2, set its left border, then clear it
     selectCell(model, "B2");
+    commitSelection(model);
     setZoneBorders(model, { position: "left" });
     expect(getBorder(model, "B2")).toEqual({ left: DEFAULT_BORDER_DESC });
     setZoneBorders(model, { position: "clear" });
@@ -46,6 +49,7 @@ describe("borders", () => {
 
     // select B2, set its bottom border, then clear it
     selectCell(model, "B2");
+    commitSelection(model);
     setZoneBorders(model, { position: "bottom" });
     expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
     setZoneBorders(model, { position: "clear" });
@@ -53,6 +57,7 @@ describe("borders", () => {
 
     // select B2, set its right border, then clear it
     selectCell(model, "B2");
+    commitSelection(model);
     setZoneBorders(model, { position: "right" });
     expect(getBorder(model, "B2")).toEqual({ right: DEFAULT_BORDER_DESC });
     setZoneBorders(model, { position: "clear" });
@@ -65,6 +70,7 @@ describe("borders", () => {
     // select B2
     setCellContent(model, "B2", "content");
     selectCell(model, "B2");
+    commitSelection(model);
 
     // set a border top
     setZoneBorders(model, { position: "top" });
@@ -81,7 +87,7 @@ describe("borders", () => {
 
     // select B2:C2
     selectCell(model, "B2");
-    setAnchorCorner(model, "C2");
+    setAnchorCorner(model, "C2", "overrideSelection");
 
     // set a border top
     setZoneBorders(model, { position: "top" });
@@ -95,12 +101,13 @@ describe("borders", () => {
 
     // select C3 and add a border
     selectCell(model, "C3");
+    commitSelection(model);
     setZoneBorders(model, { position: "top" });
     expect(getBorder(model, "C3")).toBeDefined();
 
     // select A1:F6
     selectCell(model, "A1");
-    setAnchorCorner(model, "F6");
+    setAnchorCorner(model, "F6", "updateAnchor");
 
     // clear all borders
     setZoneBorders(model, { position: "clear" });
@@ -146,7 +153,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
-    setAnchorCorner(model, "C3");
+    setAnchorCorner(model, "C3", "overrideSelection");
 
     // set all borders
     setZoneBorders(model, { position: "all" });
@@ -167,7 +174,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
-    setAnchorCorner(model, "C3");
+    setAnchorCorner(model, "C3", "overrideSelection");
 
     // set all borders
     setZoneBorders(model, { position: "top" });
@@ -185,11 +192,13 @@ describe("borders", () => {
 
     // select B2, then set its right border
     selectCell(model, "B2");
+    commitSelection(model);
     setZoneBorders(model, { position: "right" });
     expect(getBorder(model, "B2")).toEqual({ right: DEFAULT_BORDER_DESC });
 
     // select C2 then clear it
     selectCell(model, "C2");
+    commitSelection(model);
     setZoneBorders(model, { position: "clear" });
     expect(getCell(model, "B2")).toBeUndefined();
   });
@@ -199,7 +208,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
-    setAnchorCorner(model, "D4");
+    setAnchorCorner(model, "D4", "overrideSelection");
 
     // set external borders
     setZoneBorders(model, { position: "external" });
@@ -228,7 +237,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:C4
     selectCell(model, "B2");
-    setAnchorCorner(model, "C4");
+    setAnchorCorner(model, "C4", "overrideSelection");
 
     setZoneBorders(model, { position: "h" });
     expect(getBorder(model, "B2")).toEqual({ bottom: DEFAULT_BORDER_DESC });
@@ -258,7 +267,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
-    setAnchorCorner(model, "D4");
+    setAnchorCorner(model, "D4", "overrideSelection");
 
     setZoneBorders(model, { position: "v" });
     expect(getBorder(model, "B2")).toEqual({ right: DEFAULT_BORDER_DESC });
@@ -294,7 +303,7 @@ describe("borders", () => {
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
-    setAnchorCorner(model, "D4");
+    setAnchorCorner(model, "D4", "overrideSelection");
 
     setZoneBorders(model, { position: "hv" });
     expect(getBorder(model, "B2")).toEqual({
@@ -354,6 +363,7 @@ describe("borders", () => {
     // select B2 and set its top border
     setCellContent(model, "B2", "content");
     selectCell(model, "B2");
+    commitSelection(model);
     setZoneBorders(model, { position: "top" });
 
     expect(getBorder(model, "B2")).toBeDefined();
@@ -368,6 +378,7 @@ describe("borders", () => {
     const model = new Model();
     setCellContent(model, "B2", "some content");
     selectCell(model, "B2");
+    commitSelection(model);
     setZoneBorders(model, { position: "all" });
 
     expect(getCellContent(model, "B2")).toBe("some content");
@@ -381,6 +392,7 @@ describe("borders", () => {
     const model = new Model();
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
+    commitSelection(model);
     setZoneBorders(model, { position: "all" });
 
     expect(getBorder(model, "B1")).toBeDefined();
@@ -394,8 +406,7 @@ describe("borders", () => {
   test("can clear formatting (border) after selecting all cells", () => {
     const model = new Model();
     selectCell(model, "A1");
-
-    setAnchorCorner(model, "Z100");
+    setAnchorCorner(model, "Z100", "overrideSelection");
     const activeSheetId = model.getters.getActiveSheetId();
     expect(model.getters.getSelectedZones()[0]).toEqual({
       left: 0,

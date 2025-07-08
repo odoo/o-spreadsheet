@@ -22,6 +22,7 @@ import { Model } from "../../src/model";
 import { CommandResult, Dimension, Position, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   addCellToSelection,
+  commitSelection,
   copy,
   createChart,
   createSheet,
@@ -200,7 +201,10 @@ describe("UI Helpers", () => {
       cut(model, "A1:A2");
 
       selectCell(model, "C4");
+      commitSelection(model);
       addCellToSelection(model, "F6");
+      commitSelection(model);
+
       interactivePaste(env, model.getters.getSelectedZones());
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         PasteInteractiveContent.wrongPasteSelection.toString()
@@ -212,7 +216,9 @@ describe("UI Helpers", () => {
 
       // select C4 and F6
       selectCell(model, "C4");
+      commitSelection(model);
       addCellToSelection(model, "F6");
+      commitSelection(model);
 
       interactivePaste(env, model.getters.getSelectedZones());
       expect(notifyUserTextSpy).toHaveBeenCalledWith(

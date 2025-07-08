@@ -15,6 +15,7 @@ import { CellValueType, DEFAULT_LOCALE } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
+  commitSelection,
   copy,
   createSheet,
   createSheetWithName,
@@ -444,11 +445,11 @@ describe("edition", () => {
 
   test("extend selection sets the range in composer", () => {
     selectCell(model, "C3");
+    commitSelection(model);
 
     composerStore.startEdition("=");
     selectCell(model, "D4");
-
-    setAnchorCorner(model, "E5");
+    setAnchorCorner(model, "E5", "updateAnchor");
 
     expect(composerStore.currentContent).toBe("=D4:E5");
   });

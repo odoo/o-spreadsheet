@@ -105,7 +105,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
 
   abstract _selectElement(index: HeaderIndex, addDistinctHeader: boolean): void;
 
-  abstract _increaseSelection(index: HeaderIndex): void;
+  abstract _increaseSelection(index: HeaderIndex, isShiftPressed?: boolean): void;
 
   abstract _fitElementSize(index: HeaderIndex): void;
 
@@ -142,6 +142,10 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   }
 
   _computeGrabDisplay(ev: MouseEvent) {
+    if (isCtrlKey(ev)) {
+      this.state.waitingForMove = false;
+      return;
+    }
     const index = this._getElementIndex(this._getEvOffset(ev));
     const activeElements = this._getActiveElements();
     const selectedZoneStart = this._getSelectedZoneStart();
@@ -232,7 +236,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     if (index < 0) {
       return;
     }
-    if (this.state.waitingForMove) {
+    if (!isCtrlKey(ev) && this.state.waitingForMove) {
       if (!this.env.model.getters.isGridSelectionActive()) {
         this._selectElement(index, false);
       } else {
@@ -296,7 +300,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     }
     this.state.isSelecting = true;
     if (ev.shiftKey) {
-      this._increaseSelection(index);
+      this._increaseSelection(index, true);
     } else {
       this._selectElement(index, isCtrlKey(ev));
     }
@@ -310,15 +314,12 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       }
     };
     const mouseUpSelect = () => {
+      this.env.model.selection.commitSelection();
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
       this._computeGrabDisplay(ev);
     };
     this.dragNDropGrid.start(ev, mouseMoveSelect, mouseUpSelect);
-  }
-
-  onMouseUp(ev: MouseEvent) {
-    this.lastSelectedElementIndex = null;
   }
 
   onContextMenu(ev: MouseEvent) {
@@ -327,6 +328,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     if (index < 0) return;
     if (!this._getActiveElements().has(index)) {
       this._selectElement(index, false);
+      this.env.model.selection.commitSelection();
     }
     const type = this._getType();
     this.props.onOpenContextMenu(type, ev.clientX, ev.clientY);
@@ -487,8 +489,12 @@ export class ColResizer extends AbstractResizer {
     );
   }
 
-  _increaseSelection(index: HeaderIndex): void {
-    this.env.model.selection.selectColumn(index, "updateAnchor");
+  _increaseSelection(index: HeaderIndex, isShiftPressed?: boolean): void {
+    if (isShiftPressed) {
+      this.env.model.selection.selectColumn(index, "overrideSelection", isShiftPressed);
+    } else {
+      this.env.model.selection.selectColumn(index, "updateAnchor");
+    }
   }
 
   _fitElementSize(index: HeaderIndex): void {
@@ -712,8 +718,12 @@ export class RowResizer extends AbstractResizer {
     );
   }
 
-  _increaseSelection(index: HeaderIndex): void {
-    this.env.model.selection.selectRow(index, "updateAnchor");
+  _increaseSelection(index: HeaderIndex, isShiftPressed?: boolean): void {
+    if (isShiftPressed) {
+      this.env.model.selection.selectRow(index, "overrideSelection", isShiftPressed);
+    } else {
+      this.env.model.selection.selectRow(index, "updateAnchor");
+    }
   }
 
   _fitElementSize(index: HeaderIndex): void {

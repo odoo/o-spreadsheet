@@ -314,6 +314,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     this.model.selection.getBackToDefault();
     if (options.updateSelection) {
       this.model.selection.selectCell(selectedMatch.col, selectedMatch.row);
+      this.model.selection.commitSelection();
     }
   }
 

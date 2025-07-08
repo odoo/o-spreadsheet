@@ -15,7 +15,6 @@
       t-on-mouseleave="onMouseLeave"
       t-on-pointerdown.self.prevent="select"
       t-on-click="onClick"
-      t-on-pointerup.self="onMouseUp"
       t-on-contextmenu.self="onContextMenu"
       t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving}">
       <div
@@ -59,7 +58,6 @@
       t-on-mouseleave="onMouseLeave"
       t-on-pointerdown.self.prevent="select"
       t-on-click="onClick"
-      t-on-pointerup.self="onMouseUp"
       t-on-contextmenu.self="onContextMenu"
       t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving, }">
       <div

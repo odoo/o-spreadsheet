@@ -130,6 +130,7 @@ export function interactiveSort(
   if (result.isCancelledBecause(CommandResult.InvalidSortZone)) {
     const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
+    env.model.selection.commitSelection();
     env.raiseError(
       _t("Cannot sort. To sort, select only cells or only merges that have the same size.")
     );
@@ -137,6 +138,7 @@ export function interactiveSort(
   if (result.isCancelledBecause(CommandResult.SortZoneWithArrayFormulas)) {
     const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
+    env.model.selection.commitSelection();
     env.raiseError(_t("Cannot sort a zone with array formulas."));
   }
 }

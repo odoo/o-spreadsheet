@@ -561,7 +561,7 @@ describe("formatting values (when change decimal)", () => {
     // select A1, then expand selection to A1:C3
     selectCell(model, "A1");
 
-    setAnchorCorner(model, "C3");
+    setAnchorCorner(model, "C3", "overrideSelection");
 
     // increase decimalFormat on the selection
 

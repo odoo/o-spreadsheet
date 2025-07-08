@@ -1,6 +1,7 @@
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
 import {
+  commitSelection,
   copy,
   createDynamicTable,
   createTable,
@@ -352,7 +353,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      setAnchorCorner(model, "E5", "overrideSelection");
       expect(getName(path, env)).toBe("Delete rows 4 - 5");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -446,7 +447,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      setAnchorCorner(model, "E5", "overrideSelection");
       expect(getName(path, env)).toBe("Delete columns D - E");
       doAction(path, env);
       expect(dispatch).toHaveBeenLastCalledWith("REMOVE_COLUMNS_ROWS", {
@@ -501,7 +502,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected rows", () => {
       selectRow(model, 4, "overrideSelection");
+      commitSelection(model);
       selectRow(model, 6, "newAnchor");
+      commitSelection(model);
       expect(getNode(insertRowBeforePath, env).isVisible(env)).toBeFalsy();
     });
 
@@ -518,7 +521,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      setAnchorCorner(model, "E5", "overrideSelection");
       expect(getName(insertRowBeforePath, env)).toBe("2 Rows above");
       doAction(insertRowBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -560,7 +563,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected rows", () => {
       selectRow(model, 4, "overrideSelection");
+      commitSelection(model);
       selectRow(model, 6, "newAnchor");
+      commitSelection(model);
       expect(getNode(addRowBeforePath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
@@ -597,7 +602,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected rows", () => {
       selectRow(model, 4, "overrideSelection");
+      commitSelection(model);
       selectRow(model, 6, "newAnchor");
+      commitSelection(model);
       expect(getNode(insertRowAfterPath, env).isVisible(env)).toBeFalsy();
     });
 
@@ -614,7 +621,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      setAnchorCorner(model, "E5", "overrideSelection");
       expect(getName(insertRowAfterPath, env)).toBe("2 Rows below");
       doAction(insertRowAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -656,7 +663,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected rows", () => {
       selectRow(model, 4, "overrideSelection");
+      commitSelection(model);
       selectRow(model, 6, "newAnchor");
+      commitSelection(model);
       expect(getNode(addRowAfterPath, env, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
@@ -693,7 +702,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
+      commitSelection(model);
       selectColumn(model, 6, "newAnchor");
+      commitSelection(model);
       expect(getNode(insertColBeforePath, env).isVisible(env)).toBeFalsy();
     });
 
@@ -710,7 +721,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      setAnchorCorner(model, "E5", "overrideSelection");
       expect(getName(insertColBeforePath, env)).toBe("2 Columns left");
       doAction(insertColBeforePath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -752,7 +763,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
+      commitSelection(model);
       selectColumn(model, 6, "newAnchor");
+      commitSelection(model);
       expect(getNode(addColBeforePath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
@@ -789,7 +802,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
+      commitSelection(model);
       selectColumn(model, 6, "newAnchor");
+      commitSelection(model);
       expect(getNode(insertColAfterPath, env).isVisible(env)).toBeFalsy();
     });
 
@@ -806,7 +821,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      setAnchorCorner(model, "E5", "overrideSelection");
       expect(getName(insertColAfterPath, env)).toBe("2 Columns right");
       doAction(insertColAfterPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("ADD_COLUMNS_ROWS", {
@@ -848,7 +863,9 @@ describe("Menu Item actions", () => {
 
     test("Multiple inconsecutive selected columns", () => {
       selectColumn(model, 4, "overrideSelection");
+      commitSelection(model);
       selectColumn(model, 6, "newAnchor");
+      commitSelection(model);
       expect(getNode(addColAfterPath, env, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
@@ -908,7 +925,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      setAnchorCorner(model, "E5", "overrideSelection");
       expect(getName(insertCellShiftDownPath, env)).toBe("Shift down");
       doAction(insertCellShiftDownPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {
@@ -969,7 +986,7 @@ describe("Menu Item actions", () => {
 
     test("Multiple selected cells", () => {
       selectCell(model, "D4");
-      setAnchorCorner(model, "E5");
+      setAnchorCorner(model, "E5", "overrideSelection");
       expect(getName(insertCellShiftRightPath, env)).toBe("Shift right");
       doAction(insertCellShiftRightPath, env);
       expect(dispatch).toHaveBeenLastCalledWith("INSERT_CELL", {

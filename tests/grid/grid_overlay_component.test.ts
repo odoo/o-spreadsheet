@@ -526,45 +526,45 @@ describe("Resizer component", () => {
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 4]));
   });
 
-  test("Select A, shift C, ctrl E, shift G then ABCEFG selected", async () => {
+  test("Select A, shift C, ctrl E, shift G then EFG selected", async () => {
     await selectColumn("A");
     await selectColumn("C", { shiftKey: true });
     await selectColumn("E", { ctrlKey: true });
     await selectColumn("G", { shiftKey: true });
 
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 4, 5, 6]));
+    expect(model.getters.getActiveCols()).toEqual(new Set([4, 5, 6]));
   });
 
-  test("Select 1, shift 3, ctrl 5, shift 7 then 123567 selected", async () => {
+  test("Select 1, shift 3, ctrl 5, shift 7 then 567 selected", async () => {
     await selectRow(0);
     await selectRow(2, { shiftKey: true });
     await selectRow(4, { ctrlKey: true });
     await selectRow(6, { shiftKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 4, 5, 6]));
+    expect(model.getters.getActiveRows()).toEqual(new Set([4, 5, 6]));
   });
 
-  test("Select A, shift C, ctrl 1, shift 3 then ABC123 selected", async () => {
+  test("Select A, shift C, ctrl 1, shift 3 then 123 selected", async () => {
     await selectColumn("A");
     await selectColumn("C", { shiftKey: true });
     await selectRow(0, { ctrlKey: true });
     await selectRow(2, { shiftKey: true });
 
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2]));
+    expect(model.getters.getActiveCols()).toEqual(new Set([]));
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
   });
 
-  test("Select A, ctrl C, shift E then ACDE selected", async () => {
+  test("Select A, ctrl C, shift E then CDE selected", async () => {
     await selectColumn("A");
     await selectColumn("C", { ctrlKey: true });
     await selectColumn("E", { shiftKey: true });
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 2, 3, 4]));
+    expect(model.getters.getActiveCols()).toEqual(new Set([2, 3, 4]));
   });
 
-  test("Select 1, ctrl 3, shift 5 then 1345 selected", async () => {
+  test("Select 1, ctrl 3, shift 5 then 345 selected", async () => {
     await selectRow(0);
     await selectRow(2, { ctrlKey: true });
     await selectRow(4, { shiftKey: true });
-    expect(model.getters.getActiveRows()).toEqual(new Set([0, 2, 3, 4]));
+    expect(model.getters.getActiveRows()).toEqual(new Set([2, 3, 4]));
   });
 
   test("Select ABC E, dblclick E then resize all", async () => {
@@ -974,7 +974,7 @@ describe("move selected element(s)", () => {
     ({ fixture } = await mountSpreadsheet({ model }));
   });
 
-  test("select the last selected cols/rows keep all selected zone active", async () => {
+  test("select the last selected cols/rows keep selected zone active", async () => {
     await selectColumn("A");
     // last selected column is now column A
     await selectColumn("C", { ctrlKey: true });
@@ -982,7 +982,7 @@ describe("move selected element(s)", () => {
     // last selected columns are now columns C, D, E
     await selectColumn("C");
     // A, C, D, E stay active
-    expect(model.getters.getActiveCols()).toEqual(new Set([0, 2, 3, 4]));
+    expect(model.getters.getActiveCols()).toEqual(new Set([2, 3, 4]));
   });
 
   describe("move selected column(s)", () => {

@@ -4,7 +4,6 @@ import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_hel
 import {
   clip,
   deepCopy,
-  isEqual,
   positionToZone,
   uniqueZones,
   updateSelectionOnDeletion,
@@ -26,6 +25,7 @@ import {
   MoveColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   Selection,
+  selectionStatus,
   Sheet,
   Style,
   UID,
@@ -55,6 +55,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "getSelectedZones",
     "getSelectedZone",
     "getSelectedCells",
+    "getSelectionStatus",
     "getSelectedFigureId",
     "getSelection",
     "getActivePosition",
@@ -76,6 +77,7 @@ export class GridSelectionPlugin extends UIPlugin {
     },
     zones: [{ top: 0, left: 0, bottom: 0, right: 0 }],
   };
+  private selectionStatus: selectionStatus = "COMPLETED";
   private selectedFigureId: UID | null = null;
   private sheetsData: { [sheet: string]: SheetInfo } = {};
   private moveClient: (position: ClientPosition) => void;
@@ -115,27 +117,29 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   private handleEvent(event: SelectionEvent) {
-    const anchor = event.anchor;
-    let zones: Zone[] = [];
+    let anchor: AnchorZone;
+    let zones: Zone[] = [...this.gridSelection.zones];
 
     this.isUnbounded = event.options?.unbounded || false;
 
     switch (event.mode) {
       case "overrideSelection":
-        zones = [anchor.zone];
-        break;
-      case "updateAnchor":
-        zones = [...this.gridSelection.zones];
-        const index = zones.findIndex((z: Zone) => isEqual(z, event.previousAnchor.zone));
-        if (index >= 0) {
-          zones[index] = anchor.zone;
-        }
+        zones = [];
+        anchor = event.anchor;
+        this.selectionStatus = "ACTIVE";
         break;
       case "newAnchor":
-        zones = [...this.gridSelection.zones, anchor.zone];
+      case "updateAnchor":
+        anchor = event.anchor;
+        this.selectionStatus = "ACTIVE";
+        break;
+      case "commitSelection":
+        anchor = event.anchor;
+        zones.push(anchor.zone);
+        this.selectionStatus = "COMPLETED";
         break;
     }
-    this.setSelectionMixin(event.anchor, zones);
+    this.setSelectionMixin(anchor, zones);
     /** Any change to the selection has to be reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
     const { col, row } = this.gridSelection.anchor.cell;
@@ -144,7 +148,9 @@ export class GridSelectionPlugin extends UIPlugin {
       col,
       row,
     });
-    this.selectedFigureId = null;
+    if (event.mode !== "commitSelection") {
+      this.selectedFigureId = null;
+    }
   }
 
   handle(cmd: Command) {
@@ -292,7 +298,8 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveCols(): Set<number> {
     const activeCols = new Set<number>();
-    for (const zone of this.gridSelection.zones) {
+    const zones = this.gridSelection.zones.concat(this.gridSelection.anchor.zone);
+    for (const zone of zones) {
       if (
         zone.top === 0 &&
         zone.bottom === this.getters.getNumberRows(this.getters.getActiveSheetId()) - 1
@@ -307,8 +314,9 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getActiveRows(): Set<number> {
     const activeRows = new Set<number>();
+    const zones = this.gridSelection.zones.concat(this.gridSelection.anchor.zone);
     const sheetId = this.getters.getActiveSheetId();
-    for (const zone of this.gridSelection.zones) {
+    for (const zone of zones) {
       if (zone.left === 0 && zone.right === this.getters.getNumberCols(sheetId) - 1) {
         for (let i = zone.top; i <= zone.bottom; i++) {
           activeRows.add(i);
@@ -325,7 +333,11 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   getSelectedZones(): Zone[] {
-    return deepCopy(this.gridSelection.zones);
+    if (this.selectionStatus === "ACTIVE") {
+      return deepCopy(this.gridSelection.zones.concat(this.gridSelection.anchor.zone));
+    } else {
+      return deepCopy(this.gridSelection.zones);
+    }
   }
 
   getSelectedZone(): Zone {
@@ -350,6 +362,10 @@ export class GridSelectionPlugin extends UIPlugin {
       cells.push(...this.getters.getEvaluatedCellsInZone(sheetId, zone));
     }
     return cells;
+  }
+
+  getSelectionStatus(): selectionStatus {
+    return this.selectionStatus;
   }
 
   getSelectedFigureId(): UID | null {
@@ -750,23 +766,40 @@ export class GridSelectionPlugin extends UIPlugin {
       return;
     }
     const { ctx, thinLineWidth } = renderingContext;
-    // selection
-    const zones = this.getSelectedZones();
-    ctx.fillStyle = "#f3f7fe";
-    const onlyOneCell =
-      zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
-    ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
+    const sheetId = this.getActiveSheetId();
+    const activeZone = this.gridSelection.anchor.zone;
+    const zones = this.gridSelection.zones;
+
+    // anchor zone
+    ctx.fillStyle =
+      zones.length === 0 && this.getters.isSingleCellOrMerge(sheetId, activeZone)
+        ? "#f3f7fe"
+        : "#e9f0ff";
     ctx.strokeStyle = SELECTION_BORDER_COLOR;
     ctx.lineWidth = 1.5 * thinLineWidth;
+    const rect = this.getters.getVisibleRect(activeZone);
+    if (this.selectionStatus === "ACTIVE") {
+      ctx.globalCompositeOperation = "multiply";
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+    // selection
+    ctx.fillStyle =
+      zones.length === 1 &&
+      this.selectionStatus !== "ACTIVE" &&
+      this.getters.isSingleCellOrMerge(sheetId, zones[0])
+        ? "#f3f7fe"
+        : "#e9f0ff";
     for (const zone of zones) {
       const { x, y, width, height } = this.getters.getVisibleRect(zone);
       ctx.globalCompositeOperation = "multiply";
       ctx.fillRect(x, y, width, height);
       ctx.globalCompositeOperation = "source-over";
       ctx.strokeRect(x, y, width, height);
+      ctx.globalCompositeOperation = "source-over";
     }
 
-    ctx.globalCompositeOperation = "source-over";
     // active zone
     const position = this.getActivePosition();
 

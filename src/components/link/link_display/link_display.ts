@@ -104,6 +104,7 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   edit() {
     const { col, row } = this.props.cellPosition;
     this.env.model.selection.selectCell(col, row);
+    this.env.model.selection.commitSelection();
     this.cellPopovers.open({ col, row }, "LinkEditor");
   }
 

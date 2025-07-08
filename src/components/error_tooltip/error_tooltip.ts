@@ -76,6 +76,7 @@ export class ErrorToolTip extends Component<ErrorToolTipProps, SpreadsheetChildE
       });
     }
     this.env.model.selection.selectCell(position.col, position.row);
+    this.env.model.selection.commitSelection();
   }
 }
 

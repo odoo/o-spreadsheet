@@ -6,6 +6,7 @@ import { HighlightStore } from "../../src/stores/highlight_store";
 import {
   activateSheet,
   addCellToSelection,
+  commitSelection,
   copy,
   createSheet,
   createSheetWithName,
@@ -81,13 +82,14 @@ describe("selection input plugin", () => {
   test("select cell inside a merge expands the selection of a single range input", () => {
     const { store, model, container } = makeStore(SelectionInputStore, [], true);
     selectCell(model, "B1");
+    commitSelection(model);
     merge(model, "A2:A4");
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "A4");
-    setAnchorCorner(model, "A3");
+    setAnchorCorner(model, "A3", "updateAnchor");
     expect(store.selectionInputs[0].xc).toBe("A2");
     expect(highlightedZones(container)).toStrictEqual(["A2:A4"]);
-    setAnchorCorner(model, "A2");
+    setAnchorCorner(model, "A2", "updateAnchor");
     expect(store.selectionInputs[0].xc).toBe("A2");
     expect(highlightedZones(container)).toStrictEqual(["A2:A4"]);
   });
@@ -222,8 +224,9 @@ describe("selection input plugin", () => {
     store.addEmptyRange();
 
     addCellToSelection(model, "C2");
+    commitSelection(model);
     expect(store.selectionInputs[1].xc).toBe("C2");
-    setAnchorCorner(model, "D2");
+    setAnchorCorner(model, "D2", "overrideSelection");
     expect(store.selectionInputs[1].xc).toBe("C2:D2");
   });
 
@@ -400,10 +403,11 @@ describe("selection input plugin", () => {
   test("multiple alter selection in a single range component", () => {
     const { store, model, container } = makeStore(SelectionInputStore, ["C4"], true);
     selectCell(model, "C2");
+    commitSelection(model);
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "E1");
-    setAnchorCorner(model, "E2");
-    setAnchorCorner(model, "E3");
+    setAnchorCorner(model, "E2", "updateAnchor");
+    setAnchorCorner(model, "E3", "updateAnchor");
     expect(highlightedZones(container)).toEqual(["E1:E3"]);
     expect(store.selectionInputs[0].xc).toBe("E1:E3");
   });

@@ -417,7 +417,9 @@ export class ClipboardPlugin extends UIPlugin {
     if (!options?.selectTarget) {
       return;
     }
-    selectPastedZone(this.selection, zones, selectedZones);
+    if (selectedZones.length) {
+      selectPastedZone(this.selection, zones, selectedZones);
+    }
   }
 
   /**

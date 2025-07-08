@@ -861,14 +861,23 @@ export function resizeAnchorZone(
   return model.selection.resizeAnchorZone(direction, step);
 }
 
-export function setAnchorCorner(model: Model, xc: string): DispatchResult {
+export function setAnchorCorner(
+  model: Model,
+  xc: string,
+  mode: "overrideSelection" | "updateAnchor"
+): DispatchResult {
   const { col, row } = toCartesian(xc);
-  return model.selection.setAnchorCorner(col, row);
+  model.selection.setAnchorCorner(col, row, mode);
+  return model.selection.commitSelection();
 }
 
 export function addCellToSelection(model: Model, xc: string): DispatchResult {
   const { col, row } = toCartesian(xc);
   return model.selection.addCellToSelection(col, row);
+}
+
+export function commitSelection(model: Model): DispatchResult {
+  return model.selection.commitSelection();
 }
 
 /**
@@ -932,14 +941,18 @@ export function setSelection(
       { cell: { col: z1.left, row: z1.top }, zone: z1 },
       { unbounded: options.unbounded }
     );
+    model.selection.commitSelection();
     for (const zone of zones) {
       model.selection.addCellToSelection(zone.left, zone.top);
-      model.selection.setAnchorCorner(zone.right, zone.bottom);
+      model.selection.setAnchorCorner(zone.right, zone.bottom, "updateAnchor");
+      model.selection.commitSelection();
     }
     model.selection.addCellToSelection(anchor.zone.left, anchor.zone.top);
-    model.selection.setAnchorCorner(anchor.zone.right, anchor.zone.bottom);
+    model.selection.setAnchorCorner(anchor.zone.right, anchor.zone.bottom, "updateAnchor");
+    model.selection.commitSelection();
   } else {
     model.selection.selectZone(anchor, { scrollIntoView: true, unbounded: options.unbounded });
+    model.selection.commitSelection();
   }
 }
 

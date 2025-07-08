@@ -77,6 +77,8 @@ export interface Selection {
   zones: Zone[];
 }
 
+export type selectionStatus = "ACTIVE" | "COMPLETED";
+
 export interface UnboundedZone {
   top: HeaderIndex;
   bottom: HeaderIndex | undefined;

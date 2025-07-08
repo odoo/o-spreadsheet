@@ -181,4 +181,5 @@ export const selectPastedZone = (
     { cell: anchorCell, zone: union(...pastedZones) },
     { scrollIntoView: false }
   );
+  selection.commitSelection();
 };
