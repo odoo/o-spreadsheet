@@ -168,7 +168,8 @@ export type ConditionalFormattingOperatorValues =
   | "isLessOrEqualTo"
   | "isNotBetween"
   | "notContainsText"
-  | "isNotEqual";
+  | "isNotEqual"
+  | "customFormula";
 
 export const availableConditionalFormatOperators: Set<ConditionalFormattingOperatorValues> =
   new Set([
@@ -186,4 +187,5 @@ export const availableConditionalFormatOperators: Set<ConditionalFormattingOpera
     "isEmpty",
     "isNotEqual",
     "isEqual",
+    "customFormula",
   ]);

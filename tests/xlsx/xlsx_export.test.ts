@@ -545,6 +545,11 @@ describe("Test XLSX export", () => {
                 rule: { type: "CellIsRule", operator: "isNotBetween", values: ["1", "4"], style },
               },
               {
+                id: "23",
+                ranges: ["A1:A5"],
+                rule: { type: "CellIsRule", operator: "customFormula", values: ["=A1>3"], style },
+              },
+              {
                 id: "2",
                 ranges: ["B1:B5"],
                 rule: {

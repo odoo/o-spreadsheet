@@ -2924,4 +2924,106 @@ describe("conditional formats types", () => {
     expect(getDataBarFill(model, "B2")?.percentage).toBe(50);
     expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
   });
+
+  test("conditional format with simple custom formula", () => {
+    const grid = {
+      A1: "2",
+      A2: "4",
+      A3: "2",
+      A4: "4",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          values: ["=A1>3"],
+          operator: "customFormula",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#FF0000",
+          },
+        },
+      },
+      ranges: toRangesData(sheetId, "C1:C6"),
+      sheetId,
+    });
+    expect(getStyle(model, "C1")).toEqual({ fillColor: undefined });
+    expect(getStyle(model, "C2")).toEqual({ fillColor: "#FF0000" });
+    expect(getStyle(model, "C3")).toEqual({ fillColor: undefined });
+    expect(getStyle(model, "C4")).toEqual({ fillColor: "#FF0000" });
+  });
+
+  test("conditional format with simple custom formula containing fixed range", () => {
+    const grid = {
+      A1: "2",
+      A2: "4",
+      A3: "2",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          values: ["=$A$2>3"],
+          operator: "customFormula",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#FF0000",
+          },
+        },
+      },
+      ranges: toRangesData(sheetId, "C1:C6"),
+      sheetId,
+    });
+    expect(getStyle(model, "C1")).toEqual({ fillColor: "#FF0000" });
+    expect(getStyle(model, "C2")).toEqual({ fillColor: "#FF0000" });
+    expect(getStyle(model, "C3")).toEqual({ fillColor: "#FF0000" });
+  });
+
+  test("custom formula not returning a boolean", () => {
+    const grid = {
+      B1: "Seattle",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          values: ["=1"],
+          operator: "customFormula",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#FF0000",
+          },
+        },
+      },
+      ranges: toRangesData(sheetId, "B1:B10"),
+      sheetId,
+    });
+    expect(getStyle(model, "B1")).toEqual({ fillColor: "#FF0000" });
+  });
+
+  test("custom formula resulting to an error", () => {
+    const grid = {
+      B1: "Seattle",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          values: ["=0/0"],
+          operator: "customFormula",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#FF0000",
+          },
+        },
+      },
+      ranges: toRangesData(sheetId, "B1:B10"),
+      sheetId,
+    });
+    expect(getStyle(model, "B1")).toEqual({ fillColor: undefined });
+  });
 });

@@ -76,6 +76,8 @@ export function convertOperator(operator: ConditionalFormattingOperatorValues): 
       return "equal";
     case "isNotEqual":
       return "notEqual";
+    case "customFormula":
+      return "";
   }
 }
 
