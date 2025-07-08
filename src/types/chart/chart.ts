@@ -6,7 +6,7 @@ import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
 import { LegendPosition } from "./common_chart";
 import { FunnelChartColors, FunnelChartDefinition, FunnelChartRuntime } from "./funnel_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
-import { GeoChartDefinition, GeoChartRuntime } from "./geo_chart";
+import { GeoChartColorScale, GeoChartDefinition, GeoChartRuntime } from "./geo_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
@@ -14,6 +14,7 @@ import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 import { SunburstChartDefinition, SunburstChartRuntime } from "./sunburst_chart";
+import { TimeMatrixChartDefinition } from "./time_matrix_chart";
 import {
   TreeMapChartDefinition,
   TreeMapChartRuntime,
@@ -36,6 +37,7 @@ export const CHART_TYPES = [
   "funnel",
   "sunburst",
   "treemap",
+  "timeMatrix",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -53,12 +55,20 @@ export type ChartDefinition =
   | GeoChartDefinition
   | FunnelChartDefinition
   | SunburstChartDefinition
-  | TreeMapChartDefinition;
+  | TreeMapChartDefinition
+  | TimeMatrixChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string }
 >;
+
+export type ChartWithColorScaleDefinition = Extract<
+  ChartDefinition,
+  { colorScale?: GeoChartColorScale }
+>;
+
+export type ChartWithTitleDefinition = Extract<ChartDefinition, { title?: TitleDesign }>;
 
 export type ChartWithAxisDefinition = Extract<
   ChartWithDataSetDefinition,
