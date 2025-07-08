@@ -89,7 +89,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     onUpdateColorScale: Function,
   };
 
-  colorScales = COLORSCALES.map((colorScale) => ({
+  COLORSCALES = COLORSCALES.map((colorScale) => ({
     value: colorScale,
     label: ChartTerms.ColorScales[colorScale],
     className: `${colorScale}-color-scale`,
