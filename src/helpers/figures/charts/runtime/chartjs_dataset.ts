@@ -8,6 +8,7 @@ import {
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "../../../../constants";
+import { toJsDate } from "../../../../functions/helpers";
 import { _t } from "../../../../translation";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 import {
@@ -33,6 +34,7 @@ import {
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { TimeMatrixChartDefinition } from "../../../../types/chart/time_matrix_chart";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
@@ -99,6 +101,88 @@ export function getBarChartDatasets(
   dataSets.push(...trendDatasets);
 
   return dataSets;
+}
+
+function getPosition(time, stamp): number | string {
+  switch (stamp) {
+    case "weekdays":
+      return time.getDay();
+    case "hours":
+      return time.getHours();
+    case "month":
+      return time.getMonth();
+    case "year":
+      return time.getYear();
+  }
+  return time;
+}
+
+function computeValuesAndLabels(timeValues, values, xStamp, yStamp) {
+  const grouping: any = {};
+  const xLabels = new Set<string | number>();
+  const yLabels = new Set<string | number>();
+  for (let i = 0; i < timeValues?.length; i++) {
+    const xCateg = getPosition(timeValues[i], xStamp);
+    xLabels.add(xCateg);
+    if (!(xCateg in grouping)) {
+      grouping[xCateg] = {};
+    }
+    const yCateg = getPosition(timeValues[i], yStamp);
+    yLabels.add(yCateg);
+    if (!(yCateg in grouping[xCateg])) {
+      grouping[xCateg][yCateg] = 0;
+    }
+    grouping[xCateg][yCateg] += values[i];
+  }
+
+  const finalXLabels = [...xLabels].sort();
+  const finalYLabels = [...yLabels].sort();
+  const finalValues = finalYLabels.map((yL) => finalXLabels.map((xL) => grouping[xL][yL]));
+
+  return {
+    matrixValues: finalValues,
+    xLabels: finalXLabels,
+    yLabels: finalYLabels,
+  };
+}
+
+export function getTimeMatrixChartDatasetAndLabels(
+  definition: TimeMatrixChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): {
+  datasets: ChartDataset[];
+  labels: string[];
+} {
+  const { labels, dataSetsValues } = args;
+  const locale = args.locale;
+  const { matrixValues, xLabels, yLabels } = computeValuesAndLabels(
+    labels.map((l) => toJsDate(l, locale)),
+    dataSetsValues[0].data,
+    "hours",
+    "weekdays"
+  );
+
+  const maxValue = Math.max(...matrixValues.flat());
+  const minValue = Math.min(...matrixValues.flat());
+  function computeColors(i) {
+    return matrixValues[i].map((v) => `rgba(0,0,0,${(v - minValue) / (maxValue - minValue)})`);
+  }
+
+  const dataSets: ChartDataset[] = [];
+  for (let i = 0; i < matrixValues.length; i++) {
+    dataSets.push({
+      label: String(yLabels[i]),
+      data: matrixValues[i].map((v) => 1),
+      backgroundColor: computeColors(i),
+      barPercentage: 1.0,
+      categoryPercentage: 1.0,
+    });
+  }
+
+  return {
+    labels: xLabels.map((l) => String(l)),
+    datasets: dataSets,
+  };
 }
 
 export function getWaterfallDatasetAndLabels(
