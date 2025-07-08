@@ -23709,6 +23709,13 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Conditional f
             </formula>
         </cfRule>
     </conditionalFormatting>
+    <conditionalFormatting sqref="A1:A5">
+        <cfRule priority="1" stopIfTrue="0" type="expression" dxfId="0">
+            <formula>
+                A1&gt;3
+            </formula>
+        </cfRule>
+    </conditionalFormatting>
     <conditionalFormatting sqref="B1:B5">
         <cfRule priority="1" stopIfTrue="0" type="colorScale">
             <colorScale>

@@ -58,7 +58,10 @@ export function addConditionalFormatting(
 function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[]): XMLString {
   const ruleAttributes = commonCfAttributes(cf);
   const operator = convertOperator(rule.operator);
-  ruleAttributes.push(...cellRuleTypeAttributes(rule), ["operator", operator]);
+  ruleAttributes.push(...cellRuleTypeAttributes(rule));
+  if (operator.length) {
+    ruleAttributes.push(["operator", operator]);
+  }
   const formulas = cellRuleFormula(cf.ranges, rule).map(
     (formula) => escapeXml/*xml*/ `<formula>${formula}</formula>`
   );
@@ -108,6 +111,8 @@ function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
     case "isLessThan":
     case "isLessOrEqualTo":
       return [values[0]];
+    case "customFormula":
+      return values[0].startsWith("=") ? [values[0].slice(1)] : [values[0]];
     case "isBetween":
     case "isNotBetween":
       return [values[0], values[1]];
@@ -137,6 +142,8 @@ function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
     case "isBetween":
     case "isNotBetween":
       return [["type", "cellIs"]];
+    case "customFormula":
+      return [["type", "expression"]];
   }
 }
 
