@@ -1,3 +1,4 @@
+import { _t, deepCopy, findNextDefinedValue, isNumber, range } from "@odoo/o-spreadsheet-engine";
 import { ChartTerms } from "@odoo/o-spreadsheet-engine/components/translations_terms";
 import {
   evaluatePolynomial,
@@ -9,9 +10,8 @@ import {
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { isEvaluationError, toNumber } from "@odoo/o-spreadsheet-engine/functions/helpers";
 import { shouldRemoveFirstLabel } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { isDateTimeFormat } from "@odoo/o-spreadsheet-engine/helpers/format/format";
-import { deepCopy, findNextDefinedValue, range } from "@odoo/o-spreadsheet-engine/helpers/misc";
-import { isNumber } from "@odoo/o-spreadsheet-engine/helpers/numbers";
+import { DAYS, isDateTimeFormat, MONTHS } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+import { createDate } from "@odoo/o-spreadsheet-engine/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { recomputeZones } from "@odoo/o-spreadsheet-engine/helpers/recompute_zones";
 import { positions } from "@odoo/o-spreadsheet-engine/helpers/zones";
 import {
@@ -28,6 +28,10 @@ import {
   SunburstChartDefinition,
   TrendConfiguration,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import {
+  CalendarChartDefinition,
+  CalendarChartGranularity,
+} from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
@@ -87,6 +91,124 @@ export function getBarChartData(
   return {
     dataSetsValues,
     trendDataSetsValues,
+    axisFormats,
+    labels,
+    locale: getters.getLocale(),
+    topPadding: getTopPaddingForDashboard(definition, getters),
+  };
+}
+
+function getDateTimeLabel(value: number, stamp: CalendarChartGranularity): string {
+  switch (stamp) {
+    case "day_of_week": {
+      return DAYS[value - 1].toString();
+    }
+    case "hour_number": {
+      const hour = String(value % 12).padStart(2, "0");
+      return value < 12 ? _t("%(hour)s AM", { hour }) : _t("%(hour)s PM", { hour });
+    }
+    case "month_number": {
+      return MONTHS[value - 1].toString();
+    }
+    case "iso_week_number": {
+      const weekNumber = String(value).padStart(2, "0");
+      return _t(`W%(weekNumber)s`, { weekNumber });
+    }
+    case "quarter_number": {
+      return _t(`Q%(value)s`, { value });
+    }
+    default: {
+      return value.toString();
+    }
+  }
+}
+
+function computeValuesAndLabels(
+  timeValues: CellValue[],
+  values: CellValue[],
+  horizontalGroupBy: CalendarChartGranularity,
+  verticalGroupBy: CalendarChartGranularity,
+  locale: Locale
+) {
+  const grouping = {};
+  const xValues: number[] = [];
+  const yValues: number[] = [];
+  const previousYValues: number[] = [];
+  for (let i = 0; i < timeValues?.length; i++) {
+    const xValue = toNumber(
+      createDate(
+        { granularity: horizontalGroupBy, type: "date", displayName: "date" },
+        timeValues[i],
+        DEFAULT_LOCALE
+      ),
+      locale
+    );
+    if (!(xValue in grouping)) {
+      xValues.push(xValue);
+      grouping[xValue] = {};
+    }
+    const yValue = toNumber(
+      createDate(
+        { granularity: verticalGroupBy, type: "date", displayName: "date" },
+        timeValues[i],
+        DEFAULT_LOCALE
+      ),
+      locale
+    );
+    if (!previousYValues.includes(yValue)) {
+      yValues.push(yValue);
+      previousYValues.push(yValue);
+    }
+    if (!(yValue in grouping[xValue])) {
+      grouping[xValue][yValue] = 0;
+    }
+    grouping[xValue][yValue] += values[i];
+  }
+
+  xValues.sort((a, b) => a - b);
+  yValues.sort((a, b) => b - a);
+
+  const dataSetsValues = yValues.map((y) => ({
+    data: xValues.map((x) => grouping?.[x]?.[y]),
+    label: getDateTimeLabel(y, verticalGroupBy),
+    hidden: false,
+  }));
+
+  return {
+    dataSetsValues,
+    labels: xValues.map((v) => getDateTimeLabel(v, horizontalGroupBy)),
+  };
+}
+
+export function getCalendarChartData(
+  definition: GenericDefinition<CalendarChartDefinition>,
+  dataSets: DataSet[],
+  labelRange: Range | undefined,
+  getters: Getters
+): ChartRuntimeGenerationArgs {
+  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  let labels = labelValues.values;
+  let dataSetsValues = getChartDatasetValues(getters, dataSets);
+  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+    labels.shift();
+  }
+
+  const locale = getters.getLocale() || DEFAULT_LOCALE;
+
+  ({ labels, dataSetsValues } = filterInvalidCalendarDataPoints(labels, dataSetsValues, locale));
+
+  ({ labels, dataSetsValues } = computeValuesAndLabels(
+    labels,
+    dataSetsValues[0].data,
+    definition.horizontalGroupBy ?? "day_of_week",
+    definition.verticalGroupBy ?? "hour_number",
+    locale
+  ));
+
+  const axisFormats = { y: getChartDatasetFormat(getters, dataSets, "left") };
+
+  return {
+    dataSetsValues,
     axisFormats,
     labels,
     locale: getters.getLocale(),
@@ -691,6 +813,36 @@ function filterInvalidDataPoints(
     const label = labels[dataPointIndex];
     const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
     return label || values.some((value) => typeof value === "number");
+  });
+  return {
+    labels: dataPointsIndexes.map((i) => labels[i] || ""),
+    dataSetsValues: datasets.map((dataset) => ({
+      ...dataset,
+      data: dataPointsIndexes.map((i) =>
+        typeof dataset.data[i] === "number" ? dataset.data[i] : null
+      ),
+    })),
+  };
+}
+
+/**
+ * Filter the data points that:
+ * - have neither a label nor a value
+ * - have no label and a non-numeric value
+ */
+function filterInvalidCalendarDataPoints(
+  labels: string[],
+  datasets: DatasetValues[],
+  locale: Locale
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const numberOfDataPoints = Math.max(
+    labels.length,
+    ...datasets.map((dataset) => dataset.data?.length || 0)
+  );
+  const dataPointsIndexes = range(0, numberOfDataPoints).filter((dataPointIndex) => {
+    const label = labels[dataPointIndex];
+    const values = datasets.map((dataset) => dataset.data?.[dataPointIndex]);
+    return label && isNumber(label, DEFAULT_LOCALE) && typeof values[0] === "number";
   });
   return {
     labels: dataPointsIndexes.map((i) => labels[i] || ""),

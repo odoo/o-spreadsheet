@@ -29,20 +29,22 @@ import {
   ScatterChartDefinition,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import {
   GeoChartDefinition,
   GeoChartProjection,
   GeoChartRuntimeGenerationArgs,
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
-import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
+import { ChartDataset, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   isDefined,
   range,
   removeFalsyAttributes,
 } from "../../../../../packages/o-spreadsheet-engine/src/helpers/misc";
-import { LocaleFormat } from "../../../../types";
+import { ChartColorScalePluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_colorscale_plugin";
+import { Color, LocaleFormat } from "../../../../types";
 import { getChartTimeOptions } from "../../../chart_date";
 
 type ChartScales = DeepPartial<ScaleChartOptions<"line" | "bar" | "radar">["scales"]>;
@@ -86,6 +88,79 @@ export function getBarChartScales(
   }
 
   return scales;
+}
+
+export function getCalendarChartScales(
+  definition: GenericDefinition<BarChartDefinition>,
+  datasets: ChartDataset[]
+): DeepPartial<ScaleChartOptions<"line" | "bar">["scales"]> {
+  const yLabels = datasets.map((dataset) => dataset.label || "");
+  const fontColor = chartFontColor(definition.background);
+  return {
+    y: {
+      title: getChartAxisTitleRuntime(definition.axesDesign?.y),
+      stacked: true,
+      min: 0,
+      max: yLabels.length,
+      ticks: {
+        // Here we have to use a step of 0.5 and skip every even label to have the labels centered
+        // with the bars
+        stepSize: 0.5,
+        color: fontColor,
+        callback: function (label, index, labels) {
+          if (index % 2 === 0) {
+            return undefined;
+          }
+          return yLabels[Math.floor((index - 1) / 2)];
+        },
+      },
+      grid: {
+        display: false,
+      },
+    },
+    x: {
+      title: getChartAxisTitleRuntime(definition.axesDesign?.x),
+      stacked: true,
+      grid: {
+        display: false,
+      },
+      position: "top",
+      ticks: {
+        color: fontColor,
+      },
+    },
+  };
+}
+
+export function getCalendarColorScale(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartColorScalePluginOptions | undefined {
+  const { dataSetsValues } = args;
+  if (!dataSetsValues.length || definition.legendPosition === "none") {
+    return undefined;
+  }
+  const allValues = dataSetsValues.flatMap((ds) => ds.data).filter(isDefined);
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
+  let colorScale: Color[] = [];
+  if (typeof definition.colorScale === "object") {
+    colorScale = [
+      definition.colorScale.minColor,
+      definition.colorScale.midColor,
+      definition.colorScale.maxColor,
+    ].filter(isDefined);
+  } else {
+    colorScale = [...COLORSCHEMES[definition.colorScale ?? "oranges"]];
+  }
+  return {
+    position: definition.legendPosition === "right" ? "right" : "left",
+    colorScale,
+    fontColor: chartFontColor(definition.background),
+    minValue,
+    maxValue,
+    locale: args.locale,
+  };
 }
 
 export function getLineChartScales(
@@ -407,8 +482,8 @@ function getChartAxis(
   }
 }
 
-function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
-  if (!colorScale || typeof colorScale === "string") {
+export function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
+  if (typeof colorScale === "string") {
     const colorScheme = COLORSCHEMES[colorScale || "oranges"];
     return getColorScale([
       { value: minValue, color: colorScheme[0] },
