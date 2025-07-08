@@ -23,7 +23,7 @@
               <span class="color-scale-label">Custom</span>
               <div class="color-scale-preview custom-color-scale border-0"/>
             </div>
-            <t t-foreach="colorScales" t-as="colorScale" t-key="colorScale.value">
+            <t t-foreach="COLORSCALES" t-as="colorScale" t-key="colorScale.value">
               <div
                 class="color-scale-container d-flex justify-content-end"
                 t-on-click="() => this.onColorScaleChange(colorScale.value)">

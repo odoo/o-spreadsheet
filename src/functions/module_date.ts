@@ -12,6 +12,7 @@ import {
   MS_PER_DAY,
   numberToJsDate,
   parseDateTime,
+  weekNumber,
 } from "../helpers/dates";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
@@ -795,22 +796,7 @@ export const WEEKNUM = {
       startDayOfWeek = _type - 10 === 7 ? 0 : _type - 10;
     }
 
-    const y = _date.getFullYear();
-
-    let dayStart = 1;
-    let startDayOfFirstWeek = new DateTime(y, 0, dayStart);
-
-    while (startDayOfFirstWeek.getDay() !== startDayOfWeek) {
-      dayStart += 1;
-      startDayOfFirstWeek = new DateTime(y, 0, dayStart);
-    }
-
-    const dif = (_date.getTime() - startDayOfFirstWeek.getTime()) / MS_PER_DAY;
-
-    if (dif < 0) {
-      return 1;
-    }
-    return Math.floor(dif / 7) + (dayStart === 1 ? 1 : 2);
+    return weekNumber(_date, startDayOfWeek);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

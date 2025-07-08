@@ -1,0 +1,59 @@
+<templates>
+  <t t-name="o-spreadsheet-CalendarChartConfigPanel">
+    <div>
+      <ChartDataSeries
+        ranges="this.getDataSeriesRanges()"
+        onSelectionChanged.bind="onDataSeriesRangesChanged"
+        onSelectionConfirmed.bind="onDataSeriesConfirmed"
+        onSelectionReordered.bind="onDataSeriesReordered"
+        onSelectionRemoved.bind="onDataSeriesRemoved"
+        maxNumberOfUsedRanges="1"
+        canChangeDatasetOrientation="canChangeDatasetOrientation"
+        datasetOrientation="datasetOrientation"
+        onFlipAxis.bind="setDatasetOrientation"
+      />
+      <ChartLabelRange
+        range="this.getLabelRange()"
+        isInvalid="isLabelInvalid"
+        onSelectionChanged.bind="onLabelRangeChanged"
+        onSelectionConfirmed.bind="onLabelRangeConfirmed"
+        options="this.getLabelRangeOptions()"
+      />
+
+      <Section title.translate="Fields to group by">
+        <div class="d-flex">
+          <span class="w-100">Horizontal axis</span>
+          <select
+            t-att-value="getGroupByType('horizontal')"
+            class="o-input o-horizontal-group-by"
+            t-on-change="ev => this.updateGroupBy('horizontal', ev.target.value)">
+            <t t-foreach="groupByChoices" t-as="groupBy" t-key="groupBy.value">
+              <option
+                t-att-selected="getGroupByType('horizontal') === groupBy.value"
+                t-att-value="groupBy.value">
+                <t t-esc="groupBy.label"/>
+              </option>
+            </t>
+          </select>
+        </div>
+        <div class="d-flex">
+          <span class="w-100">Vertical axis</span>
+          <select
+            t-att-value="getGroupByType('vertical')"
+            class="o-input o-vertical-group-by"
+            t-on-change="ev => this.updateGroupBy('vertical', ev.target.value)">
+            <t t-foreach="groupByChoices" t-as="groupBy" t-key="groupBy.value">
+              <option
+                t-att-selected="getGroupByType('vertical') === groupBy.value"
+                t-att-value="groupBy.value">
+                <t t-esc="groupBy.label"/>
+              </option>
+            </t>
+          </select>
+        </div>
+      </Section>
+
+      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+    </div>
+  </t>
+</templates>

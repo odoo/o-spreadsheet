@@ -82,11 +82,12 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     definition: Object,
     onUpdateColorScale: Function,
+    onShowColorBarChange: { type: Function, optional: true },
   };
 
-  colorScales = COLORSCALES.map((colorScale) => ({
+  COLORSCALES = COLORSCALES.map((colorScale) => ({
     value: colorScale,
-    label: _t(colorScale.charAt(0).toUpperCase() + colorScale.slice(1)),
+    label: colorScale.charAt(0).toUpperCase() + colorScale.slice(1),
     className: `${colorScale}-color-scale`,
   }));
 
