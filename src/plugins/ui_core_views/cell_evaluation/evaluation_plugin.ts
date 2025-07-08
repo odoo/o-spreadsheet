@@ -196,7 +196,13 @@ export class EvaluationPlugin extends CoreViewPlugin {
         }
         break;
       case "EVALUATE_CELLS":
-        this.evaluator.evaluateAllCells();
+        if (cmd.cellIds) {
+          for (let i = 0; i < cmd.cellIds.length; i++) {
+            this.positionsToUpdate.push(this.getters.getCellPosition(cmd.cellIds[i]));
+          }
+        } else {
+          this.evaluator.evaluateAllCells();
+        }
         break;
     }
   }

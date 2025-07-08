@@ -77,7 +77,7 @@ class CompilationParametersBuilder {
     // the compiler guarantees only single cell ranges reach this part of the code
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     if (isMeta) {
-      this.computeCell(position); // ensure the cell is computed: sometimes formulas that use meta parameters ending by return the value of the corresponding reference
+      this.computeCell(position); // ensure the cell is computed if the function using the meta parameter uses the value
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
       return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
@@ -108,8 +108,6 @@ class CompilationParametersBuilder {
     if (!_zone) {
       return [[]];
     }
-
-    // Performance issue: cache the range results to avoid recomputing them
     const { top, left, bottom, right } = zone;
     const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}-${isMeta}`;
     if (cacheKey in this.rangeCache) {

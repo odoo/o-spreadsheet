@@ -182,6 +182,21 @@ export const invalidateBordersCommands = new Set<CommandTypes>([
   "SET_ZONE_BORDERS",
 ]);
 
+export const invalidSubtotalFormulasCommands = new Set<CommandTypes>([
+  "UNHIDE_COLUMNS_ROWS",
+  "HIDE_COLUMNS_ROWS",
+  "GROUP_HEADERS",
+  "UNGROUP_HEADERS",
+  "FOLD_ALL_HEADER_GROUPS",
+  "FOLD_HEADER_GROUP",
+  "FOLD_HEADER_GROUPS_IN_ZONE",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_HEADER_GROUP",
+  "UNFOLD_HEADER_GROUPS_IN_ZONE",
+  "UPDATE_TABLE",
+  "UPDATE_FILTER",
+]);
+
 export const readonlyAllowedCommands = new Set<CommandTypes>([
   "START",
   "ACTIVATE_SHEET",
@@ -838,6 +853,7 @@ export interface ActivateSheetCommand {
 
 export interface EvaluateCellsCommand {
   type: "EVALUATE_CELLS";
+  cellIds?: UID[];
 }
 
 export interface EvaluateChartsCommand {

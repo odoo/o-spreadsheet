@@ -681,7 +681,7 @@ describe("Multi users synchronisation", () => {
       // the value resolves while Bob is on another sheet
       // the active sheet is re-evaluated
       value = 2;
-      bob.dispatch("EVALUATE_CELLS", { sheetId: bob.getters.getActiveSheetId() });
+      bob.dispatch("EVALUATE_CELLS");
 
       activateSheet(bob, "sheet2");
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
@@ -706,7 +706,7 @@ describe("Multi users synchronisation", () => {
       // the value resolves while Bob is on another sheet,
       // the active sheet is re-evaluated
       value = 2;
-      bob.dispatch("EVALUATE_CELLS", { sheetId: bob.getters.getActiveSheetId() });
+      bob.dispatch("EVALUATE_CELLS");
 
       expect(getEvaluatedCell(bob, "A1", firstSheetId).value).toBe(2);
       expect(getEvaluatedCell(bob, "A1", "sheet2").value).toBe(2);
