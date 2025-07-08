@@ -1,4 +1,8 @@
-import { formatChartDatasetValue } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import {
+  chartFontColor,
+  formatChartDatasetValue,
+} from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
+import { humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import {
   ChartRuntimeGenerationArgs,
   ChartWithDataSetDefinition,
@@ -6,9 +10,11 @@ import {
   SunburstChartDefinition,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ChartMeta } from "chart.js";
 import { ChartShowValuesPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_show_values_plugin";
 import { ChartSunburstLabelsPluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_sunburst_labels_plugin";
+import { getRuntimeColorScale } from "./chartjs_scales";
 
 export function getChartShowValues(
   definition: ChartWithDataSetDefinition,
@@ -16,12 +22,48 @@ export function getChartShowValues(
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
   return {
+    type: definition.type,
     horizontal: "horizontal" in definition && definition.horizontal,
     showValues: "showValues" in definition ? !!definition.showValues : false,
-    background: definition.background,
+    background: () => definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       const axisId = getDatasetAxisId(definition, dataset);
       return formatChartDatasetValue(axisFormats, locale, definition.humanize)(value, axisId);
+    },
+  };
+}
+
+export function getCalendarChartShowValues(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartShowValuesPluginOptions {
+  const { locale, axisFormats } = args;
+  let background = (_value, dataset, index) => definition.background;
+  const values =
+    args.dataSetsValues
+      .flat()
+      .map((dsv) => dsv?.data.filter((v) => v !== null && v !== undefined))
+      .flat() || [];
+  if (values.length) {
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const colorScale = getRuntimeColorScale(definition.colorScale ?? "oranges", min, max);
+    background = (_value: number | string, dataset: ChartMeta<any>, index) => {
+      const value = dataset._dataset.values[index];
+      if (value === undefined) {
+        return definition.background;
+      }
+      return chartFontColor(colorScale(value));
+    };
+  }
+  return {
+    type: "calendar",
+    horizontal: false,
+    showValues: "showValues" in definition ? !!definition.showValues : false,
+    background,
+    callback: (_value: number | string, dataset: ChartMeta<any>, index) => {
+      const value = dataset._dataset.values[index];
+      return value === undefined ? "" : humanizeNumber({ value, format: axisFormats?.y }, locale);
     },
   };
 }
@@ -51,9 +93,10 @@ export function getPyramidChartShowValues(
 ): ChartShowValuesPluginOptions {
   const { axisFormats, locale } = args;
   return {
+    type: "pyramid",
     horizontal: true,
     showValues: "showValues" in definition ? !!definition.showValues : false,
-    background: definition.background,
+    background: () => definition.background,
     callback: (value: number | string, dataset: ChartMeta) => {
       value = Math.abs(Number(value));
       return value === 0
@@ -75,8 +118,9 @@ export function getWaterfallChartShowValues(
   }, [] as number[]);
 
   return {
+    type: "waterfall",
     showValues: "showValues" in definition ? !!definition.showValues : false,
-    background: definition.background,
+    background: () => definition.background,
     callback: (value: number | string, dataset: any, index: number) => {
       const raw = dataset._dataset.data[index];
       const delta = raw[1] - raw[0];

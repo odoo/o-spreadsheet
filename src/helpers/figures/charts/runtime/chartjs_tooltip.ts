@@ -4,7 +4,10 @@ import {
   formatChartDatasetValue,
   isTrendLineAxis,
 } from "@odoo/o-spreadsheet-engine/helpers/figures/charts/chart_common";
-import { formatOrHumanizeValue } from "@odoo/o-spreadsheet-engine/helpers/format/format";
+import {
+  formatOrHumanizeValue,
+  humanizeNumber,
+} from "@odoo/o-spreadsheet-engine/helpers/format/format";
 import { isNumber } from "@odoo/o-spreadsheet-engine/helpers/numbers";
 import {
   BarChartDefinition,
@@ -17,6 +20,7 @@ import {
   SunburstChartRawData,
   WaterfallChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart";
+import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { GeoChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
 import { RadarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/radar_chart";
 import { TreeMapChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/tree_map_chart";
@@ -55,6 +59,28 @@ export function getBarChartTooltip(
           definition.humanize
         )(yLabel, axisId);
         return yLabelStr;
+      },
+    },
+  };
+}
+
+export function getCalendarChartTooltip(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  const { locale, axisFormats } = args;
+  return {
+    enabled: false,
+    filter: (tooltipItem) => tooltipItem.dataset.values[tooltipItem.dataIndex] !== undefined,
+    external: customTooltipHandler,
+    callbacks: {
+      title: (_) => "",
+      beforeLabel: (tooltipItem) => {
+        return `${tooltipItem.dataset?.label}, ${tooltipItem.label}`;
+      },
+      label: function (tooltipItem) {
+        const yLabel = tooltipItem.dataset.values[tooltipItem.dataIndex];
+        return humanizeNumber({ value: yLabel, format: axisFormats?.y }, locale);
       },
     },
   };

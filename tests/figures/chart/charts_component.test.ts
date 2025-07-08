@@ -33,6 +33,7 @@ import {
 } from "../../test_helpers/chart_helpers";
 import {
   copy,
+  createCalendarChart,
   createChart,
   createGaugeChart,
   createScorecardChart,
@@ -91,6 +92,9 @@ function createTestChart(
       break;
     case "basicChart":
       createChart(model, TEST_CHART_DATA.basicChart, newChartId, undefined, partialFigure);
+      break;
+    case "calendar":
+      createCalendarChart(model, TEST_CHART_DATA.calendar, newChartId, undefined, partialFigure);
       break;
     default:
       createChart(
@@ -170,9 +174,9 @@ describe("charts", () => {
     jest.useRealTimers();
   });
 
-  test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
+  test.each(CHART_TYPES)("Can open a %s chart sidePanel", async (chartType) => {
     await mountSpreadsheet();
-    createTestChart(chartType);
+    createTestChart(chartType, chartId);
     await openChartConfigSidePanel(model, env, chartId);
     expect(fixture.querySelector(".o-figure")).toBeTruthy();
   });
@@ -1796,7 +1800,7 @@ describe("charts", () => {
     ]);
   });
 
-  test.each<ChartType>(["bar", "line", "waterfall", "radar"])(
+  test.each<ChartType>(["bar", "line", "waterfall", "radar", "calendar"])(
     "showValues checkbox updates the chart",
     async (type: ChartType) => {
       createTestChart(type);
@@ -2421,7 +2425,7 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
   const spyUnregister = jest.spyOn(window.Chart, "unregister");
   createChart(model, { type: "bar" }, chartId);
   await mountSpreadsheet();
-  expect(spyRegister).toHaveBeenCalledTimes(7);
+  expect(spyRegister).toHaveBeenCalledTimes(8);
   expect(window.Chart.registry.plugins["items"].map((i) => i.id)).toMatchObject([
     "chartShowValuesPlugin",
     "waterfallLinesPlugin",
@@ -2429,16 +2433,17 @@ test("ChartJS charts extensions are loaded when mounting a spreadsheet, are only
     "funnel", // Funnel element
     "sunburstLabelsPlugin",
     "sunburstHoverPlugin",
+    "chartColorScalePlugin",
     "zoomWindowPlugin",
   ]);
 
   createChart(model, { type: "line" }, "chart2");
   await nextTick();
-  expect(spyRegister).toHaveBeenCalledTimes(7);
+  expect(spyRegister).toHaveBeenCalledTimes(8);
 
   app.destroy();
   await nextTick();
-  expect(spyUnregister).toHaveBeenCalledTimes(7);
+  expect(spyUnregister).toHaveBeenCalledTimes(8);
   expect(window.Chart.registry.plugins["items"]).toEqual([]);
 });
 

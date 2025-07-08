@@ -43,7 +43,10 @@ interface ChartPanelState {
   labelsDispatchResult?: DispatchResult;
 }
 
-export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
+export class GenericChartConfigPanel<P extends Props = Props> extends Component<
+  P,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-GenericChartConfigPanel";
   static components = {
     ChartDataSeries,
