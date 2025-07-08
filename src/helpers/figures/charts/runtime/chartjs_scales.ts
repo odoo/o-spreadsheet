@@ -1,5 +1,6 @@
-import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
+import { ChartDataset, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
+import { ChartColorScalePluginOptions } from "../../../../components/figures/chart/chartJs/chartjs_colorscale_plugin";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
   CHART_PADDING,
@@ -7,7 +8,7 @@ import {
   CHART_PADDING_TOP,
   GRAY_300,
 } from "../../../../constants";
-import { LocaleFormat } from "../../../../types";
+import { Color, LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
   BarChartDefinition,
@@ -22,6 +23,7 @@ import {
   ScatterChartDefinition,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   GeoChartDefinition,
   GeoChartProjection,
@@ -82,6 +84,74 @@ export function getBarChartScales(
   }
 
   return scales;
+}
+
+export function getCalendarChartScales(
+  definition: GenericDefinition<BarChartDefinition>,
+  datasets: ChartDataset[]
+): ChartScales {
+  const yLabels = datasets.map((dataset) => dataset.label || "");
+  return {
+    y: {
+      title: getChartAxisTitleRuntime(definition.axesDesign?.y),
+      stacked: true,
+      min: 0,
+      max: yLabels.length,
+      ticks: {
+        // Here we have to use a step of 0.5 and skip every even label to have the labels centered
+        // with the bars
+        stepSize: 0.5,
+        callback: function (label, index, labels) {
+          if (index % 2 === 0) {
+            return undefined;
+          }
+          return yLabels[Math.floor((index - 1) / 2)];
+        },
+      },
+      grid: {
+        display: false,
+      },
+    },
+    x: {
+      title: getChartAxisTitleRuntime(definition.axesDesign?.x),
+      stacked: true,
+      grid: {
+        display: false,
+      },
+      position: "top",
+    },
+  };
+}
+
+export function getCalendarColorScale(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartColorScalePluginOptions | undefined {
+  const { dataSetsValues } = args;
+  if (!dataSetsValues.length || definition.legendPosition === "none") {
+    return undefined;
+  }
+  const allValues = dataSetsValues.flatMap((ds) => ds.data);
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
+  let colorScale: Color[] = [];
+  if (typeof definition.colorScale === "object") {
+    colorScale = [
+      definition.colorScale.minColor,
+      definition.colorScale.midColor,
+      definition.colorScale.maxColor,
+    ].filter(isDefined);
+  } else {
+    colorScale = [...COLORSCHEMES[definition.colorScale ?? "oranges"]];
+  }
+  return {
+    position: definition.legendPosition === "right" ? "right" : "left",
+    colorScale,
+    fontColor: chartFontColor(definition.background),
+    minValue,
+    maxValue,
+    locale: args.locale,
+  };
 }
 
 export function getLineChartScales(
@@ -402,12 +472,12 @@ function getChartAxis(
   }
 }
 
-function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
-  if (!colorScale || typeof colorScale === "string") {
+export function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
+  if (typeof colorScale === "string") {
     const colorScheme = COLORSCHEMES[colorScale || "oranges"];
     return getColorScale([
       { value: minValue, color: colorScheme[0] },
-      { value: (minValue + maxValue) / 2, color: colorScheme[Math.floor(1)] },
+      { value: (minValue + maxValue) / 2, color: colorScheme[1] },
       { value: maxValue, color: colorScheme[2] },
     ]);
   }

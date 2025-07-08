@@ -298,4 +298,20 @@
       <path fill="#ffe1c8" d="M32,17 h13 v25 h-13"/>
     </svg>
   </t>
+  <t t-name="o-spreadsheet-ChartPreview.CALENDAR_CHART">
+    <svg class="o-chart-preview" viewBox="0 0 48 48">
+      <path fill="#444" d="M3 3h42v42H3zh1v41h40V4H4"/>
+      <path
+        fill="#eb6d00"
+        d="M7 7h7v7H7m0 2h7v7H7m0 2h7v7H7m0 2h7v7H7m9-34h7v7h-7m0 2h7v7h-7m0 2h7v7h-7m0 2h7v7h-7m9-34h7v7h-7m0 11h7v7h-7m0 2h7v7h-7m9-34h7v7h-7m0 2h7v7h-7m0 2h7v7h-7m0 2h7v7h-7"
+      />
+      <path fill="#ffe1c8" d="M8 8h5v5H8m0 13h5v5H8m9 4h5v5h-5m18-5h5v5h-5"/>
+      <path
+        fill="#FFA85C"
+        d="M8 17h5v5H8m9-14h5v5h-5m0 13h5v5h-5m9 4h5v5h-5m9-32h5v5h-5m0 13h5v5h-5"
+      />
+      <path fill="#fff" d="M8 35h5v5H8"/>
+      <path fill="#A34C00" d="M25 16h7v7h-7"/>
+    </svg>
+  </t>
 </templates>
