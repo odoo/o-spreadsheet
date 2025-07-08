@@ -166,6 +166,14 @@ describe("Export data to xlsx then import it", () => {
       },
     },
     {
+      values: ["=A3>3"],
+      operator: "customFormula" as const,
+      type: "CellIsRule" as const,
+      style: {
+        fillColor: "#FF9900",
+      },
+    },
+    {
       type: "ColorScaleRule" as const,
       minimum: {
         type: "value" as const,

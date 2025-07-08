@@ -44,7 +44,6 @@ export function convertConditionalFormats(
       case "containsErrors":
       case "notContainsErrors":
       case "duplicateValues":
-      case "expression":
       case "top10":
       case "uniqueValues":
       case "timePeriod":
@@ -75,6 +74,11 @@ export function convertConditionalFormats(
         if (!rule.text) continue;
         operator = CF_TYPE_CONVERSION_MAP[rule.type]!;
         values.push(rule.text);
+        break;
+      case "expression":
+        if (!rule.formula?.length) continue;
+        operator = CF_TYPE_CONVERSION_MAP[rule.type]!;
+        values.push(`=${rule.formula[0]}`);
         break;
       case "containsBlanks":
       case "notContainsBlanks":
