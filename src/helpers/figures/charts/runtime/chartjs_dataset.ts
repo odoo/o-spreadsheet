@@ -27,6 +27,7 @@ import {
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import {
   GeoChartDefinition,
@@ -53,11 +54,12 @@ import {
 import { formatValue } from "../../../format/format";
 import { isDefined, range } from "../../../misc";
 import {
-  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
-  TREND_LINE_XAXIS_ID,
   getPieColors,
   isTrendLineAxis,
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
+  TREND_LINE_XAXIS_ID,
 } from "../chart_common";
+import { getRuntimeColorScale } from "./chartjs_scales";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 
@@ -99,6 +101,47 @@ export function getBarChartDatasets(
   dataSets.push(...trendDatasets);
 
   return dataSets;
+}
+
+export function getCalendarChartDatasetAndLabels(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): {
+  datasets: ChartDataset[];
+  labels: string[];
+} {
+  const { labels, dataSetsValues } = args;
+
+  const values = dataSetsValues
+    .map((ds) => ds.data)
+    .flat()
+    .filter(isDefined);
+
+  const maxValue = Math.max(...values);
+  const minValue = Math.min(...values);
+  const colorMap = getRuntimeColorScale(definition.colorScale ?? "oranges", minValue, maxValue);
+
+  const dataSets: ChartDataset[] = [];
+  for (const dataSetValues of dataSetsValues) {
+    dataSets.push({
+      label: dataSetValues.label,
+      data: dataSetValues.data.map((v) => 1),
+      backgroundColor: dataSetValues.data.map((v) =>
+        v !== undefined ? colorMap(v) : definition.missingValueColor || COLOR_TRANSPARENT
+      ),
+      borderColor: definition.background || BACKGROUND_CHART_COLOR,
+      borderSkipped: false,
+      borderWidth: 1,
+      barPercentage: 1,
+      categoryPercentage: 1,
+      values: dataSetValues.data,
+    });
+  }
+
+  return {
+    labels,
+    datasets: dataSets,
+  };
 }
 
 export function getWaterfallDatasetAndLabels(

@@ -6,6 +6,7 @@ import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { chartJsExtensionRegistry, registerChartJSExtensions } from "./chart_js_extension";
 import { ChartAnimationStore } from "./chartjs_animation_store";
+import { chartColorScalePlugin } from "./chartjs_colorscale_plugin";
 import {
   funnelTooltipPositioner,
   getFunnelChartController,
@@ -50,6 +51,10 @@ chartJsExtensionRegistry.add("sunburstLabelsPlugin", {
 chartJsExtensionRegistry.add("sunburstHoverPlugin", {
   register: (Chart) => Chart.register(sunburstHoverPlugin),
   unregister: (Chart) => Chart.unregister(sunburstHoverPlugin),
+});
+chartJsExtensionRegistry.add("chartColorScalePlugin", {
+  register: (Chart) => Chart.register(chartColorScalePlugin),
+  unregister: (Chart) => Chart.unregister(chartColorScalePlugin),
 });
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {

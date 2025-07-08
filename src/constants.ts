@@ -41,6 +41,7 @@ export const CHART_PADDING_TOP = 15;
 export const CHART_TITLE_FONT_SIZE = 16;
 export const CHART_AXIS_TITLE_FONT_SIZE = 12;
 export const MASTER_CHART_HEIGHT = 60;
+export const CHART_COLORSCALE_WIDTH = 70;
 
 export const SCORECARD_CHART_TITLE_FONT_SIZE = 14;
 
