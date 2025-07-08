@@ -202,7 +202,7 @@ describe("basic search", () => {
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1")]);
     value = "hello";
-    model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
+    model.dispatch("EVALUATE_CELLS");
     expect(getCellContent(model, "B1")).toBe(value);
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "B1")]);

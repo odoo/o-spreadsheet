@@ -1,7 +1,10 @@
+import { splitReference, toZone } from "../helpers";
+import { isSubtotalCell } from "../plugins/ui_feature/subtotal_evaluation";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
+  EvaluatedCell,
   FunctionResultNumber,
   FunctionResultObject,
   Matrix,
@@ -26,6 +29,7 @@ import {
   toString,
   visitMatchingRanges,
 } from "./helpers";
+import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 const DEFAULT_FACTOR = 1;
 const DEFAULT_MODE = 0;
@@ -1358,6 +1362,68 @@ export const SQRT = {
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
+// SUBTOTAL
+// -----------------------------------------------------------------------------
+
+export const SUBTOTAL = {
+  description: _t(
+    "Returns a subtotal for a vertical range of cells using a specified aggregation function."
+  ),
+  args: [
+    arg("function_code (number)", _t("The function to use in subtotal aggregation.")),
+    arg("ref1 (meta, range<meta>)", _t("The range or reference for which you want the subtotal.")),
+    arg(
+      "ref2 (meta, range<meta>, repeating)",
+      _t("Additional ranges or references for which you want the subtotal.")
+    ),
+  ],
+  compute: function (
+    functionCode: Maybe<FunctionResultObject>,
+    ...refs: Matrix<{ value: string }>[]
+  ) {
+    let code = toInteger(functionCode, this.locale);
+    let acceptHiddenCells = true;
+    if (code > 100) {
+      code -= 100;
+      acceptHiddenCells = false;
+    }
+    if (code < 1 || code > 11) {
+      return new EvaluationError(
+        _t("The function code (%s) must be between 1 to 11 or 101 to 111.", code)
+      );
+    }
+
+    const evaluatedCellToKeep: EvaluatedCell[] = [];
+
+    for (const ref of refs) {
+      const ref0 = ref[0][0];
+      const sheetName = splitReference(ref0.value).sheetName;
+      const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : this.__originSheetId;
+
+      if (!sheetId) continue;
+      const { top, left } = toZone(ref0.value);
+      const right = left + ref.length - 1;
+      const bottom = top + ref[0].length - 1;
+
+      for (let row = top; row <= bottom; row++) {
+        if (this.getters.isRowFiltered(sheetId, row)) continue;
+        if (!acceptHiddenCells && this.getters.isRowHiddenByUser(sheetId, row)) continue;
+
+        for (let col = left; col <= right; col++) {
+          const cell = this.getters.getCell({ sheetId, col, row });
+          if (!cell || !isSubtotalCell(cell)) {
+            evaluatedCellToKeep.push(this.getters.getEvaluatedCell({ sheetId, col, row }));
+          }
+        }
+      }
+    }
+
+    return subtotalFunctionAggregateByCode[code].apply(this, [[evaluatedCellToKeep]]);
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
 // SUM
 // -----------------------------------------------------------------------------
 export const SUM = {
@@ -1514,3 +1580,17 @@ export const INT = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+const subtotalFunctionAggregateByCode = {
+  1: AVERAGE.compute,
+  2: COUNT.compute,
+  3: COUNTA.compute,
+  4: MAX.compute,
+  5: MIN.compute,
+  6: PRODUCT.compute,
+  7: STDEV.compute,
+  8: STDEVP.compute,
+  9: SUM.compute,
+  10: VAR.compute,
+  11: VARP.compute,
+};

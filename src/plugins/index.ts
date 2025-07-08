@@ -51,6 +51,7 @@ import { DataValidationInsertionPlugin } from "./ui_feature/datavalidation_inser
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { PivotPresencePlugin } from "./ui_feature/pivot_presence_plugin";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
+import { SubtotalEvaluationPlugin } from "./ui_feature/subtotal_evaluation";
 import { TableAutofillPlugin } from "./ui_feature/table_autofill";
 import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
 import { TableResizeUI } from "./ui_feature/table_resize_ui";
@@ -95,6 +96,7 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("insert_pivot", InsertPivotPlugin)
   .add("pivot_presence", PivotPresencePlugin)
   .add("split_to_columns", SplitToColumnsPlugin)
+  .add("subtotal_evaluation", SubtotalEvaluationPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
   .add("data_cleanup", DataCleanupPlugin)
