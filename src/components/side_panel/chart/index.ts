@@ -19,6 +19,8 @@ import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
 import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
 import { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
 import { SunburstChartDesignPanel } from "./sunburst_chart/sunburst_chart_design_panel";
+import { TimeMatrixChartConfigPanel } from "./time_matrix/time_matrix_config_panel";
+import { TimeMatrixChartDesignPanel } from "./time_matrix/time_matrix_design_panel";
 import { TreeMapChartDesignPanel } from "./treemap_chart/treemap_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./waterfall_chart/waterfall_chart_design_panel";
 
@@ -94,4 +96,8 @@ chartSidePanelComponentRegistry
   .add("treemap", {
     configuration: HierarchicalChartConfigPanel,
     design: TreeMapChartDesignPanel,
+  })
+  .add("timeMatrix", {
+    configuration: TimeMatrixChartConfigPanel,
+    design: TimeMatrixChartDesignPanel,
   });

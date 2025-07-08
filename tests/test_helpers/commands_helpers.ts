@@ -50,6 +50,7 @@ import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { GeoChartDefinition } from "../../src/types/chart/geo_chart";
 import { RadarChartDefinition } from "../../src/types/chart/radar_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
+import { TimeMatrixChartDefinition } from "../../src/types/chart/time_matrix_chart";
 import { TreeMapChartDefinition } from "../../src/types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { Image } from "../../src/types/image";
@@ -411,6 +412,35 @@ export function createGaugeChart(
           operator: "<=",
         },
       },
+    },
+  });
+}
+
+export function createTimeMatrix(
+  model: Model,
+  data: Partial<TimeMatrixChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
+  return model.dispatch("CREATE_CHART", {
+    figureId: id,
+    sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
+    definition: {
+      type: "timeMatrix",
+      background: data.background,
+      title: data.title || { text: "" },
+      dataRange: data.dataRange || "",
+      labelRange: data.labelRange || "",
+      colormap: data.colormap || "rainbow",
     },
   });
 }
