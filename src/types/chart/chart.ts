@@ -3,6 +3,7 @@ import { ColorScale } from "../../helpers";
 import { Align, Color, Format, Locale, Range, VerticalAlign } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
+import { CalendarChartDefinition } from "./calendar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
 import { LegendPosition } from "./common_chart";
 import { FunnelChartColors, FunnelChartDefinition, FunnelChartRuntime } from "./funnel_chart";
@@ -37,6 +38,7 @@ export const CHART_TYPES = [
   "funnel",
   "sunburst",
   "treemap",
+  "calendar",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -54,12 +56,20 @@ export type ChartDefinition =
   | GeoChartDefinition
   | FunnelChartDefinition
   | SunburstChartDefinition
-  | TreeMapChartDefinition;
+  | TreeMapChartDefinition
+  | CalendarChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string; humanize?: boolean }
 >;
+
+export type ChartWithColorScaleDefinition = Extract<
+  ChartDefinition,
+  { colorScale?: ChartColorScale }
+>;
+
+export type ChartWithTitleDefinition = Extract<ChartDefinition, { title?: TitleDesign }>;
 
 export type ChartWithAxisDefinition = Extract<
   ChartWithDataSetDefinition,
