@@ -56,10 +56,11 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": undefined,
           "showValues": false,
+          "type": "bar",
         },
         "legend": {
           "display": true,
@@ -311,10 +312,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "maintainAspectRatio": false,
       "plugins": {
         "chartShowValuesPlugin": {
-          "background": undefined,
+          "background": [Function],
           "callback": [Function],
           "horizontal": false,
           "showValues": false,
+          "type": "line",
         },
         "legend": {
           "display": true,

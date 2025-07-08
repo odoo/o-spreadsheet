@@ -1,0 +1,31 @@
+import { ChartConfiguration } from "chart.js";
+import { ChartColorScale, CommonChartDefinition } from ".";
+import { Color } from "../misc";
+import { Granularity } from "../pivot";
+
+export const CALENDAR_CHART_GRANULARITIES: Granularity[] = [
+  "year",
+  "quarter_number",
+  "month_number",
+  "iso_week_number",
+  "day_of_month",
+  "day_of_week",
+  "hour_number",
+  "minute_number",
+  "second_number",
+];
+
+export type CalendarChartGranularity = (typeof CALENDAR_CHART_GRANULARITIES)[number];
+
+export interface CalendarChartDefinition extends CommonChartDefinition {
+  readonly type: "calendar";
+  readonly colorScale?: ChartColorScale;
+  readonly missingValueColor?: Color;
+  readonly horizontalGroupBy?: CalendarChartGranularity;
+  readonly verticalGroupBy?: CalendarChartGranularity;
+}
+
+export type CalendarChartRuntime = {
+  chartJsConfig: ChartConfiguration;
+  background: Color;
+};

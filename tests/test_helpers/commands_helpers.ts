@@ -45,6 +45,7 @@ import { createEqualCF, target, toRangeData, toRangesData } from "./helpers";
 
 import { ICON_SETS } from "@odoo/o-spreadsheet-engine/components/icons/icons";
 import { SunburstChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart";
+import { CalendarChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/calendar_chart";
 import { ComboChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/combo_chart";
 import { FunnelChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/funnel_chart";
 import { GaugeChartDefinition } from "@odoo/o-spreadsheet-engine/types/chart/gauge_chart";
@@ -318,6 +319,40 @@ export function createRadarChart(
       fillArea: data.fillArea || false,
       stacked: data.stacked || false,
       humanize: data.humanize || false,
+    },
+  });
+}
+
+export function createCalendarChart(
+  model: Model,
+  data: Partial<CalendarChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
+  return model.dispatch("CREATE_CHART", {
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
+    sheetId: sheetId,
+    col: 0,
+    row: 0,
+    size: { width: 536, height: 335 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
+    definition: {
+      title: data.title || { text: "test" },
+      dataSets: data.dataSets ?? [],
+      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
+      labelRange: data.labelRange,
+      type: "calendar",
+      background: data.background,
+      horizontalGroupBy: data.horizontalGroupBy,
+      verticalGroupBy: data.verticalGroupBy,
+      legendPosition: data.legendPosition || "top",
+      colorScale: data.colorScale || "rainbow",
     },
   });
 }
