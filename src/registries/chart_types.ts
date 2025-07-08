@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { ChartJsComponentWithColorScale } from "../components/figures/chart/chartJs/chart_with_color_scale";
 import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
 import { ZoomableChartJsComponent } from "../components/figures/chart/chartJs/zoomable_chart/zoomable_chartjs";
 import { GaugeChartComponent } from "../components/figures/chart/gauge/gauge_chart_component";
@@ -22,6 +23,10 @@ import {
   SunburstChart,
   createSunburstChartRuntime,
 } from "../helpers/figures/charts/sunburst_chart";
+import {
+  CalendarChart,
+  createCalendarChartRuntime,
+} from "../helpers/figures/charts/time_matrix_chart";
 import { TreeMapChart, createTreeMapChartRuntime } from "../helpers/figures/charts/tree_map_chart";
 import {
   WaterfallChart,
@@ -37,6 +42,7 @@ import {
   ScorecardChartDefinition,
   SunburstChartDefinition,
 } from "../types/chart";
+import { CalendarChartDefinition } from "../types/chart/calendar_chart";
 import {
   ChartCreationContext,
   ChartDefinition,
@@ -230,6 +236,19 @@ chartRegistry.add("treemap", {
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
   sequence: 100,
 });
+chartRegistry.add("calendar", {
+  match: (type) => type === "calendar",
+  createChart: (definition, sheetId, getters) =>
+    new CalendarChart(definition as CalendarChartDefinition, sheetId, getters),
+  getChartRuntime: (chart, getters) => {
+    return createCalendarChartRuntime(chart as CalendarChart, getters);
+  },
+  validateChartDefinition: CalendarChart.validateChartDefinition,
+  transformDefinition: CalendarChart.transformDefinition,
+  getChartDefinitionFromContextCreation: CalendarChart.getDefinitionFromContextCreation,
+  sequence: 110,
+  dataSeriesLimit: 1,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ZoomableChartJsComponent);
@@ -246,6 +265,7 @@ chartComponentRegistry.add("geo", ChartJsComponent);
 chartComponentRegistry.add("funnel", ChartJsComponent);
 chartComponentRegistry.add("sunburst", ChartJsComponent);
 chartComponentRegistry.add("treemap", ChartJsComponent);
+chartComponentRegistry.add("calendar", ChartJsComponentWithColorScale);
 
 type ChartUICategory = keyof typeof chartCategories;
 
@@ -463,4 +483,11 @@ chartSubtypeRegistry
     chartSubtype: "treemap",
     category: "hierarchical",
     preview: "o-spreadsheet-ChartPreview.TREE_MAP_CHART",
+  })
+  .add("calendar", {
+    displayName: _t("Calendar"),
+    chartSubtype: "calendar",
+    chartType: "calendar",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.CALENDAR_CHART",
   });

@@ -23,7 +23,7 @@
               </span>
               <div class="colormap-preview custom-colormap"/>
             </div>
-            <t t-foreach="colormaps" t-as="colormap" t-key="colormap.value">
+            <t t-foreach="COLORSCALES" t-as="colormap" t-key="colormap.value">
               <div
                 class="colormap-container"
                 t-on-click="() => this.onColormapChange(colormap.value)">
@@ -60,6 +60,13 @@
           />
           <span class="ps-2">Color of maximum values</span>
         </div>
+      </t>
+      <t t-if="props.onShowColorBarChange">
+        <Checkbox
+          label.translate="Show Color Bar"
+          value="props.definition.showColorBar"
+          onChange.bind="props.onShowColorBarChange"
+        />
       </t>
     </Section>
   </t>

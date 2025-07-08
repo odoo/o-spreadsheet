@@ -13,6 +13,7 @@ import {
   SunburstChartRawData,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
@@ -51,6 +52,32 @@ export function getBarChartTooltip(
           args.locale,
           definition.humanize
         )(yLabel, axisId);
+        return yLabelStr;
+      },
+    },
+  };
+}
+
+export function getCalendarChartTooltip(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  return {
+    enabled: false,
+    external: customTooltipHandler,
+    callbacks: {
+      title: function (tooltipItems) {
+        return tooltipItems.some((item) => !isTrendLineAxis(item.dataset.xAxisID)) ? undefined : "";
+      },
+      beforeLabel: (tooltipItem) => tooltipItem.dataset?.label || tooltipItem.label,
+      label: function (tooltipItem) {
+        const yLabel = tooltipItem.dataset.values[tooltipItem.dataIndex];
+        if (yLabel === undefined) {
+          return "N./A.";
+        }
+
+        const axisId = tooltipItem.dataset.yAxisID;
+        const yLabelStr = formatChartDatasetValue(args.axisFormats, args.locale)(yLabel, axisId);
         return yLabelStr;
       },
     },

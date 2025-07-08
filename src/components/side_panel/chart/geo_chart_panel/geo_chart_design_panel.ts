@@ -1,5 +1,5 @@
-import { LegendPosition } from "../../../../types/chart";
-import { GeoChartColorScale, GeoChartDefinition } from "../../../../types/chart/geo_chart";
+import { ChartColorScale, LegendPosition } from "../../../../types/chart";
+import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { Color, DispatchResult, UID } from "../../../../types/index";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";
@@ -20,7 +20,7 @@ export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
     ColorScalePicker,
   };
 
-  updateColorScale(colorScale: GeoChartColorScale) {
+  updateColorScale(colorScale: ChartColorScale) {
     this.props.updateChart(this.props.chartId, { colorScale });
   }
 

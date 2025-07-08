@@ -1,35 +1,20 @@
 import { ChartConfiguration } from "chart.js";
-import { ColorScale } from "../../helpers/figures/charts/colormap";
 import { Color } from "../misc";
-import { ChartRuntimeGenerationArgs, CustomizedDataSet, TitleDesign } from "./chart";
-import { LegendPosition } from "./common_chart";
+import { ChartColorScale, ChartRuntimeGenerationArgs } from "./chart";
+import { CommonChartDefinition } from "./common_chart";
 
-export interface GeoChartDefinition {
+export interface GeoChartDefinition extends CommonChartDefinition {
   readonly type: "geo";
-  readonly dataSets: CustomizedDataSet[];
-  readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
-  readonly title: TitleDesign;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
-  readonly colorScale?: GeoChartColorScale;
+  readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;
   readonly region?: string;
-  readonly humanize?: boolean;
+  readonly showColorBar?: boolean;
 }
 
 export type GeoChartRuntime = {
   chartJsConfig: ChartConfiguration;
   background: Color;
 };
-
-export interface GeoChartCustomColorScale {
-  minColor: Color;
-  midColor?: Color;
-  maxColor: Color;
-}
-
-export type GeoChartColorScale = GeoChartCustomColorScale | ColorScale;
 
 export type GeoChartProjection =
   | "azimuthalEqualArea"

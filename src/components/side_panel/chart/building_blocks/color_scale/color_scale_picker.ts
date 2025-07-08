@@ -1,11 +1,16 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { COLORMAPS } from "../../../../../helpers/figures/charts/colormap";
+import { COLORSCALES } from "../../../../../helpers/figures/charts/colormap";
 import { _t } from "../../../../../translation";
-import { Color, SpreadsheetChildEnv } from "../../../../../types";
-import { GeoChartColorScale, GeoChartCustomColorScale } from "../../../../../types/chart/geo_chart";
+import {
+  ChartColorScale,
+  ChartCustomColorScale,
+  Color,
+  SpreadsheetChildEnv,
+} from "../../../../../types";
 import { css, cssPropertiesToCss } from "../../../../helpers";
 import { isChildEvent } from "../../../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../../../popover";
+import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 
@@ -781,15 +786,16 @@ css/* scss */ `
 
 //https://victorpoughon.fr/css-gradients-colorcet/
 
-const DEFAULT_CUSTOM_COLOR_SCALE: GeoChartCustomColorScale = {
+const DEFAULT_CUSTOM_COLOR_SCALE: ChartCustomColorScale = {
   minColor: "#FFF5EB",
   midColor: "#FD8D3C",
   maxColor: "#7F2704",
 };
 
 interface Props {
-  definition: { colorScale: GeoChartColorScale };
-  onUpdateColorScale: (colorscale: GeoChartColorScale) => void;
+  definition: { colorScale: ChartColorScale; showColorBar?: boolean };
+  onUpdateColorScale: (colorscale: ChartColorScale) => void;
+  onShowColorBarChange?: (show: boolean) => void;
 }
 
 interface ColorScalePickerState {
@@ -803,13 +809,15 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     Section,
     Popover,
     RoundColorPicker,
+    Checkbox,
   };
   static props = {
     definition: Object,
     onUpdateColorScale: Function,
+    onShowColorBarChange: { type: Function, optional: true },
   };
 
-  colormaps = COLORMAPS.map((colormap) => ({
+  COLORSCALES = COLORSCALES.map((colormap) => ({
     value: colormap,
     label: _t(colormap.charAt(0).toUpperCase() + colormap.slice(1)),
     className: `${colormap}-colormap`,
@@ -829,7 +837,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     this.closePopover();
   }
 
-  get currentColormap(): GeoChartColorScale {
+  get currentColormap(): ChartColorScale {
     return this.props.definition.colorScale || "greys";
   }
 
@@ -853,7 +861,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     if (value === "custom") {
       this.props.onUpdateColorScale(DEFAULT_CUSTOM_COLOR_SCALE);
     } else {
-      this.props.onUpdateColorScale(value as GeoChartColorScale);
+      this.props.onUpdateColorScale(value as ChartColorScale);
     }
     this.closePopover();
   }
@@ -878,7 +886,7 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     this.state.popoverProps = undefined;
   }
 
-  get customColorScale(): GeoChartCustomColorScale | undefined {
+  get customColorScale(): ChartCustomColorScale | undefined {
     if (typeof this.currentColormap === "object") {
       return this.currentColormap;
     }
