@@ -1,25 +1,14 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import {
-  ChartColorScale,
-  ChartRuntimeGenerationArgs,
-  CustomizedDataSet,
-  TitleDesign,
-} from "./chart";
-import { LegendPosition } from "./common_chart";
+import { ChartColorScale, ChartRuntimeGenerationArgs } from "./chart";
+import { CommonChartDefinition } from "./common_chart";
 
-export interface GeoChartDefinition {
+export interface GeoChartDefinition extends CommonChartDefinition {
   readonly type: "geo";
-  readonly dataSets: CustomizedDataSet[];
-  readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
-  readonly title: TitleDesign;
-  readonly background?: Color;
-  readonly legendPosition: LegendPosition;
   readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;
   readonly region?: string;
-  readonly humanize?: boolean;
+  readonly showColorBar?: boolean;
 }
 
 export type GeoChartRuntime = {

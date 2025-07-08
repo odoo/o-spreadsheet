@@ -32,6 +32,7 @@ import {
   SunburstChartDefinition,
   TrendConfiguration,
 } from "../../../../types/chart";
+import { CalendarChartDefinition } from "../../../../types/chart/calendar_chart";
 import {
   GeoChartDefinition,
   GeoChartRuntimeGenerationArgs,
@@ -87,6 +88,34 @@ export function getBarChartData(
   return {
     dataSetsValues,
     trendDataSetsValues,
+    axisFormats,
+    labels,
+    locale: getters.getLocale(),
+    topPadding: getTopPaddingForDashboard(definition, getters),
+  };
+}
+
+export function getCalendarChartData(
+  definition: GenericDefinition<CalendarChartDefinition>,
+  dataSets: DataSet[],
+  labelRange: Range | undefined,
+  getters: Getters
+): ChartRuntimeGenerationArgs {
+  const labelValues = getChartLabelValues(getters, dataSets, labelRange);
+  let labels = labelValues.values;
+  let dataSetsValues = getChartDatasetValues(getters, dataSets);
+  if (shouldRemoveFirstLabel(labelRange, dataSets[0], definition.dataSetsHaveTitle || false)) {
+    labels.shift();
+  }
+
+  ({ labels, dataSetsValues } = filterInvalidDataPoints(labels, dataSetsValues));
+
+  const leftAxisFormat = getChartDatasetFormat(getters, dataSets, "left");
+  const rightAxisFormat = getChartDatasetFormat(getters, dataSets, "right");
+  const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat };
+
+  return {
+    dataSetsValues,
     axisFormats,
     labels,
     locale: getters.getLocale(),

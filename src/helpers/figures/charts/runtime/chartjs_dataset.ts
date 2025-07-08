@@ -8,6 +8,7 @@ import {
   LINE_DATA_POINT_RADIUS,
   LINE_FILL_TRANSPARENCY,
 } from "../../../../constants";
+import { toJsDate } from "../../../../functions/helpers";
 import { _t } from "../../../../translation";
 import { ChartRuntimeGenerationArgs, Color, GenericDefinition } from "../../../../types";
 import {
@@ -27,6 +28,10 @@ import {
   TrendConfiguration,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import {
+  CalendarChartDefinition,
+  CalendarChartGroupBy,
+} from "../../../../types/chart/calendar_chart";
 import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import {
   GeoChartDefinition,
@@ -50,14 +55,16 @@ import {
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
+import { DateTime, weekNumber } from "../../../dates";
 import { formatValue } from "../../../format/format";
 import { isDefined, range } from "../../../misc";
 import {
-  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
-  TREND_LINE_XAXIS_ID,
   getPieColors,
   isTrendLineAxis,
+  MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
+  TREND_LINE_XAXIS_ID,
 } from "../chart_common";
+import { getRuntimeColorScale } from "./chartjs_scales";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 
@@ -99,6 +106,180 @@ export function getBarChartDatasets(
   dataSets.push(...trendDatasets);
 
   return dataSets;
+}
+
+function getPosition(
+  time: DateTime,
+  stamp: CalendarChartGroupBy
+): { value: number | string; label: string } {
+  switch (stamp) {
+    case "weekday": {
+      const value = time.getDay();
+      return { value, label: WEEKDAYS[value] };
+    }
+    case "monthday": {
+      const value = time.getDate();
+      return { value, label: value.toString() };
+    }
+    case "hour": {
+      const value = time.getHours();
+      return { value, label: getHoursLabel(value) };
+    }
+    case "month": {
+      const value = time.getMonth();
+      return { value, label: MONTHS[value] };
+    }
+    case "year": {
+      const value = time.getFullYear();
+      return { value, label: value.toString() };
+    }
+    case "week": {
+      const value = weekNumber(time, 1);
+      return { value, label: `W${value < 10 ? "0" : ""}${value}` };
+    }
+    case "quarter": {
+      const value = Math.floor(time.getMonth() / 3) + 1;
+      return { value, label: `Q${value}` };
+    }
+    case "quarter-year": {
+      const quarter = Math.floor(time.getMonth() / 3) + 1;
+      const year = time.getFullYear();
+      return { value: year + quarter / 10, label: `Q${quarter} ${year}` };
+    }
+    case "month-year": {
+      const month = time.getMonth();
+      const year = time.getFullYear();
+      return { value: year + month / 100, label: `${MONTHS[month]} ${year}` };
+    }
+    case "week-year": {
+      const year = time.getFullYear();
+      const week = weekNumber(time, 1);
+      return { value: year + week / 100, label: `W${week < 10 ? "0" : ""}${week} ${year}` };
+    }
+  }
+  return { value: time.toLocaleDateString(), label: time.toLocaleDateString() };
+}
+
+const WEEKDAYS = [
+  _t("Sunday"),
+  _t("Monday"),
+  _t("Tuesday"),
+  _t("Wednesday"),
+  _t("Thursday"),
+  _t("Friday"),
+  _t("Saturday"),
+];
+const MONTHS = [
+  _t("January"),
+  _t("February"),
+  _t("March"),
+  _t("April"),
+  _t("May"),
+  _t("June"),
+  _t("July"),
+  _t("August"),
+  _t("September"),
+  _t("October"),
+  _t("November"),
+  _t("December"),
+];
+
+function getHoursLabel(hour: number): string {
+  return hour < 12 ? `${hour} ${_t("AM")}` : `${hour - 12} ${_t("PM")}`;
+}
+
+function computeValuesAndLabels(
+  timeValues,
+  values,
+  horizontalGroupBy: CalendarChartGroupBy,
+  verticalGroupBy: CalendarChartGroupBy
+) {
+  const grouping: any = {};
+  const xLabels: { value: string | number; label: string }[] = [];
+  const yLabels: { value: string | number; label: string }[] = [];
+  const previousYLabels: string[] = [];
+  for (let i = 0; i < timeValues?.length; i++) {
+    const xCateg = getPosition(timeValues[i], horizontalGroupBy);
+    if (!(xCateg.label in grouping)) {
+      xLabels.push(xCateg);
+      grouping[xCateg.label] = {};
+    }
+    const yCateg = getPosition(timeValues[i], verticalGroupBy);
+    if (!previousYLabels.includes(yCateg.label)) {
+      yLabels.push(yCateg);
+      previousYLabels.push(yCateg.label);
+    }
+    if (!(yCateg.label in grouping[xCateg.label])) {
+      grouping[xCateg.label][yCateg.label] = 0;
+    }
+    grouping[xCateg.label][yCateg.label] += values[i];
+  }
+
+  const finalXLabels = xLabels
+    .sort((a, b) => {
+      if (a.value < b.value) {
+        return -1;
+      }
+      return 1;
+    })
+    .map((xL) => xL.label);
+
+  const finalYLabels = yLabels
+    .sort((a, b) => {
+      if (a.value < b.value) {
+        return -1;
+      }
+      return 1;
+    })
+    .map((yL) => yL.label);
+
+  const finalValues = finalYLabels.map((yL) => finalXLabels.map((xL) => grouping?.[xL]?.[yL]));
+
+  return {
+    matrixValues: finalValues,
+    xLabels: finalXLabels,
+    yLabels: finalYLabels,
+  };
+}
+
+export function getCalendarChartDatasetAndLabels(
+  definition: CalendarChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): {
+  datasets: ChartDataset[];
+  labels: string[];
+} {
+  const { labels, dataSetsValues } = args;
+  const locale = args.locale;
+  const { matrixValues, xLabels, yLabels } = computeValuesAndLabels(
+    labels.map((l) => toJsDate(l, locale)),
+    dataSetsValues[0].data,
+    definition.horizontalGroupBy ?? "weekday",
+    definition.verticalGroupBy ?? "hour"
+  );
+
+  const maxValue = Math.max(...matrixValues.flat().filter(isDefined));
+  const minValue = Math.min(...matrixValues.flat().filter(isDefined));
+  const colorMap = getRuntimeColorScale(definition.colorScale ?? "oranges", minValue, maxValue);
+
+  const dataSets: ChartDataset[] = [];
+  for (let i = 0; i < matrixValues.length; i++) {
+    dataSets.push({
+      label: String(yLabels[i]),
+      data: matrixValues[i].map((v) => 1),
+      backgroundColor: matrixValues[i].map((v) =>
+        v !== undefined ? colorMap(v) : definition.missingValueColor || COLOR_TRANSPARENT
+      ),
+      barPercentage: 1.0,
+      categoryPercentage: 1.0,
+      values: matrixValues[i],
+    });
+  }
+
+  return {
+    labels: xLabels.map((l) => String(l)),
+    datasets: dataSets,
+  };
 }
 
 export function getWaterfallDatasetAndLabels(

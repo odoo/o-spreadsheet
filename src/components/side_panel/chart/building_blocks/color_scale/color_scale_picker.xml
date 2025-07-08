@@ -25,7 +25,7 @@
               <span class="color-scale-label">Custom</span>
               <div class="color-scale-preview border-0"/>
             </div>
-            <t t-foreach="colorScales" t-as="colorScale" t-key="colorScale.value">
+            <t t-foreach="COLORSCALES" t-as="colorScale" t-key="colorScale.value">
               <div
                 class="color-scale-container d-flex justify-content-end"
                 t-on-click="() => this.onColorScaleChange(colorScale.value)">
@@ -62,6 +62,13 @@
           />
           <span class="ps-2">Color of maximum values</span>
         </div>
+      </t>
+      <t t-if="props.onShowColorBarChange">
+        <Checkbox
+          label.translate="Show Color Bar"
+          value="props.definition.showColorBar"
+          onChange.bind="props.onShowColorBarChange"
+        />
       </t>
     </Section>
   </t>

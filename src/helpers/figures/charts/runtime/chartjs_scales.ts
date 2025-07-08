@@ -1,4 +1,4 @@
-import { LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
+import { ChartDataset, LinearScaleOptions, ScaleChartOptions, Tick } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   CHART_AXIS_TITLE_FONT_SIZE,
@@ -82,6 +82,37 @@ export function getBarChartScales(
   }
 
   return scales;
+}
+
+export function getCalendarChartScales(
+  definition: GenericDefinition<BarChartDefinition>,
+  datasets: ChartDataset[]
+): ChartScales {
+  const yLabels = datasets.map((dataset) => dataset.label || "");
+  return {
+    y: {
+      title: getChartAxisTitleRuntime(definition.axesDesign?.y),
+      stacked: true,
+      min: 0,
+      max: yLabels.length,
+      ticks: {
+        stepSize: 0.5,
+        callback: function (label, index, labels) {
+          if (index % 2 === 0) {
+            return undefined;
+          }
+          return yLabels[Math.floor((index - 1) / 2)];
+        },
+      },
+      grid: {
+        display: false,
+      },
+    },
+    x: {
+      title: getChartAxisTitleRuntime(definition.axesDesign?.x),
+      stacked: true,
+    },
+  };
 }
 
 export function getLineChartScales(
@@ -402,12 +433,12 @@ function getChartAxis(
   }
 }
 
-function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
-  if (!colorScale || typeof colorScale === "string") {
+export function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
+  if (typeof colorScale === "string") {
     const colorScheme = COLORSCHEMES[colorScale || "oranges"];
     return getColorScale([
       { value: minValue, color: colorScheme[0] },
-      { value: (minValue + maxValue) / 2, color: colorScheme[Math.floor(1)] },
+      { value: (minValue + maxValue) / 2, color: colorScheme[1] },
       { value: maxValue, color: colorScheme[2] },
     ]);
   }

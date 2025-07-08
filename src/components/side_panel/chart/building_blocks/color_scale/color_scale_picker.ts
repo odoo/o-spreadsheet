@@ -9,6 +9,7 @@ import {
 } from "../../../../../types";
 import { css, cssPropertiesToCss } from "../../../../helpers";
 import { Popover } from "../../../../popover";
+import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 
@@ -73,21 +74,31 @@ interface Props {
   onUpdateColorScale: (colorscale: ChartColorScale) => void;
 }
 
+interface ColorScalePickerState {
+  isReady: boolean;
+}
+
 export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorScalePicker";
   static components = {
     Section,
     Popover,
     RoundColorPicker,
+    Checkbox,
   };
   static props = {
     definition: Object,
     onUpdateColorScale: Function,
+    onShowColorBarChange: { type: Function, optional: true },
   };
 
-  colorScales = COLORSCALES.map((colorScale) => ({
+  state: ColorScalePickerState = {
+    isReady: false,
+  };
+
+  COLORSCALES = COLORSCALES.map((colorScale) => ({
     value: colorScale,
-    label: _t(colorScale.charAt(0).toUpperCase() + colorScale.slice(1)),
+    label: colorScale.charAt(0).toUpperCase() + colorScale.slice(1),
     className: `${colorScale}-color-scale`,
   }));
 
