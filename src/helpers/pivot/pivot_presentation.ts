@@ -217,7 +217,7 @@ export default function (PivotClass: PivotUIConstructor) {
           return this.getSubTreeMatchingDomain(node.children, domain, domainLevel + 1);
         }
       }
-      return tree;
+      return [];
     }
 
     treeToLeafDomains(tree: DimensionTree, parentDomain: PivotDomain = []) {
