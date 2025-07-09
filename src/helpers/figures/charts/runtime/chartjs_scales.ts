@@ -5,7 +5,7 @@ import {
   CHART_PADDING_TOP,
   GRAY_300,
 } from "@odoo/o-spreadsheet-engine/constants";
-import { getColorScale } from "@odoo/o-spreadsheet-engine/helpers/color";
+import { COLORSCHEMES, getColorScale } from "@odoo/o-spreadsheet-engine/helpers/color";
 import {
   MOVING_AVERAGE_TREND_LINE_XAXIS_ID,
   TREND_LINE_XAXIS_ID,
@@ -18,6 +18,7 @@ import { formatValue, humanizeNumber } from "@odoo/o-spreadsheet-engine/helpers/
 import {
   AxisDesign,
   BarChartDefinition,
+  ChartColorScale,
   ChartRuntimeGenerationArgs,
   ChartWithAxisDefinition,
   FunnelChartDefinition,
@@ -270,7 +271,7 @@ export function getGeoChartScales(
         align: geoLegendPosition.includes("right") ? "left" : "right",
         margin: getLegendMargin(definition),
       },
-      interpolate: getRuntimeColorScale(definition),
+      interpolate: getRuntimeColorScale(definition.colorScale || "oranges"),
       missing: definition.missingValueColor || "#ffffff",
     },
   };
@@ -406,15 +407,20 @@ function getChartAxis(
   }
 }
 
-function getRuntimeColorScale(definition: GeoChartDefinition) {
-  if (!definition.colorScale || typeof definition.colorScale === "string") {
-    return definition.colorScale || "oranges";
+function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
+  if (!colorScale || typeof colorScale === "string") {
+    const colorScheme = COLORSCHEMES[colorScale || "oranges"];
+    return getColorScale([
+      { value: minValue, color: colorScheme[0] },
+      { value: (minValue + maxValue) / 2, color: colorScheme[1] },
+      { value: maxValue, color: colorScheme[2] },
+    ]);
   }
-  const scaleColors = [{ value: 0, color: definition.colorScale.minColor }];
-  if (definition.colorScale.midColor) {
-    scaleColors.push({ value: 0.5, color: definition.colorScale.midColor });
+  const scaleColors = [{ value: minValue, color: colorScale.minColor }];
+  if (colorScale.midColor) {
+    scaleColors.push({ value: (minValue + maxValue) / 2, color: colorScale.midColor });
   }
-  scaleColors.push({ value: 1, color: definition.colorScale.maxColor });
+  scaleColors.push({ value: maxValue, color: colorScale.maxColor });
   return getColorScale(scaleColors);
 }
 
