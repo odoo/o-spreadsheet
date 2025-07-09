@@ -7,6 +7,14 @@
           <ChartShowValues t-props="props"/>
           <ChartShowDataMarkers t-props="props"/>
         </Section>
+        <Section class="'pt-1'" title.translate="Number formatting">
+          <Checkbox
+            name="'humanizeNumbers'"
+            label.translate="Humanize numbers"
+            value="props.definition.humanize ?? false"
+            onChange.bind="updateHumanizeNumbers"
+          />
+        </Section>
       </t>
     </GeneralDesignEditor>
     <SeriesDesignEditor t-props="props"/>
