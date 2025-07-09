@@ -1033,4 +1033,36 @@ describe("Pivot calculated measure", () => {
     expect(getEvaluatedCell(model, "E2").value).toEqual(40);
     expect(getEvaluatedCell(model, "E3").value).toEqual(60);
   });
+
+  test("formula with a domain not matching any data in the pivot", () => {
+    const grid = {
+      A1: "Customer",
+      B1: "Country",
+      C1: "Price",
+      A2: "Alice",
+      B2: "BE",
+      C2: "10",
+      A3: '=PIVOT.VALUE(1, "calculated", "Country", "BE", "Customer", "Bob")', // Missing Bob in BE
+      A4: '=PIVOT.VALUE(1, "calculated", "Country", "IN", "Customer", "Alice")', // Missing IN
+      A5: '=PIVOT.VALUE(1, "calculated", "Country", "IN", "Customer", "Bob")', // All missing
+      A6: '=PIVOT.VALUE(1, "calculated", "Country", "IN")', // aggregated value
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:C2", {
+      rows: [{ fieldName: "Country" }, { fieldName: "Customer" }],
+      measures: [
+        {
+          id: "calculated",
+          fieldName: "calculated",
+          aggregator: "sum",
+          computedBy: { formula: "='Country'&'Customer'", sheetId },
+        },
+      ],
+    });
+    expect(getEvaluatedCell(model, "A3").value).toEqual("BE");
+    expect(getEvaluatedCell(model, "A4").value).toEqual("");
+    expect(getEvaluatedCell(model, "A5").value).toEqual("");
+    expect(getEvaluatedCell(model, "A6").value).toEqual(0);
+  });
 });
