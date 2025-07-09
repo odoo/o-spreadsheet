@@ -14,6 +14,7 @@ import { CHART_COMMON_OPTIONS } from "@odoo/o-spreadsheet-engine/helpers/figures
 import { createValidRange } from "@odoo/o-spreadsheet-engine/helpers/range";
 import { LegendPosition } from "@odoo/o-spreadsheet-engine/types/chart";
 import {
+  ChartColorScale,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
@@ -21,7 +22,6 @@ import {
   ExcelChartDefinition,
 } from "@odoo/o-spreadsheet-engine/types/chart/chart";
 import {
-  GeoChartColorScale,
   GeoChartDefinition,
   GeoChartRuntime,
 } from "@odoo/o-spreadsheet-engine/types/chart/geo_chart";
@@ -52,7 +52,7 @@ export class GeoChart extends AbstractChart {
   readonly type = "geo";
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
-  readonly colorScale?: GeoChartColorScale;
+  readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;
   readonly region?: string;
 

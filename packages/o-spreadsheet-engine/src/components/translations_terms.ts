@@ -1,6 +1,6 @@
 import { formatValue } from "../helpers/format/format";
 import { _t } from "../translation";
-import { GeoChartColorScale } from "../types/chart/geo_chart";
+import { ChartColorScale } from "../types/chart";
 import { CommandResult } from "../types/commands";
 import { Locale } from "../types/locale";
 
@@ -39,7 +39,7 @@ export const CfTerms = {
 export const ChartTerms: {
   [key: string]: any;
   GeoChart: {
-    ColorScales: Record<Extract<GeoChartColorScale, string>, string>;
+    ColorScales: Record<Extract<ChartColorScale, string>, string>;
   };
 } = {
   Series: _t("Series"),

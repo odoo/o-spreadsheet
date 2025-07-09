@@ -1,5 +1,4 @@
 import { Point } from "chart.js";
-import { Align, Color, VerticalAlign } from "../misc";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -21,6 +20,8 @@ import {
 } from "./tree_map_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
+import { Align, Color, VerticalAlign } from "../..";
+import { ColorScale } from "../../helpers/color";
 import { Format } from "../format";
 import { Locale } from "../locale";
 import { Range } from "../range";
@@ -244,3 +245,11 @@ export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
 > & {
   dataSets?: Omit<T["dataSets"][number], "dataRange">[];
 };
+
+export interface ChartCustomColorScale {
+  minColor: Color;
+  midColor?: Color;
+  maxColor: Color;
+}
+
+export type ChartColorScale = ChartCustomColorScale | ColorScale;
