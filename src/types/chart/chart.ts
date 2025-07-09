@@ -14,6 +14,7 @@ import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 import { SunburstChartDefinition, SunburstChartRuntime } from "./sunburst_chart";
+import { TimeMatrixChartDefinition } from "./time_matrix_chart";
 import {
   TreeMapChartDefinition,
   TreeMapChartRuntime,
@@ -36,6 +37,7 @@ export const CHART_TYPES = [
   "funnel",
   "sunburst",
   "treemap",
+  "timeMatrix",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -53,12 +55,15 @@ export type ChartDefinition =
   | GeoChartDefinition
   | FunnelChartDefinition
   | SunburstChartDefinition
-  | TreeMapChartDefinition;
+  | TreeMapChartDefinition
+  | TimeMatrixChartDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string }
 >;
+
+export type ChartWithTitleDefinition = Extract<ChartDefinition, { title?: TitleDesign }>;
 
 export type ChartWithAxisDefinition = Extract<
   ChartWithDataSetDefinition,
