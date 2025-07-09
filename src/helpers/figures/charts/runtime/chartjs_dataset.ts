@@ -60,6 +60,15 @@ import {
   getPieColors,
   isTrendLineAxis,
 } from "../chart_common";
+import {
+  ColorMap,
+  GrayColorMap,
+  InfernoColorMap,
+  MagmaColorMap,
+  PlasmaColorMap,
+  TurboColorMap,
+  ViridisColorMap,
+} from "../colormap";
 
 export const GHOST_SUNBURST_VALUE = "nullValue";
 
@@ -162,10 +171,29 @@ export function getTimeMatrixChartDatasetAndLabels(
     "weekdays"
   );
 
-  const maxValue = Math.max(...matrixValues.flat());
-  const minValue = Math.min(...matrixValues.flat());
-  function computeColors(i) {
-    return matrixValues[i].map((v) => `rgba(0,0,0,${(v - minValue) / (maxValue - minValue)})`);
+  const maxValue = Math.max(...matrixValues.flat().filter(isDefined));
+  const minValue = Math.min(...matrixValues.flat().filter(isDefined));
+  let colorMap: ColorMap;
+  switch (definition.colormap) {
+    case "turbo":
+      colorMap = new TurboColorMap(minValue, maxValue);
+      break;
+    case "magma":
+      colorMap = new MagmaColorMap(minValue, maxValue);
+      break;
+    case "inferno":
+      colorMap = new InfernoColorMap(minValue, maxValue);
+      break;
+    case "plasma":
+      colorMap = new PlasmaColorMap(minValue, maxValue);
+      break;
+    case "viridis":
+      colorMap = new ViridisColorMap(minValue, maxValue);
+      break;
+    case "gray":
+    default:
+      // Default to gray colormap
+      colorMap = new GrayColorMap(minValue, maxValue);
   }
 
   const dataSets: ChartDataset[] = [];
@@ -173,7 +201,9 @@ export function getTimeMatrixChartDatasetAndLabels(
     dataSets.push({
       label: String(yLabels[i]),
       data: matrixValues[i].map((v) => 1),
-      backgroundColor: computeColors(i),
+      backgroundColor: matrixValues[i].map((v) =>
+        v !== undefined ? colorMap.getColor(v) : undefined
+      ),
       barPercentage: 1.0,
       categoryPercentage: 1.0,
     });

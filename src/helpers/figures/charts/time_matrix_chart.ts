@@ -46,6 +46,7 @@ export class TimeMatrixChart extends AbstractChart {
   readonly background?: Color;
   readonly type = "timeMatrix";
   readonly showValues?: boolean;
+  readonly colormap?: "turbo" | "magma" | "inferno" | "plasma" | "viridis" | "gray";
 
   constructor(definition: TimeMatrixChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -53,6 +54,7 @@ export class TimeMatrixChart extends AbstractChart {
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.showValues = definition.showValues;
+    this.colormap = definition.colormap;
   }
 
   static transformDefinition(
@@ -142,6 +144,7 @@ export class TimeMatrixChart extends AbstractChart {
         : undefined,
       title: this.title,
       showValues: this.showValues,
+      colormap: this.colormap,
     };
   }
 

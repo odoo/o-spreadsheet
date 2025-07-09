@@ -9,6 +9,7 @@ export interface TimeMatrixChartDefinition {
   readonly background?: Color;
   readonly showValues?: boolean;
   readonly type: "timeMatrix";
+  readonly colormap?: "turbo" | "magma" | "inferno" | "plasma" | "viridis" | "gray";
 }
 
 export type TimeMatrixChartRuntime = {
