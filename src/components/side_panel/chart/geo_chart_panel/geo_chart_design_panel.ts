@@ -1,9 +1,5 @@
-import { LegendPosition } from "../../../../types/chart";
-import {
-  GeoChartColorScale,
-  GeoChartCustomColorScale,
-  GeoChartDefinition,
-} from "../../../../types/chart/geo_chart";
+import { ChartColorScale, ChartCustomColorScale, LegendPosition } from "../../../../types/chart";
+import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { Color, DispatchResult, UID } from "../../../../types/index";
 import { ChartTerms } from "../../../translations_terms";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -16,7 +12,7 @@ interface Props {
   updateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
 }
 
-const DEFAULT_CUSTOM_COLOR_SCALE: GeoChartCustomColorScale = {
+const DEFAULT_CUSTOM_COLOR_SCALE: ChartCustomColorScale = {
   minColor: "#FFF5EB",
   midColor: "#FD8D3C",
   maxColor: "#7F2704",
@@ -32,10 +28,10 @@ export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
     const value = (ev.target as HTMLSelectElement).value;
     value === "custom"
       ? this.updateColorScale(DEFAULT_CUSTOM_COLOR_SCALE)
-      : this.updateColorScale(value as GeoChartColorScale);
+      : this.updateColorScale(value as ChartColorScale);
   }
 
-  updateColorScale(colorScale: GeoChartColorScale) {
+  updateColorScale(colorScale: ChartColorScale) {
     this.props.updateChart(this.props.chartId, { colorScale });
   }
 
@@ -58,7 +54,7 @@ export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
     return this.props.definition.missingValueColor || "#ffffff";
   }
 
-  get customColorScale(): GeoChartCustomColorScale | undefined {
+  get customColorScale(): ChartCustomColorScale | undefined {
     if (typeof this.props.definition.colorScale === "object") {
       return this.props.definition.colorScale;
     }

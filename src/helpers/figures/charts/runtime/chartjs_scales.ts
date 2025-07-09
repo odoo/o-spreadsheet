@@ -11,6 +11,7 @@ import { LocaleFormat } from "../../../../types";
 import {
   AxisDesign,
   BarChartDefinition,
+  ChartColorScale,
   ChartRuntimeGenerationArgs,
   ChartWithAxisDefinition,
   FunnelChartDefinition,
@@ -28,7 +29,7 @@ import {
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
 import { getChartTimeOptions } from "../../../chart_date";
-import { getColorScale } from "../../../color";
+import { COLORSCHEMES, getColorScale } from "../../../color";
 import { formatValue, humanizeNumber } from "../../../format/format";
 import { isDefined, range, removeFalsyAttributes } from "../../../misc";
 import {
@@ -265,7 +266,7 @@ export function getGeoChartScales(
         align: geoLegendPosition.includes("right") ? "left" : "right",
         margin: getLegendMargin(definition),
       },
-      interpolate: getRuntimeColorScale(definition),
+      interpolate: getRuntimeColorScale(definition.colorScale || "oranges"),
       missing: definition.missingValueColor || "#ffffff",
     },
   };
@@ -401,15 +402,20 @@ function getChartAxis(
   }
 }
 
-function getRuntimeColorScale(definition: GeoChartDefinition) {
-  if (!definition.colorScale || typeof definition.colorScale === "string") {
-    return definition.colorScale || "oranges";
+function getRuntimeColorScale(colorScale: ChartColorScale, minValue = 0, maxValue = 1) {
+  if (!colorScale || typeof colorScale === "string") {
+    const colorScheme = COLORSCHEMES[colorScale || "oranges"];
+    return getColorScale([
+      { value: minValue, color: colorScheme[0] },
+      { value: (minValue + maxValue) / 2, color: colorScheme[Math.floor(1)] },
+      { value: maxValue, color: colorScheme[2] },
+    ]);
   }
-  const scaleColors = [{ value: 0, color: definition.colorScale.minColor }];
-  if (definition.colorScale.midColor) {
-    scaleColors.push({ value: 0.5, color: definition.colorScale.midColor });
+  const scaleColors = [{ value: minValue, color: colorScale.minColor }];
+  if (colorScale.midColor) {
+    scaleColors.push({ value: (minValue + maxValue) / 2, color: colorScale.midColor });
   }
-  scaleColors.push({ value: 1, color: definition.colorScale.maxColor });
+  scaleColors.push({ value: maxValue, color: colorScale.maxColor });
   return getColorScale(scaleColors);
 }
 
