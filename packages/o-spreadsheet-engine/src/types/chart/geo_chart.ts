@@ -1,6 +1,11 @@
 import { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { ChartRuntimeGenerationArgs, CustomizedDataSet, TitleDesign } from "./chart";
+import {
+  ChartColorScale,
+  ChartRuntimeGenerationArgs,
+  CustomizedDataSet,
+  TitleDesign,
+} from "./chart";
 import { LegendPosition } from "./common_chart";
 
 export interface GeoChartDefinition {
@@ -11,7 +16,7 @@ export interface GeoChartDefinition {
   readonly title: TitleDesign;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
-  readonly colorScale?: GeoChartColorScale;
+  readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;
   readonly region?: string;
   readonly humanize?: boolean;
@@ -21,24 +26,6 @@ export type GeoChartRuntime = {
   chartJsConfig: ChartConfiguration;
   background: Color;
 };
-
-export interface GeoChartCustomColorScale {
-  minColor: Color;
-  midColor?: Color;
-  maxColor: Color;
-}
-
-export type GeoChartColorScale =
-  | GeoChartCustomColorScale
-  | "blues"
-  | "cividis"
-  | "greens"
-  | "greys"
-  | "oranges"
-  | "purples"
-  | "rainbow"
-  | "reds"
-  | "viridis";
 
 export type GeoChartProjection =
   | "azimuthalEqualArea"
