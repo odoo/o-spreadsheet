@@ -4,7 +4,10 @@ import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_hel
 import {
   clip,
   deepCopy,
+  isEqual,
+  isZoneInside,
   positionToZone,
+  splitZone,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -135,7 +138,19 @@ export class GridSelectionPlugin extends UIPlugin {
         break;
       case "commitSelection":
         anchor = event.anchor;
-        zones.push(anchor.zone);
+        const zoneToSplit = zones.find((z) => isZoneInside(anchor.zone, z));
+        if (zoneToSplit && !(zones.length === 1 && isEqual(anchor.zone, zones[0]))) {
+          const splittedZone = splitZone(anchor.zone, zoneToSplit);
+          zones.splice(zones.indexOf(zoneToSplit), 1);
+          zones.push(...splittedZone);
+          const lastZone = zones[zones.length - 1];
+          anchor = {
+            cell: { col: lastZone.left, row: lastZone.top },
+            zone: lastZone,
+          };
+        } else {
+          zones.push(anchor.zone);
+        }
         this.selectionStatus = "COMPLETED";
         break;
     }

@@ -33,7 +33,7 @@ import {
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getEvaluatedCell, getSelectionAnchorCellXc } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, target, typeInComposerGrid } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -1259,5 +1259,111 @@ describe("move selected element(s)", () => {
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1]));
     await selectRow(2, { shiftKey: true });
     expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2]));
+  });
+});
+
+describe("deselect selected element(s)", () => {
+  beforeEach(async () => {
+    const data = {
+      sheets: [
+        {
+          colNumber: 5,
+          rowNumber: 5,
+        },
+      ],
+    };
+    model = new Model(data);
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+  });
+
+  describe("deselect selected column(s)", () => {
+    test("cannot deselect a single column", async () => {
+      await selectColumn("A");
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+      await selectColumn("A", { ctrlKey: true });
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+    });
+
+    test("can deselect a single column when there are more than one", async () => {
+      await selectColumn("A");
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+      await selectColumn("C", { ctrlKey: true });
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:A5,C1:C5"));
+      await selectColumn("C", { ctrlKey: true });
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:A5"));
+    });
+
+    test("Can select already selected column remove it from selection", async () => {
+      await selectColumn("A");
+      await selectColumn("D", { shiftKey: true });
+      await selectColumn("E", { ctrlKey: true });
+      expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 2, 3, 4]));
+      await selectColumn("C", { ctrlKey: true });
+      expect(model.getters.getActiveCols()).toEqual(new Set([0, 1, 3, 4]));
+    });
+
+    test("should remove inner column zone from outer zone using ctrl + drag selection", async () => {
+      await selectColumn("A");
+      await selectColumn("E", { shiftKey: true });
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:E5"));
+
+      const sheetId = model.getters.getActiveSheetId();
+      const startX = model.getters.getColDimensions(sheetId, lettersToNumber("B"))!.start + 1;
+      const endX = model.getters.getColDimensions(sheetId, lettersToNumber("D"))!.end - 1;
+
+      triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", startX, 10);
+      await nextTick();
+      triggerMouseEvent(".o-overlay .o-col-resizer", "pointerdown", startX, 10, { ctrlKey: true });
+      triggerMouseEvent(window, "pointermove", endX, 10, { buttons: 1, ctrlKey: true });
+      await nextTick();
+      triggerMouseEvent(window, "pointerup", endX, 10, { ctrlKey: true });
+
+      expect(model.getters.getSelectedZones()).toEqual([toZone("E1:E5"), toZone("A1:A5")]);
+    });
+  });
+
+  describe("deselect selected row(s)", () => {
+    test("cannot deselect a single row", async () => {
+      await selectRow(0);
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:E1"));
+      await selectRow(0, { ctrlKey: true });
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:E1"));
+    });
+
+    test("can deselect a single row when there are more than one", async () => {
+      await selectRow(0);
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:E1"));
+      await selectRow(2, { ctrlKey: true });
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:E1,A3:E3"));
+      await selectRow(2, { ctrlKey: true });
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:E1"));
+    });
+
+    test("can select already selected row to remove it from selection", async () => {
+      await selectRow(0);
+      await selectRow(3, { shiftKey: true });
+      await selectRow(4, { ctrlKey: true });
+      expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 2, 3, 4]));
+      await selectRow(2, { ctrlKey: true });
+      expect(model.getters.getActiveRows()).toEqual(new Set([0, 1, 3, 4]));
+    });
+
+    test("should remove inner row zone from outer zone using ctrl + drag selection", async () => {
+      await selectRow(0);
+      await selectRow(4, { shiftKey: true });
+      expect(model.getters.getSelectedZones()).toEqual(target("A1:E5"));
+      const sheetId = model.getters.getActiveSheetId();
+      const startY = model.getters.getRowDimensions(sheetId, 1)!.start + 1;
+      const endY = model.getters.getRowDimensions(sheetId, 3)!.end - 1;
+
+      triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, startY);
+      await nextTick();
+      triggerMouseEvent(".o-overlay .o-row-resizer", "pointerdown", 10, startY, { ctrlKey: true });
+      triggerMouseEvent(window, "pointermove", 10, endY, { buttons: 1, ctrlKey: true });
+      await nextTick();
+      triggerMouseEvent(window, "pointerup", 10, endY, { ctrlKey: true });
+
+      expect(model.getters.getSelectedZones()).toEqual([toZone("A5:E5"), toZone("A1:E1")]);
+    });
   });
 });

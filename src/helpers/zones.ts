@@ -742,3 +742,57 @@ export function mergeContiguousZones(zones: Zone[]) {
   }
   return mergedZones;
 }
+
+/**
+ * Splits `outerZone` by removing the fully-contained `innerZone`.
+ * Returns the non-overlapping rectangular fragments of `outerZone`.
+ *
+ * Diagram:
+ * ┌────────────── outerZone ──────────────┐
+ * │               1 (Top)                 │
+ * │------------───────────────------------│
+ * │  3 (Left) |   innerZone   | 4 (Right) │
+ * │------------───────────────------------│
+ * │              2 (Bottom)               │
+ * └───────────────────────────────────────┘
+ *
+ * Numbered Regions:
+ *   1 → Top:    Area above innerZone
+ *   2 → Bottom: Area below innerZone
+ *   3 → Left:   Area left of innerZone (same vertical range)
+ *   4 → Right:  Area right of innerZone (same vertical range)
+ *
+ * Example:
+ *   innerZone = { top: 2, bottom: 3, left: 2, right: 3 }
+ *   outerZone = { top: 1, bottom: 4, left: 1, right: 4 }
+ *   Output:
+ *   [
+ *     { top: 4, bottom: 4, left: 1, right: 4 },  // 2 - Bottom
+ *     { top: 2, bottom: 3, left: 4, right: 4 },  // 4 - Right
+ *     { top: 2, bottom: 3, left: 1, right: 1 },  // 3 - Left
+ *     { top: 1, bottom: 1, left: 1, right: 4 },  // 1 - Top
+ *   ]
+ */
+export function splitZone(innerZone: Zone, outerZone: Zone): Zone[] {
+  const zones: Zone[] = [];
+  const { top: oTop, bottom: oBottom, left: oLeft, right: oRight } = outerZone;
+  const { top: iTop, bottom: iBottom, left: iLeft, right: iRight } = innerZone;
+
+  const pushZone = (top: number, bottom: number, left: number, right: number) => {
+    zones.push({ top, bottom, left, right });
+  };
+
+  if (iBottom < oBottom) {
+    pushZone(iBottom + 1, oBottom, oLeft, oRight);
+  }
+  if (iRight < oRight) {
+    pushZone(iTop, iBottom, iRight + 1, oRight);
+  }
+  if (iLeft > oLeft) {
+    pushZone(iTop, iBottom, oLeft, iLeft - 1);
+  }
+  if (iTop > oTop) {
+    pushZone(oTop, iTop - 1, oLeft, oRight);
+  }
+  return zones;
+}

@@ -1580,3 +1580,87 @@ describe("Multiple selection updates after insertion and deletion", () => {
     ]);
   });
 });
+
+describe("Update zones correctly when deselecting zone", () => {
+  let model: Model;
+
+  beforeEach(() => {
+    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+  });
+
+  test("should remove cell from selection when clicking on already selected cell", () => {
+    setSelection(model, ["A1", "B1"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([
+      { left: 0, right: 0, top: 0, bottom: 0 },
+      { left: 1, right: 1, top: 0, bottom: 0 },
+    ]);
+    addCellToSelection(model, "A1");
+    commitSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("B1"));
+    expect(selection.zones).toEqual([{ left: 1, right: 1, top: 0, bottom: 0 }]);
+  });
+
+  test("should not remove cell from selection if it is the only cell in zones", () => {
+    setSelection(model, ["A1"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([{ left: 0, right: 0, top: 0, bottom: 0 }]);
+    addCellToSelection(model, "A1");
+    commitSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+    expect(selection.zones).toEqual([{ left: 0, right: 0, top: 0, bottom: 0 }]);
+  });
+
+  test("can deselect cell from a zone", () => {
+    setSelection(model, ["A1:C3"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones).toEqual([{ left: 0, right: 2, top: 0, bottom: 2 }]);
+
+    addCellToSelection(model, "B2");
+    commitSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 2, top: 2, bottom: 2 }, // bottom
+      { left: 2, right: 2, top: 1, bottom: 1 }, // right
+      { left: 0, right: 0, top: 1, bottom: 1 }, // left
+      { left: 0, right: 2, top: 0, bottom: 0 }, // top
+    ]);
+  });
+
+  test("can deselect zone from a larger zone", () => {
+    setSelection(model, ["A1:C4"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+
+    addCellToSelection(model, "B2");
+    setAnchorCorner(model, "B3", "updateAnchor");
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("A1"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 2, top: 3, bottom: 3 }, // bottom
+      { left: 2, right: 2, top: 1, bottom: 2 }, // right
+      { left: 0, right: 0, top: 1, bottom: 2 }, // left
+      { left: 0, right: 2, top: 0, bottom: 0 }, // top
+    ]);
+  });
+
+  test("can deselect merged cell from selection", () => {
+    merge(model, "A1:A2");
+
+    setSelection(model, ["A1:B3"]);
+    let selection = model.getters.getSelection();
+    expect(selection.zones.length).toBe(1);
+
+    addCellToSelection(model, "A1");
+    commitSelection(model);
+    selection = model.getters.getSelection();
+    expect(selection.anchor.cell).toEqual(toCartesian("B1"));
+    expect(selection.zones).toEqual([
+      { left: 0, right: 1, top: 2, bottom: 2 }, // right
+      { left: 1, right: 1, top: 0, bottom: 1 }, // bottom
+    ]);
+  });
+});

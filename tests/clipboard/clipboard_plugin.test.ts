@@ -987,7 +987,7 @@ describe("clipboard", () => {
       });
 
       test("Copy cells only once", () => {
-        copy(model, "A1:A3", "A1:A2", "A2:A3");
+        copy(model, "A1:A3", "A1:A2", "A2:A3", "A1", "A2", "A3");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:A3"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
         paste(model, "F6");
@@ -1037,7 +1037,7 @@ describe("clipboard", () => {
       });
 
       test("Copy cells only once", () => {
-        copy(model, "A1:C1", "A1:B1", "B1:C1");
+        copy(model, "A1:C1", "A1:B1", "B1:C1", "A1", "B1", "C1");
         expect(getClipboardVisibleZones(model)[0]).toEqual(toZone("A1:C1"));
         expect(getClipboardVisibleZones(model).length).toBe(1);
         paste(model, "F6");

@@ -2271,3 +2271,48 @@ describe("Header grouping shortcuts", () => {
     });
   });
 });
+
+describe("Can select de-select zones", () => {
+  beforeEach(async () => {
+    ({ parent, model, fixture } = await mountSpreadsheet());
+  });
+  test("Can select a zone", () => {
+    gridMouseEvent(model, "pointerdown", "A1");
+    gridMouseEvent(model, "pointermove", "C3");
+    gridMouseEvent(model, "pointerup", "C3");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("A1:C3")]);
+  });
+
+  test("Can de-select cell from selection", () => {
+    gridMouseEvent(model, "pointerdown", "A1");
+    gridMouseEvent(model, "pointermove", "C3");
+    gridMouseEvent(model, "pointerup", "C3");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("A1:C3")]);
+
+    gridMouseEvent(model, "pointerdown", "B2", { ctrlKey: true });
+    gridMouseEvent(model, "pointerup", "B2", { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual([
+      toZone("A3:C3"),
+      toZone("C2:C2"),
+      toZone("A2:A2"),
+      toZone("A1:C1"),
+    ]);
+  });
+
+  test("Can de-select a innerzone from outerzone", () => {
+    gridMouseEvent(model, "pointerdown", "A1");
+    gridMouseEvent(model, "pointermove", "D4");
+    gridMouseEvent(model, "pointerup", "D4");
+    expect(model.getters.getSelectedZones()).toEqual([toZone("A1:D4")]);
+
+    gridMouseEvent(model, "pointerdown", "B2", { ctrlKey: true });
+    gridMouseEvent(model, "pointermove", "C3", { ctrlKey: true });
+    gridMouseEvent(model, "pointerup", "C3", { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual([
+      toZone("A4:D4"),
+      toZone("D2:D3"),
+      toZone("A2:A3"),
+      toZone("A1:D1"),
+    ]);
+  });
+});
