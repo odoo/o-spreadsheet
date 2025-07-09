@@ -10,7 +10,7 @@ import {
   RangeAdapter,
   UID,
 } from "../../../types";
-import { LegendPosition } from "../../../types/chart";
+import { ChartColorScale, LegendPosition } from "../../../types/chart";
 import {
   ChartCreationContext,
   CustomizedDataSet,
@@ -18,11 +18,7 @@ import {
   DatasetDesign,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import {
-  GeoChartColorScale,
-  GeoChartDefinition,
-  GeoChartRuntime,
-} from "../../../types/chart/geo_chart";
+import { GeoChartDefinition, GeoChartRuntime } from "../../../types/chart/geo_chart";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
@@ -53,7 +49,7 @@ export class GeoChart extends AbstractChart {
   readonly type = "geo";
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
-  readonly colorScale?: GeoChartColorScale;
+  readonly colorScale?: ChartColorScale;
   readonly missingValueColor?: Color;
   readonly region?: string;
 

@@ -1,4 +1,5 @@
 import { Point } from "chart.js";
+import { ColorScale } from "../../helpers";
 import { Align, Color, Format, Locale, Range, VerticalAlign } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
@@ -241,3 +242,11 @@ export type GenericDefinition<T extends ChartWithDataSetDefinition> = Partial<
 > & {
   dataSets?: Omit<T["dataSets"][number], "dataRange">[];
 };
+
+export interface ChartCustomColorScale {
+  minColor: Color;
+  midColor?: Color;
+  maxColor: Color;
+}
+
+export type ChartColorScale = ChartCustomColorScale | ColorScale;
