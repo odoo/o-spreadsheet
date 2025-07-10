@@ -21,9 +21,13 @@ import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { TopBar } from "../top_bar/top_bar";
 
-export class SpreadsheetEditor extends Component<{}, SpreadsheetChildEnv> {
+interface Props {
+  hideBottomBar?: boolean;
+}
+
+export class SpreadsheetEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetEditor";
-  static props = {};
+  static props = { hideBottomBar: { type: Boolean, optional: true } };
   static components = {
     TopBar,
     Grid,

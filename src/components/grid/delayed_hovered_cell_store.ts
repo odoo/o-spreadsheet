@@ -3,8 +3,8 @@ import { Command, Position } from "../../types";
 
 export class DelayedHoveredCellStore extends SpreadsheetStore {
   mutators = ["clear", "hover"] as const;
-  col: number | undefined;
-  row: number | undefined;
+  col: number | undefined = 1; // ADRM TODO REMOVE
+  row: number | undefined = 1;
 
   handle(cmd: Command) {
     switch (cmd.type) {

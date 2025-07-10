@@ -82,7 +82,7 @@ export class CellPopoverStore extends SpreadsheetStore {
       ? { isOpen: false }
       : {
           ...popover,
-          anchorRect: this.computePopoverAnchorRect(position),
+          anchorRect: this.computePopoverAnchorRect(popover.position || position),
         };
   }
 

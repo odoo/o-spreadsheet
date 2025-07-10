@@ -29,6 +29,19 @@ topbarMenuRegistry
     isEnabled: (env) => !env.isSmall,
     icon: "o-spreadsheet-Icon.COG",
   })
+  // ADRM TODO remove this
+  .addChild("full_screen", ["file"], {
+    name: _t("Full screen sheet"),
+    sequence: 200,
+    execute: (env) => {
+      const pivotId = "1";
+      const sheetId = env.model.getters.getActiveSheetId();
+      const col = 0;
+      const row = 24;
+      env.model.dispatch("MAKE_PIVOT_FULL_SCREEN", { pivotId, sheetId, col, row });
+    },
+    icon: "o-spreadsheet-Icon.COG",
+  })
 
   // ---------------------------------------------------------------------
   // EDIT MENU ITEMS

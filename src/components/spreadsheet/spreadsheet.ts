@@ -50,6 +50,8 @@ import {
   unregisterChartJsExtensions,
 } from "../figures/chart/chartJs/chart_js_extension";
 import { FullScreenChart } from "../full_screen_chart/full_screen_chart";
+import { FullScreenSheet } from "../full_screen_sheet/full_screen_sheet";
+import { FullScreenSheetStore } from "../full_screen_sheet/full_screen_sheet_store";
 import { css } from "../helpers/css";
 import { isMobileOS } from "../helpers/dom_helpers";
 import { useScreenWidth } from "../helpers/screen_width_hook";
@@ -323,6 +325,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SpreadsheetDashboard,
     FullScreenChart,
     SpreadsheetEditor,
+    FullScreenSheet,
   };
 
   sidePanel!: Store<SidePanelStore>;
@@ -330,6 +333,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   private isViewportTooSmall: boolean = false;
   private notificationStore!: Store<NotificationStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
+  fullScreenSheetStore!: Store<FullScreenSheetStore>;
 
   get model(): Model {
     return this.props.model;
@@ -356,6 +360,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
+    this.fullScreenSheetStore = useStore(FullScreenSheetStore);
     const fileStore = this.model.config.external.fileStore;
 
     useSubEnv({
@@ -401,6 +406,23 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
+      // this.model.updateMode("dashboard");
+      this.env.model.dispatch("MAKE_PIVOT_FULL_SCREEN", {
+        pivotId: "1",
+        col: 0,
+        row: 0,
+        sheetId: this.model.getters.getActiveSheetId(),
+      });
+      // const sheetId = this.env.model.getters.getActiveSheetId();
+      // const chartId = this.env.model.getters.getFigures(sheetId)[0]?.id;
+      // if (chartId) {
+      //   this.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+      //   this.sidePanel.open("ChartPanel");
+      // }
+      // this.sidePanel.open("PivotSidePanel", { pivotId: "1" });
+      // setTimeout(() => {
+      //   document.querySelector<HTMLElement>(".o-panel-design")?.click();
+      // }, 60);
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       registerChartJSExtensions();
