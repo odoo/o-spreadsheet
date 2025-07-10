@@ -1,4 +1,5 @@
 import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
+import { SCROLLBAR_WIDTH } from "../../constants";
 import { Store, useStore } from "../../store_engine";
 import {
   DOMCoordinates,
@@ -32,7 +33,7 @@ css/* scss */ `
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
-  static props = { getGridSize: Function };
+  static props = {};
   static components = {
     GridOverlay,
     GridPopover,
@@ -49,6 +50,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   clickableCellsStore!: Store<ClickableCellsStore>;
 
   private gridRef!: Ref<HTMLElement>;
+  private dashboardRef = useRef("dashboard");
 
   setup() {
     this.gridRef = useRef("grid");
@@ -132,6 +134,14 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     return {
       ...getRefBoundingRect(this.gridRef),
       ...this.env.model.getters.getSheetViewDimensionWithHeaders(),
+    };
+  }
+
+  getGridSize() {
+    const dashboardRect = getRefBoundingRect(this.dashboardRef);
+    return {
+      width: Math.max(dashboardRect.width - SCROLLBAR_WIDTH, 0),
+      height: Math.max(dashboardRect.height - SCROLLBAR_WIDTH, 0),
     };
   }
 }
