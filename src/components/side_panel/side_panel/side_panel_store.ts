@@ -99,7 +99,11 @@ export class SidePanelStore extends SpreadsheetStore {
     return undefined;
   }
 
-  open(componentTag: string, initialPanelProps: SidePanelComponentProps = {}) {
+  open(
+    componentTag: string,
+    initialPanelProps: SidePanelComponentProps = {},
+    isCallingFromSubPanel?: boolean
+  ) {
     if (this.screenWidthStore.isSmall) {
       return;
     }
@@ -110,8 +114,12 @@ export class SidePanelStore extends SpreadsheetStore {
       return;
     }
 
-    const mainPanelKey = this.mainPanel ? this.getPanelKey(this.mainPanel) : undefined;
-    if (!this.mainPanel || !this.mainPanel.isPinned || mainPanelKey === state.key) {
+    const isSameKey = this.mainPanelKey === state.key || this.secondaryPanelKey === state.key;
+    if (!this.mainPanel || !this.mainPanel.isPinned || isSameKey || isCallingFromSubPanel) {
+      if (isCallingFromSubPanel && this.secondaryPanel && isSameKey) {
+        this.secondaryPanel.initialPanelProps.onCloseSidePanel?.();
+        this.secondaryPanel = undefined;
+      }
       this._openPanel("mainPanel", newPanelInfo, state);
       return;
     }
