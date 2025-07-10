@@ -1,0 +1,34 @@
+<templates>
+  <t t-name="o-spreadsheet-SpreadsheetEditor">
+    <div
+      class="o-spreadsheet-editor d-grid h-100 w-100 overflow-auto"
+      t-att-class="{'o-spreadsheet-mobile': env.isSmall}"
+      t-ref="spreadsheetEditor"
+      t-att-style="getStyle()">
+      <div class="o-spreadsheet-topbar-wrapper o-two-columns">
+        <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
+      </div>
+      <div
+        class="o-grid-container"
+        t-att-class="{'o-two-columns': !sidePanel.isMainPanelOpen}"
+        t-att-style="gridContainerStyle"
+        t-on-click="this.focusGrid">
+        <div class="o-top-left"/>
+        <div class="o-column-groups">
+          <HeaderGroupContainer layers="colLayers" dimension="'COL'"/>
+        </div>
+        <div class="o-row-groups">
+          <HeaderGroupContainer layers="rowLayers" dimension="'ROW'"/>
+        </div>
+        <div class="o-group-grid overflow-hidden">
+          <Grid exposeFocus="(focus) => this._focusGrid = focus" getGridSize.bind="getGridSize"/>
+        </div>
+      </div>
+      <SidePanels/>
+      <div class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden">
+        <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
+        <BottomBar t-else="" onClick="() => this.focusGrid()"/>
+      </div>
+    </div>
+  </t>
+</templates>
