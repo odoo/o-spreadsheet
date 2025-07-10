@@ -57,6 +57,7 @@ import {
 } from "../../test_helpers/dom_helper";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import {
+  editStandaloneComposer,
   mockChart,
   mockGeoJsonService,
   mountComponentWithPortalTarget,
@@ -322,15 +323,8 @@ describe("charts", () => {
         break;
     }
     await simulateClick(".o-panel .inactive");
-    setInputValueAndTrigger(".o-chart-title input", "hello");
-    expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-      figureId: chartId,
-      sheetId,
-      definition: {
-        ...model.getters.getChartDefinition(chartId),
-        title: { text: "hello" },
-      },
-    });
+    await editStandaloneComposer(".o-chart-title .o-composer", "hello");
+    expect(model.getters.getChartDefinition(chartId).title.text).toBe("hello");
   });
 
   test("Clicking in the input does not reset the title", async () => {
@@ -338,10 +332,10 @@ describe("charts", () => {
     await mountSpreadsheet();
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
-    setInputValueAndTrigger(".o-chart-title input", "Another Title", "onlyInput");
-    expect(".o-chart-title input").toHaveValue("Another Title");
-    await click(fixture.querySelector(".o-chart-title input")!);
-    expect(".o-chart-title input").toHaveValue("Another Title");
+    await editStandaloneComposer(".o-chart-title .o-composer", "Another Title");
+    expect(".o-chart-title .o-composer").toHaveText("Another Title");
+    await simulateClick(".o-chart-title .o-composer");
+    expect(".o-chart-title .o-composer").toHaveText("Another Title");
   });
 
   test.each([TEST_CHART_TYPES])(
@@ -485,11 +479,12 @@ describe("charts", () => {
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
 
-    const fontSize = fixture.querySelectorAll(".o-font-size-editor input")[1] as HTMLInputElement;
-    await setInputValueAndTrigger(fontSize, "20", "onlyChange");
+    const xFontSize = fixture.querySelectorAll(".o-font-size-editor input")[1] as HTMLInputElement;
+    await setInputValueAndTrigger(xFontSize, "20");
 
     await click(fixture, ".o-badge-selection button[data-id=y]");
-    await setInputValueAndTrigger(fontSize, "25", "onlyChange");
+    const yFontSize = fixture.querySelectorAll(".o-font-size-editor input")[1] as HTMLInputElement;
+    await setInputValueAndTrigger(yFontSize, "25");
 
     const definition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
     expect(definition.axesDesign).toEqual({
@@ -773,8 +768,8 @@ describe("charts", () => {
     await mountSpreadsheet();
     await openChartDesignSidePanel(model, env, fixture, "1");
 
-    await simulateClick(".o-chart-title input");
-    setInputValueAndTrigger(".o-chart-title input", "first_title", "onlyInput");
+    await simulateClick(".o-chart-title .o-composer");
+    await editStandaloneComposer(".o-chart-title .o-composer", "first_title", { confirm: false });
 
     const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[1] as HTMLElement);
@@ -808,8 +803,8 @@ describe("charts", () => {
 
     const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[1] as HTMLElement);
-    await simulateClick(".o-chart-title input");
-    setInputValueAndTrigger(".o-chart-title input", "new_title");
+    await simulateClick(".o-chart-title .o-composer");
+    await editStandaloneComposer(".o-chart-title .o-composer", "new_title");
 
     expect(model.getters.getChartDefinition("1").title.text).toBe("old_title_1");
     expect(model.getters.getChartDefinition("2").title.text).toBe("new_title");
@@ -821,13 +816,11 @@ describe("charts", () => {
       createTestChart(chartType);
       await mountSpreadsheet();
       await openChartDesignSidePanel(model, env, fixture, chartId);
-
-      await simulateClick(".o-chart-title input");
-      const chartTitle = document.querySelector(".o-chart-title input") as HTMLInputElement;
-      expect(chartTitle.value).toBe("hello");
-      setInputValueAndTrigger(".o-chart-title input", "hello_new_title");
+      await simulateClick(".o-chart-title .o-composer");
+      expect(".o-chart-title .o-composer").toHaveText("hello");
+      await editStandaloneComposer(".o-chart-title .o-composer", "hello_new_title");
       await simulateClick(".o-grid-overlay");
-      expect(chartTitle.value).toBe("hello_new_title");
+      expect(".o-chart-title .o-composer").toHaveText("hello_new_title");
     }
   );
 

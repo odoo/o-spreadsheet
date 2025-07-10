@@ -35,7 +35,13 @@ import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, duplicateLabelRangeInDuplicatedSheet } from "./chart_common";
+import {
+  adaptChartRange,
+  adaptChartTitle,
+  copyChartTitleWithNewSheetId,
+  duplicateLabelRangeInDuplicatedSheet,
+  getEvaluatedChartTitle,
+} from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getBaselineText(
@@ -234,17 +240,41 @@ export class ScorecardChart extends AbstractChart {
   duplicateInDuplicatedSheet(newSheetId: UID): ScorecardChart {
     const baseline = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.baseline);
     const keyValue = duplicateLabelRangeInDuplicatedSheet(this.sheetId, newSheetId, this.keyValue);
-    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue, newSheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      newSheetId,
+      this.title,
+      "moveReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      baseline,
+      keyValue,
+      updatedChartTitle,
+      newSheetId
+    );
     return new ScorecardChart(definition, newSheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): ScorecardChart {
-    const definition = this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue, sheetId);
+    const updatedChartTitle = copyChartTitleWithNewSheetId(
+      this.getters,
+      this.sheetId,
+      sheetId,
+      this.title,
+      "keepSameReference"
+    );
+    const definition = this.getDefinitionWithSpecifiedProperties(
+      this.baseline,
+      this.keyValue,
+      updatedChartTitle,
+      sheetId
+    );
     return new ScorecardChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): ScorecardChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue);
+    return this.getDefinitionWithSpecifiedProperties(this.baseline, this.keyValue, this.title);
   }
 
   getContextCreation(): ChartCreationContext {
@@ -259,16 +289,17 @@ export class ScorecardChart extends AbstractChart {
     };
   }
 
-  private getDefinitionWithSpecificRanges(
+  private getDefinitionWithSpecifiedProperties(
     baseline: Range | undefined,
     keyValue: Range | undefined,
+    title: TitleDesign,
     targetSheetId?: UID
   ): ScorecardChartDefinition {
     return {
       baselineColorDown: this.baselineColorDown,
       baselineColorUp: this.baselineColorUp,
       baselineMode: this.baselineMode,
-      title: this.title,
+      title,
       type: "scorecard",
       background: this.background,
       baseline: baseline
@@ -291,10 +322,11 @@ export class ScorecardChart extends AbstractChart {
   updateRanges(applyChange: ApplyRangeChange): ScorecardChart {
     const baseline = adaptChartRange(this.baseline, applyChange);
     const keyValue = adaptChartRange(this.keyValue, applyChange);
-    if (this.baseline === baseline && this.keyValue === keyValue) {
+    const chartTitle = adaptChartTitle(this.getters, this.sheetId, this.title, applyChange);
+    if (this.baseline === baseline && this.keyValue === keyValue && this.title === chartTitle) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue);
+    const definition = this.getDefinitionWithSpecifiedProperties(baseline, keyValue, chartTitle);
     return new ScorecardChart(definition, this.sheetId, this.getters);
   }
 }
@@ -470,11 +502,12 @@ export function createScorecardChartRuntime(
     chart.baselineMode === "progress" && isNumber(baselineDisplay, locale)
       ? toNumber(baselineDisplay, locale)
       : 0;
+  const chartTitle = getEvaluatedChartTitle(getters, chart.title);
   return {
     title: {
-      ...chart.title,
+      ...chartTitle,
       // chart titles are extracted from .json files and they are translated at runtime here
-      text: chart.title.text ? _t(chart.title.text) : "",
+      text: chartTitle.text ? _t(chartTitle.text) : "",
     },
     keyValue: formattedKeyValue,
     keyDescr: chart.keyDescr?.text
