@@ -85,6 +85,12 @@ beforeEach(() => {
       width: 1000 + HEADER_WIDTH,
       height: 1000 + HEADER_HEIGHT,
     }),
+    "o-spreadsheet-editor": () => ({
+      x: 0,
+      y: 0,
+      width: 1000 + HEADER_WIDTH,
+      height: 1000 + HEADER_HEIGHT,
+    }),
     "o-grid": () => ({ x: 0, y: 0, width: 1000 + HEADER_WIDTH, height: 1000 + HEADER_HEIGHT }),
     // "o-grid-overlay": () => ({ x: HEADER_WIDTH, y: HEADER_HEIGHT, width: 1000 + HEADER_WIDTH, height: 1000 + HEADER_HEIGHT }),
   });
