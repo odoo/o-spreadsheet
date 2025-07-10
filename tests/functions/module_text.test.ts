@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { setCellContent } from "../test_helpers/commands_helpers";
+import { getCellContent } from "../test_helpers/getters_helpers";
 import {
   checkFunctionDoesntSpreadBeyondRange,
   createModelFromGrid,
@@ -749,6 +750,99 @@ describe("TEXTSPLIT function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", '=TEXTSPLIT(TEXT(A1, "m/d/yyyy"), "/")');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["5", "9", "2024"]]);
+  });
+});
+
+describe("TEXTAFTER function", () => {
+  test("TEXTAFTER accepts minimum 2 and maximum 6 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TEXTAFTER()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple")' })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple",)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", "")' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 0)' })).toBe("apple");
+    // expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", -1)' })).toBe("apple");
+    // expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 0, TRUE)' })).toBe("apple");
+    // expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 0, TRUE, "N/A")' })).toBe("N/A");
+    expect(evaluateCell("A1", { A1: '=TEXTAFTER("apple", ",", 1, 0, TRUE, "N/A", "extra")' })).toBe(
+      "#BAD_EXPR"
+    );
+  });
+
+  test("Basic usage with first delimiter occurrence", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, ",")');
+    expect(getCellContent(model, "A2")).toBe("banana,orange");
+  });
+
+  test("Get value after second delimiter", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, ",", 2)');
+    expect(getCellContent(model, "A2")).toBe("orange");
+  });
+
+  test("Negative instance to get last match", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, ",", -1)');
+    expect(getCellContent(model, "A2")).toBe("orange");
+  });
+
+  test("Non-existent delimiter returns #N/A", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, ".")');
+    expect(getCellContent(model, "A2")).toBe("#N/A");
+  });
+
+  test("Fallback when delimiter not found", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, ".", , , , "Not Found")');
+    expect(getCellContent(model, "A2")).toBe("Not Found");
+  });
+
+  test("Another fallback example", () => {
+    const grid = { A1: "NoDelimiterHere" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, "-", , , , "Not Found")');
+    expect(getCellContent(model, "A2")).toBe("Not Found");
+  });
+
+  test("Case-insensitive match mode", () => {
+    const grid = { A1: "Start:MATCH:End" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, "match", , 1)');
+    expect(getCellContent(model, "A2")).toBe(":End");
+  });
+
+  test("Match from end using match_end = TRUE", () => {
+    const grid = { A1: "report.final.v2.pdf" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, ".", , , 1)');
+    expect(getCellContent(model, "A2")).toBe("final.v2.pdf");
+  });
+
+  test("Case-insensitive substring matching with negative instance", () => {
+    const grid = { A1: "Red riding hood's red hood" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, "red", -1)');
+    expect(getCellContent(model, "A2")).toBe(" hood");
+  });
+
+  test("Multi-occurrence parsing", () => {
+    const grid = { A1: "value1,value2,value3,value4" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, ",", 2)');
+    expect(getCellContent(model, "A2")).toBe("value3,value4");
+  });
+
+  test("Standard delimiter usage", () => {
+    const grid = { A1: "report.final.v2.pdf" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTAFTER(A1, ".")');
+    expect(getCellContent(model, "A2")).toBe("final.v2.pdf");
   });
 });
 
