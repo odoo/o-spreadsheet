@@ -37,4 +37,5 @@ export interface Pivot<T = PivotRuntimeDefinition> {
     dimension: PivotDimension
   ): { value: string | boolean | number; label: string }[];
   needsReevaluation: boolean;
+  markAsDirtyForEvaluation?(): void;
 }

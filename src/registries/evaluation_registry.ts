@@ -1,4 +1,3 @@
-import { pivotRegistry } from "../helpers/pivot/pivot_registry";
 import { Getters } from "../types";
 import { Registry } from "./registry";
 
@@ -13,6 +12,6 @@ export const onIterationEndEvaluationRegistry = new Registry<(getters: Getters) 
 onIterationEndEvaluationRegistry.add("pivots", (getters: Getters) => {
   for (const pivotId of getters.getPivotIds()) {
     const pivot = getters.getPivot(pivotId);
-    pivotRegistry.get(pivot.type).onIterationEndEvaluation(pivot);
+    pivot.markAsDirtyForEvaluation?.();
   }
 });
