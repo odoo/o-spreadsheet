@@ -29,7 +29,6 @@ export interface PivotRegistryItem {
   ui: PivotUIConstructor;
   definition: PivotDefinitionConstructor;
   externalData: boolean;
-  onIterationEndEvaluation: (pivot: Pivot) => void;
   dateGranularities: string[];
   datetimeGranularities: string[];
   isMeasureCandidate: (field: PivotField) => boolean;
@@ -53,7 +52,6 @@ pivotRegistry.add("SPREADSHEET", {
   ui: SpreadsheetPivot,
   definition: SpreadsheetPivotRuntimeDefinition,
   externalData: false,
-  onIterationEndEvaluation: (pivot: SpreadsheetPivot) => pivot.markAsDirtyForEvaluation(),
   dateGranularities: [...dateGranularities],
   datetimeGranularities: [...dateGranularities, "hour_number", "minute_number", "second_number"],
   isMeasureCandidate: (field: PivotField) => field.type !== "boolean",
