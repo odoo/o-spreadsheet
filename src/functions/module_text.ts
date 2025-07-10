@@ -686,3 +686,83 @@ export const VALUE = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// TEXTAFTER
+// -----------------------------------------------------------------------------
+
+const TEXT_FN_DEFAULT_INSTANCE = 1;
+const TEXT_FN_DEFAULT_MATCH_MODE = 0;
+const TEXT_FN_DEFAULT_MATCH_END = 0;
+
+export const TEXTAFTER = {
+  description: _t("Returns text that occurs after a given substring or delimiter."),
+  args: [
+    arg("text (string)", _t("The source text.")),
+    arg("delimiter (string)", _t("The substring after which text will be returned.")),
+    arg(
+      `instance_num (number, default=${TEXT_FN_DEFAULT_INSTANCE})`,
+      _t(
+        "The desired instance of the delimiter after which we extract the text. A negative number searches from the end."
+      )
+    ),
+    arg(
+      `match_mode (number, default=${TEXT_FN_DEFAULT_MATCH_MODE})`,
+      _t("0 = case-sensitive, 1 = case-insensitive.")
+    ),
+    arg(
+      `match_end (number, default=${TEXT_FN_DEFAULT_MATCH_END}))`,
+      _t("Whether to treat the end of text as a delimiter.")
+    ),
+    arg(
+      `if_not_found (string, default="${CellErrorType.NotAvailable}")`,
+      _t("Value to return if the delimiter is not found.")
+    ),
+  ],
+  compute: function (
+    text: FunctionResultObject,
+    delimiter: FunctionResultObject,
+    matchIndex: Maybe<FunctionResultObject> = { value: TEXT_FN_DEFAULT_INSTANCE },
+    matchMode: Maybe<FunctionResultObject> = { value: TEXT_FN_DEFAULT_MATCH_MODE },
+    matchEnd: Maybe<FunctionResultObject> = { value: TEXT_FN_DEFAULT_MATCH_END },
+    ifNotFound: Maybe<FunctionResultObject> = new NotAvailableError()
+  ) {
+    const _text = toString(text);
+    const _matchIndex = toNumber(matchIndex, this.locale);
+    const _matchMode = toNumber(matchMode, this.locale);
+    const _matchEnd = toNumber(matchEnd, this.locale);
+
+    if (_matchIndex === 0) {
+      return new EvaluationError(_t("The instance_num (%s) must not be zero.", _matchIndex));
+    }
+    if (_matchMode !== 0 && _matchMode !== 1) {
+      return new EvaluationError(_t("match_mode should have a value of 0 or 1."));
+    }
+    if (_matchEnd !== 0 && _matchEnd !== 1) {
+      return new EvaluationError(_t("match_end should have a value of 0 or 1."));
+    }
+
+    const _delimiter = toString(delimiter);
+    if (_delimiter === "") {
+      return Math.sign(_matchIndex) > 0 ? { value: _text } : { value: "" };
+    }
+
+    const flags = _matchMode === 1 ? "gi" : "g";
+    const pattern = escapeRegExp(_delimiter);
+    const regexp = new RegExp(pattern, flags);
+
+    let matchIndices = [..._text.matchAll(regexp)].map((match) => match.index + pattern.length);
+    if (_matchIndex < 0) {
+      matchIndices = matchIndices.reverse();
+    }
+
+    // If _matchEnd, we act like the text is appended by the delimiter (or prepended if negative index)
+    if (_matchEnd && Math.abs(_matchIndex) === matchIndices.length + 1) {
+      return Math.sign(_matchIndex) > 0 ? { value: "" } : { value: _text };
+    }
+
+    const targetIndex = matchIndices[Math.abs(_matchIndex) - 1];
+    return targetIndex === undefined ? ifNotFound : { value: _text.substring(targetIndex) };
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
