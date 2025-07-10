@@ -17,7 +17,7 @@ let spreadsheetWidth = 1000;
 
 beforeEach(() => {
   extendMockGetBoundingClientRect({
-    "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
+    "o-spreadsheet-editor": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
   });
 });
 
@@ -313,7 +313,7 @@ describe("Side Panel", () => {
     });
 
     test("Can resize the side panel with the mouse", async () => {
-      const spreadsheetEl = fixture.querySelector<HTMLElement>(".o-spreadsheet")!;
+      const spreadsheetEl = fixture.querySelector<HTMLElement>(".o-spreadsheet-editor")!;
       expect(spreadsheetEl.style["grid-template-columns"]).toBe("auto 350px");
 
       await dragElement(fixture.querySelector(".o-sidePanel-handle")!, { y: 0, x: -100 });
@@ -326,7 +326,7 @@ describe("Side Panel", () => {
       sidePanelStore.changePanelSize("mainPanel", 400);
       await nextTick();
 
-      const spreadsheetEl = fixture.querySelector<HTMLElement>(".o-spreadsheet")!;
+      const spreadsheetEl = fixture.querySelector<HTMLElement>(".o-spreadsheet-editor")!;
       expect(spreadsheetEl.style["grid-template-columns"]).toBe("auto 400px");
     });
 
