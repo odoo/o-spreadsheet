@@ -4,6 +4,7 @@ import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
+import { PositionMap } from "../../helpers/cells/position_map";
 import {
   getItemId,
   groupItemIdsByZones,
@@ -45,7 +46,6 @@ import {
   Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
-import { PositionMap } from "../ui_core_views/cell_evaluation/position_map";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
