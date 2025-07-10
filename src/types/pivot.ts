@@ -34,6 +34,9 @@ export interface PivotCoreDimension {
   fieldName: string;
   order?: SortDirection;
   granularity?: Granularity | string;
+  isCustomField?: boolean;
+  parentField?: string;
+  customGroups?: PivotCustomGroup[];
 }
 
 export interface PivotCoreMeasure {
@@ -59,6 +62,7 @@ export interface CommonPivotCoreDefinition {
   deferUpdates?: boolean;
   sortedColumn?: PivotSortedColumn;
   collapsedDomains?: PivotCollapsedDomains;
+  customFields?: Record<string, PivotCustomGroupedField>;
 }
 
 export interface PivotSortedColumn {
@@ -70,6 +74,18 @@ export interface PivotSortedColumn {
 export interface PivotCollapsedDomains {
   COL: PivotDomain[];
   ROW: PivotDomain[];
+}
+
+export interface PivotCustomGroupedField {
+  parentField: string;
+  name: string;
+  groups: PivotCustomGroup[];
+}
+
+export interface PivotCustomGroup {
+  name: string;
+  values: CellValue[];
+  isOtherGroup?: boolean;
 }
 
 export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinition {
@@ -94,6 +110,9 @@ export interface PivotField {
   string: string;
   aggregator?: string;
   help?: string;
+  isCustomField?: boolean;
+  parentField?: string;
+  customGroups?: PivotCustomGroup[];
 }
 
 export type PivotFields = Record<TechnicalName, PivotField | undefined>;
