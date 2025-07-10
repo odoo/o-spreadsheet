@@ -7,7 +7,6 @@ import {
   DimensionTree,
   FunctionResultObject,
   Getters,
-  InitPivotParams,
   PivotDomain,
   PivotMeasure,
   PivotMeasureDisplay,
@@ -66,13 +65,13 @@ export default function (PivotClass: PivotUIConstructor) {
       this.getters = params.getters;
     }
 
-    init(params?: InitPivotParams | undefined): void {
+    markAsDirtyForEvaluation(): void {
       this.cache = {};
       this.rankAsc = {};
       this.rankDesc = {};
       this.runningTotal = {};
       this.runningTotalInPercent = {};
-      super.init(params);
+      super.markAsDirtyForEvaluation?.();
     }
 
     getPivotCellValueAndFormat(measureName: string, domain: PivotDomain): FunctionResultObject {
