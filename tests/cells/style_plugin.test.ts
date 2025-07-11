@@ -173,3 +173,38 @@ describe("styles", () => {
     );
   });
 });
+
+describe("Default Styles", () => {
+  const style1 = { bold: true, color: "#222222" };
+  const style2 = { italic: true, color: "#444444" };
+
+  const style1then2 = { ...style1, ...style2 };
+  const style2then1 = { ...style2, ...style1 };
+
+  const cellPosition = { sheetId: "1", col: 1, row: 1 };
+  const cell = ["cell", "B2"];
+  const col = ["colum", "B1:B99"];
+  const row = ["row", "A2:Z2"];
+  const grid = ["grid", "A1:Z99"];
+
+  test.each([
+    [cell, cell],
+    [cell, col],
+    [cell, row],
+    [cell, grid],
+    [col, col],
+    [col, row],
+    [col, grid],
+    [row, row],
+    [row, grid],
+    [grid, grid],
+  ])("Style override: %s and %s", (zone1, zone2) => {
+    const model = new Model({ sheets: [{ id: "1", colNumber: 26, rowNumber: 100 }] });
+    setStyle(model, zone1[1], style1);
+    expect(model.getters.getCellStyle(cellPosition)).toEqual(style1);
+    setStyle(model, zone2[1], style2);
+    expect(model.getters.getCellStyle(cellPosition)).toEqual(style1then2);
+    setStyle(model, zone1[1], style1);
+    expect(model.getters.getCellStyle(cellPosition)).toEqual(style2then1);
+  });
+});

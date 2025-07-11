@@ -6,8 +6,8 @@ import {
   duplicateRangeInDuplicatedSheet,
   getRangeAdapter,
   getRangeString,
-  isFullColRange,
-  isFullRowRange,
+  isUnboundedColRange,
+  isUnboundedRowRange,
   isZoneValid,
   orderRange,
   rangeReference,
@@ -128,8 +128,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         return range;
       }
       const copySheetId = range.prefixSheet ? range.sheetId : sheetId;
-      const isFullRow = isFullRowRange(range);
-      const isFullCol = isFullColRange(range);
+      const isFullRow = isUnboundedRowRange(range);
+      const isFullCol = isUnboundedColRange(range);
       const unboundZone = {
         ...range.unboundedZone,
         // Don't shift left if the range is a full row without header
@@ -180,8 +180,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const unboundedZone = {
       left: range.zone.left,
       top: range.zone.top,
-      right: isFullRowRange(range) ? undefined : right,
-      bottom: isFullColRange(range) ? undefined : bottom,
+      right: isUnboundedRowRange(range) ? undefined : right,
+      bottom: isUnboundedColRange(range) ? undefined : bottom,
     };
     return createRange({ ...range, zone: unboundedZone }, this.getters.getSheetSize);
   }

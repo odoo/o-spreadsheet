@@ -125,7 +125,19 @@ describe("merges", () => {
   test("merge outside the sheet is refused", () => {
     const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
     const sheetId = model.getters.getActiveSheetId();
-    expect(merge(model, "A1:C3")).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+    const limit = model.getters.getSheetSize(sheetId);
+    const merge = model.dispatch("ADD_MERGE", {
+      sheetId,
+      target: [
+        {
+          left: limit.numberOfCols - 2,
+          right: limit.numberOfCols + 2,
+          top: limit.numberOfRows - 2,
+          bottom: limit.numberOfRows + 2,
+        },
+      ],
+    });
+    expect(merge).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
     const { col, row } = toCartesian("A1");
 
     expect(model.getters.getMerge({ sheetId, col, row })).toBeUndefined();
@@ -394,9 +406,7 @@ describe("merges", () => {
 
   test("setting border => merging => unmerging", () => {
     const model = new Model();
-    setAnchorCorner(model, "B1");
-
-    setZoneBorders(model, { position: "external" });
+    setZoneBorders(model, { position: "external" }, ["A1:B1"]);
     expect(getBorder(model, "A1")).toEqual({
       left: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,
@@ -408,7 +418,7 @@ describe("merges", () => {
       top: DEFAULT_BORDER_DESC,
     });
     merge(model, "A1:B1");
-    merge(model, "A1:B1");
+    unMerge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({
       left: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,
@@ -424,6 +434,12 @@ describe("merges", () => {
   test("setting border to topleft => merging => unmerging", () => {
     const model = new Model();
     setZoneBorders(model, { position: "external" }, ["A1"]);
+    expect(getBorder(model, "A1")).toEqual({
+      left: DEFAULT_BORDER_DESC,
+      bottom: DEFAULT_BORDER_DESC,
+      top: DEFAULT_BORDER_DESC,
+      right: DEFAULT_BORDER_DESC,
+    });
     merge(model, "A1:B1");
     expect(getBorder(model, "A1")).toEqual({
       left: DEFAULT_BORDER_DESC,
