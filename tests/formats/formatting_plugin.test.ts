@@ -824,3 +824,39 @@ describe("Autoresize", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(initialSize);
   });
 });
+
+describe("Default Format", () => {
+  const value = "42";
+  const format1 = "0.00%";
+  const valueFormat1 = "4200.00%";
+  const format2 = "$0";
+  const valueFormat2 = "$42";
+
+  const cellXC = "B2";
+  const cell = ["cell", "B2"];
+  const col = ["colum", "B1:B99"];
+  const row = ["row", "A2:Z2"];
+  const grid = ["grid", "A1:Z99"];
+
+  test.each([
+    [cell, cell],
+    [cell, col],
+    [cell, row],
+    [cell, grid],
+    [col, col],
+    [col, row],
+    [col, grid],
+    [row, row],
+    [row, grid],
+    [grid, grid],
+  ])("Priority: %s and %s", (zone1, zone2) => {
+    const model = new Model({ sheets: [{ id: "1", colNumber: 26, rowNumber: 100 }] });
+    setCellContent(model, cellXC, value);
+    setFormat(model, zone1[1], format1);
+    expect(getCellContent(model, cellXC)).toEqual(valueFormat1);
+    setFormat(model, zone2[1], format2);
+    expect(getCellContent(model, cellXC)).toEqual(valueFormat2);
+    setFormat(model, zone1[1], format1);
+    expect(getCellContent(model, cellXC)).toEqual(valueFormat1);
+  });
+});
