@@ -371,9 +371,15 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   }
 
   private filterDataEntriesFromDomainNode(dataEntries: DataEntries, domain: PivotNode) {
-    const { field, value } = domain;
+    const { field, value, type } = domain;
     const { nameWithGranularity } = this.getDimension(field);
-    return dataEntries.filter((entry) => entry[nameWithGranularity]?.value === value);
+    return dataEntries.filter((entry) => {
+      const cellValue = entry[nameWithGranularity]?.value;
+      if (type === "char") {
+        return String(cellValue) === String(value);
+      }
+      return cellValue === value;
+    });
   }
 
   private getDimension(nameWithGranularity: string): PivotDimension {
