@@ -597,6 +597,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           class="o-composer-container w-100 h-100"
         >
           <div
+<<<<<<< 05feba73022c30a0e007f90004ce372098e50621
             class="d-flex flex-row position-relative"
           >
             
@@ -608,6 +609,21 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               tabindex="1"
             />
           </div>
+||||||| 73a832b867c2c1750749cbf46ca0637735e587e3
+            class="o-composer w-100 text-start"
+            contenteditable="true"
+            spellcheck="false"
+            style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
+            tabindex="1"
+          />
+=======
+            class="o-composer w-100 text-start"
+            contenteditable="plaintext-only"
+            spellcheck="false"
+            style="padding:5px 0px 5px 8px; max-height:100px; line-height:24px; height:34px; "
+            tabindex="1"
+          />
+>>>>>>> 940b22da1012e8eada736ba3c2c6deef2d0cfd73
           
         </div>
       </div>
@@ -715,6 +731,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             class="o-composer-container w-100 h-100"
           >
             <div
+<<<<<<< 05feba73022c30a0e007f90004ce372098e50621
               class="d-flex flex-row position-relative"
             >
               
@@ -726,6 +743,21 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
                 tabindex="1"
               />
             </div>
+||||||| 73a832b867c2c1750749cbf46ca0637735e587e3
+              class="o-composer w-100 text-start"
+              contenteditable="true"
+              spellcheck="false"
+              style="max-height: 1008.6px;"
+              tabindex="1"
+            />
+=======
+              class="o-composer w-100 text-start"
+              contenteditable="plaintext-only"
+              spellcheck="false"
+              style="max-height: 1008.6px;"
+              tabindex="1"
+            />
+>>>>>>> 940b22da1012e8eada736ba3c2c6deef2d0cfd73
             
           </div>
         </div>
