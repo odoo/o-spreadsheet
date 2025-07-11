@@ -1,15 +1,14 @@
 <templates>
   <t t-name="o-spreadsheet-FullScreenSheet">
     <div
-      class="position-absolute o-fullscreen-sheet-overlay w-100 h-100 d-flex"
+      class="position-absolute o-fullscreen-sheet-overlay w-100 h-100 d-flex flex-column"
       t-if="true"
       t-ref="fullScreenSheet"
       t-on-click="exitFullScreen">
-      <button
-        class="o-exit top-0 end-0 position-absolute o-button primary m-1"
-        t-on-click="exitFullScreen">
-        Exit fullscreen
-      </button>
+      <div class="o-exit d-flex align-items-center" t-on-click="exitFullScreen">
+        <span class="fa fa-arrow-left ms-3"/>
+        <span class="ms-4">Full Screen Pivot - Pivot #1: Insert Name Here</span>
+      </div>
       <div class="flex-fill" t-on-click.stop="">
         <SpreadsheetEditor hideBottomBar="true"/>
       </div>

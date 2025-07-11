@@ -407,12 +407,12 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     const render = batched(this.render.bind(this, true));
     onMounted(() => {
       // this.model.updateMode("dashboard");
-      this.env.model.dispatch("MAKE_PIVOT_FULL_SCREEN", {
-        pivotId: "1",
-        col: 0,
-        row: 0,
-        sheetId: this.model.getters.getActiveSheetId(),
-      });
+      // this.env.model.dispatch("MAKE_PIVOT_FULL_SCREEN", {
+      //   pivotId: "1",
+      //   col: 0,
+      //   row: 0,
+      //   sheetId: this.model.getters.getActiveSheetId(),
+      // });
       // const sheetId = this.env.model.getters.getActiveSheetId();
       // const chartId = this.env.model.getters.getFigures(sheetId)[0]?.id;
       // if (chartId) {

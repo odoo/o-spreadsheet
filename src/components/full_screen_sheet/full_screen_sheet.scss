@@ -1,7 +1,15 @@
 .o-spreadsheet {
   .o-fullscreen-sheet-overlay {
     background-color: rgba(0, 0, 0, 0.4);
-    padding: 60px;
+
+    .o-exit {
+      height: 40px;
+      background-color: #714b67;
+      border-bottom: 1px solid #e0e2e4;
+      font-size: 18px;
+      color: white;
+      font-weight: 400;
+    }
 
     .o-grid-container {
       overflow: hidden;
