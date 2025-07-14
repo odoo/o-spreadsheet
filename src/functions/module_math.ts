@@ -1370,13 +1370,16 @@ export const SUBTOTAL = {
   ),
   args: [
     arg("function_code (number)", _t("The function to use in subtotal aggregation.")),
-    arg("ref1 (meta)", _t("The range or reference for which you want the subtotal.")),
+    arg("ref1 (meta, range<meta>)", _t("The range or reference for which you want the subtotal.")),
     arg(
-      "ref2 (meta, repeating)",
+      "ref2 (meta, range<meta>, repeating)",
       _t("Additional ranges or references for which you want the subtotal.")
     ),
   ],
-  compute: function (functionCode: Maybe<FunctionResultObject>, ...refs: { value: string }[]) {
+  compute: function (
+    functionCode: Maybe<FunctionResultObject>,
+    ...refs: Matrix<{ value: string }>[]
+  ) {
     let code = toInteger(functionCode, this.locale);
     let takeHiddenCells = true;
     if (code > 100) {
@@ -1392,14 +1395,17 @@ export const SUBTOTAL = {
     const evaluatedCellToKeep: EvaluatedCell[] = [];
 
     for (const ref of refs) {
-      const { top, left, right, bottom } = toZone(ref.value);
-
-      const sheetName = splitReference(ref.value).sheetName;
+      const ref0 = ref[0][0];
+      const sheetName = splitReference(ref0.value).sheetName;
       const sheetId = sheetName ? this.getters.getSheetIdByName(sheetName) : this.__originSheetId;
 
       if (!sheetId) continue;
 
       const hiddenRows = takeHiddenCells ? [] : this.getters.getHiddenRowsGroups(sheetId).flat();
+
+      const { top, left } = toZone(ref0.value);
+      const right = left + ref.length - 1;
+      const bottom = top + ref[0].length - 1;
 
       for (let row = top; row <= bottom; row++) {
         if (this.getters.isRowFiltered(sheetId, row)) continue;

@@ -129,9 +129,11 @@ describe("COLUMNS formula", () => {
 
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=COLUMNS(H2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COLUMNS(ABC2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COLUMNS($ABC$2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet1!$ABC$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COLUMNS($H$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet1!$H$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COLUMNS(ABC2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
+    expect(evaluateCell("A1", { A1: "=COLUMNS($ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
+    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet1!$ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
   });
 
   test("functional tests on range arguments", () => {
@@ -561,9 +563,11 @@ describe("ROWS formula", () => {
 
   test("functional tests on cell arguments", () => {
     expect(evaluateCell("A1", { A1: "=ROWS(H2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROWS(ABC2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROWS($ABC$2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROWS(Sheet1!$ABC$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROWS($H$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROWS(Sheet1!$H$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROWS(ABC2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
+    expect(evaluateCell("A1", { A1: "=ROWS($ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
+    expect(evaluateCell("A1", { A1: "=ROWS(Sheet1!$ABC$2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return 1
   });
 
   test("functional tests on range arguments", () => {

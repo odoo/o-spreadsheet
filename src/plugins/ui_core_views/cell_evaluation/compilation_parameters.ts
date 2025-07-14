@@ -1,5 +1,5 @@
 import { functionRegistry } from "../../../functions";
-import { getFullReference, intersection, isZoneValid, zoneToXc } from "../../../helpers";
+import { getFullReference, intersection, isZoneValid, toXC, zoneToXc } from "../../../helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import {
@@ -93,7 +93,7 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range(range: Range): Matrix<FunctionResultObject> {
+  private range(range: Range, isMeta: boolean): Matrix<FunctionResultObject> {
     const rangeError = this.getRangeError(range);
     if (rangeError) {
       return [[rangeError]];
@@ -108,8 +108,10 @@ class CompilationParametersBuilder {
     if (!_zone) {
       return [[]];
     }
+
+    // Performance issue: cache the range results to avoid recomputing them
     const { top, left, bottom, right } = zone;
-    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
+    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}-${isMeta}`;
     if (cacheKey in this.rangeCache) {
       return this.rangeCache[cacheKey];
     }
@@ -117,13 +119,18 @@ class CompilationParametersBuilder {
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
     const matrix: Matrix<FunctionResultObject> = new Array(width);
+    const sheetName = this.getters.getSheetName(range.sheetId);
+
     // Performance issue: nested loop is faster than a map here
     for (let col = _zone.left; col <= _zone.right; col++) {
       const colIndex = col - _zone.left;
       matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
         const rowIndex = row - _zone.top;
-        matrix[colIndex][rowIndex] = this.computeCell({ sheetId, col, row });
+        const computedCell = this.computeCell({ sheetId, col, row });
+        matrix[colIndex][rowIndex] = isMeta
+          ? { value: getFullReference(sheetName, toXC(col, row)) }
+          : computedCell;
       }
     }
 

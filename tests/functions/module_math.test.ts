@@ -2989,130 +2989,144 @@ describe("TRUNC formula", () => {
     expect(evaluateCellFormat("A1", { A1: "=TRUNC(A2, 2)", A2: "42" })).toBe("");
     expect(evaluateCellFormat("A1", { A1: "=TRUNC(A2, 2)", A2: "4200%" })).toBe("0%");
   });
+});
 
-  describe("SUBTOTAL formula", () => {
-    test("take 2 args at latest", () => {
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL()" })).toBe("#BAD_EXPR");
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(9)" })).toBe("#BAD_EXPR");
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, A2:A3)" })).toBe(0);
-    });
+describe("SUBTOTAL formula", () => {
+  test("take 2 args at latest", () => {
+    expect(evaluateCell("A1", { A1: "=SUBTOTAL()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, A2:A3)" })).toBe(0);
+  });
 
-    test("casting test", () => {
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, A2, A3)", A2: "42", A3: "58" })).toBe(100);
-      expect(evaluateCell("A1", { A1: '=SUBTOTAL("9", A2, A3)', A2: "42", A3: "58" })).toBe(100);
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, 42, 58)" })).toBe("#ERROR");
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(, A2, A3)", A2: "42", A3: "58" })).toBe("#ERROR");
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(B1, A2, A3)", B1: "9", A2: "42", A3: "58" })).toBe(
-        100
-      );
-    });
+  test("casting test", () => {
+    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, A2, A3)", A2: "42", A3: "58" })).toBe(100);
+    expect(evaluateCell("A1", { A1: '=SUBTOTAL("9", A2, A3)', A2: "42", A3: "58" })).toBe(100);
+    expect(evaluateCell("A1", { A1: "=SUBTOTAL(9, 42, 58)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=SUBTOTAL(, A2, A3)", A2: "42", A3: "58" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=SUBTOTAL(B1, A2, A3)", B1: "9", A2: "42", A3: "58" })).toBe(
+      100
+    );
+  });
 
-    test("function code should be between 1 and 11 or 101 and 111", () => {
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(0, A2:A3)" })).toBe("#ERROR");
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(1, A2:A3)" })).toBe(0);
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(11, A2:A3)" })).toBe(0);
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(12, A2:A3)" })).toBe("#ERROR");
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(100, A2:A3)" })).toBe("#ERROR");
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(101, A2:A3)" })).toBe(0);
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(111, A2:A3)" })).toBe(0);
-      expect(evaluateCell("A1", { A1: "=SUBTOTAL(112, A2:A3)" })).toBe("#ERROR");
-    });
+  test("function code should be between 1 and 11 or 101 and 111", () => {
+    const grid = {
+      A1: "1",
+      A2: "1",
+      A3: "1",
+      B1: "=SUBTOTAL(0, A2:A3)",
+      C1: "=SUBTOTAL(1, A2:A3)",
+      D1: "=SUBTOTAL(11, A2:A3)",
+      E1: "=SUBTOTAL(12, A2:A3)",
+      F1: "=SUBTOTAL(100, A2:A3)",
+      G1: "=SUBTOTAL(101, A2:A3)",
+      H1: "=SUBTOTAL(111, A2:A3)",
+      I1: "=SUBTOTAL(112, A2:A3)",
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.B1).toBe("#ERROR");
+    expect(gridResult.C1).toBe(1);
+    expect(gridResult.D1).toBe(0);
+    expect(gridResult.E1).toBe("#ERROR");
+    expect(gridResult.F1).toBe("#ERROR");
+    expect(gridResult.G1).toBe(1);
+    expect(gridResult.H1).toBe(0);
+    expect(gridResult.I1).toBe("#ERROR");
+  });
 
-    describe("functional tests on function codes", () => {
-      test("apply corresponding function code", () => {
-        const grid = {
-          A1: "1",
-          A2: "2",
-          A3: "3",
-          A4: `="42`,
-          B1: "=SUBTOTAL(1, A1:A4)", // AVERAGE
-          C1: "=SUBTOTAL(2, A1:A4)", // COUNT
-          D1: "=SUBTOTAL(3, A1:A4)", // COUNTA
-          E1: "=SUBTOTAL(4, A1:A4)", // MAX
-          F1: "=SUBTOTAL(5, A1:A4)", // MIN
-          G1: "=SUBTOTAL(6, A1:A4)", // PRODUCT
-          H1: "=SUBTOTAL(7, A1:A4)", // STDEV
-          I1: "=SUBTOTAL(8, A1:A4)", // STDEVP
-          J1: "=SUBTOTAL(9, A1:A4)", // SUM
-          K1: "=SUBTOTAL(10, A1:A4)", // VAR
-          L1: "=SUBTOTAL(11, A1:A4)", // VARP
-        };
-
-        const gridResult = evaluateGrid(grid);
-        expect(gridResult.B1).toBe(2); // AVERAGE
-        expect(gridResult.C1).toBe(3); // COUNT
-        expect(gridResult.D1).toBe(4); // COUNTA
-        expect(gridResult.E1).toBe(3); // MAX
-        expect(gridResult.F1).toBe(1); // MIN
-        expect(gridResult.G1).toBe(12); // PRODUCT
-        expect(gridResult.H1).toBeCloseTo(1.0, 9); // STDEV
-        expect(gridResult.I1).toBeCloseTo(0.8164965809, 9); // STDEVP
-        expect(gridResult.J1).toBe(6); // SUM
-        expect(gridResult.K1).toBeCloseTo(2.6666666667, 9); // VAR
-        expect(gridResult.L1).toBeCloseTo(2.0, 9); // VARP
-      });
-    });
-
-    test("function codes greater than 100 (ignoring hidden rows)", () => {
-      const model = new Model();
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "3");
-      hideRows(model, [2]);
-      setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
-      expect(getEvaluatedCell(model, "A1").value).toBe(4);
-    });
-
-    test("SUBTOTAL dont take into account other SUBTOTAL", () => {
+  describe("functional tests on function codes", () => {
+    test("apply corresponding function code", () => {
       const grid = {
         A1: "1",
-        A2: "1",
-        A3: "= 10 + ABS(SUBTOTAL(9, A1:A2))", // SUM
-        A4: "1",
-        A5: "1",
-        A6: "= 10 + ABS(SUBTOTAL(9, A1:A5))", // SUM
-        A7: "=SUBTOTAL(2, A1:A6)", // COUNT
+        A2: "2",
+        A3: "3",
+        A4: `="42`,
+        B1: "=SUBTOTAL(1, A1:A4)", // AVERAGE
+        C1: "=SUBTOTAL(2, A1:A4)", // COUNT
+        D1: "=SUBTOTAL(3, A1:A4)", // COUNTA
+        E1: "=SUBTOTAL(4, A1:A4)", // MAX
+        F1: "=SUBTOTAL(5, A1:A4)", // MIN
+        G1: "=SUBTOTAL(6, A1:A4)", // PRODUCT
+        H1: "=SUBTOTAL(7, A1:A4)", // STDEV
+        I1: "=SUBTOTAL(8, A1:A4)", // STDEVP
+        J1: "=SUBTOTAL(9, A1:A4)", // SUM
+        K1: "=SUBTOTAL(10, A1:A4)", // VAR
+        L1: "=SUBTOTAL(11, A1:A4)", // VARP
       };
 
       const gridResult = evaluateGrid(grid);
-      expect(gridResult.A3).toBe(12);
-      expect(gridResult.A6).toBe(14);
-      expect(gridResult.A7).toBe(4);
+      expect(gridResult.B1).toBe(2); // AVERAGE
+      expect(gridResult.C1).toBe(3); // COUNT
+      expect(gridResult.D1).toBe(4); // COUNTA
+      expect(gridResult.E1).toBe(3); // MAX
+      expect(gridResult.F1).toBe(1); // MIN
+      expect(gridResult.G1).toBe(6); // PRODUCT
+      expect(gridResult.H1).toBeCloseTo(1.0, 9); // STDEV
+      expect(gridResult.I1).toBeCloseTo(0.8164965809, 9); // STDEVP
+      expect(gridResult.J1).toBe(6); // SUM
+      expect(gridResult.K1).toBe(1); // VAR
+      expect(gridResult.L1).toBeCloseTo(0.6666666666, 9); // VARP
     });
+  });
 
-    test("ignoring filtered rows", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "Header");
-      setCellContent(model, "A2", "1");
-      setCellContent(model, "A3", "2");
-      setCellContent(model, "A4", "3");
-      setCellContent(model, "A5", "4");
-      createTableWithFilter(model, "A1:A5");
-      updateFilter(model, "A1", ["2"]);
-      setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM
-      expect(getEvaluatedCell(model, "B1").value).toBe(8);
-    });
+  test("function codes greater than 100 (ignoring hidden rows)", () => {
+    const model = new Model();
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "2");
+    setCellContent(model, "A4", "3");
+    hideRows(model, [2]);
+    setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
+    expect(getEvaluatedCell(model, "A1").value).toBe(4);
+  });
 
-    test("multiple ranges", () => {
-      const grid = {
-        A1: "=SUBTOTAL(9, B2:B3, B2:B3)", // SUM
-        B2: "1",
-        B3: "2",
-      };
-      const gridResult = evaluateGrid(grid);
-      expect(gridResult.A1).toBe(6); // SUM of A2:A3 and B2:B3
-    });
+  test("SUBTOTAL dont take into account other SUBTOTAL", () => {
+    const grid = {
+      A1: "1",
+      A2: "1",
+      A3: "= 10 + ABS(SUBTOTAL(9, A1:A2))", // SUM
+      A4: "1",
+      A5: "1",
+      A6: "= 10 + ABS(SUBTOTAL(9, A1:A5))", // SUM
+      A7: "=SUBTOTAL(2, A1:A6)", // COUNT
+    };
 
-    test("handling errors in ranges", () => {
-      const grid = {
-        A1: "=SUBTOTAL(9, A2:A4)", // SUM
-        A2: "1",
-        A3: "=1/0",
-        A4: "3",
-      };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A3).toBe(12);
+    expect(gridResult.A6).toBe(14);
+    expect(gridResult.A7).toBe(4);
+  });
 
-      const gridResult = evaluateGrid(grid);
-      expect(gridResult.A1).toBe("#ERROR"); // Error in range
-    });
+  test("ignoring filtered rows", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "Header");
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "2");
+    setCellContent(model, "A4", "3");
+    setCellContent(model, "A5", "4");
+    createTableWithFilter(model, "A1:A5");
+    updateFilter(model, "A1", ["2"]);
+    setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM
+    expect(getEvaluatedCell(model, "B1").value).toBe(8);
+  });
+
+  test("multiple ranges", () => {
+    const grid = {
+      A1: "=SUBTOTAL(9, B2:B3, B2:B3)", // SUM
+      B2: "1",
+      B3: "2",
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toBe(6);
+  });
+
+  test("handling errors in ranges", () => {
+    const grid = {
+      A1: "=SUBTOTAL(9, A2:A4)", // SUM
+      A2: "1",
+      A3: "=1/0",
+      A4: "3",
+    };
+
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toBe("#DIV/0!"); // Error in range
   });
 });
