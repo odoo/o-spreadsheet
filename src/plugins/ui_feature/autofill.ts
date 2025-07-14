@@ -291,7 +291,6 @@ export class AutofillPlugin extends UIPlugin {
       col: data.col,
       row: data.row,
       content: data.content || "",
-      style: data.style || null,
       format: data.format || "",
     });
     // Still usefull in odoo ATM to autofill field sync

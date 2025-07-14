@@ -129,20 +129,7 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
   }
 
   private getColorsFromCells(sheetId: UID): Color[] {
-    const cells = Object.values(this.getters.getCells(sheetId));
-    const colors: Set<Color> = new Set();
-    for (const cell of cells) {
-      if (cell.style?.textColor) {
-        colors.add(cell.style.textColor);
-      }
-      if (cell.style?.fillColor) {
-        colors.add(cell.style.fillColor);
-      }
-    }
-    for (const color of this.getters.getBordersColors(sheetId)) {
-      colors.add(color);
-    }
-    return [...colors];
+    return this.getters.getStyleColors(sheetId);
   }
 
   private getFormattingColors(sheetId: UID): Color[] {

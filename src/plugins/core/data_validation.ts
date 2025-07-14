@@ -2,7 +2,6 @@ import { compile } from "../../formulas";
 import {
   deepCopy,
   duplicateRangeInDuplicatedSheet,
-  getCellPositionsInRanges,
   isInside,
   recomputeZones,
   toXC,
@@ -18,7 +17,6 @@ import {
   DataValidationRule,
   ExcelWorkbookData,
   Range,
-  Style,
   UID,
   WorkbookData,
 } from "../../types";
@@ -264,14 +262,15 @@ export class DataValidationPlugin
   }
 
   private setCenterStyleToBooleanCells(rule: DataValidationRule) {
-    for (const position of getCellPositionsInRanges(rule.ranges)) {
-      const cell = this.getters.getCell(position);
-      const style: Style = {
-        ...cell?.style,
-        align: cell?.style?.align ?? "center",
-        verticalAlign: cell?.style?.verticalAlign ?? "middle",
-      };
-      this.dispatch("UPDATE_CELL", { ...position, style });
+    for (const range of rule.ranges) {
+      this.dispatch("SET_FORMATTING", {
+        sheetId: range.sheetId,
+        target: [range.zone],
+        style: {
+          align: "center",
+          verticalAlign: "middle",
+        },
+      });
     }
   }
 

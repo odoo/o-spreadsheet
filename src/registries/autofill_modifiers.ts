@@ -32,7 +32,6 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: data.cell && data.cell.style,
           format: data.cell && data.cell.format,
           content,
         },
@@ -49,7 +48,6 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: data.cell && data.cell.style,
           format: data.cell && data.cell.format,
           content,
         },
@@ -71,7 +69,6 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: data.cell && data.cell.style,
           format: data.cell && data.cell.format,
           content: value.toString(),
         },
@@ -86,7 +83,6 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: data.cell && data.cell.style,
           format: data.cell && data.cell.format,
           content,
         },
@@ -134,7 +130,6 @@ autofillModifiersRegistry
       return {
         cellData: {
           border: data.border,
-          style: cell.style,
           format: cell.format,
           content,
         },

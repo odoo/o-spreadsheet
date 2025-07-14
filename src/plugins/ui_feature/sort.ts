@@ -143,7 +143,7 @@ export class SortPlugin extends UIPlugin {
       Boolean(options.emptyCellAsZero)
     );
     const sortedIndex: number[] = sortedIndexOfSortTypeCells.map((x) => x.index);
-
+    // TODO FLDA Sort style and borders
     const [width, height]: [number, number] = [cellPositions.length, cellPositions[0].length];
 
     const updateCellCommands: Omit<UpdateCellCommand, "type">[] = [];
@@ -171,7 +171,6 @@ export class SortPlugin extends UIPlugin {
               cell.compiledFormula.tokens
             );
           }
-          newCellValues.style = cell.style;
           newCellValues.content = content;
           newCellValues.format = cell.format;
         }

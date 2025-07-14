@@ -65,7 +65,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
     }
     this.removeMergesInSplitZone(selection, splitted);
     this.addColumnsToNotOverflowSheet(selection, splitted);
-    // TODO adapt style to take over the newly created values
+    const styles = this.getters.getCellStyleInZone(sheetId, selection);
 
     for (let i = 0; i < splitted.length; i++) {
       const row = selection.top + i;
@@ -85,9 +85,13 @@ export class SplitToColumnsPlugin extends UIPlugin {
           row,
           content: canonicalizeNumberContent(content, this.getters.getLocale()),
           format: "",
-          style: mainCell?.style || null,
         });
       }
+      this.dispatch("SET_FORMATTING", {
+        sheetId,
+        target: [{ left: col, right: col + splittedContent.length - 1, top: row, bottom: row }],
+        style: styles.get({ sheetId, col, row }),
+      });
     }
   }
 

@@ -753,7 +753,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         row,
         content: cell.content,
         format: cell.format,
-        style: cell.style,
       });
     }
 

@@ -20,13 +20,14 @@ export function computeTextLinesHeight(textLineHeight: number, numberOfLines: nu
 export function getDefaultCellHeight(
   ctx: CanvasRenderingContext2D,
   cell: Cell | undefined,
-  colSize: number
+  colSize: number,
+  cellStyle: Style
 ) {
   if (!cell || (!cell.isFormula && !cell.content)) {
     return DEFAULT_CELL_HEIGHT;
   }
   const content = cell.isFormula ? "" : cell.content;
-  return getCellContentHeight(ctx, content, cell.style, colSize);
+  return getCellContentHeight(ctx, content, cellStyle, colSize);
 }
 
 export function getCellContentHeight(
