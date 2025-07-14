@@ -10,11 +10,11 @@
       <div class="o-dv-list-values p-1 d-flex align-items-center">
         <div class="me-2">
           <RoundColorPicker
-            currentColor="props.criterion.colors?.[value] || '#E7E9ED'"
-            onColorPicked="(c) => this.onColorChanged(c, value)"
+            currentColor="props.criterion.colors?.[value.value] || '#E7E9ED'"
+            onColorPicked="(c) => this.onColorChanged(c, value.value)"
           />
         </div>
-        <input type="text" class="o-input" t-att-value="value" disabled="1"/>
+        <input type="text" class="o-input" t-att-value="value.label" disabled="1"/>
       </div>
     </t>
 
