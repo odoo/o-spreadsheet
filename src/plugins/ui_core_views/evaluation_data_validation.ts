@@ -2,7 +2,7 @@ import { DVTerms } from "../../components/translations_terms";
 import { GRAY_200 } from "../../constants";
 import { compile } from "../../formulas";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
-import { chipTextColor, getCellPositionsInRanges, isDefined, isInside, lazy } from "../../helpers";
+import { chipTextColor, getCellPositionsInRanges, isInside, lazy, positions } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
@@ -117,10 +117,21 @@ export class EvaluationDataValidationPlugin extends CoreViewPlugin {
     return evaluator.isCriterionValueValid(value) ? undefined : evaluator.criterionValueErrorString;
   }
 
-  getDataValidationRangeValues(sheetId: UID, criterion: EvaluatedCriterion): string[] {
+  getDataValidationRangeValues(
+    sheetId: UID,
+    criterion: EvaluatedCriterion
+  ): { value: string; label: string }[] {
     const range = this.getters.getRangeFromSheetXC(sheetId, String(criterion.values[0]));
-    const criterionValues = this.getters.getRangeValues(range);
-    return criterionValues.map((value) => value?.toString()).filter(isDefined);
+    const values: { label: string; value: string }[] = [];
+    const labelsSet = new Set<string>();
+    for (const p of positions(range.zone)) {
+      const cell = this.getters.getEvaluatedCell({ ...p, sheetId: range.sheetId });
+      if (cell.formattedValue && !labelsSet.has(cell.formattedValue)) {
+        labelsSet.add(cell.formattedValue);
+        values.push({ label: cell.formattedValue, value: cell.value?.toString() || "" });
+      }
+    }
+    return values;
   }
 
   isCellValidCheckbox(cellPosition: CellPosition): boolean {
