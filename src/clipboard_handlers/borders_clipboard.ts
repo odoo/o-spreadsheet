@@ -1,4 +1,5 @@
 import { positionToZone, recomputeZones } from "../helpers";
+import { PositionMap } from "../helpers/cells/position_map";
 import {
   Border,
   CellPosition,
@@ -28,12 +29,16 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     }
     const { rowsIndexes, columnsIndexes } = data;
     const borders: (Border | null)[][] = [];
+    const bordersPosition = new PositionMap<Border>();
+    data.zones.map((zone) =>
+      bordersPosition.setMultiple(this.getters.getCellBordersInZone(sheetId, zone).entries())
+    );
 
     for (const row of rowsIndexes) {
       const bordersInRow: (Border | null)[] = [];
       for (const col of columnsIndexes) {
         const position = { col, row, sheetId };
-        bordersInRow.push(this.getters.getCellBorder(position));
+        bordersInRow.push(bordersPosition.get(position) ?? null);
       }
       borders.push(bordersInRow);
     }
