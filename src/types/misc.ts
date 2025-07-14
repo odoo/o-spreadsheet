@@ -173,7 +173,7 @@ export type ReferenceDenormalizer = (
   paramNumber: number
 ) => FunctionResultObject;
 
-export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
+export type EnsureRange = (range: Range, isMeta: boolean) => Matrix<FunctionResultObject>;
 
 export type GetSymbolValue = (symbolName: string) => Arg;
 

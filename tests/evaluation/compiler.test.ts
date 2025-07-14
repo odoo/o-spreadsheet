@@ -211,7 +211,7 @@ describe("compile functions", () => {
       addToRegistry(functionRegistry, "USEMETAARG", {
         description: "function with a meta argument",
         compute: () => true,
-        args: [{ name: "arg", description: "", type: ["META"] }],
+        args: [{ name: "arg", description: "", type: ["META", "RANGE<META>"] }],
       });
       addToRegistry(functionRegistry, "NOTUSEMETAARG", {
         description: "any function",
@@ -263,14 +263,14 @@ describe("compile functions", () => {
       const rangeA1ToB2 = createValidRange(m.getters, "ABC", "A1:B2")!;
 
       compiledFormula1.execute([rangeA1], refFn, ensureRange, getSymbolValue, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1, true);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      expect(refFn).toHaveBeenCalledTimes(0);
+      expect(ensureRange).toHaveBeenCalledWith(rangeA1, true);
+      ensureRange.mockReset();
 
       compiledFormula2.execute([rangeA1ToB2], refFn, ensureRange, getSymbolValue, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1ToB2, true);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      expect(refFn).toHaveBeenCalledTimes(0);
+      expect(ensureRange).toHaveBeenCalledWith(rangeA1ToB2, true);
+      ensureRange.mockReset();
 
       compiledFormula3.execute([rangeA1], refFn, ensureRange, getSymbolValue, ctx);
       expect(refFn).toHaveBeenCalledWith(rangeA1, false);
@@ -279,7 +279,7 @@ describe("compile functions", () => {
 
       compiledFormula4.execute([rangeA1ToB2], refFn, ensureRange, getSymbolValue, ctx);
       expect(refFn).toHaveBeenCalledTimes(0);
-      expect(ensureRange).toHaveBeenCalledWith(rangeA1ToB2);
+      expect(ensureRange).toHaveBeenCalledWith(rangeA1ToB2, false);
       refFn.mockReset();
     });
   });
