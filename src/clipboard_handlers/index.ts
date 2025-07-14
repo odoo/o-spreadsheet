@@ -1,7 +1,6 @@
 import { Registry } from "../registries/registry";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
-import { BorderClipboardHandler } from "./borders_clipboard";
 import { CellClipboardHandler } from "./cell_clipboard";
 import { ChartClipboardHandler } from "./chart_clipboard";
 import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboard";
@@ -10,6 +9,7 @@ import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
 import { ReferenceClipboardHandler } from "./references_clipboard";
 import { SheetClipboardHandler } from "./sheet_clipboard";
+import { StyleClipboardHandler } from "./style_clipboard";
 import { TableClipboardHandler } from "./tables_clipboard";
 
 export const clipboardHandlersRegistries = {
@@ -29,4 +29,4 @@ clipboardHandlersRegistries.cellHandlers
   .add("table", TableClipboardHandler)
   .add("conditionalFormat", ConditionalFormatClipboardHandler)
   .add("references", ReferenceClipboardHandler)
-  .add("border", BorderClipboardHandler);
+  .add("border", StyleClipboardHandler);

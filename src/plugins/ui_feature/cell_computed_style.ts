@@ -7,12 +7,16 @@ import {
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types";
-import { Border, CellPosition, Style } from "../../types/misc";
+import { Border, CellPosition, Style, UID, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
 export class CellComputedStylePlugin extends UIPlugin {
-  static getters = ["getCellComputedBorder", "getCellComputedStyle"] as const;
+  static getters = [
+    "getCellComputedBorder",
+    "getCellComputedStyle",
+    "precomputeCellStyle",
+  ] as const;
 
   private styles: PositionMap<Style> = new PositionMap();
   private borders: PositionMap<Border | null> = new PositionMap();
@@ -61,6 +65,16 @@ export class CellComputedStylePlugin extends UIPlugin {
     return border;
   }
 
+  precomputeCellStyle(sheetId: UID, zone: Zone) {
+    const cellStyles = this.getters.getCellStyleInZone(sheetId, zone);
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        const position = { sheetId, col, row };
+        this.styles.set(position, this.computeCellStyle(position, cellStyles.get(position)));
+      }
+    }
+  }
+
   getCellComputedStyle(position: CellPosition): Style {
     let style = this.styles.get(position);
     if (style === undefined) {
@@ -83,15 +97,18 @@ export class CellComputedStylePlugin extends UIPlugin {
     return isObjectEmptyRecursive(border) ? null : border;
   }
 
-  private computeCellStyle(position: CellPosition): Style {
-    const cell = this.getters.getCell(position);
+  private computeCellStyle(
+    position: CellPosition,
+    cellStyle: Style | undefined = undefined
+  ): Style {
     const cfStyle = this.getters.getCellConditionalFormatStyle(position);
     const tableStyle = this.getters.getCellTableStyle(position);
     const dataValidationStyle = this.getters.getDataValidationCellStyle(position);
+    cellStyle = cellStyle ?? this.getters.getCellStyle(position);
     const computedStyle = {
       ...removeFalsyAttributes(tableStyle),
       ...removeFalsyAttributes(dataValidationStyle),
-      ...removeFalsyAttributes(cell?.style),
+      ...removeFalsyAttributes(cellStyle),
       ...removeFalsyAttributes(cfStyle),
     };
     const evaluatedCell = this.getters.getEvaluatedCell(position);

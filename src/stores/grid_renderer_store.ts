@@ -51,6 +51,7 @@ import {
   LayerName,
   Pixel,
   RenderingBox,
+  Style,
   UID,
   Viewport,
   Zone,
@@ -637,12 +638,16 @@ export class GridRenderer extends SpreadsheetStore {
     return col;
   }
 
-  private computeCellAlignment(position: CellPosition, isOverflowing: boolean): Align {
+  private computeCellAlignment(
+    position: CellPosition,
+    isOverflowing: boolean,
+    style: Style
+  ): Align {
     const cell = this.getters.getCell(position);
     if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle(position);
+    const align = style.align;
     const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
@@ -722,7 +727,7 @@ export class GridRenderer extends SpreadsheetStore {
     const rightIconWidth = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
     const rightMargin = rightIconWidth + chipMargin;
     const contentWidth = leftMargin + textWidth + rightMargin;
-    const align = this.computeCellAlignment(position, contentWidth > width);
+    const align = this.computeCellAlignment(position, contentWidth > width, style);
 
     // compute vertical align start point parameter:
     const numberOfLines = multiLineText.length;
@@ -856,6 +861,7 @@ export class GridRenderer extends SpreadsheetStore {
     const viewport = { left, right, top, bottom };
     const sheetId = this.getters.getActiveSheetId();
     const borders = this.getters.getCellBordersInZone(sheetId, zone);
+    this.getters.precomputeCellStyle(sheetId, viewport);
 
     for (const row of visibleRows) {
       for (const col of visibleCols) {
