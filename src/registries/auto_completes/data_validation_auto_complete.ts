@@ -23,26 +23,31 @@ autoCompleteProviders.add("dataValidation", {
     const sheetId = this.composer.currentEditedCell.sheetId;
     const values =
       rule.criterion.type === "isValueInRange"
-        ? Array.from(new Set(this.getters.getDataValidationRangeValues(sheetId, rule.criterion)))
-        : rule.criterion.values;
+        ? this.getters.getDataValidationRangeValues(sheetId, rule.criterion)
+        : rule.criterion.values.map((value) => ({ label: value, value }));
 
     const isChip = rule.criterion.displayStyle === "chip";
     if (!isChip) {
-      return values.map((value) => ({ text: value }));
+      return values.map((value) => ({
+        text: value.value,
+        fuzzySearchKey: value.label,
+        htmlContent: [{ value: value.label }],
+      }));
     }
     const colors = rule.criterion.colors;
     return values.map((value) => {
-      const color = colors?.[value];
+      const color = colors?.[value.value];
       return {
-        text: value,
+        text: value.value,
         htmlContent: [
           {
-            value,
+            value: value.label,
             color: color ? chipTextColor(color) : undefined,
             backgroundColor: color || GRAY_200,
             classes: ["badge rounded-pill fs-6 fw-normal w-100 mt-1 text-start"],
           },
         ],
+        fuzzySearchKey: value.label,
       };
     });
   },

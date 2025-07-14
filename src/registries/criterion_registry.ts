@@ -626,7 +626,7 @@ criterionEvaluatorRegistry.add("isValueInRange", {
     }
     const criterionValues = getters.getDataValidationRangeValues(sheetId, criterion);
     return criterionValues
-      .map((value) => value.toLowerCase())
+      .map((value) => value.value.toLowerCase())
       .includes(value.toString().toLowerCase());
   },
   getErrorString: (criterion: EvaluatedCriterion) =>

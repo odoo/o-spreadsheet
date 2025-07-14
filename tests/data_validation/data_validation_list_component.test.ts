@@ -13,10 +13,12 @@ import {
   addDataValidation,
   createTableWithFilter,
   setCellContent,
+  setFormat,
   setSelection,
   setStyle,
 } from "../test_helpers/commands_helpers";
 import {
+  changeRoundColorPickerColor,
   click,
   clickGridIcon,
   getElComputedStyle,
@@ -264,6 +266,20 @@ describe("Edit criterion in side panel", () => {
       expect((getDataValidationRules(model)[0].criterion as IsValueInListCriterion).colors).toEqual(
         {}
       );
+    });
+
+    test("formatted value is displayed instead of raw value", async () => {
+      setCellContent(model, "B1", "5");
+      setFormat(model, "B1", "0.00$");
+      await nextTick();
+
+      const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
+      expect(inputs).toHaveLength(1);
+      expect(inputs[0]).toHaveValue("5.00$");
+      await changeRoundColorPickerColor(".o-dv-list-values", "#CFE2F3");
+      await click(fixture, ".o-dv-save");
+      const criterion = getDataValidationRules(model)[0].criterion as IsValueInListCriterion;
+      expect(criterion.colors).toEqual({ "5": "#CFE2F3" });
     });
   });
 });
