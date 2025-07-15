@@ -34,6 +34,10 @@ export class PositionMap<T> {
     return this.map[sheetId];
   }
 
+  clearSheet(sheetId: UID) {
+    delete this.map[sheetId];
+  }
+
   has({ sheetId, col, row }: CellPosition): boolean {
     return this.map[sheetId]?.[col]?.[row] !== undefined;
   }
