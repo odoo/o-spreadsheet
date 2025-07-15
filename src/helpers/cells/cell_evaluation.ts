@@ -47,6 +47,11 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
   if (content === "") {
     return null;
   }
+  // to discuss with the result of https://www.odoo.com/odoo/project/2328/tasks/4907670
+  // if the previous task is  not validated,move this below the isNumber condition
+  if (content.includes("\n")) {
+    return content;
+  }
   if (isNumber(content, DEFAULT_LOCALE)) {
     return parseNumber(content, DEFAULT_LOCALE);
   }
