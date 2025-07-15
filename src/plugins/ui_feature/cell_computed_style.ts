@@ -1,4 +1,5 @@
 import { LINK_COLOR } from "../../constants";
+import { PositionMap } from "../../helpers/cells/position_map";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/index";
 import {
   Command,
@@ -6,15 +7,15 @@ import {
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types";
-import { Border, CellPosition, Style, UID } from "../../types/misc";
+import { Border, CellPosition, Style } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
 export class CellComputedStylePlugin extends UIPlugin {
   static getters = ["getCellComputedBorder", "getCellComputedStyle"] as const;
 
-  private styles: Record<UID, Record<number, Record<number, Style>>> = {};
-  private borders: Record<UID, Record<number, Record<number, Border | null>>> = {};
+  private styles: PositionMap<Style> = new PositionMap();
+  private borders: PositionMap<Border | null> = new PositionMap();
 
   handle(cmd: Command) {
     if (
@@ -25,64 +26,48 @@ export class CellComputedStylePlugin extends UIPlugin {
       cmd.type === "REMOVE_DATA_VALIDATION_RULE" ||
       cmd.type === "EVALUATE_CELLS"
     ) {
-      this.styles = {};
-      this.borders = {};
+      this.styles = new PositionMap();
+      this.borders = new PositionMap();
       return;
     }
 
     if (doesCommandInvalidatesTableStyle(cmd)) {
       if ("sheetId" in cmd) {
-        delete this.styles[cmd.sheetId];
-        delete this.borders[cmd.sheetId];
+        this.styles.clearSheet(cmd.sheetId);
+        this.borders.clearSheet(cmd.sheetId);
       } else {
-        this.styles = {};
-        this.borders = {};
+        this.styles = new PositionMap();
+        this.borders = new PositionMap();
       }
       return;
     }
 
     if (invalidateCFEvaluationCommands.has(cmd.type)) {
-      this.styles = {};
+      this.styles = new PositionMap();
       return;
     }
     if (invalidateBordersCommands.has(cmd.type)) {
-      this.borders = {};
+      this.borders = new PositionMap();
       return;
     }
   }
 
   getCellComputedBorder(position: CellPosition): Border | null {
-    const { sheetId, row, col } = position;
-    if (this.borders[sheetId]?.[row]?.[col] !== undefined) {
-      return this.borders[sheetId][row][col];
+    let border = this.borders.get(position);
+    if (border === undefined) {
+      border = this.computeCellBorder(position);
+      this.borders.set(position, border);
     }
-    if (!this.borders[sheetId]) {
-      this.borders[sheetId] = {};
-    }
-    if (!this.borders[sheetId][row]) {
-      this.borders[sheetId][row] = {};
-    }
-    if (!this.borders[sheetId][row][col]) {
-      this.borders[sheetId][row][col] = this.computeCellBorder(position);
-    }
-    return this.borders[sheetId][row][col];
+    return border;
   }
 
   getCellComputedStyle(position: CellPosition): Style {
-    const { sheetId, row, col } = position;
-    if (this.styles[sheetId]?.[row]?.[col] !== undefined) {
-      return this.styles[sheetId][row][col];
+    let style = this.styles.get(position);
+    if (style === undefined) {
+      style = this.computeCellStyle(position);
+      this.styles.set(position, style);
     }
-    if (!this.styles[sheetId]) {
-      this.styles[sheetId] = {};
-    }
-    if (!this.styles[sheetId][row]) {
-      this.styles[sheetId][row] = {};
-    }
-    if (!this.styles[sheetId][row][col]) {
-      this.styles[sheetId][row][col] = this.computeCellStyle(position);
-    }
-    return this.styles[sheetId][row][col];
+    return style;
   }
 
   private computeCellBorder(position: CellPosition): Border | null {
