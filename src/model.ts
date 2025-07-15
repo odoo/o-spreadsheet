@@ -428,6 +428,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       id: this.uuidGenerator.smallUuid(),
       name: _t("Anonymous").toString(),
     };
+    if (config.mode === "dashboard" && config.transportService) {
+      throw new Error(
+        "Cannot use a transport service in dashboard mode. The model should not have a transport service."
+      );
+    }
     const transportService = config.transportService || new LocalTransportService();
     return {
       ...config,
@@ -690,6 +695,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   updateMode(mode: Mode) {
+    if (mode === "dashboard" && !(this.config.transportService instanceof LocalTransportService)) {
+      throw new Error(
+        "Cannot switch to dashboard mode in a collaborative session. The model shouldn't have a transport service."
+      );
+    }
     // @ts-ignore For testing purposes only
     this.config.mode = mode;
     this.trigger("update");

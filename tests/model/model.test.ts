@@ -399,4 +399,15 @@ describe("Model", () => {
     });
     expect(messages.map((m) => m.type)).not.toContain("SNAPSHOT_CREATED");
   });
+
+  test("Model cannot have a transport service in dashboard mode", () => {
+    expect(() => {
+      new Model({}, { mode: "dashboard", transportService: new MockTransportService() });
+    }).toThrowError();
+
+    const model = new Model({}, { transportService: new MockTransportService() });
+    expect(() => {
+      model.updateMode("dashboard");
+    }).toThrowError();
+  });
 });
