@@ -65,6 +65,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
     }
     this.removeMergesInSplitZone(selection, splitted);
     this.addColumnsToNotOverflowSheet(selection, splitted);
+    // TODO adapt style to take over the newly created values
 
     for (let i = 0; i < splitted.length; i++) {
       const row = selection.top + i;
