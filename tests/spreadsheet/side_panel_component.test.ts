@@ -459,6 +459,31 @@ describe("Side Panel", () => {
       expect(".o-sidePanelTitle").toHaveText("Custom Panel");
     });
 
+    test("Reopening pinned main panel from secondary panel closes secondary panel", async () => {
+      await click(fixture, ".o-pin-panel");
+
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+      expect(".o-sidePanel").toHaveCount(2);
+
+      parent.env.openSidePanel("CUSTOM_PANEL", {}, "CUSTOM_PANEL_2");
+      await nextTick();
+      expect(".o-sidePanel").toHaveCount(1);
+      expect(".o-sidePanelTitle").toHaveText("Custom Panel");
+    });
+
+    test("Reopening pinned main panel directly does not close secondary panel", async () => {
+      await click(fixture, ".o-pin-panel");
+
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+      expect(".o-sidePanel").toHaveCount(2);
+
+      parent.env.openSidePanel("CUSTOM_PANEL", {});
+      await nextTick();
+      expect(".o-sidePanel").toHaveCount(2);
+    });
+
     test("Re-opening the same panel un-collapses it", async () => {
       await click(fixture, ".o-pin-panel");
       await click(fixture, ".o-collapse-panel");

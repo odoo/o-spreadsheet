@@ -23,7 +23,7 @@ export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   model: Model;
   imageProvider?: ImageProviderInterface;
   isDashboard: () => boolean;
-  openSidePanel: (panel: string, panelProps?: any) => void;
+  openSidePanel: (panel: string, panelProps?: any, sourcePanelKey?: string) => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;
   clipboard: ClipboardInterface;
   startCellEdition: (content?: string) => void;
