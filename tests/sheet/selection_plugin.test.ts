@@ -15,6 +15,7 @@ import {
   addColumns,
   addRows,
   createSheet,
+  createTable,
   deleteColumns,
   deleteRows,
   hideColumns,
@@ -968,6 +969,12 @@ describe("move elements(s)", () => {
   test("can't move rows between rows containing common merged ", () => {
     const result = moveRows(model, 7, [1, 2]);
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
+  });
+
+  test("can't move rows with table header", () => {
+    createTable(model, "A1:A4", { numberOfHeaders: 2 });
+    const result = moveRows(model, 5, [1]);
+    expect(result).toBeCancelledBecause(CommandResult.CannotMoveTableHeader);
   });
 
   test("Move a resized column preserves its size", () => {
