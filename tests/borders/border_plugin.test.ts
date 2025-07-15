@@ -881,9 +881,9 @@ describe("Grid manipulation", () => {
   test("no lingering border when deleting a cell with a border", () => {
     const sheetId = model.getters.getActiveSheetId();
     setZoneBorders(model, { position: "top", color: "#123456" }, ["C3"]);
-    expect(model.getters.getBordersColors(sheetId)).toEqual(["#123456"]);
+    expect(model.getters.getStyleColors(sheetId)).toEqual(["#123456"]);
     deleteRows(model, [2]);
-    expect(model.getters.getBordersColors(sheetId)).toEqual([]);
+    expect(model.getters.getStyleColors(sheetId)).toEqual([]);
   });
 
   test("Borders are not shared through adjacent cells", () => {

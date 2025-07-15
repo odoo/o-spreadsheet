@@ -66,6 +66,7 @@ import {
   getCell,
   getCellContent,
   getCellError,
+  getCellStyle,
   getCellText,
   getClipboardVisibleZones,
   getEvaluatedCell,
@@ -207,13 +208,13 @@ describe("clipboard", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
     setStyle(model, "B2", { bold: true });
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
 
     copy(model, "B2");
     paste(model, "C2");
 
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
-    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
+    expect(getCellStyle(model, "C2")).toEqual({ bold: true });
   });
 
   test("copying external content & paste-format on a cell will not paste content", () => {
@@ -236,7 +237,7 @@ describe("clipboard", () => {
     cut(model, "B2");
     paste(model, "C2");
     expect(getCellContent(model, "C2")).toBe("b2");
-    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "C2")).toEqual({ bold: true });
 
     paste(model, "E5");
     expect(getCell(model, "E5")).toBe(undefined);
@@ -272,7 +273,7 @@ describe("clipboard", () => {
     deleteSheet(model, sheet1Id);
     paste(model, "A2");
     expect(getCellContent(model, "A2", sheet2Id)).toBe("Apple");
-    expect(getCell(model, "A2", sheet2Id)!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "A2", sheet2Id)).toEqual({ bold: true });
   });
 
   test("can copy into a cell with style", () => {
@@ -281,7 +282,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     setStyle(model, "B2", { bold: true });
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
 
     // set value in A1, select and copy it
     setCellContent(model, "A1", "a1");
@@ -292,7 +293,7 @@ describe("clipboard", () => {
     paste(model, "B2");
 
     expect(getEvaluatedCell(model, "B2").value).toBe("a1");
-    expect(getCell(model, "B2")!.style).not.toBeDefined();
+    expect(getCellStyle(model, "B2")).not.toBeDefined();
   });
 
   test("can copy from an empty cell into a cell with style", () => {
@@ -301,7 +302,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     setStyle(model, "B2", { bold: true });
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
 
     // set value in A1, select and copy it
     selectCell(model, "A1");
@@ -541,10 +542,11 @@ describe("clipboard", () => {
     paste(model, "C2");
 
     expect(getCell(model, "C2")).toMatchObject({
-      style: { bold: true },
       content: "b2",
     });
+    expect(getCellStyle(model, "C2")).toEqual({ bold: true });
     expect(getCell(model, "B2")).toBeUndefined();
+    expect(getCellStyle(model, "B2")).toBeUndefined();
   });
 
   test("Clipboard text content export formatted string", async () => {
@@ -1133,12 +1135,12 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     setStyle(model, "B2", { bold: true });
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
 
     copy(model, "B2");
     paste(model, "C2", "onlyFormat");
     expect(getCellContent(model, "C2")).toBe("");
-    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "C2")).toEqual({ bold: true });
   });
 
   test("can copy and paste format", () => {
@@ -1146,12 +1148,12 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     setStyle(model, "B2", { bold: true });
     selectCell(model, "B2");
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
 
     copy(model, "B2");
     paste(model, "C2", "onlyFormat");
     expect(getCellContent(model, "C2")).toBe("");
-    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "C2")).toEqual({ bold: true });
   });
 
   test("paste format does not remove content", () => {
@@ -1160,13 +1162,13 @@ describe("clipboard", () => {
     setCellContent(model, "C2", "c2");
     setStyle(model, "B2", { bold: true });
     selectCell(model, "B2");
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
 
     copy(model, "B2");
     paste(model, "C2", "onlyFormat");
 
     expect(getCellContent(model, "C2")).toBe("c2");
-    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "C2")).toEqual({ bold: true });
   });
 
   test("can undo a paste format", () => {
@@ -1178,7 +1180,7 @@ describe("clipboard", () => {
     paste(model, "C2", "onlyFormat");
 
     expect(getCellContent(model, "C2")).toBe("");
-    expect(getCell(model, "C2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "C2")).toEqual({ bold: true });
 
     undo(model);
     expect(getCell(model, "C2")).toBeUndefined();
@@ -1198,13 +1200,13 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     setStyle(model, "B2", { bold: true });
     selectCell(model, "B2");
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
 
     copy(model, "B2");
     paste(model, "C2", "asValue");
 
     expect(getEvaluatedCell(model, "C2").value).toBe("b2");
-    expect(getCell(model, "C2")!.style).not.toBeDefined();
+    expect(getCellStyle(model, "C2")).not.toBeDefined();
   });
 
   test("can copy a cell with a border and paste as value", () => {
@@ -1253,13 +1255,13 @@ describe("clipboard", () => {
     setCellContent(model, "C3", "c3");
     selectCell(model, "C3");
     setStyle(model, "C3", { bold: true });
-    expect(getCell(model, "C3")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "C3")).toEqual({ bold: true });
 
     copy(model, "B2");
     paste(model, "C3", "asValue");
 
     expect(getCellContent(model, "C3")).toBe("b2");
-    expect(getCell(model, "C3")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "C3")).toEqual({ bold: true });
   });
 
   test("paste as value does not remove border", () => {
@@ -1412,7 +1414,7 @@ describe("clipboard", () => {
     paste(model, "C2", "asValue");
 
     expect(getCellContent(model, "C2")).toBe("b2");
-    expect(getCell(model, "C2")!.style).not.toBeDefined();
+    expect(getCellStyle(model, "C2")).not.toBeDefined();
 
     undo(model);
     expect(getCell(model, "C2")).toBeUndefined();
@@ -1639,7 +1641,7 @@ describe("clipboard", () => {
     setCellContent(model, "B2", "b2");
     selectCell(model, "B2");
     setStyle(model, "B2", { bold: true });
-    expect(getCell(model, "B2")!.style).toEqual({ bold: true });
+    expect(getCellStyle(model, "B2")).toEqual({ bold: true });
 
     // select A1 and copy format
     copy(model, "A1");
@@ -1648,7 +1650,7 @@ describe("clipboard", () => {
     paste(model, "B2", "onlyFormat");
 
     expect(getCellContent(model, "B2")).toBe("b2");
-    expect(getCell(model, "B2")!.style).not.toBeDefined();
+    expect(getCellStyle(model, "B2")).not.toBeDefined();
   });
 
   test("can copy and paste a conditional formatted cell", () => {
@@ -2919,8 +2921,8 @@ describe("cross spreadsheet copy/paste", () => {
 
     expect(getCell(modelA, "B2")).toMatchObject({
       content: "b2",
-      style: cellStyle,
     });
+    expect(getStyle(modelA, "B2")).toEqual(cellStyle);
 
     copy(modelA, "B2");
     const clipboardContent = await modelA.getters.getClipboardTextAndImageContent();
@@ -3045,13 +3047,13 @@ describe("cross spreadsheet copy/paste", () => {
 
     expect(getCell(modelA, "A1")).toMatchObject({
       content: "a1",
-      style: cellStyle,
     });
+    expect(getStyle(modelA, "A1")).toMatchObject(cellStyle);
 
     expect(getCell(modelB, "C1")).toMatchObject({
       content: "c1",
-      style: cellStyle,
     });
+    expect(getStyle(modelB, "C1")).toMatchObject(cellStyle);
 
     copy(modelB, "C1");
     copy(modelA, "A1");
