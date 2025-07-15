@@ -79,10 +79,14 @@ export class PivotMeasureEditor extends Component<Props> {
   }
 
   openShowValuesAs() {
-    this.env.openSidePanel("PivotMeasureDisplayPanel", {
-      pivotId: this.props.pivotId,
-      measure: this.props.measure,
-    });
+    this.env.openSidePanel(
+      "PivotMeasureDisplayPanel",
+      {
+        pivotId: this.props.pivotId,
+        measure: this.props.measure,
+      },
+      `pivot_key_${this.props.pivotId}`
+    );
   }
 
   getColoredSymbolToken(token: Token): Color | undefined {

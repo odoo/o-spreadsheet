@@ -99,7 +99,11 @@ export class SidePanelStore extends SpreadsheetStore {
     return undefined;
   }
 
-  open(componentTag: string, initialPanelProps: SidePanelComponentProps = {}) {
+  open(
+    componentTag: string,
+    initialPanelProps: SidePanelComponentProps = {},
+    sourcePanelKey?: string
+  ) {
     if (this.screenWidthStore.isSmall) {
       return;
     }
@@ -110,8 +114,12 @@ export class SidePanelStore extends SpreadsheetStore {
       return;
     }
 
-    const mainPanelKey = this.mainPanel ? this.getPanelKey(this.mainPanel) : undefined;
-    if (!this.mainPanel || !this.mainPanel.isPinned || mainPanelKey === state.key) {
+    if (sourcePanelKey) {
+      this._handleSourcePanel(sourcePanelKey, newPanelInfo, state);
+      return;
+    }
+
+    if (!this.mainPanel || !this.mainPanel.isPinned || this.mainPanelKey === state.key) {
       this._openPanel("mainPanel", newPanelInfo, state);
       return;
     }
@@ -133,6 +141,26 @@ export class SidePanelStore extends SpreadsheetStore {
     }
 
     this._openPanel("secondaryPanel", newPanelInfo, state);
+  }
+
+  private _handleSourcePanel(
+    sourcePanelKey: string,
+    newPanelInfo: PanelInfo,
+    state: OpenSidePanel
+  ) {
+    const isMainPanel = this.mainPanelKey === state.key;
+    const isSecondaryPanel = this.secondaryPanelKey === state.key;
+    if (isMainPanel && this.secondaryPanel) {
+      this.close();
+      return;
+    }
+    if (isSecondaryPanel && this.secondaryPanel) {
+      this.closeMainPanel();
+      this.togglePinPanel();
+      return;
+    }
+    const targetPanel = this.mainPanelKey === sourcePanelKey ? "mainPanel" : "secondaryPanel";
+    this._openPanel(targetPanel, newPanelInfo, state);
   }
 
   private _openPanel(

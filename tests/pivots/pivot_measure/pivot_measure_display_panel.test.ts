@@ -223,7 +223,11 @@ describe("Standalone side panel tests", () => {
     await mountPanel();
     await click(fixture, ".o-pivot-measure-save");
 
-    expect(openSidePanelSpy).toHaveBeenCalledWith("PivotSidePanel", { pivotId });
+    expect(openSidePanelSpy).toHaveBeenCalledWith(
+      "PivotSidePanel",
+      { pivotId },
+      `pivot_measure_display_${pivotId}`
+    );
   });
 
   test("Can cancel the edition of the measure display", async () => {
@@ -234,7 +238,11 @@ describe("Standalone side panel tests", () => {
     expect(getPivotMeasures()[0].display).toEqual({ type: "%_of_grand_total" });
 
     await click(fixture, ".o-pivot-measure-cancel");
-    expect(openSidePanelSpy).toHaveBeenCalledWith("PivotSidePanel", { pivotId });
+    expect(openSidePanelSpy).toHaveBeenCalledWith(
+      "PivotSidePanel",
+      { pivotId },
+      `pivot_measure_display_${pivotId}`
+    );
     expect(getPivotMeasures()[0].display).toEqual(undefined);
   });
 });
