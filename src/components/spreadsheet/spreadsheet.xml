@@ -1,7 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-Spreadsheet">
     <div class="o-spreadsheet h-100 w-100" t-att-class="{'o-spreadsheet-mobile': env.isSmall}">
-      <t t-if="env.isDashboard()">
+      <t t-if="fullScreenSheetStore.fullScreenSheetId">
+        <FullScreenSheet/>
+      </t>
+      <t t-elif="env.isDashboard()">
         <SpreadsheetDashboard/>
         <FullScreenChart/>
       </t>
