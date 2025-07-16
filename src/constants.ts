@@ -67,6 +67,7 @@ export const CHART_PADDING_BOTTOM = 10;
 export const CHART_PADDING_TOP = 15;
 export const CHART_TITLE_FONT_SIZE = 16;
 export const CHART_AXIS_TITLE_FONT_SIZE = 12;
+export const CHART_ZOOM_SLIDER_HEIGHT = 60;
 
 export const SCORECARD_CHART_TITLE_FONT_SIZE = 14;
 
