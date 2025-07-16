@@ -62,6 +62,7 @@ import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag"
 import { ComposerSelection } from "../composer/composer/abstract_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
+import { FullScreenSheetStore } from "../full_screen_sheet/full_screen_sheet_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
@@ -149,6 +150,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
   private paintFormatStore!: Store<PaintFormatStore>;
   private clientFocusStore!: Store<ClientFocusStore>;
+  private fullScreenSheetStore!: Store<FullScreenSheetStore>;
 
   dragNDropGrid = useDragAndDropBeyondTheViewport(this.env);
 
@@ -170,6 +172,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.sidePanel = useStore(SidePanelStore);
     this.paintFormatStore = useStore(PaintFormatStore);
     this.clientFocusStore = useStore(ClientFocusStore);
+    this.fullScreenSheetStore = useStore(FullScreenSheetStore);
+
     useStore(ArrayFormulaHighlight);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
@@ -261,6 +265,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.paintFormatStore.cancel();
       } else {
         this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
+        this.fullScreenSheetStore.exitFullScreen();
       }
     },
     "Ctrl+A": () => this.env.model.selection.loopSelection(),
