@@ -63,6 +63,7 @@ export class CellPopoverStore extends SpreadsheetStore {
         : {
             ...popover,
             anchorRect: this.computePopoverAnchorRect(this.persistentPopover),
+            position,
           };
     }
     const { col, row } = this.hoveredCell;
@@ -82,7 +83,8 @@ export class CellPopoverStore extends SpreadsheetStore {
       ? { isOpen: false }
       : {
           ...popover,
-          anchorRect: this.computePopoverAnchorRect(position),
+          anchorRect: this.computePopoverAnchorRect(popover.position || position),
+          position: popover.position || position,
         };
   }
 
