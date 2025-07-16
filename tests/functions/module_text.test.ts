@@ -846,6 +846,110 @@ describe("TEXTAFTER function", () => {
   });
 });
 
+describe("TEXTBEFORE function", () => {
+  test("TEXTBEFORE accepts minimum 2 and maximum 5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TEXTBEFORE()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple")' })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1)' })).toBe("#N/A");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0, 1)' })).toBe("apple");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0, 1, "N/A")' })).toBe("apple");
+    expect(
+      evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0, 1, "N/A", "extraParam")' })
+    ).toBe("#BAD_EXPR");
+  });
+
+  test("instance_num should not be zero", () => {
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", -1)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 0)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1)' })).not.toBe("#ERROR");
+  });
+
+  test("match_mode should be either 0 or 1", () => {
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, -1)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 2)' })).toBe("#ERROR");
+  });
+
+  test("match_end should be either 0 or 1", () => {
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1, -1)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1, 0)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1, 1)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 1, 2)' })).toBe("#ERROR");
+  });
+
+  test("Can have an empty delimiter ", () => {
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", "")' })).toBe("");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", "", 1)' })).toBe("");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", "", -1)' })).toBe("apple");
+  });
+
+  test("Can match given index", () => {
+    const text = "apple,banana,orange";
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", 1)' })).toBe("apple");
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", 2)' })).toBe("apple,banana");
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", 3)' })).toBe("#N/A");
+
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", -1)' })).toBe("apple,banana");
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", -2)' })).toBe("apple");
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ",", -3)' })).toBe("#N/A");
+  });
+
+  test("using non-existent delimiter returns #N/A", () => {
+    const text = "apple,banana,orange";
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ".")' })).toBe("#N/A");
+  });
+
+  test("should use fallback value when delimiter is not found", () => {
+    const text = "apple,banana,orange";
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, ".", , , , "Not Found")' })).toBe(
+      "Not Found"
+    );
+  });
+
+  test("can do case-insensitive text matching", () => {
+    const text1 = "Start:MATCH:End";
+    expect(evaluateCell("A2", { A1: text1, A2: '=TEXTBEFORE(A1, "match", , 1)' })).toBe("Start:");
+
+    const text2 = "Red riding hood's red hood";
+    expect(evaluateCell("A2", { A1: text2, A2: '=TEXTBEFORE(A1, "red", -1)' })).toBe(
+      "Red riding hood's "
+    );
+  });
+
+  test("setting match_end parameter to 1 treats the end of the text as a delimiter", () => {
+    const text = "report.final.v2.pdf";
+
+    // With positive indexes
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 1, , 0)' })).toBe(
+      "report.final.v2."
+    );
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 1, , 1)' })).toBe(
+      "report.final.v2."
+    );
+
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 2, , 0)' })).toBe("#N/A");
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 2, , 1)' })).toBe(text);
+
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 3, , 0)' })).toBe("#N/A");
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", 3, , 1)' })).toBe("#N/A");
+
+    // With negative indexes
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -1, , 0)' })).toBe(
+      "report.final.v2."
+    );
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -1, , 1)' })).toBe(
+      "report.final.v2."
+    );
+
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -2, , 0)' })).toBe("#N/A");
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -2, , 1)' })).toBe("");
+
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -3, , 0)' })).toBe("#N/A");
+    expect(evaluateCell("A2", { A1: text, A2: '=TEXTBEFORE(A1, "pdf", -3, , 1)' })).toBe("#N/A");
+  });
+});
+
 describe("SUBSTITUTE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=SUBSTITUTE( ,  ,  )" })).toBe("");
