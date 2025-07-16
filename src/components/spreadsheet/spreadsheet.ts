@@ -50,6 +50,8 @@ import {
   unregisterChartJsExtensions,
 } from "../figures/chart/chartJs/chart_js_extension";
 import { FullScreenChart } from "../full_screen_chart/full_screen_chart";
+import { FullScreenSheet } from "../full_screen_sheet/full_screen_sheet";
+import { FullScreenSheetStore } from "../full_screen_sheet/full_screen_sheet_store";
 import { css } from "../helpers/css";
 import { isMobileOS } from "../helpers/dom_helpers";
 import { useScreenWidth } from "../helpers/screen_width_hook";
@@ -324,6 +326,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SpreadsheetDashboard,
     FullScreenChart,
     SpreadsheetEditor,
+    FullScreenSheet,
   };
 
   sidePanel!: Store<SidePanelStore>;
@@ -331,6 +334,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   private isViewportTooSmall: boolean = false;
   private notificationStore!: Store<NotificationStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
+  fullScreenSheetStore!: Store<FullScreenSheetStore>;
 
   get model(): Model {
     return this.props.model;
@@ -357,6 +361,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
+    this.fullScreenSheetStore = useStore(FullScreenSheetStore);
     const fileStore = this.model.config.external.fileStore;
 
     useSubEnv({

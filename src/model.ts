@@ -423,7 +423,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // It feels weird to have the model piping specific session events to its own bus.
     this.session.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     this.session.on("collaborative-event-received", this, () => {
-      this.trigger("update");
+      if (this.status === Status.Ready) {
+        this.trigger("update");
+      }
     });
   }
 
@@ -706,7 +708,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     // @ts-ignore For testing purposes only
     this.config.mode = mode;
-    this.trigger("update");
+    if (this.status === Status.Ready) {
+      this.trigger("update");
+    }
   }
 
   /**

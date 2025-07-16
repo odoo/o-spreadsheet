@@ -1,0 +1,12 @@
+<templates>
+  <t t-name="o-spreadsheet-DashboardPivotFullScreenButton">
+    <div>
+      <div
+        class="o-dashboard-expand-menu align-content-center text-center text-muted"
+        role="button"
+        t-on-click="onClick">
+        <span class="fa fa-expand"/>
+      </div>
+    </div>
+  </t>
+</templates>

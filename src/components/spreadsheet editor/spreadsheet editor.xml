@@ -5,7 +5,7 @@
       t-att-class="{'o-spreadsheet-mobile': env.isSmall}"
       t-ref="spreadsheetEditor"
       t-att-style="getStyle()">
-      <div class="o-spreadsheet-topbar-wrapper o-two-columns">
+      <div t-if="!props.hideTopBar" class="o-spreadsheet-topbar-wrapper o-two-columns">
         <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
       </div>
       <div
@@ -25,7 +25,9 @@
         </div>
       </div>
       <SidePanels/>
-      <div class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden">
+      <div
+        t-if="!props.hideBottomBar"
+        class="o-spreadsheet-bottombar-wrapper o-two-columns overflow-hidden">
         <SmallBottomBar t-if="env.isSmall" onClick="() => this.focusGrid()"/>
         <BottomBar t-else="" onClick="() => this.focusGrid()"/>
       </div>

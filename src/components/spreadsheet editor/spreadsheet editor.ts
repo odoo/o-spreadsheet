@@ -21,9 +21,17 @@ import { SidePanels } from "../side_panel/side_panels/side_panels";
 import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
 import { TopBar } from "../top_bar/top_bar";
 
-export class SpreadsheetEditor extends Component<{}, SpreadsheetChildEnv> {
+interface Props {
+  hideBottomBar?: boolean;
+  hideTopBar?: boolean;
+}
+
+export class SpreadsheetEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetEditor";
-  static props = {};
+  static props = {
+    hideBottomBar: { type: Boolean, optional: true },
+    hideTopBar: { type: Boolean, optional: true },
+  };
   static components = {
     TopBar,
     Grid,
@@ -48,7 +56,15 @@ export class SpreadsheetEditor extends Component<{}, SpreadsheetChildEnv> {
     if (this.env.isDashboard()) {
       properties["grid-template-rows"] = `auto`;
     } else {
-      properties["grid-template-rows"] = `min-content auto min-content`;
+      let rowTemplate = "";
+      if (!this.props.hideTopBar) {
+        rowTemplate += "min-content ";
+      }
+      rowTemplate += "auto ";
+      if (!this.props.hideBottomBar) {
+        rowTemplate += "min-content";
+      }
+      properties["grid-template-rows"] = rowTemplate;
     }
     const columnWidth = this.sidePanel.mainPanel
       ? `${this.sidePanel.totalPanelSize || DEFAULT_SIDE_PANEL_SIZE}px`

@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet-FullScreenSheet">
+    <div
+      class="position-absolute o-fullscreen-sheet-overlay w-100 h-100 d-flex"
+      t-att-style="getContainerStyle()"
+      t-ref="fullScreenSheet"
+      t-on-click="exitFullScreen">
+      <button
+        class="o-exit top-0 end-0 position-absolute o-button primary m-1"
+        t-on-click="exitFullScreen">
+        Exit playground
+      </button>
+      <div class="o-fullscreen-content flex-fill overflow-hidden shadow-lg" t-on-click.stop="">
+        <SpreadsheetEditor hideBottomBar="true" hideTopBar="true"/>
+      </div>
+    </div>
+  </t>
+</templates>

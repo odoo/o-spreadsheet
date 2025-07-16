@@ -5,6 +5,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
   class="o-spreadsheet h-100 w-100"
 >
   
+  
   <div
     class="o-spreadsheet-editor d-grid h-100 w-100 overflow-auto"
     style="grid-template-rows:min-content auto min-content; grid-template-columns:auto auto; "
@@ -710,6 +711,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       
       
     </div>
+    
     <div
       class="o-grid-container o-two-columns"
       style="grid-template-columns:0px auto; grid-template-rows:0px auto; "
@@ -1021,6 +1023,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
       </div>
       
     </div>
+    
   </div>
   
 </div>
@@ -1030,6 +1033,7 @@ exports[`components take the small screen into account 1`] = `
 <div
   class="o-spreadsheet h-100 w-100 o-spreadsheet-mobile"
 >
+  
   
   <div
     class="o-spreadsheet-editor d-grid h-100 w-100 overflow-auto o-spreadsheet-mobile"
@@ -1657,6 +1661,7 @@ exports[`components take the small screen into account 1`] = `
       
       
     </div>
+    
     <div
       class="o-grid-container o-two-columns"
       style="grid-template-columns:0px auto; grid-template-rows:0px auto; "
@@ -2027,6 +2032,7 @@ exports[`components take the small screen into account 1`] = `
       
       
     </div>
+    
   </div>
   
 </div>

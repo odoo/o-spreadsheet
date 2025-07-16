@@ -4,6 +4,7 @@ import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { convertImageToPng } from "../../components/helpers/dom_helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import {
+  addMissingDimensions,
   applyClipboardHandlersPaste,
   getClipboardDataPositions,
   getPasteTargetFromHandlers,
@@ -405,7 +406,9 @@ export class ClipboardPlugin extends UIPlugin {
       options
     );
     if (zone !== undefined) {
-      this.addMissingDimensions(
+      addMissingDimensions(
+        this.getters,
+        this.dispatch,
         sheetId,
         zone.right - zone.left + 1,
         zone.bottom - zone.top + 1,
@@ -418,41 +421,6 @@ export class ClipboardPlugin extends UIPlugin {
       return;
     }
     selectPastedZone(this.selection, zones, selectedZones);
-  }
-
-  /**
-   * Add columns and/or rows to ensure that col + width and row + height are still
-   * in the sheet
-   */
-  private addMissingDimensions(
-    sheetId: UID,
-    width: number,
-    height: number,
-    col: number,
-    row: number
-  ) {
-    const missingRows = height + row - this.getters.getNumberRows(sheetId);
-    if (missingRows > 0) {
-      this.dispatch("ADD_COLUMNS_ROWS", {
-        dimension: "ROW",
-        base: this.getters.getNumberRows(sheetId) - 1,
-        sheetId,
-        sheetName: this.getters.getSheetName(sheetId),
-        quantity: missingRows,
-        position: "after",
-      });
-    }
-    const missingCols = width + col - this.getters.getNumberCols(sheetId);
-    if (missingCols > 0) {
-      this.dispatch("ADD_COLUMNS_ROWS", {
-        dimension: "COL",
-        base: this.getters.getNumberCols(sheetId) - 1,
-        sheetId,
-        sheetName: this.getters.getSheetName(sheetId),
-        quantity: missingCols,
-        position: "after",
-      });
-    }
   }
 
   // ---------------------------------------------------------------------------
