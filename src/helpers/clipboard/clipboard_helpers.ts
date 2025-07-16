@@ -1,4 +1,5 @@
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import { Model } from "../../model";
 import { SpreadsheetClipboardData } from "../../plugins/ui_stateful";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import {
@@ -6,6 +7,7 @@ import {
   ClipboardMIMEType,
   ClipboardOptions,
   ClipboardPasteTarget,
+  Getters,
   MinimalClipboardData,
   OSClipboardContent,
   ParsedOSClipboardContent,
@@ -182,3 +184,40 @@ export const selectPastedZone = (
     { scrollIntoView: false }
   );
 };
+
+/**
+ * Add columns and/or rows to ensure that col + width and row + height are still
+ * in the sheet
+ */
+export function addMissingDimensions(
+  getters: Getters,
+  dispatch: Model["dispatch"],
+  sheetId: UID,
+  width: number,
+  height: number,
+  col: number,
+  row: number
+) {
+  const missingRows = height + row - getters.getNumberRows(sheetId);
+  if (missingRows > 0) {
+    dispatch("ADD_COLUMNS_ROWS", {
+      dimension: "ROW",
+      base: getters.getNumberRows(sheetId) - 1,
+      sheetId,
+      sheetName: getters.getSheetName(sheetId),
+      quantity: missingRows,
+      position: "after",
+    });
+  }
+  const missingCols = width + col - getters.getNumberCols(sheetId);
+  if (missingCols > 0) {
+    dispatch("ADD_COLUMNS_ROWS", {
+      dimension: "COL",
+      base: getters.getNumberCols(sheetId) - 1,
+      sheetId,
+      sheetName: getters.getSheetName(sheetId),
+      quantity: missingCols,
+      position: "after",
+    });
+  }
+}
