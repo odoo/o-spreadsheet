@@ -455,6 +455,34 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
   });
 
+  test("Should support AVG and SUM aggregators for duration values", async () => {
+    setCellContent(model, "A1", "name");
+    setCellContent(model, "A2", "Alice");
+    setCellContent(model, "B1", "duration");
+    setCellContent(model, "B2", "01:30:00");
+    addPivot(model, "A1:B2", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+
+    let selectEl = fixture.querySelector(".pivot-measure select") as HTMLSelectElement;
+    selectEl.value = "sum";
+    selectEl.dispatchEvent(new Event("change"));
+
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "duration:sum", fieldName: "duration", aggregator: "sum" },
+    ]);
+
+    selectEl = fixture.querySelector(".pivot-measure select") as HTMLSelectElement;
+    selectEl.value = "avg";
+    selectEl.dispatchEvent(new Event("change"));
+
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "duration:avg", fieldName: "duration", aggregator: "avg" },
+    ]);
+  });
+
   test("Can add date dimension", async () => {
     setCellContent(model, "G1", "=PIVOT(1)"); // TODO: remove once task 4781740 is done
     setCellContent(model, "A1", "Date");
