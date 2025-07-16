@@ -45,6 +45,9 @@ type OpenCellPopoverComponent<C extends ComponentConstructor> = {
   Component: C;
   props: PropsOf<C>;
   cellCorner: PopoverPropsPosition;
+  /** Position to open the popover on. If undefined, the popover will open at the hovered cell */
+  position?: CellPosition;
+  slideInAnimation?: boolean;
 };
 
 export type CellPopoverComponent<
@@ -59,4 +62,5 @@ export type PositionedCellPopoverComponent<
   props: PropsOf<C>;
   anchorRect: Rect;
   cellCorner: PopoverPropsPosition;
+  position: CellPosition;
 };
