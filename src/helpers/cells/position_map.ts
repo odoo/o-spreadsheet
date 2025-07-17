@@ -1,4 +1,4 @@
-import { CellPosition, UID } from "../..";
+import { CellPosition, UID, Zone } from "../..";
 
 export class PositionMap<T> {
   private map: Record<UID, Record<number, Record<number, T>>> = {};
@@ -59,15 +59,19 @@ export class PositionMap<T> {
     return keys;
   }
 
-  keysForSheet(sheetId: UID): CellPosition[] {
+  keysForSheet(sheetId: UID, zone?: Zone): CellPosition[] {
     const map = this.map[sheetId];
     if (!map) {
       return [];
     }
     const keys: CellPosition[] = [];
-    for (const col in map) {
-      for (const row in map[col]) {
-        keys.push({ sheetId, col: parseInt(col), row: parseInt(row) });
+    for (const colIndex in map) {
+      const col = parseInt(colIndex);
+      if (zone && (zone.left > col || zone.right < col)) continue;
+      for (const rowIndex in map[col]) {
+        const row = parseInt(rowIndex);
+        if (zone && (zone.bottom > row || zone.top < row)) continue;
+        keys.push({ sheetId, col, row });
       }
     }
     return keys;

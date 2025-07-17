@@ -154,6 +154,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
     "getEvaluatedCellsPositions",
+    "getEvaluatedCellsPositionsInZone",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isEmpty",
@@ -284,6 +285,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return positions(zone).map(({ col, row }) =>
       this.getters.getEvaluatedCell({ sheetId, col, row })
     );
+  }
+
+  getEvaluatedCellsPositionsInZone(sheetId: UID, zone: Zone): CellPosition[] {
+    return this.evaluator.getEvaluatedPositionsInSheetZone(sheetId, zone);
   }
 
   /**
