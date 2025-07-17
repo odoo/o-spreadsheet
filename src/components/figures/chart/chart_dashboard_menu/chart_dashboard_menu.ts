@@ -22,7 +22,7 @@ interface MenuItem {
 }
 
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
-  static template = "spreadsheet.ChartDashboardMenu";
+  static template = "o-spreadsheet-ChartDashboardMenu";
   static components = { MenuPopover };
   static props = { figureUI: Object };
 
