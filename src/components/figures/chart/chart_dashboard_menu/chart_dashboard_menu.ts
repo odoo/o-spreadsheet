@@ -2,12 +2,12 @@ import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
 import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { isDefined } from "../../../../helpers";
-import { chartRegistry, chartSubtypeRegistry } from "../../../../registries/chart_types";
-import { Store, useStore } from "../../../../store_engine";
+import { Store, useLocalStore, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
-import { ChartDefinition, ChartType, FigureUI, SpreadsheetChildEnv } from "../../../../types";
+import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { FullScreenChartStore } from "../../../full_screen_chart/full_screen_chart_store";
 import { MenuPopover, MenuState } from "../../../menu_popover/menu_popover";
+import { ChartDashboardMenuStore } from "./chart_dashboard_menu_store";
 
 interface Props {
   figureUI: FigureUI;
@@ -26,89 +26,24 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
   static components = { MenuPopover };
   static props = { figureUI: Object };
 
-  private originalChartDefinition!: ChartDefinition;
   private fullScreenFigureStore!: Store<FullScreenChartStore>;
+  private store!: Store<ChartDashboardMenuStore>;
 
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
-
   setup() {
     super.setup();
+    this.store = useLocalStore(ChartDashboardMenuStore, this.props.figureUI.id);
     this.fullScreenFigureStore = useStore(FullScreenChartStore);
-    this.originalChartDefinition = this.env.model.getters.getChartDefinition(
-      this.props.figureUI.id
-    );
+
     onWillUpdateProps(({ figureUI }: Props) => {
       if (figureUI.id !== this.props.figureUI.id) {
-        this.originalChartDefinition = this.env.model.getters.getChartDefinition(figureUI.id);
+        this.store.reset(figureUI.id);
       }
     });
   }
 
   getMenuItems(): MenuItem[] {
-    return [this.fullScreenMenuItem, ...this.changeChartTypeMenuItems].filter(isDefined);
-  }
-
-  get changeChartTypeMenuItems(): MenuItem[] {
-    const definition = this.env.model.getters.getChartDefinition(this.props.figureUI.id);
-    if (!["line", "bar", "pie"].includes(definition.type)) {
-      return [];
-    }
-
-    return ["column", "line", "pie"].map((type) => {
-      const item = chartSubtypeRegistry.get(type);
-      return {
-        id: item.chartType,
-        label: item.displayName,
-        onClick: () => this.onTypeChange(item.chartType),
-        isSelected: item.chartType === this.selectedChartType,
-        iconClass: this.getIconClasses(item.chartType),
-      };
-    });
-  }
-
-  getIconClasses(type: ChartType) {
-    if (type.includes("bar")) {
-      return "fa fa-bar-chart";
-    }
-    if (type.includes("line")) {
-      return "fa fa-line-chart";
-    }
-    if (type.includes("pie")) {
-      return "fa fa-pie-chart";
-    }
-    return "";
-  }
-
-  onTypeChange(type: ChartType) {
-    const figureId = this.props.figureUI.id;
-    const currentDefinition = this.env.model.getters.getChartDefinition(figureId);
-    if (currentDefinition.type === type) {
-      return;
-    }
-
-    let definition: ChartDefinition;
-    if (this.originalChartDefinition.type === type) {
-      definition = this.originalChartDefinition;
-    } else {
-      const newChartInfo = chartSubtypeRegistry.get(type);
-      const ChartClass = chartRegistry.get(newChartInfo.chartType);
-      const chartCreationContext = this.env.model.getters.getContextCreationChart(figureId);
-      if (!chartCreationContext) return;
-      definition = {
-        ...ChartClass.getChartDefinitionFromContextCreation(chartCreationContext),
-        ...newChartInfo.subtypeDefinition,
-      } as ChartDefinition;
-    }
-
-    this.env.model.dispatch("UPDATE_CHART", {
-      definition,
-      figureId,
-      sheetId: this.env.model.getters.getActiveSheetId(),
-    });
-  }
-
-  get selectedChartType() {
-    return this.env.model.getters.getChartDefinition(this.props.figureUI.id).type;
+    return [this.fullScreenMenuItem, ...this.store.changeChartTypeMenuItems].filter(isDefined);
   }
 
   get backgroundColor() {
