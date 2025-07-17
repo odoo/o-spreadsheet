@@ -1,4 +1,4 @@
-import { ChartDefinition, ChartType, UID } from "../../../..";
+import { ChartDefinition, ChartType, Command, UID } from "../../../..";
 import { chartRegistry, chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { Get } from "../../../../store_engine";
 import { SpreadsheetStore } from "../../../../stores";
@@ -9,6 +9,19 @@ export class ChartDashboardMenuStore extends SpreadsheetStore {
   constructor(get: Get, private chartId: UID) {
     super(get);
     this.originalChartDefinition = this.getters.getChartDefinition(this.chartId);
+  }
+
+  handle(cmd: Command) {
+    switch (cmd.type) {
+      case "UPDATE_CHART":
+        if (
+          cmd.figureId === this.chartId &&
+          this.originalChartDefinition.type === cmd.definition.type
+        ) {
+          this.originalChartDefinition = this.getters.getChartDefinition(this.chartId);
+        }
+        break;
+    }
   }
 
   get changeChartTypeMenuItems() {

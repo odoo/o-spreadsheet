@@ -64,6 +64,22 @@ describe("chart menu for dashboard", () => {
     expect(chartDefinition.fillArea).toBe(true);
   });
 
+  test("updated chart configuration is kept when switching back and forth", async () => {
+    createChart(model, { type: "line", title: { text: "Hello" } }, chartId);
+    model.updateMode("dashboard");
+    const { fixture } = await mountSpreadsheet({ model });
+
+    updateChart(model, chartId, { title: { text: "Hello there" } });
+    await click(fixture, ".o-figure [data-id='bar']");
+    let chartDefinition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(chartDefinition.type).toBe("bar");
+    expect(chartDefinition.title.text).toBe("Hello there");
+    await click(fixture, ".o-figure [data-id='line']");
+    chartDefinition = model.getters.getChartDefinition(chartId) as LineChartDefinition;
+    expect(chartDefinition.type).toBe("line");
+    expect(chartDefinition.title.text).toBe("Hello there");
+  });
+
   test("Can open menu to copy/download chart in dashboard mode", async () => {
     createChart(model, { type: "bar" }, chartId);
     model.updateMode("dashboard");
