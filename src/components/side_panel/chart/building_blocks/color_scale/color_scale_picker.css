@@ -1,0 +1,25 @@
+.o-spreadsheet {
+  .color-scale-container {
+    margin: 0px;
+    padding: 5px;
+    cursor: pointer;
+  }
+  .color-scale-label {
+    margin-right: 10px;
+  }
+  .color-scale-preview {
+    height: 20px;
+    border: 1px solid #d8dadd;
+  }
+  .custom-color-scale-container {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #d8dadd;
+  }
+  .o-popover-content {
+    .color-scale-container {
+      &:hover {
+        background-color: var(--os-badge-selected-color);
+      }
+    }
+  }
+}
