@@ -168,10 +168,10 @@ describe("charts", () => {
   });
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
-      await mountSpreadsheet();
-      createTestChart(chartType);
-      await openChartConfigSidePanel(model, env, chartId);
-      expect(fixture.querySelector(".o-figure")).toBeTruthy();
+    await mountSpreadsheet();
+    createTestChart(chartType);
+    await openChartConfigSidePanel(model, env, chartId);
+    expect(fixture.querySelector(".o-figure")).toBeTruthy();
   });
 
   test.each(TEST_CHART_TYPES)("can export a chart %s", (chartType) => {

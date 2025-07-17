@@ -22,45 +22,10 @@
 
     <SidePanelCollapsible isInitiallyCollapsed="false" title.translate="Geo chart options">
       <t t-set-slot="content">
-        <Section class="'pt-0 o-color-scale'" title.translate="Color Scale">
-          <select class="o-input" t-on-change="this.updateColorScaleType">
-            <option value="custom">Custom</option>
-            <hr/>
-            <t t-foreach="colorScalesChoices" t-as="colorScale" t-key="colorScale">
-              <option
-                t-att-value="colorScale"
-                t-esc="colorScale_value"
-                t-att-selected="colorScale === selectedColorScale"
-              />
-            </t>
-          </select>
-
-          <t t-if="customColorScale">
-            <div class="o-min-color d-flex align-items-center mb-2 mt-4">
-              <RoundColorPicker
-                currentColor="getCustomColorScaleColor('minColor')"
-                onColorPicked="(color) => this.setCustomColorScaleColor('minColor', color)"
-                disableNoColor="true"
-              />
-              <span class="ps-2">Color of minimum values</span>
-            </div>
-            <div class="o-mid-color d-flex align-items-center mb-2">
-              <RoundColorPicker
-                currentColor="getCustomColorScaleColor('midColor')"
-                onColorPicked="(color) => this.setCustomColorScaleColor('midColor', color)"
-              />
-              <span class="ps-2">Color of middle values</span>
-            </div>
-            <div class="o-max-color d-flex align-items-center">
-              <RoundColorPicker
-                currentColor="getCustomColorScaleColor('maxColor')"
-                onColorPicked="(color) => this.setCustomColorScaleColor('maxColor', color)"
-                disableNoColor="true"
-              />
-              <span class="ps-2">Color of maximum values</span>
-            </div>
-          </t>
-        </Section>
+        <ColorScalePicker
+          definition="props.definition"
+          onUpdateColorScale.bind="this.updateColorScale"
+        />
 
         <Section class="'pt-0 o-missing-value'" title.translate="Countries without value">
           <RoundColorPicker
