@@ -22,6 +22,7 @@ import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { css } from "../../../helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_dom_items_hook";
 import { measureDisplayTerms } from "../../../translations_terms";
+import { PivotCustomGroupsCollapsible } from "../pivot_custom_groups_collapsible/pivot_custom_groups_collapsible";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./pivot_dimension_granularity/pivot_dimension_granularity";
@@ -56,6 +57,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotDimensionGranularity,
     PivotMeasureEditor,
     PivotSortSection,
+    PivotCustomGroupsCollapsible,
   };
   static props = {
     definition: Object,
@@ -281,6 +283,11 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
         },
       ]),
     });
+  }
+
+  getCustomField(dimension: PivotDimensionType) {
+    const definition = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    return definition.customFields?.[dimension.nameWithGranularity];
   }
 
   updateOrder(updateDimension: PivotDimensionType, order?: SortDirection) {
