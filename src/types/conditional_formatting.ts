@@ -125,6 +125,9 @@ export interface containsBlanksRule extends TextRule {
 export interface notContainsBlanksRule extends TextRule {
   type: "notContainsBlanksRule";
 }
+export interface CustomFormulaRule extends TextRule {
+  type: "CustomFormulaRule";
+}
 export interface containsErrorsRule extends SingleColorRule {
   type: "containsErrorsRule";
 }
@@ -168,7 +171,8 @@ export type ConditionalFormattingOperatorValues =
   | "isLessOrEqualTo"
   | "isNotBetween"
   | "notContainsText"
-  | "isNotEqual";
+  | "isNotEqual"
+  | "customFormula";
 
 export const availableConditionalFormatOperators: Set<ConditionalFormattingOperatorValues> =
   new Set([
@@ -186,4 +190,5 @@ export const availableConditionalFormatOperators: Set<ConditionalFormattingOpera
     "isEmpty",
     "isNotEqual",
     "isEqual",
+    "customFormula",
   ]);

@@ -286,7 +286,6 @@ describe("Import xlsx data", () => {
       case "uniqueValues":
       case "duplicateValues":
       case "dataBar":
-      case "expression":
         // Unsupported CF types
         expect(cf).toBeUndefined();
         return;
@@ -296,6 +295,10 @@ describe("Import xlsx data", () => {
       case "endsWith":
         operator = CF_TYPE_CONVERSION_MAP[cfType]!;
         values.push("rule");
+        break;
+      case "expression":
+        operator = CF_TYPE_CONVERSION_MAP[cfType]!;
+        values.push("=ODD(B15)");
         break;
       case "containsBlanks":
       case "notContainsBlanks":
@@ -452,6 +455,16 @@ describe("Import xlsx data", () => {
     expect(cf.rule).toMatchObject({
       type: "DataBarRule",
       color: hexaToInt("#63C384"),
+    });
+  });
+
+  test("Can import CF with custom formula", () => {
+    const testSheet = getWorkbookSheet("jestCfs", convertedData)!;
+    const cf = getCFBeginningAt("B15", testSheet)!;
+    expect(cf.rule).toMatchObject({
+      type: "CellIsRule",
+      operator: "customFormula",
+      values: ["=ODD(B15)"],
     });
   });
 

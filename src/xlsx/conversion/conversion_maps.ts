@@ -131,7 +131,7 @@ export const CF_TYPE_CONVERSION_MAP: Record<
   ConditionalFormattingOperatorValues | undefined
 > = {
   aboveAverage: undefined,
-  expression: undefined,
+  expression: "customFormula",
   cellIs: undefined, // exist but isn't an operator in o_spreadsheet
   colorScale: undefined, // exist but isn't an operator in o_spreadsheet
   dataBar: undefined,

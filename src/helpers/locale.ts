@@ -275,6 +275,7 @@ function changeCFRuleLocale(
         case "isGreaterOrEqualTo":
         case "isLessThan":
         case "isLessOrEqualTo":
+        case "customFormula":
           rule.values = rule.values.map((v) => changeContentLocale(v));
           return rule;
         case "beginsWithText":
