@@ -36,9 +36,7 @@ export const CfTerms = {
 
 export const ChartTerms: {
   [key: string]: any;
-  GeoChart: {
-    ColorScales: Record<Extract<ChartColorScale, string>, string>;
-  };
+  ColorScales: Record<Extract<ChartColorScale, string>, string>;
 } = {
   Series: _t("Series"),
   BackgroundColor: _t("Background color"),
@@ -70,18 +68,16 @@ export const ChartTerms: {
       "The upper inflection point value must be a number"
     ),
   },
-  GeoChart: {
-    ColorScales: {
-      blues: _t("Blues"),
-      cividis: _t("Cividis"),
-      greens: _t("Greens"),
-      greys: _t("Greys"),
-      oranges: _t("Oranges"),
-      purples: _t("Purples"),
-      rainbow: _t("Rainbow"),
-      reds: _t("Reds"),
-      viridis: _t("Viridis"),
-    },
+  ColorScales: {
+    blues: _t("Blues"),
+    cividis: _t("Cividis"),
+    greens: _t("Greens"),
+    greys: _t("Greys"),
+    oranges: _t("Oranges"),
+    purples: _t("Purples"),
+    rainbow: _t("Rainbow"),
+    reds: _t("Reds"),
+    viridis: _t("Viridis"),
   },
 };
 
