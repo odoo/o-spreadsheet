@@ -7,6 +7,7 @@ import {
 import { Color, DispatchResult, UID } from "../../../../types/index";
 import { ChartTerms } from "../../../translations_terms";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
+import { ColorScalePicker } from "../building_blocks/color_scale/color_scale_picker";
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 
 interface Props {
@@ -24,15 +25,20 @@ const DEFAULT_CUSTOM_COLOR_SCALE: GeoChartCustomColorScale = {
 
 export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
   static template = "o-spreadsheet-GeoChartDesignPanel";
-  static components = { ...ChartWithAxisDesignPanel.components, RoundColorPicker };
+  static components = {
+    ...ChartWithAxisDesignPanel.components,
+    RoundColorPicker,
+    ColorScalePicker,
+  };
 
   colorScalesChoices = ChartTerms.GeoChart.ColorScales;
 
-  updateColorScaleType(ev: Event) {
-    const value = (ev.target as HTMLSelectElement).value;
-    value === "custom"
-      ? this.updateColorScale(DEFAULT_CUSTOM_COLOR_SCALE)
-      : this.updateColorScale(value as GeoChartColorScale);
+  updateColorScaleType(value: string) {
+    if (value === "custom") {
+      this.updateColorScale(DEFAULT_CUSTOM_COLOR_SCALE);
+    } else {
+      this.updateColorScale(value as GeoChartColorScale);
+    }
   }
 
   updateColorScale(colorScale: GeoChartColorScale) {

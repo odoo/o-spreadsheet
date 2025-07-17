@@ -1,0 +1,64 @@
+<templates>
+  <t t-name="o-spreadsheet-ColorScalePicker">
+    <Section class="'pt-0 o-color-scale'" title.translate="Color Scale">
+      <div style="width: 100%">
+        <div class="colormap-container" t-on-click="onPointerDown">
+          <span class="colormap-label">
+            <t t-esc="currentColormapLabel"/>
+          </span>
+          <div class="colormap-preview" t-att-class="currentColormapPreview"/>
+          <span class="ms-1">
+            <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+          </span>
+        </div>
+      </div>
+      <Popover t-if="state.popoverProps" t-props="state.popoverProps">
+        <div t-ref="popoverRef" class="o-chart-select-popover" t-att-style="state.popoverStyle">
+          <div class="w-100">
+            <div class="colormap-container" t-on-click="() => this.onColormapChange('custom')">
+              <span class="colormap-label">
+                <t t-esc="'Custom'"/>
+              </span>
+              <div class="colormap-preview custom-colormap"/>
+            </div>
+            <t t-foreach="colormaps" t-as="colormap" t-key="colormap.value">
+              <div
+                class="colormap-container"
+                t-on-click="() => this.onColormapChange(colormap.value)">
+                <span class="colormap-label">
+                  <t t-esc="colormap.label"/>
+                </span>
+                <div class="colormap-preview" t-att-class="colormap.className"/>
+              </div>
+            </t>
+          </div>
+        </div>
+      </Popover>
+      <t t-if="customColorScale">
+        <div class="o-min-color d-flex align-items-center mb-2 mt-4">
+          <RoundColorPicker
+            currentColor="getCustomColorScaleColor('minColor')"
+            onColorPicked="(color) => this.setCustomColorScaleColor('minColor', color)"
+            disableNoColor="true"
+          />
+          <span class="ps-2">Color of minimum values</span>
+        </div>
+        <div class="o-mid-color d-flex align-items-center mb-2">
+          <RoundColorPicker
+            currentColor="getCustomColorScaleColor('midColor')"
+            onColorPicked="(color) => this.setCustomColorScaleColor('midColor', color)"
+          />
+          <span class="ps-2">Color of middle values</span>
+        </div>
+        <div class="o-max-color d-flex align-items-center">
+          <RoundColorPicker
+            currentColor="getCustomColorScaleColor('maxColor')"
+            onColorPicked="(color) => this.setCustomColorScaleColor('maxColor', color)"
+            disableNoColor="true"
+          />
+          <span class="ps-2">Color of maximum values</span>
+        </div>
+      </t>
+    </Section>
+  </t>
+</templates>
