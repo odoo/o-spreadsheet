@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { setCellContent } from "../test_helpers/commands_helpers";
+import { getCellContent } from "../test_helpers/getters_helpers";
 import {
   checkFunctionDoesntSpreadBeyondRange,
   createModelFromGrid,
@@ -749,6 +750,85 @@ describe("TEXTSPLIT function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", '=TEXTSPLIT(TEXT(A1, "m/d/yyyy"), "/")');
     expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["5", "9", "2024"]]);
+  });
+});
+
+describe("TEXTBEFORE function", () => {
+  test("TEXTBEFORE accepts minimum 2 and maximum 5 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=TEXTBEFORE()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple")' })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple",)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", "")' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 0)' })).toBe("#N/A");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", -1)' })).toBe("#N/A");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0, TRUE)' })).toBe("");
+    expect(evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0, TRUE, "N/A")' })).toBe("");
+    expect(
+      evaluateCell("A1", { A1: '=TEXTBEFORE("apple", ",", 1, 0, TRUE, "N/A", "extraParam")' })
+    ).toBe("#BAD_EXPR");
+  });
+
+  test("should match before first delimiter occurrence", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, ",")');
+    expect(getCellContent(model, "A2")).toBe("apple");
+  });
+
+  test("should match before second delimiter occurrence", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, ",", 2)');
+    expect(getCellContent(model, "A2")).toBe("apple,banana");
+  });
+
+  test("should match before third delimiter occurrence", () => {
+    const grid = { A1: "value1,value2,value3,value4" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, ",", 3)');
+    expect(getCellContent(model, "A2")).toBe("value1,value2,value3");
+  });
+
+  test("can use negative number to get last match", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, ",", -1)');
+    expect(getCellContent(model, "A2")).toBe("apple,banana");
+  });
+
+  test("using non-existent delimiter returns #N/A", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, ".")');
+    expect(getCellContent(model, "A2")).toBe("#N/A");
+  });
+
+  test("should use fallback value when delimiter is not found", () => {
+    const grid = { A1: "apple,banana,orange" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, ".", , , , "Not Found")');
+    expect(getCellContent(model, "A2")).toBe("Not Found");
+  });
+
+  test("can do case-insensitive text matching", () => {
+    const grid = { A1: "Start:MATCH:End" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, "match", , 1)');
+    expect(getCellContent(model, "A2")).toBe("Start:");
+  });
+
+  test("can do case-insensitive text matching with negative number", () => {
+    const grid = { A1: "Red riding hood's red hood" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, "red", -1)');
+    expect(getCellContent(model, "A2")).toBe("Red riding hood's ");
+  });
+
+  test("setting match_end parameter to 1 treats the end of the text as a delimiter", () => {
+    const grid = { A1: "report.final.v2.pdf" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", '=TEXTBEFORE(A1, "$", , , 1)');
+    expect(getCellContent(model, "A2")).toBe("");
   });
 });
 

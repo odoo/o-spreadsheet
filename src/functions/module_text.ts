@@ -686,3 +686,83 @@ export const VALUE = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// TEXTBEFORE
+// -----------------------------------------------------------------------------
+
+const TEXTBEFORE_DEFAULT_INSTANCE = 1;
+const TEXTBEFORE_DEFAULT_MATCH_MODE = 0;
+
+export const TEXTBEFORE = {
+  description: _t("Returns text that occurs before a given substring or delimiter."),
+  args: [
+    arg("text (string)", _t("The source text.")),
+    arg("delimiter (string)", _t("The substring after which text will be returned.")),
+    arg(
+      `instance_num (number, default=${TEXTBEFORE_DEFAULT_INSTANCE})`,
+      _t("The desired occurrence of the delimiter. A negative number searches from the end.")
+    ),
+    arg(
+      `match_mode (number, default=${TEXTBEFORE_DEFAULT_MATCH_MODE})`,
+      _t("0 = case-sensitive, 1 = case-insensitive.")
+    ),
+    arg(
+      `match_end (boolean, optional)`,
+      _t("Wether to match a delimiter against the end of the text.")
+    ),
+    arg(
+      `if_not_found (string, default="${CellErrorType.NotAvailable}")`,
+      _t("Value to return if the delimiter is not found.")
+    ),
+  ],
+  compute: function (
+    text: FunctionResultObject,
+    delimiter: FunctionResultObject,
+    instanceNum: Maybe<FunctionResultObject> = { value: TEXTBEFORE_DEFAULT_INSTANCE },
+    matchMode: Maybe<FunctionResultObject> = { value: TEXTBEFORE_DEFAULT_MATCH_MODE },
+    matchEnd: Maybe<FunctionResultObject> = { value: false },
+    ifNotFound: Maybe<FunctionResultObject> = new NotAvailableError()
+  ) {
+    const _text = toString(text);
+    if (_text.length <= 0) {
+      return new EvaluationError(_t("No text to split."));
+    }
+
+    const _delimiter = toString(delimiter);
+    if (_delimiter === "") {
+      return new EvaluationError(_t("Delimiter cannot be empty."));
+    }
+
+    const _instance = toNumber(instanceNum, this.locale);
+    const _matchMode = toNumber(matchMode, this.locale);
+    const _matchEnd = toBoolean(matchEnd);
+
+    const flags = _matchMode === 1 ? "gi" : "g";
+    const pattern = escapeRegExp(_delimiter);
+    const regexp = new RegExp(pattern, flags);
+
+    let matchIndices: number[] = [];
+    let match: RegExpExecArray | null;
+
+    while ((match = regexp.exec(_text)) !== null) {
+      matchIndices.push(match.index);
+    }
+
+    if (_instance < 0) {
+      matchIndices = matchIndices.reverse();
+    }
+
+    const targetIndex = matchIndices[Math.abs(_instance) - 1];
+
+    if (targetIndex === undefined) {
+      if (_matchEnd) {
+        return { value: "" };
+      }
+      return ifNotFound;
+    }
+
+    return { value: _text.substring(0, targetIndex) };
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
