@@ -69,6 +69,10 @@ export class Evaluator {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
   }
 
+  getEvaluatedCellInZone(): PositionMap<EvaluatedCell> {
+    return this.evaluatedCells;
+  }
+
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
     const spreadZone = this.spreadingRelations.getArrayResultZone(position);
     if (!spreadZone) {
@@ -90,6 +94,10 @@ export class Evaluator {
 
   getEvaluatedPositionsInSheet(sheetId: UID): CellPosition[] {
     return this.evaluatedCells.keysForSheet(sheetId);
+  }
+
+  getEvaluatedPositionsInSheetZone(sheetId: UID, zone: Zone): CellPosition[] {
+    return this.evaluatedCells.keysForSheet(sheetId, zone);
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
