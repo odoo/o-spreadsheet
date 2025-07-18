@@ -3,7 +3,7 @@ import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { chartJsExtensionRegistry } from "./chart_js_extension";
+import { chartJsExtensionRegistry, registerChartJSExtensions } from "./chart_js_extension";
 import { chartShowValuesPlugin } from "./chartjs_show_values_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
@@ -49,6 +49,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     onMounted(() => {
+      registerChartJSExtensions();
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
