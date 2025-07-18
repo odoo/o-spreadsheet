@@ -19,6 +19,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "../constants";
+import { PositionMap } from "../helpers/cells/position_map";
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
@@ -39,6 +40,7 @@ import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { Get, Store } from "../store_engine";
 import {
   Align,
+  Border,
   BorderDescrWithOpacity,
   Box,
   CellPosition,
@@ -49,6 +51,7 @@ import {
   LayerName,
   Pixel,
   RenderingBox,
+  Style,
   UID,
   Viewport,
   Zone,
@@ -635,12 +638,16 @@ export class GridRenderer extends SpreadsheetStore {
     return col;
   }
 
-  private computeCellAlignment(position: CellPosition, isOverflowing: boolean): Align {
+  private computeCellAlignment(
+    position: CellPosition,
+    isOverflowing: boolean,
+    style: Style
+  ): Align {
     const cell = this.getters.getCell(position);
     if (cell?.isFormula && this.getters.shouldShowFormulas()) {
       return "left";
     }
-    const { align } = this.getters.getCellStyle(position);
+    const align = style.align;
     const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (isOverflowing && evaluatedCell.type === CellValueType.number) {
       return align !== "center" ? "left" : align;
@@ -648,7 +655,12 @@ export class GridRenderer extends SpreadsheetStore {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+  private createZoneBox(
+    sheetId: UID,
+    zone: Zone,
+    viewport: Viewport,
+    borders: PositionMap<Border>
+  ): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
@@ -682,7 +694,7 @@ export class GridRenderer extends SpreadsheetStore {
       y,
       width,
       height,
-      border: this.getters.getCellComputedBorder(position) || undefined,
+      border: borders.get(position),
       style,
       dataBarFill,
       overlayColor: this.hoveredTables.overlayColors.get(position),
@@ -715,7 +727,7 @@ export class GridRenderer extends SpreadsheetStore {
     const rightIconWidth = box.icons.right ? box.icons.right.size + box.icons.right.margin : 0;
     const rightMargin = rightIconWidth + chipMargin;
     const contentWidth = leftMargin + textWidth + rightMargin;
-    const align = this.computeCellAlignment(position, contentWidth > width);
+    const align = this.computeCellAlignment(position, contentWidth > width, style);
 
     // compute vertical align start point parameter:
     const numberOfLines = multiLineText.length;
@@ -848,6 +860,8 @@ export class GridRenderer extends SpreadsheetStore {
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
     const sheetId = this.getters.getActiveSheetId();
+    const borders = this.getters.getCellBordersInZone(sheetId, zone);
+    this.getters.precomputeCellStyle(sheetId, viewport);
 
     for (const row of visibleRows) {
       for (const col of visibleCols) {
@@ -855,7 +869,7 @@ export class GridRenderer extends SpreadsheetStore {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport, borders));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -863,8 +877,8 @@ export class GridRenderer extends SpreadsheetStore {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport);
-        const borderBottomRight = this.getters.getCellComputedBorder({
+        const box = this.createZoneBox(sheetId, merge, viewport, borders);
+        const borderBottomRight = borders.get({
           sheetId,
           col: merge.right,
           row: merge.bottom,

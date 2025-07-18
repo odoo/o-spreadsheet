@@ -41,6 +41,16 @@ export function getCell(
   return model.getters.getCell({ sheetId, col, row });
 }
 
+export function getCellStyle(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): Style | undefined {
+  const { col, row } = toCartesian(xc);
+  const cellStyle = model.getters.getCellStyle({ sheetId, col, row });
+  return Object.values(cellStyle).length ? cellStyle : undefined;
+}
+
 export function getEvaluatedCell(
   model: Model,
   xc: string,
@@ -168,7 +178,13 @@ export function getBorder(
   sheetId: UID = model.getters.getActiveSheetId()
 ): Border | null {
   const { col, row } = toCartesian(xc);
-  return model.getters.getCellBorder({ sheetId, col, row });
+  const cellBorder = model.getters.getCellBorder({ sheetId, col, row });
+  Object.keys(cellBorder).forEach(
+    (key) =>
+      (!cellBorder[key] || (cellBorder[key].color ?? cellBorder[key].style) === undefined) &&
+      delete cellBorder[key]
+  );
+  return Object.entries(cellBorder).length ? cellBorder : null;
 }
 
 /**

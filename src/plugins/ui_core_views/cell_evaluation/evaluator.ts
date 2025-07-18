@@ -10,6 +10,7 @@ import {
   union,
 } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
+import { PositionMap } from "../../../helpers/cells/position_map";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -36,7 +37,6 @@ import {
 } from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
-import { PositionMap } from "./position_map";
 import { PositionSet, SheetSizes } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
@@ -71,6 +71,10 @@ export class Evaluator {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
   }
 
+  getEvaluatedCellInZone(): PositionMap<EvaluatedCell> {
+    return this.evaluatedCells;
+  }
+
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
     const spreadZone = this.spreadingRelations.getArrayResultZone(position);
     if (!spreadZone) {
@@ -92,6 +96,10 @@ export class Evaluator {
 
   getEvaluatedPositionsInSheet(sheetId: UID): CellPosition[] {
     return this.evaluatedCells.keysForSheet(sheetId);
+  }
+
+  getEvaluatedPositionsInSheetZone(sheetId: UID, zone: Zone): CellPosition[] {
+    return this.evaluatedCells.keysForSheet(sheetId, zone);
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {

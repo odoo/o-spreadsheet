@@ -1,4 +1,3 @@
-import { BordersPlugin } from "../plugins/core/borders";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
@@ -13,6 +12,7 @@ import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
+import { BordersPlugin } from "../plugins/core/style";
 import { TableStylePlugin } from "../plugins/core/table_style";
 import { TablePlugin } from "../plugins/core/tables";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views";
