@@ -186,9 +186,6 @@ export class RadarChart extends AbstractChart {
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    if (this.aggregated) {
-      return undefined;
-    }
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
       this.dataSets,
