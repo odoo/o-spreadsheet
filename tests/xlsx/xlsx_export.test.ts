@@ -1334,7 +1334,7 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
-    test.each(["bar", "line", "pie", "radar"] as const)(
+    test.each(["bar", "line", "pie", "radar", "scatter", "combo"] as const)(
       "%s chart that aggregate labels is exported as normal chart, ignoring the aggregation",
       async (type) => {
         const model = new Model();
