@@ -6,7 +6,7 @@ import { Store, useStore } from "../../../../store_engine";
 import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
-import { chartJsExtensionRegistry } from "./chart_js_extension";
+import { chartJsExtensionRegistry, registerChartJSExtensions } from "./chart_js_extension";
 import { ChartAnimationStore } from "./chartjs_animation_store";
 import {
   funnelTooltipPositioner,
@@ -99,6 +99,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       this.animationStore = useStore(ChartAnimationStore);
     }
     onMounted(() => {
+      registerChartJSExtensions();
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
