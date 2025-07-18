@@ -43,7 +43,8 @@ export class SelectionInputStore extends SpreadsheetStore {
     private initialRanges: string[] = [],
     private readonly inputHasSingleRange: boolean = false,
     public colors: Color[] = [],
-    public disabledRanges: boolean[] = []
+    public disabledRanges: boolean[] = [],
+    public availableOnSheetId: UID = ""
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -64,7 +65,6 @@ export class SelectionInputStore extends SpreadsheetStore {
     if (this.focusedRangeIndex === null) {
       return;
     }
-
     const inputSheetId = this.inputSheetId;
     const activeSheetId = this.getters.getActiveSheetId();
     const zone = event.options.unbounded
@@ -248,9 +248,13 @@ export class SelectionInputStore extends SpreadsheetStore {
     return this.selectionInputs.some((i) => i.isFocused);
   }
 
-  private get hasMainFocus() {
+  private get hasMainFocus(): boolean {
     const focusedElement = this.focusStore.focusedElement;
     return !!focusedElement && focusedElement === this;
+  }
+
+  get isReadonly(): boolean {
+    return this.availableOnSheetId && this.availableOnSheetId !== this.getters.getActiveSheetId();
   }
 
   get highlights(): Highlight[] {
@@ -349,6 +353,9 @@ export class SelectionInputStore extends SpreadsheetStore {
    * new inputs will be added.
    */
   private setRange(index: number, values: string[]) {
+    if (this.isReadonly) {
+      return;
+    }
     const [, ...additionalValues] = values;
     this.setContent(index, values[0]);
     this.insertNewRange(index + 1, additionalValues);

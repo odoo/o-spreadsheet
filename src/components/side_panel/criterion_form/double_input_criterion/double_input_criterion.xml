@@ -5,12 +5,14 @@
       onValueChanged.bind="onFirstValueChanged"
       criterionType="props.criterion.type"
       disableFormulas="props.disableFormulas"
+      sheetId="props.sheetId"
     />
     <CriterionInput
       value="props.criterion.values[1]"
       onValueChanged.bind="onSecondValueChanged"
       criterionType="props.criterion.type"
       disableFormulas="props.disableFormulas"
+      sheetId="props.sheetId"
     />
   </t>
 </templates>
