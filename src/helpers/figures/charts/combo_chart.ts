@@ -150,10 +150,6 @@ export class ComboChart extends AbstractChart {
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    // Excel does not support aggregating labels
-    if (this.aggregated) {
-      return undefined;
-    }
     const { dataSets, labelRange } = this.getCommonDataSetAttributesForExcel(
       this.labelRange,
       this.dataSets,
