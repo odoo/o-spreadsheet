@@ -5,7 +5,7 @@ import { deepCopy } from "../../../../helpers";
 import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
-import { chartJsExtensionRegistry } from "./chart_js_extension";
+import { chartJsExtensionRegistry, registerChartJSExtensions } from "./chart_js_extension";
 import {
   funnelTooltipPositioner,
   getFunnelChartController,
@@ -91,6 +91,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     onMounted(() => {
+      registerChartJSExtensions();
       const runtime = this.chartRuntime;
       this.currentRuntime = runtime;
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
