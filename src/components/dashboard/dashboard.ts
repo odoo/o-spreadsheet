@@ -71,8 +71,8 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
 
   get gridContainer() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const { right } = this.env.model.getters.getSheetZone(sheetId);
-    const { end } = this.env.model.getters.getColDimensions(sheetId, right);
+    const colNumber = this.env.model.getters.getNumberCols(sheetId);
+    const { end } = this.env.model.getters.getColDimensions(sheetId, colNumber);
     return cssPropertiesToCss({ "max-width": `${end}px` });
   }
 

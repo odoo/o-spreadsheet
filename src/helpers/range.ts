@@ -26,8 +26,8 @@ import {
   boundUnboundedZone,
   createAdaptedZone,
   getZoneArea,
-  isFullCol,
-  isFullRow,
+  isUnboundedCol,
+  isUnboundedRow,
   isZoneInside,
   isZoneOrdered,
   positions,
@@ -108,12 +108,12 @@ export function createInvalidRange(sheetXC: string): Range {
   };
 }
 
-export function isFullColRange(range: Range): boolean {
-  return isFullCol(range.unboundedZone);
+export function isUnboundedColRange(range: Range): boolean {
+  return isUnboundedCol(range.unboundedZone);
 }
 
-export function isFullRowRange(range: Range): boolean {
-  return isFullRow(range.unboundedZone);
+export function isUnboundedRowRange(range: Range): boolean {
+  return isUnboundedRow(range.unboundedZone);
 }
 
 export function getRangeString(
@@ -479,13 +479,13 @@ function getRangePartString(
   const row = part === 0 ? String(range.zone.top + 1) : String(range.zone.bottom + 1);
 
   let str = "";
-  if (isFullCol(range.unboundedZone) && !options.useBoundedReference) {
+  if (isUnboundedCol(range.unboundedZone) && !options.useBoundedReference) {
     if (part === 0 && range.unboundedZone.hasHeader) {
       str = colFixed + col + rowFixed + row;
     } else {
       str = colFixed + col;
     }
-  } else if (isFullRow(range.unboundedZone) && !options.useBoundedReference) {
+  } else if (isUnboundedRow(range.unboundedZone) && !options.useBoundedReference) {
     if (part === 0 && range.unboundedZone.hasHeader) {
       str = colFixed + col + rowFixed + row;
     } else {

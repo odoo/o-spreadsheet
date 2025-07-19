@@ -3,6 +3,7 @@ import {
   deepCopy,
   duplicateRangeInDuplicatedSheet,
   getCellPositionsInRanges,
+  intersection,
   isInside,
   recomputeZones,
   toXC,
@@ -21,6 +22,7 @@ import {
   Style,
   UID,
   WorkbookData,
+  Zone,
 } from "../../types";
 import { CorePlugin } from "../core_plugin";
 
@@ -166,22 +168,33 @@ export class DataValidationPlugin
         const zones = recomputeZones(cmd.target);
         const sheetId = cmd.sheetId;
         for (const zone of zones) {
-          for (let row = zone.top; row <= zone.bottom; row++) {
-            for (let col = zone.left; col <= zone.right; col++) {
-              const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
-              if (!dataValidation) {
-                continue;
-              }
-              if (
-                dataValidation.criterion.type === "isBoolean" ||
-                (dataValidation.criterion.type === "isValueInList" &&
-                  !this.getters.getCell({ sheetId, col, row })?.content)
-              ) {
-                const rules = this.rules[sheetId];
-                const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
-                const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
-                this.history.update("rules", sheetId, adaptedRules);
-              }
+          this.deleteContent(sheetId, zone);
+        }
+      }
+    }
+  }
+
+  private deleteContent(sheetId: UID, zone: Zone) {
+    if (!this.rules[sheetId]) {
+      return undefined;
+    }
+    for (const rule of this.rules[sheetId]) {
+      for (const range of rule.ranges) {
+        const inter = intersection(zone, range.zone);
+        if (!inter) {
+          return;
+        }
+        for (let row = inter.top; row <= inter.bottom; row++) {
+          for (let col = inter.left; col <= inter.right; col++) {
+            if (
+              rule.criterion.type === "isBoolean" ||
+              (rule.criterion.type === "isValueInList" &&
+                !this.getters.getCell({ sheetId, col, row })?.content)
+            ) {
+              const rules = this.rules[sheetId];
+              const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
+              const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
+              this.history.update("rules", sheetId, adaptedRules);
             }
           }
         }

@@ -49,8 +49,8 @@ function isCharADigit(char: string) {
 }
 
 // we limit the max column to 3 letters and max row to 7 digits for performance reasons
-export const MAX_COL = lettersToNumber("ZZZ");
-export const MAX_ROW = 9999998;
+export const MAX_COL = lettersToNumber("ZZZ") + 1;
+export const MAX_ROW = 9999999;
 
 export function consumeSpaces(chars: TokenizingChars) {
   while (chars.current === " ") {

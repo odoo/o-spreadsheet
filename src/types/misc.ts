@@ -77,6 +77,12 @@ export interface Selection {
   zones: Zone[];
 }
 
+export type Adjacence = {
+  position: "left" | "top" | "bottom" | "right";
+  start: HeaderIndex;
+  stop: HeaderIndex;
+};
+
 export interface UnboundedZone {
   top: HeaderIndex;
   bottom: HeaderIndex | undefined;
@@ -128,15 +134,30 @@ export interface UpdateCellData {
   format?: Format;
 }
 
+export interface DefaultCell {
+  style?: Style;
+  format?: Format;
+}
+
+export interface DefaultCells {
+  global: DefaultCell;
+  cols: Record<number, DefaultCell>;
+  rows: Record<number, DefaultCell>;
+}
+
 export interface Sheet {
   id: UID;
   name: string;
+  lastUsedCol: number;
+  lastUsedRow: number;
   numberOfCols: number;
-  rows: Row[];
+  numberOfRows: number;
+  rows: Record<number, Row | undefined>;
   areGridLinesVisible: boolean;
   isVisible: boolean;
   panes: PaneDivision;
   color?: Color;
+  defaults: DefaultCells;
 }
 
 export interface CellPosition {
