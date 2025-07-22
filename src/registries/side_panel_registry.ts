@@ -147,7 +147,11 @@ sidePanelRegistry.add("PivotMeasureDisplayPanel", {
     try {
       // This will throw if the pivot or measure does not exist
       getters.getPivot(props.pivotId).getMeasure(props.measure.id);
-      return { isOpen: true, props, key: "pivot_measure_display" };
+      return {
+        isOpen: true,
+        props,
+        key: `pivot_measure_display_${props.pivotId}_${props.measure.id}`,
+      };
     } catch (e) {
       return { isOpen: false };
     }
