@@ -35,6 +35,7 @@ export const CHART_WATERFALL_NEGATIVE_COLOR = "#EA6175";
 export const CHART_WATERFALL_SUBTOTAL_COLOR = "#AAAAAA";
 
 export const GRAY_900 = "#111827";
+export const GRAY_400 = "#CED4DA";
 export const GRAY_300 = "#D8DADD";
 export const GRAY_200 = "#E7E9ED";
 export const GRAY_100 = "#F9FAFB";
