@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { ChartJsComponentWithColorScale } from "../components/figures/chart/chartJs/chart_with_color_scale";
 import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
 import { GaugeChartComponent } from "../components/figures/chart/gauge/gauge_chart_component";
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
@@ -21,6 +22,10 @@ import {
   SunburstChart,
   createSunburstChartRuntime,
 } from "../helpers/figures/charts/sunburst_chart";
+import {
+  TimeMatrixChart,
+  createTimeMatrixChartRuntime,
+} from "../helpers/figures/charts/time_matrix_chart";
 import { TreeMapChart, createTreeMapChartRuntime } from "../helpers/figures/charts/tree_map_chart";
 import {
   WaterfallChart,
@@ -48,6 +53,7 @@ import { GeoChartDefinition } from "../types/chart/geo_chart";
 import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
 import { RadarChartDefinition } from "../types/chart/radar_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
+import { TimeMatrixChartDefinition } from "../types/chart/time_matrix_chart";
 import { TreeMapChartDefinition } from "../types/chart/tree_map_chart";
 import { WaterfallChartDefinition } from "../types/chart/waterfall_chart";
 import { Validator } from "../types/validator";
@@ -229,6 +235,19 @@ chartRegistry.add("treemap", {
   getChartDefinitionFromContextCreation: TreeMapChart.getDefinitionFromContextCreation,
   sequence: 100,
 });
+chartRegistry.add("timeMatrix", {
+  match: (type) => type === "timeMatrix",
+  createChart: (definition, sheetId, getters) =>
+    new TimeMatrixChart(definition as TimeMatrixChartDefinition, sheetId, getters),
+  getChartRuntime: (chart, getters) => {
+    return createTimeMatrixChartRuntime(chart as TimeMatrixChart, getters);
+  },
+  validateChartDefinition: TimeMatrixChart.validateChartDefinition,
+  transformDefinition: TimeMatrixChart.transformDefinition,
+  getChartDefinitionFromContextCreation: TimeMatrixChart.getDefinitionFromContextCreation,
+  sequence: 110,
+  dataSeriesLimit: 1,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -245,6 +264,7 @@ chartComponentRegistry.add("geo", ChartJsComponent);
 chartComponentRegistry.add("funnel", ChartJsComponent);
 chartComponentRegistry.add("sunburst", ChartJsComponent);
 chartComponentRegistry.add("treemap", ChartJsComponent);
+chartComponentRegistry.add("timeMatrix", ChartJsComponentWithColorScale);
 
 type ChartUICategory = keyof typeof chartCategories;
 
@@ -462,4 +482,11 @@ chartSubtypeRegistry
     chartSubtype: "treemap",
     category: "hierarchical",
     preview: "o-spreadsheet-ChartPreview.TREE_MAP_CHART",
+  })
+  .add("timeMatrix", {
+    displayName: _t("Time Matrix"),
+    chartSubtype: "timeMatrix",
+    chartType: "timeMatrix",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.HEAT_MAP",
   });

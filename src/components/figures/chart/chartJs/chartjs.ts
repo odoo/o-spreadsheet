@@ -122,7 +122,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  private createChart(chartData: ChartConfiguration<any>) {
+  protected createChart(chartData: ChartConfiguration<any>) {
     if (this.env.model.getters.isDashboard() && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationFigureId] !== chartType) {
@@ -136,7 +136,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart = new window.Chart(ctx, chartData);
   }
 
-  private updateChartJs(chartData: ChartConfiguration<any>) {
+  protected updateChartJs(chartData: ChartConfiguration<any>) {
     if (this.env.model.getters.isDashboard()) {
       const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
