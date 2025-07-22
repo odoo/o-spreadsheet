@@ -11,7 +11,7 @@ let model: Model;
 const pivotId: UID = "pivotId";
 let sheetId: UID;
 let fixture: HTMLElement;
-let openSidePanelSpy: jest.Mock;
+let replaceSidePanelSpy: jest.Mock;
 let env: SpreadsheetChildEnv;
 
 function getPivotMeasures() {
@@ -19,11 +19,11 @@ function getPivotMeasures() {
 }
 
 describe("Standalone side panel tests", () => {
-  openSidePanelSpy = jest.fn();
+  replaceSidePanelSpy = jest.fn();
   async function mountPanel(measure?: PivotCoreMeasure) {
     ({ fixture } = await mountComponent(PivotMeasureDisplayPanel, {
       model,
-      env: { openSidePanel: openSidePanelSpy },
+      env: { replaceSidePanel: replaceSidePanelSpy },
       props: {
         onCloseSidePanel: () => {},
         pivotId: pivotId,
@@ -219,11 +219,15 @@ describe("Standalone side panel tests", () => {
     });
   });
 
-  test("Saving the display opens back the pivot side panel", async () => {
+  test("Saving the display replace the pivot side panel", async () => {
     await mountPanel();
     await click(fixture, ".o-pivot-measure-save");
 
-    expect(openSidePanelSpy).toHaveBeenCalledWith("PivotSidePanel", { pivotId });
+    expect(replaceSidePanelSpy).toHaveBeenCalledWith(
+      "PivotSidePanel",
+      `pivot_measure_display_${pivotId}`,
+      { pivotId }
+    );
   });
 
   test("Can cancel the edition of the measure display", async () => {
@@ -234,7 +238,11 @@ describe("Standalone side panel tests", () => {
     expect(getPivotMeasures()[0].display).toEqual({ type: "%_of_grand_total" });
 
     await click(fixture, ".o-pivot-measure-cancel");
-    expect(openSidePanelSpy).toHaveBeenCalledWith("PivotSidePanel", { pivotId });
+    expect(replaceSidePanelSpy).toHaveBeenCalledWith(
+      "PivotSidePanel",
+      `pivot_measure_display_${pivotId}`,
+      { pivotId }
+    );
     expect(getPivotMeasures()[0].display).toEqual(undefined);
   });
 });

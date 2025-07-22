@@ -35,6 +35,7 @@ interface PanelInfo {
 export class SidePanelStore extends SpreadsheetStore {
   mutators = [
     "open",
+    "replace",
     "toggle",
     "close",
     "changePanelSize",
@@ -133,6 +134,34 @@ export class SidePanelStore extends SpreadsheetStore {
     }
 
     this._openPanel("secondaryPanel", newPanelInfo, state);
+  }
+
+  replace(
+    componentTag: string,
+    currentPanelKey: string,
+    initialPanelProps: SidePanelComponentProps = {}
+  ) {
+    const newPanelInfo = { initialPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
+    const state = this.computeState(newPanelInfo);
+    if (!state.isOpen) {
+      return;
+    }
+
+    // Close the current panel if the target panel is already open
+    const isMainPanel = this.mainPanelKey === state.key;
+    const isSecondaryPanel = this.secondaryPanelKey === state.key;
+    if (isMainPanel && this.secondaryPanel) {
+      this.close();
+      return;
+    }
+    if (isSecondaryPanel) {
+      this.closeMainPanel();
+      this.togglePinPanel();
+      return;
+    }
+
+    const targetPanel = this.mainPanelKey === currentPanelKey ? "mainPanel" : "secondaryPanel";
+    this._openPanel(targetPanel, newPanelInfo, state);
   }
 
   private _openPanel(
