@@ -326,7 +326,7 @@ export const insertDropdown: ActionSpec = {
     env.openSidePanel("DataValidationEditor", {
       rule: localizeDataValidationRule(rule, env.model.getters.getLocale()),
       onExit: () => {
-        env.openSidePanel("DataValidation");
+        env.replaceSidePanel("DataValidation", "DataValidationEditor");
       },
     });
   },

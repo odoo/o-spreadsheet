@@ -35,6 +35,7 @@ interface PanelInfo {
 export class SidePanelStore extends SpreadsheetStore {
   mutators = [
     "open",
+    "replace",
     "toggle",
     "close",
     "changePanelSize",
@@ -110,8 +111,7 @@ export class SidePanelStore extends SpreadsheetStore {
       return;
     }
 
-    const mainPanelKey = this.mainPanel ? this.getPanelKey(this.mainPanel) : undefined;
-    if (!this.mainPanel || !this.mainPanel.isPinned || mainPanelKey === state.key) {
+    if (!this.mainPanel || !this.mainPanel.isPinned || this.mainPanelKey === state.key) {
       this._openPanel("mainPanel", newPanelInfo, state);
       return;
     }
@@ -133,6 +133,41 @@ export class SidePanelStore extends SpreadsheetStore {
     }
 
     this._openPanel("secondaryPanel", newPanelInfo, state);
+  }
+
+  replace(
+    componentTag: string,
+    currentPanelKey: string,
+    initialPanelProps: SidePanelComponentProps = {}
+  ) {
+    const newPanelInfo = { initialPanelProps, componentTag, size: DEFAULT_SIDE_PANEL_SIZE };
+    const state = this.computeState(newPanelInfo);
+    if (!state.isOpen) {
+      return;
+    }
+    const ensureMainPanelExpanded = () => {
+      if (this.mainPanel?.isCollapsed) {
+        this.toggleCollapsePanel("mainPanel");
+      }
+    };
+
+    // Close the current panel if the target panel is already open
+    const isMainPanel = this.mainPanelKey === state.key;
+    const isSecondaryPanel = this.secondaryPanelKey === state.key;
+    if (isMainPanel && this.secondaryPanel) {
+      this.close();
+      ensureMainPanelExpanded();
+      return;
+    }
+    if (isSecondaryPanel) {
+      this.closeMainPanel();
+      this.togglePinPanel();
+      ensureMainPanelExpanded();
+      return;
+    }
+
+    const targetPanel = this.mainPanelKey === currentPanelKey ? "mainPanel" : "secondaryPanel";
+    this._openPanel(targetPanel, newPanelInfo, state);
   }
 
   private _openPanel(
@@ -206,11 +241,9 @@ export class SidePanelStore extends SpreadsheetStore {
   }
 
   resetPanelSize(panel: "mainPanel" | "secondaryPanel") {
-    const panelInfo = this[panel];
-    if (!panelInfo) {
-      return;
+    if (this[panel]) {
+      this[panel].size = DEFAULT_SIDE_PANEL_SIZE;
     }
-    panelInfo.size = DEFAULT_SIDE_PANEL_SIZE;
   }
 
   togglePinPanel() {
