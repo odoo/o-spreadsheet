@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { COMPOSER_ASSISTANT_COLOR } from "../../../constants";
+import { BUTTON_ACTIVE_TEXT_COLOR, COMPOSER_ASSISTANT_COLOR, GRAY_400 } from "../../../constants";
 import { FunctionDescription, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { Collapse } from "../../side_panel/components/collapse/collapse";
@@ -14,9 +14,6 @@ css/* scss */ `
     .o-formula-assistant-head {
       background-color: #f2f2f2;
       padding: 10px;
-    }
-    .collapsed {
-      transform: rotate(180deg);
     }
     .o-formula-assistant-core {
       border-bottom: 1px solid gray;
@@ -36,6 +33,27 @@ css/* scss */ `
     }
     .o-formula-assistant-gray {
       color: gray;
+    }
+    .collapsor {
+      cursor: pointer;
+      &:hover {
+        background-color: ${GRAY_400};
+        color: ${BUTTON_ACTIVE_TEXT_COLOR};
+      }
+
+      .collapsor-arrow {
+        transform-origin: 6px 8px;
+        transform: rotate(-180deg);
+        transition: transform 0.2s ease-in-out;
+
+        .o-icon {
+          width: 12px;
+          height: 16px;
+        }
+      }
+      &.collapsed .collapsor-arrow {
+        transform: rotate(0deg);
+      }
     }
   }
 `;
