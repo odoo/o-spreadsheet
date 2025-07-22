@@ -45,9 +45,27 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
         
          ) 
       </div>
-      <i
-        class="fa fa-caret-up px-2 align-self-start collapsed"
-      />
+      <div
+        class="collapsor px-2 d-flex align-items-center rounded collapsed"
+      >
+        <span
+          class="collapsor-arrow d-inline-block"
+        >
+          <div
+            class="o-icon"
+          >
+            <svg
+              viewBox="0 0 224 256"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"
+                transform="translate(0, 9) scale(0.5,0.5)"
+              />
+            </svg>
+          </div>
+        </span>
+      </div>
     </div>
     <div
       class="os-collapse d-none"
