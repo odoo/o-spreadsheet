@@ -79,7 +79,7 @@ export class PivotMeasureEditor extends Component<Props> {
   }
 
   openShowValuesAs() {
-    this.env.openSidePanel("PivotMeasureDisplayPanel", {
+    this.env.replaceSidePanel("PivotMeasureDisplayPanel", `pivot_key_${this.props.pivotId}`, {
       pivotId: this.props.pivotId,
       measure: this.props.measure,
     });
