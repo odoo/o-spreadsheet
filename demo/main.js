@@ -213,13 +213,8 @@ class Demo extends Component {
     const stores = useStoreProvider();
 
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
-    useExternalListener(window, "unhandledrejection", () => {
-      this.notifyUser({
-        text: "An unexpected error occurred. Open the developer console for details.",
-        sticky: true,
-        type: "warning",
-      });
-    });
+    useExternalListener(window, "unhandledrejection", this.notifyError.bind(this));
+    useExternalListener(window, "error", this.notifyError.bind(this));
 
     onWillStart(() => this.initiateConnection());
 
@@ -227,11 +222,15 @@ class Demo extends Component {
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
     onError((error) => {
       console.error(error.cause || error);
-      this.notifyUser({
-        text: "An unexpected error occurred. Open the developer console for details.",
-        sticky: true,
-        type: "warning",
-      });
+      this.notifyError();
+    });
+  }
+
+  notifyError() {
+    this.notifyUser({
+      text: "An unexpected error occurred. Open the developer console for details.",
+      sticky: true,
+      type: "warning",
     });
   }
 
