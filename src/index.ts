@@ -120,6 +120,8 @@ import { GeoChartDesignPanel } from "./components/side_panel/chart/geo_chart_pan
 import { GeoChartRegionSelectSection } from "./components/side_panel/chart/geo_chart_panel/geo_chart_region_select_section";
 import { LineChartDesignPanel } from "./components/side_panel/chart/line_chart/line_chart_design_panel";
 import { RadarChartDesignPanel } from "./components/side_panel/chart/radar_chart/radar_chart_design_panel";
+import { SunburstChartDesignPanel } from "./components/side_panel/chart/sunburst_chart/sunburst_chart_design_panel";
+import { TreeMapChartDesignPanel } from "./components/side_panel/chart/treemap_chart/treemap_chart_design_panel";
 import { WaterfallChartDesignPanel } from "./components/side_panel/chart/waterfall_chart/waterfall_chart_design_panel";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "./components/side_panel/components/radio_selection/radio_selection";
@@ -405,6 +407,8 @@ export const components = {
   WaterfallChartDesignPanel,
   ComboChartDesignPanel,
   FunnelChartDesignPanel,
+  SunburstChartDesignPanel,
+  TreeMapChartDesignPanel,
   ChartTypePicker,
   FigureComponent,
   MenuPopover,
