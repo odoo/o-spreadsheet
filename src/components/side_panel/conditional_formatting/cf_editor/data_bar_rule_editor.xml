@@ -3,7 +3,7 @@
     <div class="o-cf-data-bar-editor">
       <div class="o-section-subtitle">Color</div>
       <RoundColorPicker
-        currentColor="colorNumberString(rule.color)"
+        currentColor="colorNumberToHex(rule.color)"
         onColorPicked.bind="updateDataBarColor"
         disableNoColor="true"
       />
