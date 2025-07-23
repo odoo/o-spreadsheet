@@ -1,5 +1,5 @@
 import { Locale } from "../types";
-import { escapeRegExp, memoize } from "./misc";
+import { escapeRegExp, memoize, whiteSpaceCharacters } from "./misc";
 
 /**
  * This function returns a regexp that is supposed to be as close as possible as the numberRegexp,
@@ -18,6 +18,8 @@ export const getFormulaNumberRegex = memoize(function getFormulaNumberRegex(
   );
 });
 
+const whiteSpacePattern = "[" + whiteSpaceCharacters.join("") + "]";
+
 const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
   const decimalSeparator = escapeRegExp(locale.decimalSeparator);
   const thousandsSeparator = escapeRegExp(locale.thousandsSeparator || "");
@@ -25,11 +27,17 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
   const pIntegerAndDecimals = `(\\d+(${thousandsSeparator}\\d{3,})*(${decimalSeparator}\\d*)?)`; // pattern that match integer number with or without decimal digits
   const pOnlyDecimals = `(${decimalSeparator}\\d+)`; // pattern that match only expression with decimal digits
   const pScientificFormat = "(e(\\+|-)?\\d+)?"; // pattern that match scientific format between zero and one time (should be placed before pPercentFormat)
-  const pPercentFormat = "(\\s*%)?"; // pattern that match percent symbol between zero and one time
+  const pPercentFormat = `(${whiteSpacePattern}*%)?`; // pattern that match percent symbol between zero and one time
   const pNumber =
-    "(\\s*" + pIntegerAndDecimals + "|" + pOnlyDecimals + ")" + pScientificFormat + pPercentFormat;
-  const pMinus = "(\\s*-)?"; // pattern that match negative symbol between zero and one time
-  const pCurrencyFormat = "(\\s*[\\$€])?";
+    `(${whiteSpacePattern}*` +
+    pIntegerAndDecimals +
+    "|" +
+    pOnlyDecimals +
+    ")" +
+    pScientificFormat +
+    pPercentFormat;
+  const pMinus = `(${whiteSpacePattern}*-)?`; // pattern that match negative symbol between zero and one time
+  const pCurrencyFormat = `(${whiteSpacePattern}*[\\$€])?`;
 
   const p1 = pMinus + pCurrencyFormat + pNumber;
   const p2 = pMinus + pNumber + pCurrencyFormat;
@@ -42,6 +50,8 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
   return numberRegexp;
 });
 
+const spaceTrimRegex = new RegExp(`^${whiteSpacePattern}*|${whiteSpacePattern}*$`, "gi");
+
 /**
  * Return true if the argument is a "number string".
  *
@@ -50,7 +60,7 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
 export function isNumber(value: string | undefined, locale: Locale): boolean {
   if (!value) return false;
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
-  return getNumberRegex(locale).test(value.trim());
+  return getNumberRegex(locale).test(value.replaceAll(spaceTrimRegex, ""));
 }
 
 const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(locale: Locale) {
