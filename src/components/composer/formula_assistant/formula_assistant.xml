@@ -21,11 +21,14 @@
             </t>
             )
           </div>
-          <i
-            class="fa fa-caret-up px-2 align-self-start"
+          <div
+            class="collapsor px-2 d-flex align-items-center rounded"
             t-att-class="state.isCollapsed ? 'collapsed' : ''"
-            t-on-click="() => this.toggle()"
-          />
+            t-on-click="() => this.toggle()">
+            <span class="collapsor-arrow d-inline-block">
+              <t t-call="o-spreadsheet-Icon.ANGLE_DOWN"/>
+            </span>
+          </div>
         </div>
 
         <Collapse isCollapsed="state.isCollapsed">
