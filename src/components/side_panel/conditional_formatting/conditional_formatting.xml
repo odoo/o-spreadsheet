@@ -11,8 +11,9 @@
       <t t-if="state.mode === 'edit'">
         <ConditionalFormattingEditor
           editedCf="editedCF"
-          onSave.bind="switchToList"
+          onExit.bind="switchToList"
           onCancel.bind="cancelEdition"
+          isNewCf="originalEditedCf === undefined"
         />
       </t>
     </div>
