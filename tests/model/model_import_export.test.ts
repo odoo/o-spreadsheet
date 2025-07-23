@@ -180,6 +180,7 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       stacked: false,
+      humanizeNumbers: true,
     });
     expect(data.sheets[0].figures[1].data).toEqual({
       type: "bar",
@@ -190,6 +191,7 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       stacked: false,
+      humanizeNumbers: true,
     });
     expect(data.sheets[0].figures[2].data).toEqual({
       type: "bar",
@@ -200,6 +202,7 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       stacked: false,
+      humanizeNumbers: true,
     });
     expect(data.sheets[0].figures[3].data).toEqual({
       type: "bar",
@@ -210,6 +213,7 @@ describe("Migrations", () => {
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       stacked: false,
+      humanizeNumbers: true,
     });
   });
   test.each(FORBIDDEN_SHEETNAME_CHARS)("migrate version 7: sheet Names", (char) => {

@@ -275,6 +275,7 @@ export function createComboChart(
       background: data.background,
       legendPosition: data.legendPosition || "top",
       aggregated: ("aggregated" in data && data.aggregated) || false,
+      humanizeNumbers: data.humanizeNumbers || false,
     },
   });
 }
@@ -308,6 +309,7 @@ export function createRadarChart(
       aggregated: ("aggregated" in data && data.aggregated) || false,
       fillArea: data.fillArea || false,
       stacked: data.stacked || false,
+      humanizeNumbers: data.humanizeNumbers || false,
     },
   });
 }
@@ -364,7 +366,7 @@ export function createScorecardChart(
       baselineColorDown: data.baselineColorDown || DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baselineColorUp: data.baselineColorUp || DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       background: data.background,
-      humanize: data.humanize || false,
+      humanizeNumbers: data.humanizeNumbers || false,
     },
   });
 }
@@ -411,6 +413,7 @@ export function createGaugeChart(
           operator: "<=",
         },
       },
+      humanizeNumbers: data.humanizeNumbers || false,
     },
   });
 }
@@ -443,6 +446,7 @@ export function createGeoChart(
       colorScale: data.colorScale,
       missingValueColor: data.missingValueColor,
       region: data.region,
+      humanizeNumbers: data.humanizeNumbers || false,
     },
   });
 }

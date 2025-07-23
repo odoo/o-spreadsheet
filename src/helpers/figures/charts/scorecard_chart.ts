@@ -42,7 +42,7 @@ function getBaselineText(
   baseline: EvaluatedCell | undefined,
   keyValue: EvaluatedCell | undefined,
   baselineMode: BaselineMode,
-  humanize: boolean,
+  humanizeNumbers: boolean,
   locale: Locale
 ): string {
   if (!baseline) {
@@ -52,7 +52,7 @@ function getBaselineText(
     keyValue?.type !== CellValueType.number ||
     baseline.type !== CellValueType.number
   ) {
-    if (humanize) {
+    if (humanizeNumbers) {
       return humanizeNumber(baseline, locale);
     }
     return baseline.formattedValue;
@@ -73,7 +73,7 @@ function getBaselineText(
       value = Math.round(value * 100) / 100;
     }
   }
-  if (humanize) {
+  if (humanizeNumbers) {
     return humanizeNumber({ value, format }, locale);
   }
   return formatValue(value, { format, locale });
@@ -81,13 +81,13 @@ function getBaselineText(
 
 function getKeyValueText(
   keyValueCell: EvaluatedCell | undefined,
-  humanize: boolean,
+  humanizeNumbers: boolean,
   locale: Locale
 ): string {
   if (!keyValueCell) {
     return "";
   }
-  if (humanize) {
+  if (humanizeNumbers) {
     return humanizeNumber(keyValueCell, locale);
   }
   return keyValueCell.formattedValue ?? String(keyValueCell.value ?? "");
@@ -169,7 +169,7 @@ export class ScorecardChart extends AbstractChart {
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
   readonly fontColor?: Color;
-  readonly humanize?: boolean;
+  readonly humanizeNumbers: boolean;
   readonly type = "scorecard";
 
   constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -182,7 +182,7 @@ export class ScorecardChart extends AbstractChart {
     this.background = definition.background;
     this.baselineColorUp = definition.baselineColorUp ?? DEFAULT_SCORECARD_BASELINE_COLOR_UP;
     this.baselineColorDown = definition.baselineColorDown ?? DEFAULT_SCORECARD_BASELINE_COLOR_DOWN;
-    this.humanize = definition.humanize ?? false;
+    this.humanizeNumbers = definition.humanizeNumbers ?? true;
   }
 
   static validateChartDefinition(
@@ -202,6 +202,7 @@ export class ScorecardChart extends AbstractChart {
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baseline: context.auxiliaryRange || "",
+      humanizeNumbers: context.humanizeNumbers,
     };
   }
 
@@ -279,7 +280,7 @@ export class ScorecardChart extends AbstractChart {
         ? this.getters.getRangeString(keyValue, targetSheetId || this.sheetId)
         : undefined,
       keyDescr: this.keyDescr,
-      humanize: this.humanize,
+      humanizeNumbers: this.humanizeNumbers,
     };
   }
 
@@ -442,7 +443,7 @@ export function createScorecardChartRuntime(
       row: chart.keyValue.zone.top,
     };
     keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-    formattedKeyValue = getKeyValueText(keyValueCell, chart.humanize ?? false, locale);
+    formattedKeyValue = getKeyValueText(keyValueCell, chart.humanizeNumbers ?? true, locale);
   }
   let baselineCell: EvaluatedCell | undefined;
   const baseline = chart.baseline;
@@ -463,7 +464,7 @@ export function createScorecardChartRuntime(
     baselineCell,
     keyValueCell,
     chart.baselineMode,
-    chart.humanize ?? false,
+    chart.humanizeNumbers ?? true,
     locale
   );
   const baselineValue =

@@ -199,6 +199,7 @@ export class GaugeChart extends AbstractChart {
           operator: "<=",
         },
       },
+      humanizeNumbers: context.humanizeNumbers,
     };
   }
 
@@ -244,6 +245,7 @@ export class GaugeChart extends AbstractChart {
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
+      humanizeNumbers: this.humanizeNumbers,
     };
   }
 
