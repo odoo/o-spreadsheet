@@ -273,6 +273,71 @@ export const PROPER = {
   isExported: true,
 } satisfies AddFunctionDescription;
 
+const REGEXEXTRACT_DEFAULT_MODE = 0;
+const REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY = 0;
+
+// -----------------------------------------------------------------------------
+// REGEXEXTRACT
+// -----------------------------------------------------------------------------
+export const REGEXEXTRACT = {
+  description: _t("Extract text from a string based on the supplied regular expression."),
+  args: [
+    arg("text (string)", _t("The string on which you want to extract text.")),
+    arg("pattern (string)", _t("The regular expression pattern to match against the text.")),
+    arg(
+      `return_mode (number, default=${REGEXEXTRACT_DEFAULT_MODE})`,
+      _t(
+        "0 = first match, 1 = all matches as an array, 2 = capturing groups from the first match as an array."
+      )
+    ),
+    arg(
+      `case_sensitivity (number, default=${REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY})`,
+      _t("0 = case-sensitive, 1 = case-insensitive.")
+    ),
+  ],
+  compute: function (
+    text: Maybe<FunctionResultObject>,
+    pattern: Maybe<FunctionResultObject>,
+    return_mode: Maybe<FunctionResultObject> = { value: REGEXEXTRACT_DEFAULT_MODE },
+    newText: Maybe<FunctionResultObject> = { value: REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY }
+  ) {
+    const _text = toString(text);
+    const _pattern = toString(pattern);
+    const _returnMode = toNumber(return_mode, this.locale);
+    const _caseSensitivity = toNumber(newText, this.locale);
+
+    if (_text === "" || _pattern === "") {
+      return { value: "" };
+    }
+    if (_returnMode < 0 || _returnMode > 2) {
+      return new EvaluationError(_t("The return_mode (%s) must be 0, 1 or 2.", _returnMode));
+    }
+    if (_caseSensitivity !== 0 && _caseSensitivity !== 1) {
+      return new EvaluationError(_t("The case_sensitivity (%s) must be 0 or 1.", _caseSensitivity));
+    }
+
+    const flags = _caseSensitivity === 1 ? "gi" : "g";
+    const regex = new RegExp(_pattern, flags);
+    const matches = [..._text.matchAll(regex)];
+
+    if (matches.length === 0) {
+      return { value: CellErrorType.NotAvailable, message: _t("No matches found.") };
+    }
+
+    if (_returnMode === 0) {
+      return matches[0][0];
+    } else if (_returnMode === 1) {
+      return matches.map((match) => [match[0]]);
+    } else {
+      if (matches[0].length < 2) {
+        return new EvaluationError(_t("No capturing groups found."));
+      }
+      return matches[0].slice(1).map((s) => [s]);
+    }
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
 // -----------------------------------------------------------------------------
 // REPLACE
 // -----------------------------------------------------------------------------

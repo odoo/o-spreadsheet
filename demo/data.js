@@ -2317,6 +2317,12 @@ export const demoData = {
         B227: '=TEXTBEFORE("Hello there; General Kenobi", "; ")',
         C227: "Hello there",
         D227: "=IF(B227=C227,1, 0)",
+        C227: "Hello there",
+        D227: "=IF(B227=C227,1, 0)",
+        A228: "REGEXEXTRACT",
+        B228: '=REGEXEXTRACT("Hello there; General Kenobi", "General (.*)", 2)',
+        C228: "Kenobi",
+        D228: "=IF(B228=C228,1, 0)",
       },
       styles: {
         "H24:J24": 10,

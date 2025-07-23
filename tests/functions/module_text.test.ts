@@ -3,6 +3,7 @@ import { setCellContent } from "../test_helpers/commands_helpers";
 import {
   checkFunctionDoesntSpreadBeyondRange,
   createModelFromGrid,
+  evaluateArrayFormula,
   evaluateCell,
   evaluateGrid,
   getRangeValuesAsMatrix,
@@ -388,6 +389,89 @@ describe("PROPER formula", () => {
     expect(evaluateCell("A1", { A1: "=PROPER(A2)", A2: "hey" })).toBe("Hey");
     expect(evaluateCell("A1", { A1: "=PROPER(A2)", A2: '="bi-annual' })).toBe("Bi-Annual");
   });
+});
+
+describe("REGEXEXTRACT function", () => {
+  test("REGEXEXTRACT takes 2-4 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=REGEXEXTRACT()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello")' })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo")' })).toBe("lo");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0)' })).toBe("lo");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 0)' })).toBe("lo");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 0, 0)' })).toBe("#BAD_EXPR");
+  });
+
+  test("Empty text/pattern returns an empty string", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("", "lo")' })).toBe("");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "")' })).toBe("");
+  });
+
+  test("return_mode is 0, 1 or 2", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", -1)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 1)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "(lo)", 2)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 3)' })).toBe("#ERROR");
+  });
+
+  test("error if return_mode is 2 and there is no capturing groups in the regex", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 2)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "(lo)", 2)' })).not.toBe("#ERROR");
+  });
+
+  test("case_sensitivity is either 0 or 1", () => {
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, -1)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 0)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 1)' })).not.toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=REGEXEXTRACT("Hello", "lo", 0, 2)' })).toBe("#ERROR");
+  });
+
+  test("Can return the first match, all the matches, or the capturing groups of first match", () => {
+    const model = new Model();
+    expect(
+      evaluateArrayFormula(model, `REGEXEXTRACT("hello there my guy", "e([a-z]+)", 0)`)
+    ).toEqual([["ello"]]);
+    expect(
+      evaluateArrayFormula(model, `REGEXEXTRACT("hello there my guy", "e([a-z]+)", 1)`)
+    ).toEqual([["ello"], ["ere"]]);
+    expect(
+      evaluateArrayFormula(model, `REGEXEXTRACT("hello there my guy", "e([a-z]+)", 2)`)
+    ).toEqual([["llo"]]);
+  });
+
+  test("Can be either case sensitive or insensitive", () => {
+    const model = new Model();
+    expect(evaluateArrayFormula(model, `REGEXEXTRACT("HellO", "[A-Z]+", 1, 0)`)).toEqual([
+      ["H"],
+      ["O"],
+    ]);
+    expect(evaluateArrayFormula(model, `REGEXEXTRACT("HellO", "[A-Z]+", 1, 1)`)).toEqual([
+      ["HellO"],
+    ]);
+  });
+
+  test.each([
+    ["Hello there", "there", 0, 0, ["there"]],
+    ["Hello there", "o.*", 0, 0, ["o there"]],
+    ["Hello there", "o.*", 1, 0, ["o there"]],
+    ["Hello there", "o(.*)", 2, 0, [" there"]],
+    ["Hello there", "\\s.*", 0, 0, [" there"]],
+    ["Hello 56 there 89", "[0-9]+", 1, 0, ["56", "89"]],
+    ["Hello there my guy", "\\s[a-z]+", 0, 0, [" there"]],
+    ["Hello there my guy", "\\s[a-z]+", 1, 0, [" there", " my", " guy"]],
+    ["word boundary", "\\b[a-z]+", 1, 0, ["word", "boundary"]],
+    ["Hello There My Guy", "(\\s[a-z]+)+", 1, 1, [" There My Guy"]],
+    ["Hello There My Guy", "(\\s[a-z]+)+", 2, 1, [" Guy"]], // Repeated capturing group, only last one is returned
+    ["VAT:21% PRICE:200€", ".*:([0-9]+).*:([0-9]+)", 2, 0, ["21", "200"]], // Multiple capturing groups
+  ])(
+    "various function results =REGEXEXTRACT(%s, %s, %s, %s)",
+    (arg0: string, arg1: string, arg2: number, arg3: number, expectedResult: string[]) => {
+      const model = new Model();
+      expect(
+        evaluateArrayFormula(model, `REGEXEXTRACT("${arg0}", "${arg1}", ${arg2}, ${arg3})`).flat()
+      ).toEqual(expectedResult);
+    }
+  );
 });
 
 describe("REPLACE formula", () => {
