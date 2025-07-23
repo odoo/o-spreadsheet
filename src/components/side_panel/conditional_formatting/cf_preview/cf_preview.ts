@@ -1,6 +1,6 @@
 import { Component, useRef } from "@odoo/owl";
 import { CF_ICON_EDGE_LENGTH, GRAY_200, GRAY_300, HIGHLIGHT_COLOR } from "../../../../constants";
-import { colorNumberString } from "../../../../helpers";
+import { colorNumberToHex } from "../../../../helpers";
 import { criterionEvaluatorRegistry } from "../../../../registries/criterion_registry";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { cellStyleToCss, css, cssPropertiesToCss } from "../../../helpers";
@@ -102,15 +102,15 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
     if (rule.type === "CellIsRule") {
       return cssPropertiesToCss(cellStyleToCss(rule.style));
     } else if (rule.type === "ColorScaleRule") {
-      const minColor = colorNumberString(rule.minimum.color);
-      const midColor = rule.midpoint ? colorNumberString(rule.midpoint.color) : null;
-      const maxColor = colorNumberString(rule.maximum.color);
+      const minColor = colorNumberToHex(rule.minimum.color);
+      const midColor = rule.midpoint ? colorNumberToHex(rule.midpoint.color) : null;
+      const maxColor = colorNumberToHex(rule.maximum.color);
       const baseString = "background-image: linear-gradient(to right, ";
       return midColor
         ? baseString + minColor + ", " + midColor + ", " + maxColor + ")"
         : baseString + minColor + ", " + maxColor + ")";
     } else if (rule.type === "DataBarRule") {
-      const color = colorNumberString(rule.color);
+      const color = colorNumberToHex(rule.color);
       return `background-image: linear-gradient(to right, ${color} 50%, white 50%)`;
     }
     return "";
