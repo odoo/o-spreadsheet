@@ -2,6 +2,7 @@ import {
   Component,
   onMounted,
   onPatched,
+  onWillStart,
   onWillUnmount,
   onWillUpdateProps,
   useEffect,
@@ -442,11 +443,13 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     });
 
     const render = batched(this.render.bind(this, true));
+    onWillStart(() => {
+      registerChartJSExtensions();
+    });
     onMounted(() => {
       this.checkViewportSize();
       stores.on("store-updated", this, render);
       resizeObserver.observe(this.spreadsheetRef.el!);
-      registerChartJSExtensions();
     });
     onWillUnmount(() => {
       this.unbindModelEvents();
