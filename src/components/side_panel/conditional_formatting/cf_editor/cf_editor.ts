@@ -146,8 +146,9 @@ css/* scss */ `
 `;
 interface Props {
   editedCf: ConditionalFormat;
-  onSave: () => void;
+  onExit: () => void;
   onCancel: () => void;
+  isNewCf: boolean;
 }
 
 type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule" | "DataBarRule";
@@ -182,7 +183,8 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   static props = {
     editedCf: Object,
     onCancel: Function,
-    onSave: Function,
+    onExit: Function,
+    isNewCf: Boolean,
   };
   static components = {
     SelectionInput,
@@ -203,6 +205,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   colorNumberString = colorNumberString;
 
   private state!: State;
+  private hasEditedCf = this.props.isNewCf;
 
   setup() {
     this.state = useState<State>({
@@ -268,6 +271,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       ranges: ranges.map((xc) => this.env.model.getters.getRangeDataFromXc(sheetId, xc)),
       sheetId,
     });
+    if (result.isSuccessful) {
+      this.hasEditedCf = true;
+    }
     const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
     if (!newCf.suppressErrors) {
       this.state.errors = reasons;
@@ -291,7 +297,15 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   onSave() {
     const result = this.updateConditionalFormat({});
     if (result.length === 0) {
-      this.props.onSave();
+      this.props.onExit();
+    }
+  }
+
+  onCancel() {
+    if (this.hasEditedCf) {
+      this.props.onCancel();
+    } else {
+      this.props.onExit();
     }
   }
 
