@@ -587,6 +587,27 @@ describe("UI of conditional formats", () => {
       });
     });
 
+    test("Pressing cancel after doing nothing in the panel does not override changes from another user", async () => {
+      await click(fixture, selectors.buttonAdd);
+      await click(fixture, selectors.buttonSave);
+      const cfId = model.getters.getConditionalFormats(sheetId)[0].id;
+
+      // Open the panel
+      await click(fixture, selectors.listPreview);
+      // Someone else changes the CF in the meantime
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("2", { fillColor: "#ff0000" }, cfId),
+        ranges: toRangesData(sheetId, "A1:A2"),
+        sheetId,
+      });
+      // Press cancel
+      await click(fixture, selectors.buttonCancel);
+      expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
+        operator: "Equal",
+        style: { fillColor: "#ff0000" },
+      });
+    });
+
     test("The error messages only appear when clicking save, not when changing the operator type", async () => {
       await click(fixture, selectors.buttonAdd);
 
