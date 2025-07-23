@@ -8,12 +8,7 @@ import {
   GRAY_200,
   GRAY_300,
 } from "../../../../constants";
-import {
-  colorNumberString,
-  colorToNumber,
-  isColorValid,
-  rangeReference,
-} from "../../../../helpers";
+import { colorNumberToHex, colorToNumber, isColorValid, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
 import {
@@ -200,7 +195,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   icons = ICONS;
   iconSets = ICON_SETS;
   getTextDecoration = getTextDecoration;
-  colorNumberString = colorNumberString;
+  colorNumberToHex = colorNumberToHex;
 
   private state!: State;
 
@@ -490,9 +485,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   getPreviewGradient() {
     const rule = this.state.rules.colorScale;
-    const minColor = colorNumberString(rule.minimum.color);
-    const midColor = colorNumberString(rule.midpoint?.color || DEFAULT_COLOR_SCALE_MIDPOINT_COLOR);
-    const maxColor = colorNumberString(rule.maximum.color);
+    const minColor = colorNumberToHex(rule.minimum.color);
+    const midColor = colorNumberToHex(rule.midpoint?.color || DEFAULT_COLOR_SCALE_MIDPOINT_COLOR);
+    const maxColor = colorNumberToHex(rule.maximum.color);
     const baseString = "background-image: linear-gradient(to right, ";
     return rule.midpoint === undefined
       ? baseString + minColor + ", " + maxColor + ")"
@@ -501,8 +496,8 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   getThresholdColor(threshold?: ColorScaleThreshold) {
     return threshold
-      ? colorNumberString(threshold.color)
-      : colorNumberString(DEFAULT_COLOR_SCALE_MIDPOINT_COLOR);
+      ? colorNumberToHex(threshold.color)
+      : colorNumberToHex(DEFAULT_COLOR_SCALE_MIDPOINT_COLOR);
   }
 
   onMidpointChange(ev) {

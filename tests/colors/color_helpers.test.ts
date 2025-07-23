@@ -1,5 +1,7 @@
 import {
+  colorToNumber,
   colorToRGBA,
+  getColorScale,
   hslaToRGBA,
   isColorValid,
   rgba,
@@ -149,5 +151,101 @@ describe("rgba", () => {
 
   test("default alpha value", () => {
     expect(rgba(1, 2, 3)).toEqual({ r: 1, g: 2, b: 3, a: 1 });
+  });
+});
+
+describe("getColorScale", () => {
+  test("Supports rbga strings ", () => {
+    const colorScale = getColorScale([
+      {
+        value: 0,
+        color: "rgba(0, 0, 0)",
+      },
+      {
+        value: 100,
+        color: "rgba(0, 0, 255)",
+      },
+    ]);
+    expect(colorScale(50)).toBeSameColorAs("rgba(0, 0, 127)");
+  });
+
+  test("supports hex colors", () => {
+    const colorScale = getColorScale([
+      {
+        value: 0,
+        color: "#000000",
+      },
+      {
+        value: 2,
+        color: "#000080",
+      },
+      {
+        value: 4,
+        color: "#0000FF",
+      },
+    ]);
+    expect(colorScale(-1)).toBeSameColorAs("#000000");
+    expect(colorScale(0)).toBeSameColorAs("#000000");
+    expect(colorScale(1)).toBeSameColorAs("#000040");
+    expect(colorScale(2)).toBeSameColorAs("#000080");
+    expect(colorScale(3)).toBeSameColorAs("#0000C0");
+    expect(colorScale(4)).toBeSameColorAs("#0000FF");
+    expect(colorScale(5)).toBeSameColorAs("#0000FF");
+  });
+
+  test("supports number colors", () => {
+    const colorScale = getColorScale([
+      {
+        value: 0,
+        color: 0x000000,
+      },
+      {
+        value: 2,
+        color: 0x000080,
+      },
+      {
+        value: 4,
+        color: 0x0000ff,
+      },
+    ]);
+    expect(colorScale(-1)).toBeSameColorAs("#000000");
+    expect(colorScale(0)).toBeSameColorAs("#000000");
+    expect(colorScale(1)).toBeSameColorAs("#000040");
+    expect(colorScale(2)).toBeSameColorAs("#000080");
+    expect(colorScale(3)).toBeSameColorAs("#0000C0");
+    expect(colorScale(4)).toBeSameColorAs("#0000FF");
+    expect(colorScale(5)).toBeSameColorAs("#0000FF");
+  });
+
+  test("supports colors with alpha", () => {
+    const colorScale = getColorScale([
+      {
+        value: 0,
+        color: "#00000000",
+      },
+      {
+        value: 2,
+        color: "#00008080",
+      },
+      {
+        value: 4,
+        color: "#0000FFFF",
+      },
+    ]);
+    expect(colorScale(-1)).toBeSameColorAs("#00000000");
+    expect(colorScale(0)).toBeSameColorAs("#00000080");
+    expect(colorScale(1)).toBeSameColorAs("#00004080");
+    expect(colorScale(2)).toBeSameColorAs("#00008080");
+    // the alpha always matches the one of the upper threshold
+    expect(colorScale(2 + 1e-9)).toBeSameColorAs("#000080FF");
+    expect(colorScale(3)).toBeSameColorAs("#0000C0FF");
+    expect(colorScale(4)).toBeSameColorAs("#0000FFFF");
+    expect(colorScale(5)).toBeSameColorAs("#0000FFFF");
+  });
+
+  test("Alpha channel is dropped when converting a color to a number", () => {
+    expect(colorToNumber("#00000000")).toBe(0x000000);
+    expect(colorToNumber("#12345678")).toBe(0x123456);
+    expect(colorToNumber(0x123456)).toBe(0x123456);
   });
 });

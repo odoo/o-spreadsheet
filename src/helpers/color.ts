@@ -24,17 +24,23 @@ export const colors = [
 ];
 
 /*
- * transform a color number (R * 256^2 + G * 256 + B) into classic hex6 value
+ * transform a color number (R * 256^2 + G * 256 + B) into classic hex (+alpha) value
  * */
-export function colorNumberString(color: number): Color {
-  return toHex(color.toString(16).padStart(6, "0"));
+export function colorNumberToHex(color: number, alpha: number = 1): Color {
+  const alphaHex =
+    alpha !== 1
+      ? Math.round(alpha * 255)
+          .toString(16)
+          .padStart(2, "0")
+      : "";
+  return toHex(color.toString(16).padStart(6, "0")) + alphaHex;
 }
 
 export function colorToNumber(color: Color | number): number {
   if (typeof color === "number") {
     return color;
   }
-  return Number.parseInt(toHex(color).slice(1), 16);
+  return Number.parseInt(toHex(color).slice(1, 7), 16);
 }
 
 /**
@@ -300,6 +306,13 @@ export function hslaToHex(hsla: HSLA): Color {
 
 export function hexToHSLA(hex: Color): HSLA {
   return rgbaToHSLA(colorToRGBA(hex));
+}
+
+function colorOrNumberToRGBA(color: Color | number): RGBA {
+  if (typeof color === "number") {
+    return colorToRGBA(colorNumberToHex(color));
+  }
+  return colorToRGBA(color);
 }
 
 /**
@@ -595,6 +608,8 @@ type ColorScaleThreshold = {
   minColor: number;
   maxColor: number;
   colorDiff: [number, number, number];
+  minColorAlpha: number;
+  maxColorAlpha: number;
 };
 
 /**
@@ -610,13 +625,19 @@ export function getColorScale(
   const sortedColorScalePoints = [...colorScalePoints.sort((a, b) => a.value - b.value)];
   const thresholds: ColorScaleThreshold[] = [];
   for (let i = 1; i < sortedColorScalePoints.length; i++) {
+    const minColorAlpha = colorOrNumberToRGBA(sortedColorScalePoints[i - 1].color).a;
+    const maxColorAlpha = colorOrNumberToRGBA(sortedColorScalePoints[i].color).a;
+
     const minColor = colorToNumber(sortedColorScalePoints[i - 1].color);
     const maxColor = colorToNumber(sortedColorScalePoints[i].color);
+
     thresholds.push({
       min: sortedColorScalePoints[i - 1].value,
       max: sortedColorScalePoints[i].value,
       minColor,
       maxColor,
+      minColorAlpha: minColorAlpha,
+      maxColorAlpha: maxColorAlpha,
       colorDiff: computeColorDiffUnits(
         sortedColorScalePoints[i - 1].value,
         sortedColorScalePoints[i].value,
@@ -628,16 +649,20 @@ export function getColorScale(
 
   return (value: number) => {
     if (value < thresholds[0].min) {
-      return colorNumberString(thresholds[0].minColor);
+      return colorNumberToHex(thresholds[0].minColor, thresholds[0].minColorAlpha);
     }
     for (const threshold of thresholds) {
       if (value >= threshold.min && value <= threshold.max) {
-        return colorNumberString(
-          colorCell(value, threshold.min, threshold.minColor, threshold.colorDiff)
+        return colorNumberToHex(
+          colorCell(value, threshold.min, threshold.minColor, threshold.colorDiff),
+          threshold.maxColorAlpha
         );
       }
     }
-    return colorNumberString(thresholds[thresholds.length - 1].maxColor);
+    return colorNumberToHex(
+      thresholds[thresholds.length - 1].maxColor,
+      thresholds[thresholds.length - 1].maxColorAlpha
+    );
   };
 }
 
