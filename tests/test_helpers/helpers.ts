@@ -498,6 +498,11 @@ export function evaluateCell(xc: string, grid: GridDescr): any {
   return gridResult[xc];
 }
 
+export function evaluateArrayFormula(model: Model, formula: string) {
+  const result = model.getters.evaluateFormula(model.getters.getActiveSheetId(), formula);
+  return Array.isArray(result) ? result : [[result]];
+}
+
 export function getRangeValuesAsMatrix(
   model: Model,
   rangeXc: string,
