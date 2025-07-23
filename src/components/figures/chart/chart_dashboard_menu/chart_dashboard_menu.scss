@@ -1,6 +1,6 @@
 .o-spreadsheet .o-figure {
-  &:not(:hover) .o-dashboard-chart-select {
-    display: none !important;
+  &:not(:hover):not(:focus-within) .o-dashboard-chart-select {
+    visibility: hidden;
   }
 
   .o-dashboard-chart-select {

@@ -112,6 +112,7 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/chart_js_extension";
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
+import { ChartDashboardMenuStore } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu_store";
 import { FullScreenChart } from "./components/full_screen_chart/full_screen_chart";
 import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
@@ -436,6 +437,7 @@ export const hooks = {
 
 export const stores = {
   useStoreProvider,
+  ChartDashboardMenuStore,
   DependencyContainer,
   CellPopoverStore,
   ComposerFocusStore,
