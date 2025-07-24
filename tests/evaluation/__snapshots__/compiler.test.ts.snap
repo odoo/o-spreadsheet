@@ -57,7 +57,7 @@ exports[`compile functions with meta arguments function call requesting meta par
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // =USEMETAARG(|C|)
-const _1 = ref(deps[0], true);
+const _1 = range(deps[0], true);
 return ctx['USEMETAARG'](_1);
 }"
 `;
@@ -66,7 +66,7 @@ exports[`compile functions with meta arguments function call requesting meta par
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // =USEMETAARG(|C|)
-const _1 = ref(deps[0], true);
+const _1 = range(deps[0], true);
 return ctx['USEMETAARG'](_1);
 }"
 `;
@@ -75,7 +75,7 @@ exports[`expression compiler cells are converted to ranges if function require a
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // =sum(|C|)
-const _1 = range(deps[0]);
+const _1 = range(deps[0], false);
 return ctx['SUM'](_1);
 }"
 `;
@@ -117,7 +117,7 @@ exports[`expression compiler read some values and functions 1`] = `
 ) {
 // =|C|+sum(|R|)
 const _1 = ref(deps[0], false);
-const _2 = range(deps[1]);
+const _2 = range(deps[1], false);
 const _3 = ctx['SUM'](_2);
 return ctx['ADD'](_1, _3);
 }"
@@ -275,9 +275,9 @@ exports[`expression compiler with the same reference multiple times 1`] = `
 "function anonymous(deps,ref,range,getSymbolValue,ctx
 ) {
 // =SUM(|C|,|C|,|C|)
-const _1 = range(deps[0]);
-const _2 = range(deps[1]);
-const _3 = range(deps[2]);
+const _1 = range(deps[0], false);
+const _2 = range(deps[1], false);
+const _3 = range(deps[2], false);
 return ctx['SUM'](_1,_2,_3);
 }"
 `;

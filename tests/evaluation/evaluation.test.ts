@@ -1284,7 +1284,7 @@ describe("evaluate formula getter", () => {
   });
 
   test("in a not existing sheet", () => {
-    expect(model.getters.evaluateFormula(sheetId, "=Sheet99!A1")).toBe("#ERROR");
+    expect(model.getters.evaluateFormula(sheetId, "=Sheet99!A1")).toBe("#REF");
   });
 
   test("evaluate a cell in error", () => {
