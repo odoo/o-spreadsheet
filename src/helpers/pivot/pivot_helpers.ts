@@ -43,13 +43,13 @@ const AGGREGATOR_NAMES = {
   sum: _t("Sum"),
 };
 
-const NUMBER_CHAR_AGGREGATORS = ["max", "min", "avg", "sum", "count_distinct", "count"];
+const DEFAULT_AGGREGATORS = ["max", "min", "avg", "sum", "count_distinct", "count"];
 
 const AGGREGATORS_BY_FIELD_TYPE = {
-  integer: NUMBER_CHAR_AGGREGATORS,
-  char: NUMBER_CHAR_AGGREGATORS,
+  integer: DEFAULT_AGGREGATORS,
+  char: DEFAULT_AGGREGATORS,
+  datetime: DEFAULT_AGGREGATORS,
   boolean: ["count_distinct", "count", "bool_and", "bool_or"],
-  datetime: ["max", "min", "count_distinct", "count"],
 };
 
 export const AGGREGATORS = {};
