@@ -571,7 +571,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
     for (const Handler of clipboardHandlersRegistries.cellHandlers.getAll()) {
       const handler = new Handler(this.getters, this.dispatch);
-      const data = handler.copy(getClipboardDataPositions(sheetId, target));
+      const data = handler.copy(getClipboardDataPositions(sheetId, target), "shiftCells");
       if (!data) {
         continue;
       }
