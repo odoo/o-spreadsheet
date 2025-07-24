@@ -138,7 +138,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         const argTypes = argDefinition.type || [];
 
         // detect when an argument need to be evaluated as a meta argument
-        const isMeta = argTypes.includes("META");
+        const isMeta = argTypes.includes("META") || argTypes.includes("RANGE<META>");
         const hasRange = argTypes.some((t) => isRangeType(t));
 
         compiledArgs.push(compileAST(currentArg, isMeta, hasRange));
@@ -178,11 +178,11 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
         case "STRING":
           return code.return(`this.literalValues.strings[${stringCount++}]`);
         case "REFERENCE":
-          if ((!isMeta && ast.value.includes(":")) || hasRange) {
-            return code.return(`range(deps[${dependencyCount++}])`);
-          } else {
-            return code.return(`ref(deps[${dependencyCount++}], ${isMeta ? "true" : "false"})`);
-          }
+          return code.return(
+            `${ast.value.includes(":") || hasRange ? `range` : `ref`}(deps[${dependencyCount++}], ${
+              isMeta ? "true" : "false"
+            })`
+          );
         case "FUNCALL":
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
           code.append(...args);
