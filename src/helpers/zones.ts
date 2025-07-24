@@ -693,6 +693,26 @@ export function getZonesCols(zones: Zone[]): Set<number> {
   return set;
 }
 
+/**
+ * Returns one merged zone per column,
+ * spanning the full vertical range across all input zones.
+ */
+export function getZonesByColumns(zones: Zone[]): Zone[] {
+  const map = new Map<number, Zone>();
+  for (const zone of zones) {
+    for (let col = zone.left; col <= zone.right; col++) {
+      const existing = map.get(col);
+      if (existing) {
+        existing.top = Math.min(existing.top, zone.top);
+        existing.bottom = Math.max(existing.bottom, zone.bottom);
+      } else {
+        map.set(col, { left: col, right: col, top: zone.top, bottom: zone.bottom });
+      }
+    }
+  }
+  return Array.from(map.values());
+}
+
 /** Return all the rows in the given list of zones */
 export function getZonesRows(zones: Zone[]): Set<number> {
   const set = new Set<number>();

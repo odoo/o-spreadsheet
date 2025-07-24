@@ -6,7 +6,7 @@ import {
   PIVOT_MAX_NUMBER_OF_CELLS,
 } from "../constants";
 import { parseOSClipboardContent } from "../helpers/clipboard/clipboard_helpers";
-import { getSmartChartDefinition } from "../helpers/figures/charts";
+import { getSmartChartDefinition } from "../helpers/figures/charts/smart_chart_engine";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
 import {
   areZonesContinuous,
@@ -398,9 +398,11 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const getters = env.model.getters;
   const figureId = env.model.uuidGenerator.smallUuid();
   const sheetId = getters.getActiveSheetId();
+  let zones = getters.getSelectedZones();
 
-  if (getZoneArea(env.model.getters.getSelectedZone()) === 1) {
+  if (zones.length === 1 && getZoneArea(zones[0]) === 1) {
     env.model.selection.selectTableAroundSelection();
+    zones = getters.getSelectedZones();
   }
 
   const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
@@ -414,7 +416,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
     row,
     offset,
     size,
-    definition: getSmartChartDefinition(env.model.getters.getSelectedZone(), env.model.getters),
+    definition: getSmartChartDefinition(zones, env.model.getters),
   });
   if (result.isSuccessful) {
     env.model.dispatch("SELECT_FIGURE", { figureId });
