@@ -30,6 +30,7 @@ import {
   copy,
   copyPasteAboveCells,
   copyPasteCellsOnLeft,
+  createDynamicTable,
   createSheet,
   createSheetWithName,
   createTable,
@@ -2366,6 +2367,21 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(model.getters.isCutOperation()).toBe(false);
     paste(model, "A5");
     expect(getCellContent(model, "A5")).toBe("b3");
+  });
+
+  test("Can insert and delete cells inside an array formula", () => {
+    const model = createModelFromGrid({ A1: "=MUNIT(2)" });
+    createDynamicTable(model, "A1");
+
+    insertCells(model, "B1", "down");
+    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCell(model, "B2")).toBe(undefined);
+
+    deleteCells(model, "A2", "left");
+    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCell(model, "A2")).toBe(undefined);
   });
 
   test("fill right selection with multiple columns -> copies first column and pastes in each subsequent column, ", async () => {
