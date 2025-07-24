@@ -440,6 +440,33 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
   });
 
+  test("Supports SUM and AVG aggregators for duration fields", async () => {
+    setCellContent(model, "A1", "name");
+    setCellContent(model, "A2", "Alice");
+    setCellContent(model, "B1", "duration");
+    setCellContent(model, "B2", "01:30:00");
+    addPivot(model, "A1:B2", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+
+    // Default aggregator for duration fields is "count"
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "duration:count", fieldName: "duration", aggregator: "count" },
+    ]);
+
+    await setInputValueAndTrigger(".pivot-measure select", "sum");
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "duration:sum", fieldName: "duration", aggregator: "sum" },
+    ]);
+
+    await setInputValueAndTrigger(".pivot-measure select", "avg");
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "duration:avg", fieldName: "duration", aggregator: "avg" },
+    ]);
+  });
+
   test("can add a datetime measure", async () => {
     setCellContent(model, "A1", "name");
     setCellContent(model, "A2", "Alice");
