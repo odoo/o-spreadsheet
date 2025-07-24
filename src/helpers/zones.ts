@@ -1,4 +1,4 @@
-import { CellPosition, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
+import { CellPosition, Position, UID, UnboundedZone, Zone, ZoneDimension } from "../types";
 import {
   MAX_COL,
   MAX_ROW,
@@ -470,6 +470,21 @@ export function positions(zone: Zone): Position[] {
   for (const col of range(left, right + 1)) {
     for (const row of range(top, bottom + 1)) {
       positions.push({ col, row });
+    }
+  }
+  return positions;
+}
+
+/**
+ * Array of all cell positions in the zone.
+ */
+export function cellPositions(sheetId: UID, zone: Zone): CellPosition[] {
+  const positions: CellPosition[] = [];
+
+  const { left, right, top, bottom } = reorderZone(zone);
+  for (const col of range(left, right + 1)) {
+    for (const row of range(top, bottom + 1)) {
+      positions.push({ sheetId, col, row });
     }
   }
   return positions;

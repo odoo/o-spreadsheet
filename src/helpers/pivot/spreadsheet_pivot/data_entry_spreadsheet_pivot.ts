@@ -235,12 +235,20 @@ export function orderDataEntriesKeys(
   dimension: PivotDimension
 ): string[] {
   const order = dimension.order;
-  if (!order) {
+  const othersGroup = dimension.customGroups?.find((group) => group.isOtherGroup);
+  if (!order && !othersGroup) {
     return Object.keys(groups);
   }
-  return Object.keys(groups).sort((a: string, b: string) =>
-    compareDimensionValues(dimension, a, b)
-  );
+
+  return Object.keys(groups).sort((a: string, b: string) => {
+    if (othersGroup && a === othersGroup.name) {
+      return 1;
+    }
+    if (othersGroup && b === othersGroup.name) {
+      return -1;
+    }
+    return order ? compareDimensionValues(dimension, a, b) : 0;
+  });
 }
 
 /**
