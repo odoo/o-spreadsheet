@@ -1,7 +1,13 @@
 import { getFullReference, splitReference } from "../helpers";
 import { setXcToFixedReferenceType } from "../helpers/reference_type";
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValueType, FunctionResultObject, Maybe } from "../types";
+import {
+  AddFunctionDescription,
+  CellValueType,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+} from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { isEvaluationError, toString } from "./helpers";
@@ -18,9 +24,9 @@ export const CELL = {
       "info_type (string)",
       _t("The type of information requested. Can be one of %s", CELL_INFO_TYPES.join(", "))
     ),
-    arg("reference (meta)", _t("The reference to the cell.")),
+    arg("reference (meta, range<meta>)", _t("The reference to the cell.")),
   ],
-  compute: function (info: Maybe<FunctionResultObject>, reference: Maybe<{ value: string }>) {
+  compute: function (info: Maybe<FunctionResultObject>, reference: Matrix<{ value: string }>) {
     const _info = toString(info).toLowerCase();
     if (!CELL_INFO_TYPES.includes(_info)) {
       return new EvaluationError(
@@ -29,9 +35,8 @@ export const CELL = {
     }
 
     const sheetId = this.__originSheetId;
-    const _reference = toString(reference);
-    const topLeftReference = _reference.includes(":") ? _reference.split(":")[0] : _reference;
-    let { sheetName, xc } = splitReference(topLeftReference);
+    const _reference = reference[0][0].value;
+    let { sheetName, xc } = splitReference(_reference);
     // only put the sheet name if the referenced range is in another sheet than the cell the formula is on
     sheetName = sheetName === this.getters.getSheetName(sheetId) ? undefined : sheetName;
     const fixedRef = getFullReference(sheetName, setXcToFixedReferenceType(xc, "colrow"));
