@@ -1868,6 +1868,30 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedCell(model, "B27").formattedValue).toBe("2022/04/14 01:02:03");
   });
 
+  test("Pivot aggregates duration fields with correct SUM and AVG values", () => {
+    const model = createModelFromGrid({
+      A1: "Duration",
+      A2: "01:30:00",
+      A3: "02:00:00",
+      A4: "00:45:00",
+    });
+    addPivot(model, "A1:A4", {
+      columns: [],
+      rows: [],
+      measures: [
+        { id: "Duration:avg", fieldName: "Duration", aggregator: "avg" },
+        { id: "Duration:sum", fieldName: "Duration", aggregator: "sum" },
+      ],
+    });
+    setCellContent(model, "A6", '=PIVOT.VALUE(1,"Duration:avg")');
+    setCellContent(model, "B6", '=PIVOT.VALUE(1,"Duration:sum")');
+
+    const pivot = model.getters.getPivot("1");
+    expect(pivot.getFields().Duration?.type).toBe("datetime");
+    expect(getEvaluatedCell(model, "A6").formattedValue).toBe("01:25:00");
+    expect(getEvaluatedCell(model, "B6").formattedValue).toBe("04:15:00");
+  });
+
   test("Pivot with measure AVG on text values does not crash", () => {
     const model = createModelFromGrid({ A1: "Customer", A2: "Jean", A3: "Marc" });
     addPivot(model, "A1:A3", {
