@@ -31,6 +31,7 @@ import {
   copy,
   copyPasteAboveCells,
   copyPasteCellsOnLeft,
+  createDynamicTable,
   createImage,
   createSheet,
   createSheetWithName,
@@ -2477,6 +2478,21 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getCellContent(model, "A5")).toBe("b3");
   });
 
+  test("Can insert and delete cells inside an array formula", () => {
+    const model = createModelFromGrid({ A1: "=MUNIT(2)" });
+    createDynamicTable(model, "A1");
+
+    insertCells(model, "B1", "down");
+    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCell(model, "B2")).toBe(undefined);
+
+    deleteCells(model, "A2", "left");
+    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCell(model, "A2")).toBe(undefined);
+  });
+
   test("fill right selection with multiple columns -> copies first column and pastes in each subsequent column, ", async () => {
     const model = new Model();
     setCellContent(model, "C1", "c1");
@@ -3131,7 +3147,7 @@ test("Can use clipboard handlers to paste in a sheet other than the active sheet
   let copiedData = {};
   const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1")]);
   for (const handler of handlers) {
-    copiedData = { ...copiedData, ...handler.copy(clipboardData) };
+    copiedData = { ...copiedData, ...handler.copy(clipboardData, false) };
   }
 
   const pasteTarget: ClipboardPasteTarget = { sheetId: "sh2", zones: target("A1") };
