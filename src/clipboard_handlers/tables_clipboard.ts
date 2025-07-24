@@ -3,6 +3,7 @@ import {
   Border,
   CellPosition,
   ClipboardCellData,
+  ClipboardCopyOptions,
   ClipboardOptions,
   ClipboardPasteTarget,
   CoreTableType,
@@ -41,7 +42,11 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
   TableCell
 > {
-  copy(data: ClipboardCellData, isCutOperation?: boolean): ClipboardContent {
+  copy(
+    data: ClipboardCellData,
+    isCutOperation: boolean,
+    mode: ClipboardCopyOptions = "copyPaste"
+  ): ClipboardContent {
     const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
@@ -87,11 +92,13 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
             type: coreTable.type,
           };
         }
-        tableCellsInRow.push({
-          table: copiedTable,
-          style: this.getTableStyleToCopy(position),
-          isWholeTableCopied: copiedTablesIds.has(table.id),
-        });
+        if (mode !== "shiftCells") {
+          tableCellsInRow.push({
+            table: copiedTable,
+            style: this.getTableStyleToCopy(position),
+            isWholeTableCopied: copiedTablesIds.has(table.id),
+          });
+        }
       }
     }
 

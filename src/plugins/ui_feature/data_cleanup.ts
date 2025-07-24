@@ -84,7 +84,7 @@ export class DataCleanupPlugin extends UIPlugin {
     }));
 
     const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getClipboardDataPositions(sheetId, rowsToKeep));
+    const data = handler.copy(getClipboardDataPositions(sheetId, rowsToKeep), false);
     if (!data) {
       return;
     }
