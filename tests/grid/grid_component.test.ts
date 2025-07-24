@@ -2256,3 +2256,48 @@ describe("Header grouping shortcuts", () => {
     });
   });
 });
+
+describe("Can select de-select zones", () => {
+  beforeEach(async () => {
+    ({ parent, model, fixture } = await mountSpreadsheet());
+  });
+  test("Can select a zone", () => {
+    gridMouseEvent(model, "pointerdown", "A1");
+    gridMouseEvent(model, "pointermove", "C3");
+    gridMouseEvent(model, "pointerup", "C3");
+    expect(model.getters.getSelectedZones()).toEqual([{ left: 0, right: 2, top: 0, bottom: 2 }]);
+  });
+
+  test("Can de-select cell from selection", () => {
+    gridMouseEvent(model, "pointerdown", "A1");
+    gridMouseEvent(model, "pointermove", "C3");
+    gridMouseEvent(model, "pointerup", "C3");
+    expect(model.getters.getSelectedZones()).toEqual([{ left: 0, right: 2, top: 0, bottom: 2 }]);
+
+    gridMouseEvent(model, "pointerdown", "B2", { ctrlKey: true });
+    gridMouseEvent(model, "pointerup", "B2", { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual([
+      { left: 0, right: 2, top: 2, bottom: 2 },
+      { left: 2, right: 2, top: 1, bottom: 1 },
+      { left: 0, right: 0, top: 1, bottom: 1 },
+      { left: 0, right: 2, top: 0, bottom: 0 },
+    ]);
+  });
+
+  test("Can select a zone and de-select a overlap zone", () => {
+    gridMouseEvent(model, "pointerdown", "A1");
+    gridMouseEvent(model, "pointermove", "D4");
+    gridMouseEvent(model, "pointerup", "D4");
+    expect(model.getters.getSelectedZones()).toEqual([{ left: 0, right: 3, top: 0, bottom: 3 }]);
+
+    gridMouseEvent(model, "pointerdown", "B2", { ctrlKey: true });
+    gridMouseEvent(model, "pointermove", "C3", { ctrlKey: true });
+    gridMouseEvent(model, "pointerup", "C3", { ctrlKey: true });
+    expect(model.getters.getSelectedZones()).toEqual([
+      { left: 0, right: 3, top: 3, bottom: 3 },
+      { left: 3, right: 3, top: 1, bottom: 2 },
+      { left: 0, right: 0, top: 1, bottom: 2 },
+      { left: 0, right: 3, top: 0, bottom: 0 },
+    ]);
+  });
+});
