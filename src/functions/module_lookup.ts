@@ -159,13 +159,16 @@ export const COLUMN = {
 
 export const COLUMNS = {
   description: _t("Number of columns in a specified array or range."),
-  args: [arg("range (meta)", _t("The range whose column count will be returned."))],
-  compute: function (range: { value: string }) {
-    if (isEvaluationError(range?.value)) {
-      return range;
+  args: [arg("range (any, range<any>)", _t("The range whose column count will be returned."))],
+  compute: function (range: Arg) {
+    const _range = toMatrix(range);
+    if (_range[0][0] === undefined) {
+      return new EvaluationError(_t("The range is out of bounds."));
     }
-    const zone = toZone(range.value);
-    return zone.right - zone.left + 1;
+    if (_range[0][0].value === CellErrorType.InvalidReference) {
+      return _range[0][0];
+    }
+    return _range.length;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -545,13 +548,16 @@ export const ROW = {
 
 export const ROWS = {
   description: _t("Number of rows in a specified array or range."),
-  args: [arg("range (meta)", _t("The range whose row count will be returned."))],
-  compute: function (range: { value: string }) {
-    if (isEvaluationError(range?.value)) {
-      return range;
+  args: [arg("range (any, range<any>)", _t("The range whose row count will be returned."))],
+  compute: function (range: Arg) {
+    const _range = toMatrix(range);
+    if (_range[0][0] === undefined) {
+      return new EvaluationError(_t("The range is out of bounds."));
     }
-    const zone = toZone(range.value);
-    return zone.bottom - zone.top + 1;
+    if (_range[0][0].value === CellErrorType.InvalidReference) {
+      return _range[0][0];
+    }
+    return _range[0].length;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -970,7 +976,7 @@ export const OFFSET = {
   ),
   args: [
     arg(
-      "cell_reference (meta)",
+      "cell_reference (meta, range<meta>)",
       _t("The starting point from which to count the offset rows and columns.")
     ),
     arg("offset_rows (number)", _t("The number of rows to offset by.")),
@@ -985,26 +991,29 @@ export const OFFSET = {
     ),
   ],
   compute: function (
-    cellReference: Maybe<{ value: string }>,
+    cellReference: Matrix<{ value: string }>,
     offsetRows: Maybe<FunctionResultObject>,
     offsetColumns: Maybe<FunctionResultObject>,
     height: Maybe<FunctionResultObject>,
     width: Maybe<FunctionResultObject>
   ) {
-    if (isEvaluationError(cellReference?.value)) {
-      return cellReference;
+    // "cellReference" is defined as meta, so technically we are sure that all value that is not a reference doesn't pass. (throw BAD_EXPR in "compileAST")
+    // Also, as the arg definition of "cellReference" contain "range<...>" and as reference with range are always converted as a matrix (see hasRange in "compileFunctionArgs" and see "range" function in compilation_parameters)
+    // --> "cellReference" corresponds always to a matrix, even if we pass a single cell reference.
+    if (isEvaluationError(cellReference[0][0].value)) {
+      return cellReference[0][0];
     }
 
-    const _cellReference = cellReference?.value;
-    if (!_cellReference) {
+    const ref0 = cellReference[0][0].value;
+    if (!ref0) {
       return new EvaluationError(
         "In this context, the function OFFSET needs to have a cell or range in parameter."
       );
     }
-    const zone = toZone(_cellReference);
+    const zone = toZone(ref0);
 
-    let offsetHeight = zone.bottom - zone.top + 1;
-    let offsetWidth = zone.right - zone.left + 1;
+    let offsetHeight = cellReference[0].length;
+    let offsetWidth = cellReference.length;
 
     if (height) {
       const _height = toNumber(height, this.locale);
@@ -1026,7 +1035,7 @@ export const OFFSET = {
       offsetWidth = _width;
     }
 
-    const { sheetName } = splitReference(_cellReference);
+    const { sheetName } = splitReference(ref0);
 
     const sheetId =
       (sheetName && this.getters.getSheetIdByName(sheetName)) || this.getters.getActiveSheetId();
