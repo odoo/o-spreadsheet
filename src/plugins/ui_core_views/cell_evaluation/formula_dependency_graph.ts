@@ -59,8 +59,21 @@ export class FormulaDependencyGraph {
    * This is called a topological ordering (excluding cycles)
    */
   getCellsDependingOn(ranges: RTreeBoundingBox[]): PositionSet {
+    // debugger;
+    const grouped = Object.groupBy(ranges, (range) => range.sheetId);
+    for (const sheetId in grouped) {
+      // @ts-ignore
+      grouped[sheetId] = recomputeZones(grouped[sheetId]?.map((r) => r.zone) ?? [], []);
+    }
+    ranges = [];
+    for (const sheetId in grouped) {
+      // @ts-ignore
+      ranges.push(...grouped[sheetId].map((zone) => ({ sheetId, zone })));
+    }
     const visited = this.createEmptyPositionSet();
     const queue: RTreeBoundingBox[] = Array.from(ranges).reverse();
+    // console.count("getCellsDependingOn: main");
+
     while (queue.length > 0) {
       const range = queue.pop()!;
       const zone = range.zone;
@@ -73,6 +86,7 @@ export class FormulaDependencyGraph {
 
       const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
       const nextInQueue: Record<UID, Zone[]> = {};
+      // console.log("getCellsDependingOn: impactedPositions", impactedPositions.length);
       for (const position of impactedPositions) {
         if (!visited.has(position)) {
           if (!nextInQueue[position.sheetId]) {
@@ -83,6 +97,7 @@ export class FormulaDependencyGraph {
       }
       for (const sheetId in nextInQueue) {
         const zones = recomputeZones(nextInQueue[sheetId], []);
+        // console.log(zones.map(zoneToXc), nextInQueue[sheetId].length)
         queue.push(...zones.map((zone) => ({ sheetId, zone })));
       }
     }

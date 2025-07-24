@@ -1,5 +1,12 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
+import {
+  AddFunctionDescription,
+  Arg,
+  DEFAULT_LOCALE,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+} from "../types";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
@@ -8,7 +15,7 @@ import {
   assertSingleColOrRow,
   assertSquareMatrix,
 } from "./helper_assert";
-import { invertMatrix, multiplyMatrices } from "./helper_matrices";
+import { invertMatrix, multiplyMatrices, toScalar } from "./helper_matrices";
 import {
   assert,
   flattenRowFirst,
@@ -21,6 +28,21 @@ import {
   toNumberMatrix,
   transposeMatrix,
 } from "./helpers";
+
+export const MFILL = {
+  description: "Return an n*n matrix filled with n.",
+  args: [
+    arg("n (number)", "number of column of the matrix"),
+    arg("m (number)", "number of row of the matrix"),
+    arg("v (number)", "value to fill matrix"),
+  ],
+  compute: function (n, m, v) {
+    const _n = toNumber(toScalar(n), DEFAULT_LOCALE);
+    const _m = toNumber(toScalar(m), DEFAULT_LOCALE);
+    const _v = toNumber(toScalar(v), DEFAULT_LOCALE);
+    return Array.from({ length: _n }, (_, i) => Array.from({ length: _m }, (_, j) => _v));
+  },
+};
 
 // -----------------------------------------------------------------------------
 // ARRAY_CONSTRAIN

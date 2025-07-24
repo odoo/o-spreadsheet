@@ -4,6 +4,7 @@ import { matrixMap } from "../../../functions/helpers";
 import {
   aggregatePositionsToZones,
   excludeTopLeft,
+  intersection,
   lazy,
   positionToZone,
   toXC,
@@ -297,6 +298,8 @@ export class Evaluator {
       }
       for (let i = 0; i < positions.length; ++i) {
         const position = positions[i];
+
+        // this should also check this.positionsToInvalidate !!
         if (this.nextPositionsToUpdate.has(position)) {
           continue;
         }
@@ -398,7 +401,23 @@ export class Evaluator {
       // thanks to the isMatrix check above, we know that formulaReturn is MatrixFunctionReturn
       this.spreadValues(formulaPosition, formulaReturn)
     );
-    this.positionsToInvalidate.push({ zone: resultZone, sheetId: formulaPosition.sheetId });
+    const directDependencies = this.getDirectDependencies(formulaPosition);
+    if (
+      directDependencies.some(
+        (range) => range.sheetId === formulaPosition.sheetId && intersection(range.zone, resultZone)
+      )
+    ) {
+      // we know the formula invalidates itself and will eventually be recomputed until the maximum iteration
+      // is reached.
+      this.invalidatePositionsDependingOnSpread(formulaPosition.sheetId, resultZone);
+    } else {
+      // the result matrices are split in sub-zones to exclude the array formula position.
+      // This avoids to invalidate the topleft position of an array formula
+      // and create an infinite loop of self-invalidation
+      this.positionsToInvalidate.push(
+        ...excludeTopLeft(resultZone).map((zone) => ({ sheetId: formulaPosition.sheetId, zone }))
+      );
+    }
     return createEvaluatedCell(
       nullValueToZeroValue(formulaReturn[0][0]),
       this.getters.getLocale(),
@@ -416,26 +435,20 @@ export class Evaluator {
   }
 
   private invalidatePendingPositionsStack() {
+    debugger;
     if (this.positionsToInvalidate.length > 0) {
-      // the result matrices are split in subzones to exclude the array formula position.
-      // This avoids to invalidate the topleft position of an array formula
-      // and create an infinite loop of self-invalidation
-      const boundingboxes = this.positionsToInvalidate
-        .map((range) =>
-          excludeTopLeft(range.zone).map((zone) => ({
-            sheetId: range.sheetId,
-            zone,
-          }))
-        )
-        .flat();
-      const invalidatedPositions = this.formulaDependencies().getCellsDependingOn(boundingboxes);
-      for (const range of this.positionsToInvalidate) {
-        invalidatedPositions.delete({
-          sheetId: range.sheetId,
-          col: range.zone.left,
-          row: range.zone.top,
-        });
-      }
+      // console.log(this.positionsToInvalidate.map((range) => zoneToXc(range.zone)));
+
+      const invalidatedPositions = this.formulaDependencies().getCellsDependingOn(
+        this.positionsToInvalidate
+      );
+      // for (const range of this.positionsToInvalidate) {
+      //   invalidatedPositions.delete({
+      //     sheetId: range.sheetId,
+      //     col: range.zone.left,
+      //     row: range.zone.top,
+      //   });
+      // }
       this.nextPositionsToUpdate.addMany(invalidatedPositions);
       this.positionsToInvalidate = [];
     }

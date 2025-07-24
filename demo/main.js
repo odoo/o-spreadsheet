@@ -19,7 +19,7 @@ const {
 } = owl;
 
 const { Spreadsheet, Model } = o_spreadsheet;
-const { topbarMenuRegistry } = o_spreadsheet.registries;
+const { topbarMenuRegistry, functionRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
@@ -250,7 +250,7 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
-    this.createModel(data || demoData);
+    this.createModel(data || {});
     // this.createModel(makePivotDataset(10_000));
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel(makeLargeDataset(26, 10_000, ["formulas"]));
