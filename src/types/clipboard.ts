@@ -19,6 +19,7 @@ export interface ClipboardOptions {
   selectTarget?: boolean;
 }
 export type ClipboardPasteOptions = "onlyFormat" | "asValue";
+export type ClipboardCopyOptions = "copyPaste" | "shiftCells";
 export type ClipboardOperation = "CUT" | "COPY";
 
 export type ClipboardCellData = {
