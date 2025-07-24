@@ -1,10 +1,21 @@
 import { recomputeZones } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
-import { ClipboardCellData, ClipboardOptions, HeaderIndex, UID, Zone } from "../types";
+import {
+  ClipboardCellData,
+  ClipboardCopyOptions,
+  ClipboardOptions,
+  HeaderIndex,
+  UID,
+  Zone,
+} from "../types";
 import { ClipboardHandler } from "./abstract_clipboard_handler";
 
 export class AbstractCellClipboardHandler<T, T1> extends ClipboardHandler<T> {
-  copy(data: ClipboardCellData): T | undefined {
+  copy(
+    data: ClipboardCellData,
+    isCutOperation: boolean,
+    mode: ClipboardCopyOptions = "copyPaste"
+  ): T | undefined {
     return;
   }
 

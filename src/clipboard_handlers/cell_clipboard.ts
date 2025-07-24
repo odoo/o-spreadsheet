@@ -6,6 +6,7 @@ import {
   CellPosition,
   ClipboardCell,
   ClipboardCellData,
+  ClipboardCopyOptions,
   ClipboardOptions,
   ClipboardPasteTarget,
   CommandResult,
@@ -32,9 +33,12 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     return CommandResult.Success;
   }
 
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+  copy(
+    data: ClipboardCellData,
+    isCutOperation: boolean,
+    mode: ClipboardCopyOptions = "copyPaste"
+  ): ClipboardContent | undefined {
     const sheetId = data.sheetId;
-
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
     const clippedCells: ClipboardCell[][] = [];
     const isCopyingOneCell = rowsIndexes.length == 1 && columnsIndexes.length == 1;
@@ -46,7 +50,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         const evaluatedCell = this.getters.getEvaluatedCell(position);
         const pivotId = this.getters.getPivotIdFromPosition(position);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
-        if (pivotId && spreader) {
+        if (mode !== "shiftCells" && pivotId && spreader) {
           const pivotZone = this.getters.getSpreadZone(spreader);
           if (
             (!deepEquals(spreader, position) || !isCopyingOneCell) &&
@@ -65,7 +69,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
               parsedValue: evaluatedCell.value,
             };
           }
-        } else {
+        } else if (mode !== "shiftCells") {
           if (spreader && !deepEquals(spreader, position)) {
             const isSpreaderCopied =
               rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
