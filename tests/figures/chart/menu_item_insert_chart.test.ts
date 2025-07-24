@@ -82,6 +82,7 @@ describe("Insert chart menu item", () => {
 
   let dispatchSpy: jest.SpyInstance;
   let defaultPayload: any;
+  let defaultPiePayload: any;
   let model: Model;
   let env: SpreadsheetChildEnv;
   let openSidePanelSpy: jest.Mock<any, any>;
@@ -117,10 +118,23 @@ describe("Insert chart menu item", () => {
         dataSetsHaveTitle: false,
         labelRange: undefined,
         legendPosition: "none",
-        stacked: false,
-        aggregated: false,
         title: {},
         type: "bar",
+      },
+    };
+    defaultPiePayload = {
+      col: expect.any(Number),
+      row: expect.any(Number),
+      offset: expect.any(Object),
+      size: expect.any(Object),
+      figureId: expect.any(String),
+      sheetId: expect.any(String),
+      definition: {
+        dataSets: [{ dataRange: "A1" }],
+        dataSetsHaveTitle: false,
+        legendPosition: "top",
+        title: {},
+        type: "pie",
       },
     };
   });
@@ -397,18 +411,20 @@ describe("Insert chart menu item", () => {
   test("Chart of single column without title", () => {
     setSelection(model, ["B2:B5"]);
     insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B2:B5", yAxisId: "y" }];
-    payload.definition.labelRange = undefined;
+    const payload = { ...defaultPiePayload };
+    payload.definition.dataSets = [{ dataRange: "B2:B5" }];
+    payload.definition.legendPosition = "none";
+    payload.definition.isDoughnut = true;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
 
   test("Chart of single column with title", () => {
     setSelection(model, ["B1:B5"]);
     insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B1:B5", yAxisId: "y" }];
-    payload.definition.labelRange = undefined;
+    const payload = { ...defaultPiePayload };
+    payload.definition.dataSets = [{ dataRange: "B1:B5" }];
+    payload.definition.isDoughnut = true;
+    payload.definition.legendPosition = "none";
     payload.definition.dataSetsHaveTitle = true;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
@@ -416,18 +432,20 @@ describe("Insert chart menu item", () => {
   test("Chart of several columns (ie labels) without title", () => {
     setSelection(model, ["A2:B5"]);
     insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B2:B5", yAxisId: "y" }];
+    const payload = { ...defaultPiePayload };
+    payload.definition.dataSets = [{ dataRange: "B2:B5" }];
     payload.definition.labelRange = "A2:A5";
+    payload.definition.aggregated = true;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
 
   test("Chart of several columns (ie labels) with title", () => {
     setSelection(model, ["A1:B5"]);
     insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B1:B5", yAxisId: "y" }];
+    const payload = { ...defaultPiePayload };
+    payload.definition.dataSets = [{ dataRange: "B1:B5" }];
     payload.definition.labelRange = "A1:A5";
+    payload.definition.aggregated = true;
     payload.definition.dataSetsHaveTitle = true;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
@@ -435,22 +453,23 @@ describe("Insert chart menu item", () => {
   test("[Case 1] Chart is inserted with proper legend position", () => {
     setSelection(model, ["A1:B5"]);
     insertChart();
-    const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B1:B5", yAxisId: "y" }];
+    const payload = { ...defaultPiePayload };
+    payload.definition.dataSets = [{ dataRange: "B1:B5" }];
     payload.definition.labelRange = "A1:A5";
+    payload.definition.aggregated = true;
     payload.definition.dataSetsHaveTitle = true;
-    payload.definition.legendPosition = "none";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
   test("[Case 2] Chart is inserted with proper legend position", () => {
     setSelection(model, ["F1:I5"]);
     insertChart();
     const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "G1:I5", yAxisId: "y" }];
+    payload.definition.dataSets = [{ dataRange: "F1:H5" }];
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.labelRange = "F1:F5";
     payload.definition.legendPosition = "top";
     payload.definition.type = "line";
+    payload.definition.stacked = false;
     payload.definition.cumulative = false;
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
@@ -477,6 +496,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const payload = { ...defaultPayload };
     payload.definition.dataSets = [{ dataRange: "K5", yAxisId: "y" }];
+    payload.definition.stacked = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
 
@@ -484,15 +504,16 @@ describe("Insert chart menu item", () => {
     setSelection(model, ["A2"]);
     insertChart();
     const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "B1:H5", yAxisId: "y" }];
+    payload.definition.dataSets = [{ dataRange: "B1:H5" }];
     payload.definition.labelRange = "A1:A5";
+    payload.definition.stacked = false;
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.legendPosition = "top";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1:H5");
   });
 
-  test("Chart with number cells as labels is a linear chart", () => {
+  test("Chart with number cells as labels is a scatter chart", () => {
     setCellContent(model, "K1", "1");
     setCellContent(model, "K2", "2");
     setCellContent(model, "K3", "3");
@@ -503,10 +524,9 @@ describe("Insert chart menu item", () => {
     setSelection(model, ["K1"]);
     insertChart();
     const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "L1:L3", yAxisId: "y" }];
+    payload.definition.dataSets = [{ dataRange: "L1:L3" }];
     payload.definition.labelRange = "K1:K3";
-    payload.definition.type = "line";
-    payload.definition.cumulative = false;
+    payload.definition.type = "scatter";
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("K1:L3");
@@ -523,10 +543,12 @@ describe("Insert chart menu item", () => {
     setSelection(model, ["K1"]);
     insertChart();
     const payload = { ...defaultPayload };
-    payload.definition.dataSets = [{ dataRange: "L1:L3", yAxisId: "y" }];
+    payload.definition.dataSets = [{ dataRange: "L1:L3" }];
     payload.definition.labelRange = "K1:K3";
     payload.definition.type = "line";
+    payload.definition.aggregated = false;
     payload.definition.cumulative = false;
+    payload.definition.stacked = false;
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("K1:L3");
@@ -542,22 +564,15 @@ describe("Insert chart menu item", () => {
 
     setSelection(model, ["K1:K6"]);
     insertChart();
-    const payload = {
-      ...defaultPayload,
-      definition: {
-        dataSets: [{ dataRange: "K1:K6" }],
-        labelRange: "K1:K6",
-        aggregated: true,
-        legendPosition: "top",
-        type: "pie",
-        dataSetsHaveTitle: false,
-        title: {},
-      },
-    };
+    const payload = { ...defaultPiePayload };
+    payload.definition.dataSets = [{ dataRange: "K1:K6" }];
+    payload.definition.aggregated = true;
+    payload.definition.legendPosition = "none";
+    payload.definition.labelRange = "K1:K6";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
 
-  test("Chart with multiple string columns is a sunburst chart (without headers)", () => {
+  test("Chart with multiple string columns is a treemap chart (without headers)", () => {
     // prettier-ignore
     const grid = {
       K1: "Group1",    L1: "SubGroup1",    M1: "40",
@@ -569,14 +584,14 @@ describe("Insert chart menu item", () => {
     insertChart();
     const chartId = model.getters.getFigures(model.getters.getActiveSheetId()).at(-1)!.id;
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      type: "sunburst",
+      type: "treemap",
       dataSets: [{ dataRange: "K1:K3" }, { dataRange: "L1:L3" }],
       dataSetsHaveTitle: false,
       labelRange: "M1:M3",
     });
   });
 
-  test("Chart with multiple string columns is a sunburst chart (with headers)", () => {
+  test("Chart with multiple string columns is a treemap chart (with headers)", () => {
     // prettier-ignore
     const grid = {
       K1: "Header1",   L1: "Header2",      M1: "Header3",
@@ -588,7 +603,7 @@ describe("Insert chart menu item", () => {
     insertChart();
     const chartId = model.getters.getFigures(model.getters.getActiveSheetId()).at(-1)!.id;
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
-      type: "sunburst",
+      type: "treemap",
       dataSets: [{ dataRange: "K1:K3" }, { dataRange: "L1:L3" }],
       dataSetsHaveTitle: true,
       labelRange: "M1:M3",
