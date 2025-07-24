@@ -15,3 +15,5 @@ tests/__xlsx__/xlsx_demo_data/*
 tests/__xlsx__/~$xlsx_demo_data.xlsx
 
 tools/owl_templates/_compiled/*
+
+out/

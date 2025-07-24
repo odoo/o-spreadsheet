@@ -1,9 +1,9 @@
-const { xml, Component, whenReady } = owl; // see https://github.com/odoo/owl/blob/master/README.md
+const { xml, Component, whenReady } = window.owl; // see https://github.com/odoo/owl/blob/master/README.md
 
 const {
   Spreadsheet, // this is the OWL component that renders the spreadsheet
   Model, // this is the javascript model that manages the spreadsheet data
-} = o_spreadsheet; // they are exposed on the global o_spreadsheet object on window (in the browser)
+} = window.o_spreadsheet; // they are exposed on the global o_spreadsheet object on window (in the browser)
 
 /**
  * In OWL, you need a component to put anything on the screen, see https://odoo.github.io/owl/playground/
@@ -46,8 +46,8 @@ class Demo extends Component {
       // in readonly mode, the spreadsheet can be viewed but not edited
       // in dashboard mode, the spreadsheet can be viewed at a specific width, only the first page is shown
     });
-    o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {}; // for debugging purposes
-    o_spreadsheet.__DEBUG__.model = this.model; // use window.o_spreadsheet.__DEBUG__.model to access the model in the console
+    window.o_spreadsheet.__DEBUG__ = window.o_spreadsheet.__DEBUG__ || {}; // for debugging purposes
+    window.o_spreadsheet.__DEBUG__.model = this.model; // use window.o_spreadsheet.__DEBUG__.model to access the model in the console
     // use window.o_spreadsheet.__DEBUG__.model.exportData() to obtain the data in the console
   }
 }
