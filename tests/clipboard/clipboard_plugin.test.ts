@@ -31,7 +31,12 @@ import {
   copy,
   copyPasteAboveCells,
   copyPasteCellsOnLeft,
+<<<<<<< 77fd30760dc0f8979f28dc7ccd1dc20be21339e8
   createImage,
+||||||| c693c6ee0ea3ed462a9fa01ac7592fd30d2b4357
+=======
+  createDynamicTable,
+>>>>>>> b1fd70d4add83d5729527c8e3a01d43164ce7b88
   createSheet,
   createSheetWithName,
   createTable,
@@ -2475,6 +2480,21 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(model.getters.isCutOperation()).toBe(false);
     paste(model, "A5");
     expect(getCellContent(model, "A5")).toBe("b3");
+  });
+
+  test("Can insert and delete cells inside an array formula", () => {
+    const model = createModelFromGrid({ A1: "=MUNIT(2)" });
+    createDynamicTable(model, "A1");
+
+    insertCells(model, "B1", "down");
+    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCell(model, "B2")).toBe(undefined);
+
+    deleteCells(model, "A2", "left");
+    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCell(model, "A2")).toBe(undefined);
   });
 
   test("fill right selection with multiple columns -> copies first column and pastes in each subsequent column, ", async () => {
