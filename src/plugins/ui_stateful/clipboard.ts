@@ -14,6 +14,7 @@ import { UuidGenerator, isZoneValid } from "../../helpers/index";
 import { getCurrentVersion } from "../../migrations/data";
 import { _t } from "../../translation";
 import {
+  ClipboardCopyOptions,
   ClipboardData,
   ClipboardMIMEType,
   ClipboardOptions,
@@ -115,12 +116,12 @@ export class ClipboardPlugin extends UIPlugin {
       }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
-        const copiedData = this.copy(cut);
+        const copiedData = this.copy(cut, "shiftCells");
         return this.isPasteAllowed(paste, copiedData, { isCutOperation: true });
       }
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
-        const copiedData = this.copy(cut);
+        const copiedData = this.copy(cut, "shiftCells");
         return this.isPasteAllowed(paste, copiedData, { isCutOperation: true });
       }
     }
@@ -233,13 +234,13 @@ export class ClipboardPlugin extends UIPlugin {
           });
           break;
         }
-        const copiedData = this.copy(cut);
+        const copiedData = this.copy(cut, "shiftCells");
         this.paste(paste, copiedData, { isCutOperation: true });
         break;
       }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
-        const copiedData = this.copy(cut);
+        const copiedData = this.copy(cut, "shiftCells");
         this.paste(paste, copiedData, { isCutOperation: true });
         break;
       }
@@ -371,11 +372,11 @@ export class ClipboardPlugin extends UIPlugin {
     return false;
   }
 
-  private copy(zones: Zone[]): MinimalClipboardData {
+  private copy(zones: Zone[], mode: ClipboardCopyOptions = "copyPaste"): MinimalClipboardData {
     const copiedData = {};
     const clipboardData = this.getClipboardData(zones);
     for (const { handlerName, handler } of this.selectClipboardHandlers(clipboardData)) {
-      const data = handler.copy(clipboardData, this._isCutOperation);
+      const data = handler.copy(clipboardData, this._isCutOperation, mode);
       copiedData[handlerName] = data;
       const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
       for (const key of minimalKeys) {
