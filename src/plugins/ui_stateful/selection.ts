@@ -1,5 +1,5 @@
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
-import { SELECTION_BORDER_COLOR } from "../../constants";
+import { DEFAULT_CELL_WIDTH, SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import {
   clip,
@@ -24,6 +24,7 @@ import {
   HeaderIndex,
   LocalCommand,
   MoveColumnsRowsCommand,
+  Pixel,
   RemoveColumnsRowsCommand,
   Selection,
   Sheet,
@@ -536,7 +537,16 @@ export class GridSelectionPlugin extends UIPlugin {
     const isBasedBefore = cmd.base < start;
     const deltaCol = isBasedBefore && isCol ? thickness : 0;
     const deltaRow = isBasedBefore && !isCol ? thickness : 0;
-
+    const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
+    const originalSize = Object.fromEntries(
+      toRemove.map((element): [HeaderIndex, Pixel | undefined] => {
+        const size = isCol
+          ? this.getters.getColSize(cmd.sheetId, element)
+          : this.getters.getUserRowSize(cmd.sheetId, element);
+        const isDefaultCol = isCol && size === DEFAULT_CELL_WIDTH;
+        return [element, isDefaultCol ? undefined : size];
+      })
+    );
     const target = [
       {
         left: isCol ? start + deltaCol : 0,
@@ -571,15 +581,14 @@ export class GridSelectionPlugin extends UIPlugin {
     const row = selection.top;
     this.setSelectionMixin({ zone: selection, cell: { col, row } }, [selection]);
 
-    const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
     let currentIndex = isBasedBefore ? cmd.base : cmd.base + 1;
 
     const resizingGroups: Record<number, number[]> = {};
 
     for (const element of toRemove) {
-      const size = this.getters.getHeaderSize(cmd.sheetId, cmd.dimension, element);
+      const size = originalSize[element];
       const currentSize = this.getters.getHeaderSize(cmd.sheetId, cmd.dimension, currentIndex);
-      if (size != currentSize) {
+      if (size && size != currentSize) {
         resizingGroups[size] ??= [];
         resizingGroups[size].push(currentIndex);
         currentIndex += 1;
