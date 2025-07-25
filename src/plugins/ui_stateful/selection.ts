@@ -6,6 +6,7 @@ import {
   deepCopy,
   isEqual,
   positionToZone,
+  range,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -620,7 +621,30 @@ export class GridSelectionPlugin extends UIPlugin {
     if (headers.some((h) => h < 0 || h >= maxHeaderValue)) {
       return CommandResult.InvalidHeaderIndex;
     }
+    if (!isCol && this.isMovingTableHeader(id, cmd.elements)) {
+      return CommandResult.CannotMoveTableHeader;
+    }
     return CommandResult.Success;
+  }
+
+  private isMovingTableHeader(sheetId: UID, selectedRows: number[]): boolean {
+    const selectedRowSet = new Set(selectedRows);
+    return this.getters.getCoreTables(sheetId).some(({ range: { zone }, config }) => {
+      const { top, bottom } = zone;
+
+      if (config.numberOfHeaders === 0) {
+        return false;
+      }
+
+      const headerRowEnd = top + config.numberOfHeaders;
+      const headerSelected = selectedRows.some((row) => row >= top && row < headerRowEnd);
+
+      if (!headerSelected) {
+        return false;
+      }
+
+      return range(top, bottom + 1).some((r) => !selectedRowSet.has(r));
+    });
   }
 
   private fallbackToVisibleSheet() {
