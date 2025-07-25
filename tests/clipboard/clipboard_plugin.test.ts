@@ -26,9 +26,11 @@ import {
   createSheet,
   createSheetWithName,
   cut,
+  deleteCells,
   deleteColumns,
   deleteRows,
   deleteSheet,
+  insertCells,
   merge,
   paste,
   pasteFromOSClipboard,
@@ -56,6 +58,7 @@ import {
 import {
   addTestPlugin,
   createEqualCF,
+  createModelFromGrid,
   getGrid,
   target,
   toRangesData,
@@ -2034,6 +2037,20 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getStyle(model, "B3")).toEqual({ bold: true, fillColor: "red" });
     expect(getCellContent(model, "C2")).toBe("c2");
     expect(getCellContent(model, "C3")).toBe("c2");
+  });
+
+  test("Can insert and delete cells inside an array formula", () => {
+    const model = createModelFromGrid({ A1: "=MUNIT(2)" });
+
+    insertCells(model, "B1", "down");
+    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCell(model, "B2")).toBe(undefined);
+
+    deleteCells(model, "A2", "left");
+    expect(getCell(model, "A1")?.content).toBe("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCell(model, "A2")).toBe(undefined);
   });
 
   test("fill right selection with multiple columns -> copies first column and pastes in each subsequent column, ", async () => {

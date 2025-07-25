@@ -16,7 +16,12 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { ClipboardMIMEType, ClipboardOperation, ClipboardOptions } from "../../types/clipboard";
+import {
+  ClipboardCopyOptions,
+  ClipboardMIMEType,
+  ClipboardOperation,
+  ClipboardOptions,
+} from "../../types/clipboard";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { formatValue } from "../format";
 import { deepCopy, deepEquals, range } from "../misc";
@@ -59,7 +64,8 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     operation: ClipboardOperation,
     getters: Getters,
     dispatch: CommandDispatcher["dispatch"],
-    selection: SelectionStreamProcessor
+    selection: SelectionStreamProcessor,
+    mode: ClipboardCopyOptions = "copyPaste"
   ) {
     super(operation, getters, dispatch, selection);
     if (!zones.length) {
@@ -96,7 +102,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         const spreader = getters.getArrayFormulaSpreadingOn(position);
         let cell = getters.getCell(position);
         const evaluatedCell = getters.getEvaluatedCell(position);
-        if (spreader) {
+        if (mode !== "shiftCells" && spreader) {
           const isSpreaderCopied =
             rowsIndex.includes(spreader.row) && columnsIndex.includes(spreader.col);
           const content = isSpreaderCopied
