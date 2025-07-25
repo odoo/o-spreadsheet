@@ -28,6 +28,28 @@ export class HeaderSizeUIPlugin extends UIPlugin<HeaderSizeState> implements Hea
 
   private ctx = document.createElement("canvas").getContext("2d")!;
 
+  beforeHandle(cmd: Command) {
+    switch (cmd.type) {
+      // Ensure rows are updated before "UPDATE_CELL" is dispatched from cell plugin.
+      // "UPDATE_CELL" uses the Sheet core plugin to access row data.
+      // If "ADD_COLUMNS_ROWS" has not been processed yet by header_sizes_ui,
+      // size updates may apply to incorrect (pre-insert) rows.
+      case "ADD_COLUMNS_ROWS":
+        if (cmd.dimension === "COL") {
+          return;
+        }
+        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
+        const newCells = Array(cmd.quantity).fill(undefined);
+        const newTallestCells = insertItemsAtIndex(
+          this.tallestCellInRow[cmd.sheetId],
+          newCells,
+          addIndex
+        );
+        this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
+        break;
+    }
+  }
+
   handle(cmd: Command) {
     switch (cmd.type) {
       case "START":
@@ -58,20 +80,6 @@ export class HeaderSizeUIPlugin extends UIPlugin<HeaderSizeState> implements Hea
           cmd.elements
         );
         this.history.update("tallestCellInRow", cmd.sheetId, tallestCells);
-        break;
-      }
-      case "ADD_COLUMNS_ROWS": {
-        if (cmd.dimension === "COL") {
-          return;
-        }
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const newCells = Array(cmd.quantity).fill(undefined);
-        const newTallestCells = insertItemsAtIndex(
-          this.tallestCellInRow[cmd.sheetId],
-          newCells,
-          addIndex
-        );
-        this.history.update("tallestCellInRow", cmd.sheetId, newTallestCells);
         break;
       }
       case "RESIZE_COLUMNS_ROWS":
