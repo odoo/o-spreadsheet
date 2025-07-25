@@ -1,5 +1,6 @@
 import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import {
+  CHART_ZOOM_SLIDER_HEIGHT,
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
   SELECTION_BORDER_COLOR,
@@ -160,7 +161,14 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get wrapperStyle() {
-    const { x, y, width, height } = this.props.figureUI;
+    let { x, y, width, height, tag } = this.props.figureUI;
+    if (tag === "chart") {
+      const figureId = this.props.figureUI.id;
+      const definition = this.env.model.getters.getChartDefinition(figureId);
+      if ("zoomable" in definition && definition.zoomable) {
+        height += CHART_ZOOM_SLIDER_HEIGHT; // Add space for zoom controls
+      }
+    }
     return cssPropertiesToCss({
       left: `${x}px`,
       top: `${y}px`,
