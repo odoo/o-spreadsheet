@@ -31,27 +31,6 @@ const NOTIFICATION_STYLE =
   z-index:10000;\
   width:140px;";
 
-topbarMenuRegistry.addChild("xlsx", ["file"], {
-  name: "Save as XLSX",
-  sequence: 30,
-  execute: async (env) => {
-    const doc = await env.model.exportXLSX();
-    const zip = new JSZip();
-    for (const file of doc.files) {
-      if (file.imageSrc) {
-        const fetchedImage = await fetch(file.imageSrc).then((response) => response.blob());
-        zip.file(file.path, fetchedImage);
-      } else {
-        zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
-      }
-    }
-    zip.generateAsync({ type: "blob" }).then(function (blob) {
-      saveAs(blob, doc.name);
-    });
-  },
-  icon: "o-spreadsheet-Icon.EXPORT_XLSX",
-});
-
 let start;
 
 class Demo extends Component {
@@ -70,6 +49,17 @@ class Demo extends Component {
       execute: () => (this.state.displayHeader = !this.state.displayHeader),
       icon: "o-spreadsheet-Icon.DISPLAY_HEADER",
       sequence: 1000,
+    });
+
+    topbarMenuRegistry.addChild("new", ["file"], {
+      name: "New Spreadsheet",
+      sequence: 10,
+      execute: async (env) => {
+        this.createModel();
+        stores.resetStores();
+        this.state.key = this.state.key + 1;
+      },
+      icon: "o-spreadsheet-Icon.OPEN_READ_WRITE",
     });
 
     topbarMenuRegistry.addChild("xlsxImport", ["file"], {
@@ -107,7 +97,7 @@ class Demo extends Component {
             const imageSrc = await this.fileStore.upload(file);
             inputFiles[images[i]] = { imageSrc };
           }
-          await this.initiateConnection(inputFiles);
+          await this.createModel(inputFiles);
           stores.resetStores();
           this.state.key = this.state.key + 1;
 
@@ -120,6 +110,26 @@ class Demo extends Component {
       icon: "o-spreadsheet-Icon.IMPORT_XLSX",
     });
 
+    topbarMenuRegistry.addChild("xlsx", ["file"], {
+      name: "Save as XLSX",
+      sequence: 30,
+      execute: async (env) => {
+        const doc = await env.model.exportXLSX();
+        const zip = new JSZip();
+        for (const file of doc.files) {
+          if (file.imageSrc) {
+            const fetchedImage = await fetch(file.imageSrc).then((response) => response.blob());
+            zip.file(file.path, fetchedImage);
+          } else {
+            zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
+          }
+        }
+        zip.generateAsync({ type: "blob" }).then(function (blob) {
+          saveAs(blob, doc.name);
+        });
+      },
+      icon: "o-spreadsheet-Icon.EXPORT_XLSX",
+    });
     const stores = useStoreProvider();
 
     useExternalListener(window, "unhandledrejection", () => {
@@ -130,7 +140,7 @@ class Demo extends Component {
       });
     });
 
-    onWillStart(() => this.initiateConnection());
+    onWillStart(() => this.createModel());
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
     // onWillUnmount(this.leaveCollaborativeSession.bind(this));
@@ -142,10 +152,6 @@ class Demo extends Component {
         type: "warning",
       });
     });
-  }
-
-  async initiateConnection(data = undefined) {
-    this.createModel(data);
   }
 
   createModel(data) {
