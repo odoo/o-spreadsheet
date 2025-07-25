@@ -168,14 +168,14 @@ describe("Grid integration", () => {
 
   test("can display error tooltip", async () => {
     setCellContent(model, "C8", "=1/0");
-    await hoverCell(model, "C8", 200);
+    await hoverCell(model, "C8", 50);
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
-    await hoverCell(model, "C8", 400);
+    await hoverCell(model, "C8", 150);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
     expect(document.querySelector(".o-error-tooltip")?.parentElement).toMatchSnapshot();
-    await hoverCell(model, "C7", 200);
+    await hoverCell(model, "C7", 50);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
-    await hoverCell(model, "C7", 400);
+    await hoverCell(model, "C7", 150);
     expect(document.querySelector(".o-error-tooltip")).toBeNull();
   });
 

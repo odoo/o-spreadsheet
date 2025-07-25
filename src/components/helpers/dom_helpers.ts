@@ -259,3 +259,49 @@ function isOtherMobileOS() {
 export function isMobileOS() {
   return isAndroid() || isIOS() || isOtherMobileOS();
 }
+
+/** Return a base64 representation of the current spreadsheet, with the grid canvas and all the figures */
+export function getSpreadsheetAsBase64() {
+  try {
+    const container = document.querySelector<HTMLElement>(".o-spreadsheet .o-grid");
+    if (!container) return undefined;
+    const rect = container.getBoundingClientRect();
+
+    const finalCanvas = document.createElement("canvas");
+    finalCanvas.width = rect.width;
+    finalCanvas.height = rect.height;
+    const ctx = finalCanvas.getContext("2d")!;
+
+    const canvases = [...container.querySelectorAll<HTMLCanvasElement>("canvas")];
+    const images = [...container.querySelectorAll<HTMLImageElement>(".o-figure img")];
+
+    // Put the figures at the end to ensure they are drawn on top of the background
+    const elements = [...canvases, ...images].sort((a, b) => {
+      const aIsFigure = !!a.closest(".o-figure");
+      const bIsFigure = !!b.closest(".o-figure");
+      return Number(aIsFigure) - Number(bIsFigure);
+    });
+
+    for (const el of elements) {
+      const bounds = el.getBoundingClientRect();
+      const x = bounds.left - rect.left;
+      const y = bounds.top - rect.top;
+
+      if (el instanceof HTMLCanvasElement) {
+        const background = window.getComputedStyle(el).backgroundColor;
+        if (background) {
+          ctx.fillStyle = background;
+          ctx.fillRect(x, y, bounds.width, bounds.height);
+        }
+        ctx.drawImage(el, x, y);
+      } else if (el instanceof HTMLImageElement) {
+        ctx.drawImage(el, x, y, bounds.width, bounds.height);
+      }
+    }
+
+    return finalCanvas.toDataURL("image/png");
+  } catch (e) {
+    // Will throw if some canvas isn't ready yet
+    return undefined;
+  }
+}

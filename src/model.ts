@@ -409,17 +409,23 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived);
     this.session.on("revision-undone", this, ({ commands }) => {
       this.dispatchFromCorePlugin("UNDO", { commands });
-      this.finalize();
+      if (this.status === Status.Ready) {
+        this.finalize();
+      }
     });
     this.session.on("revision-redone", this, ({ commands }) => {
       this.dispatchFromCorePlugin("REDO", { commands });
-      this.finalize();
+      if (this.status === Status.Ready) {
+        this.finalize();
+      }
     });
     // How could we improve communication between the session and UI?
     // It feels weird to have the model piping specific session events to its own bus.
     this.session.on("unexpected-revision-id", this, () => this.trigger("unexpected-revision-id"));
     this.session.on("collaborative-event-received", this, () => {
-      this.trigger("update");
+      if (this.status === Status.Ready) {
+        this.trigger("update");
+      }
     });
   }
 
@@ -428,6 +434,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       id: this.uuidGenerator.smallUuid(),
       name: _t("Anonymous").toString(),
     };
+    if (config.mode === "dashboard" && config.transportService) {
+      throw new Error(
+        "Cannot use a transport service in dashboard mode. The model should not have a transport service."
+      );
+    }
     const transportService = config.transportService || new LocalTransportService();
     return {
       ...config,
@@ -690,9 +701,16 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   updateMode(mode: Mode) {
+    if (mode === "dashboard" && !(this.config.transportService instanceof LocalTransportService)) {
+      throw new Error(
+        "Cannot switch to dashboard mode in a collaborative session. The model shouldn't have a transport service."
+      );
+    }
     // @ts-ignore For testing purposes only
     this.config.mode = mode;
-    this.trigger("update");
+    if (this.status === Status.Ready) {
+      this.trigger("update");
+    }
   }
 
   /**

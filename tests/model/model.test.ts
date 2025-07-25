@@ -399,4 +399,33 @@ describe("Model", () => {
     });
     expect(messages.map((m) => m.type)).not.toContain("SNAPSHOT_CREATED");
   });
+
+  test("Model cannot have a transport service in dashboard mode", () => {
+    expect(() => {
+      new Model({}, { mode: "dashboard", transportService: new MockTransportService() });
+    }).toThrowError();
+
+    const model = new Model({}, { transportService: new MockTransportService() });
+    expect(() => {
+      model.updateMode("dashboard");
+    }).toThrowError();
+  });
+
+  test("Finalize is only called once on a REQUEST_UNDO/REDO with the local transport service", () => {
+    const spyFn = jest.fn();
+    class MyUIPlugin extends UIPlugin {
+      finalize(): void {
+        spyFn();
+      }
+    }
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+    const model = new Model();
+    expect(spyFn).toHaveBeenCalledTimes(1);
+    setCellContent(model, "A1", "Hello");
+    expect(spyFn).toHaveBeenCalledTimes(2);
+    model.dispatch("REQUEST_UNDO");
+    expect(spyFn).toHaveBeenCalledTimes(3);
+    model.dispatch("REQUEST_REDO");
+    expect(spyFn).toHaveBeenCalledTimes(4);
+  });
 });
