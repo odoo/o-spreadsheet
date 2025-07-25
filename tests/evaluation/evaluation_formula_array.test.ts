@@ -769,6 +769,27 @@ describe("evaluate formulas that return an array", () => {
       // initially, cells are evaluated in this order: [sheet1!A1, sheet2!A1, sheet2!A4]
       expect(getEvaluatedCell(model, "A1").value).toBe(42);
     });
+
+    test("array formula evaluated first invalidated by other", () => {
+      const model = new Model({
+        sheets: [
+          {
+            cells: {
+              A1: "=B2:B3", // evaluated first
+              B1: "=C1:C3", // invalidates A1
+              C1: "1",
+              C2: "2",
+              C3: "3",
+            },
+          },
+        ],
+      });
+      expect(getEvaluatedCell(model, "A1").value).toBe(2);
+      expect(getEvaluatedCell(model, "A2").value).toBe(3);
+      expect(getEvaluatedCell(model, "B1").value).toBe(1);
+      expect(getEvaluatedCell(model, "B2").value).toBe(2);
+      expect(getEvaluatedCell(model, "B3").value).toBe(3);
+    });
   });
 
   describe("result array can collides with other result array", () => {
