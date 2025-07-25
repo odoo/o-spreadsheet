@@ -2025,6 +2025,18 @@ describe("Copy paste keyboard shortcut", () => {
 
     expect(model.getters.getFigure(sheetId, figures[0].id)).toMatchObject({});
   });
+
+  test("Pasting an OS clipboard with both text and image will only paste the text", async () => {
+    const image = new File(["image"], "image.png", { type: "image/png" });
+    clipboardData.setData("image/png", image);
+    clipboardData.setData(ClipboardMIMEType.PlainText, "Hi !");
+    selectCell(model, "A1");
+    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await nextTick();
+
+    expect(getCellContent(model, "A1")).toEqual("Hi !");
+    expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+  });
 });
 
 describe("Header grouping shortcuts", () => {
