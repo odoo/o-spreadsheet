@@ -40,6 +40,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   getActivePosition,
+  getCell,
   getCellContent,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
@@ -1062,6 +1063,23 @@ describe("move elements(s)", () => {
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     result = moveRows(model, -1, [0]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+  });
+
+  test("Can move a row with an array formula", () => {
+    const model = new Model();
+    setCellContent(model, "A4", "=MUNIT(2)");
+    moveRows(model, 0, [3], "before");
+    expect(getCell(model, "A1")?.content).toEqual("=MUNIT(2)");
+    expect(getCellContent(model, "A1")).toEqual("1");
+    expect(getCell(model, "B1")).toEqual(undefined);
+  });
+
+  test("Moving a column with spreaded results do not copy them", () => {
+    const model = new Model();
+    setCellContent(model, "C1", "=MUNIT(2)");
+    moveColumns(model, "A", ["D"], "before");
+    expect(getCell(model, "A1")).toEqual(undefined);
+    expect(getCell(model, "D1")?.content).toEqual("=MUNIT(2)");
   });
 });
 
