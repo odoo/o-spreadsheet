@@ -1,7 +1,7 @@
 import { compile } from "../../formulas";
 import { isMultipleElementMatrix, toScalar } from "../../functions/helper_matrices";
 import { parseLiteral } from "../../helpers/cells";
-import { colorNumberString, getColorScale, isInside, percentile } from "../../helpers/index";
+import { colorNumberToHex, getColorScale, isInside, percentile } from "../../helpers/index";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
 import {
@@ -309,7 +309,7 @@ export class EvaluationConditionalFormatPlugin extends CoreViewPlugin {
         }
         if (!computedDataBars[col]) computedDataBars[col] = [];
         computedDataBars[col][row] = {
-          color: colorNumberString(color),
+          color: colorNumberToHex(color),
           percentage: (cell.value * 100) / max,
         };
       }

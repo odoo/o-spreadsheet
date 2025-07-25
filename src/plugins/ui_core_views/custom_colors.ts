@@ -1,6 +1,6 @@
 import { COLOR_PICKER_DEFAULTS } from "../../constants";
 import {
-  colorNumberString,
+  colorNumberToHex,
   colorToRGBA,
   isColorValid,
   isDefined,
@@ -154,9 +154,9 @@ export class CustomColorsPlugin extends CoreViewPlugin<CustomColorState> {
         formatColors.push(rule.style.textColor);
         formatColors.push(rule.style.fillColor);
       } else if (rule.type === "ColorScaleRule") {
-        formatColors.push(colorNumberString(rule.minimum.color));
-        formatColors.push(rule.midpoint ? colorNumberString(rule.midpoint.color) : undefined);
-        formatColors.push(colorNumberString(rule.maximum.color));
+        formatColors.push(colorNumberToHex(rule.minimum.color));
+        formatColors.push(rule.midpoint ? colorNumberToHex(rule.midpoint.color) : undefined);
+        formatColors.push(colorNumberToHex(rule.maximum.color));
       }
     }
     return formatColors.filter(isDefined);

@@ -1,5 +1,5 @@
 import { ICON_SETS, IconSetType } from "../../components/icons/icons";
-import { colorNumberString } from "../../helpers";
+import { colorNumberToHex } from "../../helpers";
 import {
   CellIsRule,
   ColorScaleMidPointThreshold,
@@ -152,7 +152,7 @@ function addDataBarRule(cf: ConditionalFormat, rule: DataBarRule): XMLString {
         <dataBar>
           <cfvo type="min" val="0"/>
           <cfvo type="max" val="100"/>
-          <color rgb="${toXlsxHexColor(colorNumberString(rule.color))}"/>
+          <color rgb="${toXlsxHexColor(colorNumberToHex(rule.color))}"/>
         </dataBar>
       </cfRule>
     </conditionalFormatting>
@@ -184,7 +184,7 @@ function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLStri
       }
 
       cfValueObject.push(thresholdAttributes(threshold, position));
-      colors.push([["rgb", toXlsxHexColor(colorNumberString(threshold.color))]]);
+      colors.push([["rgb", toXlsxHexColor(colorNumberToHex(threshold.color))]]);
     }
     if (!canExport) {
       console.warn(
