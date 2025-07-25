@@ -84,15 +84,19 @@ export function parseOSClipboardContent(
       ?.getAttribute("data-osheet-clipboard");
     spreadsheetContent = oSheetClipboardData && JSON.parse(oSheetClipboardData);
   }
+  const textContent = content[ClipboardMIMEType.PlainText] || "";
+
   let imageBlob: Blob | undefined = undefined;
-  for (const type of AllowedImageMimeTypes) {
-    if (content[type]) {
-      imageBlob = content[type];
-      break;
+  if (!textContent.trim()) {
+    for (const type of AllowedImageMimeTypes) {
+      if (content[type]) {
+        imageBlob = content[type];
+        break;
+      }
     }
   }
   const osClipboardContent: ParsedOSClipboardContent = {
-    text: content[ClipboardMIMEType.PlainText],
+    text: textContent,
     data: spreadsheetContent,
     imageBlob,
   };
