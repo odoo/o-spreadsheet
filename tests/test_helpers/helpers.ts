@@ -223,6 +223,7 @@ export function makeTestEnv(
     model,
     isDashboard: mockEnv.isDashboard || (() => false),
     openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
+    replaceSidePanel: mockEnv.replaceSidePanel || sidePanelStore.replace.bind(sidePanelStore),
     toggleSidePanel: mockEnv.toggleSidePanel || sidePanelStore.toggle.bind(sidePanelStore),
     clipboard: mockEnv.clipboard || new MockClipboard(),
     //FIXME : image provider is not built on top of the file store of the model if provided

@@ -406,6 +406,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       loadLocales: this.model.config.external.loadLocales,
       isDashboard: () => this.model.getters.isDashboard(),
       openSidePanel: this.sidePanel.open.bind(this.sidePanel),
+      replaceSidePanel: this.sidePanel.replace.bind(this.sidePanel),
       toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
