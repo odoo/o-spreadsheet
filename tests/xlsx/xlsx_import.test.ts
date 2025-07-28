@@ -314,6 +314,15 @@ describe("Import xlsx data", () => {
     expect((cf.rule as CellIsRule).values).toEqual(values);
   });
 
+  test("Can import CF with formulas", () => {
+    const testSheet = getWorkbookSheet("jestCfs", convertedData)!;
+    const cf = getCFBeginningAt("B29", testSheet)!;
+
+    expect(cf.rule.type).toEqual("CellIsRule");
+    expect((cf.rule as CellIsRule).operator).toEqual("Between");
+    expect((cf.rule as CellIsRule).values).toEqual(["=$B$23", "=2+2"]);
+  });
+
   test.each([
     ["A2"], // number
     ["F2"], // time
