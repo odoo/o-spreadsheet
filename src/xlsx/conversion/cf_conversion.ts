@@ -1,4 +1,5 @@
 import { ICON_SETS } from "../../components/icons/icons";
+import { tokenize } from "../../formulas";
 import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -83,9 +84,9 @@ export function convertConditionalFormats(
       case "cellIs":
         if (!rule.operator || !rule.formula || rule.formula.length === 0) continue;
         operator = CF_OPERATOR_TYPE_CONVERSION_MAP[rule.operator];
-        values.push(rule.formula[0]);
+        values.push(prefixFormula(rule.formula[0]));
         if (rule.formula.length === 2) {
-          values.push(rule.formula[1]);
+          values.push(prefixFormula(rule.formula[1]));
         }
         break;
     }
@@ -266,6 +267,12 @@ function convertIcons(xlsxIconSet: ExcelIconSet, index: number): string {
     : index === 1
     ? ICON_SETS[iconSet].neutral
     : ICON_SETS[iconSet].good;
+}
+
+/** Prefix the string by "=" if the string looks like a formula */
+function prefixFormula(formula: string): string {
+  const tokens = tokenize(formula);
+  return tokens.length === 1 && tokens[0].type !== "REFERENCE" ? formula : "=" + formula;
 }
 
 // ---------------------------------------------------------------------------
