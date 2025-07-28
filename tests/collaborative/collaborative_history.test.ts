@@ -26,7 +26,7 @@ import {
   undo,
   unfreezeColumns,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent, getCellStyle, getStyle } from "../test_helpers/getters_helpers";
 import { spyUiPluginHandle, target } from "../test_helpers/helpers";
 import { addPivot, updatePivot } from "../test_helpers/pivot_helpers";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
@@ -975,11 +975,11 @@ describe("Collaborative local history", () => {
       undo(charlie);
       setStyle(bob, "A1", { bold: true });
     });
-    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
-    expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
+    expect(all).toHaveSynchronizedValue((user) => getCellStyle(user, "A1"), { bold: true });
+    expect(all).toHaveSynchronizedValue((user) => getCellStyle(user, "B1"), undefined);
     redo(charlie);
-    expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
-    expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);
+    expect(all).toHaveSynchronizedValue((user) => getCellStyle(user, "A1"), { bold: true });
+    expect(all).toHaveSynchronizedValue((user) => getCellStyle(user, "B1"), undefined);
     expect(all).toHaveSynchronizedExportedData();
   });
 

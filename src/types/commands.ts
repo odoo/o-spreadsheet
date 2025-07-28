@@ -22,6 +22,7 @@ import {
   UID,
 } from "./misc";
 
+import { ZoneBorderData } from "../plugins/core";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
 import { FigureSize } from "./figure";
@@ -615,6 +616,8 @@ export interface SetFormattingCommand extends TargetDependentCommand {
   type: "SET_FORMATTING";
   style?: Style;
   format?: Format;
+  border?: ZoneBorderData;
+  force?: boolean;
 }
 
 export interface SetZoneBordersCommand extends TargetDependentCommand {

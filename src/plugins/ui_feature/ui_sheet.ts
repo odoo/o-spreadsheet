@@ -128,11 +128,12 @@ export class SheetUIPlugin extends UIPlugin {
     } else if (args?.showFormula && !cell?.content) {
       return "";
     } else {
+      const style = this.getters.getCellStyle(position) || {};
       const evaluatedCell = this.getters.getEvaluatedCell(position);
       const formatWidth = args?.availableWidth
         ? {
             availableWidth: args.availableWidth,
-            measureText: (text: string) => computeTextWidth(this.ctx, text, cell?.style || {}),
+            measureText: (text: string) => computeTextWidth(this.ctx, text, style),
           }
         : undefined;
       return formatValue(evaluatedCell.value, {
@@ -234,7 +235,9 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
-    const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
+    const zone = this.getters.getColsZone(sheetId, index, index);
+    this.getters.precomputeCellStyle(sheetId, zone);
+    const cellsPositions = positions(zone);
     const sizes = cellsPositions.map((position) => this.getCellWidth({ sheetId, ...position }));
     return Math.max(0, largeMax(sizes));
   }
@@ -276,27 +279,19 @@ export class SheetUIPlugin extends UIPlugin {
     const rowSizes: (number | null)[] = [];
     for (const row of rows) {
       let evaluatedRowSize = 0;
-      for (const cellId of this.getters.getRowCells(sheetId, row)) {
-        const cell = this.getters.getCellById(cellId);
-        if (!cell) {
-          continue;
-        }
-        const position = this.getters.getCellPosition(cell.id);
+      const rowZone = this.getters.getRowsZone(sheetId, row, row);
+      const styles = this.getters.getCellStyleInZone(sheetId, rowZone);
+      for (const position of this.getters.getEvaluatedCellsPositionsInZone(sheetId, rowZone)) {
         const colSize = this.getters.getColSize(sheetId, position.col);
-
-        if (cell.isFormula || this.getters.getArrayFormulaSpreadingOn(position)) {
-          const content = this.getters.getEvaluatedCell(position).formattedValue;
-          const evaluatedSize = getCellContentHeight(this.ctx, content, cell?.style, colSize);
-          if (evaluatedSize > evaluatedRowSize && evaluatedSize > DEFAULT_CELL_HEIGHT) {
-            evaluatedRowSize = evaluatedSize;
-          }
-        } else {
-          const content = cell.content;
-          const dynamicRowSize = getCellContentHeight(this.ctx, content, cell?.style, colSize);
-          // Only keep the size of evaluated cells if it's bigger than the dynamic row size
-          if (dynamicRowSize >= evaluatedRowSize && dynamicRowSize > DEFAULT_CELL_HEIGHT) {
-            evaluatedRowSize = 0;
-          }
+        const content = this.getters.getEvaluatedCell(position).formattedValue;
+        const evaluatedSize = getCellContentHeight(
+          this.ctx,
+          content,
+          styles.get(position),
+          colSize
+        );
+        if (evaluatedSize > evaluatedRowSize && evaluatedSize > DEFAULT_CELL_HEIGHT) {
+          evaluatedRowSize = evaluatedSize;
         }
       }
       rowSizes.push(evaluatedRowSize || null);

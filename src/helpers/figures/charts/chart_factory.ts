@@ -109,7 +109,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     return {
       type: "scorecard",
       title: {},
-      background: topLeftCell.style?.fillColor || undefined,
+      background: getters.getCellStyle({ sheetId, col: zone.left, row: zone.top })?.fillColor,
       keyValue: zoneToXc(zone),
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
