@@ -5,6 +5,7 @@ import {
   createTableWithFilter,
   hideRows,
   setCellContent,
+  unhideRows,
   updateFilter,
   updateLocale,
 } from "../test_helpers/commands_helpers";
@@ -3068,6 +3069,39 @@ describe("SUBTOTAL formula", () => {
     });
   });
 
+  describe("function codes greater than 100 (ignoring hidden rows)", () => {
+    test("write the SUBTOTAL formula after hiding rows", () => {
+      const model = new Model();
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A3", "2");
+      setCellContent(model, "A4", "3");
+      hideRows(model, [2]);
+      setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
+      expect(getEvaluatedCell(model, "A1").value).toBe(4);
+    });
+
+    test("write the SUBTOTAL formula before hiding rows", () => {
+      const model = new Model();
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A3", "2");
+      setCellContent(model, "A4", "3");
+      setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
+      hideRows(model, [2]);
+      expect(getEvaluatedCell(model, "A1").value).toBe(4);
+    });
+
+    test("unhide rows after writing the SUBTOTAL formula", () => {
+      const model = new Model();
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A3", "2");
+      setCellContent(model, "A4", "3");
+      setCellContent(model, "A1", "=SUBTOTAL(109, A2:A4)"); // 109: SUM ignoring hidden rows
+      hideRows(model, [1, 2, 3]);
+      unhideRows(model, [2]);
+      expect(getEvaluatedCell(model, "A1").value).toBe(2);
+    });
+  });
+
   test("function codes greater than 100 (ignoring hidden rows)", () => {
     const model = new Model();
     setCellContent(model, "A2", "1");
@@ -3095,16 +3129,30 @@ describe("SUBTOTAL formula", () => {
     expect(gridResult.A7).toBe(4);
   });
 
-  test("ignoring filtered rows", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "Header");
-    setCellContent(model, "A2", "1");
-    setCellContent(model, "A3", "2");
-    setCellContent(model, "A4", "3");
-    setCellContent(model, "A5", "4");
-    createTableWithFilter(model, "A1:A5");
-    updateFilter(model, "A1", ["2"]);
-    setCellContent(model, "B1", "=SUBTOTAL(9, A2:A5)"); // SUM agregate function
+  describe("ignoring filtered rows", () => {
+    test("write the SUBTOTAL formula after updating filter", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "Header");
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A3", "2");
+      setCellContent(model, "A4", "3");
+      createTableWithFilter(model, "A1:A4");
+      updateFilter(model, "A1", ["2"]);
+      setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM agregate function
+      expect(getEvaluatedCell(model, "B1").value).toBe(4);
+    });
+
+    test("write the SUBTOTAL formula before updating filter", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "Header");
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A3", "2");
+      setCellContent(model, "A4", "3");
+      setCellContent(model, "B1", "=SUBTOTAL(9, A2:A4)"); // SUM agregate function
+      createTableWithFilter(model, "A1:A4");
+      updateFilter(model, "A1", ["2"]);
+      expect(getEvaluatedCell(model, "B1").value).toBe(4);
+    });
   });
 
   test("multiple ranges", () => {
