@@ -673,7 +673,8 @@ export class GridSelectionPlugin extends UIPlugin {
       "CUT",
       this.getters,
       this.dispatch,
-      this.selection
+      this.selection,
+      "shiftCells"
     );
     const base = isBasedBefore ? cmd.base : cmd.base + 1;
     const pasteTarget = [
