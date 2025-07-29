@@ -21,7 +21,10 @@ export class ChartJsComponentWithColorScale extends ChartJsComponent {
   }
 
   private updateColorScaleBoundaries(chartData: ChartConfiguration<any>) {
-    const values = chartData.data.datasets.map((d) => d.values).flat();
+    const values = chartData.data.datasets
+      .map((d) => d.values)
+      .flat()
+      .filter((v) => typeof v === "number") as number[];
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
     this.minValue.el!.innerHTML = minValue.toString();

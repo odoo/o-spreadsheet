@@ -1,7 +1,14 @@
 import { Component, useState } from "@odoo/owl";
+import { _t } from "../../../../translation";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
-import { TimeMatrixChartDefinition } from "../../../../types/chart/time_matrix_chart";
+import {
+  TimeMatrixChartDefinition,
+  TimeMatrixGroupBy,
+} from "../../../../types/chart/time_matrix_chart";
 import { ChartTerms } from "../../../translations_terms";
+import { BadgeSelection } from "../../components/badge_selection/badge_selection";
+import { RadioSelection } from "../../components/radio_selection/radio_selection";
+import { Section } from "../../components/section/section";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { ChartLabelRange } from "../building_blocks/label_range/label_range";
@@ -16,6 +23,7 @@ interface Props {
 interface ChartPanelState {
   datasetDispatchResult?: DispatchResult;
   labelsDispatchResult?: DispatchResult;
+  currentAxis: "x" | "y";
 }
 
 export class TimeMatrixChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -24,6 +32,9 @@ export class TimeMatrixChartConfigPanel extends Component<Props, SpreadsheetChil
     ChartDataSeries,
     ChartLabelRange,
     ChartErrorSection,
+    RadioSelection,
+    BadgeSelection,
+    Section,
   };
   static props = {
     figureId: String,
@@ -32,9 +43,24 @@ export class TimeMatrixChartConfigPanel extends Component<Props, SpreadsheetChil
     canUpdateChart: Function,
   };
 
+  groupByChoices = [
+    { value: "weekday", label: _t("Weekday") },
+    { value: "hour", label: _t("Hour of Day") },
+    { value: "monthday", label: _t("Day of Month") },
+    { value: "month", label: _t("Month") },
+    { value: "year", label: _t("Year") },
+    { value: "date", label: _t("Date") },
+  ];
+
+  badgeAxes = [
+    { value: "x", label: _t("Horizontal axis") },
+    { value: "y", label: _t("Vertical axis") },
+  ];
+
   protected state: ChartPanelState = useState({
     datasetDispatchResult: undefined,
     labelsDispatchResult: undefined,
+    currentAxis: "x",
   });
 
   protected dataRange: string | undefined;
@@ -67,6 +93,16 @@ export class TimeMatrixChartConfigPanel extends Component<Props, SpreadsheetChil
 
   getLabelRangeOptions() {
     return [];
+  }
+
+  getGroupByType(currentAxis: "x" | "y"): TimeMatrixGroupBy {
+    return this.props.definition[`${currentAxis}Stamp`] || "year";
+  }
+
+  updateGroupBy(currentAxis: "x" | "y", value: TimeMatrixGroupBy) {
+    this.props.updateChart(this.props.figureId, {
+      [`${currentAxis}Stamp`]: value,
+    });
   }
 
   /**

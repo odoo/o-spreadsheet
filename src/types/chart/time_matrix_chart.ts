@@ -3,6 +3,15 @@ import { AxesDesign, TitleDesign } from ".";
 import { Color } from "../misc";
 import { GeoChartColorScale } from "./geo_chart";
 
+export type TimeMatrixGroupBy =
+  | "year"
+  | "month"
+  | "weekday"
+  | "hour"
+  | "monthday"
+  | "week"
+  | "quarter";
+
 export interface TimeMatrixChartDefinition {
   readonly dataRange: string;
   readonly labelRange?: string;
@@ -12,6 +21,8 @@ export interface TimeMatrixChartDefinition {
   readonly type: "timeMatrix";
   readonly colorScale?: GeoChartColorScale;
   readonly axesDesign?: AxesDesign;
+  readonly xStamp?: TimeMatrixGroupBy;
+  readonly yStamp?: TimeMatrixGroupBy;
 }
 
 export type TimeMatrixChartRuntime = {

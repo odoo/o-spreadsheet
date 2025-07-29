@@ -19,7 +19,10 @@ import {
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
 import { GeoChartColorScale } from "../../../types/chart/geo_chart";
-import { TimeMatrixChartDefinition } from "../../../types/chart/time_matrix_chart";
+import {
+  TimeMatrixChartDefinition,
+  TimeMatrixGroupBy,
+} from "../../../types/chart/time_matrix_chart";
 import { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
@@ -50,6 +53,8 @@ export class TimeMatrixChart extends AbstractChart {
   readonly showValues?: boolean;
   readonly colorScale?: GeoChartColorScale;
   readonly axesDesign?: AxesDesign;
+  readonly xStamp?: TimeMatrixGroupBy;
+  readonly yStamp?: TimeMatrixGroupBy;
 
   constructor(definition: TimeMatrixChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -59,6 +64,8 @@ export class TimeMatrixChart extends AbstractChart {
     this.showValues = definition.showValues;
     this.colorScale = definition.colorScale;
     this.axesDesign = definition.axesDesign;
+    this.xStamp = definition.xStamp;
+    this.yStamp = definition.yStamp;
   }
 
   static transformDefinition(
@@ -151,6 +158,8 @@ export class TimeMatrixChart extends AbstractChart {
       showValues: this.showValues,
       colorScale: this.colorScale,
       axesDesign: this.axesDesign,
+      xStamp: this.xStamp,
+      yStamp: this.yStamp,
     };
   }
 
@@ -203,205 +212,3 @@ export function createTimeMatrixChartRuntime(
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }
-
-/*
-import { Chart } from "chart.js";
-
-const ctx = document.getElementById("myChart").getContext("2d");
-
-function getPosition(time, stamp) {
-  switch (stamp) {
-    case "weekdays":
-      return time.getDay();
-    case "hour":
-      return time.getHours();
-    case "month":
-      return time.getMonth();
-    case "year":
-      return time.getYear();
-  }
-  return time;
-}
-function computeValuesAndLabels(timeValues, values, xStamp, yStamp) {
-  const grouping = {};
-  const xLabels = new Set();
-  const yLabels = new Set();
-  for (let i = 0; i < timeValues?.length; i++) {
-    const xCateg = getPosition(timeValues[i], xStamp);
-    xLabels.add(xCateg);
-    if (!(xCateg in grouping)) {
-      grouping[xCateg] = {};
-    }
-    const yCateg = getPosition(timeValues[i], yStamp);
-    yLabels.add(yCateg);
-    if (!(yCateg in grouping[xCateg])) {
-      grouping[xCateg][yCateg] = 0;
-    }
-    grouping[xCateg][yCateg] += values[i];
-  }
-
-  const finalXLabels = [...xLabels];
-  const finalYLabels = [...yLabels];
-  const finalValues = finalYLabels.map((yL) =>
-    finalXLabels.map((xL) => grouping[xL][yL])
-  );
-
-  return {
-    matrixValues: finalValues,
-    xLabels: finalXLabels,
-    yLabels: finalYLabels,
-  };
-}
-const { matrixValues, xLabels, yLabels } = computeValuesAndLabels(
-  [
-    new Date("2025-06-01T08:15:30"),
-    new Date("2025-06-01T09:15:30"),
-    new Date("2025-06-01T10:15:30"),
-    new Date("2025-06-01T11:15:30"),
-    new Date("2025-06-01T12:15:30"),
-    new Date("2025-06-01T13:15:30"),
-    new Date("2025-06-01T14:15:30"),
-    new Date("2025-06-01T15:15:30"),
-    new Date("2025-06-01T16:15:30"),
-    new Date("2025-06-02T08:15:30"),
-    new Date("2025-06-02T09:15:30"),
-    new Date("2025-06-02T10:15:30"),
-    new Date("2025-06-02T11:15:30"),
-    new Date("2025-06-02T12:15:30"),
-    new Date("2025-06-02T13:15:30"),
-    new Date("2025-06-02T14:15:30"),
-    new Date("2025-06-02T15:15:30"),
-    new Date("2025-06-02T16:15:30"),
-    new Date("2025-06-03T08:15:30"),
-    new Date("2025-06-03T09:15:30"),
-    new Date("2025-06-03T10:15:30"),
-    new Date("2025-06-03T11:15:30"),
-    new Date("2025-06-03T12:15:30"),
-    new Date("2025-06-03T13:15:30"),
-    new Date("2025-06-03T14:15:30"),
-    new Date("2025-06-03T15:15:30"),
-    new Date("2025-06-03T16:15:30"),
-    new Date("2025-06-04T08:15:30"),
-    new Date("2025-06-04T09:15:30"),
-    new Date("2025-06-04T10:15:30"),
-    new Date("2025-06-04T11:15:30"),
-    new Date("2025-06-04T12:15:30"),
-    new Date("2025-06-04T13:15:30"),
-    new Date("2025-06-04T14:15:30"),
-    new Date("2025-06-04T15:15:30"),
-    new Date("2025-06-04T16:15:30"),
-    new Date("2025-06-05T08:15:30"),
-    new Date("2025-06-05T09:15:30"),
-    new Date("2025-06-05T10:15:30"),
-    new Date("2025-06-05T11:15:30"),
-    new Date("2025-06-05T12:15:30"),
-    new Date("2025-06-05T13:15:30"),
-    new Date("2025-06-05T14:15:30"),
-    new Date("2025-06-05T15:15:30"),
-    new Date("2025-06-05T16:15:30"),
-    new Date("2025-06-06T08:15:30"),
-    new Date("2025-06-06T09:15:30"),
-    new Date("2025-06-06T10:15:30"),
-    new Date("2025-06-06T11:15:30"),
-    new Date("2025-06-06T12:15:30"),
-    new Date("2025-06-06T13:15:30"),
-    new Date("2025-06-06T14:15:30"),
-    new Date("2025-06-06T15:15:30"),
-    new Date("2025-06-06T16:15:30"),
-    new Date("2025-06-07T08:15:30"),
-    new Date("2025-06-07T09:15:30"),
-    new Date("2025-06-07T10:15:30"),
-    new Date("2025-06-07T11:15:30"),
-    new Date("2025-06-07T12:15:30"),
-    new Date("2025-06-07T13:15:30"),
-    new Date("2025-06-07T14:15:30"),
-    new Date("2025-06-07T15:15:30"),
-    new Date("2025-06-07T16:15:30"),
-  ],
-  [
-    30, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-    60, 61, 62, 3,
-  ],
-  "weekdays",
-  "hour"
-);
-
-const maxValue = Math.max(...matrixValues.flat());
-const minValue = Math.min(...matrixValues.flat());
-function computeColors(i) {
-  return matrixValues[i].map(
-    (v) => `rgba(0,0,0,${(v - minValue) / (maxValue - minValue)})`
-  );
-}
-
-const dataSets = [];
-for (let i = 0; i < matrixValues.length; i++) {
-  dataSets.push({
-    label: yLabels[i],
-    data: matrixValues[i].map((v) => 1),
-    backgroundColor: computeColors(i),
-    barPercentage: 1.0,
-    categoryPercentage: 1.0,
-  });
-}
-
-const data = {
-  labels: xLabels,
-  datasets: dataSets,
-};
-
-const options = {
-  legend: {
-    display: false,
-  },
-  scales: {
-    yAxes: [
-      {
-        stacked: true,
-        ticks: {
-          min: 0,
-          max: yLabels.length,
-          stepSize: 0.5,
-          callback: function (label, index, labels) {
-            if (Math.floor(label) === label) {
-              return undefined;
-            }
-            return yLabels[Math.floor(label)];
-          },
-        },
-        gridLines: {
-          display: false,
-        },
-      },
-    ],
-    xAxes: [
-      {
-        stacked: true,
-        ticks: { maxRotation: 90, minRotation: 90 },
-      },
-    ],
-  },
-  tooltips: {
-    callbacks: {
-      label: function (tooltipItem) {
-        const label = yLabels[tooltipItem.datasetIndex];
-        const value = matrixValues[tooltipItem.datasetIndex][tooltipItem.index];
-        return `${label}: ${value}`;
-      },
-    },
-  },
-};
-
-const chart = new Chart(ctx, {
-  // The type of chart we want to create
-  type: "bar",
-  // The data for our dataset
-  data: data,
-  // Configuration options go here
-  options: options,
-});
-document.getElementById("minValue").innerHTML = minValue;
-document.getElementById("maxValue").innerHTML = maxValue;
-*/

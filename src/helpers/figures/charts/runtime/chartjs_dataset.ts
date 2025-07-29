@@ -34,7 +34,10 @@ import {
   GeoChartRuntimeGenerationArgs,
 } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
-import { TimeMatrixChartDefinition } from "../../../../types/chart/time_matrix_chart";
+import {
+  TimeMatrixChartDefinition,
+  TimeMatrixGroupBy,
+} from "../../../../types/chart/time_matrix_chart";
 import {
   TreeMapCategoryColorOptions,
   TreeMapChartDefaults,
@@ -116,21 +119,72 @@ export function getBarChartDatasets(
   return dataSets;
 }
 
-function getPosition(time, stamp): number | string {
+function getPosition(time, stamp: TimeMatrixGroupBy): number | string {
   switch (stamp) {
-    case "weekdays":
+    case "weekday":
       return time.getDay();
-    case "hours":
+    case "monthday":
+      return time.getDate();
+    case "hour":
       return time.getHours();
     case "month":
       return time.getMonth();
     case "year":
-      return time.getYear();
+      return time.getFullYear();
   }
   return time;
 }
 
-function computeValuesAndLabels(timeValues, values, xStamp, yStamp) {
+function getTimeMatrixLabels(
+  stamp: TimeMatrixGroupBy,
+  currentLabels: (string | number)[]
+): { label: string; value: string | number }[] {
+  switch (stamp) {
+    case "weekday":
+      return [
+        { label: _t("Sunday"), value: 0 },
+        { label: _t("Monday"), value: 1 },
+        { label: _t("Tuesday"), value: 2 },
+        { label: _t("Wednesday"), value: 3 },
+        { label: _t("Thursday"), value: 4 },
+        { label: _t("Friday"), value: 5 },
+        { label: _t("Saturday"), value: 6 },
+      ];
+    case "hour":
+      return range(0, 24).map((h) => ({ label: _t(`${h < 10 ? "0" : ""}${h}:00`), value: h }));
+    case "month":
+      return [
+        { label: _t("January"), value: 0 },
+        { label: _t("February"), value: 1 },
+        { label: _t("March"), value: 2 },
+        { label: _t("April"), value: 3 },
+        { label: _t("May"), value: 4 },
+        { label: _t("June"), value: 5 },
+        { label: _t("July"), value: 6 },
+        { label: _t("August"), value: 7 },
+        { label: _t("September"), value: 8 },
+        { label: _t("October"), value: 9 },
+        { label: _t("November"), value: 10 },
+        { label: _t("December"), value: 11 },
+      ];
+    case "quarter":
+      return [
+        { label: _t("Q1"), value: 0 },
+        { label: _t("Q2"), value: 1 },
+        { label: _t("Q3"), value: 2 },
+        { label: _t("Q4"), value: 3 },
+      ];
+    default:
+      return currentLabels.map((l) => ({ label: String(l), value: l }));
+  }
+}
+
+function computeValuesAndLabels(
+  timeValues,
+  values,
+  xStamp: TimeMatrixGroupBy,
+  yStamp: TimeMatrixGroupBy
+) {
   const grouping: any = {};
   const xLabels = new Set<string | number>();
   const yLabels = new Set<string | number>();
@@ -148,14 +202,17 @@ function computeValuesAndLabels(timeValues, values, xStamp, yStamp) {
     grouping[xCateg][yCateg] += values[i];
   }
 
-  const finalXLabels = [...xLabels].sort();
-  const finalYLabels = [...yLabels].sort();
-  const finalValues = finalYLabels.map((yL) => finalXLabels.map((xL) => grouping[xL][yL]));
+  const finalXLabels = getTimeMatrixLabels(xStamp, Array.from(xLabels));
+  const finalYLabels = getTimeMatrixLabels(yStamp, Array.from(yLabels));
+
+  const finalValues = finalYLabels.map((yL) =>
+    finalXLabels.map((xL) => grouping?.[xL.value]?.[yL.value])
+  );
 
   return {
     matrixValues: finalValues,
-    xLabels: finalXLabels,
-    yLabels: finalYLabels,
+    xLabels: finalXLabels.map((l) => l.label),
+    yLabels: finalYLabels.map((l) => l.label),
   };
 }
 
@@ -171,8 +228,8 @@ export function getTimeMatrixChartDatasetAndLabels(
   const { matrixValues, xLabels, yLabels } = computeValuesAndLabels(
     labels.map((l) => toJsDate(l, locale)),
     dataSetsValues[0].data,
-    "hours",
-    "weekdays"
+    definition.xStamp ?? "month",
+    definition.yStamp ?? "weekday"
   );
 
   const maxValue = Math.max(...matrixValues.flat().filter(isDefined));
