@@ -19,7 +19,11 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../src/types";
-import { PieChartRuntime, TrendConfiguration } from "../../../src/types/chart";
+import {
+  ChartWithAxisDefinition,
+  PieChartRuntime,
+  TrendConfiguration,
+} from "../../../src/types/chart";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { xmlEscape } from "../../../src/xlsx/helpers/xml_helpers";
@@ -2551,4 +2555,141 @@ describe("Change chart type", () => {
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: false });
     expect(select.value).toBe("radar");
   });
+});
+
+describe("Can humanize number", () => {
+  beforeEach(() => {
+    model = new Model();
+    //prettier-ignore
+    setGrid(model, {
+      A2: "1", B2:          "1000",
+      A3: "2", B3:       "1000000",
+      A4: "3", B4:    "1000000000",
+      A5: "4", B5: "1000000000000",
+    });
+  });
+
+  test.each(["bar", "combo"] as const)(
+    "Humanization is taken into account for the axis ticks of a %s chart",
+    async (type: "bar" | "combo") => {
+      createChart(
+        model,
+        {
+          type,
+          labelRange: "A2:A5",
+          dataSets: [{ dataRange: "B2:B5" }],
+          dataSetsHaveTitle: false,
+          humanizeNumbers: false,
+        },
+        "1"
+      );
+      await nextTick();
+      let axis = getChartConfiguration(model, "1").options.scales.y;
+      const valuesBefore = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+      expect(valuesBefore).toEqual(["1,000", "1,000,000", "1,000,000,000", "1,000,000,000,000"]);
+      updateChart(model, "1", { humanizeNumbers: true });
+      await nextTick();
+      axis = getChartConfiguration(model, "1").options.scales.y;
+      const valuesAfter = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+      expect(valuesAfter).toEqual(["1,000", "1,000k", "1,000m", "1,000b"]);
+    }
+  );
+
+  test("Humanization is taken into account for the axis ticks of a pyramid chart", async () => {
+    createChart(
+      model,
+      {
+        type: "pyramid",
+        labelRange: "A2:A5",
+        dataSets: [{ dataRange: "B2:B5" }],
+        dataSetsHaveTitle: false,
+        humanizeNumbers: false,
+      },
+      "1"
+    );
+    await nextTick();
+    let axis = getChartConfiguration(model, "1").options.scales.x;
+    const valuesBefore = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+    expect(valuesBefore).toEqual(["1,000", "1,000,000", "1,000,000,000", "1,000,000,000,000"]);
+    updateChart(model, "1", { humanizeNumbers: true });
+    await nextTick();
+    axis = getChartConfiguration(model, "1").options.scales.x;
+    const valuesAfter = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+    expect(valuesAfter).toEqual(["1,000", "1,000k", "1,000m", "1,000b"]);
+  });
+
+  test.each(["line", "scatter"] as const)(
+    "Humanization is taken into account for the axis ticks of a %s chart",
+    async (type: "line" | "scatter") => {
+      createChart(
+        model,
+        {
+          type,
+          labelRange: "A2:A5",
+          dataSets: [{ dataRange: "B2:B5" }],
+          dataSetsHaveTitle: false,
+          humanizeNumbers: false,
+        },
+        "1"
+      );
+      await nextTick();
+      let axis = getChartConfiguration(model, "1").options.scales.y;
+      const valuesBefore = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+      expect(valuesBefore).toEqual(["1,000", "1,000,000", "1,000,000,000", "1,000,000,000,000"]);
+      updateChart(model, "1", { humanizeNumbers: true });
+      await nextTick();
+      axis = getChartConfiguration(model, "1").options.scales.y;
+      const valuesAfter = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+      expect(valuesAfter).toEqual(["1,000", "1,000k", "1,000m", "1,000b"]);
+    }
+  );
+
+  test("Humanization is taken into account for the axis ticks of a radar chart", async () => {
+    createChart(
+      model,
+      {
+        type: "radar",
+        labelRange: "A2:A5",
+        dataSets: [{ dataRange: "B2:C5" }],
+        dataSetsHaveTitle: false,
+        humanizeNumbers: false,
+      },
+      "1"
+    );
+    await nextTick();
+    let axis = getChartConfiguration(model, "1").options.scales.r;
+    const valuesBefore = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+    expect(valuesBefore).toEqual(["1,000", "1,000,000", "1,000,000,000", "1,000,000,000,000"]);
+    updateChart(model, "1", { humanizeNumbers: true });
+    await nextTick();
+    axis = getChartConfiguration(model, "1").options.scales.r;
+    const valuesAfter = [1e3, 1e6, 1e9, 1e12].map(axis.ticks.callback);
+    expect(valuesAfter).toEqual(["1,000", "1,000k", "1,000m", "1,000b"]);
+  });
+
+  test.each(["line", "bar", "scatter", "combo"] as const)(
+    "%s chart showValues plugin takes humanization into account",
+    async (type: ChartWithAxisDefinition["type"]) => {
+      createChart(
+        model,
+        {
+          type,
+          labelRange: "A2:A5",
+          dataSets: [{ dataRange: "B2:B5" }],
+          humanizeNumbers: false,
+        },
+        "1"
+      );
+      await nextTick();
+
+      let plugin = getChartConfiguration(model, "1").options?.plugins?.chartShowValuesPlugin;
+      const valuesBefore = [1e3, 1e6, 1e9, 1e12].map((v) => plugin.callback(v, "x"));
+      expect(valuesBefore).toEqual(["1,000", "1,000,000", "1,000,000,000", "1,000,000,000,000"]);
+      updateChart(model, "1", { humanizeNumbers: true });
+      await nextTick();
+      plugin = getChartConfiguration(model, "1").options?.plugins?.chartShowValuesPlugin;
+      const valuesAfter = [1e3, 1e6, 1e9, 1e12].map((v) => plugin.callback(v, "x"));
+      expect(valuesAfter).toEqual(["1,000", "1,000k", "1,000m", "1,000b"]);
+    }
+  );
 });

@@ -593,7 +593,7 @@ export const demoData = {
             baseline: "Sheet1!B28",
             baselineDescr: "Descr",
             keyValue: "Sheet1!B29",
-            humanize: false,
+            humanizeNumbers: false,
           },
         },
         {

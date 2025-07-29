@@ -12,7 +12,7 @@ export interface ScorecardChartDefinition {
   readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
-  readonly humanize?: boolean;
+  readonly humanizeNumbers?: boolean;
 }
 
 export type BaselineMode = "text" | "difference" | "percentage" | "progress";

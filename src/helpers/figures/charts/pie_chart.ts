@@ -97,6 +97,7 @@ export class PieChart extends AbstractChart {
       isDoughnut: context.isDoughnut,
       pieHolePercentage: context.pieHolePercentage,
       showValues: context.showValues,
+      humanizeNumbers: context.humanizeNumbers,
     };
   }
 
@@ -137,6 +138,7 @@ export class PieChart extends AbstractChart {
       isDoughnut: this.isDoughnut,
       showValues: this.showValues,
       pieHolePercentage: this.pieHolePercentage,
+      humanizeNumbers: this.humanizeNumbers,
     };
   }
 

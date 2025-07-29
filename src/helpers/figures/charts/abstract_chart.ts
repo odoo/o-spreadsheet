@@ -29,11 +29,13 @@ export abstract class AbstractChart {
   readonly title: TitleDesign;
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
+  readonly humanizeNumbers: boolean;
 
   constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
     this.title = definition.title;
     this.sheetId = sheetId;
     this.getters = getters;
+    this.humanizeNumbers = definition.humanizeNumbers ?? true;
   }
 
   /**

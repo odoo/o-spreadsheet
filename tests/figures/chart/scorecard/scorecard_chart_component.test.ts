@@ -230,7 +230,7 @@ describe("Scorecard charts computation", () => {
   test("Number are humanized if stipulated in the chart definition", () => {
     setCellContent(model, "A1", "123456789");
     setCellContent(model, "B1", "10.5");
-    createScorecardChart(model, { keyValue: "A1", baseline: "B1", humanize: true }, chartId);
+    createScorecardChart(model, { keyValue: "A1", baseline: "B1", humanizeNumbers: true }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.key?.text).toBe("123m");
@@ -242,7 +242,7 @@ describe("Scorecard charts computation", () => {
     setCellContent(model, "B1", "122222342");
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B1", humanize: true, baselineMode: "text" },
+      { keyValue: "A1", baseline: "B1", humanizeNumbers: true, baselineMode: "text" },
       chartId
     );
     const chartDesign = getChartDesign(model, chartId, sheetId);

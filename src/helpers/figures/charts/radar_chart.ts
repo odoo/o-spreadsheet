@@ -109,6 +109,7 @@ export class RadarChart extends AbstractChart {
       fillArea: context.fillArea ?? false,
       showValues: context.showValues ?? false,
       hideDataMarkers: context.hideDataMarkers,
+      humanizeNumbers: context.humanizeNumbers,
     };
   }
 
@@ -180,6 +181,7 @@ export class RadarChart extends AbstractChart {
       fillArea: this.fillArea,
       showValues: this.showValues,
       hideDataMarkers: this.hideDataMarkers,
+      humanizeNumbers: this.humanizeNumbers,
     };
   }
 

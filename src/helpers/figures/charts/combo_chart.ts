@@ -142,6 +142,7 @@ export class ComboChart extends AbstractChart {
       axesDesign: this.axesDesign,
       showValues: this.showValues,
       hideDataMarkers: this.hideDataMarkers,
+      humanizeNumbers: this.humanizeNumbers,
     };
   }
 
@@ -197,6 +198,7 @@ export class ComboChart extends AbstractChart {
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       hideDataMarkers: context.hideDataMarkers,
+      humanizeNumbers: context.humanizeNumbers,
     };
   }
 
