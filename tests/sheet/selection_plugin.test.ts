@@ -1016,6 +1016,28 @@ describe("move elements(s)", () => {
     expect(model.getters.getUserRowSize(sheetId, 1)).toEqual(undefined);
   });
 
+  test("Moving a resized row above does not change next row's size", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A2", "Hello\nRow1");
+    resizeRows(model, [1], 50);
+    setCellContent(model, "A3", "Hello\nRow2");
+    moveRows(model, 0, [1], "before");
+    expect(model.getters.getRowSize(sheetId, 0)).toEqual(50);
+    expect(model.getters.getRowSize(sheetId, 2)).toEqual(36);
+  });
+
+  test("Moving a row above a resized row should not inherit its size", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "Hello\nWorld");
+    resizeRows(model, [0], 50);
+    setCellContent(model, "A2", "Hello");
+    moveRows(model, 0, [1], "before");
+    expect(model.getters.getRowSize(sheetId, 0)).toEqual(23);
+    expect(model.getters.getRowSize(sheetId, 1)).toEqual(50);
+  });
+
   test("Preserves wrapped row height when a row is moved above it", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
