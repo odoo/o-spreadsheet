@@ -520,8 +520,19 @@ export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: 
   }[funcName];
 }
 
+/**
+ * Removes the specified indexes from the array.
+ * Sparse (empty) elements are transformed to undefined (unless their index is explicitly removed).
+ */
 export function removeIndexesFromArray<T>(array: readonly T[], indexes: number[]): T[] {
-  return array.filter((_, index) => !indexes.includes(index));
+  const toRemove = new Set(indexes);
+  const newArray: T[] = [];
+  for (let i = 0; i < array.length; i++) {
+    if (!toRemove.has(i)) {
+      newArray.push(array[i]);
+    }
+  }
+  return newArray;
 }
 
 export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: number): T[] {
