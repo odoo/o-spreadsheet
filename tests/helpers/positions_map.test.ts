@@ -1,4 +1,4 @@
-import { PositionMap } from "../../src/plugins/ui_core_views/cell_evaluation/position_map";
+import { PositionMap } from "../../src/helpers/cells/position_map";
 
 describe("PositionMap", () => {
   test("set an element", () => {

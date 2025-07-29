@@ -44,6 +44,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         const position = { col, row, sheetId };
         let cell = this.getters.getCell(position);
         const evaluatedCell = this.getters.getEvaluatedCell(position);
+        const style = cell?.style ?? this.getters.getDefaultCellStyle(position);
+        const format = cell?.format ?? this.getters.getDefaultCellFormat(position);
         const pivotId = this.getters.getPivotIdFromPosition(position);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
         if (pivotId && spreader) {
@@ -58,8 +60,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
             cell = {
               id: cell?.id || "",
-              style: cell?.style,
-              format: cell?.format,
+              style: style,
+              format: format,
               content: pivotFormula,
               isFormula: false,
               parsedValue: evaluatedCell.value,
@@ -74,8 +76,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
               : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
             cell = {
               id: cell?.id || "",
-              style: cell?.style,
-              format: evaluatedCell.format,
+              style: style,
+              format: evaluatedCell.format ?? format,
               content,
               isFormula: false,
               parsedValue: evaluatedCell.value,
@@ -84,8 +86,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         }
         cellsInRow.push({
           content: cell?.content ?? "",
-          style: cell?.style,
-          format: cell?.format,
+          style,
+          format,
           tokens: cell?.isFormula
             ? cell.compiledFormula.tokens.map(({ value, type }) => ({ value, type }))
             : [],

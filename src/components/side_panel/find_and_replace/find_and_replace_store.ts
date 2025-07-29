@@ -243,7 +243,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private findMatchesInSheet(sheetId: string) {
     const matches: CellPosition[] = [];
 
-    const { left, right, top, bottom } = this.getters.getSheetZone(sheetId);
+    const { left, right, top, bottom } = this.getters.getUsedSheetZone(sheetId);
 
     for (let row = top; row <= bottom; row++) {
       for (let col = left; col <= right; col++) {

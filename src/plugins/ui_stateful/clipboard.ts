@@ -10,7 +10,7 @@ import {
   selectPastedZone,
 } from "../../helpers/clipboard/clipboard_helpers";
 import { getMaxFigureSize } from "../../helpers/figures/figure/figure";
-import { UuidGenerator, isZoneValid } from "../../helpers/index";
+import { UuidGenerator, intersection, isDefined, isZoneValid } from "../../helpers/index";
 import { getCurrentVersion } from "../../migrations/data";
 import { _t } from "../../translation";
 import {
@@ -687,6 +687,9 @@ export class ClipboardPlugin extends UIPlugin {
     if (selectedFigureId) {
       return { figureId: selectedFigureId, sheetId };
     }
+    zones = zones
+      .map((zone) => intersection(zone, this.getters.getUsedSheetZone(sheetId)))
+      .filter(isDefined);
     const data = getClipboardDataPositions(sheetId, zones);
     if (!this._isCutOperation) {
       data.rowsIndexes = data.rowsIndexes.filter((r) => !this.getters.isRowFiltered(sheetId, r));

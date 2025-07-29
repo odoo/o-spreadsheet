@@ -1,5 +1,6 @@
 import { rangeTokenize } from "../formulas";
 import { Range, RangeAdapter, UID } from "../types";
+import { MAX_COL, MAX_ROW } from "./coordinates";
 import { concat } from "./misc";
 import { createInvalidRange, createRangeFromXc, getRangeString } from "./range";
 import { rangeReference, splitReference } from "./references";
@@ -66,7 +67,7 @@ function getSheetNameGetter(applyChange: RangeAdapter) {
 }
 
 function defaultGetSheetSize(sheetId: UID) {
-  return { numberOfRows: Number.MAX_SAFE_INTEGER, numberOfCols: Number.MAX_SAFE_INTEGER };
+  return { numberOfRows: MAX_ROW, numberOfCols: MAX_COL };
 }
 
 function getRange(sheetXC: string, sheetId: UID): Range {
