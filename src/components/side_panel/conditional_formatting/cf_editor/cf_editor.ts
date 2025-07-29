@@ -176,6 +176,7 @@ interface State {
   rules: Rules;
   openedMenu?: CFMenu;
   ranges: string[];
+  hasEditedCf?: boolean;
 }
 
 export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -205,14 +206,17 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   colorNumberString = colorNumberString;
 
   private state!: State;
-  private hasEditedCf = this.props.isNewCf;
+  private hasEditedCf = false;
 
   setup() {
+    console.log("setup ConditionalFormattingEditor", this.hasEditedCf);
+    this.hasEditedCf = !!this.props.isNewCf;
     this.state = useState<State>({
       errors: [],
       currentCFType: this.props.editedCf.rule.type,
       ranges: this.props.editedCf.ranges,
       rules: this.getDefaultRules(),
+      hasEditedCf: !!this.hasEditedCf,
     });
     switch (this.props.editedCf.rule.type) {
       case "CellIsRule":
@@ -272,7 +276,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       sheetId,
     });
     if (result.isSuccessful) {
+      this.state.hasEditedCf = true;
       this.hasEditedCf = true;
+      console.log("update hasEditedCf", this.hasEditedCf, this.state.hasEditedCf);
     }
     const reasons = result.reasons.filter((r) => r !== CommandResult.NoChanges);
     if (!newCf.suppressErrors) {
@@ -302,6 +308,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   }
 
   onCancel() {
+    console.log("onCancel", this.hasEditedCf, this.state.hasEditedCf);
     if (this.hasEditedCf) {
       this.props.onCancel();
     } else {

@@ -618,7 +618,7 @@ describe("UI of conditional formats", () => {
       // Press cancel
       await click(fixture, selectors.buttonCancel);
       expect(model.getters.getConditionalFormats(sheetId)[0].rule).toMatchObject({
-        operator: "Equal",
+        operator: "isEqual",
         style: { fillColor: "#ff0000" },
       });
     });
