@@ -19,9 +19,9 @@ const {
   onError,
 } = owl;
 
-const { Spreadsheet, Model } = o_spreadsheet;
-const { topbarMenuRegistry } = o_spreadsheet.registries;
-const { useStoreProvider } = o_spreadsheet.stores;
+const { Spreadsheet, Model } = window.o_spreadsheet;
+const { topbarMenuRegistry } = window.o_spreadsheet.registries;
+const { useStoreProvider } = window.o_spreadsheet.stores;
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 
