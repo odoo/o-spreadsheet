@@ -305,8 +305,14 @@ export type Dimension = "COL" | "ROW";
 export type ConsecutiveIndexes = HeaderIndex[];
 
 export interface RangeProvider {
-  adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string) => void;
+  adaptRanges?: AdaptRangeFn;
 }
+
+export type AdaptRangeFn = (
+  applyChange: ApplyRangeChange,
+  sheetId?: UID,
+  sheetName?: string
+) => void;
 
 export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
 
