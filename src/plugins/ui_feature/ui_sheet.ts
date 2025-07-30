@@ -276,11 +276,7 @@ export class SheetUIPlugin extends UIPlugin {
     const rowSizes: (number | null)[] = [];
     for (const row of rows) {
       let evaluatedRowSize = 0;
-      for (const cellId of this.getters.getRowCells(sheetId, row)) {
-        const cell = this.getters.getCellById(cellId);
-        if (!cell) {
-          continue;
-        }
+      for (const cell of this.getters.getRowCells(sheetId, row)) {
         const position = this.getters.getCellPosition(cell.id);
         const colSize = this.getters.getColSize(sheetId, position.col);
 
