@@ -240,14 +240,10 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
       return undefined;
     }
 
-    const cellIds = this.getters.getRowCellIds(sheetId, row);
+    const cells = this.getters.getRowCells(sheetId, row);
     let maxHeight = 0;
     let tallestCell: CellWithSize | undefined = undefined;
-    for (let i = 0; i < cellIds.length; i++) {
-      const cell = this.getters.getCellById(cellIds[i]);
-      if (!cell) {
-        continue;
-      }
+    for (const cell of cells) {
       const position = this.getters.getCellPosition(cell.id);
       const cellHeight = this.getCellHeight(position);
 

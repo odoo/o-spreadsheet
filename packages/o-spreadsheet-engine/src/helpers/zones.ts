@@ -693,6 +693,10 @@ export function isFullCol(zone: UnboundedZone): boolean {
   return zone.bottom === undefined;
 }
 
+export function isBound(zone: UnboundedZone): zone is Zone {
+  return zone.bottom !== undefined && zone.right !== undefined;
+}
+
 /** Returns the area of a zone */
 export function getZoneArea(zone: Zone): number {
   return (zone.bottom - zone.top + 1) * (zone.right - zone.left + 1);

@@ -139,7 +139,8 @@ export interface Sheet {
   id: UID;
   name: string;
   numberOfCols: number;
-  rows: Row[];
+  numberOfRows: number;
+  rows: Record<number, Row | undefined>;
   areGridLinesVisible: boolean;
   isVisible: boolean;
   panes: PaneDivision;

@@ -974,8 +974,8 @@ describe("sheets", () => {
       cellId: cell.id,
     });
     const sheet = model.getters.getActiveSheet();
-    expect(sheet.rows[0].cells[0]).toBeUndefined();
-    expect(sheet.rows[1].cells[1]).toBe(cell.id);
+    expect(sheet.rows[0]?.cells[0]).toBeUndefined();
+    expect(sheet.rows[1]?.cells[1]).toBe(cell.id);
     expect(model.getters.getCellPosition(cell.id)).toEqual({
       col: 1,
       row: 1,

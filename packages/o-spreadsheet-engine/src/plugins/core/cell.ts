@@ -8,7 +8,6 @@ import { concat, deepEquals, replaceNewLines } from "../../helpers/misc";
 import { toCartesian, toXC } from "../../helpers/coordinates";
 import { CorePlugin } from "../core_plugin";
 
-import { recomputeZones } from "../../helpers/recompute_zones";
 import { isInside } from "../../helpers/zones";
 import { Cell, FormulaCell, LiteralCell } from "../../types/cells";
 import {
@@ -119,51 +118,25 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
 
       case "CLEAR_CELLS":
+      case "DELETE_CONTENT":
         this.clearCells(cmd.sheetId, cmd.target);
         break;
 
-      case "DELETE_CONTENT":
-        this.clearZones(cmd.sheetId, cmd.target);
-        break;
       case "DELETE_SHEET": {
         this.history.update("cells", cmd.sheetId, undefined);
       }
     }
   }
 
-  private clearZones(sheetId: UID, zones: Zone[]) {
-    for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.getters.getCell({ sheetId, col, row });
-          if (cell?.isFormula || cell?.content) {
-            this.dispatch("UPDATE_CELL", {
-              sheetId,
-              content: "",
-              col,
-              row,
-            });
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Clear the styles, the format and the content of zones
-   */
   private clearCells(sheetId: UID, zones: Zone[]) {
-    for (const zone of zones) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId: sheetId,
-            col,
-            row,
-            content: "",
-          });
-        }
-      }
+    for (const cell of this.getters.getCellsFromZones(sheetId, zones)) {
+      const position = this.getters.getCellPosition(cell.id);
+      this.dispatch("UPDATE_CELL", {
+        sheetId: sheetId,
+        col: position.col,
+        row: position.row,
+        content: "",
+      });
     }
   }
 
