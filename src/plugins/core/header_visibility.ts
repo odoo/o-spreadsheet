@@ -1,11 +1,4 @@
-import {
-  deepCopy,
-  getAddHeaderStartIndex,
-  includesAll,
-  largeMax,
-  largeMin,
-  range,
-} from "../../helpers";
+import { deepCopy, getAddHeaderStartIndex, largeMax, largeMin, range } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -110,8 +103,19 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     dimension: Dimension,
     elements: HeaderIndex[]
   ): boolean {
-    const visibleHeaders = this.getAllVisibleHeaders(sheetId, dimension);
-    return includesAll(elements, visibleHeaders);
+    const elementsOrHidden: HeaderIndex[] = elements;
+    this.getters.getHeaderGroups(sheetId, dimension).forEach((group) => {
+      if (group.isFolded) {
+        elementsOrHidden.push(...range(group.start, group.end + 1));
+      }
+    });
+
+    for (let header = 0; header < this.getters.getNumberHeaders(sheetId, dimension); header++) {
+      if (!this.hiddenHeaders[sheetId][dimension][header] && !elementsOrHidden.includes(header)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   isHeaderHiddenByUser(sheetId: UID, dimension: Dimension, index: HeaderIndex): boolean {
@@ -166,21 +170,6 @@ export class HeaderVisibilityPlugin extends CorePlugin {
       consecutiveIndexes.pop();
     }
     return consecutiveIndexes;
-  }
-
-  private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
-    const headers: HeaderIndex[] = range(0, this.getters.getNumberHeaders(sheetId, dimension));
-
-    const foldedHeaders: HeaderIndex[] = [];
-    this.getters.getHeaderGroups(sheetId, dimension).forEach((group) => {
-      if (group.isFolded) {
-        foldedHeaders.push(...range(group.start, group.end + 1));
-      }
-    });
-
-    return headers.filter((i) => {
-      return !this.hiddenHeaders[sheetId][dimension][i] && !foldedHeaders.includes(i);
-    });
   }
 
   import(data: WorkbookData) {
