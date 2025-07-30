@@ -10,8 +10,8 @@ import {
   toXC,
   toZone,
 } from "../../helpers";
+import { PositionMap } from "../../helpers/cells/position_map";
 import { withHttps } from "../../helpers/links";
-import { PositionMap } from "../../plugins/ui_core_views/cell_evaluation/position_map";
 import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types";
 import { CellErrorType } from "../../types/errors";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
