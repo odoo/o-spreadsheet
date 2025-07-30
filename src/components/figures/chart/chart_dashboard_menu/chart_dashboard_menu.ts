@@ -16,9 +16,9 @@ interface Props {
 interface MenuItem {
   id: string;
   label: string;
-  iconClass: string;
+  class: string;
   onClick: () => void;
-  isSelected?: boolean;
+  preview?: string;
 }
 
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
@@ -62,21 +62,11 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     if (definition.type === "scorecard") {
       return undefined;
     }
-
-    if (this.props.figureUI.id === this.fullScreenFigureStore.fullScreenFigure?.id) {
-      return {
-        id: "fullScreenChart",
-        label: _t("Exit Full Screen"),
-        iconClass: "fa fa-compress",
-        onClick: () => {
-          this.fullScreenFigureStore.toggleFullScreenChart(this.props.figureUI.id);
-        },
-      };
-    }
+    const isFullScreen = this.props.figureUI.id === this.fullScreenFigureStore.fullScreenFigure?.id;
     return {
       id: "fullScreenChart",
-      label: _t("Full Screen"),
-      iconClass: "fa fa-expand",
+      label: _t(isFullScreen ? "Exit Full Screen" : "Full Screen"),
+      class: `fa ${isFullScreen ? "fa-compress" : "fa-expand"}`,
       onClick: () => {
         this.fullScreenFigureStore.toggleFullScreenChart(this.props.figureUI.id);
       },

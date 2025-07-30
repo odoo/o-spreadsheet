@@ -7,12 +7,22 @@
     cursor: default;
 
     .o-chart-dashboard-item {
-      opacity: 0.3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1;
+      filter: grayscale(1);
 
       &.active,
       &:hover,
       &:target {
+        filter: grayscale(0);
         background: $os-button-active-bg;
+      }
+      .o-chart-preview {
+        transform: scale(1.2);
+        width: 16px;
+        height: 14px;
       }
     }
   }
