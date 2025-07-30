@@ -5,14 +5,25 @@
 
   .o-dashboard-chart-select {
     cursor: default;
+    > div {
+      height: 28px;
+    }
 
     .o-chart-dashboard-item {
-      opacity: 0.3;
+      filter: grayscale(1);
 
       &.active,
       &:hover,
       &:target {
+        filter: grayscale(0);
+        color: $os-gray-900 !important;
         background: $os-button-active-bg;
+      }
+      .o-chart-preview {
+        stroke-width: 2px;
+        transform: scale(1.1);
+        width: 16px;
+        height: 16px;
       }
     }
   }

@@ -5,13 +5,13 @@
       t-if="chartId"
       t-on-click="exitFullScreen">
       <button
-        class="o-exit top-0 end-0 position-absolute o-button primary m-1"
+        class="o-exit top-0 end-0 position-absolute o-button primary m-1 shadow"
         t-on-click="exitFullScreen">
         Exit fullscreen
       </button>
       <div class="flex-fill">
         <div
-          class="o-fullscreen-chart o-figure position-relative"
+          class="o-fullscreen-chart o-figure position-relative border rounded shadow"
           tabindex="1"
           t-ref="fullScreenChart"
           t-on-click.stop=""
