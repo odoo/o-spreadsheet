@@ -2,6 +2,8 @@ import { _t } from "../../translation";
 import { EvaluationError } from "../../types/errors";
 import {
   CommonPivotCoreDefinition,
+  ExtendedPivotCoreDimension,
+  ExtendedPivotDimension,
   PivotCollapsedDomains,
   PivotCoreDimension,
   PivotCoreMeasure,
@@ -20,7 +22,7 @@ import { isDateOrDatetimeField } from "./pivot_helpers";
 export class PivotRuntimeDefinition {
   readonly measures: PivotMeasure[];
   readonly columns: PivotDimension[];
-  readonly rows: PivotDimension[];
+  readonly rows: ExtendedPivotDimension[];
   readonly sortedColumn?: PivotSortedColumn;
   readonly collapsedDomains?: PivotCollapsedDomains;
 
@@ -92,12 +94,15 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
   };
 }
 
-function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
+function createPivotDimension(
+  fields: PivotFields,
+  dimension: PivotCoreDimension | ExtendedPivotCoreDimension
+): PivotDimension | ExtendedPivotDimension {
   const field = fields[dimension.fieldName];
   const type = field?.type ?? "integer";
   const granularity = field && isDateOrDatetimeField(field) ? dimension.granularity : undefined;
 
-  return {
+  const res = {
     /**
      * Get the display name of the dimension
      * e.g. "stage_id" -> "Stage", "create_date:month" -> "Create Date"
@@ -132,4 +137,10 @@ function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension
 
     isValid: !!field,
   };
+
+  if ("additionalInfo" in dimension) {
+    (res as ExtendedPivotDimension).additionalInfo = dimension.additionalInfo;
+  }
+
+  return res;
 }

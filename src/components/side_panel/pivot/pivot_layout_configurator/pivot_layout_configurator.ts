@@ -10,6 +10,7 @@ import { Store, useStore } from "../../../../store_engine";
 import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
 import {
   Aggregator,
+  ExtendedPivotDimension,
   Granularity,
   PivotCoreDefinition,
   PivotCoreDimension,
@@ -315,6 +316,20 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
           return { ...col, granularity };
         }
         return col;
+      }),
+    });
+  }
+
+  addInfo(row: ExtendedPivotDimension) {
+    const { rows } = this.props.definition;
+    const additionalInfo = row.additionalInfo || [];
+    additionalInfo.push({ sheetId: this.env.model.getters.getActiveSheetId(), formula: "=1" });
+    this.props.onDimensionsUpdated({
+      rows: rows.map((r) => {
+        if (r.nameWithGranularity === row.nameWithGranularity) {
+          return { ...r, additionalInfo };
+        }
+        return r;
       }),
     });
   }

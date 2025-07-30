@@ -118,6 +118,13 @@ export interface PivotDimension extends PivotCoreDimension {
   isValid: boolean;
 }
 
+export interface ExtendedPivotDimension extends ExtendedPivotCoreDimension {
+  nameWithGranularity: string;
+  displayName: string;
+  type: string;
+  isValid: boolean;
+}
+
 export interface PivotTableColumn {
   fields: string[];
   values: CellValue[];

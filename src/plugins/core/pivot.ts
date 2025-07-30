@@ -140,6 +140,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       case "UPDATE_PIVOT": {
         this.history.update("pivots", cmd.pivotId, "definition", deepCopy(cmd.pivot));
         this.compileCalculatedMeasures(cmd.pivot.measures);
+        this.compileCalculatedRowGroups(cmd.pivot.rows);
         break;
       }
     }

@@ -49,6 +49,12 @@
               allGranularities="getGranularitiesFor(row)"
             />
             <PivotDimensionOrder dimension="row" onUpdated.bind="this.updateOrder"/>
+            <!-- <t t-debug="1" /> -->
+            <input
+              type="checkbox"
+              t-att-checked="row.additionalInfo?.length > 0"
+              t-on-change="() => this.addInfo(row)"
+            />
           </PivotDimension>
         </div>
       </t>
