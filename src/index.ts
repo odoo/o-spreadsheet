@@ -114,6 +114,7 @@ import { chartJsExtensionRegistry } from "./components/figures/chart/chartJs/cha
 import { ChartDashboardMenu } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu";
 import { ChartDashboardMenuStore } from "./components/figures/chart/chart_dashboard_menu/chart_dashboard_menu_store";
 import { FullScreenChart } from "./components/full_screen_chart/full_screen_chart";
+import { getSpreadsheetAsBase64 } from "./components/helpers/dom_helpers";
 import { PivotHTMLRenderer } from "./components/pivot_html_renderer/pivot_html_renderer";
 import { ComboChartDesignPanel } from "./components/side_panel/chart/combo_chart/combo_chart_design_panel";
 import { FunnelChartDesignPanel } from "./components/side_panel/chart/funnel_chart_panel/funnel_chart_design_panel";
@@ -369,6 +370,7 @@ export const helpers = {
   getUniqueText,
   isNumber,
   isDateTime,
+  getSpreadsheetAsBase64,
 };
 
 export const links = {

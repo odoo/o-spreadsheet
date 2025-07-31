@@ -1,0 +1,51 @@
+.o-spreadsheet {
+  .o-fullscreen-sheet-overlay {
+    padding: 60px;
+
+    .o-grid-container {
+      overflow: hidden;
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      animation: fadeInOverlay 0.3s;
+    }
+
+    @keyframes fadeInOverlay {
+      0% {
+        background: rgba(0, 0, 0, 0.1);
+      }
+      100% {
+        background: rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    .o-fullscreen-content {
+      z-index: 1;
+      animation: growIn 0.3s;
+      transform-origin: center center;
+      border-radius: 10px;
+    }
+
+    @keyframes growIn {
+      /* Hack to have the first keyFrame be the final size of the content, because resizeObservers won't react to animation afterwards */
+      0% {
+        transform: scale(1);
+        visibility: hidden;
+      }
+      1% {
+        transform: scale(0.8);
+        visibility: visible;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+  }
+}

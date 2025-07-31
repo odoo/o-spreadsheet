@@ -34,6 +34,7 @@ export interface PopoverProps {
   zIndex?: Number;
 
   class?: string;
+  slideInAnimation?: boolean;
 }
 
 css/* scss */ `
@@ -44,6 +45,7 @@ css/* scss */ `
     box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);
     width: fit-content;
     height: fit-content;
+    transform-origin: 0 0;
   }
 `;
 
@@ -51,7 +53,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
   static props = {
     anchorRect: Object,
-    containerRect: { type: Object, optional: true },
     positioning: { type: String, optional: true },
     maxWidth: { type: Number, optional: true },
     maxHeight: { type: Number, optional: true },
@@ -61,6 +62,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     onPopoverMoved: { type: Function, optional: true },
     zIndex: { type: Number, optional: true },
     class: { type: String, optional: true },
+    slideInAnimation: { type: Boolean, optional: true },
     slots: Object,
   };
   static defaultProps = {
@@ -99,6 +101,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   get popoverStyle(): string {
     return cssPropertiesToCss({
       "z-index": `${this.props.zIndex}`,
+      animation: this.props.slideInAnimation ? "o-popover-grow 200ms ease-out" : "none",
     });
   }
 

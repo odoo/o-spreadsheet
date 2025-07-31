@@ -84,7 +84,7 @@ class Demo extends Component {
         stores.resetStores();
         this.leaveCollaborativeSession();
         await fetch(`http://${window.location.hostname}:9090/clear`);
-        await this.initiateConnection({});
+        await this.initiateConnection({ data: {}, enableTransportService: true });
         this.state.key = this.state.key + 1;
       },
       icon: "o-spreadsheet-Icon.CLEAR_AND_RELOAD",
@@ -103,7 +103,14 @@ class Demo extends Component {
       sequence: 12,
       isReadonlyAllowed: true,
       isVisible: () => this.model.config.mode !== "dashboard",
-      execute: () => this.model.updateMode("dashboard"),
+      execute: async () => {
+        const data = this.model.exportData();
+        stores.resetStores();
+        this.leaveCollaborativeSession();
+        await this.initiateConnection({ data, enableTransportService: false });
+        this.model.updateMode("dashboard");
+        this.state.key = this.state.key + 1;
+      },
       icon: "o-spreadsheet-Icon.OPEN_DASHBOARD",
     });
 
@@ -197,7 +204,7 @@ class Demo extends Component {
             const imageSrc = await this.fileStore.upload(file);
             inputFiles[images[i]] = { imageSrc };
           }
-          await this.initiateConnection(inputFiles);
+          await this.initiateConnection({ data: inputFiles, enableTransportService: false });
           stores.resetStores();
           this.state.key = this.state.key + 1;
 
@@ -221,7 +228,7 @@ class Demo extends Component {
       });
     });
 
-    onWillStart(() => this.initiateConnection());
+    onWillStart(async () => this.initiateConnection({ enableTransportService: true }));
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
@@ -235,7 +242,7 @@ class Demo extends Component {
     });
   }
 
-  async initiateConnection(data = undefined) {
+  async createTransportService() {
     this.transportService = new WebsocketTransport();
     try {
       const [history, _] = await Promise.all([
@@ -251,7 +258,22 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
-    this.createModel(data || demoData);
+  }
+
+  /**
+   *
+   * @param {Object} [args.data] - The initial dataset to load into the model. If omitted, a default demo dataset is used.
+   * @param {boolean} [args.enableTransportService] - Whether to enable the collaborative WebSocket transport service.
+   * @returns {Promise<void>}
+   */
+  async initiateConnection(args) {
+    if (args.enableTransportService) {
+      await this.createTransportService();
+    } else {
+      this.transportService = undefined;
+      this.stateUpdateMessages = [];
+    }
+    this.createModel(args.data || demoData);
     // this.createModel(makePivotDataset(10_000));
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel(makeLargeDataset(26, 10_000, ["formulas"]));

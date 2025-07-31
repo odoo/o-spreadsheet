@@ -7,7 +7,13 @@ import {
   selectCell,
   setCellContent,
 } from "../test_helpers/commands_helpers";
-import { clickCell, hoverCell, rightClickCell, simulateClick } from "../test_helpers/dom_helper";
+import {
+  clickCell,
+  hoverCell,
+  rightClickCell,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -120,16 +126,15 @@ describe("link display component", () => {
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
-    // hover an other cell then move your cursor from the grid.
+    // hover an other cell then move your cursor away from the grid.
     // i.e hover the link component itself
-    await hoverCell(model, "A2", 100);
-    fixture.querySelector(".o-grid-overlay")?.dispatchEvent(new Event("mouseleave"));
+    await hoverCell(model, "A2", 50);
+    triggerMouseEvent(document.body, "pointermove");
     jest.advanceTimersByTime(10000);
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
 
-    fixture.querySelector(".o-grid-overlay")?.dispatchEvent(new Event("mouseenter"));
-    jest.advanceTimersByTime(400);
+    await hoverCell(model, "A3", 400);
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });

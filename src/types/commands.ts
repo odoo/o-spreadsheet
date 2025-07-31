@@ -198,6 +198,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "UPDATE_FILTER",
   "UPDATE_CHART",
+  "MAKE_PIVOT_FULL_SCREEN",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
@@ -1028,6 +1029,15 @@ export interface SplitPivotFormulaCommand extends PositionDependentCommand {
   pivotId: UID;
 }
 
+export interface MakePivotFullScreen {
+  type: "MAKE_PIVOT_FULL_SCREEN";
+  pivotId: UID;
+}
+
+export interface ExitFullScreenCommand {
+  type: "EXIT_FULL_SCREEN";
+}
+
 export interface PaintFormat extends TargetDependentCommand {
   type: "PAINT_FORMAT";
 }
@@ -1199,11 +1209,13 @@ export type LocalCommand =
   | DuplicatePivotInNewSheetCommand
   | InsertPivotWithTableCommand
   | SplitPivotFormulaCommand
+  | MakePivotFullScreen
   | PaintFormat
   | DeleteUnfilteredContentCommand
   | PivotStartPresenceTracking
   | PivotStopPresenceTracking
-  | ToggleCheckboxCommand;
+  | ToggleCheckboxCommand
+  | ExitFullScreenCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

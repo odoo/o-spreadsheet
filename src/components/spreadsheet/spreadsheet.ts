@@ -4,9 +4,7 @@ import {
   onPatched,
   onWillUnmount,
   onWillUpdateProps,
-  useEffect,
   useExternalListener,
-  useRef,
   useSubEnv,
 } from "@odoo/owl";
 import {
@@ -25,7 +23,6 @@ import {
   GRAY_300,
   GRAY_900,
   GRID_BORDER_COLOR,
-  GROUP_LAYER_WIDTH,
   HEADER_GROUPING_BACKGROUND_COLOR,
   MAXIMAL_FREEZABLE_RATIO,
   MENU_SEPARATOR_BORDER_WIDTH,
@@ -33,7 +30,6 @@ import {
   PRIMARY_BUTTON_ACTIVE_BG,
   PRIMARY_BUTTON_BG,
   PRIMARY_BUTTON_HOVER_BG,
-  SCROLLBAR_WIDTH,
   SEPARATOR_COLOR,
   TEXT_BODY,
   TEXT_BODY_MUTED,
@@ -46,14 +42,7 @@ import { ModelStore } from "../../stores";
 import { NotificationStore, NotificationStoreMethods } from "../../stores/notification_store";
 import { ScreenWidthStore } from "../../stores/screen_width_store";
 import { _t } from "../../translation";
-import {
-  CSSProperties,
-  HeaderGroup,
-  InformationNotification,
-  Pixel,
-  SpreadsheetChildEnv,
-} from "../../types";
-import { BottomBar } from "../bottom_bar/bottom_bar";
+import { InformationNotification, SpreadsheetChildEnv } from "../../types";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import {
@@ -61,16 +50,13 @@ import {
   unregisterChartJsExtensions,
 } from "../figures/chart/chartJs/chart_js_extension";
 import { FullScreenChart } from "../full_screen_chart/full_screen_chart";
-import { Grid } from "../grid/grid";
-import { HeaderGroupContainer } from "../header_group/header_group_container";
-import { css, cssPropertiesToCss } from "../helpers/css";
+import { FullScreenSheet } from "../full_screen_sheet/full_screen_sheet";
+import { FullScreenSheetStore } from "../full_screen_sheet/full_screen_sheet_store";
+import { css } from "../helpers/css";
 import { isMobileOS } from "../helpers/dom_helpers";
-import { useSpreadsheetRect } from "../helpers/position_hook";
 import { useScreenWidth } from "../helpers/screen_width_hook";
-import { DEFAULT_SIDE_PANEL_SIZE, SidePanelStore } from "../side_panel/side_panel/side_panel_store";
-import { SidePanels } from "../side_panel/side_panels/side_panels";
-import { SmallBottomBar } from "../small_bottom_bar/small_bottom_bar";
-import { TopBar } from "../top_bar/top_bar";
+import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
+import { SpreadsheetEditor } from "../spreadsheet editor/spreadsheet editor";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
 // -----------------------------------------------------------------------------
@@ -336,43 +322,21 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     askConfirmation: { type: Function, optional: true },
   };
   static components = {
-    TopBar,
-    Grid,
-    BottomBar,
-    SmallBottomBar,
-    SidePanels,
     SpreadsheetDashboard,
-    HeaderGroupContainer,
     FullScreenChart,
+    SpreadsheetEditor,
+    FullScreenSheet,
   };
 
   sidePanel!: Store<SidePanelStore>;
-  spreadsheetRef = useRef("spreadsheet");
-  spreadsheetRect = useSpreadsheetRect();
-
-  private _focusGrid?: () => void;
 
   private isViewportTooSmall: boolean = false;
   private notificationStore!: Store<NotificationStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
+  fullScreenSheetStore!: Store<FullScreenSheetStore>;
 
   get model(): Model {
     return this.props.model;
-  }
-
-  getStyle(): string {
-    const properties: CSSProperties = {};
-    if (this.env.isDashboard()) {
-      properties["grid-template-rows"] = `auto`;
-    } else {
-      properties["grid-template-rows"] = `min-content auto min-content`;
-    }
-    const columnWidth = this.sidePanel.mainPanel
-      ? `${this.sidePanel.totalPanelSize || DEFAULT_SIDE_PANEL_SIZE}px`
-      : "auto";
-    properties["grid-template-columns"] = `auto ${columnWidth}`;
-
-    return cssPropertiesToCss(properties);
   }
 
   setup() {
@@ -396,6 +360,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
+    this.fullScreenSheetStore = useStore(FullScreenSheetStore);
     const fileStore = this.model.config.external.fileStore;
 
     useSubEnv({
@@ -417,24 +382,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     } satisfies Partial<SpreadsheetChildEnv>);
 
     this.notificationStore.updateNotificationCallbacks({ ...this.props });
-
-    useEffect(
-      () => {
-        /**
-         * Only refocus the grid if the active element is not a child of the spreadsheet
-         * (i.e. activeElement is outside of the spreadsheetRef component)
-         * and spreadsheet is a child of that element. Anything else means that the focus
-         * is on an element that needs to keep it.
-         */
-        if (
-          !this.spreadsheetRef.el!.contains(document.activeElement) &&
-          document.activeElement?.contains(this.spreadsheetRef.el!)
-        ) {
-          this.focusGrid();
-        }
-      },
-      () => [this.env.model.getters.getActiveSheetId()]
-    );
 
     useExternalListener(window, "resize", () => this.render(true));
     // For some reason, the wheel event is not properly registered inside templates
@@ -461,20 +408,15 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onMounted(() => {
       this.checkViewportSize();
       stores.on("store-updated", this, render);
-      resizeObserver.observe(this.spreadsheetRef.el!);
       registerChartJSExtensions();
     });
     onWillUnmount(() => {
       this.unbindModelEvents();
       stores.off("store-updated", this);
-      resizeObserver.disconnect();
       unregisterChartJsExtensions();
     });
     onPatched(() => {
       this.checkViewportSize();
-    });
-    const resizeObserver = new ResizeObserver(() => {
-      this.sidePanel.changeSpreadsheetWidth(this.spreadsheetRect.width);
     });
   }
 
@@ -517,59 +459,5 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     } else {
       this.isViewportTooSmall = false;
     }
-  }
-
-  focusGrid() {
-    if (!this._focusGrid) {
-      return;
-    }
-    this._focusGrid();
-  }
-
-  get gridHeight(): Pixel {
-    return this.env.model.getters.getSheetViewDimension().height;
-  }
-
-  get gridContainerStyle(): string {
-    const gridColSize = GROUP_LAYER_WIDTH * this.rowLayers.length;
-    const gridRowSize = GROUP_LAYER_WIDTH * this.colLayers.length;
-    return cssPropertiesToCss({
-      "grid-template-columns": `${gridColSize ? gridColSize + 2 : 0}px auto`, // +2: margins
-      "grid-template-rows": `${gridRowSize ? gridRowSize + 2 : 0}px auto`,
-    });
-  }
-
-  get rowLayers(): HeaderGroup[][] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getVisibleGroupLayers(sheetId, "ROW");
-  }
-
-  get colLayers(): HeaderGroup[][] {
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    return this.env.model.getters.getVisibleGroupLayers(sheetId, "COL");
-  }
-
-  getGridSize() {
-    const topBarHeight =
-      this.spreadsheetRef.el
-        ?.querySelector(".o-spreadsheet-topbar-wrapper")
-        ?.getBoundingClientRect().height || 0;
-    const bottomBarHeight =
-      this.spreadsheetRef.el
-        ?.querySelector(".o-spreadsheet-bottombar-wrapper")
-        ?.getBoundingClientRect().height || 0;
-
-    const gridWidth =
-      this.spreadsheetRef.el?.querySelector(".o-grid")?.getBoundingClientRect().width || 0;
-    const gridHeight =
-      (this.spreadsheetRef.el?.getBoundingClientRect().height || 0) -
-      (this.spreadsheetRef.el?.querySelector(".o-column-groups")?.getBoundingClientRect().height ||
-        0) -
-      topBarHeight -
-      bottomBarHeight;
-    return {
-      width: Math.max(gridWidth - SCROLLBAR_WIDTH, 0),
-      height: Math.max(gridHeight - SCROLLBAR_WIDTH, 0),
-    };
   }
 }
