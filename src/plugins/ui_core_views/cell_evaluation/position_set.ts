@@ -1,22 +1,24 @@
 import { CellPosition, UID } from "../../../types";
-import { BinaryGrid } from "./binary_grid";
+import { SparseBinaryGrid } from "./binary_grid";
 
 export type SheetSizes = Record<UID, { rows: number; cols: number }>;
 
 export class PositionSet {
-  private sheets: Record<UID, BinaryGrid> = {};
+  private sheets: Record<UID, SparseBinaryGrid> = {};
   /**
    * List of positions in the order they were inserted.
    */
   private insertions: CellPosition[] = [];
   private maxSize: number = 0;
+  private sheetSizes: SheetSizes = {};
 
   constructor(sheetSizes: SheetSizes) {
+    this.sheetSizes = sheetSizes;
     for (const sheetId in sheetSizes) {
       const cols = sheetSizes[sheetId].cols;
       const rows = sheetSizes[sheetId].rows;
       this.maxSize += cols * rows;
-      this.sheets[sheetId] = BinaryGrid.create(rows, cols);
+      this.sheets[sheetId] = new SparseBinaryGrid(rows, cols);
     }
   }
 
@@ -72,10 +74,10 @@ export class PositionSet {
     this.insertions = new Array<CellPosition>(this.maxSize);
     let index = 0;
     for (const sheetId in this.sheets) {
-      const grid = this.sheets[sheetId];
-      grid.fillAllPositions();
-      for (let i = 0; i < grid.rows; i++) {
-        for (let j = 0; j < grid.cols; j++) {
+      this.sheets[sheetId].fillAllPositions();
+      const sheetSize = this.sheetSizes[sheetId];
+      for (let i = 0; i < sheetSize.rows; i++) {
+        for (let j = 0; j < sheetSize.cols; j++) {
           this.insertions[index++] = { sheetId, row: i, col: j };
         }
       }
