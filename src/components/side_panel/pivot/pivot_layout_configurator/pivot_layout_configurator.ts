@@ -252,7 +252,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   }
 
   private getMeasureId(fieldName: string, aggregator?: string) {
-    const baseId = fieldName + (aggregator ? `:${aggregator}` : "");
+    const baseId = fieldName.replaceAll("'", "") + (aggregator ? `:${aggregator}` : "");
     let id = baseId;
     let i = 2;
     while (this.props.definition.measures.some((m) => m.id === id)) {
