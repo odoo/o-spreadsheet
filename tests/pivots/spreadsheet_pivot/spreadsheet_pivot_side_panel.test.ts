@@ -90,6 +90,26 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
   });
 
+  test("single quotes are escaped for measure ids", async () => {
+    setCellContent(model, "A1", "Goa'uld");
+    setCellContent(model, "A2", "Anubis");
+    setCellContent(model, "A3", "Teal'c");
+    addPivot(model, "A1:A3", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelectorAll(".add-dimension")[2]);
+    expect(fixture.querySelector(".o-popover")).toBeDefined();
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+    expect(fixture.querySelector(".o-popover")).toBeNull();
+    expect(model.getters.getPivotCoreDefinition("3").measures).toMatchObject([
+      {
+        id: "Goauld:count",
+        fieldName: "Goa'uld",
+        aggregator: "count",
+      },
+    ]);
+  });
+
   test("can add a calculated measure", async () => {
     setCellContent(model, "A1", "amount");
     setCellContent(model, "A2", "10");
