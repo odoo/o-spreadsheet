@@ -16,7 +16,7 @@ import {
 } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
-import { PositionSet, SheetSizes } from "./position_set";
+import { PositionSet } from "./position_set";
 import { RTreeItem } from "./r_tree";
 import { RangeSet } from "./range_set";
 import { SpreadingRelation } from "./spreading_relation";
@@ -59,7 +59,7 @@ export class Evaluator {
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
   private formulaDependencies = lazy(new FormulaDependencyGraph());
-  private blockedArrayFormulas = new PositionSet({});
+  private blockedArrayFormulas = new PositionSet();
   private spreadingRelations = new SpreadingRelation();
   private formatCache: PositionMap<Format> = new PositionMap();
 
@@ -148,14 +148,7 @@ export class Evaluator {
   }
 
   private createEmptyPositionSet() {
-    const sheetSizes: SheetSizes = {};
-    for (const sheetId of this.getters.getSheetIds()) {
-      sheetSizes[sheetId] = {
-        rows: this.getters.getNumberRows(sheetId),
-        cols: this.getters.getNumberCols(sheetId),
-      };
-    }
-    return new PositionSet(sheetSizes);
+    return new PositionSet(this.getters.getSheetIds());
   }
 
   evaluateCells(positions: CellPosition[]) {
@@ -224,11 +217,7 @@ export class Evaluator {
   evaluateAllCells() {
     const start = performance.now();
     this.evaluatedCells = new PositionMap();
-    const ranges: BoundedRange[] = [];
-    for (const sheetId of this.getters.getSheetIds()) {
-      const zone = this.getters.getSheetZone(sheetId);
-      ranges.push({ sheetId, zone });
-    }
+    const ranges: RangeSet = this.getActiveCells();
     this.formatCache = new PositionMap<Format>();
     this.getters.addCellFormatInRanges(ranges, this.formatCache);
     this.evaluate(ranges);
@@ -271,6 +260,16 @@ export class Evaluator {
     } catch (error) {
       return handleError(error, "");
     }
+  }
+
+  private getActiveCells(): RangeSet {
+    const positions = new RangeSet();
+    for (const sheetId of this.getters.getSheetIds()) {
+      positions.addManyPositions(
+        this.getters.getCellsIds(sheetId).map(this.getters.getCellPosition)
+      );
+    }
+    return positions;
   }
 
   /**

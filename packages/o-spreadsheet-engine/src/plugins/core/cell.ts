@@ -48,13 +48,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   static getters = [
     "zoneToXC",
     "getCells",
+    "getCellsIds",
     "getTranslatedCellFormula",
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
   ] as const;
   readonly nextId = 1;
-  public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  public readonly cells: { [sheetId: string]: { [id: number]: Cell } } = {};
 
   adaptRanges({ applyChange }: RangeAdapterFunctions, sheetId: UID, sheetName: AdaptSheetName) {
     for (const sheet of Object.keys(this.cells)) {
@@ -214,6 +215,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
   getCells(sheetId: UID): Cell[] {
     return Object.values(this.cells[sheetId] || {});
+  }
+
+  getCellsIds(sheetId: UID): number[] {
+    const ids: number[] = [];
+    for (const id in this.cells[sheetId]) {
+      ids.push(this.cells[sheetId][id].id);
+    }
+    return ids;
   }
 
   /**
