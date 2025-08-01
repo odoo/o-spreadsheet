@@ -32,7 +32,12 @@ interface CellWithSize {
 }
 
 export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implements HeaderSizeState {
-  static getters = ["getRowSize", "getHeaderSize", "getMaxAnchorOffset"] as const;
+  static getters = [
+    "getRowSize",
+    "getHeaderSize",
+    "getMaxAnchorOffset",
+    "getCustomRowSizes",
+  ] as const;
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
   ctx: Canvas2DContext = getCanvas();
@@ -146,6 +151,17 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
         this.tallestCellInRow[sheetId][row]?.size ??
         DEFAULT_CELL_HEIGHT
     );
+  }
+
+  getCustomRowSizes(sheetId: UID): Map<HeaderIndex, Pixel> {
+    const customRowMap = deepCopy(this.getters.getUserCustomRowSizes(sheetId));
+    const activeZone = this.getters.getSheetEvaluatedZone(sheetId);
+    for (let row = activeZone.top; row <= activeZone.bottom; row++) {
+      if (customRowMap.get(row)) continue;
+      const size = this.tallestCellInRow[sheetId][row]?.size;
+      if (size) customRowMap.set(row, size);
+    }
+    return customRowMap;
   }
 
   getMaxAnchorOffset(sheetId: UID, height: Pixel, width: Pixel): AnchorOffset {

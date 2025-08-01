@@ -68,11 +68,18 @@ describe("deepCopy", () => {
     false,
     undefined,
     null,
+    new Map(),
+    new Map([
+      [5, 25],
+      [10, 110],
+    ]),
+    new Set(),
+    new Set([4, 5, 6]),
   ])("deepCopy %s", (obj) => {
     expect(deepCopy(obj)).toEqual(obj);
   });
 
-  test.each([new Set(), new Map(), new Set([1]), new Date(), new DateTime(2023, 10, 30)])(
+  test.each([new Date(), new DateTime(2023, 10, 30)])(
     "unsupported type %s throws an error",
     (obj) => {
       expect(() => deepCopy(obj)).toThrow();
