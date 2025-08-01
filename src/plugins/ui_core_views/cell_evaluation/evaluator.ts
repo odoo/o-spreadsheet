@@ -6,6 +6,7 @@ import {
   excludeTopLeft,
   lazy,
   positionToZone,
+  positionsUnion,
   toXC,
   union,
 } from "../../../helpers";
@@ -52,6 +53,7 @@ export class Evaluator {
   private compilationParams: CompilationParameters;
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
+  private evaluatedZone: Record<UID, Zone> = {};
   private formulaDependencies = lazy(
     new FormulaDependencyGraph(this.createEmptyPositionSet.bind(this))
   );
@@ -69,6 +71,12 @@ export class Evaluator {
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
+  }
+
+  getEvaluatedZone(sheetId: UID): Zone | undefined {
+    if (this.evaluatedZone[sheetId]) return this.evaluatedZone[sheetId];
+    this.evaluatedZone[sheetId] = positionsUnion(...this.evaluatedCells.keysForSheet(sheetId));
+    return this.evaluatedZone[sheetId];
   }
 
   getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
@@ -292,6 +300,7 @@ export class Evaluator {
       const positions = this.nextPositionsToUpdate.clear();
       for (let i = 0; i < positions.length; ++i) {
         this.evaluatedCells.delete(positions[i]);
+        delete this.evaluatedZone[positions[i].sheetId];
       }
       for (let i = 0; i < positions.length; ++i) {
         const position = positions[i];
