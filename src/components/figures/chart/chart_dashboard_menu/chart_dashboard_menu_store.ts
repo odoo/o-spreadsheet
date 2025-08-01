@@ -2,6 +2,7 @@ import { ChartDefinition, ChartType, UID } from "../../../..";
 import { chartRegistry, chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { Get } from "../../../../store_engine";
 import { SpreadsheetStore } from "../../../../stores";
+import { _t } from "../../../../translation";
 
 export class ChartDashboardMenuStore extends SpreadsheetStore {
   mutators = ["reset"] as const;
@@ -21,10 +22,10 @@ export class ChartDashboardMenuStore extends SpreadsheetStore {
       const item = chartSubtypeRegistry.get(type);
       return {
         id: item.chartType,
-        label: item.displayName,
+        label: _t("Show as %s chart", item.displayName.toLowerCase()),
         onClick: () => this.updateType(item.chartType),
-        isSelected: item.chartType === this.getters.getChartDefinition(this.chartId).type,
-        iconClass: this.getIconClasses(item.chartType),
+        class: item.chartType === definition.type ? "active" : "",
+        preview: item.preview,
       };
     });
   }
@@ -60,18 +61,5 @@ export class ChartDashboardMenuStore extends SpreadsheetStore {
       figureId,
       sheetId: this.getters.getActiveSheetId(),
     });
-  }
-
-  private getIconClasses(type: ChartType) {
-    if (type.includes("bar")) {
-      return "fa fa-bar-chart";
-    }
-    if (type.includes("line")) {
-      return "fa fa-line-chart";
-    }
-    if (type.includes("pie")) {
-      return "fa fa-pie-chart";
-    }
-    return "";
   }
 }
