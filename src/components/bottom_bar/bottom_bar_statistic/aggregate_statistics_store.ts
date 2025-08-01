@@ -7,7 +7,7 @@ import {
   min,
 } from "@odoo/o-spreadsheet-engine/functions/helper_statistical";
 import { _t } from "@odoo/o-spreadsheet-engine/translation";
-import { lazy, memoize, recomputeZones } from "../../../helpers";
+import { intersection, isDefined, lazy, memoize, recomputeZones } from "../../../helpers";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import {
@@ -113,13 +113,18 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     const sheetId = getters.getActiveSheetId();
     const cells: EvaluatedCell[] = [];
 
-    const recomputedZones = recomputeZones(getters.getSelectedZones(), []);
-    const heightMax = this.getters.getSheetSize(sheetId).numberOfRows - 1;
-    const widthMax = this.getters.getSheetSize(sheetId).numberOfCols - 1;
+    const evaluatedZone = this.getters.getSheetEvaluatedZone(sheetId);
+    const recomputedZones = recomputeZones(
+      getters
+        .getSelectedZones()
+        .map((zone) => intersection(zone, evaluatedZone))
+        .filter(isDefined),
+      []
+    );
 
     for (const zone of recomputedZones) {
-      for (let col = zone.left; col <= (zone.right ?? widthMax); col++) {
-        for (let row = zone.top; row <= (zone.bottom ?? heightMax); row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
           if (getters.isRowHidden(sheetId, row) || getters.isColHidden(sheetId, col)) {
             continue; // Skip hidden cells
           }

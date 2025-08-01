@@ -156,6 +156,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCellsInZone",
     "getEvaluatedCellsPositionInZone",
     "getEvaluatedCellsPositions",
+    "getSheetEvaluatedZone",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isArrayFormulaSpillBlocked",
@@ -327,6 +328,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   isArrayFormulaSpillBlocked(position: CellPosition): boolean {
     return this.evaluator.isArrayFormulaSpillBlocked(position);
+  }
+
+  getSheetEvaluatedZone(sheetId: UID): Zone {
+    return this.evaluator.getEvaluatedZone(sheetId) || { top: 0, left: 0, bottom: 0, right: 0 };
   }
 
   /**

@@ -102,7 +102,8 @@ export class HeaderSizeUIPlugin extends CoreViewPlugin<HeaderSizeState> implemen
             }
           } else {
             // Recompute row heights on col size change, they might have changed because of wrapped text
-            for (const row of range(0, this.getters.getNumberRows(sheetId))) {
+            const evaluatedZone = this.getters.getSheetEvaluatedZone(sheetId);
+            for (const row of range(evaluatedZone.top, evaluatedZone.bottom + 1)) {
               for (const col of cmd.elements) {
                 this.updateRowSizeForCellChange(sheetId, row, col);
               }

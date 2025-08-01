@@ -29,7 +29,7 @@ import { matrixMap } from "../../../functions/helpers";
 import { PositionMap } from "../../../helpers/cells/position_map";
 import { toXC } from "../../../helpers/coordinates";
 import { lazy } from "../../../helpers/misc";
-import { excludeTopLeft, positionToZone, union } from "../../../helpers/zones";
+import { excludeTopLeft, positionsUnion, positionToZone, union } from "../../../helpers/zones";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
 import { Format } from "../../../types/format";
@@ -58,6 +58,7 @@ export class Evaluator {
   private compilationParams: CompilationParameters;
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
+  private evaluatedZone: Record<UID, Zone | undefined> = {};
   private formulaDependencies = lazy(new FormulaDependencyGraph());
   private blockedArrayFormulas = new PositionSet();
   private spreadingRelations = new SpreadingRelation();
@@ -70,6 +71,12 @@ export class Evaluator {
       this.getters,
       this.computeAndSave.bind(this)
     );
+  }
+
+  getEvaluatedZone(sheetId: UID): Zone | undefined {
+    if (this.evaluatedZone[sheetId]) return this.evaluatedZone[sheetId];
+    this.evaluatedZone[sheetId] = positionsUnion(this.evaluatedCells.keysForSheet(sheetId));
+    return this.evaluatedZone[sheetId];
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
@@ -306,6 +313,7 @@ export class Evaluator {
       this.nextRangesToUpdate.clear();
       this.clearEvaluatedRanges(ranges);
       for (const range of ranges) {
+        this.evaluatedZone[range.sheetId] = undefined;
         const { left, bottom, right, top } = range.zone;
         for (let col = left; col <= right; col++) {
           for (let row = top; row <= bottom; row++) {

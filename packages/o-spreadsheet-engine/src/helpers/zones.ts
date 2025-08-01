@@ -340,6 +340,18 @@ export function union(...zones: Zone[]): Zone {
 }
 
 /**
+ * Compute the union of multiple cell positions.
+ */
+export function positionsUnion(positions: CellPosition[]): Zone {
+  return {
+    top: Math.min(...positions.map((pos) => pos.row)),
+    left: Math.min(...positions.map((pos) => pos.col)),
+    bottom: Math.max(...positions.map((pos) => pos.row)),
+    right: Math.max(...positions.map((pos) => pos.col)),
+  };
+}
+
+/**
  * Compute the union of multiple unbounded zones.
  */
 export function unionUnboundedZones(...zones: UnboundedZone[]): UnboundedZone {
