@@ -721,8 +721,7 @@ describe("edition", () => {
     const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "raiseError");
     composerStore.startEdition();
-    const content = // 101 tokens
-      "=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1";
+    const content = "=" + "+1".repeat(500); // 1001 characters
     composerStore.setCurrentContent(content);
     composerStore.stopEdition();
 
@@ -1183,6 +1182,164 @@ describe("edition", () => {
       expect(store.editionMode).toBe("inactive");
       store.toggleEditionMode();
       expect(store.editionMode).toBe("inactive");
+    });
+  });
+
+  describe("prettifier", () => {
+    test("remove extra spaces around operators", () => {
+      setCellContent(model, "A1", "=  A2      +   A3  ");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=A2+A3");
+    });
+
+    test("remove extra spaces around formula arguments ", () => {
+      setCellContent(model, "A1", "=SUM( 1 ,   2  ,    3 )");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=SUM(1, 2, 3)");
+    });
+
+    test("remove the extra parentheses", () => {
+      // should not be. But we loose the parentheses information during the parsing into an AST
+      setCellContent(model, "A1", "=(2*(((A2)+A3)))");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=2*(A2+A3)");
+
+      setCellContent(model, "A1", "=1+(2+(3+4))");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=1+2+3+4");
+
+      setCellContent(model, "A1", "=2^3%");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=2^3%");
+    });
+
+    test("keep parentheses who against priority order", () => {
+      setCellContent(model, "A1", "=((2+3))*4");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=(2+3)*4");
+
+      setCellContent(model, "A1", "=1-((2-(3+4)))");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=1-(2-(3+4))");
+
+      setCellContent(model, "A1", "=2^((3^4))");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=2^(3^4)");
+
+      setCellContent(model, "A1", "=2/((3/4))");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe("=2/(3/4)");
+    });
+
+    test("Split the content in multiple lines when it is too long", () => {
+      setCellContent(model, "A1", "=SUM(11111111,22222222,33333333,44444444,55555555)"); // 41 characters
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe(
+        "=SUM(11111111, 22222222, 33333333, 44444444, 55555555)"
+      );
+
+      setCellContent(model, "A1", "=SUM(11111111,22222222,33333333,44444444,55555555,66666666)"); // 41 characters
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe(
+        // prettier-ignore
+        "=SUM(\n" +
+        "\t11111111, \n" +
+        "\t22222222, \n" +
+        "\t33333333, \n" +
+        "\t44444444, \n" +
+        "\t55555555, \n" +
+        "\t66666666\n" +
+        ")"
+      );
+    });
+
+    test("nested functions are properly indented", () => {
+      setCellContent(model, "A1", "=SUM(AVERAGE(1,2,3,4), MAX(5,6,7,8), MIN(10,11,12,13))");
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe(
+        // prettier-ignore
+        "=SUM(\n" + 
+        "\tAVERAGE(1, 2, 3, 4), \n" +
+        "\tMAX(5, 6, 7, 8), \n" + 
+        "\tMIN(10, 11, 12, 13)\n" + 
+        ")"
+      );
+    });
+
+    test("long nested functions are properly indented with sub-lvls", () => {
+      setCellContent(
+        model,
+        "A1",
+        "=SUM(AVERAGE(COUNT(4,5,6,7),COUNT(10,11,12,13),COUNT(14,15,16,17)), MAX(COUNT(4,5,6,7),COUNT(10,11,12,13),COUNT(14,15,16,17)))"
+      );
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe(
+        "=SUM(\n" +
+          "\tAVERAGE(\n" +
+          "\t\tCOUNT(4, 5, 6, 7), \n" +
+          "\t\tCOUNT(10, 11, 12, 13), \n" +
+          "\t\tCOUNT(14, 15, 16, 17)\n" +
+          "\t), \n" +
+          "\tMAX(\n" +
+          "\t\tCOUNT(4, 5, 6, 7), \n" +
+          "\t\tCOUNT(10, 11, 12, 13), \n" +
+          "\t\tCOUNT(14, 15, 16, 17)\n" +
+          "\t)\n" +
+          ")"
+      );
+    });
+
+    test("too long binary operation series are split in multiple lines and indented", () => {
+      setCellContent(
+        model,
+        "A1",
+        "=SUM(1111 + 2222 + 3333 + 4444 + 5555 + 6666 + 7777 + 8888 + 9999 + 11111 + 22222 + 33333 + 44444)"
+      );
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe(
+        //prettier-ignore
+        "=SUM(\n" +
+          "\t1111+2222+3333+4444+5555+6666+7777+8888+9999+11111+22222+\n" +
+          "\t\t33333+\n" +
+          "\t\t44444\n" +
+          ")"
+      );
+    });
+
+    test("during binary operations, keep priority operations on the same line", () => {
+      setCellContent(
+        model,
+        "A1",
+        "=SUM(1111 + 2222 + 3333 + 4444 + 5555 + 6666 + 7777 + 8888 + 9999 + 11111 + 22222 + 33333 * 44444 - 55555 + 66666 / 77777 )"
+      );
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe(
+        "=SUM(\n" +
+          "\t1111+2222+3333+4444+5555+6666+7777+8888+9999+11111+22222+\n" +
+          "\t\t33333*44444-\n" +
+          "\t\t55555+\n" +
+          "\t\t66666/77777\n" +
+          ")"
+      );
+    });
+
+    test("long functions with nested parenthesis for mathematical operation are properly indented with sub-lvls", () => {
+      setCellContent(
+        model,
+        "A1",
+        "=1*(2-2-2-2-2-2-2-(3+3+3+3+3+3+3+3+3-(4+4+4+4+4+4+4+4+4/(4+5+6+7+5+6+7+8+9))))"
+      );
+      composerStore.startEdition();
+      expect(composerStore.currentContent).toBe(
+        "=1*\n" +
+          "\t(\n" +
+          "\t\t2-2-2-2-2-2-2-\n" +
+          "\t\t\t(\n" +
+          "\t\t\t\t3+3+3+3+3+3+3+3+3-\n" +
+          "\t\t\t\t\t(4+4+4+4+4+4+4+4+4/(4+5+6+7+5+6+7+8+9))\n" +
+          "\t\t\t)\n" +
+          "\t)"
+      );
     });
   });
 });
