@@ -49,6 +49,9 @@ export function deepCopy<T>(obj: T): T {
         return obj;
       } else if (isCloneable(obj)) {
         return obj.clone();
+      } else if (obj instanceof Map) {
+        // TODO check ts with lul
+        return new Map(obj) as T;
       } else if (!(isPlainObject(obj) || obj instanceof Array)) {
         throw new Error("Unsupported type: only objects and arrays are supported");
       }
@@ -555,6 +558,20 @@ export function isNumberBetween(value: number, min: number, max: number): boolea
     return isNumberBetween(value, max, min);
   }
   return value >= min && value <= max;
+}
+
+/**
+ *
+ * Shift the keys of map by quantity starting from start
+ */
+export function mapShift(map: Map<number, any>, start: number, quantity: number) {
+  if (!map || !map.size) return;
+  const keys = [...map.keys()].filter((k) => k >= start);
+  keys.sort((a, b) => quantity * (b - a));
+  for (let i = 0; i < keys.length; i++) {
+    map.set(keys[i] + quantity, map.get(keys[i]));
+    map.delete(keys[i]);
+  }
 }
 
 /**
