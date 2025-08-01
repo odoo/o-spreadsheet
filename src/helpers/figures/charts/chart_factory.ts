@@ -1,3 +1,4 @@
+import { ChartConfiguration } from "chart.js";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -12,7 +13,7 @@ import { CoreGetters, Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
 import { getZoneArea, zoneToDimension, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { createDataSets } from "./chart_common";
+import { createDataSets, isTrendLineAxis, truncateLabel } from "./chart_common";
 import { LineChart } from "./line_chart";
 import { canChartParseLabels, getData } from "./runtime";
 
@@ -43,7 +44,72 @@ export function chartRuntimeFactory(getters: Getters) {
     if (!builder) {
       throw new Error("No runtime builder for this chart.");
     }
-    return builder.getChartRuntime(chart, getters);
+    const runtime = builder.getChartRuntime(chart, getters);
+    const definition = chart.getDefinition();
+    if (
+      "chartJsConfig" in runtime &&
+      ["line", "combo", "bar", "scatter", "waterfall"].includes(definition.type)
+    ) {
+      const chartJsConfig = runtime.chartJsConfig as ChartConfiguration<any>;
+      runtime["slicerConfig"] = {
+        ...chartJsConfig,
+        data: {
+          ...chartJsConfig.data,
+          datasets: chartJsConfig.data.datasets
+            .filter((ds) => !isTrendLineAxis(ds["xAxisID"]))
+            .map((ds) => ({
+              ...ds,
+              pointRadius: 0,
+              showLine: true,
+            })),
+        },
+        options: {
+          ...chartJsConfig.options,
+          hover: { mode: null },
+          plugins: {
+            ...chartJsConfig.options.plugins,
+            title: { display: false },
+            legend: { display: false },
+            tooltip: { enabled: false },
+          },
+          layout: {
+            padding: {
+              ...chartJsConfig.options.layout?.padding,
+              top: 5,
+              bottom: 10,
+            },
+          },
+          scales: {
+            y: {
+              ...chartJsConfig.options.scales?.y,
+              display: false,
+            },
+            y1: {
+              ...chartJsConfig.options.scales?.y1,
+              display: false,
+            },
+            x: {
+              ...chartJsConfig.options.scales?.x,
+              title: undefined,
+              ticks: {
+                ...chartJsConfig.options.scales?.x?.ticks,
+                callback: function (value) {
+                  return truncateLabel(
+                    chartJsConfig.options.scales?.x?.ticks?.callback?.call(this, value),
+                    5
+                  );
+                },
+                padding: 0,
+                font: {
+                  size: 9,
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+    return runtime;
   }
   return createRuntimeChart;
 }

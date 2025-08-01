@@ -43,10 +43,10 @@ import {
   getBarChartLegend,
   getBarChartScales,
   getBarChartTooltip,
-  getChartLayout,
   getChartShowValues,
   getChartTitle,
 } from "./runtime";
+import { getChartLayout } from "./runtime/chartjs_layout";
 
 export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -61,6 +61,7 @@ export class BarChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly horizontal?: boolean;
   readonly showValues?: boolean;
+  readonly zoomable?: boolean;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -80,6 +81,7 @@ export class BarChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.horizontal = definition.horizontal;
     this.showValues = definition.showValues;
+    this.zoomable = definition.zoomable;
   }
 
   static transformDefinition(
@@ -111,6 +113,7 @@ export class BarChart extends AbstractChart {
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       horizontal: context.horizontal,
+      zoomable: context.zoomable,
     };
   }
 
@@ -182,6 +185,7 @@ export class BarChart extends AbstractChart {
       axesDesign: this.axesDesign,
       horizontal: this.horizontal,
       showValues: this.showValues,
+      zoomable: this.horizontal ? undefined : this.zoomable,
     };
   }
 
