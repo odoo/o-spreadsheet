@@ -156,6 +156,7 @@ export class EvaluationPlugin extends CoreViewPlugin {
     "getEvaluatedCellsInZone",
     "getEvaluatedCellsPositionInZone",
     "getEvaluatedCellsPositions",
+    "getSheetEvaluatedZone",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isEmpty",
@@ -316,6 +317,10 @@ export class EvaluationPlugin extends CoreViewPlugin {
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
     return this.evaluator.getArrayFormulaSpreadingOn(position);
+  }
+
+  getSheetEvaluatedZone(sheetId: UID): Zone {
+    return this.evaluator.getEvaluatedZone(sheetId) || { top: 0, left: 0, bottom: 0, right: 0 };
   }
 
   /**
