@@ -549,6 +549,20 @@ export function isNumberBetween(value: number, min: number, max: number): boolea
 }
 
 /**
+ *
+ * Shift the keys of map by quantity starting from start
+ */
+export function mapShift(map: Map<number, any>, start: number, quantity: number) {
+  if (!map) return;
+  const keys = [...map.keys().filter((k) => k >= start)];
+  keys.sort((a, b) => quantity * (b - a));
+  for (let i = 0; i < keys.length; i++) {
+    map.set(keys[i] + quantity, map.get(keys[i]));
+    map.delete(keys[i]);
+  }
+}
+
+/**
  * Get a Regex for the find & replace that matches the given search string and options.
  */
 export function getSearchRegex(searchStr: string, searchOptions: SearchOptions): RegExp {

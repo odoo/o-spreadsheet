@@ -1,23 +1,23 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepCopy, getAddHeaderStartIndex, range, removeIndexesFromArray } from "../../helpers";
+import { deepCopy, mapShift, range } from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 interface HeaderSizeState {
-  sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>>;
+  sizes: Record<UID, Record<Dimension, Map<HeaderIndex, Pixel>>>;
 }
 export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements HeaderSizeState {
   static getters = ["getUserRowSize", "getColSize"] as const;
 
-  readonly sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>> = {};
+  readonly sizes: Record<UID, Record<Dimension, Map<HeaderIndex, Pixel>>> = {};
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_SHEET": {
         this.history.update("sizes", cmd.sheetId, {
-          COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(undefined),
-          ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(undefined),
+          COL: new Map<HeaderIndex, Pixel>(),
+          ROW: new Map<HeaderIndex, Pixel>(),
         });
         break;
       }
@@ -30,26 +30,30 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         this.history.update("sizes", sizes);
         break;
       case "REMOVE_COLUMNS_ROWS": {
-        const arr = this.sizes[cmd.sheetId][cmd.dimension];
-        const sizes = removeIndexesFromArray(arr, cmd.elements);
+        const elements = cmd.elements.sort((a, b) => a - b);
+        const sizes = new Map(this.sizes[cmd.sheetId][cmd.dimension]);
+        for (let i = 0; i < elements.length; i++) {
+          sizes.delete(elements[i]);
+          mapShift(sizes, elements[i], -1);
+        }
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        const sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        const baseSize = sizes[cmd.base];
-        sizes.splice(addIndex, 0, ...Array(cmd.quantity).fill(baseSize));
+        const sizes = new Map(this.sizes[cmd.sheetId][cmd.dimension]);
+        mapShift(sizes, cmd.position === "before" ? cmd.base : cmd.base + 1, cmd.quantity);
         this.history.update("sizes", cmd.sheetId, cmd.dimension, sizes);
         break;
       }
       case "RESIZE_COLUMNS_ROWS":
         if (cmd.dimension === "ROW") {
           for (const el of cmd.elements) {
+            //@ts-ignore
             this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
           }
         } else {
           for (const el of cmd.elements) {
+            //@ts-ignore
             this.history.update("sizes", cmd.sheetId, cmd.dimension, el, cmd.size || undefined);
           }
         }
@@ -63,6 +67,10 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     return Math.round(this.sizes[sheetId]?.["COL"][index] || DEFAULT_CELL_WIDTH);
   }
 
+  getCustomColSizes(sheetId: UID) {
+    return this.sizes[sheetId]?.COL;
+  }
+
   getUserRowSize(sheetId: UID, index: HeaderIndex): Pixel | undefined {
     const rowSize = this.sizes[sheetId]?.["ROW"][index];
     return rowSize ? Math.round(rowSize) : undefined;
@@ -70,19 +78,19 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
 
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      const sizes: Record<Dimension, Array<Pixel | undefined>> = {
-        COL: Array(sheet.colNumber).fill(undefined),
-        ROW: Array(sheet.rowNumber).fill(undefined),
+      const sizes: Record<Dimension, Map<HeaderIndex, Pixel>> = {
+        COL: new Map<HeaderIndex, Pixel>(),
+        ROW: new Map<HeaderIndex, Pixel>(),
       };
       for (const [rowIndex, row] of Object.entries(sheet.rows)) {
         if (row.size) {
-          sizes["ROW"][rowIndex] = row.size;
+          sizes["ROW"].set(parseInt(rowIndex), row.size);
         }
       }
 
       for (const [colIndex, col] of Object.entries(sheet.cols)) {
         if (col.size) {
-          sizes["COL"][colIndex] = col.size;
+          sizes["COL"].set(parseInt(colIndex), col.size);
         }
       }
 
