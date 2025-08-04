@@ -6,8 +6,8 @@ import { createChart } from "../../test_helpers/commands_helpers";
 import { click } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
-async function mountChartSidePanel(figureId = chartId) {
-  const props = { figureId, onCloseSidePanel: () => {} };
+async function mountChartSidePanel(id = chartId) {
+  const props = { chartId: id, onCloseSidePanel: () => {} };
   ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
 }
 

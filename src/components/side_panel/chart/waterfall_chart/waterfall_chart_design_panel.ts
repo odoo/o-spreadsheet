@@ -28,14 +28,14 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: WaterfallChartDefinition;
   canUpdateChart: (
-    figureID: UID,
+    chartId: UID,
     definition: GenericDefinition<WaterfallChartDefinition>
   ) => DispatchResult;
   updateChart: (
-    figureId: UID,
+    chartId: UID,
     definition: GenericDefinition<WaterfallChartDefinition>
   ) => DispatchResult;
 }
@@ -54,7 +54,7 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     ChartLegend,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: { type: Function, optional: true },
@@ -63,19 +63,19 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
   axisChoices = CHART_AXIS_CHOICES;
 
   onUpdateShowSubTotals(showSubTotals: boolean) {
-    this.props.updateChart(this.props.figureId, { showSubTotals });
+    this.props.updateChart(this.props.chartId, { showSubTotals });
   }
 
   onUpdateShowConnectorLines(showConnectorLines: boolean) {
-    this.props.updateChart(this.props.figureId, { showConnectorLines });
+    this.props.updateChart(this.props.chartId, { showConnectorLines });
   }
 
   onUpdateFirstValueAsSubtotal(firstValueAsSubtotal: boolean) {
-    this.props.updateChart(this.props.figureId, { firstValueAsSubtotal });
+    this.props.updateChart(this.props.chartId, { firstValueAsSubtotal });
   }
 
   updateColor(colorName: string, color: Color) {
-    this.props.updateChart(this.props.figureId, { [colorName]: color });
+    this.props.updateChart(this.props.chartId, { [colorName]: color });
   }
 
   get axesList(): AxisDefinition[] {
@@ -107,7 +107,7 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
   }
 
   updateVerticalAxisPosition(value: "left" | "right") {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       verticalAxisPosition: value,
     });
   }

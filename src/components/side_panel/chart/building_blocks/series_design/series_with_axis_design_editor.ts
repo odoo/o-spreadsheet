@@ -18,13 +18,10 @@ import { Section } from "../../../components/section/section";
 import { SeriesDesignEditor } from "./series_design_editor";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ChartWithDataSetDefinition;
-  canUpdateChart: (
-    figureID: UID,
-    definition: Partial<ChartWithDataSetDefinition>
-  ) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
 }
 
 export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -37,7 +34,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     RoundColorPicker,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     canUpdateChart: Function,
     updateChart: Function,
@@ -55,7 +52,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
       ...dataSets[index],
       yAxisId: axis === "left" ? "y" : "y1",
     };
-    this.props.updateChart(this.props.figureId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSets });
   }
 
   getDataSerieAxis(index: number) {
@@ -84,7 +81,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
         display,
       },
     };
-    this.props.updateChart(this.props.figureId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSets });
   }
 
   getTrendLineConfiguration(index: number) {
@@ -131,7 +128,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
   }
 
   getMaxPolynomialDegree(index) {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId) as ChartJSRuntime;
+    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId) as ChartJSRuntime;
     return Math.min(10, runtime.chartJsConfig.data.datasets[index].data.length - 1);
   }
 
@@ -180,6 +177,6 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
         ...config,
       },
     };
-    this.props.updateChart(this.props.figureId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSets });
   }
 }

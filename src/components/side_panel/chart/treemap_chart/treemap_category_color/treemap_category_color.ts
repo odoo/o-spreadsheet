@@ -13,7 +13,7 @@ import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: TreeMapChartDefinition;
   onColorChanged: (colors: TreeMapCategoryColorOptions) => DispatchResult;
 }
@@ -25,7 +25,7 @@ export class TreeMapCategoryColors extends Component<Props, SpreadsheetChildEnv>
     RoundColorPicker,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     onColorChanged: Function,
   };
@@ -41,7 +41,7 @@ export class TreeMapCategoryColors extends Component<Props, SpreadsheetChildEnv>
 
   getTreeGroupAndColors() {
     const runtime = this.env.model.getters.getChartRuntime(
-      this.props.figureId
+      this.props.chartId
     ) as TreeMapChartRuntime;
     const config = runtime.chartJsConfig as ChartConfiguration<"treemap">;
     return config.data.datasets[0]?.groupColors || [];

@@ -127,7 +127,7 @@ describe("datasource tests", function () {
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
-      figureId: "1",
+      figureId: model.getters.getFigureIdFromChartId("1")!,
     });
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
@@ -214,8 +214,9 @@ describe("datasource tests", function () {
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
+    const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
 
-    const newChart = model.getters.getChart(duplicatedFigure.id) as ScorecardChart;
+    const newChart = model.getters.getChart(duplicatedChartId) as ScorecardChart;
     expect(newChart.title.text).toEqual("test");
     expect(newChart.keyValue?.sheetId).toEqual(secondSheetId);
     expect(zoneToXc(newChart.keyValue!.zone)).toEqual("B1:B4");

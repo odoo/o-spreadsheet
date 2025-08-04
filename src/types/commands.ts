@@ -534,12 +534,14 @@ interface BaseFigureCommand extends PositionDependentCommand {
 
 export interface CreateChartCommand extends BaseFigureCommand {
   type: "CREATE_CHART";
+  chartId: UID;
   definition: ChartDefinition;
 }
 
 export interface UpdateChartCommand extends SheetDependentCommand {
   type: "UPDATE_CHART";
   figureId: UID;
+  chartId: UID;
   definition: ChartDefinition;
 }
 

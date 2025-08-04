@@ -8,13 +8,10 @@ import {
 import { Section } from "../../../components/section/section";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ChartWithDataSetDefinition;
-  updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  canUpdateChart: (
-    figureId: UID,
-    definition: Partial<ChartWithDataSetDefinition>
-  ) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
 }
 
 export class ChartLegend extends Component<Props, SpreadsheetChildEnv> {
@@ -23,14 +20,14 @@ export class ChartLegend extends Component<Props, SpreadsheetChildEnv> {
     Section,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
   };
 
   updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       legendPosition: ev.target.value,
     });
   }

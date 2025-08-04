@@ -125,6 +125,7 @@ let composerStore: Store<CellComposerStore>;
 let composerFocusStore: Store<ComposerFocusStore>;
 
 jest.useFakeTimers();
+mockChart();
 
 describe("Grid component", () => {
   beforeEach(async () => {
@@ -2037,8 +2038,8 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("Can copy/paste chart", async () => {
     selectCell(model, "A1");
-    createChart(model, { type: "bar" }, "chartId");
-    model.dispatch("SELECT_FIGURE", { figureId: "chartId" });
+    createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
+    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -2054,8 +2055,8 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("Can cut/paste chart", async () => {
     selectCell(model, "A1");
-    createChart(model, { type: "bar" }, "chartId");
-    model.dispatch("SELECT_FIGURE", { figureId: "chartId" });
+    createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figureId" });
+    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     await nextTick();
     const clipboard = await parent.env.clipboard.read!();
@@ -2076,8 +2077,8 @@ describe("Copy paste keyboard shortcut", () => {
     async (operation) => {
       mockChart();
       selectCell(model, "A1");
-      createChart(model, { type: "bar" }, "chartId");
-      model.dispatch("SELECT_FIGURE", { figureId: "chartId" });
+      createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "figId" });
+      model.dispatch("SELECT_FIGURE", { figureId: "figId" });
       document.body.dispatchEvent(getClipboardEvent(operation, clipboardData));
       await nextTick();
       const clipboard = await parent.env.clipboard.read!();

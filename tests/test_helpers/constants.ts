@@ -286,12 +286,14 @@ export const TEST_COMMANDS: CommandMapping = {
     offset: { x: 0, y: 0 },
     size: { width: 200, height: 200 },
     figureId: "figureId",
+    chartId: "chartId",
     sheetId: "Sheet1",
   },
   UPDATE_CHART: {
     type: "UPDATE_CHART",
     definition: TEST_CHART_DATA.basicChart,
     figureId: "figureId",
+    chartId: "chartId",
     sheetId: "Sheet1",
   },
   CREATE_IMAGE: {

@@ -237,7 +237,8 @@ export function createChart(
     showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
   };
   return model.dispatch("CREATE_CHART", {
-    figureId: id,
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
     sheetId,
     col: 0,
     row: 0,
@@ -259,7 +260,8 @@ export function createComboChart(
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: id,
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
     sheetId,
     col: 0,
     row: 0,
@@ -290,7 +292,8 @@ export function createRadarChart(
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: id,
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
     sheetId,
     col: 0,
     row: 0,
@@ -346,7 +349,8 @@ export function createScorecardChart(
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: id,
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
     sheetId,
     col: 0,
     row: 0,
@@ -380,7 +384,8 @@ export function createGaugeChart(
   sheetId = sheetId || model.getters.getActiveSheetId();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: id,
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
     sheetId,
     col: 0,
     row: 0,
@@ -425,7 +430,8 @@ export function createGeoChart(
   const id = chartId || model.uuidGenerator.uuidv4();
 
   return model.dispatch("CREATE_CHART", {
-    figureId: id,
+    figureId: figureData.figureId || model.uuidGenerator.smallUuid(),
+    chartId: id,
     sheetId,
     col: 0,
     row: 0,
@@ -461,7 +467,8 @@ export function updateChart(
     ...definition,
   } as ChartDefinition;
   return model.dispatch("UPDATE_CHART", {
-    figureId: chartId,
+    figureId: model.getters.getFigureIdFromChartId(chartId),
+    chartId,
     sheetId,
     definition: def,
   });

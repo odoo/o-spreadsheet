@@ -7,7 +7,7 @@ export class LineConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-LineConfigPanel";
 
   get canTreatLabelsAsText() {
-    const chart = this.env.model.getters.getChart(this.props.figureId);
+    const chart = this.env.model.getters.getChart(this.props.chartId);
     if (chart && chart instanceof LineChart) {
       return canChartParseLabels(
         chart.getDefinition(),
@@ -40,19 +40,19 @@ export class LineConfigPanel extends GenericChartConfigPanel {
   }
 
   onUpdateLabelsAsText(labelsAsText: boolean) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       labelsAsText,
     });
   }
 
   onUpdateStacked(stacked: boolean) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       stacked,
     });
   }
 
   onUpdateCumulative(cumulative: boolean) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       cumulative,
     });
   }

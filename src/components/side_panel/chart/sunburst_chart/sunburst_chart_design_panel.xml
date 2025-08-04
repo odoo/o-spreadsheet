@@ -28,7 +28,7 @@
               name="'showLabels'"
               label.translate="Show labels"
               value="showLabels"
-              onChange="(showLabels) => props.updateChart(this.props.figureId, { showLabels })"
+              onChange="(showLabels) => props.updateChart(this.props.chartId, { showLabels })"
             />
             <ChartShowValues t-props="props" defaultValue="defaults.showValues"/>
           </div>
@@ -36,7 +36,7 @@
         <Section class="'pt-0'" t-if="showValues || showLabels">
           <TextStyler
             class="'o-values-style'"
-            updateStyle="(valuesDesign) => props.updateChart(this.props.figureId, { valuesDesign })"
+            updateStyle="(valuesDesign) => props.updateChart(this.props.chartId, { valuesDesign })"
             style="props.definition.valuesDesign || {}"
             defaultStyle="defaults.valuesDesign"
           />

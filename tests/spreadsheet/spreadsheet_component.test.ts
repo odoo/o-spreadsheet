@@ -228,8 +228,8 @@ describe("Simple Spreadsheet Component", () => {
     await simulateClick(".o-topbar-composer .o-composer");
     const topBarComposerZIndex = getZIndex(".o-topbar-composer");
 
-    createChart(model, { type: "bar" }, "thisIsAnId");
-    model.dispatch("SELECT_FIGURE", { figureId: "thisIsAnId" });
+    createChart(model, { type: "bar" }, "thisIsAnId", undefined, { figureId: "figureId" });
+    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
     await nextTick();
     const figureZIndex = getZIndex(".o-figure-wrapper");
     const figureAnchorZIndex = getZIndex(".o-fig-anchor");

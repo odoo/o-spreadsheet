@@ -30,7 +30,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     sheetId = model.getters.getActiveSheetId();
     figureId = model.uuidGenerator.uuidv4();
     if (type === "chart") {
-      createChart(model, { type: "bar" }, figureId);
+      createChart(model, { type: "bar" }, "chartId", undefined, { figureId });
     } else if (type === "image") {
       createImage(model, { figureId });
     }
@@ -162,7 +162,6 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
 
   test("Can paste a chart with ranges that were deleted between the copy and the paste", () => {
     const model = new Model();
-    const chartId = "thisIsAnId";
     createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
     createChart(
       model,
@@ -171,9 +170,11 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
         dataSets: [{ dataRange: "Sheet1!A1:A5" }, { dataRange: "Sheet2!B1:B5" }],
         labelRange: "B1",
       },
-      chartId
+      "chartId",
+      undefined,
+      { figureId: "figureId" }
     );
-    model.dispatch("SELECT_FIGURE", { figureId: chartId });
+    model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
     copy(model);
     deleteSheet(model, "Sheet1");
     paste(model, "A1");
@@ -223,7 +224,7 @@ describe("chart specific Clipboard test", () => {
     createChart(model, { type: "bar" }, chartId);
     updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
     const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
-    model.dispatch("SELECT_FIGURE", { figureId: chartId });
+    model.dispatch("SELECT_FIGURE", { figureId: model.getters.getFigureIdFromChartId(chartId) });
     copy(model);
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");

@@ -1523,7 +1523,9 @@ describe("Test XLSX export", () => {
           type: "bar",
           dataSetsHaveTitle: false,
         },
-        "1"
+        "chartId",
+        undefined,
+        { figureId: "1" }
       );
       const sheetId = model.getters.getActiveSheetId();
       const end = model.getters.getColDimensions(

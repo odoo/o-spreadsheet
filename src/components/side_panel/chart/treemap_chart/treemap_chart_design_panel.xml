@@ -13,14 +13,14 @@
 
           <t t-if="coloringOptions.type === 'categoryColor'">
             <TreeMapCategoryColors
-              figureId="props.figureId"
+              chartId="props.chartId"
               definition="props.definition"
               onColorChanged.bind="onCategoryColorChange"
             />
           </t>
           <t t-else="">
             <TreeMapColorScale
-              figureId="props.figureId"
+              chartId="props.chartId"
               definition="props.definition"
               onColorChanged.bind="onColorScaleChange"
             />
@@ -36,13 +36,13 @@
             name="'showHeaders'"
             label.translate="Show headers"
             value="showHeaders"
-            onChange="(showHeaders) => props.updateChart(this.props.figureId, { showHeaders })"
+            onChange="(showHeaders) => props.updateChart(this.props.chartId, { showHeaders })"
           />
         </Section>
         <Section class="'pt-0'" t-if="showHeaders">
           <TextStyler
             class="'pt-0 o-header-style'"
-            updateStyle="(headerDesign) => props.updateChart(this.props.figureId, { headerDesign })"
+            updateStyle="(headerDesign) => props.updateChart(this.props.chartId, { headerDesign })"
             style="props.definition.headerDesign || {}"
             defaultStyle="defaults.headerDesign"
             hasBackgroundColor="true"
@@ -55,7 +55,7 @@
               name="'showLabels'"
               label.translate="Show labels"
               value="showLabels"
-              onChange="(showLabels) => props.updateChart(this.props.figureId, { showLabels })"
+              onChange="(showLabels) => props.updateChart(this.props.chartId, { showLabels })"
             />
             <ChartShowValues t-props="props" defaultValue="defaults.showValues"/>
           </div>
@@ -63,7 +63,7 @@
         <Section class="'pt-0'" t-if="showValues || showLabels">
           <TextStyler
             class="'pt-0 o-values-style'"
-            updateStyle="(valuesDesign) => props.updateChart(this.props.figureId, { valuesDesign })"
+            updateStyle="(valuesDesign) => props.updateChart(this.props.chartId, { valuesDesign })"
             style="props.definition.valuesDesign || {}"
             defaultStyle="defaults.valuesDesign"
             hasVerticalAlign="true"

@@ -613,6 +613,7 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
       type: "CREATE_CHART",
       sheetId,
       figureId: "chart1",
+      chartId: "chart1",
       definition,
       offset: { x: 0, y: 0 },
       size: { width: 0, height: 0 },
@@ -639,6 +640,7 @@ describe("OT with AddColumns and UPDATE_CHART/CREATE_CHART", () => {
       type: "UPDATE_CHART",
       sheetId,
       figureId: "chart1",
+      chartId: "chart1",
       definition,
     };
 

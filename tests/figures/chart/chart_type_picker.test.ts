@@ -16,7 +16,7 @@ describe("Chart type picker component", () => {
     model = new Model();
     createChart(model, { type: "bar" }, chartId);
     ({ store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore));
-    const props = { figureId: chartId, chartPanelStore };
+    const props = { chartId, chartPanelStore };
     ({ fixture } = await mountComponentWithPortalTarget(ChartTypePicker, { model, props }));
   });
 

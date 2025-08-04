@@ -35,9 +35,9 @@ export class ChartDashboardMenuStore extends SpreadsheetStore {
   }
 
   private updateType(type: ChartType) {
-    const figureId = this.chartId;
-    const currentDefinition = this.getters.getChartDefinition(figureId);
-    if (currentDefinition.type === type) {
+    const chartId = this.chartId;
+    const currentDefinition = this.getters.getChartDefinition(chartId);
+    if (currentDefinition?.type === type) {
       return;
     }
 
@@ -47,7 +47,7 @@ export class ChartDashboardMenuStore extends SpreadsheetStore {
     } else {
       const newChartInfo = chartSubtypeRegistry.get(type);
       const ChartClass = chartRegistry.get(newChartInfo.chartType);
-      const chartCreationContext = this.getters.getContextCreationChart(figureId);
+      const chartCreationContext = this.getters.getContextCreationChart(chartId);
       if (!chartCreationContext) return;
       definition = {
         ...ChartClass.getChartDefinitionFromContextCreation(chartCreationContext),
@@ -57,7 +57,8 @@ export class ChartDashboardMenuStore extends SpreadsheetStore {
 
     this.model.dispatch("UPDATE_CHART", {
       definition,
-      figureId,
+      chartId,
+      figureId: this.getters.getFigureIdFromChartId(chartId),
       sheetId: this.getters.getActiveSheetId(),
     });
   }

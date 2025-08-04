@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_types";
-import { ChartType, FigureUI, SpreadsheetChildEnv } from "../../../types";
+import { ChartType, FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
 import { css } from "../../helpers/css";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
@@ -36,7 +36,15 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartType(): ChartType {
-    return this.env.model.getters.getChartType(this.props.figureUI.id);
+    return this.env.model.getters.getChartType(this.chartId);
+  }
+
+  get chartId(): UID {
+    const chartId = this.env.model.getters.getChartIdFromFigureId(this.props.figureUI.id);
+    if (!chartId) {
+      throw new Error(`No chart found for figure ID: ${this.props.figureUI.id}`);
+    }
+    return chartId;
   }
 
   get chartComponent(): new (...args: any) => Component {

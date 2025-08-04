@@ -3,21 +3,21 @@ import { deepEquals } from "../../../../helpers";
 import { drawGaugeChart } from "../../../../helpers/figures/charts/gauge_chart_rendering";
 import { EASING_FN } from "../../../../registries/cell_animation_registry";
 import { Store, useStore } from "../../../../store_engine";
-import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
+import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { GaugeChartRuntime } from "../../../../types/chart";
 import { ChartAnimationStore } from "../chartJs/chartjs_animation_store";
 
 const ANIMATION_DURATION = 1000;
 
 interface Props {
-  figureUI: FigureUI;
+  chartId: UID;
   isFullScreen?: boolean;
 }
 
 export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartComponent";
   static props = {
-    figureUI: Object,
+    chartId: String,
     isFullScreen: { type: Boolean, optional: true },
   };
 
@@ -26,7 +26,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
   private animationStore: Store<ChartAnimationStore> | undefined;
 
   get runtime(): GaugeChartRuntime {
-    return this.env.model.getters.getChartRuntime(this.props.figureUI.id) as GaugeChartRuntime;
+    return this.env.model.getters.getChartRuntime(this.props.chartId) as GaugeChartRuntime;
   }
 
   setup() {
@@ -89,9 +89,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get animationFigureId() {
-    return this.props.isFullScreen
-      ? this.props.figureUI.id + "-fullscreen"
-      : this.props.figureUI.id;
+    return this.props.isFullScreen ? this.props.chartId + "-fullscreen" : this.props.chartId;
   }
 }
 

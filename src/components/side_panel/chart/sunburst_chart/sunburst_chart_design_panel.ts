@@ -18,10 +18,10 @@ import { ChartShowValues } from "../building_blocks/show_values/show_values";
 import { TextStyler } from "../building_blocks/text_styler/text_styler";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: SunburstChartDefinition;
-  canUpdateChart: (figureID: UID, definition: Partial<SunburstChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<SunburstChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<SunburstChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<SunburstChartDefinition>) => DispatchResult;
 }
 
 export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -38,7 +38,7 @@ export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildE
     PieHoleSize,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: { type: Function, optional: true },
@@ -55,8 +55,8 @@ export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildE
   }
 
   get groupColors() {
-    const figureId = this.props.figureId;
-    const runtime = this.env.model.getters.getChartRuntime(figureId) as SunburstChartRuntime;
+    const chartId = this.props.chartId;
+    const runtime = this.env.model.getters.getChartRuntime(chartId) as SunburstChartRuntime;
     const dataset = runtime.chartJsConfig.data.datasets[0] as SunburstChartJSDataset;
     return dataset?.groupColors || [];
   }
@@ -64,11 +64,11 @@ export class SunburstChartDesignPanel extends Component<Props, SpreadsheetChildE
   onGroupColorChanged(index: number, color: string) {
     const colors = deepCopy(this.props.definition.groupColors) ?? [];
     colors[index] = color;
-    this.props.updateChart(this.props.figureId, { groupColors: colors });
+    this.props.updateChart(this.props.chartId, { groupColors: colors });
   }
 
   onPieHoleSizeChange(pieHolePercentage: number) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       ...this.props.definition,
       pieHolePercentage,
     });

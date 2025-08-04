@@ -19,10 +19,10 @@ interface GeneralDesignEditorState {
 }
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ChartDefinition;
-  updateChart: (figureId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
-  canUpdateChart: (figureId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<ChartDefinition>) => DispatchResult;
   defaultChartTitleFontSize?: number;
 }
 
@@ -36,7 +36,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     RadioSelection,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
@@ -64,19 +64,19 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateBackgroundColor(color: Color) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       background: color,
     });
   }
 
   updateTitle(newTitle: string) {
     const title = { ...this.title, text: newTitle };
-    this.props.updateChart(this.props.figureId, { title });
+    this.props.updateChart(this.props.chartId, { title });
   }
 
   updateChartTitleStyle(style: TitleDesign) {
     const title = { ...this.title, ...style };
-    this.props.updateChart(this.props.figureId, { title });
+    this.props.updateChart(this.props.chartId, { title });
     this.state.activeTool = "";
   }
 }

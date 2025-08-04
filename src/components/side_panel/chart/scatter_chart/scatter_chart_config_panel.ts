@@ -7,7 +7,7 @@ export class ScatterConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-ScatterConfigPanel";
 
   get canTreatLabelsAsText() {
-    const chart = this.env.model.getters.getChart(this.props.figureId);
+    const chart = this.env.model.getters.getChart(this.props.chartId);
     if (chart && chart instanceof ScatterChart) {
       return canChartParseLabels(
         chart.getDefinition(),
@@ -20,7 +20,7 @@ export class ScatterConfigPanel extends GenericChartConfigPanel {
   }
 
   onUpdateLabelsAsText(labelsAsText: boolean) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       labelsAsText,
     });
   }

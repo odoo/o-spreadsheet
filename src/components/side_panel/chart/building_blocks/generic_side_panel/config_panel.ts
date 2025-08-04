@@ -32,13 +32,10 @@ import { ChartErrorSection } from "../error_section/error_section";
 import { ChartLabelRange } from "../label_range/label_range";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ChartWithDataSetDefinition;
-  canUpdateChart: (
-    figureId: UID,
-    definition: Partial<ChartWithDataSetDefinition>
-  ) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
 }
 
 interface ChartPanelState {
@@ -56,7 +53,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     ChartErrorSection,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
@@ -126,7 +123,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   }
 
   onUpdateDataSetsHaveTitle(dataSetsHaveTitle: boolean) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       dataSetsHaveTitle,
     });
   }
@@ -209,7 +206,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     }
     const labelRange = dataSets.length > 1 ? dataSets.shift()!.dataRange : "";
 
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       labelRange,
       dataSets,
     });
@@ -227,7 +224,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       ...this.dataSets?.[i],
       dataRange,
     }));
-    this.state.datasetDispatchResult = this.props.canUpdateChart(this.props.figureId, {
+    this.state.datasetDispatchResult = this.props.canUpdateChart(this.props.chartId, {
       dataSets: this.dataSets,
     });
   }
@@ -243,7 +240,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
       backgroundColor: colors[i],
       ...this.dataSets[i],
     }));
-    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
       dataSets: this.dataSets,
     });
   }
@@ -260,7 +257,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
         ...ds,
       }))
       .filter((_, i) => i !== index);
-    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
       dataSets: this.dataSets,
     });
   }
@@ -268,12 +265,12 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   onDataSeriesConfirmed() {
     this.dataSets = this.splitRanges;
     this.datasetOrientation = this.computeDatasetOrientation();
-    this.state.datasetDispatchResult = this.props.updateChart(this.props.figureId, {
+    this.state.datasetDispatchResult = this.props.updateChart(this.props.chartId, {
       dataSets: this.dataSets,
     });
     if (this.state.datasetDispatchResult.isSuccessful) {
       this.dataSets = (
-        this.env.model.getters.getChartDefinition(this.props.figureId) as ChartWithDataSetDefinition
+        this.env.model.getters.getChartDefinition(this.props.chartId) as ChartWithDataSetDefinition
       ).dataSets;
     }
   }
@@ -365,13 +362,13 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
    */
   onLabelRangeChanged(ranges: string[]) {
     this.labelRange = ranges[0];
-    this.state.labelsDispatchResult = this.props.canUpdateChart(this.props.figureId, {
+    this.state.labelsDispatchResult = this.props.canUpdateChart(this.props.chartId, {
       labelRange: this.labelRange,
     });
   }
 
   onLabelRangeConfirmed() {
-    this.state.labelsDispatchResult = this.props.updateChart(this.props.figureId, {
+    this.state.labelsDispatchResult = this.props.updateChart(this.props.chartId, {
       labelRange: this.labelRange,
     });
   }
@@ -381,7 +378,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   }
 
   onUpdateAggregated(aggregated: boolean) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       aggregated,
     });
   }
@@ -423,7 +420,8 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     }
     const zonesBySheetName = {};
     const transposedDatasets: { dataRange: string }[] = [];
-    const figureSheetId = getters.getFigureSheetId(this.props.figureId);
+    const figureId = getters.getFigureIdFromChartId(this.props.chartId);
+    const figureSheetId = getters.getFigureSheetId(figureId);
     let name = getters.getActiveSheet().name;
     if (figureSheetId) {
       name = getters.getSheet(figureSheetId).name;

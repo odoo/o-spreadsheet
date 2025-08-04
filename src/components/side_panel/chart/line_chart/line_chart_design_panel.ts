@@ -4,14 +4,14 @@ import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ComboChartDefinition;
   canUpdateChart: (
-    figureID: UID,
+    chartId: UID,
     definition: GenericDefinition<ComboChartDefinition>
   ) => DispatchResult;
   updateChart: (
-    figureId: UID,
+    chartId: UID,
     definition: GenericDefinition<ComboChartDefinition>
   ) => DispatchResult;
 }

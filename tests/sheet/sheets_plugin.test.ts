@@ -751,18 +751,17 @@ describe("sheets", () => {
   test("Figures of Charts are correctly duplicated", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    const chartId = "uuid";
     createChart(
       model,
       { type: "bar", dataSets: [{ dataRange: "Sheet1!B1:B4" }], labelRange: "Sheet1!A2:A4" },
-      chartId,
+      "uuid",
       undefined,
-      { size: { height: 335, width: 536 } }
+      { size: { height: 335, width: 536 }, figureId: "figureId" }
     );
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42", sheetNameTo: "Copy of Sheet1" });
     model.dispatch("UPDATE_FIGURE", {
       sheetId: sheetId,
-      figureId: chartId,
+      figureId: "figureId",
       offset: { x: 40, y: 0 },
       col: 0,
       row: 0,
@@ -773,7 +772,7 @@ describe("sheets", () => {
     expect(figure1).toEqual([
       {
         height: 335,
-        id: chartId,
+        id: "figureId",
         tag: "chart",
         width: 536,
         col: 0,

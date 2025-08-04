@@ -66,10 +66,10 @@ interface PanelState {
 }
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: GaugeChartDefinition;
-  canUpdateChart: (figureID: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
 }
 
 export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -83,7 +83,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     StandaloneComposer,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: { type: Function, optional: true },
@@ -149,7 +149,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
       ...this.checkSectionRuleFormulasAreValid(this.state.sectionRule)
     );
 
-    const dispatchResult = this.props.updateChart(this.props.figureId, {
+    const dispatchResult = this.props.updateChart(this.props.chartId, {
       sectionRule,
     });
     if (dispatchResult.isSuccessful) {
@@ -220,9 +220,9 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   get sheetId() {
-    const chart = this.env.model.getters.getChart(this.props.figureId);
+    const chart = this.env.model.getters.getChart(this.props.chartId);
     if (!chart) {
-      throw new Error("Chart not found with id " + this.props.figureId);
+      throw new Error("Chart not found with id " + this.props.chartId);
     }
     return chart.sheetId;
   }

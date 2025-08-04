@@ -30,9 +30,11 @@ export function repeatCreateChartCommand(
   getters: Getters,
   cmd: CreateChartCommand
 ): CreateChartCommand {
+  const id = uuidGenerator.smallUuid();
   return {
     ...repeatSheetDependantCommand(getters, cmd),
-    figureId: uuidGenerator.smallUuid(),
+    figureId: id,
+    chartId: id,
   };
 }
 

@@ -6,14 +6,14 @@ import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ComboChartDefinition;
   canUpdateChart: (
-    figureID: UID,
+    chartId: UID,
     definition: GenericDefinition<ComboChartDefinition>
   ) => DispatchResult;
   updateChart: (
-    figureId: UID,
+    chartId: UID,
     definition: GenericDefinition<ComboChartDefinition>
   ) => DispatchResult;
 }
@@ -39,7 +39,7 @@ export class ComboChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
       ...dataSets[index],
       type,
     };
-    this.props.updateChart(this.props.figureId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSets });
   }
 
   getDataSeriesType(index: number) {

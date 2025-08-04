@@ -28,7 +28,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
       return;
     }
     const copiedFigure = { ...figure };
-    const chart = this.getters.getChart(data.figureId);
+    const chart = this.getters.getChartFromFigureId(data.figureId);
     if (!chart) {
       throw new Error(`No chart for the given id: ${data.figureId}`);
     }
@@ -71,6 +71,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     }
     this.dispatch("CREATE_CHART", {
       figureId,
+      chartId: figureId,
       sheetId,
       definition: copy.getDefinition(),
       col,

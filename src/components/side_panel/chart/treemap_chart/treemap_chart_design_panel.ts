@@ -19,10 +19,10 @@ import { TreeMapCategoryColors } from "./treemap_category_color/treemap_category
 import { TreeMapColorScale } from "./treemap_color_scale/treemap_color_scale";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: TreeMapChartDefinition;
-  canUpdateChart: (figureID: UID, definition: Partial<TreeMapChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<TreeMapChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<TreeMapChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<TreeMapChartDefinition>) => DispatchResult;
 }
 
 const DEFAULT_COLOR_SCALE: TreeMapColorScaleOptions = {
@@ -53,7 +53,7 @@ export class TreeMapChartDesignPanel extends Component<Props, SpreadsheetChildEn
     TreeMapColorScale,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: { type: Function, optional: true },
@@ -85,17 +85,17 @@ export class TreeMapChartDesignPanel extends Component<Props, SpreadsheetChildEn
   changeColoringOption(option: "categoryColor" | "colorScale") {
     const coloringOptions =
       option === "categoryColor" ? this.savedColors.categoryColors : this.savedColors.colorScale;
-    this.props.updateChart(this.props.figureId, { coloringOptions });
+    this.props.updateChart(this.props.chartId, { coloringOptions });
   }
 
   onCategoryColorChange(coloringOptions: TreeMapCategoryColorOptions) {
     this.savedColors.categoryColors = coloringOptions;
-    this.props.updateChart(this.props.figureId, { coloringOptions });
+    this.props.updateChart(this.props.chartId, { coloringOptions });
   }
 
   onColorScaleChange(coloringOptions: TreeMapColorScaleOptions) {
     this.savedColors.colorScale = coloringOptions;
-    this.props.updateChart(this.props.figureId, { coloringOptions });
+    this.props.updateChart(this.props.chartId, { coloringOptions });
   }
 
   get coloringOptionChoices() {

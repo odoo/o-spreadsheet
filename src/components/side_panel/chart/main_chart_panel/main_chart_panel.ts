@@ -50,13 +50,13 @@ css/* scss */ `
 
 interface Props {
   onCloseSidePanel: () => void;
-  figureId: UID;
+  chartId: UID;
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
   static components = { Section, ChartTypePicker };
-  static props = { onCloseSidePanel: Function, figureId: String };
+  static props = { onCloseSidePanel: Function, chartId: String };
   private panelContentRef!: Ref<HTMLElement>;
   private scrollPositions: Record<"configuration" | "design", Pixel> = {
     configuration: 0,
@@ -65,8 +65,8 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
 
   store!: Store<MainChartPanelStore>;
 
-  get figureId() {
-    return this.props.figureId;
+  get chartId() {
+    return this.props.chartId;
   }
 
   setup(): void {
@@ -93,48 +93,52 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     this.store.activatePanel(panel);
   }
 
-  updateChart<T extends ChartDefinition>(figureId: UID, updateDefinition: Partial<T>) {
-    if (figureId !== this.figureId) {
+  updateChart<T extends ChartDefinition>(chartId: UID, updateDefinition: Partial<T>) {
+    const figureId = this.env.model.getters.getFigureIdFromChartId(chartId);
+    if (chartId !== this.chartId) {
       return;
     }
     const definition: T = {
-      ...(this.getChartDefinition(this.figureId) as T),
+      ...(this.getChartDefinition(this.chartId) as T),
       ...updateDefinition,
     };
     return this.env.model.dispatch("UPDATE_CHART", {
       definition,
+      chartId,
       figureId,
       sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
     });
   }
 
-  canUpdateChart<T extends ChartDefinition>(figureId: UID, updateDefinition: Partial<T>) {
-    if (figureId !== this.figureId || !this.env.model.getters.isChartDefined(figureId)) {
+  canUpdateChart<T extends ChartDefinition>(chartId: UID, updateDefinition: Partial<T>) {
+    const figureId = this.env.model.getters.getFigureIdFromChartId(chartId);
+    if (chartId !== this.chartId || !this.env.model.getters.isChartDefined(chartId)) {
       return;
     }
     const definition: T = {
-      ...(this.getChartDefinition(this.figureId) as T),
+      ...(this.getChartDefinition(this.chartId) as T),
       ...updateDefinition,
     };
     return this.env.model.canDispatch("UPDATE_CHART", {
       definition,
+      chartId,
       figureId,
       sheetId: this.env.model.getters.getFigureSheetId(figureId)!,
     });
   }
 
   onTypeChange(type: ChartType) {
-    if (!this.figureId) {
+    if (!this.chartId) {
       return;
     }
-    this.store.changeChartType(this.figureId, type);
+    this.store.changeChartType(this.chartId, type);
   }
 
   get chartPanel(): ChartSidePanel {
-    if (!this.figureId) {
+    if (!this.chartId) {
       throw new Error("Chart not defined.");
     }
-    const type = this.env.model.getters.getChartType(this.figureId);
+    const type = this.env.model.getters.getChartType(this.chartId);
     if (!type) {
       throw new Error("Chart not defined.");
     }
@@ -145,7 +149,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     return chartPanel;
   }
 
-  private getChartDefinition(figureId: UID): ChartDefinition {
-    return this.env.model.getters.getChartDefinition(figureId);
+  private getChartDefinition(chartId: UID): ChartDefinition {
+    return this.env.model.getters.getChartDefinition(chartId);
   }
 }

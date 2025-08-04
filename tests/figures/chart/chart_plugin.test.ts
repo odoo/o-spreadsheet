@@ -495,13 +495,14 @@ describe("datasource tests", function () {
       },
       "1"
     );
+    const figureId = model.getters.getFigureIdFromChartId("1")!;
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
-      figureId: "1",
+      figureId,
     });
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("1")).toThrow();
@@ -817,6 +818,7 @@ describe("datasource tests", function () {
       definition: model.getters.getChartDefinition("1"),
       sheetId: model.getters.getActiveSheetId(),
       figureId: "2",
+      chartId: "2",
     });
 
     updateChart(model, "1", { legendPosition: "left" });
@@ -837,6 +839,7 @@ describe("datasource tests", function () {
       },
       sheetId: model.getters.getActiveSheetId(),
       figureId: "2",
+      chartId: "2",
     });
     expect(result).toBeCancelledBecause(CommandResult.ChartDoesNotExist);
   });
@@ -1075,7 +1078,8 @@ describe("datasource tests", function () {
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
-    const newChart = model.getters.getChart(duplicatedFigure.id) as BarChart;
+    const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
+    const newChart = model.getters.getChart(duplicatedChartId) as BarChart;
 
     expect(newChart.labelRange?.sheetId).toEqual(secondSheetId);
     expect(zoneToXc(newChart.labelRange!.zone)).toEqual("A2:A4");
@@ -1133,13 +1137,12 @@ describe("datasource tests", function () {
     expect(newModel.getters.getChartIds(secondSheetId).length).toEqual(1);
     expect(newModel.getters.getChartIds(thirdSheetId).length).toEqual(1);
 
-    expect(figuresSh1[0].id).toEqual("myChart");
-    expect(figuresSh2[0].id).toEqual(secondSheetId + FIGURE_ID_SPLITTER + "myChart");
-    expect(figuresSh3[0].id).toEqual(thirdSheetId + FIGURE_ID_SPLITTER + "myChart");
+    expect(figuresSh2[0].id).toEqual(secondSheetId + FIGURE_ID_SPLITTER + figuresSh1[0].id);
+    expect(figuresSh3[0].id).toEqual(thirdSheetId + FIGURE_ID_SPLITTER + figuresSh1[0].id);
 
-    const chartSh1 = newModel.getters.getChart(figuresSh1[0].id);
-    const chartSh2 = newModel.getters.getChart(figuresSh2[0].id);
-    const chartSh3 = newModel.getters.getChart(figuresSh3[0].id);
+    const chartSh1 = newModel.getters.getChartFromFigureId(figuresSh1[0].id);
+    const chartSh2 = newModel.getters.getChartFromFigureId(figuresSh2[0].id);
+    const chartSh3 = newModel.getters.getChartFromFigureId(figuresSh3[0].id);
 
     expect(chartSh1?.sheetId).toBe(firstSheetId);
     expect(chartSh2?.sheetId).toBe(secondSheetId);
@@ -1170,8 +1173,8 @@ describe("datasource tests", function () {
       sheetId: firstSheetId,
       sheetNameTo: "Copy of Sheet1",
     });
-    const duplicatedFigure = model.getters.getFigures(thirdSheetId)[0];
-    const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedFigure.id);
+    const duplicatedChartId = model.getters.getChartIds(thirdSheetId)[0];
+    const duplicatedChartDefinition = model.getters.getChartDefinition(duplicatedChartId);
     expect(duplicatedChartDefinition).toMatchObject({
       dataSets: [{ dataRange: `${secondSheetName}!C1:C4` }],
       labelRange: `${secondSheetName}!A2:A4`,
@@ -1590,6 +1593,7 @@ describe("multiple sheets", function () {
   describe("multiple sheets with formulas", function () {
     beforeEach(() => {
       model = new Model({
+        version: "18.4.1",
         sheets: [
           {
             name: "Sheet1",

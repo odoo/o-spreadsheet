@@ -537,6 +537,18 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("18.5.1", {
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "chart") {
+            figure.data.chartId = figure.id;
+          }
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

@@ -111,8 +111,8 @@ async function changeChartType(type: string) {
   await click(fixture, `.o-chart-type-item[data-id="${type}"]`);
 }
 
-async function mountChartSidePanel(figureId = chartId) {
-  const props = { figureId, onCloseSidePanel: () => {} };
+async function mountChartSidePanel(id = chartId) {
+  const props = { chartId: id, onCloseSidePanel: () => {} };
   ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
 }
 
@@ -175,16 +175,20 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("can export a chart %s", (chartType) => {
-    createTestChart(chartType, undefined, { size: { height: 335, width: 536 } });
+    createTestChart(chartType, undefined, {
+      size: { height: 335, width: 536 },
+      figureId: "figureId",
+    });
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
     const sheet = data.sheets.find((s) => s.id === activeSheetId)!;
     expect(sheet.figures).toMatchObject([
       {
         data: {
+          chartId,
           ...TEST_CHART_DATA[chartType],
         },
-        id: chartId,
+        id: "figureId",
         height: 335,
         tag: "chart",
         width: 536,
@@ -285,11 +289,11 @@ describe("charts", () => {
 
   test.each(TEST_CHART_TYPES)("Double click on chart will open sidepanel", async (chartType) => {
     await mountSpreadsheet();
-    createTestChart(chartType);
+    createTestChart(chartType, "chartID", { figureId: "figureId" });
     await nextTick();
     expect(document.querySelector(".o-chart-container")).toBeTruthy();
     await doubleClick(fixture, ".o-chart-container");
-    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedFigureId()).toBe("figureId");
     expect(document.querySelector(".o-chart")).toBeTruthy();
   });
 
@@ -305,7 +309,8 @@ describe("charts", () => {
       case "basicChart":
         await click(fixture.querySelector("input[name=dataSetsHaveTitle]")!);
         expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-          figureId: chartId,
+          figureId: expect.any(String),
+          chartId,
           sheetId,
           definition: {
             ...model.getters.getChartDefinition(chartId),
@@ -324,7 +329,8 @@ describe("charts", () => {
     await simulateClick(".o-panel .inactive");
     setInputValueAndTrigger(".o-chart-title input", "hello");
     expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-      figureId: chartId,
+      figureId: expect.any(String),
+      chartId,
       sheetId,
       definition: {
         ...model.getters.getChartDefinition(chartId),
@@ -849,7 +855,8 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        figureId: chartId,
+        figureId: expect.any(String),
+        chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -1052,14 +1059,12 @@ describe("charts", () => {
   });
 
   test("deleting another chart does not close the side panel", async () => {
-    const figureId1 = "figureId1";
-    const figureId2 = "figureId2";
-    createTestChart("basicChart", figureId1);
-    createTestChart("basicChart", figureId2);
+    createTestChart("basicChart", "chartId1", { figureId: "figureId1" });
+    createTestChart("basicChart", "chartId2", { figureId: "figureId2" });
     const sheetId = model.getters.getActiveSheetId();
-    await mountChartSidePanel(figureId1);
+    await mountChartSidePanel("chartId1");
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
-    model.dispatch("DELETE_FIGURE", { figureId: figureId2, sheetId }); // could be deleted by another user
+    model.dispatch("DELETE_FIGURE", { figureId: "figureId2", sheetId }); // could be deleted by another user
     await nextTick();
     expect(fixture.querySelector(".o-chart")).toBeTruthy();
   });
@@ -1138,7 +1143,8 @@ describe("charts", () => {
       if (selectMethod === "click") {
         await simulateClick(figures[1]);
       } else {
-        model.dispatch("SELECT_FIGURE", { figureId: "secondChartId" });
+        const figureId = model.getters.getFigureIdFromChartId("secondChartId")!;
+        model.dispatch("SELECT_FIGURE", { figureId });
       }
 
       await nextTick();
@@ -1512,7 +1518,8 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        figureId: chartId,
+        figureId: model.getters.getFigureIdFromChartId(chartId),
+        chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -1535,7 +1542,8 @@ describe("charts", () => {
         }
       }
       expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        figureId: chartId,
+        figureId: model.getters.getFigureIdFromChartId(chartId),
+        chartId,
         sheetId,
         definition: {
           ...model.getters.getChartDefinition(chartId),
@@ -1908,7 +1916,8 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition("chart1")["cumulative"]).toBe(true);
       await changeChartType("bar"); // save chart1 context creation the side panel store
 
-      model.dispatch("SELECT_FIGURE", { figureId: "chart2" });
+      const figure2id = model.getters.getFigureIdFromChartId("chart2")!;
+      model.dispatch("SELECT_FIGURE", { figureId: figure2id });
       await nextTick();
       await changeChartType("line");
       // check that chart2 cumulative option is the line chart default (undefined) and not the chart1 value
@@ -2185,7 +2194,7 @@ describe("charts", () => {
   test("When a figure is selected, pressing Ctrl+A will not propagate to the grid to select all cells", async () => {
     await mountSpreadsheet();
     selectCell(model, "A1");
-    createTestChart("gauge");
+    createTestChart("gauge", undefined, { figureId: "someuuid" });
     await nextTick();
 
     await simulateClick(".o-figure");
@@ -2198,9 +2207,9 @@ describe("charts", () => {
   test("Can undo multiple times after pasting figure", async () => {
     await mountSpreadsheet();
     setCellContent(model, "D6", "HELLO");
-    createTestChart("gauge");
+    createTestChart("gauge", undefined, { figureId: "someuuid" });
     await nextTick();
-    env.model.dispatch("SELECT_FIGURE", { figureId: chartId });
+    env.model.dispatch("SELECT_FIGURE", { figureId: "someuuid" });
     await nextTick();
 
     copy(model);
@@ -2295,6 +2304,7 @@ describe("charts with multiple sheets", () => {
                 y: 100,
               },
               data: {
+                chartId,
                 type: "line",
                 title: { text: "demo chart" },
                 labelRange: "Sheet1!A2:A4",
@@ -2315,6 +2325,7 @@ describe("charts with multiple sheets", () => {
                 y: 300,
               },
               data: {
+                chartId: "2",
                 type: "scorecard",
                 title: { text: "demo scorecard" },
                 baseline: "Sheet1!A2:A4",
@@ -2370,7 +2381,8 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId);
   await nextTick();
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
-  model.dispatch("DELETE_FIGURE", { figureId: chartId, sheetId: model.getters.getActiveSheetId() });
+  const figureId = model.getters.getFigureIdFromChartId(chartId);
+  model.dispatch("DELETE_FIGURE", { figureId, sheetId: model.getters.getActiveSheetId() });
   await nextTick();
   expect(spyDelete).toHaveBeenCalled();
 });

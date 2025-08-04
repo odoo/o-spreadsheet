@@ -12,13 +12,10 @@ import { RoundColorPicker } from "../../../components/round_color_picker/round_c
 import { Section } from "../../../components/section/section";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ChartWithDataSetDefinition;
-  canUpdateChart: (
-    figureID: UID,
-    definition: Partial<ChartWithDataSetDefinition>
-  ) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
 }
 
 export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
@@ -29,7 +26,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     RoundColorPicker,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
@@ -39,7 +36,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   protected state = useState({ index: 0 });
 
   getDataSeries() {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId);
+    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
     if (!runtime || !("chartJsConfig" in runtime)) {
       return [];
     }
@@ -59,7 +56,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
       ...dataSets[this.state.index],
       backgroundColor: color,
     };
-    this.props.updateChart(this.props.figureId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSets });
   }
 
   getDataSeriesColor() {
@@ -79,7 +76,7 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
       ...dataSets[this.state.index],
       label,
     };
-    this.props.updateChart(this.props.figureId, { dataSets });
+    this.props.updateChart(this.props.chartId, { dataSets });
   }
 
   getDataSeriesLabel() {

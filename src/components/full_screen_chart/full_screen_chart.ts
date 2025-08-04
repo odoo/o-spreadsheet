@@ -27,7 +27,7 @@ export class FullScreenChart extends Component<{}, SpreadsheetChildEnv> {
     let lastFigureId: string | undefined = undefined;
     onWillUpdateProps(() => {
       if (lastFigureId !== this.figureUI?.id) {
-        animationStore.enableAnimationForChart(this.figureUI?.id + "-fullscreen");
+        animationStore.enableAnimationForChart(this.chartId + "-fullscreen");
       }
       lastFigureId = this.figureUI?.id;
     });
@@ -40,6 +40,11 @@ export class FullScreenChart extends Component<{}, SpreadsheetChildEnv> {
 
   get figureUI() {
     return this.fullScreenChartStore.fullScreenFigure;
+  }
+
+  get chartId() {
+    if (!this.figureUI) return undefined;
+    return this.env.model.getters.getChartIdFromFigureId(this.figureUI?.id);
   }
 
   exitFullScreen() {
@@ -55,8 +60,8 @@ export class FullScreenChart extends Component<{}, SpreadsheetChildEnv> {
   }
 
   get chartComponent(): (new (...args: any) => Component) | undefined {
-    if (!this.figureUI) return undefined;
-    const type = this.env.model.getters.getChartType(this.figureUI.id);
+    if (!this.chartId) return undefined;
+    const type = this.env.model.getters.getChartType(this.chartId);
     const component = chartComponentRegistry.get(type);
     if (!component) {
       throw new Error(`Component is not defined for type ${type}`);

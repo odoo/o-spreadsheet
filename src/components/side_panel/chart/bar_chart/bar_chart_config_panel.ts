@@ -12,7 +12,7 @@ export class BarConfigPanel extends GenericChartConfigPanel {
   }
 
   onUpdateStacked(stacked: boolean) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       stacked,
     });
   }

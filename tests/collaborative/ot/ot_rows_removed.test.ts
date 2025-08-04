@@ -625,6 +625,7 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       type: "CREATE_CHART",
       sheetId,
       figureId: "chart1",
+      chartId: "chart1",
       definition,
       col: 0,
       row: 0,
@@ -651,6 +652,7 @@ describe("OT with removeRows and UPDATE_CHART/CREATE_CHART", () => {
       type: "UPDATE_CHART",
       sheetId,
       figureId: "chart1",
+      chartId: "chart1",
       definition,
     };
     let result = transform(toTransform, removeRows) as UpdateChartCommand;
