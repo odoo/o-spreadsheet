@@ -11,10 +11,10 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: FunnelChartDefinition;
-  canUpdateChart: (figureID: UID, definition: Partial<FunnelChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<FunnelChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<FunnelChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<FunnelChartDefinition>) => DispatchResult;
 }
 
 export class FunnelChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -27,7 +27,7 @@ export class FunnelChartDesignPanel extends Component<Props, SpreadsheetChildEnv
     Section,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
@@ -35,7 +35,7 @@ export class FunnelChartDesignPanel extends Component<Props, SpreadsheetChildEnv
 
   getFunnelColorItems() {
     const runtime = this.env.model.getters.getChartRuntime(
-      this.props.figureId
+      this.props.chartId
     ) as FunnelChartRuntime;
     const labels: string[] = (runtime.chartJsConfig.data.labels || []) as string[];
     const colors = getFunnelLabelColors(labels, this.props.definition.funnelColors);
@@ -47,6 +47,6 @@ export class FunnelChartDesignPanel extends Component<Props, SpreadsheetChildEnv
 
   updateFunnelItemColor(index: number, color: string) {
     const funnelColors = replaceItemAtIndex(this.props.definition.funnelColors || [], color, index);
-    this.props.updateChart(this.props.figureId, { funnelColors });
+    this.props.updateChart(this.props.chartId, { funnelColors });
   }
 }

@@ -12,6 +12,10 @@ export function getChartMenuActions(
   onFigureDeleted: () => void,
   env: SpreadsheetChildEnv
 ): Action[] {
+  const chartId = env.model.getters.getChartIdFromFigureId(figureId);
+  if (!chartId) {
+    return [];
+  }
   const menuItemSpecs: ActionSpec[] = [
     {
       id: "edit",
@@ -34,8 +38,8 @@ export function getChartMenuActions(
       execute: async () => {
         const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
         const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
-        const chartType = env.model.getters.getChartType(figureId);
-        const runtime = env.model.getters.getChartRuntime(figureId);
+        const chartType = env.model.getters.getChartType(chartId);
+        const runtime = env.model.getters.getChartRuntime(chartId);
         const imageUrl = chartToImageUrl(runtime, figure, chartType)!;
         const innerHTML = `<img src="${xmlEscape(imageUrl)}" />`;
         const blob = await chartToImageFile(runtime, figure, chartType)!;
@@ -56,8 +60,8 @@ export function getChartMenuActions(
       execute: async () => {
         const figureSheetId = env.model.getters.getFigureSheetId(figureId)!;
         const figure = env.model.getters.getFigure(figureSheetId, figureId)!;
-        const chartType = env.model.getters.getChartType(figureId);
-        const runtime = env.model.getters.getChartRuntime(figureId);
+        const chartType = env.model.getters.getChartType(chartId);
+        const runtime = env.model.getters.getChartRuntime(chartId);
         const url = chartToImageUrl(runtime, figure, chartType)!;
         downloadFile(url, "chart");
       },

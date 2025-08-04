@@ -36,8 +36,16 @@ export function getCategoryAxisTickLabels(model: Model, chartId: UID) {
   );
 }
 
-export async function openChartConfigSidePanel(model: Model, env: SpreadsheetChildEnv, id: UID) {
-  model.dispatch("SELECT_FIGURE", { figureId: id });
+export async function openChartConfigSidePanel(
+  model: Model,
+  env: SpreadsheetChildEnv,
+  chartId: UID
+) {
+  const figureId = model.getters.getFigureIdFromChartId(chartId);
+  if (!figureId) {
+    throw new Error(`No figure found for chart ID: ${chartId}`);
+  }
+  model.dispatch("SELECT_FIGURE", { figureId });
   env.openSidePanel("ChartPanel");
   await nextTick();
 }
@@ -46,10 +54,10 @@ export async function openChartDesignSidePanel(
   model: Model,
   env: SpreadsheetChildEnv,
   fixture: HTMLElement,
-  id: UID
+  chartId: UID
 ) {
   if (!fixture.querySelector(".o-chart")) {
-    await openChartConfigSidePanel(model, env, id);
+    await openChartConfigSidePanel(model, env, chartId);
   }
   await simulateClick(".o-panel-element.inactive");
 }

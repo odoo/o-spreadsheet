@@ -172,6 +172,7 @@ describe("Migrations", () => {
 
     const data = model.exportData();
     expect(data.sheets[0].figures[0].data).toEqual({
+      chartId: "1",
       type: "line",
       title: { text: "demo chart" },
       labelRange: "'My sheet'!A27:A35",
@@ -182,6 +183,7 @@ describe("Migrations", () => {
       stacked: false,
     });
     expect(data.sheets[0].figures[1].data).toEqual({
+      chartId: "2",
       type: "bar",
       title: { text: "demo chart 2" },
       labelRange: "'My sheet'!A27:A35",
@@ -192,6 +194,7 @@ describe("Migrations", () => {
       stacked: false,
     });
     expect(data.sheets[0].figures[2].data).toEqual({
+      chartId: "3",
       type: "bar",
       title: { text: "demo chart 3" },
       labelRange: "'My sheet'!A27",
@@ -202,6 +205,7 @@ describe("Migrations", () => {
       stacked: false,
     });
     expect(data.sheets[0].figures[3].data).toEqual({
+      chartId: "4",
       type: "bar",
       title: { text: "demo chart 4" },
       labelRange: "'My sheet'!A27",
@@ -750,6 +754,26 @@ describe("Migrations", () => {
     expect(model.getters.getPivot("1").definition.sortedColumn?.measure).toBe("probability:sum");
     expect(model.getters.getPivot("2").definition.sortedColumn?.measure).toBe("probability:sum");
   });
+});
+
+test("migrate version 18.5.1: chartId is added to figure data", () => {
+  const data = {
+    version: "18.4.2",
+    sheets: [
+      {
+        id: "sh1",
+        figures: [
+          {
+            id: "someuuid",
+            tag: "chart",
+            data: { type: "line", title: "demo chart", labelRange: "", dataSets: [] },
+          },
+        ],
+      },
+    ],
+  };
+  const model = new Model(data);
+  expect(model.exportData().sheets[0].figures[0].data.chartId).toBe("someuuid");
 });
 
 describe("Import", () => {

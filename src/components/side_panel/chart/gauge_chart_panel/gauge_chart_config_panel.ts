@@ -12,10 +12,10 @@ import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: GaugeChartDefinition;
-  canUpdateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
 }
 
 interface PanelState {
@@ -26,7 +26,7 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
   static template = "o-spreadsheet-GaugeChartConfigPanel";
   static components = { ChartErrorSection, ChartDataSeries };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
@@ -53,13 +53,13 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
 
   onDataRangeChanged(ranges: string[]) {
     this.dataRange = ranges[0];
-    this.state.dataRangeDispatchResult = this.props.canUpdateChart(this.props.figureId, {
+    this.state.dataRangeDispatchResult = this.props.canUpdateChart(this.props.chartId, {
       dataRange: this.dataRange,
     });
   }
 
   updateDataRange() {
-    this.state.dataRangeDispatchResult = this.props.updateChart(this.props.figureId, {
+    this.state.dataRangeDispatchResult = this.props.updateChart(this.props.chartId, {
       dataRange: this.dataRange,
     });
   }

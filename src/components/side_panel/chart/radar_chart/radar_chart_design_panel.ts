@@ -14,14 +14,14 @@ import { ChartShowDataMarkers } from "../building_blocks/show_data_markers/show_
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: RadarChartDefinition;
   canUpdateChart: (
-    figureID: UID,
+    chartId: UID,
     definition: GenericDefinition<RadarChartDefinition>
   ) => DispatchResult;
   updateChart: (
-    figureId: UID,
+    chartId: UID,
     definition: GenericDefinition<RadarChartDefinition>
   ) => DispatchResult;
 }
@@ -37,7 +37,7 @@ export class RadarChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     ChartShowDataMarkers,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     canUpdateChart: Function,
     updateChart: Function,

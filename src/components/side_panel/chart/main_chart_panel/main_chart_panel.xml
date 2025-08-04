@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-ChartPanel">
-    <div class="o-chart d-flex flex-column h-100" t-if="figureId">
+    <div class="o-chart d-flex flex-column h-100" t-if="chartId">
       <div class="o-panel">
         <div
           class="o-panel-element o-panel-configuration"
@@ -18,27 +18,27 @@
         </div>
       </div>
 
-      <t t-set="definition" t-value="getChartDefinition(this.figureId)"/>
+      <t t-set="definition" t-value="getChartDefinition(this.chartId)"/>
       <div class="o-panel-content overflow-y-auto" t-ref="panelContent">
         <div t-att-class="store.panel !== 'configuration' ? 'd-none' : ''">
-          <ChartTypePicker figureId="props.figureId" chartPanelStore="store"/>
+          <ChartTypePicker chartId="chartId" chartPanelStore="store"/>
           <t
             t-component="chartPanel.configuration"
             definition="definition"
-            figureId="figureId"
+            chartId="chartId"
             updateChart.bind="updateChart"
             canUpdateChart.bind="canUpdateChart"
-            t-key="figureId + definition.type"
+            t-key="chartId + definition.type"
           />
         </div>
         <div t-att-class="store.panel !== 'design' ? 'd-none' : ''">
           <t
             t-component="chartPanel.design"
             definition="definition"
-            figureId="figureId"
+            chartId="chartId"
             updateChart.bind="updateChart"
             canUpdateChart.bind="canUpdateChart"
-            t-key="figureId + definition.type"
+            t-key="chartId + definition.type"
           />
         </div>
       </div>

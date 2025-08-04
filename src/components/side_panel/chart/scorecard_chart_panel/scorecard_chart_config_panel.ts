@@ -7,10 +7,10 @@ import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ScorecardChartDefinition;
-  canUpdateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
 }
 
 interface PanelState {
@@ -22,7 +22,7 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
   static components = { SelectionInput, ChartErrorSection, Section };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
@@ -60,13 +60,13 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
 
   onKeyValueRangeChanged(ranges: string[]) {
     this.keyValue = ranges[0];
-    this.state.keyValueDispatchResult = this.props.canUpdateChart(this.props.figureId, {
+    this.state.keyValueDispatchResult = this.props.canUpdateChart(this.props.chartId, {
       keyValue: this.keyValue,
     });
   }
 
   updateKeyValueRange() {
-    this.state.keyValueDispatchResult = this.props.updateChart(this.props.figureId, {
+    this.state.keyValueDispatchResult = this.props.updateChart(this.props.chartId, {
       keyValue: this.keyValue,
     });
   }
@@ -77,13 +77,13 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
 
   onBaselineRangeChanged(ranges: string[]) {
     this.baseline = ranges[0];
-    this.state.baselineDispatchResult = this.props.canUpdateChart(this.props.figureId, {
+    this.state.baselineDispatchResult = this.props.canUpdateChart(this.props.chartId, {
       baseline: this.baseline,
     });
   }
 
   updateBaselineRange() {
-    this.state.baselineDispatchResult = this.props.updateChart(this.props.figureId, {
+    this.state.baselineDispatchResult = this.props.updateChart(this.props.chartId, {
       baseline: this.baseline,
     });
   }
@@ -93,6 +93,6 @@ export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChild
   }
 
   updateBaselineMode(ev) {
-    this.props.updateChart(this.props.figureId, { baselineMode: ev.target.value });
+    this.props.updateChart(this.props.chartId, { baselineMode: ev.target.value });
   }
 }

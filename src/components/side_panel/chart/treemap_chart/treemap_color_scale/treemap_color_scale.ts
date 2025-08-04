@@ -9,7 +9,7 @@ import {
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: TreeMapChartDefinition;
   onColorChanged: (colors: TreeMapColorScaleOptions) => DispatchResult;
 }
@@ -18,7 +18,7 @@ export class TreeMapColorScale extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TreeMapColorScale";
   static components = { RoundColorPicker };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     onColorChanged: Function,
   };

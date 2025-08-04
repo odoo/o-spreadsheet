@@ -18,16 +18,16 @@ export interface AxisDefinition {
 }
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ChartWithAxisDefinition;
-  updateChart: (figureId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
   axesList: AxisDefinition[];
 }
 
 export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AxisDesignEditor";
   static components = { Section, ChartTitle, BadgeSelection };
-  static props = { figureId: String, definition: Object, updateChart: Function, axesList: Array };
+  static props = { chartId: String, definition: Object, updateChart: Function, axesList: Array };
 
   state = useState({ currentAxis: "x" });
 
@@ -59,7 +59,7 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
         text,
       },
     };
-    this.props.updateChart(this.props.figureId, { axesDesign });
+    this.props.updateChart(this.props.chartId, { axesDesign });
   }
 
   updateAxisTitleStyle(style: TitleDesign) {
@@ -68,6 +68,6 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
       ...axesDesign[this.state.currentAxis],
       title: style,
     };
-    this.props.updateChart(this.props.figureId, { axesDesign });
+    this.props.updateChart(this.props.chartId, { axesDesign });
   }
 }

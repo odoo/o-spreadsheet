@@ -20,14 +20,14 @@ import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/ser
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ChartWithDataSetDefinition;
   canUpdateChart: (
-    figureID: UID,
+    chartId: UID,
     definition: GenericDefinition<ChartWithDataSetDefinition>
   ) => DispatchResult;
   updateChart: (
-    figureId: UID,
+    chartId: UID,
     definition: GenericDefinition<ChartWithDataSetDefinition>
   ) => DispatchResult;
 }
@@ -47,7 +47,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     ChartShowValues,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     canUpdateChart: Function,
     updateChart: Function,

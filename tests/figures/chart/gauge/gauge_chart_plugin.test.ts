@@ -147,7 +147,8 @@ describe("datasource tests", function () {
     });
 
     test("copying a gauge chart in another sheet keep the ranges referencing to the same sheet", () => {
-      model.dispatch("SELECT_FIGURE", { figureId: "chartId" });
+      const figureId = model.getters.getFigureIdFromChartId("chartId")!;
+      model.dispatch("SELECT_FIGURE", { figureId });
       copy(model);
 
       activateSheet(model, "Sheet2");
@@ -179,14 +180,14 @@ describe("datasource tests", function () {
   });
 
   test("can delete an imported gauge chart", () => {
-    createGaugeChart(model, { dataRange: "B7:B8" }, "chartId");
+    createGaugeChart(model, { dataRange: "B7:B8" }, "chartId", undefined, { figureId: "figureId" });
     const exportedData = model.exportData();
     const newModel = new Model(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("chartId") as GaugeChartRuntime).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
-      figureId: "chartId",
+      figureId: "figureId",
     });
     expect(newModel.getters.getVisibleFigures()).toHaveLength(0);
     expect(() => newModel.getters.getChartRuntime("chartId")).toThrow();
@@ -401,7 +402,8 @@ describe("datasource tests", function () {
 
     expect(model.getters.getFigures(secondSheetId)).toHaveLength(1);
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
-    const duplicatedChart = model.getters.getChart(duplicatedFigure.id) as GaugeChart;
+    const duplicatedChartId = model.getters.getChartIds(secondSheetId)[0];
+    const duplicatedChart = model.getters.getChart(duplicatedChartId) as GaugeChart;
 
     expect(duplicatedChart.title.text).toEqual("test");
     expect(zoneToXc(duplicatedChart.dataRange!.zone)).toEqual("B1:B4");

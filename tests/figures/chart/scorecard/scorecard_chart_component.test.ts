@@ -43,9 +43,10 @@ let env: SpreadsheetChildEnv;
 const mutedFontColor = chartMutedFontColor("#fff");
 
 function updateScorecardChartSize(width: Pixel, height: Pixel) {
+  const figureId = model.getters.getFigureIdFromChartId(chartId);
   model.dispatch("UPDATE_FIGURE", {
     sheetId,
-    figureId: chartId,
+    figureId,
     offset: {
       x: 0,
       y: 0,
@@ -58,7 +59,8 @@ function updateScorecardChartSize(width: Pixel, height: Pixel) {
 }
 
 function getChartDesign(model: Model, chartId: UID, sheetId: UID): ScorecardChartConfig {
-  const figure = model.getters.getFigure(sheetId, chartId)!;
+  const figureId = model.getters.getFigureIdFromChartId(chartId);
+  const figure = model.getters.getFigure(sheetId, figureId)!;
   const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
   return getScorecardConfiguration({ width: figure.width, height: figure.height }, runtime);
 }
@@ -73,7 +75,8 @@ let scorecardChartStyle: {
 
 let canvas: HTMLCanvasElement;
 function renderScorecardChart(model: Model, chartId: UID, sheetId: UID, canvas: HTMLCanvasElement) {
-  const figure = model.getters.getFigure(sheetId, chartId)!;
+  const figureId = model.getters.getFigureIdFromChartId(chartId);
+  const figure = model.getters.getFigure(sheetId, figureId)!;
   const runtime = model.getters.getChartRuntime(chartId) as ScorecardChartRuntime;
   const design = getScorecardConfiguration({ width: figure.width, height: figure.height }, runtime);
   drawScoreChart(design, canvas);

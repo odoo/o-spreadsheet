@@ -23,10 +23,10 @@ import { GeneralDesignEditor } from "../building_blocks/general_design/general_d
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ScorecardChartDefinition;
-  canUpdateChart: (figureID: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
 }
 
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -40,7 +40,7 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     ChartTitle,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: { type: Function, optional: true },
@@ -61,7 +61,7 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
   }
 
   updateHumanizeNumbers(humanize: boolean) {
-    this.props.updateChart(this.props.figureId, { humanize });
+    this.props.updateChart(this.props.chartId, { humanize });
   }
 
   translate(term) {
@@ -71,13 +71,13 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
   setColor(color: Color, colorPickerId: ColorPickerId) {
     switch (colorPickerId) {
       case "backgroundColor":
-        this.props.updateChart(this.props.figureId, { background: color });
+        this.props.updateChart(this.props.chartId, { background: color });
         break;
       case "baselineColorDown":
-        this.props.updateChart(this.props.figureId, { baselineColorDown: color });
+        this.props.updateChart(this.props.chartId, { baselineColorDown: color });
         break;
       case "baselineColorUp":
-        this.props.updateChart(this.props.figureId, { baselineColorUp: color });
+        this.props.updateChart(this.props.chartId, { baselineColorUp: color });
         break;
     }
   }
@@ -99,24 +99,24 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
   }
 
   setKeyText(text: string) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       keyDescr: { ...this.props.definition.keyDescr, text },
     });
   }
 
   updateKeyStyle(style: TitleDesign) {
     const keyDescr = { ...this.keyStyle, ...style };
-    this.props.updateChart(this.props.figureId, { keyDescr });
+    this.props.updateChart(this.props.chartId, { keyDescr });
   }
 
   setBaselineText(text: string) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       baselineDescr: { ...this.props.definition.baselineDescr, text },
     });
   }
 
   updateBaselineStyle(style: TitleDesign) {
     const baselineDescr = { ...this.baselineStyle, ...style };
-    this.props.updateChart(this.props.figureId, { baselineDescr });
+    this.props.updateChart(this.props.chartId, { baselineDescr });
   }
 }

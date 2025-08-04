@@ -332,6 +332,7 @@ describe("Inverses commands", () => {
       sheetId: "42",
       definition: {} as LineChartDefinition,
       figureId: "1",
+      chartId: "1",
     };
     test.each([
       updateCell,

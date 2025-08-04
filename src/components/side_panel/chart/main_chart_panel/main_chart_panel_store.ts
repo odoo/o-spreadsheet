@@ -12,40 +12,42 @@ export class MainChartPanelStore extends SpreadsheetStore {
     this.panel = panel;
   }
 
-  changeChartType(figureId: UID, newDisplayType: string) {
-    const currentCreationContext = this.getters.getContextCreationChart(figureId);
-    const savedCreationContext = this.creationContexts[figureId] || {};
+  changeChartType(chartId: UID, newDisplayType: string) {
+    const currentCreationContext = this.getters.getContextCreationChart(chartId);
+    const savedCreationContext = this.creationContexts[chartId] || {};
 
     let newRanges = currentCreationContext?.range;
     if (newRanges?.every((range, i) => deepEquals(range, savedCreationContext.range?.[i]))) {
       newRanges = Object.assign([], savedCreationContext.range, currentCreationContext?.range);
     }
 
-    this.creationContexts[figureId] = {
+    this.creationContexts[chartId] = {
       ...savedCreationContext,
       ...currentCreationContext,
       range: newRanges,
     };
+    const figureId = this.getters.getFigureIdFromChartId(chartId);
     const sheetId = this.getters.getFigureSheetId(figureId);
     if (!sheetId) {
       return;
     }
-    const definition = this.getChartDefinitionFromContextCreation(figureId, newDisplayType);
+    const definition = this.getChartDefinitionFromContextCreation(chartId, newDisplayType);
     this.model.dispatch("UPDATE_CHART", {
       definition,
+      chartId,
       figureId,
       sheetId,
     });
   }
 
   private getChartDefinitionFromContextCreation(
-    figureId: UID,
+    chartId: UID,
     newDisplayType: string
   ): ChartDefinition {
     const newChartInfo = chartSubtypeRegistry.get(newDisplayType);
     const ChartClass = chartRegistry.get(newChartInfo.chartType);
     return {
-      ...ChartClass.getChartDefinitionFromContextCreation(this.creationContexts[figureId]),
+      ...ChartClass.getChartDefinitionFromContextCreation(this.creationContexts[chartId]),
       ...newChartInfo.subtypeDefinition,
     } as ChartDefinition;
   }

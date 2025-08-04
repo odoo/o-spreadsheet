@@ -8,13 +8,10 @@ import {
 import { Checkbox } from "../../../components/checkbox/checkbox";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: ChartWithDataSetDefinition;
-  updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
-  canUpdateChart: (
-    figureId: UID,
-    definition: Partial<ChartWithDataSetDefinition>
-  ) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
 }
 
 export class ChartShowDataMarkers extends Component<Props, SpreadsheetChildEnv> {
@@ -23,7 +20,7 @@ export class ChartShowDataMarkers extends Component<Props, SpreadsheetChildEnv> 
     Checkbox,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,

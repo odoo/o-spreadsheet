@@ -21,7 +21,7 @@ import { canChartParseLabels, getData } from "./runtime";
  */
 export function chartFactory(getters: CoreGetters) {
   const builders = chartRegistry.getAll().sort((a, b) => a.sequence - b.sequence);
-  function createChart(id: UID, definition: ChartDefinition, sheetId: UID): AbstractChart {
+  function createChart(figureId: UID, definition: ChartDefinition, sheetId: UID): AbstractChart {
     const builder = builders.find((builder) => builder.match(definition.type));
     if (!builder) {
       throw new Error(`No builder for this chart: ${definition.type}`);

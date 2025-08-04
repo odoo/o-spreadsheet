@@ -3,7 +3,7 @@ import { Chart, ChartConfiguration } from "chart.js/auto";
 import { ComponentsImportance } from "../../../../constants";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { Store, useStore } from "../../../../store_engine";
-import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
+import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { css } from "../../../helpers";
 import { chartJsExtensionRegistry, registerChartJSExtensions } from "./chart_js_extension";
@@ -19,7 +19,7 @@ import { sunburstLabelsPlugin } from "./chartjs_sunburst_labels_plugin";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
 interface Props {
-  figureUI: FigureUI;
+  chartId: UID;
   isFullScreen?: boolean;
 }
 
@@ -67,7 +67,7 @@ chartJsExtensionRegistry.add("sunburstHoverPlugin", {
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
   static props = {
-    figureUI: Object,
+    chartId: String,
     isFullScreen: { type: Boolean, optional: true },
   };
 
@@ -87,7 +87,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartRuntime(): ChartJSRuntime {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figureUI.id);
+    const runtime = this.env.model.getters.getChartRuntime(this.props.chartId);
     if (!("chartJsConfig" in runtime)) {
       throw new Error("Unsupported chart runtime");
     }
@@ -125,7 +125,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private createChart(chartData: ChartConfiguration<any>) {
     if (this.env.model.getters.isDashboard() && this.animationStore) {
-      const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
+      const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.animationStore.animationPlayed[this.animationFigureId] !== chartType) {
         chartData = this.enableAnimationInChartData(chartData);
         this.animationStore.disableAnimationForChart(this.animationFigureId, chartType);
@@ -139,7 +139,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private updateChartJs(chartData: ChartConfiguration<any>) {
     if (this.env.model.getters.isDashboard()) {
-      const chartType = this.env.model.getters.getChart(this.props.figureUI.id)?.type;
+      const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
         chartData = this.enableAnimationInChartData(chartData);
         this.animationStore.disableAnimationForChart(this.animationFigureId, chartType);
@@ -173,8 +173,6 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get animationFigureId() {
-    return this.props.isFullScreen
-      ? this.props.figureUI.id + "-fullscreen"
-      : this.props.figureUI.id;
+    return this.props.isFullScreen ? this.props.chartId + "-fullscreen" : this.props.chartId;
   }
 }

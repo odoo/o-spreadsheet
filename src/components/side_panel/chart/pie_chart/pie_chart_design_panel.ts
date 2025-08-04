@@ -9,13 +9,13 @@ import { PieHoleSize } from "../building_blocks/pie_hole_size/pie_hole_size";
 import { ChartShowValues } from "../building_blocks/show_values/show_values";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: PieChartDefinition;
   canUpdateChart: (
-    figureID: UID,
+    chartId: UID,
     definition: GenericDefinition<PieChartDefinition>
   ) => DispatchResult;
-  updateChart: (figureId: UID, definition: GenericDefinition<PieChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: GenericDefinition<PieChartDefinition>) => DispatchResult;
 }
 
 export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
@@ -28,14 +28,14 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
     PieHoleSize,
   };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: { type: Function, optional: true },
   };
 
   onPieHoleSizeChange(pieHolePercentage: number) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       ...this.props.definition,
       pieHolePercentage,
     });

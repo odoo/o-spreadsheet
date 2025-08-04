@@ -46,12 +46,13 @@ sidePanelRegistry.add("ConditionalFormatting", {
 sidePanelRegistry.add("ChartPanel", {
   title: _t("Chart"),
   Body: ChartPanel,
-  computeState: (getters: Getters, initialProps: { figureId: UID }) => {
-    const figureId = getters.getSelectedFigureId() ?? initialProps.figureId;
-    if (!getters.isChartDefined(figureId)) {
+  computeState: (getters: Getters, initialProps: { chartId: UID }) => {
+    const figureId = getters.getSelectedFigureId();
+    const chartId = figureId ? getters.getChartIdFromFigureId(figureId) : initialProps.chartId;
+    if (!chartId || !getters.isChartDefined(chartId)) {
       return { isOpen: false };
     }
-    return { isOpen: true, props: { figureId } };
+    return { isOpen: true, props: { chartId } };
   },
 });
 

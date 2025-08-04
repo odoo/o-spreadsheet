@@ -4,23 +4,23 @@ import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/inde
 import { Section } from "../../components/section/section";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: GeoChartDefinition;
-  updateChart: (figureId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
 }
 
 export class GeoChartRegionSelectSection extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GeoChartRegionSelectSection";
   static components = { Section };
   static props = {
-    figureId: String,
+    chartId: String,
     definition: Object,
     updateChart: Function,
   };
 
   updateSelectedRegion(ev: Event) {
     const value = (ev.target as HTMLSelectElement).value;
-    this.props.updateChart(this.props.figureId, { region: value });
+    this.props.updateChart(this.props.chartId, { region: value });
   }
 
   get availableRegions() {

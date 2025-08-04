@@ -27,7 +27,7 @@ export class FunnelChartConfigPanel extends GenericChartConfigPanel {
   }
 
   onUpdateCumulative(cumulative: boolean) {
-    this.props.updateChart(this.props.figureId, {
+    this.props.updateChart(this.props.chartId, {
       cumulative,
     });
   }

@@ -741,13 +741,15 @@ describe("figures", () => {
             createImage(model, { sheetId, figureId });
             break;
           case "basicChart":
-            createChart(model, TEST_CHART_DATA.basicChart, figureId);
+            createChart(model, TEST_CHART_DATA.basicChart, undefined, undefined, { figureId });
             break;
           case "scorecard":
-            createScorecardChart(model, TEST_CHART_DATA.scorecard, figureId);
+            createScorecardChart(model, TEST_CHART_DATA.scorecard, undefined, undefined, {
+              figureId,
+            });
             break;
           case "gauge":
-            createGaugeChart(model, TEST_CHART_DATA.gauge, figureId);
+            createGaugeChart(model, TEST_CHART_DATA.gauge, undefined, undefined, { figureId });
             break;
         }
         await nextTick();

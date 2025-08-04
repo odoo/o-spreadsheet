@@ -2,27 +2,26 @@ import { Component, useEffect, useRef } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
 import { _t } from "../../../../translation";
-import { FigureUI, SpreadsheetChildEnv } from "../../../../types";
+import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 
 interface Props {
-  figureUI: FigureUI;
+  chartId: UID;
 }
 
 export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChart";
   static props = {
-    figureUI: Object,
+    chartId: String,
   };
   private canvas = useRef("chartContainer");
 
   get runtime(): ScorecardChartRuntime {
-    return this.env.model.getters.getChartRuntime(this.props.figureUI.id) as ScorecardChartRuntime;
+    return this.env.model.getters.getChartRuntime(this.props.chartId) as ScorecardChartRuntime;
   }
 
   get title(): string {
-    const title =
-      this.env.model.getters.getChartDefinition(this.props.figureUI.id).title.text ?? "";
+    const title = this.env.model.getters.getChartDefinition(this.props.chartId).title.text ?? "";
     // chart titles are extracted from .json files and they are translated at runtime here
     return _t(title);
   }

@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-GeoChartConfigPanel">
     <div>
       <GeoChartRegionSelectSection
-        figureId="props.figureId"
+        chartId="props.chartId"
         definition="props.definition"
         updateChart="props.updateChart"
       />

@@ -26,7 +26,7 @@
       <t t-set-slot="content">
         <AxisDesignEditor
           axesList="axesList"
-          figureId="props.figureId"
+          chartId="props.chartId"
           definition="props.definition"
           updateChart="props.updateChart"
         />

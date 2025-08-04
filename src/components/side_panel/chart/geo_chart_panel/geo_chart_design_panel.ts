@@ -10,10 +10,10 @@ import { RoundColorPicker } from "../../components/round_color_picker/round_colo
 import { ChartWithAxisDesignPanel } from "../chart_with_axis/design_panel";
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   definition: GeoChartDefinition;
-  canUpdateChart: (figureID: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
+  canUpdateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
+  updateChart: (chartId: UID, definition: Partial<GeoChartDefinition>) => DispatchResult;
 }
 
 const DEFAULT_CUSTOM_COLOR_SCALE: GeoChartCustomColorScale = {
@@ -36,16 +36,16 @@ export class GeoChartDesignPanel extends ChartWithAxisDesignPanel<Props> {
   }
 
   updateColorScale(colorScale: GeoChartColorScale) {
-    this.props.updateChart(this.props.figureId, { colorScale });
+    this.props.updateChart(this.props.chartId, { colorScale });
   }
 
   updateMissingValueColor(color: Color) {
-    this.props.updateChart(this.props.figureId, { missingValueColor: color });
+    this.props.updateChart(this.props.chartId, { missingValueColor: color });
   }
 
   updateLegendPosition(ev: Event) {
     const value = (ev.target as HTMLSelectElement).value as LegendPosition;
-    this.props.updateChart(this.props.figureId, { legendPosition: value });
+    this.props.updateChart(this.props.chartId, { legendPosition: value });
   }
 
   get selectedColorScale() {

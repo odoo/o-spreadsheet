@@ -404,6 +404,7 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   const result = env.model.dispatch("CREATE_CHART", {
     sheetId,
     figureId,
+    chartId: figureId,
     col,
     row,
     offset,

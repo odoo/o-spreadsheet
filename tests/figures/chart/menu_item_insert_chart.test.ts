@@ -111,6 +111,7 @@ describe("Insert chart menu item", () => {
       offset: expect.any(Object),
       size: expect.any(Object),
       figureId: expect.any(String),
+      chartId: expect.any(String),
       sheetId: expect.any(String),
       definition: {
         dataSets: [{ dataRange: "A1", yAxisId: "y" }],
@@ -567,7 +568,7 @@ describe("Insert chart menu item", () => {
     setGrid(model, grid);
     setSelection(model, ["K1"]);
     insertChart();
-    const chartId = model.getters.getFigures(model.getters.getActiveSheetId()).at(-1)!.id;
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId()).at(-1)!;
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "sunburst",
       dataSets: [{ dataRange: "K1:K3" }, { dataRange: "L1:L3" }],
@@ -586,7 +587,7 @@ describe("Insert chart menu item", () => {
     setGrid(model, grid);
     setSelection(model, ["K1"]);
     insertChart();
-    const chartId = model.getters.getFigures(model.getters.getActiveSheetId()).at(-1)!.id;
+    const chartId = model.getters.getChartIds(model.getters.getActiveSheetId()).at(-1)!;
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({
       type: "sunburst",
       dataSets: [{ dataRange: "K1:K3" }, { dataRange: "L1:L3" }],

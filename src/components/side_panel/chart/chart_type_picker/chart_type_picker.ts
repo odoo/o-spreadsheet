@@ -48,7 +48,7 @@ css/* scss */ `
 `;
 
 interface Props {
-  figureId: UID;
+  chartId: UID;
   chartPanelStore: MainChartPanelStore;
 }
 
@@ -60,7 +60,7 @@ interface ChartTypePickerState {
 export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartTypePicker";
   static components = { Section, Popover };
-  static props = { figureId: String, chartPanelStore: Object };
+  static props = { chartId: String, chartPanelStore: Object };
 
   categories = chartCategories;
   chartTypeByCategories: Record<string, ChartSubtypeProperties[]> = {};
@@ -93,16 +93,16 @@ export class ChartTypePicker extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onTypeChange(type: ChartType) {
-    this.props.chartPanelStore.changeChartType(this.props.figureId, type);
+    this.props.chartPanelStore.changeChartType(this.props.chartId, type);
     this.closePopover();
   }
 
-  private getChartDefinition(figureId: UID): ChartDefinition {
-    return this.env.model.getters.getChartDefinition(figureId);
+  private getChartDefinition(chartId: UID): ChartDefinition {
+    return this.env.model.getters.getChartDefinition(chartId);
   }
 
   getSelectedChartSubtypeProperties(): ChartSubtypeProperties {
-    const definition = this.getChartDefinition(this.props.figureId);
+    const definition = this.getChartDefinition(this.props.chartId);
     const matchedChart = chartSubtypeRegistry
       .getAll()
       .find((c) => c.matcher?.(definition) || false);

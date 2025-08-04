@@ -23,8 +23,21 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
   static getters = ["getChartRuntime", "getStyleOfSingleCellChart"] as const;
 
   charts: Record<UID, ChartRuntime | undefined> = {};
+  private chartsToRemove: UID[] = [];
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
+
+  beforeHandle(cmd: CoreViewCommand): void {
+    switch (cmd.type) {
+      case "DELETE_FIGURE": {
+        const chartId = this.getters.getChartIdFromFigureId(cmd.figureId);
+        if (chartId) {
+          this.chartsToRemove.push(chartId);
+        }
+        break;
+      }
+    }
+  }
 
   handle(cmd: CoreViewCommand) {
     if (
@@ -40,8 +53,13 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     switch (cmd.type) {
       case "UPDATE_CHART":
       case "CREATE_CHART":
+        this.charts[cmd.chartId] = undefined;
+        break;
       case "DELETE_FIGURE":
-        this.charts[cmd.figureId] = undefined;
+        for (const chartId of this.chartsToRemove) {
+          this.charts[chartId] = undefined;
+        }
+        this.chartsToRemove = [];
         break;
       case "DELETE_SHEET":
         for (const chartId in this.charts) {
@@ -53,15 +71,15 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
     }
   }
 
-  getChartRuntime(figureId: UID): ChartRuntime {
-    if (!this.charts[figureId]) {
-      const chart = this.getters.getChart(figureId);
+  getChartRuntime(chartId: UID): ChartRuntime {
+    if (!this.charts[chartId]) {
+      const chart = this.getters.getChart(chartId);
       if (!chart) {
-        throw new Error(`No chart for the given id: ${figureId}`);
+        throw new Error(`No chart for the given id: ${chartId}`);
       }
-      this.charts[figureId] = this.createRuntimeChart(chart);
+      this.charts[chartId] = this.createRuntimeChart(chart);
     }
-    return this.charts[figureId] as ChartRuntime;
+    return this.charts[chartId] as ChartRuntime;
   }
 
   /**
@@ -102,19 +120,23 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
           continue;
         }
         const figureId = figure.id;
-        const figureData = this.getters.getChart(figureId)?.getDefinitionForExcel(this.getters);
+        const chartId = this.getters.getChartIdFromFigureId(figureId);
+        if (!chartId) {
+          continue;
+        }
+        const chart = this.getters.getChart(chartId);
+        const figureData = chart?.getDefinitionForExcel(this.getters);
         if (figureData) {
           figures.push({
             ...figure,
             data: figureData,
           });
         } else {
-          const chart = this.getters.getChart(figureId);
           if (!chart) {
             continue;
           }
-          const type = this.getters.getChartType(figureId);
-          const runtime = this.getters.getChartRuntime(figureId);
+          const type = this.getters.getChartType(chartId);
+          const runtime = this.getters.getChartRuntime(chartId);
           const img = chartToImageUrl(runtime, figure, type);
           if (img) {
             sheet.images.push({

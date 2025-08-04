@@ -431,6 +431,7 @@ describe("Collaborative local history", () => {
           {
             type: "UPDATE_CHART",
             figureId: "fig1",
+            chartId: "chart1",
             //@ts-ignore the old command would handle a partial definition
             definition: { dataSets: [{ dataRange: "A1:A3" }] },
           },
@@ -438,6 +439,7 @@ describe("Collaborative local history", () => {
             type: "CREATE_CHART",
             sheetId: "sheet1",
             figureId: "fig2",
+            chartId: "chart2",
             col: 0,
             row: 0,
             offset: {
@@ -460,6 +462,7 @@ describe("Collaborative local history", () => {
           {
             type: "UPDATE_CHART",
             figureId: "fig2",
+            chartId: "chart2",
             //@ts-ignore the old command would handle a partial definition
             definition: { dataSets: [{ dataRange: "B1:B3" }] },
           },
@@ -481,6 +484,7 @@ describe("Collaborative local history", () => {
               x: 100,
               y: 100,
               data: {
+                chartId: "chart1",
                 type: "line",
                 dataSetsHaveTitle: false,
                 dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
@@ -495,9 +499,9 @@ describe("Collaborative local history", () => {
       ],
     };
     const model = new Model(data, {}, initialMessages);
-    const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
+    const definition1 = model.getters.getChartDefinition("chart1") as LineChartDefinition;
     expect(definition1.dataSets).toEqual([{ dataRange: "A1:A3" }]);
-    const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
+    const definition2 = model.getters.getChartDefinition("chart2") as LineChartDefinition;
     expect(definition2.dataSets).toEqual([{ dataRange: "B1:B3" }]);
   });
 

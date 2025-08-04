@@ -108,7 +108,8 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
     model.dispatch("UPDATE_CHART", {
       sheetId,
-      figureId: "1",
+      figureId: model.getters.getFigureIdFromChartId("1")!,
+      chartId: "1",
       definition: {
         title: { text: "a title" },
         dataSets: [],
@@ -133,6 +134,7 @@ describe("custom colors are correctly handled when editing charts", () => {
     model.dispatch("CREATE_CHART", {
       sheetId,
       figureId: "1",
+      chartId: "1",
       col: 0,
       row: 0,
       offset: { x: 0, y: 0 },

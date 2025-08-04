@@ -274,7 +274,7 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
     sheet.figures?.forEach((figure) => {
       if (figure.tag === "chart") {
         // chart definition
-        map[figure.id] = figure.data;
+        map[figure.data.chartId || figure.id] = figure.data;
       }
     });
   }
@@ -285,20 +285,20 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
         let command = cmd;
         switch (cmd.type) {
           case "CREATE_CHART":
-            map[cmd.figureId] = cmd.definition;
+            map[cmd.chartId] = cmd.definition;
             break;
           case "UPDATE_CHART":
-            if (!map[cmd.figureId]) {
+            if (!map[cmd.chartId]) {
               /** the chart does not exist on the map, it might have been created after a duplicate sheet.
                * We don't have access to the definition, so we skip the command.
                */
-              console.log(`Fix chart definition: chart with id ${cmd.figureId} not found.`);
+              console.log(`Fix chart definition: chart with id ${cmd.chartId} not found.`);
               continue;
             }
-            const definition = map[cmd.figureId];
+            const definition = map[cmd.chartId];
             const newDefinition = { ...definition, ...cmd.definition };
             command = { ...cmd, definition: newDefinition };
-            map[cmd.figureId] = newDefinition;
+            map[cmd.chartId] = newDefinition;
             break;
         }
         commands.push(command);
