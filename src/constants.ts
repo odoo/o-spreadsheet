@@ -184,6 +184,10 @@ export const FILTER_ICON_MARGIN = 2;
 export const FILTER_ICON_EDGE_LENGTH = 17;
 export const FOOTER_HEIGHT = 2 * DEFAULT_CELL_HEIGHT;
 export const DATA_VALIDATION_CHIP_MARGIN = 5;
+export const SCROLLBAR_ADDITIONAL_COL = 10;
+export const SCROLLBAR_MIN_COL = 52;
+export const SCROLLBAR_ADDITIONAL_ROW = 100;
+export const SCROLLBAR_MIN_ROW = 200;
 
 // 768px is a common breakpoint for small screens
 // Typically inside Odoo, it is the threshold for switching to mobile view

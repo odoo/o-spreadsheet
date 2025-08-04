@@ -10,6 +10,7 @@ import {
   union,
 } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
+import { PositionMap } from "../../../helpers/cells/position_map";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -36,7 +37,6 @@ import {
 } from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
-import { PositionMap } from "./position_map";
 import { PositionSet, SheetSizes } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
@@ -147,8 +147,8 @@ export class Evaluator {
     const sheetSizes: SheetSizes = {};
     for (const sheetId of this.getters.getSheetIds()) {
       sheetSizes[sheetId] = {
-        rows: this.getters.getNumberRows(sheetId),
-        cols: this.getters.getNumberCols(sheetId),
+        rows: this.getters.getLastUsedRow(sheetId),
+        cols: this.getters.getLastUsedCol(sheetId),
       };
     }
     return new PositionSet(sheetSizes);

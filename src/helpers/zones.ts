@@ -1,4 +1,12 @@
-import { CellPosition, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
+import {
+  Adjacence,
+  CellPosition,
+  HeaderIndex,
+  Position,
+  UnboundedZone,
+  Zone,
+  ZoneDimension,
+} from "../types";
 import {
   MAX_COL,
   MAX_ROW,
@@ -347,15 +355,15 @@ export function unionUnboundedZones(...zones: UnboundedZone[]): UnboundedZone {
 /**
  * Compute the intersection of two zones. Returns nothing if the two zones don't overlap
  */
-export function intersection(z1: Zone, z2: Zone): Zone | undefined {
+export function intersection(z1: UnboundedZone, z2: Zone): Zone | undefined {
   if (!overlap(z1, z2)) {
     return undefined;
   }
   return {
     top: Math.max(z1.top, z2.top),
     left: Math.max(z1.left, z2.left),
-    bottom: Math.min(z1.bottom, z2.bottom),
-    right: Math.min(z1.right, z2.right),
+    bottom: z1.bottom !== undefined ? Math.min(z1.bottom, z2.bottom) : z1.bottom ?? z2.bottom,
+    right: z1.right !== undefined ? Math.min(z1.right, z2.right) : z1.right ?? z2.right,
   };
 }
 
@@ -370,13 +378,57 @@ export function isEqual(z1: Zone, z2: Zone): boolean {
 }
 
 /**
+ * Two zones are adjacent if they -partially- share a border.
+ * Returns the adjacent size of z1 as well as the indexes of the header by which they are adjacent.
+ */
+export function adjacent(z1: UnboundedZone, z2: Zone): Adjacence | undefined {
+  if (intersection(z1, z2)) return undefined;
+  let adjacence: Adjacence | undefined = undefined;
+  if (z1.left === z2.right + 1) {
+    adjacence = {
+      position: "left",
+      start: Math.max(z1.top, z2.top),
+      stop: z1.bottom !== undefined ? Math.min(z1.bottom, z2.bottom) : z2.bottom,
+    };
+  }
+  if (z1.right !== undefined && z1.right + 1 === z2.left) {
+    adjacence = {
+      position: "right",
+      start: Math.max(z1.top, z2.top),
+      stop: z1.bottom !== undefined ? Math.min(z1.bottom, z2.bottom) : z2.bottom,
+    };
+  }
+  if (z1.top === z2.bottom + 1) {
+    adjacence = {
+      position: "top",
+      start: Math.max(z1.left, z2.left),
+      stop: z1.right !== undefined ? Math.min(z1.right, z2.right) : z2.right,
+    };
+  }
+  if (z1.bottom !== undefined && z1.bottom + 1 === z2.top) {
+    adjacence = {
+      position: "bottom",
+      start: Math.max(z1.left, z2.left),
+      stop: z1.right !== undefined ? Math.min(z1.right, z2.right) : z2.right,
+    };
+  }
+  return adjacence && adjacence.start <= adjacence.stop ? adjacence : undefined;
+}
+
+/**
  * Return true if two zones overlap, false otherwise.
  */
-export function overlap(z1: Zone, z2: Zone): boolean {
-  if (z1.bottom < z2.top || z2.bottom < z1.top) {
+export function overlap(z1: UnboundedZone, z2: UnboundedZone): boolean {
+  if (
+    (z1.bottom !== undefined && z1.bottom < z2.top) ||
+    (z2.bottom !== undefined && z2.bottom < z1.top)
+  ) {
     return false;
   }
-  if (z1.right < z2.left || z2.right < z1.left) {
+  if (
+    (z1.right !== undefined && z1.right < z2.left) ||
+    (z2.right !== undefined && z2.right < z1.left)
+  ) {
     return false;
   }
   return true;
@@ -516,9 +568,9 @@ export function createAdaptedZone<
   // without header and that we are adding/removing a row (or a column)
   const hasHeader = "hasHeader" in zone ? zone.hasHeader : false;
   let shouldStartBeMoved: boolean;
-  if (isFullCol(zone) && !hasHeader) {
+  if (isUnboundedCol(zone) && !hasHeader) {
     shouldStartBeMoved = dimension !== "rows";
-  } else if (isFullRow(zone) && !hasHeader) {
+  } else if (isUnboundedRow(zone) && !hasHeader) {
     shouldStartBeMoved = dimension !== "columns";
   } else {
     shouldStartBeMoved = true;
@@ -614,12 +666,20 @@ export function zoneToTopLeft(zone: Zone): Zone {
   return { ...zone, right: zone.left, bottom: zone.top };
 }
 
-export function isFullRow(zone: UnboundedZone): boolean {
+export function isUnboundedRow(zone: UnboundedZone): boolean {
   return zone.right === undefined;
 }
 
-export function isFullCol(zone: UnboundedZone): boolean {
+export function isFullRow(zone: UnboundedZone, sheetZone: Zone): boolean {
+  return zone.left === 0 && (zone.right === undefined || zone.right >= sheetZone.right);
+}
+
+export function isUnboundedCol(zone: UnboundedZone): boolean {
   return zone.bottom === undefined;
+}
+
+export function isFullCol(zone: UnboundedZone, sheetZone: Zone): boolean {
+  return zone.top === 0 && (zone.bottom === undefined || zone.bottom >= sheetZone.bottom);
 }
 
 /** Returns the area of a zone */
@@ -667,26 +727,18 @@ export function areZonesContinuous(zones: Zone[]): boolean {
   return recomputeZones(zones).length === 1;
 }
 
-/** Return all the columns in the given list of zones */
-export function getZonesCols(zones: Zone[]): Set<number> {
-  const set = new Set<number>();
+export function zonesHasCol(zones: Zone[], col: HeaderIndex): boolean {
   for (const zone of recomputeZones(zones)) {
-    for (const col of range(zone.left, zone.right + 1)) {
-      set.add(col);
-    }
+    if (zone.left <= col && col <= zone.right) return true;
   }
-  return set;
+  return false;
 }
 
-/** Return all the rows in the given list of zones */
-export function getZonesRows(zones: Zone[]): Set<number> {
-  const set = new Set<number>();
+export function zonesHasRow(zones: Zone[], row: HeaderIndex): boolean {
   for (const zone of recomputeZones(zones)) {
-    for (const row of range(zone.top, zone.bottom + 1)) {
-      set.add(row);
-    }
+    if (zone.top <= row && row <= zone.bottom) return true;
   }
-  return set;
+  return false;
 }
 
 export function unionPositionsToZone(positions: Position[]): Zone {

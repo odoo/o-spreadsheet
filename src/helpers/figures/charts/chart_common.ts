@@ -34,7 +34,13 @@ import { adaptStringRange } from "../../formulas";
 import { isDefined, largeMax } from "../../misc";
 import { createRange, duplicateRangeInDuplicatedSheet } from "../../range";
 import { rangeReference } from "../../references";
-import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
+import {
+  getZoneArea,
+  isUnboundedRow,
+  toUnboundedZone,
+  zoneToDimension,
+  zoneToXc,
+} from "../../zones";
 
 export const TREND_LINE_XAXIS_ID = "x1";
 export const MOVING_AVERAGE_TREND_LINE_XAXIS_ID = "xMovingAverage";
@@ -381,7 +387,7 @@ export function checkDataset(definition: ChartWithDataSetDefinition): CommandRes
       return CommandResult.InvalidDataSet;
     }
     const zones = definition.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
-    if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
+    if (zones.some((zone) => zone.top !== zone.bottom && isUnboundedRow(zone))) {
       return CommandResult.InvalidDataSet;
     }
   }

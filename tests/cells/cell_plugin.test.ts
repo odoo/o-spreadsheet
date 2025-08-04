@@ -1,6 +1,6 @@
 import { CoreCommand, CorePlugin, Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
-import { buildSheetLink, toZone } from "../../src/helpers";
+import { buildSheetLink, MAX_COL, MAX_ROW, toZone } from "../../src/helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { corePluginRegistry } from "../../src/plugins";
 import { CellValueType, CommandResult, UID } from "../../src/types";
@@ -69,8 +69,8 @@ describe("getCellText", () => {
     const sheetId = model.getters.getActiveSheetId();
     const result = model.dispatch("UPDATE_CELL", {
       sheetId,
-      col: 9999,
-      row: 9999,
+      col: MAX_COL + 10,
+      row: MAX_ROW + 10,
       content: "hello",
     });
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
@@ -81,8 +81,8 @@ describe("getCellText", () => {
     const sheetId = model.getters.getActiveSheetId();
     const result = model.dispatch("UPDATE_CELL", {
       sheetId,
-      col: 9999,
-      row: 9999,
+      col: MAX_COL + 10,
+      row: MAX_ROW + 10,
     });
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
   });
@@ -231,7 +231,11 @@ describe("getCellText", () => {
 
   test("clear cell outside of sheet", () => {
     const model = new Model();
-    const result = clearCell(model, "AAA999");
+    const result = model.dispatch("CLEAR_CELL", {
+      col: MAX_COL + 5,
+      row: MAX_ROW + 5,
+      sheetId: model.getters.getActiveSheetId(),
+    });
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
   });
 

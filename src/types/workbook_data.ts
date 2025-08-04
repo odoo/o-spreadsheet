@@ -1,9 +1,9 @@
 import { CellValue, DataValidationRule, Format, Locale } from ".";
+import { NewBorderData } from "./border";
 import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
 import {
-  Border,
   Color,
   Dimension,
   HeaderGroup,
@@ -74,7 +74,7 @@ export interface WorkbookData {
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };
-  borders: { [key: number]: Border };
+  borders: { [key: number]: NewBorderData };
   pivots: { [key: string]: PivotData };
   pivotNextId: number;
   revisionId: UID;

@@ -14,7 +14,6 @@ import {
 } from "../../types";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { DelayedHoveredCellStore } from "../grid/delayed_hovered_cell_store";
-import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { css, cssPropertiesToCss } from "../helpers";
 import {
   getBoundingRectAsPOJO,
@@ -173,7 +172,6 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   };
   static components = {
     FiguresContainer,
-    GridAddRowsFooter,
   };
   static defaultProps = {
     onCellDoubleClicked: () => {},

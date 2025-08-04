@@ -1,4 +1,4 @@
-import { CellPosition, UID } from "../../../types";
+import { CellPosition, UID } from "../..";
 
 export class PositionMap<T> {
   private map: Record<UID, Record<number, Record<number, T>>> = {};
@@ -18,6 +18,12 @@ export class PositionMap<T> {
       map[sheetId][col] = {};
     }
     map[sheetId][col][row] = value;
+  }
+
+  setMultiple(values: Iterable<[CellPosition, T]>) {
+    for (const [position, value] of values) {
+      this.set(position, value);
+    }
   }
 
   get({ sheetId, col, row }: CellPosition): T | undefined {

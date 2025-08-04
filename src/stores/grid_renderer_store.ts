@@ -19,6 +19,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   TEXT_HEADER_COLOR,
 } from "../constants";
+import { PositionMap } from "../helpers/cells/position_map";
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
@@ -26,19 +27,20 @@ import {
   deepCopy,
   deepEquals,
   drawDecoratedText,
-  getZonesCols,
-  getZonesRows,
   isZoneInside,
   numberToLetters,
   overlap,
   positionToZone,
   union,
+  zonesHasCol,
+  zonesHasRow,
   zoneToXc,
 } from "../helpers/index";
 import { cellAnimationRegistry } from "../registries/cell_animation_registry";
 import { Get, Store } from "../store_engine";
 import {
   Align,
+  Border,
   BorderDescrWithOpacity,
   Box,
   CellPosition,
@@ -447,8 +449,6 @@ export class GridRenderer extends SpreadsheetStore {
     const top = visibleRows[0];
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
     const selection = this.getters.getSelectedZones();
-    const selectedCols = getZonesCols(selection);
-    const selectedRows = getZonesRows(selection);
     const sheetId = this.getters.getActiveSheetId();
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -466,7 +466,7 @@ export class GridRenderer extends SpreadsheetStore {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
       const { x, width } = this.getters.getVisibleRect(colZone);
       const isColActive = activeCols.has(col);
-      const isColSelected = selectedCols.has(col);
+      const isColSelected = zonesHasCol(selection, col);
       if (isColActive) {
         ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
       } else if (isColSelected) {
@@ -483,7 +483,7 @@ export class GridRenderer extends SpreadsheetStore {
       const { y, height } = this.getters.getVisibleRect(rowZone);
 
       const isRowActive = activeRows.has(row);
-      const isRowSelected = selectedRows.has(row);
+      const isRowSelected = zonesHasRow(selection, row);
       if (isRowActive) {
         ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
       } else if (isRowSelected) {
@@ -648,7 +648,12 @@ export class GridRenderer extends SpreadsheetStore {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+  private createZoneBox(
+    sheetId: UID,
+    zone: Zone,
+    viewport: Viewport,
+    borders: PositionMap<Border>
+  ): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
@@ -682,7 +687,7 @@ export class GridRenderer extends SpreadsheetStore {
       y,
       width,
       height,
-      border: this.getters.getCellComputedBorder(position) || undefined,
+      border: borders.get(position),
       style,
       dataBarFill,
       overlayColor: this.hoveredTables.overlayColors.get(position),
@@ -848,6 +853,7 @@ export class GridRenderer extends SpreadsheetStore {
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
     const sheetId = this.getters.getActiveSheetId();
+    const borders = this.getters.getZoneCellBorders(sheetId, zone);
 
     for (const row of visibleRows) {
       for (const col of visibleCols) {
@@ -855,7 +861,7 @@ export class GridRenderer extends SpreadsheetStore {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
+        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport, borders));
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -863,8 +869,8 @@ export class GridRenderer extends SpreadsheetStore {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport);
-        const borderBottomRight = this.getters.getCellComputedBorder({
+        const box = this.createZoneBox(sheetId, merge, viewport, borders);
+        const borderBottomRight = borders.get({
           sheetId,
           col: merge.right,
           row: merge.bottom,
