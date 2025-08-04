@@ -161,17 +161,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private clearZones(sheetId: UID, zones: Zone[]) {
     for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.getters.getCell({ sheetId, col, row });
-          if (cell?.isFormula || cell?.content) {
-            this.dispatch("UPDATE_CELL", {
-              sheetId: sheetId,
-              content: "",
-              col,
-              row,
-            });
-          }
+      for (const cell of this.getters.getCellFromZone(sheetId, zone)) {
+        const position = this.getters.getCellPosition(cell.id);
+        if (cell?.isFormula || cell?.content) {
+          this.dispatch("UPDATE_CELL", {
+            sheetId: sheetId,
+            content: "",
+            col: position.col,
+            row: position.row,
+          });
         }
       }
     }
