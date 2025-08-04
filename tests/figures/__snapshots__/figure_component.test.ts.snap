@@ -21,7 +21,7 @@ exports[`figures selected figure snapshot 1`] = `
       class="o-figure-menu position-absolute m-2"
     >
       <div
-        class="o-figure-menu-item"
+        class="o-figure-menu-item d-flex-align-items-center"
       >
         <svg
           class="o-icon"
