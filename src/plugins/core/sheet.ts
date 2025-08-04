@@ -4,6 +4,7 @@ import {
   getDuplicateSheetName,
   getNextSheetName,
   getUnquotedSheetName,
+  getZoneArea,
   groupConsecutive,
   includesAll,
   isColorValid,
@@ -62,6 +63,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "doesHeaderExist",
     "doesHeadersExist",
     "getCell",
+    "getCellFromZone",
     "getCellPosition",
     "getColsZone",
     "getRowCells",
@@ -402,6 +404,21 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   ): Cell[] {
     const sheet = this.tryGetSheet(sheetId);
     if (!sheet) return [];
+
+    if (zone.right !== undefined && zone.bottom !== undefined && getZoneArea(zone as Zone) < 1000) {
+      // TODO ask lul
+      const cells: Cell[] = [];
+      const [colStart, colAdd] = (options.colOrder ?? 1) > 0 ? [zone.left, 1] : [zone.right, -1];
+      const [rowStart, rowAdd] = (options.colOrder ?? 1) > 0 ? [zone.top, 1] : [zone.bottom, -1];
+      for (let col = colStart; zone.left <= col && col <= zone.right; col += colAdd) {
+        for (let row = rowStart; zone.top <= row && row <= zone.bottom; row += rowAdd) {
+          const cell = this.getters.getCell({ sheetId, col, row });
+          if (cell) cells.push(cell);
+        }
+      }
+      return cells;
+    }
+
     const result: Cell[] = [];
     const rows: [number, Row | undefined][] = Object.entries(sheet.rows).map((x) => [
       parseInt(x[0]),
