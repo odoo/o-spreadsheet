@@ -22,7 +22,7 @@
         />
         <div class="o-figure-menu position-absolute m-2" t-if="!env.isDashboard()">
           <div
-            class="o-figure-menu-item"
+            class="o-figure-menu-item d-flex-align-items-center"
             t-if="!env.model.getters.isReadonly() and props.figureUI.tag !== 'carousel'"
             t-on-click="showMenu"
             t-ref="menuButton"
