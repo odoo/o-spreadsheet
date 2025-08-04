@@ -54,12 +54,24 @@ export class PivotMeasureDisplayPanel extends Component<Props, SpreadsheetChildE
   }
 
   onSave() {
-    this.env.openSidePanel("PivotSidePanel", { pivotId: this.props.pivotId });
+    this.env.replaceSidePanel(
+      "PivotSidePanel",
+      `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
+      {
+        pivotId: this.props.pivotId,
+      }
+    );
   }
 
   onCancel() {
     this.store.cancelMeasureDisplayEdition();
-    this.env.openSidePanel("PivotSidePanel", { pivotId: this.props.pivotId });
+    this.env.replaceSidePanel(
+      "PivotSidePanel",
+      `pivot_measure_display_${this.props.pivotId}_${this.props.measure.id}`,
+      {
+        pivotId: this.props.pivotId,
+      }
+    );
   }
 
   get fieldChoices() {
