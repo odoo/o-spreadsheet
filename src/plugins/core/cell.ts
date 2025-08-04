@@ -2,7 +2,13 @@ import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
+import {
+  deepEquals,
+  getZoneArea,
+  isExcelCompatible,
+  isTextFormat,
+  recomputeZones,
+} from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import {
   getItemId,
@@ -170,16 +176,30 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private clearZones(sheetId: UID, zones: Zone[]) {
     for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.getters.getCell({ sheetId, col, row });
+      if (getZoneArea(zone) > 1000) {
+        for (const cell of this.getters.getCellFromZone(sheetId, zone)) {
+          const position = this.getters.getCellPosition(cell.id);
           if (cell?.isFormula || cell?.content) {
             this.dispatch("UPDATE_CELL", {
               sheetId: sheetId,
               content: "",
-              col,
-              row,
+              col: position.col,
+              row: position.row,
             });
+          }
+        }
+      } else {
+        for (let col = zone.left; col <= zone.right; col++) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            const cell = this.getters.getCell({ sheetId, col, row });
+            if (cell?.isFormula || cell?.content) {
+              this.dispatch("UPDATE_CELL", {
+                sheetId: sheetId,
+                content: "",
+                col,
+                row,
+              });
+            }
           }
         }
       }
