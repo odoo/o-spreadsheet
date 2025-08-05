@@ -31,7 +31,7 @@ import {
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { adaptStringRange } from "../../formulas";
-import { clip, formatValue } from "../../index";
+import { clip, formatOrHumanizeValue, humanizeNumber } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { AbstractChart } from "./abstract_chart";
@@ -199,6 +199,7 @@ export class GaugeChart extends AbstractChart {
           operator: "<=",
         },
       },
+      humanize: context.humanize,
     };
   }
 
@@ -244,6 +245,7 @@ export class GaugeChart extends AbstractChart {
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
+      humanize: this.humanize,
     };
   }
 
@@ -326,7 +328,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   if (lowerPointValue !== undefined) {
     inflectionValues.push({
       value: lowerPointValue,
-      label: formatValue(lowerPointValue, { locale, format }),
+      label: formatOrHumanizeValue(lowerPointValue, format, locale, chart.humanize),
       operator: lowerPoint.operator,
     });
     colors.push(chartColors.lowerColor);
@@ -335,7 +337,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
     inflectionValues.push({
       value: upperPointValue,
-      label: formatValue(upperPointValue, { locale, format }),
+      label: formatOrHumanizeValue(upperPointValue, format, locale, chart.humanize),
       operator: upperPoint.operator,
     });
     colors.push(chartColors.middleColor);
@@ -361,15 +363,20 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
     },
     minValue: {
       value: minValue,
-      label: formatValue(minValue, { locale, format }),
+      label: formatOrHumanizeValue(minValue, format, locale, chart.humanize),
     },
     maxValue: {
       value: maxValue,
-      label: formatValue(maxValue, { locale, format }),
+      label: formatOrHumanizeValue(maxValue, format, locale, chart.humanize),
     },
     gaugeValue:
       gaugeValue !== undefined && formattedValue
-        ? { value: gaugeValue, label: formattedValue }
+        ? {
+            value: gaugeValue,
+            label: chart.humanize
+              ? humanizeNumber({ value: gaugeValue, format }, locale)
+              : formattedValue,
+          }
         : undefined,
     inflectionValues,
     colors,

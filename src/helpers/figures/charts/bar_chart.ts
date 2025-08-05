@@ -111,6 +111,7 @@ export class BarChart extends AbstractChart {
       axesDesign: context.axesDesign,
       showValues: context.showValues,
       horizontal: context.horizontal,
+      humanize: context.humanize,
     };
   }
 
@@ -182,6 +183,7 @@ export class BarChart extends AbstractChart {
       axesDesign: this.axesDesign,
       horizontal: this.horizontal,
       showValues: this.showValues,
+      humanize: this.humanize,
     };
   }
 

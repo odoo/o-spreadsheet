@@ -1792,6 +1792,7 @@ describe("Chart design configuration", () => {
     labelRange: "A3",
     stacked: false,
     aggregated: false,
+    humanize: false,
   };
 
   test("Legend position", () => {
@@ -2199,6 +2200,7 @@ describe("Chart design configuration", () => {
           dataSets: [{ dataRange: "A1:A2" }],
           labelRange: "A1",
           type: "pie",
+          humanize: false,
         },
         "1"
       );
@@ -2222,6 +2224,7 @@ describe("Chart design configuration", () => {
         dataSets: [{ dataRange: "B1:B2" }],
         type: "scatter",
         dataSetsHaveTitle: true,
+        humanize: false,
       },
       "1"
     );
