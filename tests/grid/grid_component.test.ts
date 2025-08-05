@@ -20,6 +20,7 @@ import {
   SCROLLBAR_WIDTH,
 } from "../../src/constants";
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
+import { mapReplacer } from "../../src/helpers/clipboard/clipboard_helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
@@ -1831,7 +1832,7 @@ describe("Copy paste keyboard shortcut", () => {
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
-    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData(), mapReplacer);
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
       "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>things</div>`,
@@ -1852,7 +1853,7 @@ describe("Copy paste keyboard shortcut", () => {
     const clipboardContent = clipboardData.content;
     const cbPlugin = getPlugin(model, ClipboardPlugin);
     //@ts-ignore
-    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData());
+    const clipboardHtmlData = JSON.stringify(cbPlugin.getSheetData(), mapReplacer);
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
       "text/html": `<div data-osheet-clipboard='${xmlEscape(clipboardHtmlData)}'>things</div>`,

@@ -14,16 +14,11 @@ import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler"
 
 type ClipboardContent = {
   borders: ZoneBorder[];
-  width: number;
-  height: number;
+  cellContent: { width: number; height: number };
 };
 
-export class BorderClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  ZoneBorder
-> {
+export class BorderClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    const sheetId = data.sheetId;
     if (data.zones.length === 0) {
       return;
     }
@@ -39,7 +34,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
           bottom: rows[rows.length - 1],
         };
         borders.push(
-          ...this.getters.getBorders(sheetId, zone).map(({ zone: borderZone, style }) => {
+          ...this.getters.getBorders(data.sheetId, zone).map(({ zone: borderZone, style }) => {
             return {
               zone: {
                 left: borderZone.left - zone.left + colsBefore,
@@ -55,7 +50,10 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
       }
       colsBefore += cols.length;
     }
-    return { borders, width: data.columnsIndexes.length, height: data.rowsIndexes.length };
+    return {
+      borders,
+      cellContent: { width: data.columnsIndexes.length, height: data.rowsIndexes.length },
+    };
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
@@ -66,7 +64,11 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
+        for (const pasteZone of splitZoneForPaste(
+          zone,
+          content.cellContent.width,
+          content.cellContent.height
+        )) {
           this.pasteBorderZone(sheetId, pasteZone.left, pasteZone.top, content.borders);
         }
       }

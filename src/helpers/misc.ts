@@ -50,8 +50,9 @@ export function deepCopy<T>(obj: T): T {
       } else if (isCloneable(obj)) {
         return obj.clone();
       } else if (obj instanceof Map) {
-        // TODO check ts with lul
         return new Map(obj) as T;
+      } else if (obj instanceof Set) {
+        return new Set(obj) as T;
       } else if (!(isPlainObject(obj) || obj instanceof Array)) {
         throw new Error("Unsupported type: only objects and arrays are supported");
       }
@@ -571,6 +572,20 @@ export function mapShift(map: Map<number, any>, start: number, quantity: number)
   for (let i = 0; i < keys.length; i++) {
     map.set(keys[i] + quantity, map.get(keys[i]));
     map.delete(keys[i]);
+  }
+}
+
+/**
+ *
+ * Shift the keys of map by quantity starting from start
+ */
+export function setShift(set: Set<number>, start: number, quantity: number) {
+  if (!set || !set.size) return;
+  const keys = [...set.keys()].filter((k) => k >= start);
+  keys.sort((a, b) => quantity * (b - a));
+  for (let i = 0; i < keys.length; i++) {
+    set.add(keys[i] + quantity);
+    set.delete(keys[i]);
   }
 }
 

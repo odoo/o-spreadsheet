@@ -4,6 +4,7 @@ import { DEFAULT_BORDER_DESC, LINK_COLOR } from "../../src/constants";
 import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import {
   getClipboardDataPositions,
+  mapReplacer,
   parseOSClipboardContent,
 } from "../../src/helpers/clipboard/clipboard_helpers";
 import { urlRepresentation } from "../../src/helpers/links";
@@ -574,7 +575,7 @@ describe("clipboard", () => {
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       const htmlContent = osClipboardContent[ClipboardMIMEType.Html]!;
       const cbPlugin = getPlugin(model, ClipboardPlugin);
-      const clipboardData = JSON.stringify(cbPlugin["getSheetData"]());
+      const clipboardData = JSON.stringify(cbPlugin["getSheetData"](), mapReplacer);
       const expectedHtmlContent = `<div data-osheet-clipboard='${xmlEscape(
         clipboardData
       )}'><table border="1" style="border-collapse:collapse"><tr><td style="">1</td><td style="">2</td></tr><tr><td style="">3</td><td style=""></td></tr></table></div>`;
@@ -650,7 +651,7 @@ describe("clipboard", () => {
       setCellContent(model, "A1", "1");
       copy(model, "A1");
       const cbPlugin = getPlugin(model, ClipboardPlugin);
-      const clipboardData = JSON.stringify(cbPlugin["getSheetData"]());
+      const clipboardData = JSON.stringify(cbPlugin["getSheetData"](), mapReplacer);
       const osClipboardContent = await model.getters.getClipboardTextAndImageContent();
       expect(osClipboardContent[ClipboardMIMEType.Html]).toBe(
         `<div data-osheet-clipboard='${xmlEscape(clipboardData)}'>1</div>`
@@ -3133,19 +3134,20 @@ test("Can use clipboard handlers to paste in a sheet other than the active sheet
   model.dispatch("ADD_CONDITIONAL_FORMAT", { cf, ranges: toRangesData(sheetId, "A1"), sheetId });
   createTable(model, "A1");
 
-  const handlers = clipboardHandlersRegistries.cellHandlers
-    .getAll()
-    .map((handler) => new handler(model.getters, model.dispatch));
+  const handlers = clipboardHandlersRegistries.cellHandlers.getKeys().map((handlerName) => {
+    const handler = clipboardHandlersRegistries.cellHandlers.get(handlerName);
+    return { handlerName, handler: new handler(model.getters, model.dispatch) };
+  });
 
-  let copiedData = {};
+  const copiedData = {};
   const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1")]);
-  for (const handler of handlers) {
-    copiedData = { ...copiedData, ...handler.copy(clipboardData, false) };
+  for (const { handlerName, handler } of handlers) {
+    copiedData[handlerName] = handler.copy(clipboardData, false);
   }
 
   const pasteTarget: ClipboardPasteTarget = { sheetId: "sh2", zones: target("A1") };
-  for (const handler of handlers) {
-    handler.paste(pasteTarget, copiedData, { isCutOperation: false });
+  for (const { handlerName, handler } of handlers) {
+    handler.paste(pasteTarget, copiedData[handlerName], { isCutOperation: false });
   }
 
   expect(getCellContent(model, "A1", "sh2")).toBe("1");

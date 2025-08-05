@@ -6,6 +6,7 @@ import {
   ClipboardMIMEType,
   ClipboardOptions,
   ClipboardPasteTarget,
+  Map2D,
   MinimalClipboardData,
   OSClipboardContent,
   ParsedOSClipboardContent,
@@ -64,12 +65,7 @@ export function splitZoneForPaste(
 /**
  * Compute the complete zones where to paste the current clipboard
  */
-export function getPasteZones<T>(target: Zone[], content: T[][]): Zone[] {
-  if (!content.length || !content[0].length) {
-    return target;
-  }
-  const width = content[0].length,
-    height = content.length;
+export function getPasteZones<T>(target: Zone[], width: number, height: number): Zone[] {
   return target.map((t) => splitZoneForPaste(t, width, height)).flat();
 }
 
@@ -110,7 +106,7 @@ function getOSheetDataFromHTML(htmlDocument: Document) {
   const oSheetClipboardData = htmlDocument
     .querySelector("div")
     ?.getAttribute("data-osheet-clipboard");
-  return oSheetClipboardData && JSON.parse(oSheetClipboardData);
+  return oSheetClipboardData && JSON.parse(oSheetClipboardData, mapReviver);
 }
 
 /**
@@ -196,3 +192,30 @@ export const selectPastedZone = (
     { scrollIntoView: false }
   );
 };
+
+export function mapReplacer(key, value) {
+  if (value instanceof Map2D) {
+    return {
+      dataType: "Map2D",
+      ...value,
+    };
+  } else if (value instanceof Map) {
+    return {
+      dataType: "Map",
+      value: Array.from(value.entries()), // or with spread: value: [...value]
+    };
+  } else {
+    return value;
+  }
+}
+
+export function mapReviver(key, value) {
+  if (typeof value === "object" && value !== null) {
+    if (value.dataType === "Map2D") {
+      return new Map2D(value.width, value.height, value.map);
+    } else if (value.dataType === "Map") {
+      return new Map(value.value);
+    }
+  }
+  return value;
+}
