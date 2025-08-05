@@ -4,6 +4,7 @@ import { ClipboardOsState } from "../../helpers/clipboard/clipboard_os_state";
 import { isZoneValid } from "../../helpers/index";
 import {
   ClipboardContent,
+  ClipboardCopyOptions,
   ClipboardMIMEType,
   ClipboardOperation,
   ClipboardState,
@@ -84,12 +85,12 @@ export class ClipboardPlugin extends UIPlugin {
       }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
-        const state = this.getClipboardStateForCopyCells(cut, "CUT");
+        const state = this.getClipboardStateForCopyCells(cut, "CUT", "shiftCells");
         return state.isPasteAllowed(paste);
       }
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
-        const state = this.getClipboardStateForCopyCells(cut, "CUT");
+        const state = this.getClipboardStateForCopyCells(cut, "CUT", "shiftCells");
         return state.isPasteAllowed(paste);
       }
       case "ACTIVATE_PAINT_FORMAT": {
@@ -172,13 +173,13 @@ export class ClipboardPlugin extends UIPlugin {
           });
           break;
         }
-        const state = this.getClipboardStateForCopyCells(cut, "CUT");
+        const state = this.getClipboardStateForCopyCells(cut, "CUT", "shiftCells");
         state.paste(paste);
         break;
       }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
-        const state = this.getClipboardStateForCopyCells(cut, "CUT");
+        const state = this.getClipboardStateForCopyCells(cut, "CUT", "shiftCells");
         state.paste(paste);
         break;
       }
@@ -339,8 +340,19 @@ export class ClipboardPlugin extends UIPlugin {
     return { cut: [cut], paste: [paste] };
   }
 
-  private getClipboardStateForCopyCells(zones: Zone[], operation: ClipboardOperation) {
-    return new ClipboardCellsState(zones, operation, this.getters, this.dispatch, this.selection);
+  private getClipboardStateForCopyCells(
+    zones: Zone[],
+    operation: ClipboardOperation,
+    mode: ClipboardCopyOptions = "copyPaste"
+  ) {
+    return new ClipboardCellsState(
+      zones,
+      operation,
+      this.getters,
+      this.dispatch,
+      this.selection,
+      mode
+    );
   }
 
   /**
