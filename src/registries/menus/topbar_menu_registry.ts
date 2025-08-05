@@ -264,6 +264,10 @@ topbarMenuRegistry
     ...ACTION_INSERT.insertChart,
     sequence: 50,
   })
+  .addChild("insert_carousel", ["insert"], {
+    ...ACTION_INSERT.insertCarousel,
+    sequence: 51,
+  })
   .addChild("insert_pivot", ["insert"], {
     ...ACTION_INSERT.insertPivot,
     sequence: 52,

@@ -17,6 +17,7 @@ import {
   AnchorZone,
   Border,
   BorderData,
+  Carousel,
   ChartDefinition,
   ChartWithDataSetDefinition,
   ClipboardPasteOptions,
@@ -1563,4 +1564,68 @@ export function addDataBarCF(
     ranges: toRangesData(sheetId, xc),
     sheetId,
   });
+}
+
+export function createCarousel(
+  model: Model,
+  data: Carousel = { items: [] },
+  carouselId?: UID,
+  sheetId?: UID,
+  figureData: Partial<CreateFigureCommand> = {}
+) {
+  return model.dispatch("CREATE_CAROUSEL", {
+    figureId: carouselId || model.uuidGenerator.smallUuid(),
+    sheetId: sheetId || model.getters.getActiveSheetId(),
+    col: 0,
+    row: 0,
+    definition: data,
+    size: { width: 100, height: 100 },
+    offset: { x: 0, y: 0 },
+    ...figureData,
+  });
+}
+
+export function updateCarousel(
+  model: Model,
+  carouselId: UID,
+  data: Partial<Carousel>,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("UPDATE_CAROUSEL", {
+    figureId: carouselId,
+    sheetId,
+    definition: {
+      ...model.getters.getCarousel(carouselId),
+      ...data,
+    },
+  });
+}
+
+export function addChartFigureToCarousel(
+  model: Model,
+  carouselId: UID,
+  chartFigureId: UID,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
+    carouselFigureId: carouselId,
+    chartFigureId,
+    sheetId,
+  });
+}
+
+export function addNewChartToCarousel(
+  model: Model,
+  carouselId: UID,
+  definition?: Partial<ChartDefinition>
+): UID {
+  model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", {
+    figureId: carouselId,
+    sheetId: model.getters.getActiveSheetId(),
+  });
+  const chartId = model.getters.getCarousel(carouselId).items.at(-1)!["chartId"];
+  if (definition) {
+    updateChart(model, chartId, definition);
+  }
+  return chartId;
 }

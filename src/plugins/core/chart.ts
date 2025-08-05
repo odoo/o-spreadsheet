@@ -9,6 +9,7 @@ import {
   CommandResult,
   CoreCommand,
   CreateChartCommand,
+  DeleteChartCommand,
   DOMDimension,
   FigureData,
   HeaderIndex,
@@ -35,8 +36,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     "getChartType",
     "getChartIds",
     "getChart",
-    "getChartFromFigureId",
-    "getChartIdFromFigureId",
     "getFigureIdFromChartId",
     "getContextCreationChart",
   ] as const;
@@ -70,7 +69,11 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       case "CREATE_CHART":
         return this.checkValidations(
           cmd,
-          this.chainValidations(this.validateChartDefinition, this.checkChartDuplicate)
+          this.chainValidations(
+            this.checkFigureArguments,
+            this.validateChartDefinition,
+            this.checkChartDuplicate
+          )
         );
       case "UPDATE_CHART":
         return this.checkValidations(
@@ -81,6 +84,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             this.checkChartChanged
           )
         );
+      case "DELETE_CHART":
+        return this.checkChartExists(cmd);
       default:
         return CommandResult.Success;
     }
@@ -89,7 +94,16 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_CHART":
-        this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
+        const { col, row, offset, size, sheetId, figureId } = cmd;
+        // If figure position is not defined, it means that the figure already exist (see allowDispatch)
+        if (
+          !this.getters.getFigure(sheetId, figureId) &&
+          offset !== undefined &&
+          col !== undefined &&
+          row !== undefined
+        ) {
+          this.addFigure(figureId, sheetId, col, row, offset, size);
+        }
         this.addChart(cmd.figureId, cmd.chartId, cmd.definition);
         break;
       case "UPDATE_CHART": {
@@ -97,26 +111,31 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         break;
       }
       case "DUPLICATE_SHEET": {
-        const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
-        for (const fig of sheetFiguresFrom) {
-          if (fig.tag === "chart") {
-            const figureIdBase = fig.id.split(FIGURE_ID_SPLITTER).pop();
-            const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
-            const chart = this.getChartFromFigureId(fig.id)?.duplicateInDuplicatedSheet(
-              cmd.sheetIdTo
-            );
-            if (chart) {
-              this.dispatch("CREATE_CHART", {
-                figureId: duplicatedFigureId,
-                chartId: duplicatedFigureId,
-                col: fig.col,
-                row: fig.row,
-                offset: fig.offset,
-                size: { width: fig.width, height: fig.height },
-                definition: chart.getDefinition(),
-                sheetId: cmd.sheetIdTo,
-              });
-            }
+        for (const chartId of this.getChartIds(cmd.sheetId)) {
+          const { chart, figureId } = this.charts[chartId] || {};
+          if (!chart || !figureId) {
+            continue;
+          }
+          const fig = this.getters.getFigure(cmd.sheetId, figureId);
+          if (!fig) {
+            continue;
+          }
+          const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
+          const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+          const chartIdBase = chartId.split(FIGURE_ID_SPLITTER).pop();
+          const duplicatedChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
+          const newChart = chart.duplicateInDuplicatedSheet(cmd.sheetIdTo);
+          if (newChart) {
+            this.dispatch("CREATE_CHART", {
+              figureId: duplicatedFigureId,
+              chartId: duplicatedChartId,
+              col: fig.col,
+              row: fig.row,
+              offset: fig.offset,
+              size: { width: fig.width, height: fig.height },
+              definition: newChart.getDefinition(),
+              sheetId: cmd.sheetIdTo,
+            });
           }
         }
         break;
@@ -124,8 +143,13 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       case "DELETE_FIGURE":
         for (const chartId in this.charts) {
           if (this.charts[chartId]?.figureId === cmd.figureId) {
-            this.history.update("charts", chartId, undefined);
+            this.dispatch("DELETE_CHART", { chartId, sheetId: cmd.sheetId });
           }
+        }
+        break;
+      case "DELETE_CHART":
+        if (this.isChartDefined(cmd.chartId)) {
+          this.history.update("charts", cmd.chartId, undefined);
         }
         break;
       case "DELETE_SHEET":
@@ -146,14 +170,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   getChart(chartId: UID): AbstractChart | undefined {
     return this.charts[chartId]?.chart;
-  }
-
-  getChartFromFigureId(figureId: UID): AbstractChart | undefined {
-    return Object.values(this.charts).find((chart) => chart?.figureId === figureId)?.chart;
-  }
-
-  getChartIdFromFigureId(figureId: UID): UID | undefined {
-    return Object.keys(this.charts).find((chartId) => this.charts[chartId]?.figureId === figureId);
   }
 
   getFigureIdFromChartId(chartId: UID): UID {
@@ -204,6 +220,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
             const chartId = figure.data.chartId;
             const chart = this.createChart(figure.id, figure.data, sheet.id);
             this.charts[chartId] = { chart, figureId: figure.id };
+          } else if (figure.tag === "carousel") {
+            for (const chartId in figure.data.chartDefinitions || {}) {
+              const chartDefinition = figure.data.chartDefinitions[chartId];
+              const chart = this.createChart(figure.id, chartDefinition, sheet.id);
+              this.charts[chartId] = { chart, figureId: figure.id };
+            }
           }
         }
       }
@@ -218,13 +240,25 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         const figures: FigureData<any>[] = [];
         for (const sheetFigure of sheetFigures) {
           const figure = sheetFigure as FigureData<any>;
-          const chartId = this.getters.getChartIdFromFigureId(figure?.id);
+          const chartId = Object.keys(this.charts).find(
+            (chartId) => this.charts[chartId]?.figureId === sheetFigure.id
+          );
           if (figure && figure.tag === "chart" && chartId) {
             const data = this.charts[chartId]?.chart.getDefinition();
             if (data) {
               figure.data = { ...data, chartId };
               figures.push(figure);
             }
+          } else if (figure && figure.tag === "carousel") {
+            const chartIds = Object.keys(this.charts).filter(
+              (chartId) => this.charts[chartId]?.figureId === sheetFigure.id
+            );
+            const data = {};
+            for (const chartId of chartIds) {
+              data[chartId] = this.charts[chartId]?.chart.getDefinition();
+            }
+            figure.data = { chartDefinitions: data };
+            figures.push(figure);
           } else {
             figures.push(figure);
           }
@@ -252,9 +286,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       height: DEFAULT_FIGURE_HEIGHT,
     }
   ) {
-    if (this.getters.getFigure(sheetId, figureId)) {
-      return;
-    }
     this.dispatch("CREATE_FIGURE", {
       sheetId,
       figureId,
@@ -284,15 +315,31 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       : CommandResult.Success;
   }
 
-  private checkChartExists(cmd: UpdateChartCommand): CommandResult {
+  private checkChartExists(
+    cmd: UpdateChartCommand | CreateChartCommand | DeleteChartCommand
+  ): CommandResult {
     return this.isChartDefined(cmd.chartId)
       ? CommandResult.Success
       : CommandResult.ChartDoesNotExist;
   }
 
   private checkChartChanged(cmd: UpdateChartCommand): CommandResult {
+    if (cmd.figureId !== this.charts[cmd.chartId]?.figureId) {
+      return CommandResult.Success;
+    }
     return deepEquals(this.getChartDefinition(cmd.chartId), cmd.definition)
       ? CommandResult.NoChanges
       : CommandResult.Success;
+  }
+
+  /** If the command would create a new figure, there need to be a position & offset defined in the command */
+  private checkFigureArguments(cmd: CreateChartCommand): CommandResult {
+    if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+      return CommandResult.Success;
+    }
+
+    return cmd.offset !== undefined && cmd.col !== undefined && cmd.row !== undefined
+      ? CommandResult.Success
+      : CommandResult.MissingFigureArguments;
   }
 }

@@ -487,6 +487,31 @@ export const TEST_COMMANDS: CommandMapping = {
     pivotId: "1",
     name: "newName",
   },
+  CREATE_CAROUSEL: {
+    type: "CREATE_CAROUSEL",
+    sheetId: "Sheet1",
+    figureId: "figureId",
+    offset: { x: 0, y: 0 },
+    col: 0,
+    row: 0,
+    size: { width: 200, height: 200 },
+    definition: {
+      items: [{ type: "chart", chartId: "chartId" }],
+    },
+  },
+  UPDATE_CAROUSEL: {
+    type: "UPDATE_CAROUSEL",
+    sheetId: "Sheet1",
+    figureId: "figureId",
+    definition: {
+      items: [{ type: "chart", chartId: "chartId" }],
+    },
+  },
+  DELETE_CHART: {
+    type: "DELETE_CHART",
+    sheetId: "Sheet1",
+    chartId: "chartId",
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [

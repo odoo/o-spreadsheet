@@ -24,7 +24,7 @@ import {
 
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions, ParsedOsClipboardContentWithImageData } from "./clipboard";
-import { FigureSize } from "./figure";
+import { Carousel, CarouselItem, FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import { PivotCoreDefinition, PivotTableData } from "./pivot";
@@ -198,6 +198,7 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "UPDATE_FILTER",
   "UPDATE_CHART",
+  "UPDATE_CAROUSEL_ACTIVE_ITEM",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
@@ -247,6 +248,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "CREATE_FIGURE",
   "DELETE_FIGURE",
   "UPDATE_FIGURE",
+  "CREATE_CAROUSEL",
+  "UPDATE_CAROUSEL",
 
   /** FORMATTING */
   "SET_FORMATTING",
@@ -258,6 +261,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CHART */
   "CREATE_CHART",
   "UPDATE_CHART",
+  "DELETE_CHART",
 
   /** FILTERS */
   "CREATE_TABLE",
@@ -532,10 +536,16 @@ interface BaseFigureCommand extends PositionDependentCommand {
 // Chart
 //------------------------------------------------------------------------------
 
-export interface CreateChartCommand extends BaseFigureCommand {
+export interface CreateChartCommand {
   type: "CREATE_CHART";
   chartId: UID;
   definition: ChartDefinition;
+  sheetId: UID;
+  figureId: UID;
+  offset?: PixelPosition;
+  size?: FigureSize;
+  col?: number;
+  row?: number;
 }
 
 export interface UpdateChartCommand extends SheetDependentCommand {
@@ -543,6 +553,39 @@ export interface UpdateChartCommand extends SheetDependentCommand {
   figureId: UID;
   chartId: UID;
   definition: ChartDefinition;
+}
+
+export interface DeleteChartCommand extends SheetDependentCommand {
+  type: "DELETE_CHART";
+  chartId: UID;
+}
+
+export interface CreateCarouselCommand extends BaseFigureCommand {
+  type: "CREATE_CAROUSEL";
+  definition: Carousel;
+}
+
+export interface UpdateCarouselCommand extends SheetDependentCommand {
+  type: "UPDATE_CAROUSEL";
+  figureId: UID;
+  definition: Carousel;
+}
+
+export interface AddNewChartToCarouselCommand extends SheetDependentCommand {
+  type: "ADD_NEW_CHART_TO_CAROUSEL";
+  figureId: UID;
+}
+
+export interface AddFigureChartToCarouselCommand extends SheetDependentCommand {
+  type: "ADD_FIGURE_CHART_TO_CAROUSEL";
+  carouselFigureId: UID;
+  chartFigureId: UID;
+}
+
+export interface UpdateCarouselActiveItemCommand extends SheetDependentCommand {
+  type: "UPDATE_CAROUSEL_ACTIVE_ITEM";
+  figureId: UID;
+  item: CarouselItem;
 }
 
 //------------------------------------------------------------------------------
@@ -1102,6 +1145,8 @@ export type CoreCommand =
   | CreateFigureCommand
   | DeleteFigureCommand
   | UpdateFigureCommand
+  | CreateCarouselCommand
+  | UpdateCarouselCommand
 
   /** FORMATTING */
   | SetFormattingCommand
@@ -1113,6 +1158,7 @@ export type CoreCommand =
   /** CHART */
   | CreateChartCommand
   | UpdateChartCommand
+  | DeleteChartCommand
 
   /** IMAGE */
   | CreateImageOverCommand
@@ -1205,7 +1251,10 @@ export type LocalCommand =
   | DeleteUnfilteredContentCommand
   | PivotStartPresenceTracking
   | PivotStopPresenceTracking
-  | ToggleCheckboxCommand;
+  | ToggleCheckboxCommand
+  | AddNewChartToCarouselCommand
+  | AddFigureChartToCarouselCommand
+  | UpdateCarouselActiveItemCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
@@ -1376,6 +1425,7 @@ export const enum CommandResult {
   InvalidColor = "InvalidColor",
   InvalidPivotDataSet = "InvalidPivotDataSet",
   InvalidPivotCustomField = "InvalidPivotCustomField",
+  MissingFigureArguments = "MissingFigureArguments",
 }
 
 export interface CommandHandler<T> {

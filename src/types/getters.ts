@@ -1,4 +1,5 @@
 import { BordersPlugin } from "../plugins/core/borders";
+import { CarouselPlugin } from "../plugins/core/carousel";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
@@ -38,6 +39,7 @@ import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
 import { TableComputedStylePlugin } from "../plugins/ui_feature/table_computed_style";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
+import { CarouselUIPlugin } from "../plugins/ui_stateful/carousel_ui";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
@@ -108,6 +110,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof BordersPlugin> &
   PluginGetters<typeof ChartPlugin> &
   PluginGetters<typeof ImagePlugin> &
+  PluginGetters<typeof CarouselPlugin> &
   PluginGetters<typeof FigurePlugin> &
   RangeAdapterGetters &
   PluginGetters<typeof ConditionalFormatPlugin> &
@@ -151,4 +154,5 @@ export type Getters = {
   PluginGetters<typeof PivotPresencePlugin> &
   PluginGetters<typeof TableComputedStylePlugin> &
   PluginGetters<typeof CheckboxTogglePlugin> &
-  PluginGetters<typeof CellIconPlugin>;
+  PluginGetters<typeof CellIconPlugin> &
+  PluginGetters<typeof CarouselUIPlugin>;

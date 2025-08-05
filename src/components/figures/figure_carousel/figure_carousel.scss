@@ -1,0 +1,39 @@
+.o-spreadsheet {
+  .o-carousel-empty {
+    background-color: #ffffff;
+
+    .o-icon {
+      width: 50%;
+      height: 50%;
+      color: $os-gray-400;
+    }
+  }
+
+  .o-carousel-header {
+    z-index: 1;
+
+    overflow: hidden;
+
+    border: 1px solid transparent;
+
+    &.o-carousel-header-floating {
+      border: 1px solid $os-figure-border-color;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .o-carousel-tab {
+      cursor: pointer;
+      max-width: 150px;
+      font-size: 14px;
+
+      &:hover {
+        color: #714b67;
+      }
+
+      &.selected {
+        color: #714b67;
+        font-weight: 600;
+      }
+    }
+  }
+}

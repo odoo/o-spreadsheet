@@ -179,6 +179,13 @@ export const insertChart: ActionSpec = {
   icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
+export const insertCarousel: ActionSpec = {
+  name: _t("Carousel"),
+  execute: ACTIONS.CREATE_CAROUSEL,
+  isEnabled: (env) => !env.isSmall,
+  icon: "o-spreadsheet-Icon.CAROUSEL",
+};
+
 export const insertPivot: ActionSpec = {
   name: _t("Pivot table"),
   execute: ACTIONS.CREATE_PIVOT,

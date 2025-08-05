@@ -11,6 +11,7 @@ import {
 import { Figure, Pixel, Position, SpreadsheetChildEnv, UID } from "../../src/types";
 
 import { FigureComponent } from "../../src/components/figures/figure/figure";
+import { ChartFigure } from "../../src/components/figures/figure_chart/figure_chart";
 import { downloadFile } from "../../src/components/helpers/dom_helpers";
 import { figureRegistry } from "../../src/registries/figures_registry";
 import { ClipboardMIMEType } from "../../src/types/clipboard";
@@ -118,7 +119,7 @@ const TEMPLATE = xml/* xml */ `
 
 class TextFigure extends Component<FigureComponent["props"], SpreadsheetChildEnv> {
   static template = TEMPLATE;
-  static props = FigureComponent.props;
+  static props = ChartFigure.props;
 }
 
 mockChart();

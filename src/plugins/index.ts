@@ -13,6 +13,7 @@ import {
   SheetPlugin,
   TablePlugin,
 } from "./core";
+import { CarouselPlugin } from "./core/carousel";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
@@ -60,6 +61,7 @@ import {
   GridSelectionPlugin,
   SheetViewPlugin,
 } from "./ui_stateful";
+import { CarouselUIPlugin } from "./ui_stateful/carousel_ui";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
@@ -76,6 +78,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
+  .add("carousel", CarouselPlugin)
   .add("image", ImagePlugin)
   .add("pivot_core", PivotCorePlugin)
   .add("spreadsheet_pivot_core", SpreadsheetPivotCorePlugin)
@@ -110,7 +113,8 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("table_computed_style", TableComputedStylePlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
-  .add("clipboard", ClipboardPlugin);
+  .add("clipboard", ClipboardPlugin)
+  .add("carousel_ui", CarouselUIPlugin);
 
 // Plugins which have a derived state from core data
 export const coreViewsPluginRegistry = new Registry<CoreViewPluginConstructor>()

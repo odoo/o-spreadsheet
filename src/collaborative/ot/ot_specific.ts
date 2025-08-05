@@ -11,8 +11,10 @@ import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   AddPivotCommand,
+  CreateCarouselCommand,
   CreateSheetCommand,
   CreateTableCommand,
+  DeleteChartCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
   DuplicatePivotCommand,
@@ -30,6 +32,7 @@ import {
   RenamePivotCommand,
   UnGroupHeadersCommand,
   UnfoldHeaderGroupCommand,
+  UpdateCarouselCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
   UpdatePivotCommand,
@@ -46,7 +49,13 @@ otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["ADD_COLUMNS_ROWS"], addHeader
 otRegistry.addTransformation("REMOVE_COLUMNS_ROWS", ["ADD_COLUMNS_ROWS"], addHeadersTransformation);
 
 otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetSheetId);
-otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
+otRegistry.addTransformation(
+  "DELETE_FIGURE",
+  ["UPDATE_FIGURE", "UPDATE_CHART", "UPDATE_CAROUSEL"],
+  updateChartFigure
+);
+otRegistry.addTransformation("DELETE_CHART", ["UPDATE_CHART"], updateChartOnChartDelete);
+otRegistry.addTransformation("DELETE_CHART", ["UPDATE_CAROUSEL"], updateCarouselOnChartDelete);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
 otRegistry.addTransformation(
@@ -150,13 +159,38 @@ function transformTargetSheetId(
 }
 
 function updateChartFigure(
-  toTransform: UpdateFigureCommand | UpdateChartCommand,
+  toTransform: UpdateFigureCommand | UpdateChartCommand | UpdateCarouselCommand,
   executed: DeleteFigureCommand
-): UpdateFigureCommand | UpdateChartCommand | undefined {
+): UpdateFigureCommand | UpdateChartCommand | UpdateCarouselCommand | undefined {
   if (toTransform.figureId === executed.figureId) {
     return undefined;
   }
   return toTransform;
+}
+
+function updateChartOnChartDelete(
+  toTransform: UpdateChartCommand,
+  executed: DeleteChartCommand
+): UpdateChartCommand | undefined {
+  if (toTransform.chartId === executed.chartId) {
+    return undefined;
+  }
+  return toTransform;
+}
+
+function updateCarouselOnChartDelete(
+  toTransform: CreateCarouselCommand | UpdateCarouselCommand,
+  executed: DeleteChartCommand
+): CreateCarouselCommand | UpdateCarouselCommand | undefined {
+  return {
+    ...toTransform,
+    definition: {
+      ...toTransform.definition,
+      items: toTransform.definition.items.filter(
+        (item) => !(item.type === "chart" && item.chartId === executed.chartId)
+      ),
+    },
+  };
 }
 
 function createSheetTransformation(

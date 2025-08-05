@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_types";
-import { ChartType, FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
+import { ChartType, CSSProperties, FigureUI, SpreadsheetChildEnv, UID } from "../../../types";
 import { css } from "../../helpers/css";
 import { ChartDashboardMenu } from "../chart/chart_dashboard_menu/chart_dashboard_menu";
 
@@ -20,6 +20,7 @@ interface Props {
   // style by hand in the useEffect()
   figureUI: FigureUI;
   onFigureDeleted: () => void;
+  editFigureStyle?: (properties: CSSProperties) => void;
 }
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
@@ -27,6 +28,7 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     figureUI: Object,
     onFigureDeleted: Function,
+    editFigureStyle: { type: Function, optional: true },
   };
   static components = { ChartDashboardMenu };
 

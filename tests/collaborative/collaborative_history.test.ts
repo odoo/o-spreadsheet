@@ -472,6 +472,7 @@ describe("Collaborative local history", () => {
     ];
     const data = {
       revisionId: "initial_revision",
+      version: "18.5.1",
       sheets: [
         {
           id: "sheet1",

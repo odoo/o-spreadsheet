@@ -23,21 +23,8 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
   static getters = ["getChartRuntime", "getStyleOfSingleCellChart"] as const;
 
   charts: Record<UID, ChartRuntime | undefined> = {};
-  private chartsToRemove: UID[] = [];
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
-
-  beforeHandle(cmd: CoreViewCommand): void {
-    switch (cmd.type) {
-      case "DELETE_FIGURE": {
-        const chartId = this.getters.getChartIdFromFigureId(cmd.figureId);
-        if (chartId) {
-          this.chartsToRemove.push(chartId);
-        }
-        break;
-      }
-    }
-  }
 
   handle(cmd: CoreViewCommand) {
     if (
@@ -55,11 +42,8 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
       case "CREATE_CHART":
         this.charts[cmd.chartId] = undefined;
         break;
-      case "DELETE_FIGURE":
-        for (const chartId of this.chartsToRemove) {
-          this.charts[chartId] = undefined;
-        }
-        this.chartsToRemove = [];
+      case "DELETE_CHART":
+        this.charts[cmd.chartId] = undefined;
         break;
       case "DELETE_SHEET":
         for (const chartId in this.charts) {
@@ -119,8 +103,9 @@ export class EvaluationChartPlugin extends CoreViewPlugin<EvaluationChartState> 
         if (!figure || figure.tag !== "chart") {
           continue;
         }
-        const figureId = figure.id;
-        const chartId = this.getters.getChartIdFromFigureId(figureId);
+        const chartId = this.getters
+          .getChartIds(sheet.id)
+          .find((chartId) => this.getters.getFigureIdFromChartId(chartId) === figure.id);
         if (!chartId) {
           continue;
         }
