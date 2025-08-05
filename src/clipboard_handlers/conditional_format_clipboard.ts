@@ -6,25 +6,22 @@ import {
   ClipboardPasteTarget,
   ConditionalFormat,
   HeaderIndex,
-  Maybe,
+  Map2D,
   UID,
   Zone,
 } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardConditionalFormat {
-  position: CellPosition;
   rules: ConditionalFormat[];
+  position: CellPosition;
 }
 
 interface ClipboardContent {
-  cfRules: Maybe<ClipboardConditionalFormat>[][];
+  cellContent: Map2D<ClipboardConditionalFormat>;
 }
 
-export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  Maybe<ClipboardConditionalFormat>
-> {
+export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   private readonly uuidGenerator = new UuidGenerator();
   private queuedChanges: Record<UID, { toAdd: Zone[]; toRemove: Zone[]; cf: ConditionalFormat }[]> =
     {};
@@ -36,20 +33,20 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
 
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
-    const cfRules: Maybe<ClipboardConditionalFormat>[][] = [];
+    const cfRules: Map2D<ClipboardConditionalFormat> = new Map2D(
+      columnsIndexes.length,
+      rowsIndexes.length
+    );
 
-    for (const row of rowsIndexes) {
-      const cfRuleInRow: Maybe<ClipboardConditionalFormat>[] = [];
-      for (const col of columnsIndexes) {
-        const cfRules = Array.from(this.getters.getRulesByCell(sheetId, col, row));
-        cfRuleInRow.push({
-          position: { col, row, sheetId },
-          rules: cfRules,
-        });
+    for (const [r, row] of rowsIndexes.entries()) {
+      for (const [c, col] of columnsIndexes.entries()) {
+        const rules = Array.from(this.getters.getRulesByCell(sheetId, col, row));
+        if (rules.length) {
+          cfRules.set(c, r, { rules, position: { col, row, sheetId } });
+        }
       }
-      cfRules.push(cfRuleInRow);
     }
-    return { cfRules };
+    return { cellContent: cfRules };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
@@ -61,7 +58,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     const sheetId = target.sheetId;
 
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, clippedContent.cfRules, options);
+      this.pasteFromCopy(sheetId, zones, clippedContent, options);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);
     }
@@ -71,7 +68,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
 
   private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.cfRules, {
+    this.pasteZone(sheetId, selection.left, selection.top, content, {
       isCutOperation: true,
     });
   }
@@ -80,23 +77,21 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    cfRules: Maybe<ClipboardConditionalFormat>[][],
+    content: ClipboardContent,
     clipboardOptions?: ClipboardOptions
   ) {
-    for (const [r, rowCells] of cfRules.entries()) {
-      for (const [c, origin] of rowCells.entries()) {
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteCf(origin, position, clipboardOptions?.isCutOperation);
-      }
+    for (const [c, r, origin] of content.cellContent.entries()) {
+      const position = { col: col + c, row: row + r, sheetId };
+      this.pasteCf(origin, position, clipboardOptions?.isCutOperation);
     }
   }
 
   private pasteCf(
-    origin: Maybe<ClipboardConditionalFormat>,
+    origin: ClipboardConditionalFormat,
     target: CellPosition,
     isCutOperation?: boolean
   ) {
-    if (origin?.rules && origin.rules.length > 0) {
+    if (origin.rules && origin.rules.length > 0) {
       const originZone = positionToZone(origin.position);
       const zone = positionToZone(target);
       for (const rule of origin.rules) {

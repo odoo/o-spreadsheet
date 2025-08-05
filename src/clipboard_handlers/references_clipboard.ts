@@ -4,13 +4,15 @@ import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler"
 interface ClipboardContent {
   zones: Zone[];
   sheetId: UID;
+  cellContent: { height: 0; width: 0 };
 }
 
-export class ReferenceClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent, {}> {
-  copy(data: ClipboardCellData): ClipboardContent | undefined {
+export class ReferenceClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
+  copy(data: ClipboardCellData): ClipboardContent {
     return {
       zones: data.clippedZones,
       sheetId: data.sheetId,
+      cellContent: { height: 0, width: 0 },
     };
   }
 
