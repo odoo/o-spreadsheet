@@ -1,7 +1,7 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
 import { HeaderIndex, SheetData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
+import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
@@ -26,7 +26,8 @@ type FigurePosition = {
 export function createDrawing(
   drawingRelIds: string[],
   sheet: SheetData,
-  figures: FigureData<ExcelChartDefinition | Image>[]
+  figures: FigureData<ExcelChartDefinition | Image>[],
+  construct: XLSXStructure
 ): XMLDocument {
   const namespaces: XMLAttributes = [
     ["xmlns:xdr", NAMESPACE.drawing],
@@ -42,7 +43,8 @@ export function createDrawing(
           createChartDrawing(
             figure as FigureData<ExcelChartDefinition>,
             sheet,
-            drawingRelIds[figureIndex]
+            drawingRelIds[figureIndex],
+            construct
           )
         );
         break;
@@ -124,11 +126,12 @@ function figureCoordinates(
 function createChartDrawing(
   figure: FigureData<ExcelChartDefinition>,
   sheet: SheetData,
-  chartRelId: string
+  chartRelId: string,
+  construct: XLSXStructure
 ): XMLString {
   // position
   const { from, to } = convertFigureData(figure, sheet);
-  const chartId = convertChartId(figure.id);
+  const chartId = convertChartId(figure.id, construct);
   const cNvPrAttrs: XMLAttributes = [
     ["id", chartId],
     ["name", `Chart ${chartId}`],

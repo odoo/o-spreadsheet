@@ -133,7 +133,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
     let drawingNode = escapeXml``;
     const drawingRelIds: string[] = [];
     for (const chart of sheet.charts) {
-      const xlsxChartId = convertChartId(chart.id);
+      const xlsxChartId = convertChartId(chart.id, construct);
       const chartRelId = addRelsToFile(
         construct.relsFiles,
         `xl/drawings/_rels/drawing${sheetIndex}.xml.rels`,
@@ -188,7 +188,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       );
       files.push(
         createXMLFile(
-          createDrawing(drawingRelIds, sheet, drawings),
+          createDrawing(drawingRelIds, sheet, drawings, construct),
           `xl/drawings/drawing${sheetIndex}.xml`,
           "drawing"
         )

@@ -5310,7 +5310,7 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
     </c:chart>
 </c:chartSpace>",
       "contentType": "chart",
-      "path": "xl/charts/chart2.xml",
+      "path": "xl/charts/chart1.xml",
     },
     {
       "content": "<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
@@ -5345,7 +5345,7 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
         </xdr:to>
         <xdr:graphicFrame>
             <xdr:nvGraphicFramePr>
-                <xdr:cNvPr id="2" name="Chart 2" title="Chart"/>
+                <xdr:cNvPr id="1" name="Chart 1" title="Chart"/>
                 <xdr:cNvGraphicFramePr/>
             </xdr:nvGraphicFramePr>
             <xdr:xfrm>
@@ -5598,7 +5598,7 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
     },
     {
       "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rId1" Target="../charts/chart2.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
+    <Relationship Id="rId1" Target="../charts/chart1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -5623,7 +5623,7 @@ exports[`Test XLSX export Charts doughnut chart 1`] = `
     <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
     <Default Extension="xml" ContentType="application/xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
-    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart2.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart1.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.drawing+xml" PartName="/xl/drawings/drawing0.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml" PartName="/xl/metadata.xml"/>
@@ -5944,7 +5944,7 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
     </c:chart>
 </c:chartSpace>",
       "contentType": "chart",
-      "path": "xl/charts/chart2.xml",
+      "path": "xl/charts/chart1.xml",
     },
     {
       "content": "<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
@@ -5979,7 +5979,7 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
         </xdr:to>
         <xdr:graphicFrame>
             <xdr:nvGraphicFramePr>
-                <xdr:cNvPr id="2" name="Chart 2" title="Chart"/>
+                <xdr:cNvPr id="1" name="Chart 1" title="Chart"/>
                 <xdr:cNvGraphicFramePr/>
             </xdr:nvGraphicFramePr>
             <xdr:xfrm>
@@ -6232,7 +6232,7 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
     },
     {
       "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rId1" Target="../charts/chart2.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
+    <Relationship Id="rId1" Target="../charts/chart1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -6257,7 +6257,7 @@ exports[`Test XLSX export Charts horizontal bar chart 1`] = `
     <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
     <Default Extension="xml" ContentType="application/xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
-    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart2.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart1.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.drawing+xml" PartName="/xl/drawings/drawing0.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml" PartName="/xl/metadata.xml"/>
@@ -8033,7 +8033,7 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
     </c:chart>
 </c:chartSpace>",
       "contentType": "chart",
-      "path": "xl/charts/chart2.xml",
+      "path": "xl/charts/chart1.xml",
     },
     {
       "content": "<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart">
@@ -8068,7 +8068,7 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
         </xdr:to>
         <xdr:graphicFrame>
             <xdr:nvGraphicFramePr>
-                <xdr:cNvPr id="2" name="Chart 2" title="Chart"/>
+                <xdr:cNvPr id="1" name="Chart 1" title="Chart"/>
                 <xdr:cNvGraphicFramePr/>
             </xdr:nvGraphicFramePr>
             <xdr:xfrm>
@@ -8321,7 +8321,7 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
     },
     {
       "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rId1" Target="../charts/chart2.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
+    <Relationship Id="rId1" Target="../charts/chart1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart"/>
 </Relationships>",
       "contentType": undefined,
       "path": "xl/drawings/_rels/drawing0.xml.rels",
@@ -8346,7 +8346,7 @@ exports[`Test XLSX export Charts pyramid chart 1`] = `
     <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
     <Default Extension="xml" ContentType="application/xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
-    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart2.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml" PartName="/xl/charts/chart1.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.drawing+xml" PartName="/xl/drawings/drawing0.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
     <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml" PartName="/xl/metadata.xml"/>
