@@ -1,4 +1,4 @@
-import { Alias, ExcelChartDefinition, Format, PaneDivision } from ".";
+import { Alias, ExcelChartDefinition, Format, PaneDivision, UID } from ".";
 import { ExcelImage } from "../types/image";
 import { ExcelFigureSize } from "./figure";
 
@@ -100,6 +100,8 @@ export interface XLSXStructure {
   numFmts: XLSXNumFormat[];
   styles: XLSXStyle[];
   dxfs: XLSXDxf[];
+  chartIds: UID[];
+  imageIds: UID[];
 }
 
 export interface XLSXImportData extends Omit<XLSXStructure, "relsFiles"> {

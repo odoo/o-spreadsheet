@@ -86,6 +86,8 @@ export function getDefaultXLSXStructure(data: ExcelWorkbookData): XLSXStructure 
   return {
     relsFiles: [],
     sharedStrings: [],
+    chartIds: [],
+    imageIds: [],
     // default Values that will always be part of the style sheet
     styles: [
       {

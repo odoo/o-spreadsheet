@@ -235,17 +235,15 @@ export function pushElement<T>(property: T, propertyList: T[]): number {
   return maxId;
 }
 
-const chartIds: UID[] = [];
-
 /**
  * Convert a chart o-spreadsheet id to a xlsx id which
  * are unsigned integers (starting from 1).
  */
-export function convertChartId(chartId: UID) {
-  const xlsxId = chartIds.findIndex((id) => id === chartId);
+export function convertChartId(chartId: UID, construct: XLSXStructure) {
+  const xlsxId = construct.chartIds.findIndex((id) => id === chartId);
   if (xlsxId === -1) {
-    chartIds.push(chartId);
-    return chartIds.length;
+    construct.chartIds.push(chartId);
+    return construct.chartIds.length;
   }
   return xlsxId + 1;
 }

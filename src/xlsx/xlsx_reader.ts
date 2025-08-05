@@ -115,6 +115,8 @@ export class XlsxReader {
       sheets: sheets,
       sharedStrings,
       externalBooks,
+      chartIds: [],
+      imageIds: [],
     };
   }
 
