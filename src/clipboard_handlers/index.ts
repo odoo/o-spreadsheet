@@ -16,7 +16,7 @@ import { TableClipboardHandler } from "./tables_clipboard";
 
 export const clipboardHandlersRegistries = {
   figureHandlers: new Registry<typeof AbstractFigureClipboardHandler<any>>(),
-  cellHandlers: new Registry<typeof AbstractCellClipboardHandler<any, any>>(),
+  cellHandlers: new Registry<typeof AbstractCellClipboardHandler<any>>(),
 };
 
 clipboardHandlersRegistries.figureHandlers

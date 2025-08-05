@@ -1,11 +1,10 @@
-import { isDefined } from "../helpers";
 import {
   CellPosition,
   ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
   HeaderIndex,
-  Maybe,
+  Map2D,
   Merge,
   UID,
 } from "../types";
@@ -13,27 +12,22 @@ import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler"
 
 interface ClipboardContent {
   sheetId: UID;
-  merges: Maybe<Merge>[][];
+  cellContent: Map2D<Merge>;
 }
 
-export class MergeClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  Maybe<Merge>
-> {
+export class MergeClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     const sheetId = this.getters.getActiveSheetId();
     const { rowsIndexes, columnsIndexes } = data;
-    const merges: Maybe<Merge>[][] = [];
+    const cellContent = new Map2D<Merge>(columnsIndexes.length, rowsIndexes.length);
 
-    for (const row of rowsIndexes) {
-      const mergesInRow: Maybe<Merge>[] = [];
-      for (const col of columnsIndexes) {
-        const position = { col, row, sheetId };
-        mergesInRow.push(this.getters.getMerge(position));
+    for (const [r, row] of rowsIndexes.entries()) {
+      for (const [c, col] of columnsIndexes.entries()) {
+        const value = this.getters.getMerge({ col, row, sheetId });
+        if (value !== undefined) cellContent.set(c, r, value);
       }
-      merges.push(mergesInRow);
     }
-    return { merges, sheetId };
+    return { sheetId, cellContent };
   }
 
   /**
@@ -41,26 +35,20 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
    */
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     if (options.isCutOperation) {
-      const copiedMerges = content.merges.flat().filter(isDefined);
+      const copiedMerges = [...content.cellContent.values()];
       this.dispatch("REMOVE_MERGE", { sheetId: content.sheetId, target: copiedMerges });
     }
-    this.pasteFromCopy(target.sheetId, target.zones, content.merges, options);
+    this.pasteFromCopy(target.sheetId, target.zones, content, options);
   }
 
-  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, merges: Maybe<Merge>[][]) {
-    for (const [r, rowMerges] of merges.entries()) {
-      for (const [c, originMerge] of rowMerges.entries()) {
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteMerge(originMerge, position);
-      }
+  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, content: ClipboardContent) {
+    for (const [c, r, originMerge] of content.cellContent.entries()) {
+      const position = { col: col + c, row: row + r, sheetId };
+      this.pasteMerge(originMerge, position);
     }
   }
 
-  private pasteMerge(originMerge: Maybe<Merge>, target: CellPosition) {
-    if (!originMerge) {
-      return;
-    }
-
+  private pasteMerge(originMerge: Merge, target: CellPosition) {
     if (this.getters.isInMerge(target)) {
       return;
     }

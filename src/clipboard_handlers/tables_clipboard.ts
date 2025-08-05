@@ -8,6 +8,7 @@ import {
   ClipboardPasteTarget,
   CoreTableType,
   HeaderIndex,
+  Map2D,
   RangeData,
   Style,
   TableConfig,
@@ -34,17 +35,14 @@ interface TableCell {
 }
 
 interface ClipboardContent {
-  tableCells: TableCell[][];
+  cellContent: Map2D<TableCell>;
   sheetId: UID;
 }
 
-export class TableClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  TableCell
-> {
+export class TableClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   copy(
     data: ClipboardCellData,
-    isCutOperation: boolean,
+    isCutOperation?: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
   ): ClipboardContent {
     const sheetId = data.sheetId;
@@ -52,15 +50,12 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     const { rowsIndexes, columnsIndexes, zones } = data;
 
     const copiedTablesIds = new Set<UID>();
-    const tableCells: TableCell[][] = [];
-    for (const row of rowsIndexes) {
-      const tableCellsInRow: TableCell[] = [];
-      tableCells.push(tableCellsInRow);
-      for (const col of columnsIndexes) {
+    const tableCells: Map2D<TableCell> = new Map2D(columnsIndexes.length, rowsIndexes.length);
+    for (const [r, row] of rowsIndexes.entries()) {
+      for (const [c, col] of columnsIndexes.entries()) {
         const position = { col, row, sheetId };
         const table = this.getters.getTable(position);
         if (!table) {
-          tableCellsInRow.push({});
           continue;
         }
         const coreTable = this.getters.getCoreTable(position);
@@ -93,7 +88,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
           };
         }
         if (mode !== "shiftCells") {
-          tableCellsInRow.push({
+          tableCells.set(c, r, {
             table: copiedTable,
             style: this.getTableStyleToCopy(position),
             isWholeTableCopied: copiedTablesIds.has(table.id),
@@ -103,7 +98,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     }
 
     return {
-      tableCells,
+      cellContent: tableCells,
       sheetId: data.sheetId,
     };
   }
@@ -129,7 +124,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     const sheetId = target.sheetId;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.tableCells, options);
+      this.pasteFromCopy(sheetId, zones, content, options);
     } else {
       this.pasteFromCut(sheetId, zones, content, options);
     }
@@ -141,41 +136,32 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     content: ClipboardContent,
     options?: ClipboardOptions
   ) {
-    for (const row of content.tableCells) {
-      for (const tableCell of row) {
-        if (tableCell.table) {
-          this.dispatch("REMOVE_TABLE", {
-            sheetId: content.sheetId,
-            target: [this.getters.getRangeFromRangeData(tableCell.table.range).zone],
-          });
-        }
+    for (const tableCell of content.cellContent.values()) {
+      if (tableCell.table) {
+        this.dispatch("REMOVE_TABLE", {
+          sheetId: content.sheetId,
+          target: [this.getters.getRangeFromRangeData(tableCell.table.range).zone],
+        });
       }
     }
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.tableCells, options);
+    this.pasteZone(sheetId, selection.left, selection.top, content, options);
   }
 
   protected pasteZone(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    tableCells: TableCell[][],
+    content: ClipboardContent,
     clipboardOptions?: ClipboardOptions
   ) {
-    for (let r = 0; r < tableCells.length; r++) {
-      const rowCells = tableCells[r];
-      for (let c = 0; c < rowCells.length; c++) {
-        const tableCell = rowCells[c];
-        if (!tableCell) {
-          continue;
-        }
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteTableCell(sheetId, tableCell, position, clipboardOptions);
-      }
+    for (const [c, r, tableCell] of content.cellContent.entries()) {
+      const position = { col: col + c, row: row + r, sheetId };
+      this.pasteTableCell(sheetId, tableCell, position, clipboardOptions);
     }
 
-    if (tableCells.length === 1) {
-      for (let c = 0; c < tableCells[0].length; c++) {
+    if (content.cellContent.height === 1) {
+      for (let c = 0; c < content.cellContent.width; c++) {
         this.dispatch("AUTOFILL_TABLE_COLUMN", { col: col + c, row, sheetId });
       }
     }

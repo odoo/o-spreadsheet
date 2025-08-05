@@ -12,14 +12,10 @@ import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler"
 
 type ClipboardContent = {
   styles: ZoneStyle[];
-  width: number;
-  height: number;
+  cellContent: { width: number; height: number };
 };
 
-export class StyleClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  ZoneStyle
-> {
+export class StyleClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     const sheetId = data.sheetId;
     if (data.zones.length === 0) {
@@ -53,7 +49,10 @@ export class StyleClipboardHandler extends AbstractCellClipboardHandler<
       }
       colsBefore += cols.length;
     }
-    return { styles: styles, width: data.columnsIndexes.length, height: data.rowsIndexes.length };
+    return {
+      styles: styles,
+      cellContent: { width: data.columnsIndexes.length, height: data.rowsIndexes.length },
+    };
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
@@ -64,7 +63,11 @@ export class StyleClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     if (!options.isCutOperation) {
       for (const zone of zones) {
-        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
+        for (const pasteZone of splitZoneForPaste(
+          zone,
+          content.cellContent.width,
+          content.cellContent.height
+        )) {
           this.pasteStyleZone(sheetId, pasteZone.left, pasteZone.top, content.styles);
         }
       }
