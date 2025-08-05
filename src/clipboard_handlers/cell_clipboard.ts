@@ -1,5 +1,8 @@
 import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
-import { getPasteZones } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  columnRowIndexesToZones,
+  getPasteZones,
+} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { canonicalizeNumberValue } from "@odoo/o-spreadsheet-engine/helpers/locale";
 import { createPivotFormula } from "@odoo/o-spreadsheet-engine/helpers/pivot/pivot_helpers";
 import { deepEquals, formatValue, isZoneInside } from "../helpers";
@@ -12,20 +15,18 @@ import {
   ClipboardPasteTarget,
   CommandResult,
   HeaderIndex,
+  Map2D,
   UID,
   Zone,
 } from "../types";
 
 interface ClipboardContent {
-  cells: ClipboardCell[][];
+  cellContent: Map2D<ClipboardCell>;
   zones: Zone[];
   sheetId: UID;
 }
 
-export class CellClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  ClipboardCell
-> {
+export class CellClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   isCutAllowed(data: ClipboardCellData) {
     if (data.zones.length !== 1) {
       return CommandResult.WrongCutSelection;
@@ -40,14 +41,19 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ): ClipboardContent | undefined {
     const sheetId = data.sheetId;
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
-    const clippedCells: ClipboardCell[][] = [];
+    const clippedCells = new Map2D<ClipboardCell>(columnsIndexes.length, rowsIndexes.length);
     const isCopyingOneCell = rowsIndexes.length === 1 && columnsIndexes.length === 1;
-    for (const row of rowsIndexes) {
-      const cellsInRow: ClipboardCell[] = [];
-      for (const col of columnsIndexes) {
-        const position = { col, row, sheetId };
-        let cell = this.getters.getCell(position);
+    for (const [zone, c, r] of columnRowIndexesToZones(data.columnsIndexes, data.rowsIndexes)) {
+      const positions =
+        mode === "shiftCells"
+          ? this.getters
+              .getCellsFromZones(sheetId, [zone])
+              .map((cell) => this.getters.getCellPosition(cell.id))
+          : this.getters.getEvaluatedCellsPositionInZone(sheetId, zone);
+
+      for (const position of positions) {
         const evaluatedCell = this.getters.getEvaluatedCell(position);
+        let cell = this.getters.getCell(position);
         const pivotId = this.getters.getPivotIdFromPosition(position);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
         if (mode !== "shiftCells" && pivotId && spreader) {
@@ -70,7 +76,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         } else if (mode !== "shiftCells") {
           if (spreader && !deepEquals(spreader, position)) {
             const isSpreaderCopied =
-              rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
+              rowsIndexes.has(spreader.row) && columnsIndexes.has(spreader.col);
             const content = isSpreaderCopied
               ? ""
               : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
@@ -82,20 +88,21 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             };
           }
         }
-        cellsInRow.push({
-          content: cell?.content ?? "",
-          tokens: cell?.isFormula
-            ? cell.compiledFormula.tokens.map(({ value, type }) => ({ value, type }))
-            : [],
-          evaluatedCell,
-          position,
-        });
+        if (cell?.content !== "") {
+          clippedCells.set(c + position.col - zone.left, r + position.row - zone.top, {
+            content: cell?.content ?? "",
+            tokens: cell?.isFormula
+              ? cell.compiledFormula.tokens.map(({ value, type }) => ({ value, type }))
+              : [],
+            evaluatedCell,
+            position,
+          });
+        }
       }
-      clippedCells.push(cellsInRow);
     }
 
     return {
-      cells: clippedCells,
+      cellContent: clippedCells,
       zones: clippedZones,
       sheetId: data.sheetId,
     };
@@ -107,7 +114,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     content: ClipboardContent,
     clipboardOptions: ClipboardOptions
   ): CommandResult {
-    if (!content.cells) {
+    if (!content.cellContent) {
       return CommandResult.Success;
     }
     if (clipboardOptions?.isCutOperation && clipboardOptions?.pasteOption !== undefined) {
@@ -117,13 +124,13 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (target.length > 1) {
       // cannot paste if we have a clipped zone larger than a cell and multiple
       // zones selected
-      if (content.cells.length > 1 || content.cells[0].length > 1) {
+      if (content.cellContent.width > 1 || content.cellContent.height > 1) {
         return CommandResult.WrongPasteSelection;
       }
     }
-    const clipboardHeight = content.cells.length;
-    const clipboardWidth = content.cells[0].length;
-    for (const zone of getPasteZones(target, content.cells)) {
+    const clipboardHeight = content.cellContent.height;
+    const clipboardWidth = content.cellContent.width;
+    for (const zone of getPasteZones(target, clipboardWidth, clipboardHeight)) {
       if (this.getters.doesIntersectMerge(sheetId, zone)) {
         if (
           target.length > 1 ||
@@ -143,8 +150,19 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const zones = target.zones;
     const sheetId = target.sheetId;
+    if (options.pasteOption === "asValue") {
+      this.dispatch("DELETE_CONTENT", {
+        sheetId,
+        target: zones,
+      });
+    } else if (options.pasteOption === undefined) {
+      this.dispatch("CLEAR_CELLS", {
+        sheetId,
+        target: zones,
+      });
+    }
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.cells, options);
+      this.pasteFromCopy(sheetId, zones, content, options);
     } else {
       this.pasteFromCut(sheetId, zones, content, options);
     }
@@ -156,8 +174,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
-    const width = content.cells[0].length;
-    const height = content.cells.length;
+    const width = content.cellContent.width;
+    const height = content.cellContent.height;
     if (options?.isCutOperation) {
       return {
         sheetId,
@@ -174,7 +192,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (width === 1 && height === 1) {
       return { zones: [], sheetId };
     }
-    return { sheetId, zones: getPasteZones(target, content.cells) };
+    return { sheetId, zones: getPasteZones(target, width, height) };
   }
 
   private pasteFromCut(
@@ -185,7 +203,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     this.clearClippedZones(content);
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.cells, options);
+    this.pasteZone(sheetId, selection.left, selection.top, content, options);
   }
 
   /**
@@ -206,18 +224,13 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    cells: ClipboardCell[][],
+    content: ClipboardContent,
     clipboardOptions?: ClipboardOptions
   ) {
     // then, perform the actual paste operation
-    for (const [r, rowCells] of cells.entries()) {
-      for (const [c, origin] of rowCells.entries()) {
-        if (!origin) {
-          continue;
-        }
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteCell(origin, position, clipboardOptions);
-      }
+    for (const [c, r, origin] of content.cellContent.entries()) {
+      const position = { col: col + c, row: row + r, sheetId };
+      this.pasteCell(origin, position, clipboardOptions);
     }
   }
 
@@ -278,9 +291,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
 
   convertTextToClipboardData(text: string): ClipboardContent {
     const locale = this.getters.getLocale();
-    const copiedData: any = {
-      cells: [],
-    };
     const values: string[][] = [];
     let rowLength = 0;
     for (const [i, row] of text.replace(/\r/g, "").split("\n").entries()) {
@@ -289,19 +299,18 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         rowLength = values[i].length;
       }
     }
-    for (const row of values) {
-      const cells: any[] = [];
-      for (let i = 0; i < rowLength; i++) {
-        const content = canonicalizeNumberValue(row[i] || "", locale);
-        cells.push({
+    const cells = new Map2D<any>(rowLength, values.length);
+    for (const [r, row] of values.entries()) {
+      for (let col = 0; col < rowLength; col++) {
+        const content = canonicalizeNumberValue(row[col] || "", locale);
+        cells.set(col, r, {
           content: content,
           evaluatedCell: {
             formattedValue: content,
           },
         });
       }
-      copiedData.cells.push(cells);
     }
-    return copiedData;
+    return { cellContent: cells } as any;
   }
 }
