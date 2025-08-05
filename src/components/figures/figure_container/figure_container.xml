@@ -14,6 +14,7 @@
                 onFigureDeleted="this.props.onFigureDeleted"
                 figureUI="figureUI"
                 style="getFigureStyle(figureUI)"
+                class="getFigureClass(figureUI)"
                 onMouseDown="(ev) => this.startDraggingFigure(figureUI, ev)"
                 onClickAnchor="(dirX, dirY, ev) => this.startResize(figureUI, dirX, dirY, ev)"
               />

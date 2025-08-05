@@ -417,6 +417,29 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
   }
 };
 
+export const CREATE_CAROUSEL = (env: SpreadsheetChildEnv) => {
+  const getters = env.model.getters;
+  const figureId = env.model.uuidGenerator.smallUuid();
+  const sheetId = getters.getActiveSheetId();
+
+  const size = { width: DEFAULT_FIGURE_WIDTH, height: DEFAULT_FIGURE_HEIGHT };
+  const { col, row, offset } = centerFigurePosition(getters, size);
+
+  const result = env.model.dispatch("CREATE_CAROUSEL", {
+    sheetId,
+    figureId,
+    col,
+    row,
+    offset,
+    size,
+    definition: { items: [] },
+  });
+  if (result.isSuccessful) {
+    env.model.dispatch("SELECT_FIGURE", { figureId });
+    env.openSidePanel("CarouselPanel", { figureId });
+  }
+};
+
 //------------------------------------------------------------------------------
 // Pivots
 //------------------------------------------------------------------------------

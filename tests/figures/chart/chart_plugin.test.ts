@@ -57,7 +57,7 @@ import {
 import { toNumber } from "../../../src/functions/helpers";
 import { zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
-import { ChartPlugin } from "../../../src/plugins/core";
+import { ChartPlugin, FigurePlugin } from "../../../src/plugins/core";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
 import {
   getCategoryAxisTickLabels,
@@ -3237,7 +3237,7 @@ describe("Pie chart invalid values", () => {
   });
 });
 
-test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
+test("Duplicating a sheet dispatches CREATE_CHART for each chart", () => {
   createChart(
     model,
     {
@@ -3256,19 +3256,23 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
   );
   const chartPlugin = getPlugin(model, ChartPlugin);
   // @ts-ignore
-  const spyDispatch = jest.spyOn(chartPlugin, "dispatch");
+  const spyChartDispatch = jest.spyOn(chartPlugin, "dispatch");
+
+  const figurePlugin = getPlugin(model, FigurePlugin);
+  // @ts-ignore
+  const spyFigureDispatch = jest.spyOn(figurePlugin, "dispatch");
+
   const sheetId = model.getters.getActiveSheetId();
   model.dispatch("DUPLICATE_SHEET", {
     sheetId,
     sheetIdTo: "copyOf" + sheetId,
     sheetNameTo: "Copy of Sheet1",
   });
-  // first chart duplicated
-  expect(spyDispatch).toHaveBeenNthCalledWith(1, "CREATE_CHART", expect.any(Object));
-  expect(spyDispatch).toHaveBeenNthCalledWith(2, "CREATE_FIGURE", expect.any(Object));
-  // second chart duplicated
-  expect(spyDispatch).toHaveBeenNthCalledWith(3, "CREATE_CHART", expect.any(Object));
-  expect(spyDispatch).toHaveBeenNthCalledWith(4, "CREATE_FIGURE", expect.any(Object));
+  expect(spyChartDispatch).toHaveBeenNthCalledWith(1, "CREATE_CHART", expect.any(Object));
+  expect(spyChartDispatch).toHaveBeenNthCalledWith(2, "CREATE_CHART", expect.any(Object));
+
+  expect(spyFigureDispatch).toHaveBeenNthCalledWith(1, "CREATE_FIGURE", expect.any(Object));
+  expect(spyFigureDispatch).toHaveBeenNthCalledWith(2, "CREATE_FIGURE", expect.any(Object));
 });
 
 test("trend line dataset are put after original dataset in the runtime", async () => {

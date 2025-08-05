@@ -48,6 +48,7 @@ interface DndState {
   horizontalSnap?: Snap<HFigureAxisType>;
   verticalSnap?: Snap<VFigureAxisType>;
   cancelDnd: (() => void) | undefined;
+  overlappingCarousel?: FigureUI;
 }
 
 css/*SCSS*/ `
@@ -141,6 +142,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     horizontalSnap: undefined,
     verticalSnap: undefined,
     cancelDnd: undefined,
+    overlappingCarousel: undefined,
   });
 
   setup() {
@@ -164,6 +166,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         this.dnd.draggedFigure = undefined;
         this.dnd.horizontalSnap = undefined;
         this.dnd.verticalSnap = undefined;
+        this.dnd.overlappingCarousel = undefined;
         this.dnd.cancelDnd = undefined;
       }
     });
@@ -341,10 +344,19 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       );
 
       const otherFigures = this.getOtherFigures(initialFigure.id);
-      const snapResult = snapForMove(getters, draggedFigure, otherFigures);
-      this.dnd.draggedFigure = snapResult.snappedFigure;
-      this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
-      this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
+      const overlappingCarousel = this.getCarouselOverlappingChart(draggedFigure, otherFigures);
+      this.dnd.overlappingCarousel = overlappingCarousel;
+
+      if (!overlappingCarousel) {
+        const snapResult = snapForMove(getters, draggedFigure, otherFigures);
+        this.dnd.draggedFigure = snapResult.snappedFigure;
+        this.dnd.horizontalSnap = this.getSnap(snapResult.horizontalSnapLine);
+        this.dnd.verticalSnap = this.getSnap(snapResult.verticalSnapLine);
+      } else {
+        this.dnd.draggedFigure = draggedFigure;
+        this.dnd.horizontalSnap = undefined;
+        this.dnd.verticalSnap = undefined;
+      }
     };
 
     const onMouseUp = (ev: MouseEvent) => {
@@ -354,16 +366,27 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       const { col, row, offset } = this.env.model.getters.getPositionAnchorOffset(
         this.dnd.draggedFigure
       );
+      if (!this.dnd.overlappingCarousel) {
+        this.env.model.dispatch("UPDATE_FIGURE", {
+          sheetId,
+          figureId: figureUI.id,
+          offset,
+          col,
+          row,
+        });
+      } else {
+        this.env.model.dispatch("ADD_FIGURE_CHART_TO_CAROUSEL", {
+          sheetId,
+          carouselFigureId: this.dnd.overlappingCarousel.id,
+          chartFigureId: figureUI.id,
+        });
+        this.props.onFigureDeleted();
+      }
+
       this.dnd.draggedFigure = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
-      this.env.model.dispatch("UPDATE_FIGURE", {
-        sheetId,
-        figureId: figureUI.id,
-        offset,
-        col,
-        row,
-      });
+      this.dnd.overlappingCarousel = undefined;
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -447,6 +470,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
       this.dnd.draggedFigure = undefined;
       this.dnd.horizontalSnap = undefined;
       this.dnd.verticalSnap = undefined;
+      this.dnd.overlappingCarousel = undefined;
     };
 
     this.dnd.cancelDnd = startDnd(onMouseMove, onMouseUp);
@@ -465,9 +489,14 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   getFigureStyle(figureUI: FigureUI): string {
     if (figureUI.id !== this.dnd.draggedFigure?.id) return "";
     return cssPropertiesToCss({
-      opacity: "0.9",
+      opacity: this.dnd.overlappingCarousel?.id ? "0.6" : "0.9",
       cursor: "grabbing",
     });
+  }
+
+  getFigureClass(figureUI: FigureUI): string {
+    if (figureUI.id !== this.dnd.overlappingCarousel?.id) return "";
+    return "o-add-to-carousel";
   }
 
   private getSnap<T extends HFigureAxisType | VFigureAxisType>(
@@ -521,5 +550,30 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         height: `100%`,
       });
     }
+  }
+
+  private getCarouselOverlappingChart(
+    figureUI: FigureUI,
+    otherFigures: FigureUI[]
+  ): FigureUI | undefined {
+    if (figureUI.tag !== "chart") {
+      return undefined;
+    }
+    const minimumOverlap = 20; // Minimum overlap in pixels to consider a carousel overlapping
+    const carousels = otherFigures.filter((f) => f.tag === "carousel");
+
+    return carousels.find((carousel) => {
+      const xOverlap = Math.max(
+        0,
+        Math.min(figureUI.x + figureUI.width, carousel.x + carousel.width) -
+          Math.max(figureUI.x, carousel.x)
+      );
+      const yOverlap = Math.max(
+        0,
+        Math.min(figureUI.y + figureUI.height, carousel.y + carousel.height) -
+          Math.max(figureUI.y, carousel.y)
+      );
+      return xOverlap >= minimumOverlap && yOverlap >= minimumOverlap;
+    });
   }
 }

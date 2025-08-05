@@ -1,0 +1,37 @@
+<templates>
+  <t t-name="o-spreadsheet-CarouselFigure">
+    <div class="o-carousel w-100 h-100" t-on-dblclick="onCarouselDoubleClick">
+      <t t-set="selectedItem" t-value="selectedCarouselItem"/>
+      <div
+        class="o-carousel-header position-absolute end-0 top-0 d-flex pe-1 rounded pe-auto"
+        t-att-class="{
+          'o-carousel-header-floating': !env.isDashboard() and selectedItem?.type === 'carouselDataView',
+         }"
+        t-att-style="headerStyle"
+        t-on-pointerdown.stop="">
+        <t t-foreach="carousel.items" t-as="item" t-key="item_index">
+          <div
+            class="o-carousel-tab text-truncate px-2 mt-1 mb-1 flex-shrink-0"
+            t-att-class="{ 'selected': isItemSelected(item) }"
+            t-esc="getItemTitle(item)"
+            t-on-click.stop="() => this.onCarouselTabClick(item)"
+          />
+        </t>
+      </div>
+      <div
+        t-if="!selectedItem"
+        class="o-carousel-empty w-100 h-100 d-flex align-items-center justify-content-center">
+        <t t-call="o-spreadsheet-Icon.CAROUSEL"/>
+      </div>
+      <div t-elif="selectedItem.type === 'chart'" class="o-carousel-content w-100 h-100">
+        <div class="o-chart-container w-100 h-100">
+          <t
+            t-component="chartComponent"
+            chartId="selectedItem.chartId"
+            t-key="selectedItem.chartId"
+          />
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

@@ -1800,6 +1800,14 @@ describe("Menu Item actions", () => {
         expect(getName(filterPath, env)).toBe("Remove selected filters");
       });
     });
+
+    test("Insert -> Carousel", () => {
+      expect(getName(["insert", "insert_carousel"], env)).toBe("Carousel");
+      doAction(["insert", "insert_carousel"], env);
+      expect(model.getters.getFigures(model.getters.getActiveSheetId())[0]).toMatchObject({
+        tag: "carousel",
+      });
+    });
   });
 
   test("View -> Set gridlines visibility", () => {

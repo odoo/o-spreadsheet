@@ -53,7 +53,9 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "CREATE_IMAGE":
-        this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
+        if (!this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
+          this.addFigure(cmd.figureId, cmd.sheetId, cmd.col, cmd.row, cmd.offset, cmd.size);
+        }
         this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
         this.syncedImages.add(cmd.definition.path);
         break;

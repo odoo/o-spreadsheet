@@ -129,6 +129,42 @@ export function getImageMenuActions(
   return createActions(menuItemSpecs);
 }
 
+export function getCarouselMenuActions(
+  figureId: UID,
+  onFigureDeleted: () => void,
+  env: SpreadsheetChildEnv
+): Action[] {
+  const menuItemSpecs: ActionSpec[] = [
+    {
+      id: "edit_carousel",
+      name: _t("Edit carousel"),
+      sequence: 1,
+      execute: () => {
+        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.openSidePanel("CarouselPanel", { figureId });
+      },
+      icon: "o-spreadsheet-Icon.EDIT",
+      isEnabled: (env) => !env.isSmall,
+    },
+    {
+      id: "edit_chart",
+      name: _t("Edit chart"),
+      sequence: 1,
+      execute: () => {
+        env.model.dispatch("SELECT_FIGURE", { figureId });
+        env.openSidePanel("ChartPanel", {});
+      },
+      icon: "o-spreadsheet-Icon.EDIT",
+      isEnabled: (env) => !env.isSmall,
+      isVisible: (env) => env.model.getters.getSelectedCarouselItem(figureId)?.type === "chart",
+    },
+    getDeleteMenuItem(figureId, onFigureDeleted, env),
+  ];
+  return createActions(menuItemSpecs).filter((action) =>
+    env.model.getters.isReadonly() ? action.isReadonlyAllowed : true
+  );
+}
+
 function getCopyMenuItem(
   figureId: UID,
   env: SpreadsheetChildEnv,

@@ -1,23 +1,31 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import {
   AddColumnsRowsCommand,
+  DeleteChartCommand,
   DeleteFigureCommand,
+  UpdateCarouselCommand,
   UpdateCellCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
 } from "../../../src/types";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 
-describe("OT with DELETE_FIGURE", () => {
+describe("OT with figures commands", () => {
   const deleteFigure: DeleteFigureCommand = {
     type: "DELETE_FIGURE",
     sheetId: "42",
     figureId: "42",
   };
-  const updateChart: Omit<UpdateChartCommand, "figureId"> = {
+  const deleteChart: DeleteChartCommand = {
+    type: "DELETE_CHART",
+    sheetId: "42",
+    chartId: "chartId",
+  };
+  const updateChart: UpdateChartCommand = {
     type: "UPDATE_CHART",
     sheetId: "42",
-    chartId: "42",
+    chartId: "chartId",
+    figureId: "42",
     definition: {} as LineChartDefinition,
   };
   const updateFigure: Omit<UpdateFigureCommand, "figureId"> = {
@@ -26,8 +34,14 @@ describe("OT with DELETE_FIGURE", () => {
     col: 0,
     row: 0,
   };
+  const updateCarousel: UpdateCarouselCommand = {
+    type: "UPDATE_CAROUSEL",
+    sheetId: "42",
+    figureId: "42",
+    definition: { items: [] },
+  };
 
-  describe.each([updateChart, updateFigure])("UPDATE_CHART & UPDATE_FIGURE", (cmd) => {
+  describe.each([updateChart, updateFigure, updateCarousel])("DELETE_FIGURE command", (cmd) => {
     test("Same ID", () => {
       expect(transform({ ...cmd, figureId: "42" }, deleteFigure)).toBeUndefined();
     });
@@ -36,6 +50,35 @@ describe("OT with DELETE_FIGURE", () => {
       expect(transform({ ...cmd, figureId: "otherId" }, deleteFigure)).toEqual({
         ...cmd,
         figureId: "otherId",
+      });
+    });
+  });
+
+  describe("DELETE_CHART command", () => {
+    test("UPDATE_CHART with same ID", () => {
+      expect(transform({ ...updateChart, chartId: "chartId" }, deleteChart)).toBeUndefined();
+    });
+
+    test("UPDATE_CHART with same IDdistinct ID", () => {
+      const toTransform = { ...updateChart, chartId: "otherId" };
+      expect(transform(toTransform, deleteChart)).toEqual(toTransform);
+    });
+
+    test("UPDATE_CAROUSEL with chart in definition", () => {
+      const toTransform: UpdateCarouselCommand = {
+        ...updateCarousel,
+        definition: {
+          items: [
+            { type: "chart", chartId: "chartId" },
+            { type: "chart", chartId: "otherId" },
+          ],
+        },
+      };
+      expect(transform(toTransform, deleteChart)).toEqual({
+        ...toTransform,
+        definition: {
+          items: [{ type: "chart", chartId: "otherId" }],
+        },
       });
     });
   });

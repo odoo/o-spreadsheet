@@ -1,3 +1,4 @@
+import { CarouselPanel } from "../components/side_panel/carousel_panel/carousel_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
 import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
@@ -150,5 +151,18 @@ sidePanelRegistry.add("PivotMeasureDisplayPanel", {
     } catch (e) {
       return { isOpen: false };
     }
+  },
+});
+
+sidePanelRegistry.add("CarouselPanel", {
+  title: _t("Carousel"),
+  Body: CarouselPanel,
+  computeState: (getters: Getters, initialProps: { figureId: UID }) => {
+    const figureId = initialProps.figureId || getters.getSelectedFigureId();
+    if (!figureId || !getters.doesCarouselExist(figureId)) {
+      return { isOpen: false };
+    }
+
+    return { isOpen: true, props: { figureId } };
   },
 });

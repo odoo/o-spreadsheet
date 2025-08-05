@@ -55,6 +55,7 @@ css/*SCSS*/ `
   .o-figure-wrapper {
     position: absolute;
     box-sizing: content-box;
+    pointer-events: auto;
 
     .o-fig-anchor {
       z-index: ${ComponentsImportance.FigureAnchor};
@@ -112,6 +113,7 @@ css/*SCSS*/ `
 interface Props {
   figureUI: FigureUI;
   style: string;
+  class: string;
   onFigureDeleted: () => void;
   onMouseDown: (ev: MouseEvent) => void;
   onClickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent): void;
@@ -122,6 +124,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     figureUI: Object,
     style: { type: String, optional: true },
+    class: { type: String, optional: true },
     onFigureDeleted: { type: Function, optional: true },
     onMouseDown: { type: Function, optional: true },
     onClickAnchor: { type: Function, optional: true },
@@ -136,6 +139,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   private menuState: MenuState = useState({ isOpen: false, anchorRect: null, menuItems: [] });
 
   private figureRef = useRef("figure");
+  private figureWrapperRef = useRef("figureWrapper");
   private menuButtonRef = useRef("menuButton");
 
   private borderWidth!: number;
@@ -338,5 +342,13 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.menuItems = figureRegistry
       .get(this.props.figureUI.tag)
       .menuBuilder(this.props.figureUI.id, this.props.onFigureDeleted, this.env);
+  }
+
+  editWrapperStyle(properties: CSSProperties) {
+    if (this.figureWrapperRef.el) {
+      for (const property in properties) {
+        this.figureWrapperRef.el.style.setProperty(property, properties[property] || null);
+      }
+    }
   }
 }

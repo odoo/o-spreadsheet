@@ -274,7 +274,11 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
     sheet.figures?.forEach((figure) => {
       if (figure.tag === "chart") {
         // chart definition
-        map[figure.data.chartId || figure.id] = figure.data;
+        if (data.version && compareVersions(String(data.version), "18.5.1") <= 0) {
+          map[figure.data.chartId] = figure.data;
+        } else {
+          map[figure.id] = figure.data;
+        }
       }
     });
   }

@@ -1,5 +1,10 @@
 import { Action } from "../actions/action";
-import { getChartMenuActions, getImageMenuActions } from "../actions/figure_menu_actions";
+import {
+  getCarouselMenuActions,
+  getChartMenuActions,
+  getImageMenuActions,
+} from "../actions/figure_menu_actions";
+import { CarouselFigure } from "../components/figures/figure_carousel/figure_carousel";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { SpreadsheetChildEnv, UID } from "../types";
@@ -37,4 +42,8 @@ figureRegistry.add("image", {
   minFigSize: 20,
   borderWidth: 0,
   menuBuilder: getImageMenuActions,
+});
+figureRegistry.add("carousel", {
+  Component: CarouselFigure,
+  menuBuilder: getCarouselMenuActions,
 });

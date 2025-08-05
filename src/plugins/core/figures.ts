@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT } from "../../constants";
+import { DEFAULT_CELL_HEIGHT, FIGURE_ID_SPLITTER } from "../../constants";
 import { clip } from "../../helpers/index";
 import { AnchorOffset } from "../../types/figure";
 import {
@@ -126,6 +126,23 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
           this.onRowRemove(cmd.sheetId);
         }
         break;
+      case "DUPLICATE_SHEET": {
+        for (const figureId in this.figures[cmd.sheetId]) {
+          const fig = this.figures[cmd.sheetId]?.[figureId];
+          if (!fig) {
+            continue;
+          }
+          const figureIdBase = figureId.split(FIGURE_ID_SPLITTER).pop();
+          const duplicatedFigureId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${figureIdBase}`;
+          this.dispatch("CREATE_FIGURE", {
+            figureId: duplicatedFigureId,
+            ...fig,
+            size: { width: fig.width, height: fig.height },
+            sheetId: cmd.sheetIdTo,
+          });
+        }
+        break;
+      }
     }
   }
 
@@ -251,6 +268,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
     const figure: Figure = { ...this.getFigure(sheetId, figureId)!, ...update };
     for (const [key, value] of Object.entries(update)) {
       switch (key) {
+        case "tag":
+          this.history.update("figures", sheetId, figure.id, key, value as string);
+          break;
         case "offset":
           this.history.update("figures", sheetId, figure.id, key, value as PixelPosition);
           break;
