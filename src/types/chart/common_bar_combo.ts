@@ -1,3 +1,5 @@
 import { CommonChartDefinition } from "./common_chart";
 
-export interface ComboBarChartDefinition extends CommonChartDefinition {}
+export interface ComboBarChartDefinition extends CommonChartDefinition {
+  readonly zoomable?: boolean;
+}
