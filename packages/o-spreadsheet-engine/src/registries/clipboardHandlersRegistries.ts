@@ -4,5 +4,5 @@ import { Registry } from "./registry";
 
 export const clipboardHandlersRegistries = {
   figureHandlers: new Registry<typeof AbstractFigureClipboardHandler<any>>(),
-  cellHandlers: new Registry<typeof AbstractCellClipboardHandler<any, any>>(),
+  cellHandlers: new Registry<typeof AbstractCellClipboardHandler<any>>(),
 };

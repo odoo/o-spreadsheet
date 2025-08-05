@@ -3,8 +3,9 @@ import { toXC } from "../../helpers/coordinates";
 import { deepCopy } from "../../helpers/misc";
 import { duplicateRangeInDuplicatedSheet, getCellPositionsInRanges } from "../../helpers/range";
 import { recomputeZones } from "../../helpers/recompute_zones";
-import { isInside } from "../../helpers/zones";
+import { intersection, isInside } from "../../helpers/zones";
 import { criterionEvaluatorRegistry } from "../../registries/criterion_registry";
+import { Map2D } from "../../types/clipboard";
 import {
   AddDataValidationCommand,
   Command,
@@ -12,7 +13,7 @@ import {
   CoreCommand,
 } from "../../types/commands";
 import { DataValidationRule } from "../../types/data_validation";
-import { CellPosition, RangeAdapterFunctions, Style, UID } from "../../types/misc";
+import { CellPosition, RangeAdapterFunctions, Style, UID, Zone } from "../../types/misc";
 import { Range } from "../../types/range";
 import { ExcelWorkbookData, WorkbookData } from "../../types/workbook_data";
 import { CorePlugin } from "../core_plugin";
@@ -30,6 +31,7 @@ export class DataValidationPlugin
     "getDataValidationRule",
     "getDataValidationRules",
     "getValidationRuleForCell",
+    "getDataValidationRulesInZone",
   ] as const;
 
   readonly rules: { [sheet: string]: DataValidationRule[] } = {};
@@ -195,6 +197,26 @@ export class DataValidationPlugin
       }
     }
     return undefined;
+  }
+
+  getDataValidationRulesInZone(sheetId: UID, zone: Zone): Map2D<DataValidationRule> {
+    const map = new Map2D<DataValidationRule>(zone.right, zone.bottom);
+
+    for (const dv of this.rules[sheetId]) {
+      for (const dvZone of dv.ranges.map((range) => range.zone)) {
+        const inter = intersection(zone, dvZone);
+        if (!inter) {
+          continue;
+        }
+        for (let col = inter.left; col <= inter.right; col++) {
+          for (let row = inter.top; row <= inter.bottom; row++) {
+            map.set(col, row, dv);
+          }
+        }
+      }
+    }
+
+    return map;
   }
 
   cellHasListDataValidationIcon(cellPosition: CellPosition): boolean {

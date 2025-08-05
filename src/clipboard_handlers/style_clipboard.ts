@@ -1,6 +1,8 @@
-import { groupConsecutive } from "@odoo/o-spreadsheet-engine";
 import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
-import { splitZoneForPaste } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  columnRowIndexesToZones,
+  splitZoneForPaste,
+} from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
 import { ZoneStyle } from "@odoo/o-spreadsheet-engine/plugins/core/style";
 import {
   ClipboardCellData,
@@ -12,48 +14,38 @@ import {
 
 type ClipboardContent = {
   styles: ZoneStyle[];
-  width: number;
-  height: number;
+  cellContent: { width: number; height: number };
 };
 
-export class StyleClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  ZoneStyle
-> {
+export class StyleClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     const sheetId = data.sheetId;
     if (data.zones.length === 0) {
       return;
     }
     const styles: ZoneStyle[] = [];
-    let colsBefore = 0;
-    for (const cols of groupConsecutive(data.columnsIndexes)) {
-      let rowsBefore = 0;
-      for (const rows of groupConsecutive(data.rowsIndexes)) {
-        const zone = {
-          left: cols[0],
-          right: cols[cols.length - 1],
-          top: rows[0],
-          bottom: rows[rows.length - 1],
-        };
-        styles.push(
-          ...this.getters.getZoneStyles(sheetId, zone).map((zb) => {
-            return {
-              zone: {
-                left: zb.zone.left - zone.left + colsBefore,
-                right: zb.zone.right && zb.zone.right - zone.left + colsBefore,
-                top: zb.zone.top - zone.top + rowsBefore,
-                bottom: zb.zone.bottom && zb.zone.bottom - zone.top + rowsBefore,
-              },
-              style: zb.style,
-            };
-          })
-        );
-        rowsBefore += rows.length;
-      }
-      colsBefore += cols.length;
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      styles.push(
+        ...this.getters.getZoneStyles(sheetId, zone).map((zb) => {
+          return {
+            zone: {
+              left: zb.zone.left - zone.left + colsBefore,
+              right: zb.zone.right && zb.zone.right - zone.left + colsBefore,
+              top: zb.zone.top - zone.top + rowsBefore,
+              bottom: zb.zone.bottom && zb.zone.bottom - zone.top + rowsBefore,
+            },
+            style: zb.style,
+          };
+        })
+      );
     }
-    return { styles, width: data.columnsIndexes.length, height: data.rowsIndexes.length };
+    return {
+      styles,
+      cellContent: { width: data.columnsIndexes.length, height: data.rowsIndexes.length },
+    };
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
@@ -62,10 +54,16 @@ export class StyleClipboardHandler extends AbstractCellClipboardHandler<
       return;
     }
     const zones = target.zones;
-    if (!options.isCutOperation) {
+    if (content.styles.length === 0) {
+      this.dispatch("SET_FORMATTING", { sheetId, target: zones, style: null });
+    } else if (!options.isCutOperation) {
       this.dispatch("SET_FORMATTING", { sheetId, target: zones, style: null });
       for (const zone of zones) {
-        for (const pasteZone of splitZoneForPaste(zone, content.width, content.height)) {
+        for (const pasteZone of splitZoneForPaste(
+          zone,
+          content.cellContent.width,
+          content.cellContent.height
+        )) {
           this.pasteStyleZone(sheetId, pasteZone.left, pasteZone.top, content.styles);
         }
       }

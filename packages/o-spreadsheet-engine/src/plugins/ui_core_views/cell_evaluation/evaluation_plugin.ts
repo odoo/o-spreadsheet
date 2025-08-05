@@ -2,7 +2,14 @@ import { isExportableToExcel } from "../../../formulas/helpers";
 import { matrixMap } from "../../../functions/helpers";
 import { toXC } from "../../../helpers/coordinates";
 import { getItemId } from "../../../helpers/data_normalization";
-import { cellPositions, positions } from "../../../helpers/zones";
+import {
+  cellPositions,
+  getZoneArea,
+  intersection,
+  isBound,
+  isInside,
+  positions,
+} from "../../../helpers/zones";
 import { CellValue, CellValueType, EvaluatedCell, FormulaCell } from "../../../types/cells";
 import {
   Command,
@@ -308,11 +315,17 @@ export class EvaluationPlugin extends CoreViewPlugin {
     return cellPositions(sheetId, zone).map(this.getters.getEvaluatedCell);
   }
 
-  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): [CellPosition, EvaluatedCell][] {
-    return cellPositions(sheetId, zone).map((position) => [
-      position,
-      this.getters.getEvaluatedCell(position),
-    ]);
+  getEvaluatedCellsPositionInZone(sheetId: UID, zone: Zone): CellPosition[] {
+    const inter = intersection(zone, this.getters.getSheetEvaluatedZone(sheetId));
+    if (!inter) return [];
+    if (isBound(inter) && getZoneArea(inter) < 1000) {
+      return cellPositions(sheetId, inter).filter(
+        (pos) => this.getters.getEvaluatedCell(pos).value !== null
+      );
+    }
+    return this.evaluator
+      .getEvaluatedPositionsInSheet(sheetId)
+      .filter((pos) => isInside(pos.col, pos.row, inter));
   }
 
   /**

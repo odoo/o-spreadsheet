@@ -1,5 +1,12 @@
 import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
-import { UuidGenerator, deepEquals, positionToZone, recomputeZones } from "../helpers";
+import { columnRowIndexesToZones } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  UuidGenerator,
+  deepEquals,
+  intersection,
+  positionToZone,
+  recomputeZones,
+} from "../helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -7,24 +14,21 @@ import {
   ClipboardPasteTarget,
   DataValidationRule,
   HeaderIndex,
-  Maybe,
+  Map2D,
   UID,
   Zone,
 } from "../types";
 
 interface ClipboardDataValidationRule {
   position: CellPosition;
-  rule: Maybe<DataValidationRule>;
+  rule: DataValidationRule;
 }
 
 interface ClipboardContent {
-  dvRules: Maybe<ClipboardDataValidationRule>[][];
+  cellContent: Map2D<ClipboardDataValidationRule>;
 }
 
-export class DataValidationClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  Maybe<ClipboardDataValidationRule>
-> {
+export class DataValidationClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   private readonly uuidGenerator = new UuidGenerator();
   private queuedChanges: Record<
     UID,
@@ -34,18 +38,25 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
-    const dvRules: Maybe<ClipboardDataValidationRule>[][] = [];
+    const dvRules: Map2D<ClipboardDataValidationRule> = new Map2D(
+      columnsIndexes.length,
+      rowsIndexes.length
+    );
 
-    for (const row of rowsIndexes) {
-      const dvRuleInRow: Maybe<ClipboardDataValidationRule>[] = [];
-      for (const col of columnsIndexes) {
-        const position = { sheetId, col, row };
-        const rule = this.getters.getValidationRuleForCell(position);
-        dvRuleInRow.push({ position, rule });
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      for (const [col, row, rule] of this.getters
+        .getDataValidationRulesInZone(sheetId, zone)
+        .entries()) {
+        dvRules.set(col - zone.left + colsBefore, row - zone.top + rowsBefore, {
+          rule,
+          position: { sheetId, col, row },
+        });
       }
-      dvRules.push(dvRuleInRow);
     }
-    return { dvRules };
+    return { cellContent: dvRules };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
@@ -57,7 +68,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     const sheetId = target.sheetId;
 
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, clippedContent.dvRules);
+      this.pasteFromCopy(sheetId, zones, clippedContent);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);
     }
@@ -66,7 +77,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
 
   private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.dvRules, {
+    this.pasteZone(sheetId, selection.left, selection.top, content, {
       isCutOperation: true,
     });
   }
@@ -75,49 +86,49 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    dvRules: Maybe<ClipboardDataValidationRule>[][],
+    content: ClipboardContent,
     clipboardOptions?: ClipboardOptions
   ) {
-    for (const [r, rowCells] of dvRules.entries()) {
-      for (const [c, origin] of rowCells.entries()) {
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteDataValidation(origin, position, clipboardOptions?.isCutOperation);
-      }
+    const pasteZone = {
+      left: col,
+      right: col + content.cellContent.width - 1,
+      top: row,
+      bottom: row + content.cellContent.height - 1,
+    };
+    const dvRuletoAdapt = this.getters
+      .getDataValidationRules(sheetId)
+      .filter((dv) => dv.ranges.some((range) => intersection(pasteZone, range.zone)));
+    for (const dvRule of dvRuletoAdapt) {
+      this.adaptDataValidationRule(sheetId, dvRule, [], [pasteZone]);
+    }
+    for (const [c, r, origin] of content.cellContent.entries()) {
+      const position = { col: col + c, row: row + r, sheetId };
+      this.pasteDataValidation(origin, position, clipboardOptions?.isCutOperation);
     }
   }
 
   private pasteDataValidation(
-    origin: Maybe<ClipboardDataValidationRule>,
+    origin: ClipboardDataValidationRule,
     target: CellPosition,
     isCutOperation?: boolean
   ) {
-    if (origin) {
-      const zone = positionToZone(target);
-      const originZone = positionToZone(origin.position);
-      const rule = origin.rule;
-      if (!rule) {
-        const targetRule = this.getters.getValidationRuleForCell(target);
-        if (targetRule) {
-          // Remove the data validation rule on the target cell
-          this.adaptDataValidationRule(target.sheetId, targetRule, [], [zone]);
-        }
-        return;
+    const zone = positionToZone(target);
+    const originZone = positionToZone(origin.position);
+    const rule = origin.rule;
+    const toRemoveZone: Zone[] = [];
+    if (isCutOperation) {
+      toRemoveZone.push(originZone);
+    }
+    if (origin.position.sheetId === target.sheetId) {
+      const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule, false);
+      this.adaptDataValidationRule(origin.position.sheetId, copyToRule, [zone], toRemoveZone);
+    } else {
+      const originRule = this.getters.getValidationRuleForCell(origin.position);
+      if (originRule) {
+        this.adaptDataValidationRule(origin.position.sheetId, originRule, [], toRemoveZone);
       }
-      const toRemoveZone: Zone[] = [];
-      if (isCutOperation) {
-        toRemoveZone.push(originZone);
-      }
-      if (origin.position.sheetId === target.sheetId) {
-        const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule, false);
-        this.adaptDataValidationRule(origin.position.sheetId, copyToRule, [zone], toRemoveZone);
-      } else {
-        const originRule = this.getters.getValidationRuleForCell(origin.position);
-        if (originRule) {
-          this.adaptDataValidationRule(origin.position.sheetId, originRule, [], toRemoveZone);
-        }
-        const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule);
-        this.adaptDataValidationRule(target.sheetId, copyToRule, [zone], []);
-      }
+      const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule);
+      this.adaptDataValidationRule(target.sheetId, copyToRule, [zone], []);
     }
   }
 

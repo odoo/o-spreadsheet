@@ -34,7 +34,6 @@ export function deepCopy<T>(obj: T): T {
       } else if (isCloneable(obj)) {
         return obj.clone();
       } else if (obj instanceof Map) {
-        // TODO check ts with lul
         return new Map(obj) as T;
       } else if (obj instanceof Set) {
         return new Set(obj) as T;

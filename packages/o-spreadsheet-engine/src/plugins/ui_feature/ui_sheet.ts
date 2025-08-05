@@ -290,13 +290,11 @@ export class SheetUIPlugin extends UIPlugin {
     for (const row of rows) {
       let evaluatedRowSize = 0;
       let tallestCell: CellPosition | undefined = undefined;
-      for (const [position, evaluatedCell] of this.getters.getEvaluatedCellsPositionInZone(
+      for (const position of this.getters.getEvaluatedCellsPositionInZone(
         sheetId,
         this.getters.getRowsZone(sheetId, row, row)
       )) {
-        if (evaluatedCell.value === undefined) {
-          continue;
-        }
+        const evaluatedCell = this.getters.getEvaluatedCell(position);
         const colSize = this.getters.getColSize(sheetId, position.col);
         const style = this.getters.getCellStyle(position);
 

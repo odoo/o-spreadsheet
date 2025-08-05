@@ -1,5 +1,12 @@
 import { AbstractCellClipboardHandler } from "@odoo/o-spreadsheet-engine/clipboard_handlers/abstract_cell_clipboard_handler";
-import { isZoneInside, removeFalsyAttributes, zoneToDimension } from "../helpers";
+import { columnRowIndexesToZones } from "@odoo/o-spreadsheet-engine/helpers/clipboard/clipboard_helpers";
+import {
+  cellPositions,
+  intersection,
+  isZoneInside,
+  removeFalsyAttributes,
+  zoneToDimension,
+} from "../helpers";
 import {
   Border,
   CellPosition,
@@ -9,6 +16,7 @@ import {
   ClipboardPasteTarget,
   CoreTableType,
   HeaderIndex,
+  Map2D,
   RangeData,
   Style,
   TableConfig,
@@ -34,76 +42,72 @@ interface TableCell {
 }
 
 interface ClipboardContent {
-  tableCells: TableCell[][];
+  cellContent: Map2D<TableCell>;
   sheetId: UID;
 }
 
-export class TableClipboardHandler extends AbstractCellClipboardHandler<
-  ClipboardContent,
-  TableCell
-> {
+export class TableClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
   copy(
     data: ClipboardCellData,
-    isCutOperation: boolean,
+    isCutOperation?: boolean,
     mode: ClipboardCopyOptions = "copyPaste"
   ): ClipboardContent {
     const sheetId = data.sheetId;
 
-    const { rowsIndexes, columnsIndexes, zones } = data;
+    const { rowsIndexes, columnsIndexes } = data;
 
     const copiedTablesIds = new Set<UID>();
-    const tableCells: TableCell[][] = [];
-    for (const row of rowsIndexes) {
-      const tableCellsInRow: TableCell[] = [];
-      tableCells.push(tableCellsInRow);
-      for (const col of columnsIndexes) {
-        const position = { col, row, sheetId };
-        const table = this.getters.getTable(position);
-        if (!table) {
-          tableCellsInRow.push({});
-          continue;
-        }
-        const coreTable = this.getters.getCoreTable(position);
-        const tableZone = coreTable?.range.zone;
-        let copiedTable: CopiedTable | undefined = undefined;
-        // Copy whole table
-        if (
-          !copiedTablesIds.has(table.id) &&
-          coreTable &&
-          tableZone &&
-          zones.some((z) => isZoneInside(tableZone, z))
-        ) {
-          copiedTablesIds.add(table.id);
-          let { numberOfRows } = zoneToDimension(tableZone);
-          for (let rowIndex = tableZone.top; rowIndex <= tableZone.bottom; rowIndex++) {
-            if (!isCutOperation && !rowsIndexes.includes(rowIndex)) {
-              numberOfRows--;
+    const tableCells: Map2D<TableCell> = new Map2D(columnsIndexes.length, rowsIndexes.length);
+    if (mode === "shiftCells") return { cellContent: tableCells, sheetId };
+    for (const [zone, colsBefore, rowsBefore] of columnRowIndexesToZones(
+      data.columnsIndexes,
+      data.rowsIndexes
+    )) {
+      const tables = this.getters.getTablesOverlappingZones(sheetId, [zone]);
+      for (const table of tables) {
+        const inter = intersection(zone, table.range.zone);
+        if (!inter) continue;
+        for (const position of cellPositions(sheetId, inter)) {
+          const coreTable = this.getters.getCoreTable(position);
+          const tableZone = coreTable?.range.zone;
+          // We use data.zones because we want to copy the table even if some row/col are filtered
+          const wholeTable = tableZone && data.zones.some((z) => isZoneInside(tableZone, z));
+          let copiedTable: CopiedTable | undefined = undefined;
+          if (!copiedTablesIds.has(table.id) && coreTable && tableZone && wholeTable) {
+            copiedTablesIds.add(table.id);
+            let { numberOfRows } = zoneToDimension(tableZone);
+            for (let rowIndex = tableZone.top; rowIndex <= tableZone.bottom; rowIndex++) {
+              if (!isCutOperation && !rowsIndexes.has(rowIndex)) {
+                numberOfRows--;
+              }
             }
+            const range = coreTable.range;
+            const newRange = this.getters.extendRange(
+              coreTable.range,
+              "ROW",
+              range.zone.top + numberOfRows - 1 - range.zone.bottom
+            );
+            copiedTable = {
+              range: this.getters.getRangeData(newRange),
+              config: coreTable.config,
+              type: coreTable.type,
+            };
           }
-          const range = coreTable.range;
-          const newRange = this.getters.extendRange(
-            coreTable.range,
-            "ROW",
-            range.zone.top + numberOfRows - 1 - range.zone.bottom
+          tableCells.set(
+            position.col - zone.left + colsBefore,
+            position.row - zone.top + rowsBefore,
+            {
+              table: copiedTable,
+              style: this.getTableStyleToCopy(position),
+              isWholeTableCopied: copiedTablesIds.has(table.id),
+            }
           );
-          copiedTable = {
-            range: this.getters.getRangeData(newRange),
-            config: coreTable.config,
-            type: coreTable.type,
-          };
-        }
-        if (mode !== "shiftCells") {
-          tableCellsInRow.push({
-            table: copiedTable,
-            style: this.getTableStyleToCopy(position),
-            isWholeTableCopied: copiedTablesIds.has(table.id),
-          });
         }
       }
     }
 
     return {
-      tableCells,
+      cellContent: tableCells,
       sheetId: data.sheetId,
     };
   }
@@ -132,7 +136,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     const zones = target.zones;
     const sheetId = target.sheetId;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content.tableCells, options);
+      this.pasteFromCopy(sheetId, zones, content, options);
     } else {
       this.pasteFromCut(sheetId, zones, content, options);
     }
@@ -144,42 +148,38 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     content: ClipboardContent,
     options?: ClipboardOptions
   ) {
-    for (const row of content.tableCells) {
-      for (const tableCell of row) {
-        if (tableCell.table) {
-          this.dispatch("REMOVE_TABLE", {
-            sheetId: content.sheetId,
-            target: [this.getters.getRangeFromRangeData(tableCell.table.range).zone],
-          });
-        }
+    for (const tableCell of content.cellContent.values()) {
+      if (tableCell.table) {
+        this.dispatch("REMOVE_TABLE", {
+          sheetId: content.sheetId,
+          target: [this.getters.getRangeFromRangeData(tableCell.table.range).zone],
+        });
       }
     }
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.tableCells, options);
+    this.pasteZone(sheetId, selection.left, selection.top, content, options);
   }
 
   protected pasteZone(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    tableCells: TableCell[][],
+    content: ClipboardContent,
     clipboardOptions?: ClipboardOptions
   ) {
-    for (let r = 0; r < tableCells.length; r++) {
-      const rowCells = tableCells[r];
-      for (let c = 0; c < rowCells.length; c++) {
-        const tableCell = rowCells[c];
-        if (!tableCell) {
-          continue;
-        }
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteTableCell(sheetId, tableCell, position, clipboardOptions);
-      }
+    for (const [c, r, tableCell] of content.cellContent.entries()) {
+      const position = { col: col + c, row: row + r, sheetId };
+      this.pasteTableCell(sheetId, tableCell, position, clipboardOptions);
     }
 
-    if (tableCells.length === 1) {
-      for (let c = 0; c < tableCells[0].length; c++) {
-        this.dispatch("AUTOFILL_TABLE_COLUMN", { col: col + c, row, sheetId });
+    if (content.cellContent.height === 1) {
+      const zone = { left: col, right: col + content.cellContent.width, top: row, bottom: row };
+      for (const table of this.getters.getCoreTables(sheetId)) {
+        const inter = intersection(table.range.zone, zone);
+        if (!inter) continue;
+        for (let c = inter.left; c <= inter.right; c++) {
+          this.dispatch("AUTOFILL_TABLE_COLUMN", { col: c, row, sheetId });
+        }
       }
     }
   }
