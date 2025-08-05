@@ -244,9 +244,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
 
-    this.coreHandlers.push(this.range);
-    this.handlers.push(this.range);
-
     this.corePluginConfig = this.setupCorePluginConfig();
     this.coreViewPluginConfig = this.setupCoreViewPluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
@@ -365,6 +362,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.coreGetters[name] = plugin[name].bind(plugin);
     }
     plugin.import(data);
+
+    if (plugin.adaptRanges) {
+      if (!this.coreHandlers.includes(this.range)) {
+        this.coreHandlers.push(this.range);
+        this.handlers.push(this.range);
+      }
+      this.range.addRangeProvider(plugin.adaptRanges.bind(plugin));
+    }
     this.corePlugins.push(plugin);
     this.coreHandlers.push(plugin);
     this.handlers.push(plugin);
