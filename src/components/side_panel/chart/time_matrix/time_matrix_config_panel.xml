@@ -33,6 +33,10 @@
           <option value="monthday">Month day</option>
           <option value="week">Week</option>
           <option value="quarter">Quarter</option>
+          <option value="date">Date</option>
+          <option value="quarter-year">Quarter-Year</option>
+          <option value="month-year">Month-Year</option>
+          <option value="week-year">Week-Year</option>
         </select>
       </Section>
 

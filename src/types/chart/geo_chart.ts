@@ -15,6 +15,7 @@ export interface GeoChartDefinition {
   readonly colorScale?: GeoChartColorScale;
   readonly missingValueColor?: Color;
   readonly region?: string;
+  readonly showColorBar?: boolean;
 }
 
 export type GeoChartRuntime = {

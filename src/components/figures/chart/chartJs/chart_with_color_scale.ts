@@ -15,6 +15,26 @@ export class ChartJsComponentWithColorScale extends ChartJsComponent {
     this.updateColorScaleBoundaries(chartData);
   }
 
+  get heatMapStyle() {
+    const definition = this.env.model.getters.getChartDefinition(
+      this.props.figureUI.id
+    ) as ChartWithColorScaleDefinition;
+    if (definition.showColorBar) {
+      return "width: calc(100% - 70px);";
+    }
+    return "width: 100%";
+  }
+
+  get colorScaleStyle() {
+    const definition = this.env.model.getters.getChartDefinition(
+      this.props.figureUI.id
+    ) as ChartWithColorScaleDefinition;
+    if (definition.showColorBar) {
+      return "display:flex; margin: 5px; width: 70px; margin-top:15px";
+    }
+    return "display: none";
+  }
+
   protected updateChartJs(chartData: ChartConfiguration<any>) {
     super.updateChartJs(chartData);
     this.updateColorScaleBoundaries(chartData);

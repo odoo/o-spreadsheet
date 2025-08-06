@@ -714,3 +714,30 @@ export function isDateStrictlyAfter(date: number, dateAfter: number) {
 export function isDateAfter(date: number, dateAfter: number) {
   return Math.trunc(date) >= Math.trunc(dateAfter);
 }
+
+export function weekNumber(date: DateTime, type: number): number {
+  let startDayOfWeek: number;
+  if (type === 1 || type === 2) {
+    startDayOfWeek = type - 1;
+  } else {
+    // case 11 <= _type <= 17
+    startDayOfWeek = type - 10 === 7 ? 0 : type - 10;
+  }
+
+  const y = date.getFullYear();
+
+  let dayStart = 1;
+  let startDayOfFirstWeek = new DateTime(y, 0, dayStart);
+
+  while (startDayOfFirstWeek.getDay() !== startDayOfWeek) {
+    dayStart += 1;
+    startDayOfFirstWeek = new DateTime(y, 0, dayStart);
+  }
+
+  const dif = (date.getTime() - startDayOfFirstWeek.getTime()) / MS_PER_DAY;
+
+  if (dif < 0) {
+    return 1;
+  }
+  return Math.floor(dif / 7) + (dayStart === 1 ? 1 : 2);
+}

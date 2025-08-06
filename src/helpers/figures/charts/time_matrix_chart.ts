@@ -38,11 +38,12 @@ import {
 import { CHART_COMMON_OPTIONS } from "./chart_ui_common";
 import {
   getBarChartData,
-  getBarChartTooltip,
   getChartLayout,
   getChartTitle,
   getTimeMatrixChartDatasetAndLabels,
   getTimeMatrixChartScales,
+  getTimeMatrixShowValues,
+  getTimeMatrixTooltip,
 } from "./runtime";
 
 export class TimeMatrixChart extends AbstractChart {
@@ -55,6 +56,7 @@ export class TimeMatrixChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly xStamp?: TimeMatrixGroupBy;
   readonly yStamp?: TimeMatrixGroupBy;
+  readonly showColorBar?: boolean;
 
   constructor(definition: TimeMatrixChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -66,6 +68,7 @@ export class TimeMatrixChart extends AbstractChart {
     this.axesDesign = definition.axesDesign;
     this.xStamp = definition.xStamp;
     this.yStamp = definition.yStamp;
+    this.showColorBar = definition.showColorBar;
   }
 
   static transformDefinition(
@@ -160,6 +163,7 @@ export class TimeMatrixChart extends AbstractChart {
       axesDesign: this.axesDesign,
       xStamp: this.xStamp,
       yStamp: this.yStamp,
+      showColorBar: this.showColorBar,
     };
   }
 
@@ -204,8 +208,8 @@ export function createTimeMatrixChartRuntime(
       plugins: {
         title: getChartTitle(definition),
         legend: { display: false },
-        tooltip: getBarChartTooltip(definition, chartData),
-        //chartShowValuesPlugin: getChartShowValues(definition, chartData),
+        tooltip: getTimeMatrixTooltip(definition, chartData),
+        chartShowValuesPlugin: getTimeMatrixShowValues(definition, chartData),
       },
     },
   };

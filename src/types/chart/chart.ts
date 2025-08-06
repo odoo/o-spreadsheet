@@ -65,7 +65,7 @@ export type ChartWithDataSetDefinition = Extract<
 
 export type ChartWithColorScaleDefinition = Extract<
   ChartDefinition,
-  { colorScale?: GeoChartColorScale }
+  { colorScale?: GeoChartColorScale; showColorBar?: boolean }
 >;
 
 export type ChartWithTitleDefinition = Extract<ChartDefinition, { title?: TitleDesign }>;

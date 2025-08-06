@@ -55,6 +55,7 @@ import {
   rgbaToHex,
   setColorAlpha,
 } from "../../../color";
+import { DateTime, weekNumber } from "../../../dates";
 import { formatValue } from "../../../format/format";
 import { isDefined, range } from "../../../misc";
 import {
@@ -119,64 +120,84 @@ export function getBarChartDatasets(
   return dataSets;
 }
 
-function getPosition(time, stamp: TimeMatrixGroupBy): number | string {
+function getPosition(
+  time: DateTime,
+  stamp: TimeMatrixGroupBy
+): { value: number | string; label: string } {
   switch (stamp) {
-    case "weekday":
-      return time.getDay();
-    case "monthday":
-      return time.getDate();
-    case "hour":
-      return time.getHours();
-    case "month":
-      return time.getMonth();
-    case "year":
-      return time.getFullYear();
+    case "weekday": {
+      const value = time.getDay();
+      return { value, label: WEEKDAYS[value] };
+    }
+    case "monthday": {
+      const value = time.getDate();
+      return { value, label: value.toString() };
+    }
+    case "hour": {
+      const value = time.getHours();
+      return { value, label: getHoursLabel(value) };
+    }
+    case "month": {
+      const value = time.getMonth();
+      return { value, label: MONTHS[value] };
+    }
+    case "year": {
+      const value = time.getFullYear();
+      return { value, label: value.toString() };
+    }
+    case "week": {
+      const value = weekNumber(time, 1);
+      return { value: `W${value}`, label: `W${value}` };
+    }
+    case "quarter": {
+      const value = Math.floor(time.getMonth() / 3) + 1;
+      return { value, label: `Q${value}` };
+    }
+    case "quarter-year": {
+      const quarter = Math.floor(time.getMonth() / 3) + 1;
+      const year = time.getFullYear();
+      return { value: year + quarter / 10, label: `Q${quarter} ${year}` };
+    }
+    case "month-year": {
+      const month = time.getMonth();
+      const year = time.getFullYear();
+      return { value: year + month / 100, label: `${MONTHS[month]} ${year}` };
+    }
+    case "week-year": {
+      const year = time.getFullYear();
+      const week = weekNumber(time, 1);
+      return { value: year + week / 100, label: `W${week} ${year}` };
+    }
   }
-  return time;
+  return { value: time.toLocaleDateString(), label: time.toLocaleDateString() };
 }
 
-function getTimeMatrixLabels(
-  stamp: TimeMatrixGroupBy,
-  currentLabels: (string | number)[]
-): { label: string; value: string | number }[] {
-  switch (stamp) {
-    case "weekday":
-      return [
-        { label: _t("Sunday"), value: 0 },
-        { label: _t("Monday"), value: 1 },
-        { label: _t("Tuesday"), value: 2 },
-        { label: _t("Wednesday"), value: 3 },
-        { label: _t("Thursday"), value: 4 },
-        { label: _t("Friday"), value: 5 },
-        { label: _t("Saturday"), value: 6 },
-      ];
-    case "hour":
-      return range(0, 24).map((h) => ({ label: _t(`${h < 10 ? "0" : ""}${h}:00`), value: h }));
-    case "month":
-      return [
-        { label: _t("January"), value: 0 },
-        { label: _t("February"), value: 1 },
-        { label: _t("March"), value: 2 },
-        { label: _t("April"), value: 3 },
-        { label: _t("May"), value: 4 },
-        { label: _t("June"), value: 5 },
-        { label: _t("July"), value: 6 },
-        { label: _t("August"), value: 7 },
-        { label: _t("September"), value: 8 },
-        { label: _t("October"), value: 9 },
-        { label: _t("November"), value: 10 },
-        { label: _t("December"), value: 11 },
-      ];
-    case "quarter":
-      return [
-        { label: _t("Q1"), value: 0 },
-        { label: _t("Q2"), value: 1 },
-        { label: _t("Q3"), value: 2 },
-        { label: _t("Q4"), value: 3 },
-      ];
-    default:
-      return currentLabels.map((l) => ({ label: String(l), value: l }));
-  }
+const WEEKDAYS = [
+  _t("Sunday"),
+  _t("Monday"),
+  _t("Tuesday"),
+  _t("Wednesday"),
+  _t("Thursday"),
+  _t("Friday"),
+  _t("Saturday"),
+];
+const MONTHS = [
+  _t("January"),
+  _t("February"),
+  _t("March"),
+  _t("April"),
+  _t("May"),
+  _t("June"),
+  _t("July"),
+  _t("August"),
+  _t("September"),
+  _t("October"),
+  _t("November"),
+  _t("December"),
+];
+
+function getHoursLabel(hour: number): string {
+  return hour < 12 ? `${hour} ${_t("AM")}` : `${hour - 12} ${_t("PM")}`;
 }
 
 function computeValuesAndLabels(
@@ -186,33 +207,50 @@ function computeValuesAndLabels(
   yStamp: TimeMatrixGroupBy
 ) {
   const grouping: any = {};
-  const xLabels = new Set<string | number>();
-  const yLabels = new Set<string | number>();
+  const xLabels: { value: string | number; label: string }[] = [];
+  const yLabels: { value: string | number; label: string }[] = [];
+  const previousYLabels: string[] = [];
   for (let i = 0; i < timeValues?.length; i++) {
     const xCateg = getPosition(timeValues[i], xStamp);
-    xLabels.add(xCateg);
-    if (!(xCateg in grouping)) {
-      grouping[xCateg] = {};
+    if (!(xCateg.label in grouping)) {
+      xLabels.push(xCateg);
+      grouping[xCateg.label] = {};
     }
     const yCateg = getPosition(timeValues[i], yStamp);
-    yLabels.add(yCateg);
-    if (!(yCateg in grouping[xCateg])) {
-      grouping[xCateg][yCateg] = 0;
+    if (!previousYLabels.includes(yCateg.label)) {
+      yLabels.push(yCateg);
+      previousYLabels.push(yCateg.label);
     }
-    grouping[xCateg][yCateg] += values[i];
+    if (!(yCateg.label in grouping[xCateg.label])) {
+      grouping[xCateg.label][yCateg.label] = 0;
+    }
+    grouping[xCateg.label][yCateg.label] += values[i];
   }
 
-  const finalXLabels = getTimeMatrixLabels(xStamp, Array.from(xLabels));
-  const finalYLabels = getTimeMatrixLabels(yStamp, Array.from(yLabels));
+  const finalXLabels = xLabels
+    .sort((a, b) => {
+      if (a.value < b.value) {
+        return -1;
+      }
+      return 1;
+    })
+    .map((xL) => xL.label);
 
-  const finalValues = finalYLabels.map((yL) =>
-    finalXLabels.map((xL) => grouping?.[xL.value]?.[yL.value])
-  );
+  const finalYLabels = yLabels
+    .sort((a, b) => {
+      if (a.value < b.value) {
+        return -1;
+      }
+      return 1;
+    })
+    .map((yL) => yL.label);
+
+  const finalValues = finalYLabels.map((yL) => finalXLabels.map((xL) => grouping?.[xL]?.[yL]));
 
   return {
     matrixValues: finalValues,
-    xLabels: finalXLabels.map((l) => l.label),
-    yLabels: finalYLabels.map((l) => l.label),
+    xLabels: finalXLabels,
+    yLabels: finalYLabels,
   };
 }
 

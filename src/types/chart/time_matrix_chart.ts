@@ -10,7 +10,11 @@ export type TimeMatrixGroupBy =
   | "hour"
   | "monthday"
   | "week"
-  | "quarter";
+  | "quarter"
+  | "date"
+  | "quarter-year"
+  | "month-year"
+  | "week-year";
 
 export interface TimeMatrixChartDefinition {
   readonly dataRange: string;
@@ -20,6 +24,7 @@ export interface TimeMatrixChartDefinition {
   readonly showValues?: boolean;
   readonly type: "timeMatrix";
   readonly colorScale?: GeoChartColorScale;
+  readonly showColorBar?: boolean;
   readonly axesDesign?: AxesDesign;
   readonly xStamp?: TimeMatrixGroupBy;
   readonly yStamp?: TimeMatrixGroupBy;

@@ -61,6 +61,13 @@
           <span class="ps-2">Color of maximum values</span>
         </div>
       </t>
+      <t t-if="props.onShowColorBarChange">
+        <Checkbox
+          label.translate="Show Color Bar"
+          value="props.definition.showColorBar"
+          onChange.bind="props.onShowColorBarChange"
+        />
+      </t>
     </Section>
   </t>
 </templates>

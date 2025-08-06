@@ -6,6 +6,7 @@ import { GeoChartColorScale, GeoChartCustomColorScale } from "../../../../../typ
 import { css, cssPropertiesToCss } from "../../../../helpers";
 import { isChildEvent } from "../../../../helpers/dom_helpers";
 import { Popover, PopoverProps } from "../../../../popover";
+import { Checkbox } from "../../../components/checkbox/checkbox";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 
@@ -788,8 +789,9 @@ const DEFAULT_CUSTOM_COLOR_SCALE: GeoChartCustomColorScale = {
 };
 
 interface Props {
-  definition: { colorScale: GeoChartColorScale };
+  definition: { colorScale: GeoChartColorScale; showColorBar?: boolean };
   onUpdateColorScale: (colorscale: GeoChartColorScale) => void;
+  onShowColorBarChange?: (show: boolean) => void;
 }
 
 interface ColorScalePickerState {
@@ -803,10 +805,12 @@ export class ColorScalePicker extends Component<Props, SpreadsheetChildEnv> {
     Section,
     Popover,
     RoundColorPicker,
+    Checkbox,
   };
   static props = {
     definition: Object,
     onUpdateColorScale: Function,
+    onShowColorBarChange: { type: Function, optional: true },
   };
 
   colormaps = COLORMAPS.map((colormap) => ({

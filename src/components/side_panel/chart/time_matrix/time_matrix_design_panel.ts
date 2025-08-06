@@ -53,4 +53,10 @@ export class TimeMatrixChartDesignPanel<P extends Props = Props> extends Compone
       colorScale,
     });
   }
+
+  onShowColorBarChange(showColorBar: boolean): void {
+    this.props.updateChart(this.props.figureId, {
+      showColorBar,
+    });
+  }
 }
