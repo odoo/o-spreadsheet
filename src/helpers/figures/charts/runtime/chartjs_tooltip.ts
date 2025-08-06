@@ -15,6 +15,7 @@ import {
 } from "../../../../types/chart";
 import { GeoChartDefinition } from "../../../../types/chart/geo_chart";
 import { RadarChartDefinition } from "../../../../types/chart/radar_chart";
+import { TimeMatrixChartDefinition } from "../../../../types/chart/time_matrix_chart";
 import { TreeMapChartDefinition } from "../../../../types/chart/tree_map_chart";
 import { setColorAlpha } from "../../../color";
 import { formatValue } from "../../../format/format";
@@ -46,6 +47,32 @@ export function getBarChartTooltip(
         }
 
         const axisId = horizontalChart ? tooltipItem.dataset.xAxisID : tooltipItem.dataset.yAxisID;
+        const yLabelStr = formatChartDatasetValue(args.axisFormats, args.locale)(yLabel, axisId);
+        return yLabelStr;
+      },
+    },
+  };
+}
+
+export function getTimeMatrixTooltip(
+  definition: TimeMatrixChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartTooltip {
+  return {
+    enabled: false,
+    external: customTooltipHandler,
+    callbacks: {
+      title: function (tooltipItems) {
+        return tooltipItems.some((item) => !isTrendLineAxis(item.dataset.xAxisID)) ? undefined : "";
+      },
+      beforeLabel: (tooltipItem) => tooltipItem.dataset?.label || tooltipItem.label,
+      label: function (tooltipItem) {
+        const yLabel = tooltipItem.dataset.values[tooltipItem.dataIndex];
+        if (yLabel === undefined) {
+          return "N./A.";
+        }
+
+        const axisId = tooltipItem.dataset.yAxisID;
         const yLabelStr = formatChartDatasetValue(args.axisFormats, args.locale)(yLabel, axisId);
         return yLabelStr;
       },

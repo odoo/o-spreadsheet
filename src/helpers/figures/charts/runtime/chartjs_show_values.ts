@@ -8,6 +8,8 @@ import {
   SunburstChartDefinition,
   WaterfallChartDefinition,
 } from "../../../../types/chart";
+import { TimeMatrixChartDefinition } from "../../../../types/chart/time_matrix_chart";
+import { humanizeNumber } from "../../../format/format";
 import { formatChartDatasetValue } from "../chart_common";
 
 export function getChartShowValues(
@@ -22,6 +24,22 @@ export function getChartShowValues(
     callback: (value: number | string, dataset: ChartMeta) => {
       const axisId = getDatasetAxisId(definition, dataset);
       return formatChartDatasetValue(axisFormats, locale)(value, axisId);
+    },
+  };
+}
+
+export function getTimeMatrixShowValues(
+  definition: TimeMatrixChartDefinition,
+  args: ChartRuntimeGenerationArgs
+): ChartShowValuesPluginOptions {
+  const { locale } = args;
+  return {
+    horizontal: false,
+    showValues: "showValues" in definition ? !!definition.showValues : false,
+    background: definition.background,
+    callback: (_value: number | string, dataset: ChartMeta<any>, index) => {
+      const value = dataset._dataset.values[index];
+      return value === undefined ? "" : humanizeNumber({ value }, locale);
     },
   };
 }

@@ -1,0 +1,46 @@
+<templates>
+  <t t-name="o-spreadsheet-TimeMatrixConfigPanel">
+    <div>
+      <ChartDataSeries
+        ranges="this.getDataSeriesRanges()"
+        onSelectionChanged.bind="onDataSeriesRangesChanged"
+        onSelectionConfirmed.bind="onDataSeriesConfirmed"
+      />
+      <ChartLabelRange
+        range="this.getLabelRange()"
+        isInvalid="isLabelInvalid"
+        onSelectionChanged.bind="onLabelRangeChanged"
+        onSelectionConfirmed.bind="onLabelRangeConfirmed"
+        options="this.getLabelRangeOptions()"
+      />
+
+      <Section class="'py-0'">
+        <BadgeSelection
+          choices="badgeAxes"
+          onChange.bind="(value) => state.currentAxis = value"
+          selectedValue="state.currentAxis"
+        />
+      </Section>
+      <Section title.translate="Group by">
+        <select
+          t-att-value="getGroupByType(state.currentAxis)"
+          class="o-input"
+          t-on-change="ev => this.updateGroupBy(state.currentAxis, ev.target.value)">
+          <option value="year">Year</option>
+          <option value="month">Month</option>
+          <option value="weekday">Weekday</option>
+          <option value="hour">Hour</option>
+          <option value="monthday">Month day</option>
+          <option value="week">Week</option>
+          <option value="quarter">Quarter</option>
+          <option value="date">Date</option>
+          <option value="quarter-year">Quarter-Year</option>
+          <option value="month-year">Month-Year</option>
+          <option value="week-year">Week-Year</option>
+        </select>
+      </Section>
+
+      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
+    </div>
+  </t>
+</templates>

@@ -67,6 +67,13 @@ export const TEST_CHART_DATA = {
       },
     },
   },
+  timeMatrix: {
+    type: "timeMatrix" as const,
+    dataRange: "B1:B4",
+    labelRange: "A2:A4",
+    title: { text: "hello" },
+    background: BACKGROUND_CHART_COLOR,
+  },
 };
 
 const PIVOT: PivotCoreDefinition = {
