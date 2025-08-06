@@ -1,6 +1,5 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { getChartMenuActions } from "../../../../actions/figure_menu_actions";
-import { BACKGROUND_CHART_COLOR } from "../../../../constants";
 import { isDefined } from "../../../../helpers";
 import { Store, useLocalStore, useStore } from "../../../../store_engine";
 import { _t } from "../../../../translation";
@@ -16,9 +15,9 @@ interface Props {
 interface MenuItem {
   id: string;
   label: string;
-  iconClass: string;
+  class: string;
   onClick: () => void;
-  isSelected?: boolean;
+  preview?: string;
 }
 
 export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
@@ -46,11 +45,6 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     return [this.fullScreenMenuItem, ...this.store.changeChartTypeMenuItems].filter(isDefined);
   }
 
-  get backgroundColor() {
-    const color = this.env.model.getters.getChartDefinition(this.props.figureUI.id).background;
-    return "background-color: " + (color || BACKGROUND_CHART_COLOR);
-  }
-
   openContextMenu(ev: MouseEvent) {
     this.menuState.isOpen = true;
     this.menuState.anchorRect = { x: ev.clientX, y: ev.clientY, width: 0, height: 0 };
@@ -62,21 +56,11 @@ export class ChartDashboardMenu extends Component<Props, SpreadsheetChildEnv> {
     if (definition.type === "scorecard") {
       return undefined;
     }
-
-    if (this.props.figureUI.id === this.fullScreenFigureStore.fullScreenFigure?.id) {
-      return {
-        id: "fullScreenChart",
-        label: _t("Exit Full Screen"),
-        iconClass: "fa fa-compress",
-        onClick: () => {
-          this.fullScreenFigureStore.toggleFullScreenChart(this.props.figureUI.id);
-        },
-      };
-    }
+    const isFullScreen = this.props.figureUI.id === this.fullScreenFigureStore.fullScreenFigure?.id;
     return {
       id: "fullScreenChart",
-      label: _t("Full Screen"),
-      iconClass: "fa fa-expand",
+      label: _t(isFullScreen ? "Exit Full Screen" : "Full Screen"),
+      class: `text-muted fa ${isFullScreen ? "fa-compress" : "fa-expand"}`,
       onClick: () => {
         this.fullScreenFigureStore.toggleFullScreenChart(this.props.figureUI.id);
       },
