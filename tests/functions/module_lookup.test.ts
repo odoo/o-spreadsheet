@@ -1895,4 +1895,22 @@ describe("OFFSET formula", () => {
     setCellContent(model, "A1", "hola", "Sheet1");
     expect(getEvaluatedCell(model, "D4", "Sheet2").value).toBe("hola");
   });
+
+  test("the formula dependencies are correctly added", () => {
+    const model = new Model({ sheets: [{ id: "sh1" }] });
+    createSheet(model, { sheetId: "sh2" });
+    createSheet(model, { sheetId: "sh3" });
+    setCellContent(model, "A1", "bloub", "sh2");
+    setCellContent(model, "A1", "=OFFSET(Sheet2!A1,0,0)", "sh1");
+    setCellContent(model, "A1", "=OFFSET(Sheet2!A1,0,0)", "sh3");
+
+    expect(getEvaluatedCell(model, "A1", "sh1").value).toBe("bloub");
+    expect(getEvaluatedCell(model, "A1", "sh2").value).toBe("bloub");
+    expect(getEvaluatedCell(model, "A1", "sh3").value).toBe("bloub");
+
+    const model2 = new Model(model.exportData());
+    expect(getEvaluatedCell(model2, "A1", "sh1").value).toBe("bloub");
+    expect(getEvaluatedCell(model2, "A1", "sh2").value).toBe("bloub");
+    expect(getEvaluatedCell(model2, "A1", "sh3").value).toBe("bloub");
+  });
 });
