@@ -1031,7 +1031,7 @@ export const OFFSET = {
       bottom: startingRow + offsetHeight - 1,
     };
 
-    const range = this.getters.getRangeFromZone(this.__originSheetId, dependencyZone);
+    const range = this.getters.getRangeFromZone(sheetId, dependencyZone);
     if (range.invalidXc || range.invalidSheetName) {
       return new InvalidReferenceError();
     }
