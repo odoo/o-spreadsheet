@@ -47,9 +47,17 @@ import {
 import { CorePlugin } from "../core_plugin";
 import { PositionMap } from "../ui_core_views/cell_evaluation/position_map";
 
+interface sheetDefault<T> {
+  global?: T | undefined;
+  cols?: Record<HeaderIndex, T | undefined>;
+  rows?: Record<HeaderIndex, T | undefined>;
+}
+
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
   cells: Record<UID, Record<UID, Cell | undefined> | undefined>;
+  defaultStyle: Record<UID, sheetDefault<Style> | undefined>;
+  defaultFormat: Record<UID, sheetDefault<Format> | undefined>;
   nextId: number;
 }
 
@@ -65,12 +73,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getCells",
     "getTranslatedCellFormula",
     "getCellStyle",
+    "getDefaultCellStyle",
+    "getDefaultCellFormat",
     "getCellById",
     "getFormulaString",
     "getFormulaMovedInSheet",
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  public readonly defaultStyle: {
+    [sheetId: string]: sheetDefault<Style>;
+  } = {};
+  public readonly defaultFormat: {
+    [sheetId: string]: sheetDefault<Format>;
+  } = {};
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID, sheetName?: string) {
     for (const sheet of Object.keys(this.cells)) {
@@ -135,9 +151,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
-          this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
+          this.handleAddColumnsRows(cmd, this.copyColumnStyleFormat.bind(this));
         } else {
-          this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
+          this.handleAddColumnsRows(cmd, this.copyRowStyleFormat.bind(this));
         }
         break;
       case "UPDATE_CELL":
@@ -190,15 +206,30 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Set a format to all the cells in a zone
    */
   private setFormatter(sheetId: UID, zones: Zone[], format: Format) {
+    const sheetSizes = this.getters.getSheetSize(sheetId);
     for (const zone of recomputeZones(zones)) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
+      const fullRow = zone.left === 0 && zone.right >= sheetSizes.numberOfCols - 1;
+      const fullCol = zone.top === 0 && zone.bottom >= sheetSizes.numberOfRows - 1;
+      if (fullCol && fullRow) {
+        this.setGlobalFormat(sheetId, format);
+      } else if (fullCol) {
         for (let col = zone.left; col <= zone.right; col++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            format,
-          });
+          this.setColFormat(sheetId, col, format);
+        }
+      } else if (fullRow) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          this.setRowFormat(sheetId, row, format);
+        }
+      } else {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          for (let col = zone.left; col <= zone.right; col++) {
+            this.dispatch("UPDATE_CELL", {
+              sheetId,
+              col,
+              row,
+              format,
+            });
+          }
         }
       }
     }
@@ -208,16 +239,34 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    * Clear the styles and format of zones
    */
   private clearFormatting(sheetId: UID, zones: Zone[]) {
+    const sheetSizes = this.getters.getSheetSize(sheetId);
     for (const zone of recomputeZones(zones)) {
-      for (let col = zone.left; col <= zone.right; col++) {
+      const fullRow = zone.left === 0 && zone.right >= sheetSizes.numberOfCols - 1;
+      const fullCol = zone.top === 0 && zone.bottom >= sheetSizes.numberOfRows - 1;
+      if (fullCol && fullRow) {
+        this.setGlobalStyle(sheetId, undefined);
+        this.setGlobalFormat(sheetId, "");
+      } else if (fullCol) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.setColStyle(sheetId, col, undefined);
+          this.setColFormat(sheetId, col, "");
+        }
+      } else if (fullRow) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            style: null,
-            format: "",
-          });
+          this.setRowStyle(sheetId, row, undefined);
+          this.setRowFormat(sheetId, row, "");
+        }
+      } else {
+        for (let col = zone.left; col <= zone.right; col++) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            this.dispatch("UPDATE_CELL", {
+              sheetId,
+              col,
+              row,
+              style: null,
+              format: "",
+            });
+          }
         }
       }
     }
@@ -449,9 +498,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   getCellStyle(position: CellPosition): Style {
-    return this.getters.getCell(position)?.style || {};
+    return this.getters.getCell(position)?.style || this.getDefaultCellStyle(position) || {};
   }
 
+  getDefaultCellStyle({ sheetId, col, row }: CellPosition): Style | undefined {
+    const defaults = this.defaultStyle?.[sheetId];
+    return defaults?.rows?.[row] ?? defaults?.cols?.[col] ?? defaults?.global;
+  }
+
+  getDefaultCellFormat({ sheetId, col, row }: CellPosition): Format | undefined {
+    const defaults = this.defaultFormat?.[sheetId];
+    return defaults?.rows?.[row] ?? defaults?.cols?.[col] ?? defaults?.global;
+  }
   /**
    * Converts a zone to a XC coordinate system
    *
@@ -499,16 +557,31 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   private setStyle(sheetId: UID, target: Zone[], style: Style | undefined) {
+    const sheetSizes = this.getters.getSheetSize(sheetId);
     for (const zone of recomputeZones(target)) {
-      for (let col = zone.left; col <= zone.right; col++) {
+      const fullRow = zone.left === 0 && zone.right >= sheetSizes.numberOfCols - 1;
+      const fullCol = zone.top === 0 && zone.bottom >= sheetSizes.numberOfRows - 1;
+      if (fullCol && fullRow) {
+        this.setGlobalStyle(sheetId, style);
+      } else if (fullCol) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          this.setColStyle(sheetId, col, style);
+        }
+      } else if (fullRow) {
         for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.getters.getCell({ sheetId, col, row });
-          this.dispatch("UPDATE_CELL", {
-            sheetId,
-            col,
-            row,
-            style: style ? { ...cell?.style, ...style } : undefined,
-          });
+          this.setRowStyle(sheetId, row, style);
+        }
+      } else {
+        for (let col = zone.left; col <= zone.right; col++) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            const cell = this.getters.getCell({ sheetId, col, row });
+            this.dispatch("UPDATE_CELL", {
+              sheetId,
+              col,
+              row,
+              style: style ? { ...cell?.style, ...style } : undefined,
+            });
+          }
         }
       }
     }
@@ -517,9 +590,29 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Copy the style of one column to other columns.
    */
-  private copyColumnStyle(sheetId: UID, refColumn: HeaderIndex, targetCols: HeaderIndex[]) {
-    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
-      const format = this.getFormat(sheetId, refColumn, row);
+  private copyColumnStyleFormat(sheetId: UID, refColumn: HeaderIndex, targetCols: HeaderIndex[]) {
+    for (const col of targetCols) {
+      this.history.update(
+        "defaultStyle",
+        sheetId,
+        "cols",
+        col,
+        this.defaultStyle[sheetId]?.cols?.[col]
+      );
+      this.history.update(
+        "defaultFormat",
+        sheetId,
+        "cols",
+        col,
+        this.defaultFormat[sheetId]?.cols?.[col]
+      );
+    }
+    for (const cell of this.getters.getCellFromZone(
+      sheetId,
+      this.getters.getColsZone(sheetId, refColumn, refColumn)
+    )) {
+      const { row } = this.getters.getCellPosition(cell.id);
+      const format = this.getStyleFormat(sheetId, refColumn, row);
       if (format.style || format.format) {
         for (const col of targetCols) {
           this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
@@ -531,9 +624,26 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * Copy the style of one row to other rows.
    */
-  private copyRowStyle(sheetId: UID, refRow: HeaderIndex, targetRows: HeaderIndex[]) {
-    for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
-      const format = this.getFormat(sheetId, col, refRow);
+  private copyRowStyleFormat(sheetId: UID, refRow: HeaderIndex, targetRows: HeaderIndex[]) {
+    for (const row of targetRows) {
+      this.history.update(
+        "defaultStyle",
+        sheetId,
+        "rows",
+        row,
+        this.defaultStyle[sheetId]?.rows?.[row]
+      );
+      this.history.update(
+        "defaultFormat",
+        sheetId,
+        "rows",
+        row,
+        this.defaultFormat[sheetId]?.rows?.[row]
+      );
+    }
+    for (const cell of this.getters.getRowCells(sheetId, refRow)) {
+      const { col } = this.getters.getCellPosition(cell.id);
+      const format = this.getStyleFormat(sheetId, col, refRow);
       if (format.style || format.format) {
         for (const row of targetRows) {
           this.dispatch("UPDATE_CELL", { sheetId, col, row, ...format });
@@ -545,7 +655,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /**
    * gets the currently used style/border of a cell based on it's coordinates
    */
-  private getFormat(
+  private getStyleFormat(
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex
@@ -580,9 +690,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (after.style !== undefined) {
       style = after.style || undefined;
     } else {
-      style = before ? before.style : undefined;
+      style = before ? before.style : this.getDefaultCellStyle({ sheetId, col, row });
     }
-    const format = "format" in after ? after.format : before && before.format;
+    const format =
+      "format" in after
+        ? after.format
+        : (before && before.format) || this.getDefaultCellFormat({ sheetId, col, row });
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
@@ -735,6 +848,123 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
+  }
+
+  private setGlobalStyle(sheetId: UID, style: Style | undefined) {
+    const currentStyle = this.defaultStyle[sheetId]?.["global"];
+    this.history.update("defaultStyle", sheetId, "global", { ...currentStyle, ...style });
+    // Update cols and rows as they are prioritized compared to global
+    for (const [row, rowStyle] of Object.entries(this.defaultStyle[sheetId].rows ?? {})) {
+      let newStyle: Style | undefined = style && { ...rowStyle, ...style };
+      if (deepEquals(newStyle, style)) newStyle = undefined;
+      this.history.update("defaultStyle", sheetId, "rows", parseInt(row), newStyle);
+    }
+    for (const [col, colStyle] of Object.entries(this.defaultStyle[sheetId].cols ?? {})) {
+      let newStyle: Style | undefined = style && { ...colStyle, ...style };
+      if (deepEquals(newStyle, style)) newStyle = undefined;
+      this.history.update("defaultStyle", sheetId, "cols", parseInt(col), newStyle);
+    }
+    for (const cell of this.getters.getCellFromZone(sheetId, {
+      left: 0,
+      right: undefined,
+      top: 0,
+      bottom: undefined,
+    })) {
+      this.updateCellStyleWithDefault(cell, style);
+    }
+  }
+
+  private setColStyle(sheetId: UID, col: HeaderIndex, style: Style | undefined) {
+    const currentStyle = this.defaultStyle[sheetId]?.["cols"]?.[col];
+    this.history.update("defaultStyle", sheetId, "cols", col, { ...currentStyle, ...style });
+    // Update rows as they are prioritized compared to colums
+    for (const [rowIndex, rowStyle] of Object.entries(this.defaultStyle[sheetId].rows ?? {})) {
+      const row = parseInt(rowIndex);
+      // We skip existing cell as they will be done in the next loop
+      if (this.getters.getCell({ sheetId, col, row })) continue;
+      const cellStyle: Style | undefined = style && { ...rowStyle, ...style };
+      this.dispatch("UPDATE_CELL", {
+        sheetId,
+        col,
+        row,
+        style: deepEquals(cellStyle, style) ? null : cellStyle,
+      });
+    }
+    for (const cell of this.getters.getColCells(sheetId, col)) {
+      this.updateCellStyleWithDefault(cell, style);
+    }
+  }
+
+  private setRowStyle(sheetId: UID, row: HeaderIndex, style: Style | undefined) {
+    const currentStyle = this.defaultStyle[sheetId]?.["rows"]?.[row];
+    this.history.update("defaultStyle", sheetId, "rows", row, { ...currentStyle, ...style });
+    for (const cell of this.getters.getRowCells(sheetId, row)) {
+      this.updateCellStyleWithDefault(cell, style);
+    }
+  }
+
+  private updateCellStyleWithDefault(cell: Cell, style: Style | undefined) {
+    if (!cell.style) return;
+    const cellStyle: Style | undefined = { ...cell.style, ...style };
+    const { col, row, sheetId } = this.getters.getCellPosition(cell.id);
+    this.dispatch("UPDATE_CELL", {
+      sheetId,
+      col,
+      row,
+      style: deepEquals(cellStyle, style) ? null : cellStyle,
+    });
+  }
+
+  private setGlobalFormat(sheetId: UID, format: Format | undefined) {
+    this.history.update("defaultFormat", sheetId, "global", format);
+    // Update cols and rows as they are prioritized compared to global
+    for (const row of Object.keys(this.defaultFormat[sheetId].rows ?? {})) {
+      this.history.update("defaultFormat", sheetId, "rows", parseInt(row), undefined);
+    }
+    for (const col of Object.keys(this.defaultFormat[sheetId].cols ?? {})) {
+      this.history.update("defaultFormat", sheetId, "cols", parseInt(col), undefined);
+    }
+    for (const cell of this.getters.getCellFromZone(sheetId, {
+      left: 0,
+      right: undefined,
+      top: 0,
+      bottom: undefined,
+    })) {
+      this.updateCellFormat(cell, format);
+    }
+  }
+
+  private setColFormat(sheetId: UID, col: HeaderIndex, format: Format | undefined) {
+    this.history.update("defaultFormat", sheetId, "cols", col, format);
+    for (const cell of this.getters.getColCells(sheetId, col)) {
+      this.updateCellFormat(cell, format);
+    }
+    // Update rows as they are prioritized compared to colums
+    for (const row of Object.keys(this.defaultFormat[sheetId].rows ?? {})) {
+      this.dispatch("UPDATE_CELL", {
+        sheetId,
+        col,
+        row: parseInt(row),
+        format,
+      });
+    }
+  }
+
+  private setRowFormat(sheetId: UID, row: HeaderIndex, format: Format | undefined) {
+    this.history.update("defaultFormat", sheetId, "rows", row, format);
+    for (const cell of this.getters.getRowCells(sheetId, row)) {
+      this.updateCellFormat(cell, format);
+    }
+  }
+
+  private updateCellFormat(cell: Cell, format: Format | undefined) {
+    const { col, row, sheetId } = this.getters.getCellPosition(cell.id);
+    this.dispatch("UPDATE_CELL", {
+      sheetId,
+      col,
+      row,
+      format,
+    });
   }
 }
 
