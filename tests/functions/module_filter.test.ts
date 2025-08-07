@@ -806,11 +806,29 @@ describe("SORT function", () => {
     ]);
   });
 
-  test("Sorting with missing 'order' argument", () => {
+  test("Sorting with missing 'is_ascending' argument", () => {
     const model = new Model();
     setCellContent(model, "B1", "=SORT(A1:A2, 1)");
     expect(getRangeValuesAsMatrix(model, "B1")).toEqual([["#BAD_EXPR"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "B1")).toBeTruthy();
+  });
+
+  test("Sorting with undefined 'sort_column' argument", () => {
+    const model = new Model();
+    setCellContent(model, "B1", "=SORT(A1:A2, , 1)");
+    expect(getRangeValuesAsMatrix(model, "B1")).toEqual([["#ERROR"]]);
+    expect(getCellError(model, "B1")).toBe(
+      "Value for parameter 1 is missing, while the function SORT expect a number or a range."
+    );
+  });
+
+  test("Sorting with undefined 'is_ascending' argument", () => {
+    const model = new Model();
+    setCellContent(model, "B1", "=SORT(A1:A2, 1,)");
+    expect(getRangeValuesAsMatrix(model, "B1")).toEqual([["#ERROR"]]);
+    expect(getCellError(model, "B1")).toBe(
+      "Value for parameter 2 is missing, while the function SORT expect a number or a range."
+    );
   });
 });
 
