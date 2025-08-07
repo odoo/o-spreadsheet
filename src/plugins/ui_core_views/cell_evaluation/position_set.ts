@@ -47,15 +47,6 @@ export class PositionSet {
     return this.sheets[position.sheetId].getValue(position) === 1;
   }
 
-  clear(): CellPosition[] {
-    const insertions = [...this];
-    this.insertions = [];
-    for (const sheetId in this.sheets) {
-      this.sheets[sheetId].clear();
-    }
-    return insertions;
-  }
-
   isEmpty() {
     if (this.insertions.length === 0) {
       return true;
@@ -68,20 +59,6 @@ export class PositionSet {
     return true;
   }
 
-  fillAllPositions() {
-    this.insertions = new Array<CellPosition>(this.maxSize);
-    let index = 0;
-    for (const sheetId in this.sheets) {
-      const grid = this.sheets[sheetId];
-      grid.fillAllPositions();
-      for (let i = 0; i < grid.rows; i++) {
-        for (let j = 0; j < grid.cols; j++) {
-          this.insertions[index++] = { sheetId, row: i, col: j };
-        }
-      }
-    }
-  }
-
   /**
    * Iterate over the positions in the order of insertion.
    * Note that the same position may be yielded multiple times if the value was added
@@ -91,6 +68,35 @@ export class PositionSet {
     for (const position of this.insertions) {
       if (this.sheets[position.sheetId].getValue(position) === 1) {
         yield position;
+      }
+    }
+  }
+}
+
+export type AddOnlyPositionSet = Omit<PositionSet, "delete" | "deleteMany">;
+
+export class FilledPositionSet implements AddOnlyPositionSet {
+  constructor(private sheetSizes: SheetSizes) {}
+
+  add(position: CellPosition): void {}
+
+  addMany(positions: Iterable<CellPosition>): void {}
+
+  has(position: CellPosition): boolean {
+    return true;
+  }
+
+  isEmpty(): boolean {
+    return false;
+  }
+
+  *[Symbol.iterator](): Generator<CellPosition> {
+    for (const sheetId in this.sheetSizes) {
+      const { rows, cols } = this.sheetSizes[sheetId];
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          yield { sheetId, row: i, col: j };
+        }
       }
     }
   }

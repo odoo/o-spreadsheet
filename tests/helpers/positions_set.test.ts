@@ -61,15 +61,6 @@ describe("PositionSet", () => {
     expect(set.has({ sheetId: "1", row: 1, col: 1 })).toBe(false);
   });
 
-  test("clear a set with elements", () => {
-    const set = new PositionSet({ "1": { rows: 10, cols: 10 } });
-    const A1 = { sheetId: "1", row: 0, col: 0 };
-    set.add(A1);
-    expect(set.clear()).toEqual([A1]);
-    expect(set.isEmpty()).toBe(true);
-    expect(set.has(A1)).toBe(false);
-  });
-
   test("iterate on empty set", () => {
     const set = new PositionSet({ "1": { rows: 10, cols: 10 } });
     expect([...set]).toEqual([]);
@@ -124,19 +115,5 @@ describe("PositionSet", () => {
     set2.add(A1);
     expect([...set1]).toEqual([A1, A2]);
     expect([...set2]).toEqual([A2, A1]);
-  });
-
-  test("fill all positions", () => {
-    const set = new PositionSet({ "1": { rows: 2, cols: 2 } });
-    const A1 = { sheetId: "1", row: 0, col: 0 };
-    const A2 = { sheetId: "1", row: 0, col: 1 };
-    const B1 = { sheetId: "1", row: 1, col: 0 };
-    const B2 = { sheetId: "1", row: 1, col: 1 };
-    set.fillAllPositions();
-    expect([...set]).toEqual([A1, A2, B1, B2]);
-    expect(set.has(A1)).toBe(true);
-    expect(set.has(A2)).toBe(true);
-    expect(set.has(B1)).toBe(true);
-    expect(set.has(B2)).toBe(true);
   });
 });
