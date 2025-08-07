@@ -1,4 +1,5 @@
 import {
+  ClipboardCopyOptions,
   ClipboardData,
   ClipboardOptions,
   ClipboardPasteTarget,
@@ -12,7 +13,7 @@ import {
 export class ClipboardHandler<T> {
   constructor(protected getters: Getters, protected dispatch: CommandDispatcher["dispatch"]) {}
 
-  copy(data: ClipboardData): T | undefined {
+  copy(data: ClipboardData, mode: ClipboardCopyOptions = "copyPaste"): T | undefined {
     return;
   }
 
