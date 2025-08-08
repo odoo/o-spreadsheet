@@ -35,6 +35,69 @@ describe("Carousel figure", () => {
       });
       expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
     });
+
+    test("Cannot add a new chart to a non carousel-figure", () => {
+      createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "chartFigureId" });
+
+      const sheetId = model.getters.getActiveSheetId();
+      let result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", { figureId: "invalidId", sheetId });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
+
+      result = model.dispatch("ADD_NEW_CHART_TO_CAROUSEL", { figureId: "chartFigureId", sheetId });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
+    });
+
+    test("Cannot add an existing chart to a non-carousel figure", () => {
+      createChart(model, { type: "bar" }, "chartId", undefined, { figureId: "chartFigureId" });
+      createChart(model, { type: "bar" }, "chartId2", undefined, { figureId: "otherFigureId" });
+      createCarousel(model, { items: [] }, "carouselId");
+      createCarousel(model, { items: [] }, "otherCarouselId");
+
+      let result = addChartFigureToCarousel(model, "chartFigureId", "otherFigureId");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
+
+      result = addChartFigureToCarousel(model, "carouselId", "invalidId");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
+
+      result = addChartFigureToCarousel(model, "otherCarouselId", "carouselId");
+      expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
+
+      result = addChartFigureToCarousel(model, "carouselId", "chartFigureId");
+      expect(result).toBeSuccessfullyDispatched();
+    });
+
+    test("Cannot update the carousel to a wrong state", () => {
+      createCarousel(model, { items: [] }, "carouselId");
+      const chartId = addNewChartToCarousel(model, "carouselId");
+
+      let result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+        figureId: "wrongCarouselId",
+        sheetId,
+        item: { type: "chart", chartId: "invalidChartId" },
+      });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidFigureId);
+
+      result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+        figureId: "carouselId",
+        sheetId,
+        item: { type: "chart", chartId: "invalidChartId" },
+      });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidCarouselItem);
+
+      result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+        figureId: "carouselId",
+        sheetId,
+        item: { type: "carouselDataView" },
+      });
+      expect(result).toBeCancelledBecause(CommandResult.InvalidCarouselItem);
+
+      result = model.dispatch("UPDATE_CAROUSEL_ACTIVE_ITEM", {
+        figureId: "carouselId",
+        sheetId,
+        item: { type: "chart", chartId },
+      });
+      expect(result).toBeSuccessfullyDispatched();
+    });
   });
 
   test("Can create a carousel figure", () => {
