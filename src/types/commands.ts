@@ -1442,6 +1442,7 @@ export const enum CommandResult {
   InvalidPivotDataSet = "InvalidPivotDataSet",
   InvalidPivotCustomField = "InvalidPivotCustomField",
   MissingFigureArguments = "MissingFigureArguments",
+  InvalidCarouselItem = "InvalidCarouselItem",
 }
 
 export interface CommandHandler<T> {

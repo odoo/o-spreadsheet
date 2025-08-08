@@ -1,6 +1,7 @@
 import { AbstractChart, Carousel, CarouselItem, Command, UID } from "../..";
-import { UuidGenerator } from "../../helpers";
+import { deepEquals, UuidGenerator } from "../../helpers";
 import { CAROUSEL_DEFAULT_CHART_DEFINITION } from "../../helpers/carousel_helpers";
+import { CommandResult, LocalCommand } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class CarouselUIPlugin extends UIPlugin {
@@ -13,6 +14,35 @@ export class CarouselUIPlugin extends UIPlugin {
   private uuidGenerator = new UuidGenerator();
 
   carouselStates: Record<UID, string | undefined> = {};
+
+  allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
+    switch (cmd.type) {
+      case "ADD_FIGURE_CHART_TO_CAROUSEL":
+        if (
+          !this.getters.doesCarouselExist(cmd.carouselFigureId) ||
+          this.getters.getFigure(cmd.sheetId, cmd.chartFigureId)?.tag !== "chart"
+        ) {
+          return CommandResult.InvalidFigureId;
+        }
+        return CommandResult.Success;
+      case "ADD_NEW_CHART_TO_CAROUSEL":
+        if (!this.getters.doesCarouselExist(cmd.figureId)) {
+          return CommandResult.InvalidFigureId;
+        }
+        return CommandResult.Success;
+
+      case "UPDATE_CAROUSEL_ACTIVE_ITEM":
+        if (!this.getters.doesCarouselExist(cmd.figureId)) {
+          return CommandResult.InvalidFigureId;
+        } else if (
+          !this.getters.getCarousel(cmd.figureId).items.some((item) => deepEquals(item, cmd.item))
+        ) {
+          return CommandResult.InvalidCarouselItem;
+        }
+        return CommandResult.Success;
+    }
+    return CommandResult.Success;
+  }
 
   handle(cmd: Command) {
     switch (cmd.type) {
@@ -89,11 +119,8 @@ export class CarouselUIPlugin extends UIPlugin {
       delete this.carouselStates[figureId];
       return;
     }
+
     const carousel = this.getters.getCarousel(figureId);
-    if (!carousel) {
-      delete this.carouselStates[figureId];
-      return;
-    }
     if (!this.carouselStates[figureId]) {
       this.carouselStates[figureId] = this.getCarouselItemId(carousel.items[0]);
     } else if (carousel.items.length === 0) {
