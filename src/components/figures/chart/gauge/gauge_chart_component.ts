@@ -41,17 +41,17 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
         if (
           this.env.isDashboard() &&
           lastRuntime === undefined && // first render
-          this.animationStore?.animationPlayed[this.animationFigureId] !== "gauge"
+          this.animationStore?.animationPlayed[this.animationChartId] !== "gauge"
         ) {
           animation = this.drawGaugeWithAnimation();
-          this.animationStore?.disableAnimationForChart(this.animationFigureId, "gauge");
+          this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else if (
           this.env.isDashboard() &&
           lastRuntime !== undefined && // not first render
           !deepEquals(this.runtime, lastRuntime)
         ) {
           animation = this.drawGaugeWithAnimation();
-          this.animationStore?.disableAnimationForChart(this.animationFigureId, "gauge");
+          this.animationStore?.disableAnimationForChart(this.animationChartId, "gauge");
         } else {
           drawGaugeChart(this.canvasEl, this.runtime);
         }
@@ -88,7 +88,7 @@ export class GaugeChartComponent extends Component<Props, SpreadsheetChildEnv> {
     return this.canvas.el as HTMLCanvasElement;
   }
 
-  get animationFigureId() {
+  get animationChartId() {
     return this.props.isFullScreen ? this.props.chartId + "-fullscreen" : this.props.chartId;
   }
 }

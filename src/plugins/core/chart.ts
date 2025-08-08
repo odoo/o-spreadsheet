@@ -332,7 +332,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
       : CommandResult.Success;
   }
 
-  /** If the command would create a new figure, there need to be a position & offset defined in the command */
+  /** If the command is meant to create a new figure, the position & offset argument need to be defined in the command */
   private checkFigureArguments(cmd: CreateChartCommand): CommandResult {
     if (this.getters.getFigure(cmd.sheetId, cmd.figureId)) {
       return CommandResult.Success;

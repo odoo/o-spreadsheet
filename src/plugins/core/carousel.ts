@@ -68,11 +68,11 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
                 definition: {
                   items: carousel.items.map((item): CarouselItem => {
                     if (item.type === "carouselDataView") {
-                      return { type: "carouselDataView" };
+                      return { ...item };
                     }
                     const chartIdBase = item.chartId.split(FIGURE_ID_SPLITTER).pop();
                     const newChartId = `${cmd.sheetIdTo}${FIGURE_ID_SPLITTER}${chartIdBase}`;
-                    return { type: "chart", chartId: newChartId };
+                    return { ...item, chartId: newChartId };
                   }),
                 },
               });
@@ -96,7 +96,7 @@ export class CarouselPlugin extends CorePlugin<CarouselState> implements Carouse
         return true;
       }
     }
-    throw false;
+    return false;
   }
 
   getCarousel(figureId: UID): Carousel {

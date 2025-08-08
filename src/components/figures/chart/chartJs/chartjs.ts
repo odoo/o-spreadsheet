@@ -126,9 +126,9 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private createChart(chartData: ChartConfiguration<any>) {
     if (this.env.model.getters.isDashboard() && this.animationStore) {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
-      if (chartType && this.animationStore.animationPlayed[this.animationFigureId] !== chartType) {
+      if (chartType && this.animationStore.animationPlayed[this.animationChartId] !== chartType) {
         chartData = this.enableAnimationInChartData(chartData);
-        this.animationStore.disableAnimationForChart(this.animationFigureId, chartType);
+        this.animationStore.disableAnimationForChart(this.animationChartId, chartType);
       }
     }
 
@@ -142,7 +142,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       const chartType = this.env.model.getters.getChart(this.props.chartId)?.type;
       if (chartType && this.hasChartDataChanged() && this.animationStore) {
         chartData = this.enableAnimationInChartData(chartData);
-        this.animationStore.disableAnimationForChart(this.animationFigureId, chartType);
+        this.animationStore.disableAnimationForChart(this.animationChartId, chartType);
       }
     }
 
@@ -172,7 +172,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 
-  get animationFigureId() {
+  get animationChartId() {
     return this.props.isFullScreen ? this.props.chartId + "-fullscreen" : this.props.chartId;
   }
 }
