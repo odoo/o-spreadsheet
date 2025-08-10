@@ -166,6 +166,27 @@ describe("Grid component in dashboard mode", () => {
     expect(fn).toHaveBeenCalledWith(true);
   });
 
+  test("Clickable cell actions are computed only once per cell", async () => {
+    const fn = jest.fn();
+    clickableCellRegistry.add("fake", {
+      condition: (position, getters) => {
+        if (position.col === 0 && position.row === 0) {
+          fn();
+        }
+        return false;
+      },
+      execute: (position) => {},
+      sequence: 5,
+    });
+    setCellContent(model, "A1", "coucou");
+    model.updateMode("dashboard");
+    await nextTick();
+    expect(fn).toHaveBeenCalledTimes(1);
+    await nextTick();
+    expect(fn).toHaveBeenCalledTimes(1);
+    clickableCellRegistry.remove("fake");
+  });
+
   test("Clickable cells actions can have a tooltip", async () => {
     addToRegistry(clickableCellRegistry, "fake", {
       condition: () => true,
