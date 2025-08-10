@@ -1,7 +1,7 @@
 import { CHART_AXIS_TITLE_FONT_SIZE, CHART_TITLE_FONT_SIZE } from "../../constants";
 import { ColorGenerator, largeMax, lightenColor, range } from "../../helpers";
 import { chartMutedFontColor } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData } from "../../types";
+import { Color, ExcelWorkbookData } from "../../types";
 import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart/chart";
 import { XMLAttributes, XMLString, XlsxHexColor } from "../../types/xlsx";
 import {
@@ -45,7 +45,7 @@ const valAxId = 88853993;
 const secondaryValAxId = 88853994;
 
 export function createChart(
-  chart: FigureData<ExcelChartDefinition>,
+  chart: ExcelChartDefinition,
   chartSheetIndex: string,
   data: ExcelWorkbookData
 ): XMLDocument {
@@ -56,17 +56,17 @@ export function createChart(
   ];
 
   const chartShapeProperty = shapeProperty({
-    backgroundColor: chart.data.backgroundColor,
+    backgroundColor: chart.backgroundColor,
     line: { color: "000000" },
   });
   // <manualLayout/> to manually position the chart in the figure container
   let title = escapeXml``;
-  if (chart.data.title?.text) {
-    const titleColor = toXlsxHexColor(chartMutedFontColor(chart.data.backgroundColor));
-    const fontSize = chart.data.title.fontSize ?? CHART_TITLE_FONT_SIZE;
+  if (chart.title?.text) {
+    const titleColor = toXlsxHexColor(chartMutedFontColor(chart.backgroundColor));
+    const fontSize = chart.title.fontSize ?? CHART_TITLE_FONT_SIZE;
     title = escapeXml/*xml*/ `
       <c:title>
-        ${insertText(chart.data.title.text, titleColor, fontSize, chart.data.title)}
+        ${insertText(chart.title.text, titleColor, fontSize, chart.title)}
         <c:overlay val="0" />
       </c:title>
     `;
@@ -74,30 +74,30 @@ export function createChart(
 
   // switch on chart type
   let plot = escapeXml``;
-  switch (chart.data.type) {
+  switch (chart.type) {
     case "bar":
-      plot = addBarChart(chart.data);
+      plot = addBarChart(chart);
       break;
     case "combo":
-      plot = addComboChart(chart.data);
+      plot = addComboChart(chart);
       break;
     case "pyramid":
-      plot = addPyramidChart(chart.data);
+      plot = addPyramidChart(chart);
       break;
     case "line":
-      plot = addLineChart(chart.data);
+      plot = addLineChart(chart);
       break;
     case "scatter":
-      plot = addScatterChart(chart.data);
+      plot = addScatterChart(chart);
       break;
     case "pie":
-      plot = addDoughnutChart(chart.data, chartSheetIndex, data);
+      plot = addDoughnutChart(chart, chartSheetIndex, data);
       break;
     case "radar":
-      plot = addRadarChart(chart.data);
+      plot = addRadarChart(chart);
   }
   let position: ElementPosition = "none";
-  switch (chart.data.legendPosition) {
+  switch (chart.legendPosition) {
     case "bottom":
       position = "b";
       break;
@@ -111,7 +111,7 @@ export function createChart(
       position = "t";
       break;
   }
-  const fontColor = chart.data.fontColor;
+  const fontColor = chart.fontColor;
   const xml = escapeXml/*xml*/ `
     <c:chartSpace ${formatAttributes(namespaces)}>
       <c:roundedCorners val="0" />
@@ -124,7 +124,7 @@ export function createChart(
           <!-- how the chart element is placed on the chart -->
           <c:layout />
           ${plot}
-          ${shapeProperty({ backgroundColor: chart.data.backgroundColor })}
+          ${shapeProperty({ backgroundColor: chart.backgroundColor })}
         </c:plotArea>
         ${position !== "none" ? addLegend(position, fontColor) : ""}
       </c:chart>
