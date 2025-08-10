@@ -372,7 +372,7 @@ migrationStepRegistry
   })
   .add("18.0.4", {
     // "Add operator in gauge inflection points",
-    migrate(data: WorkbookData): any {
+    migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
           if (figure.tag !== "chart" || figure.data.type !== "gauge") {
@@ -503,7 +503,7 @@ migrationStepRegistry
     },
   })
   .add("18.4.2", {
-    migrate(data: WorkbookData): any {
+    migrate(data: any): any {
       for (const sheet of data.sheets || []) {
         for (const figure of sheet.figures || []) {
           if (figure.tag !== "chart" || figure.data.type !== "scorecard") {
@@ -538,11 +538,24 @@ migrationStepRegistry
     },
   })
   .add("18.5.1", {
-    migrate(data: WorkbookData): any {
+    migrate(data: any): WorkbookData {
       for (const sheet of data.sheets || []) {
+        if (!sheet.charts) {
+          sheet.charts = {};
+        }
+        if (!sheet.images) {
+          sheet.images = {};
+        }
+
         for (const figure of sheet.figures || []) {
           if (figure.tag === "chart") {
-            figure.data.chartId = figure.id;
+            const chart = figure.data;
+            delete figure.data;
+            sheet.charts[figure.id] = { figureId: figure.id, chart };
+          } else if (figure.tag === "image") {
+            const image = figure.data;
+            delete figure.data;
+            sheet.images[figure.id] = { figureId: figure.id, image };
           }
         }
       }

@@ -272,15 +272,19 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
   const map = {};
   for (const sheet of data.sheets || []) {
     sheet.figures?.forEach((figure) => {
-      if (figure.tag === "chart") {
-        // chart definition
-        if (data.version && compareVersions(String(data.version), "18.5.1") <= 0) {
-          map[figure.data.chartId] = figure.data;
-        } else {
-          map[figure.id] = figure.data;
-        }
+      if (
+        figure.tag === "chart" &&
+        data.version &&
+        compareVersions(String(data.version), "18.5.1") > 0
+      ) {
+        map[figure.id] = (figure as any).data;
       }
     });
+    for (const chartId in sheet.charts || {}) {
+      if (data.version && compareVersions(String(data.version), "18.5.1") <= 0) {
+        map[chartId] = sheet.charts[chartId].chart;
+      }
+    }
   }
   for (const message of initialMessages) {
     if (message.type === "REMOTE_REVISION") {
@@ -415,6 +419,9 @@ export function createEmptySheet(sheetId: UID, name: string): SheetData {
     conditionalFormats: [],
     dataValidationRules: [],
     figures: [],
+    charts: {},
+    carousels: {},
+    images: {},
     tables: [],
     isVisible: true,
   };
@@ -438,10 +445,27 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
 
 export function createEmptyExcelSheet(sheetId: UID, name: string): ExcelSheetData {
   return {
-    ...(createEmptySheet(sheetId, name) as Omit<ExcelSheetData, "charts">),
-    charts: [],
-    images: [],
+    id: sheetId,
+    name,
+    colNumber: 26,
+    rowNumber: 100,
+    cells: {},
+    styles: {},
+    formats: {},
+    borders: {},
+    cols: {},
+    rows: {},
+    merges: [],
+    conditionalFormats: [],
+    dataValidationRules: [],
+    figures: [],
+    charts: {},
+    carousels: {},
+    tables: [],
+    isVisible: true,
+    images: {},
     cellValues: {},
+    formulaSpillRanges: {},
   };
 }
 

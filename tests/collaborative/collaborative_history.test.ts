@@ -490,8 +490,12 @@ describe("Collaborative local history", () => {
               height: 300,
               x: 100,
               y: 100,
-              data: {
-                chartId: "chart1",
+            },
+          ],
+          charts: {
+            chart1: {
+              figureId: "fig1",
+              chart: {
                 type: "line",
                 dataSetsHaveTitle: false,
                 dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
@@ -501,7 +505,7 @@ describe("Collaborative local history", () => {
                 cumulative: false,
               },
             },
-          ],
+          },
         },
       ],
     };

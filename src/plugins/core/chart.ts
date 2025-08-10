@@ -12,7 +12,6 @@ import {
   CreateChartCommand,
   DeleteChartCommand,
   DOMDimension,
-  FigureData,
   HeaderIndex,
   PixelPosition,
   UID,
@@ -212,23 +211,10 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
 
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      if (sheet.figures) {
-        for (const figure of sheet.figures) {
-          // TODO:
-          // figure data should be external IMO => chart should be in sheet.chart
-          // instead of in figure.data
-          if (figure.tag === "chart") {
-            const chartId = figure.data.chartId;
-            const chart = this.createChart(figure.id, figure.data, sheet.id);
-            this.charts[chartId] = { chart, figureId: figure.id };
-          } else if (figure.tag === "carousel") {
-            for (const chartId in figure.data.chartDefinitions || {}) {
-              const chartDefinition = figure.data.chartDefinitions[chartId];
-              const chart = this.createChart(figure.id, chartDefinition, sheet.id);
-              this.charts[chartId] = { chart, figureId: figure.id };
-            }
-          }
-        }
+      for (const chartId in sheet.charts) {
+        const { figureId, chart: chartData } = sheet.charts[chartId];
+        const chart = this.createChart(figureId, chartData, sheet.id);
+        this.charts[chartId] = { chart, figureId };
       }
     }
   }
@@ -236,35 +222,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   export(data: WorkbookData) {
     if (data.sheets) {
       for (const sheet of data.sheets) {
-        // TODO This code is false, if two plugins want to insert figures on the sheet, it will crash !
-        const sheetFigures = this.getters.getFigures(sheet.id);
-        const figures: FigureData<any>[] = [];
-        for (const sheetFigure of sheetFigures) {
-          const figure = sheetFigure as FigureData<any>;
-          const chartId = Object.keys(this.charts).find(
-            (chartId) => this.charts[chartId]?.figureId === sheetFigure.id
-          );
-          if (figure && figure.tag === "chart" && chartId) {
-            const data = this.charts[chartId]?.chart.getDefinition();
-            if (data) {
-              figure.data = { ...data, chartId };
-              figures.push(figure);
-            }
-          } else if (figure && figure.tag === "carousel") {
-            const chartIds = Object.keys(this.charts).filter(
-              (chartId) => this.charts[chartId]?.figureId === sheetFigure.id
-            );
-            const data = {};
-            for (const chartId of chartIds) {
-              data[chartId] = this.charts[chartId]?.chart.getDefinition();
-            }
-            figure.data = { chartDefinitions: data };
-            figures.push(figure);
-          } else {
-            figures.push(figure);
+        for (const chartId of this.getChartIds(sheet.id)) {
+          const figureChart = this.charts[chartId];
+          if (figureChart) {
+            sheet.charts[chartId] = {
+              figureId: figureChart.figureId,
+              chart: figureChart.chart.getDefinition(),
+            };
           }
         }
-        sheet.figures = figures;
       }
     }
   }
