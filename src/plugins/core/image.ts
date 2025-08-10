@@ -7,7 +7,6 @@ import {
   CoreCommand,
   DOMDimension,
   ExcelWorkbookData,
-  FigureData,
   FigureSize,
   HeaderIndex,
   PixelPosition,
@@ -141,43 +140,27 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
 
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      const images = (sheet.figures || []).filter((figure) => figure.tag === "image");
-      for (const image of images) {
-        this.history.update("images", sheet.id, image.id, image.data);
-        this.syncedImages.add(image.data.path);
+      for (const imageId in sheet.images || {}) {
+        const { figureId, image } = sheet.images[imageId];
+        this.history.update("images", sheet.id, figureId, image);
+        this.syncedImages.add(image.path);
       }
     }
   }
 
   export(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      const images = sheet.figures.filter((figure) => figure.tag === "image");
-      for (const image of images) {
-        image.data = this.images[sheet.id]?.[image.id];
+      for (const imageId in this.images[sheet.id] || {}) {
+        const image = this.images[sheet.id]?.[imageId];
+        if (image) {
+          sheet.images[imageId] = { figureId: imageId, image };
+        }
       }
     }
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    for (const sheet of data.sheets) {
-      if (!sheet.images) {
-        sheet.images = [];
-      }
-      const figures = this.getters.getFigures(sheet.id);
-      const images: FigureData<Image>[] = [];
-      for (const figure of figures) {
-        if (figure?.tag === "image") {
-          const image = this.getImage(figure.id);
-          if (image) {
-            images.push({
-              ...figure,
-              data: deepCopy(image),
-            });
-          }
-        }
-      }
-      sheet.images = [...sheet.images, ...images];
-    }
+    return this.export(data);
   }
 
   private getAllImages(): Image[] {
