@@ -19,7 +19,7 @@ export interface ClickableCell {
 }
 
 export class ClickableCellsStore extends SpreadsheetStore {
-  private _clickableCells: Record<UID, Record<string, CellClickableItem>> = markRaw({});
+  private _clickableCells: Record<UID, Record<string, CellClickableItem | undefined>> = markRaw({});
   private _registryItems: CellClickableItem[] = markRaw(
     clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)
   );
@@ -46,9 +46,7 @@ export class ClickableCellsStore extends SpreadsheetStore {
     }
     if (!(xc in clickableCells[sheetId]!)) {
       const clickableCell = this.findClickableItem(position);
-      if (clickableCell) {
-        clickableCells[sheetId][xc] = clickableCell;
-      }
+      clickableCells[sheetId][xc] = clickableCell;
     }
     return clickableCells[sheetId][xc];
   }
