@@ -2,6 +2,7 @@ import { Registry } from "../registries/registry";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
 import { BorderClipboardHandler } from "./borders_clipboard";
+import { CarouselClipboardHandler } from "./carousel_clipboard";
 import { CellClipboardHandler } from "./cell_clipboard";
 import { ChartClipboardHandler } from "./chart_clipboard";
 import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboard";
@@ -19,7 +20,8 @@ export const clipboardHandlersRegistries = {
 
 clipboardHandlersRegistries.figureHandlers
   .add("chart", ChartClipboardHandler)
-  .add("image", ImageClipboardHandler);
+  .add("image", ImageClipboardHandler)
+  .add("carousel", CarouselClipboardHandler);
 
 clipboardHandlersRegistries.cellHandlers
   .add("dataValidation", DataValidationClipboardHandler)
