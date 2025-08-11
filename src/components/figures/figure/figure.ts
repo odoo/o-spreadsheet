@@ -157,10 +157,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
     return this.isSelected ? ACTIVE_BORDER_WIDTH : this.borderWidth;
   }
 
-  get borderStyle() {
+  getBorderStyle(position: "top" | "right" | "bottom" | "left"): string {
     const borderWidth = this.getBorderWidth();
     const borderColor = this.isSelected ? SELECTION_BORDER_COLOR : FIGURE_BORDER_COLOR;
-    return `border: ${borderWidth}px solid ${borderColor};`;
+    return `border-${position}: ${borderWidth}px solid ${borderColor};`;
   }
 
   get wrapperStyle() {

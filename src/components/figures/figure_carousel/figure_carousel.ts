@@ -78,12 +78,6 @@ export class CarouselFigure extends Component<Props, SpreadsheetChildEnv> {
       sheetId: this.env.model.getters.getActiveSheetId(),
       item,
     });
-    if (
-      item.type === "carouselDataView" &&
-      this.env.model.getters.getSelectedFigureId() === this.props.figureUI.id
-    ) {
-      this.env.model.dispatch("SELECT_FIGURE", { figureId: null });
-    }
   }
 
   get headerStyle(): string {
