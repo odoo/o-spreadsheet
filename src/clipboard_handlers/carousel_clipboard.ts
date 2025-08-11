@@ -1,6 +1,7 @@
-import { UuidGenerator } from "../helpers";
+import { deepCopy, UuidGenerator } from "../helpers";
 import { AbstractChart } from "../helpers/figures/charts";
 import {
+  Carousel,
   ClipboardFigureData,
   ClipboardOptions,
   ClipboardPasteTarget,
@@ -13,39 +14,44 @@ import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_hand
 
 type ClipboardContent = {
   figureId: UID;
+  copiedSheetId: UID;
   copiedFigure: Figure;
-  copiedChart: AbstractChart;
+  copiedCarousel: Carousel;
+  copiedCharts: { [chartId: UID]: AbstractChart };
 };
 
-export class ChartClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
+export class CarouselClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
   copy(data: ClipboardFigureData): ClipboardContent | undefined {
     const sheetId = data.sheetId;
     const figure = this.getters.getFigure(sheetId, data.figureId);
     if (!figure) {
       throw new Error(`No figure for the given id: ${data.figureId}`);
     }
-    if (figure.tag !== "chart") {
+    if (figure.tag !== "carousel") {
       return;
     }
     const copiedFigure = { ...figure };
-    const chart = this.getters.getChartFromFigureId(data.figureId);
-    if (!chart) {
-      throw new Error(`No chart for the given id: ${data.figureId}`);
+    const copiedCarousel = this.getters.getCarousel(data.figureId);
+    const copiedCharts: { [chartId: UID]: AbstractChart } = {};
+    for (const item of copiedCarousel.items) {
+      if (item.type === "chart") {
+        const chart = this.getters.getChart(item.chartId);
+        if (!chart) {
+          throw new Error(`No chart for the given id: ${item.chartId}`);
+        }
+        copiedCharts[item.chartId] = chart.copyInSheetId(sheetId);
+      }
     }
-    const copiedChart = chart.copyInSheetId(sheetId);
     return {
       figureId: data.figureId,
       copiedFigure,
-      copiedChart,
+      copiedCarousel,
+      copiedCharts,
+      copiedSheetId: sheetId,
     };
   }
 
-  getPasteTarget(
-    sheetId: UID,
-    target: Zone[],
-    content: ClipboardContent,
-    options?: ClipboardOptions
-  ): ClipboardPasteTarget {
+  getPasteTarget(sheetId: UID): ClipboardPasteTarget {
     const newId = new UuidGenerator().smallUuid();
     return { zones: [], figureId: newId, sheetId };
   }
@@ -57,7 +63,6 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     const { zones, figureId } = target;
     const sheetId = target.sheetId;
     const { width, height } = clippedContent.copiedFigure;
-    const copy = clippedContent.copiedChart.copyInSheetId(sheetId);
     const maxPosition = this.getters.getMaxAnchorOffset(sheetId, height, width);
     let { left: col, top: row } = zones[0];
     const offset = { x: 0, y: 0 };
@@ -69,20 +74,38 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
       row = maxPosition.row;
       offset.y = maxPosition.offset.y;
     }
-    this.dispatch("CREATE_CHART", {
+    this.dispatch("CREATE_CAROUSEL", {
       figureId,
-      chartId: new UuidGenerator().smallUuid(),
       sheetId,
-      definition: copy.getDefinition(),
+      definition: { items: [] },
       col,
       row,
       offset,
       size: { height, width },
     });
 
+    const uuidGenerator = new UuidGenerator();
+    const items = deepCopy(clippedContent.copiedCarousel.items);
+    for (const item of items) {
+      if (item.type !== "chart") {
+        continue;
+      }
+      const chart = clippedContent.copiedCharts[item.chartId];
+      const newId = uuidGenerator.smallUuid();
+      const definition = chart.copyInSheetId(sheetId).getDefinition();
+      this.dispatch("CREATE_CHART", { figureId, chartId: newId, sheetId, definition });
+      item.chartId = newId;
+    }
+
+    this.dispatch("UPDATE_CAROUSEL", {
+      sheetId,
+      figureId,
+      definition: { ...clippedContent.copiedCarousel, items },
+    });
+
     if (options.isCutOperation) {
       this.dispatch("DELETE_FIGURE", {
-        sheetId: clippedContent.copiedChart.sheetId,
+        sheetId: clippedContent.copiedSheetId,
         figureId: clippedContent.copiedFigure.id,
       });
     }
