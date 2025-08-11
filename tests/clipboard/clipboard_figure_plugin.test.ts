@@ -5,19 +5,25 @@ import { UID } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart";
 import {
   activateSheet,
+  addNewChartToCarousel,
   copy,
+  createCarousel,
   createChart,
   createImage,
   createSheet,
   cut,
   deleteSheet,
   paste,
+  redo,
   setCellContent,
   setSelection,
+  undo,
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import { getFigureDefinition, getFigureIds, mockChart, nextTick } from "../test_helpers/helpers";
+
+mockChart();
 
 describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => {
   let model: Model;
@@ -25,7 +31,6 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   let figureId: UID;
 
   beforeEach(async () => {
-    mockChart(); // mock chart.js with luxon time adapter installed
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     figureId = model.uuidGenerator.uuidv4();
@@ -179,7 +184,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     deleteSheet(model, "Sheet1");
     paste(model, "A1");
     expect(model.getters.getFigures("sheet2Id")).toHaveLength(1);
-    const newChartId = model.getters.getFigures("sheet2Id")[0].id;
+    const newChartId = model.getters.getChartIds("sheet2Id")[0];
     expect(model.getters.getChartDefinition(newChartId)).toMatchObject({
       dataSets: [{ dataRange: "B1:B5" }],
       labelRange: undefined,
@@ -229,11 +234,121 @@ describe("chart specific Clipboard test", () => {
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
     paste(model, "A1");
-    const newChartId = model.getters.getFigures("42")[0].id;
+    const newChartId = model.getters.getChartIds("42")[0];
     expect(model.getters.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
       dataSets: [{ dataRange: "Sheet1!A1:A5" }],
       labelRange: "Sheet1!B1",
     });
+  });
+});
+
+describe("Carousel clipboard test", () => {
+  let model: Model;
+  let sheetId: UID;
+
+  beforeEach(() => {
+    model = new Model();
+    sheetId = model.getters.getActiveSheetId();
+  });
+
+  test("Can copy/paste an empty carousel", () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
+    copy(model);
+    paste(model, "A1");
+    expect(model.getters.getFigures(sheetId)).toHaveLength(2);
+    const copiedFigure = model.getters.getFigures(sheetId)[1];
+
+    expect(copiedFigure.tag).toBe("carousel");
+    expect(copiedFigure.id).not.toBe("carouselId");
+    expect(model.getters.getCarousel(copiedFigure.id).items).toEqual([]);
+  });
+
+  test("Can cut/paste an empty carousel", () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
+    cut(model);
+    paste(model, "A1");
+    expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+    const copiedFigure = model.getters.getFigures(sheetId)[0];
+
+    expect(copiedFigure.tag).toBe("carousel");
+    expect(copiedFigure.id).not.toBe("carouselId");
+    expect(model.getters.getCarousel(copiedFigure.id).items).toEqual([]);
+  });
+
+  test("Can copy/paste a carousel with charts", () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    const chartId = addNewChartToCarousel(model, "carouselId", {
+      type: "radar",
+      dataSets: [{ dataRange: "A1:A5" }],
+    });
+    const chartId2 = addNewChartToCarousel(model, "carouselId", { type: "bar", labelRange: "B1" });
+    model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
+    copy(model);
+    paste(model, "A1");
+
+    expect(model.getters.getFigures(sheetId)).toHaveLength(2);
+    const copiedFigure = model.getters.getFigures(sheetId)[1];
+    const copiedCarousel = model.getters.getCarousel(copiedFigure.id);
+
+    expect(copiedCarousel.items).toEqual([
+      { type: "chart", chartId: expect.not.stringMatching(chartId) },
+      { type: "chart", chartId: expect.not.stringMatching(chartId2) },
+    ]);
+    expect(model.getters.getChartDefinition(copiedCarousel.items[0]["chartId"])).toMatchObject({
+      type: "radar",
+      dataSets: [{ dataRange: "A1:A5" }],
+    });
+    expect(model.getters.getChartDefinition(copiedCarousel.items[1]["chartId"])).toMatchObject({
+      type: "bar",
+      labelRange: "B1",
+    });
+  });
+
+  test("Can copy/paste a carousel with a chart to another sheet", () => {
+    createCarousel(model, { items: [] }, "carouselId");
+    addNewChartToCarousel(model, "carouselId", {
+      type: "line",
+      dataSets: [{ dataRange: "A1:A5" }],
+    });
+    model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
+    copy(model);
+    createSheet(model, { sheetId: "42" });
+    activateSheet(model, "42");
+    paste(model, "A1");
+
+    expect(model.getters.getFigures("42")).toHaveLength(1);
+    const copiedFigure = model.getters.getFigures("42")[0];
+    const copiedCarousel = model.getters.getCarousel(copiedFigure.id);
+    expect(model.getters.getChartDefinition(copiedCarousel.items[0]["chartId"])).toMatchObject({
+      type: "line",
+      dataSets: [{ dataRange: "Sheet1!A1:A5" }],
+    });
+  });
+
+  test("Can undo/redo a carousel copy/paste", () => {
+    createCarousel(model, { items: [{ type: "carouselDataView" }] }, "carouselId");
+    const chartId = addNewChartToCarousel(model, "carouselId", {
+      type: "line",
+      dataSets: [{ dataRange: "A1:A5" }],
+    });
+    model.dispatch("SELECT_FIGURE", { figureId: "carouselId" });
+    copy(model);
+    paste(model, "A1");
+
+    expect(model.getters.getFigures(sheetId)).toHaveLength(2);
+    undo(model);
+    expect(model.getters.getFigures(sheetId)).toHaveLength(1);
+    redo(model);
+    expect(model.getters.getFigures(sheetId)).toHaveLength(2);
+
+    const copiedFigure = model.getters.getFigures(sheetId)[1];
+    const copiedCarousel = model.getters.getCarousel(copiedFigure.id);
+    expect(copiedCarousel.items).toEqual([
+      { type: "carouselDataView" },
+      { type: "chart", chartId: expect.not.stringMatching(chartId) },
+    ]);
   });
 });
