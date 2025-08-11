@@ -55,41 +55,58 @@ exports[`figures selected figure snapshot 1`] = `
       
     </div>
     
+    <div
+      class="position-absolute top-0 start-0 pe-none w-100 h-100"
+    >
+      <div
+        class="o-figure-border pe-auto w-100 h-0 position-absolute pb-2"
+        style="border-top: 2px solid #3266ca;"
+      />
+      <div
+        class="o-figure-border pe-auto h-100 position-absolute start-0 ps-2"
+        style="border-left: 2px solid #3266ca;"
+      />
+      <div
+        class="o-figure-border pe-auto w-100 position-absolute bottom-0 pt-2"
+        style="border-bottom: 2px solid #3266ca;"
+      />
+      <div
+        class="o-figure-border pe-auto h-100 position-absolute end-0 pe-2"
+        style="border-right: 2px solid #3266ca;"
+      />
+    </div>
+    
   </div>
   <div
-    class="o-figure-border w-100 h-100 position-absolute pe-none"
-    style="border: 2px solid #3266ca;"
-  />
-  <div
-    class="o-fig-anchor o-top"
+    class="o-fig-anchor o-top pe-auto"
     style="top:-3px; right:calc(50% - 3px); "
   />
   <div
-    class="o-fig-anchor o-topRight"
+    class="o-fig-anchor o-topRight pe-auto"
     style="top:-3px; right:-3px; "
   />
   <div
-    class="o-fig-anchor o-right"
+    class="o-fig-anchor o-right pe-auto"
     style="bottom:calc(50% - 3px); right:-3px; "
   />
   <div
-    class="o-fig-anchor o-bottomRight"
+    class="o-fig-anchor o-bottomRight pe-auto"
     style="bottom:-3px; right:-3px; "
   />
   <div
-    class="o-fig-anchor o-bottom"
+    class="o-fig-anchor o-bottom pe-auto"
     style="bottom:-3px; right:calc(50% - 3px); "
   />
   <div
-    class="o-fig-anchor o-bottomLeft"
+    class="o-fig-anchor o-bottomLeft pe-auto"
     style="bottom:-3px; left:-3px; "
   />
   <div
-    class="o-fig-anchor o-left"
+    class="o-fig-anchor o-left pe-auto"
     style="bottom:calc(50% - 3px); left:-3px; "
   />
   <div
-    class="o-fig-anchor o-topLeft"
+    class="o-fig-anchor o-topLeft pe-auto"
     style="top:-3px; left:-3px; "
   />
   

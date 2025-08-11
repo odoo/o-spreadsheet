@@ -683,14 +683,16 @@ describe("figures", () => {
     test("Border for figure", async () => {
       createFigure(model);
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border")).toEqual(`1px solid ${FIGURE_BORDER_COLOR}`);
+      expect(getElStyle(".o-figure-border", "border-top")).toEqual(
+        `1px solid ${FIGURE_BORDER_COLOR}`
+      );
     });
 
     test("Border for selected figure", async () => {
       createFigure(model, { id: "figureId" });
       model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border")).toEqual(
+      expect(getElStyle(".o-figure-border", "border-top")).toEqual(
         `2px solid ${SELECTION_BORDER_COLOR}`
       );
     });
@@ -698,14 +700,16 @@ describe("figures", () => {
     test("Border for image figure", async () => {
       createImage(model, { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border")).toEqual(`0px solid ${FIGURE_BORDER_COLOR}`);
+      expect(getElStyle(".o-figure-border", "border-top")).toEqual(
+        `0px solid ${FIGURE_BORDER_COLOR}`
+      );
     });
 
     test("Border for selected image figure", async () => {
       createImage(model, { figureId: "figureId" });
       model.dispatch("SELECT_FIGURE", { figureId: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border")).toEqual(
+      expect(getElStyle(".o-figure-border", "border-top")).toEqual(
         `2px solid ${SELECTION_BORDER_COLOR}`
       );
     });
@@ -713,10 +717,10 @@ describe("figures", () => {
     test("No border in dashboard mode", async () => {
       createFigure(model, { id: "figureId" });
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-width")).toEqual("1px");
+      expect(getElStyle(".o-figure-border", "border-top-width")).toEqual("1px");
       model.updateMode("dashboard");
       await nextTick();
-      expect(getElStyle(".o-figure-border", "border-width")).toEqual("0px");
+      expect(".o-figure-border").toHaveCount(0);
     });
   });
 
