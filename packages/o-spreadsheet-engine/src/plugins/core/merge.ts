@@ -2,6 +2,8 @@ import { toXC } from "../../helpers/coordinates";
 import { clip, deepEquals, isDefined } from "../../helpers/misc";
 import {
   doesAnyZoneCrossFrozenPane,
+  getZoneArea,
+  intersection,
   isEqual,
   overlap,
   positions,
@@ -139,22 +141,32 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
 
   getMergesInZone(sheetId: UID, zone: Zone): Merge[] {
     const sheetMap = this.mergeCellMap[sheetId];
-    if (!sheetMap) {
+    if (!sheetMap || !this.merges[sheetId]) {
       return [];
     }
     const mergeIds = new Set<number>();
-    for (let col = zone.left; col <= zone.right; col++) {
-      for (let row = zone.top; row <= zone.bottom; row++) {
-        const mergeId = sheetMap[col]?.[row];
-        if (mergeId) {
-          mergeIds.add(mergeId);
+    if (getZoneArea(zone) < 1000) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const mergeId = sheetMap[col]?.[row];
+          if (mergeId) {
+            mergeIds.add(mergeId);
+          }
         }
       }
-    }
 
-    return Array.from(mergeIds)
-      .map((mergeId) => this.getMergeById(sheetId, mergeId))
-      .filter(isDefined);
+      return Array.from(mergeIds)
+        .map((mergeId) => this.getMergeById(sheetId, mergeId))
+        .filter(isDefined);
+    } else {
+      const merges: Merge[] = [];
+      for (const [mergeId, range] of Object.entries(this.merges[sheetId])) {
+        if (range && range.sheetId === sheetId && intersection(range.zone, zone)) {
+          merges.push({ id: parseInt(mergeId), ...range.zone });
+        }
+      }
+      return merges;
+    }
   }
 
   /**
@@ -174,26 +186,34 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * Returns true if two columns have at least one merge in common
    */
   doesColumnsHaveCommonMerges(sheetId: string, colA: HeaderIndex, colB: HeaderIndex) {
-    const sheet = this.getters.getSheet(sheetId);
-    for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
-      if (this.isInSameMerge(sheet.id, colA, row, colB, row)) {
-        return true;
-      }
-    }
-    return false;
+    const colAMerges = new Set(
+      this.getters
+        .getMergesInZone(sheetId, this.getters.getColsZone(sheetId, colA, colA))
+        .map((merge) => merge.id)
+    );
+    const colBMerges = new Set(
+      this.getters
+        .getMergesInZone(sheetId, this.getters.getColsZone(sheetId, colB, colB))
+        .map((merge) => merge.id)
+    );
+    return colAMerges.keys().some(colBMerges.has.bind(colBMerges));
   }
 
   /**
    * Returns true if two rows have at least one merge in common
    */
   doesRowsHaveCommonMerges(sheetId: string, rowA: HeaderIndex, rowB: HeaderIndex) {
-    const sheet = this.getters.getSheet(sheetId);
-    for (let col = 0; col <= this.getters.getNumberCols(sheetId); col++) {
-      if (this.isInSameMerge(sheet.id, col, rowA, col, rowB)) {
-        return true;
-      }
-    }
-    return false;
+    const rowAMerges = new Set(
+      this.getters
+        .getMergesInZone(sheetId, this.getters.getRowsZone(sheetId, rowA, rowA))
+        .map((merge) => merge.id)
+    );
+    const rowBMerges = new Set(
+      this.getters
+        .getMergesInZone(sheetId, this.getters.getRowsZone(sheetId, rowB, rowB))
+        .map((merge) => merge.id)
+    );
+    return rowAMerges.keys().some(rowBMerges.has.bind(rowBMerges));
   }
 
   /**
@@ -286,16 +306,11 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * top left.
    */
   private isMergeDestructive(sheetId: UID, zone: Zone): boolean {
-    let { left, right, top, bottom } = zone;
-    right = clip(right, 0, this.getters.getNumberCols(sheetId) - 1);
-    bottom = clip(bottom, 0, this.getters.getNumberRows(sheetId) - 1);
-    for (let row = top; row <= bottom; row++) {
-      for (let col = left; col <= right; col++) {
-        if (col !== left || row !== top) {
-          const cell = this.getters.getCell({ sheetId, col, row });
-          if (cell && cell.content !== "") {
-            return true;
-          }
+    for (const cell of this.getters.getCellsFromZone(sheetId, zone)) {
+      if (cell.content !== "") {
+        const position = this.getters.getCellPosition(cell.id);
+        if (position.col !== zone.left || position.row !== zone.top) {
+          return true;
         }
       }
     }
