@@ -14,7 +14,7 @@ import { CellComposerStore } from "../composer/cell_composer_store";
 import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
-const COMPOSER_MAX_HEIGHT = 100;
+const COMPOSER_MAX_HEIGHT = 300;
 
 /* svg free of use from https://uxwing.com/formula-fx-icon/ */
 const FX_SVG = /*xml*/ `
