@@ -220,7 +220,6 @@ export const UNITS_ALIASES = {
   "m/h": "m/hr",
   "m/sec": "m/s",
 };
-
 export const UNIT_PREFIXES = {
   "": 1,
   Y: 1e24,
@@ -253,7 +252,6 @@ export const UNIT_PREFIXES = {
   Mi: Math.pow(2, 20),
   ki: Math.pow(2, 10),
 };
-
 const TRANSLATED_CATEGORIES = {
   weight: _t("Weight"),
   distance: _t("Distance"),
@@ -269,6 +267,11 @@ const TRANSLATED_CATEGORIES = {
   information: _t("Information"),
   speed: _t("Speed"),
 };
+
+export const UNIT_OPTIONS = Object.entries(UNITS).map(([key, value]) => ({
+  value: key,
+  label: getTranslatedCategory(value.category),
+}));
 
 export function getTranslatedCategory(key: string): string {
   return TRANSLATED_CATEGORIES[key] ?? "";

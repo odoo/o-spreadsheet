@@ -1,4 +1,10 @@
-import { AddFunctionDescription, ArgDefinition, ArgType, FunctionDescription } from "../types";
+import {
+  AddFunctionDescription,
+  ArgDefinition,
+  ArgProposal,
+  ArgType,
+  FunctionDescription,
+} from "../types";
 
 //------------------------------------------------------------------------------
 // Arg description DSL
@@ -20,11 +26,15 @@ const ARG_TYPES: ArgType[] = [
   "RANGE<META>",
 ];
 
-export function arg(definition: string, description: string = ""): ArgDefinition {
-  return makeArg(definition, description);
+export function arg(
+  definition: string,
+  description: string = "",
+  proposals?: ArgProposal[]
+): ArgDefinition {
+  return makeArg(definition, description, proposals);
 }
 
-function makeArg(str: string, description: string): ArgDefinition {
+function makeArg(str: string, description: string, proposals?: ArgProposal[]): ArgDefinition {
   const parts = str.match(ARG_REGEXP)!;
   const name = parts[1].trim();
   if (!name) {
@@ -74,6 +84,9 @@ function makeArg(str: string, description: string): ArgDefinition {
   }
   if (types.every((t) => t.startsWith("RANGE"))) {
     result.acceptMatrixOnly = true;
+  }
+  if (proposals && proposals.length > 0) {
+    result.proposalValues = proposals;
   }
   return result;
 }

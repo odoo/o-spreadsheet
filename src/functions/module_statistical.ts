@@ -44,6 +44,38 @@ import {
   visitNumbers,
 } from "./helpers";
 
+const CALCULATE_B_OPTIONS = [
+  { value: true, label: _t("b is calculated normally") },
+  { value: false, label: _t("b is forced to 1") },
+];
+
+const RETURN_VERBOSE_OPTIONS = [
+  { value: false, label: _t("do not return additional regression statistics") },
+  { value: true, label: _t("return additional regression statistics") },
+];
+
+const POLYNOMIAL_ORDER_OPTIONS = [
+  { value: 1, label: _t("order 1 (Linear)") },
+  { value: 2, label: _t("order 2 (Quadratic)") },
+  { value: 3, label: _t("order 3 (Cubic)") },
+  { value: 4, label: _t("order 4 (Quartic)") },
+  { value: 5, label: _t("order 5 (Quintic)") },
+  { value: 6, label: _t("order 6 (Sextic)") },
+];
+
+const COMPUTE_INTERCEPT_OPTIONS = [
+  { value: true, label: _t("Compute intercept") },
+  { value: false, label: _t("Force intercept to 0") },
+];
+
+const QUARTILE_NUMBER_OPTIONS = [
+  { value: 0, label: _t("Minimum value") },
+  { value: 1, label: _t("First quartile (25th percentile)") },
+  { value: 2, label: _t("Median value (50th percentile)") },
+  { value: 3, label: _t("Third quartile (75th percentile)") },
+  { value: 4, label: _t("Maximum value") },
+];
+
 function filterAndFlatData(dataY: Arg, dataX: Arg): { flatDataY: number[]; flatDataX: number[] } {
   const _flatDataY: Maybe<FunctionResultObject>[] = [];
   const _flatDataX: Maybe<FunctionResultObject>[] = [];
@@ -584,7 +616,8 @@ export const GROWTH: AddFunctionDescription = {
       "b (boolean, default=TRUE)",
       _t(
         "Given a general exponential form of y = b*m^x for a curve fit, calculates b if TRUE or forces b to be 1 and only calculates the m values if FALSE."
-      )
+      ),
+      CALCULATE_B_OPTIONS
     ),
   ],
   compute: function (
@@ -697,13 +730,15 @@ export const LINEST: AddFunctionDescription = {
     ),
     arg(
       "calculate_b (boolean, default=TRUE)",
-      _t("A flag specifying wheter to compute the slope or not")
+      _t("A flag specifying whether to compute the slope or not"),
+      CALCULATE_B_OPTIONS
     ),
     arg(
       "verbose (boolean, default=FALSE)",
       _t(
         "A flag specifying whether to return additional regression statistics or only the linear coefficients and the y-intercept"
-      )
+      ),
+      RETURN_VERBOSE_OPTIONS
     ),
   ],
   compute: function (
@@ -743,13 +778,15 @@ export const LOGEST: AddFunctionDescription = {
     ),
     arg(
       "calculate_b (boolean, default=TRUE)",
-      _t("A flag specifying wheter to compute the slope or not")
+      _t("A flag specifying whether to compute the slope or not"),
+      CALCULATE_B_OPTIONS
     ),
     arg(
       "verbose (boolean, default=FALSE)",
       _t(
         "A flag specifying whether to return additional regression statistics or only the linear coefficients and the y-intercept"
-      )
+      ),
+      RETURN_VERBOSE_OPTIONS
     ),
   ],
   compute: function (
@@ -1164,10 +1201,15 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
       "data_x (range<number>)",
       _t("The range representing the array or matrix of independent data.")
     ),
-    arg("order (number)", _t("The order of the polynomial to fit the data, between 1 and 6.")),
+    arg(
+      "order (number)",
+      _t("The order of the polynomial to fit the data, between 1 and 6."),
+      POLYNOMIAL_ORDER_OPTIONS
+    ),
     arg(
       "intercept (boolean, default=TRUE)",
-      _t("A flag specifying whether to compute the intercept or not.")
+      _t("A flag specifying whether to compute the intercept or not."),
+      COMPUTE_INTERCEPT_OPTIONS
     ),
   ],
   compute: function (
@@ -1205,10 +1247,15 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
       "data_x (range<number>)",
       _t("The range representing the array or matrix of independent data.")
     ),
-    arg("order (number)", _t("The order of the polynomial to fit the data, between 1 and 6.")),
+    arg(
+      "order (number)",
+      _t("The order of the polynomial to fit the data, between 1 and 6."),
+      POLYNOMIAL_ORDER_OPTIONS
+    ),
     arg(
       "intercept (boolean, default=TRUE)",
-      _t("A flag specifying whether to compute the intercept or not.")
+      _t("A flag specifying whether to compute the intercept or not."),
+      COMPUTE_INTERCEPT_OPTIONS
     ),
   ],
   compute: function (
@@ -1238,7 +1285,7 @@ export const QUARTILE = {
   description: _t("Value nearest to a specific quartile of a dataset."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
-    arg("quartile_number (number)", _t("Which quartile value to return.")),
+    arg("quartile_number (number)", _t("Which quartile value to return."), QUARTILE_NUMBER_OPTIONS),
   ],
   compute: function (data: Arg, quartileNumber: Maybe<FunctionResultObject>): FunctionResultNumber {
     return QUARTILE_INC.compute.bind(this)(data, quartileNumber);
@@ -1253,7 +1300,11 @@ export const QUARTILE_EXC = {
   description: _t("Value nearest to a specific quartile of a dataset exclusive of 0 and 4."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
-    arg("quartile_number (number)", _t("Which quartile value, exclusive of 0 and 4, to return.")),
+    arg("quartile_number (number)", _t("Which quartile value, exclusive of 0 and 4, to return."), [
+      { value: 1, label: _t("First quartile (25th percentile)") },
+      { value: 2, label: _t("Median value (50th percentile)") },
+      { value: 3, label: _t("Third quartile (75th percentile)") },
+    ]),
   ],
   compute: function (data: Arg, quartileNumber: Maybe<FunctionResultObject>): FunctionResultNumber {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber, this.locale));
@@ -1273,7 +1324,7 @@ export const QUARTILE_INC = {
   description: _t("Value nearest to a specific quartile of a dataset."),
   args: [
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
-    arg("quartile_number (number)", _t("Which quartile value to return.")),
+    arg("quartile_number (number)", _t("Which quartile value to return."), QUARTILE_NUMBER_OPTIONS),
   ],
   compute: function (data: Arg, quartileNumber: Maybe<FunctionResultObject>): FunctionResultNumber {
     const percent = { value: 0.25 * Math.trunc(toNumber(quartileNumber, this.locale)) };
@@ -1294,7 +1345,11 @@ export const RANK: AddFunctionDescription = {
     arg("data (range)", _t("The range containing the dataset to consider.")),
     arg(
       "is_ascending (boolean, default=FALSE)",
-      _t("Whether to consider the values in data in descending or ascending order.")
+      _t("Whether to consider the values in data in descending or ascending order."),
+      [
+        { value: false, label: _t("Descending") },
+        { value: true, label: _t("Ascending") },
+      ]
     ),
   ],
   compute: function (
@@ -1628,7 +1683,8 @@ export const TREND: AddFunctionDescription = {
       "b (boolean, optional, default=TRUE)",
       _t(
         "Given a general linear form of y = m*x+b for a curve fit, calculates b if TRUE or forces b to be 0 and only calculates the m values if FALSE, i.e. forces the curve fit to pass through the origin."
-      )
+      ),
+      CALCULATE_B_OPTIONS
     ),
   ],
   compute: function (

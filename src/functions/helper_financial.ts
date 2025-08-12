@@ -211,3 +211,11 @@ export function isSettlementLessThanOneYearBeforeMaturity(
   startDatePlusOneYear.setFullYear(startDate.getFullYear() + 1);
   return endDate.getTime() <= startDatePlusOneYear.getTime();
 }
+
+export const DAY_COUNT_CONVENTION_OPTIONS = [
+  { value: 0, label: _t("US (NASD) 30/360") },
+  { value: 1, label: _t("Actual/Actual") },
+  { value: 2, label: _t("Actual/360") },
+  { value: 3, label: _t("Actual/365") },
+  { value: 4, label: _t("European 30/360") },
+];

@@ -10,6 +10,15 @@ const DEFAULT_STARTING_AT = 1;
 /** Regex matching all the words in a string */
 const wordRegex = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g;
 
+const MATCH_MODE_OPTIONS = [
+  { value: 0, label: _t("Case-sensitive (default)") },
+  { value: 1, label: _t("Case-insensitive") },
+];
+const MATCH_END_OPTIONS = [
+  { value: 0, label: _t("Don't match to end (default)") },
+  { value: 1, label: _t("Match to end") },
+];
+
 // -----------------------------------------------------------------------------
 // CHAR
 // -----------------------------------------------------------------------------
@@ -288,11 +297,20 @@ export const REGEXEXTRACT = {
       `return_mode (number, default=${REGEXEXTRACT_DEFAULT_MODE})`,
       _t(
         "0 = first match, 1 = all matches as an array, 2 = capturing groups from the first match as an array."
-      )
+      ),
+      [
+        { value: 0, label: _t("First match") },
+        { value: 1, label: _t("All matches") },
+        { value: 2, label: _t("Capture groups of first match") },
+      ]
     ),
     arg(
       `case_sensitivity (number, default=${REGEXEXTRACT_DEFAULT_CASE_SENSITIVITY})`,
-      _t("0 = case-sensitive, 1 = case-insensitive.")
+      _t("Whether the match is case-sensitive."),
+      [
+        { value: 0, label: _t("Case-sensitive") },
+        { value: 1, label: _t("Case-insensitive") },
+      ]
     ),
   ],
   compute: function (
@@ -552,6 +570,9 @@ export const SUBSTITUTE = {
 // -----------------------------------------------------------------------------
 // TEXTJOIN
 // -----------------------------------------------------------------------------
+
+const TEXTJOIN_DEFAULT_IGNORE_EMPTY = true;
+
 export const TEXTJOIN = {
   description: _t("Combines text from multiple strings and/or arrays."),
   args: [
@@ -565,7 +586,11 @@ export const TEXTJOIN = {
       "ignore_empty (boolean)",
       _t(
         "A boolean; if TRUE, empty cells selected in the text arguments won't be included in the result."
-      )
+      ),
+      [
+        { value: true, label: _t("Ignore empty cells") },
+        { value: false, label: _t("Include empty cells (default)") },
+      ]
     ),
     arg(
       "text1 (string, range<string>)",
@@ -575,7 +600,7 @@ export const TEXTJOIN = {
   ],
   compute: function (
     delimiter: Maybe<FunctionResultObject>,
-    ignoreEmpty: Maybe<FunctionResultObject>,
+    ignoreEmpty: Maybe<FunctionResultObject> = { value: TEXTJOIN_DEFAULT_IGNORE_EMPTY },
     ...textsOrArrays: Arg[]
   ): string {
     const _delimiter = toString(delimiter);
@@ -609,11 +634,16 @@ export const TEXTSPLIT = {
     ),
     arg(
       `ignore_empty (boolean, default=${TEXTSPLIT_DEFAULT_IGNORE_EMPTY})`,
-      _t("Whether to ignore empty cells.")
+      _t("Whether to ignore empty cells."),
+      [
+        { value: false, label: _t("Include empty cells (default)") },
+        { value: true, label: _t("Ignore empty cells") },
+      ]
     ),
     arg(
       `match_mode (number, default=${TEXTSPLIT_DEFAULT_MATCH_MODE})`,
-      _t("Searches the text for a delimiter match. 0 = case-sensitive, 1 = case-insensitive.")
+      _t("Searches the text for a delimiter match. By default, a case-sensitive match is done."),
+      MATCH_MODE_OPTIONS
     ),
     arg(
       `pad_with (string, default="${CellErrorType.NotAvailable}")`,
@@ -773,11 +803,13 @@ export const TEXTAFTER = {
     ),
     arg(
       `match_mode (number, default=${TEXT_FN_DEFAULT_MATCH_MODE})`,
-      _t("0 = case-sensitive, 1 = case-insensitive.")
+      _t("Searches the text for a delimiter match. By default, a case-sensitive match is done."),
+      MATCH_MODE_OPTIONS
     ),
     arg(
       `match_end (number, default=${TEXT_FN_DEFAULT_MATCH_END}))`,
-      _t("Whether to treat the end of text as a delimiter.")
+      _t("Whether to treat the end of text as a delimiter."),
+      MATCH_END_OPTIONS
     ),
     arg(
       `if_not_found (string, default="${CellErrorType.NotAvailable}")`,
@@ -849,11 +881,13 @@ export const TEXTBEFORE = {
     ),
     arg(
       `match_mode (number, default=${TEXT_FN_DEFAULT_MATCH_MODE})`,
-      _t("0 = case-sensitive, 1 = case-insensitive.")
+      _t("Searches the text for a delimiter match. By default, a case-sensitive match is done."),
+      MATCH_MODE_OPTIONS
     ),
     arg(
       `match_end (number, default=${TEXT_FN_DEFAULT_MATCH_END}))`,
-      _t("Whether to match a delimiter against the end of the text.")
+      _t("Whether to match a delimiter against the end of the text."),
+      MATCH_END_OPTIONS
     ),
     arg(
       `if_not_found (string, default="${CellErrorType.NotAvailable}")`,
