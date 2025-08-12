@@ -1,39 +1,59 @@
-import { positionToZone, recomputeZones } from "../helpers";
+import { splitZoneForPaste } from "../helpers/clipboard/clipboard_helpers";
+import { groupConsecutive } from "../helpers/misc";
+import { ZoneBorder } from "../plugins/core";
 import {
-  Border,
-  CellPosition,
   ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
   HeaderIndex,
   Map2D,
   UID,
-  Zone,
 } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 type ClipboardContent = {
-  cellContent: Map2D<Border>;
+  cellContent: Map2D<any>;
+  borders: ZoneBorder[];
 };
 
 export class BorderClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent> {
-  private queuedBordersToAdd: Record<string, Zone[]> = {};
-
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     if (data.zones.length === 0) {
       return;
     }
     const sheetId = this.getters.getActiveSheetId();
-    const { rowsIndexes, columnsIndexes } = data;
-    const cellContent = new Map2D<Border>(columnsIndexes.length, rowsIndexes.length);
-
-    for (const [r, row] of rowsIndexes.entries()) {
-      for (const [c, col] of columnsIndexes.entries()) {
-        const value = this.getters.getCellBorder({ col, row, sheetId });
-        if (value !== null) cellContent.set(c, r, value);
+    const borders: ZoneBorder[] = [];
+    // TODO see if sorting is already done
+    data.columnsIndexes.sort((a, b) => a - b);
+    data.rowsIndexes.sort((a, b) => a - b);
+    let colsBefore = 0;
+    for (const cols of groupConsecutive(data.columnsIndexes)) {
+      let rowsBefore = 0;
+      for (const rows of groupConsecutive(data.rowsIndexes)) {
+        const zone = {
+          left: cols[0],
+          right: cols[cols.length - 1],
+          top: rows[0],
+          bottom: rows[rows.length - 1],
+        };
+        borders.push(
+          ...this.getters.getBorders(sheetId, zone).map((zb) => {
+            return {
+              zone: {
+                left: zb.zone.left - zone.left + colsBefore,
+                right: zb.zone.right && zb.zone.right - zone.left + colsBefore,
+                top: zb.zone.top - zone.top + rowsBefore,
+                bottom: zb.zone.bottom && zb.zone.bottom - zone.top + rowsBefore,
+              },
+              style: zb.style,
+            };
+          })
+        );
+        rowsBefore += rows.length;
       }
+      colsBefore += cols.length;
     }
-    return { cellContent };
+    return { borders, cellContent: new Map2D(data.columnsIndexes.length, data.rowsIndexes.length) };
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
@@ -43,45 +63,30 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<Clipboa
     }
     const zones = target.zones;
     if (!options.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, content);
+      for (const zone of zones) {
+        for (const pasteZone of splitZoneForPaste(
+          zone,
+          content.cellContent.width,
+          content.cellContent.height
+        )) {
+          this.pasteBorderZone(sheetId, pasteZone.left, pasteZone.top, content.borders);
+        }
+      }
     } else {
       const { left, top } = zones[0];
-      this.pasteZone(sheetId, left, top, content);
-    }
-
-    this.executeQueuedChanges(sheetId);
-  }
-
-  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, borders: ClipboardContent) {
-    for (const [c, r, originBorders] of borders.cellContent.entries()) {
-      const position = { col: col + c, row: row + r, sheetId };
-      this.pasteBorder(originBorders, position);
+      this.pasteBorderZone(sheetId, left, top, content.borders);
     }
   }
 
-  /**
-   * Paste the border at the given position to the target position
-   */
-  private pasteBorder(originBorders: Border | null, target: CellPosition) {
-    const targetBorders = this.getters.getCellBorder(target);
-    const border = {
-      ...targetBorders,
-      ...originBorders,
-    };
-    const borderKey = JSON.stringify(border);
-    if (!this.queuedBordersToAdd[borderKey]) {
-      this.queuedBordersToAdd[borderKey] = [];
+  pasteBorderZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, borders: ZoneBorder[]) {
+    for (const border of borders) {
+      const zone = {
+        left: border.zone.left + col,
+        right: (border.zone.right && border.zone.right + col) || border.zone.left + col,
+        top: border.zone.top + row,
+        bottom: (border.zone.bottom && border.zone.bottom + row) || border.zone.top + row,
+      };
+      this.dispatch("SET_ZONE_BORDERDATA", { sheetId, target: [zone], border: border.style });
     }
-    this.queuedBordersToAdd[borderKey].push(positionToZone(target));
-  }
-
-  private executeQueuedChanges(pasteSheetTarget: UID) {
-    for (const borderKey in this.queuedBordersToAdd) {
-      const zones = this.queuedBordersToAdd[borderKey];
-      const border = JSON.parse(borderKey) as Border;
-      const target = recomputeZones(zones, []);
-      this.dispatch("SET_BORDERS_ON_TARGET", { sheetId: pasteSheetTarget, target, border });
-    }
-    this.queuedBordersToAdd = {};
   }
 }

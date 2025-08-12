@@ -381,6 +381,15 @@ export const TEST_COMMANDS: CommandMapping = {
     target: target("A1"),
     border: { position: "top", style: "thin", color: "#000000" },
   },
+  SET_ZONE_BORDERDATA: {
+    type: "SET_ZONE_BORDERDATA",
+    sheetId: "Sheet1",
+    target: target("A1"),
+    border: {
+      bottom: { style: "thin", color: "#000000" },
+      right: { style: "thin", color: "#000000" },
+    },
+  },
   UPDATE_LOCALE: {
     type: "UPDATE_LOCALE",
     locale: DEFAULT_LOCALE,
