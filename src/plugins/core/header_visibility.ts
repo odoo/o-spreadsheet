@@ -1,4 +1,4 @@
-import { deepCopy, getAddHeaderStartIndex, largeMax, largeMin, range } from "../../helpers";
+import { deepCopy, groupConsecutive, largeMax, largeMin, range, setShift } from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -13,7 +13,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     "isColHiddenByUser",
   ] as const;
 
-  private readonly hiddenHeaders: Record<UID, Record<Dimension, Array<boolean>>> = {};
+  private readonly hiddenHeaders: Record<UID, Record<Dimension, Set<HeaderIndex>>> = {};
 
   allowDispatch(cmd: Command) {
     switch (cmd.type) {
@@ -54,8 +54,8 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     switch (cmd.type) {
       case "CREATE_SHEET":
         const hiddenHeaders = {
-          COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(false),
-          ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(false),
+          COL: new Set<HeaderIndex>(),
+          ROW: new Set<HeaderIndex>(),
         };
         this.history.update("hiddenHeaders", cmd.sheetId, hiddenHeaders);
         break;
@@ -70,30 +70,39 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         this.history.update("hiddenHeaders", cmd.sheetId, undefined);
         break;
       case "REMOVE_COLUMNS_ROWS": {
-        const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
-        for (const el of [...cmd.elements].sort((a, b) => b - a)) {
-          hiddenHeaders.splice(el, 1);
+        const elements = cmd.elements.sort((a, b) => b - a);
+        const hidden = deepCopy(this.hiddenHeaders[cmd.sheetId][cmd.dimension]);
+        for (const group of groupConsecutive(elements)) {
+          for (let i = 0; i < group.length; i++) {
+            hidden.delete(group[i]);
+          }
+          setShift(hidden, group[0], -group.length);
         }
-        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
+        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hidden);
         break;
       }
       case "ADD_COLUMNS_ROWS": {
-        const hiddenHeaders = [...this.hiddenHeaders[cmd.sheetId][cmd.dimension]];
-        const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
-        hiddenHeaders.splice(addIndex, 0, ...Array(cmd.quantity).fill(false));
-        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hiddenHeaders);
+        const hidden = deepCopy(this.hiddenHeaders[cmd.sheetId][cmd.dimension]);
+        setShift(hidden, cmd.position === "before" ? cmd.base : cmd.base + 1, cmd.quantity);
+        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hidden);
         break;
       }
-      case "HIDE_COLUMNS_ROWS":
+      case "HIDE_COLUMNS_ROWS": {
+        const hidden = deepCopy(this.hiddenHeaders[cmd.sheetId][cmd.dimension]);
         for (const el of cmd.elements) {
-          this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, true);
+          hidden.add(el);
         }
+        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hidden);
         break;
-      case "UNHIDE_COLUMNS_ROWS":
+      }
+      case "UNHIDE_COLUMNS_ROWS": {
+        const hidden = deepCopy(this.hiddenHeaders[cmd.sheetId][cmd.dimension]);
         for (const el of cmd.elements) {
-          this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, el, false);
+          hidden.delete(el);
         }
+        this.history.update("hiddenHeaders", cmd.sheetId, cmd.dimension, hidden);
         break;
+      }
     }
     return;
   }
@@ -111,7 +120,10 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     });
 
     for (let header = 0; header < this.getters.getNumberHeaders(sheetId, dimension); header++) {
-      if (!this.hiddenHeaders[sheetId][dimension][header] && !elementsOrHidden.includes(header)) {
+      if (
+        !this.hiddenHeaders[sheetId][dimension].has(header) &&
+        !elementsOrHidden.includes(header)
+      ) {
         return false;
       }
     }
@@ -125,61 +137,37 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   }
 
   isRowHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].ROW[index] || this.getters.isRowFolded(sheetId, index);
+    return this.hiddenHeaders[sheetId].ROW.has(index) || this.getters.isRowFolded(sheetId, index);
   }
 
   isColHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
-    return this.hiddenHeaders[sheetId].COL[index] || this.getters.isColFolded(sheetId, index);
+    return this.hiddenHeaders[sheetId].COL.has(index) || this.getters.isColFolded(sheetId, index);
   }
 
   getHiddenColsGroups(sheetId: UID): ConsecutiveIndexes[] {
-    const consecutiveIndexes: ConsecutiveIndexes[] = [[]];
-    const hiddenCols = this.hiddenHeaders[sheetId].COL;
-    for (let col = 0; col < hiddenCols.length; col++) {
-      const isColHidden = hiddenCols[col];
-      if (isColHidden) {
-        consecutiveIndexes[consecutiveIndexes.length - 1].push(col);
-      } else {
-        if (consecutiveIndexes[consecutiveIndexes.length - 1].length !== 0) {
-          consecutiveIndexes.push([]);
-        }
-      }
-    }
-
-    if (consecutiveIndexes[consecutiveIndexes.length - 1].length === 0) {
-      consecutiveIndexes.pop();
-    }
-    return consecutiveIndexes;
+    const hiddenCols = [...this.hiddenHeaders[sheetId].COL.keys()];
+    hiddenCols.sort((a, b) => a - b);
+    return groupConsecutive(hiddenCols);
   }
 
   getHiddenRowsGroups(sheetId: UID): ConsecutiveIndexes[] {
-    const consecutiveIndexes: ConsecutiveIndexes[] = [[]];
-    const hiddenCols = this.hiddenHeaders[sheetId].ROW;
-    for (let row = 0; row < hiddenCols.length; row++) {
-      const isRowHidden = hiddenCols[row];
-      if (isRowHidden) {
-        consecutiveIndexes[consecutiveIndexes.length - 1].push(row);
-      } else {
-        if (consecutiveIndexes[consecutiveIndexes.length - 1].length !== 0) {
-          consecutiveIndexes.push([]);
-        }
-      }
-    }
-
-    if (consecutiveIndexes[consecutiveIndexes.length - 1].length === 0) {
-      consecutiveIndexes.pop();
-    }
-    return consecutiveIndexes;
+    const hiddenRows = [...this.hiddenHeaders[sheetId].ROW.keys()];
+    hiddenRows.sort((a, b) => a - b);
+    return groupConsecutive(hiddenRows);
   }
 
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      this.hiddenHeaders[sheet.id] = { COL: [], ROW: [] };
+      this.hiddenHeaders[sheet.id] = { COL: new Set(), ROW: new Set() };
       for (let row = 0; row < sheet.rowNumber; row++) {
-        this.hiddenHeaders[sheet.id].ROW[row] = Boolean(sheet.rows[row]?.isHidden);
+        if (Boolean(sheet.rows[row]?.isHidden)) {
+          this.hiddenHeaders[sheet.id].ROW.add(row);
+        }
       }
       for (let col = 0; col < sheet.colNumber; col++) {
-        this.hiddenHeaders[sheet.id].COL[col] = Boolean(sheet.cols[col]?.isHidden);
+        if (Boolean(sheet.cols[col]?.isHidden)) {
+          this.hiddenHeaders[sheet.id].COL.add(col);
+        }
       }
     }
     return;
@@ -199,11 +187,12 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         sheet.rows = {};
       }
       for (let row = 0; row < this.getters.getNumberRows(sheet.id); row++) {
-        if (exportDefaults || this.hiddenHeaders[sheet.id]["ROW"][row]) {
+        const isHidden = this.hiddenHeaders[sheet.id]["ROW"].has(row);
+        if (exportDefaults || isHidden) {
           if (sheet.rows[row] === undefined) {
             sheet.rows[row] = {};
           }
-          sheet.rows[row].isHidden ||= this.hiddenHeaders[sheet.id]["ROW"][row];
+          sheet.rows[row].isHidden ||= isHidden;
         }
       }
 
@@ -211,11 +200,12 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         sheet.cols = {};
       }
       for (let col = 0; col < this.getters.getNumberCols(sheet.id); col++) {
-        if (exportDefaults || this.hiddenHeaders[sheet.id]["COL"][col]) {
+        const isHidden = this.hiddenHeaders[sheet.id]["COL"].has(col);
+        if (exportDefaults || isHidden) {
           if (sheet.cols[col] === undefined) {
             sheet.cols[col] = {};
           }
-          sheet.cols[col].isHidden ||= this.hiddenHeaders[sheet.id]["COL"][col];
+          sheet.cols[col].isHidden ||= isHidden;
         }
       }
     }
