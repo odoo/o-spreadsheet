@@ -47,8 +47,8 @@ import {
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
 import {
   click,
+  clickAndDrag,
   doubleClick,
-  dragElement,
   focusAndKeyDown,
   keyDown,
   setInputValueAndTrigger,
@@ -937,7 +937,7 @@ describe("charts", () => {
         chartId
       );
       await openChartConfigSidePanel(model, env, chartId);
-      await dragElement(
+      await clickAndDrag(
         fixture.querySelectorAll(".o-drag-handle")[0],
         { x: 0, y: 250 },
         undefined,
@@ -966,7 +966,7 @@ describe("charts", () => {
         chartId
       );
       await openChartConfigSidePanel(model, env, chartId);
-      await dragElement(
+      await clickAndDrag(
         fixture.querySelectorAll(".o-drag-handle")[2],
         { x: 0, y: 50 },
         undefined,
@@ -998,7 +998,7 @@ describe("charts", () => {
       const firstColor = colorsGenerator.next();
       const secondColor = colorsGenerator.next();
       await openChartConfigSidePanel(model, env, chartId);
-      await dragElement(
+      await clickAndDrag(
         fixture.querySelectorAll(".o-drag-handle")[0],
         { x: 0, y: 150 },
         undefined,

@@ -22,7 +22,7 @@ import {
 import {
   DOMTarget,
   click,
-  dragElement,
+  clickAndDrag,
   getTarget,
   keyDown,
   setInputValueAndTrigger,
@@ -515,7 +515,7 @@ describe("UI of conditional formats", () => {
     });
 
     test("can reorder CF rules with drag & drop", async () => {
-      await dragElement(`.o-cf-preview[data-id="1"]`, { x: 0, y: 200 }, undefined, true);
+      await clickAndDrag(`.o-cf-preview[data-id="1"]`, { x: 0, y: 200 }, undefined, true);
       expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([
         { id: "2" },
         { id: "1" },
@@ -524,7 +524,7 @@ describe("UI of conditional formats", () => {
 
     test("Drag & drop is canceled when a CF is modified", async () => {
       const previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
-      await dragElement(previewEl, { x: 0, y: 200 });
+      await clickAndDrag(previewEl, { x: 0, y: 200 });
 
       expect(previewEl.parentElement!.style.transition).toBe("top 0s");
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -539,7 +539,7 @@ describe("UI of conditional formats", () => {
 
     test("Drag & drop is not canceled on wheel event", async () => {
       const previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
-      await dragElement(previewEl, { x: 0, y: 200 });
+      await clickAndDrag(previewEl, { x: 0, y: 200 });
 
       expect(previewEl!.classList).toContain("o-cf-dragging");
       triggerWheelEvent(previewEl, { deltaY: 100 });
@@ -550,7 +550,7 @@ describe("UI of conditional formats", () => {
 
     test("Drag & drop is canceled on right click", async () => {
       const previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
-      await dragElement(previewEl, { x: 0, y: 200 });
+      await clickAndDrag(previewEl, { x: 0, y: 200 });
 
       expect(previewEl!.classList).toContain("o-cf-dragging");
       triggerMouseEvent(previewEl.parentElement, "pointermove", 0, 0, { button: 2 });

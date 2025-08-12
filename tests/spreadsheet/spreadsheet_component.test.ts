@@ -24,9 +24,9 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   click,
+  clickAndDrag,
   clickCell,
   clickGridIcon,
-  dragElement,
   getElComputedStyle,
   hoverCell,
   keyDown,
@@ -385,7 +385,7 @@ describe("Composer / selectionInput interactions", () => {
       expect(highlightStore.highlights.map((h) => h.range.zone)).toEqual([toZone("A1")]);
       expect(fixture.querySelectorAll(".o-spreadsheet .o-highlight")).toHaveLength(1);
 
-      await dragElement(".o-spreadsheet .o-highlight .o-border-n", {
+      await clickAndDrag(".o-spreadsheet .o-highlight .o-border-n", {
         x: DEFAULT_CELL_WIDTH,
         y: DEFAULT_CELL_HEIGHT * 2,
       });

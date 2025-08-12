@@ -32,7 +32,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import {
-  dragElement,
+  clickAndDrag,
   getElStyle,
   keyDown,
   keyUp,
@@ -107,7 +107,7 @@ const anchorSelectors = {
   topLeft: ".o-fig-anchor.o-topLeft",
 };
 async function dragAnchor(anchor: string, dragX: number, dragY: number, mouseUp = false) {
-  await dragElement(anchorSelectors[anchor], { x: dragX, y: dragY }, { x: 0, y: 0 }, mouseUp);
+  await clickAndDrag(anchorSelectors[anchor], { x: dragX, y: dragY }, { x: 0, y: 0 }, mouseUp);
 }
 
 //Test Component required as we don't especially want/need to load an entire chart
@@ -464,7 +464,7 @@ describe("figures", () => {
         offset: { x: 20, y: 10 },
       });
       await nextTick();
-      await dragElement(
+      await clickAndDrag(
         ".o-figure",
         { x: DEFAULT_CELL_WIDTH * 2 + 20, y: DEFAULT_CELL_HEIGHT * 3 + 10 },
         undefined,
@@ -494,7 +494,7 @@ describe("figures", () => {
       test("Figure in frozen rows can be dragged to main viewport", async () => {
         createFigure(model, { id, anchor: { col: 16, row: 4 } });
         await nextTick();
-        await dragElement(figureSelector, { x: 0, y: 3 * cellHeight }, undefined, true);
+        await clickAndDrag(figureSelector, { x: 0, y: 3 * cellHeight }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           col: 16,
           row: 17, // initial position + drag offset + scroll offset
@@ -504,7 +504,7 @@ describe("figures", () => {
       test("Figure in main viewport can be dragged to frozen rows", async () => {
         createFigure(model, { id, anchor: { col: 16, row: 16 } });
         await nextTick();
-        await dragElement(figureSelector, { x: 0, y: -3 * cellHeight }, undefined, true);
+        await clickAndDrag(figureSelector, { x: 0, y: -3 * cellHeight }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           col: 16,
           row: 3, // initial position + drag offset - scroll offset
@@ -519,7 +519,7 @@ describe("figures", () => {
           height: 5 * cellHeight,
         });
         await nextTick();
-        await dragElement(figureSelector, { x: 1, y: 0 }, undefined, true);
+        await clickAndDrag(figureSelector, { x: 1, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           col: 16,
           row: 4, // initial position - scroll offset
@@ -529,7 +529,7 @@ describe("figures", () => {
       test("Figure in frozen cols can be dragged to main viewport", async () => {
         createFigure(model, { id, anchor: { col: 4, row: 16 } });
         await nextTick();
-        await dragElement(figureSelector, { x: 3 * cellWidth, y: 0 }, undefined, true);
+        await clickAndDrag(figureSelector, { x: 3 * cellWidth, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           col: 17, // initial position + drag offset + scroll offset
           row: 16,
@@ -539,7 +539,7 @@ describe("figures", () => {
       test("Figure in main viewport can be dragged to frozen cols", async () => {
         createFigure(model, { id, anchor: { col: 16, row: 16 } });
         await nextTick();
-        await dragElement(figureSelector, { x: -3 * cellWidth, y: 0 }, undefined, true);
+        await clickAndDrag(figureSelector, { x: -3 * cellWidth, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           col: 3, // initial position + drag offset - scroll offset
           row: 16,
@@ -554,7 +554,7 @@ describe("figures", () => {
           width: 5 * cellWidth,
         });
         await nextTick();
-        await dragElement(figureSelector, { x: 0, y: 1 }, undefined, true);
+        await clickAndDrag(figureSelector, { x: 0, y: 1 }, undefined, true);
         expect(model.getters.getFigure(sheetId, id)).toMatchObject({
           col: 4, // initial position - scroll offset
           row: 16,
@@ -657,7 +657,7 @@ describe("figures", () => {
         offset: { x: 7, y: 8 },
       });
       await nextTick();
-      await dragElement(".o-figure", { x: 150, y: 100 }, undefined, false);
+      await clickAndDrag(".o-figure", { x: 150, y: 100 }, undefined, false);
       model.dispatch("DELETE_FIGURE", { figureId: "someuuid", sheetId });
       await nextTick();
       expect(model.getters.getFigure(sheetId, "someuuid")).toEqual(undefined);
@@ -998,7 +998,7 @@ describe("figures", () => {
             height: 50,
           });
           await nextTick();
-          await dragElement(".o-figure[data-id=f1]", { x: mouseMove, y: 0 }, undefined, true);
+          await clickAndDrag(".o-figure[data-id=f1]", { x: mouseMove, y: 0 }, undefined, true);
           expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
             col: 5 + Math.floor(expectedResult / DEFAULT_CELL_WIDTH),
             row: 6,
@@ -1040,7 +1040,7 @@ describe("figures", () => {
             height: 50,
           });
           await nextTick();
-          await dragElement(".o-figure[data-id=f1]", { x: 0, y: mouseMove }, undefined, true);
+          await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: mouseMove }, undefined, true);
           expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
             col: 5,
             row: 6 + Math.floor(expectedResult / DEFAULT_CELL_HEIGHT),
@@ -1339,7 +1339,7 @@ describe("figures", () => {
           const selector = ".o-figure-container[data-id=HorizontalSnapContainer]";
           expect(fixture.querySelectorAll(selector)).toHaveLength(0);
           const figureEl = fixture.querySelector<HTMLElement>(".o-figure[data-id=f2]")!;
-          await dragElement(figureEl, { x: 0, y: 0 }, undefined, false);
+          await clickAndDrag(figureEl, { x: 0, y: 0 }, undefined, false);
           expect(fixture.querySelectorAll(selector)).toHaveLength(1);
 
           expect(parseInt(getElStyle(selector, "top"))).toBe(0);
@@ -1368,7 +1368,7 @@ describe("figures", () => {
           const selector = ".o-figure-container[data-id=HorizontalSnapContainer]";
           expect(fixture.querySelectorAll(selector)).toHaveLength(0);
           const figureEl = fixture.querySelector<HTMLElement>(".o-figure[data-id=f2]")!;
-          await dragElement(figureEl, { x: 0, y: 0 }, undefined, false);
+          await clickAndDrag(figureEl, { x: 0, y: 0 }, undefined, false);
           expect(fixture.querySelectorAll(selector)).toHaveLength(1);
 
           expect(parseInt(getElStyle(selector, "top"))).toBe(0);
@@ -1397,7 +1397,7 @@ describe("figures", () => {
           const selector = ".o-figure-container[data-id=VerticalSnapContainer]";
           expect(fixture.querySelectorAll(selector)).toHaveLength(0);
           const figureEl = fixture.querySelector<HTMLElement>(".o-figure[data-id=f2]")!;
-          await dragElement(figureEl, { x: 0, y: 0 }, undefined, false);
+          await clickAndDrag(figureEl, { x: 0, y: 0 }, undefined, false);
           expect(fixture.querySelectorAll(selector)).toHaveLength(1);
 
           expect(parseInt(getElStyle(selector, "left"))).toBe(0);
@@ -1426,7 +1426,7 @@ describe("figures", () => {
           const selector = ".o-figure-container[data-id=VerticalSnapContainer]";
           expect(fixture.querySelectorAll(selector)).toHaveLength(0);
           const figureEl = fixture.querySelector<HTMLElement>(".o-figure[data-id=f2]")!;
-          await dragElement(figureEl, { x: 0, y: 0 }, undefined, false);
+          await clickAndDrag(figureEl, { x: 0, y: 0 }, undefined, false);
           expect(fixture.querySelectorAll(selector)).toHaveLength(1);
 
           expect(parseInt(getElStyle(selector, "left"))).toBe(0);
@@ -1461,7 +1461,7 @@ describe("figures", () => {
           });
           await nextTick();
 
-          await dragElement(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
+          await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
 
           const snapContainer = ".o-figure-container[data-id=HorizontalSnapContainer]";
           expect(parseInt(getElStyle(snapContainer, "top"))).toBe(50);
@@ -1496,7 +1496,7 @@ describe("figures", () => {
           });
           await nextTick();
 
-          await dragElement(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
+          await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
 
           const snapContainer = ".o-figure-container[data-id=VerticalSnapContainer]";
           expect(parseInt(getElStyle(snapContainer, "left"))).toBe(50);
@@ -1524,7 +1524,7 @@ describe("figures", () => {
         });
         await nextTick();
         expect(fixture.querySelectorAll(".o-figure-snap-line")).toHaveLength(0);
-        await dragElement(".o-figure[data-id=f1]", { x: 50, y: 50 }, undefined, false);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: 50, y: 50 }, undefined, false);
         expect(fixture.querySelectorAll(".o-figure-snap-line")).toHaveLength(2);
         triggerMouseEvent(".o-figure[data-id=f1]", "pointerup");
         await nextTick();
@@ -1558,15 +1558,15 @@ describe("figures", () => {
         setViewportOffset(model, 0, params.scrollY);
         await nextTick();
 
-        await dragElement(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
 
-        await dragElement(".o-figure[data-id=f1]", { x: 0, y: 10 }, undefined, false);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 10 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeFalsy();
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
 
-        await dragElement(
+        await clickAndDrag(
           ".o-figure[data-id=f1]",
           { x: 0, y: params.figHeight - 10 },
           undefined,
@@ -1601,15 +1601,15 @@ describe("figures", () => {
         setViewportOffset(model, params.scrollX, 0);
         await nextTick();
 
-        await dragElement(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 0 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeTruthy();
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
 
-        await dragElement(".o-figure[data-id=f1]", { x: 10, y: 0 }, undefined, false);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: 10, y: 0 }, undefined, false);
         expect(fixture.querySelector(".o-figure-snap-line.vertical")).toBeFalsy();
         expect(fixture.querySelector(".o-figure-snap-line.horizontal")).toBeTruthy();
 
-        await dragElement(
+        await clickAndDrag(
           ".o-figure[data-id=f1]",
           { x: params.figWidth - 10, y: 0 },
           undefined,
@@ -1641,7 +1641,7 @@ describe("figures", () => {
         await nextTick();
 
         const selector = ".o-figure[data-id=f1]";
-        await dragElement(selector, { x: 0, y: 2 * cellHeight - 1 }, undefined, true);
+        await clickAndDrag(selector, { x: 0, y: 2 * cellHeight - 1 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
           col: 0,
           row: 4,
@@ -1670,7 +1670,12 @@ describe("figures", () => {
         });
         await nextTick();
 
-        await dragElement(".o-figure[data-id=f1]", { x: 2 * cellWidth - 1, y: 0 }, undefined, true);
+        await clickAndDrag(
+          ".o-figure[data-id=f1]",
+          { x: 2 * cellWidth - 1, y: 0 },
+          undefined,
+          true
+        );
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
           col: 4,
           row: 0,
@@ -1699,7 +1704,7 @@ describe("figures", () => {
         });
         setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT);
         await nextTick();
-        await dragElement(".o-figure[data-id=f1]", { x: 0, y: -49 }, undefined, true);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: -49 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
           col: Math.floor(50 / DEFAULT_CELL_WIDTH),
           row: 0,
@@ -1726,7 +1731,7 @@ describe("figures", () => {
         });
         setViewportOffset(model, DEFAULT_CELL_WIDTH, 0);
         await nextTick();
-        await dragElement(".o-figure[data-id=f1]", { x: -49, y: 0 }, undefined, true);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: -49, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
           col: 0,
           row: Math.floor(50 / DEFAULT_CELL_HEIGHT),
@@ -1753,7 +1758,7 @@ describe("figures", () => {
           height: 0.85 * viewportHeight + 100,
         });
         await nextTick();
-        await dragElement(".o-figure[data-id=f1]", { x: 0, y: 1 }, undefined, true);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: 0, y: 1 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
           col: 0,
           row: Math.floor(101 / DEFAULT_CELL_HEIGHT),
@@ -1780,7 +1785,7 @@ describe("figures", () => {
           height: 100,
         });
         await nextTick();
-        await dragElement(".o-figure[data-id=f1]", { x: 1, y: 0 }, undefined, true);
+        await clickAndDrag(".o-figure[data-id=f1]", { x: 1, y: 0 }, undefined, true);
         expect(model.getters.getFigure(sheetId, "f1")).toMatchObject({
           col: Math.floor(101 / DEFAULT_CELL_WIDTH),
           row: 0,
@@ -1808,7 +1813,7 @@ describe("figures", () => {
         });
         setViewportOffset(model, 0, 2 * DEFAULT_CELL_HEIGHT);
         await nextTick();
-        await dragElement(
+        await clickAndDrag(
           ".o-figure[data-id=f1]",
           { x: 0, y: 2 * DEFAULT_CELL_HEIGHT - 1 },
           undefined,
@@ -1842,7 +1847,7 @@ describe("figures", () => {
         });
         setViewportOffset(model, 2 * DEFAULT_CELL_WIDTH, 0);
         await nextTick();
-        await dragElement(
+        await clickAndDrag(
           '.o-figure[data-id="f1"]',
           { x: 2 * DEFAULT_CELL_WIDTH - 1, y: 0 },
           undefined,

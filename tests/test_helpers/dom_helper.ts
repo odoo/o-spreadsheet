@@ -358,7 +358,7 @@ export async function selectColumnByClicking(model: Model, letter: string, extra
   await nextTick();
 }
 
-export async function dragElement(
+export async function clickAndDrag(
   element: Element | string,
   dragOffset: DOMCoordinates,
   startingPosition: DOMCoordinates = { x: 0, y: 0 },

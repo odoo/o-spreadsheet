@@ -20,8 +20,8 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   click,
+  clickAndDrag,
   doubleClick,
-  dragElement,
   getElComputedStyle,
   keyDown,
   simulateClick,
@@ -770,7 +770,7 @@ describe("BottomBar component", () => {
       const startingX =
         args.mouseInitialX !== undefined ? args.mouseInitialX : sheetEl.getBoundingClientRect().x;
       // const startingX = 0;
-      await dragElement(
+      await clickAndDrag(
         `.o-sheet[data-id="${sheetId}"]`,
         { x: args.mouseMoveX, y: 0 },
         { x: startingX, y: 0 },
@@ -938,7 +938,7 @@ describe("BottomBar component", () => {
       const sheetId = model.getters.getActiveSheetId();
       await doubleClick(sheetName);
       await nextTick();
-      await dragElement(
+      await clickAndDrag(
         `.o-sheet[data-id="${sheetId}"] .o-sheet-name`,
         { x: 10, y: 0 },
         { x: sheetName.getBoundingClientRect().x, y: 0 },
@@ -953,7 +953,7 @@ describe("BottomBar component", () => {
       await nextTick();
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
       const sheetId = model.getters.getActiveSheetId();
-      await dragElement(
+      await clickAndDrag(
         `.o-sheet[data-id="${sheetId}"] .o-sheet-name`,
         { x: 10, y: 0 },
         { x: sheetName.getBoundingClientRect().x, y: 0 },
