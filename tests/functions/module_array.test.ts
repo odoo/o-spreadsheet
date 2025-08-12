@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { ErrorCell } from "../../src/types";
 import { setCellContent, setFormat } from "../test_helpers/commands_helpers";
 import { getCellContent, getEvaluatedCell, getRangeValues } from "../test_helpers/getters_helpers";
 import {
@@ -822,6 +823,15 @@ describe("MDETERM function", () => {
     };
     expect(evaluateCell("D1", { D1: "=MDETERM(A1:C3)", ...grid })).toBeCloseTo(-4885.9);
   });
+
+  test("Determinant of an empty matrix", () => {
+    const model = createModelFromGrid({});
+    setCellContent(model, "D1", "=MDETERM(A1:C3)");
+    expect(getEvaluatedCell(model, "D1").value).toBe("#ERROR");
+    expect((getEvaluatedCell(model, "D1") as ErrorCell).message).toBe(
+      "Function MDETERM expects number values for square_matrix, but got a object."
+    );
+  });
 });
 
 describe("MINVERSE function", () => {
@@ -854,6 +864,15 @@ describe("MINVERSE function", () => {
     expect(evaluateCell("D1", { D1: "=MINVERSE(A1)", ...grid })).toEqual(1 / 5);
 
     expect(evaluateCell("D1", { D1: "=MINVERSE(5)", ...grid })).toEqual(1 / 5);
+  });
+
+  test("Inverse of an empty matrix", () => {
+    const model = createModelFromGrid({});
+    setCellContent(model, "D1", "=MINVERSE(A1:C3)");
+    expect(getEvaluatedCell(model, "D1").value).toBe("#ERROR");
+    expect((getEvaluatedCell(model, "D1") as ErrorCell).message).toBe(
+      "Function MINVERSE expects number values for square_matrix, but got a object."
+    );
   });
 
   test("Invert matrices", () => {
@@ -914,7 +933,7 @@ describe("MMULT function", () => {
     expect(evaluateCell("D1", { D1: "=MMULT(5, 5)", ...grid })).toEqual(25);
   });
 
-  test("Invert matrices", () => {
+  test("Multiply matrices", () => {
     //prettier-ignore
     const grid = {
       A1: "1", B1: "2", C1: "3",
