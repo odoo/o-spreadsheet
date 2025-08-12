@@ -2,18 +2,23 @@ import { _t } from "../translation";
 import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { getTransformation, getTranslatedCategory } from "./helper_parser";
+import { getTransformation, getTranslatedCategory, UNIT_OPTIONS } from "./helper_parser";
 import { toNumber, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CONVERT
 // -----------------------------------------------------------------------------
+
 export const CONVERT = {
   description: _t("Converts a numeric value to a different unit of measure."),
   args: [
     arg("value (number)", _t("the numeric value in start_unit to convert to end_unit")),
-    arg("start_unit (string)", _t("The starting unit, the unit currently assigned to value")),
-    arg("end_unit (string)", _t("The unit of measure into which to convert value")),
+    arg(
+      "start_unit (string)",
+      _t("The starting unit, the unit currently assigned to value"),
+      UNIT_OPTIONS
+    ),
+    arg("end_unit (string)", _t("The unit of measure into which to convert value"), UNIT_OPTIONS),
   ],
   compute: function (
     value: Maybe<FunctionResultObject>,

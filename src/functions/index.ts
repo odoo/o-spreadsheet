@@ -1,8 +1,13 @@
+import { tokenColors } from "../components/composer/composer/abstract_composer_store";
+import { EnrichedToken } from "../formulas/composer_tokenizer";
+import { insertTokenAfterLeftParenthesis } from "../helpers/pivot/pivot_composer_helpers";
+import { autoCompleteProviders } from "../registries/auto_completes";
 import { Registry } from "../registries/registry";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
+  ArgDefinition,
   CellValue,
   ComputeFunction,
   EvalContext,
@@ -100,6 +105,8 @@ for (const category of categories) {
     addDescr.category = addDescr.category || category.name;
     name = name.replace(/_/g, ".");
     functionRegistry.add(name, { isExported: false, ...addDescr });
+
+    createAutocompletArgumentsProvider(name, addDescr.args);
   }
 }
 
@@ -234,4 +241,60 @@ function hasStringMessage(obj: unknown): obj is { message: string } {
     (obj as { message: string })?.message !== undefined &&
     typeof (obj as { message: string }).message === "string"
   );
+}
+
+function createAutocompletArgumentsProvider(formulaName: string, args: ArgDefinition[]) {
+  for (let i = 0; i < args.length; i++) {
+    // if (!args[i].type.includes("BOOLEAN") || !args[i].proposalValues){
+    const proposalValues = args[i].proposalValues;
+    if (proposalValues === undefined || proposalValues.length === 0) {
+      continue;
+    }
+
+    const getArgProposals = (tokenAtCursor: EnrichedToken) => {
+      const functionContext = tokenAtCursor.functionContext;
+      if (
+        !functionContext ||
+        functionContext.parent.toUpperCase() !== formulaName.toUpperCase() ||
+        functionContext.argPosition !== i
+      ) {
+        return;
+      }
+
+      // const subtotalFunctionCodes = Object.keys(subtotalFunctionAggregateByCode);
+      // if (subtotalFunctionCodes.includes(tokenAtCursor.value)) {
+      //   return;
+      // }
+      const proposals: any[] = [];
+
+      for (let { value, label } of proposalValues) {
+        if (typeof value === "string") {
+          value = `"${value}"`;
+        }
+        if (typeof value === "boolean") {
+          value = value ? "TRUE" : "FALSE";
+        }
+        proposals.push({
+          text: `${value}`,
+          description: label,
+          htmlContent: [
+            typeof value === "string"
+              ? { value, color: tokenColors.STRING }
+              : { value, color: tokenColors.NUMBER },
+          ],
+          fuzzySearchKey: value,
+          alwaysExpanded: true,
+        });
+      }
+
+      return proposals;
+    };
+
+    autoCompleteProviders.add(`${formulaName}_function_${args[i].name}_argument_proposals`, {
+      sequence: 50,
+      autoSelectFirstProposal: true,
+      selectProposal: insertTokenAfterLeftParenthesis,
+      getProposals: getArgProposals,
+    });
+  }
 }
